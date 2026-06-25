@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 
 const DONATION_EMAIL = 'info@workforceap.org';
 const DONATION_PHONE = '(512) 777-1808';
@@ -10,19 +11,19 @@ const fundsCards = [
     title: 'Training access',
     description: 'Support the systems, guidance, and coordination that help qualified members start and stay in career training.',
     ic: 'ic--b',
-    emoji: '🎓',
+    icon: 'graduation-cap',
   },
   {
     title: 'Career readiness',
     description: 'Help fund resume support, interview prep, accountability, and the human follow-through that keeps members moving.',
     ic: 'ic--c',
-    emoji: '📋',
+    icon: 'clipboard',
   },
   {
     title: 'Employer-connected outcomes',
     description: 'Support the employer outreach, operations, and placement work that turn training into hiring opportunities.',
     ic: 'ic--g',
-    emoji: '💼',
+    icon: 'briefcase',
   },
 ];
 
@@ -54,19 +55,19 @@ const givingOptions = [
     title: 'Individual giving',
     description: 'If you want to help one member keep moving toward a better job, this is the fastest way to support the mission.',
     ic: 'ic--c',
-    emoji: '👤',
+    icon: 'user',
   },
   {
     title: 'Corporate or organizational giving',
     description: 'For sponsorships, matching gifts, workforce partnerships, or larger commitments, email us and we will coordinate the right path.',
     ic: 'ic--b',
-    emoji: '🏢',
+    icon: 'building',
   },
   {
     title: 'Alternative payment methods',
     description: 'Credit card, Cash App, and additional payment rails are being finalized. For now, email us and we will route your donation manually.',
     ic: 'ic--g',
-    emoji: '💳',
+    icon: 'credit-card',
   },
 ];
 ---
@@ -89,7 +90,7 @@ const givingOptions = [
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>Support WorkforceAP</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>Support WorkforceAP</span>
         <h1>Fund real training, real support,<br><span class="shimmer">and real job outcomes</span></h1>
         <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
         <div class="acts">
@@ -132,7 +133,7 @@ const givingOptions = [
     <div class="tri">
       {fundsCards.map((card) => (
         <div class="acard">
-          <div class={`ic ${card.ic}`}>{card.emoji}</div>
+          <div class={`ic ${card.ic}`}><Icon name={card.icon} /></div>
           <h3>{card.title}</h3>
           <p>{card.description}</p>
         </div>
@@ -168,7 +169,7 @@ const givingOptions = [
     <div class="tri">
       {givingOptions.map((item) => (
         <div class="acard">
-          <div class={`ic ${item.ic}`}>{item.emoji}</div>
+          <div class={`ic ${item.ic}`}><Icon name={item.icon} /></div>
           <h3>{item.title}</h3>
           <p>{item.description}</p>
         </div>
@@ -255,7 +256,7 @@ const givingOptions = [
 
   /* ---------------- GLASS "where it goes" CARD ---------------- */
   .deck{position:relative}
-  .gcard{position:relative;border-radius:22px;padding:52px 28px 26px;
+  .gcard{position:relative;border-radius:22px;padding:62px 28px 26px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
     box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff;overflow:hidden}
   .floatbadge{position:absolute;top:16px;left:50%;transform:translateX(-50%);white-space:nowrap;

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import EligibilityForm from '../components/EligibilityForm.tsx';
+import Icon from '../components/Icon.astro';
 
 const BARRIER_OPTIONS = [
   'Need in-demand occupation or certificate training',
@@ -96,7 +97,7 @@ const STEPS = [
 
   <!-- Proof block -->
   <div class="paid-proof" role="note">
-    <span class="paid-proof__icon" aria-hidden="true">🛡️</span>
+    <span class="paid-proof__icon" aria-hidden="true"><Icon name="shield" /></span>
     <div>
       <h2 class="paid-proof__title">501(c)(3) nonprofit · EIN 41-2612389</h2>
       <p class="paid-proof__body">We review your application, follow up to discuss next steps, and help you understand funding fit before you commit.</p>

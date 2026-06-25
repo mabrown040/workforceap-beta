@@ -142,11 +142,11 @@ export default function InterestProfilerQuiz() {
         <h2 className="ipq-h">Your interest profile</h2>
         <p className="ipq-lede">
           Here are your RIASEC interest scores from the Mini Interest Profiler (30 questions). Want to save them and use
-          them to find training programs? Join WorkforceAP — it is free and takes about 2 minutes.
+          them to find training programs? Join WorkforceAP — creating an account takes about 2 minutes.
         </p>
 
         <div className="ipq-cta">
-          <a className="btn btn--primary" href="/apply">Join WorkforceAP — free</a>
+          <a className="btn btn--primary" href="/apply">Join WorkforceAP</a>
           <span className="ipq-cta__alt">
             or <a href="/programs">browse programs</a>
           </span>
@@ -208,7 +208,7 @@ export default function InterestProfilerQuiz() {
         </section>
 
         <div className="ipq-save">
-          <span className="ipq-save__ic" aria-hidden="true">◎</span>
+          <span className="ipq-save__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg></span>
           <div>
             <p className="ipq-save__title">Save your results</p>
             <p className="ipq-save__body">

@@ -565,7 +565,7 @@ export default function FindYourPathQuiz() {
                 </div>
                 <h4 className="fyp-card__title">{program.title}</h4>
                 <p className="fyp-card__reason">{reasoning}</p>
-                <div className="fyp-card__meta">⏱ {program.duration}</div>
+                <div className="fyp-card__meta"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: '-2px', marginRight: '5px' }}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>{program.duration}</div>
                 <div className="fyp-card__salary">
                   Starting range: {program.salary} <span>(national framing)</span>
                 </div>

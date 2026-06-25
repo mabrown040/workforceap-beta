@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 import { PROGRAMS, salaryRangeDisplay, partnerBadge, type Program } from '../../data/programs';
 
 // ── Static generation: one page per program slug (all 21) ──
@@ -203,7 +204,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
           <h2 class="card-h">Roles this program prepares you for</h2>
           <div class="roles">
             {extra.jobOutcomes.map((role) => (
-              <div class="role"><span class="role-ic" aria-hidden="true">💼</span><p>{role}</p></div>
+              <div class="role"><span class="role-ic" aria-hidden="true"><Icon name="briefcase" /></span><p>{role}</p></div>
             ))}
           </div>
           <p class="roles-note">Salary range: {range}. Actual wages depend on employer, location, and experience.</p>
@@ -225,10 +226,10 @@ const metaDescription = `Training in ${display} offered at no cost for members w
       <div class="block resources">
         <h3 class="res-h">Have Questions?</h3>
         <div class="reslinks">
-          <a href="/faq"><span>📖</span><span>Read FAQ</span><span class="arr">→</span></a>
-          <a href="/how-it-works"><span>⏱</span><span>How It Works</span><span class="arr">→</span></a>
-          <a href="/salary-guide"><span>💰</span><span>Salary Guide</span><span class="arr">→</span></a>
-          <a href="/blog"><span>💼</span><span>Career Tips</span><span class="arr">→</span></a>
+          <a href="/faq"><span><Icon name="book-open" size={16} /></span><span>Read FAQ</span><span class="arr">→</span></a>
+          <a href="/how-it-works"><span><Icon name="clock" size={16} /></span><span>How It Works</span><span class="arr">→</span></a>
+          <a href="/salary-guide"><span><Icon name="dollar" size={16} /></span><span>Salary Guide</span><span class="arr">→</span></a>
+          <a href="/blog"><span><Icon name="briefcase" size={16} /></span><span>Career Tips</span><span class="arr">→</span></a>
         </div>
       </div>
     </div>
@@ -236,12 +237,12 @@ const metaDescription = `Training in ${display} offered at no cost for members w
     <aside class="sidebar">
       <div class="scard">
         <div class="smeta">
-          <span>⏱ {program.duration}</span>
+          <span><Icon name="clock" size={16} /> {program.duration}</span>
           <span class="ssalary">{program.salary}</span>
         </div>
         <span class="spartner">{badge}</span>
         <a class="btn btn--primary sapply" href={`/apply?program=${program.slug}`}>Apply Now</a>
-        <p class="snote">No-cost training for members.</p>
+        <p class="snote">No cost to members who qualify through scholarship/grant funded membership.</p>
         <a class="squiz" href="/find-your-path">Not sure? Take the pathfinder quiz →</a>
         <a class="scompare" href="/program-comparison">Open comparison tool (featured tracks)</a>
       </div>

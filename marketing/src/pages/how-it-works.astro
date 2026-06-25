@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 
 // Member journey — single source of truth mirrored from the Next site
 // (lib/content/marketingJourneySteps.ts), grouped into three phases.
@@ -88,10 +89,10 @@ const PHASES = [
 ];
 
 const trainingCards = [
-  { ic: '🎓', cls: 'ic--g', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
-  { ic: '🤝', cls: 'ic--c', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
-  { ic: '📈', cls: 'ic--b', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
-  { ic: '💡', cls: 'ic--g', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
+  { ic: 'graduation-cap', cls: 'ic--g', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
+  { ic: 'handshake', cls: 'ic--c', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
+  { ic: 'trending-up', cls: 'ic--b', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
+  { ic: 'lightbulb', cls: 'ic--g', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
 ];
 
 // Program commitment panel — mirrored from components/portal/ProgramCommitmentPanel.tsx
@@ -126,7 +127,7 @@ const WILL_NOT = [
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>Member Experience</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" size={13} /></span>Member Experience</span>
         <h1>Your path <span class="shimmer">starts here.</span></h1>
         <p class="sub">No gatekeeping. Clear, Funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).</p>
         <div class="acts">
@@ -198,7 +199,7 @@ const WILL_NOT = [
     <div class="tri" style="grid-template-columns:repeat(4,1fr)">
       {trainingCards.map((card) => (
         <div class="acard">
-          <div class={`ic ${card.cls}`}>{card.ic}</div>
+          <div class={`ic ${card.cls}`}><Icon name={card.ic} /></div>
           <h3>{card.title}</h3>
           <p>{card.desc}</p>
         </div>
@@ -210,17 +211,17 @@ const WILL_NOT = [
   <section class="band band--surface"><div class="wrap">
     <div class="feat">
       <div class="fcard">
-        <div class="ic ic--b">💻</div>
+        <div class="ic ic--b"><Icon name="laptop" /></div>
         <h3>Loaner Laptop Program</h3>
         <p>Access to technology shouldn't be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.</p>
         <ul>
-          <li><span class="chk">✓</span> Pre-configured with all necessary software</li>
-          <li><span class="chk">✓</span> Technical support included</li>
-          <li><span class="chk">✓</span> No upfront program cost for qualifying members</li>
+          <li><span class="chk"><Icon name="check" size={14} /></span> Pre-configured with all necessary software</li>
+          <li><span class="chk"><Icon name="check" size={14} /></span> Technical support included</li>
+          <li><span class="chk"><Icon name="check" size={14} /></span> No upfront program cost for qualifying members</li>
         </ul>
       </div>
       <div class="fcard">
-        <div class="ic ic--g">📅</div>
+        <div class="ic ic--g"><Icon name="calendar" /></div>
         <h3>150-Day Post-Hire Support</h3>
         <p>We don't just find you a job; we help you keep it. Our support continues for five months after your start date.</p>
         <div class="bgrid">

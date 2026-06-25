@@ -77,6 +77,11 @@ const path = Astro.url.pathname;
   <nav class="mobilemenu" aria-label="Mobile">
     {mobileNav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
     <a class="btn btn--primary" href="/apply">Apply now</a>
+    <div class="langswitch" role="group" aria-label="Language">
+      {LOCALES.map((l) => (
+        <a href={langHref(l)} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}</a>
+      ))}
+    </div>
   </nav>
 
   <main>
@@ -113,6 +118,9 @@ const path = Astro.url.pathname;
         var targets = document.querySelectorAll(
           'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row'
         );
+        // Only NOW (JS confirmed) do we allow the hidden start-state — so no-JS,
+        // crawlers, and failed hydration always render content. See blend.css.
+        document.documentElement.classList.add('js-reveal');
         targets.forEach(function (el, i) {
           el.setAttribute('data-reveal', '');
           el.style.transitionDelay = (Math.min(i % 4, 3) * 70) + 'ms';
@@ -121,6 +129,9 @@ const path = Astro.url.pathname;
           entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
         }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
         targets.forEach(function (el) { io.observe(el); });
+        // Safety net: if anything never trips the observer (tall cards, layout
+        // shifts, etc.) force it visible so a band can never stay blank.
+        setTimeout(function () { targets.forEach(function (el) { el.classList.add('is-in'); }); }, 1600);
       }
     })();
   </script>

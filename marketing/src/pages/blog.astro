@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 import { getPublishedPosts, getCategories, resolveHeroImage, formatPublishedDate } from '../data/blog';
 
 const posts = getPublishedPosts();
@@ -8,8 +9,8 @@ const hasPosts = posts.length > 0;
 
 // Quick resource nav cards (mirrors the Next BlogListingClient quick-resources).
 const quickCards = [
-  { href: '/programs', icon: '🎓', title: hasPosts ? 'Explore Programs' : 'Start with Programs', sub: '20 career training options', cls: 'ic--c' },
-  { href: '/faq', icon: '❓', title: hasPosts ? 'Read FAQ' : 'Get Answers Fast', sub: 'Common questions answered', cls: 'ic--g' },
+  { href: '/programs', icon: 'graduation-cap', title: hasPosts ? 'Explore Programs' : 'Start with Programs', sub: '20 career training options', cls: 'ic--c' },
+  { href: '/faq', icon: 'help-circle', title: hasPosts ? 'Read FAQ' : 'Get Answers Fast', sub: 'Common questions answered', cls: 'ic--g' },
 ];
 
 const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatPublishedDate(p.publishedAt) }));
@@ -33,7 +34,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>Career Resources · WorkforceAP</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" size={12} /></span>Career Resources · WorkforceAP</span>
         <h1>Career <span class="shimmer">Resources</span></h1>
         <p class="sub">Career tips, program spotlights, success stories, and workforce insights — plus programs, FAQ, and application help when you're ready.</p>
       </div>
@@ -41,7 +42,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
       <!-- glass status card -->
       <div class="hcard">
         <div class="hcard-row">
-          <span class="hcard-ic" aria-hidden="true">📰</span>
+          <span class="hcard-ic" aria-hidden="true"><Icon name="newspaper" /></span>
           <span class="dot-live">Latest articles</span>
         </div>
         <div class="hcard-big">{posts.length} articles published</div>
@@ -62,7 +63,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
       <div class="blog-quick">
         {quickCards.map((c) => (
           <a class="qcard" href={c.href}>
-            <span class={`ic ${c.cls}`} aria-hidden="true">{c.icon}</span>
+            <span class={`ic ${c.cls}`} aria-hidden="true"><Icon name={c.icon} /></span>
             <span class="qtext">
               <span class="qt">{c.title}</span>
               <span class="qs">{c.sub}</span>
@@ -98,7 +99,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
 
       <!-- Updates via contact -->
       <div class="updates-card">
-        <span class="updates-ic" aria-hidden="true">✉️</span>
+        <span class="updates-ic" aria-hidden="true"><Icon name="mail" /></span>
         <h2>Want updates?</h2>
         <p>
           Ask to be notified about new articles and program news — our team responds

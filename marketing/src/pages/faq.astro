@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 
 const quick = [
   {
@@ -34,10 +35,10 @@ type Category = { key: string; icon: string; items: FaqItem[] };
 const categories: Category[] = [
   {
     key: 'General Questions',
-    icon: '❓',
+    icon: 'help-circle',
     items: [
       { q: 'What is Workforce Advancement Project (WorkforceAP)?', a: 'Workforce Advancement Project (WorkforceAP) is a national nonprofit and 501(c)(3) that helps members explore career training, industry credentials, and next-step support. Programs are offered through WorkforceAP and partner-backed pathways.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
-      { q: 'Is it really no-cost to members?', a: 'Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
+      { q: 'Is it really no-cost to members?', a: 'Programs are available at no cost to members who qualify through scholarship/grant funded membership. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
       { q: 'Who qualifies?', a: "Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application and WorkforceAP can help you understand the best next step.", link: { text: 'Start the application', href: '/apply' } },
       { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
       { q: 'Can I talk to someone before I apply?', a: 'Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.', link: { text: 'Contact Us', href: '/contact' } },
@@ -45,7 +46,7 @@ const categories: Category[] = [
   },
   {
     key: 'Applying & Eligibility',
-    icon: '📝',
+    icon: 'pencil',
     items: [
       { q: "What if I'm not technical?", a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history, no prior tech experience required. We've helped career-changers, people re-entering the workforce, and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to showing up and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
       { q: "What if I'm starting over?", a: 'Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, are leaving a difficult situation, or are just ready for a different path — we work with you from where you are now. Your advisor will help you pick the right program, set a realistic pace, and stay on track through the whole process.', link: { text: 'Find Your Path', href: '/find-your-path' } },
@@ -57,9 +58,9 @@ const categories: Category[] = [
   },
   {
     key: 'Cost & Funding',
-    icon: '💳',
+    icon: 'credit-card',
     items: [
-      { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'View Programs', href: '/programs' } },
+      { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members who qualify through scholarship/grant funded membership. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'View Programs', href: '/programs' } },
       { q: "What does 'qualifying' mean?", a: 'It means eligibility is reviewed based on the pathway, funding source, and your situation. If you are not sure, apply and WorkforceAP can help clarify your options.', link: { text: 'Start the application', href: '/apply' } },
       { q: 'Do I need to pay anything back?', a: 'No. This is not a loan. Training is funded through grants and partnerships. WorkforceAP does not use income-sharing agreements (ISAs) or member loans for these pathways.', link: { text: 'Read Success Stories', href: '/blog' } },
       { q: 'Are certification exam fees included?', a: 'Certification support can vary by program and funding path. WorkforceAP can explain what is included for the pathway you are considering.', link: { text: 'View Programs', href: '/programs' } },
@@ -67,7 +68,7 @@ const categories: Category[] = [
   },
   {
     key: 'Programs & Training',
-    icon: '🎓',
+    icon: 'graduation-cap',
     items: [
       { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Program Details', href: '/programs' } },
       { q: 'Is this online?', a: 'Yes. All training is delivered virtually — you can participate from home, a library, or anywhere with a reliable internet connection. You do not need to commute, relocate, or take time off work to attend. Some programs include optional in-person events and local career fairs if you want them.', link: { text: 'See Available Programs', href: '/programs' } },
@@ -78,7 +79,7 @@ const categories: Category[] = [
   },
   {
     key: 'Job Placement',
-    icon: '💼',
+    icon: 'briefcase',
     items: [
       { q: 'Do you help members find jobs?', a: 'Yes. WorkforceAP provides support like resume help, interview prep, career guidance, and employer-facing support as members move toward job readiness.', link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
       { q: 'What kind of jobs will I qualify for?', a: 'Entry-level to mid-level roles in IT, cybersecurity, data analytics, project management, healthcare, and skilled trades. Starting salaries range from $38K to $145K depending on the program.', link: { text: 'See Salary Guide', href: '/salary-guide' } },
@@ -87,18 +88,18 @@ const categories: Category[] = [
   },
   {
     key: 'For Members',
-    icon: '🧑',
+    icon: 'user',
     items: [
       { q: 'What support do I get during training?', a: 'You receive a dedicated advisor, access to our member portal with career readiness tools (resume help, interview practice), and job-search guidance as you move toward job readiness.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
       { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned an advisor who supports you from intake through training and job-search preparation. Your advisor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
       { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. Most programs are paced for about 10 hours per week, and Digital Literacy is lighter at roughly 5 hours per week.', link: { text: 'Check Program Flexibility', href: '/programs' } },
       { q: 'What if I fall behind?', a: "Your advisor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.", link: { text: 'Meet the Team', href: '/leadership' } },
-      { q: 'Is this too good to be true?', a: "We get it. Training at no cost to members can feel hard to trust at first. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.", link: { text: 'Meet the Team', href: '/leadership' } },
+      { q: 'Is this too good to be true?', a: "We get it. Training at no cost to qualifying members can feel hard to trust at first. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.", link: { text: 'Meet the Team', href: '/leadership' } },
     ],
   },
   {
     key: 'For Employers',
-    icon: '🏢',
+    icon: 'building',
     items: [
       { q: 'How do employer partnerships work?', a: 'We train and support candidates in high-demand fields, and we help employers connect with members whose training paths align with their hiring needs. Partnership structures can vary based on role type, timing, and employer needs.', link: { text: 'Partner With Us', href: '/partners' } },
       { q: 'What certifications do your graduates hold?', a: "Graduates earn industry-recognized certifications from Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials you'd see on any qualified candidate's resume.", link: { text: 'View Programs', href: '/programs' } },
@@ -135,13 +136,13 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>Knowledge Base</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" /></span>Knowledge Base</span>
         <h1>How can we help you <span class="shimmer">bridge the gap?</span></h1>
         <p class="sub">Answers that address your concerns, whether you're applying, supporting someone who is, or deciding if WorkforceAP is right for you.</p>
       </div>
 
       <div class="hero-glass">
-        <div class="hg-ic" aria-hidden="true">💬</div>
+        <div class="hg-ic" aria-hidden="true"><Icon name="message" /></div>
         <p class="hg-h">Still need support?</p>
         <p class="hg-p">Reach out and WorkforceAP can help you figure out the right next step.</p>
         <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
@@ -179,7 +180,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
                 const cat = categories.find((c) => c.key === key)!;
                 return (
                   <a class="cat-link" href={`#${slugify(cat.key)}`}>
-                    <span class="cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}
+                    <span class="cat-ic" aria-hidden="true"><Icon name={cat.icon} /></span>{cat.key}
                   </a>
                 );
               })}
@@ -188,7 +189,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
         </nav>
 
         <div class="support-card">
-          <div class="support-ic" aria-hidden="true">🎧</div>
+          <div class="support-ic" aria-hidden="true"><Icon name="headset" /></div>
           <p class="support-h">Still need support?</p>
           <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
           <a class="btn btn--primary" href="/contact">Contact Us</a>
@@ -201,14 +202,14 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
           <div class="faq-cat" id={slugify(cat.key)}>
             {cat.key === 'For Employers' && (
               <div class="emp-banner">
-                <span class="emp-ic" aria-hidden="true">🏅</span>
+                <span class="emp-ic" aria-hidden="true"><Icon name="award" /></span>
                 <div>
                   <p class="emp-h">Employer Partnership Inquiries</p>
                   <p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p>
                 </div>
               </div>
             )}
-            <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}</h2>
+            <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true"><Icon name={cat.icon} /></span>{cat.key}</h2>
             <div class="faq-list">
               {cat.items.map((item) => (
                 <details class="faq-item">
@@ -238,7 +239,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     <div class="grain grain--close"></div>
     <div class="wrap close-grid">
       <div class="faq-bottom-copy">
-        <span class="pill pill--solid"><span class="pill__star">★</span>We’re here to help</span>
+        <span class="pill pill--solid"><span class="pill__star"><Icon name="star" /></span>We’re here to help</span>
         <h2>Didn’t find your answer?</h2>
         <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
         <div class="acts">
@@ -247,7 +248,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
         </div>
       </div>
       <div class="close-glass">
-        <div class="cg-ic" aria-hidden="true">💬</div>
+        <div class="cg-ic" aria-hidden="true"><Icon name="message" /></div>
         <div class="cg-lab">We’re here to help</div>
       </div>
     </div>

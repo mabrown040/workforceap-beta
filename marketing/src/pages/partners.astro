@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 
 // Real copy mined from messages/en.json → marketing.partners (truth-locked).
 const partnerLanes = [
@@ -46,7 +47,7 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>A Legacy of Opportunity</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>A Legacy of Opportunity</span>
         <h1>Build Your Community's <span class="shimmer">Future</span></h1>
         <p class="sub">Community partners refer the people we serve. Training centers, public agencies, and funders each have a clear path too.</p>
         <div class="acts">
@@ -109,10 +110,10 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
       <p>Built for the people who refer, fund, and follow up on outcomes.</p>
     </div>
     <div class="vgrid">
-      <div class="vcard"><div class="ic ic--c">📈</div><div><h3>Real-time 1:1 tracking</h3><p>See every referral move from intake to placement. No more emailing for status updates — your dashboard always knows.</p></div></div>
-      <div class="vcard"><div class="ic ic--g">📄</div><div><h3>Outcome reporting for funders</h3><p>Export enrollment, completion, and placement data in funder-ready formats. WIOA-aligned where applicable.</p></div></div>
-      <div class="vcard"><div class="ic ic--b">🔒</div><div><h3>FERPA-conscious privacy</h3><p>Member consent gates every data exchange. You see what you need; nothing you do not.</p></div></div>
-      <div class="vcard"><div class="ic ic--gr">💲</div><div><h3>Zero referral fees</h3><p>We never charge to refer. Funding flows to partners after verified placement — never from member fees.</p></div></div>
+      <div class="vcard"><div class="ic ic--c"><Icon name="trending-up" /></div><div><h3>Real-time 1:1 tracking</h3><p>See every referral move from intake to placement. No more emailing for status updates — your dashboard always knows.</p></div></div>
+      <div class="vcard"><div class="ic ic--g"><Icon name="file-text" /></div><div><h3>Outcome reporting for funders</h3><p>Export enrollment, completion, and placement data in funder-ready formats. WIOA-aligned where applicable.</p></div></div>
+      <div class="vcard"><div class="ic ic--b"><Icon name="lock" /></div><div><h3>FERPA-conscious privacy</h3><p>Member consent gates every data exchange. You see what you need; nothing you do not.</p></div></div>
+      <div class="vcard"><div class="ic ic--gr"><Icon name="dollar" /></div><div><h3>Zero referral fees</h3><p>We never charge to refer. Funding flows to partners after verified placement — never from member fees.</p></div></div>
     </div>
   </div></section>
 
@@ -137,7 +138,7 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
     </div>
     <div class="pgrid">
       <div class="pcard">
-        <div class="ic ic--c">👥</div>
+        <div class="ic ic--c"><Icon name="users" /></div>
         <span class="typetag">You are:</span>
         <h3>Referral Partners</h3>
         <div class="who">Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.</div>
@@ -145,7 +146,7 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
         <a class="go" href={partnerSignupHref}>Register your organization →</a>
       </div>
       <div class="pcard">
-        <div class="ic ic--b">🎓</div>
+        <div class="ic ic--b"><Icon name="graduation-cap" /></div>
         <span class="typetag">You are:</span>
         <h3>Training Centers</h3>
         <div class="who">Educational institutions, community colleges, vocational schools, digital literacy centers.</div>
@@ -153,7 +154,7 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
         <a class="go" href={partnershipContactHref}>Explore Co-Delivery →</a>
       </div>
       <div class="pcard">
-        <div class="ic ic--gr">🏛️</div>
+        <div class="ic ic--gr"><Icon name="building" /></div>
         <span class="typetag">You are:</span>
         <h3>Public Agencies</h3>
         <div class="who">Workforce Solutions, TWC, WIOA providers, government workforce programs.</div>
@@ -161,7 +162,7 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
         <a class="go" href={partnershipContactHref}>Discuss Alignment →</a>
       </div>
       <div class="pcard">
-        <div class="ic ic--g">❤️</div>
+        <div class="ic ic--g"><Icon name="heart" /></div>
         <span class="typetag">You are:</span>
         <h3>Philanthropic Funders</h3>
         <div class="who">Foundations, corporate giving, impact investors, individual donors.</div>
@@ -245,15 +246,15 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
         </div>
         <div class="feat-rows">
           <div class="feat-row">
-            <span class="ic ic--c">📝</span>
+            <span class="ic ic--c"><Icon name="pencil" /></span>
             <div><h3>Smart Intake</h3><p>Structured enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.</p></div>
           </div>
           <div class="feat-row">
-            <span class="ic ic--b">📊</span>
+            <span class="ic ic--b"><Icon name="bar-chart" /></span>
             <div><h3>Real-Time Dashboards</h3><p>Partners access live data on referral status, enrollment progress, certification completions, and placement outcomes.</p></div>
           </div>
           <div class="feat-row">
-            <span class="ic ic--gr">✅</span>
+            <span class="ic ic--gr"><Icon name="check-circle" /></span>
             <div><h3>Verification &amp; Reporting</h3><p>Automated credential verification and WIOA-compliant reporting ensures accountability across every partnership.</p></div>
           </div>
         </div>

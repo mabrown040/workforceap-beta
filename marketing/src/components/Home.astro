@@ -1,5 +1,6 @@
 ---
 import { useT } from '../i18n/t';
+import Icon from './Icon.astro';
 interface Props { lang?: string }
 const { lang = 'en' } = Astro.props;
 const t = useT(lang);
@@ -50,9 +51,9 @@ const p = lang === 'en' ? '' : `/${lang}`; // locale-prefixed internal links
     <h2>{t('marketing.home.programsTitle')}</h2>
   </div>
   <div class="tri">
-    <div class="acard"><div class="ic ic--c">👥</div><h3>{t('nav.programs')}</h3><p>{t('marketing.home.memberPromiseTitle')}</p><a href={`${p}/programs`}>{t('nav.programs')} →</a></div>
-    <div class="acard"><div class="ic ic--b">🏢</div><h3>{t('nav.employers')}</h3><p>{t('marketing.home.networkTitle')}</p><a href={`${p}/employers`}>{t('nav.employers')} →</a></div>
-    <div class="acard"><div class="ic ic--gr">🏛️</div><h3>{t('nav.partners')}</h3><p>{t('marketing.home.networkTitle')}</p><a href={`${p}/partners`}>{t('nav.partners')} →</a></div>
+    <div class="acard"><div class="ic ic--c"><Icon name="users" /></div><h3>{t('nav.programs')}</h3><p>{t('marketing.home.memberPromiseTitle')}</p><a href={`${p}/programs`}>{t('nav.programs')} →</a></div>
+    <div class="acard"><div class="ic ic--b"><Icon name="building" /></div><h3>{t('nav.employers')}</h3><p>{t('marketing.home.networkTitle')}</p><a href={`${p}/employers`}>{t('nav.employers')} →</a></div>
+    <div class="acard"><div class="ic ic--gr"><Icon name="building" /></div><h3>{t('nav.partners')}</h3><p>{t('marketing.home.networkTitle')}</p><a href={`${p}/partners`}>{t('nav.partners')} →</a></div>
   </div>
 </div></section>
 

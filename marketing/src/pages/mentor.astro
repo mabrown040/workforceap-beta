@@ -1,28 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 
 const benefits = [
   {
     ic: 'ic--c',
-    icon: '📋',
+    icon: 'clipboard',
     title: 'Hours Logged Automatically',
     desc: 'Every session is recorded. We track your total volunteer hours so you never have to.',
   },
   {
     ic: 'ic--g',
-    icon: '📄',
+    icon: 'file-text',
     title: 'Tax Deduction Letter',
     desc: 'Download a nonprofit volunteer hour letter for your tax filings — generated automatically from your session history.',
   },
   {
     ic: 'ic--gr',
-    icon: '🌱',
+    icon: 'sprout',
     title: 'Real Impact',
     desc: 'Your guidance helps adults overcome barriers to employment — career changers, veterans, returning workers.',
   },
   {
     ic: 'ic--b',
-    icon: '🌐',
+    icon: 'globe',
     title: 'Build Your Network',
     desc: 'Connect with motivated professionals who are eager to learn and grow. Many mentors find their next hires here.',
   },
@@ -56,7 +57,7 @@ const benefits = [
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>Volunteer · Tax-deductible · 501(c)(3)</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" /></span>Volunteer · Tax-deductible · 501(c)(3)</span>
         <h1>Share Your Expertise. <span class="shimmer">Change a Career.</span></h1>
         <p class="sub">WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible.</p>
         <div class="acts">
@@ -69,7 +70,7 @@ const benefits = [
         <div class="gcard">
           <div class="gcard-tag">Why your hours matter</div>
           <div class="gcard-row">
-            <div class="gic">🌱</div>
+            <div class="gic"><Icon name="sprout" /></div>
             <div>
               <b>You guide, we handle the rest</b>
               <span>Hours logged automatically, with a tax deduction letter generated from your sessions.</span>
@@ -98,7 +99,7 @@ const benefits = [
     <div class="tri tri--4">
       {benefits.map((b) => (
         <div class="acard">
-          <div class={`ic ${b.ic}`}>{b.icon}</div>
+          <div class={`ic ${b.ic}`}><Icon name={b.icon} /></div>
           <h3>{b.title}</h3>
           <p>{b.desc}</p>
         </div>
@@ -114,7 +115,7 @@ const benefits = [
     <div class="close__media" aria-hidden="true"></div>
     <div class="close__veil" aria-hidden="true"></div>
     <div class="close__inner wrap">
-      <span class="pill pill--solid"><span class="pill__star">★</span>Volunteer · Tax-deductible · 501(c)(3)</span>
+      <span class="pill pill--solid"><span class="pill__star"><Icon name="star" /></span>Volunteer · Tax-deductible · 501(c)(3)</span>
       <h2>Share Your Expertise.<br><span class="gold">Change a Career.</span></h2>
       <p>WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible.</p>
       <div class="acts acts--center">

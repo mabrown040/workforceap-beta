@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 ---
 <Layout
   title="What We Do — Workforce Development Training & Industry Certificates"
@@ -20,7 +21,7 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star">★</span>Built on Decades of Workforce Experience</span>
+        <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>Built on Decades of Workforce Experience</span>
         <h1>Creating <span class="shimmer">Opportunity</span></h1>
         <p class="sub">Employer-aligned training. No cost for members who qualify through scholarship/grant funded membership. Career support throughout the journey. A model that works — and scales.</p>
         <div class="acts">
@@ -91,13 +92,13 @@ import Layout from '../layouts/Layout.astro';
     </div>
     <div class="bento">
       <div class="tool big">
-        <div class="ic ic--c">🎓</div>
+        <div class="ic ic--c"><Icon name="graduation-cap" /></div>
         <h3>Employer-Influenced Curricula</h3>
         <p>Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.</p>
       </div>
-      <div class="tool"><div class="ic ic--gr">🔓</div><h3>Zero-Barrier Access</h3><p>No cost for members who qualify through scholarship/grant funded membership. No prerequisites. Funding comes from WIOA, grants, employer partners, and community partnerships that can cover access for eligible participants.</p></div>
-      <div class="tool"><div class="ic ic--b">📊</div><h3>Validated Outcomes</h3><p>Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.</p></div>
-      <div class="tool"><div class="ic ic--g">🗺️</div><h3>Regional Scalability</h3><p>A repeatable model built to serve communities nationwide — not just one local market.</p></div>
+      <div class="tool"><div class="ic ic--gr"><Icon name="unlock" /></div><h3>Zero-Barrier Access</h3><p>No cost for members who qualify through scholarship/grant funded membership. No prerequisites. Funding comes from WIOA, grants, employer partners, and community partnerships that can cover access for eligible participants.</p></div>
+      <div class="tool"><div class="ic ic--b"><Icon name="bar-chart" /></div><h3>Validated Outcomes</h3><p>Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.</p></div>
+      <div class="tool"><div class="ic ic--g"><Icon name="map" /></div><h3>Regional Scalability</h3><p>A repeatable model built to serve communities nationwide — not just one local market.</p></div>
     </div>
   </div></section>
 

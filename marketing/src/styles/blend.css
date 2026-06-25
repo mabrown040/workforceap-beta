@@ -41,6 +41,25 @@
   .navlinks a{color:var(--muted);font-size:15px;font-weight:600}
   .navlinks a:hover{color:var(--text)}
   .navactions{display:flex;align-items:center;gap:14px}
+  /* nav dropdowns — parity with the portal MainNav (About/Programs/Sign in) */
+  .navdrop{position:relative;display:inline-flex;align-items:center}
+  .navdrop-trigger{display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+  .navchev{opacity:.65;transition:transform .2s}
+  .navdrop:hover .navchev,.navdrop:focus-within .navchev{transform:rotate(180deg)}
+  .navdrop::after{content:"";position:absolute;top:100%;left:0;right:0;height:12px}
+  .navdrop-menu{position:absolute;top:calc(100% + 11px);left:0;min-width:212px;background:var(--surface);
+    border:1px solid var(--border);border-radius:14px;padding:8px;box-shadow:var(--shadow-lg);
+    display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;transform:translateY(6px);
+    transition:opacity .18s,transform .18s,visibility .18s;z-index:60}
+  .navdrop-menu--right{left:auto;right:0}
+  .navdrop:hover .navdrop-menu,.navdrop:focus-within .navdrop-menu{opacity:1;visibility:visible;transform:translateY(0)}
+  .navdrop-menu a{display:block;padding:10px 12px;border-radius:9px;font-size:14px;font-weight:600;color:var(--text);white-space:nowrap}
+  .navdrop-menu a::after{display:none!important}
+  .navdrop-menu a:hover{background:var(--surface-2);color:var(--crimson)}
+  .navdrop-menu a[aria-current=page]{color:var(--crimson)}
+  /* mobile drawer: sign-in group */
+  .mobilemenu-head{margin-top:18px;padding:6px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .mobilemenu .mobilemenu-sub{padding:12px 6px 12px 18px;font-size:16px}
   /* pure-CSS hamburger (no JS — keeps Astro's zero-JS ethos) */
   .navtoggle{display:none}
   .hamburger{display:none;position:fixed;right:24px;top:14px;z-index:51;width:44px;height:44px;border:1px solid var(--border);border-radius:11px;background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px}

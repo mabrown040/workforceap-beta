@@ -1,6 +1,5 @@
 ---
 import '../styles/blend.css';
-import { useT, LOCALES, LOCALE_LABELS } from '../i18n/t';
 export interface Props {
   title?: string;
   description?: string;
@@ -11,22 +10,43 @@ const {
   description = 'WorkforceAP is a 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.',
   lang = 'en',
 } = Astro.props;
-const t = useT(lang);
-// Localized chrome labels (real nav.* translations); hrefs stay canonical (EN
-// inner routes exist; localized routing is demoed on the home in this spike).
+// Primary nav with dropdowns — mirrors the portal/Next MainNav structure so
+// chrome is consistent across the whole site (parity with components/MainNav).
 const nav = [
-  { href: '/programs', label: t('nav.programs') },
-  { href: '/how-it-works', label: t('nav.howItWorks') },
-  { href: '/employers', label: t('nav.employers') },
-  { href: '/partners', label: t('nav.partners') },
-  { href: '/about', label: t('nav.aboutUs') },
-  { href: '/contact', label: t('nav.contactUs') },
+  { href: '/about', label: 'About Us', children: [
+    { href: '/what-we-do', label: 'What We Do' },
+    { href: '/how-it-works', label: 'How It Works' },
+    { href: '/leadership', label: 'Leadership' },
+    { href: '/faq', label: 'FAQ' },
+    { href: '/donate', label: 'Donate' },
+  ] },
+  { href: '/programs', label: 'Programs', children: [
+    { href: '/programs', label: 'All Programs' },
+    { href: '/find-your-path', label: 'Find Your Path' },
+    { href: '/career-quiz', label: 'Free Career Quiz' },
+    { href: '/program-comparison', label: 'Compare Programs' },
+    { href: '/salary-guide', label: 'Salary Guide' },
+  ] },
+  { href: '/partners', label: 'Partners' },
+  { href: '/employers', label: 'Employers' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact Us' },
 ];
-const langHref = (l: string) => (l === 'en' ? '/' : `/${l}`);
-// Comprehensive mobile menu (ties every route together for small screens)
+// Role-based sign-in (mirrors MainNav GUEST_LOGIN_SUBMENU).
+const signInMenu = [
+  { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+  { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+  { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+  { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
+  { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+];
+// Comprehensive mobile drawer (every route + role logins; flat for touch).
 const mobileNav = [
   { href: '/programs', label: 'Programs' },
   { href: '/find-your-path', label: 'Find your path' },
+  { href: '/career-quiz', label: 'Free career quiz' },
+  { href: '/program-comparison', label: 'Compare programs' },
+  { href: '/salary-guide', label: 'Salary guide' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/what-we-do', label: 'What we do' },
   { href: '/employers', label: 'For employers' },
@@ -38,8 +58,8 @@ const mobileNav = [
   { href: '/outcomes', label: 'Outcomes' },
   { href: '/faq', label: 'FAQ' },
   { href: '/blog', label: 'Blog' },
+  { href: '/donate', label: 'Donate' },
   { href: '/contact', label: 'Contact' },
-  { href: '/login', label: 'Sign in' },
 ];
 const path = Astro.url.pathname;
 ---
@@ -61,27 +81,33 @@ const path = Astro.url.pathname;
     <div class="wrap row">
       <a class="brand" href="/"><span class="mark" aria-hidden="true">▲</span>Workforce<b>AP</b></a>
       <div class="navlinks">
-        {nav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+        {nav.map((n) => n.children ? (
+          <div class="navdrop">
+            <a class="navdrop-trigger" href={n.href} aria-haspopup="true">{n.label}<svg class="navchev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
+            <div class="navdrop-menu">
+              {n.children.map((c) => <a href={c.href} aria-current={path === c.href ? 'page' : undefined}>{c.label}</a>)}
+            </div>
+          </div>
+        ) : (
+          <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
+        ))}
       </div>
       <div class="navactions">
-        <div class="langswitch" role="group" aria-label="Language">
-          {LOCALES.map((l) => (
-            <a href={langHref(l)} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}</a>
-          ))}
+        <div class="navdrop navdrop--end">
+          <a class="navdrop-trigger signin" href="/login">Log in<svg class="navchev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
+          <div class="navdrop-menu navdrop-menu--right">
+            {signInMenu.map((s) => <a href={s.href}>{s.label}</a>)}
+          </div>
         </div>
-        <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">{t('cta.logIn')}</a>
-        <a class="btn btn--primary" style="padding:12px 20px;font-size:15px" href="/apply">{t('cta.applyNow')}</a>
+        <a class="btn btn--primary" style="padding:12px 20px;font-size:15px" href="/apply">Apply now</a>
       </div>
     </div>
   </nav>
   <nav class="mobilemenu" aria-label="Mobile">
     {mobileNav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+    <p class="mobilemenu-head">Sign in</p>
+    {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
     <a class="btn btn--primary" href="/apply">Apply now</a>
-    <div class="langswitch" role="group" aria-label="Language">
-      {LOCALES.map((l) => (
-        <a href={langHref(l)} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}</a>
-      ))}
-    </div>
   </nav>
 
   <main>

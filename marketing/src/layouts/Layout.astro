@@ -105,9 +105,18 @@ const path = Astro.url.pathname;
     </div>
   </nav>
   <nav class="mobilemenu" aria-label="Mobile">
-    {mobileNav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
-    <p class="mobilemenu-head">Sign in</p>
-    {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
+    {nav.map((n) => n.children ? (
+      <div class="mob-group">
+        <p class="mobilemenu-head">{n.label}</p>
+        {n.children.map((c) => <a class="mobilemenu-sub" href={c.href} aria-current={path === c.href ? 'page' : undefined}>{c.label}</a>)}
+      </div>
+    ) : (
+      <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
+    ))}
+    <div class="mob-group">
+      <p class="mobilemenu-head">Sign in</p>
+      {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
+    </div>
     <a class="btn btn--primary" href="/apply">Apply now</a>
   </nav>
 

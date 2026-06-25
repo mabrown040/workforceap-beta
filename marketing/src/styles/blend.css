@@ -63,7 +63,10 @@
   .navdrop-menu a[aria-current=page]{color:var(--crimson)}
   /* mobile drawer: sign-in group */
   .mobilemenu-head{margin-top:18px;padding:6px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .mobilemenu .mobilemenu-sub{padding:12px 6px 12px 18px;font-size:16px}
+  .mobilemenu .mobilemenu-sub{padding:11px 6px 11px 18px;font-size:16px;color:var(--muted)}
+  .mobilemenu .mobilemenu-sub[aria-current=page]{color:var(--crimson)}
+  .mob-group{border-top:1px solid var(--border);margin-top:8px;padding-top:2px}
+  .mob-group .mobilemenu-head{margin-top:10px}
   /* pure-CSS hamburger (no JS — keeps Astro's zero-JS ethos) */
   .navtoggle{display:none}
   .hamburger{display:none;position:fixed;right:24px;top:14px;z-index:51;width:44px;height:44px;border:1px solid var(--border);border-radius:11px;background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px}

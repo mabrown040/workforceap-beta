@@ -65,7 +65,7 @@ function ProofCard({
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
         <span
-          className="material-symbols-outlined"
+          className="material-symbols-outlined" aria-hidden="true"
           style={{ fontSize: 28, color: 'var(--color-accent, #1a73e8)', fontVariationSettings: "'FILL' 1" }}
         >
           verified
@@ -103,7 +103,7 @@ function ProofCard({
             }}
           >
             <span
-              className="material-symbols-outlined"
+              className="material-symbols-outlined" aria-hidden="true"
               style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}
             >
               check_circle
@@ -192,7 +192,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
           minHeight: 44,
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+        <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>arrow_back</span>
         Back to programs
       </button>
 
@@ -236,7 +236,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                 {course.checkpoints.length} checkpoint{course.checkpoints.length !== 1 ? 's' : ''}
               </div>
             </div>
-            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
+            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20, color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
               chevron_right
             </span>
           </button>
@@ -300,7 +300,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
               minHeight: 44,
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>arrow_back</span>
             {course.courseName}
           </button>
 
@@ -423,7 +423,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   </span>
                   {opt.text}
                   {revealed && isRight && (
-                    <span className="material-symbols-outlined" style={{ fontSize: 18, marginLeft: 'auto', fontVariationSettings: "'FILL' 1", color: 'var(--color-success, #28a745)' }}>
+                    <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18, marginLeft: 'auto', fontVariationSettings: "'FILL' 1", color: 'var(--color-success, #28a745)' }}>
                       check_circle
                     </span>
                   )}
@@ -456,7 +456,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   gap: '0.3rem',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>
                   {isCorrect ? 'check_circle' : 'cancel'}
                 </span>
                 {isCorrect ? 'Correct' : 'Not quite'}
@@ -488,7 +488,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
               }}
             >
               {index + 1 >= course.checkpoints.length ? 'See my results' : 'Next checkpoint'}
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18 }}>arrow_forward</span>
             </button>
           )}
         </div>
@@ -532,7 +532,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
             minHeight: 44,
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>replay</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18 }}>replay</span>
           Try another course
         </button>
       </div>

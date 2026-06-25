@@ -11,6 +11,7 @@ const executives = [
     role: 'Executive Director, CEO',
     founder: true,
     initials: 'MB',
+    image: '/images/michael-brown.webp',
     missionRelevance:
       '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a recurring Vision given to Michael Brown by God for serving His people — the barrier-breaking experience that built WorkforceAP.',
     cardBio:
@@ -22,6 +23,7 @@ const executives = [
     role: 'Chief Operating Officer',
     founder: false,
     initials: 'AB',
+    image: '/images/adriane-brown.jpg',
     missionRelevance:
       'Operations leader who scales workforce programs. Brings systems rigor so every member gets the support they need — from intake through placement.',
     cardBio:
@@ -35,6 +37,7 @@ const boardMembers = [
     name: 'Lakecia Gunter',
     role: 'Board Member',
     initials: 'LG',
+    image: '/images/lakecia-gunter.jpg',
     missionRelevance:
       'Employer-side credibility. Our employer partners are the rooms she helps shape — Microsoft, enterprise partners, and the tech pathways our graduates walk into.',
     cardBio:
@@ -45,6 +48,7 @@ const boardMembers = [
     name: 'Brandon Frye',
     role: 'Board Member',
     initials: 'BF',
+    image: '/images/brandon-frye.jpg',
     missionRelevance:
       'Highly respected entrepreneur that influences direction and resources. Built a Fastest Growing Company; board leadership strengthens community pipelines and employer connections.',
     cardBio:
@@ -55,6 +59,7 @@ const boardMembers = [
     name: 'Col. Derrick Fishback',
     role: 'Board Member (Ret.)',
     initials: 'DF',
+    image: '/images/derrick-fishback.jpg',
     missionRelevance:
       '30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.',
     cardBio:
@@ -68,6 +73,7 @@ const leadConsultants = [
     name: 'Michael Brown II',
     role: 'Lead Consultant',
     initials: 'M2',
+    image: '/images/michael-brown-ii.webp',
     missionRelevance:
       'Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.',
     cardBio:
@@ -120,8 +126,10 @@ const leadConsultants = [
     <div class="tri lead-exec">
       {executives.map((leader) => (
         <a class="acard person" href={`/leadership/${leader.slug}`}>
-          <div class="portrait" aria-hidden="true">
-            <span class="initials">{leader.initials}</span>
+          <div class="portrait">
+            {leader.image
+              ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${leader.name.replace(/,.*$/, '')}`} width="176" height="176" loading="lazy" />
+              : <span class="initials" aria-hidden="true">{leader.initials}</span>}
             {leader.founder && <span class="founder">Founder</span>}
           </div>
           <span class="role">{leader.role}</span>
@@ -275,6 +283,7 @@ const leadConsultants = [
   .person{display:flex;flex-direction:column}
   .portrait{position:relative;width:88px;height:88px;border-radius:20px;background:var(--grad);display:grid;place-items:center;margin-bottom:22px;box-shadow:0 12px 30px -10px rgba(173,44,77,.5)}
   .portrait .initials{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:30px;color:#fff;letter-spacing:-.02em}
+  .portrait .portrait-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
   .portrait .founder{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,var(--gold),var(--gold-dark));padding:4px 11px;border-radius:999px;box-shadow:0 8px 20px -6px rgba(164,127,56,.6)}
 
   .person .role{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--crimson)}

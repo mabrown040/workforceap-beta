@@ -79,9 +79,8 @@ const initials = initialsFor(leader.name);
           {heroBadge}
         </span>
 
-        <h1 id="ld-heading">
-          {displayName}{credentials && <span class="creds">, {credentials}</span>}
-        </h1>
+        <h1 id="ld-heading">{displayName}</h1>
+        {credentials && <p class="cred-line">{credentials}</p>}
 
         <p class="role">{leader.title}</p>
         {leader.missionRelevance && <p class="sub">{leader.missionRelevance}</p>}
@@ -106,8 +105,10 @@ const initials = initialsFor(leader.name);
       </div>
 
       <aside class="portrait-col">
-        <div class="portrait" aria-hidden="true">
-          <span class="initials">{initials}</span>
+        <div class="portrait">
+          {leader.image
+            ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${displayName}`} width="320" height="320" loading="lazy" />
+            : <span class="initials" aria-hidden="true">{initials}</span>}
           {leader.founder && <span class="founder">Founder</span>}
         </div>
         {heroQuote && (
@@ -260,7 +261,7 @@ const initials = initialsFor(leader.name);
 
   .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(36px,5vw,60px);
     line-height:1.04;letter-spacing:-.03em;margin:20px 0 0}
-  .creds{font-weight:700;color:#f3d28f;white-space:nowrap}
+  .cred-line{font-size:clamp(13px,1.5vw,16px);font-weight:700;color:#f3d28f;letter-spacing:.06em;text-transform:uppercase;margin-top:10px}
   .lede .role{font-size:18px;font-weight:700;color:#f3d28f;margin:12px 0 0;letter-spacing:.01em}
   .lede .sub{font-size:18px;line-height:1.55;color:rgba(255,255,255,.84);max-width:34em;margin:16px 0 0}
 
@@ -282,6 +283,7 @@ const initials = initialsFor(leader.name);
     border:1px solid rgba(255,255,255,.28);display:grid;place-items:center;
     box-shadow:0 24px 60px -24px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.25) inset}
   .portrait .initials{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:56px;color:#fff;letter-spacing:-.03em}
+  .portrait .portrait-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
   .portrait .founder{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);white-space:nowrap;
     font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#3a2c10;
     background:linear-gradient(135deg,#e3bd6a,#a47f38);padding:5px 13px;border-radius:999px;

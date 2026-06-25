@@ -21,7 +21,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'Breaking Into Tech: What No One Tells You About Starting Over',
     category: 'Career Tips',
     heroImage:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80&auto=format&fit=crop',
+      '/images/blog/1522071820081-009f0129c71c.jpg',
     excerpt:
       "The hardest part isn't learning to code — it's believing the door is open for you.",
     authorName: 'WorkforceAP Team',
@@ -42,7 +42,7 @@ WorkforceAP exists for exactly this moment. We provide the structure, support, a
     title: "What Is Google's Cybersecurity Certificate — And Is It Worth It?",
     category: 'Program Spotlight',
     heroImage:
-      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80&auto=format&fit=crop',
+      '/images/blog/1550751827-4bd374c3f58b.jpg',
     excerpt:
       "Six months. No experience required. A job title that commands $75K+. Here's what you need to know.",
     authorName: 'WorkforceAP Team',
@@ -64,7 +64,7 @@ The 8-course curriculum includes hands-on labs, portfolio projects, and exam pre
     title: "From Warehouse to IT Support: Marcus's Story",
     category: 'Success Stories',
     heroImage:
-      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80&auto=format&fit=crop',
+      '/images/blog/1523240795612-9a054b0db644.jpg&auto=format&fit=crop',
     excerpt:
       "He spent 12 years in logistics. Six months later, he's a certified IT technician with a new career trajectory.",
     authorName: 'WorkforceAP Team',
@@ -356,46 +356,46 @@ type DefaultImage = { url: string; alt: string };
 
 const IMAGE_POOLS: Record<string, DefaultImage[]> = {
   'Career Tips': [
-    { url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=80', alt: 'Professional in business attire' },
-    { url: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80', alt: 'Team collaborating at a table' },
-    { url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80', alt: 'Person working on laptop with notes' },
-    { url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80', alt: 'Confident professional smiling' },
-    { url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80', alt: 'Group of people learning together' },
+    { url: '/images/blog/1507679799987-c73779587ccf.jpg', alt: 'Professional in business attire' },
+    { url: '/images/blog/1521737711867-e3b97375f902.jpg', alt: 'Team collaborating at a table' },
+    { url: '/images/blog/1454165804606-c3d57bc86b40.jpg', alt: 'Person working on laptop with notes' },
+    { url: '/images/blog/1573497019940-1c28c88b4f3e.jpg', alt: 'Confident professional smiling' },
+    { url: '/images/blog/1522202176988-66273c2fd55f.jpg', alt: 'Group of people learning together' },
   ],
   'Program Spotlight': [
-    { url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80', alt: 'Laptop with code on screen' },
-    { url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80', alt: 'Classroom training session' },
-    { url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80', alt: 'Person using technology for learning' },
-    { url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80', alt: 'Digital learning environment' },
-    { url: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80', alt: 'Computer screen with data' },
+    { url: '/images/blog/1517694712202-14dd9538aa97.jpg', alt: 'Laptop with code on screen' },
+    { url: '/images/blog/1531482615713-2afd69097998.jpg', alt: 'Classroom training session' },
+    { url: '/images/blog/1581091226825-a6a2a5aee158.jpg', alt: 'Person using technology for learning' },
+    { url: '/images/blog/1516321318423-f06f85e504b3.jpg', alt: 'Digital learning environment' },
+    { url: '/images/blog/1488590528505-98d2b5aba04b.jpg', alt: 'Computer screen with data' },
   ],
   Local: [
-    { url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80', alt: 'City downtown aerial view' },
-    { url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80', alt: 'Local community gathering space' },
-    { url: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80', alt: 'Modern office in urban setting' },
-    { url: 'https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=800&q=80', alt: 'Community members at local event' },
-    { url: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80', alt: 'Downtown buildings and street' },
+    { url: '/images/blog/1449824913935-59a10b8d2000.jpg', alt: 'City downtown aerial view' },
+    { url: '/images/blog/1517248135467-4c7edcad34c4.jpg', alt: 'Local community gathering space' },
+    { url: '/images/blog/1497366811353-6870744d04b2.jpg', alt: 'Modern office in urban setting' },
+    { url: '/images/blog/1577962917302-cd874c4e31d2.jpg', alt: 'Community members at local event' },
+    { url: '/images/blog/1486325212027-8081e485255e.jpg', alt: 'Downtown buildings and street' },
   ],
   'Success Stories': [
-    { url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80', alt: 'Team celebrating a win' },
-    { url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80', alt: 'Graduates tossing caps in the air' },
-    { url: 'https://images.unsplash.com/photo-1560439514-4e9645039924?w=800&q=80', alt: 'Professional shaking hands' },
-    { url: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80', alt: 'Diverse team working together' },
-    { url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80', alt: 'People using laptops at desks' },
+    { url: '/images/blog/1552664730-d307ca884978.jpg', alt: 'Team celebrating a win' },
+    { url: '/images/blog/1529156069898-49953e39b3ac.jpg', alt: 'Graduates tossing caps in the air' },
+    { url: '/images/blog/1560439514-4e9645039924.jpg', alt: 'Professional shaking hands' },
+    { url: '/images/blog/1521737604893-d14cc237f11d.jpg', alt: 'Diverse team working together' },
+    { url: '/images/blog/1519389950473-47ba0277781c.jpg', alt: 'People using laptops at desks' },
   ],
   News: [
-    { url: 'https://images.unsplash.com/photo-1504711434969-e33886168d3c?w=800&q=80', alt: 'Newspaper and coffee' },
-    { url: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&q=80', alt: 'News on a digital screen' },
-    { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80', alt: 'Conference presentation' },
-    { url: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=800&q=80', alt: 'Data dashboard on monitor' },
-    { url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&q=80', alt: 'Press microphones at event' },
+    { url: '/images/blog/1497366811353-6870744d04b2.jpg', alt: 'Newspaper and coffee' },
+    { url: '/images/blog/1495020689067-958852a7765e.jpg', alt: 'News on a digital screen' },
+    { url: '/images/blog/1557804506-669a67965ba0.jpg', alt: 'Conference presentation' },
+    { url: '/images/blog/1526628953301-3e589a6a8b74.jpg', alt: 'Data dashboard on monitor' },
+    { url: '/images/blog/1551836022-d5d88e9218df.jpg', alt: 'Press microphones at event' },
   ],
   General: [
-    { url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80', alt: 'Students studying together' },
-    { url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80', alt: 'Person writing in notebook' },
-    { url: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=800&q=80', alt: 'Workshop with laptops open' },
-    { url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80', alt: 'Business meeting in progress' },
-    { url: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&q=80', alt: 'People collaborating on whiteboard' },
+    { url: '/images/blog/1523240795612-9a054b0db644.jpg', alt: 'Students studying together' },
+    { url: '/images/blog/1434030216411-0b793f4b4173.jpg', alt: 'Person writing in notebook' },
+    { url: '/images/blog/1516321497487-e288fb19713f.jpg', alt: 'Workshop with laptops open' },
+    { url: '/images/blog/1542744173-8e7e53415bb0.jpg', alt: 'Business meeting in progress' },
+    { url: '/images/blog/1531545514256-b1400bc00f31.jpg', alt: 'People collaborating on whiteboard' },
   ],
 };
 

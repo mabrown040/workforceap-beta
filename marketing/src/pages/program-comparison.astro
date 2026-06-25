@@ -1,0 +1,409 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { PROGRAM_COMPARISON_TRACKS, STARTER_SLUGS } from '../data/programComparison';
+
+// Recommended starting points (real STARTER_SLUGS from ProgramComparisonClient).
+const starterTracks = STARTER_SLUGS
+  .map((slug) => PROGRAM_COMPARISON_TRACKS.find((t) => t.slug === slug))
+  .filter((t): t is (typeof PROGRAM_COMPARISON_TRACKS)[number] => Boolean(t));
+
+// Group tracks by category, preserving category order (mirrors the pick table).
+const categories = [...new Map(
+  PROGRAM_COMPARISON_TRACKS
+    .slice()
+    .sort((a, b) => a.categoryOrder - b.categoryOrder)
+    .map((t) => [t.categoryLabel, t.categoryOrder]),
+).entries()].map(([label]) => ({
+  label,
+  tracks: PROGRAM_COMPARISON_TRACKS.filter((t) => t.categoryLabel === label),
+}));
+
+const trackCount = PROGRAM_COMPARISON_TRACKS.length;
+
+// "How to choose" factors (verbatim guidance from ProgramComparisonClient).
+const factors = [
+  {
+    icon: 'clock',
+    label: 'Time',
+    desc: 'Most tracks run about 3–5 months at ~10 hours a week (your pace may vary). Digital Literacy is the fastest on-ramp.',
+  },
+  {
+    icon: 'star',
+    label: 'Difficulty (★–★★★)',
+    desc: '★ = beginner-friendly. ★★★ = a steeper curve, usually with higher earning potential.',
+  },
+  {
+    icon: 'laptop',
+    label: 'Tech comfort',
+    desc: 'Uncomfortable with computers? Start with Digital Literacy, then stack into IT Support or another track.',
+  },
+  {
+    icon: 'trending-up',
+    label: 'Salary vs. ramp',
+    desc: 'Higher ranges usually mean more depth. Pick what you can finish, not only the bigger number.',
+  },
+];
+---
+<Layout
+  title="Compare Programs — Side-by-Side Career Tracks"
+  description="Compare WorkforceAP career tracks side-by-side: duration, difficulty, salary, demand, and fit. Start from recommended paths or browse every track."
+>
+<div class="cmpdepth">
+
+<!-- ══════════════════════════════ HERO — DEPTH STAGE ══════════════════════════════ -->
+<section class="stage">
+  <div class="aura aura--1"></div>
+  <div class="aura aura--2"></div>
+  <div class="aura aura--3"></div>
+  <div class="grain"></div>
+
+  <div class="wrap stage-grid">
+    <div class="lede">
+      <span class="pill"><span class="pill__star"><Icon name="bar-chart" size={12} /></span>Program comparison</span>
+      <h1>Which program fits <span class="shimmer">your goals?</span></h1>
+      <p class="sub">Compare career tracks side-by-side on the factors that matter: time commitment, difficulty, salary potential, and job demand. See the tradeoffs at a glance.</p>
+      <div class="acts">
+        <a class="dbtn dbtn--solid" href="/find-your-path">Not sure? Take the 5-minute pathfinder <span>→</span></a>
+        <a class="dbtn dbtn--glass" href="#compare-table">Jump to the comparison</a>
+      </div>
+    </div>
+
+    <!-- glass stat card -->
+    <div class="hero-glass">
+      <div class="hg-tag">Career tracks compared</div>
+      <div class="hg-meter">
+        <span>Tracks in this comparison</span>
+        <strong>{trackCount}</strong>
+      </div>
+      <div class="hg-rows">
+        <div class="hg-row"><span><Icon name="clock" size={16} /> Typical length</span><b>3–5 months</b></div>
+        <div class="hg-row"><span><Icon name="dollar" size={16} /> Starting ranges</span><b>$52K–$145K</b></div>
+        <div class="hg-row"><span><Icon name="target" size={16} /> Demand</span><b>High → Very High</b></div>
+      </div>
+      <div class="hg-chips">
+        <span>No cost to qualifying members</span>
+        <span>WIOA &amp; grant funded</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ HOW TO USE THIS PAGE ══════════════════════════════ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">How to use this page</span>
+    <h2>Pick based on <span class="grad-text">what matters most</span></h2>
+    <p>Start with fit, then narrow with the table below. Higher ranges usually mean more depth — finish the program you start.</p>
+  </div>
+  <div class="choose">
+    {factors.map((f) => (
+      <div class="fcard">
+        <div class="fic"><Icon name={f.icon} size={22} /></div>
+        <h3>{f.label}</h3>
+        <p>{f.desc}</p>
+      </div>
+    ))}
+  </div>
+  <p class="cmp-truth">Still unsure? <a href="/find-your-path">The 5-minute pathfinder ranks your top-fit tracks.</a></p>
+</div></section>
+
+<!-- ══════════════════════════════ RECOMMENDED STARTING POINTS ══════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head" style="max-width:640px">
+    <span class="eyebrow">Recommended starting points</span>
+    <h2>Three common <span class="grad-text">front doors</span></h2>
+    <p>Not the only options — just safe first choices. Browse the full table below to weigh any track.</p>
+  </div>
+  <div class="tri">
+    {starterTracks.map((t) => (
+      <article class="acard">
+        <span class="eyebrow" style="margin-bottom:12px">{t.categoryLabel}</span>
+        <h3>{t.shortName}</h3>
+        <p>{t.bestFor}</p>
+        <div class="acard-meta">
+          <span><Icon name="clock" size={15} /> {t.duration}</span>
+          <span class="acard-stars" aria-label={`Difficulty ${t.difficulty}`}>{t.difficulty}</span>
+          <span class="acard-sal">{t.salary}</span>
+        </div>
+        <div class="acard-acts">
+          <a class="btn btn--ghost" href={`/programs/${t.slug}`}>Program detail</a>
+          <a class="btn btn--primary" href={`/apply?program=${t.slug}`}>Apply →</a>
+        </div>
+      </article>
+    ))}
+  </div>
+  <p class="starters-more">
+    <a href="/find-your-path">Take the 5-minute quiz</a> for ranked matches, or <a href="/programs">browse all programs</a>.
+  </p>
+</div></section>
+
+<!-- ══════════════════════════════ SIDE-BY-SIDE COMPARISON TABLE ══════════════════════════════ -->
+<section class="band" id="compare-table"><div class="wrap">
+  <div class="sec-head" style="text-align:left;align-items:flex-start;max-width:46rem">
+    <span class="eyebrow">Side-by-side</span>
+    <h2 style="margin-bottom:8px">Compare all {trackCount} career tracks</h2>
+    <p>Duration, difficulty, starting range, demand, and the certificate you earn — grouped by field.</p>
+  </div>
+
+  <!-- Wide table wraps with horizontal scroll on narrow screens -->
+  <div class="cmp-wrap" role="region" aria-label="Program comparison table" tabindex="0">
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th scope="col" class="cmp-track">Track</th>
+          <th scope="col">Duration</th>
+          <th scope="col">Difficulty</th>
+          <th scope="col">Starting range</th>
+          <th scope="col">Job demand</th>
+          <th scope="col">Certificate</th>
+          <th scope="col" class="cmp-act"><span class="sr-only">Apply</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {categories.map((cat) => (
+          <>
+            <tr class="cmp-cat"><th scope="colgroup" colspan="7">{cat.label}</th></tr>
+            {cat.tracks.map((t) => (
+              <tr>
+                <th scope="row" class="cmp-track" data-label="Track">
+                  <a href={`/programs/${t.slug}`}>{t.shortName}</a>
+                </th>
+                <td data-label="Duration">{t.duration}</td>
+                <td data-label="Difficulty"><span aria-label={`Difficulty ${t.difficulty}`}>{t.difficulty}</span></td>
+                <td data-label="Starting range"><b class="cmp-sal">{t.salary}</b></td>
+                <td data-label="Job demand">
+                  <span class={t.demand === 'Very High' ? 'demand demand--vh' : 'demand'}>
+                    {t.demand === 'Very High' && <Icon name="trending-up" size={13} />}
+                    {t.demand}
+                  </span>
+                </td>
+                <td data-label="Certificate">{t.certs}</td>
+                <td data-label="Apply" class="cmp-act">
+                  <a class="btn btn--ghost" style="padding:11px 16px;font-size:13px" href={`/apply?program=${t.slug}`}>Apply</a>
+                </td>
+              </tr>
+            ))}
+          </>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="catalog-foot">Salary ranges are Austin market estimates (Lightcast/BLS, Jan 2026). Actual pay depends on experience, role, and employer. Difficulty is a planning guide, not a prerequisite.</p>
+</div></section>
+
+<!-- ══════════════════════════════ HELP / NO-COST BAND ══════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
+  <div class="help-grid">
+    <div class="help-card">
+      <div class="help-ic"><Icon name="map" size={24} /></div>
+      <h3>Need a personalized path?</h3>
+      <p>Our career advisors can help map a custom program sequence based on your background, goals, and timeline. No cost, no obligation.</p>
+      <div class="help-acts">
+        <a class="btn btn--primary" href="/find-your-path">Take the quiz</a>
+        <a class="btn btn--ghost" href="/programs">Explore programs</a>
+      </div>
+    </div>
+    <div class="help-card help-card--accent">
+      <div class="help-ic help-ic--light"><Icon name="graduation-cap" size={24} /></div>
+      <h3>No cost for qualifying members</h3>
+      <p>WorkforceAP programs are offered at no cost for members who qualify through scholarship/grant funded membership. Training is available through WorkforceAP and partner-backed pathways.</p>
+      <div class="help-acts">
+        <a class="btn btn--light" href="/salary-guide">View salary guide</a>
+        <a class="btn btn--translucent" href="/apply">Apply now</a>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════ CLOSING CTA — DEPTH crimson band ══════════════════════════════ -->
+<section class="close">
+  <div class="close__media" aria-hidden="true"></div>
+  <div class="close__veil" aria-hidden="true"></div>
+  <div class="close__inner wrap">
+    <span class="pill pill--solid"><span class="pill__star"><Icon name="star" size={11} /></span>Reviewed by a real team in 1–2 business days</span>
+    <h2>Found your fit?</h2>
+    <p>Apply in minutes. A member advisor will follow up within 1–2 business days.</p>
+    <div class="acts acts--center">
+      <a class="bbtn bbtn--gold" href="/apply">Apply Now →</a>
+      <a class="bbtn bbtn--outline" href="/programs">Explore programs</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     PROGRAM COMPARISON — DEPTH aesthetic (matches programs.astro).
+     depth stage hero + glass card → light alternating bands w/ a clean
+     responsive comparison table → depth crimson closing CTA.
+     =================================================================== */
+  .cmpdepth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-170px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{display:inline-flex;font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,64px);
+    line-height:1.04;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:34em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+
+  /* hero glass stat card */
+  .hero-glass{position:relative;border-radius:22px;padding:28px;
+    background:rgba(255,255,255,.13);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:14px}
+  .hg-meter{display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:14px}
+  .hg-meter span{font-size:13px;color:rgba(255,255,255,.8)}
+  .hg-meter strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;color:#f3d28f;line-height:1}
+  .hg-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .hg-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:rgba(255,255,255,.82)}
+  .hg-row span{display:inline-flex;align-items:center;gap:7px}
+  .hg-row b{color:#fff;font-weight:800}
+  .hg-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .hg-chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  /* ---------------- LIGHT BODY BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--surface{background:var(--surface)}
+
+  .sec-head{max-width:720px;margin:0 auto 44px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+  .sec-head p{color:var(--muted);font-size:19px;line-height:1.55}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+
+  /* how-to-choose grid */
+  .choose{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .fcard .fic{width:46px;height:46px;border-radius:12px;background:rgba(173,44,77,.1);display:grid;place-items:center;color:var(--crimson);margin-bottom:14px}
+  .fcard h3{font-size:16px;font-weight:700;margin-bottom:6px}
+  .fcard p{color:var(--muted);font-size:14px;line-height:1.5}
+  @media(max-width:880px){.choose{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.choose{grid-template-columns:1fr}}
+
+  .cmp-truth{max-width:720px;margin:36px auto 0;text-align:center;color:var(--muted);font-size:14px;
+    background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:18px 22px}
+  .cmp-truth a{color:var(--crimson);font-weight:800}
+
+  /* recommended starters */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .acard{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:28px;box-shadow:var(--shadow);border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
+  .acard p{color:var(--muted);font-size:15px;line-height:1.55;margin-bottom:18px}
+  .acard-meta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:14px;color:var(--muted);margin-bottom:18px}
+  .acard-meta span{display:inline-flex;align-items:center;gap:6px}
+  .acard-stars{color:var(--gold-dark);letter-spacing:1px}
+  .acard-sal{color:var(--crimson);font-weight:800}
+  .acard-acts{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .starters-more{text-align:center;margin-top:28px;color:var(--muted);font-size:15px}
+  .starters-more a{color:var(--crimson);font-weight:800}
+  @media(max-width:880px){.tri{grid-template-columns:1fr}}
+
+  /* ---------------- COMPARISON TABLE ---------------- */
+  .cmp-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);background:var(--surface);-webkit-overflow-scrolling:touch}
+  .cmp-wrap:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
+  .cmp{width:100%;border-collapse:collapse;min-width:760px;font-size:15px}
+  .cmp thead th{text-align:left;padding:14px 16px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap}
+  .cmp tbody td,.cmp tbody th{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:left;font-weight:400}
+  .cmp tbody tr:hover td,.cmp tbody tr:hover th{background:var(--surface-2)}
+  .cmp .cmp-track{font-weight:700}
+  .cmp .cmp-track a{color:var(--text);font-weight:700;text-decoration:none}
+  .cmp .cmp-track a:hover{color:var(--crimson);text-decoration:underline}
+  .cmp .cmp-sal{color:var(--crimson);font-weight:800;white-space:nowrap}
+  .cmp .cmp-act{text-align:right}
+  .cmp tr.cmp-cat th{background:rgba(173,44,77,.07);color:var(--crimson);font-size:11px;font-weight:800;letter-spacing:.08em;
+    text-transform:uppercase;padding:8px 16px;border-top:1px solid rgba(173,44,77,.18);border-bottom:1px solid rgba(173,44,77,.18)}
+  .demand{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+  .demand--vh{background:rgba(74,155,79,.12);border-color:transparent;color:var(--green)}
+
+  .catalog-foot{margin-top:18px;font-size:13px;color:var(--muted);max-width:760px;line-height:1.5}
+
+  /* card-stack the table on phones so nothing overflows the viewport */
+  @media(max-width:680px){
+    .cmp-wrap{overflow-x:visible;border:none;box-shadow:none;background:transparent}
+    .cmp{min-width:0;border-collapse:separate;border-spacing:0 0}
+    .cmp thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    .cmp tbody tr:not(.cmp-cat){display:block;background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:6px 4px;margin-bottom:14px}
+    .cmp tbody tr.cmp-cat{display:block;margin:18px 0 10px}
+    .cmp tr.cmp-cat th{display:block;border-radius:8px}
+    .cmp tbody td,.cmp tbody th{display:flex;justify-content:space-between;gap:16px;align-items:center;
+      border-bottom:1px solid var(--border);padding:10px 14px;text-align:right}
+    .cmp tbody tr:not(.cmp-cat) :last-child{border-bottom:none}
+    .cmp tbody td::before,.cmp tbody th[data-label]::before{content:attr(data-label);font-size:12px;font-weight:800;
+      letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:left}
+    .cmp .cmp-track{justify-content:space-between}
+    .cmp .cmp-track::before{content:'Track'}
+    .cmp .cmp-act{justify-content:flex-end}
+    .cmp tbody tr:hover td,.cmp tbody tr:hover th{background:transparent}
+  }
+
+  /* ---------------- HELP / NO-COST GRID ---------------- */
+  .help-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:780px){.help-grid{grid-template-columns:1fr}}
+  .help-card{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:30px;box-shadow:var(--shadow)}
+  .help-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:800}
+  .help-card p{color:var(--muted);font-size:15px;line-height:1.6}
+  .help-ic{width:48px;height:48px;border-radius:12px;background:rgba(173,44,77,.12);display:grid;place-items:center;color:var(--crimson)}
+  .help-acts{margin-top:auto;display:flex;gap:10px;flex-wrap:wrap}
+  .help-card--accent{background:var(--crimson);color:#fff;border-color:transparent}
+  .help-card--accent p{color:rgba(255,255,255,.92)}
+  .help-ic--light{background:rgba(255,255,255,.2);color:#fff}
+
+  /* ---------------- DEPTH CLOSING CTA ---------------- */
+  .close{position:relative;overflow:hidden;width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,64px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
+
+  /* ---------------- RESPONSIVE HERO ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .acts .dbtn,.acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

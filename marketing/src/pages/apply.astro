@@ -3,18 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import EligibilityForm from '../components/EligibilityForm.tsx';
 import Icon from '../components/Icon.astro';
 
-const BARRIER_OPTIONS = [
-  'Need in-demand occupation or certificate training',
-  'No barrier right now',
-  'Employment gap',
-  'Limited work history',
-  'SNAP / TANF / Food Stamps / WIC',
-  'Background / justice involvement',
-  'Disability or health barrier',
-  'Housing instability',
-  'Other barrier',
-];
-
 const STEPS = [
   { n: 1, label: 'Eligibility' },
   { n: 2, label: 'Programs' },
@@ -47,7 +35,7 @@ const STEPS = [
     <!-- depth glass card -->
     <aside class="hero-glass" aria-hidden="true">
       <div class="hg-head">
-        <div class="hg-ic">✓</div>
+        <div class="hg-ic"><Icon name="check" size={18} /></div>
         <div>
           <b>Application reviewed</b>
           <span>A real team follows up after you apply.</span>
@@ -72,9 +60,9 @@ const STEPS = [
   <!-- Mobile trust bar -->
   <div class="mtrust" role="note" aria-label="Trust and support information">
     <p class="mtrust__cues">
-      <span class="mtrust__cue"><span class="mtrust__check" aria-hidden="true">✓</span>At no cost to members who qualify through scholarship/grant funded membership</span>
+      <span class="mtrust__cue"><span class="mtrust__check" aria-hidden="true"><Icon name="check" size={14} /></span>At no cost to members who qualify through scholarship/grant funded membership</span>
       <span class="mtrust__sep" aria-hidden="true">·</span>
-      <span class="mtrust__cue"><span class="mtrust__check" aria-hidden="true">✓</span>501(c)(3) nonprofit</span>
+      <span class="mtrust__cue"><span class="mtrust__check" aria-hidden="true"><Icon name="check" size={14} /></span>501(c)(3) nonprofit</span>
     </p>
     <p class="mtrust__support">Questions? Call <a href="tel:+15127771808" class="mtrust__phone">(512) 777-1808</a></p>
   </div>
@@ -97,7 +85,7 @@ const STEPS = [
 
   <!-- Proof block -->
   <div class="paid-proof" role="note">
-    <span class="paid-proof__icon" aria-hidden="true"><Icon name="shield" /></span>
+    <span class="paid-proof__icon" aria-hidden="true"><Icon name="shield" size={28} /></span>
     <div>
       <h2 class="paid-proof__title">501(c)(3) nonprofit · EIN 41-2612389</h2>
       <p class="paid-proof__body">We review your application, follow up to discuss next steps, and help you understand funding fit before you commit.</p>
@@ -228,35 +216,6 @@ const STEPS = [
   .trust-strip__line{font-size:14px;font-weight:600;color:var(--muted)}
 
   /* Eligibility form (island styling preserved) */
-  .apply-step-content{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow)}
-  .apply-step-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:10px}
-  .apply-step-desc{color:var(--muted);font-size:16px;margin-bottom:24px}
-
-  .funding-questions{display:flex;flex-direction:column;gap:18px;margin-bottom:22px}
-  .fset{border:1px solid var(--border);border-radius:16px;padding:20px;background:var(--surface-2)}
-  .fset legend{font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--crimson);padding:0 8px}
-  .fset .q{font-size:15px;margin-bottom:14px;color:var(--text)}
-  .radio-row{display:flex;gap:12px}
-  .radio-card{flex:1;display:flex;align-items:center;gap:10px;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);font-weight:600;font-size:15px;cursor:default}
-  .radio-card .radio-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0}
-  .radio-card input{display:none}
-
-  .apply-block{margin-bottom:22px}
-  .apply-block__title{font-size:17px;font-weight:800;margin:6px 0 16px}
-  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:560px){.fgrid{grid-template-columns:1fr}}
-  .field{display:flex;flex-direction:column;gap:6px}
-  .field--full{grid-column:1 / -1}
-  .field label{font-size:13px;font-weight:700;color:var(--text)}
-  .field input,.field select{padding:12px 14px;border:1.5px solid var(--border);border-radius:11px;background:var(--surface);font-size:15px;font-family:inherit;color:var(--text)}
-  .field input::placeholder{color:#b7b0aa}
-  .field .hint{font-size:12px;color:var(--muted);line-height:1.4}
-
-  .barriers{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  @media(max-width:560px){.barriers{grid-template-columns:1fr}}
-  .barrier{display:flex;align-items:center;gap:10px;padding:6px 8px;font-size:14px;color:var(--text);cursor:default}
-  .barrier input{width:16px;height:16px;accent-color:var(--crimson)}
-
   .apply-actions{margin-top:8px}
   .cta-full{width:100%;justify-content:center}
   .consent{font-size:12px;color:var(--muted);margin:16px 0 0;line-height:1.5}

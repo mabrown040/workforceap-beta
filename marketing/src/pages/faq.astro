@@ -5,7 +5,7 @@ import Icon from '../components/Icon.astro';
 const quick = [
   {
     q: 'How much do WorkforceAP programs cost?',
-    a: 'Programs are offered no cost for qualifying members. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.',
+    a: 'Programs are offered at no cost for qualifying members. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.',
     cta: 'Browse programs',
     href: '/programs',
   },
@@ -180,7 +180,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
                 const cat = categories.find((c) => c.key === key)!;
                 return (
                   <a class="cat-link" href={`#${slugify(cat.key)}`}>
-                    <span class="cat-ic" aria-hidden="true"><Icon name={cat.icon} /></span>{cat.key}
+                    <span class="cat-ic" aria-hidden="true"><Icon name={cat.icon} size={16} /></span>{cat.key}
                   </a>
                 );
               })}
@@ -189,7 +189,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
         </nav>
 
         <div class="support-card">
-          <div class="support-ic" aria-hidden="true"><Icon name="headset" /></div>
+          <div class="support-ic" aria-hidden="true"><Icon name="headset" size={20} /></div>
           <p class="support-h">Still need support?</p>
           <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
           <a class="btn btn--primary" href="/contact">Contact Us</a>
@@ -202,14 +202,14 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
           <div class="faq-cat" id={slugify(cat.key)}>
             {cat.key === 'For Employers' && (
               <div class="emp-banner">
-                <span class="emp-ic" aria-hidden="true"><Icon name="award" /></span>
+                <span class="emp-ic" aria-hidden="true"><Icon name="award" size={22} /></span>
                 <div>
                   <p class="emp-h">Employer Partnership Inquiries</p>
                   <p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p>
                 </div>
               </div>
             )}
-            <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true"><Icon name={cat.icon} /></span>{cat.key}</h2>
+            <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true"><Icon name={cat.icon} size={20} /></span>{cat.key}</h2>
             <div class="faq-list">
               {cat.items.map((item) => (
                 <details class="faq-item">
@@ -239,8 +239,8 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     <div class="grain grain--close"></div>
     <div class="wrap close-grid">
       <div class="faq-bottom-copy">
-        <span class="pill pill--solid"><span class="pill__star"><Icon name="star" /></span>We’re here to help</span>
-        <h2>Didn’t find your answer?</h2>
+        <span class="pill pill--solid"><span class="pill__star"><Icon name="star" /></span>We're here to help</span>
+        <h2>Didn't find your answer?</h2>
         <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
         <div class="acts">
           <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
@@ -248,8 +248,8 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
         </div>
       </div>
       <div class="close-glass">
-        <div class="cg-ic" aria-hidden="true"><Icon name="message" /></div>
-        <div class="cg-lab">We’re here to help</div>
+        <div class="cg-ic" aria-hidden="true"><Icon name="message" size={44} /></div>
+        <div class="cg-lab">We're here to help</div>
       </div>
     </div>
   </section>
@@ -335,7 +335,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .side-lab{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
   .cat-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px;color:var(--text);transition:background .15s,color .15s}
   .cat-link:hover{background:rgba(173,44,77,.08);color:var(--crimson)}
-  .cat-ic{width:24px;text-align:center;font-size:16px}
+  .cat-ic{flex:0 0 24px;height:24px;display:grid;place-items:center}
   .support-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:22px;text-align:left;border-top:5px solid var(--gold)}
   .support-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1);margin-bottom:12px}
   .support-h{font-weight:800;font-size:17px;margin-bottom:6px}
@@ -385,6 +385,10 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
   .cg-ic{font-size:52px}
   .cg-lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9)}
+
+  /* a11y: white focus ring on the crimson depth bands so the global
+     crimson :focus-visible outline (blend.css) is never crimson-on-crimson */
+  .stage :focus-visible,.close :focus-visible{outline-color:#fff}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:900px){

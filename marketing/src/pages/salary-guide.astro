@@ -1,0 +1,367 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import {
+  salaryGuideRows,
+  salaryGuideSummaryStats,
+  salaryGuideProgramCount,
+  salaryInsights,
+  growthPhases,
+} from '../data/salaryGuide.ts';
+
+const stats = salaryGuideSummaryStats;
+const count = salaryGuideProgramCount;
+
+// Summary stat tiles (verbatim labels/subs from the Next /salary-guide page).
+const summaryTiles = [
+  { value: stats.highestSalary, label: 'Top of published range', sub: stats.highestProgram },
+  { value: stats.avgMidpointLabel, label: `Typical midpoint (all ${count})`, sub: 'Average of range midpoints' },
+  { value: String(stats.over100Count), label: 'Tracks topping ~$100K', sub: 'High end of range at/above $100K' },
+];
+
+// Ramp badge accent (Easier / Moderate / Steeper).
+const rampClass = (r: string) =>
+  r === 'Easier' ? 'ramp ramp--easy' : r === 'Steeper' ? 'ramp ramp--steep' : 'ramp ramp--mod';
+---
+<Layout
+  title="Salary Guide — Program Starting Ranges"
+  description="Program-by-program starting salary ranges for all 20 WorkforceAP training programs — the same conservative bands shown on each program page. Anchored to Lightcast/BLS-style national data."
+>
+<div class="salgd">
+
+<!-- ══════════════════════════════════════════════ HERO — DEPTH STAGE ══════════════════════════════════════════════ -->
+<section class="stage">
+  <div class="aura aura--1"></div>
+  <div class="aura aura--2"></div>
+  <div class="aura aura--3"></div>
+  <div class="grain"></div>
+
+  <div class="wrap stage-grid">
+    <div class="lede">
+      <span class="pill"><span class="pill__star"><Icon name="bar-chart" size={11} /></span>Salary intelligence</span>
+      <h1>Program <span class="shimmer">salary guide</span></h1>
+      <p class="sub">Starting salary ranges for all {count} programs — the same numbers shown on each program page. Salary matters, but so does fit, time commitment, support, and how steep the skill ramp is. Use this guide to weigh all of it.</p>
+      <div class="acts">
+        <a class="dbtn dbtn--solid" href="#salary-table">See the ranges <span>→</span></a>
+        <a class="dbtn dbtn--glass" href="/find-your-path">Find your best-fit path</a>
+      </div>
+    </div>
+
+    <!-- glass stat card -->
+    <div class="hero-glass">
+      <div class="hg-tag">At a glance</div>
+      <div class="hg-meter">
+        <span>Top of published range</span>
+        <strong>{stats.highestSalary}</strong>
+      </div>
+      <div class="hg-meter">
+        <span>Typical midpoint (all {count})</span>
+        <strong class="hg-mid">{stats.avgMidpointLabel}</strong>
+      </div>
+      <div class="hg-chips">
+        <span><Icon name="trending-up" size={13} /> {stats.over100Count} tracks top ~$100K</span>
+        <span>Anchored to national data</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SUMMARY STATS + ROUTING ══════════════════════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head" style="max-width:660px">
+    <span class="eyebrow"><Icon name="target" size={14} /> Salary is one factor</span>
+    <h2>Read the numbers <span class="grad-text">in context</span></h2>
+    <p>The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp.</p>
+  </div>
+
+  <div class="statrow">
+    {summaryTiles.map((s) => (
+      <div class="statcard">
+        <div class="statval">{s.value}</div>
+        <div class="statlabel">{s.label}</div>
+        <div class="statsub">{s.sub}</div>
+      </div>
+    ))}
+  </div>
+
+  <div class="tools-row">
+    <a class="btn btn--primary" href="/find-your-path">Find your best-fit programs (2-min quiz)</a>
+    <a class="btn btn--ghost" href="/program-comparison">Compare programs</a>
+    <a class="btn btn--ghost" href="/programs">Explore programs</a>
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ PROGRAM RANGES — RESPONSIVE TABLE + CARDS ══════════════════════════════════════════════ -->
+<section class="band" id="salary-table"><div class="wrap">
+  <div class="sec-head" style="text-align:left;align-items:flex-start;max-width:46rem">
+    <span class="eyebrow"><Icon name="dollar" size={14} /> Program starting ranges</span>
+    <h2 style="margin-bottom:10px">Starting ranges for all {count} programs</h2>
+    <p>Same published ranges as each program card on /programs. Framed for early-career (roughly 0–1 year in-role).</p>
+    <p class="legend"><strong>Ramp:</strong> Easier = quicker, good first credential. Steeper = more depth, higher payoff.</p>
+  </div>
+
+  <!-- Desktop / tablet: scrollable table (wrapped so it never breaks layout) -->
+  <div class="table-wrap" role="region" aria-label="Program starting salary ranges" tabindex="0">
+    <table class="saltable">
+      <thead>
+        <tr>
+          <th scope="col">Program</th>
+          <th scope="col">Duration</th>
+          <th scope="col">Starting salary</th>
+          <th scope="col">Level</th>
+          <th scope="col">Ramp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {salaryGuideRows.map((r) => (
+          <tr>
+            <th scope="row" class="td-prog">{r.program}</th>
+            <td class="td-dur">{r.duration}</td>
+            <td class="td-sal">{r.salary}</td>
+            <td><span class="lvl" style={`background:${r.color}`}>{r.level}</span></td>
+            <td><span class={rampClass(r.ramp)}>{r.ramp}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile: card list (no horizontal scroll under ~560px) -->
+  <div class="salcards">
+    {salaryGuideRows.map((r) => (
+      <article class="salcard">
+        <div class="salcard-top">
+          <h3>{r.program}</h3>
+          <div class="salcard-sal">{r.salary}</div>
+        </div>
+        <div class="salcard-meta">
+          <span class="m-dur"><Icon name="clock" size={14} /> {r.duration}</span>
+          <span class="lvl" style={`background:${r.color}`}>{r.level}</span>
+          <span class={rampClass(r.ramp)}>{r.ramp}</span>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <p class="catalog-foot">Bands are grounded in Lightcast/BLS-style national data (Jan 2026). Your offer still depends on proof, role, location, and employer.</p>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ INSIGHTS ══════════════════════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow"><Icon name="lightbulb" size={14} /> How to read the ranges</span>
+    <h2>What the numbers <span class="grad-text">don't tell you</span></h2>
+    <p>Pick a track you can finish. The win is momentum — and we help match the ramp to your life.</p>
+  </div>
+  <div class="igrid">
+    {salaryInsights.map((item) => (
+      <div class="icard">
+        <div class="iic"><Icon name={item.icon} size={22} /></div>
+        <h3>{item.title}</h3>
+        <p>{item.desc}</p>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ GROWTH TRAJECTORY ══════════════════════════════════════════════ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head" style="max-width:660px">
+    <span class="eyebrow"><Icon name="trending-up" size={14} /> Career arc</span>
+    <h2>Growth <span class="grad-text">trajectory</span></h2>
+    <p>Most members see meaningful increases inside 2–3 years once they are in-role. Here is the typical career arc.</p>
+  </div>
+  <div class="phases">
+    {growthPhases.map((phase) => (
+      <div class="phasecard">
+        <span class="phasenum" aria-hidden="true">{phase.num}</span>
+        <div class="phasebody">
+          <span class="eyebrow phase-eb">Phase {phase.num}</span>
+          <h3>{phase.title}</h3>
+          <p>{phase.desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p class="methodology">
+    <strong>How we set the ranges:</strong> We start from Lightcast / BLS-style market data and employer conversations, then publish conservative bands on each program page. This guide copies those bands so you are never comparing a "marketing number" here against a different number there.
+  </p>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ CLOSING CTA — DEPTH crimson band ══════════════════════════════════════════════ -->
+<section class="close">
+  <div class="close__media" aria-hidden="true"></div>
+  <div class="close__veil" aria-hidden="true"></div>
+  <div class="close__inner wrap">
+    <span class="pill pill--solid"><span class="pill__star"><Icon name="star" size={11} /></span>Reviewed by a real team in 1–2 business days</span>
+    <h2>You have the numbers. What's next?</h2>
+    <p>Every member gets a career advisor, resume support, interview prep, and employer introductions — at no cost to members who qualify through scholarship/grant funded membership. Apply with no application fee, no obligation.</p>
+    <div class="acts acts--center">
+      <a class="bbtn bbtn--gold" href="/apply">Apply Now →</a>
+      <a class="bbtn bbtn--outline" href="/programs">Explore Programs</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     SALARY GUIDE — DEPTH aesthetic (matches programs.astro / how-it-works).
+     depth stage hero + glass card → light alternating bands w/ a wrapped,
+     mobile-safe ranges table → depth crimson closing CTA.
+     =================================================================== */
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-170px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{display:inline-flex;font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,64px);
+    line-height:1.04;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:34em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+
+  /* hero glass stat card */
+  .hero-glass{position:relative;border-radius:22px;padding:28px;
+    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:16px}
+  .hg-meter{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:12px}
+  .hg-meter span{font-size:13px;color:rgba(255,255,255,.8)}
+  .hg-meter strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;color:#f3d28f;line-height:1;white-space:nowrap}
+  .hg-mid{font-size:30px !important}
+  .hg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .hg-chips span{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  /* ---------------- LIGHT BODY BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--surface{background:var(--surface)}
+
+  .sec-head{max-width:720px;margin:0 auto 44px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+  .sec-head p{color:var(--muted);font-size:19px;line-height:1.55}
+  .sec-head .legend{font-size:14px;margin-top:12px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+
+  /* summary stat tiles */
+  .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:34px}
+  .statcard{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);text-align:center;border-top:6px solid var(--crimson)}
+  .statval{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(26px,3.4vw,36px);line-height:1.05;
+    background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .statlabel{font-size:15px;font-weight:700;color:var(--text);margin-top:10px}
+  .statsub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.45}
+  @media(max-width:760px){.statrow{grid-template-columns:1fr}}
+
+  .tools-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+  /* ---------------- RANGES TABLE (wrapped, mobile-safe) ---------------- */
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);-webkit-overflow-scrolling:touch}
+  .table-wrap:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
+  .saltable{width:100%;border-collapse:collapse;min-width:680px;font-size:15px}
+  .saltable thead th{text-align:left;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    padding:16px 18px;border-bottom:2px solid var(--border);background:var(--surface-2);white-space:nowrap}
+  .saltable tbody tr{border-bottom:1px solid var(--border)}
+  .saltable tbody tr:last-child{border-bottom:none}
+  .saltable tbody tr:hover{background:var(--surface-2)}
+  .saltable td,.saltable .td-prog{padding:15px 18px;vertical-align:middle}
+  .td-prog{font-weight:700;color:var(--text);text-align:left;min-width:240px}
+  .td-dur{color:var(--muted);font-size:14px;white-space:nowrap}
+  .td-sal{font-weight:800;color:var(--crimson);white-space:nowrap}
+  .lvl{display:inline-block;color:#fff;padding:5px 13px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .ramp{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;border:1px solid transparent}
+  .ramp--easy{background:rgba(74,155,79,.12);color:#357039;border-color:rgba(74,155,79,.3)}
+  .ramp--mod{background:rgba(43,123,185,.12);color:#1f5e8f;border-color:rgba(43,123,185,.3)}
+  .ramp--steep{background:rgba(173,44,77,.1);color:var(--crimson);border-color:rgba(173,44,77,.28)}
+
+  /* mobile card list — hidden on desktop */
+  .salcards{display:none;flex-direction:column;gap:14px}
+  .salcard{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+  .salcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+  .salcard-top h3{font-size:16px;font-weight:700;line-height:1.35;min-width:0}
+  .salcard-sal{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16px;color:var(--crimson);white-space:nowrap;flex-shrink:0}
+  .salcard-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .m-dur{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted)}
+
+  .catalog-foot{text-align:center;margin-top:28px;font-size:13px;color:var(--muted);max-width:680px;margin-left:auto;margin-right:auto}
+
+  /* ---------------- INSIGHTS ---------------- */
+  .igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .icard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .icard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .iic{width:46px;height:46px;border-radius:12px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;margin-bottom:14px}
+  .icard h3{font-size:17px;font-weight:800;margin-bottom:8px}
+  .icard p{color:var(--muted);font-size:14px;line-height:1.55}
+  @media(max-width:980px){.igrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.igrid{grid-template-columns:1fr}}
+
+  /* ---------------- GROWTH PHASES ---------------- */
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .phasecard{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .phasecard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .phasenum{position:absolute;top:-.5rem;right:.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:5rem;font-weight:900;line-height:1;color:var(--surface-2);pointer-events:none;user-select:none}
+  .phasebody{position:relative;z-index:1}
+  .phase-eb{margin-bottom:8px}
+  .phasecard h3{font-size:18px;font-weight:800;margin-bottom:8px}
+  .phasecard p{color:var(--muted);font-size:14px;line-height:1.55}
+  @media(max-width:900px){.phases{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.phases{grid-template-columns:1fr}}
+
+  .methodology{max-width:760px;margin:34px auto 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.6;
+    background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:18px 22px}
+  .methodology strong{color:var(--text)}
+
+  /* ---------------- DEPTH CLOSING CTA (full-bleed crimson) ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,64px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:40em;margin:0 auto 30px;line-height:1.5}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  /* Under ~560px: swap the scrollable table for the card list (no overflow at 390px). */
+  @media(max-width:560px){
+    .table-wrap{display:none}
+    .salcards{display:flex}
+    .acts .dbtn,.acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

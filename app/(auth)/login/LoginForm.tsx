@@ -110,7 +110,7 @@ const s = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: 'var(--space-16) var(--space-8)',
-    background: 'linear-gradient(135deg, var(--color-primary) 0%, #2a0a14 50%, var(--color-accent-dark) 100%)',
+    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 52%, #6d1437 100%)',
     overflow: 'hidden',
     color: 'var(--color-white)',
   } as React.CSSProperties,
@@ -153,7 +153,7 @@ const s = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: 'var(--space-8)',
-    background: 'var(--surface-container-lowest)',
+    background: 'var(--surface-container)',
     overflowY: 'auto' as const,
   } as React.CSSProperties,
 
@@ -250,11 +250,13 @@ const s = {
     letterSpacing: '0.08em',
     textTransform: 'uppercase' as const,
     color: 'var(--color-white)',
-    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
+    /* Gold primary CTA — matches marketing .mdx-btn--primary energy on the light auth surface. */
+    background: 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
     border: 'none',
     borderRadius: 'var(--radius-md)',
     cursor: 'pointer',
-    transition: 'opacity 0.2s',
+    transition: 'opacity 0.2s, box-shadow 0.2s',
+    boxShadow: '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
   } as React.CSSProperties,
 
   footer: {

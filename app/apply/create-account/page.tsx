@@ -6,6 +6,7 @@ import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import Footer from '@/components/Footer';
 import ApplyCreateAccountForm from './ApplyCreateAccountForm';
 import { getTranslations } from 'next-intl/server';
+import '../apply-funnel-depth.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('apply');
@@ -20,10 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ApplyCreateAccountPage() {
   const t = await getTranslations('apply');
   return (
-    <div className="inner-page apply-funnel-step-page">
-      <section className="page-hero apply-funnel-step-page__hero">
-        <div className="page-hero-content">
-          <h1>{t('createAccountHeroTitle')}</h1>
+    <div className="inner-page apply-funnel-step-page mdx afd-page">
+      <section className="page-hero apply-funnel-step-page__hero afd-hero-wrap">
+        <div className="page-hero-content mdx-stage">
+          <span className="mdx-pill">{t('heroLabel')}</span>
+          <h1><span className="mdx-grad-accent">{t('createAccountHeroTitle')}</span></h1>
           <p>{t('createAccountHeroBody')}</p>
           <p style={{ marginTop: '0.75rem' }}>
             {t('createAccountHeroSub')}
@@ -31,18 +33,18 @@ export default async function ApplyCreateAccountPage() {
         </div>
       </section>
 
-      <section className="content-section">
+      <section className="content-section afd-band">
         <div className="container">
-          <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+          <div className="mdx-card afd-surface" style={{ maxWidth: '560px', margin: '0 auto' }}>
             <ApplyMobileTrustBar />
             <ApplyMobileStepNav activeStep={2} showTimeHint />
-            <p className="apply-funnel-form-kicker" role="note">
+            <p className="apply-funnel-form-kicker afd-kicker" role="note">
               {t('createAccountFormKicker')}
             </p>
             <Suspense fallback={<p>{t('loadingFallback')}</p>}>
               <ApplyCreateAccountForm />
             </Suspense>
-            <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <p className="afd-footnote">
               {t('createAccountAlready')}{' '}
               <a href="/login">{t('createAccountLogIn')}</a>
             </p>

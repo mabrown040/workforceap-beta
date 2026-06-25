@@ -33,20 +33,21 @@ import Layout from '../layouts/Layout.astro';
         <!-- LEFT: form (static visual) -->
         <div class="formpanel">
           <h2>Send Us a Message</h2>
+          <p class="footnote" style="text-align:left;margin-bottom:4px">Fields marked * are required.</p>
           <form class="cform" onsubmit="return false">
             <div class="frow">
               <div class="fgroup">
                 <label for="first_name">First Name <span aria-hidden="true">*</span></label>
-                <input id="first_name" type="text" name="first_name" autocomplete="given-name" />
+                <input id="first_name" type="text" name="first_name" autocomplete="given-name" required />
               </div>
               <div class="fgroup">
                 <label for="last_name">Last Name <span aria-hidden="true">*</span></label>
-                <input id="last_name" type="text" name="last_name" autocomplete="family-name" />
+                <input id="last_name" type="text" name="last_name" autocomplete="family-name" required />
               </div>
             </div>
             <div class="fgroup">
               <label for="email">Email Address <span aria-hidden="true">*</span></label>
-              <input id="email" type="email" name="email" autocomplete="email" />
+              <input id="email" type="email" name="email" autocomplete="email" required />
             </div>
             <div class="fgroup">
               <label for="phone">Phone Number</label>
@@ -60,7 +61,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <div class="fgroup">
               <label for="topic">What can we help with? <span aria-hidden="true">*</span></label>
-              <select id="topic" name="topic">
+              <select id="topic" name="topic" required>
                 <option value="">Select a topic…</option>
                 <option>Program information</option>
                 <option>Eligibility or training at no cost to members who qualify through scholarship/grant funded membership</option>
@@ -74,9 +75,9 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <div class="fgroup">
               <label for="message">Your Message <span aria-hidden="true">*</span></label>
-              <textarea id="message" name="message" rows="5"></textarea>
+              <textarea id="message" name="message" rows="5" required></textarea>
             </div>
-            <button type="submit" class="btn btn--primary" style="width:100%;justify-content:center">Send Message</button>
+            <button type="submit" class="btn btn--primary">Send Message</button>
             <p class="footnote">A WorkforceAP team member responds within 1–2 business days.</p>
           </form>
         </div>
@@ -132,7 +133,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="austincard">
             <span class="austin-eyebrow"><span class="austin-dot"></span>Austin-based team</span>
             <h3>Built in Austin, supporting members nationwide</h3>
-            <p>We work from Austin, Texas and support members, partners, and employers across the country. Use the form, email, or phone to reach the right WorkforceAP team member. We coordinate with partner organizations, but counselors and partner organizations are not the same thing.</p>
+            <p>We work from Austin, Texas and support members, partners, and employers across the country. Use the form, email, or phone to reach the right WorkforceAP team member.</p>
           </div>
         </div>
       </div>
@@ -162,7 +163,7 @@ import Layout from '../layouts/Layout.astro';
      shorter depth stage hero → light contact grid w/ elevated cards →
      closing crimson depth quote band.
      =================================================================== */
-  .depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+  .depth{overflow-x:clip;--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
 
   /* ---------------- SHORTER DEPTH HERO STAGE ---------------- */
   .stage{
@@ -223,6 +224,7 @@ import Layout from '../layouts/Layout.astro';
   .cbox{flex-direction:row;align-items:center;gap:10px;font-weight:500!important;color:var(--muted)!important;cursor:pointer}
   .cbox input{width:18px;height:18px;accent-color:var(--crimson);flex-shrink:0}
   .footnote{font-size:13px;color:var(--muted);text-align:center;margin-top:2px}
+  .cform button[type=submit]{width:100%;justify-content:center}
 
   /* info tiles */
   .infostack{display:flex;flex-direction:column;gap:20px}

@@ -122,11 +122,12 @@ export default function SetupMfaPage() {
             style={{
               display: 'inline-block',
               padding: '0.75rem 1.5rem',
-              background: 'var(--color-accent)',
+              background: 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
               color: '#fff',
               borderRadius: 'var(--radius-md)',
               fontWeight: 700,
               textDecoration: 'none',
+              boxShadow: '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
             }}
           >
             Continue
@@ -178,7 +179,7 @@ export default function SetupMfaPage() {
               style={{
                 width: '100%',
                 padding: '0.875rem',
-                background: 'var(--color-accent)',
+                background: 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
                 color: '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-md)',
@@ -186,6 +187,7 @@ export default function SetupMfaPage() {
                 fontSize: '0.9rem',
                 cursor: 'pointer',
                 marginBottom: '0.75rem',
+                boxShadow: '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
               }}
             >
               I've scanned the code
@@ -237,13 +239,14 @@ export default function SetupMfaPage() {
               style={{
                 width: '100%',
                 padding: '0.875rem',
-                background: loading || code.length !== 6 ? 'var(--surface-container-high)' : 'var(--color-accent)',
+                background: loading || code.length !== 6 ? 'var(--surface-container-high)' : 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
                 color: loading || code.length !== 6 ? 'var(--color-on-surface-variant)' : '#fff',
                 border: 'none',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
                 fontSize: '0.9rem',
                 cursor: loading || code.length !== 6 ? 'not-allowed' : 'pointer',
+                boxShadow: loading || code.length !== 6 ? 'none' : '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
               }}
             >
               <span aria-live="polite">{loading ? 'Verifying…' : 'Enable 2FA'}</span>

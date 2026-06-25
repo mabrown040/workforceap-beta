@@ -1,6 +1,5 @@
 ---
 import '../styles/blend.css';
-import { useT, LOCALES, LOCALE_LABELS } from '../i18n/t';
 export interface Props {
   title?: string;
   description?: string;
@@ -11,22 +10,43 @@ const {
   description = 'WorkforceAP is a 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.',
   lang = 'en',
 } = Astro.props;
-const t = useT(lang);
-// Localized chrome labels (real nav.* translations); hrefs stay canonical (EN
-// inner routes exist; localized routing is demoed on the home in this spike).
+// Primary nav with dropdowns — mirrors the portal/Next MainNav structure so
+// chrome is consistent across the whole site (parity with components/MainNav).
 const nav = [
-  { href: '/programs', label: t('nav.programs') },
-  { href: '/how-it-works', label: t('nav.howItWorks') },
-  { href: '/employers', label: t('nav.employers') },
-  { href: '/partners', label: t('nav.partners') },
-  { href: '/about', label: t('nav.aboutUs') },
-  { href: '/contact', label: t('nav.contactUs') },
+  { href: '/about', label: 'About Us', children: [
+    { href: '/what-we-do', label: 'What We Do' },
+    { href: '/how-it-works', label: 'How It Works' },
+    { href: '/leadership', label: 'Leadership' },
+    { href: '/faq', label: 'FAQ' },
+    { href: '/donate', label: 'Donate' },
+  ] },
+  { href: '/programs', label: 'Programs', children: [
+    { href: '/programs', label: 'All Programs' },
+    { href: '/find-your-path', label: 'Find Your Path' },
+    { href: '/career-quiz', label: 'Free Career Quiz' },
+    { href: '/program-comparison', label: 'Compare Programs' },
+    { href: '/salary-guide', label: 'Salary Guide' },
+  ] },
+  { href: '/partners', label: 'Partners' },
+  { href: '/employers', label: 'Employers' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact Us' },
 ];
-const langHref = (l: string) => (l === 'en' ? '/' : `/${l}`);
-// Comprehensive mobile menu (ties every route together for small screens)
+// Role-based sign-in (mirrors MainNav GUEST_LOGIN_SUBMENU).
+const signInMenu = [
+  { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+  { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+  { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+  { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
+  { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+];
+// Comprehensive mobile drawer (every route + role logins; flat for touch).
 const mobileNav = [
   { href: '/programs', label: 'Programs' },
   { href: '/find-your-path', label: 'Find your path' },
+  { href: '/career-quiz', label: 'Free career quiz' },
+  { href: '/program-comparison', label: 'Compare programs' },
+  { href: '/salary-guide', label: 'Salary guide' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/what-we-do', label: 'What we do' },
   { href: '/employers', label: 'For employers' },
@@ -38,13 +58,13 @@ const mobileNav = [
   { href: '/outcomes', label: 'Outcomes' },
   { href: '/faq', label: 'FAQ' },
   { href: '/blog', label: 'Blog' },
+  { href: '/donate', label: 'Donate' },
   { href: '/contact', label: 'Contact' },
-  { href: '/login', label: 'Sign in' },
 ];
 const path = Astro.url.pathname;
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -53,35 +73,63 @@ const path = Astro.url.pathname;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <slot name="head" />
+  <style is:global>
+    /* token modifiers for chrome elements that live only in Layout.astro
+       (kept here so blend.css is untouched; mirrors .btn / .fbottom rules) */
+    .btn--nav{padding:12px 20px;font-size:15px;min-height:44px}
+    .flegal{display:flex;gap:18px}
+    .flegal a{color:var(--muted)}
+    .flegal a:hover{color:var(--crimson)}
+  </style>
 </head>
 <body>
   <input class="navtoggle" type="checkbox" id="navtoggle" aria-hidden="true" />
   <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
   <nav class="top">
     <div class="wrap row">
-      <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+      <a class="brand" href="/" aria-label="Workforce Advancement Project — home"><img class="brand-logo" src="/images/wap_logo.png" alt="Workforce Advancement Project" width="210" height="107" /></a>
       <div class="navlinks">
-        {nav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+        {nav.map((n) => n.children ? (
+          <div class="navdrop">
+            <a class="navdrop-trigger" href={n.href} aria-haspopup="true">{n.label}<svg class="navchev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
+            <div class="navdrop-menu">
+              {n.children.map((c) => <a href={c.href} aria-current={path === c.href ? 'page' : undefined}>{c.label}</a>)}
+            </div>
+          </div>
+        ) : (
+          <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
+        ))}
       </div>
       <div class="navactions">
-        <div class="langswitch" role="group" aria-label="Language">
-          {LOCALES.map((l) => (
-            <a href={langHref(l)} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}</a>
-          ))}
+        <div class="navdrop navdrop--end">
+          <a class="navdrop-trigger signin" href="/login">Log in<svg class="navchev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
+          <div class="navdrop-menu navdrop-menu--right">
+            {signInMenu.map((s) => <a href={s.href}>{s.label}</a>)}
+          </div>
         </div>
-        <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">{t('cta.logIn')}</a>
-        <a class="btn btn--primary" style="padding:10px 20px;font-size:15px" href="/apply">{t('cta.applyNow')}</a>
+        <a class="btn btn--primary btn--nav" href="/apply">Apply now</a>
       </div>
     </div>
   </nav>
   <nav class="mobilemenu" aria-label="Mobile">
-    {mobileNav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+    {nav.map((n) => n.children ? (
+      <details class="mob-acc">
+        <summary>{n.label}<svg class="mob-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="mob-acc__body">
+          {n.children.map((c) => <a class="mobilemenu-sub" href={c.href} aria-current={path === c.href ? 'page' : undefined}>{c.label}</a>)}
+        </div>
+      </details>
+    ) : (
+      <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
+    ))}
+    <details class="mob-acc">
+      <summary>Sign in<svg class="mob-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="mob-acc__body">
+        {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
+      </div>
+    </details>
     <a class="btn btn--primary" href="/apply">Apply now</a>
-    <div class="langswitch" role="group" aria-label="Language">
-      {LOCALES.map((l) => (
-        <a href={langHref(l)} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}</a>
-      ))}
-    </div>
   </nav>
 
   <main>
@@ -91,7 +139,7 @@ const path = Astro.url.pathname;
   <footer><div class="wrap">
     <div class="fgrid">
       <div class="fbrand">
-        <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+        <a class="brand brand--footer" href="/" aria-label="Workforce Advancement Project — home"><img class="brand-logo" src="/images/wap_logo.png" alt="Workforce Advancement Project" width="210" height="107" /></a>
         <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.</p>
       </div>
       <div><h4>Explore</h4><ul><li><a href="/programs">Programs</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>
@@ -100,7 +148,7 @@ const path = Astro.url.pathname;
     </div>
     <div class="fbottom">
       <span>© 2026 WorkforceAP · A national 501(c)(3) nonprofit. Available nationwide.</span>
-      <span style="display:flex;gap:18px"><a href="/privacy" style="color:inherit">Privacy</a><a href="/terms" style="color:inherit">Terms</a><a href="/accessibility" style="color:inherit">Accessibility</a></span>
+      <span class="flegal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></span>
     </div>
   </div></footer>
 
@@ -116,7 +164,7 @@ const path = Astro.url.pathname;
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduce && 'IntersectionObserver' in window) {
         var targets = document.querySelectorAll(
-          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row'
+          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row, main .mission-card'
         );
         // Only NOW (JS confirmed) do we allow the hidden start-state — so no-JS,
         // crawlers, and failed hydration always render content. See blend.css.

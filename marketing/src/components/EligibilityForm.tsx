@@ -34,7 +34,7 @@ export default function EligibilityForm() {
     return (
       <div className="elig-card">
         <div className="elig-done">
-          <span className="elig-done__ic">✓</span>
+          <span className="elig-done__ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
           <h3>Thanks, {contact.name.split(' ')[0] || 'there'} — your check is in.</h3>
           <p>
             {likelyEligible
@@ -60,7 +60,7 @@ export default function EligibilityForm() {
         </div>
         <span className="elig-progress">{pct}%</span>
       </div>
-      <div className="elig-bar"><i style={{ width: `${pct}%` }} /></div>
+      <div className="elig-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Eligibility check progress"><i style={{ width: `${pct}%` }} /></div>
 
       {QUESTIONS.map((q, i) => (
         <fieldset className="elig-q" data-active={i === step} key={q.key} disabled={i > step}>
@@ -94,11 +94,11 @@ export default function EligibilityForm() {
           <div className="elig-fields">
             <label>
               <span>Full name</span>
-              <input required value={contact.name} onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))} placeholder="Your name" />
+              <input required name="name" autoComplete="name" value={contact.name} onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))} placeholder="Your name" />
             </label>
             <label>
               <span>Email</span>
-              <input required type="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} placeholder="you@email.com" />
+              <input required type="email" name="email" autoComplete="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} placeholder="you@email.com" />
             </label>
           </div>
           <button className="btn btn--primary" type="submit" style={{ width: '100%', justifyContent: 'center' }}>

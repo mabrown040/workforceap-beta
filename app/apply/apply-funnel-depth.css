@@ -1,0 +1,86 @@
+/* ============================================================
+   apply-funnel-depth.css — SCOPED depth chrome for the apply
+   funnel inner pages (create-account, results, status,
+   confirmation). VISUAL ONLY. Builds on the .mdx atoms in
+   css/marketing-depth.css to keep the whole funnel consistent
+   with the Astro depth marketing front. Class names are
+   prefixed .afd-* (apply-funnel-depth) so they never collide
+   with legacy main.css / marketing.css selectors. No behavior,
+   forms, posts, auth, redirects, or query-params are touched.
+   ============================================================ */
+
+/* Page shell — light depth background under the .mdx scope */
+.mdx.afd-page {
+  background: var(--mdx-bg);
+  min-height: 100vh;
+}
+
+/* The funnel hero reuses .mdx-stage; this just wraps content + tightens
+   the inner-page top padding so the depth stage clears the fixed nav. */
+.afd-hero-wrap {
+  max-width: var(--max-width, 1200px);
+  margin: 0 auto;
+  padding: calc(var(--nav-height-default, 80px) + 1rem) 1.25rem 0;
+}
+
+.afd-hero-wrap .mdx-stage {
+  text-align: center;
+}
+
+.afd-hero-wrap .mdx-stage h1 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.afd-hero-wrap .mdx-stage p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Content band that holds the form / client component */
+.afd-band {
+  max-width: var(--max-width, 1200px);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+}
+
+/* A surface card wrapper around the funnel form/client area */
+.afd-surface {
+  margin: 0 auto;
+}
+
+/* Kicker note above the form — restyled to depth tone */
+.afd-kicker {
+  margin: 0 0 1rem;
+  font-size: var(--font-size-sm, 0.875rem);
+  line-height: 1.5;
+  color: var(--mdx-muted);
+  text-align: center;
+}
+
+/* Footnote / helper links under the form */
+.afd-footnote {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--mdx-muted);
+}
+
+.afd-footnote a {
+  color: var(--mdx-crimson);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .afd-hero-wrap {
+    padding: calc(var(--nav-height-default, 80px) + 0.5rem) 1rem 0;
+  }
+  .afd-hero-wrap .mdx-stage {
+    padding: 36px 22px;
+  }
+  .afd-band {
+    padding: 1.25rem 1rem 2rem;
+  }
+}

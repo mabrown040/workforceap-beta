@@ -27,7 +27,7 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- translucent glass: members served metric -->
       <div class="glass-metric">
-        <p class="hm-v empty" aria-label="Not published yet">—</p>
+        <p class="hm-v empty" aria-hidden="true">—</p>
         <p class="hm-lbl">Member metrics not published yet</p>
         <p class="hm-desc">Member counts and cohort rates publish here as verified member and employer activity is recorded—not before.</p>
         <a class="dbtn dbtn--glass" href="/employers">Become a hiring partner <span aria-hidden="true">→</span></a>
@@ -146,7 +146,7 @@ import Layout from '../layouts/Layout.astro';
      closing crimson depth CTA. Truth-lock: every "—" and "Not published
      yet" string preserved verbatim.
      =================================================================== */
-  .impact-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+  .impact-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18);overflow-x:clip}
 
   /* ---------------- SHORTER DEPTH HERO STAGE ---------------- */
   .stage{
@@ -198,7 +198,7 @@ import Layout from '../layouts/Layout.astro';
   .sec-head{margin:0 0 36px;max-width:none}
   .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
   .kick--crimson{color:var(--crimson)}
-  .kick--blue{color:var(--blue)}
+  .kick--blue{color:#1f5e8f}
   .kick--gold{color:var(--gold-dark)}
   .impact-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em;margin:0 0 12px}
   .impact-head p{font-size:18px;color:var(--muted);line-height:1.55;max-width:46em}

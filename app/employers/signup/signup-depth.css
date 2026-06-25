@@ -1,0 +1,148 @@
+/* ============================================================
+   signup-depth.css — page-scoped depth styling for the employer
+   signup page. Recolors form chrome (fields, focus rings, links,
+   nav, checkbox) to the crimson DEPTH palette so it matches the
+   .mdx-* atoms in css/marketing-depth.css. Visual only — no
+   behavior, names, or handlers changed.
+   Scoped under .signup-depth to avoid touching other pages.
+   ============================================================ */
+
+.signup-depth {
+  --sd-crimson: #ad2c4d;
+  --sd-accent-dark: #8c0f37;
+  --sd-plum: #6d1437;
+  --sd-gold: #a47f38;
+  --sd-bg: #f7f4f1;
+  --sd-surface: #fff;
+  --sd-text: #1a1414;
+  --sd-muted: #6e6a66;
+  --sd-border: #ece5e0;
+  background: var(--sd-bg);
+}
+
+/* --- Nav chrome --- */
+.signup-depth nav {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid var(--sd-border);
+  backdrop-filter: blur(8px);
+}
+.signup-depth nav .sd-logo-mark {
+  background: linear-gradient(135deg, var(--sd-crimson) 0%, var(--sd-accent-dark) 52%, var(--sd-plum) 100%);
+  box-shadow: 0 8px 20px -8px rgba(173, 44, 77, 0.5);
+}
+.signup-depth nav .sd-brand {
+  color: var(--sd-plum);
+}
+.signup-depth nav .sd-navlink {
+  color: var(--sd-muted);
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+.signup-depth nav .sd-navlink:hover {
+  color: var(--sd-crimson);
+}
+.signup-depth nav .sd-navlink--accent {
+  color: var(--sd-crimson);
+}
+
+/* --- Section copy --- */
+.signup-depth .sd-title {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  color: var(--sd-text);
+}
+.signup-depth .sd-subhead {
+  color: var(--sd-muted);
+}
+.signup-depth .sd-lede {
+  color: var(--sd-muted);
+}
+
+/* --- Labels & required asterisk --- */
+.signup-depth .sd-label {
+  color: var(--sd-text);
+  font-weight: 600;
+}
+.signup-depth .sd-req {
+  color: var(--sd-crimson);
+}
+
+/* --- Inputs / selects --- */
+.signup-depth .sd-field {
+  width: 100%;
+  padding: 11px 16px;
+  background: var(--sd-surface);
+  border: 1px solid var(--sd-border);
+  border-radius: 12px;
+  color: var(--sd-text);
+  font-size: 15px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.signup-depth .sd-field::placeholder {
+  color: #a89f99;
+}
+.signup-depth .sd-field:hover {
+  border-color: #d9cdc6;
+}
+.signup-depth .sd-field:focus {
+  outline: none;
+  border-color: var(--sd-crimson);
+  box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.18);
+}
+
+/* select chevron tint */
+.signup-depth select.sd-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236d1437' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+/* --- Password reveal toggle --- */
+.signup-depth .sd-pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a89f99;
+  transition: color 0.15s ease;
+}
+.signup-depth .sd-pw-toggle:hover {
+  color: var(--sd-crimson);
+}
+
+/* --- Password requirement hints --- */
+.signup-depth .sd-pw-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--sd-crimson);
+}
+
+/* --- Checkbox --- */
+.signup-depth .sd-checkbox {
+  accent-color: var(--sd-crimson);
+}
+
+/* --- Inline links inside copy --- */
+.signup-depth .sd-inline-link {
+  color: var(--sd-crimson);
+  font-weight: 600;
+}
+.signup-depth .sd-inline-link:hover {
+  text-decoration: underline;
+}
+
+/* --- Error banner --- */
+.signup-depth .sd-error {
+  background: #fbeef0;
+  border: 1px solid #f0c5ce;
+  color: var(--sd-accent-dark);
+  border-radius: 12px;
+}
+
+/* --- Success state --- */
+.signup-depth .sd-success-ring {
+  background: linear-gradient(135deg, rgba(173, 44, 77, 0.12), rgba(109, 20, 55, 0.12));
+  color: var(--sd-crimson);
+}

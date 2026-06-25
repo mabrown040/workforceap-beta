@@ -6,6 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ApplyStatusClient from './ApplyStatusClient';
 import { getTranslations } from 'next-intl/server';
+import '../apply-funnel-depth.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('apply');
@@ -23,18 +24,21 @@ export default async function ApplyStatusPage() {
   const t = await getTranslations('apply');
 
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <h1>{t('statusHeroTitle')}</h1>
+    <div className="inner-page mdx afd-page">
+      <section className="page-hero afd-hero-wrap">
+        <div className="page-hero-content mdx-stage">
+          <span className="mdx-pill">{t('heroLabel')}</span>
+          <h1><span className="mdx-grad-accent">{t('statusHeroTitle')}</span></h1>
           <p>{t('statusHeroSubtitle')}</p>
         </div>
       </section>
 
-      <section className="content-section">
+      <section className="content-section afd-band">
         <div className="container" style={{ maxWidth: '560px' }}>
-          <ApplyStatusClient />
-          <p style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
+          <div className="mdx-card afd-surface">
+            <ApplyStatusClient />
+          </div>
+          <p className="afd-footnote">
             <LocalizedLink href="/apply">{t('statusFooterApply')}</LocalizedLink>
             {' · '}
             <LocalizedLink href="/contact">{t('statusFooterContact')}</LocalizedLink>

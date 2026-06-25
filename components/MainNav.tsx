@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import LanguageToggle from '@/components/portal/LanguageToggle';
@@ -331,10 +330,10 @@ export default function MainNav() {
   const loginSubmenuItems = portalState.submenu.filter((item) => item.href !== portalState.primary.href);
 
   return (
-    <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
+    <nav className={`main-nav main-nav--depth${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container" ref={navContainerRef}>
-        <LocalizedLink href="/" prefetch={false} className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
-          <Image src="/images/wap_logo.png" alt="Workforce Advancement Project" width={210} height={107} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
+        <LocalizedLink href="/" prefetch={false} className="logo nav-brand" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
+          <img src="/images/wap_logo.png" alt="Workforce Advancement Project" width={210} height={107} className="nav-logo-image" />
         </LocalizedLink>
 
         {/* Mobile toggle */}
@@ -541,7 +540,7 @@ export default function MainNav() {
           ))}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <LanguageToggle />
+              <span className="nav-lang-hidden"><LanguageToggle /></span>
               <ThemeToggle variant="marketing" />
             </div>
           </li>
@@ -549,7 +548,7 @@ export default function MainNav() {
 
         {/* Desktop-only theme toggle + language */}
         <div className="nav-theme-slot-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <LanguageToggle />
+          <span className="nav-lang-hidden"><LanguageToggle /></span>
           <ThemeToggle variant="marketing" />
         </div>
       </div>

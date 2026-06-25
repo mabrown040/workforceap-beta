@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 ---
 <Layout title="WorkforceAP — Empowering People. Advancing Futures.">
 <div class="mix3">
@@ -54,7 +55,7 @@ import Layout from '../layouts/Layout.astro';
 
         <div class="card card--front">
           <div class="front-head">
-            <div class="ic">✓</div>
+            <div class="ic"><Icon name="check" size={18} /></div>
             <div>
               <b>Application reviewed</b>
               <span>A real team follows up in 1–2 business days.</span>
@@ -77,12 +78,14 @@ import Layout from '../layouts/Layout.astro';
   <!-- ===== MISSION STATEMENT (verbatim, per founder) — directly below hero ===== -->
   <section class="mission">
     <div class="wrap">
-      <span class="mission-eyebrow">Our mission</span>
-      <p class="mission-lead">Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life no cost to the member who qualify through scholarship/grant funded membership.</p>
-      <p class="mission-action">Start with <a href="/find-your-path">Find Your Path</a>, see programs that fit, and get advisor guidance, resume help, and job-search support.</p>
-      <div class="mission-cta">
-        <a class="btn btn--primary" href="/find-your-path">Find Your Path →</a>
-        <a class="btn btn--ghost" href="/programs">See programs</a>
+      <div class="mission-card">
+        <span class="mission-eyebrow">Our mission</span>
+        <p class="mission-lead">Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life — at no cost to members who qualify through scholarship/grant funded membership.</p>
+        <p class="mission-action">Start with <a href="/find-your-path">Find Your Path</a>, see programs that fit, and get advisor guidance, resume help, and job-search support.</p>
+        <div class="mission-cta">
+          <a class="btn btn--primary" href="/find-your-path">Find Your Path →</a>
+          <a class="btn btn--ghost" href="/programs">See programs</a>
+        </div>
       </div>
     </div>
   </section>
@@ -246,63 +249,83 @@ import Layout from '../layouts/Layout.astro';
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
 
-  /* mission statement band (light, directly below hero) */
-  .mission{background:var(--surface);border-bottom:1px solid var(--border);padding:var(--sec-pad) 0}
-  .mission .wrap{max-width:920px;text-align:center}
-  .mission-eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--crimson);margin-bottom:18px}
-  .mission-lead{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:clamp(20px,2.5vw,28px);line-height:1.45;color:var(--text);letter-spacing:-.01em}
-  .mission-action{margin-top:20px;font-size:18px;line-height:1.6;color:var(--muted)}
+  /* mission statement — an elevated card that "pops" off a cream band,
+     then the page continues past it */
+  .mission{background:var(--bg);border-bottom:1px solid var(--border);padding:clamp(48px,6vw,76px) 0}
+  .mission .wrap{max-width:760px}
+  .mission-card{position:relative;text-align:center;background:var(--surface);
+    border:1px solid var(--border);border-radius:26px;padding:clamp(30px,4.5vw,52px);
+    box-shadow:0 30px 80px -30px rgba(109,20,55,.32),0 2px 4px rgba(28,20,20,.05);overflow:hidden}
+  .mission-card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--grad-text)}
+  .mission-eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--crimson);background:rgba(173,44,77,.08);border:1px solid rgba(173,44,77,.18);padding:6px 14px;border-radius:999px;margin-bottom:18px}
+  .mission-lead{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:clamp(18px,2.05vw,23px);line-height:1.5;color:var(--text);letter-spacing:-.01em}
+  .mission-action{margin-top:18px;font-size:16px;line-height:1.6;color:var(--muted)}
   .mission-action a{color:var(--crimson);font-weight:700}
-  .mission-cta{margin-top:26px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .mission-cta{margin-top:24px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  /* pop-in: scale up + lift as it enters (overrides the default reveal slide) */
+  html.js-reveal .mission-card[data-reveal]{opacity:0;transform:translateY(30px) scale(.95)}
+  html.js-reveal .mission-card[data-reveal].is-in{opacity:1;transform:none}
 
   .proof{display:flex;gap:30px;flex-wrap:wrap;margin-top:38px}
   .proof-i{display:flex;flex-direction:column;gap:2px}
   .proof-i b{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px;letter-spacing:-.02em}
-  .proof-i span{font-size:13px;color:rgba(255,255,255,.7);max-width:13em}
+  .proof-i span{font-size:13px;color:rgba(255,255,255,.82);max-width:13em}
 
   /* ---------------- STACKED GLASS DECK ---------------- */
   .deck{position:relative;min-height:430px}
+  /* Cards sit on a deep-plum frosted base (not a faint white tint) so white
+     text actually pops — readability over the crimson hero. */
   .card{position:absolute;left:0;right:0;border-radius:22px;padding:24px;
-    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+    background:linear-gradient(160deg,rgba(74,16,38,.62),rgba(45,8,22,.72));
+    border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(20px) saturate(1.1);
+    box-shadow:0 30px 80px -28px rgba(0,0,0,.78),0 1px 0 rgba(255,255,255,.3) inset;color:#fff}
 
-  .card--back{top:0;transform:rotate(-3deg) translateX(28px);background:rgba(255,255,255,.07);z-index:1}
-  .card-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:14px}
+  .card--back{top:0;transform:rotate(-3deg) translateX(28px);z-index:1}
+  .card-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:14px}
   .logos{display:flex;flex-wrap:wrap;gap:14px}
-  .logos span{font-family:'Plus Jakarta Sans';font-weight:800;font-size:16px;color:rgba(255,255,255,.92);
-    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:6px 12px;border-radius:10px}
+  .logos span{font-family:'Plus Jakarta Sans';font-weight:800;font-size:16px;color:#fff;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:10px}
 
-  .card--mid{top:96px;transform:rotate(1.5deg);z-index:2;background:rgba(255,255,255,.13)}
+  .card--mid{top:96px;transform:rotate(1.5deg);z-index:2}
   .mid-row{display:flex;align-items:center;justify-content:space-between}
-  .mid-row small{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.72);font-weight:700}
+  .mid-row small{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.9);font-weight:700}
   .dot-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;
-    background:rgba(74,155,79,.32);border:1px solid rgba(120,220,130,.4);padding:4px 10px;border-radius:999px}
+    background:rgba(74,155,79,.42);border:1px solid rgba(120,220,130,.5);padding:4px 10px;border-radius:999px}
   .dot-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#7fe389;box-shadow:0 0 8px #7fe389}
-  .mid-big{font-family:'Plus Jakarta Sans';font-weight:800;font-size:24px;margin:8px 0 18px}
+  .mid-big{font-family:'Plus Jakarta Sans';font-weight:800;font-size:24px;margin:8px 0 18px;color:#fff}
   .track{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .track i{height:8px;border-radius:5px;background:rgba(255,255,255,.2)}
+  .track i{height:8px;border-radius:5px;background:rgba(255,255,255,.34)}
   .track i.t-done{background:linear-gradient(90deg,#e3bd6a,#fff)}
-  .track i.t-now{background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8)}
+  .track i.t-now{background:#fff;box-shadow:0 0 12px rgba(255,255,255,.9)}
   .track-labels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:9px}
-  .track-labels span{font-size:11px;color:rgba(255,255,255,.7);text-align:center}
+  .track-labels span{font-size:11px;font-weight:600;color:rgba(255,255,255,.94);text-align:center}
 
-  .card--front{top:262px;transform:rotate(-1deg);z-index:3;background:rgba(255,255,255,.16)}
+  .card--front{top:262px;transform:rotate(-1deg);z-index:3}
   .front-head{display:flex;align-items:flex-start;gap:13px;margin-bottom:18px}
   .front-head .ic{flex-shrink:0;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
-    background:rgba(74,155,79,.32);border:1px solid rgba(120,220,130,.4);color:#caffce;font-weight:800;font-size:17px}
-  .front-head b{display:block;font-weight:700;font-size:15px}
-  .front-head span{font-size:13px;color:rgba(255,255,255,.78)}
-  .meter{display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px;border-radius:13px;
-    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:14px}
-  .meter span{font-size:13px;color:rgba(255,255,255,.8)}
-  .meter strong{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px;color:#f3d28f}
+    background:rgba(74,155,79,.45);border:1px solid rgba(120,220,130,.55);color:#dfffe2;font-weight:800;font-size:17px}
+  .front-head b{display:block;font-weight:700;font-size:15px;color:#fff}
+  .front-head span{font-size:13px;color:rgba(255,255,255,.9)}
+  .meter{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);margin-bottom:14px}
+  .meter span{font-size:13px;color:rgba(255,255,255,.94)}
+  .meter strong{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px;color:#f7d590}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
-    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+  .chips span{font-size:12px;font-weight:700;color:#fff;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.32)}
 
   @media (prefers-reduced-motion: no-preference){
     .deck{animation:mix3-float 8s ease-in-out infinite}
     @keyframes mix3-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  }
+
+  /* MOBILE: the absolute/rotated overlap clips on narrow screens, so un-stack
+     into a clean vertical flow — every card fully visible, nothing cut off.
+     The layered rotated deck stays on desktop where there's room. */
+  @media(max-width:880px){
+    .deck{position:static;min-height:0;display:flex;flex-direction:column;gap:16px;animation:none;margin-top:4px}
+    .card{position:static;left:auto;right:auto}
+    .card--back,.card--mid,.card--front{top:auto;transform:none}
   }
 
   /* ---------------- CREDS BAND ---------------- */
@@ -412,9 +435,6 @@ import Layout from '../layouts/Layout.astro';
   }
   @media(max-width:560px){
     .blk{padding:var(--sec-pad) 0}
-    .card--back{transform:rotate(-2deg)}
-    .card--mid{transform:rotate(1deg)}
-    .card--front{transform:rotate(0)}
     .acts .bbtn{width:100%;justify-content:center}
   }
 </style>

@@ -1,0 +1,367 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+
+// ════════════════════════════════════════════════════════════════════
+// IT Automation with Python (Google) — landing page.
+// Real content mirrored from lib/content/programs.ts (PROGRAMS) and
+// lib/content/programExtras.ts for slug `it-automation-with-python-google`.
+//  title:    IT Automation with Python Certificate (Google)
+//  partner:  Google   duration: 3-5 months, 10 hrs/week
+//  salary:   $78K–$98K (Austin market estimate; Lightcast/BLS, Jan 2026)
+//  skills:   Python, Git, Bash, APIs, IT automation
+//  courses:  6 (Coursera-aligned track)
+// Behavior preserved: Apply CTA → /apply?program=it-automation-with-python-google
+// ════════════════════════════════════════════════════════════════════
+const SLUG = 'it-automation-with-python-google';
+const displayTitle = 'IT Automation with Python Certificate (Google)';
+const partner = 'Google';
+const duration = '3-5 months, 10 hrs/week';
+const salaryRange = '$78K–$98K';
+const applyUrl = `/apply?program=${SLUG}`;
+
+// Decision extras (programExtras.ts → it-automation-with-python-google)
+const bestFor = 'Automation and scripting. Builds on basic IT or Python knowledge.';
+const rampNote = 'Some Python comfort helps. Good next step after IT Support or A+.';
+const jobOutcomes = ['IT Automation Specialist', 'DevOps Engineer', 'Systems Engineer'];
+
+const skills = ['Python', 'Git', 'Bash', 'APIs', 'IT automation'];
+
+// Real Coursera-aligned course list (programs.ts)
+const courses = [
+  { name: 'Crash Course on Python', icon: 'book-open' },
+  { name: 'Using Python to Interact with the Operating System', icon: 'laptop' },
+  { name: 'Introduction to Git and GitHub', icon: 'globe' },
+  { name: 'Troubleshooting and Debugging Techniques', icon: 'search' },
+  { name: 'Configuration Management and the Cloud', icon: 'clipboard' },
+  { name: 'Automating Real-World Tasks with Python', icon: 'sparkle' },
+];
+
+// Four headline stats
+const stats = [
+  { icon: 'laptop', value: duration, label: 'Self-paced online' },
+  { icon: 'dollar', value: salaryRange, label: 'Starting salary range' },
+  { icon: 'award', value: partner, label: 'Industry-recognized cert' },
+  { icon: 'shield', value: 'WIOA Eligible', label: 'No cost for qualifying members' },
+];
+
+// Apply → Approved → Train → Hired
+const journey = [
+  { num: '1', label: 'Apply', desc: '3-minute application', icon: 'users' },
+  { num: '2', label: 'Approved', desc: 'WIOA eligibility check', icon: 'check-circle' },
+  { num: '3', label: 'Train', desc: duration, icon: 'book-open' },
+  { num: '4', label: 'Hired', desc: 'Job placement support', icon: 'star' },
+];
+
+// WIOA eligibility criteria (verbatim from the Next page)
+const wioaCriteria = [
+  'Currently unemployed or underemployed',
+  'Received a notice of layoff or termination',
+  'Dislocated worker due to plant closure or trade impact',
+  'Low-income individual facing barriers to employment',
+  'Veteran or eligible spouse seeking career transition',
+];
+---
+<Layout
+  title={`${displayTitle} — Free Certification in Austin, TX`}
+  description={`Free ${partner} IT certification in Austin for members who qualify through scholarship/grant funded membership. ${duration}. Starting salary ${salaryRange}. WIOA-funded — apply at no cost. No experience required.`}
+>
+<div class="lpdepth">
+
+<!-- ══════════════════════════════════════════════ HERO — DEPTH STAGE (outcomes-focused) ══════════════════════════════════════════════ -->
+<section class="stage">
+  <div class="aura aura--1"></div>
+  <div class="aura aura--2"></div>
+  <div class="aura aura--3"></div>
+  <div class="grain"></div>
+
+  <div class="wrap stage-grid">
+    <div class="lede">
+      <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>IT &amp; Cybersecurity</span>
+      <h1>Get a {partner} IT Certification <span class="shimmer">at no cost</span></h1>
+      <p class="sub">WIOA-funded training in Austin for members who qualify through scholarship/grant funded membership. {duration}. No prior experience required. Earn a {partner}-recognized certificate and start working in IT automation.</p>
+      <div class="acts">
+        <a class="dbtn dbtn--solid" href={applyUrl}>Apply now <span>→</span></a>
+        <span class="meta-note">Takes 3 minutes • No credit card required</span>
+      </div>
+    </div>
+
+    <!-- glass stat card -->
+    <div class="hero-glass">
+      <div class="hg-tag">{partner}-recognized credential</div>
+      <div class="hg-meter">
+        <span>Starting salary range</span>
+        <strong>{salaryRange}</strong>
+      </div>
+      <div class="hg-rows">
+        <div class="hg-row"><Icon name="clock" size={16} /> {duration}</div>
+        <div class="hg-row"><Icon name="laptop" size={16} /> Self-paced online</div>
+        <div class="hg-row"><Icon name="shield" size={16} /> WIOA eligible</div>
+      </div>
+      <div class="hg-chips">
+        <span>No cost for qualifying members</span>
+        <span>WIOA-funded</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ STATS BAND ══════════════════════════════════════════════ -->
+<section class="band band--surface stats-band"><div class="wrap">
+  <div class="stats-grid">
+    {stats.map((s) => (
+      <div class="stat">
+        <span class="stat-ic"><Icon name={s.icon} size={22} /></span>
+        <div class="stat-val">{s.value}</div>
+        <div class="stat-lab">{s.label}</div>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ WHAT YOU WILL LEARN ══════════════════════════════════════════════ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Curriculum</span>
+    <h2>What you <span class="grad-text">will learn</span></h2>
+    <p>Six Coursera-aligned courses take you from Python fundamentals to automating real-world tasks.</p>
+  </div>
+  <div class="learn-grid">
+    {courses.map((c) => (
+      <div class="learn-card">
+        <span class="learn-ic"><Icon name={c.icon} size={20} /></span>
+        <div class="learn-name">{c.name}</div>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ JOB OUTCOMES ══════════════════════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Outcomes</span>
+    <h2>Where this <span class="grad-text">can lead</span></h2>
+  </div>
+  <p class="outcome-lead"><strong>Best for:</strong> {bestFor}<br /><strong>Ramp:</strong> {rampNote}</p>
+  <div class="skill-chips">
+    {skills.map((s) => (
+      <span class="skill-chip"><Icon name="check-circle" size={14} /> {s}</span>
+    ))}
+  </div>
+  <div class="outcome-grid">
+    {jobOutcomes.map((job) => (
+      <div class="outcome-card">
+        <span class="outcome-ic"><Icon name="trending-up" size={20} /></span>
+        <div class="outcome-name">{job}</div>
+      </div>
+    ))}
+  </div>
+  <p class="truth">Salary range is an Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ YOUR JOURNEY ══════════════════════════════════════════════ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Your journey</span>
+    <h2>Apply <span class="grad-text">to hired</span></h2>
+  </div>
+  <div class="steps">
+    {journey.map((s) => (
+      <div class="stepcard">
+        <div class="num">{s.num}</div>
+        <span class="step-ic"><Icon name={s.icon} size={20} /></span>
+        <h3>{s.label}</h3>
+        <p>{s.desc}</p>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ WIOA ELIGIBILITY ══════════════════════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Funding</span>
+    <h2>WIOA <span class="grad-text">eligibility</span></h2>
+  </div>
+  <div class="wioa-card">
+    <p class="wioa-intro">This program is offered at no cost to members who qualify through scholarship/grant funded membership, under Workforce Innovation and Opportunity Act (WIOA) funding for qualifying Texas residents. You may be eligible if you meet one or more of the following:</p>
+    <ul class="wioa-list">
+      {wioaCriteria.map((item) => (
+        <li><span class="chk"><Icon name="check" size={14} /></span> {item}</li>
+      ))}
+    </ul>
+    <p class="wioa-foot">Not sure if you qualify? Apply anyway — our counselors review every application and will guide you to the right pathway.</p>
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ CLOSING CTA — DEPTH crimson band ══════════════════════════════════════════════ -->
+<section class="close">
+  <div class="close__media" aria-hidden="true"></div>
+  <div class="close__veil" aria-hidden="true"></div>
+  <div class="close__inner wrap">
+    <span class="pill pill--solid"><span class="pill__star"><Icon name="star" size={11} /></span>Austin, TX • Remote-friendly</span>
+    <h2>Start your IT career today</h2>
+    <p>Free {partner} certification for members who qualify through scholarship/grant funded membership. WIOA-funded. Apply in 3 minutes.</p>
+    <div class="acts acts--center">
+      <a class="bbtn bbtn--gold" href={applyUrl}>Apply now →</a>
+      <a class="bbtn bbtn--outline" href="/find-your-path">Find your path</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SEO FOOTER ══════════════════════════════════════════════ -->
+<section class="band seo-foot"><div class="wrap">
+  <p>Workforce Advancement Project offers <strong>free Google IT certification in Austin</strong> through WIOA-funded career training programs for members who qualify through scholarship/grant funded membership. Earn your Google IT Automation with Python Certificate at no cost if you qualify. Self-paced online courses with job placement support for Austin-area residents. No prior experience required — apply today and start your IT career in Texas.</p>
+</div></section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     IT AUTOMATION (GOOGLE) LP — DEPTH aesthetic (matches programs.astro /
+     how-it-works.astro). depth stage hero + glass card → light alternating
+     bands with elevated cards → depth crimson closing CTA.
+     =================================================================== */
+  .lpdepth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-170px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95;display:inline-flex}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(36px,5vw,58px);
+    line-height:1.05;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:18px;line-height:1.55;color:rgba(255,255,255,.82);max-width:36em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .acts--center{justify-content:center}
+  .meta-note{font-size:13px;color:rgba(255,255,255,.7)}
+
+  /* hero glass stat card */
+  .hero-glass{position:relative;border-radius:22px;padding:28px;
+    background:rgba(255,255,255,.13);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:16px}
+  .hg-meter{display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:16px}
+  .hg-meter span{font-size:13px;color:rgba(255,255,255,.8)}
+  .hg-meter strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:30px;color:#f3d28f;line-height:1}
+  .hg-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .hg-row{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.9)}
+  .hg-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .hg-chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  /* ---------------- LIGHT BODY BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--surface{background:var(--surface)}
+
+  .sec-head{max-width:720px;margin:0 auto 44px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+  .sec-head p{color:var(--muted);font-size:18px;line-height:1.55}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .grad-text{background:linear-gradient(100deg,var(--crimson),var(--gold-dark));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* stats band */
+  .stats-band{padding-top:36px;padding-bottom:36px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+  .stat{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:22px 16px;box-shadow:var(--shadow)}
+  .stat-ic{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:rgba(173,44,77,.1);color:var(--crimson);margin-bottom:12px}
+  .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;margin-bottom:4px}
+  .stat-lab{font-size:13px;color:var(--muted)}
+  @media(max-width:780px){.stats-grid{grid-template-columns:1fr 1fr}}
+
+  /* curriculum */
+  .learn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:980px;margin:0 auto}
+  .learn-card{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .learn-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .band--surface .learn-card,.band--surface .stat{background:var(--bg)}
+  .learn-ic{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:11px;background:rgba(173,44,77,.1);color:var(--crimson);flex-shrink:0}
+  .learn-name{font-weight:700;font-size:15px;line-height:1.4}
+  @media(max-width:900px){.learn-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.learn-grid{grid-template-columns:1fr}}
+
+  /* outcomes */
+  .outcome-lead{max-width:680px;margin:0 auto 24px;text-align:center;color:var(--muted);font-size:16px;line-height:1.6}
+  .outcome-lead strong{color:var(--text)}
+  .skill-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:32px}
+  .skill-chip{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;padding:7px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text)}
+  .band--surface .skill-chip{background:var(--bg)}
+  .skill-chip :global(svg){color:var(--green)}
+  .outcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:820px;margin:0 auto}
+  .outcome-card{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .band--surface .outcome-card{background:var(--bg)}
+  .outcome-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .outcome-ic{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:rgba(173,44,77,.1);color:var(--crimson)}
+  .outcome-name{font-weight:700;font-size:15px}
+  @media(max-width:700px){.outcome-grid{grid-template-columns:1fr}}
+  .truth{max-width:680px;margin:32px auto 0;text-align:center;color:var(--muted);font-size:13px;
+    background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:16px 20px}
+
+  /* journey steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:980px;margin:0 auto}
+  .stepcard{position:relative;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 22px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .stepcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .stepcard .num{width:48px;height:48px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;margin:0 auto 12px;box-shadow:0 12px 30px -10px rgba(173,44,77,.5)}
+  .step-ic{display:inline-grid;place-items:center;color:var(--crimson);margin-bottom:10px}
+  .stepcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;margin-bottom:6px}
+  .stepcard p{color:var(--muted);font-size:14px;line-height:1.5}
+  @media(max-width:880px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.steps{grid-template-columns:1fr}}
+
+  /* WIOA card */
+  .wioa-card{max-width:760px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px;box-shadow:var(--shadow);border-top:6px solid var(--crimson)}
+  .wioa-intro{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:20px}
+  .wioa-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .wioa-list li{display:flex;align-items:center;gap:12px;font-size:15px;line-height:1.5}
+  .wioa-list .chk{width:24px;height:24px;border-radius:7px;background:rgba(74,155,79,.15);color:var(--green);display:grid;place-items:center;flex-shrink:0}
+  .wioa-foot{margin-top:20px;font-size:14px;color:var(--muted)}
+  @media(max-width:600px){.wioa-card{padding:26px 24px}}
+
+  /* ---------------- DEPTH CLOSING CTA (full-bleed crimson) ---------------- */
+  .close{position:relative;overflow:hidden;width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max);margin:0 auto}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,60px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:40em;margin:0 auto 30px;line-height:1.5}
+
+  /* SEO footer */
+  .seo-foot{padding-top:28px;padding-bottom:28px}
+  .seo-foot p{max-width:720px;margin:0 auto;text-align:center;font-size:13px;color:var(--muted);line-height:1.7}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

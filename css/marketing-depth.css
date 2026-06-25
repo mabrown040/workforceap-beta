@@ -45,3 +45,187 @@
 .mdx-eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   color:var(--mdx-crimson);background:rgba(173,44,77,.08);border:1px solid rgba(173,44,77,.18);padding:7px 14px;border-radius:999px}
 .mdx-section{padding:clamp(40px,6vw,72px) 0}
+
+/* ============================================================
+   Shared Next marketing chrome re-skin (.main-nav--depth) — makes
+   the kept-Next MainNav visually match the Astro depth nav (.top in
+   marketing/src/styles/blend.css): light blurred sticky surface,
+   crimson WorkforceAP brand mark, clean gradient-underline links,
+   white card dropdowns, crimson Apply CTA, blur-on-scroll. VISUAL
+   ONLY — MainNav.tsx keeps all dropdown/auth/toggle logic. We force
+   the light marketing look in BOTH themes (the public marketing
+   front is light-only) by qualifying with `html`/`html.dark` so we
+   beat the legacy theme-specific rules in main.css without editing it.
+   ============================================================ */
+:root{
+  /* mirror blend.css tokens for the chrome */
+  --depthnav-crimson:#ad2c4d; --depthnav-accent-dark:#8c0f37; --depthnav-plum:#6d1437;
+  --depthnav-gold:#a47f38; --depthnav-bg:#f7f4f1; --depthnav-surface:#fff;
+  --depthnav-surface-2:#fbf8f6; --depthnav-text:#1a1414; --depthnav-muted:#6e6a66; --depthnav-border:#ece5e0;
+  --depthnav-grad:linear-gradient(135deg,#ad2c4d 0%,#8c0f37 52%,#6d1437 100%);
+  --depthnav-grad-text:linear-gradient(100deg,#ad2c4d,#a47f38);
+}
+
+/* ---- bar: light blurred sticky surface (matches nav.top) ---- */
+html .main-nav--depth,
+html.dark .main-nav--depth{
+  background:rgba(247,244,241,.82);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--depthnav-border);
+  box-shadow:none;
+  transition:background .25s,box-shadow .25s,border-color .25s;
+}
+html .main-nav--depth.scrolled,
+html.dark .main-nav--depth.scrolled{
+  background:rgba(247,244,241,.94);
+  box-shadow:0 10px 40px -24px rgba(28,20,20,.45);
+  border-bottom-color:transparent;
+}
+/* kill the legacy dark-scrim overlay */
+.main-nav--depth::after{display:none!important}
+
+.main-nav--depth .nav-container{gap:2rem}
+
+/* ---- brand: crimson triangle mark + WorkforceAP wordmark ---- */
+.main-nav--depth .nav-brand{
+  display:inline-flex;align-items:center;gap:11px;margin-left:0;
+  font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif;font-weight:800;
+}
+.main-nav--depth .nav-brand:hover{transform:none;filter:none}
+.main-nav--depth .nav-brand-mark{
+  width:38px;height:38px;border-radius:11px;background:var(--depthnav-grad);
+  display:grid;place-items:center;color:#fff;font-size:18px;line-height:1;flex-shrink:0;
+}
+.main-nav--depth .nav-logo-image{height:46px;width:auto;display:block}
+@media(max-width:900px){.main-nav--depth .nav-logo-image{height:40px}}
+.main-nav--depth .nav-brand-text{font-size:20px;color:var(--depthnav-text);letter-spacing:-.01em}
+.main-nav--depth .nav-brand-text b{color:var(--depthnav-crimson);font-weight:800}
+html.dark .main-nav--depth .nav-brand-text{color:var(--depthnav-text)}
+.main-nav--depth.scrolled .nav-brand-mark{width:38px;height:38px}
+
+/* ---- desktop links: muted, gradient underline on hover/active ---- */
+html .main-nav--depth .nav-menu > li > a,
+html .main-nav--depth .nav-menu .dropdown .dropdown-trigger,
+html.dark .main-nav--depth .nav-menu > li > a,
+html.dark .main-nav--depth .nav-menu .dropdown .dropdown-trigger,
+html:not(.dark) .main-nav--depth.scrolled .nav-menu > li > a,
+html:not(.dark) .main-nav--depth.scrolled .nav-menu .dropdown .dropdown-trigger{
+  color:var(--depthnav-muted);font-size:15px;font-weight:600;
+}
+html .main-nav--depth .nav-menu > li > a:hover,
+html .main-nav--depth .nav-menu .dropdown:hover .dropdown-trigger,
+html .main-nav--depth .nav-menu .dropdown .dropdown-trigger.active,
+html:not(.dark) .main-nav--depth.scrolled .nav-menu > li > a:hover,
+html:not(.dark) .main-nav--depth.scrolled .nav-menu a.active{
+  color:var(--depthnav-text);
+}
+html .main-nav--depth .nav-menu a.active{color:var(--depthnav-text);font-weight:600}
+/* gradient underline (replaces the gold sliver) */
+.main-nav--depth .nav-menu > li > a::after{
+  background:var(--depthnav-grad-text)!important;height:2px;bottom:-6px;border-radius:2px;
+}
+html:not(.dark) .main-nav--depth.scrolled .nav-menu a.active::after{
+  background:var(--depthnav-grad-text)!important;width:100%;
+}
+.main-nav--depth .nav-menu .dropdown .dropdown-trigger::after{
+  border-top-color:currentColor;opacity:.6;
+}
+
+/* ---- dropdowns: white card, rounded, soft shadow ---- */
+html .main-nav--depth .dropdown-menu,
+html.dark .main-nav--depth .dropdown-menu{
+  background:var(--depthnav-surface);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  border:1px solid var(--depthnav-border);border-radius:14px;padding:8px;
+  min-width:212px;box-shadow:0 24px 70px -24px rgba(109,20,55,.30);
+}
+html .main-nav--depth .dropdown-menu a,
+html.dark .main-nav--depth .dropdown-menu a{
+  display:block;padding:10px 12px;border-radius:9px;font-size:14px;font-weight:600;
+  color:var(--depthnav-text)!important;
+}
+html .main-nav--depth .dropdown-menu a:hover,
+html.dark .main-nav--depth .dropdown-menu a:hover{
+  background:var(--depthnav-surface-2);color:var(--depthnav-crimson)!important;padding-left:12px;
+}
+html .main-nav--depth .dropdown-menu a.active{color:var(--depthnav-crimson)!important}
+
+/* ---- Login / Account split: clean text + chevron ---- */
+html .main-nav--depth .nav-menu .nav-login-primary,
+html.dark .main-nav--depth .nav-menu .nav-login-primary,
+html:not(.dark) .main-nav--depth.scrolled .nav-menu .nav-login-primary,
+html:not(.dark) .main-nav--depth.scrolled .nav-menu .nav-login-flyout-trigger{
+  color:var(--depthnav-muted);font-size:15px;font-weight:600;
+}
+.main-nav--depth .nav-login-primary:hover{color:var(--depthnav-text)}
+.main-nav--depth .nav-login-flyout-chevron{border-top-color:currentColor;opacity:.6}
+.main-nav--depth .nav-login-dropdown.active .nav-login-flyout-trigger{color:var(--depthnav-crimson)}
+
+/* ---- Apply CTA: crimson gradient primary (matches .btn--primary) ---- */
+.main-nav--depth .nav-cta,
+.main-nav--depth a.nav-cta{
+  background:var(--depthnav-grad)!important;color:#fff!important;
+  border:1px solid transparent!important;border-radius:14px!important;
+  font-weight:700;font-size:15px;padding:12px 20px!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 12px 32px -10px rgba(173,44,77,.55)!important;
+  transition:transform .15s,box-shadow .2s,background .2s;
+}
+.main-nav--depth .nav-cta:hover,
+.main-nav--depth a.nav-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 18px 44px -10px rgba(173,44,77,.62)!important;
+}
+
+/* ---- mobile toggle: light pill (matches blend hamburger) ---- */
+html .main-nav--depth .mobile-nav-toggle,
+html.dark .main-nav--depth .mobile-nav-toggle{
+  background:var(--depthnav-surface);border:1px solid var(--depthnav-border);
+  color:var(--depthnav-text);border-radius:11px;box-shadow:none;
+}
+html .main-nav--depth .mobile-nav-toggle:hover,
+html.dark .main-nav--depth .mobile-nav-toggle:hover{
+  background:var(--depthnav-surface-2);border-color:var(--depthnav-crimson);
+}
+
+/* hide language toggle to match marketing chrome (kept in DOM; logic intact) */
+.main-nav--depth .nav-lang-hidden{display:none!important}
+
+/* ============================================================
+   Mobile drawer re-skin — light surface, crimson accents.
+   ============================================================ */
+@media (max-width:900px){
+  html .main-nav--depth .nav-menu,
+  html.dark .main-nav--depth .nav-menu{
+    background:var(--depthnav-surface);
+    border:1px solid var(--depthnav-border);
+    box-shadow:0 30px 90px -30px rgba(109,20,55,.35);
+  }
+  .main-nav--depth .nav-menu::before{color:var(--depthnav-muted)}
+  .main-nav--depth .nav-menu li{border-bottom-color:var(--depthnav-border)}
+  html .main-nav--depth .nav-menu > li > a,
+  html .main-nav--depth .nav-menu .dropdown > .dropdown-trigger,
+  html.dark .main-nav--depth .nav-menu > li > a,
+  html.dark .main-nav--depth .nav-menu .dropdown > .dropdown-trigger,
+  html .main-nav--depth .nav-menu .nav-login-primary,
+  html .main-nav--depth .nav-menu .nav-login-flyout-trigger{
+    color:var(--depthnav-text);
+  }
+  .main-nav--depth .nav-menu > li > a:active,
+  .main-nav--depth .nav-menu .dropdown > .dropdown-trigger:active{
+    background:var(--depthnav-surface-2);
+  }
+  .main-nav--depth .nav-menu .dropdown .dropdown-trigger::after{border-top-color:var(--depthnav-muted)}
+  html .main-nav--depth .dropdown-menu,
+  html.dark .main-nav--depth .dropdown-menu{
+    background:var(--depthnav-surface-2);
+    border:1px solid var(--depthnav-border);box-shadow:none;
+  }
+  html .main-nav--depth .dropdown-menu a,
+  html.dark .main-nav--depth .dropdown-menu a{color:var(--depthnav-text)!important}
+  html .main-nav--depth .dropdown-menu a:hover,
+  html .main-nav--depth .dropdown-menu a:active{
+    background:rgba(173,44,77,.06);color:var(--depthnav-crimson)!important;
+  }
+  html .main-nav--depth .dropdown-menu a.active{color:var(--depthnav-crimson)!important}
+  .main-nav--depth .mobile-nav-group-heading{color:var(--depthnav-muted)}
+}

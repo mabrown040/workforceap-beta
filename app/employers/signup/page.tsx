@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Building2, Loader2, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import './signup-depth.css';
 
 export default function EmployerSignupPage() {
   const router = useRouter();
@@ -88,21 +89,21 @@ export default function EmployerSignupPage() {
   }
 
   return (
-    <div className="mdx min-h-screen bg-[#F5F4F0]">
+    <div className="mdx signup-depth min-h-screen">
       {/* Nav */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav>
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#1B365D] rounded-lg flex items-center justify-center">
+            <div className="sd-logo-mark w-8 h-8 rounded-lg flex items-center justify-center">
               <Building2 className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-[#1B365D] text-lg">WorkforceAP</span>
+            <span className="sd-brand font-semibold text-lg">WorkforceAP</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/employers" className="text-sm text-gray-600 hover:text-[#1B365D] font-medium">
+            <Link href="/employers" className="sd-navlink text-sm">
               For Employers
             </Link>
-            <Link href="/login" className="text-sm text-[#1B365D] font-medium hover:underline">
+            <Link href="/login" className="sd-navlink sd-navlink--accent text-sm hover:underline">
               Log in
             </Link>
           </div>
@@ -112,11 +113,11 @@ export default function EmployerSignupPage() {
       <main className="max-w-2xl mx-auto px-4 py-12">
         {success && !loading ? (
           <div className="mdx-card p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="sd-success-ring w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Created</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="sd-title text-2xl font-bold mb-2">Account Created</h1>
+            <p className="sd-lede mb-6">
               {successMessage ||
                 'Account created. Please check your email to verify your account before logging in.'}
             </p>
@@ -129,19 +130,19 @@ export default function EmployerSignupPage() {
           </div>
         ) : (
           <>
-            <section className="mdx-stage text-center mb-8">
+            <section className="mdx-stage text-center mb-8 p-8 sm:p-10">
               <span className="mdx-pill">For Employers</span>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold mb-2 mt-4">
                 Create Your <span className="mdx-grad-accent">Employer</span> Account
               </h1>
-              <p className="text-gray-600">
+              <p className="mx-auto">
                 Start a pipeline subscription to access training-aligned candidates. $499/mo Growth tier. Cancel anytime.
               </p>
             </section>
 
             <form onSubmit={handleSubmit} className="mdx-card p-8 space-y-6">
               {error && (
-                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div className="sd-error flex items-start gap-3 p-4 text-sm">
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -151,8 +152,8 @@ export default function EmployerSignupPage() {
               <div className="space-y-4">
                 <h2 className="mdx-eyebrow">Company Information</h2>
                 <div>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Name <span className="text-red-500">*</span>
+                  <label htmlFor="companyName" className="sd-label block text-sm mb-1">
+                    Company Name <span className="sd-req">*</span>
                   </label>
                   <input
                     id="companyName"
@@ -160,13 +161,13 @@ export default function EmployerSignupPage() {
                     required
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                    className="sd-field"
                     placeholder="Acme Corp"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="industry" className="sd-label block text-sm mb-1">
                       Industry
                     </label>
                     <input
@@ -174,19 +175,19 @@ export default function EmployerSignupPage() {
                       type="text"
                       value={industry}
                       onChange={(e) => setIndustry(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                      className="sd-field"
                       placeholder="e.g. Healthcare, Tech"
                     />
                   </div>
                   <div>
-                    <label htmlFor="companySize" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="companySize" className="sd-label block text-sm mb-1">
                       Company Size
                     </label>
                     <select
                       id="companySize"
                       value={companySize}
                       onChange={(e) => setCompanySize(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                      className="sd-field"
                     >
                       <option value="">Select size</option>
                       <option value="1-10">1-10 employees</option>
@@ -203,8 +204,8 @@ export default function EmployerSignupPage() {
               <div className="space-y-4">
                 <h2 className="mdx-eyebrow">Contact Information</h2>
                 <div>
-                  <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name <span className="text-red-500">*</span>
+                  <label htmlFor="contactName" className="sd-label block text-sm mb-1">
+                    Your Name <span className="sd-req">*</span>
                   </label>
                   <input
                     id="contactName"
@@ -212,14 +213,14 @@ export default function EmployerSignupPage() {
                     required
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                    className="sd-field"
                     placeholder="Jane Smith"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Work Email <span className="text-red-500">*</span>
+                    <label htmlFor="email" className="sd-label block text-sm mb-1">
+                      Work Email <span className="sd-req">*</span>
                     </label>
                     <input
                       id="email"
@@ -227,12 +228,12 @@ export default function EmployerSignupPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                      className="sd-field"
                       placeholder="jane@company.com"
                     />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="phone" className="sd-label block text-sm mb-1">
                       Phone
                     </label>
                     <input
@@ -240,7 +241,7 @@ export default function EmployerSignupPage() {
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                      className="sd-field"
                       placeholder="(512) 555-1234"
                     />
                   </div>
@@ -251,8 +252,8 @@ export default function EmployerSignupPage() {
               <div className="space-y-4">
                 <h2 className="mdx-eyebrow">Account Security</h2>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password <span className="text-red-500">*</span>
+                  <label htmlFor="password" className="sd-label block text-sm mb-1">
+                    Password <span className="sd-req">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -264,13 +265,13 @@ export default function EmployerSignupPage() {
                         setPassword(e.target.value);
                         setPasswordErrors(validatePassword(e.target.value));
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent pr-12"
+                      className="sd-field pr-12"
                       placeholder="Create a strong password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="sd-pw-toggle"
                       tabIndex={-1}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -279,8 +280,8 @@ export default function EmployerSignupPage() {
                   {passwordErrors.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {passwordErrors.map((err) => (
-                        <li key={err} className="text-xs text-red-600 flex items-center gap-1">
-                          <span className="w-1 h-1 bg-red-500 rounded-full" />
+                        <li key={err} className="text-xs flex items-center gap-1" style={{ color: '#8c0f37' }}>
+                          <span className="sd-pw-dot" />
                           {err}
                         </li>
                       ))}
@@ -291,7 +292,7 @@ export default function EmployerSignupPage() {
 
               {/* How they heard */}
               <div>
-                <label htmlFor="hearAbout" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="hearAbout" className="sd-label block text-sm mb-1">
                   How did you hear about WorkforceAP?
                 </label>
                 <input
@@ -299,7 +300,7 @@ export default function EmployerSignupPage() {
                   type="text"
                   value={hearAbout}
                   onChange={(e) => setHearAbout(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B365D] focus:border-transparent"
+                  className="sd-field"
                   placeholder="Referral, search, event, etc."
                 />
               </div>
@@ -311,15 +312,15 @@ export default function EmployerSignupPage() {
                   type="checkbox"
                   checked={consentTerms}
                   onChange={(e) => setConsentTerms(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-[#1B365D] border-gray-300 rounded focus:ring-[#1B365D]"
+                  className="sd-checkbox mt-1 w-4 h-4 rounded"
                 />
-                <label htmlFor="consentTerms" className="text-sm text-gray-600">
+                <label htmlFor="consentTerms" className="text-sm" style={{ color: '#6e6a66' }}>
                   I agree to the{' '}
-                  <Link href="/terms" className="text-[#1B365D] font-medium hover:underline">
+                  <Link href="/terms" className="sd-inline-link">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-[#1B365D] font-medium hover:underline">
+                  <Link href="/privacy" className="sd-inline-link">
                     Privacy Policy
                   </Link>
                   .
@@ -329,7 +330,7 @@ export default function EmployerSignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mdx-btn mdx-btn--solid w-full flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="mdx-btn mdx-btn--primary w-full flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -341,9 +342,9 @@ export default function EmployerSignupPage() {
                 )}
               </button>
 
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-sm" style={{ color: '#6e6a66' }}>
                 Already have an account?{' '}
-                <Link href="/login" className="text-[#1B365D] font-medium hover:underline">
+                <Link href="/login" className="sd-inline-link">
                   Log in
                 </Link>
               </p>

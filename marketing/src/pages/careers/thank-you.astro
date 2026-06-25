@@ -1,0 +1,175 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Content mirrored verbatim from messages/en.json marketing.thankYou.careers,
+// the strings rendered by the Next route app/careers/thank-you/page.tsx
+// (ConversionThankYouPage, funnel="careers").
+const bullets = [
+  {
+    icon: 'check-circle',
+    title: 'Application review',
+    desc: 'We read every introduction against open roles and upcoming needs.',
+  },
+  {
+    icon: 'mail',
+    title: 'Follow-up email',
+    desc: 'If there is a match now or soon, we’ll reach out to schedule a conversation.',
+  },
+  {
+    icon: 'users',
+    title: 'Talent pool',
+    desc: 'Strong fits may stay on file for future counselor, engineering, or ops openings.',
+  },
+];
+---
+<Layout
+  title="Introduction received"
+  description="Thanks for your interest in working at WorkforceAP."
+>
+<div class="tydepth">
+
+  <!-- ══════════════════════════ HERO — DEPTH STAGE ══════════════════════════ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-inner">
+      <span class="pill"><span class="pill__star"><Icon name="check-circle" size={13} /></span>Introduction received</span>
+      <h1>Thanks <span class="shimmer">— we got your note.</span></h1>
+      <p class="sub">Our team reviews every careers introduction and will email you if there is a fit.</p>
+      <div class="acts acts--center">
+        <a class="dbtn dbtn--solid" href="/careers">View careers page <span>&rarr;</span></a>
+        <a class="dbtn dbtn--glass" href="/">Back to home</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════ WHAT HAPPENS NEXT ══════════════════════════ -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">What happens next</span>
+      <h2>Here&rsquo;s what to <span class="grad-text">expect</span></h2>
+      <p>No need to do anything else right now. We&rsquo;ll take it from here.</p>
+    </div>
+    <div class="tri">
+      {bullets.map((b) => (
+        <div class="acard">
+          <div class="ic"><Icon name={b.icon} size={24} /></div>
+          <h3>{b.title}</h3>
+          <p>{b.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div></section>
+
+  <!-- ══════════════════════════ CLOSING CTA — DEPTH crimson band ══════════════════════════ -->
+  <section class="close">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <span class="pill pill--solid"><span class="pill__star"><Icon name="briefcase" size={11} /></span>Open roles &amp; future needs</span>
+      <h2>While you wait</h2>
+      <p>See current openings or head back home — strong fits may stay on file for future counselor, engineering, or ops openings.</p>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href="/careers">View careers page &rarr;</a>
+        <a class="bbtn bbtn--outline" href="/">Back to home</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     CAREERS THANK-YOU — DEPTH aesthetic (matches programs/how-it-works).
+     centered depth stage hero, light "what's next" band, crimson close.
+     =================================================================== */
+  .tydepth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:96px 0 104px;
+  }
+  .stage-inner{position:relative;z-index:2;text-align:center;max-width:780px;margin:0 auto}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-170px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:18%;left:40%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);opacity:.16}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{display:inline-flex;align-items:center}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .stage-inner h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(40px,5.6vw,66px);
+    line-height:1.03;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stage-inner .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.84);max-width:36em;margin:22px auto 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+
+  /* ---------------- LIGHT BODY BAND ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--surface{background:var(--surface)}
+
+  .sec-head{max-width:720px;margin:0 auto 44px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+  .sec-head p{color:var(--muted);font-size:19px;line-height:1.55}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .grad-text{background:linear-gradient(100deg,var(--crimson),var(--gold-dark));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* tri-card grid — "what's next" steps */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .acard{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:30px 28px;box-shadow:var(--shadow);border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .acard:nth-child(2){border-top-color:var(--gold)}
+  .acard:nth-child(3){border-top-color:var(--blue)}
+  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .acard .ic{width:52px;height:52px;border-radius:14px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;margin-bottom:16px}
+  .acard:nth-child(2) .ic{background:rgba(164,127,56,.12);color:var(--gold-dark)}
+  .acard:nth-child(3) .ic{background:rgba(45,90,160,.1);color:var(--blue)}
+  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;margin-bottom:10px}
+  .acard p{color:var(--muted);font-size:15.5px;line-height:1.55}
+  @media(max-width:880px){.tri{grid-template-columns:1fr}}
+
+  /* ---------------- DEPTH CLOSING CTA (full-bleed crimson) ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,64px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:72px 0 84px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .acts .bbtn,.acts .dbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

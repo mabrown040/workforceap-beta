@@ -212,7 +212,8 @@ export default function InterestProfilerQuiz() {
           <div>
             <p className="ipq-save__title">Save your results</p>
             <p className="ipq-save__body">
-              Create a free WorkforceAP account to save your profile, compare it against any occupation, and get a
+              Create a WorkforceAP account — no cost for members who qualify through scholarship/grant funded
+              membership — to save your profile, compare it against any occupation, and get a
               personalized training plan.
             </p>
           </div>

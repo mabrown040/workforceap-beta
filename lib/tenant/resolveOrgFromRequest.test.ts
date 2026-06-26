@@ -7,6 +7,7 @@ import {
   WAP_ORG_ID_HEADER,
 } from './resolveOrgFromRequest';
 import { NO_ORG_SENTINEL, type CustomDomainCache } from './customDomainCache';
+import { DEFAULT_ORG_ID } from './organization';
 
 // Helpers ---------------------------------------------------------------
 
@@ -120,7 +121,7 @@ test('resolveOrgFromRequest: vercel preview returns default org', async () => {
   assert.equal(result, FAKE_DEFAULT_ORG);
 });
 
-test('resolveOrgFromRequest: build lifecycle skips default-org DB fallback', async () => {
+test('resolveOrgFromRequest: build lifecycle short-circuits to DEFAULT_ORG_ID (no DB, no fallback)', async () => {
   await withEnv(
     {
       npm_lifecycle_event: 'build',
@@ -139,15 +140,18 @@ test('resolveOrgFromRequest: build lifecycle skips default-org DB fallback', asy
         },
       });
 
-      assert.equal(result, FAKE_DEFAULT_ORG);
-      assert.equal(fallbackCalls, 1);
+      // At build time, resolution short-circuits to the stable DEFAULT_ORG_ID
+      // placeholder before any DB lookup or default-org fallback runs — so the
+      // injected fallback is never invoked.
+      assert.equal(result, DEFAULT_ORG_ID);
+      assert.equal(fallbackCalls, 0);
 
       const productionResult = await resolveOrgFromRequest(headers, {
         cache: makeFakeCache(),
         lookup: fakeLookup,
       });
 
-      assert.equal(productionResult, 'build-placeholder-org');
+      assert.equal(productionResult, DEFAULT_ORG_ID);
     }
   );
 });

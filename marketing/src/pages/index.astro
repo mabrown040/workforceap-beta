@@ -331,7 +331,7 @@ import Icon from '../components/Icon.astro';
      into a clean vertical flow — every card fully visible, nothing cut off.
      The layered rotated deck stays on desktop where there's room. */
   @media(max-width:880px){
-    .deck{position:static;min-height:0;display:flex;flex-direction:column;gap:16px;animation:none;margin-top:4px}
+    .deck{position:static;min-height:0;display:flex;flex-direction:column;gap:14px;animation:none;margin-top:0}
     .card{position:static;left:auto;right:auto}
     .card--back,.card--mid,.card--front{top:auto;transform:none}
   }
@@ -434,9 +434,10 @@ import Icon from '../components/Icon.astro';
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){
-    .stage{padding:72px 0 90px}
-    .stage-grid{grid-template-columns:1fr;gap:80px}
-    .deck{min-height:420px;margin-top:8px}
+    .stage{padding:64px 0 56px}
+    /* tighter rhythm: the deck now flows directly under the lede, so a 80px
+       gap just left a dead crimson band before the cards */
+    .stage-grid{grid-template-columns:1fr;gap:36px}
     .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
     .tri{grid-template-columns:1fr}
     .facts{grid-template-columns:1fr 1fr;gap:36px}
@@ -444,6 +445,12 @@ import Icon from '../components/Icon.astro';
   @media(max-width:560px){
     .blk{padding:var(--sec-pad) 0}
     .acts .bbtn{width:100%;justify-content:center}
+    /* full-width stacked CTAs read as a clearer primary→secondary order */
+    .acts{flex-direction:column;align-items:stretch}
+    .acts .dbtn{width:100%;justify-content:center}
+    /* even 2-up proof grid instead of an uneven 1-then-2 wrap */
+    .proof{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;margin-top:30px}
+    .proof-i span{max-width:none}
   }
 </style>
 </Layout>

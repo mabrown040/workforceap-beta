@@ -10,16 +10,20 @@ import {
 
 // isLocaleableMarketingPath
 
-test('isLocaleableMarketingPath: / returns true', () => {
-  assert.equal(isLocaleableMarketingPath('/'), true);
+// Pure-content marketing leaf routes (/, /programs, /programs/[slug], …) are now
+// served by the static Astro marketing site at root and are intentionally NOT
+// locale-redirected by the Next middleware (see LOCALEABLE_PATH_PREFIXES note in
+// config.ts). They resolve to false; only Next-owned routes like /apply stay true.
+test('isLocaleableMarketingPath: / returns false (Astro-served)', () => {
+  assert.equal(isLocaleableMarketingPath('/'), false);
 });
 
-test('isLocaleableMarketingPath: /programs returns true', () => {
-  assert.equal(isLocaleableMarketingPath('/programs'), true);
+test('isLocaleableMarketingPath: /programs returns false (Astro-served)', () => {
+  assert.equal(isLocaleableMarketingPath('/programs'), false);
 });
 
-test('isLocaleableMarketingPath: /programs/data-analytics returns true', () => {
-  assert.equal(isLocaleableMarketingPath('/programs/data-analytics'), true);
+test('isLocaleableMarketingPath: /programs/data-analytics returns false (Astro-served)', () => {
+  assert.equal(isLocaleableMarketingPath('/programs/data-analytics'), false);
 });
 
 test('isLocaleableMarketingPath: /apply returns true', () => {

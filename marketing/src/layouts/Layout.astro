@@ -164,7 +164,7 @@ const path = Astro.url.pathname;
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduce && 'IntersectionObserver' in window) {
         var targets = document.querySelectorAll(
-          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row, main .mission-card'
+          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row, main .mission-card, main .value-deck .card'
         );
         // Only NOW (JS confirmed) do we allow the hidden start-state — so no-JS,
         // crawlers, and failed hydration always render content. See blend.css.

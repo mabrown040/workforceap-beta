@@ -34,11 +34,11 @@ import Icon from '../components/Icon.astro';
   </section>
 
   <!-- ============================================================
-       VALUE DECK — the three cards on a clean white band below the
+       VALUE DECK — the three white cards on a crimson band below the
        hero. Each card reveals (pops in) as it enters the viewport
        (data-reveal wired in Layout.astro).
        ============================================================ -->
-  <section class="value-deck value-deck--light">
+  <section class="value-deck value-deck--crimson">
     <div class="wrap">
       <p class="vd-eyebrow">What you get</p>
       <div class="vd-grid">
@@ -251,13 +251,16 @@ import Icon from '../components/Icon.astro';
   @media (prefers-reduced-motion: reduce){.scroll-cue span{animation:none}}
   @keyframes cue-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
 
-  /* ---------------- VALUE DECK (cards on a white band below the hero) ----------------
-     Light cards in a 3-up row on desktop, stacked on mobile; each pops in on
-     scroll (data-reveal wired in Layout.astro), so on mobile you scroll past
-     them one after another. */
-  .value-deck--light{position:relative;background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  /* ---------------- VALUE DECK (cards on a crimson band below the hero) ----------------
+     White cards (kept light for readability) pop off a deep crimson band, in a
+     3-up row on desktop, stacked on mobile; each pops in on scroll (data-reveal
+     wired in Layout.astro), so on mobile you scroll past them one after another. */
+  .value-deck--crimson{position:relative;color:#fff;
+    background:linear-gradient(180deg,#4a0e26 0%,var(--plum) 50%,#3d0a20 100%);
+    border-top:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 40px -24px rgba(0,0,0,.6) inset;
     padding:clamp(44px,6vw,76px) 0}
-  .vd-eyebrow{text-align:center;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:clamp(22px,3.4vw,34px)}
+  .vd-eyebrow{text-align:center;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:clamp(22px,3.4vw,34px)}
   .vd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start}
 
   /* Light cards — white surface, dark text, brand top-accent, soft shadow. */
@@ -268,6 +271,20 @@ import Icon from '../components/Icon.astro';
   .card--back{border-top-color:var(--gold)}
   .card--mid{border-top-color:var(--blue)}
   .card--front{border-top-color:var(--green)}
+
+  /* Scroll-pop: each card rises + scales in as it scrolls into view. The
+     hidden start-state is gated behind html.vd-anim (added by the inline
+     script below ONLY when JS + IntersectionObserver are available and motion
+     is allowed) so no-JS / reduced-motion render the cards fully visible. */
+  html.vd-anim .value-deck .card{opacity:0;transform:translateY(48px) scale(.94);
+    transition:opacity .55s ease, transform .7s cubic-bezier(.16,.84,.28,1)}
+  html.vd-anim .value-deck .card.vd-in{opacity:1;transform:none}
+  /* On desktop all three sit in view together, so cascade them; on mobile each
+     card enters separately, so it pops one-by-one with no extra delay. */
+  @media (min-width:881px){
+    html.vd-anim .value-deck .card--mid{transition-delay:.12s}
+    html.vd-anim .value-deck .card--front{transition-delay:.24s}
+  }
 
   .card-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
   .logos{display:flex;flex-wrap:wrap;gap:10px}
@@ -409,4 +426,30 @@ import Icon from '../components/Icon.astro';
     .acts .dbtn{width:100%;justify-content:center}
   }
 </style>
+
+<!-- Dedicated scroll-pop for the value cards: reveal each card as it enters
+     the viewport (one-by-one on mobile, cascading on desktop). Progressive
+     enhancement — cards render fully visible without JS or under reduced-motion. -->
+<script is:inline>
+  (function () {
+    try {
+      var cards = document.querySelectorAll('.value-deck .card');
+      if (!cards.length) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) return;
+      document.documentElement.classList.add('vd-anim');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('vd-in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.2, rootMargin: '0px 0px -12% 0px' });
+      cards.forEach(function (c) { io.observe(c); });
+      // Far-out safety net so a card can never stay hidden if the observer
+      // never fires (layout shift, restored scroll position, etc.).
+      setTimeout(function () { cards.forEach(function (c) { c.classList.add('vd-in'); }); }, 6000);
+    } catch (e) {
+      document.documentElement.classList.remove('vd-anim');
+    }
+  })();
+</script>
 </Layout>

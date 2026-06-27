@@ -312,6 +312,18 @@ export default function AdminSuperMessagesClient() {
     })();
   }, []);
 
+  // Deep-link: when arriving from the kit inbox (/admin/messages?ui=legacy&thread=<id>),
+  // open that thread directly. Reads window.location (no useSearchParams Suspense
+  // boundary needed); runs once on mount. The detail effect below fetches by id.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const threadId = new URLSearchParams(window.location.search).get('thread');
+    if (threadId) {
+      setSelectedId(threadId);
+      setMobileView('thread');
+    }
+  }, []);
+
   useEffect(() => {
     if (!selectedId) {
       setDetail(null);

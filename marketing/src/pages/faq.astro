@@ -364,6 +364,11 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .faq-a{padding:0 22px 22px}
   .faq-a p{color:var(--muted);font-size:16px;margin-bottom:12px}
   .faq-a a{font-weight:700;color:var(--crimson)}
+  /* ease the answer in when the item opens (native details stays no-JS/a11y safe) */
+  @media (prefers-reduced-motion: no-preference){
+    .faq-item[open] .faq-a{animation:faq-reveal .28s ease}
+    @keyframes faq-reveal{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  }
 
   /* ---------------- CLOSING CTA — CRIMSON DEPTH ---------------- */
   .close{

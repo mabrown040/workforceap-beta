@@ -2,7 +2,11 @@
 
 ## Cursor Cloud specific instructions
 
-This is a **Next.js 15 (App Router)** website — a replica of the live Squarespace-hosted site at [workforceap.org](https://workforceap.org), intended for self-hosting without Squarespace. The live Squarespace site is the visual reference for how pages should look.
+This repo now has a **split app structure**:
+- **`apps/marketing`** — Astro public marketing site
+- **repo root (`app/`, `components/`, `lib/`, `prisma/`)** — Next.js 15 App Router portal/admin/application experience
+
+The live public site at [workforceap.org](https://workforceap.org) is the visual reference for marketing pages. Treat marketing and portal surfaces as separate products that share brand and content contracts, not one blended codepath.
 
 ### Running the dev server
 
@@ -20,17 +24,13 @@ Open `http://localhost:3000` in a browser.
 
 ### Project structure
 
-- `app/` — Next.js App Router pages (10 routes)
-  - `layout.tsx` — root layout with TopBanner, MainNav, ScrollAnimations, and global CSS
-  - `page.tsx` — homepage
-  - `apply/`, `programs/`, `what-we-do/`, `how-it-works/`, `faq/`, `contact/`, `leadership/`, `salary-guide/`, `program-comparison/` — inner pages
-- `components/` — shared React components (TopBanner, MainNav, Footer, PageHero, PhotoHighlight, ScrollAnimations)
-- `css/main.css` — all styles (imported globally via layout.tsx)
-- `public/images/` — static image assets
-- `next.config.ts` — Next.js configuration including redirects for old `.html` URLs
-- `Caddyfile` — production reverse-proxy config
-- `DEPLOY.md` — production deployment instructions
-- `docs/COMPLETED-WORK-LOG.md` — shipped tasks (backlog hygiene: `docs/BACKLOG-MAINTENANCE.md`)
+- `apps/marketing/` — Astro public marketing site (`src/pages`, `src/components`, `src/styles`, `public/`)
+- `app/` — Next.js App Router routes for the authenticated app + public application flows still owned by the portal stack
+- `components/` — shared React components for portal/admin/application surfaces
+- `lib/` — Next.js domain logic, data access, integrations, and UI helpers
+- `prisma/` / `supabase/` — data model and SQL state for the portal stack
+- `content/`, `messages/`, `public/` — shared assets/content still consumed by the Next app
+- `docs/` — runbooks, audits, specs, rollout notes
 
 ### Lint / Test / Build
 

@@ -83,6 +83,36 @@ const STEPS = [
   <!-- Form kicker -->
   <p class="paid-form-kicker" role="note">Eligibility check only · advisor follow-up after you apply</p>
 
+  <section class="start-checklist" aria-label="Before you start">
+    <div class="start-checklist__head">
+      <h2>Before you start</h2>
+      <p>You do not need every answer ready. This first step is just the eligibility check.</p>
+    </div>
+    <div class="start-checklist__grid">
+      <div class="start-checklist__item">
+        <span class="start-checklist__icon" aria-hidden="true"><Icon name="clock" size={20} /></span>
+        <div>
+          <strong>About 5 minutes</strong>
+          <p>Plan for a short first pass, then our team follows up with next steps.</p>
+        </div>
+      </div>
+      <div class="start-checklist__item">
+        <span class="start-checklist__icon" aria-hidden="true"><Icon name="shield" size={20} /></span>
+        <div>
+          <strong>Basic contact details</strong>
+          <p>Name, phone, email, and a quick sense of where you are starting from.</p>
+        </div>
+      </div>
+      <div class="start-checklist__item">
+        <span class="start-checklist__icon" aria-hidden="true"><Icon name="check" size={20} /></span>
+        <div>
+          <strong>No payment step here</strong>
+          <p>This page starts with fit and funding review, not checkout.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Proof block -->
   <div class="paid-proof" role="note">
     <span class="paid-proof__icon" aria-hidden="true"><Icon name="shield" size={28} /></span>
@@ -199,9 +229,19 @@ const STEPS = [
     .mstep__index{width:26px;height:26px;border-radius:8px;background:var(--border);display:grid;place-items:center;font-weight:800}
     .mstep__item--active{color:var(--text)}
     .mstep__item--active .mstep__index{background:var(--grad);color:#fff}
+    .start-checklist__grid{grid-template-columns:1fr}
   }
 
   .paid-form-kicker{font-size:13px;font-weight:700;color:var(--gold-dark);background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.22);border-radius:999px;padding:8px 16px;display:inline-block;margin-bottom:18px}
+
+  .start-checklist{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+  .start-checklist__head h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
+  .start-checklist__head p{color:var(--muted);font-size:15px;line-height:1.5}
+  .start-checklist__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+  .start-checklist__item{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:16px;background:var(--surface);border:1px solid var(--border)}
+  .start-checklist__icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:rgba(173,44,77,.1);color:var(--crimson);flex-shrink:0}
+  .start-checklist__item strong{display:block;font-size:15px;font-weight:800;margin-bottom:4px}
+  .start-checklist__item p{color:var(--muted);font-size:14px;line-height:1.5}
 
   /* Proof block — elevated card on light */
   .paid-proof{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);border-top:5px solid var(--crimson);padding:24px;box-shadow:var(--shadow-lg);margin-bottom:18px}

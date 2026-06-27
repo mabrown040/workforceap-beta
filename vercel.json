@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd marketing && npm ci --no-audit --no-fund && npm run build && cd .. && cp -r marketing/dist/* public/ && if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run build:with-migrate; else npm run build; fi",
+  "buildCommand": "cd apps/marketing && npm ci --no-audit --no-fund && npm run build && cd ../.. && cp -r apps/marketing/dist/* public/ && if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run build:with-migrate; else npm run build; fi",
   "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in feature/portal-*|feature/astro-*|claude/*) exit 1 ;; esac; exit 0",
   "crons": [
     {

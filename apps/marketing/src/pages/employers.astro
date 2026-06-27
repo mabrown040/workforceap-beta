@@ -96,6 +96,31 @@ const caseStudies = [
     <p class="emp-trust__impact"><a href="/impact">View published impact metrics</a></p>
   </div></section>
 
+  <section class="band band--surface"><div class="wrap">
+    <div class="sec-head" style="max-width:760px">
+      <span class="eyebrow">Best-fit roles</span>
+      <h2>Where WorkforceAP can <span class="grad-text">help first</span></h2>
+      <p>Best fit is strongest when your team hires into repeatable entry-level or career-launch roles with clear skill requirements.</p>
+    </div>
+    <div class="fit-grid">
+      <article class="fit-card">
+        <span class="fit-card__eyebrow">IT support</span>
+        <h3>Help desk, desktop, junior network support</h3>
+        <p>Good fit for teams that need troubleshooting, ticketing, hardware, and baseline security readiness.</p>
+      </article>
+      <article class="fit-card">
+        <span class="fit-card__eyebrow">Operations</span>
+        <h3>Dispatch, logistics, and support coordination</h3>
+        <p>Useful when communication, scheduling, process discipline, and follow-through matter more than an advanced degree.</p>
+      </article>
+      <article class="fit-card">
+        <span class="fit-card__eyebrow">Healthcare support</span>
+        <h3>Health IT, billing, and patient-facing admin support</h3>
+        <p>Strong fit for administrative healthcare roles where privacy awareness and structured training matter.</p>
+      </article>
+    </div>
+  </div></section>
+
   <!-- HOW IT WORKS -->
   <section class="band band--surface"><div class="wrap">
     <div class="sec-head">
@@ -353,6 +378,13 @@ const caseStudies = [
   .emp-trust__impact{text-align:center;margin-top:8px}
   .emp-trust__impact a{color:var(--crimson);font-weight:700;font-size:14px;text-decoration:none}
   .emp-trust__impact a:hover{text-decoration:underline}
+
+  .fit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  .fit-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .fit-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .fit-card__eyebrow{display:inline-flex;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--crimson);background:color-mix(in srgb,var(--crimson) 10%,transparent);padding:4px 10px;border-radius:999px;margin-bottom:14px}
+  .fit-card h3{font-family:'Plus Jakarta Sans';font-size:20px;font-weight:800;line-height:1.2;margin-bottom:10px}
+  .fit-card p{color:var(--muted);font-size:15px;line-height:1.6}
 
   /* section head + steps (use global look, scoped) */
   .sec-head{text-align:center;max-width:640px;margin:0 auto 44px}

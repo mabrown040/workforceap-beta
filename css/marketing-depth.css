@@ -49,7 +49,7 @@
 /* ============================================================
    Shared Next marketing chrome re-skin (.main-nav--depth) — makes
    the kept-Next MainNav visually match the Astro depth nav (.top in
-   marketing/src/styles/blend.css): light blurred sticky surface,
+   apps/marketing/src/styles/blend.css): light blurred sticky surface,
    crimson WorkforceAP brand mark, clean gradient-underline links,
    white card dropdowns, crimson Apply CTA, blur-on-scroll. VISUAL
    ONLY — MainNav.tsx keeps all dropdown/auth/toggle logic. We force

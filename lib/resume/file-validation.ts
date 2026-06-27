@@ -20,7 +20,7 @@ export function validateFileType(
   buffer: Buffer | Uint8Array,
   mimeType: string,
   fileName: string,
-  options?: { allowTxt?: boolean }
+  options: { allowTxt?: boolean } = {}
 ): boolean {
   const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
 

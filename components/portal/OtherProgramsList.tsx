@@ -120,8 +120,11 @@ export default function OtherProgramsList({ programs }: { programs: OtherProgram
               disabled={savingId === p.enrollmentId}
               className="btn btn-outline"
               style={{ fontSize: '0.8125rem', padding: '0.4rem 0.85rem' }}
+              aria-busy={savingId === p.enrollmentId}
             >
-              {savingId === p.enrollmentId ? 'Switching…' : 'Switch primary'}
+              <span aria-live="polite">
+                {savingId === p.enrollmentId ? 'Switching…' : 'Switch primary'}
+              </span>
             </button>
           </li>
         ))}

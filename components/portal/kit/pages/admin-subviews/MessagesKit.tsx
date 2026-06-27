@@ -1,4 +1,7 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { MessageSquare, Mail, Smartphone } from 'lucide-react';
 import {
   DesignSurface,
@@ -14,7 +17,8 @@ import {
  * Mockup: workforceap-admin-suite chrome; "Message a student" surface.
  * Target route: /admin/messages
  *
- * Pure read view — no interactivity, so no 'use client'.
+ * Rows/cards are clickable: selecting a thread opens it in the interactive
+ * inbox (?ui=legacy&thread=<id>) where staff can read and reply.
  */
 export type MessageChannel = 'In-app' | 'Email' | 'SMS';
 
@@ -93,6 +97,10 @@ function ChannelTag({ channel }: { channel: MessageChannel }) {
 }
 
 export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
+  const router = useRouter();
+  const openThread = (row: MessageThread) =>
+    router.push(`/admin/messages?ui=legacy&thread=${encodeURIComponent(row.id)}`);
+
   const columns: Column<MessageThread>[] = [
     {
       key: 'from',
@@ -143,6 +151,7 @@ export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
         columns={columns}
         rows={threads}
         rowKey={(row) => row.id}
+        onRowClick={openThread}
         mobile="cards"
         cardRender={(row) => (
           <div className="wa-kit-card wa-kit-card--sm">

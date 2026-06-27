@@ -163,8 +163,23 @@ const path = Astro.url.pathname;
 
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduce && 'IntersectionObserver' in window) {
+        // Site-wide scroll-pop: every recurring card/stat/section-head family
+        // reveals as it enters view (one shared system, not per-page copies).
         var targets = document.querySelectorAll(
-          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row, main .mission-card'
+          [
+            'main section .sec-head', 'main .tool', 'main .stepcard', 'main .acard',
+            'main .panel', 'main .cta', 'main .facts', 'main .creds .row', 'main .mission-card',
+            // value deck (homepage signature) + interior home bands
+            'main .value-deck .card', 'main .tcard', 'main .fact', 'main .imm-jcard', 'main .imm-head',
+            // catalog / programs / data pages
+            'main .pcard', 'main .statcard', 'main .icard', 'main .phasecard', 'main .si', 'main .fcard',
+            // audience / org
+            'main .emp-card', 'main .efact', 'main .vcard', 'main .amtcard', 'main .gcard', 'main .gs-i',
+            'main .proof-i', 'main .person',
+            // credibility / content / landing
+            'main .bcard', 'main .stat-card', 'main .qcard', 'main .post-card',
+            'main .learn-card', 'main .outcome-card', 'main .wioa-card',
+          ].join(', ')
         );
         // Only NOW (JS confirmed) do we allow the hidden start-state — so no-JS,
         // crawlers, and failed hydration always render content. See blend.css.
@@ -177,9 +192,17 @@ const path = Astro.url.pathname;
           entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
         }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
         targets.forEach(function (el) { io.observe(el); });
-        // Safety net: if anything never trips the observer (tall cards, layout
-        // shifts, etc.) force it visible so a band can never stay blank.
-        setTimeout(function () { targets.forEach(function (el) { el.classList.add('is-in'); }); }, 1600);
+        // Safety net: only force-reveal elements ALREADY in the viewport that the
+        // observer hasn't tripped yet — never below-fold content, so each card
+        // still pops as you scroll to it.
+        setTimeout(function () {
+          var vh = window.innerHeight || 0;
+          targets.forEach(function (el) {
+            if (el.classList.contains('is-in')) return;
+            var r = el.getBoundingClientRect();
+            if (r.top < vh && r.bottom > 0) el.classList.add('is-in');
+          });
+        }, 1400);
       }
     })();
   </script>

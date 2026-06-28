@@ -194,27 +194,19 @@ import Icon from '../components/Icon.astro';
      =================================================================== */
   .mix3{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
 
-  /* ---------------- DEPTH HERO STAGE ---------------- */
+  /* ---------------- HERO STAGE — SOLID crimson (per founder: solid, no gradient) ---------------- */
   .stage{
     position:relative;overflow:hidden;isolation:isolate;
-    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    background:var(--accent-dark);
     color:#fff;padding:96px 0 84px;
   }
   /* text-led hero: single column. The glass cards now live in their own
      .value-deck band directly below (see VALUE DECK). */
   .hero-solo{position:relative;z-index:2;max-width:660px}
 
-  /* glow auras — gold + crimson + white */
-  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
-  .aura--1{width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
-  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
-  .aura--3{width:380px;height:380px;top:30%;left:42%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
-
-  /* luminosity-masked real photo bleeding in from the right */
-  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
-    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+  /* solid hero: glow auras + the masked people photo are removed so the
+     background reads as one flat crimson (kept in markup, hidden via CSS). */
+  .aura,.grain{display:none}
 
   /* gold PILL — fully visible, never clipped */
   .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;

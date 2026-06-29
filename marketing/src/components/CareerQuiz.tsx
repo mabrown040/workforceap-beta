@@ -161,7 +161,9 @@ export default function CareerQuiz() {
 
   // ── Quiz ──────────────────────────────────────────────────────────────────
   const q = QUIZ_QUESTIONS[step];
-  const progress = Math.round((step / total) * 100);
+  // Reflect the current question (1-based) so the bar shows movement on Q1
+  // instead of reading 0% / broken.
+  const progress = Math.round(((step + 1) / total) * 100);
 
   return (
     <div className="cq-card">

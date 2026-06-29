@@ -108,7 +108,7 @@ const path = Astro.url.pathname;
             {signInMenu.map((s) => <a href={s.href}>{s.label}</a>)}
           </div>
         </div>
-        <a class="btn btn--primary btn--nav" href="/apply">Apply now</a>
+        <a class="btn btn--apply btn--nav" href="/apply">Apply now</a>
       </div>
     </div>
   </nav>
@@ -129,7 +129,7 @@ const path = Astro.url.pathname;
         {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
       </div>
     </details>
-    <a class="btn btn--primary" href="/apply">Apply now</a>
+    <a class="btn btn--apply" href="/apply">Apply now</a>
   </nav>
 
   <main>
@@ -141,6 +141,7 @@ const path = Astro.url.pathname;
       <div class="fbrand">
         <a class="brand brand--footer" href="/" aria-label="Workforce Advancement Project — home"><img class="brand-logo" src="/images/wap_logo.png" alt="Workforce Advancement Project" width="210" height="107" /></a>
         <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.</p>
+        <span class="fseal"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>501(c)(3) nonprofit · EIN 41-2612389</span>
       </div>
       <div><h4>Explore</h4><ul><li><a href="/programs">Programs</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>
       <div><h4>Get involved</h4><ul><li><a href="/apply">Apply</a></li><li><a href="/employers">For employers</a></li><li><a href="/partners">Partners</a></li><li><a href="/mentor">Become a mentor</a></li><li><a href="/donate">Donate</a></li></ul></div>
@@ -163,8 +164,23 @@ const path = Astro.url.pathname;
 
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduce && 'IntersectionObserver' in window) {
+        // Site-wide scroll-pop: every recurring card/stat/section-head family
+        // reveals as it enters view (one shared system, not per-page copies).
         var targets = document.querySelectorAll(
-          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row, main .mission-card'
+          [
+            'main section .sec-head', 'main .tool', 'main .stepcard', 'main .acard',
+            'main .panel', 'main .cta', 'main .facts', 'main .creds .row', 'main .mission-card',
+            // value deck (homepage signature) + interior home bands
+            'main .value-deck .card', 'main .tcard', 'main .fact', 'main .imm-jcard', 'main .imm-head',
+            // catalog / programs / data pages
+            'main .pcard', 'main .statcard', 'main .icard', 'main .phasecard', 'main .si', 'main .fcard',
+            // audience / org
+            'main .emp-card', 'main .efact', 'main .vcard', 'main .amtcard', 'main .gcard', 'main .gs-i',
+            'main .proof-i', 'main .person',
+            // credibility / content / landing
+            'main .bcard', 'main .stat-card', 'main .qcard', 'main .post-card',
+            'main .learn-card', 'main .outcome-card', 'main .wioa-card',
+          ].join(', ')
         );
         // Only NOW (JS confirmed) do we allow the hidden start-state — so no-JS,
         // crawlers, and failed hydration always render content. See blend.css.
@@ -177,9 +193,17 @@ const path = Astro.url.pathname;
           entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
         }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
         targets.forEach(function (el) { io.observe(el); });
-        // Safety net: if anything never trips the observer (tall cards, layout
-        // shifts, etc.) force it visible so a band can never stay blank.
-        setTimeout(function () { targets.forEach(function (el) { el.classList.add('is-in'); }); }, 1600);
+        // Safety net: only force-reveal elements ALREADY in the viewport that the
+        // observer hasn't tripped yet — never below-fold content, so each card
+        // still pops as you scroll to it.
+        setTimeout(function () {
+          var vh = window.innerHeight || 0;
+          targets.forEach(function (el) {
+            if (el.classList.contains('is-in')) return;
+            var r = el.getBoundingClientRect();
+            if (r.top < vh && r.bottom > 0) el.classList.add('is-in');
+          });
+        }, 1400);
       }
     })();
   </script>

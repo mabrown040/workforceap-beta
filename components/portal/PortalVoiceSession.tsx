@@ -257,14 +257,14 @@ export default function PortalVoiceSession({
     }
   }, []);
 
-  function stopVideoRecordingStream() {
+  const stopVideoRecordingStream = useCallback(() => {
     if (!videoStreamRef) return;
     const s = videoStreamRef.current;
     if (s) {
       s.getTracks().forEach((t) => t.stop());
       videoStreamRef.current = null;
     }
-  }
+  }, [videoStreamRef]);
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -289,7 +289,7 @@ export default function PortalVoiceSession({
       convRef.current?.endSession();
       stopVideoRecordingStream();
     };
-  }, []);
+  }, [stopVideoRecordingStream]);
 
   // Only clear when fully idle or finished — not during `connecting` (would race with draft sync).
   useEffect(() => {
@@ -307,7 +307,7 @@ export default function PortalVoiceSession({
         }, checkpointIntervalMs);
       }
     }
-  }, [phase]);
+  }, [phase, checkpointEndpoint, checkpointIntervalMs, persistCheckpointTranscript]);
 
   useEffect(() => {
     if (!showLiveTranscript || liveLines.length === 0) return;
@@ -631,7 +631,7 @@ export default function PortalVoiceSession({
     }
   }
 
-  async function persistCheckpointTranscript() {
+  const persistCheckpointTranscript = useCallback(async () => {
     if (!checkpointEndpoint || transcriptRef.current.length === 0) return;
 
     const payload = JSON.stringify({
@@ -659,7 +659,7 @@ export default function PortalVoiceSession({
     } catch (err) {
       logVoice('checkpoint_error', err);
     }
-  }
+  }, [checkpointEndpoint, title]);
 
   async function persistCompletionTranscript() {
     if (!completionEndpoint || completionPostedRef.current) return;

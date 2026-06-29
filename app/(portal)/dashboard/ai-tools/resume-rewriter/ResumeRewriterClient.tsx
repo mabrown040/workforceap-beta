@@ -97,6 +97,8 @@ function ResumeRewriterWithPrefill({ initialData }: { initialData?: { resume: st
     return () => {
       cancelled = true;
     };
+    // Intentional mount-only fetch; didFetchRef guards against double-invoke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

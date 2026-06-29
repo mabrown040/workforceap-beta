@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { LearningPathway } from '@/lib/content/learningPathways';
 
 type StepProgress = { pathwayId: string; stepIndex: number; stepTitle: string; status: string; completedAt: string | null };
@@ -11,7 +11,7 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
   const [stepProgress, setStepProgress] = useState<Record<number, StepProgress>>({});
   const [updating, setUpdating] = useState(false);
 
-  const fetchProgress = () => {
+  const fetchProgress = useCallback(() => {
     Promise.all([
       fetch('/api/member/learning-progress').then((r) => r.json()),
       fetch('/api/member/pathway-steps/progress').then((r) => r.json()),
@@ -24,11 +24,11 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
     }).catch(() => {
       setStepProgress({});
     });
-  };
+  }, [pathway.id]);
 
   useEffect(() => {
     fetchProgress();
-  }, [pathway.id]);
+  }, [fetchProgress]);
 
   const handleStart = async () => {
     setUpdating(true);

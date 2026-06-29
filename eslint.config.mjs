@@ -15,7 +15,7 @@ const NO_BARE_TABLE_MESSAGE =
 
 const config = [
   {
-    ignores: [".next/**", "node_modules/**"],
+    ignores: [".next/**", "node_modules/**", "apps/marketing/dist/**"],
   },
   ...nextVitals,
   tseslint.configs.base,

@@ -192,13 +192,23 @@ export async function POST(request: Request) {
         completions.push(...batch);
         statementsHandled += 1;
       } catch (err) {
-        captureApiError(err, {
-          route: 'api/xapi/statements',
-          extra: { statementId: sidHint },
-        });
+        const message = err instanceof Error ? err.message : 'statement pipeline failed';
+        // The DB intentionally rejects statements it can't attribute to an
+        // organization (Postgres P0001: "cannot resolve organization_id for
+        // actor_email=…") — e.g. a Coursera actor whose email doesn't map to
+        // any portal member. That's an expected business outcome, not an app
+        // fault, so keep it out of Sentry (JAVASCRIPT-NEXTJS-12) while still
+        // surfacing it in the response + /admin/diagnostics below.
+        const isUnattributableActor = message.includes('cannot resolve organization_id');
+        if (!isUnattributableActor) {
+          captureApiError(err, {
+            route: 'api/xapi/statements',
+            extra: { statementId: sidHint },
+          });
+        }
         ingestErrors.push({
           statementId: typeof raw.id === 'string' ? raw.id : undefined,
-          message: err instanceof Error ? err.message : 'statement pipeline failed',
+          message,
         });
       }
     }

@@ -329,6 +329,10 @@ const applySignupSchema = z.object({
         createdApplicationId = application.id;
 
         // Persist apply-flow eligibility screening for funnel analytics.
+        // q3 is optional in the apply flow (schema: `q3 String?`); thread it
+        // through so the answer is actually stored when given instead of
+        // being silently dropped. Relies on the migration in this change
+        // dropping the legacy NOT NULL on q3 (Sentry JAVASCRIPT-NEXTJS-1A).
         if (eligibilityQ1 && eligibilityQ2) {
           await tx.applyEligibilityScreening.create({
             data: {
@@ -336,6 +340,7 @@ const applySignupSchema = z.object({
               userId: user.id,
               q1: eligibilityQ1,
               q2: eligibilityQ2,
+              q3: eligibilityQ3 ?? null,
               qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
               yesCount: eligibilityYesCount ?? 0,
             },

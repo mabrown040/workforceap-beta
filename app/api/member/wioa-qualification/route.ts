@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
 import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 
@@ -49,6 +50,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     signal,
     reasons,
   };
+
+  // Orphaned Supabase auth users have no app `users` row, so the update below
+  // threw P2025 ("Record to update not found"). Provision the row first so the
+  // update always targets an existing record (idempotent no-op when present).
+  await ensureAppUserProvisioned(user);
 
   await prisma.$transaction((tx) => tx.user.update({
     where: { id: user.id },

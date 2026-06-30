@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 /** Paths where we skip partner→/partner redirect (dedicated shells or legacy redirects). */
 const SKIP_PREFIXES = [
@@ -33,8 +34,10 @@ export default async function PartnerExclusiveServerGate() {
   if (!user) return null;
 
   try {
-    const superAdmin = await isSuperAdmin(user.id);
-    const partnerCtx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
+    const superAdmin = await withDbRetry(() => isSuperAdmin(user.id));
+    const partnerCtx = await withDbRetry(() =>
+      getPartnerForUser(user.id, { isSuperAdminHint: superAdmin }),
+    );
     if (partnerCtx && !superAdmin) {
       redirect('/partner');
     }

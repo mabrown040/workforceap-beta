@@ -14,6 +14,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 import {
   sendApplicationConfirmationEmail,
@@ -409,6 +410,23 @@ const applySignupSchema = z.object({
       }
     } catch (dbError) {
       captureApiError(dbError, { route: 'POST /api/apply/signup' });
+      // Roll back the auth user we just created so a failed signup doesn't
+      // leave an orphaned auth.users row with no app `users` row (the state
+      // that later causes member_events / message_threads FK violations and
+      // "Member not found" crashes). Mirror /api/member/signup's cleanup.
+      // Only delete when this was a brand-new user: `priorUser` is null means
+      // no app row existed before this request, so the auth account was created
+      // by this signUp call. A returning applicant (priorUser set) keeps theirs.
+      if (!priorUser) {
+        await getSupabaseAdmin()
+          .auth.admin.deleteUser(user.id)
+          .catch((cleanupErr) => {
+            logger.error('apply/signup: failed to clean up auth user after DB error', {
+              userId: user.id,
+              err: cleanupErr,
+            });
+          });
+      }
       return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
     }
   

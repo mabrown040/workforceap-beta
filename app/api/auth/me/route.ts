@@ -12,6 +12,7 @@ import {
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export const GET = withApiGuc(async () => {
   try {
@@ -46,18 +47,18 @@ export const GET = withApiGuc(async () => {
       );
     }
 
-    const role = await getProfileRole(user.id);
+    const role = await withDbRetry(() => getProfileRole(user.id));
     const superAdmin = role === 'super_admin';
 
     if (superAdmin) {
-      const availablePortals = await getPortalSwitcherRoles(user.id, {
+      const availablePortals = await withDbRetry(() => getPortalSwitcherRoles(user.id, {
         superAdmin: true,
         userRoleNames: ['super_admin'],
         hasEmployer: false,
         hasPartner: false,
         hasCounselor: false,
         hasAdmin: true,
-      });
+      }));
 
       return NextResponse.json(
         {
@@ -79,22 +80,24 @@ export const GET = withApiGuc(async () => {
     // frequently polled endpoint and amplifying connection-pool pressure
     // (Sentry JAVASCRIPT-NEXTJS-T: "Unable to start a transaction in the given time").
     const [partnerCtx, counselorCtx, employerNav, userRoleNames, adminAccess] =
-      await Promise.all([
-        getPartnerForUser(user.id),
-        getCounselorForUser(user.id),
-        getEmployerAccountForNav(user.id),
-        getUserRoles(user.id),
-        isAdmin(user.id),
-      ]);
+      await withDbRetry(() =>
+        Promise.all([
+          getPartnerForUser(user.id),
+          getCounselorForUser(user.id),
+          getEmployerAccountForNav(user.id),
+          getUserRoles(user.id),
+          isAdmin(user.id),
+        ]),
+      );
 
-    const availablePortals = await getPortalSwitcherRoles(user.id, {
+    const availablePortals = await withDbRetry(() => getPortalSwitcherRoles(user.id, {
       superAdmin: false,
       userRoleNames,
       hasEmployer: !!employerNav,
       hasPartner: !!partnerCtx,
       hasCounselor: !!counselorCtx,
       hasAdmin: adminAccess,
-    });
+    }));
 
     const partnerExclusive = !!partnerCtx;
     const canAccessMemberDashboard = !partnerExclusive;

@@ -7,6 +7,7 @@ import { runWithGucContext, buildGucContext, ANONYMOUS_GUC_CONTEXT } from '@/lib
 import type { GucContext } from '@/lib/db/gucContext';
 import { getProfileRole } from './roles';
 import { prisma } from '@/lib/db/prisma';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export function hasSupabaseServerEnv() {
   return Boolean(
@@ -144,11 +145,15 @@ export const resolveAuthGucContext = cache(async function resolveAuthGucContext(
       // Must run inside an explicit $transaction: since #1631 the Prisma
       // middleware fail-closes (throws) on queries that run with an active
       // GUC context outside a $transaction, because session-level GUCs are
-      // not visible to policies on pooled connections.
-      prisma
-        .$transaction((tx) =>
-          tx.user.findUnique({ where: { id: user.id }, select: { organizationId: true } }),
-        )
+      // not visible to policies on pooled connections. Wrapped in withDbRetry
+      // so a transient pooler blip on this read degrades gracefully via retry
+      // rather than dropping straight to orgId null (2026-06-30 incident).
+      withDbRetry(() =>
+        prisma
+          .$transaction((tx) =>
+            tx.user.findUnique({ where: { id: user.id }, select: { organizationId: true } }),
+          ),
+      )
         .catch((err) => {
           console.error('[auth:guc] organizationId bootstrap lookup failed; GUC degrades to orgId null', err);
           return null;

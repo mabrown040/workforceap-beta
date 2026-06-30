@@ -103,6 +103,12 @@ const UNICODE_FALLBACKS: Record<string, string> = {
 /** Normalize pasted/markdown content so Helvetica renders reliably and PDFs look intentional. */
 function normalizePdfExportText(raw: string): string {
   let t = raw.replace(/\r\n/g, '\n').replace(/\*\*/g, '');
+  // Tabs and other C0/C1 control chars are NOT WinAnsi-encodable and make
+  // drawText / widthOfTextAtSize throw (e.g. `WinAnsi cannot encode "\t"`).
+  // Expand tabs to spaces, then strip the remaining control chars (keeping the
+  // newline, which the body wrapper splits on) before any drawing happens.
+  t = t.replace(/[\t\v\f]/g, ' ');
+  t = t.replace(/[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/g, '');
   t = t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
   t = t.replace(/\u2022|\u25CF/g, '- ');
   for (const [src, repl] of Object.entries(UNICODE_FALLBACKS)) {
@@ -114,7 +120,10 @@ function normalizePdfExportText(raw: string): string {
   let out = '';
   for (const ch of t) {
     const cp = ch.codePointAt(0)!;
-    if (cp <= 0x7f || (cp >= 0xa0 && cp <= 0xff) || WINANSI_EXTRA.has(cp) || ch === '\n' || ch === '\t') {
+    // Control chars (incl. tab) were already expanded/stripped above, so the
+    // only sub-0x20 char we deliberately keep is the newline. We must NOT
+    // re-admit '\t' here — WinAnsi cannot encode it and drawText would throw.
+    if ((cp >= 0x20 && cp <= 0x7e) || (cp >= 0xa0 && cp <= 0xff) || WINANSI_EXTRA.has(cp) || ch === '\n') {
       out += ch;
     } else {
       out += '?';

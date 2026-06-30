@@ -2198,6 +2198,12 @@
     "careerOsDescription": "Rastrea eventos de completado de aprendizaje de Career OS, las acciones de seguimiento creadas a partir de ellos, y si los miembros realmente completaron la tarea subyacente de currículum o entrevista.",
     "adminMembers": "Admin — Miembros",
     "memberListAndManagement": "Lista y gestión de miembros.",
+    "adminStudents": "Admin — Estudiantes",
+    "studentListAndManagement": "Lista y gestión de estudiantes.",
+    "outcomes": {
+      "title": "Panel de resultados",
+      "description": "Tasas de colocación, datos salariales y efectividad del programa"
+    },
     "members": "Miembros",
     "viewAndManageAccounts": "Ver y gestionar cuentas de miembros.",
     "addMember": "Agregar Miembro",
@@ -2380,6 +2386,7 @@
     "applicantsFor": "Candidatos",
     "applicant": "candidato",
     "applicants": "candidatos",
+    "reviewCandidateApplications": "Revisar las candidaturas de los candidatos",
     "filtered": "filtrado",
     "companySettingsMetaTitle": "Configuración de la empresa",
     "companySettingsMetaDesc": "Gestiona el perfil de tu empresa, contactos de contratación y preferencias de notificaciones.",

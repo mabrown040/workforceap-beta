@@ -2193,6 +2193,12 @@
     "careerOsDescription": "Tracks Career OS learning-completion events, the follow-up actions created from them, and whether members actually finished the underlying resume or interview task.",
     "adminMembers": "Admin – Members",
     "memberListAndManagement": "Member list and management.",
+    "adminStudents": "Admin – Students",
+    "studentListAndManagement": "Student list and management.",
+    "outcomes": {
+      "title": "Outcomes Dashboard",
+      "description": "Placement rates, salary data, and program effectiveness"
+    },
     "members": "Members",
     "viewAndManageAccounts": "View and manage member accounts.",
     "addMember": "Add Member",
@@ -2377,6 +2383,7 @@
     "applicantsFor": "Applicants",
     "applicant": "applicant",
     "applicants": "applicants",
+    "reviewCandidateApplications": "Review candidate applications",
     "filtered": "filtered",
     "companySettingsMetaTitle": "Company settings",
     "companySettingsMetaDesc": "Manage your company profile, hiring contacts, and notification preferences.",

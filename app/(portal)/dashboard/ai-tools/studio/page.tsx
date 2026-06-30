@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 import { scoreStructural } from '@/lib/ai/resumeScore';
 import {
   VoiceStudioKit,
@@ -73,7 +74,7 @@ const DIMENSION_LABEL: Record<string, string> = {
  */
 async function loadResumeStudioData(userId: string): Promise<ResumeStudioData> {
   try {
-    const text = await getMemberResumePlainText(userId, 8000);
+    const text = await withDbRetry(() => getMemberResumePlainText(userId, 8000));
     if (text.trim().length === 0) return { hasResume: false };
 
     const structural = scoreStructural(text);

@@ -117,15 +117,38 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
       // cron run will re-pick this user — otherwise the idempotency
       // filter above (`placementSurveys: { none: { wave } }` style)
       // would skip them forever despite never receiving their email.
-      const survey = await prisma.placementSurvey.create({
-        data: {
-          userId: placement.userId,
-          placementId: placement.id,
-          wave,
-          sentAt: new Date(),
-        },
-        select: { id: true },
-      });
+      //
+      // The in-memory idempotency check above keys on placementId+wave, but the
+      // table's unique constraint is (userId, wave). A member with more than one
+      // PlacementRecord in the same wave window (or a concurrent run) therefore
+      // passed the check yet hit a P2002 on insert and crashed the cron. Treat
+      // that collision as "already surveyed for this wave" and skip instead.
+      let survey: { id: string };
+      try {
+        survey = await prisma.placementSurvey.create({
+          data: {
+            userId: placement.userId,
+            placementId: placement.id,
+            wave,
+            sentAt: new Date(),
+          },
+          select: { id: true },
+        });
+      } catch (createErr) {
+        const isUniqueViolation =
+          typeof createErr === 'object' &&
+          createErr !== null &&
+          'code' in createErr &&
+          (createErr as { code?: unknown }).code === 'P2002';
+        if (isUniqueViolation) {
+          skipped.push({
+            userId: placement.userId,
+            reason: `Survey already exists for ${wave} (userId+wave)`,
+          });
+          continue;
+        }
+        throw createErr;
+      }
 
       const token = await issuePlacementSurveyToken({ surveyId: survey.id });
       const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;

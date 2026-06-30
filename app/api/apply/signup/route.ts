@@ -13,6 +13,7 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 
 import {
   sendApplicationConfirmationEmail,
@@ -168,13 +169,13 @@ const applySignupSchema = z.object({
     let referralSource: string | null = null;
     const refRaw = referralRef?.trim().toLowerCase();
     if (refRaw) {
-      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
+      const partner = await withDbRetry(() => prisma.$transaction((tx) => tx.partner.findFirst({
         where: {
           active: true,
           OR: [{ referralCode: refRaw }, { slug: refRaw }],
         },
         select: { id: true },
-      }));
+      })));
       if (partner) {
         referralPartnerId = partner.id;
         referralSource = `partner_ref:${refRaw}`;
@@ -227,15 +228,18 @@ const applySignupSchema = z.object({
       return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
     }
   
-    const organizationId = await getDefaultOrganizationId();
-    const priorUser = await prisma.$transaction((tx) => tx.user.findUnique({
+    const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+    const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledAt: true },
-    }));
-  
+    })));
+
     let createdApplicationId: string | null = null;
     try {
-      await prisma.$transaction(async (tx) => {
+      // Retry only on connection-acquisition failures (nothing committed yet):
+      // this transaction creates non-idempotent rows (application, screening,
+      // referral), so we must not re-run it after an ambiguous mid-commit drop.
+      await withDbRetry(() => prisma.$transaction(async (tx) => {
         await tx.user.upsert({
           where: { id: user.id },
           create: {
@@ -348,7 +352,7 @@ const applySignupSchema = z.object({
             data: { partnerId: referralPartnerId, memberId: user.id },
           });
         }
-      });
+      }), { shouldRetry: isConnectionAcquisitionError });
       const attributionMetadata: Record<string, string> = {};
       if (utmSource) attributionMetadata.utm_source = utmSource;
       if (utmMedium) attributionMetadata.utm_medium = utmMedium;

@@ -14,6 +14,7 @@ import { logger } from '@/lib/observability/logger';
 import { trackEvent } from '@/lib/events/track';
 
 import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 async function handleLogin(request: Request) {
   try {
@@ -131,11 +132,18 @@ async function handleLogin(request: Request) {
   // Callback form — the array form returned results shifted by the injected
   // GUC query, so `const [profile] = ...` got the set_config result and
   // staff role resolution silently broke (MFA gate + role redirect).
-  const profile = await prisma.$transaction((tx) =>
-    tx.profile.findUnique({
-      where: { userId: data.user.id },
-      select: { role: true },
-    }),
+  //
+  // Wrapped in withDbRetry: Supabase Auth already succeeded above, so a
+  // transient pooler blip here (P1017 / "can't reach database server") must
+  // not turn a valid login into a 500. This is a read, so retrying is safe.
+  // (2026-06-30 incident: an ~11-min pooler outage 500'd every login here.)
+  const profile = await withDbRetry(() =>
+    prisma.$transaction((tx) =>
+      tx.profile.findUnique({
+        where: { userId: data.user.id },
+        select: { role: true },
+      }),
+    ),
   );
 
   const staffMfaEnabled = isStaffMfaEnforcementEnabled();

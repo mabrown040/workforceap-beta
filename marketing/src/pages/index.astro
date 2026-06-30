@@ -160,9 +160,9 @@ import Icon from '../components/Icon.astro';
   <section class="blk blk--crimson">
     <div class="wrap facts">
       <div class="fact"><div class="fk">25+</div><p>years in workforce development</p></div>
-      <div class="fact"><div class="fk">501(c)(3)</div><p>nonprofit organization</p></div>
+      <div class="fact"><div class="fk fk--sm">501(c)(3)</div><p>nonprofit organization</p></div>
       <div class="fact"><div class="fk">$0</div><p>for members who qualify through scholarship/grant funded membership</p></div>
-      <div class="fact"><div class="fk">5</div><p>employer-recognized cert tracks</p></div>
+      <div class="fact"><div class="fk">20</div><p>employer-recognized certification tracks</p></div>
     </div>
   </section>
 
@@ -194,18 +194,21 @@ import Icon from '../components/Icon.astro';
      =================================================================== */
   .mix3{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
 
-  /* ---------------- HERO STAGE — SOLID crimson (per founder: solid, no gradient) ---------------- */
+  /* ---------------- HERO STAGE — translucent crimson veil over the people photo
+     (per founder: same immersive treatment as the "From apply to hired" band). ---------------- */
   .stage{
     position:relative;overflow:hidden;isolation:isolate;
-    background:var(--accent-dark);
+    background:
+      linear-gradient(180deg,rgba(140,15,55,.86) 0%,rgba(109,20,55,.74) 45%,rgba(74,16,38,.9) 100%),
+      url('/images/hero-people.webp') center 30%/cover no-repeat;
     color:#fff;padding:96px 0 84px;
   }
   /* text-led hero: single column. The glass cards now live in their own
      .value-deck band directly below (see VALUE DECK). */
   .hero-solo{position:relative;z-index:2;max-width:660px}
 
-  /* solid hero: glow auras + the masked people photo are removed so the
-     background reads as one flat crimson (kept in markup, hidden via CSS). */
+  /* veil handles the crimson now; the old glow auras + mix-blend grain overlay
+     are not needed (kept in markup, hidden via CSS). */
   .aura,.grain{display:none}
 
   /* gold PILL — fully visible, never clipped */
@@ -383,6 +386,8 @@ import Icon from '../components/Icon.astro';
   /* BOLD facts */
   .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
   .fact .fk{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(40px,6vw,72px);color:#e9c879;line-height:1}
+  /* 501(c)(3) is long — render it smaller so it stays on one line (no goofy wrap) */
+  .fact .fk--sm{font-size:clamp(26px,3.4vw,44px);white-space:nowrap}
   .fact p{color:rgba(255,255,255,.9);font-size:15px;margin-top:10px}
 
   /* ---------------- BOLD FULL-BLEED CLOSING CTA ---------------- */

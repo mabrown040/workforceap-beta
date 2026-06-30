@@ -43,6 +43,51 @@ export default async function DashboardResumePage() {
   if (!user) redirect("/login?redirectTo=/dashboard/resume");
   const t = await getTranslations('profile');
 
+  // Guard: an authenticated session whose user has no member row yet — a
+  // new-signup provisioning race, or a removed/rebuilt account — makes
+  // getMemberState() throw `Member not found`, which crashes the page into
+  // the error boundary (Sentry JAVASCRIPT-NEXTJS-1C). Same ghost-session
+  // case the messages inbox guards against (#2088). Render a calm empty
+  // state instead of taking the page down.
+  const memberRow = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { id: true },
+  });
+  if (!memberRow) {
+    return (
+      <>
+        <PageHeader
+          title={t('resume')}
+          breadcrumbs={[
+            { label: "Member Portal", href: "/dashboard" },
+            { label: "Resume" },
+          ]}
+        />
+        <div
+          style={{
+            maxWidth: 560,
+            margin: "2rem auto",
+            padding: "1.75rem",
+            textAlign: "center",
+            border: "1px solid var(--surface-container-high, #e5e0dc)",
+            borderRadius: 16,
+          }}
+        >
+          <p style={{ fontWeight: 700, marginBottom: 6 }}>
+            Your resume workspace is still being set up
+          </p>
+          <p style={{ color: "var(--color-on-surface-variant, #6b6460)", fontSize: 14 }}>
+            Please check back shortly, or contact{" "}
+            <a href="mailto:info@workforceap.org" style={{ fontWeight: 600 }}>
+              info@workforceap.org
+            </a>
+            .
+          </p>
+        </div>
+      </>
+    );
+  }
+
   // Single source of truth: getMemberState returns consistent profile % across all surfaces.
   const memberState = await getMemberState(user.id);
   const completeness = memberState.profileCompletenessPct;

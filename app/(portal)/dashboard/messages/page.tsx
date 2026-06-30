@@ -33,6 +33,42 @@ export default async function MemberMessagesPage({
 
   const t = await getTranslations('messages');
 
+  // Guard: an authenticated session whose user has no member row yet — a
+  // new-signup provisioning race, or a removed/rebuilt account — would FK-violate
+  // on `messageThread.create()` (message_threads_member_id_fkey) and crash the
+  // ENTIRE member dashboard into the error boundary (Sentry JAVASCRIPT-NEXTJS-1B).
+  // Render a safe, empty inbox instead of taking the dashboard down.
+  const memberRow = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { id: true },
+  });
+  if (!memberRow) {
+    return (
+      <>
+        <PageHeader
+          title={t('inbox')}
+          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
+        />
+        <div
+          style={{
+            maxWidth: 560,
+            margin: '2rem auto',
+            padding: '1.75rem',
+            textAlign: 'center',
+            border: '1px solid var(--wa-border, #e5e0dc)',
+            borderRadius: 16,
+          }}
+        >
+          <p style={{ fontWeight: 700, marginBottom: 6 }}>{t('noMessagesYet')}</p>
+          <p style={{ color: 'var(--wa-muted, #6b6460)', fontSize: 14 }}>
+            Your inbox is still being set up. Please check back shortly, or contact{' '}
+            <a href="mailto:info@workforceap.org" style={{ fontWeight: 600 }}>info@workforceap.org</a>.
+          </p>
+        </div>
+      </>
+    );
+  }
+
   const thread = await getOrCreateMemberCounselorThread(user.id);
 
   // If memberLastReadAt is null, the member has never explicitly read the thread.

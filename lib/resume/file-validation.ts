@@ -95,7 +95,24 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
 
   try {
     const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
-    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+    // Extract correct buffer to instantiate DataView to prevent edge polyfill issue
+    let targetBuffer;
+    let byteOffset;
+    let byteLength;
+
+    if (buf.buffer instanceof ArrayBuffer || (typeof SharedArrayBuffer !== 'undefined' && buf.buffer instanceof SharedArrayBuffer)) {
+      targetBuffer = buf.buffer;
+      byteOffset = buf.byteOffset;
+      byteLength = buf.byteLength;
+    } else {
+      // Fallback for polyfills that don't correctly implement typed arrays
+      const arr = new Uint8Array(buf);
+      targetBuffer = arr.buffer;
+      byteOffset = arr.byteOffset;
+      byteLength = arr.byteLength;
+    }
+
+    const view = new DataView(targetBuffer, byteOffset, byteLength);
     const eocdOffset = findEocd(buf, view);
     if (eocdOffset < 0) return false;
 

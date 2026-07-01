@@ -95,7 +95,22 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
 
   try {
     const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
-    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+
+    let underlyingBuffer = buf.buffer;
+    let byteOffset = buf.byteOffset;
+    let byteLength = buf.byteLength;
+
+    const isArrayBuffer = underlyingBuffer instanceof ArrayBuffer;
+    const isSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined' && underlyingBuffer instanceof SharedArrayBuffer;
+
+    if (!isArrayBuffer && !isSharedArrayBuffer) {
+      const arr = new Uint8Array(buf);
+      underlyingBuffer = arr.buffer;
+      byteOffset = arr.byteOffset;
+      byteLength = arr.byteLength;
+    }
+
+    const view = new DataView(underlyingBuffer, byteOffset, byteLength);
     const eocdOffset = findEocd(buf, view);
     if (eocdOffset < 0) return false;
 
@@ -130,7 +145,7 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
       const nameEnd = nameStart + nameLen;
       if (nameEnd > cdEnd) break;
 
-      const nameBytes = new Uint8Array(buf.buffer, buf.byteOffset + nameStart, nameLen);
+      const nameBytes = new Uint8Array(underlyingBuffer, byteOffset + nameStart, nameLen);
       let name = '';
       if (typeof TextDecoder !== 'undefined') {
         name = new TextDecoder('utf-8').decode(nameBytes);

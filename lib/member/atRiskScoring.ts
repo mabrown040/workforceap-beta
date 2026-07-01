@@ -399,6 +399,13 @@ export async function buildMemberClassificationInput(
   };
 }
 
+// Bounded-concurrency batch size. Each member scored does a Prisma lookup
+// plus an external B4B/Coursera HTTP call, so we fan out in small batches
+// rather than looping sequentially (which could take minutes for 500
+// members) or firing all requests at once (which could overwhelm the
+// external API / DB pool).
+const SCORING_BATCH_SIZE = 15;
+
 export async function calculateAllAtRiskScores(): Promise<AtRiskScore[]> {
   const activeMembers = await prisma.user.findMany({
     take: 500,
@@ -411,12 +418,20 @@ export async function calculateAllAtRiskScores(): Promise<AtRiskScore[]> {
   });
 
   const scores: AtRiskScore[] = [];
-  for (const member of activeMembers) {
-    try {
-      const score = await calculateAtRiskScore(member.id);
-      scores.push(score);
-    } catch (err) {
-      console.error(`[atRisk] Failed to score member ${member.id}:`, err);
+  for (let i = 0; i < activeMembers.length; i += SCORING_BATCH_SIZE) {
+    const batch = activeMembers.slice(i, i + SCORING_BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(async (member) => {
+        try {
+          return await calculateAtRiskScore(member.id);
+        } catch (err) {
+          console.error(`[atRisk] Failed to score member ${member.id}:`, err);
+          return null;
+        }
+      }),
+    );
+    for (const result of batchResults) {
+      if (result) scores.push(result);
     }
   }
 

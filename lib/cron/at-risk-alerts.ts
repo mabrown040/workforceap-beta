@@ -29,6 +29,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
 const NUDGE_COOLDOWN_DAYS = 7;
 const NUDGE_COOLDOWN_MS = NUDGE_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
 
+// Bounded-concurrency batch size. Each candidate requires a classification
+// pass (Prisma lookup + external B4B/Coursera HTTP call) plus a cooldown
+// check and possibly an email send, so members are processed in small
+// batches rather than one-at-a-time (too slow for 500 members) or all at
+// once (risk of overwhelming the external API / DB pool / email provider).
+const NUDGE_BATCH_SIZE = 15;
+
 type NudgeKind = 'check_in' | 'come_back' | 'stuck';
 
 function firstNameOf(fullName: string | null | undefined): string {
@@ -109,11 +116,20 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
 
   const cooldownCutoff = new Date(Date.now() - NUDGE_COOLDOWN_MS);
 
-  for (const member of candidates) {
-    scanned++;
+  type NudgeOutcome = {
+    skippedNoEmail?: boolean;
+    errors?: number;
+    skippedCooldown?: boolean;
+    sentCheckIn?: boolean;
+    sentComeBack?: boolean;
+    sentStuck?: boolean;
+  };
+
+  const processMember = async (
+    member: (typeof candidates)[number],
+  ): Promise<NudgeOutcome> => {
     if (!member.email) {
-      skippedNoEmail++;
-      continue;
+      return { skippedNoEmail: true };
     }
 
     let classification: ClassifyMemberResult;
@@ -122,12 +138,11 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
       classification = classifyMember(input);
     } catch (err) {
       console.error(`[retention-nudges] classify failed for ${member.id}:`, err);
-      errors++;
-      continue;
+      return { errors: 1 };
     }
 
     const choice = chooseNudge(classification);
-    if (!choice) continue;
+    if (!choice) return {};
 
     // Cooldown: don't send same tier again within window
     const recent = await prisma.memberNudgeLog.findFirst({
@@ -139,8 +154,7 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
       select: { id: true },
     });
     if (recent) {
-      skippedCooldown++;
-      continue;
+      return { skippedCooldown: true };
     }
 
     const firstName = firstNameOf(member.fullName);
@@ -149,6 +163,7 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
       'Your WorkforceAP counselor';
 
     let sent = false;
+    const outcome: NudgeOutcome = {};
     try {
       if (choice.kind === 'check_in') {
         const result = await sendMemberCheckInEmail({
@@ -157,9 +172,9 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
           dashboardUrl: `${SITE_URL}/dashboard`,
         });
         if (result.ok) {
-          sentCheckIn++;
+          outcome.sentCheckIn = true;
           sent = true;
-        } else errors++;
+        } else outcome.errors = 1;
       } else if (choice.kind === 'come_back') {
         const result = await sendMemberComeBackEmail({
           to: member.email,
@@ -168,9 +183,9 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
           nextBestActionUrl: `${SITE_URL}/dashboard`,
         });
         if (result.ok) {
-          sentComeBack++;
+          outcome.sentComeBack = true;
           sent = true;
-        } else errors++;
+        } else outcome.errors = 1;
       } else {
         const result = await sendMemberStuckEmail({
           to: member.email,
@@ -178,13 +193,13 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
           counselorName,
         });
         if (result.ok) {
-          sentStuck++;
+          outcome.sentStuck = true;
           sent = true;
-        } else errors++;
+        } else outcome.errors = 1;
       }
     } catch (err) {
       console.error(`[retention-nudges] send failed for ${member.id}:`, err);
-      errors++;
+      outcome.errors = 1;
     }
 
     if (sent) {
@@ -200,6 +215,22 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
       } catch (err) {
         console.error(`[retention-nudges] log write failed for ${member.id}:`, err);
       }
+    }
+
+    return outcome;
+  };
+
+  for (let i = 0; i < candidates.length; i += NUDGE_BATCH_SIZE) {
+    const batch = candidates.slice(i, i + NUDGE_BATCH_SIZE);
+    const outcomes = await Promise.all(batch.map(processMember));
+    for (const outcome of outcomes) {
+      scanned++;
+      if (outcome.skippedNoEmail) skippedNoEmail++;
+      if (outcome.skippedCooldown) skippedCooldown++;
+      if (outcome.sentCheckIn) sentCheckIn++;
+      if (outcome.sentComeBack) sentComeBack++;
+      if (outcome.sentStuck) sentStuck++;
+      if (outcome.errors) errors += outcome.errors;
     }
   }
 

@@ -10,6 +10,8 @@ next-env.d.ts
 playwright-report/
 test-results/
 tmp/
+tmp-smoke/
+.tmp-smoke/
 .gstack/
 .env*.local
 .claude/

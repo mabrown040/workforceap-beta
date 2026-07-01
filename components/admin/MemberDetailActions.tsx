@@ -126,7 +126,7 @@ export default function MemberDetailActions({
         <button
           type="button"
           className="btn"
-          style={{ background: 'var(--color-accent)', color: 'white' }}
+          style={{ background: 'var(--color-error, #c00)', color: 'white' }}
           onClick={() => setConfirmDelete(true)}
           disabled={!!loading}
         >
@@ -136,7 +136,7 @@ export default function MemberDetailActions({
           <div style={{ marginTop: '0.5rem' }}>
             <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>Confirm soft delete?</p>
             <button type="button" className="btn btn-outline" onClick={() => setConfirmDelete(false)}>Cancel</button>
-            <button type="button" className="btn" style={{ background: 'var(--color-accent)', color: 'white', marginLeft: '0.5rem' }} onClick={handleDelete} disabled={loading === 'delete'}>
+            <button type="button" className="btn" style={{ background: '#c00', color: 'white', marginLeft: '0.5rem' }} onClick={handleDelete} disabled={loading === 'delete'}>
               {loading === 'delete' ? '...' : 'Yes, Delete'}
             </button>
           </div>

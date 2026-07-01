@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import LocalizedLink from '@/components/LocalizedLink';
 
 export default function ApplyStatusClient() {
   const t = useTranslations('apply');
@@ -70,14 +71,14 @@ export default function ApplyStatusClient() {
         >
           <p style={{ margin: 0 }}>{result.message}</p>
           <p style={{ margin: '0.75rem 0 0.5rem' }}>{t('statusLoginCtaLead')}</p>
-          <a href="/login?redirectTo=/dashboard" className="btn btn-primary">
+          <LocalizedLink href="/login?redirectTo=/dashboard" className="btn btn-primary">
             {t('statusLoginCta')}
-          </a>
+          </LocalizedLink>
         </div>
       ) : null}
       <p className="apply-status-footnote">
         {t('statusFootnoteBefore')}{' '}
-        <a href="/dashboard">{t('statusFootnoteDashboard')}</a> {t('statusFootnoteAfter')}
+        <LocalizedLink href="/dashboard">{t('statusFootnoteDashboard')}</LocalizedLink> {t('statusFootnoteAfter')}
       </p>
     </div>
   );

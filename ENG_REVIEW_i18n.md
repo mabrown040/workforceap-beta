@@ -1,5 +1,7 @@
 # Engineering Review: i18n Architecture (dench/spanish-pass-2)
 
+> **Superseded as of 2026-07-01:** Most findings below are resolved — the three competing i18n systems have been unified on `next-intl`, the hardcoded `<html lang="en">` now derives from the locale header, and the es.json translation-parity gap is closed to ~100%. This document is kept for historical context only and should not be read as a live P0/P1 list.
+
 ## Executive Summary
 
 The Spanish localization on this branch **ships with a TypeScript build-blocking bug** (duplicate key in `serverLabels.ts`) and introduces a **three-headed i18n architecture** that will compound maintenance cost with every new language. The immediate surface-level Spanish wiring is functional, but the underlying patterns need consolidation before expanding to more languages or pages.

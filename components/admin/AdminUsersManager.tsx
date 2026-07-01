@@ -346,7 +346,7 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                           <button
                             type="button"
                             className="btn btn-sm"
-                            style={{ background: '#c00', color: '#fff' }}
+                            style={{ background: 'var(--color-accent)', color: '#fff' }}
                             disabled={deletingId === user.id}
                             onClick={() => void deleteUser(user.id)}
                           >
@@ -360,7 +360,7 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                         <button
                           type="button"
                           className="btn btn-outline btn-sm"
-                          style={{ color: '#c00', borderColor: '#c00' }}
+                          style={{ color: 'var(--color-accent)', borderColor: 'var(--color-accent)' }}
                           onClick={() => setConfirmDeleteId(user.id)}
                         >
                           Delete
@@ -425,13 +425,13 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                 {canManageRoles && (
                   confirmDeleteId === user.id ? (
                     <>
-                      <button type="button" className="btn btn-sm" style={{ background: '#c00', color: '#fff' }} disabled={deletingId === user.id} onClick={() => void deleteUser(user.id)}>
+                      <button type="button" className="btn btn-sm" style={{ background: 'var(--color-accent)', color: '#fff' }} disabled={deletingId === user.id} onClick={() => void deleteUser(user.id)}>
                         {deletingId === user.id ? '…' : 'Confirm delete'}
                       </button>
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
                     </>
                   ) : (
-                    <button type="button" className="btn btn-outline btn-sm" style={{ color: '#c00', borderColor: '#c00' }} onClick={() => setConfirmDeleteId(user.id)}>
+                    <button type="button" className="btn btn-outline btn-sm" style={{ color: 'var(--color-accent)', borderColor: 'var(--color-accent)' }} onClick={() => setConfirmDeleteId(user.id)}>
                       Delete
                     </button>
                   )

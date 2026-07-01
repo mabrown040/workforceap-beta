@@ -191,7 +191,7 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
       )}
 
       {deleteError && (
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-error, #c00)', margin: '0 0 0.5rem' }}>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
           {deleteError}
         </p>
       )}

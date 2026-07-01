@@ -89,33 +89,39 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   if (threads.length === 0) return [];
 
   const threadIds = threads.map((thread) => thread.id);
+  const threadMemberIds = threads.map((thread) => thread.memberId as string);
   const threadById = new Map(threads.map((thread) => [thread.id, thread]));
-  // Only threads whose latest message was sent by the member (i.e. awaiting a
-  // staff reply) are candidates. Filter to that set, order by staleness, and
-  // cap to `limit` in SQL so we don't pull the last message for all 500
-  // threads just to sort/slice in JS.
-  const memberIds = threads
-    .map((thread) => thread.memberId)
-    .filter((id): id is string => id != null);
-  const lastMessages = await prisma.$queryRawUnsafe<Array<{
+  // True last message per thread (regardless of author) via DISTINCT ON,
+  // then restricted (via the thread_id/member_id pairs passed in as parallel
+  // arrays and matched with UNNEST) to threads whose latest message was sent
+  // by *that thread's own* member — i.e. awaiting a staff reply — ordered by
+  // staleness (oldest-waiting first), and capped to `limit`. All in one
+  // query, instead of pulling the last message for all 500 threads and
+  // sorting/slicing client-side in JS.
+  const needsReplyMessages = await prisma.$queryRawUnsafe<Array<{
     thread_id: string;
     author_id: string;
     body: string | null;
     created_at: Date;
   }>>(
-    `SELECT DISTINCT ON (thread_id) thread_id, author_id, body, created_at
-     FROM messages
-     WHERE thread_id = ANY($1::text[])
-     ORDER BY thread_id, created_at DESC`,
+    `WITH thread_members AS (
+       SELECT * FROM UNNEST($1::text[], $2::text[]) AS t(thread_id, member_id)
+     ),
+     last_messages AS (
+       SELECT DISTINCT ON (thread_id) thread_id, author_id, body, created_at
+       FROM messages
+       WHERE thread_id = ANY($1::text[])
+       ORDER BY thread_id, created_at DESC
+     )
+     SELECT lm.thread_id, lm.author_id, lm.body, lm.created_at
+     FROM last_messages lm
+     JOIN thread_members tm ON tm.thread_id = lm.thread_id AND tm.member_id = lm.author_id
+     ORDER BY lm.created_at ASC
+     LIMIT $3`,
     threadIds,
+    threadMemberIds,
+    limit,
   );
-  const needsReplyMessages = lastMessages
-    .filter((message) => {
-      const thread = threadById.get(message.thread_id);
-      return thread?.memberId != null && message.author_id === thread.memberId;
-    })
-    .sort((a, b) => a.created_at.getTime() - b.created_at.getTime())
-    .slice(0, limit);
 
   const rows: AdminNeedsReplyRow[] = [];
   for (const message of needsReplyMessages) {

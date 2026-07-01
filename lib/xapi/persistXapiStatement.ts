@@ -41,6 +41,64 @@ export type PersistXapiStatementOutput = {
 };
 
 /**
+ * Upper bound on the serialized `payload` JSON we'll hand to Prisma/Postgres.
+ * Coursera webhook payloads are normally a few KB; anything past this is
+ * either a malformed delivery or an abuse attempt. Rejecting up front avoids
+ * an opaque `PrismaClientUnknownRequestError` from Postgres's own JSONB/row
+ * size limits (Sentry JAVASCRIPT-NEXTJS-12) and gives callers a typed error
+ * they can log/skip instead of a generic DB failure.
+ */
+const MAX_PAYLOAD_BYTES = 256 * 1024;
+
+/** Thrown by {@link persistXapiStatement} when the payload fails size/content validation. */
+export class InvalidXapiPayloadError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidXapiPayloadError';
+  }
+}
+
+/**
+ * Rejects oversized payloads and strips NUL bytes / invalid UTF-8 sequences
+ * that Postgres's `jsonb`/`text` columns cannot store (NUL bytes in
+ * particular are rejected outright by Postgres, surfacing as an unknown
+ * Prisma error rather than a clean validation failure).
+ */
+function sanitizePayload(
+  payload: Prisma.InputJsonValue | null | undefined
+): Prisma.InputJsonValue | null | undefined {
+  if (payload == null) return payload;
+
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(payload);
+  } catch {
+    throw new InvalidXapiPayloadError('xAPI payload is not JSON-serializable');
+  }
+
+  const byteLength = Buffer.byteLength(serialized, 'utf8');
+  if (byteLength > MAX_PAYLOAD_BYTES) {
+    throw new InvalidXapiPayloadError(
+      `xAPI payload too large (${byteLength} bytes; max ${MAX_PAYLOAD_BYTES})`
+    );
+  }
+
+  if (serialized.includes('\u0000')) {
+    // Strip NUL bytes rather than reject outright — some producers embed
+    // stray NULs in free-text fields; the rest of the statement is still
+    // worth keeping.
+    const cleaned = serialized.split('\u0000').join('');
+    try {
+      return JSON.parse(cleaned) as Prisma.InputJsonValue;
+    } catch {
+      throw new InvalidXapiPayloadError('xAPI payload contains invalid NUL bytes');
+    }
+  }
+
+  return payload;
+}
+
+/**
  * Compute a deterministic hash from the statement content for idempotency
  * when `statementId` is absent (Coursera webhooks sometimes omit it).
  * Uses actor + verb + course + result so duplicate deliveries of the same
@@ -74,6 +132,7 @@ export async function persistXapiStatement(
 ): Promise<PersistXapiStatementOutput> {
   const statementId = input.statementId?.trim() || null;
   const statementHash = statementId ? null : computeStatementHash(input);
+  const sanitizedPayload = sanitizePayload(input.payload);
 
   try {
     await prisma.xapiStatement.create({
@@ -90,7 +149,7 @@ export async function persistXapiStatement(
         resultScoreRaw: input.resultScoreRaw ?? null,
         resultCompletion: input.resultCompletion ?? null,
         resultSuccess: input.resultSuccess ?? null,
-        payload: input.payload == null ? Prisma.DbNull : input.payload,
+        payload: sanitizedPayload == null ? Prisma.DbNull : sanitizedPayload,
         courseItemId: input.courseItemId?.trim() || null,
         itemType: input.itemType?.trim() || null,
       },

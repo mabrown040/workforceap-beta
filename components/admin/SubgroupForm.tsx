@@ -73,7 +73,7 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: '560px' }}>
       {error && (
-        <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', borderRadius: '6px', color: '#c00' }}>
+        <div style={{ padding: '0.75rem', marginBottom: '1rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '6px', color: 'var(--color-accent)' }}>
           {error}
         </div>
       )}

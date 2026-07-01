@@ -87,6 +87,19 @@ jobs:
         run: npm run test:vitest
         continue-on-error: true
 
+      # Dead-code detection — report-only. No knip/ts-prune/depcheck config
+      # existed before this; `knip` was added as a devDependency (see
+      # package.json) but hasn't been tuned yet (no knip.json, so it uses
+      # default Next.js/Prisma-aware detection which may have false
+      # positives on this codebase, e.g. dynamic route handlers or
+      # barrel re-exports). Surfaces unused files/exports/deps on every
+      # PR without blocking. Flip to required once the initial report has
+      # been triaged and a knip.json config silences accepted false
+      # positives.
+      - name: Dead code (report-only)
+        run: npm run deadcode
+        continue-on-error: true
+
       # Tenant-isolation guardrails. Static-grep check across high-risk
       # routes — expanded in PR 2 of AUDIT-2026-05-16 to cover the
       # cross-tenant cluster (§C-T1..§H-T4). Required gate.

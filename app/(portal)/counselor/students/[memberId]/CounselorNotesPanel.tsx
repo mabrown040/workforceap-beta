@@ -130,7 +130,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               boxSizing: 'border-box',
             }}
           />
-          {error && <p style={{ color: 'var(--color-error, #c00)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
+          {error && <p style={{ color: 'var(--color-accent)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button type="button"
               onClick={handleAdd}
@@ -178,7 +178,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
       )}
 
       {deleteError && (
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-error, #c00)', margin: '0 0 0.5rem' }}>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
           {deleteError}
         </p>
       )}

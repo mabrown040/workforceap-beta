@@ -133,7 +133,7 @@ export default function MainNav() {
       'Partners': tNav('partners'),
       'Employers': tNav('employers'),
       'Blog': tNav('blog'),
-      'Donate': 'Donate',
+      'Donate': tNav('donate'),
       'Contact Us': tNav('contactUs'),
       'About Us': tNav('aboutUs'),
       'What We Do': tNav('whatWeDo'),

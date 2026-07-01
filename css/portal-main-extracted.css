@@ -6080,7 +6080,7 @@ td.admin-members-col-select {
     background: var(--color-light);
 }
 .admin-blog-actions-dropdown button[data-danger] {
-    color: #c00;
+    color: var(--color-accent);
 }
 
 .admin-empty-state {

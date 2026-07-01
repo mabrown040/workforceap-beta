@@ -167,9 +167,9 @@ export default function EmployerContactForm() {
           style={{
             padding: '0.75rem',
             marginBottom: '1rem',
-            background: '#fee',
+            background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
             borderRadius: 'var(--radius-sm)',
-            color: '#c00',
+            color: 'var(--color-accent)',
             fontSize: '0.9rem',
           }}
         >

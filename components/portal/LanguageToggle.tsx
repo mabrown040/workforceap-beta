@@ -30,7 +30,8 @@ export default function LanguageToggle({ compact = false }: { compact?: boolean 
     if (isPrefixedPath) {
       const target =
         pathnameWithoutLocale === '/' ? withLocalePrefix('/', code) : withLocalePrefix(pathnameWithoutLocale, code);
-      router.replace(target);
+      const search = typeof window !== 'undefined' ? window.location.search : '';
+      router.replace(`${target}${search}`);
     } else {
       // Portal paths have no locale prefix — reload so middleware picks up the new cookie
       window.location.reload();

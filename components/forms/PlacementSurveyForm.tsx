@@ -59,18 +59,28 @@ function RatingRow({
   error,
 }: {
   name: 'jobSatisfaction' | 'trainingRelevance' | 'supportQuality';
-   
+
   register: any;
   error?: string;
 }) {
+  const errorId = `${name}-error`;
   return (
-    <div role="radiogroup" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+    <div
+      role="radiogroup"
+      aria-invalid={!!error}
+      aria-describedby={error ? errorId : undefined}
+      style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}
+    >
       {[1, 2, 3, 4, 5].map((n) => (
         <label key={n} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
           <input type="radio" value={n} {...register(name, { valueAsNumber: true })} /> {n}
         </label>
       ))}
-      {error ? <span style={{ color: '#b91c1c', fontSize: '0.85rem', marginLeft: '0.5rem' }}>{error}</span> : null}
+      {error ? (
+        <span id={errorId} role="alert" style={{ color: 'var(--color-accent)', fontSize: '0.85rem', marginLeft: '0.5rem' }}>
+          {error}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -229,7 +239,7 @@ export default function PlacementSurveyForm({
       </div>
 
       {errorMessage ? (
-        <p style={{ color: '#b91c1c', marginBottom: '1rem', fontSize: '0.95rem' }}>{errorMessage}</p>
+        <p role="alert" style={{ color: 'var(--color-accent)', marginBottom: '1rem', fontSize: '0.95rem' }}>{errorMessage}</p>
       ) : null}
 
       <button

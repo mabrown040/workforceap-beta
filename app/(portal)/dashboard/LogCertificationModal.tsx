@@ -18,13 +18,21 @@ export default function LogCertificationModal() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const today = new Date().toISOString().slice(0, 10);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    const formData = new FormData(e.currentTarget);
+    const earnedAt = formData.get('earnedAt');
+    if (typeof earnedAt === 'string' && earnedAt && earnedAt > today) {
+      setError('Date earned cannot be in the future.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const formData = new FormData(e.currentTarget);
       await logExternalCertification(formData);
       e.currentTarget.reset();
       setOpen(false);
@@ -107,11 +115,12 @@ export default function LogCertificationModal() {
             type="date"
             name="earnedAt"
             required
+            max={today}
             style={inputStyle}
           />
         </label>
         {error ? (
-          <p role="alert" style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error, #dc2626)' }}>
+          <p role="alert" style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent)' }}>
             {error}
           </p>
         ) : null}

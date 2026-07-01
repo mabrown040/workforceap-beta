@@ -7,6 +7,9 @@
 export function ProgramListSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-label="Loading programs"
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',

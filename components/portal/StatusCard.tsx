@@ -1,4 +1,6 @@
 import type { ApplicationStatus } from '@prisma/client';
+import type { AppLocale } from '@/lib/i18n/config';
+import { formatLocalizedDate } from '@/lib/i18n/date';
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
   PENDING: 'Under review',
@@ -18,9 +20,11 @@ type StatusCardProps = {
   status: ApplicationStatus;
   programInterest: string;
   submittedAt: Date | null;
+  /** Active locale (e.g. from `getRequestLocale()`); defaults to English. */
+  locale?: AppLocale;
 };
 
-export function StatusCard({ status, programInterest, submittedAt }: StatusCardProps) {
+export function StatusCard({ status, programInterest, submittedAt, locale }: StatusCardProps) {
   const label = STATUS_LABELS[status];
   const description = STATUS_DESCRIPTIONS[status];
 
@@ -42,7 +46,7 @@ export function StatusCard({ status, programInterest, submittedAt }: StatusCardP
       <p style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>
         Program: {programInterest}
         {submittedAt && (
-          <> &bull; Submitted {new Date(submittedAt).toLocaleDateString()}</>
+          <> &bull; Submitted {formatLocalizedDate(submittedAt, locale)}</>
         )}
       </p>
     </div>

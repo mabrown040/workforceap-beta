@@ -17,10 +17,12 @@ const inputStyle: React.CSSProperties = {
 export default function LogCertificationModal() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const formData = new FormData(e.currentTarget);
       await logExternalCertification(formData);
@@ -28,7 +30,7 @@ export default function LogCertificationModal() {
       setOpen(false);
     } catch (err) {
       console.error(err);
-      alert('Failed to log certification');
+      setError('Failed to log certification. Please try again.');
     }
     setLoading(false);
   };
@@ -108,6 +110,11 @@ export default function LogCertificationModal() {
             style={inputStyle}
           />
         </label>
+        {error ? (
+          <p role="alert" style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error, #dc2626)' }}>
+            {error}
+          </p>
+        ) : null}
         <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', justifyContent: 'center' }}>
           {loading ? 'Saving…' : 'Save certificate'}
         </button>

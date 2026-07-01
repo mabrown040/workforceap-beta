@@ -79,6 +79,8 @@ export const memberSignupSchema = z.object({
   utmContent: z.string().max(200).optional().nullable(),
   utmTerm: z.string().max(200).optional().nullable(),
   referrer: z.string().max(500).optional().nullable(),
+  /** Cloudflare Turnstile token, verified server-side when NEXT_PUBLIC_CAPTCHA_ENABLED=true. */
+  turnstileToken: z.string().optional().nullable(),
 });
 
 export type MemberSignupInput = z.infer<typeof memberSignupSchema>;

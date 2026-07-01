@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
@@ -116,54 +116,70 @@ export const POST = withApiGuc(async (request: Request) => {
     return { user: u, enrollmentId: enrollment.id };
   });
 
-  void auditLog({
-    actorUserId: user.id,
-    action: 'member_program_enroll',
-    targetType: 'user',
-    targetId: user.id,
-    metadata: { programSlug: slug, programTitle },
-  }).catch(() => {});
+  after(() =>
+    auditLog({
+      actorUserId: user.id,
+      action: 'member_program_enroll',
+      targetType: 'user',
+      targetId: user.id,
+      metadata: { programSlug: slug, programTitle },
+    }).catch(() => {})
+  );
 
-  awardPoints(user.id, 'program_enrolled', slug).catch(() => {});
+  after(() => awardPoints(user.id, 'program_enrolled', slug).catch(() => {}));
 
   // Member-to-member referral: reward both sides on enrollment (idempotent, non-blocking).
-  cookies()
-    .then((store) => rewardReferralOnEnrollment(user.id, store.get(MEMBER_REFERRAL_COOKIE)?.value))
-    .catch(() => {});
+  after(() =>
+    cookies()
+      .then((store) => rewardReferralOnEnrollment(user.id, store.get(MEMBER_REFERRAL_COOKIE)?.value))
+      .catch(() => {})
+  );
 
   // Lifecycle event: program_enrolled
-  trackEvent({
-    userId: user.id,
-    eventName: 'program_enrolled',
-    entityType: 'Program',
-    entityId: slug,
-    metadata: { programTitle },
-  }).catch(() => {});
+  after(() =>
+    trackEvent({
+      userId: user.id,
+      eventName: 'program_enrolled',
+      entityType: 'Program',
+      entityId: slug,
+      metadata: { programTitle },
+    }).catch(() => {})
+  );
 
-  sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
-    Program: programTitle,
-  }).catch((err) => console.error('Partner milestone email failed:', err));
+  after(() =>
+    sendPartnerMilestoneEmail(user.id, 'Program enrollment', {
+      Program: programTitle,
+    }).catch((err) => console.error('Partner milestone email failed:', err))
+  );
 
-  sendCourseEnrolledEmail({
-    to: updatedUser.user.email,
-    fullName: updatedUser.user.fullName,
-    programName: programTitle,
-  }).catch((err) => console.error('Course enrolled email failed:', err));
+  after(() =>
+    sendCourseEnrolledEmail({
+      to: updatedUser.user.email,
+      fullName: updatedUser.user.fullName,
+      programName: programTitle,
+    }).catch((err) => console.error('Course enrolled email failed:', err))
+  );
 
   // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
-  maybeSendCourseKickoffEmail({
-    userId: user.id,
-    enrollmentId: updatedUser.enrollmentId,
-    programSlug: slug,
-    email: updatedUser.user.email,
-    fullName: updatedUser.user.fullName,
-  }).catch(() => { /* already logged inside */ });
+  after(() =>
+    maybeSendCourseKickoffEmail({
+      userId: user.id,
+      enrollmentId: updatedUser.enrollmentId,
+      programSlug: slug,
+      email: updatedUser.user.email,
+      fullName: updatedUser.user.fullName,
+    }).catch(() => { /* already logged inside */ })
+  );
 
   // Invalidate cached member state so dashboard reflects enrollment immediately
   await invalidateMemberState(user.id);
 
-  auditLog({ actorUserId: user.id, action: 'member.program.enroll', targetType: 'ProgramEnrollment', targetId: slug }).catch(() => {});
-  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'ProgramEnrollment', id: slug }, result: { success: true } }).catch(() => {});
+  after(() =>
+    auditLog({ actorUserId: user.id, action: 'member.program.enroll', targetType: 'ProgramEnrollment', targetId: slug }).catch(() => {})
+  );
+  after(() =>
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'ProgramEnrollment', id: slug }, result: { success: true } }).catch(() => {})
+  );
   return NextResponse.json({ ok: true, programSlug: slug });
 
   } catch (error) {

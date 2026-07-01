@@ -297,6 +297,7 @@ model User {
   @@index([lastCourseraAutoSyncAt])
   @@index([courseraEnrollmentApproved])
   @@index([wioaReviewedByUserId])
+  @@index([organizationId, deletedAt])
   @@map("users")
 }
 

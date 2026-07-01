@@ -5,6 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
+import { getRequestLocale } from '@/lib/i18n/server';
+import { formatLocalizedDate } from '@/lib/i18n/date';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
@@ -34,6 +36,7 @@ export default async function DashboardCertificationsPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
 
+  const locale = await getRequestLocale();
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
 
@@ -81,11 +84,7 @@ export default async function DashboardCertificationsPage({
     const earned = certs.map((c) => ({
       id: c.id,
       title: c.certName,
-      meta: `Issued ${c.earnedAt.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })}`,
+      meta: `Issued ${formatLocalizedDate(c.earnedAt, locale, { month: 'short', day: 'numeric', year: 'numeric' })}`,
       // Coursera/manual certs aren't credential-verified through us, so we
       // don't claim "verified" — leave the badge off.
       verified: false,
@@ -689,7 +688,7 @@ export default async function DashboardCertificationsPage({
                         />
                         <CertificationViewButton
                           certName={c.certName}
-                          earnedAtLabel={c.earnedAt.toLocaleDateString('en-US', {
+                          earnedAtLabel={formatLocalizedDate(c.earnedAt, locale, {
                             month: 'short',
                             day: 'numeric',
                             year: 'numeric',

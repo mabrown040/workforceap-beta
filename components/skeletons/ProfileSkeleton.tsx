@@ -6,7 +6,12 @@
  */
 export function ProfileSkeleton() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Loading profile"
+      style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+    >
       {/* Avatar + name row */}
       <div
         style={{

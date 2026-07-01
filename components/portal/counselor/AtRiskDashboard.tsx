@@ -178,6 +178,7 @@ export default function AtRiskDashboard() {
   // Action states
   const [actingIds, setActingIds] = useState<Set<string>>(new Set());
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -293,6 +294,7 @@ export default function AtRiskDashboard() {
 
   async function updateStatus(alertId: string, status: 'acknowledged' | 'resolved' | 'escalated') {
     setActingIds((prev) => new Set(prev).add(alertId));
+    setActionError(null);
     try {
       const res = await fetch('/api/admin/members/at-risk', {
         method: 'PATCH',
@@ -313,7 +315,7 @@ export default function AtRiskDashboard() {
         return next;
       });
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update status');
+      setActionError(err instanceof Error ? err.message : 'Failed to update status');
     } finally {
       setActingIds((prev) => {
         const next = new Set(prev);
@@ -324,12 +326,13 @@ export default function AtRiskDashboard() {
   }
 
   async function bulkAcknowledge() {
+    setActionError(null);
     const openAlertIds = Array.from(selectedIds).filter((alertId) => {
       const m = members.find((x) => x.alertId === alertId);
       return m?.status === 'open';
     });
     if (openAlertIds.length === 0) {
-      alert('No open (unacknowledged) alerts among the selected rows.');
+      setActionError('No open (unacknowledged) alerts among the selected rows.');
       return;
     }
     setBulkActionLoading(true);
@@ -344,12 +347,12 @@ export default function AtRiskDashboard() {
       const results = await Promise.all(promises);
       const failed = results.filter((r) => !r.ok).length;
       if (failed > 0) {
-        alert(`${failed} of ${openAlertIds.length} updates failed. Refreshing…`);
+        setActionError(`${failed} of ${openAlertIds.length} updates failed. Refreshing…`);
       }
       setSelectedIds(new Set());
       await fetchData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Bulk update failed');
+      setActionError(err instanceof Error ? err.message : 'Bulk update failed');
     } finally {
       setBulkActionLoading(false);
     }
@@ -702,6 +705,12 @@ export default function AtRiskDashboard() {
             </button>
           </div>
         </div>
+      )}
+
+      {actionError && (
+        <p role="alert" style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>
+          {actionError}
+        </p>
       )}
 
       {/* Results count */}

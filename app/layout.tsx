@@ -32,6 +32,7 @@ import '@/css/marketing-depth.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';
+import SentrySetUser from '@/components/observability/SentrySetUser';
 
 const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
@@ -303,6 +304,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <ConditionalMarketingNav forceHidden={hidePaidApplyMarketingNav} />
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
+        <SentrySetUser userId={resolvedUserId} />
         <DeferredRootChrome />
       </body>
     </html>

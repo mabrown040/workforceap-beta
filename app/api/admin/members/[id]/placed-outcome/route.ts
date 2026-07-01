@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -130,35 +130,41 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     },
   });
 
-  logAuditEvent({
-    user: { id: user.id, role: 'admin' },
-    verb: prior ? 'updated' : 'created',
-    object: { type: 'PlacementRecord', id: placement.id },
-    result: { success: true, extensions: { memberId, action: prior ? 'placement_update' : 'placement_create' } },
-    request: auditRequestMeta(request),
-  }).catch(() => {});
+  after(() =>
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: prior ? 'updated' : 'created',
+      object: { type: 'PlacementRecord', id: placement.id },
+      result: { success: true, extensions: { memberId, action: prior ? 'placement_update' : 'placement_create' } },
+      request: auditRequestMeta(request),
+    }).catch(() => {})
+  );
 
   // Lifecycle event: placement edits create new events for audit trail.
-  trackEvent({
-    userId: memberId,
-    eventName: 'placement_recorded',
-    entityType: 'PlacementRecord',
-    entityId: placement.id,
-    metadata: {
-      employerName: d.employerName,
-      jobTitle: d.jobTitle,
-      isNew: !prior,
-      isEdit: !!prior,
-      recordedBy: user.id,
-    },
-  }).catch(() => {});
+  after(() =>
+    trackEvent({
+      userId: memberId,
+      eventName: 'placement_recorded',
+      entityType: 'PlacementRecord',
+      entityId: placement.id,
+      metadata: {
+        employerName: d.employerName,
+        jobTitle: d.jobTitle,
+        isNew: !prior,
+        isEdit: !!prior,
+        recordedBy: user.id,
+      },
+    }).catch(() => {})
+  );
 
   // Partner milestone email on first placement only
   if (!prior) {
-    sendPartnerMilestoneEmail(memberId, 'Job placement', {
-      Employer: d.employerName,
-      Role: d.jobTitle,
-    }).catch((err) => console.error('Partner milestone email failed:', err));
+    after(() =>
+      sendPartnerMilestoneEmail(memberId, 'Job placement', {
+        Employer: d.employerName,
+        Role: d.jobTitle,
+      }).catch((err) => console.error('Partner milestone email failed:', err))
+    );
   }
 
   return NextResponse.json({

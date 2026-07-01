@@ -176,13 +176,39 @@ export async function POST(request: Request) {
         resolvedEmail = resolved.email.trim().toLowerCase();
       }
     }
-  
+
     const identity = {
       email: data.email ?? resolvedEmail,
       actorIdentifier: data.actorIdentifier,
       actorHomePage: data.actorHomePage,
     };
-  
+
+    // Tenant trust check: `organizationId` above comes from the request headers
+    // (custom-domain resolution), which is a weaker signal than the matched
+    // member's actual DB row. The `externalUserId` lookup path in particular
+    // does no org scoping at all, and identity-mapping rows can be stale, so a
+    // header-derived org must never be trusted to imply the matched member
+    // belongs to it. Fetch the member's real organizationId and require it to
+    // equal the header-derived one before applying any completion/progress
+    // write; treat a mismatch identically to "unmatched" so a spoofed or
+    // misconfigured tenant header cannot cross-apply course completions.
+    let dbUser: { organizationId: string; enrolledProgram: string | null } | null = null;
+    if (memberId) {
+      dbUser = await prisma.user.findUnique({
+        where: { id: memberId },
+        select: { organizationId: true, enrolledProgram: true },
+      });
+      if (!dbUser || dbUser.organizationId !== organizationId) {
+        console.warn('[webhooks/coursera] organizationId mismatch for matched member', {
+          memberId,
+          headerOrganizationId: organizationId,
+          memberOrganizationId: dbUser?.organizationId ?? null,
+        });
+        memberId = null;
+        mappingMethod = undefined;
+      }
+    }
+
     if (!memberId) {
       await recordXapiEvent({
         statementId: dedupeKey,
@@ -201,7 +227,7 @@ export async function POST(request: Request) {
         dedupeKey,
       });
     }
-  
+
     const claim = await claimCourseraRestWebhookStatement(dedupeKey);
     if (claim === 'already_processed') {
       return NextResponse.json({
@@ -211,11 +237,7 @@ export async function POST(request: Request) {
         userId: memberId,
       });
     }
-  
-    const dbUser = await prisma.user.findUnique({
-      where: { id: memberId },
-      select: { enrolledProgram: true },
-    });
+
     const enrolledProgram = dbUser?.enrolledProgram ?? null;
   
     const synthetic = buildSyntheticParsed(data, resolvedEmail, rawAudit);

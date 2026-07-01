@@ -120,6 +120,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
   async function addNote() {
     if (!member || !noteText.trim()) return;
     setSavingNote(true);
+    setError(null);
     try {
       const res = await fetch(`/api/counselor/members/${member.userId}/notes`, {
         method: 'POST',
@@ -131,7 +132,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
       setNotes((prev) => [data.note, ...prev]);
       setNoteText('');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save note');
+      setError(err instanceof Error ? err.message : 'Failed to save note');
     } finally {
       setSavingNote(false);
     }
@@ -465,6 +466,11 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 {savingNote ? <Loader2 size={14} className="wa-animate-spin" /> : 'Add'}
               </button>
             </div>
+            {error && (
+              <p role="alert" style={{ margin: '0 0 0.75rem', fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-accent)' }}>
+                {error}
+              </p>
+            )}
             {loadingNotes ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
                 <Loader2 size={14} className="wa-animate-spin" />

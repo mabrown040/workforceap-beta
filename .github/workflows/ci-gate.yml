@@ -15,7 +15,7 @@ jobs:
   ci:
     name: Typecheck & Build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     env:
       # Stub values so Next.js/Prisma don't crash at build time in CI.
@@ -75,6 +75,7 @@ jobs:
       - name: Lint (report-only)
         run: npm run lint
         continue-on-error: true
+        timeout-minutes: 5
 
       # Vitest — report-only for now. AUDIT-2026-05-16 §H-CI1: 63 API
       # spec files import from vitest but `scripts/test-unit.mjs` only
@@ -86,6 +87,7 @@ jobs:
       - name: Vitest (report-only)
         run: npm run test:vitest
         continue-on-error: true
+        timeout-minutes: 8
 
       # Dead-code detection — report-only. No knip/ts-prune/depcheck config
       # existed before this; `knip` was added as a devDependency (see
@@ -99,6 +101,7 @@ jobs:
       - name: Dead code (report-only)
         run: npm run deadcode
         continue-on-error: true
+        timeout-minutes: 5
 
       # Tenant-isolation guardrails. Static-grep check across high-risk
       # routes — expanded in PR 2 of AUDIT-2026-05-16 to cover the

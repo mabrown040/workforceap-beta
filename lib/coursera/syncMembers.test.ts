@@ -7,9 +7,11 @@ import { prisma } from '@/lib/db/prisma';
 test('fetchEligibleCourseraMembers pages beyond the first 100 users', async (t) => {
   const userDelegate = (prisma as any).user;
   const originalFindMany = userDelegate.findMany;
+  const originalTransaction = (prisma as any).$transaction;
 
   t.after(() => {
     userDelegate.findMany = originalFindMany;
+    (prisma as any).$transaction = originalTransaction;
   });
 
   const firstPage = Array.from({ length: COURSERA_SYNC_MEMBER_PAGE_SIZE }, (_, i) => ({
@@ -24,6 +26,11 @@ test('fetchEligibleCourseraMembers pages beyond the first 100 users', async (t) 
     calls.push(args);
     return args.skip === 0 ? firstPage : secondPage;
   };
+  // fetchEligibleCourseraMembers wraps its paginated read in prisma.$transaction
+  // so the RLS/GUC middleware applies (see lib/db/prisma.ts) -- mock it to just
+  // invoke the callback with the same mocked delegate as `tx`.
+  (prisma as any).$transaction = async (fn: (tx: unknown) => Promise<unknown>) =>
+    fn({ user: userDelegate });
 
   const members = await fetchEligibleCourseraMembers();
 

@@ -52,6 +52,32 @@ const PORTAL_PATHS = [
 const ADMIN_PATHS = ['/admin'];
 const ADMIN_API_PATHS = ['/api/admin'];
 
+/**
+ * Defense-in-depth backstop for the tenant-portal APIs. These routes already
+ * enforce auth per-route (via `getUser()` / role checks), but had no
+ * middleware-level protection, unlike `/api/admin/*`. This adds a second,
+ * centrally-maintained layer so a future route that forgets its own auth
+ * check still gets rejected here.
+ *
+ * IMPORTANT: keep `TENANT_API_PUBLIC_ALLOWLIST` exact and minimal — every
+ * entry is a route that intentionally has NO session yet (account creation)
+ * or authenticates via a non-session mechanism (webhook signature). Audited
+ * 2026-07-01: every other route.ts under these four prefixes calls
+ * `getUser()`/Supabase session auth (directly or via a shared handler
+ * factory) before touching request data.
+ */
+const TENANT_API_PATHS = ['/api/member', '/api/employer', '/api/partner', '/api/counselor'];
+
+/** Routes under TENANT_API_PATHS that must stay reachable without a session. */
+const TENANT_API_PUBLIC_ALLOWLIST = new Set([
+  '/api/member/signup',
+  '/api/employer/signup',
+  '/api/partner/signup',
+  // Stripe webhook — authenticated via `stripe-signature` header verification
+  // inside the route handler, not a user session.
+  '/api/employer/webhook',
+]);
+
 /** Public post-conversion pages under portal URL prefixes (no auth gate). */
 const PUBLIC_THANK_YOU_PATHS = new Set(['/employer/thank-you']);
 
@@ -70,6 +96,11 @@ function isAdminPath(pathname: string) {
 
 function isAdminApiPath(pathname: string) {
   return ADMIN_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function isTenantApiPath(pathname: string) {
+  if (TENANT_API_PUBLIC_ALLOWLIST.has(pathname)) return false;
+  return TENANT_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 function isProtectedPath(pathname: string) {
@@ -231,6 +262,7 @@ export async function middleware(request: NextRequest) {
 
   const needsValidatedUser =
     isProtectedPath(effectivePath) ||
+    isTenantApiPath(effectivePath) ||
     (isStaffMfaEnforcementEnabled() &&
       (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)));
 
@@ -261,6 +293,15 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL(localizedLoginPath(prefixLocale ?? inferredLocale), request.url);
     loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
     return NextResponse.redirect(loginUrl);
+  }
+
+  // API backstop: unlike page routes, these must not redirect (there is no
+  // browser navigation to redirect) — return the same JSON 401 shape the
+  // per-route `getUser()` checks already return, so this is a pure
+  // defense-in-depth layer with no observable change for authenticated
+  // callers or for the already-enforced per-route 401s.
+  if (isTenantApiPath(effectivePath) && !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   if (isStaffMfaEnforcementEnabled() && (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)) && user) {

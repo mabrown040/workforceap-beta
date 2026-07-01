@@ -1,8 +1,0 @@
-   ▲ Next.js 15.5.18
-   - Environments: .env.local, .env
-   - Experiments (use with caution):
-     ✓ optimizeCss
-     · clientTraceMetadata
-     · optimizePackageImports
-
-   Creating an optimized production build ...

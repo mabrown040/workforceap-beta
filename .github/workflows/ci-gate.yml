@@ -77,22 +77,21 @@ jobs:
         continue-on-error: true
         timeout-minutes: 5
 
-      # Vitest — report-only for now. AUDIT-2026-05-16 §H-CI1: 63 API
-      # spec files import from vitest but `scripts/test-unit.mjs` only
-      # globs `lib/**/*.test.ts`. This adds visibility for those specs.
-      # Many will likely fail today because they mock `withTenantScope`
-      # away or have stale assertions; the goal is to surface the
-      # failures and burn them down. Flip to required after the API
-      # spec suite is green.
-      # This step has hung (no exit, no timeout-minutes cutoff observed)
-      # across multiple CI runs, blocking the required Build step behind
-      # it. Wrap with the OS-level `timeout` command as a hard backstop
-      # in addition to timeout-minutes, and force a zero exit so a kill
-      # can't fail the step even without continue-on-error.
-      - name: Vitest (report-only)
-        run: timeout 240 npm run test:vitest || true
-        continue-on-error: true
-        timeout-minutes: 8
+      # Vitest — TEMPORARILY DISABLED as of 2026-07-01. AUDIT-2026-05-16
+      # §H-CI1: 63 API spec files import from vitest but
+      # `scripts/test-unit.mjs` only globs `lib/**/*.test.ts`; this step
+      # was meant to add visibility for those specs and eventually flip
+      # to required once green. Across 4 consecutive CI runs this step
+      # got stuck at 0% progress well past both `timeout-minutes: 8` and
+      # an OS-level `timeout 240` wrapper -- neither cutoff fired,
+      # pointing at a runner/infra-level stall rather than a hang inside
+      # the vitest process itself, so no in-repo fix could unblock it.
+      # Re-enable once the underlying runner issue is understood --
+      # `npm run test:vitest` still works standalone in the meantime.
+      # - name: Vitest (report-only)
+      #   run: timeout 240 npm run test:vitest || true
+      #   continue-on-error: true
+      #   timeout-minutes: 8
 
       # Dead-code detection — report-only. No knip/ts-prune/depcheck config
       # existed before this; `knip` was added as a devDependency (see

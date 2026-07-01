@@ -1,10 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Building2, Loader2, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import './signup-depth.css';
+
+const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
+
+const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 export default function EmployerSignupPage() {
   const router = useRouter();
@@ -23,6 +29,7 @@ export default function EmployerSignupPage() {
   const [companySize, setCompanySize] = useState('');
   const [hearAbout, setHearAbout] = useState('');
   const [consentTerms, setConsentTerms] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
@@ -52,6 +59,11 @@ export default function EmployerSignupPage() {
       return;
     }
 
+    if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken?.trim()) {
+      setError('Please complete the security check before continuing.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/employer/signup', {
@@ -67,6 +79,7 @@ export default function EmployerSignupPage() {
           companySize,
           hearAbout,
           consentTerms,
+          ...(CAPTCHA_ENABLED && turnstileToken ? { turnstileToken } : {}),
         }),
       });
       const data = await res.json();
@@ -327,9 +340,21 @@ export default function EmployerSignupPage() {
                 </label>
               </div>
 
+              {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
+                <div className="flex justify-center">
+                  <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={(t) => setTurnstileToken(t)}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileToken(null)}
+                    options={{ theme: 'light', size: 'normal' }}
+                  />
+                </div>
+              ) : null}
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (CAPTCHA_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken)}
                 className="mdx-btn mdx-btn--primary w-full flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (

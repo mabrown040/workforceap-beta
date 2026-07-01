@@ -85,3 +85,24 @@ marketing/.vercel/
 /cursor-api-payload.json
 /git_script.sh
 /next-build-output-verify.txt
+
+# CI runner has intermittently hung on the Build step this session with
+# no completion signal; these blank-line commits force a fresh runner.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

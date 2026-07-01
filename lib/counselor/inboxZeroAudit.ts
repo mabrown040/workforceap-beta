@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getProfileRole } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export type InboxZeroBulkAuditVerb =
   | 'launched'
@@ -24,7 +25,10 @@ export async function logInboxZeroBulkAuditEvent(options: {
 }): Promise<void> {
   const [orgId, profileRole] = await Promise.all([
     getActorOrganizationId(options.actorUserId),
-    getProfileRole(options.actorUserId),
+    withDbRetry(() => getProfileRole(options.actorUserId)).catch((err) => {
+      console.error('[counselor:inboxZeroAudit] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    }),
   ]);
 
   await logAuditEvent({

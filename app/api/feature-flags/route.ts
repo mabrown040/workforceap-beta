@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { filterVisibleFlags } from '@/lib/feature-flags/publicApi';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export const GET = withApiGuc(async () => {
   try {
@@ -14,7 +15,10 @@ export const GET = withApiGuc(async () => {
     }
 
     const [profileRole, userRoles] = await Promise.all([
-      getProfileRole(user.id),
+      withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+        console.error('[api:feature-flags] profileRole lookup failed; degrading to member', err);
+        return 'member';
+      }),
       getUserRoles(user.id),
     ]);
 

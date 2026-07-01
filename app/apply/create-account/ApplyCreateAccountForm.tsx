@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -18,6 +19,11 @@ import {
 } from '@/lib/apply/applyProgramStorage';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+
+const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
+
+const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 // Persists in-progress account form fields so back-button / refresh / accidental
 // navigation does not wipe what the user already typed. Cleared on successful
@@ -103,6 +109,7 @@ export default function ApplyCreateAccountForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     firstName?: string;
     lastName?: string;
@@ -379,6 +386,15 @@ export default function ApplyCreateAccountForm() {
       return;
     }
 
+    if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken?.trim()) {
+      setError('Please complete the security check before continuing.');
+      requestAnimationFrame(() => {
+        errorSummaryRef.current?.focus();
+        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
+      return;
+    }
+
     setLoading(true);
     trackApplyFunnel(3, 'account_create_submit', { program_slugs: programRankedSlugs, sms_opt_in: smsOptIn });
 
@@ -456,6 +472,7 @@ export default function ApplyCreateAccountForm() {
           utmContent: attribution.utmContent,
           utmTerm: attribution.utmTerm,
           referrer: attribution.referrer,
+          ...(CAPTCHA_ENABLED && turnstileToken ? { turnstileToken } : {}),
         }),
       });
       const data = await res.json();
@@ -1024,10 +1041,23 @@ export default function ApplyCreateAccountForm() {
           {error}
         </div>
       )}
+
+      {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
+        <div className="form-group">
+          <Turnstile
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(t) => setTurnstileToken(t)}
+            onExpire={() => setTurnstileToken(null)}
+            onError={() => setTurnstileToken(null)}
+            options={{ theme: 'light', size: 'normal' }}
+          />
+        </div>
+      ) : null}
+
       <button
         type="submit"
         className={marketingButtonPresets.formSubmitPrimary('btn-submit-full')}
-        disabled={loading}
+        disabled={loading || (CAPTCHA_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken)}
         aria-busy={loading}
       >
         {loading ? (

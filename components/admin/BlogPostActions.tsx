@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type Props = {
   id: string;
@@ -16,6 +17,8 @@ export default function BlogPostActions({ id, slug, published }: Props) {
   const [loading, setLoading] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const closeConfirmDelete = () => setConfirmDelete(false);
+  const confirmDeleteTrapRef = useFocusTrap(confirmDelete, closeConfirmDelete);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -90,17 +93,22 @@ export default function BlogPostActions({ id, slug, published }: Props) {
             {loading === 'publish' ? '…' : published ? 'Unpublish' : 'Publish'}
           </button>
           {confirmDelete ? (
-            <>
+            <div
+              ref={confirmDeleteTrapRef as React.RefObject<HTMLDivElement>}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Confirm delete post"
+            >
               <span style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                 Delete this post?
               </span>
               <button type="button" onClick={handleDelete} disabled={!!loading} data-danger>
                 Yes, delete
               </button>
-              <button type="button" onClick={() => setConfirmDelete(false)}>
+              <button type="button" onClick={closeConfirmDelete}>
                 Cancel
               </button>
-            </>
+            </div>
           ) : (
             <button type="button" onClick={() => setConfirmDelete(true)} data-danger>
               Delete

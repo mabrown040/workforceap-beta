@@ -10,6 +10,7 @@ import { getStripePriceId } from '@/lib/stripe/pricing';
 import { prisma } from '@/lib/db/prisma';
 import { getProfileRole } from '@/lib/auth/roles';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 const subscribeSchema = z.object({
   tier: z.enum(['starter', 'growth', 'enterprise']),
@@ -21,7 +22,10 @@ async function _POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const roles = await getProfileRole(user.id);
+  const roles = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+    console.error('[api:employer-subscribe] profileRole lookup failed; degrading to member', err);
+    return 'member';
+  });
   if (!roles.includes('employer')) {
     return NextResponse.json({ error: 'Employer access required' }, { status: 403 });
   }

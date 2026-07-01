@@ -5,15 +5,20 @@ import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { AppLocale } from '@/lib/i18n/config';
-import { isAppLocale, splitLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
+import { isAppLocale, isReviewedLocale, splitLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
 import { setLocaleCookie } from '@/lib/i18n/client';
 
-const languages: { code: AppLocale; label: string }[] = [
+const allLanguages: { code: AppLocale; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
   { code: 'fr', label: 'Français' },
   { code: 'pt', label: 'Português' },
 ];
+
+// Only advertise locales whose translations have passed human review — fr/pt
+// stay fully reachable via direct URL navigation (see lib/i18n/config.ts),
+// they just aren't offered as selectable options here.
+const languages = allLanguages.filter((lang) => isReviewedLocale(lang.code));
 
 export default function LanguageToggle({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
@@ -23,6 +28,15 @@ export default function LanguageToggle({ compact = false }: { compact?: boolean 
 
   const currentLocale: AppLocale = locale ?? 'en';
   const isPrefixedPath = !!locale;
+
+  // Normally only reviewed locales are offered, but if the visitor is
+  // already on an unreviewed locale (e.g. a bookmarked /fr/apply URL),
+  // keep it visible as the current selection rather than showing a
+  // blank/mismatched control — it's just not offered as a switch target
+  // from a reviewed locale.
+  const displayedLanguages = isReviewedLocale(currentLocale)
+    ? languages
+    : [...languages, ...allLanguages.filter((lang) => lang.code === currentLocale)];
 
   const handleChange = (code: string) => {
     if (!isAppLocale(code)) return;
@@ -41,7 +55,7 @@ export default function LanguageToggle({ compact = false }: { compact?: boolean 
   if (compact) {
     return (
       <div className="language-toggle language-toggle--compact" aria-label={tCommon('selectLanguage')}>
-        {languages.map((lang, index) => (
+        {displayedLanguages.map((lang, index) => (
           <span key={lang.code} className="language-toggle__item">
             {lang.code === currentLocale ? (
               <span className="language-toggle__current">{lang.label}</span>
@@ -55,7 +69,7 @@ export default function LanguageToggle({ compact = false }: { compact?: boolean 
                 {lang.label}
               </button>
             )}
-            {index < languages.length - 1 && (
+            {index < displayedLanguages.length - 1 && (
               <span className="language-toggle__sep" aria-hidden="true">·</span>
             )}
           </span>
@@ -74,7 +88,7 @@ export default function LanguageToggle({ compact = false }: { compact?: boolean 
         className="language-toggle-select"
         suppressHydrationWarning
       >
-        {languages.map((lang) => (
+        {displayedLanguages.map((lang) => (
           <option key={lang.code} value={lang.code}>
             {lang.label}
           </option>

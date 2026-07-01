@@ -7,6 +7,8 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
+import { withDbRetry } from '@/lib/db/withDbRetry';
+import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
 import { canBypassMemberAssessment, getProfileRole, isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatPortalDate } from '@/lib/formatDate';
@@ -157,14 +159,28 @@ async function renderMemberDashboard(
   // simple, fast queries — skips loadMemberCareerBriefBundle / getMemberState /
   // B4B (those stall on the demo). Real data; complete for what the kit shows.
   if (args.requestedUi !== 'legacy') {
-    const ku = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { fullName: true, enrolledProgram: true },
-    });
+    let ku = await withDbRetry(() =>
+      prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true, enrolledProgram: true },
+      }),
+    );
+    // Orphaned Supabase auth user (no app `users` row). The root layout
+    // normally self-heals on entry; guard here so a direct hit never crashes
+    // the member-keyed reads below — provision then re-read.
+    if (!ku) {
+      await ensureAppUserProvisioned(user);
+      ku = await withDbRetry(() =>
+        prisma.user.findUnique({
+          where: { id: user.id },
+          select: { fullName: true, enrolledProgram: true },
+        }),
+      );
+    }
     // Cheap, count/findMany-only queries — keep the lean path fast (no
     // loadMemberCareerBriefBundle / getMemberState / B4B). These mirror the
     // existing Promise.all style and feed the richer MemberHomeKit.
-    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline] = await Promise.all([
+    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline] = await withDbRetry(() => Promise.all([
       prisma.courseEnrollment.findFirst({
         where: { userId: user.id, isPrimary: true },
         select: { programSlug: true },
@@ -194,14 +210,16 @@ async function renderMemberDashboard(
         take: 3,
         select: { role: true, company: true, status: true },
       }),
-    ]);
+    ]));
     const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
     const leanProgram = leanSlug ? getProgramBySlug(leanSlug) : undefined;
     const leanTotal = leanProgram?.courses?.length ?? 0;
     const leanCompleted = leanSlug
-      ? await prisma.courseProgress.count({
-          where: { userId: user.id, programSlug: leanSlug, status: 'COMPLETED' },
-        })
+      ? await withDbRetry(() =>
+          prisma.courseProgress.count({
+            where: { userId: user.id, programSlug: leanSlug, status: 'COMPLETED' },
+          }),
+        )
       : 0;
     const leanPct = leanTotal ? Math.round((leanCompleted / leanTotal) * 100) : 0;
     const firstNameLean = (ku?.fullName ?? user.email ?? 'there').split(' ')[0] || 'there';

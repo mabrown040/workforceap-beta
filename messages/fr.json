@@ -2198,6 +2198,12 @@
     "careerOsDescription": "Suit les événements de complétion Career OS, les actions de suivi créées à partir de ceux-ci, et si les membres ont effectivement terminé la tâche sous-jacente de CV ou d'entretien.",
     "adminMembers": "Admin — Membres",
     "memberListAndManagement": "Liste et gestion des membres.",
+    "adminStudents": "Admin — Étudiants",
+    "studentListAndManagement": "Liste et gestion des étudiants.",
+    "outcomes": {
+      "title": "Tableau de bord des résultats",
+      "description": "Taux de placement, données salariales et efficacité du programme"
+    },
     "members": "Membres",
     "viewAndManageAccounts": "Afficher et gérer les comptes membres.",
     "addMember": "Ajouter un membre",
@@ -2381,6 +2387,7 @@
     "applicantsFor": "Candidats",
     "applicant": "candidat",
     "applicants": "candidats",
+    "reviewCandidateApplications": "Examiner les candidatures",
     "filtered": "filtré",
     "companySettingsMetaTitle": "Paramètres de l'entreprise",
     "companySettingsMetaDesc": "Gérez le profil de votre entreprise, les contacts de recrutement et les préférences de notification.",

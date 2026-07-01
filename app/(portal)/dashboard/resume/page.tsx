@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { withDbRetry } from '@/lib/db/withDbRetry';
+import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
 import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
 
@@ -43,18 +45,35 @@ export default async function DashboardResumePage() {
   if (!user) redirect("/login?redirectTo=/dashboard/resume");
   const t = await getTranslations('profile');
 
-  // Single source of truth: getMemberState returns consistent profile % across all surfaces.
-  const memberState = await getMemberState(user.id);
+  // Single source of truth: getMemberState returns consistent profile % across
+  // all surfaces. It throws "Member not found" when the app `users` row is
+  // missing (orphaned Supabase auth user). Self-heal by provisioning the row
+  // and retrying once before giving up — the root layout normally provisions on
+  // entry, but guard here so a direct hit never 500s. Reads wrapped in
+  // withDbRetry to ride out a transient pooler blip (2026-06-30 incident).
+  let memberState;
+  try {
+    memberState = await withDbRetry(() => getMemberState(user.id));
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith('Member not found')) {
+      await ensureAppUserProvisioned(user);
+      memberState = await withDbRetry(() => getMemberState(user.id));
+    } else {
+      throw err;
+    }
+  }
   const completeness = memberState.profileCompletenessPct;
 
   // Still need profile for resume paths
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: {
-      resumeOriginalPath: true,
-      resumeEnhancedPath: true,
-    },
-  });
+  const profile = await withDbRetry(() =>
+    prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: {
+        resumeOriginalPath: true,
+        resumeEnhancedPath: true,
+      },
+    }),
+  );
 
   const fields = {
     name: memberState.fullName ?? "",

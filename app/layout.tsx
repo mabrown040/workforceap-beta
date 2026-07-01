@@ -22,7 +22,9 @@ import {
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
+import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
 import { prisma } from '@/lib/db/prisma';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import '@/css/main.css';
 import '@/css/marketing.css';
@@ -128,6 +130,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // (AUDIT §C-T6, Sprint 2 compliance P0).
   let gucCtx: import('@/lib/db/gucContext').GucContext;
   if (resolvedUserId) {
+    // Self-heal orphaned auth users at the central post-auth choke point.
+    //
+    // The root layout is the single seam EVERY authenticated render passes
+    // through (portal pages bootstrap their GUC here, not via
+    // resolveAuthGucContext), so provisioning here heals a missing
+    // `users`/`profiles` row before any downstream path can crash:
+    // member_events FK on trackEvent at login, "Member not found" on
+    // /dashboard and /dashboard/resume, and the P2025 on
+    // /api/member/wioa-qualification's user.update. ensureAppUserProvisioned
+    // is idempotent and cheap (one fast-path read) when the rows already
+    // exist. We need the full Supabase user (email/metadata) to populate the
+    // new rows; getUser() is request-cached so this is free. Best-effort —
+    // a failure must not block the render; the GUC bootstrap below still runs.
+    const supabaseUser = await getUser();
+    if (supabaseUser) {
+      await ensureAppUserProvisioned(supabaseUser).catch((err) => {
+        console.error('[layout:guc] ensureAppUserProvisioned failed; continuing', err);
+      });
+    }
     // Bootstrap lookups run inside a partial GUC context carrying the verified
     // userId so the `users_select_own` RLS policy (`id = get_current_user_id()`)
     // permits the self-read once FORCE ROW LEVEL SECURITY is enabled. Without
@@ -146,10 +167,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         // middleware fail-closes (throws) on queries that run with an active
         // GUC context outside a $transaction. The previous bare findUnique
         // always threw here and orgId silently degraded to null.
-        prisma
-          .$transaction((tx) =>
-            tx.user.findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } }),
-          )
+        withDbRetry(() =>
+          prisma
+            .$transaction((tx) =>
+              tx.user.findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } }),
+            ),
+        )
           .catch((err) => {
             console.error('[layout:guc] organizationId bootstrap lookup failed; GUC degrades to orgId null', err);
             return null;

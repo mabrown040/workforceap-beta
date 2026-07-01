@@ -13,6 +13,8 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 import {
   sendApplicationConfirmationEmail,
@@ -168,13 +170,13 @@ const applySignupSchema = z.object({
     let referralSource: string | null = null;
     const refRaw = referralRef?.trim().toLowerCase();
     if (refRaw) {
-      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
+      const partner = await withDbRetry(() => prisma.$transaction((tx) => tx.partner.findFirst({
         where: {
           active: true,
           OR: [{ referralCode: refRaw }, { slug: refRaw }],
         },
         select: { id: true },
-      }));
+      })));
       if (partner) {
         referralPartnerId = partner.id;
         referralSource = `partner_ref:${refRaw}`;
@@ -227,15 +229,18 @@ const applySignupSchema = z.object({
       return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
     }
   
-    const organizationId = await getDefaultOrganizationId();
-    const priorUser = await prisma.$transaction((tx) => tx.user.findUnique({
+    const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+    const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledAt: true },
-    }));
-  
+    })));
+
     let createdApplicationId: string | null = null;
     try {
-      await prisma.$transaction(async (tx) => {
+      // Retry only on connection-acquisition failures (nothing committed yet):
+      // this transaction creates non-idempotent rows (application, screening,
+      // referral), so we must not re-run it after an ambiguous mid-commit drop.
+      await withDbRetry(() => prisma.$transaction(async (tx) => {
         await tx.user.upsert({
           where: { id: user.id },
           create: {
@@ -348,7 +353,7 @@ const applySignupSchema = z.object({
             data: { partnerId: referralPartnerId, memberId: user.id },
           });
         }
-      });
+      }), { shouldRetry: isConnectionAcquisitionError });
       const attributionMetadata: Record<string, string> = {};
       if (utmSource) attributionMetadata.utm_source = utmSource;
       if (utmMedium) attributionMetadata.utm_medium = utmMedium;
@@ -405,6 +410,23 @@ const applySignupSchema = z.object({
       }
     } catch (dbError) {
       captureApiError(dbError, { route: 'POST /api/apply/signup' });
+      // Roll back the auth user we just created so a failed signup doesn't
+      // leave an orphaned auth.users row with no app `users` row (the state
+      // that later causes member_events / message_threads FK violations and
+      // "Member not found" crashes). Mirror /api/member/signup's cleanup.
+      // Only delete when this was a brand-new user: `priorUser` is null means
+      // no app row existed before this request, so the auth account was created
+      // by this signUp call. A returning applicant (priorUser set) keeps theirs.
+      if (!priorUser) {
+        await getSupabaseAdmin()
+          .auth.admin.deleteUser(user.id)
+          .catch((cleanupErr) => {
+            logger.error('apply/signup: failed to clean up auth user after DB error', {
+              userId: user.id,
+              err: cleanupErr,
+            });
+          });
+      }
       return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
     }
   

@@ -9,6 +9,7 @@ import { getSupabaseEnv } from '@/lib/supabase/env';
 import { emitEmailVerifiedFromCallback } from '@/lib/events/emailVerified';
 import { trackEvent } from '@/lib/events/track';
 import { logger } from '@/lib/observability/logger';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 // Handles Supabase email confirmation and OAuth redirects.
 // Supabase sends ?code=xxx (PKCE); we exchange it for a session then redirect.
@@ -43,10 +44,21 @@ export async function GET(request: NextRequest) {
       const safeNext = sanitizeRedirectPath(nextRaw, '/dashboard');
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
+      // Resilient + non-fatal: a transient pooler blip here must not 500 the
+      // email-verification landing. On persistent failure we fall back to a
+      // null role (→ default /dashboard redirect) rather than erroring.
       const profile = userId
-        ? await prisma.profile.findUnique({
-            where: { userId },
-            select: { role: true },
+        ? await withDbRetry(() =>
+            prisma.profile.findUnique({
+              where: { userId },
+              select: { role: true },
+            }),
+          ).catch((err) => {
+            logger.warn('auth/callback: profile lookup failed; using default redirect', {
+              userId,
+              err,
+            });
+            return null;
           })
         : null;
       const destination = resolveRoleAwarePostLoginRedirect(safeNext, profile?.role);

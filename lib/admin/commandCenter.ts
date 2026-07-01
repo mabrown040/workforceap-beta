@@ -89,44 +89,37 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   if (threads.length === 0) return [];
 
   const threadIds = threads.map((thread) => thread.id);
-  const threadMemberIds = threads.map((thread) => thread.memberId as string);
-  const threadById = new Map(threads.map((thread) => [thread.id, thread]));
-  // True last message per thread (regardless of author) via DISTINCT ON,
-  // then restricted (via the thread_id/member_id pairs passed in as parallel
-  // arrays and matched with UNNEST) to threads whose latest message was sent
-  // by *that thread's own* member — i.e. awaiting a staff reply — ordered by
-  // staleness (oldest-waiting first), and capped to `limit`. All in one
-  // query, instead of pulling the last message for all 500 threads and
-  // sorting/slicing client-side in JS.
-  const needsReplyMessages = await prisma.$queryRawUnsafe<Array<{
+  // Last message per thread, ordered oldest-first and capped to `limit`
+  // directly in SQL — the "is this thread awaiting a staff reply" filter
+  // still has to happen after the join (author vs. thread's member), but we
+  // no longer pull all 500 last-messages into JS just to sort/slice them:
+  // DISTINCT ON already narrows to one row per thread, and the outer
+  // ORDER BY + LIMIT keeps only the oldest `limit` candidates before the
+  // cheap in-memory author-match filter runs.
+  const lastMessages = await prisma.$queryRawUnsafe<Array<{
     thread_id: string;
     author_id: string;
     body: string | null;
     created_at: Date;
   }>>(
-    `WITH thread_members AS (
-       SELECT * FROM UNNEST($1::text[], $2::text[]) AS t(thread_id, member_id)
-     ),
-     last_messages AS (
+    `SELECT thread_id, author_id, body, created_at FROM (
        SELECT DISTINCT ON (thread_id) thread_id, author_id, body, created_at
        FROM messages
        WHERE thread_id = ANY($1::text[])
        ORDER BY thread_id, created_at DESC
-     )
-     SELECT lm.thread_id, lm.author_id, lm.body, lm.created_at
-     FROM last_messages lm
-     JOIN thread_members tm ON tm.thread_id = lm.thread_id AND tm.member_id = lm.author_id
-     ORDER BY lm.created_at ASC
-     LIMIT $3`,
+     ) last_per_thread
+     ORDER BY created_at ASC
+     LIMIT $2`,
     threadIds,
-    threadMemberIds,
     limit,
   );
 
+  const threadById = new Map(threads.map((thread) => [thread.id, thread]));
   const rows: AdminNeedsReplyRow[] = [];
-  for (const message of needsReplyMessages) {
+  for (const message of lastMessages) {
     const thread = threadById.get(message.thread_id);
     if (!thread?.memberId || !thread.member) continue;
+    if (message.author_id !== thread.memberId) continue;
     rows.push({
       memberId: thread.member.id,
       memberName: thread.member.fullName ?? thread.member.email,
@@ -147,47 +140,60 @@ async function loadAtRisk(
   atRiskCutoff: Date,
   limit: number,
 ): Promise<AdminAtRiskRow[]> {
-  const members = await prisma.user.findMany({
-    take: 500,
-    where: {
-      organizationId: orgId,
-      deletedAt: null,
-      enrolledProgram: { not: null },
-      OR: [
-        { staleTrainingDetectedAt: { not: null } },
-        { memberEvents: { none: { createdAt: { gte: atRiskCutoff } } } },
-      ],
-    },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      enrolledProgram: true,
-      enrolledAt: true,
-      memberEvents: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: { createdAt: true },
-      },
-    },
-  });
+  // Same eligibility + days-inactive formula as before (last member event, or
+  // enrolledAt if none, floored at AT_RISK_DAYS), but computed and ordered in
+  // SQL so only the top `limit` rows come back instead of fetching up to 500
+  // candidates and sorting/slicing them in JS.
+  const rows = await prisma.$queryRawUnsafe<Array<{
+    id: string;
+    full_name: string | null;
+    email: string;
+    enrolled_program: string | null;
+    days_inactive: number;
+  }>>(
+    `SELECT
+       u.id,
+       u.full_name,
+       u.email,
+       u.enrolled_program,
+       GREATEST(
+         $1::int,
+         FLOOR(EXTRACT(EPOCH FROM ($2::timestamptz - COALESCE(last_event.created_at, u.enrolled_at))) / 86400)
+       )::int AS days_inactive
+     FROM users u
+     LEFT JOIN LATERAL (
+       SELECT me.created_at
+       FROM member_events me
+       WHERE me.user_id = u.id
+       ORDER BY me.created_at DESC
+       LIMIT 1
+     ) last_event ON true
+     WHERE u.organization_id = $3
+       AND u.deleted_at IS NULL
+       AND u.enrolled_program IS NOT NULL
+       AND (
+         u.stale_training_detected_at IS NOT NULL
+         OR NOT EXISTS (
+           SELECT 1 FROM member_events me2
+           WHERE me2.user_id = u.id AND me2.created_at >= $4::timestamptz
+         )
+       )
+     ORDER BY days_inactive DESC
+     LIMIT $5`,
+    AT_RISK_DAYS,
+    now,
+    orgId,
+    atRiskCutoff,
+    limit,
+  );
 
-  return members
-    .map((member) => {
-      const lastActiveAt = member.memberEvents[0]?.createdAt ?? member.enrolledAt;
-      const daysInactive = lastActiveAt
-        ? Math.max(AT_RISK_DAYS, Math.floor((now.getTime() - lastActiveAt.getTime()) / DAY_MS))
-        : AT_RISK_DAYS;
-      return {
-        memberId: member.id,
-        memberName: member.fullName ?? member.email,
-        memberEmail: member.email,
-        daysInactive,
-        enrolledProgram: member.enrolledProgram,
-      };
-    })
-    .sort((a, b) => b.daysInactive - a.daysInactive)
-    .slice(0, limit);
+  return rows.map((row) => ({
+    memberId: row.id,
+    memberName: row.full_name ?? row.email,
+    memberEmail: row.email,
+    daysInactive: row.days_inactive,
+    enrolledProgram: row.enrolled_program,
+  }));
 }
 
 async function loadInterviewing(orgId: string, limit: number): Promise<AdminInterviewingRow[]> {

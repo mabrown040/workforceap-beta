@@ -1,3 +1,7 @@
+// Matches the `take: 500` cap used by the sibling admin listing for the same
+// table (app/api/admin/placements/route.ts's `placementRecord.findMany`).
+const PLACEMENTS_QUERY_LIMIT = 500;
+
 export function buildPlacementsQuery(options: {
   staffUserId: string;
   isAdmin: boolean;
@@ -38,7 +42,7 @@ export function buildPlacementsQuery(options: {
     params.push(new Date(Date.now() - options.days * 24 * 60 * 60 * 1000));
   }
 
-  query += ` ORDER BY pr.placed_at DESC`;
+  query += ` ORDER BY pr.placed_at DESC LIMIT ${PLACEMENTS_QUERY_LIMIT}`;
 
   return { query, params };
 }

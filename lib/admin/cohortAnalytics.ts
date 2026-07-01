@@ -238,6 +238,7 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
     prisma.application.findMany({
       where: { updatedAt: { gte: trailingFourWeekStart, lt: weekEndExclusive } },
       select: { status: true, submittedAt: true, createdAt: true, updatedAt: true },
+      take: 5000,
     }),
     prisma.user.findMany({
       where: { deletedAt: null, enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, ...(orgId ? { organizationId: orgId } : {}) },
@@ -246,6 +247,7 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
     prisma.courseEnrollment.findMany({
       where: { enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, user: { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) } },
       select: { userId: true, enrolledAt: true },
+      take: 5000,
     }),
     prisma.message.count({ where: { authorId: { not: null }, createdAt: { gte: weekStart, lt: weekEndExclusive } } }),
     prisma.message.count({ where: { authorId: { not: null }, createdAt: { gte: lastWeekStart, lt: weekStart } } }),

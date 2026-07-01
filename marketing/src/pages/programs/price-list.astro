@@ -1,0 +1,116 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { PROGRAMS } from '../../data/programs';
+
+// ── ETPL / WIOA program price list ──
+// TWC (ETPL review) requires the price and contact hours of each program to be
+// verifiable on the provider website. Contact hours are the sum of the course
+// hours published on each program's detail page. Max cost matches the Max Cost
+// declared on each EdVera Program Details Form.
+const MAX_PROGRAM_COST = '$7,500';
+
+const rows = PROGRAMS
+  .map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    duration: p.duration,
+    contactHours: p.courses.reduce((sum, c) => sum + (c.estimatedHours ?? 0), 0),
+    funding: p.fundingSource ?? 'WIOA',
+  }))
+  .sort((a, b) => a.title.localeCompare(b.title));
+
+const updated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const pageTitle = 'Program Price List — Workforce Advancement Project';
+const metaDescription =
+  'Official Workforce Advancement Project program price list: program names, contact hours, and maximum program cost for workforce boards and funding partners.';
+---
+<Layout title={pageTitle} description={metaDescription}>
+<div class="plist">
+  <section class="head">
+    <div class="wrap">
+      <nav class="crumbs print-hide" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>›</span><a href="/programs">Programs</a><span>›</span><span class="cur">Price list</span>
+      </nav>
+      <p class="org">Workforce Advancement Project</p>
+      <h1>Program Price List</h1>
+      <p class="sub">
+        207 Settlers Valley Drive Suite C, Pflugerville, TX 78660 · 512-825-2896 ·
+        <a href="https://www.workforceap.org">www.workforceap.org</a>
+      </p>
+      <p class="note">
+        Training is provided at <strong>no cost to qualifying members</strong>, funded by grants and
+        partnerships. The maximum program cost below is the amount billed to workforce boards and
+        other funding partners (WIOA/ETPL), never to qualifying members. Contact hours match the
+        course hours published on each program page.
+      </p>
+      <p class="updated">Last updated: {updated}</p>
+      <button class="printbtn print-hide" onclick="window.print()">Print or save as PDF</button>
+    </div>
+  </section>
+
+  <section class="body">
+    <div class="wrap">
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Program</th>
+              <th scope="col">Duration</th>
+              <th scope="col" class="num">Contact hours</th>
+              <th scope="col" class="num">Maximum program cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <td><a href={`/programs/${r.slug}`}>{r.title}</a></td>
+                <td>{r.duration}</td>
+                <td class="num">{r.contactHours}</td>
+                <td class="num">{MAX_PROGRAM_COST}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="foot">
+        Questions about program pricing, bid letters, or ETPL documentation:
+        <a href="/contact">contact us</a> or call 512-825-2896.
+      </p>
+    </div>
+  </section>
+</div>
+
+<style>
+  .plist{background:var(--surface)}
+  .head{padding:48px 0 8px}
+  .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:18px}
+  .crumbs a{color:var(--crimson);font-weight:600}
+  .org{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--crimson);margin-bottom:6px}
+  h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,4vw,42px);letter-spacing:-.02em;margin:0 0 8px}
+  .sub{font-size:14px;color:var(--muted);margin-bottom:16px}
+  .sub a{color:var(--crimson)}
+  .note{font-size:14.5px;line-height:1.6;color:var(--text);max-width:60em;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:12px}
+  .updated{font-size:13px;color:var(--muted);margin-bottom:14px}
+  .printbtn{background:var(--crimson);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer}
+  .printbtn:hover{opacity:.92}
+
+  .body{padding:24px 0 64px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border)}
+  th{background:var(--surface-2);font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  tbody tr:last-child td{border-bottom:none}
+  td a{color:var(--crimson);font-weight:600}
+  .num{text-align:right;white-space:nowrap}
+  .foot{margin-top:18px;font-size:13.5px;color:var(--muted)}
+  .foot a{color:var(--crimson)}
+
+  @media print{
+    .print-hide{display:none !important}
+    .head{padding-top:12px}
+    .note{border:none;background:none;padding:0}
+    .tablewrap{border:none}
+    td a{color:inherit;text-decoration:none;font-weight:600}
+  }
+</style>
+</Layout>

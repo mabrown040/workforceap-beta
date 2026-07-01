@@ -30,12 +30,12 @@ describe('autoMatchOccupationToPrograms', () => {
       title: 'Cybersecurity Analyst',
       description: 'Protect computer networks and respond to incidents',
       skills: [
-        { skillName: 'Linux' },
-        { skillName: 'Python' },
-        { skillName: 'SQL' },
-        { skillName: 'Incident Response' },
+        { skillName: 'Networking' },
+        { skillName: 'Network security' },
+        { skillName: 'Incident response' },
+        { skillName: 'SIEM' },
       ],
-      tasks: [{ taskText: 'Monitor security breaches using Linux and Python' }],
+      tasks: [{ taskText: 'Monitor network security incidents using SIEM tools' }],
     });
 
     const results = autoMatchOccupationToPrograms(occ, PROGRAMS);
@@ -49,13 +49,13 @@ describe('autoMatchOccupationToPrograms', () => {
   });
 
   it('partial match scores medium', () => {
-    // "linux" and "python" are exact matches against the Cybersecurity program.
-    // With 9 unique keywords, score = 2/9 = 0.222 — solidly in the bridge tier.
+    // "networking" is an exact skill match against the Cybersecurity program;
+    // a single overlapping keyword lands solidly in the bridge tier.
     const occ = mockOcc({
-      title: 'Linux Administrator',
+      title: 'Network Administrator',
       description: 'Manages servers',
-      skills: [{ skillName: 'Python' }],
-      tasks: [{ taskText: 'Automate deployments' }],
+      skills: [{ skillName: 'Networking' }],
+      tasks: [{ taskText: 'Maintain office networks' }],
     });
 
     const results = autoMatchOccupationToPrograms(occ, PROGRAMS);

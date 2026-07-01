@@ -4,7 +4,6 @@ import { POSTAL_CODE_REGEX } from '@/lib/validation/postalCode';
 export const PROGRAM_INTEREST_OPTIONS = [
   'Digital Literacy Empowerment Class (6 weeks, 30 hours total)',
   'AI Practitioner Professional Certificate',
-  'AI and Software Development Professional Certificate (IBM)',
   'Software Developer Professional Certificate (IBM)',
   'CompTIA A+ Professional Certificate',
   'CompTIA Network+ Professional Certificate',
@@ -19,7 +18,7 @@ export const PROGRAM_INTEREST_OPTIONS = [
   'Digital Marketing & E-Commerce (Google)',
   'Project Management Professional Certificate (Microsoft)',
   'UX Design Professional Certificate (Google)',
-  'Medical Billing, Coding, and Health Information Technology',
+  'Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)',
   'Certified Production Technician (CPT)',
   'Certified Logistics Technician (CLT)',
   'Core Construction',

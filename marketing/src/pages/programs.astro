@@ -91,9 +91,9 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
         salary: '$72K–$108K', partner: 'CompTIA', funding: 'WIOA',
         skills: ['Network security', 'Risk management', 'Cryptography'] },
       { slug: 'cybersecurity-professional-certificate-google', category: 'IT & Cybersecurity', cat: 'c', icon: 'shield',
-        title: 'Cyber Security and Networking Professional Certificate (Network+, Sec+)', duration: '3-5 months, 10 hrs/week',
+        title: 'Cyber Security and Networking Professional Certificate (Network+, Sec+)', duration: '3-5 months, 10 hrs/week (164 contact hours total)',
         salary: '$75K–$112K', partner: 'Google', funding: 'WIOA',
-        skills: ['Linux', 'SQL', 'Python'] },
+        skills: ['Networking', 'Network security', 'Incident response'] },
     ],
   },
   {
@@ -121,9 +121,9 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     description: 'Software development, automation, and engineering tracks.',
     programs: [
       { slug: 'ai-professional-developer-certificate-ibm', category: 'AI & Software Dev', cat: 'g', icon: 'sparkle',
-        title: 'AI and Software Development Professional Certificate (IBM)', duration: '3-5 months, 10 hrs/week',
-        salary: '$85K–$135K', partner: 'IBM', funding: 'WIOA',
-        skills: ['Python', 'AI/ML', 'Generative AI'] },
+        title: 'AI Practitioner Professional Certificate', duration: '3-5 months, 10 hrs/week',
+        salary: '$85K–$135K', partner: 'Coursera partners', funding: 'WIOA',
+        skills: ['AI/ML', 'Generative AI', 'AI ethics'] },
       { slug: 'it-automation-with-python-google', category: 'IT & Cybersecurity', cat: 'c', icon: 'laptop',
         title: 'IT Automation with Python Certificate (Google)', duration: '3-5 months, 10 hrs/week',
         salary: '$78K–$98K', partner: 'Google', funding: 'WIOA',
@@ -166,7 +166,7 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
         salary: '$45K–$62K', partner: 'Coursera', funding: 'WIOA',
         skills: ['Medical billing', 'Medical coding', 'Medical terminology'] },
       { slug: 'health-information-technology-mchit', category: 'Healthcare', cat: 'gr', icon: 'heart',
-        title: 'Medical Billing, Coding, and Health Information Technology', duration: '3-5 months, 10 hrs/week',
+        title: 'Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)', duration: '3-5 months, 10 hrs/week',
         salary: '$52K–$72K', partner: 'Healthcare Career Pathway', funding: 'WIOA',
         skills: ['Medical coding', 'EHR', 'HIPAA'] },
     ],
@@ -417,6 +417,7 @@ const filterChips = [
   ))}
 
   <p class="catalog-foot">Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.</p>
+  <p class="catalog-foot">Training is no cost to qualifying members. For workforce boards and funding partners: <a href="/programs/price-list">program price list (max cost &amp; contact hours)</a>.</p>
   <div class="catalog-actions">
     <a class="btn btn--primary" href="/career-quiz">Find Your Path — Take the Quiz</a>
     <a class="btn btn--ghost" href="/program-comparison">Compare Programs</a>

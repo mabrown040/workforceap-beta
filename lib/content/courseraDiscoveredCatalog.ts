@@ -82,7 +82,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "ai-professional-developer-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "vjCRy6uOReCwkcurjsXg3Q",
-    title: "AI and Software Development Professional Certificate (IBM)",
+    title: "AI Practitioner Professional Certificate",
     courses: [
       { courseId: "2lNHAASEe-djM5IiFKtc", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
       { courseId: "3oOIBBTEe-ekN6JjGLud", slug: "artificial-intelligence-an-overview", name: "Artificial Intelligence: An Overview", partner: "Politecnico di Milano" },

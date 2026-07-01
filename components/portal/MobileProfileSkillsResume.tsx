@@ -126,7 +126,7 @@ export default function MobileProfileSkillsResume({
       )}
 
       {error && (
-        <p style={{ color: '#c00', fontSize: '0.75rem', marginTop: '0.5rem' }}>{error}</p>
+        <p style={{ color: 'var(--color-accent)', fontSize: '0.75rem', marginTop: '0.5rem' }}>{error}</p>
       )}
     </div>
   );

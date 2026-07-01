@@ -30,14 +30,6 @@ const AGE_GROUPS = [
 
 const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-function formatPhoneInput(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 10);
-  if (digits.length === 0) return '';
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
 function readDraft(): ApplyFlowDraftV1 | null {
   if (typeof window === 'undefined') return null;
   try {

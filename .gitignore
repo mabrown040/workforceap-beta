@@ -10,6 +10,8 @@ next-env.d.ts
 playwright-report/
 test-results/
 tmp/
+tmp-smoke/
+.tmp-smoke/
 .gstack/
 .env*.local
 .claude/
@@ -78,3 +80,8 @@ marketing/.vercel/
 /public/interest-profiler/
 /public/apply/
 /public/m/
+
+# one-off debug/scratch artifacts accidentally committed; keep out for good
+/cursor-api-payload.json
+/git_script.sh
+/next-build-output-verify.txt

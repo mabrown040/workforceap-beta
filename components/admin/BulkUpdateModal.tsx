@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Users, X, AlertCircle } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 const PIPELINE_STAGES = [
   { value: '', label: '— No change —' },
@@ -40,6 +41,7 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
   const [loadingCounselors, setLoadingCounselors] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const trapRef = useFocusTrap(open, onClose);
 
   useEffect(() => {
     if (open) {
@@ -117,6 +119,7 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
       }}
     >
       <div
+        ref={trapRef as React.RefObject<HTMLDivElement>}
         style={{
           background: 'var(--color-white)',
           borderRadius: 'var(--radius-lg, 1rem)',

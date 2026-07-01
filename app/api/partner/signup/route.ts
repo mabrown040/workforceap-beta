@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/db/prisma';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -64,6 +65,8 @@ const signupSchema = z.object({
   expectedMonthly: z.string().min(1).max(40).trim(),
   hearAbout: z.string().max(2000).optional().nullable(),
   password: z.string().min(8).max(128),
+  /** Cloudflare Turnstile token, verified server-side when NEXT_PUBLIC_CAPTCHA_ENABLED=true. */
+  turnstileToken: z.string().optional().nullable(),
 });
 
 export const POST = withApiGuc(async (request: NextRequest) => {
@@ -103,6 +106,26 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         { error: 'Too many signup attempts for this email. Please try again later.' },
         { status: 429 }
       );
+    }
+
+    const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+    if (captchaEnabled) {
+      const secret = process.env.TURNSTILE_SECRET_KEY;
+      if (!secret?.trim()) {
+        console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Signup is temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
+      const tok = d.turnstileToken?.trim() ?? '';
+      if (!tok) {
+        return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
+      }
+      const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+      if (!ok) {
+        return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+      }
     }
 
     // Check if email already exists in our DB

@@ -131,3 +131,27 @@ export const onRouterTransitionStart = (href: string) => {
 
 // Initialize immediately on portal routes (initial page load)
 maybeInitSentry();
+
+/**
+ * Associate (or clear) the authenticated user on the client Sentry scope.
+ * ID ONLY — never pass email, name, or other PII (AUDIT §H-S7 privacy
+ * posture mirrored from the replay/breadcrumb scrubbing above).
+ *
+ * Called by <SentrySetUser> once the root layout resolves the current
+ * user server-side, and again with `null` on logout. No-ops when Sentry
+ * hasn't been initialized (non-portal routes, non-production, or no DSN)
+ * so this never forces the ~420KB chunk to load on marketing pages.
+ */
+export async function setSentryUser(userId: string | null): Promise<void> {
+  if (!dsn || !isProduction) return;
+  // If init is already in flight (or about to start on a portal route),
+  // wait for it so setUser lands on an initialized client instead of a
+  // no-op / racing against Sentry.init.
+  if (!initPromise) {
+    if (!userId) return; // nothing to clear if we never initialized
+    maybeInitSentry();
+  }
+  await initPromise;
+  const Sentry = await import('@sentry/nextjs');
+  Sentry.setUser(userId ? { id: userId } : null);
+}

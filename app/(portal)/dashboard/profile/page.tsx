@@ -912,7 +912,7 @@ export default async function DashboardProfilePage({
                   style={{
                     fontSize: "0.875rem",
                     fontWeight: 700,
-                    color: "var(--color-error, #c00)",
+                    color: "var(--color-accent)",
                     marginBottom: "0.75rem",
                   }}
                 >

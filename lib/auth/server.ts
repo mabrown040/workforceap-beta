@@ -133,7 +133,10 @@ export const resolveAuthGucContext = cache(async function resolveAuthGucContext(
   const bootstrapCtx = buildGucContext({ userId: user.id, orgId: null });
   const [profileRole, userRow] = await runWithGucContext(bootstrapCtx, () =>
     Promise.all([
-      getProfileRole(user.id),
+      withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+        console.error('[auth:guc] profileRole bootstrap lookup failed; degrading to member', err);
+        return 'member';
+      }),
       // Resolve the user's organization so the GUC carries `app.current_org_id`.
       // Previously orgId was hardcoded to null, which makes every RLS policy
       // that calls `can_access_org_row(check_org_id)` evaluate with NULL —

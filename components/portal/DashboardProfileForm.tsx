@@ -206,7 +206,7 @@ export default function DashboardProfileForm({
           </div>
           <div className="form-group">
             <label htmlFor="zip">ZIP / postal code</label>
-            <input id="zip" type="text" value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" inputMode="text" maxLength={10} />
+            <input id="zip" type="text" value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" inputMode="numeric" maxLength={10} />
           </div>
         </div>
         <div className="form-group">

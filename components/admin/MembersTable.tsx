@@ -10,6 +10,7 @@ import BulkUpdateModal from './BulkUpdateModal';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
@@ -284,6 +285,11 @@ export default function MembersTable({
   const [exportLoading, setExportLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | { type: 'enrolled' | 'completed'; count: number }>(null);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  const closeConfirmAction = () => {
+    if (!bulkActionLoading) setConfirmAction(null);
+  };
+  const confirmActionTrapRef = useFocusTrap(!!confirmAction, closeConfirmAction);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -1148,7 +1154,7 @@ export default function MembersTable({
           role="dialog"
           aria-modal="true"
           aria-labelledby="bulk-confirm-title"
-          onClick={(e) => { if (e.target === e.currentTarget) setConfirmAction(null); }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeConfirmAction(); }}
           style={{
             position: 'fixed', inset: 0, zIndex: 1100,
             background: 'rgba(0,0,0,0.45)',
@@ -1157,6 +1163,7 @@ export default function MembersTable({
           }}
         >
           <div
+            ref={confirmActionTrapRef as React.RefObject<HTMLDivElement>}
             style={{
               background: 'var(--color-white)',
               borderRadius: 'var(--radius-lg, 1rem)',
@@ -1182,7 +1189,7 @@ export default function MembersTable({
               <button
                 type="button"
                 className="btn btn-ghost"
-                onClick={() => setConfirmAction(null)}
+                onClick={closeConfirmAction}
                 disabled={bulkActionLoading}
               >
                 Cancel

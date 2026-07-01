@@ -32,11 +32,13 @@ export type ReplayPendingXapiResult = {
  */
 export async function replayPendingXapiStatements(limit = 150): Promise<ReplayPendingXapiResult> {
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-  const rows = await prisma.xapiStatement.findMany({
-    where: { processed: false, createdAt: { gte: ninetyDaysAgo } },
-    orderBy: { createdAt: 'asc' },
-    take: limit,
-  });
+  const rows = await prisma.$transaction((tx) =>
+    tx.xapiStatement.findMany({
+      where: { processed: false, createdAt: { gte: ninetyDaysAgo } },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+    }),
+  );
 
   return _replayRows(rows);
 }
@@ -50,11 +52,13 @@ export async function replayPendingXapiStatementsForEmail(
   actorEmail: string,
 ): Promise<ReplayPendingXapiResult> {
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-  const rows = await prisma.xapiStatement.findMany({
-    take: 500,
-    where: { processed: false, actorEmail, createdAt: { gte: ninetyDaysAgo } },
-    orderBy: { createdAt: 'asc' },
-  });
+  const rows = await prisma.$transaction((tx) =>
+    tx.xapiStatement.findMany({
+      take: 500,
+      where: { processed: false, actorEmail, createdAt: { gte: ninetyDaysAgo } },
+      orderBy: { createdAt: 'asc' },
+    }),
+  );
 
   return _replayRows(rows);
 }
@@ -79,28 +83,30 @@ export async function replayUnresolvedXapiStatementsForIdentity(args: {
   const sinceDays = args.sinceDays ?? 30;
   const cutoff = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
 
-  const rows = await prisma.xapiStatement.findMany({
-    take: 500,
-    where: {
-      createdAt: { gte: cutoff },
-      OR: [
-        ...(email ? [{ actorEmail: email }] : []),
-        ...(actor ? [{ actorAccountName: actor }] : []),
-      ],
-      statementId: {
-        in: await prisma.$queryRaw<Array<{ statementId: string }>>`
-          SELECT statement_id AS "statementId"
-          FROM coursera_xapi_events
-          WHERE completion_status IN ('unmatched', 'error')
-            AND statement_id IS NOT NULL
-            AND (
-              (${email}::text IS NOT NULL AND LOWER(actor_email) = ${email}::text)
-              OR (${actor}::text IS NOT NULL AND actor_identifier = ${actor}::text)
-            )
-        `.then((result) => result.map((row) => row.statementId)),
+  const rows = await prisma.$transaction(async (tx) => {
+    const matchingStatementIds = await tx.$queryRaw<Array<{ statementId: string }>>`
+      SELECT statement_id AS "statementId"
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('unmatched', 'error')
+        AND statement_id IS NOT NULL
+        AND (
+          (${email}::text IS NOT NULL AND LOWER(actor_email) = ${email}::text)
+          OR (${actor}::text IS NOT NULL AND actor_identifier = ${actor}::text)
+        )
+    `.then((result) => result.map((row) => row.statementId));
+
+    return tx.xapiStatement.findMany({
+      take: 500,
+      where: {
+        createdAt: { gte: cutoff },
+        OR: [
+          ...(email ? [{ actorEmail: email }] : []),
+          ...(actor ? [{ actorAccountName: actor }] : []),
+        ],
+        statementId: { in: matchingStatementIds },
       },
-    },
-    orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'asc' },
+    });
   });
 
   return _replayRows(rows);
@@ -131,12 +137,14 @@ async function _replayRows(
     // the just-written event row keeps this in lock-step with the
     // authoritative `completion_status` recorded by `recordXapiEvent`.
     if (parsed.statementId) {
-      const eventRow = await prisma.$queryRaw<Array<{ status: string }>>`
-        SELECT completion_status AS status
-        FROM coursera_xapi_events
-        WHERE statement_id = ${parsed.statementId}
-        LIMIT 1
-      `;
+      const eventRow = await prisma.$transaction((tx) =>
+        tx.$queryRaw<Array<{ status: string }>>`
+          SELECT completion_status AS status
+          FROM coursera_xapi_events
+          WHERE statement_id = ${parsed.statementId}
+          LIMIT 1
+        `,
+      );
       const status = eventRow[0]?.status ?? 'unknown';
       if (status === 'completed') breakdown.completedOk += 1;
       else if (status === 'error') breakdown.errored += 1;

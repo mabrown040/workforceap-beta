@@ -97,6 +97,10 @@
     {
       "path": "/api/cron/wioa-report",
       "schedule": "0 14 1 * *"
+    },
+    {
+      "path": "/api/admin/webhooks/process-retries",
+      "schedule": "*/10 * * * *"
     }
   ]
 }

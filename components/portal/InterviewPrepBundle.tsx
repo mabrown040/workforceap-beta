@@ -18,6 +18,7 @@ export default function InterviewPrepBundle() {
   const [sending, setSending] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/member/prep-bundle')
@@ -57,9 +58,10 @@ export default function InterviewPrepBundle() {
 
   async function sendEmail() {
     if (selectedItems.length === 0) {
-      alert('Select at least one item to include in the bundle.');
+      setErrorMessage('Select at least one item to include in the bundle.');
       return;
     }
+    setErrorMessage(null);
     setSending(true);
     try {
       const res = await fetch('/api/member/prep-bundle/send', {
@@ -69,9 +71,9 @@ export default function InterviewPrepBundle() {
       });
       const data = await res.json();
       if (res.ok) setSentTo(data.sentTo);
-      else alert(data.error || 'Email failed');
+      else setErrorMessage(data.error || 'Email failed');
     } catch {
-      alert('Email failed');
+      setErrorMessage('Email failed');
     } finally {
       setSending(false);
     }
@@ -79,9 +81,10 @@ export default function InterviewPrepBundle() {
 
   async function copySelected() {
     if (selectedItems.length === 0) {
-      alert('Select at least one item to copy.');
+      setErrorMessage('Select at least one item to copy.');
       return;
     }
+    setErrorMessage(null);
     const text = selectedItems.map(i => `--- ${i.title} ---\n${i.content}`).join('\n\n');
     try {
       await navigator.clipboard.writeText(text);
@@ -230,6 +233,15 @@ export default function InterviewPrepBundle() {
           <span aria-live="polite">{copied ? 'Copied!' : 'Copy selected'}</span>
         </button>
       </div>
+
+      {errorMessage && (
+        <p
+          role="alert"
+          style={{ margin: '0 0 1rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error, #dc2626)' }}
+        >
+          {errorMessage}
+        </p>
+      )}
 
       {sentTo && (
         <div

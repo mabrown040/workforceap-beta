@@ -10,7 +10,8 @@ import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import type { PortalRole } from '@/lib/nav/portalNav';
 
 export default function PortalNav({ className, currentRole, currentPath }: { className?: string; currentRole?: PortalRole; currentPath?: string; }) {
-  const pathname = currentPath ?? usePathname() ?? '';
+  const detectedPathname = usePathname();
+  const pathname = currentPath ?? detectedPathname ?? '';
 
   // Get nav items for current role
   const navItems = currentRole ? PORTAL_NAV[currentRole] : MEMBER_PORTAL_NAV_ITEMS;

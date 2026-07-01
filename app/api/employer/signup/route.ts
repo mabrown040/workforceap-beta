@@ -2,6 +2,7 @@ import { createEmployerUser } from '@/lib/employer/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { employerSignupSchema } from '@/lib/validation/employer';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import {
   sendEmployerWelcomeEmail,
   sendEmployerSignupAdminAlertEmail,
@@ -57,6 +58,26 @@ export async function POST(request: NextRequest) {
         { error: 'Too many signup attempts for this email. Please try again later.' },
         { status: 429 }
       );
+    }
+
+    const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+    if (captchaEnabled) {
+      const secret = process.env.TURNSTILE_SECRET_KEY;
+      if (!secret?.trim()) {
+        console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Signup is temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
+      const tok = data.turnstileToken?.trim() ?? '';
+      if (!tok) {
+        return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
+      }
+      const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+      if (!ok) {
+        return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+      }
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

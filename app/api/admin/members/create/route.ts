@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -248,29 +248,38 @@ const ETHNICITY_OPTIONS = [
       return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
     }
   
-    auditLog({ actorUserId: user.id, action: 'admin_member_create', targetType: 'User', targetId: authUser.id, metadata: { email, programSlug, orgId: organizationId } }).catch((err) => console.error('[audit] admin_member_create:', err));
-    logAuditEvent({
-      user: { id: user.id, role: 'admin' },
-      verb: 'create_member',
-      object: { type: 'User', id: authUser.id },
-      result: { success: true, extensions: { email, programSlug } },
-      request: auditRequestMeta(request),
-      orgId: organizationId,
-    }).catch((err) => console.error('[audit] create_member:', err));
+    after(() =>
+      auditLog({ actorUserId: user.id, action: 'admin_member_create', targetType: 'User', targetId: authUser.id, metadata: { email, programSlug, orgId: organizationId } }).catch((err) => console.error('[audit] admin_member_create:', err))
+    );
+    after(() =>
+      logAuditEvent({
+        user: { id: user.id, role: 'admin' },
+        verb: 'create_member',
+        object: { type: 'User', id: authUser.id },
+        result: { success: true, extensions: { email, programSlug } },
+        request: auditRequestMeta(request),
+        orgId: organizationId,
+      }).catch((err) => console.error('[audit] create_member:', err))
+    );
 
-    sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
-      Program: program.title,
-    }).catch((err) => console.error('Partner milestone email failed:', err));
+    after(() =>
+      sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
+        Program: program.title,
+      }).catch((err) => console.error('Partner milestone email failed:', err))
+    );
 
     // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
     if (createdEnrollmentId) {
-      maybeSendCourseKickoffEmail({
-        userId: authUser.id,
-        enrollmentId: createdEnrollmentId,
-        programSlug,
-        email: authUser.email!,
-        fullName,
-      }).catch(() => { /* already logged inside */ });
+      const enrollmentId = createdEnrollmentId;
+      after(() =>
+        maybeSendCourseKickoffEmail({
+          userId: authUser.id,
+          enrollmentId,
+          programSlug,
+          email: authUser.email!,
+          fullName,
+        }).catch(() => { /* already logged inside */ })
+      );
     }
   
     // Track enrollment for funnel analytics

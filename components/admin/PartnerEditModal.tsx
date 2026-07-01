@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 export type PartnerForEdit = {
   id: string;
@@ -42,6 +43,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const trapRef = useFocusTrap(true, onClose);
 
   useEffect(() => {
     const ids = subgroups.filter((s) => s.type === 'partner' && s.partnerId === partner.id).map((s) => s.id);
@@ -98,6 +100,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
   return (
     <div className="partner-modal-overlay" onClick={onClose} role="presentation" tabIndex={-1}>
       <div
+        ref={trapRef as React.RefObject<HTMLDivElement>}
         className="partner-modal"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -124,9 +127,9 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               style={{
                 padding: '0.75rem',
                 marginBottom: '1rem',
-                background: '#fee',
+                background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                 borderRadius: '6px',
-                color: '#c00',
+                color: 'var(--color-accent)',
                 fontSize: '0.9rem',
               }}
             >

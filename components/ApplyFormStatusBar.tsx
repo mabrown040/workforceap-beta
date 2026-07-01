@@ -31,24 +31,43 @@ export default function ApplyFormStatusBar() {
 
     if (sectionEls.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (visible.length === 0) return;
+    const onIntersect: IntersectionObserverCallback = (entries) => {
+      const visible = entries.filter((e) => e.isIntersecting);
+      if (visible.length === 0) return;
 
-        const indices = visible
-          .map((e) => {
-            const id = e.target.id.replace('section-', '');
-            return steps.findIndex((s) => s.id === id);
-          })
-          .filter((idx) => idx !== -1);
+      const indices = visible
+        .map((e) => {
+          const id = e.target.id.replace('section-', '');
+          return steps.findIndex((s) => s.id === id);
+        })
+        .filter((idx) => idx !== -1);
 
-        if (indices.length === 0) return;
-        const next = Math.min(...indices);
-        setActiveIndex(next);
-      },
-      { rootMargin: '-120px 0px -50% 0px', threshold: 0 },
-    );
+      if (indices.length === 0) return;
+      const next = Math.min(...indices);
+      setActiveIndex(next);
+    };
+
+    // `-50%` scales the bottom margin to the viewport so the "active" band
+    // stays proportional on short vs. tall screens. Mixed px/% units are
+    // valid per spec, but some legacy browsers throw a SyntaxError when
+    // parsing rootMargin with mixed units — fall back to an all-px margin
+    // (~half of a typical mobile viewport) if construction fails.
+    let observer: IntersectionObserver;
+    try {
+      observer = new IntersectionObserver(onIntersect, {
+        rootMargin: '-120px 0px -50% 0px',
+        threshold: 0,
+      });
+    } catch {
+      try {
+        observer = new IntersectionObserver(onIntersect, {
+          rootMargin: '-120px 0px -400px 0px',
+          threshold: 0,
+        });
+      } catch {
+        return;
+      }
+    }
 
     sectionEls.forEach((el) => observer.observe(el));
     return () => observer.disconnect();

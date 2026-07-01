@@ -260,7 +260,7 @@ export default function ResumeClient({
         </label>
       </div>
       {uploadError && (
-        <p style={{ color: "#c00", marginTop: "0.5rem" }}>{uploadError}</p>
+        <p style={{ color: "var(--color-accent)", marginTop: "0.5rem" }}>{uploadError}</p>
       )}
     </section>
   );
@@ -305,7 +305,7 @@ export default function ResumeClient({
             : "Build Resume"}
       </button>
       {generateError && (
-        <p style={{ color: "#c00", marginTop: "0.5rem" }}>{generateError}</p>
+        <p style={{ color: "var(--color-accent)", marginTop: "0.5rem" }}>{generateError}</p>
       )}
     </section>
   );

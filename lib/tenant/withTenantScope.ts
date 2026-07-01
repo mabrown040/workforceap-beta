@@ -139,9 +139,31 @@ export async function assertSameTenant(
   if (!row) {
     // Treat missing as a violation — caller passed an id that doesn't exist
     // OR is in another tenant we can't see. Either way, refuse the write.
+    // External response must stay a generic 404 in both this case and the
+    // cross-tenant case below (see callsites catching TenantScopeViolation)
+    // — we don't want to tell a probing attacker whether an id exists at
+    // all. Internally, though, log the two cases with distinct tags so
+    // security monitoring can tell "genuine 404" apart from "someone is
+    // enumerating another tenant's ids" — the latter is a much stronger
+    // signal and looks identical to a 404 from the caller's point of view.
+    console.warn('[tenant-scope] not_found', {
+      event: 'not_found',
+      model: String(model),
+      operation: 'assertSameTenant',
+      id,
+      expectedOrgId,
+    });
     throw new TenantScopeViolation(String(model), 'assertSameTenant', expectedOrgId, 'not-found');
   }
   if (row.organizationId !== expectedOrgId) {
+    console.warn('[tenant-scope] cross_tenant_fk_probe', {
+      event: 'cross_tenant_fk_probe',
+      model: String(model),
+      operation: 'assertSameTenant',
+      id,
+      expectedOrgId,
+      actualOrgId: row.organizationId,
+    });
     throw new TenantScopeViolation(
       String(model),
       'assertSameTenant',

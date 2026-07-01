@@ -7,6 +7,9 @@ import {
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
+export const runtime = 'nodejs';
+export const maxDuration = 300;
+
 function verifyCronSecret(req: Request): boolean {
   const provided = req.headers.get('x-cron-secret') || '';
   const expected = process.env.CRON_SECRET || '';

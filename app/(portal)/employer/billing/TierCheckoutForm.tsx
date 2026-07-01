@@ -18,10 +18,12 @@ export default function TierCheckoutForm({
   switchLabel,
 }: TierCheckoutFormProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const res = await fetch('/api/employer/checkout', {
         method: 'POST',
@@ -30,7 +32,7 @@ export default function TierCheckoutForm({
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else alert(data.error || 'Something went wrong');
+      else setError(data.error || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -50,6 +52,11 @@ export default function TierCheckoutForm({
       >
         {loading ? '...' : label}
       </button>
+      {error ? (
+        <p role="alert" style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error, #dc2626)' }}>
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }

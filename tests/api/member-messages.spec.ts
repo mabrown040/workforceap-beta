@@ -91,7 +91,7 @@ vi.mock('@/lib/messages/counselorThread', () => ({
 }));
 
 vi.mock('@/lib/messages/rateLimit', () => ({
-  checkMessageRateLimit: vi.fn(() => ({ ok: true })),
+  checkMessageRateLimit: vi.fn(async () => ({ ok: true })),
 }));
 
 vi.mock('@/lib/notifications/create', () => ({
@@ -217,7 +217,7 @@ describe('GET /api/member/messages', () => {
 describe('POST /api/member/messages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(checkMessageRateLimit).mockReturnValue({ ok: true });
+    vi.mocked(checkMessageRateLimit).mockResolvedValue({ ok: true });
   });
 
   it('sends message to counselor successfully', async () => {
@@ -314,7 +314,7 @@ describe('POST /api/member/messages', () => {
 
   it('returns 429 when rate limited', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
-    vi.mocked(checkMessageRateLimit).mockReturnValue({ ok: false, retryAfterMs: 45000 });
+    vi.mocked(checkMessageRateLimit).mockResolvedValue({ ok: false, retryAfterMs: 45000 });
 
     const res = await POST(makeRequest({ body: 'hello' }) as any);
 

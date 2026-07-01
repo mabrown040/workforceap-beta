@@ -3,6 +3,9 @@ import { prisma } from '@/lib/db/prisma';
 import { getStripe, getStripeConnectWebhookSecret, getStripeWebhookSecret } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
+import { logWebhookEvent } from '@/lib/webhooks/logEvent';
+import { captureApiError } from '@/lib/observability/captureApiError';
+
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
 
 // withSystemGuc(fn) EXECUTES fn immediately and returns a Promise — it's
@@ -146,6 +149,22 @@ export async function POST(request: NextRequest) {
             destination: transfer.destination,
             metadata: transfer.metadata,
           });
+          await logWebhookEvent({
+            source: 'stripe',
+            eventType: event.type,
+            eventId: event.id,
+            payloadSize: Buffer.byteLength(payload, 'utf8'),
+            status: 'failed',
+            errorMessage: `Transfer ${transfer.id} to ${transfer.destination} failed`,
+          });
+          captureApiError(new Error(`Stripe transfer.failed: ${transfer.id}`), {
+            route: 'stripe/webhook',
+            extra: {
+              transferId: transfer.id,
+              destination: transfer.destination,
+              metadata: transfer.metadata,
+            },
+          });
           break;
         }
         case 'transfer.paid' as any: {
@@ -163,6 +182,22 @@ export async function POST(request: NextRequest) {
             payoutId: payout.id,
             status: payout.status,
             failure_code: payout.failure_code,
+          });
+          await logWebhookEvent({
+            source: 'stripe',
+            eventType: event.type,
+            eventId: event.id,
+            payloadSize: Buffer.byteLength(payload, 'utf8'),
+            status: 'failed',
+            errorMessage: `Payout ${payout.id} failed: ${payout.failure_code ?? payout.status}`,
+          });
+          captureApiError(new Error(`Stripe payout.failed: ${payout.id}`), {
+            route: 'stripe/webhook',
+            extra: {
+              payoutId: payout.id,
+              status: payout.status,
+              failure_code: payout.failure_code,
+            },
           });
           break;
         }

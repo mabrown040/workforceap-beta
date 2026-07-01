@@ -48,6 +48,8 @@ export const employerSignupSchema = z.object({
   consentTerms: z.literal(true, {
     errorMap: () => ({ message: 'You must agree to the terms and privacy policy' }),
   }),
+  /** Cloudflare Turnstile token, verified server-side when NEXT_PUBLIC_CAPTCHA_ENABLED=true. */
+  turnstileToken: z.string().optional().nullable(),
 });
 
 export type EmployerSignupInput = z.infer<typeof employerSignupSchema>;

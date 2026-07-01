@@ -1,39 +1,22 @@
 /**
- * Simple in-memory rate limiter for message POSTs.
- * In production with multiple instances, swap to Redis.
+ * Rate limiter for message POSTs (member/employer/partner counselor threads
+ * and employer application messages).
+ *
+ * Backed by the shared Upstash-Redis limiter in lib/rate-limit.ts so the
+ * limit is enforced globally across all serverless instances. A prior
+ * in-memory `Map` implementation only capped requests per-instance, so on a
+ * multi-instance deploy a user could send up to N-times-instances messages
+ * per window before being throttled.
  */
+import { checkMessageSendRateLimit } from '@/lib/rate-limit';
 
-const store = new Map<string, { count: number; windowStart: number }>();
-
-const WINDOW_MS = 60_000; // 1 minute
-const MAX_PER_WINDOW = 10; // max 10 messages per minute per user
-
-export function checkMessageRateLimit(userId: string): { ok: true } | { ok: false; retryAfterMs: number } {
-  const now = Date.now();
-  const entry = store.get(userId);
-
-  if (!entry || now - entry.windowStart > WINDOW_MS) {
-    store.set(userId, { count: 1, windowStart: now });
+export async function checkMessageRateLimit(
+  userId: string
+): Promise<{ ok: true } | { ok: false; retryAfterMs: number }> {
+  const result = await checkMessageSendRateLimit(userId);
+  if (result.success) {
     return { ok: true };
   }
-
-  if (entry.count >= MAX_PER_WINDOW) {
-    const retryAfterMs = WINDOW_MS - (now - entry.windowStart);
-    return { ok: false, retryAfterMs };
-  }
-
-  entry.count += 1;
-  return { ok: true };
-}
-
-// Periodic cleanup (every 5 min) to avoid memory leaks
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of store) {
-      if (now - entry.windowStart > WINDOW_MS * 2) {
-        store.delete(key);
-      }
-    }
-  }, 300_000);
+  const retryAfterMs = result.resetMs ? Math.max(0, result.resetMs - Date.now()) : 60_000;
+  return { ok: false, retryAfterMs };
 }

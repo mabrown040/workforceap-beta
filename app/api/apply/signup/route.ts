@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
 import { checkApplySignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { trackEvent } from '@/lib/events/track';
 import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
 import { ApplicationStatus } from '@prisma/client';
@@ -67,6 +68,8 @@ const applySignupSchema = z.object({
   utmContent: z.string().max(200).optional().nullable(),
   utmTerm: z.string().max(200).optional().nullable(),
   referrer: z.string().max(500).optional().nullable(),
+  /** Cloudflare Turnstile token, verified server-side when NEXT_PUBLIC_CAPTCHA_ENABLED=true. */
+  turnstileToken: z.string().optional().nullable(),
 });export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
@@ -123,6 +126,7 @@ const applySignupSchema = z.object({
       utmContent,
       utmTerm,
       referrer,
+      turnstileToken,
     } = parsed.data;
 
     // Per-email rate limit (3/hr). The per-IP limit above lets an
@@ -133,6 +137,26 @@ const applySignupSchema = z.object({
         { error: 'Too many signup attempts for this email. Please try again later.' },
         { status: 429 }
       );
+    }
+
+    const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+    if (captchaEnabled) {
+      const secret = process.env.TURNSTILE_SECRET_KEY;
+      if (!secret?.trim()) {
+        console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Signup is temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
+      const tok = turnstileToken?.trim() ?? '';
+      if (!tok) {
+        return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
+      }
+      const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+      if (!ok) {
+        return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+      }
     }
 
     const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];

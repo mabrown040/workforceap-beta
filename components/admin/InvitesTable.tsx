@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import DataTable from '@/components/portal/ui/DataTable';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type Invite = {
   id: string;
@@ -130,6 +131,11 @@ export default function InvitesTable({ invites }: Props) {
   // null = keep the server's order until a column is clicked.
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const closeRevokeTarget = () => {
+    if (!revoking) setRevokeTarget(null);
+  };
+  const revokeTrapRef = useFocusTrap(!!revokeTarget, closeRevokeTarget);
 
   const filtered = invites.filter((i) => filter === 'all' || effectiveStatus(i) === filter);
 
@@ -405,8 +411,9 @@ export default function InvitesTable({ invites }: Props) {
       </ul>
 
       {revokeTarget && (
-        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !revoking && setRevokeTarget(null)} tabIndex={-1}>
+        <div className="admin-confirm-modal-overlay" role="presentation" onClick={closeRevokeTarget} tabIndex={-1}>
           <div
+            ref={revokeTrapRef as React.RefObject<HTMLDivElement>}
             className="admin-confirm-modal"
             role="dialog"
             aria-modal="true"
@@ -416,7 +423,7 @@ export default function InvitesTable({ invites }: Props) {
             <h3 id="revoke-invite-title">Revoke invitation?</h3>
             <p>This will invalidate the invite sent to {revokeTarget.email}.</p>
             <div className="admin-confirm-modal__actions">
-              <button type="button" className="btn btn-outline" disabled={!!revoking} onClick={() => setRevokeTarget(null)}>
+              <button type="button" className="btn btn-outline" disabled={!!revoking} onClick={closeRevokeTarget}>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" disabled={!!revoking} onClick={() => void runRevoke()}>

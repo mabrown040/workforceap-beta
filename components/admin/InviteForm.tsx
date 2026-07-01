@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type InvitePostResponse = {
   ok?: boolean;
@@ -34,6 +35,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
   const [error, setError] = useState<string | null>(null);
   const [manualLink, setManualLink] = useState<{ url: string; message: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const trapRef = useFocusTrap(true, onClose);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +110,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
+        ref={trapRef as React.RefObject<HTMLDivElement>}
         style={{
           background: 'white',
           borderRadius: '12px',
@@ -130,9 +133,9 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
                 style={{
                   padding: '0.75rem',
                   marginBottom: '1rem',
-                  background: '#fee',
+                  background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                   borderRadius: '6px',
-                  color: '#c00',
+                  color: 'var(--color-accent)',
                   fontSize: '0.9rem',
                 }}
               >

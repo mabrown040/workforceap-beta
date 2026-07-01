@@ -89,17 +89,30 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   if (threads.length === 0) return [];
 
   const threadIds = threads.map((thread) => thread.id);
+  // Last message per thread (DISTINCT ON), joined back to message_threads so
+  // the "awaiting a staff reply" filter (author_id = the thread's own
+  // member_id) can run in SQL, then ordered oldest-first and capped to
+  // `limit` — instead of pulling the last message for all 500 threads and
+  // sorting/slicing the full set client-side in JS.
   const lastMessages = await prisma.$queryRawUnsafe<Array<{
     thread_id: string;
     author_id: string;
     body: string | null;
     created_at: Date;
   }>>(
-    `SELECT DISTINCT ON (thread_id) thread_id, author_id, body, created_at
-     FROM messages
-     WHERE thread_id = ANY($1::text[])
-     ORDER BY thread_id, created_at DESC`,
+    `SELECT lm.thread_id, lm.author_id, lm.body, lm.created_at
+     FROM (
+       SELECT DISTINCT ON (thread_id) thread_id, author_id, body, created_at
+       FROM messages
+       WHERE thread_id = ANY($1::text[])
+       ORDER BY thread_id, created_at DESC
+     ) lm
+     JOIN message_threads mt ON mt.id = lm.thread_id
+     WHERE lm.author_id = mt.member_id
+     ORDER BY lm.created_at ASC
+     LIMIT $2`,
     threadIds,
+    limit,
   );
 
   const threadById = new Map(threads.map((thread) => [thread.id, thread]));
@@ -107,7 +120,6 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   for (const message of lastMessages) {
     const thread = threadById.get(message.thread_id);
     if (!thread?.memberId || !thread.member) continue;
-    if (message.author_id !== thread.memberId) continue;
     rows.push({
       memberId: thread.member.id,
       memberName: thread.member.fullName ?? thread.member.email,
@@ -119,7 +131,7 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
     });
   }
 
-  return rows.sort((a, b) => a.lastMessageAt.getTime() - b.lastMessageAt.getTime()).slice(0, limit);
+  return rows;
 }
 
 async function loadAtRisk(
@@ -128,47 +140,60 @@ async function loadAtRisk(
   atRiskCutoff: Date,
   limit: number,
 ): Promise<AdminAtRiskRow[]> {
-  const members = await prisma.user.findMany({
-    take: 500,
-    where: {
-      organizationId: orgId,
-      deletedAt: null,
-      enrolledProgram: { not: null },
-      OR: [
-        { staleTrainingDetectedAt: { not: null } },
-        { memberEvents: { none: { createdAt: { gte: atRiskCutoff } } } },
-      ],
-    },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      enrolledProgram: true,
-      enrolledAt: true,
-      memberEvents: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: { createdAt: true },
-      },
-    },
-  });
+  // Same eligibility + days-inactive formula as before (last member event, or
+  // enrolledAt if none, floored at AT_RISK_DAYS), but computed and ordered in
+  // SQL so only the top `limit` rows come back instead of fetching up to 500
+  // candidates and sorting/slicing them in JS.
+  const rows = await prisma.$queryRawUnsafe<Array<{
+    id: string;
+    full_name: string | null;
+    email: string;
+    enrolled_program: string | null;
+    days_inactive: number;
+  }>>(
+    `SELECT
+       u.id,
+       u.full_name,
+       u.email,
+       u.enrolled_program,
+       GREATEST(
+         $1::int,
+         FLOOR(EXTRACT(EPOCH FROM ($2::timestamptz - COALESCE(last_event.created_at, u.enrolled_at))) / 86400)::int
+       ) AS days_inactive
+     FROM users u
+     LEFT JOIN LATERAL (
+       SELECT me.created_at
+       FROM member_events me
+       WHERE me.user_id = u.id
+       ORDER BY me.created_at DESC
+       LIMIT 1
+     ) last_event ON true
+     WHERE u.organization_id = $3
+       AND u.deleted_at IS NULL
+       AND u.enrolled_program IS NOT NULL
+       AND (
+         u.stale_training_detected_at IS NOT NULL
+         OR NOT EXISTS (
+           SELECT 1 FROM member_events me2
+           WHERE me2.user_id = u.id AND me2.created_at >= $4::timestamptz
+         )
+       )
+     ORDER BY days_inactive DESC
+     LIMIT $5`,
+    AT_RISK_DAYS,
+    now,
+    orgId,
+    atRiskCutoff,
+    limit,
+  );
 
-  return members
-    .map((member) => {
-      const lastActiveAt = member.memberEvents[0]?.createdAt ?? member.enrolledAt;
-      const daysInactive = lastActiveAt
-        ? Math.max(AT_RISK_DAYS, Math.floor((now.getTime() - lastActiveAt.getTime()) / DAY_MS))
-        : AT_RISK_DAYS;
-      return {
-        memberId: member.id,
-        memberName: member.fullName ?? member.email,
-        memberEmail: member.email,
-        daysInactive,
-        enrolledProgram: member.enrolledProgram,
-      };
-    })
-    .sort((a, b) => b.daysInactive - a.daysInactive)
-    .slice(0, limit);
+  return rows.map((row) => ({
+    memberId: row.id,
+    memberName: row.full_name ?? row.email,
+    memberEmail: row.email,
+    daysInactive: row.days_inactive,
+    enrolledProgram: row.enrolled_program,
+  }));
 }
 
 async function loadInterviewing(orgId: string, limit: number): Promise<AdminInterviewingRow[]> {

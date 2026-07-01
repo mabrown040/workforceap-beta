@@ -3,8 +3,11 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { useLocale } from "next-intl";
 import type { JobApplication } from "@/types/job-application";
 import type { JobApplicationStatus } from "@/lib/jobApplications/constants";
+import { isAppLocale } from "@/lib/i18n/config";
+import { formatLocalizedDate } from "@/lib/i18n/date";
 
 interface JobApplicationCardProps {
   application: JobApplication;
@@ -42,6 +45,8 @@ export default function JobApplicationCard({
     application.status,
   );
   const [notes, setNotes] = useState(application.notes || "");
+  const rawLocale = useLocale();
+  const locale = isAppLocale(rawLocale) ? rawLocale : undefined;
 
   const handleStatusChange = async () => {
     if (selectedStatus !== application.status) {
@@ -55,7 +60,7 @@ export default function JobApplicationCard({
 
   const formatDate = (date: Date | null) => {
     if (!date) return "";
-    return new Date(date).toLocaleDateString("en-US", {
+    return formatLocalizedDate(date, locale, {
       month: "short",
       day: "numeric",
       year: "numeric",

@@ -86,7 +86,7 @@ export default function PartnerContactEditForm({
         />
       </div>
       {error && (
-        <div style={{ padding: '0.5rem', marginBottom: '0.75rem', background: '#fee', borderRadius: '6px', color: '#c00', fontSize: '0.85rem' }} role="alert">
+        <div style={{ padding: '0.5rem', marginBottom: '0.75rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '6px', color: 'var(--color-accent)', fontSize: '0.85rem' }} role="alert">
           {error}
         </div>
       )}

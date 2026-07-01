@@ -73,7 +73,7 @@ export default function PWAInstallPrompt() {
     <div
       style={{
         position: 'fixed',
-        bottom: '1rem',
+        bottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))',
         left: '1rem',
         right: '1rem',
         zIndex: 9999,

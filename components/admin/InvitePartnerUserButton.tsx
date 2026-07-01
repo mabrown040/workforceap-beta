@@ -54,7 +54,7 @@ export default function InvitePartnerUserButton({ partnerId }: { partnerId: stri
         </span>
       </button>
       {message && (
-        <span style={{ fontSize: '0.85rem', color: message.type === 'ok' ? '#2d7a32' : '#c00', width: '100%' }}>
+        <span style={{ fontSize: '0.85rem', color: message.type === 'ok' ? '#2d7a32' : 'var(--color-accent)', width: '100%' }}>
           {message.text}
         </span>
       )}

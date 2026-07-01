@@ -297,6 +297,7 @@ model User {
   @@index([lastCourseraAutoSyncAt])
   @@index([courseraEnrollmentApproved])
   @@index([wioaReviewedByUserId])
+  @@index([organizationId, deletedAt])
   @@map("users")
 }
 
@@ -1431,6 +1432,12 @@ model Employer {
   stripeCustomerId         String?   @map("stripe_customer_id")
   stripeSubscriptionId     String?   @map("stripe_subscription_id")
   stripeSubscriptionStatus String?   @map("stripe_subscription_status")
+  /// `created` timestamp (seconds since epoch) of the last Stripe webhook event that
+  /// updated tier/subscription state. Stripe does not guarantee delivery order, so a
+  /// delayed/out-of-order event (e.g. a late invoice.payment_failed arriving after a
+  /// newer invoice.payment_succeeded) must not regress state. Webhook handlers gate
+  /// writes on `event.created > stripeSubscriptionEventAt` before applying a transition.
+  stripeSubscriptionEventAt Int?     @map("stripe_subscription_event_at")
   hearAbout                String?   @map("hear_about")
   approvedAt               DateTime? @map("approved_at")
   approvedById             String?   @map("approved_by")

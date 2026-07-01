@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
@@ -78,19 +78,23 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     }));
     if (!existing) {
       // Lifecycle event: certification_earned
-      trackEvent({
-        userId: user.id,
-        eventName: 'certification_earned',
-        entityType: 'UserCertification',
-        metadata: { certName },
-      }).catch(() => {});
+      after(() =>
+        trackEvent({
+          userId: user.id,
+          eventName: 'certification_earned',
+          entityType: 'UserCertification',
+          metadata: { certName },
+        }).catch(() => {})
+      );
 
       // Award points (idempotent per cert name)
-      awardPoints(user.id, 'certification_earned', certName).catch(() => {});
+      after(() => awardPoints(user.id, 'certification_earned', certName).catch(() => {}));
 
-      sendPartnerMilestoneEmail(user.id, 'Certification earned', {
-        Certification: certName,
-      }).catch((err) => console.error('Partner milestone email failed:', err));
+      after(() =>
+        sendPartnerMilestoneEmail(user.id, 'Certification earned', {
+          Certification: certName,
+        }).catch((err) => console.error('Partner milestone email failed:', err))
+      );
     }
   } else {
     await prisma.$transaction((tx) => tx.userCertification.deleteMany({

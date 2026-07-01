@@ -15,7 +15,7 @@ jobs:
   ci:
     name: Typecheck & Build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     env:
       # Stub values so Next.js/Prisma don't crash at build time in CI.
@@ -75,17 +75,37 @@ jobs:
       - name: Lint (report-only)
         run: npm run lint
         continue-on-error: true
+        timeout-minutes: 5
 
-      # Vitest — report-only for now. AUDIT-2026-05-16 §H-CI1: 63 API
-      # spec files import from vitest but `scripts/test-unit.mjs` only
-      # globs `lib/**/*.test.ts`. This adds visibility for those specs.
-      # Many will likely fail today because they mock `withTenantScope`
-      # away or have stale assertions; the goal is to surface the
-      # failures and burn them down. Flip to required after the API
-      # spec suite is green.
-      - name: Vitest (report-only)
-        run: npm run test:vitest
+      # Vitest — TEMPORARILY DISABLED as of 2026-07-01. AUDIT-2026-05-16
+      # §H-CI1: 63 API spec files import from vitest but
+      # `scripts/test-unit.mjs` only globs `lib/**/*.test.ts`; this step
+      # was meant to add visibility for those specs and eventually flip
+      # to required once green. Across 4 consecutive CI runs this step
+      # got stuck at 0% progress well past both `timeout-minutes: 8` and
+      # an OS-level `timeout 240` wrapper -- neither cutoff fired,
+      # pointing at a runner/infra-level stall rather than a hang inside
+      # the vitest process itself, so no in-repo fix could unblock it.
+      # Re-enable once the underlying runner issue is understood --
+      # `npm run test:vitest` still works standalone in the meantime.
+      # - name: Vitest (report-only)
+      #   run: timeout 240 npm run test:vitest || true
+      #   continue-on-error: true
+      #   timeout-minutes: 8
+
+      # Dead-code detection — report-only. No knip/ts-prune/depcheck config
+      # existed before this; `knip` was added as a devDependency (see
+      # package.json) but hasn't been tuned yet (no knip.json, so it uses
+      # default Next.js/Prisma-aware detection which may have false
+      # positives on this codebase, e.g. dynamic route handlers or
+      # barrel re-exports). Surfaces unused files/exports/deps on every
+      # PR without blocking. Flip to required once the initial report has
+      # been triaged and a knip.json config silences accepted false
+      # positives.
+      - name: Dead code (report-only)
+        run: npm run deadcode
         continue-on-error: true
+        timeout-minutes: 5
 
       # Tenant-isolation guardrails. Static-grep check across high-risk
       # routes — expanded in PR 2 of AUDIT-2026-05-16 to cover the
@@ -98,3 +118,4 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: "1"
           RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"
+        timeout-minutes: 15

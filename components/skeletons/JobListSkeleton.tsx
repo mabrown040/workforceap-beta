@@ -6,7 +6,12 @@
  */
 export function JobListSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Loading jobs"
+      style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+    >
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}

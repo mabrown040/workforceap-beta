@@ -108,6 +108,13 @@ let courseraIdentityRateLimiter: Ratelimit | null = null;
 // submits without enabling a flood.
 let publicQuestionnaireSubmitRateLimiter: Ratelimit | null = null;
 let adminTokenLinksRateLimiter: Ratelimit | null = null;
+// Per-user cap on portal message sends (member/employer/partner counselor
+// threads + employer application messages). Previously enforced with a
+// module-level in-memory Map, which is per-instance only — on a
+// multi-instance deploy each instance gets its own bucket, letting a user
+// send up to N-times-instances messages per window. Moved to Redis so the
+// limit is enforced globally. 10/min matches the prior in-memory semantics.
+let messageSendRateLimiter: Ratelimit | null = null;
 
 /**
  * Fail-closed wrapper for security-critical rate-limit checks.
@@ -366,6 +373,11 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:admin-token-links',
   });
+  messageSendRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '1 m'),
+    prefix: 'ratelimit:message-send',
+  });
 }
 
 export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
@@ -617,4 +629,19 @@ export async function checkCourseraIdentityRateLimit(ip: string): Promise<{ succ
   if (!courseraIdentityRateLimiter) return { success: true };
   const result = await courseraIdentityRateLimiter.limit(ip);
   return { success: result.success };
+}
+
+/**
+ * Per-user cap on portal message sends — 10 messages per minute per user.
+ * Backs `checkMessageRateLimit` in lib/messages/rateLimit.ts. Redis-backed so
+ * the limit holds across all serverless instances (the prior in-memory Map
+ * only enforced the limit per-instance). Fail-open without Redis, matching
+ * the prior in-memory behavior of always allowing when unconfigured.
+ */
+export async function checkMessageSendRateLimit(
+  userId: string
+): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
+  if (!messageSendRateLimiter) return { success: true };
+  const result = await messageSendRateLimiter.limit(`message-send:${userId}`);
+  return { success: result.success, remaining: result.remaining, resetMs: result.reset };
 }

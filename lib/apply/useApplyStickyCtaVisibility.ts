@@ -6,6 +6,23 @@ const MOBILE_MQ = '(max-width: 768px)';
 const DEFAULT_HERO_SELECTOR = '.apply-hero, .paid-apply-hero';
 const FALLBACK_SCROLL_THRESHOLD = 400;
 
+// Safe, static fallbacks used if computed rootMargin values are non-finite
+// or if the browser rejects the computed rootMargin string outright.
+const FALLBACK_FORM_ROOT_MARGIN = '-72px 0px -80px 0px';
+const FALLBACK_HERO_ROOT_MARGIN = '-72px 0px 0px 0px';
+
+/**
+ * Ensures a computed pixel value is finite before it is interpolated into an
+ * IntersectionObserver rootMargin string. IntersectionObserver throws a
+ * SyntaxError if rootMargin contains non-finite values (e.g. NaN/Infinity),
+ * which can happen if getComputedStyle/env() lookups fail in some browsers.
+ * Falls back to `fallback` (already an integer pixel value) when invalid,
+ * and always rounds to an integer pixel value otherwise.
+ */
+function toFinitePx(value: number, fallback: number): number {
+  return Number.isFinite(value) ? Math.round(value) : fallback;
+}
+
 function getSafeAreaInsetBottomPx(): number {
   if (typeof window === 'undefined') return 0;
   const div = document.createElement('div');
@@ -50,39 +67,63 @@ export function useApplyStickyCtaVisibility(
 
     // Compute rootMargin dynamically — IntersectionObserver does not accept
     // CSS env() in rootMargin; must be pixels or percent.
-    const remPx = getRemPx();
-    const safeAreaBottom = getSafeAreaInsetBottomPx();
-    const bottomMargin = -(4.5 * remPx + safeAreaBottom);
+    const remPxRaw = getRemPx();
+    const safeAreaBottomRaw = getSafeAreaInsetBottomPx();
+    const remPx = toFinitePx(remPxRaw, 16);
+    const safeAreaBottom = toFinitePx(safeAreaBottomRaw, 0);
+    const bottomMargin = toFinitePx(-(4.5 * remPx + safeAreaBottom), -80);
+    const formRootMargin = `-72px 0px ${bottomMargin}px 0px`;
 
     const formObservers: IntersectionObserver[] = [];
     formTargets.forEach((formTarget) => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          formIntersectingByTarget.set(formTarget, entry.isIntersecting);
-          recompute();
-        },
-        {
-          rootMargin: `-72px 0px ${bottomMargin}px 0px`,
+      const handleFormEntry: IntersectionObserverCallback = ([entry]) => {
+        formIntersectingByTarget.set(formTarget, entry.isIntersecting);
+        recompute();
+      };
+
+      let observer: IntersectionObserver | undefined;
+      try {
+        observer = new IntersectionObserver(handleFormEntry, {
+          rootMargin: formRootMargin,
           threshold: 0.05,
-        },
-      );
-      observer.observe(formTarget);
-      formObservers.push(observer);
+        });
+      } catch {
+        try {
+          observer = new IntersectionObserver(handleFormEntry, {
+            rootMargin: FALLBACK_FORM_ROOT_MARGIN,
+            threshold: 0.05,
+          });
+        } catch {
+          // Give up gracefully: sticky CTA simply won't auto-hide for this
+          // target, but the apply flow must not crash.
+          observer = undefined;
+        }
+      }
+
+      if (observer) {
+        observer.observe(formTarget);
+        formObservers.push(observer);
+      }
     });
 
     let heroObserver: IntersectionObserver | undefined;
     if (hero) {
-      heroObserver = new IntersectionObserver(
-        ([entry]) => {
-          heroPast = !entry.isIntersecting;
-          recompute();
-        },
-        {
-          rootMargin: '-72px 0px 0px 0px',
+      const handleHeroEntry: IntersectionObserverCallback = ([entry]) => {
+        heroPast = !entry.isIntersecting;
+        recompute();
+      };
+
+      try {
+        heroObserver = new IntersectionObserver(handleHeroEntry, {
+          rootMargin: FALLBACK_HERO_ROOT_MARGIN,
           threshold: 0,
-        },
-      );
-      heroObserver.observe(hero);
+        });
+        heroObserver.observe(hero);
+      } catch {
+        // Give up gracefully: sticky CTA simply won't auto-hide, but the
+        // apply flow must not crash.
+        heroObserver = undefined;
+      }
     }
 
     const onScroll = () => {

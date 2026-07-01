@@ -30,7 +30,11 @@ const config = [
       "react-hooks/immutability": "off",
       "react-hooks/purity": "off",
       "react-hooks/error-boundaries": "off",
-      "react-hooks/rules-of-hooks": "off",
+      // Re-enabled: catches genuine correctness bugs (conditional/looped
+      // hook calls), unlike the stylistic rules above. Lint runs with
+      // continue-on-error in CI (see .github/workflows/ci-gate.yml), so
+      // this will not block merges while any existing violations are fixed.
+      "react-hooks/rules-of-hooks": "error",
     },
   },
   {

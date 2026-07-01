@@ -165,7 +165,7 @@ export default function SessionRunClient({
   const walkthroughTranscript = transcripts.walkthrough;
   const walkthroughText = walkthroughTranscript.join('\n');
 
-  const useTranscriptAsResume = useCallback((card: CardVoiceKey = 'walkthrough') => {
+  const applyTranscriptAsResume = useCallback((card: CardVoiceKey = 'walkthrough') => {
     const lines = transcripts[card];
     if (lines.length === 0) return;
     const memberOnly = lines
@@ -524,7 +524,7 @@ export default function SessionRunClient({
             <button
               type="button"
               className="btn btn-muted btn-small"
-              onClick={() => useTranscriptAsResume('walkthrough')}
+              onClick={() => applyTranscriptAsResume('walkthrough')}
               disabled={walkthroughText.length < 30}
             >
               Pre-fill resume input &rarr;
@@ -626,7 +626,7 @@ export default function SessionRunClient({
                 <button
                   type="button"
                   className="btn btn-muted btn-small"
-                  onClick={() => useTranscriptAsResume('resume')}
+                  onClick={() => applyTranscriptAsResume('resume')}
                   disabled={transcripts.resume.join('\n').length < 30}
                 >
                   Pre-fill resume input &darr;

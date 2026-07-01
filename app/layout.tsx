@@ -32,6 +32,7 @@ import '@/css/marketing-depth.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';
+import SentrySetUser from '@/components/observability/SentrySetUser';
 
 const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
@@ -156,7 +157,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     const bootstrapCtx = buildGucContext({ userId: resolvedUserId, orgId: null });
     const [profileRole, userRow] = await runWithGucContext(bootstrapCtx, () =>
       Promise.all([
-        getProfileRole(resolvedUserId),
+        // Wrapped in withDbRetry so a transient pooler blip on this read
+        // degrades gracefully via retry instead of throwing and crashing the
+        // root layout render (2026-06-30 incident; mirrors the organizationId
+        // lookup below and resolveAuthGucContext() in lib/auth/server.ts).
+        withDbRetry(() => getProfileRole(resolvedUserId)).catch((err) => {
+          console.error('[layout:guc] getProfileRole bootstrap lookup failed; defaulting to member role', err);
+          return 'member';
+        }),
         // Resolve the user's organization so the GUC carries `app.current_org_id`.
         // Previously orgId was hardcoded to null here, which makes every RLS
         // policy that calls `can_access_org_row(check_org_id)` evaluate with
@@ -296,6 +304,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <ConditionalMarketingNav forceHidden={hidePaidApplyMarketingNav} />
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
+        <SentrySetUser userId={resolvedUserId} />
         <DeferredRootChrome />
       </body>
     </html>

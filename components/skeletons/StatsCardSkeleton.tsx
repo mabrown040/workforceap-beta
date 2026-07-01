@@ -6,7 +6,12 @@
  */
 export function StatsCardSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="portal-metric-strip">
+    <div
+      className="portal-metric-strip"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading stats"
+    >
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}

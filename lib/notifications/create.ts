@@ -3,6 +3,8 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
 import { notifyDiscord } from '@/lib/notify/discord';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 export type NotificationType =
   | 'message'
@@ -38,7 +40,19 @@ export async function createNotification(
       },
     });
   } catch (error) {
-    console.error('[notification] create failed:', error);
+    captureApiError(error, {
+      route: 'lib/notifications/create.createNotification',
+      extra: { userId: input.userId, type: input.type },
+    });
+    void recordWorkflowDiagnostic({
+      workflow: 'notification_create',
+      status: 'error',
+      actorUserId: input.userId,
+      entityType: 'Notification',
+      summary: `Notification create failed: "${input.title}"`,
+      failureReason: error instanceof Error ? error.message : String(error),
+      metadata: { type: input.type },
+    });
   }
   // Operator-visibility bridge (fire-and-forget, never blocks).
   void notifyDiscord({
@@ -68,7 +82,17 @@ export async function createBulkNotifications(
       })),
     });
   } catch (error) {
-    console.error('[notification] bulk create failed:', error);
+    captureApiError(error, {
+      route: 'lib/notifications/create.createBulkNotifications',
+      extra: { count: inputs.length, type: inputs[0]?.type },
+    });
+    void recordWorkflowDiagnostic({
+      workflow: 'notification_create_bulk',
+      status: 'error',
+      summary: `Bulk notification create failed (${inputs.length} recipients): "${inputs[0]?.title ?? ''}"`,
+      failureReason: error instanceof Error ? error.message : String(error),
+      metadata: { count: inputs.length, type: inputs[0]?.type },
+    });
   }
   // One aggregated Discord ping per bulk send instead of N pings —
   // bulk broadcasts (e.g. admin announcements) would otherwise hit

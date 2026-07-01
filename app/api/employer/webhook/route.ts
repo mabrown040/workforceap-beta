@@ -18,6 +18,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: `Webhook signature verification failed: ${msg}` }, { status: 400 });
     }
 
+    // Stripe does not guarantee webhook delivery order — a delayed event can arrive
+    // after a newer one has already been applied. `event.created` (epoch seconds) is
+    // compared against each employer row's persisted `stripeSubscriptionEventAt` so an
+    // out-of-order event (e.g. a late `invoice.payment_failed` arriving after a newer
+    // `invoice.payment_succeeded`) is skipped instead of incorrectly regressing state.
+    const eventCreatedAt = event.created;
+
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
@@ -31,13 +38,20 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             break;
           }
 
-          // Idempotency: skip if employer already has this subscription + tier
           const existing = await prisma.$transaction((tx) => tx.employer.findUnique({
             where: { id: employerId },
-            select: { tier: true, stripeSubscriptionId: true },
+            select: { tier: true, stripeSubscriptionId: true, stripeSubscriptionEventAt: true },
           }));
+
+          // Idempotency: skip if employer already has this subscription + tier
           if (existing?.tier === tier && existing?.stripeSubscriptionId === subscriptionId) {
             console.log('[employer/webhook] checkout.session.completed — already applied, skipping');
+            break;
+          }
+
+          // Ordering guard: skip if a newer event already updated this employer.
+          if (existing?.stripeSubscriptionEventAt != null && existing.stripeSubscriptionEventAt > eventCreatedAt) {
+            console.log('[employer/webhook] checkout.session.completed — stale event (out of order), skipping');
             break;
           }
 
@@ -47,6 +61,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
               tier,
               stripeSubscriptionId: subscriptionId ?? null,
               stripeSubscriptionStatus: subscriptionId ? 'active' : null,
+              stripeSubscriptionEventAt: eventCreatedAt,
             },
           }));
           break;
@@ -65,9 +80,14 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             break;
           }
 
+          // Ordering guard: only advance employers whose last-applied event is
+          // older than this one (or unset). Rows already ahead keep their state.
           await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: { stripeSubscriptionId: subscriptionId },
-            data: { stripeSubscriptionStatus: 'active' },
+            where: {
+              stripeSubscriptionId: subscriptionId,
+              OR: [{ stripeSubscriptionEventAt: null }, { stripeSubscriptionEventAt: { lte: eventCreatedAt } }],
+            },
+            data: { stripeSubscriptionStatus: 'active', stripeSubscriptionEventAt: eventCreatedAt },
           }));
           break;
         }
@@ -85,9 +105,14 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             break;
           }
 
+          // Ordering guard: a delayed payment_failed must not regress an employer
+          // that a newer event (e.g. payment_succeeded) already advanced past it.
           await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: { stripeSubscriptionId: subscriptionId },
-            data: { stripeSubscriptionStatus: 'past_due' },
+            where: {
+              stripeSubscriptionId: subscriptionId,
+              OR: [{ stripeSubscriptionEventAt: null }, { stripeSubscriptionEventAt: { lte: eventCreatedAt } }],
+            },
+            data: { stripeSubscriptionStatus: 'past_due', stripeSubscriptionEventAt: eventCreatedAt },
           }));
           break;
         }
@@ -109,9 +134,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             break;
           }
 
+          // Ordering guard: same rationale as above.
           await prisma.$transaction((tx) => tx.employer.updateMany({
-            where: { stripeSubscriptionId: subscription.id },
-            data: { tier: 'basic', stripeSubscriptionStatus: 'canceled' },
+            where: {
+              stripeSubscriptionId: subscription.id,
+              OR: [{ stripeSubscriptionEventAt: null }, { stripeSubscriptionEventAt: { lte: eventCreatedAt } }],
+            },
+            data: { tier: 'basic', stripeSubscriptionStatus: 'canceled', stripeSubscriptionEventAt: eventCreatedAt },
           }));
           break;
         }

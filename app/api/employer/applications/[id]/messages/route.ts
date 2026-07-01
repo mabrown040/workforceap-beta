@@ -95,7 +95,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
   }
 
-  const rl = checkMessageRateLimit(user.id);
+  const rl = await checkMessageRateLimit(user.id);
   if (!rl.ok) {
     return NextResponse.json(
       { error: 'Too many messages. Please wait a moment.' },

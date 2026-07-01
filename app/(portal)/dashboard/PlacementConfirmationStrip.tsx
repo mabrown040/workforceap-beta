@@ -36,7 +36,7 @@ export default function PlacementConfirmationStrip({ offers }: { offers: any[] }
   return (
     <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }} aria-live="polite">
       {activeOffers.map(offer => (
-        <div key={offer.id} style={{ borderRadius: '1rem', overflow: 'hidden', background: 'var(--color-success, #4a9b4f)', boxShadow: '0 6px 24px rgba(74,155,79,0.3)', marginBottom: '1rem' }}>
+        <div key={offer.id} style={{ borderRadius: '1rem', overflow: 'hidden', background: 'var(--color-green, #4a9b4f)', boxShadow: '0 6px 24px rgba(74,155,79,0.3)', marginBottom: '1rem' }}>
           <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
@@ -59,7 +59,7 @@ export default function PlacementConfirmationStrip({ offers }: { offers: any[] }
               <button type="button"
                 onClick={() => handleConfirm(offer.id)}
                 disabled={loading[offer.id]}
-                style={{ flex: 1, display: 'block', width: '100%', background: '#fff', color: '#2e7d32', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', border: 'none', cursor: 'pointer' }}
+                style={{ flex: 1, display: 'block', width: '100%', background: '#fff', color: 'var(--color-green, #4a9b4f)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', border: 'none', cursor: 'pointer' }}
               >
                 {loading[offer.id] ? 'Sending update...' : 'Yes — notify my team'}
               </button>

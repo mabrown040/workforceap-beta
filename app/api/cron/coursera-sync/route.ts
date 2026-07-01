@@ -64,26 +64,28 @@ async function syncMember(member: MemberRow): Promise<MemberOutcome> {
     let withProgress = 0;
     for (const element of progress.elements) {
       if (!element.skillsetId) continue;
-      await prisma.courseraSkillsetProgress.upsert({
-        where: {
-          userId_skillsetId: { userId: member.id, skillsetId: element.skillsetId },
-        },
-        create: {
-          userId: member.id,
-          skillsetId: element.skillsetId,
-          skillsetName: element.skillsetName,
-          progressPct: element.progressPercent,
-          programId,
-          programSlug: member.enrolledProgram ?? null,
-        },
-        update: {
-          skillsetName: element.skillsetName,
-          progressPct: element.progressPercent,
-          programId,
-          programSlug: member.enrolledProgram ?? null,
-          lastSyncedAt: new Date(),
-        },
-      });
+      await prisma.$transaction((tx) =>
+        tx.courseraSkillsetProgress.upsert({
+          where: {
+            userId_skillsetId: { userId: member.id, skillsetId: element.skillsetId },
+          },
+          create: {
+            userId: member.id,
+            skillsetId: element.skillsetId,
+            skillsetName: element.skillsetName,
+            progressPct: element.progressPercent,
+            programId,
+            programSlug: member.enrolledProgram ?? null,
+          },
+          update: {
+            skillsetName: element.skillsetName,
+            progressPct: element.progressPercent,
+            programId,
+            programSlug: member.enrolledProgram ?? null,
+            lastSyncedAt: new Date(),
+          },
+        }),
+      );
       if (element.progressPercent > 0) withProgress += 1;
     }
 

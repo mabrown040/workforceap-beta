@@ -380,11 +380,13 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   const courseIdToMeta = buildCourseIdToMetaMap();
 
   // Pre-load all active users by normalized email
-  const users = await prisma.user.findMany({
-    take: 5000,
-    where: { deletedAt: null, email: { not: '' } },
-    select: { id: true, email: true },
-  });
+  const users = await prisma.$transaction((tx) =>
+    tx.user.findMany({
+      take: 5000,
+      where: { deletedAt: null, email: { not: '' } },
+      select: { id: true, email: true },
+    }),
+  );
   const userByEmail = new Map<string, string>();
   for (const u of users) {
     userByEmail.set(u.email.trim().toLowerCase(), u.id);
@@ -474,74 +476,79 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
     }
 
-    // Read-before-write so we never downgrade an xAPI-credited COMPLETED back
-    // to IN_PROGRESS, and never lower percentComplete when B4B's coarse
-    // course-level rollup briefly trails the per-item xAPI signal. See
-    // `computeCourseProgressUpdate` doc-comment for the full rationale —
-    // this is exactly the kind of code that gets "simplified" wrong.
-    const existing = await prisma.courseProgress.findUnique({
-      where: {
-        userId_programSlug_courseSlug: {
-          userId,
-          programSlug,
-          courseSlug,
-        },
-      },
-      select: {
-        status: true,
-        percentComplete: true,
-        lastActivityAt: true,
-      },
-    });
-
-    const merged = computeCourseProgressUpdate(existing, {
-      isCompleted: report.isCompleted,
-      overallProgress: report.overallProgress,
-      lastActivityAt: report.lastActivityAt,
-    });
-
-    // `completedAt` is set the first time we see COMPLETED. If we've already
-    // recorded one we keep it — re-syncs shouldn't re-stamp the timestamp.
-    // Use Coursera's `updatedAt` if available, otherwise now.
-    const completedAt =
-      merged.status === CourseProgressStatus.COMPLETED
-        ? new Date(report.updatedAt || Date.now())
-        : null;
-
     try {
-      await prisma.courseProgress.upsert({
-        where: {
-          userId_programSlug_courseSlug: {
+      // Read-before-write so we never downgrade an xAPI-credited COMPLETED
+      // back to IN_PROGRESS, and never lower percentComplete when B4B's
+      // coarse course-level rollup briefly trails the per-item xAPI signal.
+      // See `computeCourseProgressUpdate` doc-comment for the full
+      // rationale — this is exactly the kind of code that gets
+      // "simplified" wrong. The find + upsert run in one transaction so
+      // the read the merge decision is based on stays consistent with the
+      // write, and both carry the transaction-local GUC context.
+      await prisma.$transaction(async (tx) => {
+        const existing = await tx.courseProgress.findUnique({
+          where: {
+            userId_programSlug_courseSlug: {
+              userId,
+              programSlug,
+              courseSlug,
+            },
+          },
+          select: {
+            status: true,
+            percentComplete: true,
+            lastActivityAt: true,
+          },
+        });
+
+        const merged = computeCourseProgressUpdate(existing, {
+          isCompleted: report.isCompleted,
+          overallProgress: report.overallProgress,
+          lastActivityAt: report.lastActivityAt,
+        });
+
+        // `completedAt` is set the first time we see COMPLETED. If we've
+        // already recorded one we keep it — re-syncs shouldn't re-stamp the
+        // timestamp. Use Coursera's `updatedAt` if available, otherwise now.
+        const completedAt =
+          merged.status === CourseProgressStatus.COMPLETED
+            ? new Date(report.updatedAt || Date.now())
+            : null;
+
+        await tx.courseProgress.upsert({
+          where: {
+            userId_programSlug_courseSlug: {
+              userId,
+              programSlug,
+              courseSlug,
+            },
+          },
+          create: {
             userId,
             programSlug,
             courseSlug,
+            courseId: report.contentId,
+            status: merged.status,
+            percentComplete: merged.percentComplete,
+            startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
+            completedAt,
+            lastActivityAt: merged.lastActivityAt,
           },
-        },
-        create: {
-          userId,
-          programSlug,
-          courseSlug,
-          courseId: report.contentId,
-          status: merged.status,
-          percentComplete: merged.percentComplete,
-          startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
-          completedAt,
-          lastActivityAt: merged.lastActivityAt,
-        },
-        update: {
-          courseId: report.contentId,
-          status: merged.status,
-          percentComplete: merged.percentComplete,
-          // Don't overwrite an existing startedAt with null on later syncs;
-          // only stamp it the first time we see an enrolledAt.
-          ...(report.enrolledAt ? { startedAt: new Date(report.enrolledAt) } : {}),
-          // Set completedAt on the transition into COMPLETED; never clear it.
-          ...(merged.status === CourseProgressStatus.COMPLETED &&
-          existing?.status !== CourseProgressStatus.COMPLETED
-            ? { completedAt }
-            : {}),
-          lastActivityAt: merged.lastActivityAt,
-        },
+          update: {
+            courseId: report.contentId,
+            status: merged.status,
+            percentComplete: merged.percentComplete,
+            // Don't overwrite an existing startedAt with null on later syncs;
+            // only stamp it the first time we see an enrolledAt.
+            ...(report.enrolledAt ? { startedAt: new Date(report.enrolledAt) } : {}),
+            // Set completedAt on the transition into COMPLETED; never clear it.
+            ...(merged.status === CourseProgressStatus.COMPLETED &&
+            existing?.status !== CourseProgressStatus.COMPLETED
+              ? { completedAt }
+              : {}),
+            lastActivityAt: merged.lastActivityAt,
+          },
+        });
       });
 
       result.upserted += 1;
@@ -582,20 +589,24 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 /* ------------------------------------------------------------------ */
 
 async function updateRollups(emails: string[]) {
-  const affectedUsers = await prisma.user.findMany({
-    take: 5000,
-    where: { email: { in: emails, mode: 'insensitive' }, deletedAt: null },
-    select: { id: true, email: true },
-  });
+  const { affectedUsers, allRows } = await prisma.$transaction(async (tx) => {
+    const affectedUsers = await tx.user.findMany({
+      take: 5000,
+      where: { email: { in: emails, mode: 'insensitive' }, deletedAt: null },
+      select: { id: true, email: true },
+    });
 
-  const allUserIds = affectedUsers.map((u) => u.id);
-  const allRows = allUserIds.length
-    ? await prisma.courseProgress.findMany({
-        take: 5000,
-        where: { userId: { in: allUserIds } },
-        select: { userId: true, programSlug: true, status: true, percentComplete: true },
-      })
-    : [];
+    const allUserIds = affectedUsers.map((u) => u.id);
+    const allRows = allUserIds.length
+      ? await tx.courseProgress.findMany({
+          take: 5000,
+          where: { userId: { in: allUserIds } },
+          select: { userId: true, programSlug: true, status: true, percentComplete: true },
+        })
+      : [];
+
+    return { affectedUsers, allRows };
+  });
 
   const rowsByUser = new Map<string, typeof allRows>();
   for (const row of allRows) {
@@ -619,19 +630,21 @@ async function updateRollups(emails: string[]) {
 
       for (const [programSlug, stats] of byProgram) {
         const avg = stats.total > 0 ? Math.round(stats.sumPct / stats.total) : 0;
-        await prisma.memberProgramProgress.upsert({
-          where: { userId_programSlug: { userId: user.id, programSlug } },
-          create: {
-            userId: user.id,
-            programSlug,
-            coursesCompleted: stats.completed,
-            averagePercent: avg,
-          },
-          update: {
-            coursesCompleted: stats.completed,
-            averagePercent: avg,
-          },
-        });
+        await prisma.$transaction((tx) =>
+          tx.memberProgramProgress.upsert({
+            where: { userId_programSlug: { userId: user.id, programSlug } },
+            create: {
+              userId: user.id,
+              programSlug,
+              coursesCompleted: stats.completed,
+              averagePercent: avg,
+            },
+            update: {
+              coursesCompleted: stats.completed,
+              averagePercent: avg,
+            },
+          }),
+        );
       }
     } catch (err) {
       captureApiError(err, {

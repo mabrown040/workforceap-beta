@@ -43,21 +43,35 @@ export async function getWeeklyRecapCohortStats(orgId?: string | null): Promise<
   const now = new Date();
   const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
 
+  const userWhere: Prisma.UserWhereInput = { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) };
+
   const users = await prisma.user.findMany({
-    take: 500,
-    where: { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) },
+    where: userWhere,
     select: { id: true, enrolledProgram: true },
   });
   const byCohort = userIdsByCohort(users);
 
-  const recaps = await prisma.weeklyRecap.findMany({
-    take: 500,
-    select: {
-      userId: true,
-      generatedAt: true,
-      readinessScoreSnapshot: true,
-    },
-  });
+  // Recaps must be scoped to the same org-filtered user set as `users` above
+  // (via the `user` relation — WeeklyRecap has no organizationId of its own),
+  // and paged through in full rather than sampled with `take`, since a single
+  // capped/unordered fetch silently truncates once an org exceeds the cap.
+  const recapWhere: Prisma.WeeklyRecapWhereInput = { user: userWhere };
+  const PAGE_SIZE = 1000;
+  const recaps: Array<{ userId: string; generatedAt: Date; readinessScoreSnapshot: number | null }> = [];
+  let cursor: string | undefined;
+  for (;;) {
+    const page = await prisma.weeklyRecap.findMany({
+      where: recapWhere,
+      select: { id: true, userId: true, generatedAt: true, readinessScoreSnapshot: true },
+      orderBy: { id: 'asc' },
+      take: PAGE_SIZE,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+    });
+    if (page.length === 0) break;
+    for (const { id: _id, ...rest } of page) recaps.push(rest);
+    cursor = page[page.length - 1]!.id;
+    if (page.length < PAGE_SIZE) break;
+  }
 
   const rows: WeeklyRecapCohortRow[] = [];
 

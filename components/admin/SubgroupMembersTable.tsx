@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import DataTable from '@/components/portal/ui/DataTable';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type Member = {
   id: string;
@@ -34,6 +35,13 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
   const [removing, setRemoving] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const closeRemoveTarget = () => {
+    if (!removing) setRemoveTarget(null);
+  };
+  const closeAddModal = () => setShowAddModal(false);
+  const removeTrapRef = useFocusTrap(!!removeTarget, closeRemoveTarget);
+  const addModalTrapRef = useFocusTrap(showAddModal, closeAddModal);
 
   const memberIds = new Set(members.map((m) => m.id));
 
@@ -207,8 +215,9 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       )}
 
       {removeTarget && (
-        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !removing && setRemoveTarget(null)} tabIndex={-1}>
+        <div className="admin-confirm-modal-overlay" role="presentation" onClick={closeRemoveTarget} tabIndex={-1}>
           <div
+            ref={removeTrapRef as React.RefObject<HTMLDivElement>}
             className="admin-confirm-modal"
             role="dialog"
             aria-modal="true"
@@ -220,7 +229,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
               Remove <strong>{removeTarget.name}</strong> from this subgroup? They keep their WorkforceAP account.
             </p>
             <div className="admin-confirm-modal__actions">
-              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={() => setRemoveTarget(null)}>
+              <button type="button" className="btn btn-outline" disabled={!!removing} onClick={closeRemoveTarget}>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" disabled={!!removing} onClick={() => void runRemoveMember()}>
@@ -242,9 +251,10 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
             justifyContent: 'center',
             zIndex: 1000,
           }}
-          onClick={() => setShowAddModal(false)}
+          onClick={closeAddModal}
         >
           <div
+            ref={addModalTrapRef as React.RefObject<HTMLDivElement>}
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-member-dialog-title"
@@ -308,7 +318,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
               </p>
             ) : null}
             <div style={{ marginTop: '1rem' }}>
-              <button type="button" className="btn btn-outline" onClick={() => setShowAddModal(false)}>
+              <button type="button" className="btn btn-outline" onClick={closeAddModal}>
                 Close
               </button>
             </div>

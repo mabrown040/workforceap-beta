@@ -18,13 +18,15 @@ export async function fetchEligibleCourseraMembers(): Promise<CourseraSyncMember
   const members: CourseraSyncMember[] = [];
 
   for (let skip = 0; ; skip += COURSERA_SYNC_MEMBER_PAGE_SIZE) {
-    const page = await prisma.user.findMany({
-      where: eligibleMemberWhere,
-      select: { id: true, email: true, enrolledProgram: true },
-      orderBy: { createdAt: 'asc' },
-      skip,
-      take: COURSERA_SYNC_MEMBER_PAGE_SIZE,
-    });
+    const page = await prisma.$transaction((tx) =>
+      tx.user.findMany({
+        where: eligibleMemberWhere,
+        select: { id: true, email: true, enrolledProgram: true },
+        orderBy: { createdAt: 'asc' },
+        skip,
+        take: COURSERA_SYNC_MEMBER_PAGE_SIZE,
+      }),
+    );
     members.push(...page);
     if (page.length < COURSERA_SYNC_MEMBER_PAGE_SIZE) break;
   }

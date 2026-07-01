@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type Props = {
   partner: { id: string; name: string; _count?: { referrals: number } };
@@ -18,6 +19,7 @@ export default function PartnerDeactivateDialog({ partner, partners, onClose }: 
 
   const activePartners = partners.filter((p) => p.active && p.id !== partner.id);
   const referralCount = partner._count?.referrals ?? 0;
+  const trapRef = useFocusTrap(true, onClose);
 
   async function handleConfirm() {
     setLoading(true);
@@ -47,6 +49,7 @@ export default function PartnerDeactivateDialog({ partner, partners, onClose }: 
   return (
     <div className="partner-modal-overlay" onClick={onClose} role="presentation" tabIndex={-1}>
       <div
+        ref={trapRef as React.RefObject<HTMLDivElement>}
         className="partner-modal"
         onClick={(e) => e.stopPropagation()}
         role="dialog"

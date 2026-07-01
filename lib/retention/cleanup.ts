@@ -73,24 +73,36 @@ export async function cleanupTable(cfg: RetentionTableConfig): Promise<CleanupRe
       delete where[cfg.dateColumn];
     }
 
-    const rows: { id: string }[] = await delegate.findMany({
-      where,
-      select: { id: true },
-      take: RETENTION_BATCH_SIZE,
-      orderBy: { [cfg.dateColumn]: 'asc' },
-    });
+    // Find-then-delete-by-id is a read-then-write logical unit: the delete
+    // targets exactly the IDs the read just selected, so both must run
+    // inside the same $transaction to keep a consistent, GUC-tagged view.
+    const batchResult: { deletedCount: number; batchSize: number } | null = await prisma.$transaction(
+      async (tx) => {
+        const txDelegate = (tx as any)[cfg.model];
+        const rows: { id: string }[] = await txDelegate.findMany({
+          where,
+          select: { id: true },
+          take: RETENTION_BATCH_SIZE,
+          orderBy: { [cfg.dateColumn]: 'asc' },
+        });
 
-    if (rows.length === 0) break;
+        if (rows.length === 0) return null;
 
-    const ids = rows.map((r) => r.id);
-    const deleteResult = await delegate.deleteMany({
-      where: { id: { in: ids } },
-    });
+        const ids = rows.map((r) => r.id);
+        const deleteResult = await txDelegate.deleteMany({
+          where: { id: { in: ids } },
+        });
 
-    totalDeleted += deleteResult.count ?? rows.length;
+        return { deletedCount: deleteResult.count ?? rows.length, batchSize: rows.length };
+      },
+    );
+
+    if (batchResult === null) break;
+
+    totalDeleted += batchResult.deletedCount;
     batchCount += 1;
 
-    if (rows.length < RETENTION_BATCH_SIZE) break;
+    if (batchResult.batchSize < RETENTION_BATCH_SIZE) break;
   }
 
   return {
@@ -113,22 +125,33 @@ export async function cleanupDeletedAccounts(): Promise<number> {
   let totalDeleted = 0;
 
   while (true) {
-    const rows: { id: string }[] = await prisma.user.findMany({
-      where: { deletedAt: { not: null, lt: cutoff } },
-      select: { id: true },
-      take: RETENTION_BATCH_SIZE,
-      orderBy: { deletedAt: 'asc' },
-    });
+    // Find-then-delete-by-id logical unit — run in one transaction so the
+    // delete targets exactly the row set the read just selected, under a
+    // consistent GUC-tagged context.
+    const batchResult: { deletedCount: number; batchSize: number } | null = await prisma.$transaction(
+      async (tx) => {
+        const rows: { id: string }[] = await tx.user.findMany({
+          where: { deletedAt: { not: null, lt: cutoff } },
+          select: { id: true },
+          take: RETENTION_BATCH_SIZE,
+          orderBy: { deletedAt: 'asc' },
+        });
 
-    if (rows.length === 0) break;
+        if (rows.length === 0) return null;
 
-    // deleteMany cascades via Prisma relations where configured
-    const result = await prisma.user.deleteMany({
-      where: { id: { in: rows.map((r) => r.id) } },
-    });
+        // deleteMany cascades via Prisma relations where configured
+        const result = await tx.user.deleteMany({
+          where: { id: { in: rows.map((r) => r.id) } },
+        });
 
-    totalDeleted += result.count;
-    if (rows.length < RETENTION_BATCH_SIZE) break;
+        return { deletedCount: result.count, batchSize: rows.length };
+      },
+    );
+
+    if (batchResult === null) break;
+
+    totalDeleted += batchResult.deletedCount;
+    if (batchResult.batchSize < RETENTION_BATCH_SIZE) break;
   }
 
   return totalDeleted;

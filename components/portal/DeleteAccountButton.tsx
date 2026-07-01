@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 export default function DeleteAccountButton() {
   const router = useRouter();
@@ -9,6 +10,10 @@ export default function DeleteAccountButton() {
   const [confirmText, setConfirmText] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const closeModal = () => {
+    if (!loading) setShowModal(false);
+  };
+  const trapRef = useFocusTrap(showModal, closeModal);
 
   const handleDelete = async () => {
     if (confirmText.trim().toUpperCase() !== 'DELETE') return;
@@ -61,9 +66,10 @@ export default function DeleteAccountButton() {
             justifyContent: 'center',
             zIndex: 1000,
           }}
-          onClick={() => !loading && setShowModal(false)}
+          onClick={closeModal}
         >
           <div
+            ref={trapRef as React.RefObject<HTMLDivElement>}
             style={{
               background: 'white',
               padding: '1.5rem',
@@ -97,7 +103,7 @@ export default function DeleteAccountButton() {
               </p>
             )}
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} disabled={loading}>
+              <button type="button" className="btn btn-outline" onClick={closeModal} disabled={loading}>
                 Cancel
               </button>
               <button

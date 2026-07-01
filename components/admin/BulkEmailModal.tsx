@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Mail, X, AlertCircle, Info } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 const MAX_SUBJECT = 200;
 const MAX_BODY = 8000;
@@ -27,6 +28,7 @@ export default function BulkEmailModal({ open, memberIds, onClose, onSent }: Pro
   const [createMessage, setCreateMessage] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const trapRef = useFocusTrap(open, onClose);
 
   useEffect(() => {
     if (open) {
@@ -91,6 +93,7 @@ export default function BulkEmailModal({ open, memberIds, onClose, onSent }: Pro
       }}
     >
       <div
+        ref={trapRef as React.RefObject<HTMLDivElement>}
         style={{
           background: 'var(--color-white)',
           borderRadius: 'var(--radius-lg, 1rem)',

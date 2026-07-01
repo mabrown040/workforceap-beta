@@ -29,7 +29,19 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * Auth: standard CRON_SECRET via withCronLogging.
  */
 async function handle(_request: Request) {
-  const result = await autoHealUnmatchedXapiEvents(200);
+  let result: { processed: number; matched: number; errors: number } = {
+    processed: 0,
+    matched: 0,
+    errors: 0,
+  };
+  try {
+    result = await autoHealUnmatchedXapiEvents(200);
+  } catch (err) {
+    captureApiError(err, {
+      route: 'cron/coursera-auto-heal',
+      extra: { step: 'unmatched-heal' },
+    });
+  }
 
   // Pre-step: refresh canonical mappings from the live B4B directory so the
   // ignored-replay below picks up newly-mapped course slugs in the same tick.

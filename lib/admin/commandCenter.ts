@@ -89,6 +89,14 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   if (threads.length === 0) return [];
 
   const threadIds = threads.map((thread) => thread.id);
+  const threadById = new Map(threads.map((thread) => [thread.id, thread]));
+  // Only threads whose latest message was sent by the member (i.e. awaiting a
+  // staff reply) are candidates. Filter to that set, order by staleness, and
+  // cap to `limit` in SQL so we don't pull the last message for all 500
+  // threads just to sort/slice in JS.
+  const memberIds = threads
+    .map((thread) => thread.memberId)
+    .filter((id): id is string => id != null);
   const lastMessages = await prisma.$queryRawUnsafe<Array<{
     thread_id: string;
     author_id: string;
@@ -101,13 +109,18 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
      ORDER BY thread_id, created_at DESC`,
     threadIds,
   );
+  const needsReplyMessages = lastMessages
+    .filter((message) => {
+      const thread = threadById.get(message.thread_id);
+      return thread?.memberId != null && message.author_id === thread.memberId;
+    })
+    .sort((a, b) => a.created_at.getTime() - b.created_at.getTime())
+    .slice(0, limit);
 
-  const threadById = new Map(threads.map((thread) => [thread.id, thread]));
   const rows: AdminNeedsReplyRow[] = [];
-  for (const message of lastMessages) {
+  for (const message of needsReplyMessages) {
     const thread = threadById.get(message.thread_id);
     if (!thread?.memberId || !thread.member) continue;
-    if (message.author_id !== thread.memberId) continue;
     rows.push({
       memberId: thread.member.id,
       memberName: thread.member.fullName ?? thread.member.email,
@@ -119,7 +132,7 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
     });
   }
 
-  return rows.sort((a, b) => a.lastMessageAt.getTime() - b.lastMessageAt.getTime()).slice(0, limit);
+  return rows;
 }
 
 async function loadAtRisk(

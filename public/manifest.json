@@ -2,7 +2,7 @@
   "name": "WorkforceAP",
   "short_name": "WorkforceAP",
   "description": "Career training, certifications, and job placement support.",
-  "start_url": "/dashboard",
+  "start_url": "/pwa-start",
   "display": "standalone",
   "background_color": "#121416",
   "theme_color": "#ad2c4d",

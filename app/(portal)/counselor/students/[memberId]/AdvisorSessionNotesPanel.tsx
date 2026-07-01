@@ -143,7 +143,7 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
               boxSizing: 'border-box',
             }}
           />
-          {error && <p style={{ color: 'var(--color-error, #c00)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
+          {error && <p style={{ color: 'var(--color-accent)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button type="button"
               onClick={handleAdd}

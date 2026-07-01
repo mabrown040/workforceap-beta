@@ -89,26 +89,27 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   if (threads.length === 0) return [];
 
   const threadIds = threads.map((thread) => thread.id);
-  // Last message per thread, ordered oldest-first and capped to `limit`
-  // directly in SQL — the "is this thread awaiting a staff reply" filter
-  // still has to happen after the join (author vs. thread's member), but we
-  // no longer pull all 500 last-messages into JS just to sort/slice them:
-  // DISTINCT ON already narrows to one row per thread, and the outer
-  // ORDER BY + LIMIT keeps only the oldest `limit` candidates before the
-  // cheap in-memory author-match filter runs.
+  // Last message per thread (DISTINCT ON), joined back to message_threads so
+  // the "awaiting a staff reply" filter (author_id = the thread's own
+  // member_id) can run in SQL, then ordered oldest-first and capped to
+  // `limit` — instead of pulling the last message for all 500 threads and
+  // sorting/slicing the full set client-side in JS.
   const lastMessages = await prisma.$queryRawUnsafe<Array<{
     thread_id: string;
     author_id: string;
     body: string | null;
     created_at: Date;
   }>>(
-    `SELECT thread_id, author_id, body, created_at FROM (
+    `SELECT lm.thread_id, lm.author_id, lm.body, lm.created_at
+     FROM (
        SELECT DISTINCT ON (thread_id) thread_id, author_id, body, created_at
        FROM messages
        WHERE thread_id = ANY($1::text[])
        ORDER BY thread_id, created_at DESC
-     ) last_per_thread
-     ORDER BY created_at ASC
+     ) lm
+     JOIN message_threads mt ON mt.id = lm.thread_id
+     WHERE lm.author_id = mt.member_id
+     ORDER BY lm.created_at ASC
      LIMIT $2`,
     threadIds,
     limit,
@@ -119,7 +120,6 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<
   for (const message of lastMessages) {
     const thread = threadById.get(message.thread_id);
     if (!thread?.memberId || !thread.member) continue;
-    if (message.author_id !== thread.memberId) continue;
     rows.push({
       memberId: thread.member.id,
       memberName: thread.member.fullName ?? thread.member.email,
@@ -158,8 +158,8 @@ async function loadAtRisk(
        u.enrolled_program,
        GREATEST(
          $1::int,
-         FLOOR(EXTRACT(EPOCH FROM ($2::timestamptz - COALESCE(last_event.created_at, u.enrolled_at))) / 86400)
-       )::int AS days_inactive
+         FLOOR(EXTRACT(EPOCH FROM ($2::timestamptz - COALESCE(last_event.created_at, u.enrolled_at))) / 86400)::int
+       ) AS days_inactive
      FROM users u
      LEFT JOIN LATERAL (
        SELECT me.created_at

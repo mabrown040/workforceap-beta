@@ -3,10 +3,29 @@ import assert from 'node:assert/strict';
 import {
   isLocaleableMarketingPath,
   isLocaleBypassPath,
+  isReviewedLocale,
   splitLocalePrefix,
   withLocalePrefix,
   pickLocaleFromAcceptLanguage,
 } from './config';
+
+// isReviewedLocale
+
+test('isReviewedLocale: en is reviewed', () => {
+  assert.equal(isReviewedLocale('en'), true);
+});
+
+test('isReviewedLocale: es is reviewed', () => {
+  assert.equal(isReviewedLocale('es'), true);
+});
+
+test('isReviewedLocale: fr is not reviewed', () => {
+  assert.equal(isReviewedLocale('fr'), false);
+});
+
+test('isReviewedLocale: pt is not reviewed', () => {
+  assert.equal(isReviewedLocale('pt'), false);
+});
 
 // isLocaleableMarketingPath
 
@@ -117,8 +136,12 @@ test('pickLocaleFromAcceptLanguage: picks es from complex accept-language header
   assert.equal(pickLocaleFromAcceptLanguage('es-MX,es;q=0.9,en;q=0.8'), 'es');
 });
 
-test('pickLocaleFromAcceptLanguage: picks fr from fr-FR header', () => {
-  assert.equal(pickLocaleFromAcceptLanguage('fr-FR,fr;q=0.9'), 'fr');
+test('pickLocaleFromAcceptLanguage: falls back to en for fr-FR header (fr is unreviewed)', () => {
+  assert.equal(pickLocaleFromAcceptLanguage('fr-FR,fr;q=0.9'), 'en');
+});
+
+test('pickLocaleFromAcceptLanguage: falls through an unreviewed higher-q locale to a reviewed lower-q one', () => {
+  assert.equal(pickLocaleFromAcceptLanguage('fr-FR;q=0.9,es;q=0.8'), 'es');
 });
 
 test('pickLocaleFromAcceptLanguage: falls back to en for unsupported zh-CN', () => {

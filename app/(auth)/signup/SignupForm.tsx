@@ -2,6 +2,7 @@
 
 import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -16,6 +17,11 @@ import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { splitLocalePrefix } from '@/lib/i18n/config';
+
+const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
+
+const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 /* ─── constants (preserved from MemberSignupForm) ─── */
 const EMPLOYMENT_OPTIONS = [
@@ -237,6 +243,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordVal, setPasswordVal] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const {
     register,
@@ -250,6 +257,12 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
   });
 
   const onSubmit = async (data: MemberSignupInput) => {
+    if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken?.trim()) {
+      setSubmitStatus('error');
+      setErrorMessage('Please complete the security check before continuing.');
+      return;
+    }
+
     setSubmitStatus('loading');
     setErrorMessage(null);
     trackFunnelEvent('member_signup', 'signup_started', {
@@ -278,6 +291,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
           utmContent: attribution.utmContent,
           utmTerm: attribution.utmTerm,
           referrer: attribution.referrer,
+          ...(CAPTCHA_ENABLED && turnstileToken ? { turnstileToken } : {}),
         }),
       });
 
@@ -557,10 +571,22 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               <div role="alert" style={s.errorBanner}>{errorMessage}</div>
             )}
 
+            {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(t) => setTurnstileToken(t)}
+                  onExpire={() => setTurnstileToken(null)}
+                  onError={() => setTurnstileToken(null)}
+                  options={{ theme: 'light', size: 'normal' }}
+                />
+              </div>
+            ) : null}
+
             {/* Submit */}
             <button
               type="submit"
-              disabled={submitStatus === 'loading'}
+              disabled={submitStatus === 'loading' || (CAPTCHA_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken)}
               aria-busy={submitStatus === 'loading'}
               style={{ ...s.primaryBtn, opacity: submitStatus === 'loading' ? 0.7 : 1 }}
             >

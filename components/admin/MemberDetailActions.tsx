@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROGRAMS } from '@/lib/content/programs';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 export type ProgramOption = { slug: string; name: string; status?: string };
 
@@ -27,6 +28,8 @@ export default function MemberDetailActions({
   const [programSlug, setProgramSlug] = useState(currentProgramSlug ?? '');
   const [loading, setLoading] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const closeConfirmDelete = () => setConfirmDelete(false);
+  const confirmDeleteTrapRef = useFocusTrap(confirmDelete, closeConfirmDelete);
 
   const options =
     programOptions.length > 0
@@ -129,16 +132,41 @@ export default function MemberDetailActions({
           style={{ background: 'var(--color-error, #c00)', color: 'white' }}
           onClick={() => setConfirmDelete(true)}
           disabled={!!loading}
+          aria-haspopup="dialog"
+          aria-expanded={confirmDelete}
+          aria-controls="member-soft-delete-dialog"
         >
           Soft Delete Account
         </button>
         {confirmDelete && (
-          <div style={{ marginTop: '0.5rem' }}>
-            <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>Confirm soft delete?</p>
-            <button type="button" className="btn btn-outline" onClick={() => setConfirmDelete(false)}>Cancel</button>
-            <button type="button" className="btn" style={{ background: '#c00', color: 'white', marginLeft: '0.5rem' }} onClick={handleDelete} disabled={loading === 'delete'}>
-              {loading === 'delete' ? '...' : 'Yes, Delete'}
-            </button>
+          <div
+            className="partner-modal-overlay"
+            onClick={closeConfirmDelete}
+            role="presentation"
+            tabIndex={-1}
+          >
+            <div
+              id="member-soft-delete-dialog"
+              ref={confirmDeleteTrapRef as React.RefObject<HTMLDivElement>}
+              className="partner-modal"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="member-soft-delete-title"
+            >
+              <h2 id="member-soft-delete-title" style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>
+                Confirm soft delete?
+              </h2>
+              <p style={{ margin: '0 0 1rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                This soft-deletes {memberName}&rsquo;s account. This can be reversed by support if needed.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <button type="button" className="btn btn-outline" onClick={closeConfirmDelete}>Cancel</button>
+                <button type="button" className="btn" style={{ background: '#c00', color: 'white' }} onClick={handleDelete} disabled={loading === 'delete'}>
+                  {loading === 'delete' ? '...' : 'Yes, Delete'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

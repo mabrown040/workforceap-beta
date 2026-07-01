@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin, getProfileRole } from '@/lib/auth/roles';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 
@@ -39,7 +40,10 @@ export const POST = withApiGuc(async (
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    const profileRole = await getProfileRole(user.id);
+    const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[api:admin-reset-assessment] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    });
     auditLog({ actorUserId: user.id, action: 'admin_member_reset_assessment', targetType: 'User', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_member_reset_assessment:', err));
     await logAuditEvent({
       user: { id: user.id, role: profileRole ?? undefined },

@@ -11,6 +11,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { auditLog } from '@/lib/audit';
 import { getProfileRole } from '@/lib/auth/roles';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
@@ -58,7 +59,10 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       }),
     );
 
-    const profileRole = await getProfileRole(user.id);
+    const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[api:admin-partner-approve] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    });
     await logAuditEvent({
       user: { id: user.id, role: profileRole ?? undefined },
       verb: 'approved',

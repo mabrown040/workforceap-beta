@@ -47,7 +47,10 @@ export const GET = withApiGuc(async () => {
       );
     }
 
-    const role = await withDbRetry(() => getProfileRole(user.id));
+    const role = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[api:auth-me] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    });
     const superAdmin = role === 'super_admin';
 
     if (superAdmin) {

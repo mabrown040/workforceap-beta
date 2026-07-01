@@ -5,6 +5,7 @@ import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import DataTable from '@/components/portal/ui/DataTable';
 import { useScrollAffordance } from './useScrollAffordance';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type JobApplication = {
   id: string;
@@ -57,6 +58,8 @@ export default function ApplicationTrackerTable() {
   const [searchQuery, setSearchQuery] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   const scrollRef = useScrollAffordance<HTMLDivElement>();
+  const closeDeleteModal = () => setPendingDeleteId(null);
+  const deleteModalTrapRef = useFocusTrap(!!pendingDeleteId, closeDeleteModal);
 
   const filteredApplications = applications.filter((app) => {
     if (statusFilter !== 'all') {
@@ -518,11 +521,14 @@ export default function ApplicationTrackerTable() {
 
       {pendingDeleteId && (
         <div className="application-tracker-delete-modal" role="dialog" aria-modal="true" aria-labelledby="tracker-delete-title">
-          <div className="application-tracker-delete-modal__panel">
+          <div
+            ref={deleteModalTrapRef as React.RefObject<HTMLDivElement>}
+            className="application-tracker-delete-modal__panel"
+          >
             <h3 id="tracker-delete-title">Delete this application?</h3>
             <p>This removes it from your tracker. You can add it again later.</p>
             <div className="application-tracker-delete-modal__actions">
-              <button type="button" className="btn btn-outline" onClick={() => setPendingDeleteId(null)}>
+              <button type="button" className="btn btn-outline" onClick={closeDeleteModal}>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" onClick={() => void confirmDelete()}>

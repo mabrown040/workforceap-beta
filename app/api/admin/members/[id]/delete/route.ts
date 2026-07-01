@@ -10,6 +10,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getProfileRole } from '@/lib/auth/roles';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export const POST = withApiGuc(async (
   request: Request,
@@ -68,7 +69,10 @@ export const POST = withApiGuc(async (
       console.error('[admin/members/[id]/delete] Supabase auth delete error:', error.message);
     }
 
-    const profileRole = await getProfileRole(user.id);
+    const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[api:admin-member-delete] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    });
     auditLog({ actorUserId: user.id, action: 'admin_member_delete', targetType: 'User', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_member_delete:', err));
     await logAuditEvent({
       user: { id: user.id, role: profileRole ?? undefined },

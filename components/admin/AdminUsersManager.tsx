@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import DataTable from '@/components/portal/ui/DataTable';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type UserRow = {
   id: string;
@@ -27,6 +28,34 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const closeConfirmDelete = () => setConfirmDeleteId(null);
+  // The confirm control is rendered twice (desktop table row + mobile card for the same
+  // user), toggled purely via CSS breakpoints, but only one is ever visible at a time.
+  // A single trap is attached to whichever instance is actually visible so Tab/Escape
+  // handling isn't fought over by a hidden duplicate.
+  const confirmDeleteTrapRef = useFocusTrap(!!confirmDeleteId, closeConfirmDelete);
+  const confirmDeleteTableNodeRef = useRef<HTMLSpanElement | null>(null);
+  const confirmDeleteCardNodeRef = useRef<HTMLSpanElement | null>(null);
+  const attachVisibleTrap = useCallback(() => {
+    const node = confirmDeleteTableNodeRef.current?.offsetParent
+      ? confirmDeleteTableNodeRef.current
+      : confirmDeleteCardNodeRef.current;
+    confirmDeleteTrapRef.current = node ?? null;
+  }, [confirmDeleteTrapRef]);
+  const setConfirmDeleteTableNode = useCallback(
+    (node: HTMLSpanElement | null) => {
+      confirmDeleteTableNodeRef.current = node;
+      attachVisibleTrap();
+    },
+    [attachVisibleTrap]
+  );
+  const setConfirmDeleteCardNode = useCallback(
+    (node: HTMLSpanElement | null) => {
+      confirmDeleteCardNodeRef.current = node;
+      attachVisibleTrap();
+    },
+    [attachVisibleTrap]
+  );
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err' | 'warn'; text: string } | null>(null);
   const [draft, setDraft] = useState<{ fullName: string; email: string; role: string }>({ fullName: '', email: '', role: 'member' });
@@ -341,7 +370,13 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                     </button>
                     {canManageRoles &&
                       (confirmDeleteId === user.id ? (
-                        <>
+                        <span
+                          ref={setConfirmDeleteTableNode}
+                          role="dialog"
+                          aria-modal="true"
+                          aria-label={`Confirm delete user ${user.fullName}`}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                        >
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Confirm?</span>
                           <button
                             type="button"
@@ -352,10 +387,10 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                           >
                             {deletingId === user.id ? '…' : 'Yes, delete'}
                           </button>
-                          <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>
+                          <button type="button" className="btn btn-outline btn-sm" onClick={closeConfirmDelete}>
                             Cancel
                           </button>
-                        </>
+                        </span>
                       ) : (
                         <button
                           type="button"
@@ -424,12 +459,18 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                 {user.memberHref ? <a href={user.memberHref} className="btn btn-ghost btn-sm">Open record</a> : null}
                 {canManageRoles && (
                   confirmDeleteId === user.id ? (
-                    <>
+                    <span
+                      ref={setConfirmDeleteCardNode}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label={`Confirm delete user ${user.fullName}`}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
                       <button type="button" className="btn btn-sm" style={{ background: 'var(--color-accent)', color: '#fff' }} disabled={deletingId === user.id} onClick={() => void deleteUser(user.id)}>
                         {deletingId === user.id ? '…' : 'Confirm delete'}
                       </button>
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
-                    </>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={closeConfirmDelete}>Cancel</button>
+                    </span>
                   ) : (
                     <button type="button" className="btn btn-outline btn-sm" style={{ color: 'var(--color-accent)', borderColor: 'var(--color-accent)' }} onClick={() => setConfirmDeleteId(user.id)}>
                       Delete

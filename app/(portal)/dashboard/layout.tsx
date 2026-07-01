@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getProfileRole, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { getTranslations } from 'next-intl/server';
@@ -20,7 +21,10 @@ export default async function DashboardLayout({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
 
-  const profileRole = await getProfileRole(user.id);
+  const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+    console.error('[dashboard:layout] profileRole lookup failed; degrading to member', err);
+    return 'member';
+  });
   if (profileRole === 'admin') {
     redirect('/admin');
   }

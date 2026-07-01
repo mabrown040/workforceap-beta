@@ -6,6 +6,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
 import { getProfileRole, isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
@@ -100,7 +101,10 @@ export default async function AdminCourseraLearnerPage({
   });
   if (!member) notFound();
 
-  const role = await getProfileRole(member.id);
+  const role = await withDbRetry(() => getProfileRole(member.id)).catch((err) => {
+    console.error('[admin:coursera-learner] profileRole lookup failed; degrading to member', err);
+    return 'member';
+  });
 
   const identityMappings = await loadIdentityMappingsForUser(member.id);
   const csvProgress = await loadLearnerProgressByUserId(member.id);

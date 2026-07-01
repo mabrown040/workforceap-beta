@@ -3,6 +3,21 @@ export type AppLocale = (typeof APP_LOCALES)[number];
 
 export const DEFAULT_LOCALE: AppLocale = 'en';
 
+/**
+ * Locales whose translations have passed human review and are safe to
+ * advertise/auto-select (LanguageToggle UI, Accept-Language auto-detection).
+ *
+ * `fr` and `pt` remain in `APP_LOCALES` (so /fr/... and /pt/... URLs that are
+ * already bookmarked or search-engine-indexed keep resolving instead of
+ * 404ing) but are intentionally excluded here until their translations are
+ * reviewed — see ENG_REVIEW_i18n.md / docs/I18N-LOCALE-ROUTING.md.
+ */
+export const REVIEWED_LOCALES = ['en', 'es'] as const;
+
+export function isReviewedLocale(locale: string): locale is (typeof REVIEWED_LOCALES)[number] {
+  return (REVIEWED_LOCALES as readonly string[]).includes(locale);
+}
+
 /** Cookie persisted when user picks a language (marketing + portal). */
 export const WAP_LOCALE_COOKIE = 'wap-locale';
 
@@ -87,9 +102,14 @@ export function pickLocaleFromAcceptLanguage(header: string | null): AppLocale {
     })
     .sort((a, b) => b.q - a.q);
 
+  // Only auto-select locales that have passed translation review. Unreviewed
+  // locales (fr/pt today) are still fully reachable via explicit /fr/... or
+  // /pt/... navigation — see isReviewedLocale / REVIEWED_LOCALES — but a
+  // browser Accept-Language match against one should not auto-route a
+  // visitor into an unreviewed locale, so we fall through to the default.
   for (const { tag } of preferred) {
     const base = tag.split('-')[0] ?? '';
-    if (isAppLocale(base)) return base;
+    if (isReviewedLocale(base)) return base;
   }
   return DEFAULT_LOCALE;
 }

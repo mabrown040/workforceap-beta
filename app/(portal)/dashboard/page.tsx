@@ -301,7 +301,10 @@ async function renderMemberDashboard(
     // when something links them to /dashboard. Send them to their own portal
     // instead of showing the login form to an already-logged-in user.
     if (await isAdmin(user.id)) redirect('/admin');
-    const role = await getProfileRole(user.id);
+    const role = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[dashboard:page] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    });
     if (role === 'counselor') redirect('/counselor');
     if (role === 'employer') redirect('/employer');
     if (role === 'partner') redirect('/partner');

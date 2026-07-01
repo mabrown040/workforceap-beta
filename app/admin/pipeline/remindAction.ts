@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { sendApplicantFollowupEmail } from '@/lib/email';
 import { logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withDbRetry } from '@/lib/db/withDbRetry';
 
 export async function remindStaleApplication(applicationId: string, userId: string) {
   return withAuthGuc(async () => {
@@ -57,7 +58,10 @@ export async function remindStaleApplication(applicationId: string, userId: stri
       },
     });
 
-    const profileRole = await getProfileRole(user.id);
+    const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[admin:pipeline-remind] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    });
     await logAuditEvent({
       user: { id: user.id, role: profileRole ?? undefined },
       verb: 'launched',

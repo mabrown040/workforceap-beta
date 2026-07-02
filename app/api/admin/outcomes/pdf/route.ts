@@ -36,40 +36,42 @@ async function _GET(request: NextRequest) {
     const now = new Date();
     const ytdStart = new Date(now.getFullYear(), 0, 1);
 
-    // Aggregate placement data
-    const placements = await prisma.placementRecord.findMany({
-      where: {
-        user: {
-          organizationId: orgId,
-        },
-      },
-      select: {
-        salaryOffered: true,
-        userId: true,
-        programSlug: true,
-        startDate: true,
-      },
-    });
-
-    // Aggregate member data
-    const members = await prisma.user.findMany({
-      where: {
-        organizationId: orgId,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        coursesCompleted: true,
-        placementRecord: {
-          select: {
-            salaryOffered: true,
-            startDate: true,
+    // Placement data, member data, and demographics are independent reads —
+    // run them together instead of one round trip at a time.
+    const [placements, members, demographics] = await Promise.all([
+      prisma.placementRecord.findMany({
+        where: {
+          user: {
+            organizationId: orgId,
           },
         },
-      },
-    });
+        select: {
+          salaryOffered: true,
+          userId: true,
+          programSlug: true,
+          startDate: true,
+        },
+      }),
+      prisma.user.findMany({
+        where: {
+          organizationId: orgId,
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          enrolledProgram: true,
+          enrolledAt: true,
+          coursesCompleted: true,
+          placementRecord: {
+            select: {
+              salaryOffered: true,
+              startDate: true,
+            },
+          },
+        },
+      }),
+      getDemographics(orgId),
+    ]);
 
     const totalMembers = members.length;
     const enrolledMembers = members.filter((m) => m.enrolledProgram !== null).length;
@@ -111,9 +113,6 @@ async function _GET(request: NextRequest) {
       ...stats,
       placementRate: stats.enrolled > 0 ? Math.round((stats.placed / stats.enrolled) * 100) : 0,
     })).sort((a, b) => b.placementRate - a.placementRate);
-
-    // Demographics
-    const demographics = await getDemographics(orgId);
 
     auditLog({ actorUserId: user.id, action: 'admin_outcomes_pdf_export', targetType: 'OutcomesReport', targetId: 'pdf', metadata: { orgId } }).catch((err) => console.error('[audit] admin_outcomes_pdf_export:', err));
     await logAuditEvent({
@@ -160,38 +159,31 @@ function median(nums: number[]): number | null {
   return sorted.length % 2 === 0 ? Math.round((sorted[mid - 1] + sorted[mid]) / 2) : sorted[mid];
 }
 
-async function getDemographics(orgId: string) {
-  const profiles = await prisma.profile.findMany({
-    where: {
-      user: {
-        organizationId: orgId,
-        deletedAt: null,
-      },
-    },
-    select: {
-      veteranStatus: true,
-      employmentStatus: true,
-      householdIncome: true,
-      educationLevel: true,
-      ethnicity: true,
-    },
-  });
+type DemographicField = 'veteranStatus' | 'employmentStatus' | 'householdIncome' | 'educationLevel' | 'ethnicity';
+type GroupByRow = { _count: { _all: number } } & Partial<Record<DemographicField, string | null>>;
 
-  const counts = <T extends string>(field: keyof typeof profiles[0]) => {
-    const map = new Map<T | 'Not reported', number>();
-    for (const p of profiles) {
-      const val = (p[field] as T | null) ?? 'Not reported';
-      map.set(val, (map.get(val) ?? 0) + 1);
-    }
-    return Array.from(map.entries()).map(([label, count]) => ({ label, count }));
-  };
+function toBreakdown(rows: GroupByRow[], field: DemographicField): Array<{ label: string; count: number }> {
+  return rows.map((r) => ({ label: r[field] ?? 'Not reported', count: r._count._all }));
+}
+
+async function getDemographics(orgId: string) {
+  // PERF: 5 cheap indexed aggregates instead of materializing every org
+  // profile just to bucket 5 categorical columns in JS.
+  const profileWhere = { user: { organizationId: orgId, deletedAt: null } };
+  const [veteranStatus, employmentStatus, householdIncome, educationLevel, ethnicity] = await Promise.all([
+    prisma.profile.groupBy({ by: ['veteranStatus'], where: profileWhere, _count: { _all: true } }),
+    prisma.profile.groupBy({ by: ['employmentStatus'], where: profileWhere, _count: { _all: true } }),
+    prisma.profile.groupBy({ by: ['householdIncome'], where: profileWhere, _count: { _all: true } }),
+    prisma.profile.groupBy({ by: ['educationLevel'], where: profileWhere, _count: { _all: true } }),
+    prisma.profile.groupBy({ by: ['ethnicity'], where: profileWhere, _count: { _all: true } }),
+  ]);
 
   return {
-    veteranBreakdown: counts('veteranStatus'),
-    employmentEnteringBreakdown: counts('employmentStatus'),
-    incomeBreakdown: counts('householdIncome'),
-    educationBreakdown: counts('educationLevel'),
-    ethnicityBreakdown: counts('ethnicity'),
+    veteranBreakdown: toBreakdown(veteranStatus, 'veteranStatus'),
+    employmentEnteringBreakdown: toBreakdown(employmentStatus, 'employmentStatus'),
+    incomeBreakdown: toBreakdown(householdIncome, 'householdIncome'),
+    educationBreakdown: toBreakdown(educationLevel, 'educationLevel'),
+    ethnicityBreakdown: toBreakdown(ethnicity, 'ethnicity'),
   };
 }
 export const GET = withApiGuc(_GET);

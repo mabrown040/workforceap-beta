@@ -107,18 +107,13 @@ export default async function AdminMembersPage({
     if (enrolledAt.gte || enrolledAt.lte) whereClause.enrolledAt = enrolledAt;
   }
 
-  // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
-  // can time out or fail under load; degrading aggregates must not hide the member list.
-  const [
-    membersResult,
-    totalCountResult,
-    lastEventsResult,
-    recentEventsResult,
-    canonicalCompletionsResult,
-    programProgressResult,
-    activeCourseProgressResult,
-    partnerOptionsResult,
-  ] = await Promise.allSettled([
+  // Phase 1: page of members + the two org-wide (not member-scoped) lookups
+  // in parallel. The event/progress aggregates below only ever get looked up
+  // for members in this page (see membersWithProgram.map below), so they are
+  // deferred until we know which userIds are on this page — that turns 4
+  // full-table scans into <=50-key index lookups with identical output, and
+  // skips them entirely when the member list itself fails to load.
+  const [membersResult, totalCountResult, partnerOptionsResult] = await Promise.allSettled([
     prisma.user.findMany({
       where: whereClause,
       orderBy: { updatedAt: 'desc' },
@@ -167,39 +162,6 @@ export default async function AdminMembersPage({
       },
     }),
     prisma.user.count({ where: whereClause }),
-    // PERF: Bound last-event scan to 30 days. Users absent from this map
-    // are treated as inactive by calculateHealthStatus (correct behavior).
-    prisma.memberEvent.groupBy({
-      by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
-      _max: { createdAt: true },
-    }),
-    prisma.memberEvent.groupBy({
-      by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
-      _count: { _all: true },
-    }),
-    // Canonical completed-course count from `course_progress` (includes CSV-promoted Coursera rows).
-    prisma.courseProgress.groupBy({
-      by: ['userId'],
-      where: { status: 'COMPLETED' },
-      _count: { _all: true },
-    }),
-    prisma.memberProgramProgress.findMany({
-      take: 5000,
-      select: {
-        userId: true,
-        programSlug: true,
-        averagePercent: true,
-        coursesCompleted: true,
-        lastUpdatedAt: true,
-      },
-    }),
-    prisma.courseProgress.groupBy({
-      by: ['userId'],
-      where: { status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
-      _count: { _all: true },
-    }),
     // Org-wide partner list for the filter dropdown (page-derived options
     // would shrink to whatever partners appear on the loaded page).
     prisma.partner.findMany({
@@ -218,6 +180,53 @@ export default async function AdminMembersPage({
   }
 
   const members = membersResult.value;
+  const pageMemberIds = members.map((m) => m.id);
+
+  // Phase 2: decorating aggregates, scoped to just this page's members.
+  // Full-table `memberEvent` groupBy can time out or fail under load;
+  // degrading aggregates must not hide the member list, so this stays a
+  // Promise.allSettled independent of phase 1.
+  const [
+    lastEventsResult,
+    recentEventsResult,
+    canonicalCompletionsResult,
+    programProgressResult,
+    activeCourseProgressResult,
+  ] = await Promise.allSettled([
+    // PERF: Bound last-event scan to 30 days. Users absent from this map
+    // are treated as inactive by calculateHealthStatus (correct behavior).
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { userId: { in: pageMemberIds }, createdAt: { gte: thirtyDaysAgo } },
+      _max: { createdAt: true },
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { userId: { in: pageMemberIds }, createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+    }),
+    // Canonical completed-course count from `course_progress` (includes CSV-promoted Coursera rows).
+    prisma.courseProgress.groupBy({
+      by: ['userId'],
+      where: { userId: { in: pageMemberIds }, status: 'COMPLETED' },
+      _count: { _all: true },
+    }),
+    prisma.memberProgramProgress.findMany({
+      where: { userId: { in: pageMemberIds } },
+      select: {
+        userId: true,
+        programSlug: true,
+        averagePercent: true,
+        coursesCompleted: true,
+        lastUpdatedAt: true,
+      },
+    }),
+    prisma.courseProgress.groupBy({
+      by: ['userId'],
+      where: { userId: { in: pageMemberIds }, status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
+      _count: { _all: true },
+    }),
+  ]);
 
   const lastEventMap: Map<string, Date | null> = new Map();
   if (lastEventsResult.status === 'fulfilled') {

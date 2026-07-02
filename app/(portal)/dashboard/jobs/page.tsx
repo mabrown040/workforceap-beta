@@ -37,20 +37,82 @@ export default async function JobsPage({
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
   let profileCity: string | null = null;
   let profileState: string | null = null;
+  // SSR: fetch applied job IDs so job cards can show "Applied" badge.
+  let appliedJobIds: string[] = [];
+  // Pull the member's tracked applications (all statuses) — SAVED rows feed
+  // the "Saved" KPI; the rest drive the KPIs + pipeline table below. Only
+  // needed for the default (non-legacy) member kit view.
+  let pipelineRows: Array<{
+    id: string;
+    role: string;
+    company: string;
+    location: string | null;
+    appliedAt: Date | null;
+    createdAt: Date;
+    status: 'SAVED' | 'APPLIED' | 'PHONE_SCREEN' | 'INTERVIEWING' | 'OFFER' | 'ACCEPTED' | 'REJECTED';
+  }> = [];
+  const needsPipeline = requestedUi !== 'legacy' && !!user;
+
   if (user) {
-    try {
-      const profile = await prisma.profile.findUnique({
+    // Only the job-board query below depends on the profile (ageGroup); the
+    // applied-IDs and pipeline reads are independent of it and of each
+    // other, so run all three together instead of one round trip at a time.
+    const [profileResult, appliedResult, pipelineResult] = await Promise.allSettled([
+      prisma.profile.findUnique({
         where: { userId: user.id },
         select: { dob: true, isMinor: true, city: true, state: true },
-      });
+      }),
+      prisma.jobApplication.findMany({
+        take: 500,
+        where: { userId: user.id, status: { not: 'SAVED' }, curatedJobId: { not: null } },
+        select: { curatedJobId: true },
+      }),
+      needsPipeline
+        ? prisma.jobApplication.findMany({
+            take: 200,
+            where: { userId: user.id },
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              role: true,
+              company: true,
+              status: true,
+              appliedAt: true,
+              createdAt: true,
+              curatedJob: { select: { location: true } },
+            },
+          }).then((rows) =>
+            rows.map((r) => ({
+              id: r.id,
+              role: r.role,
+              company: r.company,
+              location: r.curatedJob?.location ?? null,
+              appliedAt: r.appliedAt,
+              createdAt: r.createdAt,
+              status: r.status,
+            })),
+          )
+        : Promise.resolve(pipelineRows),
+    ]);
+
+    if (profileResult.status === 'fulfilled') {
+      const profile = profileResult.value;
       if (profile?.dob) {
         ageGroup = getAgeGroup(profile.dob);
       }
       profileCity = profile?.city?.trim() || null;
       profileState = profile?.state?.trim() || null;
-    } catch {
+    } else {
       ageGroup = 'adult18plus';
     }
+
+    if (appliedResult.status === 'fulfilled') {
+      appliedJobIds = appliedResult.value
+        .map((a) => a.curatedJobId)
+        .filter((id): id is string => id !== null);
+    } /* non-critical — badge just will not show */
+
+    pipelineRows = pipelineResult.status === 'fulfilled' ? pipelineResult.value : [];
   }
 
   const primaryLocation = [profileCity, profileState].filter(Boolean).join(', ') || 'Austin, TX';
@@ -93,19 +155,6 @@ export default async function JobsPage({
       bestFor: 'public-sector and workforce-system jobs',
     },
   ];
-
-  // SSR: fetch applied job IDs so job cards can show "Applied" badge
-  let appliedJobIds: string[] = [];
-  if (user) {
-    try {
-      const apps = await prisma.jobApplication.findMany({
-        take: 500,
-        where: { userId: user.id, status: { not: 'SAVED' }, curatedJobId: { not: null } },
-        select: { curatedJobId: true },
-      });
-      appliedJobIds = apps.map((a) => a.curatedJobId).filter((id): id is string => id !== null);
-    } catch { /* non-critical — badge just will not show */ }
-  }
 
   // SSR: Prefetch first 20 jobs for SEO and faster initial load
   let initialJobs: Array<{
@@ -170,47 +219,10 @@ export default async function JobsPage({
   // public board stays reachable via ?ui=legacy. This board is public, so the
   // pipeline kit only renders for a signed-in member — anonymous visitors fall
   // through to the legacy public board below (preserving the current default).
-  if (requestedUi !== 'legacy' && user) {
-    // Pull the member's tracked applications (all statuses) — SAVED rows feed
-    // the "Saved" KPI; the rest drive the KPIs + pipeline table below.
-    let pipelineRows: Array<{
-      id: string;
-      role: string;
-      company: string;
-      location: string | null;
-      appliedAt: Date | null;
-      createdAt: Date;
-      status: 'SAVED' | 'APPLIED' | 'PHONE_SCREEN' | 'INTERVIEWING' | 'OFFER' | 'ACCEPTED' | 'REJECTED';
-    }> = [];
-    try {
-      pipelineRows = await prisma.jobApplication.findMany({
-        take: 200,
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          role: true,
-          company: true,
-          status: true,
-          appliedAt: true,
-          createdAt: true,
-          curatedJob: { select: { location: true } },
-        },
-      }).then((rows) =>
-        rows.map((r) => ({
-          id: r.id,
-          role: r.role,
-          company: r.company,
-          location: r.curatedJob?.location ?? null,
-          appliedAt: r.appliedAt,
-          createdAt: r.createdAt,
-          status: r.status,
-        })),
-      );
-    } catch {
-      pipelineRows = [];
-    }
-
+  if (needsPipeline) {
+    // `pipelineRows` was already fetched above (in parallel with the
+    // profile + applied-IDs reads) since `needsPipeline` is known purely
+    // from `requestedUi`/`user`, before any DB round trip.
     const savedCount = pipelineRows.filter((r) => r.status === 'SAVED').length;
     const appliedCount = pipelineRows.filter((r) =>
       r.status === 'APPLIED' || r.status === 'PHONE_SCREEN',

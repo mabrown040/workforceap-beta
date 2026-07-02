@@ -45,7 +45,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'ai-professional-developer-certificate-ibm',
-    program: 'AI and Software Development Professional Certificate (IBM)',
+    program: 'AI Practitioner Professional Certificate',
     duration: '3-5 months',
     salary: '$85K–$135K',
     level: 'High',
@@ -185,7 +185,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'health-information-technology-mchit',
-    program: 'Medical Billing, Coding, and Health Information Technology',
+    program: 'Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)',
     duration: '3-5 months',
     salary: '$52K–$72K',
     level: 'Entry',

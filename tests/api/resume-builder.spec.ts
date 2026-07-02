@@ -29,7 +29,9 @@ vi.mock('@/lib/auth/server', () => ({
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
+  isAdminInOrg: vi.fn(() => Promise.resolve(false)),
   isCounselor: vi.fn(),
 }));
 
@@ -48,7 +50,7 @@ vi.mock('@/lib/db/prisma', () => {
     findMany: vi.fn(),
     updateMany: vi.fn(),
   };
-  return { prisma: { profile, user, counselorAssignment, memberNextBestAction } };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), profile, user, counselorAssignment, memberNextBestAction } };
 });
 
 vi.mock('@/lib/supabase-admin', () => ({
@@ -538,7 +540,8 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
       resumeOriginalPath: `${UUIDS.user}/resume-original.pdf`,
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
     } as any);
-    // assertStaffCanAccessMemberRecord checks counselor assignment internally
+    // assertStaffCanAccessMemberRecord checks member org + counselor assignment internally
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ organizationId: 'org-1' } as any);
     vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
       counselor: { userId: UUIDS.counselor },
     } as any);
@@ -566,6 +569,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
 
   it('returns empty metadata when member has no resume', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ organizationId: 'org-1' } as any);
     vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
       counselor: { userId: UUIDS.counselor },
     } as any);
@@ -580,6 +584,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
 
   it('returns 502 when storage download fails', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ organizationId: 'org-1' } as any);
     vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
       counselor: { userId: UUIDS.counselor },
     } as any);

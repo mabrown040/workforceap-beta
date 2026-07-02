@@ -24,10 +24,12 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
 }));
 

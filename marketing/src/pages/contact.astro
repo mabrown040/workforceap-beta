@@ -1,5 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// Captcha config is resolved at BUILD time (Astro pages cannot read
+// NEXT_PUBLIC_* at runtime). The Vercel buildCommand runs the Astro build in
+// the same environment as the Next app, so the NEXT_PUBLIC_* vars are
+// available here; PUBLIC_* variants are also honored for local Astro builds.
+// If NEXT_PUBLIC_CAPTCHA_ENABLED=true in production, the API rejects
+// submissions without a Turnstile token — so captcha-enabled deployments MUST
+// expose the site key (PUBLIC_TURNSTILE_SITE_KEY or
+// NEXT_PUBLIC_TURNSTILE_SITE_KEY) to the marketing build so the widget renders.
+const CAPTCHA_ENABLED =
+  (import.meta.env.PUBLIC_CAPTCHA_ENABLED ?? process.env.NEXT_PUBLIC_CAPTCHA_ENABLED) === 'true';
+const TURNSTILE_SITE_KEY = (
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ??
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+  ''
+).trim();
+const SHOW_TURNSTILE = CAPTCHA_ENABLED && TURNSTILE_SITE_KEY.length > 0;
 ---
 <Layout
   title="Contact Us — WorkforceAP"
@@ -34,7 +51,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="formpanel">
           <h2>Send Us a Message</h2>
           <p class="footnote" style="text-align:left;margin-bottom:4px">Fields marked * are required.</p>
-          <form class="cform" onsubmit="return false">
+          <form class="cform" id="contact-form" method="post" novalidate>
             <div class="frow">
               <div class="fgroup">
                 <label for="first_name">First Name <span aria-hidden="true">*</span></label>
@@ -77,9 +94,16 @@ import Layout from '../layouts/Layout.astro';
               <label for="message">Your Message <span aria-hidden="true">*</span></label>
               <textarea id="message" name="message" rows="5" required></textarea>
             </div>
+            {SHOW_TURNSTILE && (
+              <div class="fgroup">
+                <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light"></div>
+              </div>
+            )}
+            <p class="form-status form-status--err" id="contact-error" role="alert" hidden></p>
             <button type="submit" class="btn btn--primary">Send Message</button>
             <p class="footnote">A WorkforceAP team member responds within 1–2 business days.</p>
           </form>
+          <p class="form-status form-status--ok" id="contact-success" role="status" hidden></p>
         </div>
 
         <!-- RIGHT: info tiles + austin card -->
@@ -139,6 +163,88 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
   </section>
+
+  {SHOW_TURNSTILE && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+  <script is:inline>
+    // Contact form → POST /api/contact (progressive enhancement; the Astro
+    // site and the Next.js app are served from the same origin in production).
+    // Captcha: when the deployment enables NEXT_PUBLIC_CAPTCHA_ENABLED, the
+    // Turnstile widget is rendered at build time (see frontmatter) and its
+    // token is sent as cf_turnstile_response; captcha-enabled deployments
+    // must set PUBLIC_TURNSTILE_SITE_KEY / NEXT_PUBLIC_TURNSTILE_SITE_KEY in
+    // the marketing build env or the API will reject submissions (400).
+    (function () {
+      var form = document.getElementById('contact-form');
+      if (!form || !window.fetch) return;
+      var button = form.querySelector('button[type=submit]');
+      var errEl = document.getElementById('contact-error');
+      var okEl = document.getElementById('contact-success');
+      var idleLabel = button ? button.textContent : '';
+
+      function showError(msg) {
+        if (!errEl) return;
+        errEl.textContent = msg;
+        errEl.hidden = false;
+      }
+
+      function setPending(pending) {
+        if (!button) return;
+        button.disabled = pending;
+        button.textContent = pending ? 'Sending…' : idleLabel;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (errEl) errEl.hidden = true;
+        if (!form.reportValidity()) return;
+
+        var fd = new FormData(form);
+        var payload = {
+          first_name: String(fd.get('first_name') || '').trim(),
+          last_name: String(fd.get('last_name') || '').trim(),
+          email: String(fd.get('email') || '').trim(),
+          phone: String(fd.get('phone') || '').trim(),
+          topic: String(fd.get('topic') || '').trim(),
+          message: String(fd.get('message') || '').trim(),
+          sms_preferred: fd.get('sms_preferred') === 'true',
+        };
+        if (!payload.first_name || !payload.last_name || !payload.email || !payload.topic || !payload.message) {
+          showError('Please fill in all required fields.');
+          return;
+        }
+        // Turnstile injects a hidden input named cf-turnstile-response when
+        // the widget is present; the API expects it as cf_turnstile_response.
+        var token = String(fd.get('cf-turnstile-response') || '').trim();
+        if (token) payload.cf_turnstile_response = token;
+
+        setPending(true);
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (res) {
+            return res.json().catch(function () { return {}; }).then(function (data) {
+              if (!res.ok) {
+                throw new Error(typeof data.error === 'string' ? data.error : 'Something went wrong. Please try again.');
+              }
+              form.hidden = true;
+              if (okEl) {
+                okEl.textContent = 'We got it — a team member responds within 1–2 business days.';
+                okEl.hidden = false;
+              }
+            });
+          })
+          .catch(function (err) {
+            setPending(false);
+            if (window.turnstile && typeof window.turnstile.reset === 'function') {
+              try { window.turnstile.reset(); } catch (_) { /* ignore */ }
+            }
+            showError(err && err.message ? err.message : 'Network error. Please try again.');
+          });
+      });
+    })();
+  </script>
 
   <!-- QUOTE BAND — closing crimson depth CTA -->
   <section class="close">
@@ -225,6 +331,11 @@ import Layout from '../layouts/Layout.astro';
   .cbox input{width:18px;height:18px;accent-color:var(--crimson);flex-shrink:0}
   .footnote{font-size:13px;color:var(--muted);text-align:center;margin-top:2px}
   .cform button[type=submit]{width:100%;justify-content:center}
+
+  /* inline submit status (success / error) */
+  .form-status{font-size:15px;font-weight:600;line-height:1.5;border-radius:12px;padding:12px 16px;margin:0}
+  .form-status--ok{background:rgba(74,155,79,.12);color:#2f6b34;border:1px solid rgba(74,155,79,.3);margin-top:14px}
+  .form-status--err{background:rgba(173,44,77,.1);color:var(--crimson);border:1px solid rgba(173,44,77,.3)}
 
   /* info tiles */
   .infostack{display:flex;flex-direction:column;gap:20px}

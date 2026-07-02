@@ -16,6 +16,8 @@
 
 import { useState } from 'react';
 
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+
 type SeedSummary = {
   scanned: number;
   upsertedCreated: number;
@@ -31,11 +33,9 @@ export default function SeedCanonicalMappingsButton() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<SeedSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  async function handleClick() {
-    if (typeof window !== 'undefined' && !window.confirm(CONFIRM_PROMPT)) {
-      return;
-    }
+  async function runSeed() {
     setRunning(true);
     setResult(null);
     setError(null);
@@ -74,7 +74,7 @@ export default function SeedCanonicalMappingsButton() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
       <button
         type="button"
-        onClick={handleClick}
+        onClick={() => setConfirmOpen(true)}
         disabled={running}
         style={{
           padding: '0.55rem 0.9rem',
@@ -114,6 +114,17 @@ export default function SeedCanonicalMappingsButton() {
           Error: {error}
         </div>
       ) : null}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Seed canonical mappings?"
+        body={CONFIRM_PROMPT}
+        confirmLabel="Continue"
+        onConfirm={() => {
+          setConfirmOpen(false);
+          void runSeed();
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

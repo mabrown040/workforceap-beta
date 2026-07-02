@@ -35,6 +35,7 @@ export default async function AdminAssessmentsPage({
     maxScore?: string;
     userId?: string;
     ui?: string;
+    page?: string;
   }>;
 }) {
   const user = await getUser();
@@ -110,12 +111,15 @@ async function renderKit() {
 async function renderLegacy({
   params,
 }: {
-  params: { program?: string; minScore?: string; maxScore?: string; userId?: string };
+  params: { program?: string; minScore?: string; maxScore?: string; userId?: string; page?: string };
 }) {
   const programFilter = params.program?.trim() || undefined;
   const minScore = params.minScore ? parseInt(params.minScore, 10) : undefined;
   const maxScore = params.maxScore ? parseInt(params.maxScore, 10) : undefined;
   const highlightUserId = params.userId?.trim() || undefined;
+  const pageParam = params.page ? parseInt(params.page, 10) : 1;
+  const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const pageSize = 50;
 
   const andConditions: Array<Record<string, unknown>> = [];
   if (minScore !== undefined && !Number.isNaN(minScore)) {
@@ -133,23 +137,38 @@ async function renderLegacy({
   };
 
   let users;
+  let totalCount: number;
   try {
-    users = await prisma.user.findMany({
-      take: 5000,
-      where,
-      orderBy: { assessmentCompletedAt: 'desc' },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        programInterest: true,
-        assessmentScore: true,
-        assessmentScorePct: true,
-        assessmentCompletedAt: true,
-        assessmentAnswers: true,
-      },
-    });
+    // Run the page of results and the filtered count in parallel; a count
+    // failure degrades to the loaded page length rather than hiding the table.
+    const [usersResult, countResult] = await Promise.allSettled([
+      prisma.user.findMany({
+        where,
+        orderBy: { assessmentCompletedAt: 'desc' },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          phone: true,
+          programInterest: true,
+          assessmentScore: true,
+          assessmentScorePct: true,
+          assessmentCompletedAt: true,
+          assessmentAnswers: true,
+        },
+      }),
+      prisma.user.count({ where }),
+    ]);
+    if (usersResult.status === 'rejected') throw usersResult.reason;
+    users = usersResult.value;
+    if (countResult.status === 'rejected') {
+      console.error('[admin/assessments] count failed', countResult.reason);
+      totalCount = users.length;
+    } else {
+      totalCount = countResult.value;
+    }
   } catch (e) {
     console.error('[admin/assessments] load failed', e);
     return <AdminDataLoadError title="Assessments unavailable" />;
@@ -184,6 +203,9 @@ async function renderLegacy({
               programFilter={programFilter}
               minScore={minScore}
               maxScore={maxScore}
+              totalCount={totalCount}
+              currentPage={currentPage}
+              pageSize={pageSize}
             />
           </Suspense>
       </div>

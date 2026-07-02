@@ -285,8 +285,22 @@ export async function middleware(request: NextRequest) {
 
   // Forward verified user ID to Node runtime so SSR layouts / API routes
   // can set PostgreSQL GUCs without repeating the Supabase round-trip.
+  // NextResponse.next()/rewrite() snapshot the forwarded request headers at
+  // construction time, so mutating `requestHeaders` after the fact never
+  // reaches the app — rebuild the response with the updated headers and
+  // carry over everything already set on the original (request-id echo,
+  // Supabase session cookies).
   if (user?.id) {
     requestHeaders.set(WAP_USER_ID_HEADER, user.id);
+    const rebuilt = rewriteUrl
+      ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
+      : NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.forEach((value, key) => {
+      const k = key.toLowerCase();
+      if (!k.startsWith('x-middleware-') && k !== 'set-cookie') rebuilt.headers.set(key, value);
+    });
+    for (const cookie of response.cookies.getAll()) rebuilt.cookies.set(cookie);
+    response = rebuilt;
   }
 
   if (isProtectedPath(effectivePath) && !user) {

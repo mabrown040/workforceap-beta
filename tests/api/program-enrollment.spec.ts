@@ -9,6 +9,7 @@ vi.mock('next/server', () => {
   }
   return {
     NextRequest: MockNextRequest,
+    after: vi.fn(),
     NextResponse: {
       json: (body: unknown, init?: ResponseInit) =>
         new Response(JSON.stringify(body), {
@@ -24,6 +25,7 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -41,9 +43,9 @@ vi.mock('@/lib/db/prisma', () => {
   const courseProgress = {
     findMany: vi.fn(),
   };
-  const $transaction = vi.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
-    const tx = { user, courseEnrollment };
-    return fn(tx);
+  const $transaction = vi.fn(async (arg: any) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return typeof arg === 'function' ? arg(prisma) : Promise.all(arg);
   });
   return { prisma: { user, courseEnrollment, courseProgress, $transaction } };
 });

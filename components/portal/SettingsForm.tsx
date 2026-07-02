@@ -21,6 +21,11 @@ export default function SettingsForm({ defaultUpdates, defaultReminders }: Setti
     if (field === 'updates') setUpdates(value);
     else setReminders(value);
     setLoading(true);
+    // On failure, put the checkbox back so the UI never shows a state the server rejected.
+    const revert = () => {
+      if (field === 'updates') setUpdates(!value);
+      else setReminders(!value);
+    };
     try {
       const res = await fetch('/api/member/settings', {
         method: 'PATCH',
@@ -32,11 +37,13 @@ export default function SettingsForm({ defaultUpdates, defaultReminders }: Setti
       });
       if (!res.ok) {
         const msg = await getErrorMessageFromResponse(res);
+        revert();
         setError(msg);
         return;
       }
       router.refresh();
     } catch {
+      revert();
       setError('Could not save settings. Please check your connection and try again.');
     } finally {
       setLoading(false);

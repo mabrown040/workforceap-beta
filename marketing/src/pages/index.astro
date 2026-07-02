@@ -3,6 +3,10 @@ import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
 ---
 <Layout title="WorkforceAP — Empowering People. Advancing Futures.">
+<Fragment slot="head">
+  <!-- LCP: the hero stage paints this photo as its background — preload it. -->
+  <link rel="preload" as="image" href="/images/hero-people.webp" fetchpriority="high" />
+</Fragment>
 <div class="mix3">
 
   <!-- ============================================================

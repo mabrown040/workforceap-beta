@@ -10,14 +10,19 @@ vi.mock('next/server', () => ({
   },
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   getEmployerForUser: vi.fn(),
   getPartnerForUser: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: { update: vi.fn() },
     employer: { update: vi.fn() },
     partner: { update: vi.fn() },

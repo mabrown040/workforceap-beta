@@ -84,7 +84,8 @@ const path = Astro.url.pathname;
   </style>
 </head>
 <body>
-  <input class="navtoggle" type="checkbox" id="navtoggle" aria-hidden="true" />
+  <a class="skiplink" href="#main-content">Skip to content</a>
+  <input class="navtoggle" type="checkbox" id="navtoggle" />
   <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
   <nav class="top">
     <div class="wrap row">
@@ -132,7 +133,7 @@ const path = Astro.url.pathname;
     <a class="btn btn--apply" href="/apply">Apply now</a>
   </nav>
 
-  <main>
+  <main id="main-content">
     <slot />
   </main>
 

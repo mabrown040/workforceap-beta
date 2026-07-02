@@ -21,6 +21,7 @@ vi.mock('@/lib/auth/server', () => ({
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
   isCounselor: vi.fn(),
 }));
@@ -59,7 +60,7 @@ vi.mock('@/lib/db/prisma', () => {
   };
   const $queryRaw = vi.fn();
   const $queryRawUnsafe = vi.fn();
-  return { prisma: { counselor, counselorAssignment, counselorNote, user, $queryRaw, $queryRawUnsafe } };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), counselor, counselorAssignment, counselorNote, user, $queryRaw, $queryRawUnsafe } };
 });
 
 // ─── Imports after mocks ───

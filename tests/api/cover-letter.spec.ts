@@ -20,6 +20,7 @@ vi.mock('@/lib/db/withRequestGuc', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 

@@ -10,8 +10,11 @@ vi.mock('next/server', () => ({
   },
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
-vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn(), isCounselor: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
+vi.mock('@/lib/auth/roles', () => ({ isSuperAdmin: vi.fn(() => Promise.resolve(false)), isAdmin: vi.fn(), isCounselor: vi.fn() }));
 vi.mock('@/lib/counselor/staffMemberAccess', () => ({
   assertStaffCanAccessMemberRecord: vi.fn(),
 }));
@@ -39,21 +42,19 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
     }),
   ),
 }));
-vi.mock('@/lib/db/prisma', () => ({
-  prisma: {
-    $transaction: vi.fn((fn: (tx: unknown) => unknown) =>
-      fn({
-        message: { create: vi.fn().mockResolvedValue({ id: 'msg-1' }) },
-        memberEvent: { create: vi.fn().mockResolvedValue({}) },
-        counselorAssignment: { updateMany: vi.fn(), update: vi.fn(), create: vi.fn() },
-      }),
-    ),
+vi.mock('@/lib/db/prisma', () => {
+  const prisma: any = {
+    message: { create: vi.fn().mockResolvedValue({ id: 'msg-1' }) },
     counselor: { findFirst: vi.fn() },
-    counselorAssignment: { findUnique: vi.fn() },
+    counselorAssignment: { findUnique: vi.fn(), updateMany: vi.fn(), update: vi.fn(), create: vi.fn() },
     messageThread: { update: vi.fn() },
     memberEvent: { create: vi.fn() },
-  },
-}));
+  };
+  prisma.$transaction = vi.fn((arg: any) =>
+    typeof arg === 'function' ? arg(prisma) : Promise.all(arg),
+  );
+  return { prisma };
+});
 vi.mock('@/lib/db/withRequestGuc', () => ({
   withApiGuc: (handler: (req: Request) => Promise<Response>) => handler,
 }));

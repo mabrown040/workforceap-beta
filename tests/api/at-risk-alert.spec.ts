@@ -18,13 +18,19 @@ vi.mock('@/lib/db/prisma', () => {
     updateMany: vi.fn(),
   };
   const user = {
-    findMany: vi.fn(),
+    findMany: vi.fn(async () => []),
   };
-  return { prisma: { atRiskAlert, user } };
+  const memberNudgeLog = {
+    findFirst: vi.fn(async () => null),
+    create: vi.fn(async () => ({})),
+  };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), atRiskAlert, user, memberNudgeLog } };
 });
 
 vi.mock('@/lib/member/atRiskScoring', () => ({
   calculateAllAtRiskScores: vi.fn(),
+  buildMemberClassificationInput: vi.fn(async () => ({})),
+  classifyMember: vi.fn(() => ({ tier: 'green', reasons: [], daysSinceLogin: 0 })),
   getRiskLevel: vi.fn((score: number) => {
     if (score >= 70) return 'CRITICAL';
     if (score >= 50) return 'HIGH';
@@ -36,6 +42,9 @@ vi.mock('@/lib/member/atRiskScoring', () => ({
 
 vi.mock('@/lib/email', () => ({
   sendCounselorAtRiskAlertEmail: vi.fn(),
+  sendMemberCheckInEmail: vi.fn(async () => ({ ok: true })),
+  sendMemberComeBackEmail: vi.fn(async () => ({ ok: true })),
+  sendMemberStuckEmail: vi.fn(async () => ({ ok: true })),
 }));
 
 vi.mock('@/lib/cron/withCronLogging', () => ({
@@ -132,17 +141,17 @@ describe('GET /api/cron/at-risk-alerts', () => {
 
     it('returns 401 with wrong CRON_SECRET', async () => {
       const req = makeRequest({
-        authorization: 'Bearer wrong-secret',
+        'x-cron-secret': 'wrong-secret',
       });
       const result = await runAtRiskAlerts(req);
       expect(result.status).toBe(401);
     });
 
-    it('allows request with valid Bearer CRON_SECRET', async () => {
+    it('allows request with valid x-cron-secret header', async () => {
       vi.mocked(calculateAllAtRiskScores).mockResolvedValue([]);
 
       const req = makeRequest({
-        authorization: 'Bearer super-secret-cron-key',
+        'x-cron-secret': 'super-secret-cron-key',
       });
       const result = await runAtRiskAlerts(req);
       expect(result.status).toBe(200);
@@ -174,13 +183,13 @@ describe('GET /api/cron/at-risk-alerts', () => {
 
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: true });
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body.success).toBe(true);
-      expect(body.membersFlagged).toBe(2); // only user-1 and user-2
-      expect(body.counselorsNotified).toBe(1); // both user-1 and user-2 share counselor-1
+      expect(body.counselorAlerts.success).toBe(true);
+      expect(body.counselorAlerts.membersFlagged).toBe(2); // only user-1 and user-2
+      expect(body.counselorAlerts.counselorsNotified).toBe(1); // both user-1 and user-2 share counselor-1
       expect(sendCounselorAtRiskAlertEmail).toHaveBeenCalledTimes(1);
 
       const callArgs = vi.mocked(sendCounselorAtRiskAlertEmail).mock.calls[0][0];
@@ -193,11 +202,11 @@ describe('GET /api/cron/at-risk-alerts', () => {
         { userId: 'user-1', score: 45, factors: [], recommendedAction: 'Monitor' },
       ] as any);
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body).toEqual({
+      expect(body.counselorAlerts).toEqual({
         success: true,
         counselorsNotified: 0,
         membersFlagged: 0,
@@ -228,12 +237,12 @@ describe('GET /api/cron/at-risk-alerts', () => {
       vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 1 } as any);
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: true });
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body.skippedAlreadyNotified).toBe(1); // user-1 skipped
-      expect(body.membersFlagged).toBe(1); // only user-2
+      expect(body.counselorAlerts.skippedAlreadyNotified).toBe(1); // user-1 skipped
+      expect(body.counselorAlerts.membersFlagged).toBe(1); // only user-2
       const callArgs = vi.mocked(sendCounselorAtRiskAlertEmail).mock.calls[0][0];
       expect(callArgs.members).toHaveLength(1);
       expect(callArgs.members[0].memberName).toBe('Bob Jones');
@@ -259,12 +268,12 @@ describe('GET /api/cron/at-risk-alerts', () => {
       vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 1 } as any);
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: true });
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body.skippedAlreadyNotified).toBe(0);
-      expect(body.membersFlagged).toBe(1);
+      expect(body.counselorAlerts.skippedAlreadyNotified).toBe(0);
+      expect(body.counselorAlerts.membersFlagged).toBe(1);
     });
   });
 
@@ -284,11 +293,11 @@ describe('GET /api/cron/at-risk-alerts', () => {
       vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 3 } as any);
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: true });
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body.counselorsNotified).toBe(2);
+      expect(body.counselorAlerts.counselorsNotified).toBe(2);
       expect(sendCounselorAtRiskAlertEmail).toHaveBeenCalledTimes(2);
 
       // Counselor 1 has 2 members
@@ -333,12 +342,12 @@ describe('GET /api/cron/at-risk-alerts', () => {
       vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 1 } as any);
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: true });
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body.skippedNoCounselor).toBe(1);
-      expect(body.membersFlagged).toBe(1); // only Bob
+      expect(body.counselorAlerts.skippedNoCounselor).toBe(1);
+      expect(body.counselorAlerts.membersFlagged).toBe(1); // only Bob
       expect(sendCounselorAtRiskAlertEmail).toHaveBeenCalledTimes(1);
     });
   });
@@ -358,13 +367,13 @@ describe('GET /api/cron/at-risk-alerts', () => {
       vi.mocked(prisma.atRiskAlert.createMany).mockResolvedValue({ count: 1 } as any);
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: false, error: 'SMTP down' });
 
-      const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
+      const req = makeRequest({ 'x-cron-secret': 'super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
       const body = await result.json();
 
-      expect(body.counselorsNotified).toBe(0);
-      expect(body.results[0].sent).toBe(false);
-      expect(body.results[0].error).toBe('SMTP down');
+      expect(body.counselorAlerts.counselorsNotified).toBe(0);
+      expect(body.counselorAlerts.results[0].sent).toBe(false);
+      expect(body.counselorAlerts.results[0].error).toBe('SMTP down');
       expect(prisma.atRiskAlert.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -402,7 +411,7 @@ describe('authorizeCronRequest', () => {
 
   it('returns 401 when secret does not match', () => {
     const req = new Request('http://localhost/', {
-      headers: { authorization: 'Bearer wrong-secret' },
+      headers: { 'x-cron-secret': 'wrong-secret' },
     });
     const result = authorizeCronRequest(req);
     expect(result).toBeInstanceOf(Response);

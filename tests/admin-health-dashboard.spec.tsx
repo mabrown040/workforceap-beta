@@ -125,7 +125,8 @@ describe('AdminHealthPage', () => {
     render(<AdminHealthPage />);
 
     await waitFor(() => expect(screen.getByText('Overall: DEGRADED')).toBeInTheDocument());
-    await waitFor(() => expect(screen.getByText(/3 failures in 24h/)).toBeInTheDocument());
+    // The note intentionally renders in both the Cron Jobs card detail and the Active Alerts log
+    await waitFor(() => expect(screen.getAllByText(/3 failures in 24h/)[0]).toBeInTheDocument());
   });
 
   it('shows error state on fetch failure', async () => {

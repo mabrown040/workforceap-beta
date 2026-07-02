@@ -69,8 +69,9 @@ function StreakMiniCard({
   currentStreak: number;
   longestStreak: number;
 }) {
-  if (currentStreak <= 0 && longestStreak <= 0) return null;
-
+  // No early return at zero: the card's whole job includes the encouraging
+  // "No active streak / Start today!" state (otherwise that branch below is
+  // unreachable dead code and new members never see the nudge).
   const flame = 'var(--color-orange, #f97316)';
   return (
     <div

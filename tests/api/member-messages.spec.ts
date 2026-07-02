@@ -44,8 +44,8 @@ vi.mock('@/lib/auth/server', () => ({
   resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, role: 'anonymous' })),
 }));
 
-vi.mock('@/lib/db/prisma', () => ({
-  prisma: {
+vi.mock('@/lib/db/prisma', () => {
+  const prisma: any = {
     message: {
       findMany: vi.fn(),
       create: vi.fn(),
@@ -62,15 +62,12 @@ vi.mock('@/lib/db/prisma', () => ({
     counselorAssignment: {
       findFirst: vi.fn(),
     },
-    $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
-      const tx = {
-        message: { create: vi.fn() },
-        messageThread: { update: vi.fn() },
-      };
-      return fn(tx);
-    }),
-  },
-}));
+  };
+  prisma.$transaction = vi.fn(async (arg: any) =>
+    typeof arg === 'function' ? arg(prisma) : Promise.all(arg)
+  );
+  return { prisma };
+});
 
 vi.mock('@/lib/messages/counselorThread', () => ({
   getOrCreateMemberCounselorThread: vi.fn(),
@@ -92,6 +89,15 @@ vi.mock('@/lib/messages/counselorThread', () => ({
 
 vi.mock('@/lib/messages/rateLimit', () => ({
   checkMessageRateLimit: vi.fn(async () => ({ ok: true })),
+}));
+
+vi.mock('@/lib/audit', () => ({
+  auditLog: vi.fn(async () => undefined),
+}));
+
+vi.mock('@/lib/audit/log', () => ({
+  auditRequestMeta: vi.fn(() => ({})),
+  logAuditEvent: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/lib/notifications/create', () => ({
@@ -239,6 +245,8 @@ describe('POST /api/member/messages', () => {
 
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
     vi.mocked(assertMemberCanAccessThread).mockResolvedValue(true as any);
+    // Route looks up the sender's display name for the counselor notification.
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ fullName: 'Jane Doe' } as any);
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       return fn({
         message: { create: vi.fn().mockResolvedValue(createdMsg) },
@@ -355,6 +363,9 @@ describe('POST /api/member/messages', () => {
 describe('PATCH /api/member/messages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(prisma.$transaction).mockImplementation(async (arg: any) =>
+      typeof arg === 'function' ? arg(prisma) : Promise.all(arg)
+    );
   });
 
   it('marks messages as read by updating memberLastReadAt', async () => {

@@ -19,6 +19,7 @@ import {
 } from "@/lib/assessment/questions";
 import DashboardProfileForm from "@/components/portal/DashboardProfileForm";
 import SettingsForm from "@/components/portal/SettingsForm";
+import PushNotificationsToggle from "@/components/portal/PushNotificationsToggle";
 import DeleteAccountButton from "@/components/portal/DeleteAccountButton";
 import StartTourButton from "@/components/onboarding/StartTourButton";
 import LanguageToggle from "@/components/portal/LanguageToggle";
@@ -821,6 +822,9 @@ export default async function DashboardProfilePage({
                   defaultUpdates={dbUser.notificationsUpdates ?? true}
                   defaultReminders={dbUser.notificationsReminders ?? true}
                 />
+                <div style={{ marginTop: "1rem" }}>
+                  <PushNotificationsToggle />
+                </div>
               </section>
               <section>
                 <h3

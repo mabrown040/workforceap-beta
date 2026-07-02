@@ -106,6 +106,19 @@ function readProviderId(): WorkspaceEmailProviderId {
  * Throws a clear error for `google`/`microsoft` so future setup is obvious —
  * those require real credentials configured outside the repo (Vercel env).
  */
+/**
+ * Non-throwing availability check so admin UIs can disable the provisioning
+ * action (with the reason) instead of letting the POST fail after the fact.
+ */
+export function getWorkspaceEmailAvailability(): { available: boolean; reason?: string } {
+  try {
+    getWorkspaceEmailProvider();
+    return { available: true };
+  } catch (err) {
+    return { available: false, reason: err instanceof Error ? err.message : 'Provider unavailable' };
+  }
+}
+
 export function getWorkspaceEmailProvider(): WorkspaceEmailProvider {
   const id = readProviderId();
   switch (id) {

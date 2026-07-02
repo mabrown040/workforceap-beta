@@ -68,13 +68,13 @@ function formatWage(min: number | null, max: number | null): string {
 export default async function AdminJobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; ui?: string }>;
+  searchParams: Promise<{ filter?: string; ui?: string; page?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/jobs');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { filter, ui } = await searchParams;
+  const { filter, ui, page } = await searchParams;
 
   // --- DEFAULT: design-kit jobs board wired into real (lean) job data ---
   if (ui !== 'legacy') {
@@ -82,7 +82,7 @@ export default async function AdminJobsPage({
   }
 
   // --- LEGACY (?ui=legacy): the proven review-queue workspace, unchanged ---
-  return renderLegacy({ filter, actorUserId: user.id });
+  return renderLegacy({ filter, page, actorUserId: user.id });
 }
 
 /** Design-kit default: dense roster of open roles → <JobsBoardKit/>. */
@@ -155,14 +155,20 @@ async function renderKit({ actorUserId }: { actorUserId: string }) {
 /** Legacy review-queue workspace (preserved behind ?ui=legacy). */
 async function renderLegacy({
   filter,
+  page,
   actorUserId,
 }: {
   filter?: string;
+  page?: string;
   actorUserId: string;
 }) {
   const currentFilter = filter && ['all', 'pending', 'live', 'draft', 'filled', 'approved'].includes(filter)
     ? filter
     : 'pending';
+
+  const pageParam = page ? parseInt(page, 10) : 1;
+  const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const pageSize = 50;
 
   const where: { status?: object } = {};
   if (currentFilter === 'pending') where.status = { in: ['pending'] };
@@ -172,20 +178,25 @@ async function renderLegacy({
   else if (currentFilter === 'approved') where.status = { in: ['approved'] };
 
   let jobs: any[] = [];
+  let totalCount = 0;
   let totalJobsInDb = 0;
   const countByStatus: Record<string, number> = {};
   let tabs: any[] = [];
 
   try {
-    jobs = await prisma.job.findMany({
-      take: 5000,
-      where,
-      orderBy: { updatedAt: 'desc' },
-      include: {
-        employer: { select: { companyName: true, contactEmail: true } },
-        _count: { select: { applications: true } },
-      },
-    });
+    [jobs, totalCount] = await Promise.all([
+      prisma.job.findMany({
+        where,
+        orderBy: { updatedAt: 'desc' },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        include: {
+          employer: { select: { companyName: true, contactEmail: true } },
+          _count: { select: { applications: true } },
+        },
+      }),
+      prisma.job.count({ where }),
+    ]);
 
     const allCounts = await prisma.job.groupBy({
       by: ['status'],
@@ -299,7 +310,7 @@ async function renderLegacy({
         ))}
       </div>
 
-      <JobsTableClient jobs={jobs} />
+      <JobsTableClient jobs={jobs} totalCount={totalCount} currentPage={currentPage} pageSize={pageSize} />
 
       {jobs.length === 0 && (
         <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>

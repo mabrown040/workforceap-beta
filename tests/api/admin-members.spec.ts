@@ -26,8 +26,11 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
-vi.mock('@/lib/auth/roles', () => ({ requireAdmin: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
+vi.mock('@/lib/auth/roles', () => ({ isSuperAdmin: vi.fn(() => Promise.resolve(false)), requireAdmin: vi.fn() }));
 vi.mock('@/lib/tenant/organization', () => ({ getActorOrganizationId: vi.fn() }));
 vi.mock('@/lib/tenant/withTenantScope', () => ({
   withTenantScope: vi.fn(async (_orgId: string, fn: (db: any) => Promise<unknown>) => {
@@ -38,6 +41,7 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: {
       findMany: vi.fn(),
     },

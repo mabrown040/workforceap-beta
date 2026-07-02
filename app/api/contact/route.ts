@@ -50,6 +50,16 @@ export async function POST(request: NextRequest) {
           { status: 503 }
         );
       }
+      // Clients only render the Turnstile widget when the SITE key is set, so
+      // 'enabled + missing site key' means no request can ever carry a token —
+      // fail closed as a config error, not an unpassable 400.
+      if (!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim()) {
+        console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Contact form is temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
       const tok = turnstileToken?.trim() ?? '';
       if (!tok) {
         return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });

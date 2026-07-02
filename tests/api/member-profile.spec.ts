@@ -40,6 +40,7 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -52,12 +53,9 @@ vi.mock('@/lib/db/prisma', () => ({
     profile: {
       upsert: vi.fn(),
     },
-    $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
-      const tx = {
-        user: { update: vi.fn() },
-        profile: { upsert: vi.fn() },
-      };
-      return fn(tx);
+    $transaction: vi.fn(async (arg: any) => {
+      const { prisma } = await import('@/lib/db/prisma');
+      return typeof arg === 'function' ? arg(prisma) : Promise.all(arg);
     }),
   },
 }));
@@ -190,7 +188,7 @@ describe('PATCH /api/member/profile', () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(updatedUser as any);
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       return fn({
-        user: { update: vi.fn().mockResolvedValue({}) },
+        user: { update: vi.fn().mockResolvedValue({}), findUnique: prisma.user.findUnique },
         profile: { upsert: vi.fn().mockResolvedValue({}) },
       });
     });
@@ -227,7 +225,7 @@ describe('PATCH /api/member/profile', () => {
 
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       return fn({
-        user: { update: vi.fn().mockResolvedValue({}) },
+        user: { update: vi.fn().mockResolvedValue({}), findUnique: prisma.user.findUnique },
         profile: { upsert: vi.fn().mockResolvedValue({}) },
       });
     });
@@ -318,7 +316,7 @@ describe('PATCH /api/member/profile', () => {
 
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       return fn({
-        user: { update: vi.fn().mockResolvedValue({}) },
+        user: { update: vi.fn().mockResolvedValue({}), findUnique: prisma.user.findUnique },
         profile: { upsert: vi.fn().mockResolvedValue({}) },
       });
     });
@@ -347,6 +345,9 @@ describe('PATCH /api/member/profile', () => {
 describe('GET /api/member/profile/completeness', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(prisma.$transaction).mockImplementation(async (arg: any) =>
+      typeof arg === 'function' ? arg(prisma) : Promise.all(arg)
+    );
   });
 
   it('returns profile completion percentage for a complete profile', async () => {

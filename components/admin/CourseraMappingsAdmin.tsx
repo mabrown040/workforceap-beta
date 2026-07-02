@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import { DataLandingEmptyArt } from '@/components/graphics/DataLandingEmptyArt';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -164,6 +165,29 @@ export default function CourseraMappingsAdmin({
   const [message, setMessage] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
   const [reprocessResult, setReprocessResult] = useState<{ processed: number; matched: number } | null>(null);
   const [isAutoHealing, setIsAutoHealing] = useState(false);
+  // Actor email pending confirmation for the "Backfill progress" action;
+  // null means the confirm dialog is closed.
+  const [backfillEmail, setBackfillEmail] = useState<string | null>(null);
+
+  function runBackfill(actorEmail: string) {
+    fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(async (res) => {
+        const payload = await res.json().catch(() => ({}));
+        if (res.ok && payload.ok) {
+          setMessage({
+            kind: 'success',
+            text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
+          });
+          router.refresh();
+        } else {
+          setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
+        }
+      })
+      .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
+  }
 
   // Sort/filter state for xAPI attention
   const [xapiFilter, setXapiFilter] = useState('');
@@ -937,27 +961,7 @@ export default function CourseraMappingsAdmin({
                         type="button"
                         className="btn coursera-unmatched-cta"
                         style={{ width: '100%', background: 'var(--color-surface-variant)', color: 'var(--color-on-surface)' }}
-                        onClick={() => {
-                          const actorEmail = row.actorEmail ?? '';
-                          if (!confirm(`Backfill progress for ${actorEmail}?`)) return;
-                          fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
-                            method: 'GET',
-                            credentials: 'include'
-                          })
-                            .then(async (res) => {
-                              const payload = await res.json().catch(() => ({}));
-                              if (res.ok && payload.ok) {
-                                setMessage({
-                                  kind: 'success',
-                                  text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
-                                });
-                                router.refresh();
-                              } else {
-                                setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
-                              }
-                            })
-                            .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
-                        }}
+                        onClick={() => setBackfillEmail(row.actorEmail ?? '')}
                       >
                         Backfill progress
                       </button>
@@ -1033,27 +1037,7 @@ export default function CourseraMappingsAdmin({
                             type="button"
                             className="btn btn-sm"
                             style={{ background: 'var(--color-surface-variant)', color: 'var(--color-on-surface)' }}
-                            onClick={() => {
-                              const actorEmail = row.actorEmail ?? '';
-                              if (!confirm(`Backfill progress for ${actorEmail}?`)) return;
-                              fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
-                                method: 'GET',
-                                credentials: 'include',
-                              })
-                                .then(async (res) => {
-                                  const payload = await res.json().catch(() => ({}));
-                                  if (res.ok && payload.ok) {
-                                    setMessage({
-                                      kind: 'success',
-                                      text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
-                                    });
-                                    router.refresh();
-                                  } else {
-                                    setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
-                                  }
-                                })
-                                .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
-                            }}
+                            onClick={() => setBackfillEmail(row.actorEmail ?? '')}
                           >
                             Backfill
                           </button>
@@ -1067,6 +1051,19 @@ export default function CourseraMappingsAdmin({
           </>
         )}
       </section>
+
+      <ConfirmDialog
+        open={backfillEmail !== null}
+        title="Backfill progress?"
+        body={`Backfill progress for ${backfillEmail ?? ''}?`}
+        confirmLabel="Backfill"
+        onConfirm={() => {
+          const email = backfillEmail;
+          setBackfillEmail(null);
+          if (email !== null) runBackfill(email);
+        }}
+        onCancel={() => setBackfillEmail(null)}
+      />
     </div>
   );
 }

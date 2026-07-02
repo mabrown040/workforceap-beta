@@ -29,6 +29,7 @@ vi.mock('@/lib/auth/server', () => ({
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   getPartnerForUser: vi.fn(),
   requireAdmin: vi.fn(),
 }));

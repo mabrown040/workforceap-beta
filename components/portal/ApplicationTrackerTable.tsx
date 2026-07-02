@@ -143,6 +143,9 @@ export default function ApplicationTrackerTable() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     setActionError(null);
+    // Optimistic: show the new status immediately; revert if the PATCH fails.
+    const previous = applications;
+    setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a)));
     try {
       const res = await fetch(`/api/member/applications/${id}`, {
         method: 'PATCH',
@@ -151,14 +154,14 @@ export default function ApplicationTrackerTable() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        setApplications(previous);
         setActionError((data as { error?: string }).error ?? 'Could not update status. Try again.');
-        await fetchApplications();
         return;
       }
       await fetchApplications();
     } catch {
+      setApplications(previous);
       setActionError('Network error while updating status.');
-      await fetchApplications();
     }
   };
 

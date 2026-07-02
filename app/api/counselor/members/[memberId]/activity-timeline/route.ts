@@ -30,7 +30,7 @@ export const GET = withApiGuc(async (
     }
 
     const { searchParams } = new URL(req.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10), 100);
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '', 10) || 20, 100);
 
     const events = await prisma.$transaction((tx) => tx.memberEvent.findMany({
       where: { userId: memberId },

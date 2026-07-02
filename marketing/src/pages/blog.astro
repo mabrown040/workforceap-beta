@@ -74,15 +74,16 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
       </div>
 
       {categories.length > 0 && (
-        <div class="cats">
-          {categories.map((cat) => <span class="cat-chip">{cat}</span>)}
+        <div class="cats" role="group" aria-label="Filter posts by category">
+          <button type="button" class="cat-chip is-active" data-cat="all" aria-pressed="true">All</button>
+          {categories.map((cat) => <button type="button" class="cat-chip" data-cat={cat} aria-pressed="false">{cat}</button>)}
         </div>
       )}
 
       <!-- Post grid -->
       <div class="post-grid">
         {cards.map((p) => (
-          <article class="post-card">
+          <article class="post-card" data-cat={p.category ?? ''}>
             <a class="post-link" href={`/blog/${p.slug}`}>
               <div class="post-cover">
                 <img src={p.hero.src} alt={p.hero.alt} width="1600" height="900" loading="lazy" />
@@ -211,6 +212,8 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
   .cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
   .cat-chip{font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;
     background:rgba(173,44,77,.08);border:1px solid rgba(173,44,77,.18);color:var(--crimson)}
+  .cat-chip{cursor:pointer;background:none;font:inherit}
+  .cat-chip.is-active{background:var(--crimson);color:#fff;border-color:var(--crimson)}
 
   /* post grid */
   .post-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-bottom:40px}
@@ -265,4 +268,26 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
     .acts .bbtn{width:100%;justify-content:center}
   }
 </style>
+<script is:inline>
+  // Progressive enhancement: blog category chips filter the post grid.
+  // Without JS the chips are inert and all posts stay visible.
+  (function () {
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.cats .cat-chip'));
+    var posts = Array.prototype.slice.call(document.querySelectorAll('.post-grid .post-card'));
+    if (!chips.length || !posts.length) return;
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var cat = chip.getAttribute('data-cat');
+        chips.forEach(function (c) {
+          var active = c === chip;
+          c.classList.toggle('is-active', active);
+          c.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        posts.forEach(function (p) {
+          p.style.display = cat === 'all' || p.getAttribute('data-cat') === cat ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
 </Layout>

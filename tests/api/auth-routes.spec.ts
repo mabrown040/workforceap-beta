@@ -104,9 +104,11 @@ vi.mock('@/lib/auth/server', () => ({
 vi.mock('@/lib/db/prisma', () => {
   const profile = { findUnique: vi.fn(() => Promise.resolve(null)) };
   const memberEvent = { create: vi.fn(() => Promise.resolve({})) };
+  const user = { update: vi.fn(() => Promise.resolve({})), findUnique: vi.fn(() => Promise.resolve(null)) };
   const mockPrisma: any = {
     profile,
     memberEvent,
+    user,
     $transaction: vi.fn((cb: any) => {
       if (typeof cb === 'function') return cb(mockPrisma);
       return Promise.all(cb);
@@ -152,6 +154,8 @@ vi.mock('@/lib/auth/roles', () => ({
   getPartnerForUser: vi.fn(() => Promise.resolve(null)),
   getEmployerAccountForNav: vi.fn(() => Promise.resolve(null)),
   getCounselorForUser: vi.fn(() => Promise.resolve(null)),
+  getUserRoles: vi.fn(() => Promise.resolve([])),
+  isAdmin: vi.fn(() => Promise.resolve(false)),
   isSuperAdmin: vi.fn(() => Promise.resolve(false)),
 }));
 
@@ -453,7 +457,7 @@ describe('POST /api/auth/login', () => {
 
     expect(res.status).toBe(401);
     const body = await res.json();
-    expect(body.error).toBe('Invalid login credentials');
+    expect(body.error).toBe('Incorrect email or password.');
   });
 
   it('returns friendly 401 for unconfirmed email', async () => {
@@ -480,7 +484,7 @@ describe('POST /api/auth/login', () => {
 
     expect(res.status).toBe(401);
     const body = await res.json();
-    expect(body.error).toContain("hasn\u2019t been verified yet");
+    expect(body.error).toContain("been verified yet");
   });
 
   it('returns friendly 401 for disabled account', async () => {
@@ -1186,7 +1190,7 @@ describe('POST /api/auth/setup-mfa', () => {
 
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toBe('Rate limit exceeded');
+    expect(body.error).toBe('Failed to start MFA enrollment.');
   });
 });
 

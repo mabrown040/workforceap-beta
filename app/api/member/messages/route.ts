@@ -98,10 +98,15 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   });
 
   if (thread.counselorUserId) {
+    // Prefer the member's display name over their email in the counselor's
+    // notification; fall back gracefully when the profile row is missing.
+    const sender = await prisma.user
+      .findUnique({ where: { id: user.id }, select: { fullName: true } })
+      .catch(() => null);
     void createNotification({
       userId: thread.counselorUserId,
       type: 'message',
-      title: `New message from ${user.email ?? 'member'}`,
+      title: `New message from ${sender?.fullName || user.email || 'member'}`,
       body: normalized.body.slice(0, 200),
       data: { threadId: thread.id, memberId: user.id },
     });

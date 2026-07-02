@@ -63,8 +63,10 @@ async function loadMemberOr404(memberId: string, orgId: string) {
     try {
       provider = getWorkspaceEmailProvider();
     } catch (err) {
+      // Configuration gap, not a crash: the selected provider is not
+      // implemented/configured. 501 keeps it out of 5xx alert noise.
       const message = err instanceof Error ? err.message : 'Provider unavailable';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: message }, { status: 501 });
     }
   
     const result = await provider.provision({
@@ -131,8 +133,10 @@ export const POST = withApiGuc(_POST);async function _DELETE(request: NextReques
     try {
       provider = getWorkspaceEmailProvider();
     } catch (err) {
+      // Configuration gap, not a crash: the selected provider is not
+      // implemented/configured. 501 keeps it out of 5xx alert noise.
       const message = err instanceof Error ? err.message : 'Provider unavailable';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: message }, { status: 501 });
     }
   
     const previousEmail = member.workspaceEmail;

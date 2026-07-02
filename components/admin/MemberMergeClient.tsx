@@ -1,5 +1,6 @@
 'use client';
 
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
@@ -23,6 +24,7 @@ export default function MemberMergeClient() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [merging, setMerging] = useState(false);
+  const [confirmMerge, setConfirmMerge] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; repointed: string[]; mergedFields: string[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,8 +80,6 @@ export default function MemberMergeClient() {
 
   const handleMerge = async () => {
     if (!primary || !secondary || !preview || preview.conflicts.length > 0) return;
-    if (!window.confirm(`Merge ${secondary.fullName} into ${primary.fullName}? This cannot be undone.`)) return;
-
     setMerging(true);
     setError(null);
     try {
@@ -313,7 +313,7 @@ export default function MemberMergeClient() {
               type="button"
               disabled={merging || preview.conflicts.length > 0}
               aria-busy={merging}
-              onClick={handleMerge}
+              onClick={() => setConfirmMerge(true)}
               className="btn btn-primary"
               style={{
                 fontSize: '0.875rem',
@@ -330,6 +330,16 @@ export default function MemberMergeClient() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmMerge}
+        title="Merge members?"
+        body={secondary && primary ? `Merge ${secondary.fullName} into ${primary.fullName}? This cannot be undone.` : ''}
+        confirmLabel="Merge"
+        danger
+        busy={merging}
+        onConfirm={() => { setConfirmMerge(false); void handleMerge(); }}
+        onCancel={() => setConfirmMerge(false)}
+      />
     </div>
   );
 }

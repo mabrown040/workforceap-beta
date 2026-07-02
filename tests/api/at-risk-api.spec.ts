@@ -14,6 +14,7 @@ vi.mock('next/server', () => ({
 vi.mock('@/lib/db/prisma', () => {
   const atRiskAlert = {
     findMany: vi.fn(),
+    findFirst: vi.fn(async () => ({ id: 'alert-1' })),
     update: vi.fn(),
     updateMany: vi.fn(),
     count: vi.fn(),
@@ -25,14 +26,18 @@ vi.mock('@/lib/db/prisma', () => {
   const user = {
     findMany: vi.fn(),
   };
-  return { prisma: { atRiskAlert, memberEvent, user } };
+  const prismaMock: any = { atRiskAlert, memberEvent, user };
+  prismaMock.$transaction = vi.fn(async (arg: any) => (typeof arg === 'function' ? arg(prismaMock) : Promise.all(arg)));
+  return { prisma: prismaMock };
 });
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
   isCounselor: vi.fn(),
   requireAdminOrCounselor: vi.fn(),

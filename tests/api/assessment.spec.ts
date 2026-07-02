@@ -22,15 +22,16 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
-vi.mock('@/lib/db/prisma', () => ({
-  prisma: {
+vi.mock('@/lib/db/prisma', () => {
+  const prismaMock: any = {
     user: {
       findUnique: vi.fn(),
       update: vi.fn(),
-      updateMany: vi.fn(),
+      updateMany: vi.fn(async () => ({ count: 1 })),
       upsert: vi.fn(),
     },
     aIToolResult: {
@@ -60,8 +61,12 @@ vi.mock('@/lib/db/prisma', () => ({
     organization: {
       findUnique: vi.fn(),
     },
-  },
-}));
+  };
+  prismaMock.$transaction = vi.fn(async (arg: any) =>
+    typeof arg === 'function' ? arg(prismaMock) : Promise.all(arg)
+  );
+  return { prisma: prismaMock };
+});
 
 vi.mock('@/lib/member/points', () => ({
   awardPoints: vi.fn(),
@@ -253,9 +258,11 @@ describe('POST /api/member/assessment/submit', () => {
     const req = makeRequest(validBody);
     await submitAssessment(req);
 
-    expect(prisma.user.update).toHaveBeenCalledWith(
+    // Route now uses an atomic updateMany with assessmentCompleted=false in
+    // the WHERE clause (double-submit race guard).
+    expect(prisma.user.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: UUIDS.user },
+        where: { id: UUIDS.user, assessmentCompleted: false },
         data: expect.objectContaining({
           assessmentCompleted: true,
           assessmentScore: expect.any(Number),

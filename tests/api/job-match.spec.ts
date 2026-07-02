@@ -16,6 +16,7 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -28,7 +29,7 @@ vi.mock('@/lib/db/prisma', () => {
   const user = {
     findUnique: vi.fn(),
   };
-  return { prisma: { job, user } };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), job, user } };
 });
 
 vi.mock('@/lib/content/programs', () => ({
@@ -104,13 +105,15 @@ describe('GET /api/member/matched-jobs', () => {
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
 
-  it('returns empty jobs array when user record is not found', async () => {
+  it('returns 404 when user record is not found', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 
     const res = await getMatchedJobs(new Request('http://localhost'));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ jobs: [] });
+    // Route now 404s when the app user row is missing (an authenticated
+    // session without a user record is an inconsistency, not "no matches").
+    expect(res.status).toBe(404);
+    expect((await res.json()).error).toBe('User not found');
   });
 
   it('returns matching jobs for authenticated member sorted by match score', async () => {
@@ -262,7 +265,8 @@ describe('GET /api/member/matched-jobs', () => {
 
     expect(prisma.job.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { status: 'live' },
+        // The route now also filters expired postings and joins employer name.
+        where: expect.objectContaining({ status: 'live' }),
         take: 50,
       })
     );
@@ -313,7 +317,7 @@ describe('GET /api/(portal)/dashboard/jobs/[id]', () => {
 
     const res = await getJobDetail(makeRequest('non-existent-id'), { params: Promise.resolve({ id: 'non-existent-id' }) });
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: 'Job not found' });
+    expect((await res.json()).error).toMatchObject({ code: 'NOT_FOUND', message: 'Job not found' });
   });
 
   it('returns 404 for non-live jobs', async () => {
@@ -321,7 +325,7 @@ describe('GET /api/(portal)/dashboard/jobs/[id]', () => {
 
     const res = await getJobDetail(makeRequest(UUIDS.job1), { params: Promise.resolve({ id: UUIDS.job1 }) });
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: 'Job not found' });
+    expect((await res.json()).error).toMatchObject({ code: 'NOT_FOUND', message: 'Job not found' });
 
     expect(prisma.job.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -335,7 +339,7 @@ describe('GET /api/(portal)/dashboard/jobs/[id]', () => {
 
     const res = await getJobDetail(makeRequest(UUIDS.job1), { params: Promise.resolve({ id: UUIDS.job1 }) });
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Internal server error' });
+    expect((await res.json()).error).toMatchObject({ code: 'INTERNAL_ERROR' });
   });
 });
 

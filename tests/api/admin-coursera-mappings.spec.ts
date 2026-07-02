@@ -15,8 +15,11 @@ vi.mock('next/headers', () => ({
   cookies: vi.fn(() => Promise.resolve({ get: vi.fn(), getAll: vi.fn(() => []), set: vi.fn() })),
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
-vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
+vi.mock('@/lib/auth/roles', () => ({ isSuperAdmin: vi.fn(() => Promise.resolve(false)), isAdmin: vi.fn() }));
 vi.mock('@/lib/tenant/organization', () => ({ getActorOrganizationId: vi.fn() }));
 
 vi.mock('@/lib/xapi/mappings', () => ({

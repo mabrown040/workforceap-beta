@@ -15,6 +15,22 @@ vi.mock('@/lib/workflows/careerOS', () => ({
   handleLearningCompletion: vi.fn(),
 }));
 
+vi.mock('@/lib/db/prisma', () => {
+  const xapiStatement = {
+    findUnique: vi.fn(async () => null),
+    create: vi.fn(async () => ({})),
+    updateMany: vi.fn(async () => ({ count: 0 })),
+  };
+  const webhookEvent = {
+    create: vi.fn(async () => ({ id: 'webhook-event-1' })),
+    update: vi.fn(async () => ({})),
+    findMany: vi.fn(async () => []),
+    count: vi.fn(async () => 0),
+    groupBy: vi.fn(async () => []),
+  };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), xapiStatement, webhookEvent } };
+});
+
 // ─── Imports after mocks ───
 import { POST } from '@/app/api/webhooks/learning-completion/route';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
@@ -62,31 +78,31 @@ describe('POST /api/webhooks/learning-completion', () => {
   it('returns 400 when memberId is missing', async () => {
     const res = await POST(makeRequest({ courseName: 'React 101' }, 'super-secret-token'));
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'memberId and courseName are required' });
+    expect((await res.json()).error).toBe('Validation failed');
   });
 
   it('returns 400 when courseName is missing', async () => {
     const res = await POST(makeRequest({ memberId: 'm1' }, 'super-secret-token'));
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'memberId and courseName are required' });
+    expect((await res.json()).error).toBe('Validation failed');
   });
 
   it('returns 400 when memberId is empty string', async () => {
     const res = await POST(makeRequest({ memberId: '   ', courseName: 'React 101' }, 'super-secret-token'));
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'memberId and courseName are required' });
+    expect((await res.json()).error).toBe('Validation failed');
   });
 
   it('returns 400 when courseName is empty string', async () => {
     const res = await POST(makeRequest({ memberId: 'm1', courseName: '   ' }, 'super-secret-token'));
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'memberId and courseName are required' });
+    expect((await res.json()).error).toBe('Validation failed');
   });
 
   it('returns 400 when memberId is not a string', async () => {
     const res = await POST(makeRequest({ memberId: 123, courseName: 'React 101' }, 'super-secret-token'));
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'memberId and courseName are required' });
+    expect((await res.json()).error).toBe('Validation failed');
   });
 
   it('processes learning completion with valid secret', async () => {
@@ -130,7 +146,10 @@ describe('POST /api/webhooks/learning-completion', () => {
 
     const res = await POST(makeRequest({ memberId: 'm1', courseName: 'React 101' }, 'super-secret-token'));
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Internal Server Error' });
+    const errBody = await res.json();
+    expect(errBody.error).toBe('Internal Server Error');
+    // The route now enqueues a webhook retry on failure (prior audit round).
+    expect(errBody).toHaveProperty('retryScheduled');
   });
 
   it('uses timing-safe comparison for secrets', async () => {

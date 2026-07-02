@@ -40,10 +40,12 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   requireAdminOrCounselor: vi.fn(),
   isAdmin: vi.fn(),
 }));
@@ -56,12 +58,30 @@ vi.mock('@/lib/member/exportData', () => ({
   buildMemberExport: vi.fn(),
 }));
 
+vi.mock('@/lib/db/prisma', () => ({
+  prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
+    user: { findFirst: vi.fn(), findUnique: vi.fn() },
+  },
+}));
+
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(async () => 'org-1'),
+}));
+
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn(async () => undefined) }));
+vi.mock('@/lib/audit/log', () => ({
+  logAuditEvent: vi.fn(async () => undefined),
+  auditRequestMeta: vi.fn(() => ({ ip: null, ua: null })),
+}));
+
 // ─── Imports after mocks ───
 import { GET as memberExportGET } from '@/app/api/member/export-data/route';
 import { GET as adminExportGET } from '@/app/api/admin/members/[id]/export-data/route';
 import { getUser } from '@/lib/auth/server';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { buildMemberExport } from '@/lib/member/exportData';
+import { prisma } from '@/lib/db/prisma';
 
 describe('GET /api/member/export-data', () => {
   beforeEach(() => {
@@ -160,6 +180,9 @@ describe('GET /api/member/export-data', () => {
 describe('GET /api/admin/members/[id]/export-data', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The route now resolves the acting admin and org-scopes the member lookup.
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-123' } as any);
+    vi.mocked(prisma.user.findFirst).mockImplementation((async ({ where }: any) => ({ id: where.id })) as any);
   });
 
   it('returns 401 when not authenticated', async () => {

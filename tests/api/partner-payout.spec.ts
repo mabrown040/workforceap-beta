@@ -24,17 +24,21 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   requireAdmin: vi.fn(),
   getPartnerForUser: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => {
   const partner = { findUnique: vi.fn(), update: vi.fn() };
-  return { prisma: { partner } };
+  const placementRecord = { findFirst: vi.fn() };
+  const memberEvent = { create: vi.fn(async () => ({})) };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), partner, placementRecord, memberEvent } };
 });
 
 vi.mock('@/lib/stripe/connect', () => ({
@@ -56,7 +60,13 @@ vi.mock('@/lib/tenant/organization', () => ({
 
 vi.mock('@/lib/partner/partnerPayout', () => ({
   getPartnerPlacementPayoutUsd: vi.fn(() => 500),
+  buildPartnerPayoutIdempotencyKey: vi.fn(
+    (partnerId: string, placementId: string) => `partner-payout:${partnerId}:${placementId}`
+  ),
 }));
+
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn(async () => undefined) }));
+vi.mock('@/lib/audit/log', () => ({ logAuditEvent: vi.fn(async () => undefined) }));
 
 // ─── Imports after mocks ───
 import { POST as payoutPost } from '@/app/api/partner/payout/route';
@@ -130,6 +140,7 @@ describe('POST /api/partner/payout', () => {
       stripeConnectId: null,
       stripeConnectStatus: null,
       name: 'Partner A',
+      partnerType: 'referral',
     } as any);
 
     const res = await payoutPost(makeRequest({ partnerId: UUIDS.partner, placementId: UUIDS.placement }));
@@ -145,6 +156,7 @@ describe('POST /api/partner/payout', () => {
       stripeConnectId: 'acct_pending',
       stripeConnectStatus: 'pending',
       name: 'Partner B',
+      partnerType: 'referral',
     } as any);
 
     const res = await payoutPost(makeRequest({ partnerId: UUIDS.partner, placementId: UUIDS.placement }));
@@ -161,6 +173,14 @@ describe('POST /api/partner/payout', () => {
       stripeConnectId: 'acct_active',
       stripeConnectStatus: 'active',
       name: 'Partner C',
+      partnerType: 'referral',
+    } as any);
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
+      id: UUIDS.placement,
+      userId: UUIDS.user,
+      placedAt: new Date('2026-01-01'),
+      startDateVerified: true,
+      user: { memberEvents: [] },
     } as any);
     vi.mocked(createPayoutTransfer).mockResolvedValue({ id: 'tr_123' } as any);
 
@@ -177,7 +197,8 @@ describe('POST /api/partner/payout', () => {
         partnerId: UUIDS.partner,
         placementId: UUIDS.placement,
         triggeredBy: UUIDS.admin,
-      })
+      }),
+      `partner-payout:${UUIDS.partner}:${UUIDS.placement}`
     );
   });
 
@@ -190,6 +211,14 @@ describe('POST /api/partner/payout', () => {
       stripeConnectId: 'acct_active',
       stripeConnectStatus: 'active',
       name: 'Partner D',
+      partnerType: 'referral',
+    } as any);
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
+      id: UUIDS.placement2,
+      userId: UUIDS.user,
+      placedAt: new Date('2026-01-01'),
+      startDateVerified: true,
+      user: { memberEvents: [] },
     } as any);
     vi.mocked(createPayoutTransfer).mockResolvedValue({ id: 'tr_456' } as any);
 
@@ -198,7 +227,12 @@ describe('POST /api/partner/payout', () => {
     const body = await res.json();
     expect(body.amount).toBe(750);
 
-    expect(createPayoutTransfer).toHaveBeenCalledWith(750_00, 'acct_active', expect.any(Object));
+    expect(createPayoutTransfer).toHaveBeenCalledWith(
+      750_00,
+      'acct_active',
+      expect.any(Object),
+      `partner-payout:${UUIDS.partner2}:${UUIDS.placement2}`
+    );
   });
 
   it('returns 500 on unexpected Stripe transfer error', async () => {
@@ -209,6 +243,14 @@ describe('POST /api/partner/payout', () => {
       stripeConnectId: 'acct_active',
       stripeConnectStatus: 'active',
       name: 'Partner E',
+      partnerType: 'referral',
+    } as any);
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
+      id: UUIDS.placement,
+      userId: UUIDS.user,
+      placedAt: new Date('2026-01-01'),
+      startDateVerified: true,
+      user: { memberEvents: [] },
     } as any);
     vi.mocked(createPayoutTransfer).mockRejectedValue(new Error('Transfer declined'));
 

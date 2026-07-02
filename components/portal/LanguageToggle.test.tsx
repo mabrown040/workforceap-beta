@@ -30,8 +30,10 @@ describe('LanguageToggle', () => {
     expect(screen.getByLabelText('selectLanguage')).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'English' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Español' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Français' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Português' })).toBeInTheDocument();
+    // FR/PT are gated behind REVIEWED_LOCALES until their translations pass
+    // human review — only reviewed languages are offered.
+    expect(screen.queryByRole('option', { name: 'Français' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Português' })).not.toBeInTheDocument();
   });
 
   it('sets current locale from pathname', () => {
@@ -43,8 +45,8 @@ describe('LanguageToggle', () => {
   it('switches locale on prefixed path via router.replace', () => {
     render(<LanguageToggle />);
     const select = screen.getByLabelText('selectLanguage');
-    fireEvent.change(select, { target: { value: 'fr' } });
-    expect(mockReplace).toHaveBeenCalledWith('/fr/about');
+    fireEvent.change(select, { target: { value: 'es' } });
+    expect(mockReplace).toHaveBeenCalledWith('/es/about');
   });
 
 });

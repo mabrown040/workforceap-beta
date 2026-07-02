@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 /**
  * Admin toggle for `User.courseraEnrollmentApproved`. Mounted from the
@@ -30,17 +31,20 @@ export default function MemberCourseraEnrollmentApproval({
   const [approved, setApproved] = useState(initialApproved);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleToggle = async () => {
+  const handleToggle = () => {
     const next = !approved;
     if (next) {
       // Ask once before granting — the cost guardrail. Revoking is a
       // safe action (no seat spend), so we skip the confirm there.
-      const ok = window.confirm(
-        `Approve ${memberName} for Coursera enrollment?\n\nThis lets them self-enroll in their assigned program's courses. Each enrollment uses a paid Coursera seat. Only approve once funding is confirmed and a counselor has assigned a program.`,
-      );
-      if (!ok) return;
+      setConfirmOpen(true);
+      return;
     }
+    void submit(next);
+  };
+
+  const submit = async (next: boolean) => {
     setPending(true);
     setError(null);
     try {
@@ -132,6 +136,21 @@ export default function MemberCourseraEnrollmentApproval({
           {error}
         </p>
       )}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Approve Coursera enrollment?"
+        body={
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'pre-line' }}>
+            {`Approve ${memberName} for Coursera enrollment?\n\nThis lets them self-enroll in their assigned program's courses. Each enrollment uses a paid Coursera seat. Only approve once funding is confirmed and a counselor has assigned a program.`}
+          </p>
+        }
+        confirmLabel="Approve"
+        onConfirm={() => {
+          setConfirmOpen(false);
+          void submit(true);
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </section>
   );
 }

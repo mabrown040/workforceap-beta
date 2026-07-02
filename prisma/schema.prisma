@@ -283,6 +283,7 @@ model User {
   reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
   memberFeedback         MemberFeedback[]
   notifications          Notification[]
+  pushSubscriptions      PushSubscription[]
 
   chaptersLed            Chapter[]       @relation("ChapterLeader")
   chapterMemberships     ChapterMember[]
@@ -1685,6 +1686,13 @@ model CourseEnrollment {
 model XapiStatement {
   id                 String    @id @default(uuid())
   statementId        String?   @unique @map("statement_id")
+  /// Tenant scope. NOT NULL in the database; a BEFORE INSERT trigger
+  /// (xapi_statement_ingest_org_check) resolves it from the actor's identity
+  /// mapping — or an 'unresolved-<id8>' sentinel — whenever the insert omits
+  /// it, so it stays optional in the client. Kept in the schema so Prisma can
+  /// read/update it (sentinel reconciliation) and so `migrate diff` doesn't
+  /// generate a destructive DROP COLUMN against the RLS-keyed column.
+  organizationId     String?   @map("organization_id")
   actorEmail         String?   @map("actor_email")
   /// From actor.account.name — Coursera's external user identifier.
   /// Required for events that arrive without actor.mbox (some xAPI endpoints
@@ -1720,6 +1728,7 @@ model XapiStatement {
   /// actor+verb+object+result so duplicate deliveries can be deduplicated.
   statementHash      String?   @unique @map("statement_hash")
 
+  @@index([organizationId])
   @@index([actorEmail])
   @@index([actorAccountName, actorHomePage])
   @@index([createdAt])
@@ -2732,6 +2741,24 @@ model Notification {
   @@index([readAt])
   @@index([createdAt])
   @@map("notifications")
+}
+
+/// Web Push subscriptions (one row per browser/device). Endpoint is the
+/// unique key — re-subscribing the same browser upserts, and senders prune
+/// rows when the push service returns 404/410.
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }
 
 // --- WAP Careers (internal hiring) ---

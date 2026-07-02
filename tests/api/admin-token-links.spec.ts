@@ -11,8 +11,11 @@ vi.mock('next/server', () => ({
   },
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
-vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
+vi.mock('@/lib/auth/roles', () => ({ isSuperAdmin: vi.fn(() => Promise.resolve(false)), isAdmin: vi.fn() }));
 vi.mock('@/lib/db/withRequestGuc', () => ({
   withApiGuc: (handler: any) => handler,
 }));
@@ -26,7 +29,7 @@ vi.mock('@/lib/email', () => ({ sendEligibilityLink: vi.fn() }));
 vi.mock('@/lib/audit', () => ({ auditLog: vi.fn() }));
 vi.mock('@/lib/rate-limit', () => ({ checkAdminTokenLinksRateLimit: vi.fn() }));
 vi.mock('@/lib/db/prisma', () => ({
-  prisma: { user: { findUnique: vi.fn() } },
+  prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), user: { findUnique: vi.fn() } },
 }));
 
 // ─── Imports after mocks ───

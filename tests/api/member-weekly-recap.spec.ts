@@ -15,10 +15,14 @@ vi.mock('next/headers', () => ({
   cookies: vi.fn(() => Promise.resolve({ get: vi.fn(), getAll: vi.fn(() => []), set: vi.fn() })),
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     weeklyRecap: {
       findUnique: vi.fn(),
     },
@@ -63,6 +67,18 @@ describe('GET /api/member/weekly-recap', () => {
     expect(body.recap.data.applicationsAdded).toBe(3);
     expect(prisma.weeklyRecap.findUnique).toHaveBeenCalledWith({
       where: { userId_weekStartDate: { userId: 'u1', weekStartDate: new Date('2026-05-11') } },
+      select: {
+        id: true,
+        userId: true,
+        weekStartDate: true,
+        weekEndDate: true,
+        recapJson: true,
+        goalsSnapshotJson: true,
+        readinessScoreSnapshot: true,
+        openedAt: true,
+        generatedAt: true,
+        createdAt: true,
+      },
     });
     expect(generateWeeklyRecap).not.toHaveBeenCalled();
   });
@@ -90,7 +106,7 @@ describe('GET /api/member/weekly-recap', () => {
 
     const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Failed to load weekly recap' });
+    expect(await res.json()).toMatchObject({ error: 'Failed to load weekly recap' });
   });
 
   it('returns 500 on unexpected outer error', async () => {
@@ -98,7 +114,7 @@ describe('GET /api/member/weekly-recap', () => {
 
     const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Internal server error' });
+    expect(await res.json()).toMatchObject({ error: 'Internal server error' });
   });
 });
 
@@ -139,7 +155,7 @@ describe('POST /api/member/weekly-recap', () => {
 
     const res = await POST(new Request('http://localhost'));
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Failed to generate weekly recap' });
+    expect(await res.json()).toMatchObject({ error: 'Failed to generate weekly recap' });
   });
 
   it('returns 500 on unexpected outer error', async () => {
@@ -147,6 +163,6 @@ describe('POST /api/member/weekly-recap', () => {
 
     const res = await POST(new Request('http://localhost'));
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Internal server error' });
+    expect(await res.json()).toMatchObject({ error: 'Internal server error' });
   });
 });

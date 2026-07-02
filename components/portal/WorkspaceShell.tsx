@@ -30,6 +30,7 @@ import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 import LanguageToggle from '@/components/portal/LanguageToggle';
+import UnreviewedLocaleBanner from '@/components/portal/UnreviewedLocaleBanner';
 import { useTranslations, useLocale } from 'next-intl';
 import { useWorkspaceMobileScrollChrome } from '@/hooks/useWorkspaceMobileScrollChrome';
 
@@ -672,6 +673,7 @@ export default function WorkspaceShell({
         <div ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
           {portalRole === 'member' ? <MemberPortalTopNav badgeCounts={badges} /> : null}
           {topBanner}
+          <UnreviewedLocaleBanner />
           <div className="workspace-shell-main-inner">{children}</div>
           {footer}
         </div>

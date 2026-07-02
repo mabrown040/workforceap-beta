@@ -29,7 +29,7 @@ export default function MobileRecentActivity({
   return (
         <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label={t('recentAIActivity')}>
           <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">{t('recentAIActivity')}</h3>
+            <h2 className="portal-dash-section-header__title">{t('recentAIActivity')}</h2>
             {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">{t('viewAllLower')}</Link>}
           </div>
           {recentTools.length > 0 ? (

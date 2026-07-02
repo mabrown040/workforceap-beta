@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export type PartnerMemberRow = {
   id: string;
@@ -12,6 +13,8 @@ export type PartnerMemberRow = {
   programTitle: string;
   story: string;
   referredAtLabel: string;
+  /** Same field the partner payout flow gates on; null when there's no placement yet. */
+  placementVerified?: boolean | null;
 };
 
 type Filter = 'all' | 'active' | 'placed' | 'atRisk';
@@ -153,20 +156,27 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
                       {row.programTitle} · Enrolled {row.referredAtLabel}
                     </p>
                   </div>
-                  <span
-                    style={{
-                      flexShrink: 0,
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      background: badgeBg,
-                      color: badgeColor,
-                    }}
-                  >
-                    {row.stageLabel}
-                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem', flexShrink: 0 }}>
+                    <span
+                      style={{
+                        padding: '0.2rem 0.6rem',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        background: badgeBg,
+                        color: badgeColor,
+                      }}
+                    >
+                      {row.stageLabel}
+                    </span>
+                    {isPlaced && (
+                      <StatusBadge
+                        label={row.placementVerified ? 'Verified' : 'Pending verification'}
+                        variant={row.placementVerified ? 'success' : 'warning'}
+                      />
+                    )}
+                  </div>
                 </div>
               </Link>
             );

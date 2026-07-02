@@ -76,7 +76,7 @@ export default async function JobMatchScorerPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   science
                 </span>
-                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Methodology</h4>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Methodology</h3>
               </div>
               <p style={{ fontSize: '0.78rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
                 Keyword overlap, semantic similarity, and role-relevant weighting produce an actionable compatibility score.
@@ -87,7 +87,7 @@ export default async function JobMatchScorerPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   shield
                 </span>
-                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Privacy</h4>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Privacy</h3>
               </div>
               <p style={{ fontSize: '0.78rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
                 Job text and resume content are processed for this session. Copy or export results before you leave the page
@@ -99,7 +99,7 @@ export default async function JobMatchScorerPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   info
                 </span>
-                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Session</h4>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Session</h3>
               </div>
               <p style={{ fontSize: '0.78rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
                 Results reflect this run&rsquo;s inputs. Re-run after you update your resume or try a different posting.

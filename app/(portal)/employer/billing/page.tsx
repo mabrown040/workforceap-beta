@@ -56,7 +56,6 @@ export default async function EmployerBillingPage({
     key,
     ...config,
     isCurrent: key === currentTierKey,
-    priceLabel: `$${(config.amount / 100).toLocaleString()}/mo`,
   }));
 
   return (
@@ -120,6 +119,10 @@ export default async function EmployerBillingPage({
         </div>
       </div>
 
+      <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+        Employer accounts start free. Hiring tools and partnership options are discussed with our team.
+      </p>
+
       <div
         style={{
           display: 'grid',
@@ -157,8 +160,8 @@ export default async function EmployerBillingPage({
                 </span>
               )}
             </div>
-            <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
-              {tier.priceLabel}
+            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+              Talk to us about partnership options
             </p>
             <ul style={{ margin: '0 0 1rem', padding: 0, listStyle: 'none' }}>
               <li style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>

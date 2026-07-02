@@ -65,14 +65,14 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      'Michael Brown, PMP, ChE (Chemical Engineering, Texas A&M University), is a highly accomplished engineer and business executive with a distinguished career spanning several decades. WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a recurring Vision given to Michael Brown by God for serving His people. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
+      'Michael A. Brown, PMP, ChE, brings 25 years of workforce development and technology-training experience to WorkforceAP — a 501(c)(3) nonprofit built in Austin on that experience and a recurring Vision given to Michael Brown by God for serving His people. A Chemical Engineering graduate of Texas A&M University, he is a highly accomplished engineer and business executive whose leadership spans the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation — plus his own firm, Consulting Solutions.Net. Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
     missionRelevance:
       '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a recurring Vision given to Michael Brown by God for serving His people — the barrier-breaking experience that built WorkforceAP.',
     bioBlocks: [
       {
         type: 'paragraph',
         text:
-          'Michael Brown, PMP, ChE (Chemical Engineering, Texas A&M University), is a highly accomplished engineer and business executive with a distinguished career spanning several decades.',
+          'Michael A. Brown, PMP, ChE, has spent 25 years in workforce development and technology-enabled training — the exact work he now leads at WorkforceAP. A Chemical Engineering graduate of Texas A&M University, he is a highly accomplished engineer and business executive whose track record spans public agencies, nonprofits, and employer partners alike.',
       },
       {
         type: 'paragraph',
@@ -80,9 +80,19 @@ export const LEADERS: Leader[] = [
           'WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and recurring Vision given to Michael Brown by God for serving His people.',
       },
       {
-        type: 'paragraph',
-        text:
-          'He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
+        type: 'heading',
+        text: 'Track record',
+      },
+      {
+        type: 'bullets',
+        items: [
+          '25+ years in workforce development, occupational training and education, and technology-enabled career pathways',
+          'PMP and ChE credentials; Chemical Engineering degree, Texas A&M University',
+          'Former owner, Consulting Solutions.Net',
+          'Leadership roles with the Texas Workforce Commission, Workforce Solutions, the City of Austin, Goodwill Central Texas, the Austin Area Urban League, ReWork America Alliance, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation',
+          '$15M+ in funding raised and directed across workforce-development grants, contracts, and partnerships',
+          'Leads WorkforceAP, a 501(c)(3) nonprofit (EIN 41-2612389) built in Austin',
+        ],
       },
       {
         type: 'paragraph',
@@ -106,6 +116,8 @@ export const LEADERS: Leader[] = [
       },
     ],
     stats: [
+      { label: 'Experience', value: '25+ years' },
+      { label: 'Focus', value: 'Workforce & Tech Training' },
       { label: 'Family', value: '35 years married' },
       { label: 'Community', value: '100 Black Men of Austin' },
       { label: 'Fraternity', value: 'Alpha Phi Alpha Fraternity' },

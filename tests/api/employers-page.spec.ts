@@ -9,20 +9,30 @@ describe('Employers Page — honest trust presentation', () => {
   // against that page were removed with it; the checks below cover the
   // pieces that still live in this repo's Next app.
 
-  it('keeps trust pricing and intake copy aligned with the current monetization framing', () => {
+  it('shows no employer pricing anywhere — pricing is future state (CEO decision 2026-07-02)', () => {
+    // Employer pricing was removed from every surface: no dollar amounts may
+    // appear on the employer-facing pages, and the orphaned
+    // `marketing.employers` message namespace (which carried the old
+    // $499/$999 tier copy with zero render call sites) must stay deleted so
+    // stale pricing can't silently resurface through a translation file.
     const messagesPath = path.resolve(__dirname, '../../messages/en.json');
     const messages = JSON.parse(readFileSync(messagesPath, 'utf-8')) as {
-      marketing: { employers: Record<string, string> };
+      marketing?: { employers?: Record<string, string> };
     };
-    const copy = messages.marketing.employers;
+    expect(messages.marketing?.employers).toBeUndefined();
 
-    // Copy moved from "pipeline subscription" to contingent pricing per the
-    // monetization-spine decision; the guard now pins the current framing
-    // and still blocks a regression to booking-call CTAs.
-    expect(copy.trustPlaceholderTermsTag).toBe('Contingent pricing');
-    expect(copy.trustPlaceholderTerms.length).toBeGreaterThan(10);
-    expect(copy.intakeCopy).toMatch(/follow up within/i);
-    expect(copy.intakeCopy).not.toMatch(/book a call/i);
+    const employerSurfaces = [
+      '../../marketing/src/pages/employers.astro',
+      '../../app/employers/signup/page.tsx',
+      '../../app/(portal)/employer/billing/page.tsx',
+      '../../components/employer/EmployerLoiForm.tsx',
+    ];
+    for (const rel of employerSurfaces) {
+      const source = readFileSync(path.resolve(__dirname, rel), 'utf-8');
+      // Known historical price points, and any "$N/mo"-style subscription copy.
+      expect(source, `${rel} must not show a price`).not.toMatch(/\$\s?(499|999)\b/);
+      expect(source, `${rel} must not show per-month pricing`).not.toMatch(/\$\s?[\d,]+\s?\/\s?mo/i);
+    }
   });
 
   it('uses a forward icon on the hero CTA instead of a calendar booking cue', () => {

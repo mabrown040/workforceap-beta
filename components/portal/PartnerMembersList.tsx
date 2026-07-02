@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import StatusBadge from './StatusBadge';
 
 type PartnerMember = {
   id: string;
@@ -13,6 +14,8 @@ type PartnerMember = {
   story: string;
   /** When this member was referred to WorkforceAP (shown instead of generic profile update date). */
   referredAtLabel: string;
+  /** Same field the partner payout flow gates on; null when there's no placement yet. */
+  placementVerified?: boolean | null;
 };
 
 export default function PartnerMembersList({ members }: { members: PartnerMember[] }) {
@@ -66,6 +69,12 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
             </div>
             <div className="partner-member-meta">
               <span className={`partner-member-stage stage-${member.stage}`}>{member.stageLabel}</span>
+              {member.stage === 'placed' && (
+                <StatusBadge
+                  label={member.placementVerified ? 'Verified' : 'Pending verification'}
+                  variant={member.placementVerified ? 'success' : 'warning'}
+                />
+              )}
               <span className="partner-member-date">Referred {member.referredAtLabel}</span>
             </div>
           </Link>

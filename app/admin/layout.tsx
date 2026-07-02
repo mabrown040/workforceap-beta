@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import AdminPortalShell from '@/components/portal/AdminPortalShell';
+import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
 import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
@@ -59,6 +60,7 @@ export default async function AdminLayout({
       // is Google Translate's legacy hint. Both, for compatibility.
       <div translate="no" className="notranslate">
         <OrgBrandingBar branding={branding} />
+        <LegacyViewNotice />
         <AdminPortalShell superAdmin={superAdmin} portalRoles={portalRoles}>{children}</AdminPortalShell>
       </div>
     );

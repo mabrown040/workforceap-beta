@@ -8,6 +8,7 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { createNotification } from '@/lib/notifications/create';
 
 /**
  * PATCH /api/admin/members/[id]/coursera-enrollment-approval
@@ -77,6 +78,19 @@ async function _PATCH(
       },
     });
   });
+
+  // Member-facing notification: only on approval — a revocation doesn't
+  // unenroll the member from anything already started (see file header
+  // above), so there's no actionable "you can now..." message for that path.
+  if (approved) {
+    void createNotification({
+      userId: memberId,
+      type: 'task_assigned',
+      title: 'Your training enrollment is approved',
+      body: 'You can now enroll in your program courses from your dashboard.',
+      data: { link: '/dashboard/program' },
+    });
+  }
 
   await auditLog({
     actorUserId: user.id,

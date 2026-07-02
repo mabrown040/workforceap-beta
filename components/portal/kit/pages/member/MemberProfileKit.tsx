@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DesignSurface, Avatar, FormField, Toggle } from '@/components/portal/kit';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
+import LanguageToggle from '@/components/portal/LanguageToggle';
 
 /**
  * Member Portal — PROFILE view (account details + notification prefs).
@@ -337,6 +338,14 @@ export function MemberProfileKit({
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Language — reuses the same switcher as desktop portal chrome so
+            mobile members (who land here via the "Profile & Settings" nav
+            item) can change locale without a bookmarked /fr or /pt URL. */}
+        <div className="wa-kit-card">
+          <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Language</h3>
+          <LanguageToggle />
         </div>
       </div>
     </DesignSurface>

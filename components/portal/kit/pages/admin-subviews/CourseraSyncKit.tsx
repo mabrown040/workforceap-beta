@@ -8,6 +8,7 @@ import {
   Users,
   Gauge,
   CircleSlash,
+  Activity,
 } from 'lucide-react';
 import {
   DesignSurface,
@@ -71,6 +72,10 @@ export interface CourseraSyncKitProps {
   forceSyncHref: string;
   /** Header action (e.g. a link to Coursera health diagnostics). */
   headerAction?: ReactNode;
+  /** Count of members with `courseraEnrollmentApproved = true` (seats used against budget). */
+  approvedForEnrollment: string;
+  /** Distinct members with an xAPI statement in the last 30 days (actively syncing). */
+  activeLast30Days: string;
 }
 
 function healthTone(health: SyncHealth): KitTone {
@@ -133,6 +138,8 @@ export function CourseraSyncKit({
   unmatchedTotal,
   forceSyncHref,
   headerAction,
+  approvedForEnrollment,
+  activeLast30Days,
 }: CourseraSyncKitProps) {
   const color = healthColorVar(health);
   const HealthIcon = health === 'attention' ? TriangleAlert : CircleCheck;
@@ -152,6 +159,8 @@ export function CourseraSyncKit({
       value: errors,
       alert: errors !== '0' && errors !== '—',
     },
+    { icon: <CircleCheck size={14} />, label: 'Approved for enrollment', value: approvedForEnrollment },
+    { icon: <Activity size={14} />, label: 'Active in last 30 days', value: activeLast30Days },
   ];
 
   return (

@@ -11,7 +11,6 @@ export default function EmployerLoiForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [checkoutUrl, setCheckoutUrl] = useState('');
 
   const [formData, setFormData] = useState({
     companyName: '',
@@ -51,7 +50,6 @@ export default function EmployerLoiForm() {
       }
 
       setSuccess(true);
-      setCheckoutUrl(data.checkoutUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -67,16 +65,10 @@ export default function EmployerLoiForm() {
           Letter of Intent Submitted!
         </h2>
         <p className="text-slate-600 mb-6">
-          Thank you for your interest in partnering with WorkforceAP. 
-          Complete your employer profile setup to activate your partnership.
+          Thank you for your interest in partnering with WorkforceAP. Your employer
+          account is free to use — our team will follow up soon to discuss hiring
+          tools and partnership options.
         </p>
-        {checkoutUrl && (
-          <a href={checkoutUrl}>
-            <Button className="bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white px-8 py-3">
-              Complete Setup →
-            </Button>
-          </a>
-        )}
       </div>
     );
   }

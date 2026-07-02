@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
+import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
 import '@/css/portal.css';
 import '@/css/portal-a11y.css';
 import '@/css/dark-mode.css';
@@ -31,6 +32,7 @@ export default function PortalLayout({
   return (
     <>
       <PartnerExclusiveServerGate />
+      <LegacyViewNotice />
       <PortalLayoutClient>{children}</PortalLayoutClient>
     </>
   );

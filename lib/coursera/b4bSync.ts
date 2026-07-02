@@ -93,6 +93,28 @@ async function getB4BToken(): Promise<string> {
 /*  Enrollment report fetch (paginated)                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Next `start` offset for the enrollmentReports pager, or `null` when done.
+ * Pure + exported for unit tests because both failure modes were silent:
+ *   - Coursera doesn't always send `paging.total`; treating missing total as
+ *     0 ended the loop after ONE page (org-wide progress truncation);
+ *   - advancing by `limit` instead of by what actually arrived skipped
+ *     records whenever a page came back short but more remained.
+ * Full page + no total ⇒ assume more; short page ⇒ done.
+ */
+export function nextEnrollmentReportStart(args: {
+  start: number;
+  batchLength: number;
+  limit: number;
+  total: number | undefined;
+}): number | null {
+  const { start, batchLength, limit, total } = args;
+  if (batchLength === 0) return null;
+  if (typeof total === 'number' && start + batchLength >= total) return null;
+  if (typeof total !== 'number' && batchLength < limit) return null;
+  return start + batchLength;
+}
+
 async function fetchEnrollmentReports(token: string, orgId: string): Promise<B4BEnrollmentReport[]> {
   const results: B4BEnrollmentReport[] = [];
   let start = 0;
@@ -117,9 +139,14 @@ async function fetchEnrollmentReports(token: string, orgId: string): Promise<B4B
     const batch = json.elements ?? [];
     results.push(...batch);
 
-    const total = json.paging?.total ?? 0;
-    if (batch.length === 0 || start + batch.length >= total) break;
-    start += limit;
+    const next = nextEnrollmentReportStart({
+      start,
+      batchLength: batch.length,
+      limit,
+      total: json.paging?.total,
+    });
+    if (next === null) break;
+    start = next;
   }
 
   return results;
@@ -405,6 +432,12 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   // Deduplicate by (email, contentId) — keep most recent updatedAt
   const deduped = new Map<string, B4BEnrollmentReport>();
   for (const r of reports) {
+    // email is optional on B4B report rows; one malformed row must not
+    // TypeError the whole sync run before the per-row error handling below.
+    if (!r.email) {
+      result.skippedNoUser += 1;
+      continue;
+    }
     const key = `${r.email.toLowerCase()}|${r.contentId}`;
     const existing = deduped.get(key);
     if (!existing || (r.updatedAt ?? 0) > (existing.updatedAt ?? 0)) {

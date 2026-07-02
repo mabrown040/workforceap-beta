@@ -32,6 +32,44 @@ export default function MemberCourseraEnrollmentApproval({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [enrollConfirmOpen, setEnrollConfirmOpen] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollResult, setEnrollResult] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const enrollNow = async () => {
+    setEnrolling(true);
+    setEnrollResult(null);
+    try {
+      const res = await fetch('/api/admin/coursera/enroll-member', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        status?: string;
+        message?: string;
+        courseName?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setEnrollResult({ ok: false, text: payload.error ?? 'Enrollment failed. Try again.' });
+        return;
+      }
+      const text =
+        payload.status === 'invited'
+          ? `Coursera invite sent — ${memberName} will get an email to join, then courses unlock.`
+          : payload.status === 'already-enrolled'
+            ? `Already enrolled${payload.courseName ? ` in ${payload.courseName}` : ''} — nothing to do.`
+            : `Enrolled${payload.courseName ? ` in ${payload.courseName}` : ''}. Progress will sync automatically.`;
+      setEnrollResult({ ok: true, text });
+      router.refresh();
+    } catch {
+      setEnrollResult({ ok: false, text: 'Could not reach the server.' });
+    } finally {
+      setEnrolling(false);
+      setEnrollConfirmOpen(false);
+    }
+  };
 
   const handleToggle = () => {
     const next = !approved;
@@ -124,6 +162,40 @@ export default function MemberCourseraEnrollmentApproval({
           {approvedByName ? ` by ${approvedByName}` : ''}
         </p>
       )}
+      {approved && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={enrolling}
+            onClick={() => setEnrollConfirmOpen(true)}
+          >
+            {enrolling ? 'Enrolling…' : 'Enroll in Coursera now'}
+          </button>
+          <p
+            style={{
+              margin: '0.4rem 0 0',
+              fontSize: '0.8125rem',
+              color: 'var(--color-on-surface-variant)',
+            }}
+          >
+            Invites them to the Coursera program and starts their first course —
+            no waiting for the member to click Enroll themselves.
+          </p>
+        </div>
+      )}
+      {enrollResult && (
+        <p
+          role={enrollResult.ok ? 'status' : 'alert'}
+          style={{
+            margin: '0.5rem 0 0',
+            fontSize: '0.85rem',
+            color: enrollResult.ok ? 'var(--color-success, #166534)' : 'var(--color-error, #c83232)',
+          }}
+        >
+          {enrollResult.text}
+        </p>
+      )}
       {error && (
         <p
           role="alert"
@@ -136,6 +208,19 @@ export default function MemberCourseraEnrollmentApproval({
           {error}
         </p>
       )}
+      <ConfirmDialog
+        open={enrollConfirmOpen}
+        title="Enroll this member in Coursera now?"
+        body={
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'pre-line' }}>
+            {`Enroll ${memberName} in their assigned program's first course?\n\nIf they're not on Coursera yet, this sends the program invite (they'll get an email). Enrollment uses a paid Coursera seat and is recorded in the audit log.`}
+          </p>
+        }
+        confirmLabel="Enroll now"
+        busy={enrolling}
+        onConfirm={() => void enrollNow()}
+        onCancel={() => setEnrollConfirmOpen(false)}
+      />
       <ConfirmDialog
         open={confirmOpen}
         title="Approve Coursera enrollment?"

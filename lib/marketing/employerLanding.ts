@@ -21,10 +21,6 @@ export function isEmployerHiringPartnerCtaExternal(): boolean {
   return false;
 }
 
-export function getEmployerPlacementFeeDisplay(): string {
-  return process.env.NEXT_PUBLIC_EMPLOYER_PLACEMENT_FEE?.trim() || '2,500';
-}
-
 export type EmployerTrustLogo = {
   companyName: string;
   logoUrl: string | null;

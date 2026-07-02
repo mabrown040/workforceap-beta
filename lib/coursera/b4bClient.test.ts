@@ -22,6 +22,7 @@ function snapshotEnv() {
     'COURSERA_B4B_CLIENT_ID',
     'COURSERA_B4B_CLIENT_SECRET',
     'COURSERA_API_BASE_URL',
+    'COURSERA_B4B_API_BASE_URL',
     'COURSERA_OAUTH_TOKEN_URL',
     'COURSERA_ORG_ID',
   ]) {
@@ -516,4 +517,98 @@ test('B4B timeout defaults to 4000ms when COURSERA_B4B_TIMEOUT_MS is unset/inval
 
   const info = await getOrgInfo();
   assert.ok(info, 'invalid timeout env must fall back to default, not break the call');
+});
+
+test('legacy rest/v1 COURSERA_API_BASE_URL is ignored by B4B calls (env-collision guard)', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+  // The legacy skillset client's base — appending /api/businesses.v1 paths to
+  // it 404s, so getApiBase must fall back to the default /ent base instead.
+  process.env.COURSERA_API_BASE_URL = 'https://api.coursera.com/ent/api/rest/v1';
+  delete process.env.COURSERA_B4B_API_BASE_URL;
+
+  const calls: Call[] = [];
+  _setFetchForTesting(async (url, init) => {
+    calls.push({ url, init });
+    if (url.includes('oauth2')) return jsonResponse({ access_token: 'tok', expires_in: 1800 });
+    return jsonResponse({ elements: [] });
+  });
+
+  await fetchB4B('/api/businesses.v1/ORG/users');
+  const apiCall = calls.find((c) => c.url.includes('businesses.v1'));
+  assert.ok(apiCall, 'expected an API call');
+  assert.ok(
+    apiCall.url.startsWith('https://api.coursera.com/ent/api/businesses.v1/'),
+    `legacy rest/v1 base must not leak into B4B URLs, got ${apiCall.url}`,
+  );
+});
+
+test('COURSERA_B4B_API_BASE_URL takes precedence for B4B calls', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+  process.env.COURSERA_API_BASE_URL = 'https://api.coursera.com/ent/api/rest/v1';
+  process.env.COURSERA_B4B_API_BASE_URL = 'https://b4b.example.test/ent/';
+
+  const calls: Call[] = [];
+  _setFetchForTesting(async (url, init) => {
+    calls.push({ url, init });
+    if (url.includes('oauth2')) return jsonResponse({ access_token: 'tok', expires_in: 1800 });
+    return jsonResponse({ elements: [] });
+  });
+
+  await fetchB4B('/api/businesses.v1/ORG/users');
+  const apiCall = calls.find((c) => c.url.includes('businesses.v1'));
+  assert.ok(apiCall, 'expected an API call');
+  assert.ok(
+    apiCall.url.startsWith('https://b4b.example.test/ent/api/businesses.v1/'),
+    `B4B-specific base (trailing slash trimmed) must win, got ${apiCall.url}`,
+  );
+});
+
+test('401 on a CACHED token re-mints once and replays the request', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  let oauthCount = 0;
+  const apiAuthHeaders: string[] = [];
+  _setFetchForTesting(async (url, init) => {
+    if (url.includes('oauth2')) {
+      oauthCount += 1;
+      return jsonResponse({ access_token: `tok-${oauthCount}`, expires_in: 1800 });
+    }
+    const auth = new Headers(init?.headers).get('Authorization') ?? '';
+    apiAuthHeaders.push(auth);
+    // First API call succeeds (seeds the cache); the next one 401s on the
+    // cached token (server-side revocation) and must succeed on replay.
+    if (apiAuthHeaders.length === 2) return textResponse('token revoked', 401);
+    return jsonResponse({ ok: true });
+  });
+
+  const first = await fetchB4B('/api/businesses.v1/ORG/one');
+  assert.equal(first.status, 200);
+  const second = await fetchB4B('/api/businesses.v1/ORG/two');
+  assert.equal(second.status, 200, '401 on cached token must be retried after re-mint');
+  assert.equal(oauthCount, 2, 'exactly one re-mint');
+  assert.deepEqual(apiAuthHeaders, ['Bearer tok-1', 'Bearer tok-1', 'Bearer tok-2']);
+});
+
+test('401 on a FRESHLY minted token is surfaced, not retried (no loop on bad credentials)', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  let oauthCount = 0;
+  let apiCount = 0;
+  _setFetchForTesting(async (url) => {
+    if (url.includes('oauth2')) {
+      oauthCount += 1;
+      return jsonResponse({ access_token: 'tok', expires_in: 1800 });
+    }
+    apiCount += 1;
+    return textResponse('nope', 401);
+  });
+
+  const res = await fetchB4B('/api/businesses.v1/ORG/users');
+  assert.equal(res.status, 401);
+  assert.equal(oauthCount, 1, 'no re-mint for a fresh-token 401');
+  assert.equal(apiCount, 1, 'no replay for a fresh-token 401');
 });

@@ -149,7 +149,7 @@ export default function EmployerSignupPage() {
                 Create Your <span className="mdx-grad-accent">Employer</span> Account
               </h1>
               <p className="mx-auto">
-                Start a pipeline subscription to access training-aligned candidates. $499/mo Growth tier. Cancel anytime.
+                Create a free employer account to access training-aligned candidates. Hiring tools and partnership options are discussed with our team.
               </p>
             </section>
 

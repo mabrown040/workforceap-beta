@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getStripe, EMPLOYER_TIERS } from '@/lib/stripe/client';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -20,8 +19,10 @@ const loiSchema = z.object({
 
 /**
  * POST /api/employer/loi
- * Employer Letter of Intent — creates a Stripe subscription checkout session
- * and stores the hiring intent in the database for admin review.
+ * Employer Letter of Intent — records the hiring intent in the database for
+ * admin review. Employer accounts start free; pricing and hiring-tool
+ * partnership options are discussed directly with the WorkforceAP team, so
+ * this does not create a paid checkout session.
  */
 async function _POST(request: NextRequest) {
   try {
@@ -82,58 +83,6 @@ async function _POST(request: NextRequest) {
       },
     });
 
-    // Create Stripe checkout session for pipeline subscription
-    // Default to Growth tier ($499/mo) for LOI submissions; admin can adjust
-    const stripe = getStripe();
-    const tierConfig = EMPLOYER_TIERS.growth;
-    let customerId = employerProfile.stripeCustomerId;
-
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: data.contactEmail,
-        name: data.companyName,
-        metadata: { employerId: employerProfile.id, userId: user.id },
-      });
-      customerId = customer.id;
-      await prisma.employer.update({
-        where: { id: employerProfile.id },
-        data: { stripeCustomerId: customerId },
-      });
-    }
-
-    if (!tierConfig.priceId) {
-      return NextResponse.json(
-        { error: 'Stripe price not configured for employer subscriptions' },
-        { status: 503 }
-      );
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      line_items: [
-        {
-          price: tierConfig.priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/employer/loi/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/employer/loi?cancelled=true`,
-      metadata: {
-        employerId: employerProfile.id,
-        hiringIntentId: hiringIntent.id,
-        userId: user.id,
-        tier: 'growth',
-      },
-      subscription_data: {
-        metadata: {
-          employerId: employerProfile.id,
-          hiringIntentId: hiringIntent.id,
-          tier: 'growth',
-        },
-      },
-    });
-
     // Audit log
     await logAuditEvent({
       user: { id: user.id },
@@ -152,7 +101,6 @@ async function _POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       hiringIntentId: hiringIntent.id,
-      checkoutUrl: session.url,
     });
   } catch (error) {
     console.error('POST /api/employer/loi error:', error);

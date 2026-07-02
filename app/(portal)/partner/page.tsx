@@ -141,6 +141,11 @@ export default async function PartnerDashboardPage({
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
   const t = await getTranslations('partner');
+  const isPendingApproval = partnerRow.status === 'pending_approval';
+  // Payout-related UI (payout history, estimated earnings, Stripe Connect)
+  // only surfaces for partners on the payout track. Community partners get
+  // the referral pipeline view without any money-shaped chrome.
+  const showPayouts = isReferralPartner(ctx.partner);
 
   // ── ?ui=kit LEAN PATH (runs AFTER auth/partner guards, BEFORE the heavy
   // loadPartnerReferralBundle + Promise.all aggregations that stall on the
@@ -153,7 +158,7 @@ export default async function PartnerDashboardPage({
       organizationId: ctx.partner.organizationId,
       ...MEMBER_ONLY_WHERE,
     };
-    const [referredCount, enrolledCount, placedCount, pendingPlacementEvents, recentReferrals] =
+    const [referredCount, enrolledCount, placedCount, pendingPlacementEvents, recentReferrals, payoutEvents] =
       await Promise.all([
         prisma.partnerReferral.count({
           where: {
@@ -196,6 +201,20 @@ export default async function PartnerDashboardPage({
             member: { select: { id: true, fullName: true, enrolledAt: true } },
           },
         }),
+        prisma.memberEvent.findMany({
+          where: {
+            eventName: 'PARTNER_PAYOUT_SENT',
+            user: { partnerReferrals: { some: { partnerId: ctx.partnerId } } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+          select: {
+            id: true,
+            createdAt: true,
+            metadata: true,
+            user: { select: { fullName: true } },
+          },
+        }),
       ]);
 
     const placementRate =
@@ -220,10 +239,56 @@ export default async function PartnerDashboardPage({
       })
       .filter((row): row is ReferralKitRow => row !== null);
 
+    // Payout history — PARTNER_PAYOUT_SENT member events carry the paying
+    // partnerId in `metadata`; the relation filter above narrows to this
+    // partner's referred members, and we re-check metadata.partnerId here
+    // so a member referred by more than one partner never shows another
+    // partner's payout. Member identity is reduced to first name + last
+    // initial for privacy.
+    type PayoutHistoryRow = {
+      id: string;
+      memberLabel: string;
+      amountLabel: string;
+      dateLabel: string;
+    };
+    const payoutHistoryRows: PayoutHistoryRow[] = payoutEvents
+      .map((ev) => {
+        const meta = ev.metadata;
+        const metaObj =
+          meta && typeof meta === 'object' && !Array.isArray(meta) ? (meta as Record<string, unknown>) : {};
+        return {
+          ev,
+          eventPartnerId: typeof metaObj.partnerId === 'string' ? metaObj.partnerId : null,
+          amountCents: typeof metaObj.amountCents === 'number' ? metaObj.amountCents : null,
+        };
+      })
+      .filter(({ eventPartnerId }) => eventPartnerId === ctx.partnerId)
+      .map(({ ev, amountCents }) => {
+        const parts = (ev.user.fullName ?? '').trim().split(/\s+/).filter(Boolean);
+        const memberLabel =
+          parts.length === 0
+            ? t('memberFallback')
+            : parts.length === 1
+              ? parts[0]
+              : `${parts[0]} ${parts[parts.length - 1][0]}.`;
+        return {
+          id: ev.id,
+          memberLabel,
+          amountLabel:
+            amountCents != null
+              ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(
+                  amountCents / 100,
+                )
+              : '—',
+          dateLabel: ev.createdAt.toLocaleDateString('en-US'),
+        };
+      });
+
     return (
       <PortalPageFrame maxWidth="80rem">
         <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
           <h1 className="wa-sr-only">Partner overview</h1>
+          {isPendingApproval && <PendingApprovalBanner />}
           <KitSectionHeader
             kicker={t('partnerDashboard')}
             title={ctx.partner.name}
@@ -354,6 +419,27 @@ export default async function PartnerDashboardPage({
             />
           </div>
 
+          {showPayouts ? (
+            <div className="wa-flex wa-flex-col wa-gap-3">
+              <KitSectionHeader
+                title="Payout history"
+                goal="Verified placements that generated a payout to your organization."
+              />
+              <KitDataTable<PayoutHistoryRow>
+                columns={[
+                  { key: 'memberLabel', header: t('name') },
+                  { key: 'dateLabel', header: 'Date' },
+                  { key: 'amountLabel', header: 'Amount' },
+                ]}
+                rows={payoutHistoryRows}
+                rowKey={(row) => row.id}
+                mobile="scroll"
+                emptyTitle="No payouts yet"
+                emptyDescription="Verified placements that generate a payout will appear here."
+              />
+            </div>
+          ) : null}
+
           <div className="wa-flex wa-flex-col wa-gap-3">
             <KitSectionHeader title={t('quickActions')} />
             <PartnerQuickActions
@@ -386,8 +472,6 @@ export default async function PartnerDashboardPage({
       </PortalPageFrame>
     );
   }
-
-  const isPendingApproval = partnerRow.status === 'pending_approval';
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
@@ -472,10 +556,7 @@ export default async function PartnerDashboardPage({
 
   const total = members.length;
 
-  // Payout-related UI (estimated earnings, Stripe Connect, payout-per-placement
-  // copy) only surfaces for partners on the payout track. Community partners
-  // get the referral pipeline view without any money-shaped chrome.
-  const showPayouts = isReferralPartner(ctx.partner);
+  // showPayouts is computed above (shared with the kit v2 path).
   const payoutPerPlacement = getPartnerPlacementPayoutUsd();
   const enrolledCount = members.filter((m) => m.enrolledAt != null).length;
   const estimatedPayout = placements * payoutPerPlacement;

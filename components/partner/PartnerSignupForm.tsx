@@ -213,6 +213,10 @@ export default function PartnerSignupForm() {
         </div>
       ) : null}
 
+      <p style={{ marginBottom: '0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+        Payout eligibility depends on partner type and verification. Placements are verified before any payout, and full details are covered during onboarding.
+      </p>
+
       <button
         type="submit"
         className="btn btn-primary"

@@ -27,6 +27,7 @@ const referralMemberSelect = {
       jobTitle: true,
       salaryOffered: true,
       placedAt: true,
+      startDateVerified: true,
       onboardingWindowEnd: true,
       retentionDecision: true,
     },
@@ -63,6 +64,8 @@ export type ReferralMember = {
     jobTitle: string;
     salaryOffered: number | null;
     placedAt: Date | null;
+    /** Same field the partner payout flow gates on (see lib/partner/payoutEligibility.ts). */
+    startDateVerified: boolean;
     onboardingWindowEnd: Date | null;
     retentionDecision: string | null;
   } | null;
@@ -242,6 +245,10 @@ export function toPartnerMembersListRows(pipelineMembers: PipelineRow[]) {
         allProgramTitles,
         story,
         referredAtLabel: referredAt.toLocaleDateString(),
+        // Same field the partner payout flow gates on — lets the referred-members
+        // list badge a placement as "Verified" vs "Pending verification" instead
+        // of showing "Placed" with no indication of payout-eligibility state.
+        placementVerified: m.placementRecord ? m.placementRecord.startDateVerified : null,
       };
     },
   );

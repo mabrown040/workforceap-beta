@@ -377,6 +377,33 @@ export default async function AdminCourseraPage({
     const kitUnmatched = await loadUnmatchedLearners(50, { includeTestAccounts: false });
     const kitHiddenTest = await countHiddenTestAccountUnmatchedLearners().catch(() => 0);
 
+    // Enrollment seats-vs-budget: how many members are approved to enroll, and
+    // how many are actually generating Coursera activity. "Approved" is honest
+    // (a real DB flag); "active" is a distinct-actor count over the last 30
+    // days rather than a fabricated capacity number.
+    let kitApprovedForEnrollment = 0;
+    let kitActiveLast30Days = 0;
+    try {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const [approvedCount, activeRows] = await Promise.all([
+        prisma.user.count({
+          where: { organizationId, deletedAt: null, courseraEnrollmentApproved: true },
+        }),
+        prisma.$queryRaw<Array<{ count: bigint }>>`
+          SELECT COUNT(DISTINCT actor_user.id)::bigint AS count
+          FROM xapi_statements xs
+          JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
+          WHERE xs.created_at >= ${thirtyDaysAgo}
+            AND actor_user.organization_id = ${organizationId}
+            AND actor_user.deleted_at IS NULL
+        `,
+      ]);
+      kitApprovedForEnrollment = approvedCount;
+      kitActiveLast30Days = Number(activeRows[0]?.count ?? 0);
+    } catch (error) {
+      console.error('[admin/coursera] kit enrollment stats failed:', error);
+    }
+
     const unmatchedRows: UnmatchedLearnerRow[] = kitUnmatched.map((learner) => {
       const topBadge = learner.badges[0];
       const caption = topBadge
@@ -427,6 +454,8 @@ export default async function AdminCourseraPage({
           errors={kitSyncOk ? String(kitSyncStatus.attentionStatementCount) : '—'}
           unmatched={unmatchedRows}
           unmatchedTotal={unmatchedRows.length + kitHiddenTest}
+          approvedForEnrollment={String(kitApprovedForEnrollment)}
+          activeLast30Days={String(kitActiveLast30Days)}
           forceSyncHref="/admin/coursera?ui=legacy"
           headerAction={
             <Link

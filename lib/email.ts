@@ -72,6 +72,20 @@ function getFrom(): string {
   return process.env.EMAIL_FROM || 'WorkforceAP <hello@workforceap.org>';
 }
 
+/**
+ * Recipients for the monthly WIOA report email (see sendWioaReportEmail).
+ * Defaults to ADMIN_EMAIL when WIOA_REPORT_RECIPIENTS is unset — set the env
+ * var to a comma-separated list to route the report to grant/compliance
+ * staff instead of (or in addition to) the shared admin inbox.
+ */
+function getWioaReportRecipients(): string[] {
+  const configured = (process.env.WIOA_REPORT_RECIPIENTS ?? '')
+    .split(',')
+    .map((email) => email.trim())
+    .filter(Boolean);
+  return configured.length > 0 ? configured : [ADMIN_EMAIL];
+}
+
 export function getVoiceCoachTranscriptRecipients(extra: string[] = []): string[] {
   const configured = [
     process.env.VOICE_COACH_TRANSCRIPT_EMAILS ?? '',
@@ -1575,7 +1589,7 @@ export async function sendWioaReportEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getWioaReportRecipients(),
       subject: sanitizeEmailSubjectLine(`WIOA Monthly Report — ${params.periodLabel}`),
       html,
       attachments: [

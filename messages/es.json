@@ -180,7 +180,9 @@
     "languageEs": "Español",
     "languagePt": "Portugués",
     "languageFr": "Francés",
-    "languageEn": "Inglés"
+    "languageEn": "Inglés",
+    "machineTranslationNotice": "Esta traducción se generó automáticamente y puede contener errores.",
+    "machineTranslationNoticeAction": "Cambiar idioma"
   },
   "dashboard": {
     "priorityAction": "Acción prioritaria",

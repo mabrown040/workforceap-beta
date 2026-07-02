@@ -7,7 +7,7 @@ export default function MobileQuickActions({ t }: { t: DashboardTranslator }) {
   return (
         <section aria-label="Quick actions" style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">{t('quickActions')}</h3>
+            <h2 className="portal-dash-section-header__title">{t('quickActions')}</h2>
           </div>
           <div className="portal-quick-grid-2x2">
             {([

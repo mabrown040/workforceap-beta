@@ -19,7 +19,12 @@ const rows = PROGRAMS
   }))
   .sort((a, b) => a.title.localeCompare(b.title));
 
-const updated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+// Hardcoded rather than `new Date()` — this is a content-verified date, not
+// a build date. `new Date()` would silently re-date the document on every
+// build even when nothing changed. Update this string when program pricing
+// or contact hours change (and re-verify the table below against the
+// syllabus at the same time).
+const CONTENT_VERIFIED = 'July 2, 2026';
 const pageTitle = 'Program Price List — Workforce Advancement Project';
 const metaDescription =
   'Official Workforce Advancement Project program price list: program names, contact hours, and maximum program cost for workforce boards and funding partners.';
@@ -53,7 +58,7 @@ const metaDescription =
         billed to workforce boards and other funding partners (WIOA/ETPL), never to members.
         Contact hours match each program's published syllabus.
       </p>
-      <p class="updated">Last updated: {updated}</p>
+      <p class="updated">Last updated: {CONTENT_VERIFIED}</p>
       <button class="printbtn print-hide" onclick="window.print()">Print or save as PDF</button>
     </div>
   </section>

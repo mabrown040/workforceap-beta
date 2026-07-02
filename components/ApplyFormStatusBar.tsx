@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 const steps = [
   { id: 'personal', label: 'Personal', shortLabel: 'Info' },
@@ -21,7 +22,7 @@ export default function ApplyFormStatusBar() {
     if (!el) return;
     const offset = 140;
     const top = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: 'smooth' });
+    window.scrollTo({ top, behavior: scrollBehavior() });
   }, []);
 
   useEffect(() => {

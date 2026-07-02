@@ -13,6 +13,7 @@ import {
   type PaidApplyUtmSource,
 } from '@/lib/apply/paidApplyUtm';
 import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibility';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
@@ -37,7 +38,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
   }, [utmSource]);
 
   const scrollToEligibility = useCallback(() => {
-    document.getElementById(PAID_APPLY_ELIGIBILITY_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById(PAID_APPLY_ELIGIBILITY_ID)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
   }, []);
 
   return (

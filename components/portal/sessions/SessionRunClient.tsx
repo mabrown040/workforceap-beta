@@ -7,6 +7,7 @@ import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type ToolKey =
   | 'resume'
@@ -423,7 +424,7 @@ export default function SessionRunClient({
                 onClick={() => {
                   openCard(t.key);
                   const el = document.getElementById(`session-card-${t.key}`);
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  if (el) el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
                 }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.5rem',

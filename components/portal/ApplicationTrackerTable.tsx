@@ -6,6 +6,7 @@ import { TableSkeleton } from '@/components/ui/Skeleton';
 import DataTable from '@/components/portal/ui/DataTable';
 import { useScrollAffordance } from './useScrollAffordance';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type JobApplication = {
   id: string;
@@ -233,7 +234,7 @@ export default function ApplicationTrackerTable() {
             const next = !showForm;
             setShowForm(next);
             if (next) {
-              setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+              setTimeout(() => formRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }), 50);
             }
           }}
         >

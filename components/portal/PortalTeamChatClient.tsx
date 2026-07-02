@@ -7,6 +7,7 @@ import {
   employerMessagingSurface,
   partnerMessagingSurface,
 } from '@/lib/portal/messagingSurfaces';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type MessageDto = {
   id: string;
@@ -63,7 +64,7 @@ export default function PortalTeamChatClient({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   }, []);
 
   const markRead = useCallback(async () => {

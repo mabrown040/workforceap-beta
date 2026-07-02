@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef } from 'react';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 interface ApiRoute {
   route: string;
@@ -163,7 +164,7 @@ export default function ApiDocsClient({ data }: { data: ApiDocsData }) {
   const scrollToCategory = useCallback((name: string) => {
     const el = categoryRefs.current[name];
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
     }
   }, []);
 

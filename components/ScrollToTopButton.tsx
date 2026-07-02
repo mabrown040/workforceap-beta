@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 /**
  * Floating scroll-to-top button — appears bottom-right after scrolling
@@ -19,7 +20,7 @@ export default function ScrollToTopButton() {
 
   return (
     <button type="button"
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onClick={() => window.scrollTo({ top: 0, behavior: scrollBehavior() })}
       className="scroll-to-top-btn"
       aria-label="Scroll to top"
     >

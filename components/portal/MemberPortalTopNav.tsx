@@ -59,7 +59,7 @@ export default function MemberPortalTopNav({
                 </span>
                 <span className="member-portal-top-nav__label">{tab.label}</span>
                 {badge && badge > 0 ? (
-                  <span className="member-portal-top-nav__badge" aria-label={`${badge} unread`}>
+                  <span className="member-portal-top-nav__badge" aria-label={t('unreadCount', { count: badge })}>
                     {badge > 9 ? '9+' : badge}
                   </span>
                 ) : null}

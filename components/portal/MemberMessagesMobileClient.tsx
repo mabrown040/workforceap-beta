@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,7 +76,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
   const [searchQuery, setSearchQuery] = useState('');
 
   const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   }, []);
 
   const markRead = useCallback(async () => {
@@ -215,7 +216,11 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         <div className="portal-messages-search">
           <div className="portal-messages-search-wrap">
             <span className="material-symbols-outlined portal-messages-search-icon">search</span>
+            <label htmlFor="portal-messages-search-input" className="sr-only">
+              Search conversations
+            </label>
             <input
+              id="portal-messages-search-input"
               ref={searchInputRef}
               type="search"
               value={searchQuery}
@@ -361,7 +366,11 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         onSubmit={send}
         className="wa-flex-shrink-0 wa-flex wa-items-end wa-gap-2 wa-px-3 wa-py-3 portal-messages-compose"
       >
+        <label htmlFor="portal-messages-compose-input" className="sr-only">
+          Message
+        </label>
         <textarea
+          id="portal-messages-compose-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
@@ -373,7 +382,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           placeholder="Type a message…"
           maxLength={8000}
           rows={1}
-          className="wa-flex-1 wa-resize-none wa-px-4 wa-py-3 wa-rounded-2xl wa-text-sm portal-messages-compose-input focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-[var(--color-accent)]/35 placeholder:opacity-50"
+          className="wa-flex-1 wa-resize-none wa-px-4 wa-py-3 wa-rounded-2xl wa-text-sm portal-messages-compose-input focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-[var(--color-accent)]/35"
           style={{ maxHeight: '8rem', overflowY: 'auto' }}
         />
         <button

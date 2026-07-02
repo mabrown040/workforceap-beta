@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type AppMsg = {
   id: string;
@@ -39,7 +40,7 @@ export default function EmployerApplicationChatClient({
   }, [apiPath]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
     void markRead();
   }, [messages.length, markRead]);
 
@@ -169,7 +170,11 @@ export default function EmployerApplicationChatClient({
           alignItems: 'flex-end',
         }}
       >
+        <label htmlFor="employer-application-chat-input" className="sr-only">
+          Message
+        </label>
         <textarea
+          id="employer-application-chat-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Type a message…"

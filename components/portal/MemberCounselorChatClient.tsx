@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import { memberMessagingSurface } from '@/lib/portal/messagingSurfaces';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type ThreadDto = {
   id: string;
@@ -53,7 +54,7 @@ export default function MemberCounselorChatClient({
   const realtimeInstanceRef = useRef(0);
 
   const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   }, []);
 
   const markRead = useCallback(async () => {

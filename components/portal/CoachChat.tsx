@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { useTranslations } from 'next-intl';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 import styles from './CoachChat.module.css';
 
 type ChatRole = 'user' | 'assistant';
@@ -147,7 +148,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
   const suggestedPrompts = useMemo(() => buildSuggestedPrompts(greeting, t), [greeting, t]);
 
   const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'end' });
   }, []);
 
   useEffect(() => {

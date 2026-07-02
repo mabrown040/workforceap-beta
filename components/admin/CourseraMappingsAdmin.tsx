@@ -6,6 +6,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import { DataLandingEmptyArt } from '@/components/graphics/DataLandingEmptyArt';
 import DataTable from '@/components/portal/ui/DataTable';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type MemberOption = {
   id: string;
@@ -320,7 +321,7 @@ export default function CourseraMappingsAdmin({
     setMessage(null);
     requestAnimationFrame(() => {
       const el = document.getElementById('coursera-mapping-form-top');
-      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
       document.getElementById('coursera-mapping-userId')?.focus();
     });
   }

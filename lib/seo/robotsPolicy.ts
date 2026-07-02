@@ -5,6 +5,9 @@ export const PRODUCTION_DISALLOW_PATHS = [
   '/admin/',
   '/api/',
   '/invite/',
+  // Internal funder document (TWC/EdVera price list & bid letter) — unlisted
+  // by design; the page also carries a noindex meta.
+  '/programs/price-list',
   '/dashboard/',
   '/employer/',
   '/partner/',

@@ -45,59 +45,58 @@ export async function getWeeklyRecapCohortStats(orgId?: string | null): Promise<
 
   const userWhere: Prisma.UserWhereInput = { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) };
 
-  const users = await prisma.user.findMany({
-    where: userWhere,
-    select: { id: true, enrolledProgram: true },
-  });
-  const byCohort = userIdsByCohort(users);
+  // PERF: cohort membership counts and recap rollups are both pushed into
+  // Postgres (groupBy / a joined aggregate query) instead of materializing
+  // every non-deleted user plus the org's entire weekly_recaps history into
+  // app memory and re-scanning it once per cohort in JS. Same cohort set and
+  // per-cohort numbers as before — just computed DB-side.
+  const [memberCounts, recapAggregates] = await Promise.all([
+    prisma.user.groupBy({
+      by: ['enrolledProgram'],
+      where: userWhere,
+      _count: { _all: true },
+    }),
+    prisma.$queryRaw<
+      Array<{
+        enrolledProgram: string | null;
+        totalRecaps: number;
+        membersWithRecap: number;
+        recapsLast7Days: number;
+        avgReadinessScore: number | string | null;
+      }>
+    >`
+      SELECT
+        u.enrolled_program AS "enrolledProgram",
+        COUNT(*)::int AS "totalRecaps",
+        COUNT(DISTINCT wr.user_id)::int AS "membersWithRecap",
+        COUNT(*) FILTER (WHERE wr.generated_at >= ${sevenDaysAgo})::int AS "recapsLast7Days",
+        AVG(wr.readiness_score_snapshot) FILTER (WHERE wr.readiness_score_snapshot IS NOT NULL) AS "avgReadinessScore"
+      FROM weekly_recaps wr
+      JOIN users u ON u.id = wr.user_id
+      WHERE u.deleted_at IS NULL
+        ${orgId ? Prisma.sql`AND u.organization_id = ${orgId}` : Prisma.empty}
+      GROUP BY u.enrolled_program
+    `,
+  ]);
 
-  // Recaps must be scoped to the same org-filtered user set as `users` above
-  // (via the `user` relation — WeeklyRecap has no organizationId of its own),
-  // and paged through in full rather than sampled with `take`, since a single
-  // capped/unordered fetch silently truncates once an org exceeds the cap.
-  const recapWhere: Prisma.WeeklyRecapWhereInput = { user: userWhere };
-  const PAGE_SIZE = 1000;
-  const recaps: Array<{ userId: string; generatedAt: Date; readinessScoreSnapshot: number | null }> = [];
-  let cursor: string | undefined;
-  for (;;) {
-    const page = await prisma.weeklyRecap.findMany({
-      where: recapWhere,
-      select: { id: true, userId: true, generatedAt: true, readinessScoreSnapshot: true },
-      orderBy: { id: 'asc' },
-      take: PAGE_SIZE,
-      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
-    });
-    if (page.length === 0) break;
-    for (const { id: _id, ...rest } of page) recaps.push(rest);
-    cursor = page[page.length - 1]!.id;
-    if (page.length < PAGE_SIZE) break;
-  }
+  const recapByCohort = new Map(
+    recapAggregates.map((r) => [r.enrolledProgram ?? NONE_KEY, r]),
+  );
 
-  const rows: WeeklyRecapCohortRow[] = [];
-
-  for (const [cohortKey, ids] of byCohort) {
-    const memberCount = ids.size;
-    const cohortRecaps = recaps.filter((r) => ids.has(r.userId));
-    const membersWithRecap = new Set(cohortRecaps.map((r) => r.userId)).size;
-    const recapsLast7Days = cohortRecaps.filter((r) => r.generatedAt >= sevenDaysAgo).length;
-    const withScore = cohortRecaps.filter((r) => r.readinessScoreSnapshot != null);
-    const avgReadinessScore =
-      withScore.length > 0
-        ? Math.round(
-            withScore.reduce((s, r) => s + (r.readinessScoreSnapshot ?? 0), 0) / withScore.length
-          )
-        : null;
-
-    rows.push({
+  const rows: WeeklyRecapCohortRow[] = memberCounts.map((m) => {
+    const cohortKey = m.enrolledProgram ?? NONE_KEY;
+    const recap = recapByCohort.get(cohortKey);
+    return {
       cohortKey,
       cohortLabel: cohortLabel(cohortKey === NONE_KEY ? null : cohortKey),
-      memberCount,
-      membersWithRecap,
-      totalRecaps: cohortRecaps.length,
-      recapsLast7Days,
-      avgReadinessScore,
-    });
-  }
+      memberCount: m._count._all,
+      membersWithRecap: recap?.membersWithRecap ?? 0,
+      totalRecaps: recap?.totalRecaps ?? 0,
+      recapsLast7Days: recap?.recapsLast7Days ?? 0,
+      avgReadinessScore:
+        recap?.avgReadinessScore != null ? Math.round(Number(recap.avgReadinessScore)) : null,
+    };
+  });
 
   rows.sort((a, b) => b.memberCount - a.memberCount);
   return rows;

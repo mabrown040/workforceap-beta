@@ -2,6 +2,7 @@
 
 import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
 /**
@@ -10,39 +11,42 @@ import type { NavBadgeKey } from '@/lib/nav/portalNav';
  */
 const MOBILE_NAV_BREAKPOINT = 768;
 
+// `labelKey` resolves against the `nav.mobileBottomNav` message namespace
+// (see messages/*.json) so this persistent piece of mobile chrome renders in
+// the active locale instead of hardcoded English.
 const MARKETING_TABS = [
-  { href: '/', label: 'Home', icon: 'home' },
-  { href: '/career-quiz', label: 'Quiz', icon: 'explore' },
-  { href: '/programs', label: 'Programs', icon: 'school' },
-  { href: '/apply', label: 'Apply', icon: 'assignment_turned_in' },
+  { href: '/', labelKey: 'marketing.home', icon: 'home' },
+  { href: '/career-quiz', labelKey: 'marketing.quiz', icon: 'explore' },
+  { href: '/programs', labelKey: 'marketing.programs', icon: 'school' },
+  { href: '/apply', labelKey: 'marketing.apply', icon: 'assignment_turned_in' },
 ];
 
 const EMPLOYER_TABS = [
-  { href: '/employer', label: 'Overview', icon: 'dashboard' },
-  { href: '/employer/jobs', label: 'Jobs', icon: 'work' },
-  { href: '/employer/pipeline', label: 'Pipeline', icon: 'account_tree' },
-  { href: '/employer/messages', label: 'Messages', icon: 'chat' },
+  { href: '/employer', labelKey: 'employer.overview', icon: 'dashboard' },
+  { href: '/employer/jobs', labelKey: 'employer.jobs', icon: 'work' },
+  { href: '/employer/pipeline', labelKey: 'employer.pipeline', icon: 'account_tree' },
+  { href: '/employer/messages', labelKey: 'employer.messages', icon: 'chat' },
 ];
 
 const COUNSELOR_TABS = [
-  { href: '/counselor', label: 'Overview', icon: 'dashboard' },
-  { href: '/counselor/students', label: 'Members', icon: 'groups' },
-  { href: '/counselor/messages', label: 'Messages', icon: 'chat' },
-  { href: '/counselor/resources', label: 'Resources', icon: 'menu_book' },
+  { href: '/counselor', labelKey: 'counselor.overview', icon: 'dashboard' },
+  { href: '/counselor/students', labelKey: 'counselor.members', icon: 'groups' },
+  { href: '/counselor/messages', labelKey: 'counselor.messages', icon: 'chat' },
+  { href: '/counselor/resources', labelKey: 'counselor.resources', icon: 'menu_book' },
 ];
 
 const PARTNER_TABS = [
-  { href: '/partner', label: 'Overview', icon: 'dashboard' },
-  { href: '/partner/referred-members', label: 'Members', icon: 'groups' },
-  { href: '/partner/messages', label: 'Messages', icon: 'chat' },
-  { href: '/partner/milestones', label: 'Milestones', icon: 'flag' },
-  { href: '/partner/outcomes', label: 'Outcomes', icon: 'bar_chart' },
+  { href: '/partner', labelKey: 'partner.overview', icon: 'dashboard' },
+  { href: '/partner/referred-members', labelKey: 'partner.members', icon: 'groups' },
+  { href: '/partner/messages', labelKey: 'partner.messages', icon: 'chat' },
+  { href: '/partner/milestones', labelKey: 'partner.milestones', icon: 'flag' },
+  { href: '/partner/outcomes', labelKey: 'partner.outcomes', icon: 'bar_chart' },
 ];
 
 const ADMIN_TABS = [
-  { href: '/admin', label: 'Today', icon: 'home' },
-  { href: '/admin/command-center', label: 'Queue', icon: 'assignment_ind' },
-  { href: '/admin/members', label: 'Members', icon: 'groups' },
+  { href: '/admin', labelKey: 'admin.today', icon: 'home' },
+  { href: '/admin/command-center', labelKey: 'admin.queue', icon: 'assignment_ind' },
+  { href: '/admin/members', labelKey: 'admin.members', icon: 'groups' },
 ];
 
 interface MobileBottomNavProps {
@@ -59,6 +63,8 @@ function prefetchForBottomTab(variant: MobileBottomNavProps['variant'], href: st
 
 export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: MobileBottomNavProps) {
   const pathname = usePathname() ?? '';
+  const t = useTranslations('nav.mobileBottomNav');
+  const tNav = useTranslations('nav');
   // Member portal switched from bottom-tab to sticky-top horizontal-scroll nav
   // (/plan-design-review Decision 3, 2026-04-25). The top nav is rendered by
   // WorkspaceShell. Pages that still call <MobileBottomNav variant="portal"/>
@@ -88,7 +94,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
       `}</style>
       <nav
         id="mobile-bottom-nav"
-        aria-label="Primary mobile navigation"
+        aria-label={t('ariaLabel')}
         className={`marketing-bottom-nav mobile-bottom-nav-root mobile-bottom-nav--${variant}`}
         style={{
           position: 'fixed',
@@ -103,13 +109,14 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
         paddingLeft: variant === 'marketing' ? '0.5rem' : '0.25rem',
         paddingRight: variant === 'marketing' ? '0.5rem' : '0.25rem',
         paddingTop: '0.5rem',
-        paddingBottom: 'env(safe-area-inset-bottom, 0.5rem)',
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
       }}
     >
       {tabs.map((tab) => {
-        const { href, label, icon } = tab;
+        const { href, labelKey, icon } = tab;
+        const label = t(labelKey);
         const tourTarget = 'tourTarget' in tab ? tab.tourTarget : undefined;
         const exactMatch = ['/', '/dashboard', '/admin', '/employer', '/counselor', '/partner'];
         const isActive = exactMatch.includes(href)
@@ -140,7 +147,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
               </span>
               {b > 0 ? (
                 <span
-                  aria-label={`${b} unread`}
+                  aria-label={tNav('unreadCount', { count: b })}
                   style={{
                     position: 'absolute',
                     top: -2,

@@ -49,6 +49,7 @@ vi.mock('@/lib/db/prisma', () => ({
     },
     profile: {
       findMany: vi.fn(async () => []),
+      groupBy: vi.fn(async () => []),
     },
   },
 }));

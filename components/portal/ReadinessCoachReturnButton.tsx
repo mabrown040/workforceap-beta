@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Target } from 'lucide-react';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type ReadinessCoachReturnButtonProps = {
   targetId?: string;
@@ -25,7 +26,7 @@ export default function ReadinessCoachReturnButton({
     <button
       type="button"
       onClick={() => {
-        document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById(targetId)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
       }}
       aria-label="Jump back to readiness coach"
       className="md:wa-hidden"

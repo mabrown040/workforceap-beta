@@ -87,8 +87,7 @@ export default function PWAInstallPrompt() {
         gap: '0.75rem',
         flexWrap: 'wrap',
       }}
-      role="alert"
-      aria-live="polite"
+      role="status"
     >
       <Image
         src="/images/icon-192x192.png"
@@ -114,6 +113,7 @@ export default function PWAInstallPrompt() {
             border: '1px solid rgba(255,255,255,0.4)',
             color: '#fff',
             padding: '0.5rem 0.75rem',
+            minHeight: 44,
             borderRadius: '0.5rem',
             fontSize: '0.8125rem',
             fontWeight: 600,
@@ -129,6 +129,7 @@ export default function PWAInstallPrompt() {
             color: 'var(--color-accent-dark, #8a233d)',
             border: 'none',
             padding: '0.5rem 0.875rem',
+            minHeight: 44,
             borderRadius: '0.5rem',
             fontSize: '0.8125rem',
             fontWeight: 700,

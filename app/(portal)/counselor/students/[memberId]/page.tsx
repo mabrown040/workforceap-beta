@@ -116,9 +116,24 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   // "has the member applied yet?" signal that the timeline needs early.
   const [memberEvents, programAvg, applicationCount] = await Promise.all([
     prisma.memberEvent.findMany({
-      where: { userId: memberId },
+      // Only the 5 milestone events below are ever read from this array, and
+      // `metadata` is never inspected — narrowing both keeps this to a few
+      // dozen rows off the existing @@index([userId, eventName, createdAt])
+      // instead of the member's entire event history with JSON payloads.
+      where: {
+        userId: memberId,
+        eventName: {
+          in: [
+            'program_enrolled',
+            'assessment_completed',
+            'course_completed',
+            'certification_earned',
+            'placement_recorded',
+          ],
+        },
+      },
       orderBy: { createdAt: 'asc' },
-      select: { eventName: true, createdAt: true, metadata: true },
+      select: { eventName: true, createdAt: true },
     }),
     member.enrolledProgram
       ? prisma.memberProgramProgress.groupBy({

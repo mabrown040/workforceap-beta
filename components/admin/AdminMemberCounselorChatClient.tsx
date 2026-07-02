@@ -7,6 +7,7 @@ import {
   adminMessagingSurface,
   counselorStaffMessagingSurface,
 } from '@/lib/portal/messagingSurfaces';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type ThreadDto = {
   id: string;
@@ -71,7 +72,7 @@ export default function AdminMemberCounselorChatClient({
     if (hasMountedRef.current) {
       // Only auto-scroll the chat into view for messages that arrive after the
       // initial render (e.g. realtime/sent messages), never on first mount.
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
     } else {
       hasMountedRef.current = true;
     }

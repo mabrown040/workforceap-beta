@@ -77,7 +77,7 @@ html.dark .mobile-funnel-back-btn:hover {
 
 .mobile-funnel-footer {
   flex-shrink: 0;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--outline-variant, #e5e5e5);
   background: var(--surface, #ffffff);
   position: relative;
@@ -304,7 +304,7 @@ html.dark .tracked-card {
   left: 0;
   right: 0;
   z-index: 50;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
   background: var(--surface, #ffffff);
   border-top: 1px solid var(--outline-variant, #e5e5e5);
   box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
@@ -370,7 +370,7 @@ html.dark .mobile-sticky-cta {
 }
 
 .mobile-sticky-cta-spacer {
-  height: 80px;
+  height: calc(80px + env(safe-area-inset-bottom, 0px));
   flex-shrink: 0;
 }
 

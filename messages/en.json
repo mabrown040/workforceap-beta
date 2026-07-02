@@ -49,7 +49,41 @@
     "openMenu": "Open menu",
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
-    "workspaceTabs": "Workspace tabs"
+    "workspaceTabs": "Workspace tabs",
+    "unreadCount": "{count, plural, one {# unread} other {# unread}}",
+    "mobileBottomNav": {
+      "ariaLabel": "Primary mobile navigation",
+      "marketing": {
+        "home": "Home",
+        "quiz": "Quiz",
+        "programs": "Programs",
+        "apply": "Apply"
+      },
+      "employer": {
+        "overview": "Overview",
+        "jobs": "Jobs",
+        "pipeline": "Pipeline",
+        "messages": "Messages"
+      },
+      "counselor": {
+        "overview": "Overview",
+        "members": "Members",
+        "messages": "Messages",
+        "resources": "Resources"
+      },
+      "partner": {
+        "overview": "Overview",
+        "members": "Members",
+        "messages": "Messages",
+        "milestones": "Milestones",
+        "outcomes": "Outcomes"
+      },
+      "admin": {
+        "today": "Today",
+        "queue": "Queue",
+        "members": "Members"
+      }
+    }
   },
   "cta": {
     "applyNow": "Apply Now",

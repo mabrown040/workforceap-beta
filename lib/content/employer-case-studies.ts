@@ -47,7 +47,7 @@ export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
     outcome_summary: 'IT support and patient coordination pathways',
     role_filled: 'IT support + patient coordination',
     quote:
-      'Health Information Technology and IT Support pathways prepare members for administrative healthcare IT roles and patient coordination positions. Members complete HIPAA-aware training and medical coding fundamentals.',
+      'Medical billing, health information, and IT Support pathways prepare members for administrative healthcare IT roles and patient coordination positions. Members complete HIPAA-aware training and medical coding fundamentals.',
     attribution_name: '',
     attribution_title: '',
   },

@@ -49,7 +49,41 @@
     "openMenu": "Abrir menú",
     "expandSidebar": "Expandir barra lateral",
     "collapseSidebar": "Contraer barra lateral",
-    "workspaceTabs": "Pestañas del espacio de trabajo"
+    "workspaceTabs": "Pestañas del espacio de trabajo",
+    "unreadCount": "{count, plural, one {# sin leer} other {# sin leer}}",
+    "mobileBottomNav": {
+      "ariaLabel": "Navegación móvil principal",
+      "marketing": {
+        "home": "Inicio",
+        "quiz": "Cuestionario",
+        "programs": "Programas",
+        "apply": "Solicitar"
+      },
+      "employer": {
+        "overview": "Resumen",
+        "jobs": "Empleos",
+        "pipeline": "Proceso",
+        "messages": "Mensajes"
+      },
+      "counselor": {
+        "overview": "Resumen",
+        "members": "Miembros",
+        "messages": "Mensajes",
+        "resources": "Recursos"
+      },
+      "partner": {
+        "overview": "Resumen",
+        "members": "Miembros",
+        "messages": "Mensajes",
+        "milestones": "Hitos",
+        "outcomes": "Resultados"
+      },
+      "admin": {
+        "today": "Hoy",
+        "queue": "Cola",
+        "members": "Miembros"
+      }
+    }
   },
   "cta": {
     "applyNow": "Solicita ahora",

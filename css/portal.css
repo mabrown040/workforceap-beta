@@ -1284,6 +1284,12 @@
   color: var(--color-on-surface);
 }
 
+.portal-messages-search-input:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
 .portal-messages-search-wrap {
   position: relative;
 }
@@ -1398,6 +1404,11 @@
   background: var(--surface-container);
   border: 1px solid rgba(222, 191, 194, 0.2);
   color: var(--color-on-surface);
+}
+
+.portal-messages-compose-input::placeholder {
+  color: color-mix(in srgb, var(--color-on-surface-variant) 90%, transparent);
+  opacity: 1;
 }
 
 .portal-messages-tip-card {

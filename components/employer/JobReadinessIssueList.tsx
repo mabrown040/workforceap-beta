@@ -1,6 +1,7 @@
 'use client';
 
 import type { JobReadinessIssue } from '@/lib/employer/jobReadiness';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 const READINESS_TARGET_IDS: Record<JobReadinessIssue['target'], string> = {
   location: 'job-form-target-location',
@@ -24,7 +25,7 @@ export default function JobReadinessIssueList({ issues }: { issues: JobReadiness
     const target = document.getElementById(targetId);
     if (!target) return;
 
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
     window.history.replaceState(null, '', `#${targetId}`);
     window.setTimeout(() => focusWithinTarget(target), 160);
   };

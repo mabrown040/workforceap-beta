@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import JobForm from '@/components/employer/JobForm';
 import { trackEmployerImport, trackFunnelEvent } from '@/lib/analytics/events';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type ImportJobClientProps = {
   companyName: string;
@@ -157,7 +158,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
 
   useEffect(() => {
     if (bulkResult && bulkResult.created.length > 0 && successCardRef.current) {
-      successCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      successCardRef.current.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
     }
   }, [bulkResult]);
 

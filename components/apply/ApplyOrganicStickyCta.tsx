@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibility';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 const FORM_START_ID = 'apply-form-start';
 /** Keep sticky hidden while the post-hero apply corridor is visible (form, sidebar, help, supp cards, footer). */
@@ -14,7 +15,7 @@ export default function ApplyOrganicStickyCta() {
   const visible = useApplyStickyCtaVisibility(STICKY_HIDE_SELECTOR);
 
   const scrollToForm = useCallback(() => {
-    document.getElementById(FORM_START_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById(FORM_START_ID)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
   }, []);
 
   if (!visible) return null;

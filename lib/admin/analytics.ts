@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
 /**
@@ -56,9 +57,25 @@ function monthLabel(d: Date): string {
 export async function getAnalyticsOverview(organizationId?: string): Promise<AnalyticsOverview> {
   const now = new Date();
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const orgFilterSql = organizationId ? Prisma.sql`AND u.organization_id = ${organizationId}` : Prisma.empty;
 
-  // ── Member status counts ──
-  const [enrolled, active, placed, inactive] = await Promise.all([
+  // All of the reads below are independent of one another (none consumes
+  // another's output), so they run as one Promise.all instead of one
+  // sequential round trip at a time. The two full-table-shaped rollups
+  // (program progress, completed-training) are also pushed down to
+  // Postgres (groupBy / a single joined COUNT) instead of materializing
+  // every active/enrolled member's rows and aggregating in JS.
+  const [
+    enrolled,
+    active,
+    placed,
+    inactive,
+    enrolledMembers,
+    programProgressGroups,
+    completedTrainingCountRows,
+    dropOffCount,
+    assignments,
+  ] = await Promise.all([
     prisma.user.count({
       where: {
         deletedAt: null,
@@ -87,18 +104,58 @@ export async function getAnalyticsOverview(organizationId?: string): Promise<Ana
         ...(organizationId ? { organizationId } : {}),
       },
     }),
+    // ── Enrollment trend (last 6 months) ──
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        enrolledAt: { gte: sixMonthsAgo },
+        ...(organizationId ? { organizationId } : {}),
+      },
+      select: { enrolledAt: true },
+    }),
+    // ── Training progress by program (active members only) ──
+    prisma.memberProgramProgress.groupBy({
+      by: ['programSlug'],
+      where: {
+        user: {
+          deletedAt: null,
+          memberStatus: 'active',
+          ...(organizationId ? { organizationId } : {}),
+        },
+      },
+      _avg: { averagePercent: true },
+      _count: { _all: true },
+    }),
+    // ── Completed-training count: enrolled members whose progress row for
+    // their own enrolledProgram shows 100%+ or at least one completed course.
+    prisma.$queryRaw<Array<{ count: number }>>`
+      SELECT COUNT(DISTINCT u.id)::int AS count
+      FROM users u
+      JOIN member_program_progress mpp
+        ON mpp.user_id = u.id AND mpp.program_slug = u.enrolled_program
+      WHERE u.deleted_at IS NULL
+        AND u.enrolled_program IS NOT NULL
+        ${orgFilterSql}
+        AND (mpp.average_percent >= 100 OR mpp.courses_completed > 0)
+    `,
+    // ── Drop-off: members with staleTrainingDetectedAt set ──
+    prisma.user.count({
+      where: {
+        deletedAt: null,
+        staleTrainingDetectedAt: { not: null },
+        ...(organizationId ? { organizationId } : {}),
+      },
+    }),
+    // ── Counselor load ──
+    prisma.counselorAssignment.findMany({
+      where: { active: true },
+      select: {
+        counselorId: true,
+        memberId: true,
+      },
+    }),
   ]);
-
-  // ── Enrollment trend (last 6 months) ──
-  const enrolledMembers = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-      enrolledProgram: { not: null },
-      enrolledAt: { gte: sixMonthsAgo },
-      ...(organizationId ? { organizationId } : {}),
-    },
-    select: { enrolledAt: true },
-  });
 
   const trendMap = new Map<string, EnrollmentTrend>();
   for (let i = 0; i < 6; i++) {
@@ -114,61 +171,17 @@ export async function getAnalyticsOverview(organizationId?: string): Promise<Ana
   }
   const enrollmentTrend = [...trendMap.values()].sort((a, b) => a.month.localeCompare(b.month));
 
-  // ── Training progress by program ──
-  // Pull active members with their program progress rows
-  const activeMembers = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-      memberStatus: 'active',
-      ...(organizationId ? { organizationId } : {}),
-    },
-    select: {
-      memberProgramProgress: {
-        select: { programSlug: true, averagePercent: true },
-      },
-    },
-  });
-
-  const progMap = new Map<string, { totalPercent: number; count: number }>();
-  for (const m of activeMembers) {
-    for (const p of m.memberProgramProgress) {
-      const cur = progMap.get(p.programSlug) ?? { totalPercent: 0, count: 0 };
-      cur.totalPercent += p.averagePercent ?? 0;
-      cur.count += 1;
-      progMap.set(p.programSlug, cur);
-    }
-  }
-  const programProgress: ProgramProgress[] = [...progMap.entries()].map(([slug, agg]) => ({
-    programSlug: slug,
-    avgPercent: agg.count > 0 ? Math.round(agg.totalPercent / agg.count) : 0,
-    activeMembers: agg.count,
-  })).sort((a, b) => b.activeMembers - a.activeMembers);
+  const programProgress: ProgramProgress[] = programProgressGroups
+    .map((g) => ({
+      programSlug: g.programSlug,
+      avgPercent: g._count._all > 0 ? Math.round(g._avg.averagePercent ?? 0) : 0,
+      activeMembers: g._count._all,
+    }))
+    .sort((a, b) => b.activeMembers - a.activeMembers);
 
   // ── Placement rate: placed / (placed + completed-training) ──
   const placedCount = placed;
-  // completed-training = members who are certified (memberProgramCompleted logic)
-  const completedTrainingMembers = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-      enrolledProgram: { not: null },
-      ...(organizationId ? { organizationId } : {}),
-    },
-    select: {
-      enrolledProgram: true,
-      memberProgramProgress: {
-        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-      },
-    },
-  });
-
-  // Use the same helper logic from boardOutcomes for "completed"
-  const completedCount = completedTrainingMembers.filter((m) => {
-    const prog = m.enrolledProgram;
-    if (!prog) return false;
-    const row = m.memberProgramProgress.find((p) => p.programSlug === prog);
-    if (!row) return false;
-    return (row.averagePercent ?? 0) >= 100 || (row.coursesCompleted ?? 0) > 0;
-  }).length;
+  const completedCount = completedTrainingCountRows[0]?.count ?? 0;
 
   const placementRateDenominator = placedCount + completedCount;
   const placementRate: PlacementRate = {
@@ -177,29 +190,25 @@ export async function getAnalyticsOverview(organizationId?: string): Promise<Ana
     rate: placementRateDenominator > 0 ? Math.round((placedCount / placementRateDenominator) * 100) : 0,
   };
 
-  // ── Drop-off: members with staleTrainingDetectedAt set ──
-  const dropOffCount = await prisma.user.count({
-    where: {
-      deletedAt: null,
-      staleTrainingDetectedAt: { not: null },
-      ...(organizationId ? { organizationId } : {}),
-    },
-  });
-
-  // ── Counselor load ──
-  const assignments = await prisma.counselorAssignment.findMany({
-    where: { active: true },
-    select: {
-      counselorId: true,
-      memberId: true,
-    },
-  });
-
   const counselorIds = Array.from(new Set(assignments.map((a) => a.counselorId)));
-  const counselorUsers = await prisma.user.findMany({
-    where: { id: { in: counselorIds } },
-    select: { id: true, fullName: true },
-  });
+  const assignedMemberIds = new Set(assignments.map((a) => a.memberId));
+
+  // Counselor name lookup and the unassigned-members count both depend only
+  // on `assignments` (already resolved above), not on each other.
+  const [counselorUsers, unassignedCount] = await Promise.all([
+    prisma.user.findMany({
+      where: { id: { in: counselorIds } },
+      select: { id: true, fullName: true },
+    }),
+    prisma.user.count({
+      where: {
+        deletedAt: null,
+        memberStatus: 'active',
+        id: { notIn: [...assignedMemberIds] },
+        ...(organizationId ? { organizationId } : {}),
+      },
+    }),
+  ]);
   const counselorNameMap = new Map(counselorUsers.map((u) => [u.id, u.fullName ?? 'Unnamed counselor']));
 
   const counselorMap = new Map<string, { name: string; members: Set<string> }>();
@@ -213,17 +222,6 @@ export async function getAnalyticsOverview(organizationId?: string): Promise<Ana
     counselorName: c.name,
     memberCount: c.members.size,
   })).sort((a, b) => b.memberCount - a.memberCount);
-
-  // Unassigned = active members not in any active assignment
-  const assignedMemberIds = new Set(assignments.map((a) => a.memberId));
-  const unassignedCount = await prisma.user.count({
-    where: {
-      deletedAt: null,
-      memberStatus: 'active',
-      id: { notIn: [...assignedMemberIds] },
-      ...(organizationId ? { organizationId } : {}),
-    },
-  });
 
   return {
     memberStatus: { enrolled, active, placed, inactive },

@@ -101,10 +101,11 @@ async function renderKit() {
       },
     }),
     // Distinct sessions in scope (best-effort; degrades to shown count).
-    prisma.memberEvent.findMany({
+    // groupBy pushes the dedupe down to Postgres instead of pulling every
+    // matching event row into the function just to count unique sessionIds.
+    prisma.memberEvent.groupBy({
+      by: ['sessionId'],
       where,
-      distinct: ['sessionId'],
-      select: { sessionId: true },
     }),
   ]);
 

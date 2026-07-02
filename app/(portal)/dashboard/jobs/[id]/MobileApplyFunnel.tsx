@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useId } from 'react';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import styles from './MobileApplyFunnel.module.css';
 
 type Step = 'overview' | 'apply' | 'success' | 'tracked';
@@ -38,6 +40,7 @@ export default function MobileApplyFunnel({
   const [profileShareConsent, setProfileShareConsent] = useState(false);
   const [resumeShareConsent, setResumeShareConsent] = useState(false);
   const submitBtnRef = useRef<HTMLButtonElement>(null);
+  const overlayTitleId = useId();
 
   // Ensure submit button is visible when keyboard opens (Virtual Viewport API)
   useEffect(() => {
@@ -51,7 +54,7 @@ export default function MobileApplyFunnel({
       const btnRect = btn.getBoundingClientRect();
       const visibleBottom = vv.height + vv.offsetTop;
       if (btnRect.bottom > visibleBottom) {
-        btn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        btn.scrollIntoView({ behavior: scrollBehavior(), block: 'end' });
       }
     };
 
@@ -147,6 +150,45 @@ export default function MobileApplyFunnel({
   const progressActive = step === 'overview' ? 1 : step === 'apply' ? 2 : 3;
   const progressText = step === 'apply' ? 'Step 2 of 3' : step === 'success' ? 'Step 3 of 3' : '';
 
+  // The overlay covers the whole viewport (position:fixed inset:0) but, unless
+  // trapped, Tab still reaches the page content rendered behind it (this
+  // component's own DOM siblings on the job detail page). useFocusTrap moves
+  // focus into the overlay on open, cycles Tab within it, restores focus to
+  // the trigger on close, and wires Escape to `goBack` (mirrors ConfirmDialog).
+  const overlayActive = step !== 'overview';
+  const trapRef = useFocusTrap(overlayActive, goBack);
+
+  // Additionally mark everything outside the overlay `inert` while it's open
+  // so swipe/rotor navigation (not just Tab) can't reach hidden page content
+  // — mirrors the mainRef `inert` toggle in WorkspaceShell.tsx.
+  useEffect(() => {
+    if (typeof document === 'undefined' || !overlayActive) return;
+    const dialogEl = trapRef.current;
+    if (!dialogEl) return;
+    const restoreFns: Array<() => void> = [];
+    let node: HTMLElement | null = dialogEl;
+    while (node && node !== document.body) {
+      const parent: HTMLElement | null = node.parentElement;
+      if (parent) {
+        Array.from(parent.children).forEach((child) => {
+          if (child === node || !(child instanceof HTMLElement)) return;
+          try {
+            if ('inert' in child) {
+              const el = child as HTMLElement & { inert?: boolean };
+              const hadInert = el.inert;
+              el.inert = true;
+              restoreFns.push(() => { el.inert = hadInert; });
+            }
+          } catch {
+            /* Safari / older browsers — skip; the overlay still visually blocks interaction */
+          }
+        });
+      }
+      node = parent;
+    }
+    return () => restoreFns.forEach((fn) => fn());
+  }, [overlayActive, trapRef]);
+
   // === DESKTOP FALLBACK (inline apply form) ===
   const desktopApply = (
     <div className={styles['desktop-apply-container']}>
@@ -162,7 +204,7 @@ export default function MobileApplyFunnel({
       )}
 
       <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)' }}>
-        <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Application Consent</h4>
+        <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Application Consent</h3>
 
         <label style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
           <input
@@ -258,7 +300,13 @@ export default function MobileApplyFunnel({
   // === MOBILE OVERLAY (apply / success / tracked) ===
   const mobileOverlay = step !== 'overview' && (
     <div className={styles['mobile-only']}>
-      <div className={styles['mobile-funnel-overlay']}>
+      <div
+        ref={trapRef as React.RefObject<HTMLDivElement>}
+        className={styles['mobile-funnel-overlay']}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={overlayTitleId}
+      >
         {/* Header */}
         <div className={styles['mobile-funnel-header']}>
           <button
@@ -269,7 +317,7 @@ export default function MobileApplyFunnel({
           >
             ←
           </button>
-          <p className={styles['mobile-funnel-title']}>
+          <p id={overlayTitleId} className={styles['mobile-funnel-title']}>
             {step === 'apply' ? 'Review & Submit' : step === 'success' ? 'Application Sent' : 'Saved to Tracker'}
           </p>
           <span className={styles['mobile-funnel-progress']}>{progressText}</span>

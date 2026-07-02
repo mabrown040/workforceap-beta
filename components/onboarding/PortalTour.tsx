@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTour } from './TourContext';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 export interface TourStep {
   targetId: string;
@@ -112,7 +113,7 @@ export default function PortalTour() {
     const current = steps[resolved];
     const el = document.querySelector<HTMLElement>(`[data-tour="${current.targetId}"]`);
     if (!el) return;
-    el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: scrollBehavior() });
     const rect = el.getBoundingClientRect();
     setTargetRect(rect);
     const popW = Math.min(340, window.innerWidth - 24);

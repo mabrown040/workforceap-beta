@@ -13,6 +13,7 @@ import {
   InboxShell,
   InboxUnreadBadge,
 } from '@/components/portal/ui/inbox/InboxPrimitives';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 type SlaInfo = {
   needsCounselorReply: boolean;
@@ -219,7 +220,7 @@ export default function AdminSuperMessagesClient() {
   }, [search]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   }, [detail?.messages.length]);
 
   // Compose: search members

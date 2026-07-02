@@ -19,6 +19,7 @@ import {
 } from '@/lib/apply/applyProgramStorage';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -376,7 +377,7 @@ export default function ApplyCreateAccountForm() {
       // and keyboard users can find it without scrolling.
       requestAnimationFrame(() => {
         errorSummaryRef.current?.focus();
-        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
       });
       return;
     }
@@ -390,7 +391,7 @@ export default function ApplyCreateAccountForm() {
       setError('Please complete the security check before continuing.');
       requestAnimationFrame(() => {
         errorSummaryRef.current?.focus();
-        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
       });
       return;
     }
@@ -507,7 +508,7 @@ export default function ApplyCreateAccountForm() {
         setLoading(false);
         requestAnimationFrame(() => {
           errorSummaryRef.current?.focus();
-          errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
         });
         return;
       }
@@ -558,7 +559,7 @@ export default function ApplyCreateAccountForm() {
       setLoading(false);
       requestAnimationFrame(() => {
         errorSummaryRef.current?.focus();
-        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
       });
     }
   };

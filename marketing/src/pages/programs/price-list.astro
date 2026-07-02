@@ -25,6 +25,12 @@ const metaDescription =
   'Official Workforce Advancement Project program price list: program names, contact hours, and maximum program cost for workforce boards and funding partners.';
 ---
 <Layout title={pageTitle} description={metaDescription}>
+<Fragment slot="head">
+  <!-- Internal/funder document: deliberately unlisted. No inbound links on the
+       public site; kept out of search indexes. Shared directly with TWC /
+       workforce boards (EdVera attachments) by URL or as a printed PDF. -->
+  <meta name="robots" content="noindex, nofollow" />
+</Fragment>
 <div class="plist">
   <section class="head">
     <div class="wrap">
@@ -37,11 +43,15 @@ const metaDescription =
         207 Settlers Valley Drive Suite C, Pflugerville, TX 78660 · 512-825-2896 ·
         <a href="https://www.workforceap.org">www.workforceap.org</a>
       </p>
+      <p class="salutation">To Whom It May Concern (Texas Workforce Commission / Workforce Solutions):</p>
       <p class="note">
-        Training is provided at <strong>no cost to qualifying members</strong>, funded by grants and
-        partnerships. The maximum program cost below is the amount billed to workforce boards and
-        other funding partners (WIOA/ETPL), never to qualifying members. Contact hours match the
-        course hours published on each program page.
+        This document is the official program price list of Workforce Advancement Project, a
+        501(c)(3) nonprofit (EIN 41-2612389), provided for TWC / Workforce Solutions administrative
+        validation of program costs (EdVera Program Details Forms). Training is provided at
+        <strong>no cost to qualifying members</strong> — programs are funded through grants,
+        scholarships, partnerships, and donations. The maximum program cost below is the amount
+        billed to workforce boards and other funding partners (WIOA/ETPL), never to members.
+        Contact hours match each program's published syllabus.
       </p>
       <p class="updated">Last updated: {updated}</p>
       <button class="printbtn print-hide" onclick="window.print()">Print or save as PDF</button>
@@ -72,7 +82,15 @@ const metaDescription =
           </tbody>
         </table>
       </div>
-      <p class="foot">
+      <div class="sigblock">
+        <p>Respectfully,</p>
+        <div class="sigline" aria-hidden="true"></div>
+        <p class="signame">Michael A. Brown, PMP, ChE</p>
+        <p class="sigtitle">Executive Director, Workforce Advancement Project</p>
+        <p class="sigtitle">michael.brown@workforceap.org · (512) 825-2896</p>
+        <p class="sigdate">Date: ____________________</p>
+      </div>
+      <p class="foot print-hide">
         Questions about program pricing, bid letters, or ETPL documentation:
         <a href="/contact">contact us</a> or call 512-825-2896.
       </p>
@@ -104,6 +122,12 @@ const metaDescription =
   .num{text-align:right;white-space:nowrap}
   .foot{margin-top:18px;font-size:13.5px;color:var(--muted)}
   .foot a{color:var(--crimson)}
+  .salutation{font-size:14.5px;font-weight:600;margin-bottom:10px}
+  .sigblock{margin-top:34px;font-size:14.5px;line-height:1.5}
+  .sigline{width:260px;border-bottom:1px solid var(--text);margin:34px 0 6px}
+  .signame{font-weight:800;margin:0}
+  .sigtitle{margin:0;color:var(--muted);font-size:13.5px}
+  .sigdate{margin-top:12px;color:var(--muted);font-size:13.5px}
 
   @media print{
     .print-hide{display:none !important}

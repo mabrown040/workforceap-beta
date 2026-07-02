@@ -1,7 +1,17 @@
 /**
- * WorkforceAP Service Worker v8 — PWA offline support + push notifications.
+ * WorkforceAP Service Worker v9 — PWA offline support + push notifications.
  * Caches shell assets; push events show branded notifications.
  *
+ * v9: restrict runtime GET caching to same-origin static assets only (skip
+ *     cross-origin responses entirely — e.g. Supabase signed storage URLs for
+ *     member avatars/resumes/certificates — so private, tokenized URLs never
+ *     land in Cache Storage); guard the offline navigation fallback against
+ *     caches.match resolving undefined; make notificationclick prefer a
+ *     client already on the target URL and fall back to clients.openWindow
+ *     when client.navigate() rejects (it always rejects for uncontrolled
+ *     clients); point the notification icon/badge and apple-touch-icon at the
+ *     existing square icon-192x192.png instead of the non-square wap_logo.png.
+ *     Bumps CACHE_NAME so clients purge the old unrestricted cache.
  * v8: bump CACHE_NAME to force a full cache purge on every client (drops any
  *     stale shell/offline/asset entries that were wedging mobile clients on
  *     the loading skeleton or the "You're offline" page after the dashboard
@@ -19,7 +29,7 @@
  *     stale JS/CSS bundles from the service worker cache on mobile clients.
  */
 
-const CACHE_NAME = 'workforceap-v8';
+const CACHE_NAME = 'workforceap-v9';
 const OFFLINE_PAGE = '/offline.html';
 const STATIC_ASSETS = [
   '/images/wap_logo.png',
@@ -28,6 +38,33 @@ const STATIC_ASSETS = [
   '/fonts/material-symbols-outlined.woff2',
   OFFLINE_PAGE,
 ];
+
+// Minimal inline fallback used only if the precached OFFLINE_PAGE entry was
+// evicted from Cache Storage under storage pressure (or a v8 install
+// partially failed) — caches.match(OFFLINE_PAGE) can legitimately resolve
+// undefined, and respondWith(undefined) would surface a generic browser
+// network error instead of a branded page.
+const OFFLINE_FALLBACK_RESPONSE = () =>
+  new Response(
+    '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+      '<title>Offline — WorkforceAP</title></head><body style="font-family:sans-serif;' +
+      'text-align:center;padding:3rem 1.5rem;">' +
+      '<h1>You’re offline</h1>' +
+      '<p>We can’t reach the internet right now. Please check your connection and try again.</p>' +
+      '</body></html>',
+    { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+
+// Static-asset paths eligible for the runtime cache. Anything not matching
+// one of these prefixes falls through to the network with no caching —
+// authenticated/dynamic responses (member avatars, uploaded resumes/
+// certificates, Supabase signed URLs, etc.) must never be persisted.
+const RUNTIME_CACHEABLE_PREFIXES = ['/images/', '/fonts/', '/icons/'];
+
+function isRuntimeCacheableStaticAsset(url) {
+  if (url.origin !== self.location.origin) return false;
+  return RUNTIME_CACHEABLE_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
+}
 
 // Install: pre-cache key assets, skip waiting immediately
 self.addEventListener('install', (event) => {
@@ -75,13 +112,19 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((res) => res)
-        .catch(() => caches.match(OFFLINE_PAGE))
+        .catch(() =>
+          caches.match(OFFLINE_PAGE).then((cached) => cached || OFFLINE_FALLBACK_RESPONSE())
+        )
     );
     return;
   }
 
-  // Static assets (images, CSS, JS): network-first with cache fallback
-  if (event.request.method === 'GET') {
+  // Static assets (images, fonts): network-first with cache fallback, and
+  // only for same-origin requests under an explicit allowlist of static
+  // paths. Cross-origin GETs (e.g. Supabase signed storage URLs) and any
+  // same-origin path outside the allowlist (dynamic/authenticated HTML,
+  // API-adjacent JSON, etc.) are never written to Cache Storage.
+  if (event.request.method === 'GET' && isRuntimeCacheableStaticAsset(url)) {
     event.respondWith(
       fetch(event.request)
         .then((res) => {
@@ -124,8 +167,8 @@ self.addEventListener('push', (event) => {
   const actions = Array.isArray(data.actions) ? data.actions : [{ action: 'open', title: 'Open Portal' }];
   const options = {
     body: typeof data.body === 'string' ? data.body : 'You have a new update.',
-    icon: '/images/wap_logo.png',
-    badge: '/images/wap_logo.png',
+    icon: '/images/icon-192x192.png',
+    badge: '/images/icon-192x192.png',
     tag: typeof data.tag === 'string' ? data.tag : 'workforceap',
     data: { url: safeUrl },
     actions,
@@ -133,22 +176,47 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Notification click: navigate to the associated URL
+// Notification click: focus (and navigate) an existing window, or open a new one.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = sanitizeNotificationUrl(event.notification.data?.url) ?? '/dashboard';
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clientList) => {
+      const sameOrigin = [];
       for (const client of clientList) {
         try {
           if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
-            client.navigate(url);
-            return client.focus();
+            sameOrigin.push(client);
           }
         } catch {
           // skip malformed client URLs
         }
       }
+
+      // Prefer a client already sitting on the target URL — no navigation needed.
+      const exactMatch = sameOrigin.find((client) => {
+        try {
+          return new URL(client.url).pathname === new URL(url, self.location.origin).pathname;
+        } catch {
+          return false;
+        }
+      });
+      if (exactMatch) return exactMatch.focus();
+
+      // Otherwise try the first same-origin window. client.navigate() rejects
+      // with InvalidAccessError for uncontrolled clients (which
+      // includeUncontrolled explicitly allows to be matched here), so it must
+      // be awaited and caught — never left as a dangling rejected promise.
+      const target = sameOrigin[0];
+      if (target) {
+        try {
+          const navigated = await target.navigate(url);
+          return (navigated || target).focus();
+        } catch {
+          return clients.openWindow ? clients.openWindow(url) : target.focus();
+        }
+      }
+
       if (clients.openWindow) return clients.openWindow(url);
     })
   );

@@ -1,27 +1,14 @@
 import { NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
-import { auditLog } from '@/lib/audit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import {
-  createProgramMembership,
-  enrollUserInCourse,
-  getB4BOrgId,
-  inviteUserToProgram,
-  listUsers,
-  type B4BUser,
-} from '@/lib/coursera/b4bClient';
+import { getB4BOrgId } from '@/lib/coursera/b4bClient';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
-import {
-  EnrollStateError,
-  runEnrollStateMachine,
-  type B4BPort,
-  type EnrollAuditEvent,
-} from '@/lib/coursera/enrollState';
+import { EnrollStateError, runEnrollStateMachine } from '@/lib/coursera/enrollState';
+import { buildB4BPort, writeEnrollAudit } from '@/lib/coursera/enrollPort';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/member/coursera/enroll-in-course
@@ -150,58 +137,16 @@ async function _POST(request: Request) {
       );
     }
   
-    // Build the B4B port. `listUsersByEmail` walks the roster pages until it
-    // finds the email or runs out — the roster is < 10k for WAP today, but
-    // we cap at 50 pages of 200 (10k users) to keep the worst-case bounded.
+    // Shared B4B port (lib/coursera/enrollPort.ts): roster lookup with a
+    // short-TTL cache, plus the invite/membership/enroll write bindings —
+    // identical machinery to the admin one-click route.
     const b4bOrgId = getB4BOrgId();
     const programId = discoveredProgram.courseraProgramId;
-  
-    const port: B4BPort = {
-      listUsersByEmail: async (email: string) => {
-        const target = email.trim().toLowerCase();
-        const PAGE_LIMIT = 200;
-        const SAFETY_PAGES = 50;
-        let start = 0;
-        for (let pages = 0; pages < SAFETY_PAGES; pages += 1) {
-          const result = await listUsers({ start, limit: PAGE_LIMIT });
-          const hit = result.elements.find(
-            (u: B4BUser) => (u.email ?? '').trim().toLowerCase() === target,
-          );
-          if (hit) return hit;
-          if (result.elements.length === 0) return null;
-          const total = result.paging.total ?? 0;
-          if (total > 0 && start + result.elements.length >= total) return null;
-          if (result.elements.length < PAGE_LIMIT) return null;
-          start += result.elements.length;
-        }
-        return null;
-      },
-      invite: async (args) =>
-        inviteUserToProgram(args.orgId, args.programId, {
-          externalId: args.externalId,
-          fullName: args.fullName,
-          email: args.email,
-          sendEmail: true,
-        }),
-      createMembership: async (args) =>
-        createProgramMembership(args.orgId, args.programId, {
-          externalId: args.externalId,
-          fullName: args.fullName,
-          email: args.email,
-        }),
-      enroll: async (args) =>
-        enrollUserInCourse(args.orgId, args.programId, {
-          externalId: args.externalId,
-          contentType: 'Course',
-          contentId: args.contentId,
-          action: 'ENROLL',
-        }),
-    };
-  
+
     const externalId = user.email.trim().toLowerCase();
     let result;
     try {
-      result = await runEnrollStateMachine(port, {
+      result = await runEnrollStateMachine(buildB4BPort(), {
         orgId: b4bOrgId,
         programId,
         courseraCourseId,
@@ -214,7 +159,9 @@ async function _POST(request: Request) {
         // Audit-log every step that DID happen before the failure. We swallow
         // audit errors so a logging-table outage can't mask the original error.
         await Promise.allSettled(
-          err.events.map((event) => writeEnrollAudit(user.id, event)),
+          err.events.map((event) =>
+            writeEnrollAudit({ actorUserId: user.id, actorRole: 'member', targetUserId: user.id, event }),
+          ),
         );
         captureApiError(err, {
           route: 'member/coursera/enroll-in-course',
@@ -242,7 +189,7 @@ async function _POST(request: Request) {
     // calls so a downstream observer reading the audit trail sees the
     // state-graph order, not whatever Postgres scheduled.
     for (const event of result.events) {
-      await writeEnrollAudit(user.id, event).catch((auditErr) => {
+      await writeEnrollAudit({ actorUserId: user.id, actorRole: 'member', targetUserId: user.id, event }).catch((auditErr) => {
         // A failure to audit must NOT undo the enrollment — the seat is
         // already spent. We surface the failure for triage but keep the
         // success response the user sees.
@@ -276,43 +223,6 @@ async function _POST(request: Request) {
     console.error('/member/coursera/enroll-in-course:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
-/**
- * Map an `EnrollAuditEvent` to a row in `audit_logs`. The schema columns
- * are `actor_user_id`, `action`, `target_type`, `target_id`, `metadata`,
- * `created_at` — see `prisma/schema.prisma` `model AuditLog`.
- */
-async function writeEnrollAudit(actorUserId: string, event: EnrollAuditEvent): Promise<void> {
-  await auditLog({
-    actorUserId,
-    action: event.action,
-    // For a self-service member enroll the actor IS the subject — but we
-    // record both the actor (user_id) and the subject (target_id) so a
-    // future admin-impersonation enroll path can reuse this exact code
-    // path with the admin as the actor and the member as the target.
-    targetType: 'User',
-    targetId: actorUserId,
-    metadata: {
-      step: event.step,
-      programId: event.programId,
-      contentId: event.contentId,
-      externalId: event.externalId,
-      b4bStatus: event.httpStatus,
-      ...('alreadyEnrolled' in event && event.alreadyEnrolled
-        ? { alreadyEnrolled: true }
-        : {}),
-    },
-  });
-  logAuditEvent({
-    user: { id: actorUserId, role: 'member' },
-    verb: event.action,
-    object: { type: 'CourseraEnrollment', id: actorUserId },
-    result: {
-      success: true,
-      extensions: { step: event.step, programId: event.programId, contentId: event.contentId },
-    },
-  }).catch(() => {});
 }
 
 /**

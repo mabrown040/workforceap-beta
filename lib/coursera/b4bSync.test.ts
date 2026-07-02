@@ -5,6 +5,7 @@ import { CourseProgressStatus } from '@prisma/client';
 
 import {
   computeCourseProgressUpdate,
+  nextEnrollmentReportStart,
   type B4BProgressInput,
   type ExistingCourseProgress,
 } from './b4bSync';
@@ -152,4 +153,31 @@ test('overallProgress = 0 and lastActivityAt = 0 → NOT_STARTED (zero is not "e
     lastActivityAt: 0,
   });
   assert.equal(result.status, CourseProgressStatus.NOT_STARTED);
+});
+
+test('nextEnrollmentReportStart: full page with no total keeps paging (no one-page truncation)', () => {
+  assert.equal(
+    nextEnrollmentReportStart({ start: 0, batchLength: 1000, limit: 1000, total: undefined }),
+    1000,
+  );
+});
+
+test('nextEnrollmentReportStart: short page with no total ends', () => {
+  assert.equal(
+    nextEnrollmentReportStart({ start: 1000, batchLength: 137, limit: 1000, total: undefined }),
+    null,
+  );
+});
+
+test('nextEnrollmentReportStart: advances by what arrived, not by limit', () => {
+  // A short page with more remaining (total says so) must not skip records.
+  assert.equal(
+    nextEnrollmentReportStart({ start: 0, batchLength: 400, limit: 1000, total: 900 }),
+    400,
+  );
+});
+
+test('nextEnrollmentReportStart: stops at total and on empty pages', () => {
+  assert.equal(nextEnrollmentReportStart({ start: 400, batchLength: 500, limit: 1000, total: 900 }), null);
+  assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 0, limit: 1000, total: undefined }), null);
 });

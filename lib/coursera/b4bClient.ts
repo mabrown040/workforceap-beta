@@ -200,8 +200,15 @@ function getCredentials() {
 }
 
 function getApiBase(): string {
-  const raw = process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_API_BASE;
-  return raw.replace(/\/$/, '');
+  // COURSERA_API_BASE_URL is shared with the legacy skillset client
+  // (lib/coursera/configCore.ts), whose base ends in `/api/rest/v1`. Appending
+  // this client's `/api/businesses.v1/...` paths to that base 404s every call,
+  // so B4B reads its own var first and ignores a legacy-shaped fallback.
+  const b4b = process.env.COURSERA_B4B_API_BASE_URL?.trim();
+  if (b4b) return b4b.replace(/\/$/, '');
+  const legacy = process.env.COURSERA_API_BASE_URL?.trim();
+  if (legacy && !/\/api\/rest\/v\d+\/?$/.test(legacy)) return legacy.replace(/\/$/, '');
+  return DEFAULT_API_BASE;
 }
 
 function getOauthUrl(): string {
@@ -395,21 +402,39 @@ async function getAccessToken(): Promise<string> {
  * (`/api/businesses.v1/...`).
  */
 export async function fetchB4B(path: string, init: RequestInit = {}): Promise<Response> {
-  const token = await getAccessToken();
   const url = path.startsWith('http://') || path.startsWith('https://')
     ? path
     : `${getApiBase()}${path.startsWith('/') ? '' : '/'}${path}`;
 
-  const headers = new Headers(init.headers);
-  headers.set('Authorization', `Bearer ${token}`);
-  headers.set('Accept', 'application/json');
-
   const method = (init.method ?? 'GET').toUpperCase();
   const isSafeRead = method === 'GET' || method === 'HEAD';
-  const run = () => fetchImpl()(url, { ...init, headers });
-  // Never retry POST/PUT writes — Coursera may have applied the mutation
-  // before the connection dropped, and a retry would duplicate side effects.
-  return isSafeRead ? fetchWithTransientRetry(run) : run();
+
+  const issue = async (): Promise<Response> => {
+    const token = await getAccessToken();
+    const headers = new Headers(init.headers);
+    headers.set('Authorization', `Bearer ${token}`);
+    headers.set('Accept', 'application/json');
+    const run = () => fetchImpl()(url, { ...init, headers });
+    // Never retry POST/PUT writes on transient errors — Coursera may have
+    // applied the mutation before the connection dropped, and a retry would
+    // duplicate side effects.
+    return isSafeRead ? fetchWithTransientRetry(run) : run();
+  };
+
+  const servedFromCache =
+    cachedToken !== null && cachedToken.expiresAt > Date.now() + TOKEN_REFRESH_SAFETY_MS;
+  const response = await issue();
+
+  // 401 on a cached token means Coursera revoked/rotated it server-side; the
+  // cache would otherwise keep failing every call until expiry (~29 min).
+  // Auth is rejected before the mutation runs, so one re-mint retry is safe
+  // for writes too. A 401 on a freshly minted token is a real credential
+  // problem — surface it instead of looping.
+  if (response.status === 401 && servedFromCache) {
+    cachedToken = null;
+    return issue();
+  }
+  return response;
 }
 
 async function getJsonOrThrow<T>(path: string): Promise<T> {

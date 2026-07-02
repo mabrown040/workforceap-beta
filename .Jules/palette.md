@@ -27,3 +27,7 @@
 ## 2024-06-20 - Redundant aria-label on aria-live copy buttons
 **Learning:** Found instances where custom copy buttons had a visually hidden `aria-label` attribute alongside an inner `aria-live` region containing dynamic state text (e.g., changing from "📋 Copy" to "✓ Copied!"). The outer `aria-label` can overshadow the inner live region, preventing screen readers from announcing the dynamic status update.
 **Action:** When implementing custom copy buttons that utilize an inner `<span aria-live="polite">` element to announce a "Copied!" state, remove any static or conditionally rendered `aria-label` from the parent `<button>` element.
+
+## 2024-06-29 - Accessible Resource Action Buttons
+**Learning:** Found that resource progress ("Mark as complete", "Save for later") and download buttons lack proper accessibility attributes during their asynchronous loading states. Screen readers won't announce the temporary loading status or the completion feedback.
+**Action:** Ensure all buttons triggering async actions (like marking progress or downloading files) use `aria-busy={loading}` and wrap their dynamic text in a `<span aria-live="polite">` tag so that status changes are communicated to assistive technologies.

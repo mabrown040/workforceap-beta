@@ -82,9 +82,11 @@ export default function ResourceCard({ resource, progress }: ResourceCardProps) 
             className="resource-card-download"
             onClick={handleDownload}
             disabled={downloading}
-            aria-label={`Download ${resource.title}`}
+            aria-busy={downloading}
           >
-            {downloading ? '…' : '↓ Download'}
+            <span aria-live="polite">
+              {downloading ? '…' : '↓ Download'}
+            </span>
           </button>
         )}
         <span className="resource-card-arrow" aria-hidden>

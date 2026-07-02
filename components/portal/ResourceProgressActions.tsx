@@ -39,16 +39,22 @@ export default function ResourceProgressActions({ resourceId, progress }: Props)
         className={`btn btn-sm ${isCompleted ? 'btn-outline' : 'btn-primary'}`}
         onClick={() => recordAction('complete')}
         disabled={loading}
+        aria-busy={loading}
       >
-        {isCompleted ? '✓ Completed' : 'Mark as complete'}
+        <span aria-live="polite">
+          {isCompleted ? '✓ Completed' : 'Mark as complete'}
+        </span>
       </button>
       <button
         type="button"
         className={`btn btn-outline btn-sm ${isSaved ? 'saved' : ''}`}
         onClick={() => recordAction('save')}
         disabled={loading}
+        aria-busy={loading}
       >
-        {isSaved ? '✓ Saved for later' : 'Save for later'}
+        <span aria-live="polite">
+          {isSaved ? '✓ Saved for later' : 'Save for later'}
+        </span>
       </button>
     </div>
   );

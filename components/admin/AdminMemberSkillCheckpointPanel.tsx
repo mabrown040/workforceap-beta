@@ -167,11 +167,16 @@ function OverrideDropdown({
     }
   }
 
+  const dropdownId = `override-dropdown-${missionKey}`;
+
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
       <button
         type="button"
         className="btn btn-outline"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={dropdownId}
         style={{ fontSize: '0.78rem', padding: '0.25rem 0.65rem' }}
         onClick={() => setOpen((v) => !v)}
       >
@@ -179,6 +184,7 @@ function OverrideDropdown({
       </button>
       {open && (
         <div
+          id={dropdownId}
           style={{
             position: 'absolute',
             right: 0,

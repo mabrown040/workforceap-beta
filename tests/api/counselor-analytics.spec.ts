@@ -23,6 +23,7 @@ vi.mock('@/lib/auth/server', () => ({
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
   isCounselor: vi.fn(),
 }));
@@ -50,7 +51,13 @@ vi.mock('@/lib/db/prisma', () => {
   };
   const $queryRaw = vi.fn();
   const $queryRawUnsafe = vi.fn();
-  return { prisma: { counselor, counselorAssignment, atRiskAlert, memberEvent, memberProgramProgress, user, $queryRaw, $queryRawUnsafe } };
+  // Self-referential mock: re-importing '@/lib/db/prisma' from inside this
+  // factory resolves the REAL module (vitest does not apply a mock within its
+  // own factory), so function-form $transaction callbacks were hitting the
+  // actual Prisma client. Hand the callback this mock instead.
+  const prismaMock: any = { counselor, counselorAssignment, atRiskAlert, memberEvent, memberProgramProgress, user, $queryRaw, $queryRawUnsafe };
+  prismaMock.$transaction = vi.fn(async (arg: any) => (typeof arg === 'function' ? arg(prismaMock) : Promise.all(arg)));
+  return { prisma: prismaMock };
 });
 
 // ─── Imports after mocks ───
@@ -103,6 +110,18 @@ describe('GET /api/counselor/analytics', () => {
     ] as any);
 
     const res = await getAnalytics(new Request('http://localhost'));
+    // DEBUG
+    console.log('DEBUG tx calls:', vi.mocked(prisma.$transaction).mock.calls.length,
+      'memberEvent calls:', vi.mocked(prisma.memberEvent.findMany).mock.calls.length,
+      'atRisk calls:', vi.mocked(prisma.atRiskAlert.findMany).mock.calls.length);
+    await prisma.$transaction(async (tx: any) => {
+      console.log('DEBUG tx.memberEvent === prisma.memberEvent:', tx.memberEvent === prisma.memberEvent,
+        'tx keys:', Object.keys(tx).join(','),
+        'tx.memberEvent.findMany is mock:', !!tx.memberEvent?.findMany?.mock);
+      return null;
+    });
+    const txArgs = vi.mocked(prisma.$transaction).mock.calls.map((c: any) => typeof c[0]);
+    console.log('DEBUG txArgs:', txArgs.join(','));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.totalMembers).toBe(1);

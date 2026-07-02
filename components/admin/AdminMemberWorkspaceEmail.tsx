@@ -2,21 +2,28 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 type Props = {
   memberId: string;
   workspaceEmail: string | null;
   workspaceEmailProvisioned: boolean;
+  /** When false, the provision action is disabled with `providerHint` shown. */
+  providerAvailable?: boolean;
+  providerHint?: string;
 };
 
 export default function AdminMemberWorkspaceEmail({
   memberId,
   workspaceEmail,
   workspaceEmailProvisioned,
+  providerAvailable = true,
+  providerHint,
 }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [revokeOpen, setRevokeOpen] = useState(false);
 
   const provisioned = workspaceEmailProvisioned && !!workspaceEmail;
 
@@ -44,7 +51,6 @@ export default function AdminMemberWorkspaceEmail({
   }
 
   async function revoke() {
-    if (!confirm('Revoke this workspace email? The member will lose access to @workforceap.org mail.')) return;
     setBusy(true);
     setMsg(null);
     try {
@@ -80,7 +86,7 @@ export default function AdminMemberWorkspaceEmail({
           <p style={{ margin: 0, fontSize: '0.95rem' }}>
             <strong>Workspace email:</strong> {workspaceEmail}
           </p>
-          <button type="button" className="btn btn-outline btn-sm" onClick={revoke} disabled={busy}>
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setRevokeOpen(true)} disabled={busy}>
             {busy ? 'Working…' : 'Revoke'}
           </button>
         </div>
@@ -89,11 +95,28 @@ export default function AdminMemberWorkspaceEmail({
           <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
             No @workforceap.org email yet.
           </p>
-          <button type="button" className="btn btn-primary btn-sm" onClick={provision} disabled={busy}>
+          <button type="button" className="btn btn-primary btn-sm" onClick={provision} disabled={busy || !providerAvailable}>
             {busy ? 'Provisioning…' : 'Provision @workforceap.org email'}
           </button>
+          {!providerAvailable ? (
+            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', flexBasis: '100%' }}>
+              {providerHint ?? 'Workspace email provider is not configured.'}
+            </p>
+          ) : null}
         </div>
       )}
+      <ConfirmDialog
+        open={revokeOpen}
+        title="Revoke workspace email?"
+        body="Revoke this workspace email? The member will lose access to @workforceap.org mail."
+        danger
+        confirmLabel="Revoke"
+        onConfirm={() => {
+          setRevokeOpen(false);
+          void revoke();
+        }}
+        onCancel={() => setRevokeOpen(false)}
+      />
     </div>
   );
 }

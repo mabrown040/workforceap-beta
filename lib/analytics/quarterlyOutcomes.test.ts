@@ -195,7 +195,7 @@ describe('generateQuarterlyOutcomes', () => {
     ]);
     vi.mocked(prisma.courseProgress.findMany).mockResolvedValue([]);
     vi.mocked(prisma.userCertification.findMany).mockResolvedValue([
-      { userId: 'u1' },
+      { userId: 'u1', user: { enrolledProgram: 'cna' } },
     ] as any);
     vi.mocked(prisma.placementRecord.findMany).mockResolvedValue([]);
     vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([]);

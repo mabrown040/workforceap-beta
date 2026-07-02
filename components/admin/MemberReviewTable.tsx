@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ApplicationStatus } from '@prisma/client';
 import { formatPhone } from '@/lib/formatPhone';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -31,6 +32,7 @@ const STATUS_OPTIONS: { value: ApplicationStatus; label: string }[] = [
 ];
 
 export function MemberReviewTable({ applications }: MemberReviewTableProps) {
+  const router = useRouter();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -54,7 +56,9 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
         return;
       }
 
-      window.location.reload();
+      // Refresh server data in place — preserves scroll position and typed notes
+      // (unlike a full window.location.reload()).
+      router.refresh();
     } catch {
       setFeedback('Network error. Please try again.');
     } finally {

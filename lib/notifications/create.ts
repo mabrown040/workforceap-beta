@@ -3,6 +3,7 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
 import { notifyDiscord } from '@/lib/notify/discord';
+import { sendWebPushToUser } from '@/lib/push/sendWebPush';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -38,6 +39,14 @@ export async function createNotification(
         body: input.body,
         data: (input.data ?? null) as unknown as Prisma.InputJsonValue,
       },
+    });
+    // Best-effort Web Push companion to the in-app notification. No-ops when
+    // VAPID is unconfigured or the user has no subscriptions; never throws.
+    void sendWebPushToUser(input.userId, {
+      title: input.title,
+      body: input.body,
+      url: typeof input.data?.link === 'string' ? (input.data.link as string) : '/dashboard',
+      tag: input.type,
     });
   } catch (error) {
     captureApiError(error, {
@@ -81,6 +90,16 @@ export async function createBulkNotifications(
         data: (input.data ?? null) as unknown as Prisma.InputJsonValue,
       })),
     });
+    // Best-effort push fanout; capped so an org-wide broadcast can't launch
+    // thousands of push batches from one request.
+    for (const input of inputs.slice(0, 500)) {
+      void sendWebPushToUser(input.userId, {
+        title: input.title,
+        body: input.body,
+        url: typeof input.data?.link === 'string' ? (input.data.link as string) : '/dashboard',
+        tag: input.type,
+      });
+    }
   } catch (error) {
     captureApiError(error, {
       route: 'lib/notifications/create.createBulkNotifications',

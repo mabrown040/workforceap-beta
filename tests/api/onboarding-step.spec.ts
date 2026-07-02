@@ -10,14 +10,19 @@ vi.mock('next/server', () => ({
   },
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   getEmployerForUser: vi.fn(),
   getPartnerForUser: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: { update: vi.fn() },
     employer: { update: vi.fn() },
     partner: { update: vi.fn() },
@@ -141,11 +146,16 @@ describe('POST /api/onboarding/step', () => {
   it('handles sendBeacon blob body (no content-type header)', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'u1' } as any);
     vi.mocked(prisma.user.update).mockResolvedValue({} as any);
-    const blob = new Blob([JSON.stringify({ portal: 'member', step: 2 })], { type: 'application/json' });
+    // Use Node's Blob: the jsdom-realm global Blob is not recognized by the
+    // Node (undici) Request, which would stringify it as "[object Blob]".
+    const { Blob: NodeBlob } = await import('node:buffer');
+    const blob = new NodeBlob([JSON.stringify({ portal: 'member', step: 2 })], { type: 'application/json' });
     const res = await POST(
       new Request('http://localhost:3000/api/onboarding/step', {
         method: 'POST',
-        body: blob,
+        // Node's buffer.Blob vs the DOM Blob type mismatch is a lib-typing
+        // artifact; undici accepts it at runtime.
+        body: blob as unknown as globalThis.Blob,
       })
     );
     expect(res.status).toBe(200);

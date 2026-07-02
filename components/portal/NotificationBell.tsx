@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 type NotificationItem = {
   id: string;
@@ -114,6 +115,10 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
   const [lastFetch, setLastFetch] = useState(0);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const dropRef = useRef<HTMLDivElement>(null);
+  const closeDropdown = useCallback(() => setOpen(false), []);
+  // Escape closes the dropdown and returns focus to the bell button (the
+  // previously-focused element); Tab stays inside the panel while it's open.
+  const panelTrapRef = useFocusTrap(open, closeDropdown);
 
   const badges = externalBadges ?? selfBadges;
 
@@ -250,7 +255,8 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
           const willOpen = !open;
           setOpen(willOpen);
           if (willOpen) {
-            if (role === 'member' && dbUnreadCount > 0) void markAllRead();
+            // NOTE: opening does NOT auto-mark notifications read — use the
+            // "Mark all read" action in the dropdown header instead.
             if (Date.now() - lastFetch > 10_000) {
               if (role === 'member') void fetchDbNotifications();
               else void fetchBadges();
@@ -272,7 +278,7 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
       </button>
 
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0, width: '22rem', maxWidth: '90vw', zIndex: 200, borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', boxShadow: '0 8px 32px rgba(0,0,0,0.22)', overflow: 'hidden' }}>
+        <div ref={panelTrapRef as React.RefObject<HTMLDivElement>} style={{ position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0, width: '22rem', maxWidth: '90vw', zIndex: 200, borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', boxShadow: '0 8px 32px rgba(0,0,0,0.22)', overflow: 'hidden' }}>
           <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <p style={{ fontWeight: 800, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0 }}>Notifications</p>
             {isDbMode && dbUnreadCount > 0 && (

@@ -1,8 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
+
+const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
+
+const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 const ORG_TYPES = [
   { value: '', label: 'Select…' },
@@ -27,6 +33,7 @@ export default function PartnerSignupForm() {
   const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => {
     trackLeadFormEvent('partner_signup', 'viewed');
@@ -34,6 +41,11 @@ export default function PartnerSignupForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken?.trim()) {
+      setStatus('error');
+      setErrorMsg('Please complete the security check before continuing.');
+      return;
+    }
     const form = e.currentTarget;
     const fd = new FormData(form);
 
@@ -61,6 +73,7 @@ export default function PartnerSignupForm() {
       expectedMonthly: String(fd.get('expected_monthly') || '').trim(),
       hearAbout: String(fd.get('hear_about') || '').trim() || null,
       password,
+      ...(CAPTCHA_ENABLED && turnstileToken ? { turnstileToken } : {}),
     };
 
     setStatus('sending');
@@ -188,7 +201,24 @@ export default function PartnerSignupForm() {
         />
       </div>
 
-      <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem' }} disabled={status === 'sending'}>
+      {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
+        <div className="form-group partner-signup-turnstile">
+          <Turnstile
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(t) => setTurnstileToken(t)}
+            onExpire={() => setTurnstileToken(null)}
+            onError={() => setTurnstileToken(null)}
+            options={{ theme: 'light', size: 'normal' }}
+          />
+        </div>
+      ) : null}
+
+      <button
+        type="submit"
+        className="btn btn-primary"
+        style={{ width: '100%', padding: '1rem' }}
+        disabled={status === 'sending' || (CAPTCHA_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken)}
+      >
         {status === 'sending' ? 'Creating your account…' : 'Create partner account'}
       </button>
 

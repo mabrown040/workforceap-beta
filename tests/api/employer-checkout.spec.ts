@@ -24,10 +24,12 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   getEmployerForUser: vi.fn(),
 }));
 
@@ -36,8 +38,9 @@ vi.mock('@/lib/db/prisma', () => {
     findUnique: vi.fn(),
     update: vi.fn(),
     updateMany: vi.fn(),
+    count: vi.fn(),
   };
-  return { prisma: { employer } };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), employer } };
 });
 
 vi.mock('@/lib/stripe/client', () => ({
@@ -352,6 +355,7 @@ describe('POST /api/employer/webhook', () => {
   it('updates status to past_due on invoice.payment_failed', async () => {
     const event = {
       type: 'invoice.payment_failed',
+      created: 1_750_000_000,
       data: {
         object: {
           subscription: 'sub_123',
@@ -370,9 +374,17 @@ describe('POST /api/employer/webhook', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ received: true });
 
+    // The webhook now carries an event-ordering guard: stale (older-created)
+    // events must not clobber newer subscription state.
     expect(prisma.employer.updateMany).toHaveBeenCalledWith({
-      where: { stripeSubscriptionId: 'sub_123' },
-      data: { stripeSubscriptionStatus: 'past_due' },
+      where: {
+        stripeSubscriptionId: 'sub_123',
+        OR: [
+          { stripeSubscriptionEventAt: null },
+          { stripeSubscriptionEventAt: { lte: 1_750_000_000 } },
+        ],
+      },
+      data: { stripeSubscriptionStatus: 'past_due', stripeSubscriptionEventAt: 1_750_000_000 },
     });
   });
 

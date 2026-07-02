@@ -102,7 +102,10 @@ vi.mock('@/lib/db/prisma', () => ({
     partnerSignupRequest: {
       create: vi.fn(),
     },
-    $transaction: vi.fn((ops: unknown[]) => Promise.all(ops)),
+    $transaction: vi.fn(async (arg: any) => {
+      const { prisma } = await import('@/lib/db/prisma');
+      return typeof arg === 'function' ? arg(prisma) : Promise.all(arg);
+    }),
   },
 }));
 
@@ -259,9 +262,14 @@ describe('POST /api/partner/signup', () => {
       // If ops is a function, call it with a mock tx
       if (typeof ops === 'function') {
         const mockTx = {
-          user: { create: vi.fn().mockResolvedValue({ id: UUIDS.user }) },
+          user: { create: vi.fn().mockResolvedValue({ id: UUIDS.user }), findUnique: prisma.user.findUnique },
           profile: { create: vi.fn().mockResolvedValue({ id: 'profile-1' }) },
-          partner: { create: vi.fn().mockResolvedValue({ id: UUIDS.partner, name: 'New Org', slug: 'new-org', referralCode: 'REF123' }) },
+          partner: {
+            create: vi.fn().mockResolvedValue({ id: UUIDS.partner, name: 'New Org', slug: 'new-org', referralCode: 'REF123' }),
+            findUnique: prisma.partner.findUnique,
+            findFirst: prisma.partner.findFirst,
+            update: prisma.partner.update,
+          },
           partnerUser: { create: vi.fn().mockResolvedValue({ id: 'pu-1' }) },
           partnerSignupRequest: { create: vi.fn().mockResolvedValue({ id: 'psr-1' }) },
         };

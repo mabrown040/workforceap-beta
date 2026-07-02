@@ -27,7 +27,9 @@ async function _POST(request: Request) {
     return NextResponse.json({ error: 'MFA verification is currently disabled.' }, { status: 404 });
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  // Trusted client-IP helper (same as login) — raw x-forwarded-for is
+  // attacker-controlled and would let a caller rotate rate-limit keys.
+  const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkVerifyMfaRateLimit(ip);
   if (!withinLimit) {
     return NextResponse.json({ error: 'Too many verification attempts. Please wait before trying again.' }, { status: 429, headers: { 'Cache-Control': 'no-store', 'Retry-After': '900' } });

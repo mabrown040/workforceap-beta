@@ -39,7 +39,7 @@ describe('DashboardProfileForm', () => {
     expect(screen.getByLabelText(/physical address/i)).toHaveValue('123 Main St');
     expect(screen.getByLabelText(/city/i)).toHaveValue('Austin');
     expect(screen.getByLabelText(/state/i)).toHaveValue('TX');
-    expect(screen.getByLabelText(/zip code/i)).toHaveValue('78701');
+    expect(screen.getByLabelText(/zip \/ postal code/i)).toHaveValue('78701');
     expect(screen.getByLabelText(/how did you hear about workforceap/i)).toHaveValue('Friend or family');
   });
 

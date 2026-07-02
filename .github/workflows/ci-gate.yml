@@ -77,21 +77,16 @@ jobs:
         continue-on-error: true
         timeout-minutes: 5
 
-      # Vitest — TEMPORARILY DISABLED as of 2026-07-01. AUDIT-2026-05-16
-      # §H-CI1: 63 API spec files import from vitest but
-      # `scripts/test-unit.mjs` only globs `lib/**/*.test.ts`; this step
-      # was meant to add visibility for those specs and eventually flip
-      # to required once green. Across 4 consecutive CI runs this step
-      # got stuck at 0% progress well past both `timeout-minutes: 8` and
-      # an OS-level `timeout 240` wrapper -- neither cutoff fired,
-      # pointing at a runner/infra-level stall rather than a hang inside
-      # the vitest process itself, so no in-repo fix could unblock it.
-      # Re-enable once the underlying runner issue is understood --
-      # `npm run test:vitest` still works standalone in the meantime.
-      # - name: Vitest (report-only)
-      #   run: timeout 240 npm run test:vitest || true
-      #   continue-on-error: true
-      #   timeout-minutes: 8
+      # Vitest — re-enabled 2026-07-02 as report-only. The suite is fully
+      # green (1179 tests / 108 files) after the mock/assertion repair and
+      # the vitest.config.ts exclude fix (Playwright e2e + node:test files
+      # are no longer collected, which is also what was hanging the earlier
+      # runs at 0%). Flip to required (drop continue-on-error) after a few
+      # stable runs.
+      - name: Vitest (report-only)
+        run: timeout 480 npm run test:vitest || true
+        continue-on-error: true
+        timeout-minutes: 10
 
       # Dead-code detection — report-only. No knip/ts-prune/depcheck config
       # existed before this; `knip` was added as a devDependency (see

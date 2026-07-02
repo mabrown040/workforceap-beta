@@ -1,5 +1,6 @@
 'use client';
 
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/portal/PageHeader';
@@ -61,6 +62,7 @@ export default function AdminFeatureFlagsClient() {
   const [flags, setFlags] = useState<FeatureFlag[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,7 +154,6 @@ export default function AdminFeatureFlagsClient() {
   };
 
   const deleteFlag = async (id: string) => {
-    if (!confirm('Delete this feature flag?')) return;
     setSavingId(id);
     try {
       const res = await fetch(`/api/admin/feature-flags/${id}`, { method: 'DELETE' });
@@ -473,7 +474,7 @@ export default function AdminFeatureFlagsClient() {
                     <button
                       type="button"
                       className="btn btn-outline btn-sm"
-                      onClick={() => deleteFlag(flag.id)}
+                      onClick={() => setConfirmDeleteId(flag.id)}
                       disabled={savingId === flag.id}
                       style={{ color: '#ad2c4d', borderColor: 'rgba(173,44,77,0.3)' }}
                     >
@@ -488,6 +489,16 @@ export default function AdminFeatureFlagsClient() {
           })}
         </div>
       )}
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete feature flag?"
+        body="Delete this feature flag? Any code checking it will fall back to its default."
+        confirmLabel="Delete flag"
+        danger
+        busy={savingId === confirmDeleteId && confirmDeleteId !== null}
+        onConfirm={() => { if (confirmDeleteId) { void deleteFlag(confirmDeleteId); setConfirmDeleteId(null); } }}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

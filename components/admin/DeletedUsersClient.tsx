@@ -1,5 +1,6 @@
 'use client';
 
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, MailX, RotateCcw, Users, Wand2 } from 'lucide-react';
@@ -26,6 +27,7 @@ export default function DeletedUsersClient({
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [batchStatus, setBatchStatus] = useState<Status>('idle');
+  const [confirmBatchFree, setConfirmBatchFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -72,9 +74,6 @@ export default function DeletedUsersClient({
   };
 
   const handleBatchFree = async () => {
-    if (!confirm(`Free emails on all ${stillBoundCount} soft-deleted rows whose email still occupies the unique slot?`)) {
-      return;
-    }
     setBatchStatus('loading');
     setError(null);
     setSuccess(null);
@@ -137,7 +136,7 @@ export default function DeletedUsersClient({
           <button
             type="button"
             className="btn btn-primary btn-small"
-            onClick={handleBatchFree}
+            onClick={() => setConfirmBatchFree(true)}
             disabled={batchStatus === 'loading'}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
@@ -292,6 +291,16 @@ export default function DeletedUsersClient({
           })}
         </ul>
       )}
+      <ConfirmDialog
+        open={confirmBatchFree}
+        title="Free deleted emails?"
+        body={`Free emails on all ${stillBoundCount} soft-deleted rows whose email still occupies the unique slot? Those addresses become available for new signups.`}
+        confirmLabel="Free emails"
+        danger
+        busy={batchStatus === 'loading'}
+        onConfirm={() => { setConfirmBatchFree(false); void handleBatchFree(); }}
+        onCancel={() => setConfirmBatchFree(false)}
+      />
     </div>
   );
 }

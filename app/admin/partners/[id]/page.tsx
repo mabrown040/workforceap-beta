@@ -5,6 +5,9 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
+import PartnerPayoutsPanel, { type PayoutRow } from '@/components/admin/PartnerPayoutsPanel';
+import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
+import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import PartnerDetailActions from '@/components/admin/PartnerDetailActions';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -34,7 +37,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
               assessmentCompleted: true,
               deletedAt: true,
               placementRecord: {
-                select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
+                select: { id: true, employerName: true, jobTitle: true, salaryOffered: true, placedAt: true, startDateVerified: true },
               },
               userCertifications: { select: { certName: true, earnedAt: true } },
               applications: { select: { status: true, submittedAt: true } },
@@ -64,6 +67,50 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   if (!partner) notFound();
 
   const members = partner.referrals.map((r) => r.member);
+
+  // Placement payout rows for the admin payout panel (mirrors the gates the
+  // POST /api/partner/payout route re-checks server-side).
+  const placedMembers = members.filter((m) => m.placementRecord);
+  const placementIds = placedMembers.map((m) => m.placementRecord!.id);
+  const paidEvents = placementIds.length
+    ? await prisma.memberEvent.findMany({
+        where: {
+          eventName: 'PARTNER_PAYOUT_SENT',
+          entityType: 'PlacementRecord',
+          entityId: { in: placementIds },
+        },
+        select: { entityId: true },
+      })
+    : [];
+  const paidPlacementIds = new Set(paidEvents.map((e) => e.entityId));
+  const payoutRows: PayoutRow[] = placedMembers.map((m) => {
+    const rec = m.placementRecord!;
+    const paid = paidPlacementIds.has(rec.id);
+    let blockedReason: string | null = null;
+    if (!paid && (!rec.placedAt || !rec.startDateVerified)) {
+      blockedReason = 'Needs verified start date';
+    }
+    return {
+      placementId: rec.id,
+      memberName: m.fullName ?? m.email ?? 'Member',
+      employerName: rec.employerName ?? null,
+      jobTitle: rec.jobTitle ?? null,
+      placedAt: rec.placedAt ? rec.placedAt.toISOString() : null,
+      paid,
+      blockedReason,
+    };
+  });
+  const payoutsAvailable =
+    isPayoutEligibleType(partner.partnerType) &&
+    !!partner.stripeConnectId &&
+    partner.stripeConnectStatus === 'active';
+  const payoutsUnavailableReason = payoutsAvailable
+    ? null
+    : !isPayoutEligibleType(partner.partnerType)
+      ? 'Payouts are only available for referral-track partners.'
+      : !partner.stripeConnectId
+        ? 'Partner has not connected a Stripe account yet.'
+        : 'Partner Stripe account is not active yet.';
   let completions = 0;
   let placements = 0;
   let active = 0;
@@ -252,6 +299,14 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
           </div>
         )}
       </section>
+
+      <PartnerPayoutsPanel
+        partnerId={partner.id}
+        rows={payoutRows}
+        payoutAmountUsd={getPartnerPlacementPayoutUsd()}
+        payoutsAvailable={payoutsAvailable}
+        payoutsUnavailableReason={payoutsUnavailableReason}
+      />
     </div>
   );
 }

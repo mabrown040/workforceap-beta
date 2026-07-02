@@ -37,6 +37,7 @@ vi.mock('@supabase/ssr', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: {
       update: vi.fn(),
     },
@@ -54,10 +55,21 @@ vi.mock('@/lib/member/service', () => ({
 
 vi.mock('@/lib/rate-limit', () => ({
   checkSignupRateLimit: vi.fn(),
+  checkSignupEmailRateLimit: vi.fn(() => Promise.resolve({ success: true })),
 }));
 
 vi.mock('@/lib/supabaseCookieOptions', () => ({
   getSupabaseCookieOptions: vi.fn(() => ({})),
+}));
+
+vi.mock('@/lib/supabase-admin', () => ({
+  getSupabaseAdmin: vi.fn(() => ({
+    auth: {
+      admin: {
+        deleteUser: vi.fn(async () => ({ data: null, error: null })),
+      },
+    },
+  })),
 }));
 
 vi.mock('@/lib/email', () => ({
@@ -65,6 +77,7 @@ vi.mock('@/lib/email', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -104,6 +117,7 @@ describe('POST /api/member/signup — member onboarding', () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-anon-key');
     vi.stubEnv('POSTGRES_PRISMA_URL', 'postgres://test');
+    vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'test-service-role-key');
   });
 
   it('creates a member with valid data', async () => {

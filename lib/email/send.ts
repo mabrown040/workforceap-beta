@@ -10,10 +10,12 @@
  *    member-facing mail (welcome, weekly recap, partner digest, nudges)
  *    is increasingly likely to be bulk-blocked or routed to spam.
  *
- * The `mailto:` unsubscribe form is universally supported and doesn't
- * require a per-user token + HTTP unsubscribe endpoint. A real one-click
- * web unsubscribe can be layered on top later by passing an explicit
- * `List-Unsubscribe: <https://...>` URL via the `headers` override.
+ * Single-recipient sends automatically carry a real RFC 8058 one-click
+ * unsubscribe URL (/api/unsubscribe with an HMAC token bound to the
+ * recipient email; flips that account's notification prefs off).
+ * Multi-recipient sends fall back to the universally supported `mailto:`
+ * form (with no One-Click-Post header, which would be invalid against a
+ * mailto-only List-Unsubscribe).
  *
  * Every `resend.emails.send(...)` call in lib/email.ts should be replaced
  * with `sendBrandedEmail(resend, ...)` so this wrapper is the only
@@ -22,6 +24,7 @@
 import type { Resend } from 'resend';
 
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { buildUnsubscribeUrl } from '@/lib/email/unsubscribeToken';
 
 export const UNSUBSCRIBE_ADDRESS =
   process.env.EMAIL_UNSUBSCRIBE_ADDRESS || 'unsubscribe@workforceap.org';
@@ -57,10 +60,19 @@ export function htmlToPlainText(html: string): string {
     .trim();
 }
 
-export function buildDeliverabilityHeaders(): Record<string, string> {
+export function buildDeliverabilityHeaders(unsubscribeUrl?: string): Record<string, string> {
+  if (unsubscribeUrl) {
+    // RFC 8058 one-click: HTTPS URI first, mailto fallback second.
+    return {
+      'List-Unsubscribe': `<${unsubscribeUrl}>, <mailto:${UNSUBSCRIBE_ADDRESS}?subject=unsubscribe>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    };
+  }
+  // Without an HTTPS URI, One-Click POST is impossible (RFC 8058 forbids
+  // pairing List-Unsubscribe-Post with a mailto-only header), so send the
+  // universally supported mailto form alone.
   return {
     'List-Unsubscribe': `<mailto:${UNSUBSCRIBE_ADDRESS}?subject=unsubscribe>`,
-    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
   };
 }
 
@@ -115,7 +127,11 @@ export async function sendBrandedEmail(
       cc: args.cc,
       bcc: args.bcc,
       headers: {
-        ...buildDeliverabilityHeaders(),
+        // Single-recipient mail gets a tokenized RFC 8058 one-click URL bound
+        // to that recipient; multi-recipient mail falls back to mailto-only.
+        ...buildDeliverabilityHeaders(
+          typeof args.to === 'string' ? buildUnsubscribeUrl(args.to) : undefined,
+        ),
         ...args.headers,
       },
       ...(args.attachments ? { attachments: args.attachments } : {}),

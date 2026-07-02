@@ -16,7 +16,7 @@ import { auditLog } from '@/lib/audit';async function _GET(req: Request) {
     const orgId = superAdmin ? null : await getActorOrganizationId(auth.userId).catch(() => null);
 
     const { searchParams } = new URL(req.url);
-    const threshold = parseInt(searchParams.get('threshold') ?? String(THRESHOLDS.HIGH), 10);
+    const threshold = parseInt(searchParams.get('threshold') ?? '', 10) || THRESHOLDS.HIGH;
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10) || 20, 100);
     const status = searchParams.get('status') ?? undefined;
   

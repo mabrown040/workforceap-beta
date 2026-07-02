@@ -6,8 +6,8 @@ export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const { searchParams } = new URL(req.url);
   const industry = searchParams.get('industry');
-  const take = Math.min(Number(searchParams.get('take') ?? 24), 50);
-  const skip = Number(searchParams.get('skip') ?? 0);
+  const take = Math.min(parseInt(searchParams.get('take') ?? '', 10) || 24, 50);
+  const skip = Math.max(0, parseInt(searchParams.get('skip') ?? '', 10) || 0);
 
   const where: Record<string, unknown> = { isActive: true, approvedAt: { not: null } };
   if (industry) where.industry = industry;

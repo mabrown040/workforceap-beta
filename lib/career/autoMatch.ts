@@ -306,6 +306,7 @@ const DIMENSIONS = [
 function buildAllElements(occ: OccupationForMatch): { name: string; importance: number | null; level: number | null }[] {
   const all: { name: string; importance: number | null; level: number | null }[] = [];
   if (occ.skills?.length) all.push(...occ.skills.map((s) => ({ name: s.skillName, importance: null, level: null })));
+  if (occ.technologies?.length) all.push(...occ.technologies.map((t) => ({ name: t.technologyName, importance: null, level: null })));
   if (occ.abilities?.length) all.push(...occ.abilities);
   if (occ.knowledge?.length) all.push(...occ.knowledge);
   if (occ.workActivities?.length) all.push(...occ.workActivities);
@@ -465,11 +466,25 @@ function rankProgramsByTitle(occ: OccupationForMatch, programs: ReadonlyArray<Pr
     .slice(0, TOP_N);
 }
 
+/**
+ * A result has real content signal when any dimension other than the
+ * Education/zone alignment scored above zero. Education/zone returns a
+ * NEUTRAL 0.5 when the occupation has no job-zone data, which alone
+ * contributes 0.05 — enough to clear MIN_INCLUDED_SCORE and "match" every
+ * program for totally unrelated occupations. Neutral padding must never be
+ * the only reason a program is recommended.
+ */
+function hasContentSignal(m: AutoMatchResult): boolean {
+  // 0.05 noise floor: a single spurious partial token (e.g. "os" inside
+  // "cosmic") scores ~0.016 on Token overlap and is not real signal.
+  return (m.dimensionBreakdown ?? []).some((d) => d.name !== 'Education/zone' && d.score > 0.05);
+}
+
 /** Run the full auto-match pipeline for an occupation against a program list. */
 export function rankPrograms(occ: OccupationForMatch, programs: ReadonlyArray<Program>): AutoMatchResult[] {
   const ranked = programs
     .map((p) => scoreProgramStructured(p, occ))
-    .filter((m) => m.score >= MIN_INCLUDED_SCORE || (m.reason.includes('domain') && m.score > 0))
+    .filter((m) => hasContentSignal(m) && (m.score >= MIN_INCLUDED_SCORE || (m.reason.includes('domain') && m.score > 0)))
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_N);
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState, useCallback, useRef } from 'react';
+import { Fragment, useMemo, useState, useCallback, useRef } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import DataTable from '@/components/portal/ui/DataTable';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 
@@ -16,11 +17,23 @@ type UserRow = {
 type Props = {
   initialUsers: UserRow[];
   canManageRoles: boolean;
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
 };
 
 const ROLE_OPTIONS = ['member', 'admin', 'super_admin', 'case_manager'] as const;
 
-export default function AdminUsersManager({ initialUsers, canManageRoles }: Props) {
+export default function AdminUsersManager({
+  initialUsers,
+  canManageRoles,
+  totalCount,
+  currentPage,
+  pageSize,
+}: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [query, setQuery] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -73,6 +86,16 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
       [user.fullName, user.email, user.role].some((value) => value.toLowerCase().includes(q))
     );
   }, [query, users]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Preserve existing query params (e.g. ?ui=legacy) when changing pages.
+  function goToPage(page: number) {
+    if (page < 1 || page > totalPages) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('page', page.toString());
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
 
   function startEdit(user: UserRow) {
     setEditingId(user.id);
@@ -482,6 +505,47 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
           );
         })}
       </ul>
+
+      <p style={{ margin: 0, textAlign: 'center', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+        {filtered.length} shown of {totalCount}
+      </p>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+            .map((page, i, pages) => (
+              <Fragment key={page}>
+                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
+                <button
+                  type="button"
+                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => goToPage(page)}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              </Fragment>
+            ))}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

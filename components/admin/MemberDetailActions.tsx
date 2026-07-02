@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { PROGRAMS } from '@/lib/content/programs';
 
 export type ProgramOption = { slug: string; name: string; status?: string };
@@ -27,22 +28,23 @@ export default function MemberDetailActions({
   const [programSlug, setProgramSlug] = useState(currentProgramSlug ?? '');
   const [loading, setLoading] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmEnrollOpen, setConfirmEnrollOpen] = useState(false);
 
   const options =
     programOptions.length > 0
       ? programOptions
       : PROGRAMS.map((p) => ({ slug: p.slug, name: p.title }));
 
-  const handleChangeProgram = async () => {
+  const handleChangeProgram = () => {
     if (!programSlug) return;
-    const selected = options.find((o) => o.slug === programSlug);
-    const label = selected?.name ?? programSlug;
     if (enrollmentGateBlocked) {
-      const ok = window.confirm(
-        `Enroll ${memberName} in ${label}?\n\nThis member is not yet verified for self-serve training enrollment. Admin enrollment will still work and create an admin bypass.`
-      );
-      if (!ok) return;
+      setConfirmEnrollOpen(true);
+      return;
     }
+    void submitProgramChange();
+  };
+
+  const submitProgramChange = async () => {
     setLoading('program');
     try {
       const res = await fetch(`/api/admin/members/${userId}/program`, {
@@ -103,7 +105,7 @@ export default function MemberDetailActions({
           <button
             type="button"
             className="btn btn-outline"
-            onClick={() => void handleChangeProgram()}
+            onClick={handleChangeProgram}
             disabled={!programSlug || loading === 'program'}
           >
             {loading === 'program' ? '...' : 'Save'}
@@ -142,6 +144,22 @@ export default function MemberDetailActions({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmEnrollOpen}
+        title="Enroll with admin bypass?"
+        body={
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'pre-line' }}>
+            {`Enroll ${memberName} in ${options.find((o) => o.slug === programSlug)?.name ?? programSlug}?\n\nThis member is not yet verified for self-serve training enrollment. Admin enrollment will still work and create an admin bypass.`}
+          </p>
+        }
+        confirmLabel="Enroll"
+        onConfirm={() => {
+          setConfirmEnrollOpen(false);
+          void submitProgramChange();
+        }}
+        onCancel={() => setConfirmEnrollOpen(false)}
+      />
     </div>
   );
 }

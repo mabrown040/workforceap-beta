@@ -26,6 +26,7 @@ import AdminMemberCounselorAssign from '@/components/admin/AdminMemberCounselorA
 import AdminMemberPlacedOutcomeForm from '@/components/admin/AdminMemberPlacedOutcomeForm';
 import AdminMemberEnrollmentFundingForm from '@/components/admin/AdminMemberEnrollmentFundingForm';
 import AdminMemberWorkspaceEmail from '@/components/admin/AdminMemberWorkspaceEmail';
+import { getWorkspaceEmailAvailability } from '@/lib/workspace-email/provider';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -78,6 +79,7 @@ export default async function AdminMemberDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const workspaceEmailAvailability = getWorkspaceEmailAvailability();
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members');
 
@@ -1000,6 +1002,8 @@ export default async function AdminMemberDetailPage({
             memberId={member.id}
             workspaceEmail={member.workspaceEmail ?? null}
             workspaceEmailProvisioned={!!member.workspaceEmailProvisioned}
+            providerAvailable={workspaceEmailAvailability.available}
+            providerHint={workspaceEmailAvailability.reason}
           />
         </section>
 

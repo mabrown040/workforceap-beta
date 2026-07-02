@@ -44,6 +44,9 @@ export default async function AdminMembersPage({
   const searchQuery = typeof params.search === 'string' ? params.search.trim() : '';
   const programFilter = typeof params.program === 'string' ? params.program.trim() : '';
   const statusFilter = typeof params.status === 'string' ? params.status.trim() : '';
+  const partnerFilter = typeof params.partner === 'string' ? params.partner.trim() : '';
+  const startDateFilter = typeof params.startDate === 'string' ? params.startDate.trim() : '';
+  const endDateFilter = typeof params.endDate === 'string' ? params.endDate.trim() : '';
   const pageParam = typeof params.page === 'string' ? parseInt(params.page, 10) : 1;
   const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
   const pageSize = 50;
@@ -81,6 +84,29 @@ export default async function AdminMembersPage({
     Object.assign(whereClause, buildStatusWhere(validStatus));
   }
 
+  // Partner + enrolled-date filters are applied server-side so they span the
+  // whole member list (not just the loaded page) and match the CSV export's
+  // semantics (export route filters on enrolledAt the same way).
+  if (partnerFilter) {
+    whereClause.partnerReferrals =
+      partnerFilter === '__none' ? { none: {} } : { some: { partnerId: partnerFilter } };
+  }
+  {
+    const enrolledAt: { gte?: Date; lte?: Date } = {};
+    if (startDateFilter) {
+      const d = new Date(startDateFilter);
+      if (!Number.isNaN(d.getTime())) enrolledAt.gte = d;
+    }
+    if (endDateFilter) {
+      const d = new Date(endDateFilter);
+      if (!Number.isNaN(d.getTime())) {
+        d.setHours(23, 59, 59, 999);
+        enrolledAt.lte = d;
+      }
+    }
+    if (enrolledAt.gte || enrolledAt.lte) whereClause.enrolledAt = enrolledAt;
+  }
+
   // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
   // can time out or fail under load; degrading aggregates must not hide the member list.
   const [
@@ -91,6 +117,7 @@ export default async function AdminMembersPage({
     canonicalCompletionsResult,
     programProgressResult,
     activeCourseProgressResult,
+    partnerOptionsResult,
   ] = await Promise.allSettled([
     prisma.user.findMany({
       where: whereClause,
@@ -172,6 +199,12 @@ export default async function AdminMembersPage({
       by: ['userId'],
       where: { status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
       _count: { _all: true },
+    }),
+    // Org-wide partner list for the filter dropdown (page-derived options
+    // would shrink to whatever partners appear on the loaded page).
+    prisma.partner.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
     }),
   ]);
 
@@ -336,6 +369,10 @@ export default async function AdminMembersPage({
         searchQuery={searchQuery}
         programFilter={programFilter}
         statusFilter={statusFilter}
+        partnerFilter={partnerFilter}
+        startDateFilter={startDateFilter}
+        endDateFilter={endDateFilter}
+        allPartnerOptions={partnerOptionsResult.status === 'fulfilled' ? partnerOptionsResult.value : []}
       />
     </PortalPageFrame>
   );

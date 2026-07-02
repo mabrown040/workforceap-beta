@@ -149,6 +149,16 @@ const applySignupSchema = z.object({
           { status: 503 }
         );
       }
+      // Clients only render the Turnstile widget when the SITE key is set, so
+      // 'enabled + missing site key' means no request can ever carry a token —
+      // fail closed as a config error, not an unpassable 400.
+      if (!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim()) {
+        console.error('NEXT_PUBLIC_TURNSTILE_SITE_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Signup is temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
       const tok = turnstileToken?.trim() ?? '';
       if (!tok) {
         return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
@@ -358,16 +368,22 @@ const applySignupSchema = z.object({
         createdApplicationId = application.id;
 
         // Persist apply-flow eligibility screening for funnel analytics.
+        // Upsert keyed on the unique user_id so a returning applicant who
+        // re-runs the screener updates their row instead of violating the
+        // unique constraint (which would roll back the whole signup).
         if (eligibilityQ1 && eligibilityQ2) {
-          await tx.applyEligibilityScreening.create({
-            data: {
-              organizationId,
-              userId: user.id,
-              q1: eligibilityQ1,
-              q2: eligibilityQ2,
-              qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
-              yesCount: eligibilityYesCount ?? 0,
-            },
+          const screening = {
+            organizationId,
+            q1: eligibilityQ1,
+            q2: eligibilityQ2,
+            q3: eligibilityQ3 ?? null,
+            qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
+            yesCount: eligibilityYesCount ?? 0,
+          };
+          await tx.applyEligibilityScreening.upsert({
+            where: { userId: user.id },
+            create: { userId: user.id, ...screening },
+            update: screening,
           });
         }
   

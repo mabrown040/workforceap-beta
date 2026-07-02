@@ -30,7 +30,7 @@ vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
   resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, role: 'anonymous' })),
 }));
-vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn() }));
+vi.mock('@/lib/auth/roles', () => ({ isSuperAdmin: vi.fn(() => Promise.resolve(false)), isAdmin: vi.fn() }));
 vi.mock('@/lib/email', () => ({ sendCounselorAssignedEmail: vi.fn().mockResolvedValue(undefined) }));
 
 vi.mock('@/lib/messages/counselorThread', () => ({
@@ -46,13 +46,12 @@ vi.mock('@/lib/notifications/create', () => ({
   createBulkNotifications: vi.fn(),
 }));
 
-const mockTx = {
-  counselorAssignment: {
-    updateMany: vi.fn().mockResolvedValue({}),
-    update: vi.fn().mockResolvedValue({}),
-    create: vi.fn().mockResolvedValue({ id: 'assign-1' }),
-  },
-};
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(async () => 'org-1'),
+  getDefaultOrganizationId: vi.fn(async () => 'org-1'),
+}));
+
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn(async () => undefined) }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
@@ -64,14 +63,13 @@ vi.mock('@/lib/db/prisma', () => ({
     },
     counselorAssignment: {
       findUnique: vi.fn(),
-      updateMany: vi.fn(),
-      update: vi.fn(),
-      create: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
+      create: vi.fn().mockResolvedValue({ id: 'assign-1' }),
     },
-    $transaction: vi.fn(async (fn: any) => {
-      if (typeof fn === 'function') return fn(mockTx);
-      for (const op of fn) await op;
-      return undefined;
+    $transaction: vi.fn(async (arg: any) => {
+      const { prisma } = await import('@/lib/db/prisma');
+      return typeof arg === 'function' ? arg(prisma) : Promise.all(arg);
     }),
     messageThread: {
       update: vi.fn().mockResolvedValue({}),

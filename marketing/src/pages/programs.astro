@@ -1,6 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { PROGRAMS as CATALOG, salaryRangeDisplay } from '../data/programs';
 import Icon from '../components/Icon.astro';
+
+// Card rows derive title/duration/salary/partner/funding/skills from the
+// canonical data file so the listing can never drift from the detail pages
+// again (it did: three programs were renamed for TWC/EdVera alignment).
+// Grouping, category labels, and icons stay page-local, keyed by slug.
+const CATALOG_BY_SLUG = new Map(CATALOG.map((p) => [p.slug, p]));
+function row(slug: string, category: string, cat: string, icon: string) {
+  const p = CATALOG_BY_SLUG.get(slug);
+  if (!p) throw new Error(`programs.astro: slug not in data/programs.ts: ${slug}`);
+  return {
+    slug,
+    category,
+    cat,
+    icon,
+    title: p.title,
+    duration: p.duration,
+    salary: salaryRangeDisplay(p),
+    partner: p.partner,
+    funding: p.fundingSource ?? 'WIOA',
+    skills: p.skills.slice(0, 3),
+  };
+}
+
 
 // ── Quick-start lanes (verbatim from messages/en.json marketing.programs.quickStartCard*) ──
 const lanes = [
@@ -32,7 +56,7 @@ const factors = [
   { label: 'Your interests', desc: 'What work feels natural or exciting to you?', icon: 'heart' },
   { label: 'Device access', desc: 'Some programs work on phones; others need a laptop.', icon: 'laptop' },
   { label: 'Time available', desc: 'Most programs need 5–10 hours per week for 3–5 months.', icon: 'clock' },
-  { label: 'Earning goal', desc: 'Entry-level roles start around $35K–$55K in Austin.', icon: 'dollar' },
+  { label: 'Earning goal', desc: 'Entry-level roles typically start around $35K–$55K nationally.', icon: 'dollar' },
   { label: 'Growth path', desc: 'Some certificates lead directly to jobs; others are stepping stones.', icon: 'trending-up' },
 ];
 
@@ -63,10 +87,7 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Digital Literacy',
     description: 'Foundational digital skills and confidence for today’s workplace.',
     programs: [
-      { slug: 'digital-literacy-empowerment-class', category: 'Digital Literacy', cat: 'gr', icon: 'laptop',
-        title: 'Digital Literacy Empowerment Class', duration: '6 weeks, 5 hrs/week (30 hours total)',
-        salary: '$38K–$52K', partner: 'Grant', funding: 'Grant',
-        skills: ['Digital literacy', 'Email', 'Financial literacy'] },
+      row('digital-literacy-empowerment-class', 'Digital Literacy', 'gr', 'laptop'),
     ],
   },
   {
@@ -74,26 +95,11 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'IT Support',
     description: 'Help desk, hardware, and core IT pathways.',
     programs: [
-      { slug: 'it-support-professional-certificate-ibm', category: 'IT & Cybersecurity', cat: 'c', icon: 'laptop',
-        title: 'IT Support Professional Certificate (IBM)', duration: '3-5 months, 10 hrs/week',
-        salary: '$55K–$72K', partner: 'IBM', funding: 'WIOA',
-        skills: ['Help desk', 'Hardware', 'Software'] },
-      { slug: 'comptia-a-professional-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: 'shield',
-        title: 'CompTIA A+ Professional Certificate', duration: '3-5 months, 10 hrs/week',
-        salary: '$55K–$78K', partner: 'CompTIA', funding: 'WIOA',
-        skills: ['Hardware', 'Networking', 'Security'] },
-      { slug: 'comptia-network-professional-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: 'shield',
-        title: 'CompTIA Network+ Professional Certificate', duration: '3-5 months, 10 hrs/week',
-        salary: '$60K–$88K', partner: 'CompTIA', funding: 'WIOA',
-        skills: ['Networking', 'TCP/IP', 'Cisco'] },
-      { slug: 'comptia-security-professional-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: 'shield',
-        title: 'CompTIA Security+ Professional Certificate', duration: '3-5 months, 10 hrs/week',
-        salary: '$72K–$108K', partner: 'CompTIA', funding: 'WIOA',
-        skills: ['Network security', 'Risk management', 'Cryptography'] },
-      { slug: 'cybersecurity-professional-certificate-google', category: 'IT & Cybersecurity', cat: 'c', icon: 'shield',
-        title: 'Cyber Security and Networking Professional Certificate (Network+, Sec+)', duration: '3-5 months, 10 hrs/week (164 contact hours total)',
-        salary: '$75K–$112K', partner: 'Google', funding: 'WIOA',
-        skills: ['Networking', 'Network security', 'Incident response'] },
+      row('it-support-professional-certificate-ibm', 'IT & Cybersecurity', 'c', 'laptop'),
+      row('comptia-a-professional-certificate', 'IT & Cybersecurity', 'c', 'shield'),
+      row('comptia-network-professional-certificate', 'IT & Cybersecurity', 'c', 'shield'),
+      row('comptia-security-professional-certificate', 'IT & Cybersecurity', 'c', 'shield'),
+      row('cybersecurity-professional-certificate-google', 'IT & Cybersecurity', 'c', 'shield'),
     ],
   },
   {
@@ -101,18 +107,9 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Database & Data Platforms',
     description: 'Data storage, analytics, and data-centric roles.',
     programs: [
-      { slug: 'data-analytics-professional-certificate-google', category: 'Cloud & Data', cat: 'g', icon: 'bar-chart',
-        title: 'Data Analytics Professional Certificate (Google)', duration: '3-5 months, 10 hrs/week',
-        salary: '$72K–$102K', partner: 'Google', funding: 'WIOA',
-        skills: ['Spreadsheets', 'SQL', 'R'] },
-      { slug: 'data-science-professional-certificate-ibm', category: 'Cloud & Data', cat: 'g', icon: 'bar-chart',
-        title: 'Data Science Professional Certificate (IBM)', duration: '3-5 months, 10 hrs/week',
-        salary: '$88K–$130K', partner: 'IBM', funding: 'WIOA',
-        skills: ['Python', 'SQL', 'Machine Learning'] },
-      { slug: 'aws-cloud-technology-amazon', category: 'Cloud & Data', cat: 'b', icon: 'globe',
-        title: 'AWS Cloud Technology Certificate', duration: '3-5 months, 10 hrs/week',
-        salary: '$95K–$145K', partner: 'Amazon Web Services', funding: 'WIOA',
-        skills: ['AWS', 'Cloud architecture', 'DevOps'] },
+      row('data-analytics-professional-certificate-google', 'Cloud & Data', 'g', 'bar-chart'),
+      row('data-science-professional-certificate-ibm', 'Cloud & Data', 'g', 'bar-chart'),
+      row('aws-cloud-technology-amazon', 'Cloud & Data', 'b', 'globe'),
     ],
   },
   {
@@ -120,14 +117,8 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Programming & Software',
     description: 'Software development, automation, and engineering tracks.',
     programs: [
-      { slug: 'ai-professional-developer-certificate-ibm', category: 'AI & Software Dev', cat: 'g', icon: 'sparkle',
-        title: 'AI Practitioner Professional Certificate', duration: '3-5 months, 10 hrs/week',
-        salary: '$85K–$135K', partner: 'Coursera partners', funding: 'WIOA',
-        skills: ['AI/ML', 'Generative AI', 'AI ethics'] },
-      { slug: 'it-automation-with-python-google', category: 'IT & Cybersecurity', cat: 'c', icon: 'laptop',
-        title: 'IT Automation with Python Certificate (Google)', duration: '3-5 months, 10 hrs/week',
-        salary: '$78K–$98K', partner: 'Google', funding: 'WIOA',
-        skills: ['Python', 'Git', 'Bash'] },
+      row('ai-professional-developer-certificate-ibm', 'AI & Software Dev', 'g', 'sparkle'),
+      row('it-automation-with-python-google', 'IT & Cybersecurity', 'c', 'laptop'),
     ],
   },
   {
@@ -135,10 +126,7 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Web & Front End',
     description: 'Web technologies, UX, and product-facing builds.',
     programs: [
-      { slug: 'ux-design-professional-certificate-google', category: 'Business', cat: 'g', icon: 'briefcase',
-        title: 'UX Design Professional Certificate (Google)', duration: '3-5 months, 10 hrs/week',
-        salary: '$88K–$120K', partner: 'Google', funding: 'WIOA',
-        skills: ['User research', 'Wireframing', 'Figma'] },
+      row('ux-design-professional-certificate-google', 'Business', 'g', 'briefcase'),
     ],
   },
   {
@@ -146,14 +134,8 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Leadership, Business, & Marketing',
     description: 'Project management, marketing, UX, and business skills.',
     programs: [
-      { slug: 'project-management-professional-certificate-microsoft', category: 'Business', cat: 'g', icon: 'briefcase',
-        title: 'Project Management Professional Certificate (Microsoft)', duration: '3-5 months, 10 hrs/week',
-        salary: '$82K–$112K', partner: 'Microsoft', funding: 'WIOA',
-        skills: ['Agile', 'Scrum', 'MS Project'] },
-      { slug: 'digital-marketing-e-commerce-google', category: 'Business', cat: 'g', icon: 'briefcase',
-        title: 'Digital Marketing & E-Commerce (Google)', duration: '3-5 months, 10 hrs/week',
-        salary: '$62K–$78K', partner: 'Google', funding: 'WIOA',
-        skills: ['SEO', 'SEM', 'Email marketing'] },
+      row('project-management-professional-certificate-microsoft', 'Business', 'g', 'briefcase'),
+      row('digital-marketing-e-commerce-google', 'Business', 'g', 'briefcase'),
     ],
   },
   {
@@ -161,14 +143,8 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Medical & Health IT',
     description: 'Healthcare information and coding pathways.',
     programs: [
-      { slug: 'medical-billing-and-coding-certificate', category: 'Healthcare', cat: 'gr', icon: 'heart',
-        title: 'Medical Billing and Coding Professional Certificate', duration: '4-6 months, 10 hrs/week',
-        salary: '$45K–$62K', partner: 'Coursera', funding: 'WIOA',
-        skills: ['Medical billing', 'Medical coding', 'Medical terminology'] },
-      { slug: 'health-information-technology-mchit', category: 'Healthcare', cat: 'gr', icon: 'heart',
-        title: 'Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)', duration: '3-5 months, 10 hrs/week',
-        salary: '$52K–$72K', partner: 'Healthcare Career Pathway', funding: 'WIOA',
-        skills: ['Medical coding', 'EHR', 'HIPAA'] },
+      row('medical-billing-and-coding-certificate', 'Healthcare', 'gr', 'heart'),
+      row('health-information-technology-mchit', 'Healthcare', 'gr', 'heart'),
     ],
   },
   {
@@ -176,14 +152,8 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Manufacturing & Logistics',
     description: 'Production, supply chain, and technician credentials.',
     programs: [
-      { slug: 'certified-production-technician-cpt', category: 'Manufacturing', cat: 'm', icon: 'building',
-        title: 'Certified Production Technician (CPT)', duration: '3-5 months, 10 hrs/week',
-        salary: '$48K–$70K', partner: 'MSSC / NAM', funding: 'WIOA',
-        skills: ['Safety', 'Quality practices', 'Manufacturing processes'] },
-      { slug: 'certified-logistics-technician-clt', category: 'Manufacturing', cat: 'm', icon: 'building',
-        title: 'Certified Logistics Technician (CLT)', duration: '3-5 months, 10 hrs/week',
-        salary: '$55K–$78K', partner: 'MSSC / NAM', funding: 'WIOA',
-        skills: ['Logistics fundamentals', 'Safety', 'Inventory'] },
+      row('certified-production-technician-cpt', 'Manufacturing', 'm', 'building'),
+      row('certified-logistics-technician-clt', 'Manufacturing', 'm', 'building'),
     ],
   },
   {
@@ -191,10 +161,7 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Construction & Trades',
     description: 'Safety, trades readiness, and construction fundamentals.',
     programs: [
-      { slug: 'core-construction-training-certificate', category: 'Construction & Trades', cat: 'm', icon: 'building',
-        title: 'Core Construction', duration: '5 hours per section',
-        salary: '$48K–$68K', partner: 'OSHA-10 / Grant', funding: 'WIOA',
-        skills: ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'] },
+      row('core-construction-training-certificate', 'Construction & Trades', 'm', 'building'),
     ],
   },
   {
@@ -202,10 +169,7 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Other',
     description: 'Additional tracks.',
     programs: [
-      { slug: 'it-support-and-entry-level-cyber-security-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: 'shield',
-        title: 'IT Support and Entry-level Cyber Security Certificate', duration: '3-5 months, 10 hrs/week',
-        salary: '$60K–$88K', partner: 'IBM / CompTIA', funding: 'WIOA',
-        skills: ['Help desk', 'Networking', 'Security fundamentals'] },
+      row('it-support-and-entry-level-cyber-security-certificate', 'IT & Cybersecurity', 'c', 'shield'),
     ],
   },
 ];
@@ -306,7 +270,7 @@ const filterChips = [
 <!-- ══════════════════════════════════════════════ HOW TO CHOOSE ══════════════════════════════════════════════ -->
 <section class="band"><div class="wrap">
   <div class="sec-head">
-    <span class="eyebrow">How to choose a program</span>
+    <span class="eyebrow">Decision guide</span>
     <h2>How to <span class="grad-text">choose a program</span></h2>
     <p>Pick what fits your life: your current skills, how much time you have, and the kind of work you want.</p>
   </div>
@@ -365,7 +329,7 @@ const filterChips = [
           </div>
           <h3>{p.title}</h3>
           <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
-          <p class="pdisc">Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
+          <p class="pdisc">Salary range is a national early-career estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience, employer, and location.</p>
           <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
           <div class="pcard-foot">
             <span class="ppartner">Partner: {p.partner}</span>
@@ -401,7 +365,7 @@ const filterChips = [
             </div>
             <h3>{p.title}</h3>
             <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
-            <p class="pdisc">Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
+            <p class="pdisc">Salary range is a national early-career estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience, employer, and location.</p>
             <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
             <div class="pcard-foot">
               <span class="ppartner">Partner: {p.partner}</span>
@@ -485,7 +449,7 @@ const filterChips = [
 <!-- ══════════════════════════════════════════════ JOURNEY — 4-step flow ══════════════════════════════════════════════ -->
 <section class="band band--surface"><div class="wrap">
   <div class="sec-head" style="max-width:660px">
-    <span class="eyebrow">From enrollment to employment</span>
+    <span class="eyebrow">The journey</span>
     <h2>From enrollment to <span class="grad-text">employment</span></h2>
     <p>WorkforceAP supports members at every step, from choosing a program to preparing for the job search in your field.</p>
   </div>

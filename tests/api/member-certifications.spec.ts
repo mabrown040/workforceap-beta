@@ -8,13 +8,18 @@ vi.mock('next/server', () => ({
         headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
       }),
   },
+  // Route now defers side effects via next/server's after().
+  after: (fn: () => unknown) => { void Promise.resolve().then(fn); },
 }));
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(() => Promise.resolve({ get: vi.fn(), getAll: vi.fn(() => []), set: vi.fn() })),
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
 vi.mock('@/lib/auth/ensureUser', () => ({ ensureUserInDb: vi.fn() }));
 vi.mock('@/lib/notifications/partner-notify', () => ({
   sendPartnerMilestoneEmail: vi.fn(() => Promise.resolve()),
@@ -24,6 +29,7 @@ vi.mock('@/lib/member/points', () => ({ awardPoints: vi.fn(() => Promise.resolve
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     userCertification: {
       findMany: vi.fn(),
       findUnique: vi.fn(),

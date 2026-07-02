@@ -20,18 +20,26 @@ vi.mock('next/server', () => {
 });
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
+  isAdminInOrg: vi.fn(() => Promise.resolve(true)),
   requireAdmin: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
-    $transaction: vi.fn(),
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
+    user: {
+      findMany: vi.fn(async () => []),
+    },
   },
 }));
+
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn(async () => undefined) }));
 
 vi.mock('@/lib/admin/memberMerge', () => ({
   executeMemberMerge: vi.fn(),
@@ -52,6 +60,11 @@ describe('GET /api/admin/members/merge — preview', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(prisma.$transaction).mockImplementation(async (arg: any) => (typeof arg === 'function' ? arg(prisma as any) : Promise.all(arg)));
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: 'p1', organizationId: 'org-1' },
+      { id: 's1', organizationId: 'org-1' },
+    ] as any);
   });
 
   it('returns 401 when not authenticated', async () => {
@@ -105,7 +118,7 @@ describe('GET /api/admin/members/merge — preview', () => {
       scalarFieldsToMerge: ['phone'],
     };
 
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn({} as any));
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn(prisma as any));
     vi.mocked(buildMergePreview).mockResolvedValue(mockPreview as any);
 
     const res = await GET(makeRequest('primaryId=p1&secondaryId=s1'));
@@ -138,6 +151,11 @@ describe('POST /api/admin/members/merge — execute', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(prisma.$transaction).mockImplementation(async (arg: any) => (typeof arg === 'function' ? arg(prisma as any) : Promise.all(arg)));
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: 'p1', organizationId: 'org-1' },
+      { id: 's1', organizationId: 'org-1' },
+    ] as any);
   });
 
   it('returns 401 when not authenticated', async () => {
@@ -190,7 +208,7 @@ describe('POST /api/admin/members/merge — execute', () => {
       mergedFields: ['phone'],
     };
 
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn({} as any));
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn(prisma as any));
     vi.mocked(executeMemberMerge).mockResolvedValue(mockResult as any);
 
     const res = await POST(makeRequest({ primaryId: 'p1', secondaryId: 's1' }));
@@ -207,7 +225,7 @@ describe('POST /api/admin/members/merge — execute', () => {
   it('returns 500 when merge logic throws with conflict message', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(requireAdmin).mockResolvedValue(undefined);
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn({} as any));
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn(prisma as any));
     vi.mocked(executeMemberMerge).mockRejectedValue(new Error('Merge blocked by 1 conflict(s): Both members are enrolled in different programs'));
 
     const res = await POST(makeRequest({ primaryId: 'p1', secondaryId: 's1' }));

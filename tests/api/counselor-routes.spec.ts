@@ -124,6 +124,12 @@ vi.mock('@/lib/messages/counselorThread', () => ({
   getOrCreateMemberCounselorThread: vi.fn(),
   assertStaffCanAccessThread: vi.fn(),
   assertStaffCanPost: vi.fn(),
+  compactStringIds: vi.fn((ids: Array<string | null | undefined>) => [
+    ...new Set(ids.filter((id): id is string => Boolean(id))),
+  ]),
+  getMessageAuthorName: vi.fn((nameById: Map<string, string | null>, authorId: string | null) =>
+    authorId ? (nameById.get(authorId) ?? 'User') : 'User'
+  ),
   normalizeMessageBody: vi.fn((raw: string) => {
     const body = raw.trim();
     if (!body) return { ok: false, error: 'Message cannot be empty' };
@@ -140,7 +146,7 @@ vi.mock('@/lib/messages/counselorThread', () => ({
 }));
 
 vi.mock('@/lib/tenant/organization', () => ({
-  getActorOrganizationId: vi.fn(),
+  getActorOrganizationId: vi.fn(async () => null),
   getSubjectOrganizationId: vi.fn(),
 }));
 

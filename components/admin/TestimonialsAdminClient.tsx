@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { MessageSquare, CheckCircle, XCircle, Eye, Trash2, Star, Clock, AlertCircle } from 'lucide-react';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 type Testimonial = {
   id: string;
@@ -39,6 +40,8 @@ export default function TestimonialsAdminClient() {
   const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, published: 0 });
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const [actionId, setActionId] = useState<string | null>(null);
+  // Testimonial id awaiting soft-delete confirmation; null = dialog closed.
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -94,7 +97,6 @@ export default function TestimonialsAdminClient() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('Soft-delete this testimonial? It can be restored later.')) return;
     setActionId(id);
     setMsg(null);
     try {
@@ -341,7 +343,7 @@ export default function TestimonialsAdminClient() {
                       )}
                       <button
                         disabled={actionId === t.id}
-                        onClick={() => handleDelete(t.id)}
+                        onClick={() => setDeleteId(t.id)}
                         style={actionBtnStyle('gray')}
                         title="Delete"
                         aria-label="Delete"
@@ -356,6 +358,20 @@ export default function TestimonialsAdminClient() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        title="Soft-delete testimonial?"
+        body="Soft-delete this testimonial? It can be restored later."
+        danger
+        confirmLabel="Delete"
+        onConfirm={() => {
+          const id = deleteId;
+          setDeleteId(null);
+          if (id) void handleDelete(id);
+        }}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

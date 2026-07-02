@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import DataTable from '@/components/portal/ui/DataTable';
 
 export type JobTableRow = {
@@ -87,10 +88,33 @@ function SortHeader({
   );
 }
 
-export default function JobsTableClient({ jobs }: { jobs: JobTableRow[] }) {
+export default function JobsTableClient({
+  jobs,
+  totalCount,
+  currentPage,
+  pageSize,
+}: {
+  jobs: JobTableRow[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   // null = keep the server's updatedAt-desc order until a column is clicked.
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Preserve existing query params (e.g. ?ui=legacy&filter=...) when changing pages.
+  function goToPage(page: number) {
+    if (page < 1 || page > totalPages) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('page', page.toString());
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
 
   const sorted = useMemo(() => {
     if (!sortKey) return jobs;
@@ -120,59 +144,99 @@ export default function JobsTableClient({ jobs }: { jobs: JobTableRow[] }) {
   );
 
   return (
-    <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-      <DataTable
-        variant="admin"
-        tableClassName="admin-table admin-jobs-table"
-        scrollX={false}
-        rows={sorted}
-        rowKey={(j) => j.id}
-        columns={[
-          {
-            key: 'job',
-            header: header('Job', 'job'),
-            cell: (j) => (
-              <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                {j.title}
-              </Link>
-            ),
-          },
-          {
-            key: 'company',
-            header: header('Company', 'company'),
-            columnClassName: 'admin-jobs-col-company',
-            cell: (j) => j.employer?.companyName ?? 'Unknown',
-          },
-          {
-            key: 'status',
-            header: header('Status', 'status'),
-            cell: (j) => (
-              <span className={getJobStatusPillClass(j.status)}>{STATUS_LABELS[j.status] ?? j.status}</span>
-            ),
-          },
-          {
-            key: 'apps',
-            header: header('Applications', 'apps'),
-            columnClassName: 'admin-jobs-col-apps',
-            cell: (j) => j._count?.applications ?? 0,
-          },
-          {
-            key: 'actions',
-            header: 'Actions',
-            columnClassName: 'admin-jobs-col-actions',
-            cell: (j) => (
-              <>
-                <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
-                  Review
+    <>
+      {/* Desktop-only table; the server page renders mobile cards from the same rows. */}
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table admin-jobs-table"
+          scrollX={false}
+          rows={sorted}
+          rowKey={(j) => j.id}
+          columns={[
+            {
+              key: 'job',
+              header: header('Job', 'job'),
+              cell: (j) => (
+                <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
+                  {j.title}
                 </Link>
-                <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
-                  AI Matches
-                </Link>
-              </>
-            ),
-          },
-        ]}
-      />
-    </div>
+              ),
+            },
+            {
+              key: 'company',
+              header: header('Company', 'company'),
+              columnClassName: 'admin-jobs-col-company',
+              cell: (j) => j.employer?.companyName ?? 'Unknown',
+            },
+            {
+              key: 'status',
+              header: header('Status', 'status'),
+              cell: (j) => (
+                <span className={getJobStatusPillClass(j.status)}>{STATUS_LABELS[j.status] ?? j.status}</span>
+              ),
+            },
+            {
+              key: 'apps',
+              header: header('Applications', 'apps'),
+              columnClassName: 'admin-jobs-col-apps',
+              cell: (j) => j._count?.applications ?? 0,
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              columnClassName: 'admin-jobs-col-actions',
+              cell: (j) => (
+                <>
+                  <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
+                    Review
+                  </Link>
+                  <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
+                    AI Matches
+                  </Link>
+                </>
+              ),
+            },
+          ]}
+        />
+      </div>
+
+      {/* Pagination — outside the desktop-only wrapper so it also pages the mobile cards. */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+            .map((page, i, pages) => (
+              <Fragment key={page}>
+                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
+                <button
+                  type="button"
+                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => goToPage(page)}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              </Fragment>
+            ))}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </>
   );
 }

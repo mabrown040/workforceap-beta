@@ -64,7 +64,7 @@ describe('NotificationBell', () => {
     });
   });
 
-  it('marks all notifications as read when dropdown opens with unread items', async () => {
+  it('marks all read only via the explicit action, not on open', async () => {
     const mockFetch = vi.fn();
     global.fetch = mockFetch;
 
@@ -105,7 +105,15 @@ describe('NotificationBell', () => {
       expect(screen.getByText('Notifications')).toBeInTheDocument();
     });
 
-    // Verify mark-all-read was called
+    // Opening no longer auto-marks read (deliberate change: users kept losing
+    // unread state just by peeking). An explicit action does it instead.
+    expect(mockFetch).not.toHaveBeenCalledWith(
+      '/api/member/notifications/read-all',
+      expect.objectContaining({ method: 'POST' })
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /mark all read/i }));
+
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
         '/api/member/notifications/read-all',

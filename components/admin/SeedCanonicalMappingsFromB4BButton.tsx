@@ -10,6 +10,8 @@
  */
 import { useState } from 'react';
 
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+
 type CourseResult = {
   courseraCourseId: string;
   courseraCourseSlug: string | null;
@@ -37,9 +39,9 @@ export default function SeedCanonicalMappingsFromB4BButton() {
   const [running, setRunning] = useState(false);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  async function handleClick() {
-    if (typeof window !== 'undefined' && !window.confirm(CONFIRM_PROMPT)) return;
+  async function runSeed() {
     setRunning(true);
     setSummary(null);
     setError(null);
@@ -76,7 +78,7 @@ export default function SeedCanonicalMappingsFromB4BButton() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
       <button
         type="button"
-        onClick={handleClick}
+        onClick={() => setConfirmOpen(true)}
         disabled={running}
         style={{
           padding: '0.55rem 0.9rem',
@@ -121,6 +123,17 @@ export default function SeedCanonicalMappingsFromB4BButton() {
       {error ? (
         <div style={{ fontSize: '0.8rem', color: 'var(--color-error, #dc2626)' }}>Error: {error}</div>
       ) : null}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Seed mappings from B4B?"
+        body={CONFIRM_PROMPT}
+        confirmLabel="Continue"
+        onConfirm={() => {
+          setConfirmOpen(false);
+          void runSeed();
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

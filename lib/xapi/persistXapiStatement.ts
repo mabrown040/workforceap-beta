@@ -6,6 +6,11 @@ import { prisma } from '@/lib/db/prisma';
 
 export type PersistXapiStatementInput = {
   statementId?: string | null;
+  /**
+   * Tenant scope resolved by the ingest route. When omitted, the DB trigger
+   * resolves it from the actor's identity mapping (or a sentinel).
+   */
+  organizationId?: string | null;
   actorEmail?: string | null;
   /** From actor.account.name — Coursera's external user identifier. */
   actorAccountName?: string | null;
@@ -139,6 +144,8 @@ export async function persistXapiStatement(
       data: {
         statementId,
         statementHash,
+        // Omit when unknown so the DB trigger resolves it (or sentinels).
+        ...(input.organizationId ? { organizationId: input.organizationId } : {}),
         actorEmail: input.actorEmail?.trim().toLowerCase() || null,
         actorAccountName: input.actorAccountName?.trim() || null,
         actorHomePage: input.actorHomePage?.trim() || null,

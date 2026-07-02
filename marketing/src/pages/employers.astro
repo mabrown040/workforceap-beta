@@ -31,6 +31,20 @@ const caseStudies = [
   },
 ];
 
+// Captcha config resolved at BUILD time (Astro pages cannot read
+// NEXT_PUBLIC_* at runtime; the Vercel buildCommand runs this build in the
+// same env as the Next app). If NEXT_PUBLIC_CAPTCHA_ENABLED=true in
+// production, /api/contact rejects tokenless submissions — captcha-enabled
+// deployments MUST expose PUBLIC_TURNSTILE_SITE_KEY (or
+// NEXT_PUBLIC_TURNSTILE_SITE_KEY) to the marketing build so the widget renders.
+const CAPTCHA_ENABLED =
+  (import.meta.env.PUBLIC_CAPTCHA_ENABLED ?? process.env.NEXT_PUBLIC_CAPTCHA_ENABLED) === 'true';
+const TURNSTILE_SITE_KEY = (
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ??
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+  ''
+).trim();
+const SHOW_TURNSTILE = CAPTCHA_ENABLED && TURNSTILE_SITE_KEY.length > 0;
 ---
 <Layout
   title="Employers — Hire Training-Aligned Candidates"
@@ -175,7 +189,7 @@ const caseStudies = [
     </div>
   </section>
 
-  <!-- EMPLOYER INTAKE (static visual representation of the real form) -->
+  <!-- EMPLOYER INTAKE (wired to /api/contact, same contract as app/employers/EmployerContactForm.tsx) -->
   <section id="employer-intake" class="band band--surface" aria-label="Employer intake form"><div class="wrap">
     <div class="emp-intake">
       <div class="emp-intake__head">
@@ -183,18 +197,18 @@ const caseStudies = [
         <p>Submit intake details and we will follow up within 1–2 business days. This form is an email alternative — or use the button above to start a partnership.</p>
       </div>
       <div class="emp-form-card">
-        <form class="emp-form" aria-label="Employer intake (visual only)">
+        <form class="emp-form" id="employer-intake-form" method="post" novalidate aria-label="Employer intake">
           <div class="emp-form__note">
             <p class="emp-form__note-title">Employer intake for hiring managers, talent leaders, and program owners.</p>
             <p class="emp-form__note-copy">Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 1–2 business days and route you to the right partnership path.</p>
           </div>
           <div class="form-group">
             <label for="employer-company">Company name *</label>
-            <input id="employer-company" type="text" name="company" aria-required="true" />
+            <input id="employer-company" type="text" name="company" required aria-required="true" />
           </div>
           <div class="form-group">
             <label for="employer-contact-name">Contact name *</label>
-            <input id="employer-contact-name" type="text" name="contact_name" aria-required="true" />
+            <input id="employer-contact-name" type="text" name="contact_name" required aria-required="true" />
           </div>
           <div class="form-group">
             <label for="employer-role-title">Role / title</label>
@@ -202,7 +216,7 @@ const caseStudies = [
           </div>
           <div class="form-group">
             <label for="employer-email">Email *</label>
-            <input id="employer-email" type="email" name="email" aria-required="true" />
+            <input id="employer-email" type="email" name="email" required aria-required="true" />
           </div>
           <div class="form-group">
             <label for="employer-phone">Phone</label>
@@ -210,7 +224,7 @@ const caseStudies = [
           </div>
           <div class="form-group">
             <label for="employer-open-roles">How many roles do you expect to hire in the next 6 months? *</label>
-            <select id="employer-open-roles" name="open_roles" class="form-control" aria-required="true">
+            <select id="employer-open-roles" name="open_roles" class="form-control" required aria-required="true">
               <option value="">Select…</option>
               <option value="1">1</option>
               <option value="2-3">2–3</option>
@@ -221,7 +235,7 @@ const caseStudies = [
           </div>
           <div class="form-group">
             <label for="employer-hiring-timeline">When do you expect to hire? *</label>
-            <select id="employer-hiring-timeline" name="hiring_timeline" class="form-control" aria-required="true">
+            <select id="employer-hiring-timeline" name="hiring_timeline" class="form-control" required aria-required="true">
               <option value="">Select…</option>
               <option value="immediately">Immediately</option>
               <option value="30-60_days">30–60 days</option>
@@ -232,7 +246,7 @@ const caseStudies = [
           </div>
           <div class="form-group">
             <label for="employer-interest-use-case">What best describes your hiring use case? *</label>
-            <select id="employer-interest-use-case" name="interest_use_case" class="form-control" aria-required="true">
+            <select id="employer-interest-use-case" name="interest_use_case" class="form-control" required aria-required="true">
               <option value="">Select…</option>
               <option value="direct_hiring">Direct hiring</option>
               <option value="pipeline_building">Pipeline building</option>
@@ -243,14 +257,127 @@ const caseStudies = [
           </div>
           <div class="form-group">
             <label for="employer-roles-hiring">What roles are you hiring for? *</label>
-            <textarea id="employer-roles-hiring" name="roles_hiring" rows="4" aria-required="true" placeholder="Include titles, locations, full-time or contract, must-have skills, and timeline…"></textarea>
+            <textarea id="employer-roles-hiring" name="roles_hiring" rows="4" required aria-required="true" placeholder="Include titles, locations, full-time or contract, must-have skills, and timeline…"></textarea>
           </div>
-          <button type="button" class="btn btn--primary emp-form__submit">Submit employer intake</button>
+          {SHOW_TURNSTILE && (
+            <div class="form-group">
+              <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light"></div>
+            </div>
+          )}
+          <p class="form-status form-status--err" id="employer-intake-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn--primary emp-form__submit">Submit employer intake</button>
           <p class="emp-form__footnote">We respond within 1–2 business days.</p>
         </form>
+        <p class="form-status form-status--ok" id="employer-intake-success" role="status" hidden></p>
       </div>
     </div>
   </div></section>
+
+  {SHOW_TURNSTILE && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+  <script is:inline>
+    // Employer intake → POST /api/contact (progressive enhancement; Astro
+    // pages and the Next.js API share the same production origin). Field
+    // mapping mirrors app/employers/EmployerContactForm.tsx: contact_name is
+    // split into first_name/last_name, structured fields are folded into the
+    // message body, topic is fixed. Captcha: when NEXT_PUBLIC_CAPTCHA_ENABLED
+    // is true the Turnstile widget renders at build time (see frontmatter) and
+    // its token is sent as cf_turnstile_response; captcha-enabled deployments
+    // must set PUBLIC_TURNSTILE_SITE_KEY / NEXT_PUBLIC_TURNSTILE_SITE_KEY in
+    // the marketing build env or /api/contact rejects submissions (400).
+    (function () {
+      var form = document.getElementById('employer-intake-form');
+      if (!form || !window.fetch) return;
+      var button = form.querySelector('button[type=submit]');
+      var errEl = document.getElementById('employer-intake-error');
+      var okEl = document.getElementById('employer-intake-success');
+      var idleLabel = button ? button.textContent : '';
+
+      function showError(msg) {
+        if (!errEl) return;
+        errEl.textContent = msg;
+        errEl.hidden = false;
+      }
+
+      function setPending(pending) {
+        if (!button) return;
+        button.disabled = pending;
+        button.textContent = pending ? 'Sending…' : idleLabel;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (errEl) errEl.hidden = true;
+        if (!form.reportValidity()) return;
+
+        var fd = new FormData(form);
+        var contactName = String(fd.get('contact_name') || '').trim();
+        var nameParts = contactName.split(/\s+/).filter(Boolean);
+        var company = String(fd.get('company') || '').trim();
+        var email = String(fd.get('email') || '').trim();
+        var roleTitle = String(fd.get('role_title') || '').trim();
+        var openRoles = String(fd.get('open_roles') || '').trim();
+        var hiringTimeline = String(fd.get('hiring_timeline') || '').trim();
+        var interestUseCase = String(fd.get('interest_use_case') || '').trim();
+        var rolesHiring = String(fd.get('roles_hiring') || '').trim();
+
+        if (!company || !contactName || !email || !openRoles || !hiringTimeline || !interestUseCase || !rolesHiring) {
+          showError('Please fill in all required fields.');
+          return;
+        }
+
+        var message = [
+          'Company: ' + company,
+          roleTitle ? 'Role / title: ' + roleTitle : '',
+          'Open roles in next 6 months: ' + openRoles,
+          'Hiring timeline: ' + hiringTimeline,
+          'Interest / use case: ' + interestUseCase,
+          '',
+          'What roles are you hiring for?',
+          rolesHiring,
+        ].filter(Boolean).join('\n');
+
+        var payload = {
+          first_name: nameParts[0] || contactName,
+          last_name: nameParts.slice(1).join(' ') || '(Contact)',
+          email: email,
+          phone: String(fd.get('phone') || '').trim(),
+          topic: 'Employer Partnership Intake',
+          message: message,
+          sms_preferred: false,
+        };
+        // Turnstile injects a hidden input named cf-turnstile-response when
+        // the widget is present; the API expects it as cf_turnstile_response.
+        var token = String(fd.get('cf-turnstile-response') || '').trim();
+        if (token) payload.cf_turnstile_response = token;
+
+        setPending(true);
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (res) {
+            return res.json().catch(function () { return {}; }).then(function (data) {
+              if (!res.ok) {
+                throw new Error(typeof data.error === 'string' ? data.error : 'Something went wrong. Please try again.');
+              }
+              form.hidden = true;
+              if (okEl) {
+                okEl.textContent = 'We got it — a team member responds within 1–2 business days.';
+                okEl.hidden = false;
+              }
+            });
+          })
+          .catch(function (err) {
+            setPending(false);
+            if (window.turnstile && typeof window.turnstile.reset === 'function') {
+              try { window.turnstile.reset(); } catch (_) { /* ignore */ }
+            }
+            showError(err && err.message ? err.message : 'Network error. Please try again.');
+          });
+      });
+    })();
+  </script>
 
 </div>
 
@@ -419,6 +546,11 @@ const caseStudies = [
   .emp-form input:focus-visible,.emp-form textarea:focus-visible,.emp-form select:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
   .emp-form__submit{align-self:flex-start;margin-top:4px}
   .emp-form__footnote{color:var(--muted);font-size:13px}
+
+  /* inline submit status (success / error) */
+  .form-status{font-size:15px;font-weight:600;line-height:1.5;border-radius:12px;padding:12px 16px;margin:0}
+  .form-status--ok{background:rgba(74,155,79,.12);color:#2f6b34;border:1px solid rgba(74,155,79,.3);margin-top:14px}
+  .form-status--err{background:rgba(173,44,77,.1);color:var(--crimson);border:1px solid rgba(173,44,77,.3)}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){

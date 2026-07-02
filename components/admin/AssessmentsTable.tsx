@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 // AUDIT-2026-05-16 §C-B3: client never imports the answer key. The
 // `correctnessByUserId` prop carries pre-computed pass/fail booleans so
@@ -33,6 +33,9 @@ type AssessmentsTableProps = {
   programFilter?: string;
   minScore?: number;
   maxScore?: number;
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
 };
 
 export default function AssessmentsTable({
@@ -42,6 +45,9 @@ export default function AssessmentsTable({
   programFilter,
   minScore,
   maxScore,
+  totalCount,
+  currentPage,
+  pageSize,
 }: AssessmentsTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,7 +75,18 @@ export default function AssessmentsTable({
       if (v) params.set(k, v);
       else params.delete(k);
     }
+    // Reset to page 1 when filters change
+    params.delete('page');
     router.push(`/admin/assessments?${params.toString()}`);
+  };
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('page', page.toString());
+    router.push(`/admin/assessments?${params.toString()}`, { scroll: false });
   };
 
   const exportCsv = () => {
@@ -384,6 +401,43 @@ export default function AssessmentsTable({
 
       {users.length === 0 && (
         <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>No assessments match your filters.</p>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+            .map((page, i, pages) => (
+              <Fragment key={page}>
+                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
+                <button
+                  type="button"
+                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => goToPage(page)}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              </Fragment>
+            ))}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
       )}
 
     </div>

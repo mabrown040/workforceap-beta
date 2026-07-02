@@ -12,6 +12,8 @@ export type ReplayPendingXapiResult = {
   skippedUnparsed: number;
   /** Total per-completion-verb side effects emitted (may include failures). */
   completionsEmitted: number;
+  /** Sentinel 'unresolved-%' organization_ids repaired after this replay. */
+  orgsRepaired?: number;
   /** Per-outcome breakdown so admin UIs can distinguish "0 matched" (no events
    *  resolved to a user) from "0 succeeded but 34 errored on course resolution"
    *  — different bugs, different fixes. */
@@ -112,6 +114,28 @@ export async function replayUnresolvedXapiStatementsForIdentity(args: {
   return _replayRows(rows);
 }
 
+/**
+ * Repair 'unresolved-%' sentinel organization_ids left by the ingest trigger
+ * for statements that arrived before their actor's identity mapping existed.
+ * Set-based so one call fixes every sentinel row any current mapping can now
+ * resolve — under org-scoped RLS those rows are invisible to every tenant
+ * until repaired. Returns the number of rows fixed.
+ */
+export async function reconcileUnresolvedXapiOrganizations(): Promise<number> {
+  const repaired = await prisma.$executeRaw`
+    UPDATE xapi_statements xs
+    SET organization_id = u.organization_id
+    FROM coursera_identity_mappings cim
+    JOIN users u ON u.id = cim.user_id
+    WHERE xs.organization_id LIKE 'unresolved-%'
+      AND (
+        (xs.actor_email IS NOT NULL AND LOWER(xs.actor_email) = LOWER(cim.coursera_email))
+        OR (xs.actor_account_name IS NOT NULL AND xs.actor_account_name = cim.actor_identifier)
+      )
+  `;
+  return repaired;
+}
+
 async function _replayRows(
   rows: Awaited<ReturnType<typeof prisma.xapiStatement.findMany>>,
 ): Promise<ReplayPendingXapiResult> {
@@ -153,11 +177,21 @@ async function _replayRows(
     }
   }
 
+  // Now that the identity mapping that triggered this replay exists, repair
+  // any sentinel organization_ids so the raw statement history becomes
+  // visible to the member's org again (RLS filters 'unresolved-%' rows out
+  // of every tenant).
+  const orgsRepaired = await reconcileUnresolvedXapiOrganizations().catch((err) => {
+    console.error('[replayPendingXapi] sentinel org reconciliation failed', err);
+    return 0;
+  });
+
   return {
     scanned: rows.length,
     replayed,
     skippedUnparsed,
     completionsEmitted,
+    orgsRepaired,
     breakdown,
   };
 }

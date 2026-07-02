@@ -138,6 +138,7 @@ export async function POST(request: Request) {
           try {
             await persistXapiStatement({
               statementId: act.statementId,
+              organizationId,
               actorEmail: act.actorEmail,
               actorAccountName: act.actorAccountName,
               actorHomePage: act.actorHomePage,
@@ -170,6 +171,7 @@ export async function POST(request: Request) {
   
         const { result: persisted, statementHash } = await persistXapiStatement({
           statementId: parsed.statementId,
+          organizationId,
           actorEmail: parsed.email,
           actorAccountName: parsed.actorIdentifier,
           actorHomePage: parsed.actorHomePage,

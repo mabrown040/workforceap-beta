@@ -42,6 +42,7 @@ vi.mock('@/lib/db/withRequestGuc', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     $executeRaw: vi.fn(),
   },
 }));

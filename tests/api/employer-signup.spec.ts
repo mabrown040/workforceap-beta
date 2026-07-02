@@ -91,6 +91,7 @@ vi.mock('@/lib/rate-limit', () => ({
 
 vi.mock('@/lib/db/withRequestGuc', () => ({
   withApiGuc: (handler: (request: Request) => Promise<Response>) => handler,
+  withAnonymousGuc: (fn: () => Promise<Response>) => fn(),
 }));
 
 vi.mock('@/lib/email', () => ({
@@ -114,6 +115,7 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     profile: {
       findUnique: vi.fn(),
     },

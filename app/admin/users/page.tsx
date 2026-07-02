@@ -79,11 +79,16 @@ export default async function AdminUsersPage({
 
   // Legacy → the original full CRUD manager (quick create, edit, reset, delete).
   if (requestedUi === 'legacy') {
-    const [users, canManageRoles, deletedCount] = await Promise.all([
+    const pageParam = typeof params.page === 'string' ? parseInt(params.page, 10) : 1;
+    const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+    const pageSize = 50;
+
+    const [users, canManageRoles, deletedCount, totalCount] = await Promise.all([
       prisma.user.findMany({
-        take: 5000,
         where: { deletedAt: null },
         orderBy: { createdAt: 'desc' },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
         select: {
           id: true,
           fullName: true,
@@ -94,6 +99,7 @@ export default async function AdminUsersPage({
       }),
       isSuperAdmin(user.id),
       prisma.user.count({ where: { deletedAt: { not: null } } }),
+      prisma.user.count({ where: { deletedAt: null } }),
     ]);
 
     return (
@@ -115,6 +121,9 @@ export default async function AdminUsersPage({
 
         <AdminUsersManager
           canManageRoles={canManageRoles}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
           initialUsers={users.map((row) => ({
             id: row.id,
             fullName: row.fullName ?? row.email,

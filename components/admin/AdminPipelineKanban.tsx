@@ -45,14 +45,11 @@ function findMemberStage(by: ByStage, memberId: string): PipelineStage | null {
 export default function AdminPipelineKanban({ initialByStage }: { initialByStage: ByStage }) {
   const [byStage, setByStage] = useState<ByStage>(() => cloneByStage(initialByStage));
   const [dragOverStage, setDragOverStage] = useState<PipelineStage | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const onDropOnColumn = useCallback(
-    (e: React.DragEvent, targetStage: PipelineStage) => {
-      e.preventDefault();
-      setDragOverStage(null);
-      const memberId = e.dataTransfer.getData('text/plain');
-      if (!memberId) return;
-
+  // Shared save path for both drag-drop and the keyboard stage <select>.
+  const moveMember = useCallback(
+    (memberId: string, targetStage: PipelineStage) => {
       const from = findMemberStage(byStage, memberId);
       if (!from || from === targetStage) return;
 
@@ -60,6 +57,7 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
       if (!member) return;
 
       const snapshot = cloneByStage(byStage);
+      setSaveError(null);
       setByStage((prev) => {
         const next = cloneByStage(prev);
         next[from] = next[from].filter((m) => m.id !== memberId);
@@ -71,19 +69,44 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stage: targetStage }),
-      }).then(async (res) => {
-        if (!res.ok) {
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            setByStage(snapshot);
+            const j = (await res.json().catch(() => ({}))) as { error?: string };
+            setSaveError(typeof j.error === 'string' ? j.error : 'Could not save column. Try again.');
+          }
+        })
+        .catch(() => {
           setByStage(snapshot);
-          const j = (await res.json().catch(() => ({}))) as { error?: string };
-          window.alert(typeof j.error === 'string' ? j.error : 'Could not save column. Try again.');
-        }
-      });
+          setSaveError('Could not save column. Check your connection and try again.');
+        });
     },
     [byStage]
   );
 
+  const onDropOnColumn = useCallback(
+    (e: React.DragEvent, targetStage: PipelineStage) => {
+      e.preventDefault();
+      setDragOverStage(null);
+      const memberId = e.dataTransfer.getData('text/plain');
+      if (!memberId) return;
+      moveMember(memberId, targetStage);
+    },
+    [moveMember]
+  );
+
   return (
-    <div
+    <div>
+      {saveError && (
+        <div className="admin-inline-feedback admin-inline-feedback--error" role="alert" style={{ marginBottom: '0.75rem' }}>
+          <p>{saveError}</p>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSaveError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+      <div
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
@@ -202,6 +225,29 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
                         </div>
                       )}
                     </Link>
+                    {/* Keyboard-accessible alternative to drag-and-drop. */}
+                    <select
+                      value={stage}
+                      onChange={(e) => moveMember(s.id, e.target.value as PipelineStage)}
+                      aria-label={`Move ${s.fullName} to stage`}
+                      style={{
+                        marginTop: '0.35rem',
+                        width: '100%',
+                        fontSize: '0.7rem',
+                        padding: '0.15rem 0.3rem',
+                        border: '1px solid var(--outline-variant)',
+                        borderRadius: 'var(--radius-sm, 0.35rem)',
+                        background: 'transparent',
+                        color: 'var(--color-on-surface-variant)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {PIPELINE_STAGES_ORDERED.map((st) => (
+                        <option key={st} value={st}>
+                          {PIPELINE_STAGE_LABELS[st]}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 ))}
               </div>
@@ -209,6 +255,7 @@ export default function AdminPipelineKanban({ initialByStage }: { initialByStage
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

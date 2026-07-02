@@ -1,11 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  getCache,
-  setCache,
-  deleteCache,
-  getCacheOrFetch,
-  invalidateCache,
-} from './cache';
 
 // Mock @upstash/redis
 const mockRedis = {
@@ -16,15 +9,33 @@ const mockRedis = {
 };
 
 vi.mock('@upstash/redis', () => ({
-  Redis: vi.fn(() => mockRedis),
+  // Plain function (not vi.fn) so vi.resetAllMocks() cannot wipe it.
+  Redis: function Redis() {
+    return mockRedis;
+  },
 }));
 
+// lib/cache.ts reads the UPSTASH env vars at module load, so the module
+// must be (re-)imported after the env vars are set/unset in each test.
+type CacheModule = typeof import('./cache');
+let getCache: CacheModule['getCache'];
+let setCache: CacheModule['setCache'];
+let deleteCache: CacheModule['deleteCache'];
+let getCacheOrFetch: CacheModule['getCacheOrFetch'];
+let invalidateCache: CacheModule['invalidateCache'];
+
+async function importCache() {
+  vi.resetModules();
+  ({ getCache, setCache, deleteCache, getCacheOrFetch, invalidateCache } = await import('./cache'));
+}
+
 describe('cache helpers', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetAllMocks();
     // Ensure UPSTASH env vars are set for tests
     process.env.UPSTASH_REDIS_REST_URL = 'https://test.upstash.io';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+    await importCache();
   });
 
   afterEach(() => {
@@ -35,6 +46,7 @@ describe('cache helpers', () => {
   describe('getCache', () => {
     it('returns null when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
+      await importCache();
       const result = await getCache('foo');
       expect(result).toBeNull();
     });
@@ -65,6 +77,7 @@ describe('cache helpers', () => {
   describe('setCache', () => {
     it('no-ops when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
+      await importCache();
       await setCache('foo', 'bar', 60);
       expect(mockRedis.set).not.toHaveBeenCalled();
     });
@@ -92,6 +105,7 @@ describe('cache helpers', () => {
 
     it('no-ops when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
+      await importCache();
       await deleteCache('foo');
       expect(mockRedis.del).not.toHaveBeenCalled();
     });
@@ -159,6 +173,7 @@ describe('cache helpers', () => {
 
     it('no-ops when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
+      await importCache();
       await invalidateCache('foo:*');
       expect(mockRedis.scan).not.toHaveBeenCalled();
     });

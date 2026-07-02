@@ -16,10 +16,12 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   requireAdminOrCounselor: vi.fn(),
   isAdmin: vi.fn(),
   isCounselor: vi.fn(),
@@ -37,6 +39,7 @@ vi.mock('@/lib/db/prisma', () => {
   };
   const placementRecord = {
     findUnique: vi.fn(),
+    findFirst: vi.fn(),
   };
   const user = {
     findMany: vi.fn(),
@@ -49,7 +52,7 @@ vi.mock('@/lib/db/prisma', () => {
     count: vi.fn(),
     groupBy: vi.fn(),
   };
-  return { prisma: { placementSurvey, placementRecord, user, courseProgress, courseEnrollment } };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), placementSurvey, placementRecord, user, courseProgress, courseEnrollment } };
 });
 
 vi.mock('@/lib/cron/withCronLogging', () => ({
@@ -498,7 +501,7 @@ describe('POST /api/admin/placement-surveys/resend', () => {
   it('reuses pending survey and sends fresh token', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.placementRecord.findUnique).mockResolvedValue({
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
       id: 'pl1',
       userId: 'user-1',
       user: { id: 'user-1', email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'CNA' },
@@ -528,7 +531,7 @@ describe('POST /api/admin/placement-surveys/resend', () => {
   it('creates new survey when latest is completed', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.placementRecord.findUnique).mockResolvedValue({
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
       id: 'pl1',
       userId: 'user-1',
       user: { id: 'user-1', email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'CNA' },

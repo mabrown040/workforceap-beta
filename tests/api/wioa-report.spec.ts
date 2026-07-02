@@ -24,10 +24,12 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
 }));
 
@@ -48,7 +50,12 @@ vi.mock('@/lib/db/prisma', () => {
     aggregate: vi.fn(),
     groupBy: vi.fn(),
   };
-  return { prisma: { user, courseEnrollment, courseProgress, placementRecord } };
+  const cronExecution = {
+    create: vi.fn(async () => ({ id: 'cron-exec-1', startedAt: new Date() })),
+    findUnique: vi.fn(async () => ({ startedAt: new Date() })),
+    update: vi.fn(async () => ({})),
+  };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), user, courseEnrollment, courseProgress, placementRecord, cronExecution } };
 });
 
 vi.mock('@/lib/tenant/withTenantScope', () => ({
@@ -79,7 +86,7 @@ vi.mock('@/lib/cron/authorizeCronRequest', () => ({
 }));
 
 vi.mock('@/lib/cron/isCronEnabled', () => ({
-  isCronEnabled: vi.fn(),
+  isCronEnabled: vi.fn(async () => true),
 }));
 
 // ─── Imports after mocks ───

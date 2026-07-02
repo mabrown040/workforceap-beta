@@ -21,13 +21,20 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
+}));
 vi.mock('@/lib/auth/ensureUser', () => ({ ensureUserInDb: vi.fn() }));
 vi.mock('@/lib/events/track', () => ({ trackEvent: vi.fn(() => Promise.resolve()) }));
 vi.mock('@/lib/observability/captureApiError', () => ({ captureApiError: vi.fn() }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
+    user: {
+      findUnique: vi.fn(async () => null),
+    },
     goal: {
       findMany: vi.fn(),
       findFirst: vi.fn(),

@@ -15,10 +15,12 @@ vi.mock('@/lib/db/withRequestGuc', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   requireAdmin: vi.fn(),
 }));
 
@@ -42,14 +44,14 @@ vi.mock('@/lib/db/prisma', () => {
   const tx = {
     courseProgress: { deleteMany: vi.fn() },
     memberProgramProgress: { deleteMany: vi.fn() },
-    user: { update: vi.fn() },
+    user: { update: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn() },
     courseEnrollment: {
       updateMany: vi.fn(),
       upsert: vi.fn(),
     },
   };
   const prisma = {
-    user: { findFirst: vi.fn() },
+    user: tx.user,
     $transaction: vi.fn(async (fn: (txClient: typeof tx) => Promise<unknown>) => fn(tx)),
     __tx: tx,
   };

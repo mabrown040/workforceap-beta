@@ -413,6 +413,13 @@ const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
   // Learning Path names); stored interests/enrollments may carry these.
   'ai-and-software-development-professional-certificate-ibm': 'ai-professional-developer-certificate-ibm',
   'medical-billing-coding-and-health-information-technology': 'health-information-technology-mchit',
+  // Apply-form interest options whose labels never matched a catalog title:
+  // the option says "Professional Certificate" but the catalog program is
+  // titled "IT Automation with Python Certificate (Google)".
+  'it-automation-with-python-professional-certificate-google': 'it-automation-with-python-google',
+  // Standalone Software Developer track was folded into the AI program
+  // (formerly "AI and Software Development Professional Certificate (IBM)").
+  'software-developer-professional-certificate-ibm': 'ai-professional-developer-certificate-ibm',
   'comptia-a-plus': 'comptia-a-professional-certificate',
 };
 

@@ -16,14 +16,28 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: {
       findUnique: vi.fn(),
     },
+    // Models touched by getMemberState/getMemberResumePlainText, which run in
+    // the background of these routes — harmless defaults to avoid unhandled
+    // rejections.
+    profile: { findUnique: vi.fn(async () => null) },
+    aIToolResult: { findFirst: vi.fn(async () => null) },
+    counselorAssignment: { findFirst: vi.fn(async () => null) },
+    courseEnrollment: { findFirst: vi.fn(async () => null) },
+    memberEvent: { findFirst: vi.fn(async () => null), findMany: vi.fn(async () => []) },
+    message: { count: vi.fn(async () => 0) },
+    messageThread: { findFirst: vi.fn(async () => null) },
+    partnerReferral: { findFirst: vi.fn(async () => null) },
+    placementRecord: { findUnique: vi.fn(async () => null) },
   },
 }));
 

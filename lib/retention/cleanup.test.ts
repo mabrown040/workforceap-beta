@@ -9,6 +9,12 @@ const mockCount = vi.fn();
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $queryRawUnsafe: vi.fn(),
+    $transaction: async (arg: unknown) => {
+      const { prisma } = await import('@/lib/db/prisma');
+      return typeof arg === 'function'
+        ? (arg as (tx: unknown) => unknown)(prisma)
+        : Promise.all(arg as Promise<unknown>[]);
+    },
     user: {
       findMany: (...args: unknown[]) => mockFindMany(...args),
       deleteMany: (...args: unknown[]) => mockDeleteMany(...args),

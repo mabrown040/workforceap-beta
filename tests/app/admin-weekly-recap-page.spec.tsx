@@ -11,6 +11,7 @@ vi.mock('@/app/seo', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -30,6 +31,7 @@ vi.mock('@/lib/admin/cohortAnalytics', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: { count: vi.fn() },
     placementRecord: { count: vi.fn() },
     userCertification: { count: vi.fn() },

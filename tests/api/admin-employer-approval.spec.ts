@@ -13,6 +13,7 @@ vi.mock('next/server', () => {
 });
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -24,6 +25,7 @@ vi.mock('@/lib/auth/roles', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     employer: {
       findUnique: vi.fn(),
       findFirst: vi.fn(),
@@ -31,6 +33,8 @@ vi.mock('@/lib/db/prisma', () => ({
     },
   },
 }));
+
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn(async () => undefined) }));
 
 vi.mock('@/lib/email', () => ({
   sendEmployerApprovedEmail: vi.fn(),
@@ -42,6 +46,7 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
 }));
 
 vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(() => Promise.resolve('org-1')),
   getDefaultOrganizationId: vi.fn().mockResolvedValue('org-1'),
 }));
 

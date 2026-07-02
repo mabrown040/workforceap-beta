@@ -19,6 +19,7 @@ vi.mock('next/server', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     xapiStatement: {
       create: vi.fn(),
       findUnique: vi.fn(),
@@ -379,7 +380,7 @@ describe('POST /api/xapi/statements', () => {
     expect(resolveOrgFromRequest).toHaveBeenCalled();
     expect(handleInboundParsedStatement).toHaveBeenCalledWith(
       expect.any(Object),
-      { organizationId: 'org-default' },
+      { organizationId: 'org-default', statementHash: null },
     );
   });
 

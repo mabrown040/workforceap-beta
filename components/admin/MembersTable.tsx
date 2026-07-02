@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle, AlertTriangle } from 'lucide-react';
@@ -59,6 +59,11 @@ type MembersTableProps = {
   searchQuery: string;
   programFilter: string;
   statusFilter: string;
+  partnerFilter: string;
+  startDateFilter: string;
+  endDateFilter: string;
+  /** Org-wide partner list so the dropdown is not limited to the loaded page. */
+  allPartnerOptions: Array<{ id: string; name: string }>;
 };
 
 function FitScoreBadge({ score }: { score: number }) {
@@ -257,6 +262,10 @@ export default function MembersTable({
   searchQuery,
   programFilter,
   statusFilter,
+  partnerFilter: partnerFilterProp,
+  startDateFilter,
+  endDateFilter,
+  allPartnerOptions,
 }: MembersTableProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -266,12 +275,12 @@ export default function MembersTable({
   const [search, setSearch] = useState(searchQuery);
   const [programFilterState, setProgramFilterState] = useState(programFilter);
   const [statusFilterState, setStatusFilterState] = useState(statusFilter);
-  const [partnerFilter, setPartnerFilter] = useState('');
+  const [partnerFilter, setPartnerFilter] = useState(partnerFilterProp);
   const [healthFilter, setHealthFilter] = useState(() => searchParams?.get('health') ?? '');
   const [notInCourseFilter, setNotInCourseFilter] = useState(false);
   const [needsAttentionFilter, setNeedsAttentionFilter] = useState(() => searchParams?.get('attention') === '1');
-  const [startDate, setStartDate] = useState(() => searchParams?.get('startDate') ?? '');
-  const [endDate, setEndDate] = useState(() => searchParams?.get('endDate') ?? '');
+  const [startDate, setStartDate] = useState(startDateFilter);
+  const [endDate, setEndDate] = useState(endDateFilter);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   // Dad-safe default: surface most-recently-active members first (matches server's initial sort).
   const [sortKey, setSortKey] = useState<SortKey>(() => initialSort?.[0] ?? 'lastActive');
@@ -285,6 +294,7 @@ export default function MembersTable({
   const [exportLoading, setExportLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | { type: 'enrolled' | 'completed'; count: number }>(null);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  const searchDebounceRef = useRef<number | null>(null);
 
   const closeConfirmAction = () => {
     if (!bulkActionLoading) setConfirmAction(null);
@@ -304,7 +314,14 @@ export default function MembersTable({
         }
       });
       // Reset to page 1 when filters change
-      if (newParams.search !== undefined || newParams.program !== undefined || newParams.status !== undefined) {
+      if (
+        newParams.search !== undefined ||
+        newParams.program !== undefined ||
+        newParams.status !== undefined ||
+        newParams.partner !== undefined ||
+        newParams.startDate !== undefined ||
+        newParams.endDate !== undefined
+      ) {
         params.delete('page');
       }
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -331,11 +348,12 @@ export default function MembersTable({
           ? !!m.staleTrainingDetectedAt
           : memberStatus === statusFilterState
       );
-      const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
+      // Partner and date-range filters round-trip to the server (URL params),
+      // so the loaded page is already scoped to them — no client predicate.
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
       const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);
       const matchAttention = !needsAttentionFilter || needsAttention(m);
-      return matchSearch && matchProgram && matchStatus && matchPartner && matchHealth && matchNotInCourse && matchAttention;
+      return matchSearch && matchProgram && matchStatus && matchHealth && matchNotInCourse && matchAttention;
     });
     const dir = sortDir === 'asc' ? 1 : -1;
     // Stable sort with a fit-score tiebreaker so equal keys keep a sensible order.
@@ -353,7 +371,6 @@ export default function MembersTable({
     search,
     programFilterState,
     statusFilterState,
-    partnerFilter,
     healthFilter,
     notInCourseFilter,
     needsAttentionFilter,
@@ -386,11 +403,8 @@ export default function MembersTable({
   }, [members]);
 
   const partnerOptions = useMemo(
-    () =>
-      [...new Map(members.filter((m) => m.partnerId).map((m) => [m.partnerId!, m.partnerName!])).entries()].sort((a, b) =>
-        a[1].localeCompare(b[1]),
-      ),
-    [members],
+    () => allPartnerOptions.map((p) => [p.id, p.name] as const),
+    [allPartnerOptions],
   );
 
   const activeFilterCount =
@@ -421,7 +435,7 @@ export default function MembersTable({
     setNeedsAttentionFilter(false);
     setStartDate('');
     setEndDate('');
-    updateUrl({ search: '', program: '', status: '', page: '' });
+    updateUrl({ search: '', program: '', status: '', partner: '', startDate: '', endDate: '', health: '', attention: '', page: '' });
   }
 
   function toggleSelect(id: string) {
@@ -513,10 +527,10 @@ export default function MembersTable({
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       const date = new Date().toISOString().slice(0, 10);
-      a.download = `students-export-${filtered.length}-${date}.csv`;
+      a.download = `students-export-${date}.csv`;
       a.click();
       URL.revokeObjectURL(a.href);
-      setBulkHint(`Exported ${filtered.length} row${filtered.length === 1 ? '' : 's'}`);
+      setBulkHint('Exported all members matching your filters');
       window.setTimeout(() => setBulkHint(null), 3500);
     } catch {
       setBulkHint('Network error during export');
@@ -542,8 +556,10 @@ export default function MembersTable({
               placeholder="Name or email"
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value);
-                updateUrl({ search: e.target.value });
+                const value = e.target.value;
+                setSearch(value);
+                if (searchDebounceRef.current) window.clearTimeout(searchDebounceRef.current);
+                searchDebounceRef.current = window.setTimeout(() => updateUrl({ search: value }), 300);
               }}
               className="admin-members-search-input"
               autoComplete="off"
@@ -571,6 +587,11 @@ export default function MembersTable({
               </>
             ) : null}
             {activeFilterCount > 0 ? <span className="admin-members-count-line__filters"> · {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} on</span> : null}
+            {totalPages > 1 && (healthFilter || notInCourseFilter || needsAttentionFilter) ? (
+              <span className="admin-members-count-line__filters" style={{ display: 'block', fontSize: '0.78rem' }}>
+                Health / attention filters apply to this page&apos;s {members.length} members only — page through to check the rest, or Export CSV (applies them to all matching members).
+              </span>
+            ) : null}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <label className="admin-members-filter-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
@@ -578,7 +599,7 @@ export default function MembersTable({
               <input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => { setStartDate(e.target.value); updateUrl({ startDate: e.target.value }); }}
                 className="admin-members-filter-select"
                 style={{ fontSize: '0.78rem', padding: '0.25rem 0.5rem' }}
               />
@@ -588,7 +609,7 @@ export default function MembersTable({
               <input
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => { setEndDate(e.target.value); updateUrl({ endDate: e.target.value }); }}
                 className="admin-members-filter-select"
                 style={{ fontSize: '0.78rem', padding: '0.25rem 0.5rem' }}
               />
@@ -647,7 +668,7 @@ export default function MembersTable({
           </label>
           <label className="admin-members-filter-field">
             <span>Partner</span>
-            <select value={partnerFilter} onChange={(e) => setPartnerFilter(e.target.value)} className="admin-members-filter-select">
+            <select value={partnerFilter} onChange={(e) => { setPartnerFilter(e.target.value); updateUrl({ partner: e.target.value }); }} className="admin-members-filter-select">
               <option value="">All partners</option>
               <option value="__none">No partner</option>
               {partnerOptions.map(([pid, pname]) => (
@@ -749,7 +770,7 @@ export default function MembersTable({
         </div>
       </div>
 
-      {selectedIds.size >= 2 && (
+      {selectedIds.size >= 1 && (
         <div className="admin-members-bulk-bar" role="region" aria-label="Bulk actions for selected members">
           <div className="admin-members-bulk-bar__lead">
             <span className="admin-members-bulk-bar__count">{selectedIds.size}</span>
@@ -813,7 +834,7 @@ export default function MembersTable({
           rows={filtered}
           rowKey={(m) => m.id}
           getRowProps={(m) => ({
-            onClick: () => window.location.assign(`/admin/members/${m.id}`),
+            onClick: () => router.push(`/admin/members/${m.id}`),
             style: { cursor: 'pointer' },
             'data-clickable': 'true',
           })}
@@ -1101,17 +1122,21 @@ export default function MembersTable({
           >
             Previous
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              type="button"
-              className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => goToPage(page)}
-              aria-current={page === currentPage ? 'page' : undefined}
-            >
-              {page}
-            </button>
-          ))}
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+            .map((page, i, pages) => (
+              <Fragment key={page}>
+                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
+                <button
+                  type="button"
+                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => goToPage(page)}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              </Fragment>
+            ))}
           <button
             type="button"
             className="btn btn-outline btn-sm"
@@ -1145,6 +1170,7 @@ export default function MembersTable({
           setBulkHint(hint);
           window.setTimeout(() => setBulkHint(null), 5000);
           setSelectedIds(new Set());
+          router.refresh();
         }}
       />
 
@@ -1220,6 +1246,7 @@ export default function MembersTable({
                     setBulkHint(hint);
                     window.setTimeout(() => setBulkHint(null), 5000);
                     setSelectedIds(new Set());
+                    router.refresh();
                   } catch {
                     setBulkHint('Network error during bulk action');
                     window.setTimeout(() => setBulkHint(null), 5000);

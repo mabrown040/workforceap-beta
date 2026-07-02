@@ -16,6 +16,7 @@ vi.mock('next/headers', () => ({
 }));
 
 vi.mock('@/lib/auth/server', () => ({
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
   getUser: vi.fn(),
 }));
 
@@ -50,7 +51,7 @@ vi.mock('@/lib/db/prisma', () => {
   const user = {
     findUnique: vi.fn(),
   };
-  return { prisma: { testimonial, placementSurvey, user } };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), testimonial, placementSurvey, user } };
 });
 
 // ─── Imports after mocks ───
@@ -184,16 +185,12 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('approves a testimonial and sets reviewer info', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', fullName: 'Admin' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       status: TestimonialStatus.PENDING,
       deletedAt: null,
     } as any);
-    vi.mocked(prisma.testimonial.update).mockResolvedValue({
-      id: 't1',
-      status: TestimonialStatus.APPROVED,
-      reviewedBy: 'admin-1',
-    } as any);
+    vi.mocked(prisma.testimonial.updateMany).mockResolvedValue({ count: 1 } as any);
 
     const res = await updateTestimonial(
       new Request('http://localhost:3000/api/admin/testimonials/t1', {
@@ -204,7 +201,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
       { params: Promise.resolve({ id: 't1' }) }
     );
     expect(res.status).toBe(200);
-    const updateCall = vi.mocked(prisma.testimonial.update).mock.calls[0][0];
+    const updateCall = vi.mocked(prisma.testimonial.updateMany).mock.calls[0][0];
     expect(updateCall.data).toMatchObject({
       status: TestimonialStatus.APPROVED,
       reviewedBy: 'admin-1',
@@ -215,12 +212,12 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('publishes a testimonial', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       status: TestimonialStatus.APPROVED,
       deletedAt: null,
     } as any);
-    vi.mocked(prisma.testimonial.update).mockResolvedValue({ id: 't1' } as any);
+    vi.mocked(prisma.testimonial.updateMany).mockResolvedValue({ count: 1 } as any);
 
     const res = await updateTestimonial(
       new Request('http://localhost:3000/api/admin/testimonials/t1', {
@@ -231,7 +228,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
       { params: Promise.resolve({ id: 't1' }) }
     );
     expect(res.status).toBe(200);
-    expect(prisma.testimonial.update).toHaveBeenCalledWith(
+    expect(prisma.testimonial.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: TestimonialStatus.PUBLISHED }),
       })
@@ -241,12 +238,12 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('rejects a testimonial with reason', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       status: TestimonialStatus.PENDING,
       deletedAt: null,
     } as any);
-    vi.mocked(prisma.testimonial.update).mockResolvedValue({ id: 't1' } as any);
+    vi.mocked(prisma.testimonial.updateMany).mockResolvedValue({ count: 1 } as any);
 
     const res = await updateTestimonial(
       new Request('http://localhost:3000/api/admin/testimonials/t1', {
@@ -257,7 +254,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
       { params: Promise.resolve({ id: 't1' }) }
     );
     expect(res.status).toBe(200);
-    const updateCall = vi.mocked(prisma.testimonial.update).mock.calls[0][0];
+    const updateCall = vi.mocked(prisma.testimonial.updateMany).mock.calls[0][0];
     expect(updateCall.data).toMatchObject({
       status: TestimonialStatus.REJECTED,
       rejectionReason: 'Too vague',
@@ -267,7 +264,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('returns 400 for invalid status', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       status: TestimonialStatus.PENDING,
       deletedAt: null,
@@ -288,7 +285,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('returns 400 for invalid rating', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       status: TestimonialStatus.PENDING,
       deletedAt: null,
@@ -309,7 +306,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('returns 400 for empty content', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       status: TestimonialStatus.PENDING,
       deletedAt: null,
@@ -330,7 +327,7 @@ describe('PATCH /api/admin/testimonials/[id]', () => {
   it('returns 404 for non-existent testimonial', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue(null);
 
     const res = await updateTestimonial(
       new Request('http://localhost:3000/api/admin/testimonials/t-missing', {
@@ -352,20 +349,20 @@ describe('DELETE /api/admin/testimonials/[id]', () => {
   it('soft-deletes a testimonial', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue({
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue({
       id: 't1',
       deletedAt: null,
     } as any);
-    vi.mocked(prisma.testimonial.update).mockResolvedValue({ id: 't1' } as any);
+    vi.mocked(prisma.testimonial.updateMany).mockResolvedValue({ count: 1 } as any);
 
     const res = await deleteTestimonial(
       new Request('http://localhost:3000/api/admin/testimonials/t1', { method: 'DELETE' }),
       { params: Promise.resolve({ id: 't1' }) }
     );
     expect(res.status).toBe(200);
-    expect(prisma.testimonial.update).toHaveBeenCalledWith(
+    expect(prisma.testimonial.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 't1' },
+        where: expect.objectContaining({ id: 't1' }),
         data: expect.objectContaining({ deletedAt: expect.any(Date) }),
       })
     );
@@ -374,7 +371,7 @@ describe('DELETE /api/admin/testimonials/[id]', () => {
   it('returns 404 for already deleted testimonial', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.testimonial.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.testimonial.findFirst).mockResolvedValue(null);
 
     const res = await deleteTestimonial(
       new Request('http://localhost:3000/api/admin/testimonials/t1', { method: 'DELETE' }),

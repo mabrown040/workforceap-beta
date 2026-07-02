@@ -16,11 +16,13 @@ vi.mock('@/lib/auth/server', () => ({
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
+  isSuperAdmin: vi.fn(() => Promise.resolve(false)),
   isAdmin: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     $queryRaw: vi.fn(),
     cronExecution: { findFirst: vi.fn(), count: vi.fn() },
     webhookEvent: { count: vi.fn() },
@@ -31,7 +33,9 @@ vi.mock('@/lib/db/prisma', () => ({
 }));
 
 vi.mock('@upstash/redis', () => ({
-  Redis: vi.fn(() => ({ ping: vi.fn() })),
+  Redis: vi.fn(function () {
+    return { ping: vi.fn(async () => 'PONG') };
+  }),
 }));
 
 import { GET } from '@/app/api/admin/health/route';

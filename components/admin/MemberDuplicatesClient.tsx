@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 type Member = {
   id: string;
@@ -51,6 +52,9 @@ export default function MemberDuplicatesClient() {
   // Map: group canonicalEmail → { primaryId, secondaryId }
   const [selections, setSelections] = useState<Record<string, { primary: string; secondary: string }>>({});
 
+  // Group awaiting merge confirmation; null = dialog closed.
+  const [confirmGroup, setConfirmGroup] = useState<Group | null>(null);
+
   useEffect(() => {
     fetch('/api/admin/members/duplicates', { credentials: 'include' })
       .then(r => r.json())
@@ -73,10 +77,15 @@ export default function MemberDuplicatesClient() {
       });
   }, []);
 
+  const requestMerge = (group: Group) => {
+    const sel = selections[group.canonicalEmail];
+    if (!sel || sel.primary === sel.secondary) return;
+    setConfirmGroup(group);
+  };
+
   const handleMerge = async (group: Group) => {
     const sel = selections[group.canonicalEmail];
     if (!sel || sel.primary === sel.secondary) return;
-    if (!window.confirm(`Merge ${group.members.find(m => m.id === sel.secondary)?.fullName ?? 'secondary'} into ${group.members.find(m => m.id === sel.primary)?.fullName ?? 'primary'}? This cannot be undone.`)) return;
 
     setMerging(true);
     try {
@@ -204,7 +213,7 @@ export default function MemberDuplicatesClient() {
                 type="button"
                 disabled={merging || sel.primary === sel.secondary}
                 aria-busy={merging}
-                onClick={() => handleMerge(group)}
+                onClick={() => requestMerge(group)}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                   padding: '0.5rem 1.125rem', borderRadius: '0.5rem',
@@ -222,6 +231,25 @@ export default function MemberDuplicatesClient() {
           </div>
         );
       })}
+
+      <ConfirmDialog
+        open={confirmGroup !== null}
+        title="Merge members?"
+        body={(() => {
+          if (!confirmGroup) return '';
+          const sel = selections[confirmGroup.canonicalEmail];
+          if (!sel) return '';
+          return `Merge ${confirmGroup.members.find(m => m.id === sel.secondary)?.fullName ?? 'secondary'} into ${confirmGroup.members.find(m => m.id === sel.primary)?.fullName ?? 'primary'}? This cannot be undone.`;
+        })()}
+        danger
+        confirmLabel="Merge"
+        onConfirm={() => {
+          const group = confirmGroup;
+          setConfirmGroup(null);
+          if (group) void handleMerge(group);
+        }}
+        onCancel={() => setConfirmGroup(null)}
+      />
     </div>
   );
 }

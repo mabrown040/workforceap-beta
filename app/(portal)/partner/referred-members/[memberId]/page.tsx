@@ -39,6 +39,12 @@ function formatDateTime(value: Date | null | undefined) {
   return value ? value.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
 }
 
+function formatSalary(value: number | null | undefined) {
+  return value != null
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
+    : '—';
+}
+
 function sectionHeading(title: string) {
   return <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{title}</h2>;
 }
@@ -246,7 +252,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                         height: '1.75rem',
                         borderRadius: '999px',
                         background: step.done ? 'var(--color-green)' : 'var(--surface-container-highest)',
-                        color: step.done ? '#fff' : 'var(--color-on-surface-variant)',
+                        color: step.done ? 'var(--color-on-accent)' : 'var(--color-on-surface-variant)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -284,7 +290,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                     key={item.label}
                     style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}
                   >
-                    <div style={{ fontSize: '1rem', fontWeight: 800 }}>{item.value}</div>
+                    <div className="wa-tabular-nums" style={{ fontSize: '1rem', fontWeight: 800 }}>{item.value}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       {item.label}
                     </div>
@@ -306,7 +312,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                 </div>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Overall progress</p>
-                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{progressPct}%</p>
+                  <p className="wa-tabular-nums" style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{progressPct}%</p>
                 </div>
               </div>
             </section>
@@ -357,8 +363,8 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                   </div>
                   <div>
                     <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Salary</p>
-                    <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
-                      {member.placementRecord.salaryOffered != null ? `$${member.placementRecord.salaryOffered.toLocaleString()}` : '—'}
+                    <p className="wa-tabular-nums" style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
+                      {formatSalary(member.placementRecord.salaryOffered)}
                     </p>
                   </div>
                 </div>
@@ -375,7 +381,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                       gap: '0.625rem',
                     }}
                   >
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', flexShrink: 0 }}>pending</span>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', flexShrink: 0 }} aria-hidden="true">pending</span>
                     <div>
                       <p style={{ margin: '0 0 0.25rem', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Offer reported — under review</p>
                       <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>

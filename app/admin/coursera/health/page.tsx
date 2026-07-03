@@ -140,9 +140,9 @@ function severityBorder(severity: CardSeverity): string {
 function severityAccent(severity: CardSeverity): string {
   switch (severity) {
     case 'bad':
-      return 'rgb(185, 28, 28)';
+      return 'rgb(220, 38, 38)';
     case 'warn':
-      return 'rgb(146, 90, 0)';
+      return 'rgb(217, 119, 6)';
     case 'ok':
     default:
       return 'var(--color-accent)';
@@ -588,9 +588,9 @@ function pickStatusColor(status: string): string {
   const s = status.toLowerCase();
   if (s === 'success') return 'rgb(22, 163, 74)';
   if (s === 'started') return 'var(--color-on-surface-variant)';
-  if (s === 'fallback') return 'rgb(146, 90, 0)';
+  if (s === 'fallback') return 'rgb(217, 119, 6)';
   if (s === 'inspection') return 'var(--color-on-surface-variant)';
-  return 'rgb(185, 28, 28)'; // error / unknown
+  return 'rgb(220, 38, 38)'; // error / unknown
 }
 
 function summarizeMetadataCounts(metadata: Record<string, unknown> | null): string {
@@ -1112,7 +1112,7 @@ export default async function AdminCourseraHealthPage() {
                     style={{
                       fontVariantNumeric: 'tabular-nums',
                       fontWeight: 600,
-                      color: 'rgb(185, 28, 28)',
+                      color: 'rgb(220, 38, 38)',
                     }}
                   >
                     {row.delta}
@@ -1245,7 +1245,7 @@ export default async function AdminCourseraHealthPage() {
                     style={{
                       fontVariantNumeric: 'tabular-nums',
                       fontWeight: 600,
-                      color: 'rgb(146, 90, 0)',
+                      color: 'rgb(217, 119, 6)',
                     }}
                   >
                     {row.deltaHours.toLocaleString()}

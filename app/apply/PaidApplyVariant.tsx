@@ -71,7 +71,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
       <section
         id={PAID_APPLY_ELIGIBILITY_ID}
         className="paid-apply-form-section"
-        aria-label="Eligibility application form"
+        aria-label={t('ariaEligibilityForm')}
       >
         <Suspense fallback={<ApplyPageSkeleton />}>
           <ApplyRefCapture />
@@ -90,7 +90,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
       </section>
 
       {showStickyCta ? (
-        <div className="paid-apply-sticky-cta" role="region" aria-label="Quick action">
+        <div className="paid-apply-sticky-cta" role="region" aria-label={t('ariaQuickAction')}>
           <button
             type="button"
             className={marketingButtonPresets.heroPrimary('paid-apply-sticky-cta__button')}

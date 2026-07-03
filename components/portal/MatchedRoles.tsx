@@ -44,11 +44,30 @@ export default function MatchedRoles() {
 
   if (loading) {
     return (
-      <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
+      <section className="dashboard-matched-roles" aria-busy="true" aria-label="Finding jobs that match your skills" style={{ marginTop: '1.5rem' }}>
         <h2 className="dashboard-today-label">Roles that match you</h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-          Finding jobs that match your skills...
-        </p>
+        <div style={{ display: 'grid', gap: '0.75rem' }}>
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              style={{
+                padding: '1rem 1.25rem',
+                background: 'var(--surface-container)',
+                borderRadius: '8px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '1rem',
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div className="portal-skeleton portal-skeleton--line" style={{ width: '60%', height: '1rem', marginBottom: '0.5rem' }} />
+                <div className="portal-skeleton portal-skeleton--line" style={{ width: '40%', height: '0.75rem' }} />
+              </div>
+              <div className="portal-skeleton" style={{ width: '4.5rem', height: '1.5rem', borderRadius: '999px', flexShrink: 0 }} />
+            </div>
+          ))}
+        </div>
       </section>
     );
   }

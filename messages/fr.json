@@ -747,6 +747,7 @@
     "accountShowPassword": "Afficher le mot de passe",
     "accountHidePassword": "Masquer le mot de passe",
     "accountTurnstileExpiredHint": "La vérification de sécurité a expiré — elle se rafraîchira automatiquement.",
+    "accountTurnstileErrorHint": "Impossible de charger la vérification de sécurité. Actualisez la page et réessayez. Si le problème persiste, appelez le (512) 777-1808.",
     "accountConsentLegend": "Consentement",
     "accountContactConsent": "J'accepte d'être contacté",
     "accountContactConsentRest": "par WorkforceAP au sujet de ma candidature par e-mail ou téléphone. *",
@@ -873,7 +874,23 @@
     "createAccountFormKicker": "Nom, e-mail, téléphone et mot de passe uniquement",
     "resultsTransitionSummary": "Comment fonctionne le classement des programmes",
     "shareLink": "Copier le lien de partage",
-    "shareLinkCopied": "Lien copié !"
+    "shareLinkCopied": "Lien copié !",
+    "accountProgressLabel": "Étape 3 sur 3 — réservez votre place et créez votre identifiant",
+    "accountCaptchaRequired": "Veuillez compléter la vérification de sécurité avant de continuer.",
+    "ariaApplicationSteps": "Étapes de la candidature",
+    "ariaApplicationForm": "Formulaire de candidature",
+    "ariaProgramInformation": "Informations sur le programme",
+    "ariaEligibilityForm": "Formulaire de candidature d'admissibilité",
+    "ariaQuickAction": "Action rapide",
+    "shareButtonCopyLink": "Copier le lien",
+    "shareButtonCopied": "Copié !",
+    "shareButtonEmail": "E-mail",
+    "shareButtonSms": "SMS",
+    "shareButtonEmailAria": "Partager par e-mail",
+    "shareButtonSmsAria": "Partager par SMS",
+    "shareButtonEmailSubject": "Formation professionnelle gratuite pour les membres",
+    "shareButtonEmailBody": "Découvrez WorkforceAP :",
+    "shareButtonSmsBody": "Découvrez la formation professionnelle WorkforceAP, gratuite pour les membres :"
   },
   "training": {
     "myTraining": "Ma Formation",
@@ -1088,6 +1105,7 @@
     "workQueueLoadErrorDesc": "Une erreur s'est produite lors de la récupération de la file d'attente. Essayez d'actualiser la page.",
     "retry": "Réessayer",
     "workQueueEmptyDesc": "Aucun membre n'attend une réponse depuis plus de 24 heures. Bon travail.",
+    "emptyMessagePreview": "(aucun contenu de message)",
     "backToDashboard": "Retour au tableau de bord",
     "workQueueMembersAwaiting": "{count} membre{count, plural, =1 {} other {s}} en attente de réponse",
     "inactiveMembersTitle": "Membres inactifs",
@@ -2301,6 +2319,9 @@
     "companyProfile": "Profil de l'entreprise",
     "whatYouCanDoNow": "Ce que vous pouvez faire maintenant",
     "billingMetaTitle": "Facturation",
+    "exportCsv": "Exporter CSV",
+    "billingFreeIntro": "Les comptes employeurs sont gratuits au départ. Les outils de recrutement et les options de partenariat se discutent avec notre équipe.",
+    "tierPartnershipNote": "Parlez-nous des options de partenariat",
     "billingMetaDesc": "Gérez votre abonnement et votre facturation.",
     "billing": "Facturation",
     "manageSubscription": "Gérez votre abonnement, votre utilisation et vos mises à niveau.",
@@ -2398,7 +2419,11 @@
       "registerOrganization": "Register your organization",
       "staffAccountNotWorking": "Staff account not working?",
       "contactSupport": "Contact support",
-      "mobileTrustBar": "✓ Sans frais pour les membres · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808"
+      "mobileTrustBar": "✓ Sans frais pour les membres · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808",
+      "emailRequired": "Veuillez saisir votre adresse e-mail.",
+      "passwordRequired": "Veuillez saisir votre mot de passe.",
+      "genericError": "Nous n'avons pas pu vous connecter pour le moment. Réessayez dans un instant.",
+      "networkError": "La connexion a échoué. Vérifiez votre connexion et réessayez."
     },
     "signup": {
       "heading": "Create an account",
@@ -2434,7 +2459,12 @@
       "veteranStatus": "Veteran Status",
       "agreeToThe": "I agree to the",
       "and": "and",
-      "commsConsent": "I agree to receive program updates and communications via email"
+      "commsConsent": "I agree to receive program updates and communications via email",
+      "captchaRequired": "Veuillez compléter la vérification de sécurité avant de continuer.",
+      "genericError": "Une erreur s'est produite. Veuillez réessayer.",
+      "networkError": "Erreur réseau. Veuillez réessayer.",
+      "termsOfService": "Conditions d'utilisation",
+      "privacyPolicy": "Politique de Confidentialité"
     },
     "accountDeletedNotice": "Ce compte a été supprimé. Si vous pensez qu’il s’agit d’une erreur, contactez-nous à info@workforceap.org ou au (512) 777-1808.",
     "emailVerifiedNotice": "E-mail vérifié — vous pouvez maintenant vous connecter."

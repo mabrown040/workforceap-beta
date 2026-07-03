@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { CronDef } from '@/lib/admin/cronRegistry';
 import type { CronPreviewRecipient, CronPreviewResponse } from '@/lib/admin/cronPreviewTypes';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 type RunRecord = {
   id: string;
@@ -326,21 +327,21 @@ export default function EmailCronsClient({
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>schedule</span>
           </div>
-          <p className="portal-metric-card__value">{crons.length}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{crons.length}</p>
           <p className="portal-metric-card__label">Scheduled Jobs</p>
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
           </div>
-          <p className="portal-metric-card__value">{enabledCount}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{enabledCount}</p>
           <p className="portal-metric-card__label">Enabled</p>
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>history</span>
           </div>
-          <p className="portal-metric-card__value">{totalRuns}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalRuns}</p>
           <p className="portal-metric-card__label">Total Runs</p>
         </div>
         <div className="portal-metric-card">
@@ -349,7 +350,7 @@ export default function EmailCronsClient({
               {errorRuns > 0 ? 'error' : 'verified'}
             </span>
           </div>
-          <p className="portal-metric-card__value" style={{ color: errorRuns > 0 ? 'var(--color-accent)' : undefined }}>{errorRuns}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums', color: errorRuns > 0 ? 'var(--color-accent)' : undefined }}>{errorRuns}</p>
           <p className="portal-metric-card__label">Recent Errors</p>
         </div>
         <div className="portal-metric-card">
@@ -358,7 +359,7 @@ export default function EmailCronsClient({
               {neverRunCount > 0 ? 'hourglass_empty' : 'done_all'}
             </span>
           </div>
-          <p className="portal-metric-card__value" style={{ color: neverRunCount > 0 ? 'var(--color-gold)' : undefined }}>{neverRunCount}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums', color: neverRunCount > 0 ? 'var(--color-gold)' : undefined }}>{neverRunCount}</p>
           <p className="portal-metric-card__label">Never Run</p>
         </div>
         <div className="portal-metric-card">
@@ -367,7 +368,7 @@ export default function EmailCronsClient({
               {attentionCount > 0 ? 'notification_important' : 'verified'}
             </span>
           </div>
-          <p className="portal-metric-card__value" style={{ color: attentionCount > 0 ? 'var(--color-accent)' : undefined }}>{attentionCount}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums', color: attentionCount > 0 ? 'var(--color-accent)' : undefined }}>{attentionCount}</p>
           <p className="portal-metric-card__label">Need Attention</p>
         </div>
       </div>
@@ -396,6 +397,7 @@ export default function EmailCronsClient({
           <button
             key={cat}
             type="button"
+            aria-pressed={filterCategory === cat}
             onClick={() => setFilterCategory(cat)}
             style={{
               padding: '0.375rem 0.875rem',
@@ -500,12 +502,23 @@ export default function EmailCronsClient({
                 {/* Actions */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexShrink: 0, alignItems: 'flex-end' }}>
                   {/* Enable/disable toggle */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: isTogglingThis ? 'default' : 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
                       {cron.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                     <div
+                      role="switch"
+                      aria-checked={cron.enabled}
+                      aria-label={`${cron.enabled ? 'Disable' : 'Enable'} ${cron.name}`}
+                      tabIndex={isTogglingThis ? -1 : 0}
                       onClick={() => !isTogglingThis && void handleToggle(cron)}
+                      onKeyDown={(e) => {
+                        if (isTogglingThis) return;
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          void handleToggle(cron);
+                        }
+                      }}
                       style={{
                         width: '2.25rem', height: '1.25rem', borderRadius: '9999px',
                         background: cron.enabled ? 'var(--color-accent)' : 'var(--surface-container-highest)',
@@ -522,7 +535,7 @@ export default function EmailCronsClient({
                         boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
                       }} />
                     </div>
-                  </label>
+                  </div>
 
                   {/* Manual trigger */}
                   <button
@@ -703,136 +716,92 @@ export default function EmailCronsClient({
         })}
       </div>
 
-      {/* Run-now confirm dialog (#162) */}
-      {pendingTrigger && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
-          onClick={() => setPendingTrigger(null)}
-        >
-          <div
-            style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.75rem 1.5rem', maxWidth: '24rem', width: '90vw', boxShadow: '0 12px 40px rgba(0,0,0,0.32)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>send</span>
-              </div>
-              <div>
-                <p style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>Run {pendingTrigger.cron.name}?</p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>This will send real emails immediately.</p>
-              </div>
-            </div>
+      {/* Run-now confirm dialog (#162) — shared ConfirmDialog: focus-trapped, Escape-to-close, aria-modal */}
+      <ConfirmDialog
+        open={pendingTrigger !== null}
+        title={pendingTrigger ? `Run ${pendingTrigger.cron.name}?` : ''}
+        danger
+        confirmLabel="Run now"
+        onCancel={() => setPendingTrigger(null)}
+        onConfirm={() => pendingTrigger && void handleTrigger(pendingTrigger.cron)}
+        body={
+          pendingTrigger && (
+            <>
+              <p style={{ margin: '0 0 0.875rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                This will send real emails immediately.
+              </p>
+              {pendingTrigger.recipientCount !== null && (
+                <div style={{ padding: '0.75rem 1rem', background: 'var(--surface-container)', borderRadius: '0.625rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', color: pendingTrigger.recipientCount === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                    {pendingTrigger.recipientCount === 0 ? 'check_circle' : 'group'}
+                  </span>
+                  {pendingTrigger.recipientCount === 0
+                    ? 'No recipients match today\'s criteria. Safe to run.'
+                    : <><strong style={{ color: 'var(--color-on-surface)' }}>{pendingTrigger.recipientCount}</strong> recipient{pendingTrigger.recipientCount !== 1 ? 's' : ''} will receive email.</>
+                  }
+                </div>
+              )}
+            </>
+          )
+        }
+      />
 
-            {pendingTrigger.recipientCount !== null && (
+      {/* Dry-run preview dialog (#156) — shared ConfirmDialog */}
+      <ConfirmDialog
+        open={pendingDryRun !== null}
+        title={pendingDryRun ? `Dry run: ${pendingDryRun.cron.name}` : ''}
+        confirmLabel="Proceed to send"
+        cancelLabel="Close"
+        onCancel={() => setPendingDryRun(null)}
+        onConfirm={() => { if (pendingDryRun) { const cron = pendingDryRun.cron; setPendingDryRun(null); void handleRunNowClick(cron); } }}
+        body={
+          pendingDryRun && (
+            <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
+              <p style={{ margin: '0 0 0.875rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Simulated — no emails were sent.</p>
+
+              {pendingDryRun.note && (
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.625rem', marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-accent)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', fontVariationSettings: "'FILL' 1" }}>error</span>
+                  {pendingDryRun.note}
+                </div>
+              )}
+
               <div style={{ padding: '0.75rem 1rem', background: 'var(--surface-container)', borderRadius: '0.625rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', color: pendingTrigger.recipientCount === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
-                  {pendingTrigger.recipientCount === 0 ? 'check_circle' : 'group'}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', color: pendingDryRun.recipientCount === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  {pendingDryRun.recipientCount === 0 ? 'check_circle' : 'group'}
                 </span>
-                {pendingTrigger.recipientCount === 0
-                  ? 'No recipients match today\'s criteria. Safe to run.'
-                  : <><strong style={{ color: 'var(--color-on-surface)' }}>{pendingTrigger.recipientCount}</strong> recipient{pendingTrigger.recipientCount !== 1 ? 's' : ''} will receive email.</>
+                {pendingDryRun.recipientCount === 0
+                  ? 'No recipients match today\'s criteria.'
+                  : <><strong style={{ color: 'var(--color-on-surface)' }}>{pendingDryRun.recipientCount}</strong> recipient{pendingDryRun.recipientCount !== 1 ? 's' : ''} would receive this email.</>
                 }
+                {pendingDryRun.sampleRecipient && (
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                    Sample: <strong style={{ color: 'var(--color-on-surface)' }}>{pendingDryRun.sampleRecipient.name ?? '—'}</strong> · {pendingDryRun.sampleRecipient.email}
+                  </div>
+                )}
               </div>
-            )}
 
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                onClick={() => setPendingTrigger(null)}
-                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'transparent', color: 'var(--color-on-surface)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleTrigger(pendingTrigger.cron)}
-                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: 'none', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
-              >
-                Run now
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* Dry-run preview dialog (#156) */}
-      {pendingDryRun && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
-          onClick={() => setPendingDryRun(null)}
-        >
-          <div
-            style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.75rem 1.5rem', maxWidth: '32rem', width: '90vw', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 12px 40px rgba(0,0,0,0.32)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: 'rgba(43,123,185,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-blue, #2b7bb9)', fontVariationSettings: "'FILL' 1" }}>science</span>
-              </div>
-              <div>
-                <p style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>Dry run: {pendingDryRun.cron.name}</p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Simulated — no emails were sent.</p>
-              </div>
-            </div>
+              {pendingDryRun.subject && (
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>Subject</p>
+                  <div style={{ padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface)', borderLeft: '3px solid var(--color-accent)' }}>
+                    {pendingDryRun.subject}
+                  </div>
+                </div>
+              )}
 
-            {pendingDryRun.note && (
-              <div style={{ padding: '0.75rem 1rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.625rem', marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-accent)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', fontVariationSettings: "'FILL' 1" }}>error</span>
-                {pendingDryRun.note}
-              </div>
-            )}
-
-            <div style={{ padding: '0.75rem 1rem', background: 'var(--surface-container)', borderRadius: '0.625rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', color: pendingDryRun.recipientCount === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
-                {pendingDryRun.recipientCount === 0 ? 'check_circle' : 'group'}
-              </span>
-              {pendingDryRun.recipientCount === 0
-                ? 'No recipients match today\'s criteria.'
-                : <><strong style={{ color: 'var(--color-on-surface)' }}>{pendingDryRun.recipientCount}</strong> recipient{pendingDryRun.recipientCount !== 1 ? 's' : ''} would receive this email.</>
-              }
-              {pendingDryRun.sampleRecipient && (
-                <div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-                  Sample: <strong style={{ color: 'var(--color-on-surface)' }}>{pendingDryRun.sampleRecipient.name ?? '—'}</strong> · {pendingDryRun.sampleRecipient.email}
+              {pendingDryRun.htmlPreview && (
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>HTML Preview</p>
+                  <div style={{ padding: '0.75rem', background: 'var(--surface-container)', borderRadius: '0.5rem', fontSize: '0.8125rem', maxHeight: '16rem', overflow: 'auto', border: '1px solid var(--outline-variant)' }}>
+                    <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{pendingDryRun.htmlPreview}</pre>
+                  </div>
                 </div>
               )}
             </div>
-
-            {pendingDryRun.subject && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>Subject</p>
-                <div style={{ padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface)', borderLeft: '3px solid var(--color-accent)' }}>
-                  {pendingDryRun.subject}
-                </div>
-              </div>
-            )}
-
-            {pendingDryRun.htmlPreview && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>HTML Preview</p>
-                <div style={{ padding: '0.75rem', background: 'var(--surface-container)', borderRadius: '0.5rem', fontSize: '0.8125rem', maxHeight: '16rem', overflow: 'auto', border: '1px solid var(--outline-variant)' }}>
-                  <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{pendingDryRun.htmlPreview}</pre>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                onClick={() => setPendingDryRun(null)}
-                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'transparent', color: 'var(--color-on-surface)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => { setPendingDryRun(null); void handleRunNowClick(pendingDryRun.cron); }}
-                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: 'none', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
-              >
-                Proceed to send
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          )
+        }
+      />
     </div>
   );
 }

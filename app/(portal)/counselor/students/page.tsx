@@ -281,7 +281,7 @@ export default async function CounselorStudentsPage({
               >
                 {label}
               </p>
-              <p style={{ fontSize: '1.75rem', fontWeight: 800, color: accent, margin: 0, lineHeight: 1 }}>
+              <p style={{ fontSize: '1.75rem', fontWeight: 800, color: accent, margin: 0, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                 {value}
               </p>
             </div>

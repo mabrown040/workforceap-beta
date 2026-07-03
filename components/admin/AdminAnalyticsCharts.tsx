@@ -224,7 +224,7 @@ export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgra
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.color, flexShrink: 0 }} />
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{s.label}</span>
                   </div>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{s.value.toLocaleString()}</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', fontVariantNumeric: 'tabular-nums' }}>{s.value.toLocaleString()}</span>
                 </div>
               ))}
             </div>

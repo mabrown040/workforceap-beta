@@ -37,6 +37,7 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Template>>({});
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [customVars, setCustomVars] = useState<Record<string, string>>({});
@@ -85,6 +86,7 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
   const handleSave = async () => {
     if (!editingId) return;
     setSaving(true);
+    setSaveError(null);
     try {
       const res = await fetch(`/api/admin/email-templates/${editingId}`, {
         method: 'PATCH',
@@ -120,7 +122,7 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
       }
     } catch (e) {
       console.error('Save failed:', e);
-      alert('Failed to save template');
+      setSaveError('Failed to save template — try again.');
     } finally {
       setSaving(false);
     }
@@ -801,9 +803,15 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
                 borderTop: '1px solid var(--outline-variant)',
                 display: 'flex',
                 justifyContent: 'flex-end',
+                alignItems: 'center',
                 gap: '0.75rem',
               }}
             >
+              {saveError ? (
+                <p role="alert" style={{ margin: 0, marginRight: 'auto', fontSize: '0.85rem', color: 'rgb(153,27,27)' }}>
+                  {saveError}
+                </p>
+              ) : null}
               <button
                 className="btn btn-outline"
                 onClick={() => setEditingId(null)}

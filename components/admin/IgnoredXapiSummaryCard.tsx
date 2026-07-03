@@ -80,6 +80,7 @@ export default function IgnoredXapiSummaryCard() {
   if (error) {
     return (
       <div
+        role="alert"
         style={{
           padding: '1rem',
           borderRadius: '0.85rem',
@@ -134,8 +135,8 @@ export default function IgnoredXapiSummaryCard() {
             <thead>
               <tr style={{ textAlign: 'left' }}>
                 <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Course slug</th>
-                <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Events</th>
-                <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Learners</th>
+                <th scope="col" style={{ padding: '0.4rem 0.5rem', textAlign: 'right' }}>Events</th>
+                <th scope="col" style={{ padding: '0.4rem 0.5rem', textAlign: 'right' }}>Learners</th>
                 <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Last seen</th>
               </tr>
             </thead>
@@ -150,8 +151,12 @@ export default function IgnoredXapiSummaryCard() {
                       </div>
                     ) : null}
                   </td>
-                  <td style={{ padding: '0.35rem 0.5rem' }}>{row.eventCount.toLocaleString()}</td>
-                  <td style={{ padding: '0.35rem 0.5rem' }}>{row.distinctLearners}</td>
+                  <td style={{ padding: '0.35rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                    {row.eventCount.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '0.35rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                    {row.distinctLearners}
+                  </td>
                   <td style={{ padding: '0.35rem 0.5rem' }}>
                     {row.lastSeen ? new Date(row.lastSeen).toLocaleString() : '—'}
                   </td>

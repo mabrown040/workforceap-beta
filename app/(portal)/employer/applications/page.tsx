@@ -98,7 +98,7 @@ export default async function EmployerApplicationsPage({
         // EmployerApplicationsClient so users keep their filter chips and
         // "Show all applicants" reset.)
         <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>inbox</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">inbox</span>
           <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noApplicationsYet')}</h3>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>{t('postRoleToStartReceiving')}</p>
           <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>

@@ -6,10 +6,12 @@ import {
   type CourseraDiagnoseReport,
 } from '@/lib/admin/diagnoseMemberCoursera';
 
+// Colors match the semantic success/warning/error palette used elsewhere in
+// the Coursera admin surface (e.g. StatusBadge success = rgb(22,163,74)).
 const STATUS_COLORS: Record<'ok' | 'warn' | 'fail', { bg: string; fg: string; border: string }> = {
-  ok: { bg: 'rgba(34,197,94,0.1)', fg: 'rgb(22,128,68)', border: 'rgba(34,197,94,0.4)' },
-  warn: { bg: 'rgba(234,179,8,0.12)', fg: 'rgb(133,77,14)', border: 'rgba(234,179,8,0.5)' },
-  fail: { bg: 'rgba(239,68,68,0.12)', fg: 'rgb(153,27,27)', border: 'rgba(239,68,68,0.5)' },
+  ok: { bg: 'rgba(34,197,94,0.1)', fg: 'rgb(22,163,74)', border: 'rgba(34,197,94,0.4)' },
+  warn: { bg: 'rgba(234,179,8,0.12)', fg: 'rgb(217,119,6)', border: 'rgba(234,179,8,0.5)' },
+  fail: { bg: 'rgba(239,68,68,0.12)', fg: 'rgb(220,38,38)', border: 'rgba(239,68,68,0.5)' },
 };
 
 export default function MemberCourseraDiagnoseButton({ memberId }: { memberId: string }) {

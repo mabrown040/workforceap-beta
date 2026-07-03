@@ -133,105 +133,109 @@ export default async function PlacementSurveysPage({
         <PlacementSurveysWhatsThis />
 
         {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="wa-grid wa-grid-cols-2 md:wa-grid-cols-3 lg:wa-grid-cols-6 wa-gap-4 wa-mb-8">
           <StatCard
             label="Total Sent"
             value={data?.total ?? 0}
-            icon={<Users className="w-5 h-5" />}
+            icon={<Users className="wa-w-5 wa-h-5" />}
           />
           <StatCard
             label="Completed"
             value={stats?.completed ?? 0}
-            icon={<ClipboardCheck className="w-5 h-5" />}
+            icon={<ClipboardCheck className="wa-w-5 wa-h-5" />}
           />
           <StatCard
             label="Pending"
             value={stats?.pending ?? 0}
-            icon={<Clock className="w-5 h-5" />}
+            icon={<Clock className="wa-w-5 wa-h-5" />}
           />
           <StatCard
             label="Avg Satisfaction"
             value={stats?.avgJobSatisfaction ?? '—'}
-            icon={<Star className="w-5 h-5" />}
+            icon={<Star className="wa-w-5 wa-h-5" />}
           />
           <StatCard
             label="Avg Training"
             value={stats?.avgTrainingRelevance ?? '—'}
-            icon={<TrendingUp className="w-5 h-5" />}
+            icon={<TrendingUp className="wa-w-5 wa-h-5" />}
           />
           <StatCard
             label="Testimonials"
             value={stats?.testimonialCount ?? 0}
-            icon={<MessageSquare className="w-5 h-5" />}
+            icon={<MessageSquare className="wa-w-5 wa-h-5" />}
           />
         </div>
 
         {/* Survey responses table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b">
-            <h2 className="text-lg font-semibold">Recent Responses</h2>
+        <div className="wa-bg-white wa-rounded-lg wa-shadow wa-overflow-hidden">
+          <div className="wa-px-6 wa-py-4 wa-border-b">
+            <h2 className="wa-text-lg wa-font-semibold">Recent Responses</h2>
           </div>
           {surveys.length === 0 ? (
-            <div className="px-6 py-12 text-center text-gray-500">
+            <div className="wa-px-6 wa-py-12 wa-text-center wa-text-gray-500">
               No survey responses yet.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
+            <div className="wa-overflow-x-auto">
+              <table className="wa-w-full wa-text-sm">
+                <thead className="wa-bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-gray-600">Member</th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-gray-600">Program</th>
-                    <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Satisfaction</th>
-                    <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Training</th>
-                    <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Support</th>
-                    <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Employed</th>
-                    <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Testimonial</th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-gray-600">Completed</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-left wa-font-medium wa-text-gray-600">Member</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-left wa-font-medium wa-text-gray-600">Program</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-center wa-font-medium wa-text-gray-600">Satisfaction</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-center wa-font-medium wa-text-gray-600">Training</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-center wa-font-medium wa-text-gray-600">Support</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-center wa-font-medium wa-text-gray-600">Employed</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-center wa-font-medium wa-text-gray-600">Testimonial</th>
+                    <th scope="col" className="wa-px-4 wa-py-3 wa-text-left wa-font-medium wa-text-gray-600">Completed</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="wa-divide-y">
                   {surveys.map((s) => (
-                    <tr key={s.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div className="font-medium">{s.user?.fullName ?? '—'}</div>
-                        <div className="text-gray-500 text-xs">{s.user?.email ?? '—'}</div>
+                    <tr key={s.id} className="hover:wa-bg-gray-50">
+                      <td className="wa-px-4 wa-py-3">
+                        <div className="wa-font-medium">{s.user?.fullName ?? '—'}</div>
+                        <div className="wa-text-gray-500 wa-text-xs">{s.user?.email ?? '—'}</div>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{s.user?.enrolledProgram ?? '—'}</td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="wa-px-4 wa-py-3 wa-text-gray-600">{s.user?.enrolledProgram ?? '—'}</td>
+                      <td className="wa-px-4 wa-py-3 wa-text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {s.jobSatisfaction ? (
-                          <span className="inline-flex items-center gap-1">
-                            {s.jobSatisfaction} <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                          <span className="wa-inline-flex wa-items-center wa-gap-1">
+                            {s.jobSatisfaction} <Star className="wa-w-3 wa-h-3 wa-text-amber-500 wa-fill-amber-500" />
                           </span>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="wa-px-4 wa-py-3 wa-text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {s.trainingRelevance ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="wa-px-4 wa-py-3 wa-text-center" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {s.supportQuality ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="wa-px-4 wa-py-3 wa-text-center">
                         {s.stillEmployed === true ? (
-                          <span className="text-green-600 font-medium">Yes</span>
+                          <span className="wa-text-green-600 wa-font-medium">Yes</span>
                         ) : s.stillEmployed === false ? (
-                          <span className="text-red-600">No</span>
+                          <span className="wa-text-red-600">No</span>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="wa-px-4 wa-py-3 wa-text-center">
                         {s.allowTestimonial ? (
-                          <span className="text-green-600">✓</span>
+                          <span className="wa-text-green-600">✓</span>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">
+                      <td className="wa-px-4 wa-py-3 wa-text-gray-500 wa-text-xs">
                         {s.completedAt
-                          ? new Date(s.completedAt).toLocaleDateString()
+                          ? new Date(s.completedAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })
                           : 'Pending'}
                       </td>
                     </tr>
@@ -286,9 +290,9 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <div className="flex items-center gap-2 text-gray-500 mb-2">{icon}<span className="text-xs font-medium uppercase">{label}</span></div>
-      <div className="text-2xl font-bold">{value}</div>
+    <div className="wa-bg-white wa-rounded-lg wa-shadow wa-p-4">
+      <div className="wa-flex wa-items-center wa-gap-2 wa-text-gray-500 wa-mb-2">{icon}<span className="wa-text-xs wa-font-medium wa-uppercase">{label}</span></div>
+      <div className="wa-text-2xl wa-font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</div>
     </div>
   );
 }

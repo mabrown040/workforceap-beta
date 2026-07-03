@@ -35,12 +35,15 @@ export default async function PartnerExportsPage() {
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
         <a href="/api/partner/export/referrals" className="btn btn-primary">
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>
           Download referrals.csv
         </a>
         <a href="/api/partner/export/referrals?preset=outcomes" className="btn btn-muted">
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>
           Outcomes preset (placement columns)
         </a>
         <a href="/api/partner/export/referrals?preset=demographics" className="btn btn-muted">
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>
           Demographics + placement (funder reporting)
         </a>
       </div>

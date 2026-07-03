@@ -162,6 +162,7 @@ export default function CourseraEnrollmentPipelineTable({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email…"
+          aria-label="Search by name or email"
           style={{
             flex: 1,
             minWidth: '12rem',
@@ -176,6 +177,7 @@ export default function CourseraEnrollmentPipelineTable({
         <select
           value={programFilter}
           onChange={(e) => setProgramFilter(e.target.value)}
+          aria-label="Filter by program"
           style={{
             padding: '0.5rem 0.75rem',
             borderRadius: '0.5rem',
@@ -195,6 +197,7 @@ export default function CourseraEnrollmentPipelineTable({
         <select
           value={signalFilter}
           onChange={(e) => setSignalFilter(e.target.value as 'all' | EnrollmentSignal)}
+          aria-label="Filter by enrollment signal"
           style={{
             padding: '0.5rem 0.75rem',
             borderRadius: '0.5rem',
@@ -231,9 +234,22 @@ export default function CourseraEnrollmentPipelineTable({
         rows={filteredRows}
         rowKey={(row) => row.memberId}
         emptyState={
-          <p style={{ padding: '1rem', color: 'var(--color-on-surface-variant)' }}>
-            No members match the current filters.
-          </p>
+          <div style={{ padding: '1rem', display: 'grid', gap: '0.5rem', justifyItems: 'start' }}>
+            <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
+              No members match the current search / program / signal filters.
+            </p>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => {
+                setSearch('');
+                setProgramFilter('all');
+                setSignalFilter('all');
+              }}
+            >
+              Clear filters
+            </button>
+          </div>
         }
         columns={[
           {

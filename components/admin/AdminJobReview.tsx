@@ -97,8 +97,12 @@ export default function AdminJobReview({ job }: { job: Job }) {
     setActionFeedback(null);
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/approve`, { method: 'POST' });
-      if (res.ok) router.refresh();
-      else setActionFeedback({ type: 'error', message: 'Failed to approve. Try again.' });
+      if (res.ok) {
+        setActionFeedback({ type: 'success', message: 'Job approved.' });
+        router.refresh();
+      } else {
+        setActionFeedback({ type: 'error', message: 'Failed to approve. Try again.' });
+      }
     } finally {
       setApproving(false);
     }
@@ -118,8 +122,12 @@ export default function AdminJobReview({ job }: { job: Job }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: rejectReason }),
       });
-      if (res.ok) router.refresh();
-      else setActionFeedback({ type: 'error', message: 'Failed to reject. Try again.' });
+      if (res.ok) {
+        setActionFeedback({ type: 'success', message: 'Job rejected.' });
+        router.refresh();
+      } else {
+        setActionFeedback({ type: 'error', message: 'Failed to reject. Try again.' });
+      }
     } finally {
       setRejecting(false);
     }
@@ -257,6 +265,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                 <input
                   type="text"
+                  aria-label="Rejection reason"
                   placeholder="Rejection reason"
                   value={rejectReason}
                   onChange={(e) => {

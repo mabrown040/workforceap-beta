@@ -302,6 +302,7 @@ export default function CourseraInspectByEmailCard() {
         <input
           type="email"
           placeholder="Email to inspect (e.g. learner@example.com)"
+          aria-label="Email to inspect"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => {
@@ -344,6 +345,7 @@ export default function CourseraInspectByEmailCard() {
 
       {error && (
         <div
+          role="alert"
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '0.6rem',
@@ -603,6 +605,7 @@ export default function CourseraInspectByEmailCard() {
                 )}
                 {addResult && (
                   <span
+                    role={addResult.ok ? 'status' : 'alert'}
                     style={{
                       fontSize: '0.85rem',
                       color: addResult.ok ? 'rgb(22, 163, 74)' : 'rgb(190, 18, 60)',
@@ -613,6 +616,7 @@ export default function CourseraInspectByEmailCard() {
                 )}
                 {syncResult && (
                   <span
+                    role={syncResult.ok ? 'status' : 'alert'}
                     style={{
                       fontSize: '0.85rem',
                       color: syncResult.ok ? 'rgb(22, 163, 74)' : 'rgb(190, 18, 60)',

@@ -46,6 +46,7 @@ export default function PlacementsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageIsSuccess, setMessageIsSuccess] = useState(false);
 
   const [memberId, setMemberId] = useState('');
   const [employerName, setEmployerName] = useState('');
@@ -68,6 +69,7 @@ export default function PlacementsPage() {
       setPlacements(data.placements || []);
     } catch {
       setMessage('Could not load placements');
+      setMessageIsSuccess(false);
     } finally {
       setLoading(false);
     }
@@ -77,6 +79,7 @@ export default function PlacementsPage() {
     e.preventDefault();
     setSubmitting(true);
     setMessage(null);
+    setMessageIsSuccess(false);
 
     try {
       const res = await fetch('/api/counselor/placements', {
@@ -99,11 +102,13 @@ export default function PlacementsPage() {
       }
 
       setMessage(t('placementRecordedSuccess'));
+      setMessageIsSuccess(true);
       setShowAddForm(false);
       resetForm();
       loadPlacements();
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : t('failedToRecordPlacement'));
+      setMessageIsSuccess(false);
     } finally {
       setSubmitting(false);
     }
@@ -129,8 +134,6 @@ export default function PlacementsPage() {
     return `$${n.toLocaleString()}/yr`;
   };
 
-  const msgIsSuccess = message?.includes('success');
-
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
       <PageHeader
@@ -146,15 +149,15 @@ export default function PlacementsPage() {
 
       {message ? (
         <div
-          role={msgIsSuccess ? 'status' : 'alert'}
+          role={messageIsSuccess ? 'status' : 'alert'}
           style={{
             padding: '0.875rem 1rem',
             borderRadius: 'var(--radius-md)',
-            background: msgIsSuccess
+            background: messageIsSuccess
               ? 'color-mix(in srgb, var(--color-green) 10%, transparent)'
-              : 'color-mix(in srgb, var(--color-error) 10%, transparent)',
-            border: `1px solid color-mix(in srgb, ${msgIsSuccess ? 'var(--color-green)' : 'var(--color-error)'} 20%, transparent)`,
-            color: msgIsSuccess ? 'var(--color-green)' : 'var(--color-error)',
+              : 'color-mix(in srgb, var(--color-error, #dc2626) 10%, transparent)',
+            border: `1px solid color-mix(in srgb, ${messageIsSuccess ? 'var(--color-green)' : 'var(--color-error, #dc2626)'} 20%, transparent)`,
+            color: messageIsSuccess ? 'var(--color-green)' : 'var(--color-error, #dc2626)',
             marginBottom: '1.5rem',
             fontSize: '0.9rem',
             fontWeight: 600,
@@ -271,8 +274,9 @@ export default function PlacementsPage() {
               {
                 key: 'salary',
                 header: t('salary'),
+                align: 'right',
                 cell: (p) => (
-                  <span style={{ fontWeight: 600, color: 'var(--color-green)' }}>{formatCurrency(p.salary_offered)}</span>
+                  <span style={{ fontWeight: 600, color: 'var(--color-green)', fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(p.salary_offered)}</span>
                 ),
               },
               {

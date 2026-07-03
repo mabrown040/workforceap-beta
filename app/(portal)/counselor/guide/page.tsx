@@ -129,15 +129,15 @@ export default async function CounselorGuidePage() {
             <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
               Members assigned
             </p>
-            <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
               {totalAssigned}
             </p>
           </div>
-          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderLeft: needsAttentionCount > 0 ? '4px solid #fbbf24' : '4px solid rgba(88,65,68,0.1)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderLeft: needsAttentionCount > 0 ? '4px solid var(--color-gold)' : '4px solid color-mix(in srgb, var(--outline-variant) 10%, transparent)' }}>
             <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
               Need attention this week
             </p>
-            <p style={{ fontSize: '2.25rem', fontWeight: 800, color: needsAttentionCount > 0 ? '#fbbf24' : 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            <p style={{ fontSize: '2.25rem', fontWeight: 800, color: needsAttentionCount > 0 ? 'var(--color-gold)' : 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
               {needsAttentionCount}
             </p>
           </div>
@@ -205,7 +205,7 @@ export default async function CounselorGuidePage() {
                 gap: '0.875rem',
                 padding: '1rem 1.125rem',
                 background: 'var(--surface-container-lowest)',
-                border: '1px solid rgba(88,65,68,0.08)',
+                border: '1px solid color-mix(in srgb, var(--outline-variant) 8%, transparent)',
                 borderRadius: '0.625rem',
                 textDecoration: 'none',
               }}>
@@ -230,8 +230,8 @@ export default async function CounselorGuidePage() {
           {JOURNEY_STAGES.map((s) => (
             <div key={s.stage} style={{
               padding: '1rem',
-              background: s.done ? 'rgba(128,217,159,0.06)' : 'var(--surface-container-low)',
-              border: s.done ? '1px solid rgba(128,217,159,0.2)' : '1px solid rgba(88,65,68,0.06)',
+              background: s.done ? 'color-mix(in srgb, var(--color-green) 8%, transparent)' : 'var(--surface-container-low)',
+              border: s.done ? '1px solid color-mix(in srgb, var(--color-green) 25%, transparent)' : '1px solid color-mix(in srgb, var(--outline-variant) 6%, transparent)',
               borderRadius: '0.625rem',
               display: 'flex',
               gap: '0.75rem',
@@ -241,14 +241,14 @@ export default async function CounselorGuidePage() {
                 width: '1.75rem',
                 height: '1.75rem',
                 borderRadius: '50%',
-                background: s.done ? 'rgba(128,217,159,0.2)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                background: s.done ? 'color-mix(in srgb, var(--color-green) 20%, transparent)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
                 fontSize: '0.75rem',
                 fontWeight: 800,
-                color: s.done ? '#80d99f' : 'var(--color-accent)',
+                color: s.done ? 'var(--color-green)' : 'var(--color-accent)',
               }}>
                 {s.done ? <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">check</span> : s.stage}
               </div>

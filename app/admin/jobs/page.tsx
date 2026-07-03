@@ -35,6 +35,16 @@ const STATUS_LABELS: Record<string, string> = {
   closed: 'Closed',
 };
 
+/** Human label for the ?filter= queue value shown on the mobile job cards. */
+const FILTER_LABELS: Record<string, string> = {
+  all: 'All',
+  pending: 'Pending',
+  live: 'Live',
+  draft: 'Draft',
+  filled: 'Filled / Closed',
+  approved: 'Approved',
+};
+
 function getJobStatusPillClass(status: string): string {
   if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
   if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
@@ -329,7 +339,9 @@ async function renderLegacy({
                 <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                   Queue
                 </p>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>{currentFilter}</p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
+                  {FILTER_LABELS[currentFilter] ?? currentFilter}
+                </p>
               </div>
             </div>
 

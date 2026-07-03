@@ -83,7 +83,7 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
         action={
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <a href={`/api/employer/jobs/${id}/applications/export`} className="btn btn-outline btn-sm">
-              Export CSV
+              {t('exportCsv')}
             </a>
             <Link href={`/employer/jobs/${id}`} className="btn btn-outline btn-sm">
               {t('backToJob')}

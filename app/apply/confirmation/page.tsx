@@ -233,7 +233,7 @@ export default async function ApplyConfirmationPage() {
             </div>
 
             <section style={{ marginBottom: '2rem', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584144', margin: '0 0 1rem' }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
                 {t('confirmationSpreadWord')}
               </p>
               <ShareButtons />

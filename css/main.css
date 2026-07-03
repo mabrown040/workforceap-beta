@@ -60,6 +60,17 @@
     --color-gold: #FFBB00;
     --color-gold-light: #ffd54f;
     /**
+     * Canonical error/danger token. Referenced (with per-call-site fallback hex)
+     * across admin + portal error banners, invalid form fields, and destructive
+     * actions; previously undefined outside the (auth) route's `.auth-depth`
+     * scope, so every other subtree silently fell back to whatever hex each
+     * call site hardcoded (#dc2626 / #b91c1c / #c83232 / #b00020 / #ba1a1a / …).
+     * #dc2626 matches the most common fallback already in use and `--wa-danger`
+     * in css/portal-tokens.css. Constant across light/dark like --color-green.
+     */
+    --color-error: #dc2626;
+    --color-error-container: rgba(220, 38, 38, 0.12);
+    /**
      * WCAG AA helpers for marketing chips/badges (not global replacements for brand primaries).
      * Use on dark surfaces (~#121416) when #ad2c4d body copy fails ~4.5:1.
      */
@@ -2641,7 +2652,11 @@ a.btn-white {
     margin-right: var(--space-2);
 }
 .btn-content-loading {
-    opacity: 0.7;
+    /* Button.tsx always sets `disabled` while loading, which already triggers
+       `.btn:disabled { opacity: 0.5 }` above. Dimming again here compounded to
+       ~0.35 effective opacity (0.5 × 0.7), making the label nearly illegible
+       during loading. Rely on the single `:disabled` dim instead. */
+    opacity: 1;
 }
 
 /* =============================================

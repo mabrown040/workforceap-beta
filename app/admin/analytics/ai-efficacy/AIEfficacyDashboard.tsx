@@ -332,7 +332,7 @@ export default function AIEfficacyDashboard() {
                 <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${m.accent}`}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{m.icon}</span>
                 </div>
-                <p className="portal-metric-card__value">{m.value}</p>
+                <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{m.value}</p>
                 <p className="portal-metric-card__label">{m.label}</p>
               </div>
             ))}

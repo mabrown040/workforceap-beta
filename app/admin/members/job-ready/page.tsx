@@ -67,6 +67,10 @@ export default async function AdminJobReadyPage() {
       <PageHeader
         title="Job ready"
         subtitle={`Members at ${JOB_READY_TRAINING_PCT}%+ training completion. Distinct from Interview ready, which gates on pre-screening for an employer interview.`}
+        breadcrumbs={[
+          { label: 'Members', href: '/admin/members' },
+          { label: 'Job ready' },
+        ]}
       />
       <MembersListNav />
       <AdminJobReadyTable rows={rows} />

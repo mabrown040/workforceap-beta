@@ -388,7 +388,7 @@ export default async function CounselorPortalPage({
                       <span className="material-symbols-outlined text-on-surface-variant" aria-hidden="true">person</span>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
+                      <h4 title={a.member.fullName ?? undefined} className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
                       <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
                       {trainingProgressPct === null ? (
                         <p className="wa-text-[11px] wa-font-semibold text-on-surface-variant" style={{ margin: 0 }}>
@@ -587,7 +587,7 @@ export default async function CounselorPortalPage({
                       width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
                     }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>{link.icon}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }} aria-hidden="true">{link.icon}</span>
                     </div>
                     <div>
                       <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>

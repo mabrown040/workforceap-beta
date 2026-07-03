@@ -133,7 +133,7 @@ function MetricCard({
           {icon}
         </span>
       </div>
-      <p className="portal-metric-card__value">{value}</p>
+      <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</p>
       <p className="portal-metric-card__label">{label}</p>
     </div>
   );
@@ -292,7 +292,10 @@ export default function QuarterlyOutcomesClient() {
           style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}
         >
           <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-            No data available
+            No data for {quarter} {year}
+          </p>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem' }}>
+            No enrollments, completions, or placements were recorded in that quarter. Try a different quarter or year above.
           </p>
         </div>
       )}
@@ -370,9 +373,9 @@ export default function QuarterlyOutcomesClient() {
                     {data!.programBreakdown.map((p) => (
                       <tr key={p.programSlug} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
                         <td style={{ padding: '0.5rem', color: 'var(--color-on-surface)' }}>{p.programSlug}</td>
-                        <td style={{ textAlign: 'right', padding: '0.5rem' }}>{p.enrolled}</td>
-                        <td style={{ textAlign: 'right', padding: '0.5rem' }}>{p.completions}</td>
-                        <td style={{ textAlign: 'right', padding: '0.5rem' }}>{p.placements}</td>
+                        <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>{p.enrolled}</td>
+                        <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>{p.completions}</td>
+                        <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>{p.placements}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -425,10 +428,10 @@ export default function QuarterlyOutcomesClient() {
                       <tr key={i} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
                         <td style={{ padding: '0.5rem', color: 'var(--color-on-surface)' }}>{p.jobTitle}</td>
                         <td style={{ padding: '0.5rem', color: 'var(--color-on-surface)' }}>{p.employerName}</td>
-                        <td style={{ textAlign: 'right', padding: '0.5rem' }}>
+                        <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>
                           {p.salaryOffered != null ? `$${p.salaryOffered.toLocaleString()}` : '—'}
                         </td>
-                        <td style={{ textAlign: 'right', padding: '0.5rem' }}>
+                        <td style={{ textAlign: 'right', padding: '0.5rem', fontVariantNumeric: 'tabular-nums' }}>
                           {p.daysToPlacement ?? '—'}
                         </td>
                         <td style={{ textAlign: 'center', padding: '0.5rem' }}>

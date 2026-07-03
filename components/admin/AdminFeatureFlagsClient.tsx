@@ -97,6 +97,7 @@ export default function AdminFeatureFlagsClient() {
 
   const toggleEnabled = async (flag: FeatureFlag) => {
     setSavingId(flag.id);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/feature-flags/${flag.id}`, {
         method: 'PATCH',
@@ -109,7 +110,7 @@ export default function AdminFeatureFlagsClient() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert('Failed to update flag');
+      setError(`Failed to update "${flag.name}" — try again.`);
     } finally {
       setSavingId(null);
     }
@@ -117,6 +118,7 @@ export default function AdminFeatureFlagsClient() {
 
   const updateRollout = async (flag: FeatureFlag, value: number) => {
     setSavingId(flag.id);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/feature-flags/${flag.id}`, {
         method: 'PATCH',
@@ -128,7 +130,7 @@ export default function AdminFeatureFlagsClient() {
       setFlags((prev) => prev.map((f) => (f.id === flag.id ? data.flag : f)));
     } catch (err) {
       console.error(err);
-      alert('Failed to update rollout');
+      setError(`Failed to update rollout for "${flag.name}" — try again.`);
     } finally {
       setSavingId(null);
     }
@@ -136,6 +138,7 @@ export default function AdminFeatureFlagsClient() {
 
   const updateRoles = async (flag: FeatureFlag, roles: string[]) => {
     setSavingId(flag.id);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/feature-flags/${flag.id}`, {
         method: 'PATCH',
@@ -147,7 +150,7 @@ export default function AdminFeatureFlagsClient() {
       setFlags((prev) => prev.map((f) => (f.id === flag.id ? data.flag : f)));
     } catch (err) {
       console.error(err);
-      alert('Failed to update roles');
+      setError(`Failed to update roles for "${flag.name}" — try again.`);
     } finally {
       setSavingId(null);
     }
@@ -155,6 +158,7 @@ export default function AdminFeatureFlagsClient() {
 
   const deleteFlag = async (id: string) => {
     setSavingId(id);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/feature-flags/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed');
@@ -162,7 +166,7 @@ export default function AdminFeatureFlagsClient() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete flag');
+      setError('Failed to delete flag — try again.');
     } finally {
       setSavingId(null);
     }
@@ -170,10 +174,11 @@ export default function AdminFeatureFlagsClient() {
 
   const createFlag = async () => {
     if (!createKey.trim() || !createName.trim()) {
-      alert('Key and name are required');
+      setError('Key and name are required.');
       return;
     }
     setSavingId('create');
+    setError(null);
     try {
       const res = await fetch('/api/admin/feature-flags', {
         method: 'POST',
@@ -189,7 +194,7 @@ export default function AdminFeatureFlagsClient() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Failed to create flag');
+        setError(data.error || 'Failed to create flag');
         return;
       }
       const data = await res.json();
@@ -204,7 +209,7 @@ export default function AdminFeatureFlagsClient() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert('Failed to create flag');
+      setError('Failed to create flag — try again.');
     } finally {
       setSavingId(null);
     }
@@ -230,7 +235,7 @@ export default function AdminFeatureFlagsClient() {
       />
 
       {error && (
-        <div style={{ padding: '1rem', background: 'rgba(173,44,77,0.08)', color: '#ad2c4d', borderRadius: '0.625rem', marginBottom: '1rem' }}>
+        <div role="alert" style={{ padding: '1rem', background: 'rgba(173,44,77,0.08)', color: '#ad2c4d', borderRadius: '0.625rem', marginBottom: '1rem' }}>
           {error}
         </div>
       )}
@@ -466,8 +471,9 @@ export default function AdminFeatureFlagsClient() {
                       type="button"
                       className="btn btn-outline btn-sm"
                       onClick={() => setEditingId(isEditing ? null : flag.id)}
+                      aria-label={isEditing ? `Stop editing "${flag.name}"` : `Edit "${flag.name}"`}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">
                         {isEditing ? 'close' : 'edit'}
                       </span>
                     </button>
@@ -476,9 +482,10 @@ export default function AdminFeatureFlagsClient() {
                       className="btn btn-outline btn-sm"
                       onClick={() => setConfirmDeleteId(flag.id)}
                       disabled={savingId === flag.id}
+                      aria-label={`Delete "${flag.name}"`}
                       style={{ color: '#ad2c4d', borderColor: 'rgba(173,44,77,0.3)' }}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">
                         delete
                       </span>
                     </button>

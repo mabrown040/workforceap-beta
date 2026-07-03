@@ -139,9 +139,13 @@ export default async function CounselorWorkQueuePage() {
                   .slice(0, 2)
                   .join('')
                   .toUpperCase();
+                // `--color-error` isn't defined in the counselor portal's
+                // stylesheet (only inside the unrelated .auth-depth scope),
+                // so the most-overdue rows were rendering with no color at
+                // all — less urgent-looking than the 48-71h tier below it.
                 const overdueColor =
                   row.hoursWaiting >= 72
-                    ? 'var(--color-error)'
+                    ? 'var(--color-error, #dc2626)'
                     : row.hoursWaiting >= 48
                       ? 'var(--color-orange, var(--color-accent))'
                       : 'var(--color-accent)';
@@ -190,6 +194,7 @@ export default async function CounselorWorkQueuePage() {
                             }}
                           >
                             <h3
+                              title={row.memberName}
                               style={{
                                 fontWeight: 700,
                                 fontSize: '0.9375rem',
@@ -209,6 +214,7 @@ export default async function CounselorWorkQueuePage() {
                                 color: overdueColor,
                                 whiteSpace: 'nowrap',
                                 flexShrink: 0,
+                                fontVariantNumeric: 'tabular-nums',
                               }}
                             >
                               {formatTimeWaiting(row.hoursWaiting)}
@@ -227,7 +233,7 @@ export default async function CounselorWorkQueuePage() {
                               WebkitBoxOrient: 'vertical',
                             }}
                           >
-                            {previewMessageBody(row.lastMessageBody) || '(empty message)'}
+                            {previewMessageBody(row.lastMessageBody) || t('emptyMessagePreview')}
                           </p>
                         </div>
                         <span

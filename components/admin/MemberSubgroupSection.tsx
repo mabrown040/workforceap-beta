@@ -17,7 +17,7 @@ export default function MemberSubgroupSection({
   const router = useRouter();
   const [subgroupId, setSubgroupId] = useState<string>(currentSubgroupIds[0] ?? '');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
     setSubgroupId(currentSubgroupIds[0] ?? '');
@@ -35,13 +35,13 @@ export default function MemberSubgroupSection({
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessage(typeof data.error === 'string' ? data.error : 'Add failed');
+        setMessage({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Add failed' });
         return;
       }
-      setMessage('Added.');
+      setMessage({ type: 'ok', text: 'Added.' });
       router.refresh();
     } catch {
-      setMessage('Request failed');
+      setMessage({ type: 'err', text: 'Request failed' });
     } finally {
       setLoading(false);
     }
@@ -56,13 +56,13 @@ export default function MemberSubgroupSection({
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessage(typeof data.error === 'string' ? data.error : 'Remove failed');
+        setMessage({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Remove failed' });
         return;
       }
-      setMessage('Removed.');
+      setMessage({ type: 'ok', text: 'Removed.' });
       router.refresh();
     } catch {
-      setMessage('Request failed');
+      setMessage({ type: 'err', text: 'Request failed' });
     } finally {
       setLoading(false);
     }
@@ -90,6 +90,7 @@ export default function MemberSubgroupSection({
                   style={{ fontSize: '0.75rem', padding: '0.15rem 0.35rem' }}
                   onClick={() => remove(id)}
                   disabled={loading}
+                  aria-label={`Remove from ${sg.name}`}
                 >
                   Remove
                 </button>
@@ -103,6 +104,7 @@ export default function MemberSubgroupSection({
           <select
             value={subgroupId}
             onChange={(e) => setSubgroupId(e.target.value)}
+            aria-label="Select subgroup to add"
             style={{ padding: '0.5rem', minWidth: 260, borderRadius: 6, border: '1px solid var(--color-border)' }}
           >
             <option value="">Select subgroup</option>
@@ -128,7 +130,14 @@ export default function MemberSubgroupSection({
       {subgroups.length === 0 && (
         <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>No subgroups exist.</p>
       )}
-      {message && <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{message}</p>}
+      {message && (
+        <p
+          role={message.type === 'ok' ? 'status' : 'alert'}
+          style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: message.type === 'ok' ? '#166534' : '#b91c1c' }}
+        >
+          {message.text}
+        </p>
+      )}
     </section>
   );
 }

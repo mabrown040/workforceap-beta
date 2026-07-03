@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 interface Note {
   id: string;
@@ -19,6 +20,8 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   const [error, setError] = useState('');
   const [fetchError, setFetchError] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -62,6 +65,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
 
   const handleDelete = async (noteId: string) => {
     setDeleteError('');
+    setDeleting(true);
     try {
       const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/notes`, {
         method: 'DELETE',
@@ -72,6 +76,9 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
       setNotes((prev) => prev.filter((n) => n.id !== noteId));
     } catch {
       setDeleteError('Could not delete note. Please try again.');
+    } finally {
+      setDeleting(false);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -112,7 +119,11 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
 
       {adding && (
         <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor={`counselor-note-${memberId}`} className="wa-sr-only">
+            Counselor note
+          </label>
           <textarea
+            id={`counselor-note-${memberId}`}
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             placeholder="Write a note about this member..."
@@ -205,7 +216,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
                 {new Date(note.createdAt).toLocaleDateString('en-US')} · {note.author.fullName ?? note.author.email}
               </p>
               <button type="button"
-                onClick={() => handleDelete(note.id)}
+                onClick={() => setConfirmDeleteId(note.id)}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -232,6 +243,17 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete note?"
+        body="This note will be permanently deleted. This cannot be undone."
+        confirmLabel="Delete note"
+        danger
+        busy={deleting}
+        onConfirm={() => { if (confirmDeleteId) handleDelete(confirmDeleteId); }}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

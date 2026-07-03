@@ -628,7 +628,7 @@ export default async function AdminMemberDetailPage({
                 <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Shared</p>
                 <p style={{ margin: 0, fontWeight: 700 }}>
                   {careerPlanSignal.shareCount > 0 ? `Yes · ${careerPlanSignal.shareCount}` : 'No'}
-                  {careerPlanSignal.committedAt ? ` · ${careerPlanSignal.committedAt.toLocaleDateString()}` : ''}
+                  {careerPlanSignal.committedAt ? ` · ${careerPlanSignal.committedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
                 </p>
               </div>
             </div>
@@ -662,7 +662,7 @@ export default async function AdminMemberDetailPage({
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
           <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
-          <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString() ?? '—'}</p>
+          <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) ?? '—'}</p>
           {program ? (
             <p>
               <strong>Course progress:</strong>{' '}
@@ -720,7 +720,7 @@ export default async function AdminMemberDetailPage({
               <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#856404' }}>
                 {member.userCertifications.map((cert: any) => (
                   <li key={cert.id}>
-                    <strong>{cert.certName}</strong> (Earned: {new Date(cert.earnedAt).toLocaleDateString()})
+                    <strong>{cert.certName}</strong> (Earned: {new Date(cert.earnedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })})
                   </li>
                 ))}
               </ul>
@@ -787,18 +787,18 @@ export default async function AdminMemberDetailPage({
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>
                     Placed (last 90d)
                   </p>
-                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0 }}>{placedLast90d}</p>
+                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>{placedLast90d}</p>
                 </div>
                 <div style={{ padding: '0.625rem 0.75rem', borderRadius: 8, background: 'var(--color-surface-variant, #f5f5f5)' }}>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>
                     Placement rate
                   </p>
-                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
                     {orgEnrolled < SMALL_SAMPLE_THRESHOLD
                       ? `N=${orgEnrolled}`
                       : `${orgPlacementRate ?? 0}%`}
                   </p>
-                  <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0', fontVariantNumeric: 'tabular-nums' }}>
                     {orgPlaced} of {orgEnrolled} enrolled
                   </p>
                 </div>
@@ -806,7 +806,7 @@ export default async function AdminMemberDetailPage({
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>
                     Avg time to placement
                   </p>
-                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
                     {orgAvgDaysToPlacement === null ? '—' : `${orgAvgDaysToPlacement} d`}
                   </p>
                 </div>
@@ -868,20 +868,20 @@ export default async function AdminMemberDetailPage({
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Courses</p>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
                     {courseraCompletedCount}/{courseraCourseCount} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>complete</span>
                   </p>
                 </div>
                 <div>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Specializations</p>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
                     {courseraCompletedBadgeCount}/{courseraBadgeCount} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>earned</span>
                   </p>
                 </div>
                 <div>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Last activity</p>
                   <p style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
-                    {courseraLastActivity ? courseraLastActivity.toLocaleDateString() : '—'}
+                    {courseraLastActivity ? courseraLastActivity.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                   </p>
                 </div>
               </div>
@@ -1064,7 +1064,7 @@ export default async function AdminMemberDetailPage({
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Assessment</h2>
             <p><strong>Score:</strong> {member.assessmentScore ?? 0}/100 ({member.assessmentScorePct ?? 0}%)</p>
-            <p><strong>Date:</strong> {member.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</p>
+            <p><strong>Date:</strong> {member.assessmentCompletedAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) ?? '—'}</p>
             <p><strong>Program interest:</strong> {member.programInterest ?? '—'}</p>
             <details style={{ marginTop: '0.75rem' }}>
               <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Full Q&A</summary>

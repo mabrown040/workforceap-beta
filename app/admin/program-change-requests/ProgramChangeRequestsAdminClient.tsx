@@ -18,9 +18,11 @@ export default function ProgramChangeRequestsAdminClient({ initialRows }: { init
   const [rows, setRows] = useState(initialRows);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   async function review(id: string, status: 'APPROVED' | 'DENIED') {
     setBusyId(id);
+    setErrors((prev) => ({ ...prev, [id]: '' }));
     try {
       const res = await fetch(`/api/admin/program-change-requests/${id}`, {
         method: 'PATCH',
@@ -29,7 +31,7 @@ export default function ProgramChangeRequestsAdminClient({ initialRows }: { init
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error ?? 'Update failed');
+        setErrors((prev) => ({ ...prev, [id]: data.error ?? 'Update failed' }));
         return;
       }
       setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...data.request } : r)));
@@ -98,6 +100,11 @@ export default function ProgramChangeRequestsAdminClient({ initialRows }: { init
                 Deny
               </button>
             </div>
+            {errors[r.id] ? (
+              <p role="alert" style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'rgb(153,27,27)' }}>
+                {errors[r.id]}
+              </p>
+            ) : null}
           </li>
         ))}
       </ul>

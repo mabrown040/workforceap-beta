@@ -194,7 +194,7 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: Pr
                 border: isSelected ? `2px solid ${p.borderColor}` : '1px solid var(--outline-variant)',
                 borderRadius: 'var(--radius-md)',
                 borderTop: `3px solid ${p.borderColor}`,
-                background: 'white',
+                background: 'var(--surface-container-low)',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
@@ -214,7 +214,12 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: Pr
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-                <div>⏱ {p.duration}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+                    schedule
+                  </span>
+                  {p.duration}
+                </div>
                 <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
               </div>
               <button

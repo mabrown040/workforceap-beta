@@ -188,8 +188,9 @@ export default function PlacementsTableClient({ placements }: { placements: Plac
         rowKey={(r) => r.id}
         emptyState={
           <p style={{ color: 'var(--color-on-surface-variant)' }}>
-            No placements recorded yet. When a member lands a job, record it here so outcomes
-            reporting stays accurate.
+            No placements recorded yet. When a member lands a job,{' '}
+            <Link href="/admin/placements/new">record it</Link> so outcomes reporting stays
+            accurate.
           </p>
         }
         columns={[
@@ -206,7 +207,12 @@ export default function PlacementsTableClient({ placements }: { placements: Plac
           { key: 'employer', header: header('Employer', 'employer'), cell: (r) => r.employerName },
           { key: 'role', header: header('Role', 'role'), cell: (r) => r.jobTitle },
           { key: 'start', header: header('Start date', 'start'), cell: (r) => formatDate(r.startDate) },
-          { key: 'wage', header: header('Wage', 'wage'), cell: (r) => formatSalary(r.salaryOffered) },
+          {
+            key: 'wage',
+            header: header('Wage', 'wage'),
+            align: 'right',
+            cell: (r) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatSalary(r.salaryOffered)}</span>,
+          },
           {
             key: 'status',
             header: header('Status', 'status'),

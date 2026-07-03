@@ -41,6 +41,7 @@ export default function AdminExportForm({ programs, stages }: Props) {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const selectStyle: React.CSSProperties = {
     padding: '0.625rem 0.75rem',
@@ -84,11 +85,12 @@ export default function AdminExportForm({ programs, stages }: Props) {
 
   async function handleDownload() {
     setDownloading(true);
+    setError(null);
     try {
       const url = buildUrl();
       const res = await fetch(url, { credentials: 'include' });
       if (!res.ok) {
-        alert('Export failed. Please try again.');
+        setError('Export failed. Please try again.');
         return;
       }
       const blob = await res.blob();
@@ -101,6 +103,8 @@ export default function AdminExportForm({ programs, stages }: Props) {
       a.click();
       a.remove();
       URL.revokeObjectURL(a.href);
+    } catch {
+      setError('Network error during export. Please try again.');
     } finally {
       setDownloading(false);
     }
@@ -212,6 +216,11 @@ export default function AdminExportForm({ programs, stages }: Props) {
             Clear Filters
           </button>
         )}
+        {error ? (
+          <p role="alert" style={{ margin: 0, fontSize: '0.85rem', color: 'rgb(153,27,27)' }}>
+            {error}
+          </p>
+        ) : null}
 
         {hasFilters && (
           <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>

@@ -19,8 +19,9 @@ const PREF_LABELS: { key: keyof Prefs; label: string; desc: string }[] = [
 export default function PartnerNotificationPrefs({ initial }: { initial: Prefs }) {
   const [prefs, setPrefs] = useState<Prefs>(initial);
   const [saving, setSaving] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState('');
 
-  const toggle = useCallback(async (key: keyof Prefs) => {
+  const toggle = useCallback(async (key: keyof Prefs, label: string) => {
     const next = !prefs[key];
     setSaving(key);
     try {
@@ -31,9 +32,12 @@ export default function PartnerNotificationPrefs({ initial }: { initial: Prefs }
       });
       if (res.ok) {
         setPrefs((p) => ({ ...p, [key]: next }));
+        setAnnouncement(`${label} notifications turned ${next ? 'on' : 'off'}.`);
+      } else {
+        setAnnouncement(`Could not update ${label} notifications. Please try again.`);
       }
     } catch {
-      // Revert optimistic update is not needed since we only update on success
+      setAnnouncement(`Could not update ${label} notifications. Please try again.`);
     } finally {
       setSaving(null);
     }
@@ -42,6 +46,7 @@ export default function PartnerNotificationPrefs({ initial }: { initial: Prefs }
   return (
     <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1.25rem' }}>
       <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Email notifications</h2>
+      <p aria-live="polite" className="wa-sr-only">{announcement}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {PREF_LABELS.map(({ key, label, desc }) => (
           <label
@@ -68,7 +73,7 @@ export default function PartnerNotificationPrefs({ initial }: { initial: Prefs }
             <input
               type="checkbox"
               checked={prefs[key]}
-              onChange={() => toggle(key)}
+              onChange={() => toggle(key, label)}
               disabled={saving !== null}
               style={{ width: 20, height: 20, accentColor: 'var(--color-accent)', cursor: 'pointer', flexShrink: 0 }}
             />

@@ -1,12 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function EmployerJobPostForm() {
   const [phase, setPhase] = useState<'form' | 'success'>('form');
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  // Move focus to the error banner so screen reader users and keyboard
+  // users notice a failed submit immediately instead of having to hunt
+  // for what went wrong.
+  useEffect(() => {
+    if (status === 'error' && errorMsg) {
+      errorRef.current?.focus();
+    }
+  }, [status, errorMsg]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -88,7 +98,7 @@ export default function EmployerJobPostForm() {
 
   if (phase === 'success') {
     return (
-      <div className="portal-card portal-card--flat" style={{ padding: '2rem', textAlign: 'center' }}>
+      <div className="portal-card portal-card--flat" style={{ padding: '2rem', textAlign: 'center' }} role="status">
         <span
           className="material-symbols-outlined"
           style={{ fontSize: '3rem', color: 'var(--color-accent)', display: 'block', marginBottom: '1rem' }}
@@ -103,18 +113,7 @@ export default function EmployerJobPostForm() {
           Our team reviews new postings before they go live. You can track its status anytime from Job Postings.
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-          <Link
-            href="/employer/jobs"
-            style={{
-              padding: '0.625rem 1.25rem',
-              background: 'var(--color-accent)',
-              color: '#fff',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
-          >
+          <Link href="/employer/jobs" className="btn btn-primary">
             View my jobs
           </Link>
           <button
@@ -133,7 +132,7 @@ export default function EmployerJobPostForm() {
   return (
     <form className="employer-job-form" onSubmit={handleSubmit} noValidate>
       {status === 'error' && errorMsg && (
-        <div className="employer-job-form-error" role="alert">
+        <div className="employer-job-form-error" role="alert" ref={errorRef} tabIndex={-1}>
           {errorMsg}
         </div>
       )}

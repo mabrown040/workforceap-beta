@@ -420,7 +420,10 @@ export default function ApplyResultsClient() {
                 </div>
                 <p className="apply-results-program-card-title">{p.title}</p>
                 <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                  <div>⏱ {p.duration}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">schedule</span>
+                    {p.duration}
+                  </div>
                   <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
                 </div>
               </div>

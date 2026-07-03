@@ -69,6 +69,10 @@ export default async function AdminInterviewReadyPage() {
       <PageHeader
         title="Interview ready"
         subtitle="Members who completed pre-screening. Work the queue before scheduling calls."
+        breadcrumbs={[
+          { label: 'Members', href: '/admin/members' },
+          { label: 'Interview ready' },
+        ]}
       />
       <MembersListNav />
       <AdminInterviewReadyTable rows={tableRows} />

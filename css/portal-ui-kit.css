@@ -175,7 +175,7 @@ textarea.portal-input,
 }
 .admin-jobs-filter-tabs .btn.btn-ghost:hover {
   background: var(--surface-container);
-  border-color: var(--outline);
+  border-color: var(--outline-variant);
 }
 .admin-jobs-filter-tabs .btn.btn-ghost.active {
   background: color-mix(in srgb, var(--color-accent) 14%, transparent);

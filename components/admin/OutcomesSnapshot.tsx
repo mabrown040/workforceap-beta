@@ -44,6 +44,7 @@ function StatCard({
           fontSize: 'clamp(1.5rem, 4vw, 2rem)',
           fontWeight: 700,
           lineHeight: 1,
+          fontVariantNumeric: 'tabular-nums',
           color: suppress ? DANGER : accent ?? 'var(--color-on-surface)',
         }}
       >
@@ -253,7 +254,16 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', padding: '0 0.25rem' }}>
         {loading && (
-          <div style={{ padding: '2rem', textAlign: 'center', color: MUTED }}>Loading outcomes…</div>
+          <div style={{ padding: '2rem', textAlign: 'center' }} aria-busy="true" aria-label="Loading outcomes">
+            <div
+              style={{
+                width: '28px', height: '28px', border: '3px solid var(--outline-variant)',
+                borderTop: '3px solid var(--color-accent)', borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite', margin: '0 auto 0.75rem',
+              }}
+            />
+            <span style={{ color: MUTED, fontSize: '0.875rem' }}>Loading outcomes…</span>
+          </div>
         )}
         {error && (
           <div style={{ padding: '1.25rem', background: 'rgba(220,38,38,0.1)', borderRadius: '0.5rem', color: DANGER }}>
@@ -324,7 +334,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
                         {step.conversionRate}% of prev
                       </span>
                     )}
-                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>
                       {fmtNumber(step.count)}
                     </span>
                   </div>
@@ -419,11 +429,11 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
               <DataTable
                 columns={[
                   { key: 'month', header: 'Month', cell: (c: CohortMonth) => c.monthLabel },
-                  { key: 'applications', header: 'Applications', align: 'right', cell: (c: CohortMonth) => fmtNumber(c.applications) },
-                  { key: 'approved', header: 'Approved', align: 'right', cell: (c: CohortMonth) => fmtNumber(c.approved) },
-                  { key: 'enrolled', header: 'Enrolled', align: 'right', cell: (c: CohortMonth) => fmtNumber(c.enrolled) },
-                  { key: 'certified', header: 'Certified', align: 'right', cell: (c: CohortMonth) => fmtNumber(c.certified) },
-                  { key: 'placed', header: 'Placed', align: 'right', cell: (c: CohortMonth) => fmtNumber(c.placed) },
+                  { key: 'applications', header: 'Applications', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.applications)}</span> },
+                  { key: 'approved', header: 'Approved', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.approved)}</span> },
+                  { key: 'enrolled', header: 'Enrolled', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.enrolled)}</span> },
+                  { key: 'certified', header: 'Certified', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.certified)}</span> },
+                  { key: 'placed', header: 'Placed', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.placed)}</span> },
                 ]}
                 rows={cohorts}
                 rowKey={(c) => c.month}
@@ -444,7 +454,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
                 <div key={step.stage}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem', gap: '0.75rem' }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{step.stage}</span>
-                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>
                       {fmtNumber(step.count)}
                     </span>
                   </div>
@@ -469,7 +479,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
                   <div key={p.programSlug}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem', gap: '0.75rem' }}>
                       <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{p.programSlug}</span>
-                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>
                         {rateSuppressed ? `N=${p.enrolled}` : `${p.placementRate}% placed`}
                       </span>
                     </div>
@@ -542,8 +552,8 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
                 columns={[
                   { key: 'jobTitle', header: 'Job title', cell: (p) => p.jobTitle },
                   { key: 'program', header: 'Program', cell: (p) => p.enrolledProgram ?? '—' },
-                  { key: 'salary', header: 'Salary', align: 'right', cell: (p) => fmtMoney(p.annualSalary) },
-                  { key: 'weeks', header: 'Weeks', align: 'right', cell: (p) => p.weeksFromEnrollmentToPlacement ?? '—' },
+                  { key: 'salary', header: 'Salary', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(p.annualSalary)}</span> },
+                  { key: 'weeks', header: 'Weeks', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.weeksFromEnrollmentToPlacement ?? '—'}</span> },
                   { key: 'placed', header: 'Placed', cell: (p) => new Date(p.placedAt).toLocaleDateString('en-US') },
                 ]}
                 rows={placements.slice(0, 50)}
@@ -589,7 +599,7 @@ function DemographicTable({ title, rows }: { title: string; rows: Array<{ label:
           <div key={r.label}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem', fontSize: '0.85rem' }}>
               <span style={{ color: 'var(--color-on-surface)' }}>{r.label}</span>
-              <span style={{ fontWeight: 700, color: ACCENT }}>{fmtNumber(r.count)}</span>
+              <span style={{ fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(r.count)}</span>
             </div>
             <Bar pct={(r.count / max) * 100} color={ACCENT} />
           </div>

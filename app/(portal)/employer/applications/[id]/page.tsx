@@ -100,18 +100,18 @@ export default async function EmployerApplicationPage({
             marginBottom: '0.5rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
             arrow_back
           </span>
           Back to jobs
         </Link>
 
-        <h2
+        <h1
           className="wa-text-2xl wa-font-extrabold wa-tracking-tight"
           style={{ color: 'var(--color-on-surface)', lineHeight: 1.2 }}
         >
           {application.student.fullName}
-        </h2>
+        </h1>
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
           Applying for: <strong style={{ color: 'var(--color-on-surface)' }}>{application.job.title}</strong>
         </p>

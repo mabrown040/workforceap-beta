@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import DataTable from '@/components/portal/ui/DataTable';
 
@@ -29,6 +30,7 @@ function mailtoSchedule(email: string, name: string) {
 }
 
 export default function AdminInterviewReadyTable({ rows }: { rows: InterviewReadyRow[] }) {
+  const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
 
@@ -43,7 +45,7 @@ export default function AdminInterviewReadyTable({ rows }: { rows: InterviewRead
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed');
-      window.location.reload();
+      router.refresh();
     } catch (e) {
       setMsg(e instanceof Error ? e.message : 'Failed');
     } finally {
@@ -81,7 +83,14 @@ export default function AdminInterviewReadyTable({ rows }: { rows: InterviewRead
                 </>
               ),
             },
-            { key: 'score', header: 'Assessment %', cell: (r) => r.assessmentScorePct ?? '—' },
+            {
+              key: 'score',
+              header: 'Assessment %',
+              align: 'right',
+              cell: (r) => (
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{r.assessmentScorePct ?? '—'}</span>
+              ),
+            },
             {
               key: 'prescreen',
               header: 'Pre-screening',

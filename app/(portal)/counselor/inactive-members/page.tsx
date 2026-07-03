@@ -101,10 +101,15 @@ export default function InactiveMembersPage() {
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
+  // Colors match the CRITICAL/HIGH/MEDIUM risk-tier palette used by the
+  // at-risk dashboard and member 360 view (accent = critical, gold = high,
+  // blue = medium) — `--color-error`/`--color-orange`/`--color-yellow` are
+  // not defined anywhere in the counselor portal's stylesheet, so they were
+  // rendering with no color at all.
   const severity = (daysInactive: number) => {
-    if (daysInactive >= 30) return { color: 'var(--color-error)', label: t('critical') };
-    if (daysInactive >= 14) return { color: 'var(--color-orange)', label: t('warning') };
-    return { color: 'var(--color-yellow)', label: t('atRiskShort') };
+    if (daysInactive >= 30) return { color: 'var(--color-accent)', label: t('critical') };
+    if (daysInactive >= 14) return { color: 'var(--color-gold)', label: t('warning') };
+    return { color: 'var(--color-blue)', label: t('atRiskShort') };
   };
 
   return (
@@ -149,13 +154,13 @@ export default function InactiveMembersPage() {
       {loading ? <PortalListSkeleton label={t('loadingMemberList')} /> : null}
 
       {error ? (
-        <div role="alert" style={{ color: 'var(--color-error)', padding: '1rem', textAlign: 'center', fontWeight: 600 }}>
+        <div role="alert" style={{ color: 'var(--color-error, #dc2626)', padding: '1rem', textAlign: 'center', fontWeight: 600 }}>
           {error}
         </div>
       ) : null}
 
       {actionError ? (
-        <div role="alert" style={{ color: 'var(--color-error)', padding: '0.75rem 1rem', marginBottom: '1rem', background: 'color-mix(in srgb, var(--color-error) 8%, transparent)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
+        <div role="alert" style={{ color: 'var(--color-error, #dc2626)', padding: '0.75rem 1rem', marginBottom: '1rem', background: 'color-mix(in srgb, var(--color-error, #dc2626) 8%, transparent)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
           {actionError}
         </div>
       ) : null}
@@ -226,6 +231,7 @@ export default function InactiveMembersPage() {
                         color: sev.color,
                         fontWeight: 700,
                         fontSize: '0.8rem',
+                        fontVariantNumeric: 'tabular-nums',
                       }}
                     >
                       {m.daysInactive} {t('days')}

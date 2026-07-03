@@ -97,7 +97,7 @@ function SortHeader({
       aria-label={`Sort by ${label}${active ? (dir === 'asc' ? ', ascending' : ', descending') : ''}`}
     >
       {label}
-      <span style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
+      <span aria-hidden="true" style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
         {active ? (dir === 'asc' ? '▲' : '▼') : '▲'}
       </span>
     </button>
@@ -196,7 +196,10 @@ export default function JobsTableClient({
               key: 'apps',
               header: header('Applications', 'apps'),
               columnClassName: 'admin-jobs-col-apps',
-              cell: (j) => j._count?.applications ?? 0,
+              align: 'right',
+              cell: (j) => (
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{j._count?.applications ?? 0}</span>
+              ),
             },
             {
               key: 'age',

@@ -145,7 +145,9 @@ export default function RecordPlacementPage() {
         <div className="portal-card__body">
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <span style={{ fontWeight: 600 }}>Member *</span>
+              <label htmlFor="placement-member-search" style={{ fontWeight: 600, display: 'block' }}>
+                Member *
+              </label>
               {selectedMember ? (
                 <div
                   style={{
@@ -313,7 +315,11 @@ export default function RecordPlacementPage() {
                 onChange={(e) => setNotes(e.target.value)}
               />
             </label>
-            {error && <p style={{ color: 'var(--color-error)', margin: 0 }}>{error}</p>}
+            {error && (
+              <p role="alert" style={{ color: 'var(--color-error)', margin: 0 }}>
+                {error}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <button type="submit" disabled={loading} className="btn btn-primary">
                 {loading ? 'Saving…' : 'Save Placement'}

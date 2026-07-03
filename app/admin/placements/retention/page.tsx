@@ -106,28 +106,28 @@ export default async function RetentionDecisionsQueuePage() {
       header: 'Member',
       cell: (r) =>
         r.user ? (
-          <Link href={`/admin/members/${r.user.id}#placed-outcome`} className="font-medium text-blue-700 hover:underline">
+          <Link href={`/admin/members/${r.user.id}#placed-outcome`} className="wa-font-medium wa-text-blue-700 hover:wa-underline">
             {r.user.fullName?.trim() || r.user.email}
           </Link>
         ) : (
-          <span className="text-gray-500">Unknown member</span>
+          <span className="wa-text-gray-500">Unknown member</span>
         ),
     },
     {
       key: 'employer',
       header: 'Employer',
-      cell: (r) => <span className="text-gray-600">{r.employerName || '—'}</span>,
+      cell: (r) => <span className="wa-text-gray-600">{r.employerName || '—'}</span>,
     },
     {
       key: 'jobTitle',
       header: 'Job title',
-      cell: (r) => <span className="text-gray-600">{r.jobTitle || '—'}</span>,
+      cell: (r) => <span className="wa-text-gray-600">{r.jobTitle || '—'}</span>,
       hideOnMobile: true,
     },
     {
       key: 'placedAt',
       header: 'Placed',
-      cell: (r) => <span className="text-gray-500 text-xs">{formatDate(r.placedAt)}</span>,
+      cell: (r) => <span className="wa-text-gray-500 wa-text-xs">{formatDate(r.placedAt)}</span>,
       hideOnMobile: true,
     },
     {
@@ -138,7 +138,10 @@ export default async function RetentionDecisionsQueuePage() {
         const days = daysSince(r.placedAt, now);
         const bucket = days >= ONE_EIGHTY_DAY_WINDOW_START_DAYS ? '180-day' : '90-day';
         return (
-          <span className={days >= ONE_EIGHTY_DAY_WINDOW_START_DAYS ? 'text-red-600 font-medium' : 'text-amber-600 font-medium'}>
+          <span
+            className={days >= ONE_EIGHTY_DAY_WINDOW_START_DAYS ? 'wa-text-red-600 wa-font-medium' : 'wa-text-amber-600 wa-font-medium'}
+            style={{ fontVariantNumeric: 'tabular-nums' }}
+          >
             {days} ({bucket})
           </span>
         );
@@ -150,9 +153,9 @@ export default async function RetentionDecisionsQueuePage() {
       align: 'center',
       cell: (r) => {
         const signal = latestStillEmployed.has(r.id) ? latestStillEmployed.get(r.id) : undefined;
-        if (signal === true) return <span className="text-green-600 font-medium">Employed</span>;
-        if (signal === false) return <span className="text-red-600">Not employed</span>;
-        return <span className="text-gray-400">No survey</span>;
+        if (signal === true) return <span className="wa-text-green-600 wa-font-medium">Employed</span>;
+        if (signal === false) return <span className="wa-text-red-600">Not employed</span>;
+        return <span className="wa-text-gray-400">No survey</span>;
       },
     },
     {
@@ -181,15 +184,15 @@ export default async function RetentionDecisionsQueuePage() {
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      <div className="wa-grid wa-grid-cols-2 md:wa-grid-cols-3 wa-gap-4 wa-mb-8">
         <StatCard label="Due for 90-day decision" value={due90} hint="80–169 days since placement" />
         <StatCard label="Due for 180-day decision" value={due180} hint="170+ days since placement" />
         <StatCard label="Total undecided" value={totalUndecided} hint="Across all placements, any age" />
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">Placements awaiting a decision</h2>
+      <div className="wa-bg-white wa-rounded-lg wa-shadow wa-overflow-hidden">
+        <div className="wa-px-6 wa-py-4 wa-border-b">
+          <h2 className="wa-text-lg wa-font-semibold">Placements awaiting a decision</h2>
         </div>
         <DataTable<RetentionQueueRow>
           columns={columns}
@@ -198,7 +201,7 @@ export default async function RetentionDecisionsQueuePage() {
           variant="admin"
           tableClassName="admin-table"
           emptyState={
-            <div className="px-6 py-12 text-center text-gray-500">
+            <div className="wa-px-6 wa-py-12 wa-text-center wa-text-gray-500">
               Nothing due right now — every placement past its onboarding window has a recorded decision.
             </div>
           }
@@ -210,10 +213,12 @@ export default async function RetentionDecisionsQueuePage() {
 
 function StatCard({ label, value, hint }: { label: string; value: number; hint: string }) {
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <div className="text-xs font-medium uppercase text-gray-500 mb-2">{label}</div>
-      <div className="text-2xl font-bold">{value.toLocaleString()}</div>
-      <div className="text-xs text-gray-400 mt-1">{hint}</div>
+    <div className="wa-bg-white wa-rounded-lg wa-shadow wa-p-4">
+      <div className="wa-text-xs wa-font-medium wa-uppercase wa-text-gray-500 wa-mb-2">{label}</div>
+      <div className="wa-text-2xl wa-font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {value.toLocaleString()}
+      </div>
+      <div className="wa-text-xs wa-text-gray-400 wa-mt-1">{hint}</div>
     </div>
   );
 }

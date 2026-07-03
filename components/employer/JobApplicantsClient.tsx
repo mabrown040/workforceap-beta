@@ -64,7 +64,7 @@ export default function JobApplicantsClient({
   if (applicants.length === 0) {
     return (
       <div className="portal-card portal-card--flat" style={{ padding: '2rem', textAlign: 'center' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">
           inbox
         </span>
         <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
@@ -130,6 +130,7 @@ export default function JobApplicantsClient({
                   className="employer-app-status-select"
                   value={app.status}
                   disabled={busyId === app.id}
+                  aria-label={`Update application status for ${studentName}`}
                   onChange={(e) => patchStatus(app.id, e.target.value as JobPostingApplicationStatus)}
                   style={{ fontSize: '0.75rem', padding: '0.375rem 0.5rem' }}
                 >
@@ -206,7 +207,7 @@ export default function JobApplicantsClient({
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                       {new Date(app.appliedAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '0.875rem 1rem' }}>
@@ -214,6 +215,7 @@ export default function JobApplicantsClient({
                         className="employer-app-status-select"
                         value={app.status}
                         disabled={busyId === app.id}
+                        aria-label={`Update application status for ${studentName}`}
                         onChange={(e) => patchStatus(app.id, e.target.value as JobPostingApplicationStatus)}
                       >
                         {STATUSES.map((s) => (

@@ -606,7 +606,7 @@ export default async function AdminCourseraPage({
           }}
         >
           <div style={{ display: 'grid', gap: '0.55rem' }}>
-            <strong style={{ fontSize: '1.05rem', color: 'rgb(185, 28, 28)' }}>
+            <strong style={{ fontSize: '1.05rem', color: 'rgb(220, 38, 38)' }}>
               Unmatched Coursera actor emails: {unmatchedActorAlerts.distinctUnmatchedActorEmails} distinct inbox
               {unmatchedActorAlerts.distinctUnmatchedActorEmails === 1 ? '' : 'es'} in xAPI events
             </strong>
@@ -882,13 +882,17 @@ export default async function AdminCourseraPage({
                     key: 'progress',
                     header: 'Progress',
                     align: 'right',
-                    cell: (learner) => `${learner.overallProgress.toFixed(2)}%`,
+                    cell: (learner) => (
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.overallProgress.toFixed(2)}%</span>
+                    ),
                   },
                   {
                     key: 'hours',
                     header: 'Hours',
                     align: 'right',
-                    cell: (learner) => learner.learningHours.toFixed(2),
+                    cell: (learner) => (
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.learningHours.toFixed(2)}</span>
+                    ),
                   },
                   {
                     key: 'last',
@@ -972,7 +976,7 @@ export default async function AdminCourseraPage({
                     key: 'pct',
                     header: 'Progress',
                     align: 'right',
-                    cell: (row) => `${row.percentComplete}%`,
+                    cell: (row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.percentComplete}%</span>,
                   },
                   {
                     key: 'status',
@@ -1153,13 +1157,19 @@ export default async function AdminCourseraPage({
                     key: 'progress',
                     header: 'Progress',
                     align: 'right',
-                    cell: (learner) => `${learner.progressPercent.toFixed(2)}%`,
+                    cell: (learner) => (
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{learner.progressPercent.toFixed(2)}%</span>
+                    ),
                   },
                   {
                     key: 'courses',
                     header: 'Courses done',
                     align: 'right',
-                    cell: (learner) => `${learner.coursesCompleted}/${learner.numberOfCourses}`,
+                    cell: (learner) => (
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {learner.coursesCompleted}/{learner.numberOfCourses}
+                      </span>
+                    ),
                   },
                   {
                     key: 'current',
@@ -1246,7 +1256,7 @@ export default async function AdminCourseraPage({
               flexWrap: 'wrap',
             }}
           >
-            <span style={{ color: 'rgb(146, 90, 0)' }}>
+            <span style={{ color: 'rgb(217, 119, 6)' }}>
               <strong>Showing all rows including test accounts.</strong> The list normally hides
               <code style={{ marginLeft: '0.25rem' }}>test*</code>, <code>force-*</code>,{' '}
               <code>noreply*</code>, and <code>@example.com</code> traffic.

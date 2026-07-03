@@ -137,7 +137,7 @@ export default function CourseraSelfTest() {
       </div>
 
       {error && (
-        <div style={{ ...cardStyle, borderColor: 'var(--error)', color: 'var(--error)' }}>
+        <div role="alert" style={{ ...cardStyle, borderColor: 'var(--error)', color: 'var(--error)' }}>
           <strong>Error:</strong> {error}
         </div>
       )}
@@ -252,7 +252,10 @@ export default function CourseraSelfTest() {
                         {badge.text}
                       </span>
                       <span style={{ flex: 1 }}>{ep.label}</span>
-                      <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', maxWidth: '40%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span
+                        title={ep.payloadPreview || ep.message || undefined}
+                        style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', maxWidth: '40%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      >
                         {ep.payloadPreview || ep.message || ''}
                       </span>
                     </div>
@@ -286,7 +289,10 @@ export default function CourseraSelfTest() {
                         {p.ok ? 'OK' : 'FAIL'}
                       </span>
                       <span style={{ minWidth: '12rem' }}>{p.method}</span>
-                      <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <span
+                        title={p.preview || p.detail}
+                        style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
                         {p.preview || p.detail}
                       </span>
                     </div>

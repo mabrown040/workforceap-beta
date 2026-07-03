@@ -100,7 +100,7 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
   if (matches.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">account_tree</span>
         <p style={{ fontWeight: 700, fontSize: '1.125rem', color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>No pipeline yet</p>
         <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job and AI will match qualified candidates from the WorkforceAP member pool.</p>
         <Link href="/employer/jobs/new" className="btn btn-primary">Post a Job</Link>
@@ -135,7 +135,7 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
             >
               {/* Column header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: col.color, fontVariationSettings: "'FILL' 1" }}>{col.icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: col.color, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{col.icon}</span>
                 <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)' }}>{col.label}</span>
                 <span style={{ marginLeft: 'auto', fontSize: '0.75rem', fontWeight: 800, color: col.color, background: `color-mix(in srgb, ${col.color} 12%, transparent)`, padding: '0.1rem 0.4rem', borderRadius: '9999px' }}>
                   {colMatches.length}
@@ -195,7 +195,7 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
                 })}
                 {colMatches.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem', opacity: 0.4 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }}>drag_indicator</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">drag_indicator</span>
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>Drop here</p>
                   </div>
                 )}

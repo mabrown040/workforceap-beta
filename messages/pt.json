@@ -747,6 +747,7 @@
     "accountShowPassword": "Mostrar senha",
     "accountHidePassword": "Ocultar senha",
     "accountTurnstileExpiredHint": "A verificação de segurança expirou — ela será atualizada automaticamente.",
+    "accountTurnstileErrorHint": "Não foi possível carregar a verificação de segurança. Atualize a página e tente novamente. Se o problema persistir, ligue para (512) 777-1808.",
     "accountConsentLegend": "Consentimento",
     "accountContactConsent": "Concordo em ser contatado",
     "accountContactConsentRest": "pelo WorkforceAP sobre minha candidatura por e-mail ou telefone. *",
@@ -873,7 +874,23 @@
     "createAccountFormKicker": "Apenas nome, e-mail, telefone e senha",
     "resultsTransitionSummary": "Como funciona a classificação dos programas",
     "shareLink": "Copiar link compartilhável",
-    "shareLinkCopied": "Link copiado!"
+    "shareLinkCopied": "Link copiado!",
+    "accountProgressLabel": "Etapa 3 de 3 — garanta sua vaga e crie seu login",
+    "accountCaptchaRequired": "Conclua a verificação de segurança antes de continuar.",
+    "ariaApplicationSteps": "Etapas da inscrição",
+    "ariaApplicationForm": "Formulário de inscrição",
+    "ariaProgramInformation": "Informações do programa",
+    "ariaEligibilityForm": "Formulário de inscrição de elegibilidade",
+    "ariaQuickAction": "Ação rápida",
+    "shareButtonCopyLink": "Copiar link",
+    "shareButtonCopied": "Copiado!",
+    "shareButtonEmail": "E-mail",
+    "shareButtonSms": "SMS",
+    "shareButtonEmailAria": "Compartilhar por e-mail",
+    "shareButtonSmsAria": "Compartilhar por SMS",
+    "shareButtonEmailSubject": "Treinamento profissional sem custo para os membros",
+    "shareButtonEmailBody": "Conheça a WorkforceAP:",
+    "shareButtonSmsBody": "Conheça o treinamento profissional da WorkforceAP, sem custo para os membros:"
   },
   "training": {
     "myTraining": "Meu Treinamento",
@@ -1088,6 +1105,7 @@
     "workQueueLoadErrorDesc": "Algo deu errado ao buscar a fila. Tente atualizar a página.",
     "retry": "Tentar novamente",
     "workQueueEmptyDesc": "Nenhum membro está aguardando uma resposta há mais de 24 horas. Bom trabalho.",
+    "emptyMessagePreview": "(sem conteúdo de mensagem)",
     "backToDashboard": "Voltar ao painel",
     "workQueueMembersAwaiting": "{count} membro{count, plural, =1 {} other {s}} aguardando resposta",
     "inactiveMembersTitle": "Membros inativos",
@@ -2301,6 +2319,9 @@
     "companyProfile": "Perfil da empresa",
     "whatYouCanDoNow": "O que você pode fazer agora",
     "billingMetaTitle": "Faturamento",
+    "exportCsv": "Exportar CSV",
+    "billingFreeIntro": "As contas de empregador começam gratuitas. As ferramentas de contratação e as opções de parceria são discutidas com a nossa equipe.",
+    "tierPartnershipNote": "Fale conosco sobre opções de parceria",
     "billingMetaDesc": "Gerencie sua assinatura e faturamento.",
     "billing": "Faturamento",
     "manageSubscription": "Gerencie sua assinatura, uso e upgrades.",
@@ -2398,7 +2419,11 @@
       "registerOrganization": "Register your organization",
       "staffAccountNotWorking": "Staff account not working?",
       "contactSupport": "Contact support",
-      "mobileTrustBar": "✓ Sem custo para membros · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808"
+      "mobileTrustBar": "✓ Sem custo para membros · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808",
+      "emailRequired": "Digite seu endereço de e-mail.",
+      "passwordRequired": "Digite sua senha.",
+      "genericError": "Não foi possível fazer login agora. Tente novamente em instantes.",
+      "networkError": "Não foi possível conectar. Verifique sua conexão e tente novamente."
     },
     "signup": {
       "heading": "Create an account",
@@ -2434,7 +2459,12 @@
       "veteranStatus": "Veteran Status",
       "agreeToThe": "I agree to the",
       "and": "and",
-      "commsConsent": "I agree to receive program updates and communications via email"
+      "commsConsent": "I agree to receive program updates and communications via email",
+      "captchaRequired": "Conclua a verificação de segurança antes de continuar.",
+      "genericError": "Algo deu errado. Tente novamente.",
+      "networkError": "Erro de rede. Tente novamente.",
+      "termsOfService": "Termos de Serviço",
+      "privacyPolicy": "Política de Privacidade"
     },
     "accountDeletedNotice": "Esta conta foi excluída. Se você acredita que isso é um engano, fale conosco em info@workforceap.org ou (512) 777-1808.",
     "emailVerifiedNotice": "E-mail verificado — você já pode entrar."

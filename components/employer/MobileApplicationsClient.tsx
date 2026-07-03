@@ -157,7 +157,7 @@ export default function MobileApplicationsClient({
       {/* Applicant cards */}
       <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {visible.length === 0 ? (
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
+          <div style={{ background: 'var(--color-white)', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }} aria-hidden="true">inbox</span>
             <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
           </div>
@@ -173,7 +173,7 @@ export default function MobileApplicationsClient({
             return (
               <div
                 key={app.id}
-                style={{ borderRadius: '0.75rem', overflow: 'hidden', background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
+                style={{ borderRadius: '0.75rem', overflow: 'hidden', background: 'var(--color-white)', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
               >
                 {/* Card header — tap to expand */}
                 <button type="button"
@@ -245,7 +245,7 @@ export default function MobileApplicationsClient({
                           color: 'var(--color-accent)',
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">forum</span>
                         {isChatLoading ? 'Loading…' : isChatOpen ? 'Close messages' : 'Message applicant'}
                       </button>
 
@@ -277,7 +277,7 @@ export default function MobileApplicationsClient({
                     )}
 
                     {isChatOpen && chatMessages[app.id] && (
-                      <div style={{ marginTop: '1rem', border: '1px solid #ebe7e7', borderRadius: '0.875rem', overflow: 'hidden', background: '#fff', minHeight: '24rem' }}>
+                      <div style={{ marginTop: '1rem', border: '1px solid var(--outline-variant)', borderRadius: '0.875rem', overflow: 'hidden', background: 'var(--color-white)', minHeight: '24rem' }}>
                         <EmployerApplicationChatClient
                           applicationId={app.id}
                           studentName={studentName}

@@ -18,6 +18,7 @@ const TONE_C: Record<KitTone, string> = {
   ok: 'var(--wa-success)',
   warn: 'var(--wa-gold)',
   alert: 'var(--wa-accent)',
+  danger: 'var(--wa-danger)',
   info: 'var(--wa-info)',
   muted: 'var(--wa-muted)',
 };

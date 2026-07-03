@@ -141,7 +141,7 @@ function SortHeader({
       aria-label={`Sort by ${label}${active ? (dir === 'asc' ? ', ascending' : ', descending') : ''}`}
     >
       {label}
-      <span style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
+      <span aria-hidden="true" style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
         {active ? (dir === 'asc' ? '▲' : '▼') : '▲'}
       </span>
     </button>
@@ -264,7 +264,12 @@ export default function EmployersTableClient({
     {
       key: 'jobs',
       header: header('Jobs', 'jobs'),
-      cell: (e) => <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>,
+      align: 'right',
+      cell: (e) => (
+        <span style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontVariantNumeric: 'tabular-nums' }}>
+          {e._count.jobs}
+        </span>
+      ),
     },
     {
       key: 'lastActive',

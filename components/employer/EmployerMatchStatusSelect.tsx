@@ -68,7 +68,7 @@ export default function EmployerMatchStatusSelect({
               marginTop: '0.5rem',
               padding: '0.4rem 0.5rem',
               borderRadius: '0.375rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
               fontSize: '0.75rem',
               fontWeight: 600,
             }

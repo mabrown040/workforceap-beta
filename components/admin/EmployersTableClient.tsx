@@ -17,9 +17,28 @@ export type EmployerTableRow = {
   tier: string;
   placementAgreementSigned: boolean;
   hiringPipelineActive: boolean;
-  user: { email: string; fullName: string | null };
+  user: { email: string; fullName: string | null; lastLoginAt: string | Date | null };
   _count: { jobs: number };
 };
+
+/** Whole days since an ISO/Date timestamp, or null if missing (never logged in). */
+function daysSinceLogin(lastLoginAt: string | Date | null): number | null {
+  if (!lastLoginAt) return null;
+  return Math.max(0, Math.floor((Date.now() - new Date(lastLoginAt).getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/** Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never logged in. */
+function lastActiveBadgeStyle(days: number | null): { background: string; color: string } {
+  if (days === null) return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
+  if (days < 30) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
+  if (days <= 90) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
+  return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
+}
+
+function lastActiveLabel(days: number | null): string {
+  if (days === null) return 'Never';
+  return `${days}d ago`;
+}
 
 function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
   label: string;
@@ -54,7 +73,7 @@ function statusLabel(status: string) {
   return 'Inactive';
 }
 
-type SortKey = 'company' | 'contact' | 'status' | 'jobs' | 'tier' | 'partnership';
+type SortKey = 'company' | 'contact' | 'status' | 'jobs' | 'tier' | 'partnership' | 'lastActive';
 type SortDir = 'asc' | 'desc';
 
 // Ascending status sort surfaces work to do first: pending → active → inactive.
@@ -79,6 +98,12 @@ function compareEmployers(a: EmployerTableRow, b: EmployerTableRow, key: SortKey
       return a.tier.localeCompare(b.tier);
     case 'partnership':
       return partnershipRank(a) - partnershipRank(b);
+    case 'lastActive': {
+      // Never-logged-in employers rank as maximally stale (Infinity days).
+      const aDays = daysSinceLogin(a.user.lastLoginAt) ?? Infinity;
+      const bDays = daysSinceLogin(b.user.lastLoginAt) ?? Infinity;
+      return aDays - bDays;
+    }
     default:
       return 0;
   }
@@ -240,6 +265,29 @@ export default function EmployersTableClient({
       key: 'jobs',
       header: header('Jobs', 'jobs'),
       cell: (e) => <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>,
+    },
+    {
+      key: 'lastActive',
+      header: header('Last Active', 'lastActive'),
+      cell: (e) => {
+        const days = daysSinceLogin(e.user.lastLoginAt);
+        const style = lastActiveBadgeStyle(days);
+        return (
+          <span
+            style={{
+              padding: '0.2rem 0.5rem',
+              borderRadius: '999px',
+              fontSize: '0.75rem',
+              background: style.background,
+              color: style.color,
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {lastActiveLabel(days)}
+          </span>
+        );
+      },
     },
     {
       key: 'tier',

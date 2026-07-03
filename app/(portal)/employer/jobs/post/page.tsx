@@ -10,7 +10,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 import EmployerJobPostForm from '@/components/employer/EmployerJobPostForm';
-import { EMPLOYER_TIERS } from '@/lib/stripe/client';
+import { EMPLOYER_TIERS, EMPLOYER_PRICING_ENFORCED } from '@/lib/stripe/client';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -44,7 +44,10 @@ export default async function EmployerJobPostPage() {
     },
   });
 
-  const atLimit = jobLimit !== Infinity && activeJobCount >= jobLimit;
+  // Pricing is future-state (CEO directive) — no employer hits a job-limit
+  // paywall today. EMPLOYER_PRICING_ENFORCED is the single switch that
+  // restores this gate later without deleting the tier/limit logic.
+  const atLimit = EMPLOYER_PRICING_ENFORCED && jobLimit !== Infinity && activeJobCount >= jobLimit;
 
   return (
     <PortalPageFrame>

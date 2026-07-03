@@ -41,6 +41,18 @@ function getJobStatusPillClass(status: string): string {
   return 'admin-job-status-pill';
 }
 
+/** Whole days between `date` and now — used for the pending-review SLA badge. */
+function daysSince(date: Date): number {
+  return Math.max(0, Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/** Green < 3 days, amber 3-7, red 7+ — matches the dormant-employer thresholds elsewhere in admin. */
+function pendingAgeBadgeStyle(days: number): { background: string; color: string } {
+  if (days < 3) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
+  if (days <= 7) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
+  return { background: 'rgba(220,38,38,0.12)', color: '#b91c1c' };
+}
+
 /** Cap the lean board so first paint stays cheap. */
 const BOARD_LIMIT = 50;
 
@@ -183,11 +195,18 @@ async function renderLegacy({
   const countByStatus: Record<string, number> = {};
   let tabs: any[] = [];
 
+  // Pending jobs are a review-SLA queue: oldest submission first so nothing
+  // silently ages past the others. Every other filter keeps the existing
+  // most-recently-touched-first order. updatedAt is the closest proxy for
+  // "submitted" — the employer PATCH that flips draft/closed → pending is
+  // what bumps it, and pending jobs are rarely edited again before review.
+  const jobsOrderBy = currentFilter === 'pending' ? { updatedAt: 'asc' as const } : { updatedAt: 'desc' as const };
+
   try {
     [jobs, totalCount] = await Promise.all([
       prisma.job.findMany({
         where,
-        orderBy: { updatedAt: 'desc' },
+        orderBy: jobsOrderBy,
         skip: (currentPage - 1) * pageSize,
         take: pageSize,
         include: {
@@ -278,9 +297,25 @@ async function renderLegacy({
                   {job.employer?.companyName ?? 'Unknown company'}
                 </p>
               </div>
-              <span className={getJobStatusPillClass(job.status)}>
-                {STATUS_LABELS[job.status] ?? job.status}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.35rem' }}>
+                <span className={getJobStatusPillClass(job.status)}>
+                  {STATUS_LABELS[job.status] ?? job.status}
+                </span>
+                {job.status === 'pending' && (
+                  <span
+                    style={{
+                      ...pendingAgeBadgeStyle(daysSince(job.updatedAt)),
+                      padding: '0.1rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {daysSince(job.updatedAt)}d pending
+                  </span>
+                )}
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>

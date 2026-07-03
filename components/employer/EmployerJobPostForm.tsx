@@ -34,7 +34,11 @@ export default function EmployerJobPostForm() {
       salaryMin,
       salaryMax,
       requirements,
-      status: 'live' as const,
+      // The API requires admin review before a job goes live (mirrors the
+      // guard in the advanced editor's PATCH flow) — submitting 'live'
+      // directly is always rejected with 403. Submit 'pending' so this
+      // quick-post form actually completes instead of dead-ending.
+      status: 'pending' as const,
     };
 
     if (!payload.title) {
@@ -93,10 +97,10 @@ export default function EmployerJobPostForm() {
           check_circle
         </span>
         <h2 style={{ fontWeight: 700, fontSize: '1.25rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
-          Your job is now live
+          Job submitted for review
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-          Candidates can discover your posting. Manage it anytime from Job Postings.
+          Our team reviews new postings before they go live. You can track its status anytime from Job Postings.
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
           <Link
@@ -219,7 +223,7 @@ export default function EmployerJobPostForm() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
         <button type="submit" className="btn btn-primary" disabled={status === 'saving'} aria-busy={status === 'saving'}>
           <span aria-live="polite">
-            {status === 'saving' ? 'Publishing…' : 'Publish job'}
+            {status === 'saving' ? 'Submitting…' : 'Submit for review'}
           </span>
         </button>
         <Link href="/employer/jobs" className="btn btn-outline" style={{ textDecoration: 'none' }}>

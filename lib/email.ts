@@ -35,6 +35,7 @@ import {
   counselorAssignedHtml,
   partnerReferralInviteHtml,
   atRiskDigestHtml,
+  onboardingStallsDigestHtml,
   counselorAtRiskBatchHtml,
   placementSurveyHtml,
   placementSurveyEscalationHtml,
@@ -51,6 +52,9 @@ import {
   memberStuckHtml,
   memberStuckSubject,
   jobAlertDigestHtml,
+  employerPendingApplicantsHtml,
+  adminStaleApplicantsDigestHtml,
+  employerJobExpiryHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -581,6 +585,56 @@ export async function sendAtRiskAlertDigestEmail(params: {
   }
 }
 
+type OnboardingStallNamedMember = { id: string; fullName: string | null; email: string | null };
+
+/** Send weekly onboarding-stall digest to staff (see cron/onboarding-stalls) */
+export async function sendOnboardingStallsDigestEmail(params: {
+  to: string[];
+  interviewCount: number;
+  wioaCount: number;
+  noProgramCount: number;
+  interviewMembers: OnboardingStallNamedMember[];
+  wioaMembers: OnboardingStallNamedMember[];
+  noProgramMembers: OnboardingStallNamedMember[];
+  interviewQueueLink: string;
+  wioaQueueLink: string;
+  membersQueueLink: string;
+  memberAdminBaseUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendOnboardingStallsDigestEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const recipients = Array.from(
+    new Set(params.to.map((email) => email.trim().toLowerCase()).filter(Boolean))
+  );
+  if (recipients.length === 0) {
+    return { ok: false, error: 'No recipients configured' };
+  }
+  const totalStalled = params.interviewCount + params.wioaCount + params.noProgramCount;
+  const html = brandedEmailLayout({
+    title: `${totalStalled} Onboarding Stall${totalStalled === 1 ? '' : 's'} Need Attention`,
+    bodyHtml: onboardingStallsDigestHtml(params),
+    ctaText: 'Open Members',
+    ctaUrl: params.membersQueueLink,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: recipients,
+      subject: sanitizeEmailSubjectLine(
+        `Onboarding Stalls: ${params.interviewCount} interview, ${params.wioaCount} WIOA, ${params.noProgramCount} unassigned`
+      ),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendOnboardingStallsDigestEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /**
  * Send application accepted email to applicant.
  *
@@ -896,13 +950,13 @@ export async function sendCertCelebrationEmail(params: {
   }
 }
 
-/** Send the post-placement survey invite to a member at 30/60/90 days */
+/** Send the post-placement survey invite to a member at 30/60/90/180 days */
 export async function sendPlacementSurveyEmail(params: {
   to: string;
   fullName: string;
   programName: string | null;
   surveyUrl: string;
-  wave?: 'thirty_day' | 'sixty_day' | 'ninety_day';
+  wave?: 'thirty_day' | 'sixty_day' | 'ninety_day' | 'hundred_eighty_day';
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -915,8 +969,10 @@ export async function sendPlacementSurveyEmail(params: {
     wave === 'sixty_day'
       ? '60-day check-in — are you still employed?'
       : wave === 'ninety_day'
-        ? 'Final 90-day check-in — salary confirmation'
-        : "How's the new job going? — quick 3-minute survey";
+        ? '90-day check-in — salary confirmation'
+        : wave === 'hundred_eighty_day'
+          ? 'Final 180-day check-in — salary confirmation'
+          : "How's the new job going? — quick 3-minute survey";
   const html = brandedEmailLayout({
     title: subject,
     bodyHtml: placementSurveyHtml({ firstName: first, programName: params.programName, wave }),
@@ -937,7 +993,7 @@ export async function sendPlacementSurveyEmail(params: {
   }
 }
 
-/** Send escalation alert to counselor when member hasn't responded to 30-day survey after 7 days */
+/** Send escalation alert to counselor when member hasn't responded to a placement survey (any wave) after 7 days */
 export async function sendPlacementSurveyEscalationEmail(params: {
   to: string;
   counselorName: string;
@@ -947,6 +1003,7 @@ export async function sendPlacementSurveyEscalationEmail(params: {
   jobTitle: string;
   daysSincePlacement: number | null;
   surveyUrl: string;
+  wave?: 'thirty_day' | 'sixty_day' | 'ninety_day' | 'hundred_eighty_day';
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1557,6 +1614,97 @@ export async function sendAdminPendingApplicantsEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendAdminPendingApplicantsEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Weekly nudge to an employer: candidates waiting 5+ days on their job posts. */
+export async function sendEmployerPendingApplicantsEmail(params: {
+  to: string;
+  candidateCount: number;
+  jobsAffected: number;
+  oldestWaitingDays: number;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerPendingApplicantsEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `${params.candidateCount} candidate${params.candidateCount === 1 ? '' : 's'} waiting on your job posts`,
+    bodyHtml: employerPendingApplicantsHtml(params),
+    ctaText: 'Review Applicants',
+    ctaUrl: `${SITE_URL}/employer/applications`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`${params.candidateCount} candidate${params.candidateCount === 1 ? '' : 's'} waiting on ${params.jobsAffected} of your job posts`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerPendingApplicantsEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Admin digest of employers with 10+ unreviewed applicants 5+ days old. */
+export async function sendAdminStaleApplicantsDigestEmail(params: {
+  employers: { companyName: string; candidateCount: number }[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendAdminStaleApplicantsDigestEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `${params.employers.length} employers with a stale-applicant backlog`,
+    bodyHtml: adminStaleApplicantsDigestHtml(params),
+    ctaText: 'Review Employers',
+    ctaUrl: `${SITE_URL}/admin/employers`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: sanitizeEmailSubjectLine(`${params.employers.length} employer${params.employers.length === 1 ? '' : 's'} with 10+ stale applicants`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAdminStaleApplicantsDigestEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Notify an employer that N of their live jobs auto-expired and were closed. */
+export async function sendEmployerJobExpiryEmail(params: {
+  to: string;
+  expiredCount: number;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerJobExpiryEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `${params.expiredCount} of your job posts expired`,
+    bodyHtml: employerJobExpiryHtml(params),
+    ctaText: 'Manage Job Posts',
+    ctaUrl: `${SITE_URL}/employer/jobs`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`${params.expiredCount} of your job post${params.expiredCount === 1 ? '' : 's'} expired`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerJobExpiryEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

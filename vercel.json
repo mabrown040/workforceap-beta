@@ -55,6 +55,22 @@
       "schedule": "30 14 * * *"
     },
     {
+      "path": "/api/cron/onboarding-stalls",
+      "schedule": "30 15 * * 2"
+    },
+    {
+      "path": "/api/cron/employer-pending-applicants",
+      "schedule": "0 16 * * 2"
+    },
+    {
+      "path": "/api/cron/job-expiry",
+      "schedule": "45 7 * * *"
+    },
+    {
+      "path": "/api/cron/retention-decisions",
+      "schedule": "30 13 * * 4"
+    },
+    {
       "path": "/api/cron/job-alerts",
       "schedule": "0 9 * * 1"
     },

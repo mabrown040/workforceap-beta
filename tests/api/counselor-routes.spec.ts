@@ -159,6 +159,9 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
 
 vi.mock('@/lib/member/points', () => ({
   getMemberPoints: vi.fn(),
+  // Placement creation awards 'placement_recorded' points (fail-soft) —
+  // the mock must export it or vitest's proxy throws on property access.
+  awardPoints: vi.fn().mockResolvedValue({ awarded: true, points: 500, total: 500, level: 'starter' }),
 }));
 
 vi.mock('@/lib/member/memberProgramTrainingView', () => ({

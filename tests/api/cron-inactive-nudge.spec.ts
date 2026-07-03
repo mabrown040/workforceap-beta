@@ -15,11 +15,22 @@ vi.mock('@/lib/db/prisma', () => ({
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     memberEvent: { groupBy: vi.fn() },
     user: { findMany: vi.fn() },
+    // Shared 7-day nudge cooldown (lib/cron/nudgeThrottle.ts): empty log ⇒
+    // every candidate stays eligible, matching these tests' expectations.
+    memberNudgeLog: {
+      findMany: vi.fn().mockResolvedValue([]),
+      create: vi.fn().mockResolvedValue({}),
+    },
   },
 }));
 
 vi.mock('@/lib/email', () => ({
   sendInactiveNudgeEmail: vi.fn(),
+}));
+
+// Nudges now also fan out in-app/push alongside email — keep it inert here.
+vi.mock('@/lib/notifications/create', () => ({
+  createNotification: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('@/lib/observability/captureApiError', () => ({

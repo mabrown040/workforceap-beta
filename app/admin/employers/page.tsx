@@ -53,6 +53,25 @@ function statusLabel(status: string) {
   return 'Inactive';
 }
 
+/** Whole days since a login timestamp, or null if the employer has never logged in. */
+function daysSinceLogin(lastLoginAt: Date | null): number | null {
+  if (!lastLoginAt) return null;
+  return Math.max(0, Math.floor((Date.now() - lastLoginAt.getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/** Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never logged in. */
+function lastActiveBadgeStyle(days: number | null) {
+  if (days === null) return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
+  if (days < 30) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
+  if (days <= 90) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
+  return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
+}
+
+function lastActiveLabel(days: number | null): string {
+  if (days === null) return 'Never active';
+  return `Active ${days}d ago`;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin - Employers',
@@ -91,7 +110,13 @@ export default async function AdminEmployersPage({
       prisma.employer.findMany({
         take: DIRECTORY_LIMIT,
         orderBy: { companyName: 'asc' },
-        select: { id: true, companyName: true, industry: true, status: true },
+        select: {
+          id: true,
+          companyName: true,
+          industry: true,
+          status: true,
+          user: { select: { lastLoginAt: true } },
+        },
       }),
       prisma.employer.count(),
       prisma.employer.count({ where: { status: 'active' } }),
@@ -154,6 +179,7 @@ export default async function AdminEmployersPage({
       openRoles: openRolesByEmployer.get(e.id) ?? 0,
       hires: hiresByEmployer.get(e.id) ?? 0,
       status: (e.status as EmployerCard['status']) ?? 'inactive',
+      lastLoginAt: e.user.lastLoginAt ? e.user.lastLoginAt.toISOString() : null,
     }));
 
     const totalPartners =
@@ -196,7 +222,7 @@ export default async function AdminEmployersPage({
       where,
       orderBy: { companyName: 'asc' },
       include: {
-        user: { select: { email: true, fullName: true } },
+        user: { select: { email: true, fullName: true, lastLoginAt: true } },
         _count: { select: { jobs: true } },
       },
     }),
@@ -301,13 +327,18 @@ export default async function AdminEmployersPage({
                       <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>
                     </div>
                   </div>
-                  {/* Partnership tier row */}
+                  {/* Partnership tier + last-active row */}
                   {(() => {
                     const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
+                    const days = daysSinceLogin(e.user.lastLoginAt);
+                    const laStyle = lastActiveBadgeStyle(days);
                     return (
-                      <div style={{ paddingTop: '0.375rem' }}>
+                      <div style={{ paddingTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                         <span style={{ padding: '0.15rem 0.45rem', borderRadius: '999px', fontSize: '0.7rem', background: pt.bg, color: pt.color, fontWeight: 600 }}>
                           {pt.label}
+                        </span>
+                        <span style={{ padding: '0.15rem 0.45rem', borderRadius: '999px', fontSize: '0.7rem', background: laStyle.background, color: laStyle.color, fontWeight: 600 }}>
+                          {lastActiveLabel(days)}
                         </span>
                       </div>
                     );

@@ -138,7 +138,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           <>
             <div className="md:wa-hidden">
               <Link
-                href="/employer/jobs/post"
+                href="/employer/jobs/new"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
@@ -162,7 +162,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   {t('importJobsBtn')}
                 </Link>
                 <Link
-                  href="/employer/jobs/post"
+                  href="/employer/jobs/new"
                   style={{
                     padding: '0.625rem 1.5rem',
                     background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark, #670024) 100%)',
@@ -227,7 +227,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{t('noJobsYet')}</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>{t('postFirstRole')}</p>
               <Link
-                href="/employer/jobs/post"
+                href="/employer/jobs/new"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>{t('postAJobBtn')}
@@ -273,7 +273,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 {t('postFirstRole')}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-                <Link href="/employer/jobs/post" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+                <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
                   {t('postYourFirstJob')}
                 </Link>
                 <Link href="/employer/jobs/import" style={{ padding: '0.625rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>

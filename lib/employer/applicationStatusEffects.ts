@@ -73,8 +73,23 @@ export async function notifyAndRecordPlacement(args: {
 
     const employer = await prisma.employer.findUnique({
       where: { id: employerId },
-      select: { companyName: true },
+      select: { companyName: true, userId: true },
     });
+
+    // Congratulate the employer and nudge them toward their next hire. Sits
+    // alongside the placement bookkeeping below inside the same fail-soft
+    // try/catch — a notification hiccup must never fail the employer's
+    // application status update.
+    if (employer?.userId) {
+      void createNotification({
+        userId: employer.userId,
+        type: 'placement',
+        title: 'Great hire! Post your next role',
+        body: `Congratulations on your hire${jobTitle ? ` for ${jobTitle}` : ''}! Ready to fill another position?`,
+        data: { link: '/employer/jobs/new' },
+      });
+    }
+
     const student = await prisma.user.findUnique({
       where: { id: studentId },
       select: { enrolledProgram: true },

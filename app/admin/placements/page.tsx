@@ -81,9 +81,14 @@ export default async function AdminPlacementsPage({
           title="Placements"
           subtitle={`${placements.length.toLocaleString()} recorded placements — ${pendingCount.toLocaleString()} awaiting start-date verification.`}
           action={
-            <Link href="/admin/placements/new" className="btn btn-outline">
-              Record placement
-            </Link>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Link href="/admin/placements/retention" className="btn btn-outline">
+                Retention decisions due
+              </Link>
+              <Link href="/admin/placements/new" className="btn btn-outline">
+                Record placement
+              </Link>
+            </div>
           }
         />
         <PlacementsTableClient placements={placements} />

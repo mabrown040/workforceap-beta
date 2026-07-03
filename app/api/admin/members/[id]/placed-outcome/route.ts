@@ -26,6 +26,8 @@ const bodySchema = z.object({
   startDateVerified: z.boolean().optional(),
   fundingSource: z.string().max(120).optional().nullable(),
   grantReportingNotes: z.string().max(8000).optional().nullable(),
+  // Counselor-recorded 90/180-day retention outcome (funder-payable milestone).
+  retentionDecision: z.enum(['retained', 'not_retained', 'pending']).optional().nullable(),
 });
 
 type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(async (request: NextRequest, { params }: Props) => {
@@ -78,6 +80,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       startDateVerified: d.startDateVerified ?? false,
       fundingSource: d.fundingSource?.trim() || null,
       grantReportingNotes: d.grantReportingNotes?.trim() || null,
+      retentionDecision: d.retentionDecision ?? null,
       onboardingWindowEnd: windowEnd,
     },
     update: {
@@ -92,6 +95,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       startDateVerified: d.startDateVerified ?? false,
       fundingSource: d.fundingSource?.trim() || null,
       grantReportingNotes: d.grantReportingNotes?.trim() || null,
+      retentionDecision: d.retentionDecision ?? null,
       ...(prior?.onboardingWindowEnd ? {} : { onboardingWindowEnd: windowEnd }),
     },
   }));
@@ -116,6 +120,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
             retentionStatus: prior.retentionStatus,
             startDateVerified: prior.startDateVerified,
             fundingSource: prior.fundingSource,
+            retentionDecision: prior.retentionDecision,
           }
         : null,
       after: {
@@ -127,6 +132,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
         retentionStatus: placement.retentionStatus,
         startDateVerified: placement.startDateVerified,
         fundingSource: placement.fundingSource,
+        retentionDecision: placement.retentionDecision,
       },
     },
   });
@@ -185,6 +191,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       startDateVerified: placement.startDateVerified,
       fundingSource: placement.fundingSource,
       grantReportingNotes: placement.grantReportingNotes,
+      retentionDecision: placement.retentionDecision,
     },
   });
 

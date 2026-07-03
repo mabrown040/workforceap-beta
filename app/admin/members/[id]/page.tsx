@@ -219,6 +219,17 @@ export default async function AdminMemberDetailPage({
     notes: true,
     createdAt: true,
     updatedAt: true,
+    // WIOA / grant-reporting fields — needed by AdminMemberPlacedOutcomeForm's
+    // "initial" prop (previously omitted here, so the form always rendered
+    // these as blank/unset even when a value had been saved).
+    programSlug: true,
+    wageAtFollowUp: true,
+    retentionStatus: true,
+    startDateVerified: true,
+    fundingSource: true,
+    grantReportingNotes: true,
+    onboardingWindowEnd: true,
+    retentionDecision: true,
   } as const;
 
   const sharedQueries = () => [
@@ -947,7 +958,7 @@ export default async function AdminMemberDetailPage({
           />
         </section>
 
-        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+        <section id="placed-outcome" style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 className="portal-section-heading">Placement record</h2>
           {pendingPlacementEvents && pendingPlacementEvents.length > 0 && !placedOutcomeRow && (
             <div
@@ -990,8 +1001,13 @@ export default async function AdminMemberDetailPage({
                     startDateVerified: (placedOutcomeRow as { startDateVerified?: boolean }).startDateVerified ?? false,
                     fundingSource: (placedOutcomeRow as { fundingSource?: string | null }).fundingSource ?? null,
                     grantReportingNotes: (placedOutcomeRow as { grantReportingNotes?: string | null }).grantReportingNotes ?? null,
+                    retentionDecision: (placedOutcomeRow as { retentionDecision?: string | null }).retentionDecision ?? null,
                   }
                 : null
+            }
+            pastOnboardingWindow={
+              !!(placedOutcomeRow as { onboardingWindowEnd?: Date | null } | null)?.onboardingWindowEnd &&
+              (placedOutcomeRow as { onboardingWindowEnd?: Date | null }).onboardingWindowEnd! <= new Date()
             }
           />
         </section>

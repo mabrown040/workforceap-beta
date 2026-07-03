@@ -16,6 +16,7 @@ export type PlacedOutcomeInitial = {
   startDateVerified: boolean;
   fundingSource: string | null;
   grantReportingNotes: string | null;
+  retentionDecision: string | null;
 } | null;
 
 const RETENTION_OPTIONS = [
@@ -23,6 +24,17 @@ const RETENTION_OPTIONS = [
   { value: 'retained_90d', label: 'Retained at 90 days' },
   { value: 'retained_180d', label: 'Retained at 180 days' },
   { value: 'separated', label: 'Separated' },
+];
+
+// Counselor-recorded outcome for the funder-payable 90/180-day milestone.
+// Distinct from RETENTION_OPTIONS (a free-text-ish grant-reporting label) —
+// this is the canonical decision that drives the retention queue in
+// app/admin/placements/retention.
+const RETENTION_DECISION_OPTIONS = [
+  { value: '', label: 'Not decided' },
+  { value: 'pending', label: 'Pending — awaiting more info' },
+  { value: 'retained', label: 'Retained' },
+  { value: 'not_retained', label: 'Not retained' },
 ];
 
 const FUNDING_OPTIONS = [
@@ -37,9 +49,17 @@ const FUNDING_OPTIONS = [
 export default function AdminMemberPlacedOutcomeForm({
   memberId,
   initial,
+  pastOnboardingWindow = false,
 }: {
   memberId: string;
   initial: PlacedOutcomeInitial;
+  /**
+   * When true, the placement is already past its onboarding window end
+   * (i.e. a 90/180-day retention decision is due or overdue) — the WIOA
+   * accordion starts expanded instead of collapsed so counselors don't
+   * miss the decision behind a click.
+   */
+  pastOnboardingWindow?: boolean;
 }) {
   const router = useRouter();
 
@@ -63,6 +83,7 @@ export default function AdminMemberPlacedOutcomeForm({
   const [startDateVerified, setStartDateVerified] = useState(initial?.startDateVerified ?? false);
   const [fundingSource, setFundingSource] = useState(initial?.fundingSource ?? '');
   const [grantReportingNotes, setGrantReportingNotes] = useState(initial?.grantReportingNotes ?? '');
+  const [retentionDecision, setRetentionDecision] = useState(initial?.retentionDecision ?? '');
 
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
@@ -107,6 +128,7 @@ export default function AdminMemberPlacedOutcomeForm({
           startDateVerified,
           fundingSource: fundingSource || null,
           grantReportingNotes: grantReportingNotes.trim() || null,
+          retentionDecision: retentionDecision || null,
         }),
       });
       const data = await r.json().catch(() => ({}));
@@ -159,10 +181,12 @@ export default function AdminMemberPlacedOutcomeForm({
         <textarea id="po-notes" className="form-control" style={inputStyle} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={8000} disabled={saving} />
       </div>
 
-      {/* WIOA / grant-reporting fields — collapsible */}
-      <details style={{ marginTop: '0.5rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
+      {/* WIOA / grant-reporting fields — collapsible; auto-expanded once a
+          retention decision is due (past onboardingWindowEnd) so it isn't
+          missed behind a click. */}
+      <details open={pastOnboardingWindow} style={{ marginTop: '0.5rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
         <summary style={{ cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-          Grant reporting (WIOA)
+          Grant reporting (WIOA){pastOnboardingWindow ? ' — retention decision due' : ''}
         </summary>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
@@ -173,6 +197,12 @@ export default function AdminMemberPlacedOutcomeForm({
             <label htmlFor="po-retention">Retention status</label>
             <select id="po-retention" className="form-control" style={inputStyle} value={retentionStatus} onChange={(e) => setRetentionStatus(e.target.value)} disabled={saving}>
               {RETENTION_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="po-retention-decision">Retention decision (90/180-day funder milestone)</label>
+            <select id="po-retention-decision" className="form-control" style={inputStyle} value={retentionDecision} onChange={(e) => setRetentionDecision(e.target.value)} disabled={saving}>
+              {RETENTION_DECISION_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>

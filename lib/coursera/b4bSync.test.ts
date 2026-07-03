@@ -6,6 +6,7 @@ import { CourseProgressStatus } from '@prisma/client';
 import {
   computeCourseProgressUpdate,
   nextEnrollmentReportStart,
+  shouldCheckProgramCompletionAfterSync,
   type B4BProgressInput,
   type ExistingCourseProgress,
 } from './b4bSync';
@@ -180,4 +181,59 @@ test('nextEnrollmentReportStart: advances by what arrived, not by limit', () => 
 test('nextEnrollmentReportStart: stops at total and on empty pages', () => {
   assert.equal(nextEnrollmentReportStart({ start: 400, batchLength: 500, limit: 1000, total: 900 }), null);
   assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 0, limit: 1000, total: undefined }), null);
+});
+
+/**
+ * Unit tests for `shouldCheckProgramCompletionAfterSync` — the gate that
+ * decides which users get the (idempotent but non-free) "did they just
+ * graduate?" check after an org-wide B4B batch sync pass.
+ *
+ * Regression this locks in: the B4B batch sync cron upserts CourseProgress
+ * directly and used to never call `handleProgramCompletion` at all, so a
+ * member whose LAST course completion arrived only via the batch job never
+ * got the job-ready graduation kit. The fix must only run the check for
+ * users where a completion was newly recorded this run for their CURRENT
+ * enrolled program — not for every synced member on every 6h cron tick.
+ */
+
+test('no enrolledProgram on file → false (nothing to check against)', () => {
+  assert.equal(
+    shouldCheckProgramCompletionAfterSync({
+      enrolledProgram: null,
+      newlyCompletedProgramSlugs: ['some-program'],
+    }),
+    false,
+  );
+});
+
+test('newly completed program matches enrolledProgram → true', () => {
+  assert.equal(
+    shouldCheckProgramCompletionAfterSync({
+      enrolledProgram: 'it-support',
+      newlyCompletedProgramSlugs: ['it-support'],
+    }),
+    true,
+  );
+});
+
+test('newly completed program is a DIFFERENT program than enrolledProgram → false', () => {
+  // e.g. secondary CourseEnrollment completed, but that's not the program
+  // the member is currently enrolled in — no graduation kit for that.
+  assert.equal(
+    shouldCheckProgramCompletionAfterSync({
+      enrolledProgram: 'it-support',
+      newlyCompletedProgramSlugs: ['project-management'],
+    }),
+    false,
+  );
+});
+
+test('no newly completed programs this run → false (nothing changed)', () => {
+  assert.equal(
+    shouldCheckProgramCompletionAfterSync({
+      enrolledProgram: 'it-support',
+      newlyCompletedProgramSlugs: [],
+    }),
+    false,
+  );
 });

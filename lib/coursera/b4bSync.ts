@@ -19,6 +19,8 @@ import {
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 import { fetchCourseraWithTransientRetry } from '@/lib/coursera/b4bClient';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -393,6 +395,125 @@ export function computeCourseProgressUpdate(
 }
 
 /* ------------------------------------------------------------------ */
+/*  User.enrolledProgram auto-sync decision (pure, unit-tested)        */
+/* ------------------------------------------------------------------ */
+
+export type EnrolledProgramSyncDecision =
+  | { action: 'none' }
+  | { action: 'set'; programSlug: string }
+  | { action: 'mismatch'; existingEnrolledProgram: string; suggestedProgramSlug: string };
+
+/**
+ * Decide whether `syncUserFromB4B` may write `User.enrolledProgram`.
+ *
+ * AUDIT fix: the sync used to pick the Coursera program group with the most
+ * activity and stamp it onto `User.enrolledProgram` whenever it differed
+ * from what was on file — including when the member already had a non-null
+ * program set (e.g. by a counselor). A member with old Coursera activity in
+ * Program B would get silently flipped back to Program B on the next
+ * passive dashboard render, even after being deliberately re-enrolled in
+ * Program A.
+ *
+ * Rule: auto-sync may only SET `enrolledProgram` when it is currently
+ * `null`. It must never overwrite a non-null value — if the Coursera
+ * signal disagrees with a non-null existing value, that's a `mismatch` for
+ * staff to see (via `recordWorkflowDiagnostic` + an `auditLog` entry in the
+ * caller), not a silent write.
+ */
+export function decideEnrolledProgramSync(args: {
+  existingEnrolledProgram: string | null;
+  chosenProgramSlug: string;
+}): EnrolledProgramSyncDecision {
+  const { existingEnrolledProgram, chosenProgramSlug } = args;
+  if (existingEnrolledProgram === null) {
+    return { action: 'set', programSlug: chosenProgramSlug };
+  }
+  if (existingEnrolledProgram === chosenProgramSlug) {
+    return { action: 'none' };
+  }
+  return {
+    action: 'mismatch',
+    existingEnrolledProgram,
+    suggestedProgramSlug: chosenProgramSlug,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Program-completion ("graduation") gate — pure, unit-tested          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Decide whether the org-wide B4B batch sync should run the (idempotent but
+ * non-free — it does a `courseProgress.findMany` plus, on a real completion,
+ * writes a MemberNextBestAction + notifications) program-completion check
+ * for a given user after this sync pass.
+ *
+ * AUDIT fix: `completeMemberCourse` (member self-report / webhook / xAPI)
+ * already calls `handleProgramCompletion` — the "you're job-ready" moment —
+ * right after a course completion. But the org-wide B4B sync cron upserts
+ * `CourseProgress` directly and never went through that function, so a
+ * member whose FINAL course completion arrived only via the batch sync
+ * never got the graduation kit. `handleProgramCompletion` is idempotent per
+ * (memberId, programSlug) via a MemberEvent guard, so double-firing is
+ * harmless — but this run should only be attempted for users where a
+ * completion was newly recorded against their CURRENT enrolled program in
+ * THIS run, not for every synced member on every 6-hour cron tick.
+ */
+export function shouldCheckProgramCompletionAfterSync(args: {
+  enrolledProgram: string | null;
+  newlyCompletedProgramSlugs: readonly string[];
+}): boolean {
+  if (!args.enrolledProgram) return false;
+  return args.newlyCompletedProgramSlugs.includes(args.enrolledProgram);
+}
+
+/**
+ * Fail-soft "did this user just finish their whole program?" check, called
+ * only for users flagged by `shouldCheckProgramCompletionAfterSync`.
+ *
+ * Dynamically imports `lib/workflows/careerOS` rather than a static import:
+ * that module (via `lib/notifications/create.ts`) pulls in `'server-only'`,
+ * which has no resolution shim under the `node --test` runner this file's
+ * pure helpers are unit-tested with (see the file-level doc-comment). A
+ * dynamic import only resolves when this function actually runs, which
+ * never happens from the unit tests — they only exercise the pure exports.
+ *
+ * Never throws — errors are captured and swallowed so a graduation-kit
+ * hiccup can never fail the batch sync run.
+ */
+async function maybeFireProgramCompletionForUser(args: {
+  userId: string;
+  programSlug: string;
+}): Promise<void> {
+  try {
+    const completedRows = await prisma.courseProgress.findMany({
+      where: {
+        userId: args.userId,
+        programSlug: args.programSlug,
+        status: CourseProgressStatus.COMPLETED,
+      },
+      select: { courseSlug: true },
+    });
+    const isProgramComplete = memberProgramCompleted(
+      args.programSlug,
+      completedRows.map((r) => r.courseSlug),
+    );
+    if (!isProgramComplete) return;
+
+    const program = getProgramBySlug(args.programSlug);
+    if (!program) return;
+
+    const { handleProgramCompletion } = await import('@/lib/workflows/careerOS');
+    await handleProgramCompletion(args.userId, args.programSlug, program.title);
+  } catch (err) {
+    captureApiError(err, {
+      route: 'coursera/b4b-sync',
+      extra: { step: 'program-completion-check', userId: args.userId, programSlug: args.programSlug },
+    });
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main sync                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -457,6 +578,14 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       Array.from(deduped.values()).map((r) => r.contentId),
     );
 
+  // Tracks, per userId, which programSlugs had a NEW completion (transition
+  // into COMPLETED) recorded during THIS run. Feeds the program-completion
+  // ("graduation") check below — see `shouldCheckProgramCompletionAfterSync`.
+  // Only users who show up here get the extra check; this cron runs every
+  // 6h over the whole org, so re-checking everyone unconditionally would be
+  // gratuitous work for the (idempotent, guarded) handleProgramCompletion call.
+  const newlyCompletedProgramSlugsByUser = new Map<string, Set<string>>();
+
   // NOTE: gradebook merging now lives in `syncUserFromB4B` (the single-user
   // path used by dashboard auto-sync + admin "Sync from Coursera"). That path
   // already fetches one learner at a time, so the N gradebook calls collapse
@@ -509,6 +638,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
     }
 
+    let newlyCompletedThisRow = false;
     try {
       // Read-before-write so we never downgrade an xAPI-credited COMPLETED
       // back to IN_PROGRESS, and never lower percentComplete when B4B's
@@ -539,6 +669,10 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           overallProgress: report.overallProgress,
           lastActivityAt: report.lastActivityAt,
         });
+
+        newlyCompletedThisRow =
+          merged.status === CourseProgressStatus.COMPLETED &&
+          existing?.status !== CourseProgressStatus.COMPLETED;
 
         // `completedAt` is set the first time we see COMPLETED. If we've
         // already recorded one we keep it — re-syncs shouldn't re-stamp the
@@ -595,6 +729,12 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       userEntry.courses += 1;
       if (!isKnown) userEntry.unknownCourses += 1;
       result.byUser[email] = userEntry;
+
+      if (newlyCompletedThisRow) {
+        const slugs = newlyCompletedProgramSlugsByUser.get(userId) ?? new Set<string>();
+        slugs.add(programSlug);
+        newlyCompletedProgramSlugsByUser.set(userId, slugs);
+      }
     } catch (err) {
       result.errors += 1;
       const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
@@ -612,6 +752,46 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
   for (const emailKey of Object.keys(result.byUser)) {
     invalidateLearnerProgressCacheForEmail(emailKey);
+  }
+
+  // Graduation-moment gap fix: only for users where this run newly recorded
+  // a completion, check whether it finished their current program and, if
+  // so, fire the same `handleProgramCompletion` workflow `completeMemberCourse`
+  // uses for member self-report / webhook / xAPI completions. Fail-soft and
+  // best-effort — never allowed to fail the sync run.
+  if (newlyCompletedProgramSlugsByUser.size > 0) {
+    try {
+      const candidateUserIds = Array.from(newlyCompletedProgramSlugsByUser.keys());
+      const candidateUsers = await prisma.user.findMany({
+        where: { id: { in: candidateUserIds } },
+        select: { id: true, enrolledProgram: true },
+      });
+      for (const candidate of candidateUsers) {
+        const newlyCompletedSlugs = Array.from(
+          newlyCompletedProgramSlugsByUser.get(candidate.id) ?? [],
+        );
+        if (
+          shouldCheckProgramCompletionAfterSync({
+            enrolledProgram: candidate.enrolledProgram,
+            newlyCompletedProgramSlugs: newlyCompletedSlugs,
+          })
+        ) {
+          await maybeFireProgramCompletionForUser({
+            userId: candidate.id,
+            programSlug: candidate.enrolledProgram!,
+          }).catch(() => {
+            // maybeFireProgramCompletionForUser already fail-softs internally;
+            // this catch is a last-resort guard so a rejection can never
+            // escape and fail the batch sync run.
+          });
+        }
+      }
+    } catch (err) {
+      captureApiError(err, {
+        route: 'coursera/b4b-sync',
+        extra: { step: 'program-completion-check-batch' },
+      });
+    }
   }
 
   return result;

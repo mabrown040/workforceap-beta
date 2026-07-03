@@ -262,25 +262,62 @@ export default async function JobsPage({
         tone: STAGE_META[r.status].tone,
       }));
 
-    // "Recommended for you" reuses the prefetched live board jobs (already
-    // age/exclusion-filtered above). Match % isn't computed on this route, so
-    // we omit it via a neutral label rather than fabricate a score.
-    const recommended = initialJobs.slice(0, 3).map((job) => {
-      const salary =
-        job.salaryMin && job.salaryMax
-          ? `$${Math.round(job.salaryMin / 1000)}k–${Math.round(job.salaryMax / 1000)}k`
-          : null;
-      const meta = [job.employer.companyName, job.location, salary]
-        .filter(Boolean)
-        .join(' · ');
-      return {
-        id: job.id,
-        logo: (job.employer.companyName || '?').slice(0, 2).toUpperCase(),
-        match: 'New',
-        title: job.title,
-        meta,
-      };
-    });
+    // "Recommended for you" — prefer the member's real computed AIJobMatch
+    // scores (already run by the admin/employer match pipeline) over the
+    // generic "newest live jobs" fallback, so the % badge reflects an actual
+    // score instead of a fabricated "New" label.
+    const aiMatches = await prisma.aIJobMatch.findMany({
+      where: {
+        studentId: user!.id,
+        job: {
+          status: 'live',
+          OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }],
+        },
+      },
+      orderBy: { matchScore: 'desc' },
+      take: 3,
+      select: {
+        matchScore: true,
+        matchReasons: true,
+        job: {
+          select: {
+            id: true,
+            title: true,
+            location: true,
+            salaryMin: true,
+            salaryMax: true,
+            employer: { select: { companyName: true } },
+          },
+        },
+      },
+    }).catch(() => []);
+
+    const formatSalary = (min: number | null, max: number | null) =>
+      min && max ? `$${Math.round(min / 1000)}k–${Math.round(max / 1000)}k` : null;
+
+    const recommended = aiMatches.length > 0
+      ? aiMatches.map((m) => ({
+          id: m.job.id,
+          logo: (m.job.employer.companyName || '?').slice(0, 2).toUpperCase(),
+          match: `${m.matchScore}% match`,
+          title: m.job.title,
+          meta: [m.job.employer.companyName, m.job.location, formatSalary(m.job.salaryMin, m.job.salaryMax)]
+            .filter(Boolean)
+            .join(' · '),
+          matchReasons: m.matchReasons,
+        }))
+      : initialJobs.slice(0, 3).map((job) => {
+          const meta = [job.employer.companyName, job.location, formatSalary(job.salaryMin, job.salaryMax)]
+            .filter(Boolean)
+            .join(' · ');
+          return {
+            id: job.id,
+            logo: (job.employer.companyName || '?').slice(0, 2).toUpperCase(),
+            match: 'New',
+            title: job.title,
+            meta,
+          };
+        });
 
     return (
       <MemberJobsKit

@@ -37,6 +37,27 @@ function formatAdminDate(value: string | Date | null | undefined): string {
   return d.toLocaleString();
 }
 
+const JOB_STATUS_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  pending: 'Pending',
+  approved: 'Approved',
+  live: 'Live',
+  filled: 'Filled',
+  closed: 'Closed',
+};
+
+// Same pill classes as the jobs table (JobsTableClient / app/admin/jobs) —
+// keeps status color coding consistent between the queue and the detail page.
+function getJobStatusPillClass(status: string): string {
+  if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
+  if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
+  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
+  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
+  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
+  return 'admin-job-status-pill';
+}
+
 function matchEmailBadgeStyle(status: string | null | undefined): { bg: string; color: string; label: string } {
   switch (status) {
     case 'success':
@@ -198,8 +219,11 @@ export default function AdminJobReview({ job }: { job: Job }) {
         </div>
       )}
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{job.title}</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-        {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status: {job.status}
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <span>
+          {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status:
+        </span>
+        <span className={getJobStatusPillClass(job.status)}>{JOB_STATUS_LABELS[job.status] ?? job.status}</span>
       </p>
 
       {hasProvenance && (

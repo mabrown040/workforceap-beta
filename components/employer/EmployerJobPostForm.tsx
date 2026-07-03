@@ -3,11 +3,24 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
+type FieldErrors = Partial<Record<'title' | 'description' | 'salaryMax', string>>;
+
 export default function EmployerJobPostForm() {
   const [phase, setPhase] = useState<'form' | 'success'>('form');
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const errorRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const clearFieldError = (name: keyof FieldErrors) => {
+    setFieldErrors((prev) => {
+      if (!prev[name]) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+  };
 
   // Move focus to the error banner so screen reader users and keyboard
   // users notice a failed submit immediately instead of having to hunt
@@ -51,23 +64,22 @@ export default function EmployerJobPostForm() {
       status: 'pending' as const,
     };
 
-    if (!payload.title) {
-      setErrorMsg('Add a job title.');
-      setStatus('error');
-      return;
+    const nextFieldErrors: FieldErrors = {};
+    if (!payload.title) nextFieldErrors.title = 'Add a job title.';
+    if (!payload.description) nextFieldErrors.description = 'Add a job description.';
+    if (salaryMin != null && salaryMax != null && salaryMax < salaryMin) {
+      nextFieldErrors.salaryMax = 'Maximum salary must be greater than or equal to minimum salary.';
     }
-    if (!payload.description) {
-      setErrorMsg('Add a job description.');
+
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setErrorMsg('Please fix the highlighted fields.');
       setStatus('error');
-      return;
-    }
-    if (
-      salaryMin != null &&
-      salaryMax != null &&
-      salaryMax < salaryMin
-    ) {
-      setErrorMsg('Maximum salary must be greater than or equal to minimum salary.');
-      setStatus('error');
+      // Move focus to the first invalid field so keyboard and screen-reader
+      // users land on the problem instead of hunting for it (WCAG focus management).
+      requestAnimationFrame(() => {
+        formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      });
       return;
     }
 
@@ -130,7 +142,7 @@ export default function EmployerJobPostForm() {
   }
 
   return (
-    <form className="employer-job-form" onSubmit={handleSubmit} noValidate>
+    <form ref={formRef} className="employer-job-form" onSubmit={handleSubmit} noValidate>
       {status === 'error' && errorMsg && (
         <div className="employer-job-form-error" role="alert" ref={errorRef} tabIndex={-1}>
           {errorMsg}
@@ -146,7 +158,11 @@ export default function EmployerJobPostForm() {
           required
           autoComplete="off"
           disabled={status === 'saving'}
+          aria-invalid={!!fieldErrors.title}
+          aria-describedby={fieldErrors.title ? 'post-job-title-error' : undefined}
+          onInput={() => clearFieldError('title')}
         />
+        {fieldErrors.title ? <p id="post-job-title-error" className="form-error">{fieldErrors.title}</p> : null}
       </div>
 
       <div className="form-group">
@@ -158,7 +174,11 @@ export default function EmployerJobPostForm() {
           required
           disabled={status === 'saving'}
           placeholder="What will they do day to day?"
+          aria-invalid={!!fieldErrors.description}
+          aria-describedby={fieldErrors.description ? 'post-job-description-error' : undefined}
+          onInput={() => clearFieldError('description')}
         />
+        {fieldErrors.description ? <p id="post-job-description-error" className="form-error">{fieldErrors.description}</p> : null}
       </div>
 
       <div className="form-group">
@@ -183,6 +203,7 @@ export default function EmployerJobPostForm() {
             step={1000}
             placeholder="50000"
             disabled={status === 'saving'}
+            onInput={() => clearFieldError('salaryMax')}
           />
         </div>
         <div className="form-group">
@@ -195,7 +216,11 @@ export default function EmployerJobPostForm() {
             step={1000}
             placeholder="85000"
             disabled={status === 'saving'}
+            aria-invalid={!!fieldErrors.salaryMax}
+            aria-describedby={fieldErrors.salaryMax ? 'post-salary-max-error' : undefined}
+            onInput={() => clearFieldError('salaryMax')}
           />
+          {fieldErrors.salaryMax ? <p id="post-salary-max-error" className="form-error">{fieldErrors.salaryMax}</p> : null}
         </div>
       </div>
 

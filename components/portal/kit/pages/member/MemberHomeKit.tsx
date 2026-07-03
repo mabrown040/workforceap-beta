@@ -16,11 +16,17 @@ import {
   StatusTag,
   type Column,
 } from '@/components/portal/kit';
+import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
+import type { NextBestAction } from '@/lib/member/nextBestActions';
 
 /**
  * Member Portal — HOME view.
  * Faithful port of the `data-view-panel="home"` section of
- * docs/mockups/workforceap-member-suite.html (Gold × Stat-Dense suite).
+ * docs/mockups/workforceap-member-suite.html (Gold × Stat-Dense suite),
+ * plus a dominant next-best-action banner above the bento grid (design
+ * review: six equal tiles didn't answer "what should I do next?"). The
+ * Career Toolkit + Next Badge tiles below were quieted to keep a single
+ * hierarchy: next action → progress → everything else.
  *
  * Target route: app/(portal)/dashboard
  * Surface: warm (member-facing).
@@ -69,6 +75,8 @@ export interface MemberHomeKitProps {
   /** Up to a few active goals for the compact goals summary tile. */
   goals?: GoalSummary[];
   goalsHref?: string;
+  /** Dominant next-best-action banner rendered above the bento grid. `null`/omitted renders nothing (no empty shell). */
+  doThisNext?: NextBestAction | null;
 }
 
 const DEFAULT_PIPELINE: PipelineRow[] = [
@@ -100,6 +108,7 @@ export function MemberHomeKit({
   longestStreak = 0,
   goals = [],
   goalsHref = '/dashboard?ui=legacy&tab=learning#goals',
+  doThisNext = null,
 }: MemberHomeKitProps) {
   const pct = Math.max(0, Math.min(100, Math.round(coursePercent)));
   const pipelineColumns: Column<PipelineRow>[] = [
@@ -149,6 +158,11 @@ export function MemberHomeKit({
             Keep climbing, {firstName}.
           </h2>
         </div>
+
+        {/* Dominant next-best-action — answers "what should I do next?"
+            before anything else on the page. Renders nothing when there's
+            no pending action (see MemberDoThisNextCard). */}
+        <MemberDoThisNextCard action={doThisNext} variant="kit" paddingX="0" />
 
         {/* Compact streak/points banner — restores the motivation stack on
             the lean home kit. Renders nothing when there's no streak yet. */}
@@ -222,10 +236,12 @@ export function MemberHomeKit({
             </div>
           </div>
 
-          {/* Career Toolkit gradient tile */}
+          {/* Career Toolkit — a static shortcut, not a personalized action;
+              quieted (plain card, no gradient) so it doesn't compete with
+              the dominant next-best-action banner above. */}
           <a
             href={toolkitHref}
-            className="wa-kit-card wa-kit-card--gradient-crimson wa-kit-card--hover wa-kit-focus"
+            className="wa-kit-card wa-kit-card--hover wa-kit-focus"
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -234,26 +250,26 @@ export function MemberHomeKit({
               textDecoration: 'none',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.12)', borderRadius: 'var(--wa-radius-sm)' }}>
+            <div className="wa-flex wa-items-start wa-justify-between">
+              <div
+                style={{ padding: 12, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
+              >
                 <Wand2 size={20} />
               </div>
-              <span
-                style={{ padding: '2px 9px', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', background: 'rgba(255,255,255,0.2)', borderRadius: 999 }}
-              >
-                AI
-              </span>
+              <span className="wa-kit-tag wa-kit-tag--alert">AI</span>
             </div>
-            <div>
-              <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>Career Toolkit</h3>
-              <p style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>Resume audit + cover letters.</p>
+            <div style={{ marginTop: 16 }}>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>Career Toolkit</h3>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>Resume audit + cover letters.</p>
             </div>
           </a>
 
-          {/* Next Badge */}
+          {/* Next Badge — informational (gamification), quieted to a plain
+              card border so it reads as "everything else", not a second
+              actionable tile. */}
           <div
             className="wa-kit-card"
-            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 180, borderColor: 'var(--wa-gold-soft)' }}
+            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 180 }}
           >
             <div>
               <div

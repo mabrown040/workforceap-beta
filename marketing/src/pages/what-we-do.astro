@@ -90,16 +90,12 @@ import Icon from '../components/Icon.astro';
       <span class="kick kick--crimson">Our Values</span>
       <h2>What guides <span class="grad-text">everything we do</span></h2>
     </div>
-    <div class="bento">
-      <div class="tool big">
-        <div class="ic ic--c"><Icon name="graduation-cap" /></div>
-        <h3>Employer-Influenced Curricula</h3>
-        <p>Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.</p>
-      </div>
-      <div class="tool"><div class="ic ic--gr"><Icon name="unlock" /></div><h3>Zero-Barrier Access</h3><p>No cost for members who qualify through scholarship/grant funded membership. No prerequisites. Funding comes from WIOA, grants, employer partners, and community partnerships that can cover access for eligible participants.</p></div>
-      <div class="tool"><div class="ic ic--b"><Icon name="bar-chart" /></div><h3>Validated Outcomes</h3><p>Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.</p></div>
-      <div class="tool"><div class="ic ic--g"><Icon name="map" /></div><h3>Regional Scalability</h3><p>A repeatable model built to serve communities nationwide — not just one local market.</p></div>
-    </div>
+    <ol class="valuelist">
+      <li class="vitem"><span class="vnum">01</span><div class="vbody"><h3>Employer-Influenced Curricula</h3><p>Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.</p></div></li>
+      <li class="vitem"><span class="vnum">02</span><div class="vbody"><h3>Zero-Barrier Access</h3><p>No cost for members who qualify through scholarship/grant funded membership. No prerequisites. Funding comes from WIOA, grants, employer partners, and community partnerships that can cover access for eligible participants.</p></div></li>
+      <li class="vitem"><span class="vnum">03</span><div class="vbody"><h3>Validated Outcomes</h3><p>Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.</p></div></li>
+      <li class="vitem"><span class="vnum">04</span><div class="vbody"><h3>Regional Scalability</h3><p>A repeatable model built to serve communities nationwide — not just one local market.</p></div></li>
+    </ol>
   </div></section>
 
   <!-- VALUES -->
@@ -229,22 +225,18 @@ import Icon from '../components/Icon.astro';
   .legacy__chip .s{color:var(--muted);font-size:14px;margin-top:4px}
   @media(max-width:880px){.legacy{grid-template-columns:1fr;gap:40px}.legacy__badge{right:12px}}
 
-  /* BENTO */
-  .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  .tool{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px 26px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s;border-top:6px solid var(--crimson)}
-  .tool:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
-  .tool.big{grid-column:1 / -1;grid-row:span 1}
-  .tool:nth-child(2){border-top-color:var(--green)}
-  .tool:nth-child(3){border-top-color:var(--blue)}
-  .tool:nth-child(4){border-top-color:var(--gold)}
-  .tool h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px}
-  .tool p{color:var(--muted);font-size:15px;line-height:1.55}
-  .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:16px}
-  .ic--c{background:rgba(173,44,77,.12);color:var(--crimson)}
-  .ic--gr{background:rgba(74,155,79,.14);color:var(--green)}
-  .ic--b{background:rgba(43,123,185,.14);color:var(--blue)}
-  .ic--g{background:rgba(164,127,56,.14);color:var(--gold-dark)}
-  @media(max-width:880px){.bento{grid-template-columns:1fr}.tool.big{grid-row:span 1}}
+  /* VALUES — numbered editorial list (was an icon-in-circle bento grid;
+     re-expressed as a rail of big display numerals + hairline rows so the
+     "Our Values" section reads distinctly from the other icon-card grids
+     used elsewhere on the site). */
+  .valuelist{list-style:none;max-width:840px;margin:0 auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .vitem{display:grid;grid-template-columns:104px 1fr;gap:28px;padding:34px 4px;border-top:1px solid var(--border)}
+  .vitem:first-child{border-top:0}
+  .vnum{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:56px;line-height:1;letter-spacing:-.02em;
+    background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .vbody h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:21px;margin-bottom:8px}
+  .vbody p{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:56em}
+  @media(max-width:620px){.vitem{grid-template-columns:1fr;gap:10px;padding:26px 4px}.vnum{font-size:38px}}
 
   /* VALUE STEPS */
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}

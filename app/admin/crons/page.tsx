@@ -59,7 +59,7 @@ const SCHEDULE_BY_JOB: Record<string, string> = {
 
 const DISPLAY_STATUS: Record<string, CronDisplayStatus> = {
   SUCCESS: 'Success',
-  FAILED: 'Retrying',
+  FAILED: 'Failed',
   RUNNING: 'Running',
   SKIPPED: 'Disabled',
 };
@@ -157,7 +157,7 @@ async function renderKit() {
 
   const totalJobs = jobGroups.length;
   const enabled = rows.filter((r) => r.status === 'Success').length;
-  const failing = rows.filter((r) => r.status === 'Retrying').length;
+  const failing = rows.filter((r) => r.status === 'Failed').length;
   const lastRun = relativeTime(sortedGroups[0]?._max.startedAt ?? null);
 
   return (

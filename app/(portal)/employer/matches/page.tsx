@@ -76,15 +76,16 @@ export default async function EmployerMatchesPage() {
       .toUpperCase();
 
   const matchScoreColor = (pct: number) => {
-    if (pct >= 85) return '#166534';
-    if (pct >= 70) return '#854d0e';
+    if (pct >= 85) return 'var(--color-green)';
+    if (pct >= 70) return 'var(--color-gold)';
+    if (pct >= 60) return 'var(--wa-danger, #dc2626)';
     return 'var(--color-on-surface-variant)';
   };
 
   const matchScoreBadgeBg = (pct: number): { bg: string; border: string } => {
-    if (pct >= 85) return { bg: '#dcfce7', border: '#86efac' };
-    if (pct >= 70) return { bg: '#fef9c3', border: '#fde047' };
-    if (pct >= 60) return { bg: '#fef2f2', border: 'rgba(173,44,77,0.2)' };
+    if (pct >= 85) return { bg: 'color-mix(in srgb, var(--color-green) 14%, transparent)', border: 'color-mix(in srgb, var(--color-green) 40%, transparent)' };
+    if (pct >= 70) return { bg: 'color-mix(in srgb, var(--color-gold) 16%, transparent)', border: 'color-mix(in srgb, var(--color-gold) 45%, transparent)' };
+    if (pct >= 60) return { bg: 'color-mix(in srgb, var(--wa-danger, #dc2626) 10%, transparent)', border: 'color-mix(in srgb, var(--wa-danger, #dc2626) 30%, transparent)' };
     return { bg: 'var(--surface-container)', border: 'var(--outline-variant)' };
   };
 

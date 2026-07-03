@@ -61,7 +61,7 @@ export default function EmployerLoiForm() {
     return (
       <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200 text-center">
         <span className="material-symbols-outlined text-rose-600 mb-4 block" style={{ fontSize: '3.5rem' }} aria-hidden>
-          celebration
+          check_circle
         </span>
         <h2 className="text-2xl font-bold text-slate-900 mb-4">
           Letter of Intent Submitted!

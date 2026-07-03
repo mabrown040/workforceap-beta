@@ -185,7 +185,7 @@ export function PlacementsKit({
                 border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
               }}
             >
-              Export
+              Open table view
             </a>
           </div>
         }

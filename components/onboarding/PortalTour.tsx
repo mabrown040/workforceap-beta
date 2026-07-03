@@ -169,7 +169,7 @@ export default function PortalTour() {
       {/* Dimmed overlay */}
       <button
         type="button"
-        className="wa-fixed wa-inset-0 wa-z-[90] wa-cursor-default wa-border-0 wa-p-0"
+        className="wa-fixed wa-inset-0 wa-z-[var(--z-tour)] wa-cursor-default wa-border-0 wa-p-0"
         aria-label="Close tour"
         onClick={() => endTour()}
         style={{
@@ -181,7 +181,7 @@ export default function PortalTour() {
       {/* Spotlight ring */}
       {hl ? (
         <div
-          className="wa-pointer-events-none wa-fixed wa-z-[95] wa-rounded-lg"
+          className="wa-pointer-events-none wa-fixed wa-z-[calc(var(--z-tour)_+_5)] wa-rounded-lg"
           style={{
             top: hl.top,
             left: hl.left,
@@ -200,7 +200,7 @@ export default function PortalTour() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="wa-portal-tour-title"
-        className="wa-fixed wa-z-[100] wa-rounded-xl wa-outline-none"
+        className="wa-fixed wa-z-[calc(var(--z-tour)_+_10)] wa-rounded-xl wa-outline-none"
         style={{
           top: popover?.top ?? '50%',
           left: popover?.left ?? '50%',

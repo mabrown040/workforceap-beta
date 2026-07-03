@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import DataTable from '@/components/portal/ui/DataTable';
+import { statusColor } from '@/lib/ui/statusColors';
 
 export type JobTableRow = {
   id: string;
@@ -20,11 +21,14 @@ function daysSince(date: string | Date): number {
   return Math.max(0, Math.floor(ms / (24 * 60 * 60 * 1000)));
 }
 
-/** Green < 3 days, amber 3-7, red 7+. */
+/**
+ * Green < 3 days, amber 3-7, red 7+ — sourced from lib/ui/statusColors (the
+ * single source of truth for semantic status colors) instead of a one-off
+ * rgba palette.
+ */
 function pendingAgeBadgeStyle(days: number): { background: string; color: string } {
-  if (days < 3) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
-  if (days <= 7) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
-  return { background: 'rgba(220,38,38,0.12)', color: '#b91c1c' };
+  const tone = days < 3 ? statusColor('success') : days <= 7 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -39,6 +43,10 @@ const STATUS_LABELS: Record<string, string> = {
 function getJobStatusPillClass(status: string): string {
   if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
   if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
+  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
+  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
+  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
   return 'admin-job-status-pill';
 }
 

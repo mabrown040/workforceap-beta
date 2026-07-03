@@ -14,6 +14,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import EmployersTableClient from '@/components/admin/EmployersTableClient';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
+import { statusColor } from '@/lib/ui/statusColors';
 import { DesignSurface } from '@/components/portal/kit';
 import {
   EmployersDirectoryKit,
@@ -59,12 +60,15 @@ function daysSinceLogin(lastLoginAt: Date | null): number | null {
   return Math.max(0, Math.floor((Date.now() - lastLoginAt.getTime()) / (24 * 60 * 60 * 1000)));
 }
 
-/** Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never logged in. */
+/**
+ * Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never
+ * logged in. Sourced from lib/ui/statusColors (the single source of truth
+ * for semantic status colors) instead of a one-off rgba palette.
+ */
 function lastActiveBadgeStyle(days: number | null) {
-  if (days === null) return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
-  if (days < 30) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
-  if (days <= 90) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
-  return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
+  const tone =
+    days === null ? statusColor('danger') : days < 30 ? statusColor('success') : days <= 90 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
 }
 
 function lastActiveLabel(days: number | null): string {
@@ -88,13 +92,13 @@ const DIRECTORY_LIMIT = 60;
 export default async function AdminEmployersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; ui?: string }>;
+  searchParams: Promise<{ status?: string; ui?: string; page?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employers');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { status: statusFilter, ui: requestedUi } = await searchParams;
+  const { status: statusFilter, ui: requestedUi, page } = await searchParams;
 
   // --- DEFAULT: real (lean) employer directory wired into EmployersDirectoryKit ---
   if (requestedUi !== 'legacy') {
@@ -215,17 +219,25 @@ export default async function AdminEmployersPage({
 
   const where = activeTab !== 'all' ? { status: activeTab } : {};
 
-  const [superAdmin, employers, pendingCount] = await Promise.all([
+  // Pagination — same pattern as the jobs legacy table (50/page, page-scoped
+  // sort/filter): avoids loading the whole employer table (was take: 5000).
+  const pageParam = page ? parseInt(page, 10) : 1;
+  const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const pageSize = 50;
+
+  const [superAdmin, employers, totalCount, pendingCount] = await Promise.all([
     isSuperAdmin(user.id),
     prisma.employer.findMany({
-      take: 5000,
       where,
       orderBy: { companyName: 'asc' },
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
       include: {
         user: { select: { email: true, fullName: true, lastLoginAt: true } },
         _count: { select: { jobs: true } },
       },
     }),
+    prisma.employer.count({ where }),
     prisma.employer.count({ where: { status: 'pending_approval' } }),
   ]);
 
@@ -293,10 +305,9 @@ export default async function AdminEmployersPage({
 
       {employers.length > 0 && (
         <>
-          {/* Desktop table */}
-          <EmployersTableClient employers={employers} superAdmin={superAdmin} />
-
-          {/* Mobile cards */}
+          {/* Mobile cards — rendered before the desktop table (like the jobs
+              legacy page) so the shared pagination control, which lives
+              inside EmployersTableClient below, ends up after both views. */}
           <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.625rem' }}>
             {employers.map((e) => {
               const initials = (e.companyName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -366,6 +377,15 @@ export default async function AdminEmployersPage({
               );
             })}
           </div>
+
+          {/* Desktop table (includes pagination controls, shown on both breakpoints) */}
+          <EmployersTableClient
+            employers={employers}
+            superAdmin={superAdmin}
+            totalCount={totalCount}
+            currentPage={currentPage}
+            pageSize={pageSize}
+          />
         </>
       )}
 

@@ -207,17 +207,41 @@ export default async function CounselorWorkQueuePage() {
                             >
                               {row.memberName}
                             </h3>
-                            <span
-                              style={{
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                color: overdueColor,
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0,
-                                fontVariantNumeric: 'tabular-nums',
-                              }}
-                            >
-                              {formatTimeWaiting(row.hoursWaiting)}
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
+                              <span
+                                style={{
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                  color: overdueColor,
+                                  whiteSpace: 'nowrap',
+                                  fontVariantNumeric: 'tabular-nums',
+                                }}
+                              >
+                                {formatTimeWaiting(row.hoursWaiting)}
+                              </span>
+                              {row.hoursWaiting >= 72 && (
+                                <span
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.15rem',
+                                    padding: '0.05rem 0.375rem',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.625rem',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.03em',
+                                    whiteSpace: 'nowrap',
+                                    color: overdueColor,
+                                    background: 'color-mix(in srgb, var(--color-error, #dc2626) 12%, transparent)',
+                                  }}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">
+                                    warning
+                                  </span>
+                                  {t('workQueueOverdueChip')}
+                                </span>
+                              )}
                             </span>
                           </div>
                           <p

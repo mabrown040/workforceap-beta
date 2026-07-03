@@ -233,8 +233,8 @@ import Layout from '../layouts/Layout.astro';
   @media(max-width:640px){.ptable .hide-sm{display:none}}
 
   /* info cards */
-  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);border-left:5px solid var(--crimson)}
-  .band--bg .info-card{border-left-color:var(--gold)}
+  .info-card{background:color-mix(in srgb,var(--crimson) 5%,var(--surface));border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);border-left:4px solid var(--crimson)}
+  .band--bg .info-card{border-left-color:var(--gold);background:color-mix(in srgb,var(--gold) 5%,var(--surface))}
   .info-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px}
   .info-card p{color:var(--muted);font-size:15px;max-width:50em;line-height:1.55}
 

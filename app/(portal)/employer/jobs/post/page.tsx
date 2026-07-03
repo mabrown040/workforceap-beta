@@ -91,6 +91,9 @@ export default async function EmployerJobPostPage() {
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1rem' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+              {t('postAJobQuickHint')}
+            </p>
             <EmployerJobPostForm />
           </div>
         </div>
@@ -98,6 +101,9 @@ export default async function EmployerJobPostPage() {
 
       <div className="wa-hidden md:wa-block">
         <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', maxWidth: '42rem' }}>
+          <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+            {t('postAJobQuickHint')}
+          </p>
           <EmployerJobPostForm />
         </div>
       </div>

@@ -113,7 +113,13 @@ export default function RecordPlacementPage() {
         setError((d as { error?: string }).error ?? `Error ${res.status}`);
         return;
       }
-      router.push('/admin/pipeline');
+      // Query-param → role="status" toast on the destination page — same
+      // pattern as the member-creation success toast (see AddMemberWizard →
+      // CreateSuccessToast) — instead of a silent redirect.
+      const toastParams = new URLSearchParams({ toast: 'placed' });
+      if (selectedMember?.fullName) toastParams.set('member', selectedMember.fullName);
+      if (employerName) toastParams.set('employer', employerName);
+      router.push(`/admin/pipeline?${toastParams.toString()}`);
     } catch (err) {
       setError(String(err));
     } finally {

@@ -109,8 +109,8 @@ export default async function AdminEmailCronsPage({
     const STATUS_MAP: Record<string, EmailCronDisplayStatus> = {
       ok: 'Success',
       success: 'Success',
-      error: 'Retrying',
-      errored: 'Retrying',
+      error: 'Failed',
+      errored: 'Failed',
     };
 
     const rows: EmailCronRow[] = cronData.map((c) => {
@@ -127,7 +127,7 @@ export default async function AdminEmailCronsPage({
       };
     });
 
-    const failing = rows.filter((r) => r.status === 'Retrying').length;
+    const failing = rows.filter((r) => r.status === 'Failed').length;
     const lastRunIso = cronData
       .map((c) => c.lastRunAt)
       .filter((d): d is string => Boolean(d))

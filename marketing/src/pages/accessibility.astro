@@ -194,12 +194,12 @@ const lastReviewed = new Date(ACCESSIBILITY_LAST_REVIEWED_AT + 'T00:00:00Z').toL
   .band--surface{background:var(--surface)}
 
   .a11y-stack { display: flex; flex-direction: column; gap: 22px; max-width: 860px; margin: 0 auto; }
-  .acard{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:34px 32px;
-    box-shadow:var(--shadow);border-left:5px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .acard{background:color-mix(in srgb,var(--crimson) 5%,var(--bg));border:1px solid var(--border);border-radius:var(--radius);padding:34px 32px;
+    box-shadow:var(--shadow);border-left:4px solid var(--crimson);transition:transform .2s,box-shadow .25s}
   .acard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-  .a11y-card:nth-child(2){border-left-color:var(--gold)}
-  .a11y-card:nth-child(3){border-left-color:var(--blue)}
-  .a11y-card:nth-child(4){border-left-color:var(--green)}
+  .a11y-card:nth-child(2){border-left-color:var(--gold);background:color-mix(in srgb,var(--gold) 5%,var(--bg))}
+  .a11y-card:nth-child(3){border-left-color:var(--blue);background:color-mix(in srgb,var(--blue) 5%,var(--bg))}
+  .a11y-card:nth-child(4){border-left-color:var(--green);background:color-mix(in srgb,var(--green) 5%,var(--bg))}
 
   .a11y-card .a11y-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
   .a11y-card .a11y-head h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size: clamp(21px, 2.6vw, 27px); font-weight: 800; letter-spacing:-.01em; }

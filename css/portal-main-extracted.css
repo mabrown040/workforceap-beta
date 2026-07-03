@@ -6272,6 +6272,33 @@ td.admin-members-col-select {
     color: #8a5a00;
 }
 
+/*
+ * Added for the draft/approved/filled/closed status pills — previously all
+ * four fell back to the plain neutral-gray base rule above and were visually
+ * indistinguishable. New modifiers only; the base rule and --live/--pending
+ * above are untouched (this file is shared across admin + portal).
+ */
+.admin-job-status-pill--draft {
+    background: transparent;
+    color: var(--color-on-surface-variant);
+    border: 1px solid var(--outline-variant);
+}
+
+.admin-job-status-pill--approved {
+    background: color-mix(in srgb, var(--color-blue) 15%, transparent);
+    color: var(--color-blue);
+}
+
+.admin-job-status-pill--filled {
+    background: color-mix(in srgb, var(--color-green) 15%, transparent);
+    color: var(--color-green);
+}
+
+.admin-job-status-pill--closed {
+    background: var(--surface-container-high);
+    color: var(--color-on-surface-variant);
+}
+
 .admin-jobs-mobile-company,
 .admin-jobs-mobile-meta {
     display: none;

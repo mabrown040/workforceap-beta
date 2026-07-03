@@ -11,6 +11,7 @@ import JobsTableClient from '@/components/admin/JobsTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { statusColor } from '@/lib/ui/statusColors';
 import { DesignSurface } from '@/components/portal/kit';
 import {
   JobsBoardKit,
@@ -48,6 +49,10 @@ const FILTER_LABELS: Record<string, string> = {
 function getJobStatusPillClass(status: string): string {
   if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
   if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
+  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
+  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
+  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
   return 'admin-job-status-pill';
 }
 
@@ -56,11 +61,14 @@ function daysSince(date: Date): number {
   return Math.max(0, Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000)));
 }
 
-/** Green < 3 days, amber 3-7, red 7+ — matches the dormant-employer thresholds elsewhere in admin. */
+/**
+ * Green < 3 days, amber 3-7, red 7+ — matches the dormant-employer thresholds
+ * elsewhere in admin. Sourced from lib/ui/statusColors (the single source of
+ * truth for semantic status colors) rather than a one-off rgba palette.
+ */
 function pendingAgeBadgeStyle(days: number): { background: string; color: string } {
-  if (days < 3) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
-  if (days <= 7) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
-  return { background: 'rgba(220,38,38,0.12)', color: '#b91c1c' };
+  const tone = days < 3 ? statusColor('success') : days <= 7 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
 }
 
 /** Cap the lean board so first paint stays cheap. */

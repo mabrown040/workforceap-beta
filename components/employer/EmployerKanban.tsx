@@ -50,6 +50,7 @@ function matchColumnId(status: string): string {
 export default function EmployerKanban({ initialMatches }: { initialMatches: MatchRow[] }) {
   const [matches, setMatches] = useState(initialMatches);
   const [busy, setBusy] = useState<string | null>(null);
+  const [revertError, setRevertError] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
   const dragMatch = useRef<MatchRow | null>(null);
@@ -59,6 +60,7 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
     if (matchColumnId(match.status) === targetColumnId) return;
 
     // Optimistic update: move the card immediately in the UI
+    setRevertError(null);
     setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: newStatus } : m));
     setBusy(match.id);
     try {
@@ -74,10 +76,12 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
       } else {
         // Revert on HTTP error
         setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: match.status } : m));
+        setRevertError(match.id);
       }
     } catch {
       // Revert on network error
       setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: match.status } : m));
+      setRevertError(match.id);
     } finally {
       setBusy(null);
     }
@@ -190,6 +194,11 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
                         </Link>
                         {isBusy && <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Moving…</span>}
                       </div>
+                      {revertError === m.id && (
+                        <p role="alert" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--wa-danger, #dc2626)', margin: '0.375rem 0 0' }}>
+                          Couldn&apos;t update status — try again
+                        </p>
+                      )}
                     </div>
                   );
                 })}

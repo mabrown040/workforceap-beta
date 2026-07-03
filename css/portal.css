@@ -41,6 +41,18 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* components/portal/ui/DataTable.tsx variant="portal" (the default) — give it
+   the same row-hover affordance variant="admin" tables already get from
+   `.admin-table tbody tr:hover` (css/portal-main-extracted.css + dark-mode
+   override in css/main.css). Scoped to the variant class DataTable always
+   applies now, so it doesn't depend on a consumer-supplied `tableClassName`. */
+.wap-data-table--portal tbody tr {
+  transition: background-color var(--transition-fast, 150ms ease);
+}
+.wap-data-table--portal tbody tr:hover {
+  background-color: var(--surface-container-low);
+}
+
 /* Portal shell — glassmorphic dark base */
 .portal-shell-root {
   background: var(--color-background-dark, #121416);
@@ -898,8 +910,8 @@
   position: fixed;
   top: 0.75rem;
   left: 0.75rem;
-  z-index: 120;
-  background: var(--color-surface, #fff);
+  z-index: calc(var(--z-nav-drawer) + 20);
+  background: var(--surface-container-low);
   border: 1px solid rgba(222, 191, 194, 0.15);
   border-radius: 0.375rem;
   padding: 0.5rem;
@@ -933,7 +945,7 @@
     height: 100vh;
     width: 260px;
     max-width: 88vw;
-    z-index: 110;
+    z-index: calc(var(--z-nav-drawer) + 10);
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     background: rgba(252, 249, 248, 0.92);
@@ -951,7 +963,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 100;
+    z-index: var(--z-nav-drawer);
     background: rgba(0, 0, 0, 0.5);
   }
   body.sidebar-open {
@@ -983,7 +995,7 @@
     height: 100%;
     background: linear-gradient(
       to left,
-      var(--color-surface, #fff) 0%,
+      var(--surface-container-low) 0%,
       transparent 100%
     );
     pointer-events: none;
@@ -1013,7 +1025,7 @@
     padding: 1rem;
     border-radius: 0.75rem;
     border: 1px solid rgba(222, 191, 194, 0.15);
-    background: var(--color-surface, #fff);
+    background: var(--surface-container-low);
   }
   .application-tracker-table tbody td {
     display: block;
@@ -1045,7 +1057,7 @@
     padding: 1rem;
     border-radius: 0.75rem;
     border: 1px solid rgba(222, 191, 194, 0.15);
-    background: var(--color-surface, #fff);
+    background: var(--surface-container-low);
   }
   .salary-table tbody td {
     display: block;
@@ -1083,7 +1095,7 @@
     padding: 1rem;
     border-radius: 0.75rem;
     border: 1px solid rgba(222, 191, 194, 0.15);
-    background: var(--color-surface, #fff);
+    background: var(--surface-container-low);
   }
   .program-comparison-matrix tbody th[scope="row"] {
     display: block;
@@ -1128,7 +1140,7 @@
     padding: 1rem;
     border-radius: 0.75rem;
     border: 1px solid rgba(222, 191, 194, 0.15);
-    background: var(--color-surface, #fff);
+    background: var(--surface-container-low);
   }
   .program-comparison-table-pick tbody td {
     display: block;

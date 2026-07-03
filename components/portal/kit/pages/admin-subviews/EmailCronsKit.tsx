@@ -17,15 +17,19 @@ import {
  *
  * One row per registered cron. Columns: Email job · Schedule · Last run ·
  * Status. Status folds the registry `enabled` flag and the latest run status
- * onto a StatusTag (Success=ok, Retrying/Failed=alert, Disabled=muted). All
+ * onto a StatusTag (Success=ok, Failed=danger, Disabled=muted). All
  * aggregation happens in the page loader and lands here as plain data.
  * DataTable mobile="cards" so the wide table stacks instead of squishing.
  */
 
-/** Display status mapped from the underlying job state. */
+/**
+ * Display status mapped from the underlying job state.
+ * `Failed` (not `Retrying`) — WorkflowDiagnostic has no retry/attempt
+ * tracking, so an errored run has no evidence a retry is actually happening.
+ */
 export type EmailCronDisplayStatus =
   | 'Success'
-  | 'Retrying'
+  | 'Failed'
   | 'Disabled'
   | 'Pending';
 
@@ -54,7 +58,8 @@ export interface EmailCronsKitProps {
 
 const STATUS_TONE: Record<EmailCronDisplayStatus, KitTone> = {
   Success: 'ok',
-  Retrying: 'alert',
+  // 'danger' (not 'alert') per the KitTone doc: reserved for failed/destructive states.
+  Failed: 'danger',
   Disabled: 'muted',
   Pending: 'info',
 };

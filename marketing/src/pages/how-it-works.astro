@@ -196,12 +196,11 @@ const WILL_NOT = [
       <span class="kick kick--crimson">Career Training Benefits</span>
       <h2>Career Training <span class="grad-text">Benefits</span></h2>
     </div>
-    <div class="tri">
+    <div class="benefitrows">
       {trainingCards.map((card) => (
-        <div class="acard">
-          <div class={`ic ${card.cls}`}><Icon name={card.ic} /></div>
-          <h3>{card.title}</h3>
-          <p>{card.desc}</p>
+        <div class="brow">
+          <div class={`bic ${card.cls}`}><Icon name={card.ic} size={22} /></div>
+          <div class="btext"><h3>{card.title}</h3><p>{card.desc}</p></div>
         </div>
       ))}
     </div>
@@ -355,7 +354,7 @@ const WILL_NOT = [
   .sidot{width:30px;height:30px;border-radius:9px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
   .st{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px}
   .sdesc{color:var(--muted);font-size:15px}
-  .swhy{margin-top:10px;font-size:14px;color:var(--text);background:var(--surface-2);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:8px 12px}
+  .swhy{margin-top:10px;font-size:14px;color:var(--text);background:color-mix(in srgb,var(--gold) 5%,var(--surface-2));border-left:4px solid var(--gold);border-radius:0 8px 8px 0;padding:8px 12px}
   .swhy b{color:var(--gold-dark)}
 
   /* Mid-page CTA */
@@ -363,23 +362,23 @@ const WILL_NOT = [
   .midcta p{color:var(--muted);font-size:16px;margin-bottom:18px}
   .midcta .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
-  /* Training benefit cards */
-  .tri{display:grid;gap:24px;grid-template-columns:repeat(4,1fr)}
-  .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px 26px;box-shadow:var(--shadow);
-    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
-  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
-  .acard:nth-child(2){border-top-color:var(--blue)}
-  .acard:nth-child(3){border-top-color:var(--gold)}
-  .acard:nth-child(4){border-top-color:var(--green)}
-  .acard .ic{width:54px;height:54px;border-radius:15px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
-  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:800;margin-bottom:10px}
-  .acard p{color:var(--muted);font-size:15px;line-height:1.55}
+  /* Training benefit rows — borderless icon+text rows with a hairline divider
+     rhythm (was an icon-in-circle card grid; re-expressed as a flat list so
+     this section reads distinctly from the other icon-card grids on the site). */
+  .benefitrows{max-width:880px;margin:0 auto;border-top:1px solid var(--border)}
+  .brow{display:flex;align-items:flex-start;gap:20px;padding:26px 4px;border-bottom:1px solid var(--border)}
+  .bic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;margin-top:2px}
+  .bic.ic--g{color:var(--gold-dark)}
+  .bic.ic--c{color:var(--crimson)}
+  .bic.ic--b{color:var(--blue)}
+  .bic.ic--gr{color:var(--green)}
+  .btext h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;margin-bottom:6px}
+  .btext p{color:var(--muted);font-size:15px;line-height:1.55}
   .ic--g{background:rgba(164,127,56,.12)}
   .ic--c{background:rgba(173,44,77,.1)}
   .ic--b{background:rgba(45,90,160,.1)}
   .ic--gr{background:rgba(74,155,79,.12)}
-  @media(max-width:880px){.tri{grid-template-columns:1fr 1fr}}
-  @media(max-width:560px){.tri{grid-template-columns:1fr}}
+  @media(max-width:560px){.brow{gap:14px}}
 
   /* Support features */
   .feat{display:grid;grid-template-columns:1fr 1fr;gap:22px}
@@ -403,8 +402,8 @@ const WILL_NOT = [
   .commit-intro{color:var(--muted);font-size:16px;line-height:1.55;margin-bottom:24px}
   .commit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
   .commit-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:22px}
-  .commit-card--will{border-left:4px solid var(--green)}
-  .commit-card--wont{border-left:4px solid var(--muted)}
+  .commit-card--will{border-left:4px solid var(--green);background:color-mix(in srgb,var(--green) 5%,var(--surface-2))}
+  .commit-card--wont{border-left:4px solid var(--muted);background:color-mix(in srgb,var(--muted) 5%,var(--surface-2))}
   .commit-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
   .commit-label--will{color:var(--green)}
   .commit-label--wont{color:var(--muted)}

@@ -336,10 +336,9 @@ const initials = initialsFor(leader.name);
   /* ---------------- TILES (orgs / highlights) ---------------- */
   .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
   @media(max-width:720px){.tiles{grid-template-columns:1fr}}
-  .tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 26px 28px;
-    box-shadow:var(--shadow);border-left:5px solid var(--crimson);transition:transform .2s,box-shadow .25s}
-  .tile--gold{border-left-color:var(--gold)}
-  .band--bg .tile{background:var(--surface)}
+  .tile{background:color-mix(in srgb,var(--crimson) 5%,var(--surface));border:1px solid var(--border);border-radius:var(--radius);padding:26px 26px 28px;
+    box-shadow:var(--shadow);border-left:4px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .tile--gold{border-left-color:var(--gold);background:color-mix(in srgb,var(--gold) 5%,var(--surface))}
   .tile:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
   .tile-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--crimson);margin-bottom:14px}
   .tile-dot--gold{background:var(--gold)}

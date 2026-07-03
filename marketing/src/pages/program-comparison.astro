@@ -97,10 +97,10 @@ const factors = [
     <p>Start with fit, then narrow with the table below. Higher ranges usually mean more depth — finish the program you start.</p>
   </div>
   <div class="choose">
-    {factors.map((f) => (
+    {factors.map((f, i) => (
       <div class="fcard">
-        <div class="fic"><Icon name={f.icon} size={22} /></div>
-        <h3>{f.label}</h3>
+        <span class="fcard-idx">{String(i + 1).padStart(2, '0')}</span>
+        <h3 class="fcard-hero">{f.label}</h3>
         <p>{f.desc}</p>
       </div>
     ))}
@@ -303,12 +303,22 @@ const factors = [
   .sec-head p{color:var(--muted);font-size:19px;line-height:1.55}
   .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
 
-  /* how-to-choose grid */
+  /* how-to-choose grid — stat-led cards: the factor becomes a big headline
+     (the "number" of the card) over a small colored index chip, instead of
+     an icon-in-circle (was an icon-in-circle card grid; distinct from the
+     other icon-card treatments elsewhere on the site). */
   .choose{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-  .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
-  .fcard .fic{width:46px;height:46px;border-radius:12px;background:rgba(173,44,77,.1);display:grid;place-items:center;color:var(--crimson);margin-bottom:14px}
-  .fcard h3{font-size:16px;font-weight:700;margin-bottom:6px}
-  .fcard p{color:var(--muted);font-size:14px;line-height:1.5}
+  .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 24px;box-shadow:var(--shadow)}
+  .fcard-idx{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:12.5px;margin-bottom:16px;
+    background:rgba(173,44,77,.1);color:var(--crimson)}
+  /* text colors below are darkened from --blue/--green for AA text contrast
+     on their tint chips (≥4.5:1) — the lighter tokens stay in the background tint */
+  .fcard:nth-child(2) .fcard-idx{background:rgba(43,123,185,.12);color:#1d5c8a}
+  .fcard:nth-child(3) .fcard-idx{background:rgba(164,127,56,.14);color:var(--gold-dark)}
+  .fcard:nth-child(4) .fcard-idx{background:rgba(74,155,79,.12);color:#2f6b34}
+  .fcard-hero{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.15;margin-bottom:8px}
+  .fcard p{color:var(--muted);font-size:14.5px;line-height:1.55}
   @media(max-width:880px){.choose{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.choose{grid-template-columns:1fr}}
 

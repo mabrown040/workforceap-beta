@@ -1,12 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AdminEmployerTierSelect from '@/app/admin/employers/AdminEmployerTierSelect';
 import EmployerStatusButton from '@/app/admin/employers/EmployerStatusButton';
 import OpenEmployerPortalButton from '@/app/admin/employers/OpenEmployerPortalButton';
 import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 import DataTable from '@/components/portal/ui/DataTable';
+import { statusColor } from '@/lib/ui/statusColors';
 
 export type EmployerTableRow = {
   id: string;
@@ -27,12 +29,15 @@ function daysSinceLogin(lastLoginAt: string | Date | null): number | null {
   return Math.max(0, Math.floor((Date.now() - new Date(lastLoginAt).getTime()) / (24 * 60 * 60 * 1000)));
 }
 
-/** Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never logged in. */
+/**
+ * Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never
+ * logged in. Sourced from lib/ui/statusColors (the single source of truth
+ * for semantic status colors) instead of a one-off rgba palette.
+ */
 function lastActiveBadgeStyle(days: number | null): { background: string; color: string } {
-  if (days === null) return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
-  if (days < 30) return { background: 'rgba(34,197,94,0.12)', color: '#15803d' };
-  if (days <= 90) return { background: 'rgba(234,179,8,0.14)', color: '#b45309' };
-  return { background: 'rgba(220,38,38,0.10)', color: '#b91c1c' };
+  const tone =
+    days === null ? statusColor('danger') : days < 30 ? statusColor('success') : days <= 90 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
 }
 
 function lastActiveLabel(days: number | null): string {
@@ -151,13 +156,33 @@ function SortHeader({
 export default function EmployersTableClient({
   employers,
   superAdmin,
+  totalCount,
+  currentPage,
+  pageSize,
 }: {
   employers: EmployerTableRow[];
   superAdmin: boolean;
+  /** Total employers matching the active tab filter (for pagination), not just this page. */
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   // null = keep the server's companyName-asc order until a column is clicked.
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Preserve existing query params (e.g. ?ui=legacy&status=...) when changing pages.
+  function goToPage(page: number) {
+    if (page < 1 || page > totalPages) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('page', page.toString());
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
 
   const sorted = useMemo(() => {
     if (!sortKey) return employers;
@@ -344,15 +369,54 @@ export default function EmployersTableClient({
   ];
 
   return (
-    <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
-      <DataTable
-        variant="admin"
-        tableClassName="admin-table employer-applications-table"
-        scrollX={false}
-        rows={sorted}
-        rowKey={(e) => e.id}
-        columns={employerColumns}
-      />
-    </div>
+    <>
+      <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table employer-applications-table"
+          scrollX={false}
+          rows={sorted}
+          rowKey={(e) => e.id}
+          columns={employerColumns}
+        />
+      </div>
+
+      {/* Pagination — outside the desktop-only wrapper so it also pages the mobile cards. */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+            .map((page, i, pages) => (
+              <Fragment key={page}>
+                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
+                <button
+                  type="button"
+                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => goToPage(page)}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              </Fragment>
+            ))}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </>
   );
 }

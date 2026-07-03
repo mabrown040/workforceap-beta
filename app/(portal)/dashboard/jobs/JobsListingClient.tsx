@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Briefcase, MapPin, Clock, DollarSign, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Briefcase, MapPin, Clock, DollarSign, Search, SlidersHorizontal, X, Bookmark } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 
@@ -80,12 +80,16 @@ function JobCard({
   isAuthenticated,
   matchPct,
   isApplied,
+  isSaved,
+  onToggleSave,
   t,
 }: {
   job: Job;
   isAuthenticated: boolean;
   matchPct?: number;
   isApplied?: boolean;
+  isSaved?: boolean;
+  onToggleSave?: (jobId: string) => void;
   t: (k: string) => string;
 }) {
   const locationDisplay = job.location ?? getLocationLabels(t)[job.locationType] ?? job.locationType;
@@ -95,7 +99,40 @@ function JobCard({
     <Link
       href={isAuthenticated ? `/dashboard/jobs/${job.id}` : `/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${job.id}`)}`}
       className="job-card"
+      style={{ position: 'relative' }}
     >
+      {isAuthenticated && onToggleSave && (
+        <button
+          type="button"
+          className="job-card__save-toggle"
+          aria-pressed={!!isSaved}
+          aria-label={isSaved ? 'Saved' : 'Save job'}
+          title={isSaved ? 'Saved' : 'Save job'}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleSave(job.id);
+          }}
+          style={{
+            position: 'absolute',
+            top: '0.625rem',
+            right: '0.625rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '2rem',
+            height: '2rem',
+            borderRadius: '999px',
+            border: '1px solid color-mix(in srgb, var(--outline-variant) 60%, transparent)',
+            background: 'var(--surface-container)',
+            color: isSaved ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+            cursor: 'pointer',
+            zIndex: 1,
+          }}
+        >
+          <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} aria-hidden />
+        </button>
+      )}
       <div className="job-card__logo">
         {job.employer.logoUrl ? (
           <Image
@@ -114,7 +151,7 @@ function JobCard({
       </div>
       <div className="job-card__body">
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', justifyContent: 'space-between' }}>
-          <h3 className="job-card__title" style={{ margin: 0, flex: 1 }}>{job.title}</h3>
+          <h3 className="job-card__title" style={{ margin: 0, flex: 1, paddingRight: onToggleSave ? '2rem' : 0 }}>{job.title}</h3>
           <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {isApplied && (
               <span style={{ fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)', border: '1px solid color-mix(in srgb, var(--color-green) 30%, transparent)', borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
@@ -244,6 +281,7 @@ export default function JobsListingClient({
   const hasInitialData = initialJobs.length > 0;
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const appliedSet = new Set(appliedJobIds);
   const [loading, setLoading] = useState(!hasInitialData);
   const [loadingMatches, setLoadingMatches] = useState(false);
@@ -335,6 +373,50 @@ export default function JobsListingClient({
       .catch(() => setMatchedJobs([]))
       .finally(() => setLoadingMatches(false));
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetch('/api/member/saved-jobs')
+      .then((r) => (r.ok ? r.json() : { jobIds: [] }))
+      .then((d) => setSavedJobIds(new Set(Array.isArray(d.jobIds) ? d.jobIds : [])))
+      .catch(() => setSavedJobIds(new Set()));
+  }, [isAuthenticated]);
+
+  const handleToggleSave = useCallback((jobId: string) => {
+    setSavedJobIds((prev) => {
+      const next = new Set(prev);
+      const wasSaved = next.has(jobId);
+      if (wasSaved) {
+        next.delete(jobId);
+      } else {
+        next.add(jobId);
+      }
+      // Optimistic — revert on failure below.
+      const request = wasSaved
+        ? fetch(`/api/member/saved-jobs?jobId=${encodeURIComponent(jobId)}`, { method: 'DELETE' })
+        : fetch('/api/member/saved-jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jobId }),
+          });
+      request.then((r) => {
+        if (!r.ok) {
+          setSavedJobIds((cur) => {
+            const reverted = new Set(cur);
+            if (wasSaved) reverted.add(jobId); else reverted.delete(jobId);
+            return reverted;
+          });
+        }
+      }).catch(() => {
+        setSavedJobIds((cur) => {
+          const reverted = new Set(cur);
+          if (wasSaved) reverted.add(jobId); else reverted.delete(jobId);
+          return reverted;
+        });
+      });
+      return next;
+    });
+  }, []);
 
   const filterPanel = (
     <div className="job-filters-panel">
@@ -613,6 +695,8 @@ export default function JobsListingClient({
                   isAuthenticated={isAuthenticated}
                   matchPct={matched?.matchPct}
                   isApplied={appliedSet.has(j.id)}
+                  isSaved={savedJobIds.has(j.id)}
+                  onToggleSave={isAuthenticated ? handleToggleSave : undefined}
                   t={t}
                 />
               );

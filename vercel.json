@@ -55,6 +55,10 @@
       "schedule": "30 14 * * *"
     },
     {
+      "path": "/api/cron/job-alerts",
+      "schedule": "0 9 * * 1"
+    },
+    {
       "path": "/api/cron/milestone-cascade-draft",
       "schedule": "0 * * * *"
     },

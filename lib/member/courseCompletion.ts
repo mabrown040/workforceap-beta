@@ -8,9 +8,10 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { createNotification } from '@/lib/notifications/create';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
-import { handleLearningCompletion } from '@/lib/workflows/careerOS';
+import { handleLearningCompletion, handleProgramCompletion } from '@/lib/workflows/careerOS';
 import { awardPoints } from '@/lib/member/points';
 import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
 export async function completeMemberCourse(args: {
   userId: string;
@@ -152,6 +153,24 @@ export async function completeMemberCourse(args: {
     handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
       console.error('[career-os] learning completion workflow failed:', error)
     );
+
+    // Program-completion check — the graduation moment, distinct from the
+    // per-course nudge above. Fires at most once per (member, program); see
+    // handleProgramCompletion for the idempotency guard. Only covers
+    // completions that flow through THIS function (member self-report,
+    // coursera-webhook, coursera-enterprise-sync) — the separate B4B
+    // org-wide sync cron (lib/coursera/b4bSync.ts) writes CourseProgress
+    // directly and does not call completeMemberCourse, so a completion
+    // detected only by that batch job won't trigger this yet.
+    const completedSlugs = await prisma.courseProgress.findMany({
+      where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
+      select: { courseSlug: true },
+    });
+    if (memberProgramCompleted(dbUser.enrolledProgram, completedSlugs.map((c) => c.courseSlug))) {
+      handleProgramCompletion(args.userId, dbUser.enrolledProgram, program.title).catch((error) =>
+        console.error('[career-os] program completion workflow failed:', error)
+      );
+    }
 
     // Milestone cascade detection: insert a row in milestone_cascades for the
     // counselor-review pipeline. Idempotent and self-contained — never throws,

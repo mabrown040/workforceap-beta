@@ -815,6 +815,11 @@ export default async function AdminCourseraHealthPage() {
           { label: 'Coursera', href: '/admin/coursera' },
           { label: 'Health' },
         ]}
+        action={
+          <Link href="/admin/coursera/enrollment" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+            Enrollment pipeline →
+          </Link>
+        }
       />
 
       {/* Section 1 — health summary cards. */}

@@ -8,6 +8,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
 export interface QuarterSpec {
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
@@ -105,7 +106,7 @@ interface EnrolledMemberRow {
   enrolledProgram: string | null;
   deletedAt: Date | null;
   courseEnrollments: { programSlug: string; enrolledAt: Date }[];
-  courseProgress: { percentComplete: number; completedAt: Date | null }[];
+  courseProgress: { percentComplete: number; completedAt: Date | null; programSlug: string; courseSlug: string }[];
 }
 
 async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Promise<EnrolledMemberRow[]> {
@@ -125,43 +126,55 @@ async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Prom
       courseEnrollments: {
         select: { programSlug: true, enrolledAt: true },
       },
+      // Unfiltered by date on purpose — completion is a point-in-time state
+      // ("has this cohort member finished their program as of NOW"), not an
+      // event that only counts if it happened inside this quarter. Training
+      // programs run 3-6+ months, so a member who enrolled in Q1 and finished
+      // in Q3 must still show as completed; the old completedAt-in-window
+      // filter on a separate `fetchCompletions` query silently dropped them.
       courseProgress: {
-        select: { percentComplete: true, completedAt: true },
+        select: { percentComplete: true, completedAt: true, programSlug: true, courseSlug: true },
       },
     },
   });
 }
 
+/** Completed course slugs for one program, from a member's full courseProgress rows. */
+function completedSlugsForProgram(member: EnrolledMemberRow, programSlug: string): string[] {
+  return member.courseProgress
+    .filter((cp) => cp.programSlug === programSlug && cp.completedAt !== null)
+    .map((cp) => cp.courseSlug);
+}
+
 interface CompletionRow {
   userId: string;
-  programSlug: string | null;
+  programSlug: string;
 }
 
-async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<CompletionRow[]> {
-  const [courseCompletions, certCompletions] = await Promise.all([
-    prisma.courseProgress.findMany({
-      take: 5000,
-      where: {
-        completedAt: { gte: start, lte: end },
-        user: { organizationId: orgId },
-      },
-      select: { userId: true, programSlug: true },
-    }),
-    prisma.userCertification.findMany({
-      take: 5000,
-      where: {
-        earnedAt: { gte: start, lte: end },
-        user: { organizationId: orgId },
-      },
-      select: { userId: true, user: { select: { enrolledProgram: true } } },
-    }),
-  ]);
-
+/**
+ * Every (user, program) pair the member has actually completed — 100% of
+ * that program's courses, per the SAME `memberProgramCompleted` definition
+ * `lib/partner/memberProgress.ts` uses for partner/WIOA reports and pipeline
+ * staging. Previously this report used its own looser definition ("any one
+ * course or any cert earned in-window") which could report a materially
+ * different completions count than a partner's quarterly report for the
+ * same cohort — see docs note in lib/partner/memberProgress.ts.
+ */
+function buildCompletionRows(members: ReadonlyArray<EnrolledMemberRow>): CompletionRow[] {
   const rows: CompletionRow[] = [];
-  for (const c of courseCompletions) rows.push({ userId: c.userId, programSlug: c.programSlug });
-  for (const c of certCompletions) rows.push({ userId: c.userId, programSlug: c.user.enrolledProgram });
+  for (const m of members) {
+    const slugs = m.enrolledProgram
+      ? Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug).concat(m.enrolledProgram)))
+      : Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug)));
+    for (const slug of slugs) {
+      if (memberProgramCompleted(slug, completedSlugsForProgram(m, slug))) {
+        rows.push({ userId: m.id, programSlug: slug });
+      }
+    }
+  }
   return rows;
 }
+
 
 async function fetchPlacements(orgId: string, start: Date, end: Date) {
   return prisma.placementRecord.findMany({
@@ -238,11 +251,11 @@ export async function generateQuarterlyOutcomes(
 ): Promise<QuarterlyOutcomesReport> {
   const { start, end } = quarterToDates(spec);
 
-  const [enrolledMembers, completionRows, placements] = await Promise.all([
+  const [enrolledMembers, placements] = await Promise.all([
     fetchEnrolledMembers(orgId, start, end),
-    fetchCompletions(orgId, start, end),
     fetchPlacements(orgId, start, end),
   ]);
+  const completionRows = buildCompletionRows(enrolledMembers);
 
   const completionSet = buildCompletedUserSet(completionRows);
   const totalEnrolled = enrolledMembers.length;

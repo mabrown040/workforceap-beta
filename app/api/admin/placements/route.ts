@@ -13,6 +13,7 @@ import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { awardPoints } from '@/lib/member/points';
 
 async function _GET(req: NextRequest) {
   try {
@@ -104,6 +105,11 @@ async function _POST(req: NextRequest) {
     },
   });
   logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'PlacementRecord', id: placement.id }, result: { success: true, extensions: { memberId: userId } } }).catch(() => {});
+
+  // Idempotent per (userId, event, entityId) — safe even if this route is
+  // ever hit twice for the same placement. Advertised on the points page as
+  // a 500pt event but never actually awarded prior to this fix.
+  void awardPoints(userId, 'placement_recorded', placement.id).catch(() => {});
 
   return NextResponse.json({ placement });
 

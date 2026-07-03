@@ -48,6 +48,7 @@ export default async function LearningPage() {
       select: {
         enrolledProgram: true,
         assessmentCompleted: true,
+        courseraEnrollmentApproved: true,
         courseProgress: {
           where: { status: 'COMPLETED' },
           select: { programSlug: true, courseSlug: true },
@@ -149,6 +150,8 @@ export default async function LearningPage() {
         courses={coursesForMember}
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
+        eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
+        languagesSupported={programMeta?.languagesSupported}
       />
 
       <div style={{ margin: '0 1.5rem 1.5rem' }}>
@@ -329,6 +332,8 @@ export default async function LearningPage() {
         courses={coursesForMember}
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
+        eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
+        languagesSupported={programMeta?.languagesSupported}
       />
 
       <SkillMissionPanel summary={skillMissionSummary} />

@@ -8,6 +8,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 import { analyzeResume, scoreStructural } from '@/lib/ai/resumeScore';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async (request: Request) => {
@@ -38,16 +39,20 @@ export const POST = withApiGuc(async (request: Request) => {
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
+    // Sprint R2 — pull AI coach context so the analysis narrative knows about
+    // prior tool runs (resume rewrite, interview practice) instead of starting blind.
+    const coachContextBlock = await loadCoachContextBlock(onBehalf.subjectUserId);
+
     // Multi-signal analysis: structural (deterministic) + O*NET coverage + market keywords + synthesis.
     // Falls back to structural-only if downstream stages fail.
     let result;
     try {
-      result = await analyzeResume(resume);
+      result = await analyzeResume(resume, { coachContextBlock });
     } catch (err) {
       console.error('[resume-strength] analyzeResume failed, falling back to legacy single-call:', err instanceof Error ? err.message : err);
       // Legacy fallback path
       const structural = scoreStructural(resume);
-      const legacySystem = `You are an ATS-savvy career coach. Analyze the resume.\nReturn:\nOVERALL SCORE: <0-100>%\nSTRENGTHS:\n• ...\nPRIORITY IMPROVEMENTS:\n• ...\nQUICK WINS:\n• ...`;
+      const legacySystem = `You are an ATS-savvy career coach. Analyze the resume.\nReturn:\nOVERALL SCORE: <0-100>%\nSTRENGTHS:\n• ...\nPRIORITY IMPROVEMENTS:\n• ...\nQUICK WINS:\n• ...${coachContextBlock}`;
       const legacy = await chatCompletion(
         [
           { role: 'system', content: legacySystem },

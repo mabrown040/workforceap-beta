@@ -1,6 +1,10 @@
 import { prisma } from '@/lib/db/prisma';
 import { getMemberState } from '@/lib/member/getMemberState';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { getRiskLevel } from '@/lib/member/atRiskScoring';
+
+/** Application statuses that are still "in flight" — not yet hired or rejected. */
+const OPEN_APPLICATION_STATUSES = ['pending', 'reviewing', 'interview', 'offered'] as const;
 
 /**
  * AI Coach Context — Sprint R2 (2026-Q3)
@@ -54,6 +58,24 @@ export type AICoachContext = {
     goalType: string;
     progress: string | null;
   }>;
+  /**
+   * Small, bounded snapshot of where the member is in the job pipeline —
+   * lets tools avoid suggesting "start applying" to someone already mid-process.
+   */
+  jobPipeline: {
+    /** Applications not yet in a terminal state (hired/rejected). */
+    openApplicationCount: number;
+    /** Statuses of the most recent applications (newest first, max 5). */
+    recentApplicationStatuses: string[];
+    /** Titles from the most recent AI-suggested job matches (max 5). */
+    recentMatchTitles: string[];
+  };
+  /**
+   * Retention risk tier from the latest AtRiskAlert row, derived from its
+   * stored score via the same thresholds the counselor queue uses. Null when
+   * no alert has ever been generated for this member.
+   */
+  atRiskTier: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | null;
 };
 
 export type AICoachContextOptions = {
@@ -75,7 +97,7 @@ export async function getAICoachContext(
   const limit = options.recentResultsLimit ?? 5;
   const resumeBudget = options.resumeMaxChars ?? 6000;
 
-  const [state, resumeText, recentRows, personalRow, goalRows] = await Promise.all([
+  const [state, resumeText, recentRows, personalRow, goalRows, openApplicationCount, recentApplicationRows, recentMatchRows, latestAlert] = await Promise.all([
     getMemberState(userId),
     getMemberResumePlainText(userId, resumeBudget, { preferOriginal: false }).catch(() => ''),
     prisma.aIToolResult.findMany({
@@ -121,6 +143,29 @@ export async function getAICoachContext(
       currentMetricValue: number;
       targetMetricValue: number | null;
     }>),
+    // Job-pipeline snapshot — bounded queries only, reused for the "where are
+    // they already in the process" signal so tools stop assuming a cold start.
+    prisma.jobPostingApplication.count({
+      where: { studentId: userId, status: { in: [...OPEN_APPLICATION_STATUSES] } },
+    }).catch(() => 0),
+    prisma.jobPostingApplication.findMany({
+      where: { studentId: userId },
+      orderBy: { appliedAt: 'desc' },
+      take: 5,
+      select: { status: true },
+    }).catch(() => [] as Array<{ status: string }>),
+    prisma.aIJobMatch.findMany({
+      where: { studentId: userId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { job: { select: { title: true } } },
+    }).catch(() => [] as Array<{ job: { title: string } | null }>),
+    // At-risk tier — reuse the counselor queue's score thresholds, don't recompute the score.
+    prisma.atRiskAlert.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: { score: true },
+    }).catch(() => null as { score: number } | null),
   ]);
 
   // Prefer career rec → most recent resume_rewriter output → null.
@@ -156,6 +201,16 @@ export async function getAICoachContext(
 
   const assessmentSummary = summarizeAssessmentAnswers(personalRow?.assessmentAnswers ?? null);
 
+  const jobPipeline = {
+    openApplicationCount,
+    recentApplicationStatuses: recentApplicationRows.map((r) => r.status),
+    recentMatchTitles: recentMatchRows
+      .map((m) => m.job?.title)
+      .filter((t): t is string => Boolean(t && t.trim().length > 0)),
+  };
+
+  const atRiskTier = latestAlert ? getRiskLevel(latestAlert.score) : null;
+
   const activeGoals = goalRows.map((g) => ({
     title: g.title,
     goalType: g.goalType,
@@ -187,6 +242,8 @@ export async function getAICoachContext(
     recommendedCareers,
     assessmentSummary,
     activeGoals,
+    jobPipeline,
+    atRiskTier,
   };
 }
 
@@ -287,6 +344,21 @@ export function renderCoachContextForPrompt(ctx: AICoachContext): string {
       .map((r) => `${humanLabelForToolType(r.toolType)} (${r.summary.slice(0, 40)})`)
       .join('; ');
     lines.push(`- Recent AI work: ${recentLabels}`);
+  }
+
+  if (ctx.jobPipeline.openApplicationCount > 0) {
+    lines.push(
+      `- Has ${ctx.jobPipeline.openApplicationCount} open job application(s) in progress (${ctx.jobPipeline.recentApplicationStatuses.slice(0, 5).join(', ')}) — don't treat them as if they haven't started applying yet.`
+    );
+  }
+  if (ctx.jobPipeline.recentMatchTitles.length > 0) {
+    lines.push(`- AI has recently surfaced these job matches for them: ${ctx.jobPipeline.recentMatchTitles.join(', ')}.`);
+  }
+
+  if (ctx.atRiskTier === 'CRITICAL' || ctx.atRiskTier === 'HIGH') {
+    lines.push(
+      `- This member is flagged ${ctx.atRiskTier.toLowerCase()} risk of disengaging — be extra encouraging, keep next steps small and concrete, and end with one clear action.`
+    );
   }
 
   return lines.join('\n');

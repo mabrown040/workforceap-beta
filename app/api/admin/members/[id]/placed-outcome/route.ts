@@ -8,6 +8,7 @@ import { trackEvent } from '@/lib/events/track';
 import { auditLog } from '@/lib/audit';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
+import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
@@ -157,8 +158,10 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     }).catch(() => {})
   );
 
-  // Partner milestone email on first placement only
+  // Points + partner milestone email on first placement only — edits to an
+  // existing record (correcting a typo, adding wage data) must not re-award.
   if (!prior) {
+    after(() => awardPoints(memberId, 'placement_recorded', placement.id).catch(() => {}));
     after(() =>
       sendPartnerMilestoneEmail(memberId, 'Job placement', {
         Employer: d.employerName,

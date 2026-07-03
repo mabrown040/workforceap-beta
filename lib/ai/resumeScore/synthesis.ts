@@ -94,10 +94,18 @@ function renderInput(input: SynthesisInput, resume: string): string {
 /**
  * Generate final personalized analysis using all gathered structural + O*NET + market signal.
  * Falls back gracefully to structural-only if LLM call fails.
+ *
+ * `coachContextBlock` is additive (Sprint R2 coach-context pattern) — pass the
+ * output of `loadCoachContextBlock(userId)` so the narrative can reference
+ * prior tool runs/goals/barriers without changing the scoring output format.
  */
-export async function synthesizeAnalysis(input: SynthesisInput, resume: string): Promise<string | null> {
+export async function synthesizeAnalysis(
+  input: SynthesisInput,
+  resume: string,
+  coachContextBlock = '',
+): Promise<string | null> {
   const userContent = renderInput(input, resume);
-  return await claudeChat(SYSTEM_PROMPT, userContent, { maxTokens: 1400, temperature: 0.3 });
+  return await claudeChat(`${SYSTEM_PROMPT}${coachContextBlock}`, userContent, { maxTokens: 1400, temperature: 0.3 });
 }
 
 export { renderInput as _renderInputForTests };

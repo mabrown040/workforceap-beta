@@ -40,3 +40,4 @@ export { wioaReportHtml } from './wioa-report';
 export { memberCheckInHtml, memberCheckInSubject } from './member-check-in';
 export { memberComeBackHtml, memberComeBackSubject } from './member-come-back';
 export { memberStuckHtml, memberStuckSubject } from './member-stuck';
+export { jobAlertDigestHtml } from './job-alert-digest';

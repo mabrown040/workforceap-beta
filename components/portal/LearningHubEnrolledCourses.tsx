@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import type { ProgramCourse } from '@/lib/content/programs';
+import type { LanguageSupport, ProgramCourse } from '@/lib/content/programs';
 
 type LearningHubEnrolledCoursesProps = {
   programTitle: string | null;
@@ -11,7 +11,32 @@ type LearningHubEnrolledCoursesProps = {
   completedSlugs: string[];
   assessmentCompleted: boolean;
   variant?: 'mobile' | 'desktop';
+  /** Server-truth Coursera enrollment eligibility for the signed-in member. */
+  eligibilityApproved?: boolean;
+  /** Per-language course support (audio/subtitles) for the enrolled program. */
+  languagesSupported?: LanguageSupport;
 };
+
+const LANGUAGE_LABELS: Record<keyof LanguageSupport, string> = {
+  es: 'Español',
+  pt: 'Português',
+  fr: 'Français',
+};
+
+const LANGUAGE_LEVEL_LABELS: Record<LanguageSupport[keyof LanguageSupport], string> = {
+  full: 'full audio',
+  subtitles: 'subtitles',
+  'ai-subtitles': 'AI subtitles',
+  none: '',
+};
+
+function buildLanguageSupportLine(languagesSupported?: LanguageSupport): string | null {
+  if (!languagesSupported) return null;
+  const parts = (Object.keys(LANGUAGE_LABELS) as (keyof LanguageSupport)[])
+    .filter((lang) => languagesSupported[lang] && languagesSupported[lang] !== 'none')
+    .map((lang) => `${LANGUAGE_LABELS[lang]}: ${LANGUAGE_LEVEL_LABELS[languagesSupported[lang]]}`);
+  return parts.length > 0 ? parts.join(' · ') : null;
+}
 
 export default function LearningHubEnrolledCourses({
   programTitle,
@@ -19,6 +44,8 @@ export default function LearningHubEnrolledCourses({
   completedSlugs,
   assessmentCompleted,
   variant = 'desktop',
+  eligibilityApproved = false,
+  languagesSupported,
 }: LearningHubEnrolledCoursesProps) {
   const isMobile = variant === 'mobile';
   const wrapStyle = isMobile
@@ -54,6 +81,8 @@ export default function LearningHubEnrolledCourses({
       : pct === 100
         ? 'var(--color-green, rgb(22, 163, 74))'
         : 'var(--color-accent)';
+
+  const languageSupportLine = buildLanguageSupportLine(languagesSupported);
 
   return (
     <section style={wrapStyle}>
@@ -94,6 +123,14 @@ export default function LearningHubEnrolledCourses({
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
               {completedInProgram} of {courses.length} courses marked complete
             </p>
+            {languageSupportLine ? (
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.3rem' }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.9rem', verticalAlign: '-0.15em', marginRight: '0.25rem' }}>
+                  translate
+                </span>
+                {languageSupportLine}
+              </p>
+            ) : null}
           </div>
           <Link href="/dashboard" className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
             Open Training page
@@ -156,7 +193,11 @@ export default function LearningHubEnrolledCourses({
           </p>
         ) : null}
 
-        <TrainingCourseList courses={courses} completedSlugs={completedSlugs} />
+        <TrainingCourseList
+          courses={courses}
+          completedSlugs={completedSlugs}
+          eligibilityApproved={eligibilityApproved}
+        />
       </div>
     </section>
   );

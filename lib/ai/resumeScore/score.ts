@@ -51,7 +51,10 @@ function averageScore(results: { coverageScore: number }[]): number | null {
  *
  * Missing pillars redistribute weight to remaining pillars proportionally.
  */
-export async function analyzeResume(resume: string): Promise<ResumeAnalysisResult> {
+export async function analyzeResume(
+  resume: string,
+  options: { coachContextBlock?: string } = {},
+): Promise<ResumeAnalysisResult> {
   const t0 = Date.now();
 
   // 1. Structural (sync, ~1ms)
@@ -114,6 +117,7 @@ export async function analyzeResume(resume: string): Promise<ResumeAnalysisResul
   const narrative = await synthesizeAnalysis(
     { structural, occupations, onetCoverage, marketCoverage },
     resume,
+    options.coachContextBlock ?? '',
   ).catch((err) => {
     console.error('[resumeScore] synthesizeAnalysis failed:', err instanceof Error ? err.message : err);
     return null;

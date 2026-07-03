@@ -284,6 +284,7 @@ model User {
   memberFeedback         MemberFeedback[]
   notifications          Notification[]
   pushSubscriptions      PushSubscription[]
+  savedJobs              SavedJob[]
 
   chaptersLed            Chapter[]       @relation("ChapterLeader")
   chapterMemberships     ChapterMember[]
@@ -1581,6 +1582,7 @@ model Job {
   applications      JobPostingApplication[]
   aiMatches         AIJobMatch[]
   memberTrackerRows JobApplication[]
+  savedByUsers      SavedJob[]
 
   @@index([employerId])
   @@index([organizationId])
@@ -2759,6 +2761,20 @@ model PushSubscription {
 
   @@index([userId])
   @@map("push_subscriptions")
+}
+
+model SavedJob {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  jobId     String   @map("job_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@map("saved_jobs")
 }
 
 // --- WAP Careers (internal hiring) ---

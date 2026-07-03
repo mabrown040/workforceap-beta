@@ -13,7 +13,15 @@ export type NotificationType =
   | 'job_match'
   | 'survey_due'
   | 'task_assigned'
-  | 'broadcast';
+  | 'broadcast'
+  // Employer moved the member's application (interview/offered/hired/rejected).
+  | 'application_update'
+  | 'certificate_earned'
+  // Full-program completion — distinct from per-course 'course_complete'.
+  | 'program_complete'
+  | 'placement'
+  // Re-engagement (inactivity, course accountability, at-risk outreach).
+  | 'nudge';
 
 export interface CreateNotificationInput {
   userId: string;

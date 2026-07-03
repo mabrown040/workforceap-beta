@@ -18,6 +18,13 @@ type ModuleState = 'done' | 'active' | 'locked';
 interface ProgramModule {
   title: string;
   state: ModuleState;
+  /**
+   * Course slug, when known. Enables deep-linking the row's CTA to the
+   * matching course card on the Learning Hub (`#course-{slug}` anchor,
+   * matching the `id` TrainingCourseList sets on each card) instead of a
+   * single generic "Resume Module" button up top.
+   */
+  slug?: string;
 }
 
 export interface MemberProgramKitProps {
@@ -190,6 +197,12 @@ export function MemberProgramKit({
                 const meta = MODULE_META[m.state];
                 const Icon = meta.icon;
                 const dim = m.state === 'locked';
+                const isActive = m.state === 'active';
+                // Deep-link to the matching course card on the Learning Hub
+                // when we know its slug (anchor scroll via the `id` set on
+                // each TrainingCourseList card); otherwise fall back to the
+                // hub page itself rather than a dead link.
+                const moduleHref = m.slug ? `${resumeHref}#course-${m.slug}` : resumeHref;
                 return (
                   <div
                     key={m.title}
@@ -220,9 +233,31 @@ export function MemberProgramKit({
                     <span style={{ fontWeight: 600, fontSize: 14, flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
                       {m.title}
                     </span>
-                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: meta.color }}>
-                      {meta.label}
-                    </span>
+                    {isActive ? (
+                      <a
+                        href={moduleHref}
+                        className="wa-kit-focus"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: 'var(--wa-on-accent)',
+                          background: 'var(--wa-accent)',
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          textDecoration: 'none',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Continue in Coursera <ArrowRight size={11} />
+                      </a>
+                    ) : (
+                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: meta.color }}>
+                        {meta.label}
+                      </span>
+                    )}
                   </div>
                 );
               })}

@@ -289,6 +289,7 @@ export default function TrainingCourseList({
         return (
           <div
             key={c.slug}
+            id={`course-${c.slug}`}
             data-course-slug={c.slug}
             data-course-id={c.courseraCourseId ?? undefined}
             className={`training-course-card${isUpNext ? ' training-course-card--up-next' : ''}`}

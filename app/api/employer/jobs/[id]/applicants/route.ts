@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { notifyAndRecordPlacement } from '@/lib/employer/applicationStatusEffects';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -86,7 +87,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(
 
     const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
       where: { id: applicantId, jobId: id },
-      select: { id: true },
+      select: { id: true, status: true },
     }));
     if (!application) return NextResponse.json({ error: 'Applicant not found' }, { status: 404 });
 
@@ -108,6 +109,15 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       object: { type: 'JobApplication', id: applicantId },
       result: { success: true, extensions: { jobId: id, nextStatus: updated.status } },
     }).catch(() => {});
+
+    if (updated.status !== application.status) {
+      void notifyAndRecordPlacement({
+        applicationId: applicantId,
+        studentId: updated.studentId,
+        employerId: ctx.employerId,
+        nextStatus: updated.status,
+      });
+    }
 
     return NextResponse.json({ ok: true, application: updated });
   } catch (error) {

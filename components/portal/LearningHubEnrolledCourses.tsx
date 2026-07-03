@@ -11,6 +11,8 @@ type LearningHubEnrolledCoursesProps = {
   completedSlugs: string[];
   assessmentCompleted: boolean;
   variant?: 'mobile' | 'desktop';
+  /** Server-truth Coursera enrollment eligibility for the signed-in member. */
+  eligibilityApproved?: boolean;
 };
 
 export default function LearningHubEnrolledCourses({
@@ -19,6 +21,7 @@ export default function LearningHubEnrolledCourses({
   completedSlugs,
   assessmentCompleted,
   variant = 'desktop',
+  eligibilityApproved = false,
 }: LearningHubEnrolledCoursesProps) {
   const isMobile = variant === 'mobile';
   const wrapStyle = isMobile
@@ -156,7 +159,11 @@ export default function LearningHubEnrolledCourses({
           </p>
         ) : null}
 
-        <TrainingCourseList courses={courses} completedSlugs={completedSlugs} />
+        <TrainingCourseList
+          courses={courses}
+          completedSlugs={completedSlugs}
+          eligibilityApproved={eligibilityApproved}
+        />
       </div>
     </section>
   );

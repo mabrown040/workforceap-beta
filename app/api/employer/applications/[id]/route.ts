@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { notifyAndRecordPlacement } from '@/lib/employer/applicationStatusEffects';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -77,6 +78,15 @@ const updateSchema = z.object({
     object: { type: 'JobApplication', id },
     result: { success: true, extensions: { previousStatus: application.status, nextStatus: updated.status } },
   }).catch(() => {});
+
+  if (updated.status !== application.status) {
+    void notifyAndRecordPlacement({
+      applicationId: id,
+      studentId: updated.studentId,
+      employerId: ctx.employerId,
+      nextStatus: updated.status,
+    });
+  }
 
   return NextResponse.json({ ok: true, application: updated });
 

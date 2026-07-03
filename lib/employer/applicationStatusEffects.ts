@@ -3,6 +3,7 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { createNotification } from '@/lib/notifications/create';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { awardPoints } from '@/lib/member/points';
 
 const APPLICATION_STATUS_MESSAGE: Record<string, { title: string; body: (jobTitle: string) => string }> = {
   interview: {
@@ -93,6 +94,8 @@ export async function notifyAndRecordPlacement(args: {
         notes: 'Auto-created when the employer marked this application hired. Verify start date and wage.',
       },
     });
+
+    void awardPoints(studentId, 'placement_recorded', placement.id).catch(() => {});
 
     void createNotification({
       userId: studentId,

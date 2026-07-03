@@ -6,6 +6,7 @@ import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAcc
 import { buildPlacementsQuery } from '@/lib/counselor/placementsQuery';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -111,6 +112,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   `;
 
   const row = (placement as any[])[0];
+
+  // Idempotent per (userId, event, entityId) — safe on retry.
+  void awardPoints(userId, 'placement_recorded', row.id).catch(() => {});
 
   auditLog({
     actorUserId: user.id,

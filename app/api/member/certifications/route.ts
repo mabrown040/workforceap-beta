@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { trackEvent } from '@/lib/events/track';
 import { awardPoints } from '@/lib/member/points';
+import { createNotification } from '@/lib/notifications/create';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -89,6 +90,16 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
 
       // Award points (idempotent per cert name)
       after(() => awardPoints(user.id, 'certification_earned', certName).catch(() => {}));
+
+      after(() =>
+        createNotification({
+          userId: user.id,
+          type: 'certificate_earned',
+          title: `You earned ${certName}!`,
+          body: 'Add it to your resume and check out jobs matched to your new credential.',
+          data: { link: '/dashboard/jobs' },
+        }).catch(() => {})
+      );
 
       after(() =>
         sendPartnerMilestoneEmail(user.id, 'Certification earned', {

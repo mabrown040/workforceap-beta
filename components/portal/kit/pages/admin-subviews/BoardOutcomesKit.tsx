@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FileSpreadsheet, Users, ArrowRight } from 'lucide-react';
+import { FileSpreadsheet, Users, ArrowRight, FileText } from 'lucide-react';
 import { Card } from '@astryxdesign/core/Card';
 import { ClickableCard } from '@astryxdesign/core/ClickableCard';
 import {
@@ -71,11 +71,22 @@ const DEFAULT_EXPORTS: FunderExport[] = [
     href: '/api/admin/outcomes/snapshot?format=csv',
   },
   {
+    label: 'Board meeting PDF',
+    description: 'Printable board packet with KPIs, cohorts, and data notes.',
+    href: '/api/admin/outcomes/snapshot?format=pdf',
+  },
+  {
     label: 'Demographics report',
     description: 'Enrollment & outcomes broken out by demographic.',
     href: '/api/admin/outcomes/snapshot?format=md',
   },
 ];
+
+function exportIcon(label: string) {
+  if (label === 'Demographics report') return <Users size={18} aria-hidden />;
+  if (label === 'Board meeting PDF') return <FileText size={18} aria-hidden />;
+  return <FileSpreadsheet size={18} aria-hidden />;
+}
 
 export function BoardOutcomesKit({
   kpis = DEFAULT_KPIS,
@@ -136,52 +147,48 @@ export function BoardOutcomesKit({
 
       {/* Funder exports */}
       {showExports && (
-      <Card className="wa-mt-6">
-        <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 4 }}>
-          Funder exports
-        </h3>
-        <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginBottom: 16 }}>
-          Download the files funders and the board ask for.
-        </p>
-        <div className="wa-space-y-2">
-          {exports.map((exp) => (
-            <ClickableCard key={exp.label} label={exp.label} href={exp.href} padding={3}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                }}
-              >
+        <Card className="wa-mt-6">
+          <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 4 }}>
+            Funder exports
+          </h3>
+          <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginBottom: 16 }}>
+            Download the files funders and the board ask for.
+          </p>
+          <div className="wa-space-y-2">
+            {exports.map((exp) => (
+              <ClickableCard key={exp.label} label={exp.label} href={exp.href} padding={3}>
                 <div
                   style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 12,
-                    background: 'var(--wa-accent-soft)',
-                    color: 'var(--wa-accent)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
+                    gap: 12,
                   }}
                 >
-                  {exp.label === 'Demographics report' ? (
-                    <Users size={18} aria-hidden />
-                  ) : (
-                    <FileSpreadsheet size={18} aria-hidden />
-                  )}
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 12,
+                      background: 'var(--wa-accent-soft)',
+                      color: 'var(--wa-accent)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {exportIcon(exp.label)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{exp.label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{exp.description}</div>
+                  </div>
+                  <ArrowRight size={16} aria-hidden style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
                 </div>
-                <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>{exp.label}</div>
-                  <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{exp.description}</div>
-                </div>
-                <ArrowRight size={16} aria-hidden style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
-              </div>
-            </ClickableCard>
-          ))}
-        </div>
-      </Card>
+              </ClickableCard>
+            ))}
+          </div>
+        </Card>
       )}
     </DesignSurface>
   );

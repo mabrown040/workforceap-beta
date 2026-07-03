@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { getBoardSnapshot, BoardOutcomesPeriod, formatBoardSnapshotMarkdown } from '@/lib/admin/boardOutcomes';
+import { getBoardSnapshot, BoardOutcomesPeriod, formatBoardSnapshotMarkdown, formatBoardSnapshotPdf } from '@/lib/admin/boardOutcomes';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { auditLog } from '@/lib/audit';
@@ -54,6 +54,18 @@ async function _GET(request: NextRequest) {
         headers: {
           'Content-Type': 'text/markdown; charset=utf-8',
           'Content-Disposition': `attachment; filename="${exportFilename('outcomes-snapshot', 'md')}"`,
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+
+    if (format === 'pdf') {
+      const pdf = await formatBoardSnapshotPdf(snapshot);
+      return new NextResponse(new Uint8Array(pdf), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${exportFilename('outcomes-snapshot', 'pdf')}"`,
           'Cache-Control': 'no-store',
         },
       });

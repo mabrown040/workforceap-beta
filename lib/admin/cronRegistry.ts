@@ -374,7 +374,9 @@ export const CRON_REGISTRY: CronDef[] = [
     scheduleLabel: 'Daily 7:45AM UTC',
     apiPath: '/api/cron/job-expiry',
     method: 'GET',
-    icon: 'event_busy',
+    // 'timer' is in the committed Material Symbols subset; 'event_busy' was
+    // not, and the font-subset build guard fails on unsubsetted glyphs.
+    icon: 'timer',
     category: 'employer',
     audienceDescription: 'Employers with jobs that just auto-expired',
     workflowKey: 'cron_job_expiry',

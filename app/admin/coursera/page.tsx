@@ -458,12 +458,20 @@ export default async function AdminCourseraPage({
           activeLast30Days={String(kitActiveLast30Days)}
           forceSyncHref="/admin/coursera?ui=legacy"
           headerAction={
-            <Link
-              href="/admin/coursera/health"
-              style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-info)' }}
-            >
-              Coursera health →
-            </Link>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <Link
+                href="/admin/coursera/enrollment"
+                style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-info)' }}
+              >
+                Enrollment pipeline →
+              </Link>
+              <Link
+                href="/admin/coursera/health"
+                style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-info)' }}
+              >
+                Coursera health →
+              </Link>
+            </div>
           }
         />
       </PortalPageFrame>
@@ -660,6 +668,30 @@ export default async function AdminCourseraPage({
             mbox when no manual row applies.
           </p>
         </div>
+
+        <Link
+          href="/admin/coursera/enrollment"
+          className="content-card"
+          style={{
+            padding: '1rem 1.2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            textDecoration: 'none',
+            color: 'inherit',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>Coursera enrollment command center →</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              Every member with an assigned program: approved / approved-but-not-started / active / stalled / completed,
+              plus one-click approve and enroll.
+            </span>
+          </div>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>Open</span>
+        </Link>
 
         <Link
           href="/admin/coursera/health"

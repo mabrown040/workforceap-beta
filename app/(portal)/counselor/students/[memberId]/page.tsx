@@ -34,6 +34,8 @@ import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import MemberProgressTimeline from '@/components/portal/counselor/MemberProgressTimeline';
 import type { TimelineEvent } from '@/components/portal/counselor/MemberProgressTimeline';
+import { getRiskLevel } from '@/lib/member/atRiskScoring';
+import type { CareerMatchResult } from '@/lib/onet/types';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -79,6 +81,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       wioaReviewedAt: true,
       wioaReviewedByUserId: true,
       wioaReviewNotes: true,
+      careerRecommendationJson: true,
       createdAt: true,
       // Multi-program-aware: load ALL course enrollments so we can render
       // secondary programs below the primary block (instead of hiding them
@@ -213,7 +216,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     ? Math.round(100 / (programAvg[0]._avg.averagePercent || 1) * 30)
     : null;
 
-  const [applications, aiMatches, memberPts, recentTx, pitchDeployments] = await Promise.all([
+  const [applications, aiMatches, memberPts, recentTx, pitchDeployments, latestAtRiskAlert, pendingNextBestActions] = await Promise.all([
     prisma.jobPostingApplication.findMany({
       take: 5000,
       where: { studentId: memberId },
@@ -243,7 +246,48 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       take: 5,
       select: { id: true, metadata: true, createdAt: true },
     }).catch(() => []),
+    // Counselor 360: latest persisted at-risk classification (nightly scan —
+    // see lib/member/atRiskScoring.ts). Composition only, no rescoring here.
+    prisma.atRiskAlert.findFirst({
+      where: { userId: memberId },
+      orderBy: { createdAt: 'desc' },
+      select: { score: true, status: true, factors: true, createdAt: true },
+    }).catch(() => null),
+    // Counselor 360: member's current persisted next-best-action queue
+    // (same model + shape as the member dashboard's career-brief widget).
+    prisma.memberNextBestAction.findMany({
+      where: { memberId, status: 'PENDING' },
+      orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+      take: 5,
+      select: { id: true, title: true, description: true, ctaLabel: true, ctaHref: true, icon: true, priority: true },
+    }).catch(() => []),
   ]);
+
+  // Counselor 360: at-risk tier + factors (composition of the persisted alert row).
+  type AtRiskFactorDisplay = { name: string; weight: number; description: string };
+  function asAtRiskFactors(value: unknown): AtRiskFactorDisplay[] {
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+      (f): f is AtRiskFactorDisplay =>
+        typeof f === 'object' && f !== null && typeof (f as { description?: unknown }).description === 'string',
+    );
+  }
+  const atRiskAlertDisplay = latestAtRiskAlert
+    ? {
+        score: latestAtRiskAlert.score,
+        status: latestAtRiskAlert.status,
+        createdAt: latestAtRiskAlert.createdAt,
+        factors: asAtRiskFactors(latestAtRiskAlert.factors),
+      }
+    : null;
+
+  // Counselor 360: career-quiz top occupations (same JSON column + shape the
+  // member dashboard and AI coach context already read — see
+  // lib/ai/aiCoachContext.ts and lib/member/getMemberState.ts).
+  const careerRecommendation = member.careerRecommendationJson as CareerMatchResult | null;
+  const topOccupations = Array.isArray(careerRecommendation?.topOccupations)
+    ? careerRecommendation.topOccupations.slice(0, 3)
+    : [];
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const messages = await prisma.message.findMany({
@@ -579,6 +623,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           </div>
         )}
 
+        {/* Counselor 360 signals — at-risk, career quiz, next-best-actions */}
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <Counselor360Signals
+            atRiskAlert={atRiskAlertDisplay}
+            topOccupations={topOccupations}
+            nextBestActions={pendingNextBestActions}
+          />
+        </div>
+
         {/* Progress Timeline */}
         <div style={{ padding: '0 1rem 1rem' }}>
           <MemberProgressTimeline events={timelineEvents} programAvgDays={programAvgDays} />
@@ -894,6 +947,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </section>
           )}
 
+          {/* Counselor 360 signals — at-risk, career quiz, next-best-actions */}
+          <section style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Counselor 360 Signals</h2>
+            <Counselor360Signals
+              atRiskAlert={atRiskAlertDisplay}
+              topOccupations={topOccupations}
+              nextBestActions={pendingNextBestActions}
+            />
+          </section>
+
           {/* Elevator pitch deployments — desktop */}
           <section style={{ marginTop: '1.5rem', maxWidth: 640 }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Elevator Pitch Usage</h2>
@@ -1072,5 +1135,159 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       </div>
 
     </>
+  );
+}
+
+// ─── Counselor 360 signals ──────────────────────────────────────────────────
+// Three compact, read-only cards composed entirely from data already
+// computed elsewhere (persisted at-risk alert, career-quiz JSON, and the
+// member's persisted next-best-action queue). No new scoring/derivation.
+
+type AtRiskAlertDisplay = {
+  score: number;
+  status: string;
+  createdAt: Date;
+  factors: { name: string; weight: number; description: string }[];
+} | null;
+
+type NextBestActionRow = {
+  id: string;
+  title: string;
+  description: string;
+  ctaLabel: string;
+  ctaHref: string;
+  icon: string | null;
+  priority: number;
+};
+
+function Counselor360Signals({
+  atRiskAlert,
+  topOccupations,
+  nextBestActions,
+}: {
+  atRiskAlert: AtRiskAlertDisplay;
+  topOccupations: CareerMatchResult['topOccupations'];
+  nextBestActions: NextBestActionRow[];
+}) {
+  return (
+    <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+      <AtRiskSignalCard alert={atRiskAlert} />
+      <CareerQuizRecommendationCard occupations={topOccupations} />
+      <NextBestActionsCard actions={nextBestActions} />
+    </div>
+  );
+}
+
+const CARD_STYLE = { padding: '1.25rem', border: '1px solid var(--outline-variant)' } as const;
+
+function AtRiskSignalCard({ alert }: { alert: AtRiskAlertDisplay }) {
+  if (!alert) {
+    return (
+      <div className="portal-card portal-card--flat" style={CARD_STYLE}>
+        <h3 style={{ fontWeight: 700, fontSize: '0.9rem', margin: '0 0 0.5rem' }}>At-Risk Signal</h3>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          No at-risk alert on file — the nightly risk scan hasn&apos;t flagged this member.
+        </p>
+      </div>
+    );
+  }
+  const level = getRiskLevel(alert.score);
+  const color =
+    level === 'CRITICAL'
+      ? 'var(--color-accent)'
+      : level === 'HIGH'
+        ? 'var(--color-gold)'
+        : level === 'MEDIUM'
+          ? 'var(--color-blue)'
+          : 'var(--color-green)';
+  return (
+    <div className="portal-card portal-card--flat" style={{ ...CARD_STYLE, borderLeft: `4px solid ${color}` }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <h3 style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0 }}>At-Risk Signal</h3>
+        <span style={{ fontWeight: 700, fontSize: '0.8rem', color, whiteSpace: 'nowrap' }}>
+          {level} · {alert.score}
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.5rem' }}>
+        {alert.factors.length > 0 ? (
+          alert.factors.map((f) => (
+            <span
+              key={f.name}
+              title={`weight ${f.weight}`}
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.2rem 0.5rem',
+                borderRadius: '999px',
+                background: 'var(--surface-container-high)',
+                color: 'var(--color-on-surface-variant)',
+                fontWeight: 500,
+              }}
+            >
+              {f.description}
+            </span>
+          ))
+        ) : (
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>No specific factors recorded.</span>
+        )}
+      </div>
+      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+        Status: <strong style={{ color: 'var(--color-on-surface)' }}>{alert.status}</strong> · scanned{' '}
+        {alert.createdAt.toLocaleDateString()}
+      </p>
+    </div>
+  );
+}
+
+function CareerQuizRecommendationCard({ occupations }: { occupations: CareerMatchResult['topOccupations'] }) {
+  return (
+    <div className="portal-card portal-card--flat" style={CARD_STYLE}>
+      <h3 style={{ fontWeight: 700, fontSize: '0.9rem', margin: '0 0 0.5rem' }}>Career Quiz Recommendation</h3>
+      {occupations.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          This member hasn&apos;t completed the career quiz yet.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {occupations.map((o, idx) => (
+            <div key={o.onetCode ?? o.title} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: idx === 0 ? 700 : 500 }}>{o.title}</span>
+              {typeof o.confidence === 'number' ? (
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', whiteSpace: 'nowrap' }}>
+                  {Math.round(o.confidence)}% match
+                </span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NextBestActionsCard({ actions }: { actions: NextBestActionRow[] }) {
+  return (
+    <div className="portal-card portal-card--flat" style={CARD_STYLE}>
+      <h3 style={{ fontWeight: 700, fontSize: '0.9rem', margin: '0 0 0.5rem' }}>Next Best Actions</h3>
+      {actions.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          No pending next-best-actions queued for this member.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {actions.map((a) => (
+            <div key={a.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', padding: '0.5rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden="true">
+                {a.icon || 'bolt'}
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600 }}>{a.title}</p>
+                <p style={{ margin: '0.15rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>{a.description}</p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{a.ctaLabel}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

@@ -5,6 +5,8 @@ import {
   GraduationCap,
   ArrowRight,
   Home,
+  Flame,
+  Target,
 } from 'lucide-react';
 import {
   DataTable,
@@ -33,6 +35,12 @@ interface PipelineRow {
   tone: JobStageTone;
 }
 
+interface GoalSummary {
+  title: string;
+  /** 0–100 completion. */
+  percent: number;
+}
+
 export interface MemberHomeKitProps {
   firstName?: string;
   greeting?: string;
@@ -55,6 +63,12 @@ export interface MemberHomeKitProps {
   toolkitHref?: string;
   jobsHref?: string;
   coursesHref?: string;
+  /** Daily-habit streak (see lib/member/streaks.ts). 0 renders nothing. */
+  currentStreak?: number;
+  longestStreak?: number;
+  /** Up to a few active goals for the compact goals summary tile. */
+  goals?: GoalSummary[];
+  goalsHref?: string;
 }
 
 const DEFAULT_PIPELINE: PipelineRow[] = [
@@ -82,6 +96,10 @@ export function MemberHomeKit({
   toolkitHref = '/dashboard/toolkit',
   jobsHref = '/dashboard/jobs',
   coursesHref = '#',
+  currentStreak = 0,
+  longestStreak = 0,
+  goals = [],
+  goalsHref = '/dashboard?ui=legacy&tab=learning#goals',
 }: MemberHomeKitProps) {
   const pct = Math.max(0, Math.min(100, Math.round(coursePercent)));
   const pipelineColumns: Column<PipelineRow>[] = [
@@ -131,6 +149,30 @@ export function MemberHomeKit({
             Keep climbing, {firstName}.
           </h2>
         </div>
+
+        {/* Compact streak/points banner — restores the motivation stack on
+            the lean home kit. Renders nothing when there's no streak yet. */}
+        {currentStreak > 0 && (
+          <div
+            className="wa-kit-card"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '10px 14px',
+              background: 'color-mix(in srgb, var(--wa-gold, #f97316) 8%, var(--wa-surface, transparent))',
+              borderColor: 'color-mix(in srgb, var(--wa-gold, #f97316) 30%, transparent)',
+            }}
+          >
+            <Flame size={18} color="var(--wa-gold, #f97316)" aria-hidden />
+            <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--wa-text)' }}>
+              {currentStreak}-day streak
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
+              {longestStreak > currentStreak ? `· Best: ${longestStreak} days` : '· Your best yet — keep it going!'}
+            </span>
+          </div>
+        )}
 
         {/* KPI strip */}
         <KpiStrip
@@ -237,6 +279,50 @@ export function MemberHomeKit({
               <div className="wa-kit-bar-fill" style={{ width: `${nextBadgePercent}%`, background: 'var(--wa-gold)' }} />
             </div>
           </div>
+
+          {/* Goals summary */}
+          <a
+            href={goalsHref}
+            className="wa-kit-card wa-kit-card--hover wa-kit-focus"
+            style={{ display: 'flex', flexDirection: 'column', minHeight: 180, textDecoration: 'none', gap: 10 }}
+          >
+            <div className="wa-flex wa-items-center wa-justify-between">
+              <div
+                style={{ padding: 12, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
+              >
+                <Target size={20} />
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-accent)' }}>
+                {goals.length} active
+              </span>
+            </div>
+            {goals.length === 0 ? (
+              <div>
+                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>Goals</h3>
+                <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
+                  Set a goal to track your momentum.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {goals.slice(0, 3).map((g) => (
+                  <div key={g.title}>
+                    <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 3 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {g.title}
+                      </span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6 }}>
+                        {g.percent}%
+                      </span>
+                    </div>
+                    <div className="wa-kit-bar-track" role="progressbar" aria-valuenow={g.percent} aria-valuemin={0} aria-valuemax={100} aria-label={`${g.title} progress`}>
+                      <div className="wa-kit-bar-fill" style={{ width: `${g.percent}%`, background: 'var(--wa-accent)' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </a>
 
           {/* Active Job Pipeline (2-wide) */}
           <div className="wa-kit-card md:wa-col-span-2">

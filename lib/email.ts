@@ -50,6 +50,7 @@ import {
   memberComeBackSubject,
   memberStuckHtml,
   memberStuckSubject,
+  jobAlertDigestHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -1234,6 +1235,41 @@ export async function sendInactiveNudgeEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendInactiveNudgeEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Weekly job alert digest — sent to actively-job-searching members
+ * (saved job / application / AI match on file) when new live postings
+ * match their enrolled program. See app/api/cron/job-alerts/route.ts.
+ */
+export async function sendJobAlertDigestEmail(params: {
+  to: string;
+  firstName: string;
+  jobs: { title: string; company: string; location: string | null }[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendJobAlertDigestEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'New jobs match your program',
+    bodyHtml: jobAlertDigestHtml({ firstName: params.firstName, jobs: params.jobs }),
+    ctaText: 'View Jobs',
+    ctaUrl: `${SITE_URL}/dashboard/jobs`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`${params.jobs.length} new job${params.jobs.length === 1 ? '' : 's'} match your program`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendJobAlertDigestEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

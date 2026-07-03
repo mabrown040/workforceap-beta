@@ -151,6 +151,7 @@ export default async function LearningPage() {
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
         eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
+        languagesSupported={programMeta?.languagesSupported}
       />
 
       <div style={{ margin: '0 1.5rem 1.5rem' }}>
@@ -332,6 +333,7 @@ export default async function LearningPage() {
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
         eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
+        languagesSupported={programMeta?.languagesSupported}
       />
 
       <SkillMissionPanel summary={skillMissionSummary} />

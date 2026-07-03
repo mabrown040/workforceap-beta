@@ -180,7 +180,7 @@ async function renderMemberDashboard(
     // Cheap, count/findMany-only queries — keep the lean path fast (no
     // loadMemberCareerBriefBundle / getMemberState / B4B). These mirror the
     // existing Promise.all style and feed the richer MemberHomeKit.
-    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline] = await withDbRetry(() => Promise.all([
+    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline, leanGoals] = await withDbRetry(() => Promise.all([
       prisma.courseEnrollment.findFirst({
         where: { userId: user.id, isPrimary: true },
         select: { programSlug: true },
@@ -194,10 +194,10 @@ async function renderMemberDashboard(
       }),
       // Earned certifications (logged via LogCertificationModal).
       prisma.userCertification.count({ where: { userId: user.id } }),
-      // Lifetime points total (single denormalized row).
+      // Lifetime points total + daily-habit streak (single denormalized row).
       prisma.memberPoints.findUnique({
         where: { userId: user.id },
-        select: { totalPoints: true },
+        select: { totalPoints: true, currentStreak: true, longestStreak: true },
       }),
       // Active pipeline = anything that isn't rejected/accepted.
       prisma.jobApplication.count({
@@ -209,6 +209,13 @@ async function renderMemberDashboard(
         orderBy: { updatedAt: 'desc' },
         take: 3,
         select: { role: true, company: true, status: true },
+      }),
+      // Active goals for the compact goals summary card.
+      prisma.goal.findMany({
+        where: { userId: user.id, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        select: { title: true, description: true, targetMetricValue: true, currentMetricValue: true },
       }),
     ]));
     const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
@@ -273,6 +280,23 @@ async function renderMemberDashboard(
       nextBadgeRemaining = '1 certification';
     }
 
+    // ── Compact goals summary (REAL data) ──
+    // Progress prefers the explicit target/current metric; goals logged only
+    // with free-text steps (see lib/member/goalSteps) fall back to a
+    // done/total step ratio, same convention the full GoalsModule uses.
+    const leanGoalSummaries = leanGoals.map((g) => {
+      let percent: number;
+      if (g.targetMetricValue && g.targetMetricValue > 0) {
+        percent = Math.max(0, Math.min(100, Math.round((g.currentMetricValue / g.targetMetricValue) * 100)));
+      } else {
+        const { steps } = parseGoalDescription(g.description);
+        const total = steps.length;
+        const done = steps.filter((s) => s.done).length;
+        percent = total > 0 ? Math.round((done / total) * 100) : 0;
+      }
+      return { title: g.title, percent };
+    });
+
     return (
       <MemberHomeKit
         firstName={firstNameLean}
@@ -281,6 +305,9 @@ async function renderMemberDashboard(
         activeJobs={leanActiveJobs}
         certs={leanCertCount}
         points={leanPointsRow?.totalPoints ?? 0}
+        currentStreak={leanPointsRow?.currentStreak ?? 0}
+        longestStreak={leanPointsRow?.longestStreak ?? 0}
+        goals={leanGoalSummaries}
         nextLesson={topLeanAction?.title ?? leanProgram?.title ?? 'Continue your training'}
         nextLessonDue={topLeanAction ? 'Recommended next step' : 'Up next'}
         nextBadgeName={nextBadgeName}

@@ -137,6 +137,17 @@ export default function InterestProfilerQuiz() {
 
   if (score) {
     const maxRiasec = Math.max(1, ...score.result.map((r) => r.score));
+    // score.programSlugs comes from the real backend (mapIpCareerRowsToProgramSlugs),
+    // already filtered to slugs that resolve to a live WorkforceAP program — safe to
+    // use directly, unlike CareerQuiz's static mapping. Falls back to a bare
+    // utm_source so the entry is still attributable when no program mapped.
+    const topProgramSlug = score.programSlugs[0];
+    // utm_source is always set (Next's UtmCapture only recognizes utm_source,
+    // not a bespoke `source` param) so this entry is attributable either way;
+    // program= is added on top when a real mapped program is available.
+    const applyHref = topProgramSlug
+      ? `/apply?utm_source=interest_profiler&program=${encodeURIComponent(topProgramSlug)}`
+      : '/apply?utm_source=interest_profiler';
     return (
       <div className="ipq-card">
         <h2 className="ipq-h">Your interest profile</h2>
@@ -146,7 +157,7 @@ export default function InterestProfilerQuiz() {
         </p>
 
         <div className="ipq-cta">
-          <a className="btn btn--primary" href="/apply">Join WorkforceAP</a>
+          <a className="btn btn--primary" href={applyHref}>Join WorkforceAP</a>
           <span className="ipq-cta__alt">
             or <a href="/programs">browse programs</a>
           </span>

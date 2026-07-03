@@ -471,7 +471,7 @@ const applySignupSchema = z.object({
     }
   
     if (authData.session) {
-      return NextResponse.json({ success: true, redirectTo: '/apply/thank-you' });
+      return NextResponse.json({ success: true, redirectTo: '/apply/confirmation' });
     }
   
     return NextResponse.json({

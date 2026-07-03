@@ -8,6 +8,8 @@ import AssessmentForm from '@/components/portal/AssessmentForm';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
+import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
+import { formatPortalDateTime } from '@/lib/formatDate';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -48,8 +50,52 @@ export default async function AssessmentPage({
     redirect('/dashboard');
   }
 
+  // Not-yet-interviewed members used to be redirected to /dashboard/skills-assessment,
+  // which itself redirects everyone to /dashboard/ai-tools — a dead loop with no
+  // explanation. Render an inline explanatory state instead, with a path forward
+  // (request the interview) when the member is eligible.
   if (dbUser.interviewCompletedAt == null) {
-    redirect('/dashboard/skills-assessment');
+    return (
+      <div className="inner-page">
+        <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
+          <PageHeader
+            title="Skills snapshot"
+            subtitle="Your skills assessment unlocks after your intake conversation with our team."
+            breadcrumbs={[
+              { label: 'Member Portal', href: '/dashboard' },
+              { label: 'Skills snapshot' },
+            ]}
+          />
+        </div>
+
+        <section className="content-section">
+          <div className="container" style={{ maxWidth: '720px' }}>
+            <div className="portal-card portal-card--flat portal-card--padded">
+              <h2 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.125rem' }}>
+                Not available yet
+              </h2>
+              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                Your skills assessment unlocks after your intake conversation with our team. That short
+                conversation helps your counselor personalize your learning path before we ask you to
+                complete a skills snapshot.
+              </p>
+              {dbUser.interviewRequestedAt ? (
+                <p style={{ margin: 0, color: 'var(--color-on-surface)', fontWeight: 600 }}>
+                  Requested on {formatPortalDateTime(dbUser.interviewRequestedAt)} — we&apos;ll be in touch to schedule it.
+                </p>
+              ) : dbUser.interviewEligible ? (
+                <MemberInterviewRequestButton />
+              ) : (
+                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
+                  Complete your pre-screening from your dashboard home to become eligible to request an
+                  intake interview.
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   const nameParts = dbUser.fullName?.split(' ') ?? [];

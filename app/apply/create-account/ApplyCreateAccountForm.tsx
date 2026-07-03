@@ -20,6 +20,7 @@ import {
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -111,6 +112,8 @@ export default function ApplyCreateAccountForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileNotice, setTurnstileNotice] = useState(false);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     firstName?: string;
     lastName?: string;
@@ -500,6 +503,13 @@ export default function ApplyCreateAccountForm() {
         if (Object.keys(serverFieldErrors).length > 0) {
           setFieldErrors((prev) => ({ ...prev, ...serverFieldErrors }));
         }
+        // The Turnstile token is single-use and expires quickly — a failed
+        // server-side check needs a fresh token, not just a re-submit.
+        if (lower.includes('security check')) {
+          setTurnstileToken(null);
+          setTurnstileNotice(true);
+          turnstileRef.current?.reset();
+        }
         setError(serverMessage || t('errAccountGeneric'));
         trackApplyFunnel(3, 'account_create_error', {
           program_slugs: programRankedSlugs,
@@ -534,7 +544,7 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       completedRef.current = true;
-      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/thank-you' });
+      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/confirmation' });
       if (isPaidUtmSource(attribution.utmSource)) {
         trackConversionWithValue('apply_signup_completed', {
           program_slugs: programRankedSlugs,
@@ -548,11 +558,11 @@ export default function ApplyCreateAccountForm() {
       }
 
       if (data.message) {
-        window.location.href = '/apply/thank-you';
+        window.location.href = '/apply/confirmation';
         return;
       }
 
-      window.location.href = '/apply/thank-you';
+      window.location.href = '/apply/confirmation';
     } catch {
       setError(t('errNetwork'));
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });
@@ -1046,12 +1056,29 @@ export default function ApplyCreateAccountForm() {
       {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
         <div className="form-group">
           <Turnstile
+            ref={turnstileRef}
             siteKey={TURNSTILE_SITE_KEY}
-            onSuccess={(t) => setTurnstileToken(t)}
-            onExpire={() => setTurnstileToken(null)}
-            onError={() => setTurnstileToken(null)}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+              setTurnstileNotice(false);
+            }}
+            onExpire={() => {
+              setTurnstileToken(null);
+              setTurnstileNotice(true);
+              turnstileRef.current?.reset();
+            }}
+            onError={() => {
+              setTurnstileToken(null);
+              setTurnstileNotice(true);
+              turnstileRef.current?.reset();
+            }}
             options={{ theme: 'light', size: 'normal' }}
           />
+          {turnstileNotice ? (
+            <p className="apply-field-hint" role="status" aria-live="polite" style={{ marginTop: '0.5rem' }}>
+              {t('accountTurnstileExpiredHint')}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

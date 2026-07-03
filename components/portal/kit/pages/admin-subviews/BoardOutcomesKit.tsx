@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FileSpreadsheet, Users, ArrowRight } from 'lucide-react';
+import { FileSpreadsheet, Users, ArrowRight, FileText } from 'lucide-react';
 import {
   DesignSurface,
   KpiStrip,
@@ -67,6 +67,11 @@ const DEFAULT_EXPORTS: FunderExport[] = [
     label: 'Outcomes CSV',
     description: 'Placements, wages & retention by cohort — board-ready.',
     href: '/api/admin/outcomes/snapshot?format=csv',
+  },
+  {
+    label: 'Board meeting PDF',
+    description: 'Printable board packet with KPIs, cohorts, and data notes.',
+    href: '/api/admin/outcomes/snapshot?format=pdf',
   },
   {
     label: 'Demographics report',
@@ -170,6 +175,8 @@ export function BoardOutcomesKit({
               >
                 {exp.label === 'Demographics report' ? (
                   <Users size={18} aria-hidden />
+                ) : exp.label === 'Board meeting PDF' ? (
+                  <FileText size={18} aria-hidden />
                 ) : (
                   <FileSpreadsheet size={18} aria-hidden />
                 )}

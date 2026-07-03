@@ -75,12 +75,20 @@ export default async function OutcomesPage({
       },
     ];
 
-    // Placements by month from the real monthly cohort series.
-    const placementsByMonth: ChartDatum[] = snapshot.cohorts.map((c) => ({
+    // Placements by month from placement_recorded member events. This keeps the
+    // chart aligned with the operational activity feed staff actually create.
+    const placementsByMonth: ChartDatum[] = (snapshot.placementActivity.length > 0
+      ? snapshot.placementActivity
+      : snapshot.cohorts.map((c) => ({
+          month: c.month,
+          monthLabel: c.monthLabel,
+          placementsRecorded: c.placed,
+        }))
+    ).map((c) => ({
       label: c.monthLabel,
-      value: c.placed,
+      value: c.placementsRecorded,
     }));
-    const placementsTotal = snapshot.cohorts.reduce((sum, c) => sum + c.placed, 0);
+    const placementsTotal = placementsByMonth.reduce((sum, c) => sum + c.value, 0);
 
     // Per-program placements, ranked. `pct` is each program's placement count
     // relative to the top program so the bars scale to the leader.
@@ -102,6 +110,11 @@ export default async function OutcomesPage({
         label: 'Outcomes CSV',
         description: 'Full funnel waterfall (counts + conversion) for the current period.',
         href: `/api/admin/outcomes/snapshot?period=${period}&format=csv`,
+      },
+      {
+        label: 'Board meeting PDF',
+        description: 'Printable board-ready snapshot with KPIs, cohorts, and methodology notes.',
+        href: `/api/admin/outcomes/snapshot?period=${period}&format=pdf`,
       },
       {
         label: 'Outcomes report',

@@ -159,7 +159,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
     window.history.replaceState({}, '', url.toString());
   };
 
-  const handleExport = async (format: 'csv' | 'md') => {
+  const handleExport = async (format: 'csv' | 'md' | 'pdf') => {
     const res = await fetch(`/api/admin/outcomes/snapshot?period=${period}&format=${format}`);
     if (!res.ok) return;
     const blob = await res.blob();
@@ -247,6 +247,23 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
             }}
           >
             Export Markdown
+          </button>
+          <button
+            onClick={() => handleExport('pdf')}
+            disabled={loading}
+            style={{
+              padding: '0.5rem 0.75rem',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            Export PDF
           </button>
         </div>
       }

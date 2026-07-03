@@ -41,10 +41,17 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     id: 'applying',
     key: 'applying',
     icon: 'flight_takeoff',
+    // Order follows the real sequence: check fit against THIS posting, see
+    // exactly what's missing, then write the cover letter that addresses it —
+    // rather than drafting the letter before knowing what it needs to cover.
+    // Tailoring to the specific posting is the single highest-leverage step
+    // here (targeted resumes/cover letters consistently out-convert generic
+    // ones); this ordering nudges members through diagnose-then-produce
+    // instead of skipping straight to a generic cover letter.
     tools: [
       { key: 'jobMatchScorer', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats', minutes: 5 },
-      { key: 'coverLetter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft', minutes: 10 },
       { key: 'gapAnalyzer', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot', minutes: 5 },
+      { key: 'coverLetter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft', minutes: 10 },
     ],
   },
   {

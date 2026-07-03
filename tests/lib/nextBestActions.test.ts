@@ -211,6 +211,26 @@ describe('buildNextBestActions', () => {
     expect(actions.some((a) => a.id.startsWith('placement_retention'))).toBe(false);
   });
 
+  it('shows job-loss re-activation actions when placement is separated', () => {
+    const actions = buildNextBestActions(makeCtx({
+      placementSeparated: true,
+    }));
+    expect(actions.some((a) => a.id === 'placement_job_loss_reactivate')).toBe(true);
+    expect(actions.some((a) => a.id === 'placement_job_loss_counselor')).toBe(true);
+    const reactivate = actions.find((a) => a.id === 'placement_job_loss_reactivate');
+    expect(reactivate?.href).toBe('/dashboard/jobs');
+    expect(reactivate?.variant).toBe('urgent');
+  });
+
+  it('does not show job-loss re-activation actions when placement is not separated', () => {
+    const actions = buildNextBestActions(makeCtx({
+      placementSeparated: false,
+      placementPlacedAt: new Date(Date.now() - 90 * 86400000),
+      placementRetentionDecision: null,
+    }));
+    expect(actions.some((a) => a.id.startsWith('placement_job_loss'))).toBe(false);
+  });
+
   it('deduplicates actions by id', () => {
     // Force duplicate conditions that might create same ID
     const actions = buildNextBestActions(makeCtx({

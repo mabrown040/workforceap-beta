@@ -81,15 +81,19 @@ export default async function PlacementSurveyTokenPage(props: {
     survey.wave === 'sixty_day'
       ? '60-day check-in'
       : survey.wave === 'ninety_day'
-        ? 'Final 90-day check-in'
-        : "How's the new job going?";
+        ? '90-day check-in'
+        : survey.wave === 'hundred_eighty_day'
+          ? 'Final 180-day check-in'
+          : "How's the new job going?";
 
   const waveSubtitle =
     survey.wave === 'sixty_day'
       ? "About 2 minutes. We want to make sure you're still employed and catch any challenges early."
       : survey.wave === 'ninety_day'
-        ? 'About 2 minutes. Final salary confirmation and satisfaction check for grant reporting.'
-        : "About 3 minutes. Your answers help us understand what worked and share real outcomes with our funding partners.";
+        ? 'About 2 minutes. Salary confirmation and satisfaction check for grant reporting.'
+        : survey.wave === 'hundred_eighty_day'
+          ? 'About 2 minutes. Final salary confirmation and satisfaction check for grant reporting.'
+          : "About 3 minutes. Your answers help us understand what worked and share real outcomes with our funding partners.";
 
   return (
     <main style={wrapStyle}>

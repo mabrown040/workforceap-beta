@@ -2471,6 +2471,10 @@ enum PlacementSurveyWave {
   thirty_day
   sixty_day
   ninety_day
+  // 180-day retention wave — added by migration
+  // 20260703010000_add_placement_survey_wave_180d (`ALTER TYPE ... ADD
+  // VALUE`, appended so existing enum ordinal values are untouched).
+  hundred_eighty_day
 
   // The CREATE TYPE migration (20260513000000_add_placement_survey_wave)
   // names the Postgres enum `placement_survey_wave` (snake_case), but

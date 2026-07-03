@@ -26,6 +26,7 @@ const WAVE_LABEL: Record<string, string> = {
   thirty_day: '30-day',
   sixty_day: '60-day',
   ninety_day: '90-day',
+  hundred_eighty_day: '180-day',
 };
 
 function waveLabel(wave: string): string {

@@ -88,7 +88,21 @@ export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> 
     take: 500,
     where: {
       deletedAt: null,
-      placementRecord: null,
+      // Never-placed members get the full G5 retention loop. Placed members
+      // are normally excluded (they have a counselor-tracked placement
+      // journey instead), but a placement marked separated/not-retained
+      // means the member is effectively back in the job search — they
+      // should re-enter this loop rather than being permanently excluded
+      // just because a PlacementRecord row exists. Audit: job-loss
+      // re-activation (2026-07-03).
+      OR: [
+        { placementRecord: null },
+        {
+          placementRecord: {
+            OR: [{ retentionStatus: 'separated' }, { retentionDecision: 'not_retained' }],
+          },
+        },
+      ],
     },
     select: {
       id: true,

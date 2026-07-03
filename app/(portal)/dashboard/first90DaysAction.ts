@@ -11,6 +11,7 @@ import {
   isFirst90Response,
   isFirst90Stage,
 } from '@/lib/member/first90Days';
+import { escalateToCounselor } from '@/lib/member/counselorEscalation';
 
 /**
  * Member submits a First 90 Days check-in from the dashboard card.
@@ -74,47 +75,15 @@ export async function submitFirst90DaysCheckIn(stage: string, response: string) 
     if (response === 'having_trouble') {
       const troubleSummary = `First 90 Days ${stage.replace('_', ' ')} check-in: member reported having trouble at ${placement.employerName}${placement.jobTitle ? ` (${placement.jobTitle})` : ''}, day ${days} after placement.`;
 
-      // Surface in the counselor inbox via the existing at-risk pipeline
-      // (open AtRiskAlert rows drive the `at_risk` inbox flag). Mirrors
-      // persistAtRiskAlert in lib/member/atRiskScoring.ts.
-      const openAlert = await prisma.atRiskAlert.findFirst({
-        where: { userId: user.id, status: { in: ['open', 'acknowledged'] } },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, score: true, factors: true },
-      });
-      const troubleFactor = {
-        name: 'first90_trouble_reported',
-        weight: 1,
-        description: troubleSummary,
-      };
-      if (openAlert) {
-        const factors = Array.isArray(openAlert.factors) ? openAlert.factors : [];
-        await prisma.atRiskAlert.update({
-          where: { id: openAlert.id },
-          data: {
-            score: Math.max(openAlert.score, 75),
-            factors: [...factors, troubleFactor] as object[],
-            status: 'open',
-          },
-        });
-      } else {
-        await prisma.atRiskAlert.create({
-          data: {
-            userId: user.id,
-            score: 75,
-            factors: [troubleFactor],
-            status: 'open',
-          },
-        });
-      }
-
-      // Readable context where counselors already look at member history.
-      await prisma.counselorNote.create({
-        data: {
-          memberId: user.id,
-          authorId: user.id,
-          content: `[First 90 Days] ${troubleSummary} Reported by the member from the dashboard check-in.`,
-        },
+      // Surface in the counselor inbox via the shared escalation pipeline
+      // (open AtRiskAlert rows drive the `at_risk` inbox flag, plus a
+      // readable CounselorNote). See lib/member/counselorEscalation.ts.
+      await escalateToCounselor({
+        userId: user.id,
+        factorName: 'first90_trouble_reported',
+        summary: troubleSummary,
+        noteContent: `[First 90 Days] ${troubleSummary} Reported by the member from the dashboard check-in.`,
+        authorId: user.id,
       });
     }
   });

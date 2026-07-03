@@ -15,6 +15,7 @@ import {
   memberProgramProgressPct,
 } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { summarizeRetentionOutcomes, type RetentionSummary } from './retentionOutcome';
 
 export interface QuarterSpec {
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
@@ -42,6 +43,19 @@ export interface PartnerQuarterlyOutcomesReport {
     salaryMedian: number | null;
     salaryMin: number | null;
     salaryMax: number | null;
+  };
+  /**
+   * Retention as of the end of this quarter for every member this partner
+   * has ever referred (not just this quarter's referral cohort) — a
+   * placement's 90/180-day window is almost never inside the same quarter
+   * the referral/placement happened in. Classified with the same
+   * retentionDecision/retentionStatus OR-combination as the board snapshot
+   * (lib/admin/boardOutcomes.ts) via lib/analytics/retentionOutcome.ts.
+   * pendingDecision is always reported rather than dropped.
+   */
+  retention: {
+    ninetyDay: RetentionSummary;
+    hundredEightyDay: RetentionSummary;
   };
   programBreakdown: Array<{
     programSlug: string;
@@ -114,6 +128,38 @@ function formatDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Every placement belonging to a member this partner has ever referred
+ * (all-time, not scoped to the current quarter's referral window) whose
+ * N-day retention window has elapsed by `windowEnd`.
+ */
+async function fetchPartnerRetentionRowsAsOf(
+  orgId: string,
+  partnerId: string,
+  windowEnd: Date,
+  windowDays: number
+) {
+  const referrals = await prisma.partnerReferral.findMany({
+    take: 5000,
+    where: { partnerId, member: { organizationId: orgId, deletedAt: null } },
+    select: { memberId: true },
+  });
+  const memberIds = referrals.map((r) => r.memberId);
+  if (memberIds.length === 0) return [];
+
+  const cutoff = new Date(windowEnd.getTime() - windowDays * DAY_MS);
+  return prisma.placementRecord.findMany({
+    take: 5000,
+    where: {
+      userId: { in: memberIds },
+      placedAt: { lte: cutoff },
+    },
+    select: { retentionStatus: true, retentionDecision: true },
+  });
+}
+
 export async function generatePartnerQuarterlyOutcomes(
   orgId: string,
   partnerId: string,
@@ -131,48 +177,52 @@ export async function generatePartnerQuarterlyOutcomes(
     throw new Error(`Partner not found: ${partnerId}`);
   }
 
-  // Fetch all referrals for this partner in the date range
-  const referrals = await prisma.partnerReferral.findMany({
-    take: 5000,
-    where: {
-      partnerId,
-      referredAt: { gte: start, lte: end },
-      member: { deletedAt: null, organizationId: orgId },
-    },
-    include: {
-      member: {
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          enrolledAt: true,
-          enrolledProgram: true,
-          deletedAt: true,
-          assessmentCompleted: true,
-          placementRecord: {
-            select: {
-              jobTitle: true,
-              employerName: true,
-              salaryOffered: true,
-              placedAt: true,
+  const [referrals, ninetyDayRetentionRows, hundredEightyDayRetentionRows] = await Promise.all([
+    // Fetch all referrals for this partner in the date range
+    prisma.partnerReferral.findMany({
+      take: 5000,
+      where: {
+        partnerId,
+        referredAt: { gte: start, lte: end },
+        member: { deletedAt: null, organizationId: orgId },
+      },
+      include: {
+        member: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            enrolledAt: true,
+            enrolledProgram: true,
+            deletedAt: true,
+            assessmentCompleted: true,
+            placementRecord: {
+              select: {
+                jobTitle: true,
+                employerName: true,
+                salaryOffered: true,
+                placedAt: true,
+              },
             },
-          },
-          userCertifications: { select: { certName: true, earnedAt: true } },
-          applications: { select: { status: true, submittedAt: true } },
-          memberProgramProgress: {
-            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-          },
-          courseEnrollments: {
-            select: { programSlug: true, enrolledAt: true },
-          },
-          courseProgress: {
-            select: { percentComplete: true, completedAt: true },
+            userCertifications: { select: { certName: true, earnedAt: true } },
+            applications: { select: { status: true, submittedAt: true } },
+            memberProgramProgress: {
+              select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+            },
+            courseEnrollments: {
+              select: { programSlug: true, enrolledAt: true },
+            },
+            courseProgress: {
+              select: { percentComplete: true, completedAt: true },
+            },
           },
         },
       },
-    },
-    orderBy: { referredAt: 'desc' },
-  });
+      orderBy: { referredAt: 'desc' },
+    }),
+    fetchPartnerRetentionRowsAsOf(orgId, partnerId, end, 90),
+    fetchPartnerRetentionRowsAsOf(orgId, partnerId, end, 180),
+  ]);
 
   const members = referrals.map((r) => r.member);
   const totalReferred = members.length;
@@ -359,6 +409,10 @@ export async function generatePartnerQuarterlyOutcomes(
       salaryMedian: median(salaries),
       salaryMin: salaries.length > 0 ? Math.min(...salaries) : null,
       salaryMax: salaries.length > 0 ? Math.max(...salaries) : null,
+    },
+    retention: {
+      ninetyDay: summarizeRetentionOutcomes(ninetyDayRetentionRows),
+      hundredEightyDay: summarizeRetentionOutcomes(hundredEightyDayRetentionRows),
     },
     programBreakdown,
     membersList,

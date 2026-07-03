@@ -33,6 +33,8 @@ export type NextBestActionsContext = {
   courseEnrollmentActive?: boolean;
   placementPlacedAt?: Date | null;
   placementRetentionDecision?: string | null;
+  /** True when the placement's retention outcome indicates the member lost/left the job (retentionDecision === 'not_retained' or retentionStatus === 'separated'). */
+  placementSeparated?: boolean;
   /** When true, surfaces “continue training” ahead of lower-priority chores. */
   trainingCoursesIncomplete?: boolean;
   nextIncompleteCourseName?: string | null;
@@ -203,6 +205,32 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
         weight: 73,
       });
     }
+  }
+
+  // Job-loss re-activation: retentionDecision/retentionStatus indicates the
+  // placement ended (separation). Supportive, high-weight nudge back toward
+  // the job board + counselor rather than the routine 90/180 check-in above
+  // (which only fires while retention is still undecided).
+  if (ctx.placementSeparated) {
+    out.push({
+      id: 'placement_job_loss_reactivate',
+      title: "Let's get you back on track",
+      body: 'Job changes happen. Browse new openings that match your training and certifications — your counselor can help you get moving again.',
+      href: '/dashboard/jobs',
+      cta: 'Browse jobs',
+      variant: 'urgent',
+      weight: 91,
+    });
+
+    out.push({
+      id: 'placement_job_loss_counselor',
+      title: 'Talk to your counselor about next steps',
+      body: 'Let your counselor know what happened — they can help with a job search plan and may have support options available.',
+      href: '/dashboard/messages',
+      cta: 'Message counselor',
+      variant: 'urgent',
+      weight: 90,
+    });
   }
 
   if (ctx.state === 'D' && !ctx.hasCompletedInterviewPractice) {

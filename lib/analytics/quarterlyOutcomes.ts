@@ -9,6 +9,7 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { summarizeRetentionOutcomes, type RetentionSummary } from './retentionOutcome';
 
 export interface QuarterSpec {
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
@@ -34,6 +35,20 @@ export interface QuarterlyOutcomesReport {
     salaryMedian: number | null;
     salaryMin: number | null;
     salaryMax: number | null;
+  };
+  /**
+   * Retention as of the end of this quarter — cumulative, not scoped to
+   * placements made *during* the quarter. A placement's 90/180-day window
+   * is almost never still inside the same quarter it was made in, so this
+   * looks at every org placement whose window has elapsed by `periodEnd`
+   * and classifies it via `retentionDecision`/`retentionStatus` (see
+   * lib/analytics/retentionOutcome.ts). `pendingDecision` is always
+   * reported alongside retained/not-retained rather than being dropped
+   * from the denominator.
+   */
+  retention: {
+    ninetyDay: RetentionSummary;
+    hundredEightyDay: RetentionSummary;
   };
   programBreakdown: Array<{
     programSlug: string;
@@ -203,6 +218,21 @@ async function fetchPlacements(orgId: string, start: Date, end: Date) {
   });
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Every org placement whose N-day retention window has elapsed by `windowEnd`. */
+async function fetchRetentionRowsAsOf(orgId: string, windowEnd: Date, windowDays: number) {
+  const cutoff = new Date(windowEnd.getTime() - windowDays * DAY_MS);
+  return prisma.placementRecord.findMany({
+    take: 10000,
+    where: {
+      user: { organizationId: orgId },
+      placedAt: { lte: cutoff },
+    },
+    select: { retentionStatus: true, retentionDecision: true },
+  });
+}
+
 async function fetchAiToolUserIds(userIds: string[]): Promise<Set<string>> {
   if (userIds.length === 0) return new Set();
   const results = await prisma.aIToolResult.findMany({
@@ -251,9 +281,11 @@ export async function generateQuarterlyOutcomes(
 ): Promise<QuarterlyOutcomesReport> {
   const { start, end } = quarterToDates(spec);
 
-  const [enrolledMembers, placements] = await Promise.all([
+  const [enrolledMembers, placements, ninetyDayRetentionRows, hundredEightyDayRetentionRows] = await Promise.all([
     fetchEnrolledMembers(orgId, start, end),
     fetchPlacements(orgId, start, end),
+    fetchRetentionRowsAsOf(orgId, end, 90),
+    fetchRetentionRowsAsOf(orgId, end, 180),
   ]);
   const completionRows = buildCompletionRows(enrolledMembers);
 
@@ -397,6 +429,10 @@ export async function generateQuarterlyOutcomes(
       salaryMin: salaries.length > 0 ? Math.min(...salaries) : null,
       salaryMax: salaries.length > 0 ? Math.max(...salaries) : null,
     },
+    retention: {
+      ninetyDay: summarizeRetentionOutcomes(ninetyDayRetentionRows),
+      hundredEightyDay: summarizeRetentionOutcomes(hundredEightyDayRetentionRows),
+    },
     programBreakdown,
     placementsList,
   };
@@ -431,6 +467,13 @@ export function formatQuarterlyReportMarkdown(report: QuarterlyOutcomesReport): 
     `| Median Salary | ${fmtMoney(m.salaryMedian)} |`,
     `| Min Salary | ${fmtMoney(m.salaryMin)} |`,
     `| Max Salary | ${fmtMoney(m.salaryMax)} |`,
+    ``,
+    `## Retention (as of end of quarter)`,
+    ``,
+    `| Window | Retained | Not Retained / Separated | Pending Decision | Total Tracked |`,
+    `|---|---:|---:|---:|---:|`,
+    `| 90-day | ${report.retention.ninetyDay.retained} | ${report.retention.ninetyDay.notRetainedOrSeparated} | ${report.retention.ninetyDay.pendingDecision} | ${report.retention.ninetyDay.total} |`,
+    `| 180-day | ${report.retention.hundredEightyDay.retained} | ${report.retention.hundredEightyDay.notRetainedOrSeparated} | ${report.retention.hundredEightyDay.pendingDecision} | ${report.retention.hundredEightyDay.total} |`,
     ``,
     `## Program Breakdown`,
     ``,
@@ -485,6 +528,12 @@ export function quarterlyOutcomesToCsvSummary(report: QuarterlyOutcomesReport): 
       salary_median: report.metrics.salaryMedian ?? 'N/A',
       salary_min: report.metrics.salaryMin ?? 'N/A',
       salary_max: report.metrics.salaryMax ?? 'N/A',
+      retention_90d_retained: report.retention.ninetyDay.retained,
+      retention_90d_not_retained_or_separated: report.retention.ninetyDay.notRetainedOrSeparated,
+      retention_90d_pending_decision: report.retention.ninetyDay.pendingDecision,
+      retention_180d_retained: report.retention.hundredEightyDay.retained,
+      retention_180d_not_retained_or_separated: report.retention.hundredEightyDay.notRetainedOrSeparated,
+      retention_180d_pending_decision: report.retention.hundredEightyDay.pendingDecision,
     },
   ];
 }

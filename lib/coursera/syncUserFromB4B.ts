@@ -11,6 +11,7 @@ import {
 } from './b4bClient';
 import {
   computeCourseProgressUpdate,
+  decideEnrolledProgramSync,
   mergeB4BProgressSignals,
 } from './b4bSync';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
@@ -20,6 +21,8 @@ import {
   type CanonicalMappingIndex,
 } from '@/lib/coursera/canonicalMapping';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { auditLog } from '@/lib/audit';
 import { replayUnresolvedXapiStatementsForIdentity } from './replayPendingXapi';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
@@ -418,16 +421,61 @@ export async function syncUserFromB4B(args: {
 
     // Pin User.enrolledProgram too — the xAPI pipeline reads this field
     // (not CourseEnrollment) when deciding whether to credit a statement.
-    if (args.existingEnrolledProgram !== chosenProgramSlug) {
+    //
+    // AUDIT fix: this used to overwrite `enrolledProgram` whenever it
+    // differed from the strongest Coursera activity group, even when the
+    // member already had a non-null program on file (e.g. counselor
+    // enrolled them in Program A, but their old Coursera activity was in
+    // Program B). A passive dashboard render would then silently flip them
+    // back to Program B. `decideEnrolledProgramSync` only allows a write
+    // when the field is currently null; a divergence against a non-null
+    // value is recorded (diagnostic + audit log) instead of applied so
+    // staff can see the signal without the data being silently changed.
+    const enrolledProgramDecision = decideEnrolledProgramSync({
+      existingEnrolledProgram: args.existingEnrolledProgram,
+      chosenProgramSlug: chosenProgramSlug!,
+    });
+
+    if (enrolledProgramDecision.action === 'set') {
       await withTenantScope(args.orgId, (db) =>
         db.user.update({
           where: { id: args.wapUserId },
           data: {
-            enrolledProgram: chosenProgramSlug!,
-            enrolledAt: args.existingEnrolledProgram ? undefined : enrolledAt,
+            enrolledProgram: enrolledProgramDecision.programSlug,
+            enrolledAt,
           },
         }),
       );
+    } else if (enrolledProgramDecision.action === 'mismatch') {
+      await recordWorkflowDiagnostic({
+        workflow: 'coursera_sync_program_mismatch',
+        status: 'inspection',
+        entityType: 'User',
+        entityId: args.wapUserId,
+        summary: `Coursera activity suggests program "${enrolledProgramDecision.suggestedProgramSlug}" but member is enrolled in "${enrolledProgramDecision.existingEnrolledProgram}" — enrolledProgram left unchanged.`,
+        method: args.enrolledByAdmin ? 'admin_sync' : 'auto_sync',
+        metadata: {
+          userId: args.wapUserId,
+          existingEnrolledProgram: enrolledProgramDecision.existingEnrolledProgram,
+          courseraSuggestedProgram: enrolledProgramDecision.suggestedProgramSlug,
+          candidatePrograms: enrolledProgramSlugs,
+        },
+      });
+      await auditLog({
+        actorUserId: args.enrolledByAdmin,
+        action: 'coursera_sync_program_mismatch',
+        targetType: 'User',
+        targetId: args.wapUserId,
+        metadata: {
+          existingEnrolledProgram: enrolledProgramDecision.existingEnrolledProgram,
+          courseraSuggestedProgram: enrolledProgramDecision.suggestedProgramSlug,
+        },
+      }).catch((err) => {
+        console.warn(
+          `[syncUserFromB4B] auditLog for program mismatch failed for user=${args.wapUserId}:`,
+          err instanceof Error ? err.message : err,
+        );
+      });
     }
   }
 

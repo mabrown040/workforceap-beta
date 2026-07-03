@@ -5,6 +5,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { checkCourseraIdentityRateLimit } from '@/lib/rate-limit';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import { auditLog } from '@/lib/audit';
+import { createNotification } from '@/lib/notifications/create';
 
 function getClientIp(request: Request) {
   return (
@@ -55,6 +57,74 @@ export const POST = withApiGuc(async (request: Request) => {
         return NextResponse.json({ error: 'This Coursera email is already linked to another account.' }, { status: 409 });
       }
 
+      // AUDIT: member self-claims of a Coursera identity are an outcome-
+      // integrity risk for WIOA reporting when the claimed email doesn't
+      // belong to the member — a claim would immediately inherit that
+      // learner's historical progress via `backfillUserIdForCourseraEmail`.
+      // Same-account-email claims (the common case: linking your own
+      // Coursera inbox) proceed unchanged. A claim for a DIFFERENT email
+      // does NOT create the mapping or run the backfill; it's queued for a
+      // staff member to confirm via the existing admin mappings UI
+      // (`/admin/coursera?ui=legacy` → "Identity mapping & audit tools",
+      // POST /api/admin/coursera/mappings). No schema change: there is no
+      // status/verified column on `coursera_identity_mappings` to mark
+      // "pending" without a migration, so the gate lives entirely in this
+      // route — a task notification + audit log for admins to act on.
+      const wapUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { email: true, fullName: true, organizationId: true },
+      });
+      const memberOwnEmail = wapUser?.email?.trim().toLowerCase() || null;
+      const isSelfEmailClaim = memberOwnEmail !== null && memberOwnEmail === courseraEmail;
+
+      if (!isSelfEmailClaim) {
+        void auditLog({
+          actorUserId: user.id,
+          action: 'coursera_identity_claim_pending_review',
+          targetType: 'User',
+          targetId: user.id,
+          metadata: { courseraEmail, memberEmail: memberOwnEmail },
+        }).catch((auditError) => {
+          console.error('[member/coursera/identity] audit log failed:', auditError);
+        });
+
+        try {
+          const admins = wapUser?.organizationId
+            ? await prisma.user.findMany({
+                where: {
+                  organizationId: wapUser.organizationId,
+                  deletedAt: null,
+                  profile: { role: { in: ['admin', 'super_admin'] } },
+                },
+                select: { id: true },
+                take: 50,
+              })
+            : [];
+          for (const admin of admins) {
+            void createNotification({
+              userId: admin.id,
+              type: 'task_assigned',
+              title: 'Coursera identity claim needs review',
+              body: `${wapUser?.fullName ?? 'A member'} (${memberOwnEmail ?? 'unknown email'}) claimed the Coursera email ${courseraEmail}, which doesn't match their account email. Review and confirm the link before their historical progress is backfilled.`,
+              data: { link: '/admin/coursera?ui=legacy', memberId: user.id, courseraEmail },
+            });
+          }
+        } catch (notifyError) {
+          console.error('[member/coursera/identity] admin notification failed:', notifyError);
+        }
+
+        return NextResponse.json(
+          {
+            ok: true,
+            pending: true,
+            courseraEmail,
+            message:
+              "That Coursera email doesn't match your account email, so a staff member will review it before we link your Coursera progress.",
+          },
+          { status: 202 },
+        );
+      }
+
       const mapping = await upsertCourseraIdentityMapping({
         userId: user.id,
         courseraEmail,
@@ -69,7 +139,7 @@ export const POST = withApiGuc(async (request: Request) => {
       } catch (backfillError) {
         console.error('[member/coursera/identity] backfill failed:', backfillError);
       }
-  
+
       return NextResponse.json({ ok: true, courseraEmail: mapping?.courseraEmail ?? courseraEmail });
     } catch (error) {
       console.error('[member/coursera/identity] failed to save Coursera email:', error);

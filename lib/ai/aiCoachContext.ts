@@ -6,6 +6,9 @@ import { getRiskLevel } from '@/lib/member/atRiskScoring';
 /** Application statuses that are still "in flight" — not yet hired or rejected. */
 const OPEN_APPLICATION_STATUSES = ['pending', 'reviewing', 'interview', 'offered'] as const;
 
+/** Budget for the CoachMemory summary line surfaced to text tools — keep terse. */
+const COACH_MEMORY_SUMMARY_MAX_CHARS = 400;
+
 /**
  * AI Coach Context — Sprint R2 (2026-Q3)
  *
@@ -76,6 +79,16 @@ export type AICoachContext = {
    * no alert has ever been generated for this member.
    */
   atRiskTier: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | null;
+  /**
+   * One-way read of the voice coach's rolling memory (CoachMemory table, see
+   * lib/coach/memory.ts). Text tools never write back here — that's a bigger
+   * design than a read-only unification pass. Null when the member has never
+   * had a CoachMemory row created (e.g. no voice coach session yet).
+   */
+  coachMemory: {
+    summary: string;
+    lastTopic: string | null;
+  } | null;
 };
 
 export type AICoachContextOptions = {
@@ -97,7 +110,7 @@ export async function getAICoachContext(
   const limit = options.recentResultsLimit ?? 5;
   const resumeBudget = options.resumeMaxChars ?? 6000;
 
-  const [state, resumeText, recentRows, personalRow, goalRows, openApplicationCount, recentApplicationRows, recentMatchRows, latestAlert] = await Promise.all([
+  const [state, resumeText, recentRows, personalRow, goalRows, openApplicationCount, recentApplicationRows, recentMatchRows, latestAlert, coachMemoryRow] = await Promise.all([
     getMemberState(userId),
     getMemberResumePlainText(userId, resumeBudget, { preferOriginal: false }).catch(() => ''),
     prisma.aIToolResult.findMany({
@@ -166,6 +179,13 @@ export async function getAICoachContext(
       orderBy: { createdAt: 'desc' },
       select: { score: true },
     }).catch(() => null as { score: number } | null),
+    // Memory unification (one-way): read the voice coach's rolling summary so
+    // text tools stop starting cold on members who've talked to the voice
+    // coach. Single findUnique, fail-soft to null — never blocks context load.
+    prisma.coachMemory.findUnique({
+      where: { userId },
+      select: { summary: true, lastTopic: true },
+    }).catch(() => null as { summary: string; lastTopic: string | null } | null),
   ]);
 
   // Prefer career rec → most recent resume_rewriter output → null.
@@ -211,6 +231,14 @@ export async function getAICoachContext(
 
   const atRiskTier = latestAlert ? getRiskLevel(latestAlert.score) : null;
 
+  const coachMemorySummary = coachMemoryRow?.summary?.trim();
+  const coachMemory = coachMemorySummary
+    ? {
+        summary: coachMemorySummary.slice(0, COACH_MEMORY_SUMMARY_MAX_CHARS),
+        lastTopic: coachMemoryRow?.lastTopic?.trim() || null,
+      }
+    : null;
+
   const activeGoals = goalRows.map((g) => ({
     title: g.title,
     goalType: g.goalType,
@@ -244,6 +272,7 @@ export async function getAICoachContext(
     activeGoals,
     jobPipeline,
     atRiskTier,
+    coachMemory,
   };
 }
 
@@ -359,6 +388,11 @@ export function renderCoachContextForPrompt(ctx: AICoachContext): string {
     lines.push(
       `- This member is flagged ${ctx.atRiskTier.toLowerCase()} risk of disengaging — be extra encouraging, keep next steps small and concrete, and end with one clear action.`
     );
+  }
+
+  if (ctx.coachMemory?.summary) {
+    const topicSuffix = ctx.coachMemory.lastTopic ? ` (last topic: ${ctx.coachMemory.lastTopic})` : '';
+    lines.push(`- Coach notes: ${ctx.coachMemory.summary}${topicSuffix}`);
   }
 
   return lines.join('\n');

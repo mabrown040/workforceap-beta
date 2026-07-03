@@ -91,6 +91,11 @@ const EARN_ACTIONS: Array<{
     href: '/dashboard',
     blurb: 'Finish a learning step inside your pathway.',
   },
+  {
+    event: 'daily_study',
+    href: '/dashboard/learning',
+    blurb: 'Complete any lecture or quiz activity in Coursera — counted once per day.',
+  },
 ];
 
 export default async function DashboardPointsPage() {
@@ -125,6 +130,9 @@ export default async function DashboardPointsPage() {
   //                              + app/api/member/job-applications/log-external/route.ts
   //                              + app/api/member/applications/route.ts
   //   - pathway_step_completed → app/api/member/pathway-steps/[pathwayId]/[stepIndex]/complete/route.ts
+  //   - daily_study            → lib/xapi/inboundStatementPipeline.ts (awarded
+  //                              once per UTC calendar day per member, the
+  //                              first time a resolved xAPI statement lands)
   // counselor_bonus is admin-awarded (uses customPoints), not member-earnable
   // directly, so it's intentionally excluded from EARN_ACTIONS.
   const WIRED_EVENTS = new Set<string>([
@@ -138,6 +146,7 @@ export default async function DashboardPointsPage() {
     'resume_uploaded',
     'job_application',
     'pathway_step_completed',
+    'daily_study',
   ]);
   const earnableActions = EARN_ACTIONS.filter(
     (a) => WIRED_EVENTS.has(a.event) && POINT_VALUES[a.event] > 0,
@@ -380,9 +389,10 @@ export default async function DashboardPointsPage() {
               color: 'var(--color-on-surface-variant)',
             }}
           >
-            Points are awarded automatically when you hit a milestone. Each action is
+            Points are awarded automatically when you hit a milestone. Most actions are
             counted once — finishing the same course or uploading the same resume twice
-            won&apos;t double-count.
+            won&apos;t double-count. Daily study points are the exception: they&apos;re
+            earned again each new day you&apos;re active.
           </p>
 
           <ul

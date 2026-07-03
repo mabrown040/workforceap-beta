@@ -5,12 +5,16 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
+import { createNotification } from '@/lib/notifications/create';
 
 /**
  * POST /api/cron/inactivity-nudge
  *
  * Sends a re-engagement nudge to members who have been inactive
  * for 14+ days. Capped at 100/run to avoid spam. Secured by CRON_SECRET.
+ * Shares a 7-day cross-cron cooldown (via `MemberNudgeLog`) with
+ * inactive-nudge and course-accountability — see lib/cron/nudgeThrottle.ts.
  *
  * Deploy with Vercel Cron: schedule "0 10 * * 3" (Wednesday 10AM UTC)
  */
@@ -31,7 +35,7 @@ async function handle(_req: NextRequest) {
   // (covers multi-program users whose `enrolledProgram` may be null), OR
   // who still has the legacy `enrolledProgram` pointer set (covers
   // unmigrated single-program users).
-  const members = await prisma.user.findMany({
+  const candidates = await prisma.user.findMany({
     where: {
       deletedAt: null,
       OR: [
@@ -46,6 +50,11 @@ async function handle(_req: NextRequest) {
     orderBy: { enrolledAt: 'asc' },
   });
 
+  // Shared cross-cron cooldown: skip anyone nudged by ANY of these crons in
+  // the last 7 days (one shared query, not per-cron logic).
+  const eligibleUserIds = await filterNudgeEligibleUserIds(candidates.map((m) => m.id));
+  const members = candidates.filter((m) => eligibleUserIds.has(m.id));
+
   let sent = 0;
   let failed = 0;
 
@@ -56,6 +65,16 @@ async function handle(_req: NextRequest) {
         fullName: member.fullName ?? member.email,
       });
       sent++;
+
+      await recordNudgeSent({ userId: member.id, tier: 'yellow', kind: 'inactivity' });
+
+      await createNotification({
+        userId: member.id,
+        type: 'nudge',
+        title: "We haven't seen you in a while",
+        body: "It's been two weeks — let's get you back on track with your training.",
+        data: { link: '/dashboard' },
+      });
     } catch (e) {
       captureApiError(e, { route: 'cron/inactivity-nudge', extra: { userId: member.id } });
       failed++;

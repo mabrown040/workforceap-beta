@@ -50,6 +50,10 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     // instead of skipping straight to a generic cover letter.
     tools: [
       { key: 'jobMatchScorer', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats', minutes: 5 },
+      // jobTailor needs a specific job's context to run (it lives on the job
+      // detail page, not a standalone tool page) — link to the jobs list
+      // rather than a dead direct URL.
+      { key: 'jobTailor', href: '/dashboard/jobs', icon: 'auto_fix_high', minutes: 5 },
       { key: 'gapAnalyzer', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot', minutes: 5 },
       { key: 'coverLetter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft', minutes: 10 },
     ],

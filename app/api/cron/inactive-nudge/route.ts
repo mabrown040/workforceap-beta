@@ -5,12 +5,17 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
+import { createNotification } from '@/lib/notifications/create';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
  * Weekly nudge to members inactive for 7+ days.
  * Runs Monday 10 AM UTC. Deduplicates against memberEvents from the
- * last 7 days so no one receives more than one nudge per week.
+ * last 7 days so no one receives more than one nudge per week, AND against
+ * `MemberNudgeLog` so a member doesn't also get double-nudged by
+ * inactivity-nudge / course-accountability in the same window (see
+ * lib/cron/nudgeThrottle.ts).
  * Secured with CRON_SECRET.
 
  */
@@ -33,7 +38,7 @@ async function handle(_request: Request) {
   const activeUserIds = new Set(recentlyActive.map((r) => r.userId));
 
   // Find eligible members who are NOT active AND NOT recently nudged (capped to 1000 per run).
-  const members = await prisma.user.findMany({
+  const candidates = await prisma.user.findMany({
     where: {
       deletedAt: null,
       notificationsReminders: true,
@@ -42,6 +47,11 @@ async function handle(_request: Request) {
     select: { id: true, email: true, fullName: true },
     take: 1000,
   });
+
+  // Shared cross-cron cooldown: skip anyone nudged by ANY of these crons in
+  // the last 7 days (one shared query, not per-cron logic).
+  const eligibleUserIds = await filterNudgeEligibleUserIds(candidates.map((m) => m.id));
+  const members = candidates.filter((m) => eligibleUserIds.has(m.id));
 
   let sent = 0;
   for (const member of members) {
@@ -61,6 +71,16 @@ async function handle(_request: Request) {
             metadata: { source: 'inactive-nudge', weekOf: sevenDaysAgo.toISOString() },
           },
         }).catch(() => { /* non-fatal */ });
+
+        await recordNudgeSent({ userId: member.id, tier: 'yellow', kind: 'inactive' });
+
+        await createNotification({
+          userId: member.id,
+          type: 'nudge',
+          title: "We miss you!",
+          body: "It's been a week — pick up where you left off in your training plan.",
+          data: { link: '/dashboard' },
+        });
       }
     } catch (err) {
       captureApiError(err, { route: 'cron/inactive-nudge', extra: { userId: member.id } });

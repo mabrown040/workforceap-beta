@@ -522,6 +522,11 @@
     "programChangeCurrentLabel": "Programa actual:",
     "programChangeSelectLabel": "Programa al que te gustaría cambiar",
     "programChangeSelectPlaceholder": "— Selecciona un programa —",
+    "programChangeCompareTitle": "Cómo se compara {program}",
+    "programChangeCompareDuration": "Duración",
+    "programChangeCompareSalary": "Salario inicial",
+    "programChangeCompareDemand": "Demanda laboral",
+    "programChangeCompareCerts": "Certificado",
     "programChangeReasonLabel": "¿Por qué este cambio?",
     "programChangeReasonPlaceholder": "Explica brevemente por qué este programa se ajusta a tus objetivos — los asesores aprueban más rápido cuando hay contexto.",
     "programChangeMinimumChars": "mínimo",
@@ -2796,6 +2801,10 @@
       "jobMatchScorer": {
         "label": "Comprueba tu compatibilidad con un empleo",
         "hint": "Pega un empleo — mira tu ajuste y brechas"
+      },
+      "jobTailor": {
+        "label": "Adapta tu currículum a un empleo",
+        "hint": "Elige un empleo — adapta tu currículum a él"
       },
       "coverLetter": {
         "label": "Escribe tu carta de presentación",

@@ -5,6 +5,7 @@ import { CourseProgressStatus } from '@prisma/client';
 
 import {
   computeCourseProgressUpdate,
+  decideEnrolledProgramSync,
   mergeB4BProgressSignals,
   type ExistingCourseProgress,
 } from './b4bSync';
@@ -200,4 +201,52 @@ test('enrollment ahead of gradebook → keeps enrollment pct (max wins)', () => 
   });
   assert.equal(merged.overallProgress, 35);
   assert.equal(merged.lastActivityAt, 1_715_000_000_000);
+});
+
+/**
+ * Unit tests for `decideEnrolledProgramSync` — the gate that stops
+ * auto-sync from silently switching a member's `User.enrolledProgram`.
+ *
+ * `syncUserFromB4B` itself imports 'server-only' and can't run under
+ * `node --test`, so (matching the pattern above) the decision logic is
+ * a pure function in `b4bSync.ts` that the sync function composes.
+ *
+ * Regression this locks in: a counselor enrolls a member in Program A;
+ * the member has old Coursera activity only in Program B. Before this fix,
+ * the next dashboard auto-sync would silently overwrite
+ * `User.enrolledProgram` from "Program A" to "Program B". Now a non-null
+ * existing value is never overwritten — the divergence is only reported.
+ */
+
+test('existingEnrolledProgram is null → action "set" to the Coursera-suggested program', () => {
+  const decision = decideEnrolledProgramSync({
+    existingEnrolledProgram: null,
+    chosenProgramSlug: 'program-b',
+  });
+  assert.deepEqual(decision, { action: 'set', programSlug: 'program-b' });
+});
+
+test('existingEnrolledProgram matches the Coursera-suggested program → action "none"', () => {
+  const decision = decideEnrolledProgramSync({
+    existingEnrolledProgram: 'program-a',
+    chosenProgramSlug: 'program-a',
+  });
+  assert.deepEqual(decision, { action: 'none' });
+});
+
+test('existingEnrolledProgram is non-null and diverges → action "mismatch", never overwritten', () => {
+  // Counselor enrolled the member in Program A; Coursera activity suggests
+  // Program B. The non-null enrolledProgram must survive the sync.
+  const decision = decideEnrolledProgramSync({
+    existingEnrolledProgram: 'program-a',
+    chosenProgramSlug: 'program-b',
+  });
+  assert.deepEqual(decision, {
+    action: 'mismatch',
+    existingEnrolledProgram: 'program-a',
+    suggestedProgramSlug: 'program-b',
+  });
+  // Explicitly assert the decision is NOT a "set" — this is the load-bearing
+  // assertion for the audit fix.
+  assert.notEqual(decision.action, 'set');
 });

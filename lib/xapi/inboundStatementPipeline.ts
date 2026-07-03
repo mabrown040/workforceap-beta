@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 import { resolveStaffTrainingPreviewProgramSlug } from '@/lib/member/staffTrainingProgramFallback';
+import { utcDateKey } from '@/lib/member/dailyStudyPoints';
+import { awardPoints } from '@/lib/member/points';
 import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
 import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/statements';
@@ -57,6 +59,14 @@ export async function handleInboundParsedStatement(
     await markXapiStatementProcessed(parsed.statementId, options.statementHash);
     return { completions };
   }
+
+  // Daily-activity streak driver: award a small points event the first time
+  // this member's xAPI activity is seen today. Fail-soft — `awardPoints` is
+  // idempotent per (userId, event, entityId=UTC date), and this must never
+  // fail statement ingestion.
+  await awardPoints(resolvedUser.userId, 'daily_study', utcDateKey()).catch((error) => {
+    console.warn('[inboundStatementPipeline] daily_study points award failed:', error);
+  });
 
   const dbUser = await prisma.user.findUnique({
     where: { id: resolvedUser.userId },

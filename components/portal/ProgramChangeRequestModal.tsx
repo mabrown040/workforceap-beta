@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, useTransition } from 'react';
+import { useEffect, useId, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { Program } from '@/lib/content/programs';
@@ -12,6 +12,16 @@ type Props = {
   hasPendingRequest: boolean;
 };
 
+type ComparisonTrack = {
+  slug: string;
+  shortName: string;
+  duration: string;
+  difficulty: string;
+  salary: string;
+  demand: 'High' | 'Very High';
+  certs: string;
+};
+
 export default function ProgramChangeRequestModal({ currentProgram, programs, hasPendingRequest }: Props) {
   const t = useTranslations('dashboard');
   const router = useRouter();
@@ -21,9 +31,32 @@ export default function ProgramChangeRequestModal({ currentProgram, programs, ha
   const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [comparisonBySlug, setComparisonBySlug] = useState<Record<string, ComparisonTrack> | null>(null);
 
   const titleId = useId();
   const trapRef = useFocusTrap(open, () => setOpen(false));
+
+  // Fetch the maintained comparison dataset (duration/salary/demand/certs)
+  // once, the first time the modal opens — lets members see how the
+  // program they're requesting compares before they submit.
+  useEffect(() => {
+    if (!open || comparisonBySlug) return;
+    let cancelled = false;
+    fetch('/api/member/program-comparison')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { tracks?: ComparisonTrack[] } | null) => {
+        if (cancelled || !data?.tracks) return;
+        setComparisonBySlug(Object.fromEntries(data.tracks.map((track) => [track.slug, track])));
+      })
+      .catch(() => {
+        /* comparison panel is a nice-to-have; the form still works without it */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, comparisonBySlug]);
+
+  const requestedComparison = requestedSlug ? comparisonBySlug?.[requestedSlug] : undefined;
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -175,6 +208,28 @@ export default function ProgramChangeRequestModal({ currentProgram, programs, ha
                       ))}
                     </select>
                   </label>
+
+                  {requestedComparison && (
+                    <div
+                      style={{
+                        display: 'grid',
+                        gap: '0.4rem',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--surface-container-low)',
+                        border: '1px solid var(--outline-variant)',
+                        fontSize: '0.85rem',
+                      }}
+                    >
+                      <span style={{ fontWeight: 600 }}>{t('programChangeCompareTitle', { program: requestedComparison.shortName })}</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem 1.25rem', color: 'var(--color-on-surface-variant)' }}>
+                        <span>{t('programChangeCompareDuration')}: <strong style={{ color: 'var(--color-on-surface)' }}>{requestedComparison.duration}</strong></span>
+                        <span>{t('programChangeCompareSalary')}: <strong style={{ color: 'var(--color-on-surface)' }}>{requestedComparison.salary}</strong></span>
+                        <span>{t('programChangeCompareDemand')}: <strong style={{ color: 'var(--color-on-surface)' }}>{requestedComparison.demand}</strong></span>
+                        <span>{t('programChangeCompareCerts')}: <strong style={{ color: 'var(--color-on-surface)' }}>{requestedComparison.certs}</strong></span>
+                      </div>
+                    </div>
+                  )}
 
                   <label style={{ display: 'grid', gap: '0.35rem' }}>
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{t('programChangeReasonLabel')}</span>

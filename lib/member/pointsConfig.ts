@@ -16,6 +16,11 @@ export const POINT_VALUES: Record<string, number> = {
   // actually enrolls in a program (not at signup) — see lib/member/referrals.ts.
   referral_referrer_reward: 150,
   referral_referee_reward:  100,
+  // Daily-activity streak driver — awarded at most once per UTC calendar day
+  // per member (see lib/xapi/inboundStatementPipeline.ts). entityId is the
+  // UTC date string, so PointsTransaction's (userId, event, entityId) unique
+  // constraint enforces the once-per-day cap.
+  daily_study:               5,
 };
 
 export const LEVELS = [
@@ -50,4 +55,5 @@ export const EVENT_LABELS: Record<string, string> = {
   counselor_bonus:        'Bonus from counselor',
   referral_referrer_reward: 'A friend you referred enrolled',
   referral_referee_reward:  'Joined through a friend’s referral',
+  daily_study:              'Studied today',
 };

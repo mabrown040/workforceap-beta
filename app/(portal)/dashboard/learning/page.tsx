@@ -14,8 +14,10 @@ import LearningHubDestinationCards from '@/components/portal/LearningHubDestinat
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
 import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
+import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
+import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import { readinessVoiceSurface } from '@/lib/portal/voice';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -68,11 +70,14 @@ export default async function LearningPage() {
         .filter((row) => row.programSlug === enrolledProgram)
         .map((row) => row.courseSlug) ?? []
     : [];
-  const skillMissionSummary = await loadSkillMissionSummary({
-    userId: user.id,
-    programSlug: enrolledProgram,
-    completedCourseSlugs: coursesCompletedSlugs,
-  });
+  const [skillMissionSummary, memberSkillsetProgress] = await Promise.all([
+    loadSkillMissionSummary({
+      userId: user.id,
+      programSlug: enrolledProgram,
+      completedCourseSlugs: coursesCompletedSlugs,
+    }),
+    loadMemberSkillsetProgress(user.id),
+  ]);
   const pathwayMilestones = ACTIVE_PATHWAY
     ? buildPathwayMilestones(ACTIVE_PATHWAY, allProgress)
     : [];
@@ -153,6 +158,12 @@ export default async function LearningPage() {
         eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
         languagesSupported={programMeta?.languagesSupported}
       />
+
+      {memberSkillsetProgress.length > 0 && (
+        <div className="portal-card portal-card--flat" style={{ margin: '0 1.5rem 1.5rem', padding: '1rem' }}>
+          <SkillsetProgressList rows={memberSkillsetProgress} variant="member" />
+        </div>
+      )}
 
       <div style={{ margin: '0 1.5rem 1.5rem' }}>
         <SkillMissionPanel summary={skillMissionSummary} />
@@ -335,6 +346,15 @@ export default async function LearningPage() {
         eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
         languagesSupported={programMeta?.languagesSupported}
       />
+
+      {memberSkillsetProgress.length > 0 && (
+        <section
+          className="portal-card portal-card--flat"
+          style={{ marginBottom: 'var(--space-8)', padding: 'var(--space-6)' }}
+        >
+          <SkillsetProgressList rows={memberSkillsetProgress} variant="member" />
+        </section>
+      )}
 
       <SkillMissionPanel summary={skillMissionSummary} />
 

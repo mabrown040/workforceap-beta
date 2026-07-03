@@ -7,6 +7,8 @@ import { logCronRun } from '@/lib/admin/logCronRun';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
+import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
+import { createNotification } from '@/lib/notifications/create';
 
 /**
  * GET /api/cron/course-accountability  (Sprint R3 — PLAN-2026-Q3.md)
@@ -22,7 +24,9 @@ import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs
  *
  * Idempotency: both the email send AND the counselor follow-up are scoped to
  * the enrollment id. We skip enrollments that already have a
- * `course_accountability_sent` MemberEvent row.
+ * `course_accountability_sent` MemberEvent row. Also shares a 7-day
+ * cross-cron cooldown (via `MemberNudgeLog`) with inactive-nudge and
+ * inactivity-nudge — see lib/cron/nudgeThrottle.ts.
  *
  * Vercel cron: 0 15 * * * (3pm UTC daily — runs after the AM at-risk-check).
  */
@@ -67,12 +71,19 @@ async function handle(_request: Request) {
   });
   const sentEnrollmentIds = new Set(alreadySent.map((r) => r.entityId).filter(Boolean) as string[]);
 
+  // Shared cross-cron cooldown: skip anyone nudged by ANY of these crons in
+  // the last 7 days (one shared query, not per-cron logic).
+  const eligibleUserIds = await filterNudgeEligibleUserIds(
+    [...new Set(enrollments.map((e) => e.userId))],
+  );
+
   let sent = 0;
   let counselorFollowups = 0;
 
   for (const enrollment of enrollments) {
     if (sentEnrollmentIds.has(enrollment.id)) continue;
     if (!enrollment.user?.email) continue;
+    if (!eligibleUserIds.has(enrollment.userId)) continue;
 
     try {
       // Pull Coursera authoritative progress. Soft-fails to an empty Map if
@@ -111,6 +122,16 @@ async function handle(_request: Request) {
             },
           })
           .catch(() => { /* non-fatal */ });
+
+        await recordNudgeSent({ userId: enrollment.userId, tier: 'yellow', kind: 'accountability' });
+
+        await createNotification({
+          userId: enrollment.userId,
+          type: 'nudge',
+          title: `Ready to start ${programName}?`,
+          body: "You enrolled a few days ago but haven't started yet — pick up where you left off.",
+          data: { link: '/dashboard' },
+        });
 
         // Counselor follow-up queue: audit event the counselor view subscribes to.
         await prisma.memberEvent

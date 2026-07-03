@@ -301,6 +301,42 @@ describe('generateQuarterlyOutcomes', () => {
     expect(report.metrics.dropOffs).toBe(1);
     expect(report.metrics.activeMembers).toBe(0);
   });
+
+  it('computes a 90-day and 180-day retention block from retentionStatus/retentionDecision, keeping pending visible', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.courseProgress.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.userCertification.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([]);
+
+    // Call order inside generateQuarterlyOutcomes: fetchPlacements (quarter
+    // placements list), then the 90-day retention window, then the 180-day
+    // retention window.
+    vi.mocked(prisma.placementRecord.findMany)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { retentionStatus: 'retained_90d', retentionDecision: null },
+        { retentionStatus: 'separated', retentionDecision: null },
+        { retentionStatus: null, retentionDecision: null },
+      ] as any)
+      .mockResolvedValueOnce([
+        { retentionStatus: null, retentionDecision: 'retained' },
+      ] as any);
+
+    const report = await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));
+
+    expect(report.retention.ninetyDay).toEqual({
+      retained: 1,
+      notRetainedOrSeparated: 1,
+      pendingDecision: 1,
+      total: 3,
+    });
+    expect(report.retention.hundredEightyDay).toEqual({
+      retained: 1,
+      notRetainedOrSeparated: 0,
+      pendingDecision: 0,
+      total: 1,
+    });
+  });
 });
 
 // ─────────────────────────────────────────────
@@ -328,6 +364,10 @@ describe('formatQuarterlyReportMarkdown', () => {
         salaryMin: 45000,
         salaryMax: 60000,
       },
+      retention: {
+        ninetyDay: { retained: 4, notRetainedOrSeparated: 1, pendingDecision: 2, total: 7 },
+        hundredEightyDay: { retained: 2, notRetainedOrSeparated: 0, pendingDecision: 1, total: 3 },
+      },
       programBreakdown: [
         { programSlug: 'cna', enrolled: 6, completions: 3, placements: 2 },
         { programSlug: 'it-support', enrolled: 4, completions: 2, placements: 1 },
@@ -353,6 +393,9 @@ describe('formatQuarterlyReportMarkdown', () => {
     expect(md).toContain('Nurse Assistant');
     expect(md).toContain('$50,000');
     expect(md).toContain('Yes');
+    expect(md).toContain('## Retention (as of end of quarter)');
+    expect(md).toContain('| 90-day | 4 | 1 | 2 | 7 |');
+    expect(md).toContain('| 180-day | 2 | 0 | 1 | 3 |');
   });
 });
 
@@ -388,6 +431,10 @@ describe('CSV helpers', () => {
         salaryMin: 45000,
         salaryMax: 60000,
       },
+      retention: {
+        ninetyDay: { retained: 2, notRetainedOrSeparated: 1, pendingDecision: 0, total: 3 },
+        hundredEightyDay: { retained: 1, notRetainedOrSeparated: 0, pendingDecision: 1, total: 2 },
+      },
       programBreakdown: [],
       placementsList: [],
     };
@@ -397,6 +444,10 @@ describe('CSV helpers', () => {
     expect(rows[0].quarter).toBe('Q1 2026');
     expect(rows[0].total_enrolled).toBe(10);
     expect(rows[0].drop_off_rate).toBe('10%');
+    expect(rows[0].retention_90d_retained).toBe(2);
+    expect(rows[0].retention_90d_not_retained_or_separated).toBe(1);
+    expect(rows[0].retention_90d_pending_decision).toBe(0);
+    expect(rows[0].retention_180d_retained).toBe(1);
   });
 
   it('quarterlyOutcomesToCsvPrograms returns program rows', () => {

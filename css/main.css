@@ -60,6 +60,17 @@
     --color-gold: #FFBB00;
     --color-gold-light: #ffd54f;
     /**
+     * Canonical error/danger token. Referenced (with per-call-site fallback hex)
+     * across admin + portal error banners, invalid form fields, and destructive
+     * actions; previously undefined outside the (auth) route's `.auth-depth`
+     * scope, so every other subtree silently fell back to whatever hex each
+     * call site hardcoded (#dc2626 / #b91c1c / #c83232 / #b00020 / #ba1a1a / …).
+     * #dc2626 matches the most common fallback already in use and `--wa-danger`
+     * in css/portal-tokens.css. Constant across light/dark like --color-green.
+     */
+    --color-error: #dc2626;
+    --color-error-container: rgba(220, 38, 38, 0.12);
+    /**
      * WCAG AA helpers for marketing chips/badges (not global replacements for brand primaries).
      * Use on dark surfaces (~#121416) when #ad2c4d body copy fails ~4.5:1.
      */
@@ -133,9 +144,17 @@
     --shadow-lg: 0 16px 48px rgba(0,0,0,0.06);
     --shadow-xl: 0 24px 48px rgba(0,0,0,0.06);
     --shadow-ambient: 0 8px 32px rgba(0,0,0,0.04);
+    /* :root is this file's dark-mode default (see "Light-mode surface tokens" comment
+       below, ~line 557); html:not(.dark) supplies the light override. Correct as-is. */
     --shadow-glass: 0 8px 32px rgba(0,0,0,0.4);
     --shadow-glow-accent: 0 0 30px rgba(173,44,77,0.2), 0 0 60px rgba(173,44,77,0.08);
-    --shadow-glow-gold: 0 0 30px rgba(255,187,0,0.2), 0 0 60px rgba(255,187,0,0.08);
+    /* Dark-mode value (was previously duplicated into an `html.dark` override
+       with the same-but-stronger opacities, which — at higher selector
+       specificity — always won in dark mode, making that block dead weight;
+       folded the winning value in here and moved the light-mode value to the
+       html:not(.dark) override below, matching --shadow-glass's pattern.
+       No rendered value changes in either mode. */
+    --shadow-glow-gold: 0 0 30px rgba(255,187,0,0.25), 0 0 60px rgba(255,187,0,0.1);
 
     /* Glassmorphism */
     --glass-bg: rgba(18, 20, 22, 0.8);
@@ -558,6 +577,8 @@ html:not(.dark) {
     --outline-variant: #debfc2;
     --glass-bg: rgba(255, 255, 255, 0.85);
     --shadow-glass: 0 4px 24px rgba(0,0,0,0.08);
+    /* Light-mode value — see :root above for the dark-mode default + rationale. */
+    --shadow-glow-gold: 0 0 30px rgba(255,187,0,0.2), 0 0 60px rgba(255,187,0,0.08);
     /* Darker gold / rose for small text on white or light gray cards */
     --color-marketing-gold-on-light: #b37400;
     --color-marketing-rose-on-light: #b83b56;
@@ -569,7 +590,7 @@ html:not(.dark) {
 html.dark {
     --color-primary: #e2e2e5;
     --color-gold: #FFBB00;
-    --shadow-glow-gold: 0 0 30px rgba(255,187,0,0.25), 0 0 60px rgba(255,187,0,0.1);
+    /* --shadow-glow-gold dark value now lives on :root (its default) — see rationale there. */
     /* On dark surfaces, keep vivid brand tints for “gold / rose on light card” utilities */
     --color-marketing-gold-on-light: var(--color-gold);
     --color-marketing-rose-on-light: var(--color-accent-light);
@@ -2641,7 +2662,11 @@ a.btn-white {
     margin-right: var(--space-2);
 }
 .btn-content-loading {
-    opacity: 0.7;
+    /* Button.tsx always sets `disabled` while loading, which already triggers
+       `.btn:disabled { opacity: 0.5 }` above. Dimming again here compounded to
+       ~0.35 effective opacity (0.5 × 0.7), making the label nearly illegible
+       during loading. Rely on the single `:disabled` dim instead. */
+    opacity: 1;
 }
 
 /* =============================================

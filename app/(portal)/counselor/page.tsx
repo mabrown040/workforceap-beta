@@ -22,6 +22,17 @@ import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { DesignSurface, FeatureTile, KpiStrip, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
 
+// Quick Links accents: each link declares which severity it wants to signal
+// (accent/green/blue/gold/error) so At-Risk and Inactive Members read as
+// urgent instead of blending into the default brand-accent color.
+const QUICK_LINK_ACCENT_COLORS: Record<string, string> = {
+  accent: 'var(--color-accent)',
+  green: 'var(--color-green)',
+  blue: 'var(--color-blue)',
+  gold: 'var(--color-gold)',
+  error: 'var(--wa-danger, #dc2626)',
+};
+
 export default async function CounselorPortalPage({
   searchParams,
 }: {
@@ -388,7 +399,7 @@ export default async function CounselorPortalPage({
                       <span className="material-symbols-outlined text-on-surface-variant" aria-hidden="true">person</span>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
+                      <h4 title={a.member.fullName ?? undefined} className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
                       <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
                       {trainingProgressPct === null ? (
                         <p className="wa-text-[11px] wa-font-semibold text-on-surface-variant" style={{ margin: 0 }}>
@@ -570,7 +581,7 @@ export default async function CounselorPortalPage({
           <section>
             <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {[
+              {([
                 { href: '/counselor/inbox', icon: 'inbox', title: t('inboxZero'), desc: t('inboxZeroSubtitle'), accent: 'accent' },
                 { href: '/counselor/at-risk', icon: 'notification_important', title: t('atRiskMembers'), desc: t('membersFlaggedByRisk'), accent: 'error' },
                 { href: '/counselor/triage', icon: 'priority_high', title: t('triageQueue'), desc: t('membersFlaggedForAction'), accent: 'accent' },
@@ -580,14 +591,16 @@ export default async function CounselorPortalPage({
                 { href: '/counselor/inactive-members', icon: 'notifications_paused', title: t('inactiveMembers'), desc: t('membersNeedReengagement'), accent: 'error' },
                 { href: '/counselor/messages', icon: 'forum', title: t('messages'), desc: t('replyToMemberThreads'), accent: 'blue' },
                 { href: '/counselor/resources', icon: 'menu_book', title: t('resources'), desc: t('guidesAndReference'), accent: 'gold' },
-              ].map((link) => (
+              ] as const).map((link) => {
+                const accentColor = QUICK_LINK_ACCENT_COLORS[link.accent] ?? QUICK_LINK_ACCENT_COLORS.accent;
+                return (
                 <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
                     <div style={{
                       width: '2.75rem', minWidth: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '0.625rem',
+                      background: `color-mix(in srgb, ${accentColor} 10%, transparent)`, borderRadius: '0.625rem',
                     }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>{link.icon}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: accentColor, '--ms-fill': 1 }} aria-hidden="true">{link.icon}</span>
                     </div>
                     <div>
                       <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.title}</p>
@@ -596,7 +609,8 @@ export default async function CounselorPortalPage({
                   </div>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }} aria-hidden="true">chevron_right</span>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
 

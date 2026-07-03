@@ -4,8 +4,21 @@ import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken'
 import { checkPlacementSurveyRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { apiError } from '@/lib/http/errorResponse';
+import { escalateToCounselor } from '@/lib/member/counselorEscalation';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+/**
+ * PlacementRecord.retentionStatus values that are still "undecided" and
+ * therefore safe for the automated survey sync below to write over. Any
+ * other value (retained_90d/retained_180d/separated, or an admin's
+ * active/left/unknown selection made via /api/admin/placements) is treated
+ * as counselor-set and must never be silently overwritten by a survey
+ * response.
+ */
+const PENDING_ISH_RETENTION_STATUSES = ['unknown', 'pending'] as const;
+
+async function _POST(req: Request) {
   try {
     const ip = getClientIpFromRequest(req);
     const { success: withinLimit } = await checkPlacementSurveyRateLimit(ip);
@@ -36,7 +49,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
 
     const survey = await prisma.$transaction((tx) => tx.placementSurvey.findUnique({
       where: { id: verify.surveyId },
-      select: { id: true, userId: true, placementId: true, completedAt: true },
+      select: { id: true, userId: true, placementId: true, completedAt: true, wave: true },
     }));
     if (!survey) {
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
@@ -88,7 +101,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
           allowTestimonial: typeof allowTestimonial === 'boolean' ? allowTestimonial : false,
           completedAt: new Date(),
         },
-        select: { id: true, completedAt: true, userId: true, placementId: true, allowTestimonial: true },
+        select: { id: true, completedAt: true, userId: true, placementId: true, allowTestimonial: true, wave: true },
       }));
 
       // Auto-create testimonial pipeline entry if member consented
@@ -128,6 +141,59 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
           // Don't fail the survey submission if testimonial creation fails
           console.error('[placement-survey] Testimonial auto-create failed:', testimonialErr);
         }
+      }
+
+      // Sync the canonical PlacementRecord (what board/funder reports read)
+      // from this survey response. Entirely fail-soft relative to the
+      // survey save above — the member's submission already succeeded.
+      try {
+        if (stillEmployed === false) {
+          // Reported job loss. Only move retentionStatus into "separated"
+          // when it's still undecided — a counselor's own retained/separated
+          // call always wins.
+          await prisma.$transaction((tx) => tx.placementRecord.updateMany({
+            where: {
+              id: updated.placementId,
+              OR: [
+                { retentionStatus: null },
+                { retentionStatus: { in: [...PENDING_ISH_RETENTION_STATUSES] } },
+              ],
+            },
+            data: { retentionStatus: 'separated' },
+          }));
+
+          // Escalate through the same AtRiskAlert/CounselorNote pipeline the
+          // First 90 Days "having_trouble" check-in uses (see
+          // lib/member/counselorEscalation.ts) so a counselor sees this in
+          // their normal at-risk queue instead of the raw survey answer
+          // going unnoticed.
+          const summary = `Placement survey (${updated.wave.replace('_', ' ')}) reported the member is no longer employed at their placement employer.`;
+          await escalateToCounselor({
+            userId: updated.userId,
+            factorName: 'placement_survey_job_loss_reported',
+            summary,
+            noteContent: `[Placement Survey] ${summary}`,
+          });
+        } else if (stillEmployed === true && (updated.wave === 'ninety_day' || updated.wave === 'hundred_eighty_day')) {
+          // Retention window reached and the member is still employed —
+          // backfill the follow-up wage (never clobbering a value someone
+          // already recorded) and record the retained decision, but only
+          // while it is still unset.
+          if (typeof currentSalary === 'number' && Number.isFinite(currentSalary) && currentSalary >= 0) {
+            await prisma.$transaction((tx) => tx.placementRecord.updateMany({
+              where: { id: updated.placementId, wageAtFollowUp: null },
+              data: { wageAtFollowUp: Math.round(currentSalary) },
+            }));
+          }
+
+          await prisma.$transaction((tx) => tx.placementRecord.updateMany({
+            where: { id: updated.placementId, retentionStatus: null },
+            data: { retentionStatus: updated.wave === 'ninety_day' ? 'retained_90d' : 'retained_180d' },
+          }));
+        }
+      } catch (retentionSyncErr) {
+        // Don't fail the survey submission if the PlacementRecord sync fails.
+        console.error('[placement-survey] PlacementRecord retention sync failed:', retentionSyncErr);
       }
 
       return NextResponse.json({ success: true, survey: updated });

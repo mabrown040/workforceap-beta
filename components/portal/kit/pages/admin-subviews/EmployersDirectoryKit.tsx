@@ -35,6 +35,23 @@ export interface EmployerCard {
   hires: number;
   /** Account status — drives a subtle status tag. */
   status: 'active' | 'inactive' | 'pending_approval';
+  /** Employer user's User.lastLoginAt, ISO string, or null if they've never logged in. */
+  lastLoginAt: string | null;
+}
+
+/** Whole days since an ISO timestamp, or null if the timestamp is missing (never logged in). */
+function daysSinceLogin(lastLoginAt: string | null): number | null {
+  if (!lastLoginAt) return null;
+  return Math.max(0, Math.floor((Date.now() - new Date(lastLoginAt).getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/** Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never logged in. */
+function lastActiveBadge(lastLoginAt: string | null): { label: string; tone: 'ok' | 'warn' | 'alert' } {
+  const days = daysSinceLogin(lastLoginAt);
+  if (days === null) return { label: 'Never logged in', tone: 'alert' };
+  if (days < 30) return { label: `Active ${days}d ago`, tone: 'ok' };
+  if (days <= 90) return { label: `Active ${days}d ago`, tone: 'warn' };
+  return { label: `Inactive ${days}d`, tone: 'alert' };
 }
 
 export interface EmployersDirectoryKitProps {
@@ -50,9 +67,9 @@ export interface EmployersDirectoryKitProps {
 }
 
 const DEFAULT_EMPLOYERS: EmployerCard[] = [
-  { id: 'deloitte', name: 'Deloitte', industry: 'Tech & Consulting', openRoles: 9, hires: 18, status: 'active' },
-  { id: 'dell', name: 'Dell Technologies', industry: 'Hardware & IT', openRoles: 12, hires: 24, status: 'active' },
-  { id: 'stdavids', name: "St. David's HealthCare", industry: 'Healthcare', openRoles: 15, hires: 31, status: 'active' },
+  { id: 'deloitte', name: 'Deloitte', industry: 'Tech & Consulting', openRoles: 9, hires: 18, status: 'active', lastLoginAt: new Date().toISOString() },
+  { id: 'dell', name: 'Dell Technologies', industry: 'Hardware & IT', openRoles: 12, hires: 24, status: 'active', lastLoginAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'stdavids', name: "St. David's HealthCare", industry: 'Healthcare', openRoles: 15, hires: 31, status: 'active', lastLoginAt: null },
 ];
 
 /** Rotate the icon-tile tint across cards so the grid reads like the mockup. */
@@ -71,6 +88,7 @@ const STATUS_TAG: Record<EmployerCard['status'], { tone: 'ok' | 'muted' | 'warn'
 function EmployerTile({ card, index }: { card: EmployerCard; index: number }) {
   const tint = TILE_TINTS[index % TILE_TINTS.length];
   const tag = STATUS_TAG[card.status];
+  const lastActive = lastActiveBadge(card.lastLoginAt);
   return (
     <a
       href={`/admin/employers/${card.id}`}
@@ -117,6 +135,9 @@ function EmployerTile({ card, index }: { card: EmployerCard; index: number }) {
           {card.name}
         </h3>
         <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>{card.industry}</p>
+        <div style={{ marginTop: 6 }}>
+          <StatusTag tone={lastActive.tone}>{lastActive.label}</StatusTag>
+        </div>
       </div>
 
       <div

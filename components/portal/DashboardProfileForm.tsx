@@ -63,6 +63,7 @@ export default function DashboardProfileForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [justSaved, setJustSaved] = useState(false);
   const [firstName, setFirstName] = useState(defaultFirstName);
   const [lastName, setLastName] = useState(defaultLastName);
   const [phone, setPhone] = useState(defaultPhone);
@@ -86,6 +87,7 @@ export default function DashboardProfileForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setJustSaved(false);
     setLoading(true);
     // Accept "linkedin.com/in/..." without forcing members to type the scheme
     const linkedinTrimmed = linkedin.trim();
@@ -120,6 +122,7 @@ export default function DashboardProfileForm({
         setLoading(false);
         return;
       }
+      setJustSaved(true);
       router.refresh();
     } catch {
       setError('Update failed. Please try again.');
@@ -136,7 +139,7 @@ export default function DashboardProfileForm({
             style={{
               padding: '0.9rem 1rem',
               borderRadius: 'var(--radius-md)',
-              background: 'color-mix(in srgb, var(--color-accent) 8%, white)',
+              background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-low))',
               border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)',
             }}
           >
@@ -328,9 +331,14 @@ export default function DashboardProfileForm({
         </div>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }} disabled={loading}>
-        {loading ? 'Saving...' : 'Save'}
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' }}>
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? 'Saving...' : 'Save'}
+        </button>
+        <p role="status" aria-live="polite" style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-success, #16a34a)', opacity: justSaved && !loading ? 1 : 0, transition: 'opacity 0.2s' }}>
+          {justSaved && !loading ? 'Saved' : ''}
+        </p>
+      </div>
     </form>
   );
 }

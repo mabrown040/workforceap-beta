@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Download } from 'lucide-react';
+import { Download, CheckCircle2, XCircle, Loader2, Ban, type LucideIcon } from 'lucide-react';
 import DataTable from '@/components/portal/ui/DataTable';
 
 export type CronExecutionRow = {
@@ -28,6 +28,14 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
   FAILED: 'var(--color-accent)',
   RUNNING: 'var(--color-blue, #2b7bb9)',
   SKIPPED: 'var(--color-gold)',
+};
+
+/** Icon per status so a run's outcome reads at a glance, not by color alone. */
+const STATUS_ICON: Record<string, LucideIcon> = {
+  SUCCESS: CheckCircle2,
+  FAILED: XCircle,
+  RUNNING: Loader2,
+  SKIPPED: Ban,
 };
 
 export default function AdminCronsClient({
@@ -65,6 +73,7 @@ export default function AdminCronsClient({
         <select
           value={filterJob}
           onChange={(e) => setFilterJob(e.target.value)}
+          aria-label="Filter by job"
           style={{
             padding: '0.5rem 0.75rem',
             borderRadius: '0.375rem',
@@ -84,6 +93,7 @@ export default function AdminCronsClient({
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
+          aria-label="Filter by status"
           style={{
             padding: '0.5rem 0.75rem',
             borderRadius: '0.375rem',
@@ -144,9 +154,13 @@ export default function AdminCronsClient({
               cell: (row) => {
                 const bg = STATUS_COLOR[row.status] ?? 'var(--surface-container-low)';
                 const color = STATUS_TEXT_COLOR[row.status] ?? 'var(--color-on-surface-variant)';
+                const Icon = STATUS_ICON[row.status];
                 return (
                   <span
                     style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
                       fontSize: '0.625rem',
                       fontWeight: 800,
                       padding: '0.15rem 0.5rem',
@@ -157,7 +171,14 @@ export default function AdminCronsClient({
                       letterSpacing: '0.08em',
                     }}
                   >
-                    {row.status}
+                    {Icon && (
+                      <Icon
+                        size={10}
+                        aria-hidden
+                        style={row.status === 'RUNNING' ? { animation: 'spin 1s linear infinite' } : undefined}
+                      />
+                    )}
+                    <span>{row.status}</span>
                   </span>
                 );
               },
@@ -174,8 +195,9 @@ export default function AdminCronsClient({
             {
               key: 'duration',
               header: 'Duration',
+              align: 'right',
               cell: (row) => (
-                <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>
                   {row.durationMs !== null && row.durationMs !== undefined
                     ? `${row.durationMs < 1000 ? `${row.durationMs}ms` : `${(row.durationMs / 1000).toFixed(1)}s`}`
                     : row.status === 'RUNNING'
@@ -187,8 +209,9 @@ export default function AdminCronsClient({
             {
               key: 'records',
               header: 'Records',
+              align: 'right',
               cell: (row) => (
-                <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>
                   {row.recordsProcessed ?? '—'}
                 </span>
               ),

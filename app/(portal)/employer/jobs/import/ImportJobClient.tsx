@@ -302,7 +302,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           Use the same URL a candidate would use — the page that lists open roles. Internal HR logins will not work here.
         </p>
         {error && (
-          <div className="import-job-error">
+          <div className="import-job-error" role="alert">
             {error}
           </div>
         )}
@@ -390,7 +390,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
       </details>
 
       {bulkResult && bulkResult.errors.length > 0 && (
-        <div className="import-job-errors">
+        <div className="import-job-errors" role="alert">
           <strong>Some issues:</strong>
           <ul>
             {bulkResult.errors.map((err, i) => (

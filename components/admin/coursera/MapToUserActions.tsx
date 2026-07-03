@@ -164,6 +164,7 @@ export default function MapToUserActions({
     <div style={{ display: 'grid', gap: '0.6rem' }}>
       {error ? (
         <p
+          role="alert"
           style={{
             margin: 0,
             padding: '0.5rem 0.75rem',
@@ -178,6 +179,7 @@ export default function MapToUserActions({
       ) : null}
       {success ? (
         <p
+          role="status"
           style={{
             margin: 0,
             padding: '0.5rem 0.75rem',

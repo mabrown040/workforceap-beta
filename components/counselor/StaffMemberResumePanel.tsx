@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
 const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
@@ -95,6 +95,8 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
   }, [apiBase, data?.enhancedExt, data?.hasEnhanced]);
 
   const closeModal = useCallback(() => setExpanded(null), []);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const lastFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!expanded) return;
@@ -105,6 +107,18 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
     return () => window.removeEventListener('keydown', onKey);
   }, [expanded, closeModal]);
 
+  // Basic focus management: move focus into the dialog when it opens and
+  // restore it to whatever triggered the dialog when it closes, so keyboard
+  // users aren't dropped back at the top of the page.
+  useEffect(() => {
+    if (expanded) {
+      lastFocusedRef.current = document.activeElement as HTMLElement | null;
+      closeButtonRef.current?.focus();
+    } else {
+      lastFocusedRef.current?.focus();
+    }
+  }, [expanded]);
+
   if (loading) {
     return (
       <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Loading resume…</p>
@@ -113,7 +127,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
 
   if (error) {
     return (
-      <p style={{ margin: 0, fontSize: '0.9rem', color: '#b91c1c' }} role="alert">
+      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-accent, #b91c1c)' }} role="alert">
         {error}
       </p>
     );
@@ -133,7 +147,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
   const renderPreviewBlock = (
     variant: 'original' | 'enhanced',
     label: string,
-    emoji: string
+    icon: string
   ) => {
     const isOriginal = variant === 'original';
     const has = isOriginal ? data.hasOriginal : data.hasEnhanced;
@@ -166,8 +180,9 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
             fontSize: '0.85rem',
           }}
         >
-          <span style={{ fontWeight: 600 }}>
-            {emoji} {label}
+          <span style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">{icon}</span>
+            {label}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button
@@ -258,8 +273,8 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
 
   return (
     <>
-      {renderPreviewBlock('original', 'Original resume', '📄')}
-      {renderPreviewBlock('enhanced', 'AI-enhanced resume', '✨')}
+      {renderPreviewBlock('original', 'Original resume', 'description')}
+      {renderPreviewBlock('enhanced', 'AI-enhanced resume', 'auto_awesome')}
 
       {expanded ? (
         <div
@@ -305,7 +320,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
               <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>
                 {expanded === 'original' ? 'Original resume' : 'Enhanced resume'}
               </span>
-              <button type="button" className="btn btn-outline btn-sm" onClick={closeModal}>
+              <button ref={closeButtonRef} type="button" className="btn btn-outline btn-sm" onClick={closeModal}>
                 Close
               </button>
             </div>

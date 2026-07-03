@@ -277,6 +277,7 @@ export default function CourseraUnmatchedLearners({
                     </div>
                     {fb ? (
                       <span
+                        role={fb.kind === 'success' ? 'status' : 'alert'}
                         style={{
                           fontSize: '0.78rem',
                           color: fb.kind === 'success' ? 'rgb(22, 163, 74)' : 'rgb(239, 68, 68)',

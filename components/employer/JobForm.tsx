@@ -169,6 +169,11 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       });
       setErrorMsg('Please fix the highlighted fields.');
       setStatus('error');
+      // Move focus to the first invalid field so keyboard and screen-reader
+      // users land on the problem instead of hunting for it (WCAG focus management).
+      requestAnimationFrame(() => {
+        formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      });
       return;
     }
 

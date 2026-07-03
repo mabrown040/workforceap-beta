@@ -357,11 +357,11 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
     // Inline field validation — calm, member-friendly messages
     let hasFieldError = false;
     if (!email.trim()) {
-      setEmailError('Please enter your email address.');
+      setEmailError(tAuth('login.emailRequired'));
       hasFieldError = true;
     }
     if (!password) {
-      setPasswordError('Please enter your password.');
+      setPasswordError(tAuth('login.passwordRequired'));
       hasFieldError = true;
     }
     if (hasFieldError) {
@@ -421,7 +421,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
       }
 
       if (!res.ok) {
-        setError(data.error ?? "We couldn't sign you in right now. Try again in a moment.");
+        setError(data.error ?? tAuth('login.genericError'));
         trackFunnelEvent('member_login', 'failed', {
           status_code: res.status,
           error_message: typeof data?.error === 'string' ? data.error.slice(0, 120) : 'unknown',
@@ -435,7 +435,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
       const nextLocation = typeof data?.redirectTo === 'string' ? data.redirectTo : redirectTo;
       window.location.href = new URL(nextLocation, window.location.origin).href;
     } catch {
-      setError("We couldn't connect. Check your connection and try again.");
+      setError(tAuth('login.networkError'));
       trackFunnelEvent('member_login', 'network_error');
       setLoading(false);
     }

@@ -113,7 +113,13 @@ export default function RecordPlacementPage() {
         setError((d as { error?: string }).error ?? `Error ${res.status}`);
         return;
       }
-      router.push('/admin/pipeline');
+      // Query-param → role="status" toast on the destination page — same
+      // pattern as the member-creation success toast (see AddMemberWizard →
+      // CreateSuccessToast) — instead of a silent redirect.
+      const toastParams = new URLSearchParams({ toast: 'placed' });
+      if (selectedMember?.fullName) toastParams.set('member', selectedMember.fullName);
+      if (employerName) toastParams.set('employer', employerName);
+      router.push(`/admin/pipeline?${toastParams.toString()}`);
     } catch (err) {
       setError(String(err));
     } finally {
@@ -145,7 +151,9 @@ export default function RecordPlacementPage() {
         <div className="portal-card__body">
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <span style={{ fontWeight: 600 }}>Member *</span>
+              <label htmlFor="placement-member-search" style={{ fontWeight: 600, display: 'block' }}>
+                Member *
+              </label>
               {selectedMember ? (
                 <div
                   style={{
@@ -313,7 +321,11 @@ export default function RecordPlacementPage() {
                 onChange={(e) => setNotes(e.target.value)}
               />
             </label>
-            {error && <p style={{ color: 'var(--color-error)', margin: 0 }}>{error}</p>}
+            {error && (
+              <p role="alert" style={{ color: 'var(--color-error)', margin: 0 }}>
+                {error}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <button type="submit" disabled={loading} className="btn btn-primary">
                 {loading ? 'Saving…' : 'Save Placement'}

@@ -213,7 +213,7 @@ export default function PointsWidget({
         </span>
         <div>
           <p className="portal-kpi-card__label">Points</p>
-          <p style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', margin: 0, color: levelMeta.color }}>
+          <p style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', margin: 0, color: levelMeta.color, fontVariantNumeric: 'tabular-nums' }}>
             {total.toLocaleString()}
           </p>
           <p className="portal-kpi-card__hint">{levelMeta.label}</p>
@@ -237,7 +237,7 @@ export default function PointsWidget({
             <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: '0.15rem' }}>
               My Points
             </p>
-            <p style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, margin: 0, color: levelMeta.color }}>
+            <p style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, margin: 0, color: levelMeta.color, fontVariantNumeric: 'tabular-nums' }}>
               {total.toLocaleString()}
             </p>
           </div>
@@ -276,7 +276,7 @@ export default function PointsWidget({
       {/* Progress to next level */}
       {nextLevel && (
         <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', fontVariantNumeric: 'tabular-nums' }}>
             <span>{pctToNext}% to {nextLevel.label}</span>
             <span>{nextLevel.min - total} pts needed</span>
           </div>
@@ -316,7 +316,7 @@ export default function PointsWidget({
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', flex: 1, minWidth: 0 }}>
                 {tx.note ?? EVENT_LABELS[tx.event] ?? tx.event}
               </span>
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-green)', flexShrink: 0 }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-green)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
                 +{tx.points}
               </span>
             </li>

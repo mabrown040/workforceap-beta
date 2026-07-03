@@ -15,6 +15,8 @@ type ConfirmDialogProps = {
   danger?: boolean;
   /** Disables both buttons and swaps the confirm label while the action runs. */
   busy?: boolean;
+  /** Dialog card max width in px. Defaults to 420 (previous hardcoded value). */
+  maxWidth?: number;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -33,6 +35,7 @@ export default function ConfirmDialog({
   cancelLabel = 'Cancel',
   danger = false,
   busy = false,
+  maxWidth = 420,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -51,7 +54,7 @@ export default function ConfirmDialog({
       aria-labelledby={titleId}
       onClick={(e) => { if (e.target === e.currentTarget) close(); }}
       style={{
-        position: 'fixed', inset: 0, zIndex: 1100,
+        position: 'fixed', inset: 0, zIndex: 'var(--z-modal, 1100)',
         background: 'rgba(0,0,0,0.45)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '1rem',
@@ -60,15 +63,15 @@ export default function ConfirmDialog({
       <div
         ref={trapRef as React.RefObject<HTMLDivElement>}
         style={{
-          background: 'var(--color-white)',
+          background: 'var(--surface-container-low)',
           borderRadius: 'var(--radius-lg, 1rem)',
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: `${maxWidth}px`,
           boxShadow: 'var(--shadow-xl, 0 20px 40px rgba(0,0,0,0.25))',
         }}
       >
         <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {danger && <AlertTriangle size={20} style={{ color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden />}
+          {danger && <AlertTriangle size={20} style={{ color: 'var(--wa-danger, #dc2626)', flexShrink: 0 }} aria-hidden />}
           <h2 id={titleId} style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
             {title}
           </h2>
@@ -87,7 +90,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             className={danger ? 'btn' : 'btn btn-primary'}
-            style={danger ? { background: 'var(--color-accent)', color: '#fff', border: 'none' } : undefined}
+            style={danger ? { background: 'var(--wa-danger, #dc2626)', color: '#fff', border: 'none' } : undefined}
             onClick={onConfirm}
             disabled={busy}
           >

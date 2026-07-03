@@ -91,6 +91,13 @@
   color: var(--wa-accent);
   background: var(--wa-accent-soft);
 }
+/* True red for destructive/failed/rejected states — distinct from --alert's
+   brand magenta. Darkened for WCAG AA (4.5:1) on the soft tint, matching the
+   --ok/--warn/--info pattern above. */
+.wa-kit-tag--danger {
+  color: #b91c1c;
+  background: var(--wa-danger-soft);
+}
 .wa-kit-tag--info {
   color: #1f5a87;
   background: var(--wa-info-soft);
@@ -103,6 +110,7 @@
 html.dark .wa-kit-tag--ok, [data-theme='dark'] .wa-kit-tag--ok { color: #74c878; background: rgba(74, 155, 79, 0.18); }
 html.dark .wa-kit-tag--warn, [data-theme='dark'] .wa-kit-tag--warn { color: #d8b25e; }
 html.dark .wa-kit-tag--alert, [data-theme='dark'] .wa-kit-tag--alert { color: #e58aa1; }
+html.dark .wa-kit-tag--danger, [data-theme='dark'] .wa-kit-tag--danger { color: #f28b8b; }
 html.dark .wa-kit-tag--info, [data-theme='dark'] .wa-kit-tag--info { color: #74b3e3; }
 html.dark .wa-kit-tag--muted, [data-theme='dark'] .wa-kit-tag--muted { color: #c8c8c8; background: rgba(255, 255, 255, 0.08); }
 

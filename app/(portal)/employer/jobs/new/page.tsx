@@ -47,15 +47,35 @@ export default async function NewJobPage() {
           { label: t('jobPostings'), href: '/employer/jobs' },
           { label: t('createJobPosting') },
         ]}
+        action={
+          <Link
+            href="/employer/jobs/post"
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: 'var(--color-accent)',
+              textDecoration: 'none',
+            }}
+          >
+            {t('quickPostLink')}
+          </Link>
+        }
       />
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1rem', overflowY: 'auto' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+              {t('createJobFullEditorHint')}
+            </p>
             <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
           </div>
         </div>
       </div>
       <div className="wa-hidden md:wa-block">
+        <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+          {t('createJobFullEditorHint')}
+        </p>
         <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
       </div>
     </PortalPageFrame>

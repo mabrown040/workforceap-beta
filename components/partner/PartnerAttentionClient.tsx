@@ -209,7 +209,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
               <span className="partner-tier-filter-inner">
                 {t === 'all' ? 'All' : t}
                 {tierCounts ? (
-                  <span className="partner-tier-filter-count">{t === 'all' ? tierCounts.all : tierCounts[t]}</span>
+                  <span className="partner-tier-filter-count wa-tabular-nums">{t === 'all' ? tierCounts.all : tierCounts[t]}</span>
                 ) : null}
               </span>
             </button>
@@ -236,7 +236,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                     {m.fullName}
                   </Link>
                   <div className="partner-attention-meta">
-                    {m.stageLabel} · {m.programTitle} · quiet {m.staleDays}d
+                    {m.stageLabel} · {m.programTitle} · quiet <span className="wa-tabular-nums">{m.staleDays}</span>d
                   </div>
                   <div className="partner-attention-next">
                     <strong>Next:</strong> {m.nextBestAction}
@@ -272,7 +272,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                     className="btn btn-outline btn-sm"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">forum</span>
                     Message
                   </a>
                 </div>

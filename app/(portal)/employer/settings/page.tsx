@@ -82,13 +82,13 @@ export default async function EmployerSettingsPage() {
             ].map((item) => (
               <Link key={item.href} href={item.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
                 <div className="portal-quick-action-item__icon">
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{item.icon}</span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p className="portal-quick-action-item__label">{item.label}</p>
                   <p className="portal-quick-action-item__desc">{item.desc}</p>
                 </div>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }} aria-hidden="true">chevron_right</span>
               </Link>
             ))}
           </div>

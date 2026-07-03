@@ -16,14 +16,20 @@ import {
  *
  * One row per distinct cron job (its latest execution). Columns:
  * Job · Schedule · Last run · Duration · Status. Status maps the
- * CronExecution status onto a StatusTag (Success=ok, Retrying=alert,
+ * CronExecution status onto a StatusTag (Success=ok, Failed=danger,
  * Disabled/idle=muted). Server-rendered: all aggregation happens in the
  * page loader and lands here as plain data. DataTable mobile="cards" so the
  * wide table stacks instead of squishing on mobile.
  */
 
-/** Display status mapped from the underlying CronExecution status. */
-export type CronDisplayStatus = 'Success' | 'Retrying' | 'Running' | 'Disabled';
+/**
+ * Display status mapped from the underlying CronExecution status.
+ * `Failed` (not `Retrying`) — CronExecution has no retry/attempt tracking, so
+ * a FAILED run has no evidence a retry is actually happening; the next run is
+ * just the next scheduled invocation. Labeling it "Retrying" overstated the
+ * system's actual behavior.
+ */
+export type CronDisplayStatus = 'Success' | 'Failed' | 'Running' | 'Disabled';
 
 export interface CronJobRow {
   id: string;
@@ -52,7 +58,8 @@ export interface CronsMonitorKitProps {
 
 const STATUS_TONE: Record<CronDisplayStatus, KitTone> = {
   Success: 'ok',
-  Retrying: 'alert',
+  // 'danger' (not 'alert') per the KitTone doc: reserved for failed/destructive states.
+  Failed: 'danger',
   Running: 'info',
   Disabled: 'muted',
 };
@@ -67,7 +74,7 @@ export function CronsMonitorKit({
   const kpis: KpiItem[] = [
     { label: 'Total Jobs', value: totalJobs },
     { label: 'Enabled', value: enabled, color: 'success' },
-    { label: 'Failing / Retrying', value: failing, color: failing > 0 ? 'accent' : 'muted' },
+    { label: 'Failing', value: failing, color: failing > 0 ? 'accent' : 'muted' },
     { label: 'Last Run', value: lastRun, color: 'info' },
   ];
 

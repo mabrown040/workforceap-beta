@@ -190,6 +190,7 @@ export default function CourseraCsvImportClient() {
 
         {error ? (
           <div
+            role="alert"
             style={{
               marginTop: '1rem',
               padding: '0.75rem 1rem',
@@ -303,7 +304,7 @@ function Stat({ label, value }: { label: string; value: number }) {
       <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', fontWeight: 700 }}>
         {label}
       </div>
-      <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.25rem' }}>{value}</div>
+      <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.25rem', fontVariantNumeric: 'tabular-nums' }}>{value}</div>
     </div>
   );
 }

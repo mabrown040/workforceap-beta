@@ -101,7 +101,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             </svg>
           </span>
         )}
-        <span className={loading ? 'btn-content-loading' : undefined} aria-live="polite">
+        {/* aria-live only while loading — an unconditional live region here would
+            make screen readers announce every ordinary label change (e.g. toggle
+            text, counters) as if it were a status update. */}
+        <span
+          className={loading ? 'btn-content-loading' : undefined}
+          aria-live={loading ? 'polite' : undefined}
+        >
           {children}
         </span>
       </button>

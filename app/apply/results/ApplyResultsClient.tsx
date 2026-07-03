@@ -5,13 +5,37 @@ import { useSearchParams } from 'next/navigation';
 import LocalizedLink from '@/components/LocalizedLink';
 import { PROGRAMS, getProgramBySlug, type Program } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
-import { APPLY_PROGRAM_SLUG_KEY, APPLY_PROGRAM_RANKED_KEY } from '@/lib/apply/applyProgramStorage';
+import {
+  APPLY_PROGRAM_SLUG_KEY,
+  APPLY_PROGRAM_RANKED_KEY,
+  APPLY_FLOW_DRAFT_KEY,
+  type ApplyFlowDraftV1,
+} from '@/lib/apply/applyProgramStorage';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const FYP_RESULTS_KEY = 'find_your_path_results';
+const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Mirrors ApplyEligibilityClient's readDraft() — just the presence/freshness check. */
+function hasSavedApplyDraft(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const raw = localStorage.getItem(APPLY_FLOW_DRAFT_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as ApplyFlowDraftV1;
+    if (parsed?.version !== 1) return false;
+    if (typeof parsed.updatedAt === 'string') {
+      const updated = Date.parse(parsed.updatedAt);
+      if (Number.isFinite(updated) && Date.now() - updated > APPLY_DRAFT_TTL_MS) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 type CareerMatchPayload = {
   version?: number;
@@ -31,6 +55,7 @@ export default function ApplyResultsClient() {
   const searchParams = useSearchParams();
   const programParam = searchParams?.get('program');
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
+  const [hasSavedDraft, setHasSavedDraft] = useState(false);
   const [qualifies, setQualifies] = useState<boolean | null>(null);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   /** From Find Your Path v1 localStorage — used to label + order cards. */
@@ -48,6 +73,7 @@ export default function ApplyResultsClient() {
         sessionStorage.getItem(APPLY_STORAGE_KEY) ?? localStorage.getItem(APPLY_STORAGE_KEY);
       if (!stored) {
         trackApplyFunnel(2, 'results_missing_prereq');
+        setHasSavedDraft(hasSavedApplyDraft());
         setPageState('missing');
         return;
       }
@@ -99,6 +125,7 @@ export default function ApplyResultsClient() {
       setPageState('ready');
     } catch {
       trackApplyFunnel(2, 'results_missing_prereq');
+      setHasSavedDraft(hasSavedApplyDraft());
       setPageState('missing');
     }
   }, [programParam]);
@@ -200,18 +227,34 @@ export default function ApplyResultsClient() {
           <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
         </div>
         <div className="apply-step-content apply-missing-session">
-          <h2 className="apply-step-title">{t('resultsMissingTitle')}</h2>
-          <p className="apply-step-desc">
-            {t('resultsMissingDesc')}
-          </p>
-          <p style={{ marginBottom: '1.25rem' }}>
-            <LocalizedLink href="/apply" className="btn btn-primary">
-              {t('resultsMissingCta')}
-            </LocalizedLink>
-          </p>
-          <p className="apply-step-desc" style={{ fontSize: '0.9rem' }}>
-            {t('resultsMissingFootnote')} <LocalizedLink href="/apply">/apply</LocalizedLink> {t('resultsMissingFootnoteSuffix')}
-          </p>
+          {hasSavedDraft ? (
+            <>
+              <h2 className="apply-step-title">{t('resultsMissingResumeTitle')}</h2>
+              <p className="apply-step-desc">
+                {t('resultsMissingResumeDesc')}
+              </p>
+              <p style={{ marginBottom: '1.25rem' }}>
+                <LocalizedLink href="/apply" className="btn btn-primary">
+                  {t('resultsMissingResumeCta')}
+                </LocalizedLink>
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="apply-step-title">{t('resultsMissingTitle')}</h2>
+              <p className="apply-step-desc">
+                {t('resultsMissingDesc')}
+              </p>
+              <p style={{ marginBottom: '1.25rem' }}>
+                <LocalizedLink href="/apply" className="btn btn-primary">
+                  {t('resultsMissingCta')}
+                </LocalizedLink>
+              </p>
+              <p className="apply-step-desc" style={{ fontSize: '0.9rem' }}>
+                {t('resultsMissingFootnote')} <LocalizedLink href="/apply">/apply</LocalizedLink> {t('resultsMissingFootnoteSuffix')}
+              </p>
+            </>
+          )}
         </div>
       </div>
     );
@@ -377,7 +420,10 @@ export default function ApplyResultsClient() {
                 </div>
                 <p className="apply-results-program-card-title">{p.title}</p>
                 <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                  <div>⏱ {p.duration}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">schedule</span>
+                    {p.duration}
+                  </div>
                   <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
                 </div>
               </div>

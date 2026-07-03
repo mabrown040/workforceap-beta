@@ -16,6 +16,10 @@ vi.mock('@/lib/db/prisma', () =>
       courseProgress: {
         findUnique: vi.fn().mockResolvedValue(null),
         count: vi.fn().mockResolvedValue(3),
+        // Program-completion check reads all completed slugs after each
+        // completion; empty ⇒ program not complete ⇒ no graduation cascade,
+        // keeping these tests focused on the per-course notification.
+        findMany: vi.fn().mockResolvedValue([]),
       },
       counselorAssignment: {
         findMany: vi.fn().mockResolvedValue([

@@ -467,7 +467,13 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 aria-invalid={attemptedContinue && !firstName.trim()}
+                aria-describedby={attemptedContinue && !firstName.trim() ? 'apply-first-name-error' : undefined}
               />
+              {attemptedContinue && !firstName.trim() && (
+                <p id="apply-first-name-error" className="apply-eligibility-field-error" role="alert">
+                  {t('errFirstName')}
+                </p>
+              )}
             </div>
             <div className="form-group apply-form-group--full">
               <label htmlFor="apply-last-name">{tForm('lastNameRequired')}</label>
@@ -481,7 +487,13 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 onChange={(e) => setLastName(e.target.value)}
                 required
                 aria-invalid={attemptedContinue && !lastName.trim()}
+                aria-describedby={attemptedContinue && !lastName.trim() ? 'apply-last-name-error' : undefined}
               />
+              {attemptedContinue && !lastName.trim() && (
+                <p id="apply-last-name-error" className="apply-eligibility-field-error" role="alert">
+                  {t('errLastName')}
+                </p>
+              )}
             </div>
             <div className="form-group apply-form-group--full">
               <label htmlFor="apply-email">{tForm('emailRequired')}</label>
@@ -495,7 +507,13 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 aria-invalid={attemptedContinue && !emailLooksValid(email.trim())}
+                aria-describedby={attemptedContinue && !emailLooksValid(email.trim()) ? 'apply-email-error' : undefined}
               />
+              {attemptedContinue && !emailLooksValid(email.trim()) && (
+                <p id="apply-email-error" className="apply-eligibility-field-error" role="alert">
+                  {email.trim().length === 0 ? t('errEmailRequired') : t('errEmailInvalid')}
+                </p>
+              )}
             </div>
             <div className="form-group apply-form-group--full">
               <label htmlFor="apply-phone">{tForm('phoneNumber')} *</label>

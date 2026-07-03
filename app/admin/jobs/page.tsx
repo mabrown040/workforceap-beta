@@ -11,6 +11,7 @@ import JobsTableClient from '@/components/admin/JobsTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { statusColor } from '@/lib/ui/statusColors';
 import { DesignSurface } from '@/components/portal/kit';
 import {
   JobsBoardKit,
@@ -35,10 +36,39 @@ const STATUS_LABELS: Record<string, string> = {
   closed: 'Closed',
 };
 
+/** Human label for the ?filter= queue value shown on the mobile job cards. */
+const FILTER_LABELS: Record<string, string> = {
+  all: 'All',
+  pending: 'Pending',
+  live: 'Live',
+  draft: 'Draft',
+  filled: 'Filled / Closed',
+  approved: 'Approved',
+};
+
 function getJobStatusPillClass(status: string): string {
   if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
   if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
+  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
+  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
+  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
   return 'admin-job-status-pill';
+}
+
+/** Whole days between `date` and now — used for the pending-review SLA badge. */
+function daysSince(date: Date): number {
+  return Math.max(0, Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/**
+ * Green < 3 days, amber 3-7, red 7+ — matches the dormant-employer thresholds
+ * elsewhere in admin. Sourced from lib/ui/statusColors (the single source of
+ * truth for semantic status colors) rather than a one-off rgba palette.
+ */
+function pendingAgeBadgeStyle(days: number): { background: string; color: string } {
+  const tone = days < 3 ? statusColor('success') : days <= 7 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
 }
 
 /** Cap the lean board so first paint stays cheap. */
@@ -183,11 +213,18 @@ async function renderLegacy({
   const countByStatus: Record<string, number> = {};
   let tabs: any[] = [];
 
+  // Pending jobs are a review-SLA queue: oldest submission first so nothing
+  // silently ages past the others. Every other filter keeps the existing
+  // most-recently-touched-first order. updatedAt is the closest proxy for
+  // "submitted" — the employer PATCH that flips draft/closed → pending is
+  // what bumps it, and pending jobs are rarely edited again before review.
+  const jobsOrderBy = currentFilter === 'pending' ? { updatedAt: 'asc' as const } : { updatedAt: 'desc' as const };
+
   try {
     [jobs, totalCount] = await Promise.all([
       prisma.job.findMany({
         where,
-        orderBy: { updatedAt: 'desc' },
+        orderBy: jobsOrderBy,
         skip: (currentPage - 1) * pageSize,
         take: pageSize,
         include: {
@@ -278,9 +315,25 @@ async function renderLegacy({
                   {job.employer?.companyName ?? 'Unknown company'}
                 </p>
               </div>
-              <span className={getJobStatusPillClass(job.status)}>
-                {STATUS_LABELS[job.status] ?? job.status}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.35rem' }}>
+                <span className={getJobStatusPillClass(job.status)}>
+                  {STATUS_LABELS[job.status] ?? job.status}
+                </span>
+                {job.status === 'pending' && (
+                  <span
+                    style={{
+                      ...pendingAgeBadgeStyle(daysSince(job.updatedAt)),
+                      padding: '0.1rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {daysSince(job.updatedAt)}d pending
+                  </span>
+                )}
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
@@ -294,7 +347,9 @@ async function renderLegacy({
                 <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                   Queue
                 </p>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>{currentFilter}</p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
+                  {FILTER_LABELS[currentFilter] ?? currentFilter}
+                </p>
               </div>
             </div>
 

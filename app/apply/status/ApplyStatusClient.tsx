@@ -59,7 +59,7 @@ export default function ApplyStatusClient() {
             placeholder={t('statusEmailPlaceholder')}
           />
         </div>
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
           {loading ? t('statusChecking') : t('statusSubmit')}
         </button>
       </form>

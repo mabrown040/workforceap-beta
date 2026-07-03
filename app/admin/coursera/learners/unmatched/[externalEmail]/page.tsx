@@ -334,7 +334,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
                   align: 'right',
                   cell: (course) => (
                     <>
-                      {course.overallProgress.toFixed(2)}%
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{course.overallProgress.toFixed(2)}%</span>
                       {course.isCompleted ? (
                         <span
                           style={{
@@ -356,7 +356,9 @@ export default async function AdminCourseraUnmatchedLearnerPage({
                   key: 'hours',
                   header: 'Hours',
                   align: 'right',
-                  cell: (course) => course.learningHours.toFixed(2),
+                  cell: (course) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{course.learningHours.toFixed(2)}</span>
+                  ),
                   hideOnMobile: true,
                 },
                 {
@@ -420,13 +422,19 @@ export default async function AdminCourseraUnmatchedLearnerPage({
                   key: 'progress',
                   header: 'Progress',
                   align: 'right',
-                  cell: (badge) => `${badge.progressPercent.toFixed(2)}%`,
+                  cell: (badge) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{badge.progressPercent.toFixed(2)}%</span>
+                  ),
                 },
                 {
                   key: 'coursesDone',
                   header: 'Courses done',
                   align: 'right',
-                  cell: (badge) => `${badge.coursesCompleted}/${badge.numberOfCourses}`,
+                  cell: (badge) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      {badge.coursesCompleted}/{badge.numberOfCourses}
+                    </span>
+                  ),
                   hideOnMobile: true,
                 },
                 {

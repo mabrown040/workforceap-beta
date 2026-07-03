@@ -79,7 +79,14 @@ export default function EmployerHiringIntentPanel({ initialIntents }: { initialI
             <span>Notes for partnerships team</span>
             <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </label>
-          {message ? <p style={{ margin: 0, fontSize: '0.85rem', color: message.startsWith('Saved') ? 'var(--color-green)' : 'var(--color-red)' }}>{message}</p> : null}
+          {message ? (
+            <p
+              role={message.startsWith('Saved') ? 'status' : 'alert'}
+              style={{ margin: 0, fontSize: '0.85rem', color: message.startsWith('Saved') ? 'var(--color-green)' : 'var(--color-accent)' }}
+            >
+              {message}
+            </p>
+          ) : null}
           <button type="submit" className="btn btn-primary" disabled={isPending}>
             {isPending ? 'Saving…' : 'Submit hiring intent'}
           </button>

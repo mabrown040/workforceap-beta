@@ -60,7 +60,9 @@ export default function EmployerLoiForm() {
   if (success) {
     return (
       <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200 text-center">
-        <div className="text-6xl mb-4">🎉</div>
+        <span className="material-symbols-outlined text-rose-600 mb-4 block" style={{ fontSize: '3.5rem' }} aria-hidden>
+          check_circle
+        </span>
         <h2 className="text-2xl font-bold text-slate-900 mb-4">
           Letter of Intent Submitted!
         </h2>

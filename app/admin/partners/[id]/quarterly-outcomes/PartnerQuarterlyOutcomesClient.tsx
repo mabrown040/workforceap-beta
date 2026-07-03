@@ -150,7 +150,7 @@ function MetricCard({
           {icon}
         </span>
       </div>
-      <p className="portal-metric-card__value">{value}</p>
+      <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</p>
       <p className="portal-metric-card__label">{label}</p>
     </div>
   );
@@ -333,7 +333,10 @@ export default function PartnerQuarterlyOutcomesClient({
           style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}
         >
           <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-            No data available
+            No data for {quarter} {year}
+          </p>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem' }}>
+            {partnerName} has no referrals, enrollments, or placements recorded in that quarter. Try a different quarter or year above.
           </p>
         </div>
       )}
@@ -385,9 +388,9 @@ export default function PartnerQuarterlyOutcomesClient({
                 density="compact"
                 columns={[
                   { key: 'program', header: 'Program', cell: (p) => p.programSlug },
-                  { key: 'enrolled', header: 'Enrolled', align: 'right', cell: (p) => p.enrolled },
-                  { key: 'completions', header: 'Completions', align: 'right', cell: (p) => p.completions },
-                  { key: 'placements', header: 'Placements', align: 'right', cell: (p) => p.placements },
+                  { key: 'enrolled', header: 'Enrolled', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.enrolled}</span> },
+                  { key: 'completions', header: 'Completions', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.completions}</span> },
+                  { key: 'placements', header: 'Placements', align: 'right', cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.placements}</span> },
                 ]}
                 rows={data!.programBreakdown}
                 rowKey={(p) => p.programSlug}
@@ -443,9 +446,9 @@ export default function PartnerQuarterlyOutcomesClient({
                               : 'rgba(173,44,77,0.12)',
                           color:
                             m.status === 'Placed'
-                              ? '#2d7a32'
+                              ? GREEN
                               : m.status === 'Completed'
-                              ? '#2b7bb9'
+                              ? BLUE
                               : m.status === 'Active'
                               ? '#b38600'
                               : ACCENT,
@@ -455,12 +458,12 @@ export default function PartnerQuarterlyOutcomesClient({
                       </span>
                     ),
                   },
-                  { key: 'progress', header: 'Progress', align: 'right', cell: (m) => (m.progress != null ? `${m.progress}%` : '—') },
+                  { key: 'progress', header: 'Progress', align: 'right', cell: (m) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m.progress != null ? `${m.progress}%` : '—'}</span> },
                   { key: 'enrolled', header: 'Enrolled', cell: (m) => m.enrolledAt ?? '—' },
                   { key: 'placed', header: 'Placed', cell: (m) => m.placedAt ?? '—' },
                   { key: 'employer', header: 'Employer', cell: (m) => m.employerName ?? '—' },
-                  { key: 'salary', header: 'Salary', align: 'right', cell: (m) => (m.salaryOffered != null ? `$${m.salaryOffered.toLocaleString()}` : '—') },
-                  { key: 'days', header: 'Days to Place', align: 'right', cell: (m) => m.daysToPlacement ?? '—' },
+                  { key: 'salary', header: 'Salary', align: 'right', cell: (m) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m.salaryOffered != null ? `$${m.salaryOffered.toLocaleString()}` : '—'}</span> },
+                  { key: 'days', header: 'Days to Place', align: 'right', cell: (m) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m.daysToPlacement ?? '—'}</span> },
                 ]}
                 rows={data!.membersList}
                 rowKey={(m) => m.id}

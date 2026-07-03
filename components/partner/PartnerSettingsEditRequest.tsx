@@ -61,7 +61,7 @@ export default function PartnerSettingsEditRequest({
   if (sent) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.875rem', background: 'rgba(74,155,79,0.08)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '0.75rem' }}>
-        <span className="material-symbols-outlined" style={{ color: 'var(--color-green, #4a9b4f)', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1", flexShrink: 0 }}>check_circle</span>
+        <span className="material-symbols-outlined" style={{ color: 'var(--color-green, #4a9b4f)', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1", flexShrink: 0 }} aria-hidden="true">check_circle</span>
         <div>
           <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>Request sent</p>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0' }}>
@@ -79,7 +79,7 @@ export default function PartnerSettingsEditRequest({
         onClick={() => setOpen(true)}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '0.625rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>edit</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">edit</span>
         Request changes
       </button>
     );

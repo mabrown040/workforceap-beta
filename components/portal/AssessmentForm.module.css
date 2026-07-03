@@ -1,0 +1,14 @@
+/*
+ * Scoped focus-visible fix for the assessment quiz radio cards.
+ * The shared `.quiz-answer-card input` rule (css/main.css) visually hides
+ * the native radio with `opacity: 0`, which also hides the site-wide
+ * `input:focus-visible` outline/box-shadow — keyboard users tabbing through
+ * the assessment get no visible focus indicator (WCAG 2.4.7). Rather than
+ * edit the shared, multi-surface main.css, apply a `:focus-within` ring to
+ * the label itself, scoped to this component.
+ */
+.answerCardFocus:focus-within {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-md, 0.5rem);
+}

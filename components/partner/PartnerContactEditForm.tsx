@@ -91,7 +91,10 @@ export default function PartnerContactEditForm({
         </div>
       )}
       {saved && (
-        <div style={{ padding: '0.5rem', marginBottom: '0.75rem', background: 'rgba(74, 155, 79, 0.1)', borderRadius: '6px', color: '#2d7a32', fontSize: '0.85rem' }}>
+        <div
+          role="status"
+          style={{ padding: '0.5rem', marginBottom: '0.75rem', background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', borderRadius: '6px', color: 'var(--color-green)', fontSize: '0.85rem' }}
+        >
           Saved successfully.
         </div>
       )}

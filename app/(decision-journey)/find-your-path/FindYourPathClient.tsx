@@ -426,8 +426,9 @@ function QuizResultsView({
               {extra?.rampNote && (
                 <p className="quiz-result-ramp-note">{extra.rampNote}</p>
               )}
-              <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
-                ⏱ {program.duration}
+              <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">schedule</span>
+                {program.duration}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-accent)', fontWeight: 600, marginBottom: '0.5rem' }}>
                 Starting range: {salaryBand} <span style={{ fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>(national framing)</span>
@@ -827,8 +828,13 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
           background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
           padding: '2rem', border: '1px solid var(--surface-container-highest)',
         }}>
-          <h2 className="quiz-question" style={{ marginBottom: '1.5rem' }}>{currentQ?.question}</h2>
-          <div className="quiz-answers" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <h2 id={`${idPrefix}-question-heading`} className="quiz-question" style={{ marginBottom: '1.5rem' }}>{currentQ?.question}</h2>
+          <div
+            className="quiz-answers"
+            role="radiogroup"
+            aria-labelledby={`${idPrefix}-question-heading`}
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+          >
             {currentQ?.answers.map((a) => {
               const inputId = `${idPrefix}-${currentQ.id}-${a.value}`;
               const icon = currentQ.id === 'q1' ? INTEREST_ICONS[a.value] : null;
@@ -838,6 +844,8 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                   key={a.value}
                   htmlFor={inputId}
                   className={`quiz-answer-card ${isSelected ? 'selected' : ''}`}
+                  role="radio"
+                  aria-checked={isSelected}
                   onClick={(e) => {
                     e.preventDefault();
                     handleSelect(a.value);

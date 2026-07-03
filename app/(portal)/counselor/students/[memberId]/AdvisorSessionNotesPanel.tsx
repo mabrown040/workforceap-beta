@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 interface SessionNote {
   id: string;
@@ -31,6 +32,8 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
   const [error, setError] = useState('');
   const [fetchError, setFetchError] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchNotes = useCallback(async () => {
     try {
@@ -75,6 +78,7 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
 
   const handleDelete = async (noteId: string) => {
     setDeleteError('');
+    setDeleting(true);
     try {
       const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/session-notes`, {
         method: 'DELETE',
@@ -85,6 +89,9 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
       setNotes((prev) => prev.filter((n) => n.id !== noteId));
     } catch {
       setDeleteError('Could not delete note. Please try again.');
+    } finally {
+      setDeleting(false);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -125,7 +132,11 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
 
       {adding && (
         <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor={`session-note-${memberId}`} className="wa-sr-only">
+            Session note
+          </label>
           <textarea
+            id={`session-note-${memberId}`}
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             placeholder="Write a session note about this member..."
@@ -218,7 +229,7 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
                 {formatDateTime(note.createdAt)} · {note.author.fullName ?? note.author.email}
               </p>
               <button type="button"
-                onClick={() => handleDelete(note.id)}
+                onClick={() => setConfirmDeleteId(note.id)}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -245,6 +256,17 @@ export default function AdvisorSessionNotesPanel({ memberId }: { memberId: strin
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete session note?"
+        body="This session note will be permanently deleted. This cannot be undone."
+        confirmLabel="Delete note"
+        danger
+        busy={deleting}
+        onConfirm={() => { if (confirmDeleteId) handleDelete(confirmDeleteId); }}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

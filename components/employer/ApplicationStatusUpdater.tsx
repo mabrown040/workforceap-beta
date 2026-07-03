@@ -24,10 +24,12 @@ export default function ApplicationStatusUpdater({
   const [status, setStatus] = useState(currentStatus);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function updateStatus(newStatus: string) {
     if (newStatus === status) return;
     setSaving(true);
+    setError(null);
     try {
       const res = await fetch(`/api/employer/applications/${applicationId}`, {
         method: 'PATCH',
@@ -40,17 +42,17 @@ export default function ApplicationStatusUpdater({
         setTimeout(() => setSaved(false), 2000);
         router.refresh();
       } else {
-        alert('Failed to update status. Try again.');
+        setError('Failed to update status. Try again.');
       }
     } catch {
-      alert('Failed to update status. Try again.');
+      setError('Failed to update status. Try again.');
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
       <select
         value={status}
         onChange={(e) => updateStatus(e.target.value)}
@@ -74,7 +76,10 @@ export default function ApplicationStatusUpdater({
       </select>
       {saving && <Loader2 size={16} className="ai-tool-submit-spinner" />}
       {saved && (
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-green)', fontWeight: 700 }}>Saved</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-green)', fontWeight: 700 }} aria-live="polite">Saved</span>
+      )}
+      {error && (
+        <span role="alert" style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 700 }}>{error}</span>
       )}
     </div>
   );

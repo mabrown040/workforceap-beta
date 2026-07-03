@@ -20,6 +20,7 @@ import {
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -111,6 +112,8 @@ export default function ApplyCreateAccountForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileNotice, setTurnstileNotice] = useState<'none' | 'expired' | 'error'>('none');
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     firstName?: string;
     lastName?: string;
@@ -388,7 +391,7 @@ export default function ApplyCreateAccountForm() {
     }
 
     if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken?.trim()) {
-      setError('Please complete the security check before continuing.');
+      setError(t('accountCaptchaRequired'));
       requestAnimationFrame(() => {
         errorSummaryRef.current?.focus();
         errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
@@ -500,6 +503,13 @@ export default function ApplyCreateAccountForm() {
         if (Object.keys(serverFieldErrors).length > 0) {
           setFieldErrors((prev) => ({ ...prev, ...serverFieldErrors }));
         }
+        // The Turnstile token is single-use and expires quickly — a failed
+        // server-side check needs a fresh token, not just a re-submit.
+        if (lower.includes('security check')) {
+          setTurnstileToken(null);
+          setTurnstileNotice('expired');
+          turnstileRef.current?.reset();
+        }
         setError(serverMessage || t('errAccountGeneric'));
         trackApplyFunnel(3, 'account_create_error', {
           program_slugs: programRankedSlugs,
@@ -534,7 +544,7 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       completedRef.current = true;
-      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/thank-you' });
+      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/confirmation' });
       if (isPaidUtmSource(attribution.utmSource)) {
         trackConversionWithValue('apply_signup_completed', {
           program_slugs: programRankedSlugs,
@@ -548,11 +558,11 @@ export default function ApplyCreateAccountForm() {
       }
 
       if (data.message) {
-        window.location.href = '/apply/thank-you';
+        window.location.href = '/apply/confirmation';
         return;
       }
 
-      window.location.href = '/apply/thank-you';
+      window.location.href = '/apply/confirmation';
     } catch {
       setError(t('errNetwork'));
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });
@@ -567,23 +577,23 @@ export default function ApplyCreateAccountForm() {
   if (verifyEmailMode) {
     return (
       <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>{t('accountVerifyTitle')}</h2>
-        <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-accent)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>{t('accountVerifyTitle')}</h2>
+        <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '0.5rem' }}>
           {t('accountVerifySentTo')}
         </p>
-        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ad2c4d', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
+        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-accent)', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
           {verifyEmail}
         </p>
-        <p style={{ fontSize: '0.9rem', color: '#584144', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
           {t('accountVerifyInstructions')}
         </p>
         <LocalizedLink href="/login" className="btn btn-primary" style={{ display: 'inline-block', marginBottom: '1rem' }}>
           {t('accountVerifyLogin')}
         </LocalizedLink>
-        <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>
           {t('accountVerifySpam')}{' '}
-          <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
+          <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
             (512) 777-1808
           </a>{' '}
           {t('accountVerifySpamSuffix')}
@@ -622,7 +632,7 @@ export default function ApplyCreateAccountForm() {
     <form onSubmit={handleSubmit} className="apply-form" noValidate>
       <div className="apply-progress-bar" style={{ marginBottom: '1.25rem' }}>
         <div className="apply-progress-fill" style={{ width: '100%' }} />
-        <p className="apply-progress-label">Step 3 of 3 — save your spot and create your login</p>
+        <p className="apply-progress-label">{t('accountProgressLabel')}</p>
       </div>
 
       <p className="apply-step-back-nav" style={{ marginBottom: '1rem' }}>
@@ -802,7 +812,7 @@ export default function ApplyCreateAccountForm() {
             inputMode="text"
             aria-invalid={!!fieldErrors.addressLine1}
           />
-          {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
+          {fieldErrors.addressLine1 ? <p className="form-error" role="alert">{fieldErrors.addressLine1}</p> : null}
         </div>
         <div className="form-group">
           <label htmlFor="addressLine2">{t('accountAptOptional')}</label>
@@ -830,7 +840,7 @@ export default function ApplyCreateAccountForm() {
               inputMode="text"
               aria-invalid={!!fieldErrors.city}
             />
-            {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
+            {fieldErrors.city ? <p className="form-error" role="alert">{fieldErrors.city}</p> : null}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label htmlFor="state">{t('accountStateOptional')}</label>
@@ -849,7 +859,7 @@ export default function ApplyCreateAccountForm() {
                 <option key={s.abbr} value={s.abbr}>{s.name}</option>
               ))}
             </select>
-            {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
+            {fieldErrors.state ? <p className="form-error" role="alert">{fieldErrors.state}</p> : null}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label htmlFor="zip">{t('accountZipOptional')}</label>
@@ -865,7 +875,7 @@ export default function ApplyCreateAccountForm() {
               autoComplete="postal-code"
               aria-invalid={!!fieldErrors.zip}
             />
-            {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}
+            {fieldErrors.zip ? <p className="form-error" role="alert">{fieldErrors.zip}</p> : null}
           </div>
         </div>
       </details>
@@ -1046,12 +1056,29 @@ export default function ApplyCreateAccountForm() {
       {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
         <div className="form-group">
           <Turnstile
+            ref={turnstileRef}
             siteKey={TURNSTILE_SITE_KEY}
-            onSuccess={(t) => setTurnstileToken(t)}
-            onExpire={() => setTurnstileToken(null)}
-            onError={() => setTurnstileToken(null)}
-            options={{ theme: 'light', size: 'normal' }}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+              setTurnstileNotice('none');
+            }}
+            onExpire={() => {
+              setTurnstileToken(null);
+              setTurnstileNotice('expired');
+              turnstileRef.current?.reset();
+            }}
+            onError={() => {
+              setTurnstileToken(null);
+              setTurnstileNotice('error');
+              turnstileRef.current?.reset();
+            }}
+            options={{ theme: 'auto', size: 'normal' }}
           />
+          {turnstileNotice !== 'none' ? (
+            <p className="apply-field-hint" role="status" aria-live="polite" style={{ marginTop: '0.5rem' }}>
+              {turnstileNotice === 'expired' ? t('accountTurnstileExpiredHint') : t('accountTurnstileErrorHint')}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

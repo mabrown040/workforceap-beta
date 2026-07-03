@@ -59,21 +59,24 @@ const SCHEDULE_BY_JOB: Record<string, string> = {
 
 const DISPLAY_STATUS: Record<string, CronDisplayStatus> = {
   SUCCESS: 'Success',
-  FAILED: 'Retrying',
+  FAILED: 'Failed',
   RUNNING: 'Running',
   SKIPPED: 'Disabled',
 };
 
-/** Compact relative caption: "3 min ago", "3h ago", "2d ago", … */
+/**
+ * Compact relative caption: "just now", "3m ago", "3h ago", "2d ago", …
+ * Matches the format used by /admin/email-crons (timeAgo()) so the two
+ * cron-monitoring dashboards read consistently.
+ */
 function relativeTime(date: Date | null): string {
   if (!date) return '—';
   const diffMs = Date.now() - new Date(date).getTime();
   if (diffMs < 0) return 'just now';
-  const sec = Math.floor(diffMs / 1000);
-  if (sec < 60) return `${sec}s ago`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min} min ago`;
-  const hr = Math.floor(min / 60);
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hr = Math.floor(mins / 60);
   if (hr < 24) return `${hr}h ago`;
   const day = Math.floor(hr / 24);
   return `${day}d ago`;
@@ -154,7 +157,7 @@ async function renderKit() {
 
   const totalJobs = jobGroups.length;
   const enabled = rows.filter((r) => r.status === 'Success').length;
-  const failing = rows.filter((r) => r.status === 'Retrying').length;
+  const failing = rows.filter((r) => r.status === 'Failed').length;
   const lastRun = relativeTime(sortedGroups[0]?._max.startedAt ?? null);
 
   return (
@@ -219,35 +222,35 @@ async function renderLegacy() {
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>schedule</span>
           </div>
-          <p className="portal-metric-card__value">{totalJobs}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalJobs}</p>
           <p className="portal-metric-card__label">Total Runs</p>
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
           </div>
-          <p className="portal-metric-card__value">{successRate24h}%</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>{successRate24h}%</p>
           <p className="portal-metric-card__label">Success Rate (24h)</p>
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>error</span>
           </div>
-          <p className="portal-metric-card__value" style={{ color: failedLast24h > 0 ? 'var(--color-accent)' : undefined }}>{failedLast24h}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums', color: failedLast24h > 0 ? 'var(--color-accent)' : undefined }}>{failedLast24h}</p>
           <p className="portal-metric-card__label">Failed (24h)</p>
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>play_circle</span>
           </div>
-          <p className="portal-metric-card__value" style={{ color: currentlyRunning > 0 ? 'var(--color-blue)' : undefined }}>{currentlyRunning}</p>
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums', color: currentlyRunning > 0 ? 'var(--color-blue)' : undefined }}>{currentlyRunning}</p>
           <p className="portal-metric-card__label">Running</p>
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
             <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>timer</span>
           </div>
-          <p className="portal-metric-card__value">
+          <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {avgDurationLast7d._avg.durationMs
               ? `${Math.round((avgDurationLast7d._avg.durationMs ?? 0) / 1000)}s`
               : '—'}

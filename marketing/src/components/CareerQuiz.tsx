@@ -21,6 +21,14 @@ import { useState } from 'react';
  * = the user's type, same areas the server reports). It does NOT invent specific
  * career titles (no fabrication); it points to /programs and /apply, where a real
  * advisor confirms fit.
+ *
+ * Program hand-off: the live app resolves a `program=` slug server-side via
+ * lib/onet/ipMapToPrograms.ts (DB-backed career→program mappings), which this
+ * static site cannot query. AREA_PROGRAM_SLUG below is a minimal, static
+ * best-fit mapping (one real WorkforceAP program per RIASEC area, picked from
+ * lib/content/programs.ts) so the CTA can still carry a `program=` hint —
+ * consistent with lib/career/careerQuizRules.ts::buildCareerPlanApplyHref,
+ * which appends the same `source`/`type`/`program` keys.
  */
 
 type RiasecArea =
@@ -64,6 +72,18 @@ const AREA_BLURB: Record<RiasecArea, string> = {
   Social: 'You like to help, teach, coach, and support other people.',
   Enterprising: 'You like to lead, persuade, sell, or start something of your own.',
   Conventional: 'You like to organize information, follow clear systems, and keep things accurate.',
+};
+
+// Minimal static RIASEC-area → WorkforceAP program slug mapping (see file-header
+// note). Real slugs from lib/content/programs.ts — one representative,
+// no-cost-eligible program per interest area.
+const AREA_PROGRAM_SLUG: Record<RiasecArea, string> = {
+  Realistic: 'comptia-a-professional-certificate',
+  Investigative: 'data-analytics-professional-certificate-google',
+  Artistic: 'ux-design-professional-certificate-google',
+  Social: 'it-support-professional-certificate-ibm',
+  Enterprising: 'project-management-professional-certificate-microsoft',
+  Conventional: 'medical-billing-and-coding-certificate',
 };
 
 // Mirrors areasToTypeSlug() — top areas → "investigative-social"
@@ -111,7 +131,10 @@ export default function CareerQuiz() {
     const topAreas = ranked.slice(0, 2).map((r) => r.area);
     const typeLabel = topAreas.join(' & ');
     const typeSlug = areasToTypeSlug(topAreas);
-    const applyHref = `/apply?source=career_quiz${typeSlug ? `&type=${typeSlug}` : ''}`;
+    // Best-fit program for the #1 area — mirrors buildCareerPlanApplyHref's
+    // `program=` param so /apply preselects a real program card.
+    const programSlug = AREA_PROGRAM_SLUG[topAreas[0] as RiasecArea];
+    const applyHref = `/apply?source=career_quiz${typeSlug ? `&type=${typeSlug}` : ''}${programSlug ? `&program=${programSlug}` : ''}`;
 
     return (
       <div className="cq-card cq-result" role="region" aria-label="Your career quiz result">

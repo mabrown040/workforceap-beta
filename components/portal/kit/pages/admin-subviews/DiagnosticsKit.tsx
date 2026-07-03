@@ -46,6 +46,7 @@ const TONE_SWATCH: Record<DiagnosticTone, { bg: string; fg: string }> = {
   ok: { bg: 'var(--wa-success-soft, rgba(74,155,79,0.12))', fg: 'var(--wa-success)' },
   warn: { bg: 'var(--wa-gold-soft, rgba(255,187,0,0.14))', fg: 'var(--wa-gold)' },
   alert: { bg: 'var(--wa-accent-soft)', fg: 'var(--wa-accent)' },
+  danger: { bg: 'var(--wa-danger-soft)', fg: 'var(--wa-danger)' },
   info: { bg: 'var(--wa-info-soft, rgba(43,123,185,0.12))', fg: 'var(--wa-info)' },
   muted: { bg: 'var(--wa-surface-2, rgba(0,0,0,0.05))', fg: 'var(--wa-muted)' },
 };

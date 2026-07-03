@@ -88,7 +88,7 @@ export default function VerifyMfaPage() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-container-lowest)' }}>
         <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Verified</h1>
           <p style={{ color: 'var(--color-on-surface-variant)' }}>Redirecting…</p>
         </div>
@@ -100,7 +100,7 @@ export default function VerifyMfaPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-container-lowest)', padding: '1rem' }}>
       <div style={{ width: '100%', maxWidth: 380 }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>security</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 48, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>security</span>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Two-Factor Authentication</h1>
           <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
             Enter the 6-digit code from your authenticator app.
@@ -141,7 +141,7 @@ export default function VerifyMfaPage() {
           </div>
 
           {error && (
-            <p style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
+            <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
           )}
 
           <label

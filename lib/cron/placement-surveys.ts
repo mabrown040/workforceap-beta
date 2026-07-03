@@ -1,7 +1,7 @@
 /**
  * Placement survey automation core.
  *
- * Handles 30/60/90-day survey scheduling, sending, and escalation.
+ * Handles 30/60/90/180-day survey scheduling, sending, and escalation.
  * Called by the /api/cron/placement-survey route.
  */
 
@@ -17,6 +17,15 @@ const WAVES: { wave: PlacementSurveyWave; days: number; windowHours: number }[] 
   { wave: 'thirty_day', days: 30, windowHours: 24 },
   { wave: 'sixty_day', days: 60, windowHours: 24 },
   { wave: 'ninety_day', days: 90, windowHours: 24 },
+  { wave: 'hundred_eighty_day', days: 180, windowHours: 24 },
+];
+
+/** Waves that still block escalation for a stale (no-response) survey. */
+const ESCALATABLE_WAVES: PlacementSurveyWave[] = [
+  'thirty_day',
+  'sixty_day',
+  'ninety_day',
+  'hundred_eighty_day',
 ];
 
 export type SurveySendResult = {
@@ -200,7 +209,7 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
 }
 
 /**
- * Escalate 30-day surveys with no response after 7 days.
+ * Escalate 30/60/90/180-day surveys with no response after 7 days.
  * Alerts the assigned counselor (or admin fallback).
  */
 export async function escalateStalePlacementSurveys(): Promise<EscalationResult> {
@@ -209,7 +218,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
 
   const staleSurveys = await prisma.placementSurvey.findMany({
     where: {
-      wave: 'thirty_day',
+      wave: { in: ESCALATABLE_WAVES },
       completedAt: null,
       sentAt: { lte: sevenDaysAgo },
       escalatedAt: null,
@@ -225,7 +234,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
             select: {
               counselor: {
                 select: {
-                  user: { select: { email: true, fullName: true } },
+                  user: { select: { id: true, email: true, fullName: true } },
                 },
               },
             },
@@ -274,6 +283,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
         ? Math.floor((Date.now() - new Date(survey.placement.startDate).getTime()) / (1000 * 60 * 60 * 24))
         : null,
       surveyUrl,
+      wave: survey.wave,
     });
 
     if (result.ok) {
@@ -282,6 +292,20 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
         where: { id: survey.id },
         data: { escalatedAt: new Date() },
       });
+
+      // In-app companion to the escalation email so the counselor also sees
+      // this in their notification feed, not just their inbox. Fail-soft —
+      // createNotification never throws (see lib/notifications/create.ts).
+      const counselorUserId = counselor.user.id;
+      if (counselorUserId) {
+        void createNotification({
+          userId: counselorUserId,
+          type: 'task_assigned',
+          title: 'Placement survey follow-up needed',
+          body: `${user.fullName ?? 'A member'}'s ${survey.wave.replace('_', '-day ')} placement survey has gone unanswered for 7+ days.`,
+          data: { surveyId: survey.id, wave: survey.wave, memberId: user.id },
+        });
+      }
     } else {
       emailFailures.push({ userId: user.id, error: result.error ?? 'Unknown send error' });
     }

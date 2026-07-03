@@ -1,0 +1,189 @@
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/db/prisma';
+import { createNotification } from '@/lib/notifications/create';
+import { sendOnboardingStallsDigestEmail } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
+import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+
+const JOB_NAME = 'cron_onboarding_stalls';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const STALL_DAYS = 5;
+const NO_PROGRAM_DAYS = 7;
+const MAX_NAMED_PER_BUCKET = 10;
+
+const INTERVIEW_QUEUE_LINK = '/admin/members/interview-ready';
+const WIOA_QUEUE_LINK = '/admin/wioa-screening';
+const MEMBERS_QUEUE_LINK = '/admin/members';
+
+type NamedMember = { id: string; fullName: string | null; email: string | null };
+
+function toNamedMember(m: { id: string; fullName: string | null; email: string | null }): NamedMember {
+  return { id: m.id, fullName: m.fullName, email: m.email };
+}
+
+/**
+ * Weekly onboarding-stall digest (Tuesdays 15:30 — see vercel.json).
+ *
+ * Surfaces three places applicants/members get stuck between applying and
+ * starting training where nobody is automatically pinged, modeled on
+ * cron/applicant-followup's "one staff digest, not per-member spam" shape:
+ *
+ *  - Interview requested but never completed (5+ days).
+ *  - WIOA screening stuck in pending/in_review (5+ days since last update —
+ *    there's no dedicated "submitted at" timestamp, so `updatedAt` is the
+ *    best queryable proxy without a schema change).
+ *  - No program selected, no active counselor assignment, and the account
+ *    is 7+ days old (the classic "signed up, then nothing" stall).
+ *
+ * One digest notification (type 'task_assigned') per admin + one staff
+ * email listing counts and up to 10 named members per bucket, linking to
+ * the relevant admin queue.
+ */
+async function handle(_request: Request) {
+  const now = new Date();
+  const stallThreshold = new Date(now.getTime() - STALL_DAYS * MS_PER_DAY);
+  const noProgramThreshold = new Date(now.getTime() - NO_PROGRAM_DAYS * MS_PER_DAY);
+
+  const [interviewStalled, wioaStalled, noProgramCandidates] = await Promise.all([
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        interviewEligible: true,
+        interviewRequestedAt: { not: null, lte: stallThreshold },
+        interviewCompletedAt: null,
+      },
+      select: { id: true, fullName: true, email: true, interviewRequestedAt: true },
+      orderBy: { interviewRequestedAt: 'asc' },
+      take: 500,
+    }),
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        wioaReviewStatus: { in: ['pending', 'in_review'] },
+        updatedAt: { lte: stallThreshold },
+      },
+      select: { id: true, fullName: true, email: true, updatedAt: true },
+      orderBy: { updatedAt: 'asc' },
+      take: 500,
+    }),
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        enrolledProgram: null,
+        createdAt: { lte: noProgramThreshold },
+      },
+      select: { id: true, fullName: true, email: true, createdAt: true },
+      orderBy: { createdAt: 'asc' },
+      take: 500,
+    }),
+  ]);
+
+  // Exclude members who already have an active counselor from the
+  // "no program" bucket — one batched query rather than N+1 lookups.
+  let noProgramStalled: typeof noProgramCandidates = [];
+  if (noProgramCandidates.length > 0) {
+    const assignments = await prisma.counselorAssignment.findMany({
+      where: { memberId: { in: noProgramCandidates.map((m) => m.id) }, active: true },
+      select: { memberId: true },
+    });
+    const assignedIds = new Set(assignments.map((a) => a.memberId));
+    noProgramStalled = noProgramCandidates.filter((m) => !assignedIds.has(m.id));
+  }
+
+  const interviewCount = interviewStalled.length;
+  const wioaCount = wioaStalled.length;
+  const noProgramCount = noProgramStalled.length;
+  const totalStalled = interviewCount + wioaCount + noProgramCount;
+
+  let notificationsSent = 0;
+  let emailSent = false;
+
+  if (totalStalled > 0) {
+    const [profileAdmins, userRoleAdmins] = await Promise.all([
+      prisma.profile.findMany({
+        where: { role: { in: ['admin', 'super_admin'] } },
+        select: { userId: true },
+      }),
+      prisma.userRole.findMany({
+        where: { role: { name: 'admin' } },
+        select: { userId: true },
+      }),
+    ]);
+    const adminUserIds = Array.from(
+      new Set([...profileAdmins.map((p) => p.userId), ...userRoleAdmins.map((r) => r.userId)])
+    );
+    const adminUsers = adminUserIds.length
+      ? await prisma.user.findMany({
+          where: { id: { in: adminUserIds }, deletedAt: null },
+          select: { id: true, email: true },
+        })
+      : [];
+
+    const title = `${totalStalled} onboarding stall${totalStalled === 1 ? '' : 's'} need attention`;
+    const body = `${interviewCount} interview${interviewCount === 1 ? '' : 's'} awaiting completion, ${wioaCount} WIOA screening${wioaCount === 1 ? '' : 's'} pending review, ${noProgramCount} member${noProgramCount === 1 ? '' : 's'} without a program or counselor.`;
+
+    for (const admin of adminUsers) {
+      try {
+        await createNotification({
+          userId: admin.id,
+          type: 'task_assigned',
+          title,
+          body,
+          data: {
+            link: MEMBERS_QUEUE_LINK,
+            interviewCount,
+            wioaCount,
+            noProgramCount,
+          },
+        });
+        notificationsSent++;
+      } catch (err) {
+        captureApiError(err, { route: 'cron/onboarding-stalls', extra: { adminUserId: admin.id } });
+      }
+    }
+
+    const recipientEmails = Array.from(
+      new Set(adminUsers.map((a) => a.email?.trim()).filter((e): e is string => !!e))
+    );
+    if (recipientEmails.length > 0) {
+      try {
+        const result = await sendOnboardingStallsDigestEmail({
+          to: recipientEmails,
+          interviewCount,
+          wioaCount,
+          noProgramCount,
+          interviewMembers: interviewStalled.slice(0, MAX_NAMED_PER_BUCKET).map(toNamedMember),
+          wioaMembers: wioaStalled.slice(0, MAX_NAMED_PER_BUCKET).map(toNamedMember),
+          noProgramMembers: noProgramStalled.slice(0, MAX_NAMED_PER_BUCKET).map(toNamedMember),
+          interviewQueueLink: `${SITE_URL}${INTERVIEW_QUEUE_LINK}`,
+          wioaQueueLink: `${SITE_URL}${WIOA_QUEUE_LINK}`,
+          membersQueueLink: `${SITE_URL}${MEMBERS_QUEUE_LINK}`,
+          memberAdminBaseUrl: `${SITE_URL}${MEMBERS_QUEUE_LINK}`,
+        });
+        emailSent = result.ok;
+      } catch (err) {
+        captureApiError(err, { route: 'cron/onboarding-stalls/email' });
+      }
+    }
+  }
+
+  const runResult = {
+    ok: true,
+    checkedAt: now.toISOString(),
+    interviewStalled: interviewCount,
+    wioaStalled: wioaCount,
+    noProgramStalled: noProgramCount,
+    totalStalled,
+    notificationsSent,
+    emailSent,
+  };
+  await setCronRecordsProcessed(totalStalled);
+  await logCronRun(JOB_NAME, runResult);
+  return NextResponse.json(runResult);
+}
+
+export const GET = withCronLogging(JOB_NAME, handle);
+export const POST = withCronLogging(JOB_NAME, handle);

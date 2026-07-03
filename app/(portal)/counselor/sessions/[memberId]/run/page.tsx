@@ -53,6 +53,7 @@ export default async function SessionRunPage({
 }) {
   const { memberId } = await params;
   const { sid, fresh } = await searchParams;
+  const t = await getTranslations('counselor');
 
   const user = await getUser();
   if (!user) redirect(`/login?redirectTo=/counselor/sessions/${memberId}/run`);
@@ -124,8 +125,8 @@ export default async function SessionRunPage({
             : `Continuing in-office session. Outputs save to ${member.fullName?.split(' ')[0] ?? 'their'} portal as you go.`
         }
         breadcrumbs={[
-          { label: 'Counselor', href: '/counselor' },
-          { label: 'Sessions', href: '/counselor/sessions' },
+          { label: t('counselor'), href: '/counselor' },
+          { label: t('inOfficeSessions'), href: '/counselor/sessions' },
           { label: member.fullName ?? member.email },
         ]}
       />

@@ -371,7 +371,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   function pitchOutcomeColor(outcome: PitchOutcome | undefined): string {
     switch (outcome) {
       case 'interview': return 'var(--color-green, #16a34a)';
-      case 'pending': return '#d97706';
+      case 'pending': return 'var(--color-warning-on-surface, #d97706)';
       default: return 'var(--color-on-surface-variant)';
     }
   }
@@ -439,6 +439,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h1
+                  title={member.fullName ?? undefined}
                   className="wa-truncate"
                   style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}
                 >
@@ -467,9 +468,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       borderRadius: '9999px',
                       fontSize: '0.7rem',
                       fontWeight: 700,
-                      background: 'color-mix(in srgb, #f59e0b 18%, transparent)',
+                      background: 'color-mix(in srgb, var(--color-warning-on-surface) 18%, transparent)',
                       color: 'var(--color-warning-on-surface)',
-                      border: '1px solid color-mix(in srgb, #f59e0b 32%, transparent)',
+                      border: '1px solid color-mix(in srgb, var(--color-warning-on-surface) 32%, transparent)',
                     }}
                   >
                     {bt.replace(/_/g, ' ')}
@@ -512,9 +513,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               border: '1px solid var(--outline-variant)',
             }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+            <h2 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Program Progress
-            </h3>
+            </h2>
             {programCourses.length === 0 ? (
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                 {member.enrolledProgram ? 'No course data available for this program.' : 'Not enrolled in a program yet.'}
@@ -587,9 +588,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 border: '1px solid var(--outline-variant)',
               }}
             >
-              <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
+              <h2 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
                 Other programs this student is in
-              </h3>
+              </h2>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
                 Secondary enrollments outside the primary program shown above.
               </p>
@@ -625,6 +626,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
         {/* Counselor 360 signals — at-risk, career quiz, next-best-actions */}
         <div style={{ padding: '0 1rem 1rem' }}>
+          <h2 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 0.75rem' }}>
+            Counselor 360 Signals
+          </h2>
           <Counselor360Signals
             atRiskAlert={atRiskAlertDisplay}
             topOccupations={topOccupations}
@@ -657,9 +661,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               border: '1px solid var(--outline-variant)',
             }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
+            <h2 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
               Elevator Pitch
-            </h3>
+            </h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.875rem' }}>
               <strong style={{ color: 'var(--color-on-surface)' }}>Pitch uses:</strong>{' '}
               {typedPitchDeployments.length}
@@ -729,9 +733,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               border: '1px solid var(--outline-variant)',
             }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+            <h2 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Resumes
-            </h3>
+            </h2>
             <StaffMemberResumePanel memberId={member.id} />
           </div>
         </div>
@@ -746,9 +750,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               border: '1px solid var(--outline-variant)',
             }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+            <h2 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Job Pipeline
-            </h3>
+            </h2>
 
             {applications.length === 0 && aiMatches.length === 0 ? (
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
@@ -866,9 +870,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     borderRadius: '9999px',
                     fontSize: '0.7rem',
                     fontWeight: 700,
-                    background: 'color-mix(in srgb, #f59e0b 18%, transparent)',
+                    background: 'color-mix(in srgb, var(--color-warning-on-surface) 18%, transparent)',
                     color: 'var(--color-warning-on-surface)',
-                    border: '1px solid color-mix(in srgb, #f59e0b 32%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-warning-on-surface) 32%, transparent)',
                   }}
                 >
                   {bt.replace(/_/g, ' ')}

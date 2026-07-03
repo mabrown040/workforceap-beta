@@ -65,27 +65,27 @@ export default async function PartnerOutcomesPage() {
           }}
         >
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)' }}>{members.length}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)' }}>{members.length}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('totalReferrals')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800 }}>{placements}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{placements}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('placed')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>{pendingPlacementCount}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>{pendingPlacementCount}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('pendingReview')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('withCertificate')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('inTrainingCertifiedStage')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('programCompletions')}</div>
           </div>
         </div>
@@ -100,7 +100,7 @@ export default async function PartnerOutcomesPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)' }}>info</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)' }} aria-hidden="true">info</span>
               <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>{t('pendingPlacementReviews')}</span>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>

@@ -57,14 +57,15 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
               key={chip.key}
               type="button"
               onClick={() => setFilter(chip.key)}
+              aria-pressed={active}
               style={{
                 flexShrink: 0,
                 padding: '0.375rem 0.875rem',
                 borderRadius: '9999px',
                 fontSize: '0.75rem',
                 fontWeight: 700,
-                background: active ? 'var(--color-accent)' : '#fff',
-                color: active ? '#fff' : 'var(--color-on-surface-variant)',
+                background: active ? 'var(--color-accent)' : 'var(--surface-container-low)',
+                color: active ? 'var(--color-on-accent)' : 'var(--color-on-surface-variant)',
                 border: `1px solid ${active ? 'var(--color-accent)' : 'var(--outline-variant)'}`,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -72,7 +73,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
             >
               {chip.label}
               {chip.count > 0 ? (
-                <span style={{ marginLeft: '0.375rem', fontSize: '0.75rem', opacity: 0.85 }}>{chip.count}</span>
+                <span className="wa-tabular-nums" style={{ marginLeft: '0.375rem', fontSize: '0.75rem', opacity: 0.85 }}>{chip.count}</span>
               ) : null}
             </button>
           );
@@ -106,17 +107,16 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
               .toUpperCase();
             const isPlaced = row.stage === 'placed';
             const isAtRisk = row.progress < 30 && row.stage === 'in_training';
-            const badgeBg = isPlaced ? '#dcfce7' : isAtRisk ? '#fef3c7' : 'rgba(173,44,77,0.08)';
-            const badgeColor = isPlaced ? '#166534' : isAtRisk ? 'var(--color-gold)' : 'var(--color-accent)';
+            const stageBadgeVariant: 'success' | 'warning' | 'accent' = isPlaced ? 'success' : isAtRisk ? 'warning' : 'accent';
 
             return (
               <Link key={row.id} href={`/partner/referred-members/${row.id}`} style={{ textDecoration: 'none' }}>
                 <div
                   style={{
-                    background: '#fff',
+                    background: 'var(--surface-container-low)',
                     borderRadius: '0.75rem',
                     padding: '0.875rem 1rem',
-                    border: '1px solid #ebe7e7',
+                    border: '1px solid var(--outline-variant)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.875rem',
@@ -128,7 +128,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
                       height: 38,
                       borderRadius: '9999px',
                       background: 'var(--color-accent)',
-                      color: '#fff',
+                      color: 'var(--color-on-accent)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -142,6 +142,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p
                       className="wa-text-sm wa-font-semibold"
+                      title={row.fullName ?? undefined}
                       style={{
                         color: 'var(--color-on-surface)',
                         margin: 0,
@@ -157,19 +158,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
                     </p>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem', flexShrink: 0 }}>
-                    <span
-                      style={{
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        background: badgeBg,
-                        color: badgeColor,
-                      }}
-                    >
-                      {row.stageLabel}
-                    </span>
+                    <StatusBadge label={row.stageLabel} variant={stageBadgeVariant} />
                     {isPlaced && (
                       <StatusBadge
                         label={row.placementVerified ? 'Verified' : 'Pending verification'}

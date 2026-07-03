@@ -37,6 +37,27 @@ function formatAdminDate(value: string | Date | null | undefined): string {
   return d.toLocaleString();
 }
 
+const JOB_STATUS_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  pending: 'Pending',
+  approved: 'Approved',
+  live: 'Live',
+  filled: 'Filled',
+  closed: 'Closed',
+};
+
+// Same pill classes as the jobs table (JobsTableClient / app/admin/jobs) —
+// keeps status color coding consistent between the queue and the detail page.
+function getJobStatusPillClass(status: string): string {
+  if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
+  if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
+  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
+  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
+  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
+  return 'admin-job-status-pill';
+}
+
 function matchEmailBadgeStyle(status: string | null | undefined): { bg: string; color: string; label: string } {
   switch (status) {
     case 'success':
@@ -97,8 +118,12 @@ export default function AdminJobReview({ job }: { job: Job }) {
     setActionFeedback(null);
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/approve`, { method: 'POST' });
-      if (res.ok) router.refresh();
-      else setActionFeedback({ type: 'error', message: 'Failed to approve. Try again.' });
+      if (res.ok) {
+        setActionFeedback({ type: 'success', message: 'Job approved.' });
+        router.refresh();
+      } else {
+        setActionFeedback({ type: 'error', message: 'Failed to approve. Try again.' });
+      }
     } finally {
       setApproving(false);
     }
@@ -118,8 +143,12 @@ export default function AdminJobReview({ job }: { job: Job }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: rejectReason }),
       });
-      if (res.ok) router.refresh();
-      else setActionFeedback({ type: 'error', message: 'Failed to reject. Try again.' });
+      if (res.ok) {
+        setActionFeedback({ type: 'success', message: 'Job rejected.' });
+        router.refresh();
+      } else {
+        setActionFeedback({ type: 'error', message: 'Failed to reject. Try again.' });
+      }
     } finally {
       setRejecting(false);
     }
@@ -190,8 +219,11 @@ export default function AdminJobReview({ job }: { job: Job }) {
         </div>
       )}
       <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{job.title}</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-        {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status: {job.status}
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <span>
+          {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status:
+        </span>
+        <span className={getJobStatusPillClass(job.status)}>{JOB_STATUS_LABELS[job.status] ?? job.status}</span>
       </p>
 
       {hasProvenance && (
@@ -257,6 +289,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                 <input
                   type="text"
+                  aria-label="Rejection reason"
                   placeholder="Rejection reason"
                   value={rejectReason}
                   onChange={(e) => {

@@ -74,18 +74,29 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
         <input
           type="text"
           placeholder="Search member or email"
+          aria-label="Search member or email"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           style={{ padding: '0.6rem', minWidth: '220px' }}
         />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: '0.6rem', minWidth: '170px' }}>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          aria-label="Filter by training status"
+          style={{ padding: '0.6rem', minWidth: '170px' }}
+        >
           <option value="">All training statuses</option>
           <option value="in_progress">In progress</option>
           <option value="not_started">Not started</option>
           <option value="stale">Stale</option>
           <option value="complete">Complete</option>
         </select>
-        <select value={program} onChange={(e) => setProgram(e.target.value)} style={{ padding: '0.6rem', minWidth: '220px' }}>
+        <select
+          value={program}
+          onChange={(e) => setProgram(e.target.value)}
+          aria-label="Filter by program"
+          style={{ padding: '0.6rem', minWidth: '220px' }}
+        >
           <option value="">All programs</option>
           {programs.map(([slug, title]) => (
             <option key={slug} value={slug}>
@@ -150,10 +161,11 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
             {
               key: 'progress',
               header: 'Progress',
+              align: 'right',
               cell: (row) => (
                 <>
-                  <strong>{row.progressPercent}%</strong>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                  <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{row.progressPercent}%</strong>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>
                     {row.completedCount}/{row.totalCourses} complete · {row.activeCourseCount} active
                   </div>
                 </>

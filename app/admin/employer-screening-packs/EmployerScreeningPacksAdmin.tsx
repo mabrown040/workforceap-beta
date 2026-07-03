@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import type { EmployerScreeningPack } from '@prisma/client';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 const SAMPLE = `[
   { "id": "q1", "prompt": "Are you willing to work onsite 3 days per week?", "type": "yes_no" },
@@ -23,6 +24,8 @@ export default function EmployerScreeningPacksAdmin({
   const [employerLabel, setEmployerLabel] = useState('');
   const [packTitle, setPackTitle] = useState('');
   const [questionsJson, setQuestionsJson] = useState(SAMPLE);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   function createPack(e: React.FormEvent) {
     e.preventDefault();
@@ -68,9 +71,14 @@ export default function EmployerScreeningPacksAdmin({
   }
 
   async function removePack(id: string) {
-    if (!confirm('Delete this pack?')) return;
-    await fetch(`/api/admin/employer-screening-packs/${id}`, { method: 'DELETE', credentials: 'include' });
-    router.refresh();
+    setDeleting(true);
+    try {
+      await fetch(`/api/admin/employer-screening-packs/${id}`, { method: 'DELETE', credentials: 'include' });
+      router.refresh();
+    } finally {
+      setDeleting(false);
+      setPendingDeleteId(null);
+    }
   }
 
   return (
@@ -107,42 +115,59 @@ export default function EmployerScreeningPacksAdmin({
 
       <div className="content-card" style={{ padding: '1.25rem' }}>
         <h2 style={{ margin: '0 0 0.75rem', fontSize: '1.05rem' }}>Existing packs</h2>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.5rem' }}>
-          {initialPacks.map((p) => (
-            <li
-              key={p.id}
-              style={{
-                padding: '0.75rem',
-                borderRadius: '0.65rem',
-                border: '1px solid var(--outline-variant)',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '0.5rem',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div>
-                <strong>{p.packTitle}</strong>{' '}
-                <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                  ({p.programSlug}) · {p.employerLabel}
-                </span>
-                <div style={{ fontSize: '0.75rem', color: p.isActive ? 'var(--color-green)' : 'var(--color-on-surface-variant)' }}>
-                  {p.isActive ? 'Active' : 'Inactive'}
+        {initialPacks.length === 0 ? (
+          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            No screening packs yet. Create one using the form above to attach screening questions to a program.
+          </p>
+        ) : (
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.5rem' }}>
+            {initialPacks.map((p) => (
+              <li
+                key={p.id}
+                style={{
+                  padding: '0.75rem',
+                  borderRadius: '0.65rem',
+                  border: '1px solid var(--outline-variant)',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <strong>{p.packTitle}</strong>{' '}
+                  <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+                    ({p.programSlug}) · {p.employerLabel}
+                  </span>
+                  <div style={{ fontSize: '0.75rem', color: p.isActive ? 'var(--color-green)' : 'var(--color-on-surface-variant)' }}>
+                    {p.isActive ? 'Active' : 'Inactive'}
+                  </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: '0.35rem' }}>
-                <button type="button" className="btn btn-outline btn-small" onClick={() => toggleActive(p)}>
-                  Toggle active
-                </button>
-                <button type="button" className="btn btn-outline btn-small" onClick={() => removePack(p.id)}>
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => toggleActive(p)}>
+                    {p.isActive ? 'Deactivate' : 'Activate'}
+                  </button>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setPendingDeleteId(p.id)}>
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId != null}
+        title="Delete this screening pack?"
+        body="This permanently removes the pack. Members who reach end-of-training on this program will no longer see these screening questions until a new pack is created."
+        confirmLabel="Delete pack"
+        danger
+        busy={deleting}
+        onConfirm={() => pendingDeleteId && void removePack(pendingDeleteId)}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

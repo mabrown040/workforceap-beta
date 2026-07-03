@@ -51,24 +51,24 @@ export default function MobileProfileSkillsResume({
   };
 
   return (
-    <div style={{ margin: '0 1.5rem 1rem', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid rgba(222,191,194,0.3)', background: '#fcf9f8' }}>
+    <div style={{ margin: '0 1.5rem 1rem', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container-low)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-        <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em]" style={{ color: '#584144' }}>Resume</h3>
+        <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em]" style={{ color: 'var(--color-on-surface-variant)' }}>Resume</h3>
       </div>
 
       {hasResume ? (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '24px' }} aria-hidden="true">description</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '24px' }} aria-hidden="true">description</span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p className="wa-text-sm wa-font-semibold wa-truncate" style={{ color: '#1c1b1b' }}>
+              <p className="wa-text-sm wa-font-semibold wa-truncate" style={{ color: 'var(--color-on-surface)' }}>
                 {fileName}
               </p>
-              <p className="wa-text-[10px]" style={{ color: '#584144' }}>Uploaded</p>
+              <p className="wa-text-[10px]" style={{ color: 'var(--color-on-surface-variant)' }}>Uploaded</p>
             </div>
             <button type="button"
               className="wa-text-xs wa-font-bold"
-              style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#fff1f2', color: '#8c0f37' }}
+              style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' }}
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
             >
@@ -88,20 +88,27 @@ export default function MobileProfileSkillsResume({
                 width: '100%',
                 padding: '0.5rem',
                 borderRadius: '0.5rem',
-                border: '1px solid #debfc2',
-                background: '#fff',
-                color: '#8c0f37',
+                border: '1px solid var(--outline-variant)',
+                background: 'var(--surface-container-lowest)',
+                color: 'var(--color-accent)',
                 fontWeight: 700,
                 fontSize: '0.8125rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem',
                 cursor: loadingPreview ? 'wait' : 'pointer',
               }}
             >
-              {loadingPreview ? 'Loading preview…' : '👁 View Resume'}
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem' }}>
+                visibility
+              </span>
+              {loadingPreview ? 'Loading preview…' : 'View Resume'}
             </button>
           )}
 
           {previewUrl && (
-            <div style={{ marginTop: '0.75rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #debfc2' }}>
+            <div style={{ marginTop: '0.75rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--outline-variant)' }}>
               <iframe
                 src={previewUrl}
                 title="Resume preview"
@@ -112,15 +119,15 @@ export default function MobileProfileSkillsResume({
         </>
       ) : (
         <label
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1.5rem 0', borderRadius: '0.75rem', border: '2px dashed #debfc2', background: '#f6f3f2', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1 }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1.5rem 0', borderRadius: '0.75rem', border: '2px dashed var(--outline-variant)', background: 'var(--surface-container-lowest)', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1 }}
         >
-          <span className="material-symbols-outlined" style={{ color: '#ad2c4d', fontSize: '1.875rem' }} aria-hidden="true">
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.875rem' }} aria-hidden="true">
             {uploading ? 'hourglass_top' : 'upload_file'}
           </span>
-          <p className="wa-text-sm wa-font-semibold" style={{ color: '#1c1b1b' }}>
+          <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)' }}>
             {uploading ? 'Uploading…' : 'Upload Resume'}
           </p>
-          <p className="wa-text-[10px]" style={{ color: '#584144' }}>PDF, DOC, or DOCX · Max 5MB</p>
+          <p className="wa-text-[10px]" style={{ color: 'var(--color-on-surface-variant)' }}>PDF, DOC, or DOCX · Max 5MB</p>
           <input type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }} />
         </label>
       )}

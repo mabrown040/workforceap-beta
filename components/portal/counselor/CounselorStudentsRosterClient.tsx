@@ -7,6 +7,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
+import { STATUS_COLORS, type StatusTone } from '@/lib/ui/statusColors';
 
 /** Must match `THRESHOLDS.MEDIUM` in `lib/member/atRiskScoring.ts` (avoid importing prisma in client). */
 const RISK_MEDIUM_OR_ABOVE = 30;
@@ -43,25 +44,16 @@ const FILTER_CHIPS: { key: Exclude<FilterKey, null>; label: string; accent: stri
   { key: 'pending-application', label: 'Pending Application', accent: 'var(--color-gold)', accentBg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)' },
 ];
 
-const RISK_BADGE_STYLES: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; bg: string; color: string; border: string }> = {
-  CRITICAL: {
-    label: 'Critical',
-    bg: 'color-mix(in srgb, #dc2626 14%, transparent)',
-    color: '#b91c1c',
-    border: 'color-mix(in srgb, #dc2626 35%, transparent)',
-  },
-  HIGH: {
-    label: 'High',
-    bg: 'color-mix(in srgb, #ea580c 14%, transparent)',
-    color: '#c2410c',
-    border: 'color-mix(in srgb, #ea580c 35%, transparent)',
-  },
-  MEDIUM: {
-    label: 'Medium',
-    bg: 'color-mix(in srgb, #ca8a04 18%, transparent)',
-    color: '#a16207',
-    border: 'color-mix(in srgb, #ca8a04 40%, transparent)',
-  },
+/**
+ * Same tone-per-severity mapping as `RISK_CONFIG` in
+ * components/portal/counselor/AtRiskDashboard.tsx (accent/gold/blue) —
+ * sourced from lib/ui/statusColors so the roster and the at-risk detail page
+ * render identical colors for the same risk level.
+ */
+const RISK_BADGE_TONE: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; tone: StatusTone }> = {
+  CRITICAL: { label: 'Critical', tone: 'danger' },
+  HIGH: { label: 'High', tone: 'warning' },
+  MEDIUM: { label: 'Medium', tone: 'info' },
 };
 
 function formatLastActivity(iso: string): string {
@@ -78,10 +70,11 @@ function formatLastActivity(iso: string): string {
 
 function CounselorRosterRiskBadge({ level }: { level: RiskLevel }) {
   if (level === 'LOW') return null;
-  const s = RISK_BADGE_STYLES[level];
+  const meta = RISK_BADGE_TONE[level];
+  const s = STATUS_COLORS[meta.tone];
   return (
     <span
-      title={`Risk: ${s.label}`}
+      title={`Risk: ${meta.label}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -92,12 +85,12 @@ function CounselorRosterRiskBadge({ level }: { level: RiskLevel }) {
         textTransform: 'uppercase',
         letterSpacing: '0.06em',
         background: s.bg,
-        color: s.color,
+        color: s.fg,
         border: `1px solid ${s.border}`,
         flexShrink: 0,
       }}
     >
-      {s.label}
+      {meta.label}
     </span>
   );
 }

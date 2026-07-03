@@ -259,7 +259,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
   const onSubmit = async (data: MemberSignupInput) => {
     if (CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken?.trim()) {
       setSubmitStatus('error');
-      setErrorMessage('Please complete the security check before continuing.');
+      setErrorMessage(tAuth('signup.captchaRequired'));
       return;
     }
 
@@ -300,7 +300,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
       if (!res.ok) {
         trackFunnelEvent('member_signup', 'signup_failed', { program_interest: data.programInterest });
         setSubmitStatus('error');
-        setErrorMessage(json.error ?? 'Something went wrong. Please try again.');
+        setErrorMessage(json.error ?? tAuth('signup.genericError'));
         return;
       }
 
@@ -315,7 +315,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
     } catch {
       trackFunnelEvent('member_signup', 'signup_network_error', { program_interest: data.programInterest });
       setSubmitStatus('error');
-      setErrorMessage('Network error. Please try again.');
+      setErrorMessage(tAuth('signup.networkError'));
     }
   };
 
@@ -386,7 +386,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
           </p>
 
           {/* Mobile-only trust bar — key signals lost when brand panel hides */}
-          <div className="mobile-trust-bar" aria-label="Program credentials">
+          <div className="mobile-trust-bar" aria-label={tAuth('login.programCredentialsAria')}>
             {tAuth('signup.mobileTrustBar')}
           </div>
 
@@ -553,9 +553,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 />
                 <span>
                   {tAuth('signup.agreeToThe')}{' '}
-                  <LocalizedLink href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Terms of Service</LocalizedLink>{' '}
+                  <LocalizedLink href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>{tAuth('signup.termsOfService')}</LocalizedLink>{' '}
                   {tAuth('signup.and')}{' '}
-                  <LocalizedLink href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Privacy Policy</LocalizedLink> *
+                  <LocalizedLink href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>{tAuth('signup.privacyPolicy')}</LocalizedLink> *
                 </span>
               </label>
               {errors.consentTerms && <span id="consentTerms-error" role="alert" style={s.fieldError}>{errors.consentTerms.message}</span>}
@@ -578,7 +578,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                   onSuccess={(t) => setTurnstileToken(t)}
                   onExpire={() => setTurnstileToken(null)}
                   onError={() => setTurnstileToken(null)}
-                  options={{ theme: 'light', size: 'normal' }}
+                  options={{ theme: 'auto', size: 'normal' }}
                 />
               </div>
             ) : null}

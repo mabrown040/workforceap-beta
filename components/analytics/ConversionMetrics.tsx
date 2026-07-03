@@ -11,7 +11,6 @@ const CONVERSION_ROUTES = new Set([
   '/apply/results',
   '/apply/create-account',
   '/apply/confirmation',
-  '/apply/thank-you',
   '/employer/thank-you',
   '/partners/thank-you',
   '/careers/thank-you',

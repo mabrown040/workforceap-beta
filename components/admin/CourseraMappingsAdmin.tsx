@@ -487,7 +487,9 @@ export default function CourseraMappingsAdmin({
           )}
 
           {message && (
-            <div style={{
+            <div
+              role={message.kind === 'success' ? 'status' : 'alert'}
+              style={{
               padding: '0.8rem 1rem',
               borderRadius: '0.75rem',
               background: message.kind === 'success' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
@@ -644,9 +646,19 @@ export default function CourseraMappingsAdmin({
                     {
                       key: 'complete',
                       header: 'Complete',
-                      cell: (r) => `${r.coursesCompleted} of ${r.catalogCourseCount || '—'}`,
+                      align: 'right',
+                      cell: (r) => (
+                        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          {r.coursesCompleted} of {r.catalogCourseCount || '—'}
+                        </span>
+                      ),
                     },
-                    { key: 'avg', header: 'Avg %', cell: (r) => `${r.averagePercent}%` },
+                    {
+                      key: 'avg',
+                      header: 'Avg %',
+                      align: 'right',
+                      cell: (r) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{r.averagePercent}%</span>,
+                    },
                     {
                       key: 'source',
                       header: 'Rollup source',
@@ -687,7 +699,12 @@ export default function CourseraMappingsAdmin({
                         ),
                       },
                       { key: 'status', header: 'Status', cell: (row) => row.status },
-                      { key: 'pct', header: '%', cell: (row) => row.percentComplete },
+                      {
+                        key: 'pct',
+                        header: '%',
+                        align: 'right',
+                        cell: (row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.percentComplete}</span>,
+                      },
                       {
                         key: 'updated',
                         header: 'Updated',
@@ -716,11 +733,13 @@ export default function CourseraMappingsAdmin({
             value={mappingFilter}
             onChange={(e) => setMappingFilter(e.target.value)}
             placeholder="Filter by member name, email, or Coursera email..."
+            aria-label="Filter saved mappings"
             style={{ ...inputStyle, flex: '1 1 200px', minWidth: '180px' }}
           />
           <select
             value={mappingSort}
             onChange={(e) => setMappingSort(e.target.value as 'newest' | 'member' | 'courseraEmail')}
+            aria-label="Sort saved mappings"
             style={{ ...inputStyle, width: 'auto', minWidth: '120px' }}
           >
             <option value="newest">Newest first</option>
@@ -890,11 +909,13 @@ export default function CourseraMappingsAdmin({
               value={xapiFilter}
               onChange={(e) => setXapiFilter(e.target.value)}
               placeholder="Filter by email, course, or verb..."
+              aria-label="Filter xAPI statements needing attention"
               style={{ ...inputStyle, flex: '1 1 200px', minWidth: '180px' }}
             />
             <select
               value={xapiSort}
               onChange={(e) => setXapiSort(e.target.value as 'newest' | 'email' | 'verb')}
+              aria-label="Sort xAPI statements needing attention"
               style={{ ...inputStyle, width: 'auto', minWidth: '120px' }}
             >
               <option value="newest">Newest first</option>

@@ -1,12 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AdminEmployerTierSelect from '@/app/admin/employers/AdminEmployerTierSelect';
 import EmployerStatusButton from '@/app/admin/employers/EmployerStatusButton';
 import OpenEmployerPortalButton from '@/app/admin/employers/OpenEmployerPortalButton';
 import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 import DataTable from '@/components/portal/ui/DataTable';
+import { statusColor } from '@/lib/ui/statusColors';
 
 export type EmployerTableRow = {
   id: string;
@@ -17,9 +19,31 @@ export type EmployerTableRow = {
   tier: string;
   placementAgreementSigned: boolean;
   hiringPipelineActive: boolean;
-  user: { email: string; fullName: string | null };
+  user: { email: string; fullName: string | null; lastLoginAt: string | Date | null };
   _count: { jobs: number };
 };
+
+/** Whole days since an ISO/Date timestamp, or null if missing (never logged in). */
+function daysSinceLogin(lastLoginAt: string | Date | null): number | null {
+  if (!lastLoginAt) return null;
+  return Math.max(0, Math.floor((Date.now() - new Date(lastLoginAt).getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/**
+ * Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never
+ * logged in. Sourced from lib/ui/statusColors (the single source of truth
+ * for semantic status colors) instead of a one-off rgba palette.
+ */
+function lastActiveBadgeStyle(days: number | null): { background: string; color: string } {
+  const tone =
+    days === null ? statusColor('danger') : days < 30 ? statusColor('success') : days <= 90 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
+}
+
+function lastActiveLabel(days: number | null): string {
+  if (days === null) return 'Never';
+  return `${days}d ago`;
+}
 
 function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
   label: string;
@@ -54,7 +78,7 @@ function statusLabel(status: string) {
   return 'Inactive';
 }
 
-type SortKey = 'company' | 'contact' | 'status' | 'jobs' | 'tier' | 'partnership';
+type SortKey = 'company' | 'contact' | 'status' | 'jobs' | 'tier' | 'partnership' | 'lastActive';
 type SortDir = 'asc' | 'desc';
 
 // Ascending status sort surfaces work to do first: pending → active → inactive.
@@ -79,6 +103,12 @@ function compareEmployers(a: EmployerTableRow, b: EmployerTableRow, key: SortKey
       return a.tier.localeCompare(b.tier);
     case 'partnership':
       return partnershipRank(a) - partnershipRank(b);
+    case 'lastActive': {
+      // Never-logged-in employers rank as maximally stale (Infinity days).
+      const aDays = daysSinceLogin(a.user.lastLoginAt) ?? Infinity;
+      const bDays = daysSinceLogin(b.user.lastLoginAt) ?? Infinity;
+      return aDays - bDays;
+    }
     default:
       return 0;
   }
@@ -116,7 +146,7 @@ function SortHeader({
       aria-label={`Sort by ${label}${active ? (dir === 'asc' ? ', ascending' : ', descending') : ''}`}
     >
       {label}
-      <span style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
+      <span aria-hidden="true" style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
         {active ? (dir === 'asc' ? '▲' : '▼') : '▲'}
       </span>
     </button>
@@ -126,13 +156,33 @@ function SortHeader({
 export default function EmployersTableClient({
   employers,
   superAdmin,
+  totalCount,
+  currentPage,
+  pageSize,
 }: {
   employers: EmployerTableRow[];
   superAdmin: boolean;
+  /** Total employers matching the active tab filter (for pagination), not just this page. */
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   // null = keep the server's companyName-asc order until a column is clicked.
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Preserve existing query params (e.g. ?ui=legacy&status=...) when changing pages.
+  function goToPage(page: number) {
+    if (page < 1 || page > totalPages) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('page', page.toString());
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
 
   const sorted = useMemo(() => {
     if (!sortKey) return employers;
@@ -239,7 +289,35 @@ export default function EmployersTableClient({
     {
       key: 'jobs',
       header: header('Jobs', 'jobs'),
-      cell: (e) => <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>,
+      align: 'right',
+      cell: (e) => (
+        <span style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontVariantNumeric: 'tabular-nums' }}>
+          {e._count.jobs}
+        </span>
+      ),
+    },
+    {
+      key: 'lastActive',
+      header: header('Last Active', 'lastActive'),
+      cell: (e) => {
+        const days = daysSinceLogin(e.user.lastLoginAt);
+        const style = lastActiveBadgeStyle(days);
+        return (
+          <span
+            style={{
+              padding: '0.2rem 0.5rem',
+              borderRadius: '999px',
+              fontSize: '0.75rem',
+              background: style.background,
+              color: style.color,
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {lastActiveLabel(days)}
+          </span>
+        );
+      },
     },
     {
       key: 'tier',
@@ -291,15 +369,54 @@ export default function EmployersTableClient({
   ];
 
   return (
-    <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
-      <DataTable
-        variant="admin"
-        tableClassName="admin-table employer-applications-table"
-        scrollX={false}
-        rows={sorted}
-        rowKey={(e) => e.id}
-        columns={employerColumns}
-      />
-    </div>
+    <>
+      <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table employer-applications-table"
+          scrollX={false}
+          rows={sorted}
+          rowKey={(e) => e.id}
+          columns={employerColumns}
+        />
+      </div>
+
+      {/* Pagination — outside the desktop-only wrapper so it also pages the mobile cards. */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
+            .map((page, i, pages) => (
+              <Fragment key={page}>
+                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
+                <button
+                  type="button"
+                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => goToPage(page)}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              </Fragment>
+            ))}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </>
   );
 }

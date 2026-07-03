@@ -115,13 +115,13 @@ function JobCard({
           }}
           style={{
             position: 'absolute',
-            top: '0.625rem',
-            right: '0.625rem',
+            top: '0.25rem',
+            right: '0.25rem',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '2rem',
-            height: '2rem',
+            width: '2.75rem',
+            height: '2.75rem',
             borderRadius: '999px',
             border: '1px solid color-mix(in srgb, var(--outline-variant) 60%, transparent)',
             background: 'var(--surface-container)',
@@ -151,7 +151,7 @@ function JobCard({
       </div>
       <div className="job-card__body">
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', justifyContent: 'space-between' }}>
-          <h3 className="job-card__title" style={{ margin: 0, flex: 1, paddingRight: onToggleSave ? '2rem' : 0 }}>{job.title}</h3>
+          <h3 className="job-card__title" style={{ margin: 0, flex: 1, paddingRight: onToggleSave ? '2.5rem' : 0 }}>{job.title}</h3>
           <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {isApplied && (
               <span style={{ fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)', border: '1px solid color-mix(in srgb, var(--color-green) 30%, transparent)', borderRadius: '999px', padding: '0.15rem 0.5rem' }}>

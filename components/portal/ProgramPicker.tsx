@@ -14,9 +14,23 @@ type EnrollError =
 
 type ProgramPickerProps = {
   programs: Program[];
+  /** When available cheaply from the parent page, shown on the WIOA_PENDING notice. Optional — no extra fetch is done here. */
+  wioaScreeningSubmittedAt?: Date | string | null;
 };
 
-function WioaErrorMessage({ error }: { error: EnrollError }) {
+function formatSubmittedDate(value: Date | string): string {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function WioaErrorMessage({
+  error,
+  wioaScreeningSubmittedAt,
+}: {
+  error: EnrollError;
+  wioaScreeningSubmittedAt?: Date | string | null;
+}) {
   if (error.type === 'generic') {
     return (
       <p role="alert" style={{ marginTop: '0.75rem', color: 'var(--color-accent)', fontSize: '0.875rem' }}>
@@ -29,6 +43,7 @@ function WioaErrorMessage({ error }: { error: EnrollError }) {
   const bg = isBlocked ? 'rgba(173,44,77,0.08)' : 'rgba(43,123,185,0.08)';
   const border = isBlocked ? '1px solid rgba(173,44,77,0.25)' : '1px solid rgba(43,123,185,0.25)';
   const color = isBlocked ? '#ad2c4d' : '#2b7bb9';
+  const submittedLabel = wioaScreeningSubmittedAt ? formatSubmittedDate(wioaScreeningSubmittedAt) : '';
 
   return (
     <div
@@ -44,9 +59,23 @@ function WioaErrorMessage({ error }: { error: EnrollError }) {
         lineHeight: 1.55,
       }}
     >
-      <p style={{ margin: 0, fontWeight: 600, color, marginBottom: error.code === 'WIOA_NOT_STARTED' || error.code === 'WIOA_NOT_ELIGIBLE' ? '0.5rem' : 0 }}>
+      <p style={{ margin: 0, fontWeight: 600, color, marginBottom: error.code === 'WIOA_NOT_STARTED' || error.code === 'WIOA_NOT_ELIGIBLE' || error.code === 'WIOA_PENDING' ? '0.5rem' : 0 }}>
         {error.message}
       </p>
+      {error.code === 'WIOA_PENDING' && (
+        <>
+          <p style={{ margin: '0 0 0.5rem' }}>
+            {submittedLabel ? `Submitted ${submittedLabel} — r` : 'R'}eview is typically completed within a few business
+            days. You don&apos;t need to do anything else while it&apos;s in progress.
+          </p>
+          <Link
+            href="/dashboard/messages"
+            style={{ color: '#2b7bb9', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+          >
+            Message your counselor →
+          </Link>
+        </>
+      )}
       {error.code === 'WIOA_NOT_STARTED' && (
         <Link
           href="/dashboard/learning/wioa-qualification"
@@ -67,7 +96,7 @@ function WioaErrorMessage({ error }: { error: EnrollError }) {
   );
 }
 
-export default function ProgramPicker({ programs }: ProgramPickerProps) {
+export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: ProgramPickerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [enrollError, setEnrollError] = useState<EnrollError | null>(null);
@@ -142,7 +171,9 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
             </button>
           </div>
 
-          {enrollError && <WioaErrorMessage error={enrollError} />}
+          {enrollError && (
+            <WioaErrorMessage error={enrollError} wioaScreeningSubmittedAt={wioaScreeningSubmittedAt} />
+          )}
         </div>
       )}
 
@@ -163,7 +194,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
                 border: isSelected ? `2px solid ${p.borderColor}` : '1px solid var(--outline-variant)',
                 borderRadius: 'var(--radius-md)',
                 borderTop: `3px solid ${p.borderColor}`,
-                background: 'white',
+                background: 'var(--surface-container-low)',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
@@ -183,7 +214,12 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
               </div>
               <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-                <div>⏱ {p.duration}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+                    schedule
+                  </span>
+                  {p.duration}
+                </div>
                 <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
               </div>
               <button

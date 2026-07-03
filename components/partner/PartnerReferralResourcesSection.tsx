@@ -35,7 +35,7 @@ export default function PartnerReferralResourcesSection({
       <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
         <PortalCard title="Partner flyer" subtitle="Print or save as PDF for bulletin boards and events.">
           <a href="/partner-resources/partner-referral-flyer.html" className="btn btn-outline btn-sm">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               download
             </span>
             Open flyer

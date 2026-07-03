@@ -205,6 +205,7 @@ export default function CourseraReconcileCard({ defaultProgramId }: Props) {
         <input
           type="text"
           placeholder="Coursera program id"
+          aria-label="Coursera program id"
           value={programId}
           onChange={(e) => setProgramId(e.target.value)}
           style={{
@@ -227,6 +228,7 @@ export default function CourseraReconcileCard({ defaultProgramId }: Props) {
 
       {error && (
         <div
+          role="alert"
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '0.6rem',
@@ -242,6 +244,7 @@ export default function CourseraReconcileCard({ defaultProgramId }: Props) {
 
       {addError && (
         <div
+          role="alert"
           style={{
             padding: '0.6rem 0.9rem',
             borderRadius: '0.6rem',

@@ -63,6 +63,11 @@ function StarRating({
                 border: 'none',
                 cursor: 'pointer',
                 padding: '0.25rem',
+                minWidth: '2.75rem',
+                minHeight: '2.75rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 fontSize: '1.75rem',
                 lineHeight: 1,
                 color: filled ? 'var(--color-gold)' : 'var(--color-on-surface-variant)',
@@ -187,9 +192,11 @@ function ToggleGroup({
             <button
               key={opt.label}
               type="button"
+              aria-pressed={active}
               onClick={() => onChange(opt.val)}
               style={{
                 flex: 1,
+                minHeight: '2.75rem',
                 padding: '0.625rem 1rem',
                 borderRadius: '0.5rem',
                 border: active

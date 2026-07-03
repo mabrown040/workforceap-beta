@@ -14,6 +14,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import EmployersTableClient from '@/components/admin/EmployersTableClient';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
+import { statusColor } from '@/lib/ui/statusColors';
 import { DesignSurface } from '@/components/portal/kit';
 import {
   EmployersDirectoryKit,
@@ -53,6 +54,28 @@ function statusLabel(status: string) {
   return 'Inactive';
 }
 
+/** Whole days since a login timestamp, or null if the employer has never logged in. */
+function daysSinceLogin(lastLoginAt: Date | null): number | null {
+  if (!lastLoginAt) return null;
+  return Math.max(0, Math.floor((Date.now() - lastLoginAt.getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+/**
+ * Dormant-employer visibility: green < 30d, amber 30-90d, red 90d+ or never
+ * logged in. Sourced from lib/ui/statusColors (the single source of truth
+ * for semantic status colors) instead of a one-off rgba palette.
+ */
+function lastActiveBadgeStyle(days: number | null) {
+  const tone =
+    days === null ? statusColor('danger') : days < 30 ? statusColor('success') : days <= 90 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
+}
+
+function lastActiveLabel(days: number | null): string {
+  if (days === null) return 'Never active';
+  return `Active ${days}d ago`;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin - Employers',
@@ -69,13 +92,13 @@ const DIRECTORY_LIMIT = 60;
 export default async function AdminEmployersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; ui?: string }>;
+  searchParams: Promise<{ status?: string; ui?: string; page?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employers');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { status: statusFilter, ui: requestedUi } = await searchParams;
+  const { status: statusFilter, ui: requestedUi, page } = await searchParams;
 
   // --- DEFAULT: real (lean) employer directory wired into EmployersDirectoryKit ---
   if (requestedUi !== 'legacy') {
@@ -91,7 +114,13 @@ export default async function AdminEmployersPage({
       prisma.employer.findMany({
         take: DIRECTORY_LIMIT,
         orderBy: { companyName: 'asc' },
-        select: { id: true, companyName: true, industry: true, status: true },
+        select: {
+          id: true,
+          companyName: true,
+          industry: true,
+          status: true,
+          user: { select: { lastLoginAt: true } },
+        },
       }),
       prisma.employer.count(),
       prisma.employer.count({ where: { status: 'active' } }),
@@ -154,6 +183,7 @@ export default async function AdminEmployersPage({
       openRoles: openRolesByEmployer.get(e.id) ?? 0,
       hires: hiresByEmployer.get(e.id) ?? 0,
       status: (e.status as EmployerCard['status']) ?? 'inactive',
+      lastLoginAt: e.user.lastLoginAt ? e.user.lastLoginAt.toISOString() : null,
     }));
 
     const totalPartners =
@@ -189,17 +219,25 @@ export default async function AdminEmployersPage({
 
   const where = activeTab !== 'all' ? { status: activeTab } : {};
 
-  const [superAdmin, employers, pendingCount] = await Promise.all([
+  // Pagination — same pattern as the jobs legacy table (50/page, page-scoped
+  // sort/filter): avoids loading the whole employer table (was take: 5000).
+  const pageParam = page ? parseInt(page, 10) : 1;
+  const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const pageSize = 50;
+
+  const [superAdmin, employers, totalCount, pendingCount] = await Promise.all([
     isSuperAdmin(user.id),
     prisma.employer.findMany({
-      take: 5000,
       where,
       orderBy: { companyName: 'asc' },
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
       include: {
-        user: { select: { email: true, fullName: true } },
+        user: { select: { email: true, fullName: true, lastLoginAt: true } },
         _count: { select: { jobs: true } },
       },
     }),
+    prisma.employer.count({ where }),
     prisma.employer.count({ where: { status: 'pending_approval' } }),
   ]);
 
@@ -267,10 +305,9 @@ export default async function AdminEmployersPage({
 
       {employers.length > 0 && (
         <>
-          {/* Desktop table */}
-          <EmployersTableClient employers={employers} superAdmin={superAdmin} />
-
-          {/* Mobile cards */}
+          {/* Mobile cards — rendered before the desktop table (like the jobs
+              legacy page) so the shared pagination control, which lives
+              inside EmployersTableClient below, ends up after both views. */}
           <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.625rem' }}>
             {employers.map((e) => {
               const initials = (e.companyName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -301,13 +338,18 @@ export default async function AdminEmployersPage({
                       <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>
                     </div>
                   </div>
-                  {/* Partnership tier row */}
+                  {/* Partnership tier + last-active row */}
                   {(() => {
                     const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
+                    const days = daysSinceLogin(e.user.lastLoginAt);
+                    const laStyle = lastActiveBadgeStyle(days);
                     return (
-                      <div style={{ paddingTop: '0.375rem' }}>
+                      <div style={{ paddingTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                         <span style={{ padding: '0.15rem 0.45rem', borderRadius: '999px', fontSize: '0.7rem', background: pt.bg, color: pt.color, fontWeight: 600 }}>
                           {pt.label}
+                        </span>
+                        <span style={{ padding: '0.15rem 0.45rem', borderRadius: '999px', fontSize: '0.7rem', background: laStyle.background, color: laStyle.color, fontWeight: 600 }}>
+                          {lastActiveLabel(days)}
                         </span>
                       </div>
                     );
@@ -335,6 +377,15 @@ export default async function AdminEmployersPage({
               );
             })}
           </div>
+
+          {/* Desktop table (includes pagination controls, shown on both breakpoints) */}
+          <EmployersTableClient
+            employers={employers}
+            superAdmin={superAdmin}
+            totalCount={totalCount}
+            currentPage={currentPage}
+            pageSize={pageSize}
+          />
         </>
       )}
 

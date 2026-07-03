@@ -21,6 +21,7 @@ import { buildFirstValueActions } from '@/lib/member/firstValueActions';
 import { isNewMember, secondsSinceAccountCreation } from '@/lib/member/isNewMember';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
+import type { NextBestAction } from '@/lib/member/nextBestActions';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import GoalsModule from '@/components/portal/GoalsModule';
@@ -190,7 +191,7 @@ async function renderMemberDashboard(
         where: { memberId: user.id, status: 'PENDING' },
         orderBy: { priority: 'desc' },
         take: 3,
-        select: { title: true, ctaHref: true },
+        select: { id: true, title: true, description: true, ctaHref: true, ctaLabel: true, priority: true },
       }),
       // Earned certifications (logged via LogCertificationModal).
       prisma.userCertification.count({ where: { userId: user.id } }),
@@ -237,6 +238,23 @@ async function renderMemberDashboard(
     const programHref = leanSlug
       ? `/dashboard?program=${encodeURIComponent(leanSlug)}`
       : '/dashboard/program';
+
+    // Same top pending action, shaped for `MemberDoThisNextCard` (dominant
+    // banner above the kit home's bento grid). `variant: 'urgent'` /
+    // `weight` mirror how the legacy dashboard treats counselor/system
+    // authored `MemberNextBestAction` rows (see dynamicNextActions below).
+    // `null` when there's no pending action — the card renders nothing.
+    const leanDominantAction: NextBestAction | null = topLeanAction
+      ? {
+          id: topLeanAction.id,
+          title: topLeanAction.title,
+          body: topLeanAction.description,
+          href: topLeanAction.ctaHref,
+          cta: topLeanAction.ctaLabel,
+          variant: 'urgent',
+          weight: topLeanAction.priority + 100,
+        }
+      : null;
 
     // JobApplicationStatus → pipeline stage label + tone for the kit table.
     const stageToneByStatus: Record<string, { label: string; tone: 'warn' | 'muted' | 'info' }> = {
@@ -318,6 +336,7 @@ async function renderMemberDashboard(
         coursesHref={programHref}
         toolkitHref="/dashboard/toolkit"
         jobsHref="/dashboard/jobs"
+        doThisNext={leanDominantAction}
       />
     );
   }

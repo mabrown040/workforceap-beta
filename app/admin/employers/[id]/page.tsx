@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
-import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -20,6 +19,18 @@ const CERT_SLUG_NAMES: Record<string, string> = {
 
 function certSlugToName(slug: string): string {
   return CERT_SLUG_NAMES[slug] ?? slug;
+}
+
+const TIER_LABELS: Record<string, string> = {
+  basic: 'Basic',
+  partner: 'Hiring Partner',
+};
+
+/** Mirrors the status label used on the employers list (list page has 3 states; collapsing to active/inactive here hid "Pending"). */
+function accountStatusLabel(status: string): string {
+  if (status === 'active') return 'Active';
+  if (status === 'pending_approval') return 'Pending approval';
+  return 'Inactive';
 }
 
 function getPartnershipTier(
@@ -80,26 +91,8 @@ export default async function AdminEmployerDetailPage({ params }: Props) {
 
   return (
     <PortalPageFrame>
-      <div style={{ marginBottom: '1rem' }}>
-        <Link
-          href="/admin/employers"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.375rem',
-            fontSize: '0.875rem',
-            color: 'var(--color-on-surface-variant)',
-            textDecoration: 'none',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
-            arrow_back
-          </span>
-          Back to Employers
-        </Link>
-      </div>
-
       <PageHeader
+        breadcrumbs={[{ label: 'Employers', href: '/admin/employers' }, { label: employer.companyName }]}
         title={employer.companyName}
         subtitle={`${employer.industry ?? 'Unknown industry'} · ${employer.companySize ?? 'Unknown size'}`}
       />
@@ -328,8 +321,8 @@ export default async function AdminEmployerDetailPage({ params }: Props) {
             { label: 'Industry', value: employer.industry ?? '—' },
             { label: 'Company size', value: employer.companySize ?? '—' },
             { label: 'Portal user', value: `${employer.user.fullName} (${employer.user.email})` },
-            { label: 'Account tier', value: employer.tier },
-            { label: 'Status', value: employer.status === 'active' ? 'Active' : 'Inactive' },
+            { label: 'Account tier', value: TIER_LABELS[employer.tier] ?? employer.tier },
+            { label: 'Status', value: accountStatusLabel(employer.status) },
             { label: 'Jobs posted', value: String(employer._count.jobs) },
           ].map((row) => (
             <div key={row.label}>

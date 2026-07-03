@@ -47,6 +47,7 @@ function StatCard({
           fontSize: 'clamp(1.5rem, 4vw, 2rem)',
           fontWeight: 700,
           lineHeight: 1,
+          fontVariantNumeric: 'tabular-nums',
           color: accent ?? 'var(--color-on-surface)',
         }}
       >
@@ -228,7 +229,7 @@ export default function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
                       {p.programSlug}
                     </span>
-                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>
                       {p.avgPercent}%
                     </span>
                   </div>
@@ -307,7 +308,7 @@ export default function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
                       <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
                         {c.counselorName}
                       </span>
-                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT, fontVariantNumeric: 'tabular-nums' }}>
                         {fmtNumber(c.memberCount)} members
                       </span>
                     </div>

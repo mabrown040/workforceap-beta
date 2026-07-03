@@ -162,7 +162,9 @@ export default function MemberNextStepsStrip({
                   opacity: 0.6,
                 }}
               >
-                ✕
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+                  close
+                </span>
               </button>
             )}
             {isFeatured && (

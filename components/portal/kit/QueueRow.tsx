@@ -14,7 +14,11 @@ interface QueueRowProps {
 }
 
 const TONE: Record<QueueTone, { c: string; bg: string }> = {
-  red: { c: 'var(--wa-accent)', bg: 'var(--wa-accent-soft)' },
+  // Was `--wa-accent` (brand magenta) — a tone literally named "red" rendering
+  // as pink/magenta while every other "urgent/error" surface in the app
+  // (MemberMessagesKit, CertificationsQueueKit, StatusTag danger states) uses
+  // `--wa-danger`. Aligned so "red" means red everywhere.
+  red: { c: 'var(--wa-danger)', bg: 'var(--wa-danger-soft)' },
   yellow: { c: 'var(--wa-gold)', bg: 'var(--wa-gold-soft)' },
   blue: { c: 'var(--wa-info)', bg: 'var(--wa-info-soft)' },
 };

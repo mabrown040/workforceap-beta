@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROGRAM_TITLES } from '@/lib/content/programs';
 // AUDIT-2026-05-16 §C-B3: client never imports the answer key. Question
@@ -12,6 +12,7 @@ import {
   ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS,
   type QuestionChoice,
 } from '@/lib/assessment/questions';
+import styles from './AssessmentForm.module.css';
 
 const ASSESSMENT_REDIRECT_KEY = 'assessment_intended_destination';
 
@@ -50,6 +51,15 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
   const [phone, setPhone] = useState(defaultPhone);
   const [programInterest, setProgramInterest] = useState('');
   const [answers, setAnswers] = useState<Record<number, QuestionChoice>>({});
+  const confirmHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  // Move focus to the confirmation heading so keyboard/screen-reader users
+  // land on the new content instead of staying on the (now-removed) submit
+  // button — this view fully replaces the wizard, so nothing else signals
+  // the change to assistive tech.
+  useEffect(() => {
+    if (step === 'confirm') confirmHeadingRef.current?.focus();
+  }, [step]);
 
   const config = STEP_CONFIG[currentStep - 1];
   const questionsInStep = config?.questionRange
@@ -182,7 +192,9 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
           borderRadius: 'var(--radius-md)',
         }}
       >
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Assessment complete</h2>
+        <h2 ref={confirmHeadingRef} tabIndex={-1} style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
+          Assessment complete
+        </h2>
         <p
           style={{
             fontSize: '1.1rem',
@@ -206,7 +218,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
           className="quiz-progress-fill"
           style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
         />
-        <p className="quiz-progress-label">
+        <p className="quiz-progress-label" style={{ fontVariantNumeric: 'tabular-nums' }} aria-live="polite">
           Step {currentStep} of {TOTAL_STEPS}
         </p>
         <div className="assessment-wizard-steps" aria-hidden>
@@ -305,7 +317,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
                     {q.choices.map((c) => (
                       <label
                         key={c.value}
-                        className={`quiz-answer-card ${answers[q.id] === c.value ? 'selected' : ''}`}
+                        className={`quiz-answer-card ${styles.answerCardFocus} ${answers[q.id] === c.value ? 'selected' : ''}`}
                         style={{ cursor: 'pointer' }}
                       >
                         <input

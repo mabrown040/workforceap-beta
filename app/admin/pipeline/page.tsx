@@ -9,6 +9,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { PipelineFunnelKit } from '@/components/portal/kit/pages/admin-subviews/PipelineFunnelKit';
 import type { KpiItem, RankDatum } from '@/components/portal/kit';
 import PipelineLegacyView from './PipelineLegacyView';
+import PlacementRecordedToast from './PlacementRecordedToast';
 
 export const dynamic = 'force-dynamic';
 
@@ -140,33 +141,38 @@ export default async function PipelinePage({
   const hasAny = total > 0;
 
   return (
-    <PipelineFunnelKit
-      title="Applications funnel"
-      goal="Where applicants drop off"
-      kpis={hasAny ? kpis : undefined}
-      funnel={hasAny ? bars : []}
-      funnelTitle="Funnel"
-      funnelSubtitle="last 90 days"
-      headerAction={
-        <a
-          href="/admin/pipeline?ui=legacy"
-          className="wa-kit-focus"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '8px 16px',
-            borderRadius: 999,
-            fontSize: 13,
-            fontWeight: 700,
-            textDecoration: 'none',
-            color: 'var(--wa-text)',
-            border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-          }}
-        >
-          Stale applications
-        </a>
-      }
-    />
+    <>
+      {/* /admin/placements/new redirects here on save; renders a fixed-position
+          toast (see PlacementRecordedToast) when ?toast=placed is present. */}
+      <PlacementRecordedToast />
+      <PipelineFunnelKit
+        title="Applications funnel"
+        goal="Where applicants drop off"
+        kpis={hasAny ? kpis : undefined}
+        funnel={hasAny ? bars : []}
+        funnelTitle="Funnel"
+        funnelSubtitle="last 90 days"
+        headerAction={
+          <a
+            href="/admin/pipeline?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Stale applications
+          </a>
+        }
+      />
+    </>
   );
 }

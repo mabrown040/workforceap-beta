@@ -99,9 +99,9 @@ export default function SetupMfaPage() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: '0.5rem' }}>error</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: '0.5rem' }}>error</span>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Setup Failed</h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>{error}</p>
+          <p role="alert" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>{error}</p>
           <LocalizedLink href={nextPath} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Continue</LocalizedLink>
         </div>
       </div>
@@ -112,7 +112,7 @@ export default function SetupMfaPage() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>2FA Enabled</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Two-factor authentication is now active on your account. You'll need your authenticator app each time you sign in.
@@ -141,7 +141,7 @@ export default function SetupMfaPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-container-lowest)', padding: '1rem' }}>
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>qr_code_2</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 48, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>qr_code_2</span>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Set Up Two-Factor Authentication</h1>
           <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
             Required for admin and counselor accounts. Scan the QR code with your authenticator app.
@@ -229,7 +229,7 @@ export default function SetupMfaPage() {
             </div>
 
             {error && (
-              <p style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
+              <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
             )}
 
             <button

@@ -132,15 +132,15 @@ export default function AdminMemberDbActions({
               </div>
             )}
             {[
-              { label: 'Full Name', value: fullName, set: setFullName, type: 'text' },
-              { label: 'Phone', value: phone, set: setPhone, type: 'tel' },
-              { label: 'Profile Phone', value: profilePhone, set: setProfilePhone, type: 'tel' },
-              { label: 'Address', value: profileAddress, set: setProfileAddress, type: 'text' },
-              { label: 'LinkedIn URL', value: profileLinkedin, set: setProfileLinkedin, type: 'url' },
-            ].map(({ label, value, set, type }) => (
+              { label: 'Full Name', id: 'adminmemberdbactions-fullname-field', value: fullName, set: setFullName, type: 'text' },
+              { label: 'Phone', id: 'adminmemberdbactions-phone-field', value: phone, set: setPhone, type: 'tel' },
+              { label: 'Profile Phone', id: 'adminmemberdbactions-profilephone-field', value: profilePhone, set: setProfilePhone, type: 'tel' },
+              { label: 'Address', id: 'adminmemberdbactions-address-field', value: profileAddress, set: setProfileAddress, type: 'text' },
+              { label: 'LinkedIn URL', id: 'adminmemberdbactions-linkedin-field', value: profileLinkedin, set: setProfileLinkedin, type: 'url' },
+            ].map(({ label, id, value, set, type }) => (
               <div key={label}>
-                <label style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.3rem' }}>{label}</label>
-                <input type={type} value={value} onChange={(e) => set(e.target.value)}
+                <label htmlFor={id} style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.3rem' }}>{label}</label>
+                <input id={id} type={type} value={value} onChange={(e) => set(e.target.value)}
                   style={{ width: '100%', padding: '0.45rem 0.7rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', boxSizing: 'border-box' as const }} />
               </div>
             ))}

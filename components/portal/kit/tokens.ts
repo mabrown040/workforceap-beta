@@ -19,4 +19,10 @@ export function colorVar(c: KitColor | undefined, fallback: KitColor = 'text'): 
   return COLOR_VARS[c ?? fallback];
 }
 
-export type KitTone = 'ok' | 'warn' | 'alert' | 'info' | 'muted';
+/**
+ * `alert` = brand-magenta attention (`--wa-accent`) for "needs a look" states.
+ * `danger` = true red (`--wa-danger`) for destructive/error/failed states.
+ * They're deliberately distinct so a rejected/failed row doesn't read as just
+ * another brand-colored highlight — reach for `danger` there instead of `alert`.
+ */
+export type KitTone = 'ok' | 'warn' | 'alert' | 'danger' | 'info' | 'muted';

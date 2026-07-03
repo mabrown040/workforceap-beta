@@ -17,7 +17,7 @@ export default function MemberPartnerSection({
   const router = useRouter();
   const [partnerId, setPartnerId] = useState<string>(currentPartnerId ?? '');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
     setPartnerId(currentPartnerId ?? '');
@@ -38,13 +38,13 @@ export default function MemberPartnerSection({
           typeof data.error === 'string' ? data.error : null,
           typeof data.detail === 'string' ? data.detail : null,
         ].filter(Boolean) as string[];
-        setMessage(parts.length > 0 ? parts.join(' — ') : `Update failed (${res.status})`);
+        setMessage({ type: 'err', text: parts.length > 0 ? parts.join(' — ') : `Update failed (${res.status})` });
         return;
       }
-      setMessage('Saved.');
+      setMessage({ type: 'ok', text: 'Saved.' });
       router.refresh();
     } catch {
-      setMessage('Request failed');
+      setMessage({ type: 'err', text: 'Request failed' });
     } finally {
       setLoading(false);
     }
@@ -60,6 +60,7 @@ export default function MemberPartnerSection({
         <select
           value={partnerId}
           onChange={(e) => setPartnerId(e.target.value)}
+          aria-label="Partner organization"
           style={{ padding: '0.5rem', minWidth: 260, borderRadius: 6, border: '1px solid var(--color-border)' }}
         >
           <option value="">No partner</option>
@@ -73,7 +74,14 @@ export default function MemberPartnerSection({
           {loading ? 'Saving…' : 'Save'}
         </button>
       </div>
-      {message && <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{message}</p>}
+      {message && (
+        <p
+          role={message.type === 'ok' ? 'status' : 'alert'}
+          style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: message.type === 'ok' ? '#166534' : '#b91c1c' }}
+        >
+          {message.text}
+        </p>
+      )}
     </section>
   );
 }

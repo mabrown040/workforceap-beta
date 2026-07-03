@@ -23,6 +23,8 @@ export function placementSurveyHtml(params: {
       return placementSurvey60Html({ firstName, programName });
     case 'ninety_day':
       return placementSurvey90Html({ firstName, programName });
+    case 'hundred_eighty_day':
+      return placementSurvey180Html({ firstName, programName });
     case 'thirty_day':
     default:
       return placementSurvey30Html({ firstName, programName });
@@ -67,14 +69,43 @@ function placementSurvey90Html(params: { firstName: string; programName: string 
   return `
     <p>Hi ${escapeHtml(firstName)},</p>
     ${programLine}
-    <p><strong>Final check-in:</strong> We need to confirm your current salary and job satisfaction for our grant reporting. This is the last scheduled survey — it takes about 2 minutes.</p>
+    <p><strong>90-day check-in:</strong> We need to confirm your current salary and job satisfaction for our grant reporting. It takes about 2 minutes.</p>
     <p>Your answers directly help us secure funding so more people get the same shot you did.</p>
   `.trim();
 }
 
+function placementSurvey180Html(params: { firstName: string; programName: string | null }): string {
+  const { firstName, programName } = params;
+  const programLine = programName
+    ? `<p>You completed <strong>${escapeHtml(programName)}</strong> and have been in your role for about six months now.</p>`
+    : `<p>You've been in your new role for about six months now.</p>`;
+
+  return `
+    <p>Hi ${escapeHtml(firstName)},</p>
+    ${programLine}
+    <p><strong>Final check-in:</strong> We need to confirm your current salary and job satisfaction one last time for our grant reporting. This is the last scheduled survey — it takes about 2 minutes.</p>
+    <p>Your answers directly help us secure funding so more people get the same shot you did.</p>
+  `.trim();
+}
+
+/** Human-readable day-count label for a survey wave, e.g. "30-day". */
+function waveLabel(wave: PlacementSurveyWave): string {
+  switch (wave) {
+    case 'sixty_day':
+      return '60-day';
+    case 'ninety_day':
+      return '90-day';
+    case 'hundred_eighty_day':
+      return '180-day';
+    case 'thirty_day':
+    default:
+      return '30-day';
+  }
+}
+
 /**
- * Escalation email to counselor when a member hasn't responded to the 30-day
- * survey after 7 days.
+ * Escalation email to counselor when a member hasn't responded to a
+ * placement survey (any wave) after 7 days.
  */
 export function placementSurveyEscalationHtml(params: {
   counselorName: string;
@@ -84,13 +115,15 @@ export function placementSurveyEscalationHtml(params: {
   jobTitle: string;
   daysSincePlacement: number | null;
   surveyUrl: string;
+  wave?: PlacementSurveyWave;
 }): string {
-  const { counselorName, memberName, memberEmail, employerName, jobTitle, daysSincePlacement, surveyUrl } = params;
+  const { counselorName, memberName, memberEmail, employerName, jobTitle, daysSincePlacement, surveyUrl, wave } = params;
   const daysText = daysSincePlacement !== null ? ` (${daysSincePlacement} days since start)` : '';
+  const surveyLabel = `${waveLabel(wave ?? 'thirty_day')} placement survey`;
 
   return `
     <p>Hi ${escapeHtml(counselorName)},</p>
-    <p><strong>${escapeHtml(memberName)}</strong> was placed at <strong>${escapeHtml(employerName)}</strong> as <strong>${escapeHtml(jobTitle)}</strong>${escapeHtml(daysText)} but has not completed their 30-day placement survey after 7 days.</p>
+    <p><strong>${escapeHtml(memberName)}</strong> was placed at <strong>${escapeHtml(employerName)}</strong> as <strong>${escapeHtml(jobTitle)}</strong>${escapeHtml(daysText)} but has not completed their ${escapeHtml(surveyLabel)} after 7 days.</p>
     <p style="margin:1rem 0;">Consider reaching out directly to check in:</p>
     <ul style="margin:0.25rem 0 0;padding-left:1.25rem;font-size:0.9rem;color:#584144;">
       <li>Member email: <a href="mailto:${escapeHtml(memberEmail)}">${escapeHtml(memberEmail)}</a></li>

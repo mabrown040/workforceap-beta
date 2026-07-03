@@ -64,6 +64,40 @@
   --wa-pop: 1; /* 0 = calm tints, 1 = gradient feature tiles */
   --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   --wa-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.06);
+
+  /*
+   * — z-index scale (Foundation) — ordered low → high. Fixed-position layers
+   * (nav-drawer / modal / tour / toast) can legitimately appear above one
+   * another; `--z-sticky` is for in-flow `position: sticky` elements (e.g. a
+   * sticky table header) that only need to clear normal document content,
+   * not other fixed layers, so it sits well below them.
+   *
+   * `--z-nav-drawer` is a BASE for a 20-unit band, not a single value — the
+   * mobile drawer has three sibling fixed layers (dim overlay, sliding panel,
+   * hamburger toggle) that must stack in that order. `calc(var(--z-nav-drawer)
+   * + N)` preserves the drawer's existing working values (100 / 110 / 120,
+   * css/portal.css) while giving them one source of truth.
+   *
+   * `--z-modal` matches ConfirmDialog's previous inline literal (1100) — no
+   * change to its stacking, just tokenized.
+   *
+   * `--z-tour` fixes a confirmed bug: PortalTour previously used
+   * wa-z-[90]/[95]/[100], which sits BELOW the open mobile drawer
+   * (100/110/120) and below --z-modal, so the tour could render underneath
+   * both. The tour is a full-screen guided overlay and must sit above the
+   * nav, above app modals (including the highest ad-hoc modal literals still
+   * in surface-owned CSS, ~3000), but below toast notifications.
+   *
+   * `--z-toast` matches the existing `.counselor-toast` (css/counselor.css)
+   * so a toast fired while the tour is open still surfaces on top; it stays
+   * below `.skip-link`'s 10000 (an off-screen-until-focused a11y utility,
+   * not visible content, so no practical conflict).
+   */
+  --z-sticky: 10;
+  --z-nav-drawer: 100; /* +10 = sliding panel, +20 = hamburger toggle */
+  --z-modal: 1100;
+  --z-tour: 5000;
+  --z-toast: 9999;
 }
 
 /* WARM — member surfaces: Bold + Calm. Soft corners, generous space, pop on. */

@@ -71,7 +71,8 @@ export default function DeleteAccountButton() {
           <div
             ref={trapRef as React.RefObject<HTMLDivElement>}
             style={{
-              background: 'white',
+              background: 'var(--surface-container-low, #fff)',
+              color: 'var(--color-on-surface)',
               padding: '1.5rem',
               borderRadius: 'var(--radius-md)',
               maxWidth: '400px',

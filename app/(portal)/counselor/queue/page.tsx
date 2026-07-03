@@ -139,9 +139,13 @@ export default async function CounselorWorkQueuePage() {
                   .slice(0, 2)
                   .join('')
                   .toUpperCase();
+                // `--color-error` isn't defined in the counselor portal's
+                // stylesheet (only inside the unrelated .auth-depth scope),
+                // so the most-overdue rows were rendering with no color at
+                // all — less urgent-looking than the 48-71h tier below it.
                 const overdueColor =
                   row.hoursWaiting >= 72
-                    ? 'var(--color-error)'
+                    ? 'var(--color-error, #dc2626)'
                     : row.hoursWaiting >= 48
                       ? 'var(--color-orange, var(--color-accent))'
                       : 'var(--color-accent)';
@@ -190,6 +194,7 @@ export default async function CounselorWorkQueuePage() {
                             }}
                           >
                             <h3
+                              title={row.memberName}
                               style={{
                                 fontWeight: 700,
                                 fontSize: '0.9375rem',
@@ -202,16 +207,41 @@ export default async function CounselorWorkQueuePage() {
                             >
                               {row.memberName}
                             </h3>
-                            <span
-                              style={{
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                color: overdueColor,
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0,
-                              }}
-                            >
-                              {formatTimeWaiting(row.hoursWaiting)}
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
+                              <span
+                                style={{
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                  color: overdueColor,
+                                  whiteSpace: 'nowrap',
+                                  fontVariantNumeric: 'tabular-nums',
+                                }}
+                              >
+                                {formatTimeWaiting(row.hoursWaiting)}
+                              </span>
+                              {row.hoursWaiting >= 72 && (
+                                <span
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.15rem',
+                                    padding: '0.05rem 0.375rem',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.625rem',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.03em',
+                                    whiteSpace: 'nowrap',
+                                    color: overdueColor,
+                                    background: 'color-mix(in srgb, var(--color-error, #dc2626) 12%, transparent)',
+                                  }}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">
+                                    warning
+                                  </span>
+                                  {t('workQueueOverdueChip')}
+                                </span>
+                              )}
                             </span>
                           </div>
                           <p
@@ -227,7 +257,7 @@ export default async function CounselorWorkQueuePage() {
                               WebkitBoxOrient: 'vertical',
                             }}
                           >
-                            {previewMessageBody(row.lastMessageBody) || '(empty message)'}
+                            {previewMessageBody(row.lastMessageBody) || t('emptyMessagePreview')}
                           </p>
                         </div>
                         <span

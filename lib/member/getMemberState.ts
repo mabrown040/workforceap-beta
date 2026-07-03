@@ -166,6 +166,39 @@ async function loadHasCompletedInterviewPractice(userId: string): Promise<boolea
   return !!event;
 }
 
+type PlacementForActions = {
+  placedAt: Date | null;
+  retentionDecision: string | null;
+  retentionStatus: string | null;
+} | null;
+
+/**
+ * Cheap single-row lookup on PlacementRecord's unique `userId` so the
+ * dashboard's next-best-actions can render the placement_retention_window_90/180
+ * nudges (lib/member/nextBestActions.ts) and the job-loss re-activation nudge
+ * for separated members. Previously `_getMemberStateUncached` hardcoded
+ * placementPlacedAt/placementRetentionDecision to null here even though
+ * `loadMemberFullContext` below fetches the same PlacementRecord for the
+ * admin/counselor full-state view — those nudges could never render for a
+ * placed member on their own dashboard.
+ */
+async function loadPlacementForActions(userId: string): Promise<PlacementForActions> {
+  return prisma.$transaction((tx) =>
+    tx.placementRecord.findUnique({
+      where: { userId },
+      select: { placedAt: true, retentionDecision: true, retentionStatus: true },
+    })
+  );
+}
+
+/** True when the placement's retention outcome indicates the member lost/left the job. */
+function isPlacementSeparated(placement: PlacementForActions): boolean {
+  if (!placement) return false;
+  return (
+    placement.retentionDecision === 'not_retained' || placement.retentionStatus === 'separated'
+  );
+}
+
 function inferTargetRole(
   careerRec: CareerMatchResult | null,
   programInterest: string | null,
@@ -205,11 +238,12 @@ async function _getMemberStateUncached(
     activeProgramSlug?: string | null;
   } = {},
 ): Promise<MemberState> {
-  const [user, engagement, latestResumeText, hasCompletedInterviewPractice] = await Promise.all([
+  const [user, engagement, latestResumeText, hasCompletedInterviewPractice, placementForActions] = await Promise.all([
     loadMemberCore(userId),
     loadEngagement(userId),
     loadLatestResumeText(userId),
     loadHasCompletedInterviewPractice(userId),
+    loadPlacementForActions(userId),
   ]);
 
   if (!user) {
@@ -327,8 +361,9 @@ async function _getMemberStateUncached(
     counselorUnreadCount: engagement.counselorUnreadCount,
     weeklyRecapUnopened: engagement.weeklyRecapUnopened,
     courseEnrollmentActive: false,
-    placementPlacedAt: null,
-    placementRetentionDecision: null,
+    placementPlacedAt: placementForActions?.placedAt ?? null,
+    placementRetentionDecision: placementForActions?.retentionDecision ?? null,
+    placementSeparated: isPlacementSeparated(placementForActions),
     trainingCoursesIncomplete: trainingView ? !trainingView.allCoursesComplete : false,
     nextIncompleteCourseName: trainingView?.nextIncompleteCourseName ?? null,
   };

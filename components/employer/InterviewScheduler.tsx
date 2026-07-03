@@ -95,8 +95,8 @@ export default function InterviewScheduler({
             padding: '0.75rem',
             marginBottom: '1rem',
             borderRadius: 'var(--radius-sm)',
-            background: message.type === 'success' ? '#d1fae5' : '#fee2e2',
-            color: message.type === 'success' ? '#065f46' : '#991b1b',
+            background: message.type === 'success' ? 'var(--color-success-container, #d1fae5)' : 'var(--color-error-container, #fee2e2)',
+            color: message.type === 'success' ? 'var(--color-on-success-container, #065f46)' : 'var(--color-on-error-container, #991b1b)',
             fontSize: '0.9rem'
           }}
         >

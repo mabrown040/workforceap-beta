@@ -24,10 +24,10 @@ const STATUS_ACTIONS: Record<string, string[]> = {
 };
 
 function statusColor(status: string): { bg: string; color: string } {
-  if (status === 'hired') return { bg: '#dcfce7', color: '#166534' };
-  if (status === 'rejected') return { bg: '#fee2e2', color: '#991b1b' };
+  if (status === 'hired') return { bg: 'color-mix(in srgb, var(--color-green) 16%, transparent)', color: 'var(--color-green)' };
+  if (status === 'rejected') return { bg: 'color-mix(in srgb, var(--wa-danger, #dc2626) 14%, transparent)', color: 'var(--wa-danger, #dc2626)' };
   if (status === 'pending') return { bg: '#fff1f2', color: 'var(--color-accent)' };
-  if (status === 'reviewing') return { bg: '#fef3c7', color: '#92400e' };
+  if (status === 'reviewing') return { bg: 'color-mix(in srgb, var(--color-gold) 18%, transparent)', color: 'var(--color-gold)' };
   if (status === 'interview') return { bg: '#dbeafe', color: '#1e3a8a' };
   if (status === 'offered') return { bg: '#f3e8ff', color: '#6b21a8' };
   return { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };
@@ -157,7 +157,7 @@ export default function MobileApplicationsClient({
       {/* Applicant cards */}
       <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {visible.length === 0 ? (
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
+          <div style={{ background: 'var(--color-white)', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }} aria-hidden="true">inbox</span>
             <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
           </div>
@@ -173,7 +173,7 @@ export default function MobileApplicationsClient({
             return (
               <div
                 key={app.id}
-                style={{ borderRadius: '0.75rem', overflow: 'hidden', background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
+                style={{ borderRadius: '0.75rem', overflow: 'hidden', background: 'var(--color-white)', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
               >
                 {/* Card header — tap to expand */}
                 <button type="button"
@@ -245,7 +245,7 @@ export default function MobileApplicationsClient({
                           color: 'var(--color-accent)',
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">forum</span>
                         {isChatLoading ? 'Loading…' : isChatOpen ? 'Close messages' : 'Message applicant'}
                       </button>
 
@@ -277,7 +277,7 @@ export default function MobileApplicationsClient({
                     )}
 
                     {isChatOpen && chatMessages[app.id] && (
-                      <div style={{ marginTop: '1rem', border: '1px solid #ebe7e7', borderRadius: '0.875rem', overflow: 'hidden', background: '#fff', minHeight: '24rem' }}>
+                      <div style={{ marginTop: '1rem', border: '1px solid var(--outline-variant)', borderRadius: '0.875rem', overflow: 'hidden', background: 'var(--color-white)', minHeight: '24rem' }}>
                         <EmployerApplicationChatClient
                           applicationId={app.id}
                           studentName={studentName}

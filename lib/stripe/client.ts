@@ -26,6 +26,15 @@ export function getStripeConnectWebhookSecret(): string {
   return secret;
 }
 
+/**
+ * CEO directive (2026-07): pricing is future-state. No employer should be
+ * able to hit a paywall or job-limit upsell today — everything employer-
+ * facing is free right now. Tier/limit data and Stripe integration stay in
+ * place (pricing returns someday); this flag is the single switch that
+ * re-enables enforcement later. Flip to `true` when pricing actually ships.
+ */
+export const EMPLOYER_PRICING_ENFORCED = false;
+
 export const EMPLOYER_TIERS = {
   basic: {
     priceId: process.env.STRIPE_BASIC_PRICE_ID || '',

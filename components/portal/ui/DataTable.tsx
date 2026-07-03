@@ -56,6 +56,12 @@ export type DataTableColumn<TRow> = {
   rowHeader?: boolean;
   /** Forwarded to the cell as `data-label` (responsive stacked-row tables). */
   cellDataLabel?: string;
+  /**
+   * Sets `aria-sort` on this column's `<th>` (e.g. `'ascending'` on the
+   * currently-sorted column, `'none'` otherwise). Omit for non-sortable
+   * columns — the attribute is left off entirely rather than defaulted.
+   */
+  ariaSort?: 'ascending' | 'descending' | 'none' | 'other';
 };
 
 export type DataTableProps<TRow> = {
@@ -79,6 +85,14 @@ export type DataTableProps<TRow> = {
   scrollX?: boolean;
   /** Optional className passthrough on the outer wrapper. */
   className?: string;
+  /**
+   * Pins the `<thead>` to the top of the scroll container (`position: sticky`
+   * on each header cell — more reliably supported than `position: sticky` on
+   * `<thead>` itself). Uses `--surface-container-low` for the header
+   * background so sticky header cells stay opaque over scrolling rows.
+   * Default false (no layout change for existing tables).
+   */
+  stickyHeader?: boolean;
   /**
    * When defined and returns non-nullish content, renders a full-width row below the main row
    * (`<td colSpan={columns.length}>...</td>`). Use for expandable detail rows (e.g. assessments).
@@ -127,6 +141,7 @@ export default function DataTable<TRow>({
   getRowProps,
   scrollX = true,
   className,
+  stickyHeader = false,
   renderSubRow,
   subRowTdStyle,
   subRowTdClassName,
@@ -142,7 +157,7 @@ export default function DataTable<TRow>({
 
   const tableElement = (
     <table
-      className={tableClassName}
+      className={[tableClassName, `wap-data-table--${variant}`].filter(Boolean).join(' ')}
       style={{
         width: '100%',
         borderCollapse: 'collapse',
@@ -155,6 +170,7 @@ export default function DataTable<TRow>({
             <th
               key={col.key}
               scope="col"
+              aria-sort={col.ariaSort}
               style={
                 {
                   ...(usePortalChrome
@@ -176,6 +192,14 @@ export default function DataTable<TRow>({
                         left: 0,
                         zIndex: 2,
                         background: 'var(--surface-container, #1e2022)',
+                      }
+                    : {}),
+                  ...(stickyHeader
+                    ? {
+                        position: 'sticky' as const,
+                        top: 0,
+                        zIndex: 'var(--z-sticky, 10)',
+                        background: 'var(--surface-container-low)',
                       }
                     : {}),
                 }

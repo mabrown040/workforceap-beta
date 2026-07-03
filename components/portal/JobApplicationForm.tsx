@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { JobApplicationSourceMembers } from '@/lib/jobApplications/constants';
 
 interface JobApplicationFormProps {
@@ -62,20 +63,36 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
     }
   };
 
+  const fieldClassName = "wa-w-full wa-px-3 wa-py-2 wa-rounded-lg focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1";
+  const fieldStyle: CSSProperties = {
+    border: "1px solid var(--outline-variant)",
+    background: "var(--surface-container-lowest)",
+    color: "var(--color-on-surface)",
+  };
+  const labelClassName = "wa-block wa-text-sm wa-font-bold wa-mb-2";
+  const labelStyle: CSSProperties = { color: "var(--color-on-surface)" };
+
   return (
     <div className="wa-fixed wa-inset-0 wa-bg-black wa-bg-opacity-50 wa-flex wa-items-center wa-justify-center wa-z-50 wa-p-4" role="presentation">
       <div
-        className="wa-bg-white wa-rounded-lg wa-shadow-xl wa-max-w-md wa-w-full wa-max-h-[90vh] wa-overflow-y-auto"
+        className="wa-rounded-lg wa-shadow-xl wa-max-w-md wa-w-full wa-max-h-[90vh] wa-overflow-y-auto"
+        style={{ background: "var(--surface-container-low)" }}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
         {/* Header */}
-        <div className="wa-sticky wa-top-0 wa-bg-white wa-border-b wa-p-6 wa-flex wa-justify-between wa-items-center">
-          <h2 id={titleId} className="wa-text-xl wa-font-bold wa-text-gray-900">Add Application</h2>
+        <div
+          className="wa-sticky wa-top-0 wa-p-6 wa-flex wa-justify-between wa-items-center"
+          style={{ background: "var(--surface-container-low)", borderBottom: "1px solid var(--outline-variant)" }}
+        >
+          <h2 id={titleId} className="wa-text-xl wa-font-bold" style={{ color: "var(--color-on-surface)" }}>
+            Add Application
+          </h2>
           <button type="button"
             onClick={onClose}
-            className="wa-text-gray-400 hover:wa-text-gray-600 wa-text-2xl wa-leading-none"
+            className="wa-text-2xl wa-leading-none focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+            style={{ color: "var(--color-on-surface-variant)" }}
             aria-label="Close add application dialog"
           >
             ×
@@ -85,13 +102,22 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
         {/* Form */}
         <form onSubmit={handleSubmit} className="wa-p-6 wa-space-y-4">
           {error && (
-            <div id={errorId} role="alert" className="wa-p-3 wa-bg-red-50 wa-border wa-border-red-200 wa-rounded wa-text-red-700 wa-text-sm">
+            <div
+              id={errorId}
+              role="alert"
+              className="wa-p-3 wa-rounded wa-text-sm"
+              style={{
+                background: "color-mix(in srgb, var(--color-error) 10%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-error) 25%, transparent)",
+                color: "var(--color-error)",
+              }}
+            >
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="jobapplicationform-job-title-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-job-title-field" className={labelClassName} style={labelStyle}>
               Job Title *
             </label>
             <input id="jobapplicationform-job-title-field"
@@ -102,13 +128,14 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               onChange={handleChange}
               required
               aria-describedby={error ? errorId : undefined}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className={fieldClassName}
+              style={fieldStyle}
               placeholder="e.g., Software Engineer"
             />
           </div>
 
           <div>
-            <label htmlFor="jobapplicationform-company-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-company-field" className={labelClassName} style={labelStyle}>
               Company *
             </label>
             <input id="jobapplicationform-company-field"
@@ -117,13 +144,14 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               value={formData.company}
               onChange={handleChange}
               required
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className={fieldClassName}
+              style={fieldStyle}
               placeholder="e.g., Techvera"
             />
           </div>
 
           <div>
-            <label htmlFor="jobapplicationform-date-applied-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-date-applied-field" className={labelClassName} style={labelStyle}>
               Date Applied *
             </label>
             <input id="jobapplicationform-date-applied-field"
@@ -132,19 +160,21 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               value={formData.appliedAt}
               onChange={handleChange}
               required
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className={fieldClassName}
+              style={fieldStyle}
             />
           </div>
 
           <div>
-            <label htmlFor="jobapplicationform-source-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-source-field" className={labelClassName} style={labelStyle}>
               Source *
             </label>
             <select id="jobapplicationform-source-field"
               name="source"
               value={formData.source}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className={fieldClassName}
+              style={fieldStyle}
             >
               <option value="INDEED">Indeed</option>
               <option value="LINKEDIN">LinkedIn</option>
@@ -154,7 +184,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label htmlFor="jobapplicationform-interview-date-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-interview-date-field" className={labelClassName} style={labelStyle}>
               Interview Date
             </label>
             <input id="jobapplicationform-interview-date-field"
@@ -162,19 +192,21 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               name="nextInterviewDate"
               value={formData.nextInterviewDate}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className={fieldClassName}
+              style={fieldStyle}
             />
           </div>
 
           <div>
-            <label htmlFor="jobapplicationform-notes-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-notes-field" className={labelClassName} style={labelStyle}>
               Notes
             </label>
             <textarea id="jobapplicationform-notes-field"
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className={fieldClassName}
+              style={fieldStyle}
               rows={3}
               placeholder="Any notes about this application..."
             />
@@ -185,14 +217,16 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
             <button
               type="submit"
               disabled={isSubmitting}
-              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-font-medium wa-rounded-lg hover:wa-bg-[#6b0a2a] disabled:wa-opacity-50 disabled:wa-cursor-not-allowed wa-transition-colors"
+              className="wa-flex-1 wa-px-4 wa-py-2 wa-text-white wa-font-medium wa-rounded-lg disabled:wa-opacity-50 disabled:wa-cursor-not-allowed wa-transition-colors focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+              style={{ background: "var(--color-accent-dark, #6b0c29)" }}
             >
               {isSubmitting ? 'Adding...' : 'Add Application'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-font-medium wa-rounded-lg hover:wa-bg-gray-300 wa-transition-colors"
+              className="wa-flex-1 wa-px-4 wa-py-2 wa-font-medium wa-rounded-lg wa-transition-colors focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+              style={{ background: "var(--surface-container-high)", color: "var(--color-on-surface)" }}
             >
               Cancel
             </button>

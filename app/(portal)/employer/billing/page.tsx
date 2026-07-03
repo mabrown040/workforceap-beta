@@ -66,6 +66,7 @@ export default async function EmployerBillingPage({
       />
       {success === '1' && (
         <div
+          role="status"
           style={{
             marginBottom: '1.5rem',
             padding: '0.75rem 1rem',
@@ -81,6 +82,7 @@ export default async function EmployerBillingPage({
       )}
       {canceled === '1' && (
         <div
+          role="status"
           style={{
             marginBottom: '1.5rem',
             padding: '0.75rem 1rem',
@@ -112,7 +114,7 @@ export default async function EmployerBillingPage({
             <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
               {t('jobUsage')}
             </p>
-            <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
               {jobCount} / {jobLimit === Infinity ? t('unlimited') : jobLimit}
             </p>
           </div>
@@ -120,7 +122,7 @@ export default async function EmployerBillingPage({
       </div>
 
       <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
-        Employer accounts start free. Hiring tools and partnership options are discussed with our team.
+        {t('billingFreeIntro')}
       </p>
 
       <div
@@ -161,7 +163,7 @@ export default async function EmployerBillingPage({
               )}
             </div>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
-              Talk to us about partnership options
+              {t('tierPartnershipNote')}
             </p>
             <ul style={{ margin: '0 0 1rem', padding: 0, listStyle: 'none' }}>
               <li style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>

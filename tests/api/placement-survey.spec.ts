@@ -40,6 +40,7 @@ vi.mock('@/lib/db/prisma', () => {
   const placementRecord = {
     findUnique: vi.fn(),
     findFirst: vi.fn(),
+    updateMany: vi.fn().mockResolvedValue({ count: 0 }),
   };
   const user = {
     findMany: vi.fn(),
@@ -52,7 +53,15 @@ vi.mock('@/lib/db/prisma', () => {
     count: vi.fn(),
     groupBy: vi.fn(),
   };
-  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), placementSurvey, placementRecord, user, courseProgress, courseEnrollment } };
+  const atRiskAlert = {
+    findFirst: vi.fn().mockResolvedValue(null),
+    create: vi.fn().mockResolvedValue({}),
+    update: vi.fn().mockResolvedValue({}),
+  };
+  const counselorNote = {
+    create: vi.fn().mockResolvedValue({}),
+  };
+  return { prisma: { $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }), placementSurvey, placementRecord, user, courseProgress, courseEnrollment, atRiskAlert, counselorNote } };
 });
 
 vi.mock('@/lib/cron/withCronLogging', () => ({
@@ -356,6 +365,179 @@ describe('POST /api/placement-survey (form submission)', () => {
       allowTestimonial: true,
     });
     expect(updateCall.data.completedAt).toBeInstanceOf(Date);
+  });
+});
+
+describe('POST /api/placement-survey (PlacementRecord retention sync)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.PLACEMENT_SURVEY_TOKEN_SECRET = 'test-secret-32-bytes-long-1234567890';
+    vi.mocked(prisma.placementRecord.updateMany).mockResolvedValue({ count: 1 } as any);
+    vi.mocked(prisma.atRiskAlert.findFirst).mockResolvedValue(null as any);
+  });
+
+  afterEach(() => {
+    delete process.env.PLACEMENT_SURVEY_TOKEN_SECRET;
+  });
+
+  const makeRequest = (body: Record<string, unknown>): any =>
+    new Request('http://localhost:3000/api/placement-survey', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  it('marks the PlacementRecord separated and escalates to the counselor when stillEmployed is false', async () => {
+    const token = await issuePlacementSurveyToken({ surveyId: 'survey-lost-job' });
+    vi.mocked(prisma.placementSurvey.findUnique).mockResolvedValue({
+      id: 'survey-lost-job',
+      userId: 'user-1',
+      placementId: 'pl-1',
+      completedAt: null,
+      wave: 'sixty_day',
+    } as any);
+    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({
+      id: 'survey-lost-job',
+      userId: 'user-1',
+      placementId: 'pl-1',
+      wave: 'sixty_day',
+      allowTestimonial: false,
+    } as any);
+
+    const res = await submitSurvey(makeRequest({ token, stillEmployed: false }));
+    expect(res.status).toBe(200);
+
+    expect(prisma.placementRecord.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: 'pl-1' }),
+        data: { retentionStatus: 'separated' },
+      })
+    );
+    expect(prisma.atRiskAlert.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ userId: 'user-1', status: 'open' }),
+      })
+    );
+    expect(prisma.counselorNote.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ memberId: 'user-1' }),
+      })
+    );
+  });
+
+  it('does not overwrite an already-decided retentionStatus on job loss', async () => {
+    // Simulate: updateMany's WHERE excludes decided statuses, so a
+    // counselor-set row simply matches 0 rows (count: 0) rather than being
+    // clobbered — the route doesn't need to know which; it trusts the filter.
+    vi.mocked(prisma.placementRecord.updateMany).mockResolvedValue({ count: 0 } as any);
+    const token = await issuePlacementSurveyToken({ surveyId: 'survey-decided' });
+    vi.mocked(prisma.placementSurvey.findUnique).mockResolvedValue({
+      id: 'survey-decided',
+      userId: 'user-2',
+      placementId: 'pl-2',
+      completedAt: null,
+      wave: 'ninety_day',
+    } as any);
+    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({
+      id: 'survey-decided',
+      userId: 'user-2',
+      placementId: 'pl-2',
+      wave: 'ninety_day',
+      allowTestimonial: false,
+    } as any);
+
+    const res = await submitSurvey(makeRequest({ token, stillEmployed: false }));
+    expect(res.status).toBe(200);
+
+    const call = vi.mocked(prisma.placementRecord.updateMany).mock.calls[0][0];
+    expect(call.where).toMatchObject({
+      id: 'pl-2',
+      OR: [{ retentionStatus: null }, { retentionStatus: { in: ['unknown', 'pending'] } }],
+    });
+  });
+
+  it('backfills wageAtFollowUp and sets retained_90d for a still-employed ninety_day survey', async () => {
+    const token = await issuePlacementSurveyToken({ surveyId: 'survey-retained-90' });
+    vi.mocked(prisma.placementSurvey.findUnique).mockResolvedValue({
+      id: 'survey-retained-90',
+      userId: 'user-3',
+      placementId: 'pl-3',
+      completedAt: null,
+      wave: 'ninety_day',
+    } as any);
+    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({
+      id: 'survey-retained-90',
+      userId: 'user-3',
+      placementId: 'pl-3',
+      wave: 'ninety_day',
+      allowTestimonial: false,
+    } as any);
+
+    const res = await submitSurvey(makeRequest({ token, stillEmployed: true, currentSalary: 48000 }));
+    expect(res.status).toBe(200);
+
+    expect(prisma.placementRecord.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'pl-3', wageAtFollowUp: null },
+        data: { wageAtFollowUp: 48000 },
+      })
+    );
+    expect(prisma.placementRecord.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'pl-3', retentionStatus: null },
+        data: { retentionStatus: 'retained_90d' },
+      })
+    );
+    expect(prisma.atRiskAlert.create).not.toHaveBeenCalled();
+  });
+
+  it('sets retained_180d for a still-employed hundred_eighty_day survey', async () => {
+    const token = await issuePlacementSurveyToken({ surveyId: 'survey-retained-180' });
+    vi.mocked(prisma.placementSurvey.findUnique).mockResolvedValue({
+      id: 'survey-retained-180',
+      userId: 'user-4',
+      placementId: 'pl-4',
+      completedAt: null,
+      wave: 'hundred_eighty_day',
+    } as any);
+    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({
+      id: 'survey-retained-180',
+      userId: 'user-4',
+      placementId: 'pl-4',
+      wave: 'hundred_eighty_day',
+      allowTestimonial: false,
+    } as any);
+
+    const res = await submitSurvey(makeRequest({ token, stillEmployed: true, currentSalary: 55000 }));
+    expect(res.status).toBe(200);
+
+    expect(prisma.placementRecord.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { retentionStatus: 'retained_180d' },
+      })
+    );
+  });
+
+  it('does not touch PlacementRecord for a thirty_day still-employed response (window not reached)', async () => {
+    const token = await issuePlacementSurveyToken({ surveyId: 'survey-thirty' });
+    vi.mocked(prisma.placementSurvey.findUnique).mockResolvedValue({
+      id: 'survey-thirty',
+      userId: 'user-5',
+      placementId: 'pl-5',
+      completedAt: null,
+      wave: 'thirty_day',
+    } as any);
+    vi.mocked(prisma.placementSurvey.update).mockResolvedValue({
+      id: 'survey-thirty',
+      userId: 'user-5',
+      placementId: 'pl-5',
+      wave: 'thirty_day',
+      allowTestimonial: false,
+    } as any);
+
+    const res = await submitSurvey(makeRequest({ token, stillEmployed: true, currentSalary: 40000 }));
+    expect(res.status).toBe(200);
+    expect(prisma.placementRecord.updateMany).not.toHaveBeenCalled();
   });
 });
 
@@ -694,7 +876,7 @@ describe('escalateStalePlacementSurveys', () => {
 
     const findCall = vi.mocked(prisma.placementSurvey.findMany).mock.calls[0][0]!;
     expect(findCall.where).toMatchObject({
-      wave: 'thirty_day',
+      wave: { in: ['thirty_day', 'sixty_day', 'ninety_day', 'hundred_eighty_day'] },
       completedAt: null,
       escalatedAt: null,
     });

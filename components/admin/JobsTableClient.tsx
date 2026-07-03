@@ -4,14 +4,32 @@ import { Fragment, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import DataTable from '@/components/portal/ui/DataTable';
+import { statusColor } from '@/lib/ui/statusColors';
 
 export type JobTableRow = {
   id: string;
   title: string;
   status: string;
+  updatedAt: string | Date;
   employer: { companyName: string | null } | null;
   _count: { applications: number } | null;
 };
+
+/** Whole days between `date` and now — used for the pending-review SLA badge. */
+function daysSince(date: string | Date): number {
+  const ms = Date.now() - new Date(date).getTime();
+  return Math.max(0, Math.floor(ms / (24 * 60 * 60 * 1000)));
+}
+
+/**
+ * Green < 3 days, amber 3-7, red 7+ — sourced from lib/ui/statusColors (the
+ * single source of truth for semantic status colors) instead of a one-off
+ * rgba palette.
+ */
+function pendingAgeBadgeStyle(days: number): { background: string; color: string } {
+  const tone = days < 3 ? statusColor('success') : days <= 7 ? statusColor('warning') : statusColor('danger');
+  return { background: tone.bg, color: tone.fg };
+}
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
@@ -25,10 +43,14 @@ const STATUS_LABELS: Record<string, string> = {
 function getJobStatusPillClass(status: string): string {
   if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
   if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
+  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
+  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
+  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
+  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
   return 'admin-job-status-pill';
 }
 
-type SortKey = 'job' | 'company' | 'status' | 'apps';
+type SortKey = 'job' | 'company' | 'status' | 'apps' | 'age';
 type SortDir = 'asc' | 'desc';
 
 // Ascending status sort follows the review workflow: draft → pending → approved → live → filled → closed.
@@ -44,6 +66,8 @@ function compareJobs(a: JobTableRow, b: JobTableRow, key: SortKey): number {
       return (STATUS_RANK[a.status] ?? 99) - (STATUS_RANK[b.status] ?? 99);
     case 'apps':
       return (a._count?.applications ?? 0) - (b._count?.applications ?? 0);
+    case 'age':
+      return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
     default:
       return 0;
   }
@@ -81,7 +105,7 @@ function SortHeader({
       aria-label={`Sort by ${label}${active ? (dir === 'asc' ? ', ascending' : ', descending') : ''}`}
     >
       {label}
-      <span style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
+      <span aria-hidden="true" style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
         {active ? (dir === 'asc' ? '▲' : '▼') : '▲'}
       </span>
     </button>
@@ -180,7 +204,34 @@ export default function JobsTableClient({
               key: 'apps',
               header: header('Applications', 'apps'),
               columnClassName: 'admin-jobs-col-apps',
-              cell: (j) => j._count?.applications ?? 0,
+              align: 'right',
+              cell: (j) => (
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{j._count?.applications ?? 0}</span>
+              ),
+            },
+            {
+              key: 'age',
+              header: header('Pending', 'age'),
+              cell: (j) => {
+                if (j.status !== 'pending') return <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>;
+                const days = daysSince(j.updatedAt);
+                const badge = pendingAgeBadgeStyle(days);
+                return (
+                  <span
+                    style={{
+                      background: badge.background,
+                      color: badge.color,
+                      padding: '0.1rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {days}d
+                  </span>
+                );
+              },
             },
             {
               key: 'actions',

@@ -3,14 +3,14 @@
 import { Fragment, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle } from 'lucide-react';
 import { getStudentStatus, type StudentStatus } from '@/lib/admin/studentStatus';
 import BulkEmailModal from './BulkEmailModal';
 import BulkUpdateModal from './BulkUpdateModal';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
+import ConfirmDialog from './ConfirmDialog';
 
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
@@ -69,7 +69,7 @@ type MembersTableProps = {
 function FitScoreBadge({ score }: { score: number }) {
   const color = score >= 8 ? '#16a34a' : score >= 5 ? '#d97706' : '#dc2626';
   const bg = score >= 8 ? '#f0fdf4' : score >= 5 ? '#fffbeb' : '#fef2f2';
-  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid ${color}20` }}>{score}/10</span>;
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid ${color}20`, fontVariantNumeric: 'tabular-nums' }}>{score}/10</span>;
 }
 
 function HealthDot({ status }: { status: HealthStatus }) {
@@ -299,7 +299,6 @@ export default function MembersTable({
   const closeConfirmAction = () => {
     if (!bulkActionLoading) setConfirmAction(null);
   };
-  const confirmActionTrapRef = useFocusTrap(!!confirmAction, closeConfirmAction);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -925,6 +924,7 @@ export default function MembersTable({
             {
               key: 'fit',
               header: <SortHeader label="Fit" sortKey="fit" active={sortKey === 'fit'} dir={sortDir} onSort={onSort} />,
+              align: 'right',
               cell: (m) => (m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'),
             },
             {
@@ -960,6 +960,7 @@ export default function MembersTable({
               header: (
                 <SortHeader label="Score %" sortKey="score" active={sortKey === 'score'} dir={sortDir} onSort={onSort} />
               ),
+              align: 'right',
               cell: (m) => (
                 <span
                   className={
@@ -971,6 +972,7 @@ export default function MembersTable({
                           : 'admin-score-low'
                       : ''
                   }
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
                 >
                   {m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}
                 </span>
@@ -1174,94 +1176,57 @@ export default function MembersTable({
         }}
       />
 
-      {/* Confirmation dialog for quick bulk actions */}
-      {confirmAction && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="bulk-confirm-title"
-          onClick={(e) => { if (e.target === e.currentTarget) closeConfirmAction(); }}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 1100,
-            background: 'rgba(0,0,0,0.45)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '1rem',
-          }}
-        >
-          <div
-            ref={confirmActionTrapRef as React.RefObject<HTMLDivElement>}
-            style={{
-              background: 'var(--color-white)',
-              borderRadius: 'var(--radius-lg, 1rem)',
-              width: '100%',
-              maxWidth: '420px',
-              boxShadow: 'var(--shadow-xl, 0 20px 40px rgba(0,0,0,0.25))',
-            }}
-          >
-            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <AlertTriangle size={20} style={{ color: 'var(--color-accent)' }} />
-              <h2 id="bulk-confirm-title" style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
-                Confirm Bulk Action
-              </h2>
-            </div>
-            <div style={{ padding: '1.25rem 1.5rem' }}>
-              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                You are about to mark <strong>{confirmAction.count}</strong> member{confirmAction.count === 1 ? '' : 's'} as{' '}
-                <strong>{confirmAction.type === 'enrolled' ? 'Enrolled' : 'Completed'}</strong>.
-                This will update their pipeline stage.
-              </p>
-            </div>
-            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={closeConfirmAction}
-                disabled={bulkActionLoading}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={bulkActionLoading}
-                onClick={async () => {
-                  setBulkActionLoading(true);
-                  try {
-                    const res = await fetch('/api/admin/members/bulk-update', {
-                      method: 'POST',
-                      credentials: 'include',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        memberIds: selectedRows.map((m) => m.id),
-                        pipelineStage: confirmAction.type === 'enrolled' ? 'enrolled' : 'certified',
-                      }),
-                    });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok) {
-                      setBulkHint(typeof data.error === 'string' ? data.error : 'Bulk action failed');
-                      window.setTimeout(() => setBulkHint(null), 5000);
-                      return;
-                    }
-                    const hint = `${confirmAction.type === 'enrolled' ? 'Marked as enrolled' : 'Marked as completed'}: ${data.updated}/${data.total} members${data.errors.length > 0 ? ` (${data.errors.length} failed)` : ''}`;
-                    setBulkHint(hint);
-                    window.setTimeout(() => setBulkHint(null), 5000);
-                    setSelectedIds(new Set());
-                    router.refresh();
-                  } catch {
-                    setBulkHint('Network error during bulk action');
-                    window.setTimeout(() => setBulkHint(null), 5000);
-                  } finally {
-                    setBulkActionLoading(false);
-                    setConfirmAction(null);
-                  }
-                }}
-              >
-                {bulkActionLoading ? 'Applying…' : 'Confirm'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Confirmation dialog for quick bulk actions — shared pattern, see ConfirmDialog.tsx */}
+      <ConfirmDialog
+        open={!!confirmAction}
+        title="Confirm bulk action"
+        body={
+          confirmAction ? (
+            <>
+              You are about to mark <strong>{confirmAction.count}</strong> member{confirmAction.count === 1 ? '' : 's'} as{' '}
+              <strong>{confirmAction.type === 'enrolled' ? 'Enrolled' : 'Completed'}</strong>.
+              This will update their pipeline stage.
+            </>
+          ) : (
+            ''
+          )
+        }
+        confirmLabel={bulkActionLoading ? 'Applying…' : 'Confirm'}
+        busy={bulkActionLoading}
+        onCancel={closeConfirmAction}
+        onConfirm={async () => {
+          if (!confirmAction) return;
+          setBulkActionLoading(true);
+          try {
+            const res = await fetch('/api/admin/members/bulk-update', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                memberIds: selectedRows.map((m) => m.id),
+                pipelineStage: confirmAction.type === 'enrolled' ? 'enrolled' : 'certified',
+              }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              setBulkHint(typeof data.error === 'string' ? data.error : 'Bulk action failed');
+              window.setTimeout(() => setBulkHint(null), 5000);
+              return;
+            }
+            const hint = `${confirmAction.type === 'enrolled' ? 'Marked as enrolled' : 'Marked as completed'}: ${data.updated}/${data.total} members${data.errors.length > 0 ? ` (${data.errors.length} failed)` : ''}`;
+            setBulkHint(hint);
+            window.setTimeout(() => setBulkHint(null), 5000);
+            setSelectedIds(new Set());
+            router.refresh();
+          } catch {
+            setBulkHint('Network error during bulk action');
+            window.setTimeout(() => setBulkHint(null), 5000);
+          } finally {
+            setBulkActionLoading(false);
+            setConfirmAction(null);
+          }
+        }}
+      />
     </div>
   );
 }

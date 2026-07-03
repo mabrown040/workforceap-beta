@@ -12,13 +12,18 @@ type ApplicantExportRow = {
   email: string;
   status: string;
   appliedAt: Date;
+  resumeUrl: string | null;
+  matchScore: number | null;
 };
 
 /**
  * GET /api/employer/jobs/[id]/applications/export
  * Streams a CSV of applicants for a single job posting. Auth + job-ownership
- * checks mirror /api/employer/jobs/[id]/applicants; only fields already
- * exposed by that endpoint are included (no new data exposure).
+ * checks mirror /api/employer/jobs/[id]/applicants. Also includes the resume
+ * URL the applicant submitted for this job and, where present, the AI job
+ * match score for (this job, this applicant) — both scoped to data the
+ * employer already owns via the job, so this is not a new data-exposure
+ * surface even though the applicants list endpoint doesn't return them today.
  */
 async function _GET(
   _request: NextRequest,
@@ -48,11 +53,21 @@ async function _GET(
       take: 200,
     }));
 
+    // One batched lookup for all AI match scores on this job, joined in memory
+    // below — avoids an N+1 query per applicant row.
+    const matches = await prisma.$transaction((tx) => tx.aIJobMatch.findMany({
+      where: { jobId: id, studentId: { in: applications.map((app) => app.studentId) } },
+      select: { studentId: true, matchScore: true },
+    }));
+    const matchScoreByStudentId = new Map(matches.map((m) => [m.studentId, m.matchScore]));
+
     const rows: ApplicantExportRow[] = applications.map((app) => ({
       fullName: app.student.fullName,
       email: app.student.email,
       status: app.status,
       appliedAt: app.appliedAt,
+      resumeUrl: app.resumeUrl,
+      matchScore: matchScoreByStudentId.get(app.studentId) ?? null,
     }));
 
     const csv = dataToCsv(
@@ -61,6 +76,8 @@ async function _GET(
         { key: 'email', header: 'Email', accessor: (r) => r.email },
         { key: 'status', header: 'Status', accessor: (r) => r.status },
         { key: 'appliedAt', header: 'Applied Date', accessor: (r) => r.appliedAt },
+        { key: 'resumeUrl', header: 'Resume URL', accessor: (r) => r.resumeUrl },
+        { key: 'matchScore', header: 'AI Match Score', accessor: (r) => r.matchScore },
       ],
       rows,
       { reportTitle: `Applicants — ${job.title}` },

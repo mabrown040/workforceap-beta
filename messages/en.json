@@ -532,6 +532,11 @@
     "programChangeCurrentLabel": "Current program:",
     "programChangeSelectLabel": "Program you would like to switch to",
     "programChangeSelectPlaceholder": "— Select a program —",
+    "programChangeCompareTitle": "How {program} compares",
+    "programChangeCompareDuration": "Duration",
+    "programChangeCompareSalary": "Starting salary",
+    "programChangeCompareDemand": "Job demand",
+    "programChangeCompareCerts": "Certificate",
     "programChangeReasonLabel": "Why this change?",
     "programChangeReasonPlaceholder": "Briefly explain why this new program fits your goals — advisors approve faster when there is context.",
     "programChangeMinimumChars": "minimum",
@@ -2796,6 +2801,10 @@
       "jobMatchScorer": {
         "label": "Check a job match",
         "hint": "Paste a job — see your fit and gaps"
+      },
+      "jobTailor": {
+        "label": "Tailor your resume to a job",
+        "hint": "Pick a job — tailor your resume to it"
       },
       "coverLetter": {
         "label": "Write your cover letter",

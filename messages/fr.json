@@ -522,6 +522,11 @@
     "programChangeCurrentLabel": "Programme actuel :",
     "programChangeSelectLabel": "Programme vers lequel vous souhaitez changer",
     "programChangeSelectPlaceholder": "— Sélectionnez un programme —",
+    "programChangeCompareTitle": "Comparatif : {program}",
+    "programChangeCompareDuration": "Durée",
+    "programChangeCompareSalary": "Salaire de départ",
+    "programChangeCompareDemand": "Demande d'emploi",
+    "programChangeCompareCerts": "Certification",
     "programChangeReasonLabel": "Pourquoi ce changement ?",
     "programChangeReasonPlaceholder": "Expliquez brièvement pourquoi ce nouveau programme correspond à vos objectifs — les conseillers approuvent plus vite quand il y a du contexte.",
     "programChangeMinimumChars": "minimum",
@@ -2797,6 +2802,10 @@
       "jobMatchScorer": {
         "label": "Vérifiez votre compatibilité avec un emploi",
         "hint": "Collez une offre — voyez vos forces et écarts"
+      },
+      "jobTailor": {
+        "label": "Adaptez votre CV à une offre",
+        "hint": "Choisissez une offre — adaptez votre CV à celle-ci"
       },
       "coverLetter": {
         "label": "Rédigez votre lettre de motivation",

@@ -25,6 +25,10 @@ const TOOL_CARDS = {
   interviewPractice: { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice?prefill=true', icon: 'record_voice_over' },
   interviewCoach: { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent' },
   jobMatchScorer: { label: 'See how you match a job', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
+  // Job Tailor needs a specific job's context to run — it lives on the job
+  // detail page (components/portal/JobTailorPanel.tsx), not a standalone
+  // tool page. Route here to the jobs list rather than a dead direct link.
+  jobTailor: { label: 'Pick a job, then tailor your resume to it', href: '/dashboard/jobs', icon: 'auto_fix_high' },
   skillMapper: { label: 'Find skills employers want', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree' },
   trainingBridge: { label: 'Training Bridge', href: '/dashboard/ai-tools/training-bridge', icon: 'alt_route' },
   linkedInHeadline: { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline', icon: 'badge' },
@@ -111,7 +115,7 @@ export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
   },
   {
     title: 'Step 2: Pre-interview prep and role targeting',
-    tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper, TOOL_CARDS.trainingBridge],
+    tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.jobTailor, TOOL_CARDS.skillMapper, TOOL_CARDS.trainingBridge],
   },
   {
     title: 'Step 3: Polish your profile and job-search strategy',

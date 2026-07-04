@@ -27,3 +27,7 @@
 ## 2024-06-20 - Redundant aria-label on aria-live copy buttons
 **Learning:** Found instances where custom copy buttons had a visually hidden `aria-label` attribute alongside an inner `aria-live` region containing dynamic state text (e.g., changing from "📋 Copy" to "✓ Copied!"). The outer `aria-label` can overshadow the inner live region, preventing screen readers from announcing the dynamic status update.
 **Action:** When implementing custom copy buttons that utilize an inner `<span aria-live="polite">` element to announce a "Copied!" state, remove any static or conditionally rendered `aria-label` from the parent `<button>` element.
+
+## 2024-07-04 - Accessible async form states
+**Learning:** The `CoverLetterForm` submit button lacked an `aria-live="polite"` wrapper for its dynamically changing content ("Generating cover letter…"), meaning screen readers wouldn't announce the loading state.
+**Action:** When a button triggers an async process, wrap the dynamic text inside an `<span aria-live="polite">` tag alongside `aria-busy` to ensure screen readers read the state change.

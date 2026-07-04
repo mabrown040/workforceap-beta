@@ -25,7 +25,10 @@ jobs:
       NEXTAUTH_URL: "http://localhost:3000"
       NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
-      NODE_OPTIONS: "--max-old-space-size=4096"
+      # GitHub runners have 16GB; the cold production build (no cache) was
+      # riding the 4GB ceiling and OOM'd (exit 134) as the app grew. 8GB gives
+      # headroom without approaching the runner limit.
+      NODE_OPTIONS: "--max-old-space-size=8192"
       RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"
 
     steps:

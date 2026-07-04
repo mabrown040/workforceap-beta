@@ -163,6 +163,7 @@ export default function LearningHubEnrolledCourses({
                 fontSize: '0.8125rem',
                 fontWeight: 700,
                 color: 'var(--color-on-surface)',
+                fontVariantNumeric: 'tabular-nums',
               }}
             >
               {pct}%

@@ -58,8 +58,8 @@ export default async function SkillMissionsPage() {
         <SkillMissionPanel summary={summary} />
       ) : (
         <div
-          className="content-card"
-          style={{ maxWidth: '560px', textAlign: 'center', padding: '2.5rem 1.5rem' }}
+          className="portal-card portal-card--flat"
+          style={{ maxWidth: '560px', textAlign: 'center', padding: '2.5rem 1.5rem', margin: '0 auto' }}
         >
           <Target
             size={40}

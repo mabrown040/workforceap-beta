@@ -179,7 +179,11 @@ export default function JobApplicationCard({
         </h4>
         {application.curatedJobId && (
           <span
-            className="wa-shrink-0 wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded wa-bg-amber-100 wa-text-amber-900"
+            className="wa-shrink-0 wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded"
+            style={{
+              background: 'color-mix(in srgb, var(--color-amber) 16%, transparent)',
+              color: 'var(--color-amber)',
+            }}
             title="From WorkforceAP Job Board"
           >
             Board

@@ -101,7 +101,7 @@ export default function ResumeStudioClient({ hasResume, scoreHistorySlot, rewrit
                 cursor: 'pointer',
                 fontSize: '0.82rem',
                 fontWeight: 700,
-                background: active ? 'var(--color-surface)' : 'transparent',
+                background: active ? 'var(--surface-container-lowest)' : 'transparent',
                 color: active ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                 boxShadow: active ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
               }}
@@ -135,7 +135,7 @@ export default function ResumeStudioClient({ hasResume, scoreHistorySlot, rewrit
                         width: 22,
                         height: 22,
                         borderRadius: '50%',
-                        background: 'rgba(173,44,77,0.12)',
+                        background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
                         color: 'var(--color-accent)',
                         fontSize: '0.72rem',
                         fontWeight: 800,

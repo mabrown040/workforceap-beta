@@ -50,7 +50,7 @@ export default function JobReadinessScore({ score, nextAction, breakdown }: JobR
             {showBreakdown ? 'Hide' : 'Show'} breakdown
             <span
               className={`material-symbols-outlined wa-text-xl wa-transition-transform wa-duration-200 ${
-                showBreakdown ? 'rotate-180' : 'rotate-0'
+                showBreakdown ? 'wa-rotate-180' : 'wa-rotate-0'
               }`}
               aria-hidden="true"
             >

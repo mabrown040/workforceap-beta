@@ -72,7 +72,7 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
                         alignItems: 'center',
                         padding: '0.22rem 0.5rem',
                         borderRadius: '999px',
-                        background: 'rgba(173,44,77,0.08)',
+                        background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
                         color: 'var(--color-on-surface)',
                         fontSize: '0.75rem',
                         fontWeight: 600,
@@ -114,7 +114,7 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
                         alignItems: 'center',
                         padding: '0.22rem 0.5rem',
                         borderRadius: '999px',
-                        background: 'rgba(0,0,0,0.04)',
+                        background: 'var(--surface-container-high)',
                         textDecoration: 'none',
                       }}
                     >

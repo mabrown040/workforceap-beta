@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('auth');
   const base = await buildPageMetadataAsync({
-    title: 'Set up multi-factor authentication',
-    description: 'Secure your WorkforceAP account with multi-factor authentication.',
+    title: t('mfaSetup.metaTitle'),
+    description: t('mfaSetup.metaDescription'),
     path: '/setup-mfa',
   });
   return { ...base, robots: { index: false, follow: false } };

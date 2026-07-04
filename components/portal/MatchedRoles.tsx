@@ -74,9 +74,9 @@ export default function MatchedRoles() {
 
   if (loadError) {
     return (
-      <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
+      <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }} role="alert">
         <h2 className="dashboard-today-label">Roles that match you</h2>
-        <p style={{ color: 'var(--color-accent, #b00020)', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--color-error)', fontSize: '0.9rem' }}>
           Couldn’t load matched roles right now. Try refreshing, or browse the <Link href="/dashboard/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link>.
         </p>
       </section>
@@ -105,7 +105,12 @@ export default function MatchedRoles() {
       </p>
       <div style={{ display: 'grid', gap: '0.75rem' }}>
         {jobs.map((job) => {
-          const matchColor = job.matchPct >= 70 ? '#16a34a' : job.matchPct >= 40 ? '#d97706' : '#6b7280';
+          const matchColor =
+            job.matchPct >= 70
+              ? 'var(--color-green)'
+              : job.matchPct >= 40
+                ? 'var(--color-amber)'
+                : 'var(--color-on-surface-variant)';
           return (
             <Link
               key={job.id}
@@ -135,8 +140,8 @@ export default function MatchedRoles() {
                     fontSize: '0.8rem',
                     fontWeight: 700,
                     color: matchColor,
-                    background: `${matchColor}15`,
-                    border: `1px solid ${matchColor}30`,
+                    background: `color-mix(in srgb, ${matchColor} 15%, transparent)`,
+                    border: `1px solid color-mix(in srgb, ${matchColor} 30%, transparent)`,
                   }}
                 >
                   {job.matchPct}% match

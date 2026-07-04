@@ -1,6 +1,19 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import {
+  X,
+  Copy,
+  Check,
+  Clock,
+  ClipboardList,
+  CheckCircle2,
+  Lightbulb,
+  Target,
+  BookOpenCheck,
+  Trophy,
+  RotateCcw,
+} from 'lucide-react';
 
 // ── Local type copies (server-only lib not importable here) ──────────────────
 
@@ -80,7 +93,7 @@ type Props = {
 
 const CARD_STYLE: React.CSSProperties = {
   position: 'relative',
-  background: 'var(--color-surface, #fff)',
+  background: 'var(--surface-container-lowest)',
   borderRadius: 'var(--radius-xl, 1rem)',
   padding: '2rem',
   width: '100%',
@@ -111,20 +124,22 @@ function CloseButton({ onClick }: { onClick: () => void }) {
         position: 'absolute',
         top: '1rem',
         right: '1rem',
+        width: '2.75rem',
+        height: '2.75rem',
+        minWidth: 44,
+        minHeight: 44,
         background: 'none',
         border: '1px solid var(--outline-variant)',
         borderRadius: '0.4rem',
         cursor: 'pointer',
         color: 'var(--color-on-surface-variant)',
-        fontSize: '1rem',
         lineHeight: 1,
-        padding: '0.4rem 0.6rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      ✕
+      <X size={18} aria-hidden="true" />
     </button>
   );
 }
@@ -168,14 +183,18 @@ function CopyButton({ text }: { text: string }) {
         cursor: 'pointer',
         fontSize: '0.78rem',
         fontWeight: 600,
-        color: 'var(--color-on-surface-variant)',
+        color: copied ? 'var(--color-green)' : 'var(--color-on-surface-variant)',
         padding: '0.3rem 0.65rem',
         display: 'inline-flex',
         alignItems: 'center',
         gap: '0.3rem',
+        minHeight: 44,
       }}
     >
-      <span aria-live="polite">{copied ? '✓ Copied!' : '📋 Copy'}</span>
+      <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+        {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+        {copied ? 'Copied!' : 'Copy'}
+      </span>
     </button>
   );
 }
@@ -224,7 +243,7 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
             color: 'var(--color-on-surface-variant)',
           }}
         >
-          ⏱ ~{mission.estimatedMinutes} min
+          <Clock size={14} aria-hidden="true" /> ~{mission.estimatedMinutes} min
         </span>
         <span
           style={{
@@ -239,7 +258,7 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
             color: 'var(--color-on-surface-variant)',
           }}
         >
-          📝 3 quiz questions + scenario
+          <ClipboardList size={14} aria-hidden="true" /> 3 quiz questions + scenario
         </span>
       </div>
 
@@ -391,14 +410,14 @@ function PhaseQuiz({
             if (isCorrect) {
               bg = 'rgba(74,155,79,0.12)';
               border = '1.5px solid rgba(74,155,79,0.5)';
-              color = '#256b2a';
+              color = 'var(--color-green)';
             } else if (isSelected && !isCorrect) {
               bg = 'rgba(194,60,60,0.1)';
               border = '1.5px solid rgba(194,60,60,0.4)';
-              color = '#892020';
+              color = 'var(--color-error)';
             }
           } else if (isSelected) {
-            bg = 'color-mix(in srgb, var(--color-accent) 10%, white)';
+            bg = 'color-mix(in srgb, var(--color-accent) 10%, var(--surface-container-lowest))';
             border = '1.5px solid var(--color-accent)';
           }
 
@@ -436,10 +455,16 @@ function PhaseQuiz({
                   justifyContent: 'center',
                   fontSize: '0.7rem',
                   fontWeight: 800,
-                  color: isAnswered && isCorrect ? '#256b2a' : isAnswered && isSelected && !isCorrect ? '#892020' : 'var(--color-on-surface-variant)',
+                  color: isAnswered && isCorrect ? 'var(--color-green)' : isAnswered && isSelected && !isCorrect ? 'var(--color-error)' : 'var(--color-on-surface-variant)',
                 }}
               >
-                {isAnswered && isCorrect ? '✓' : isAnswered && isSelected && !isCorrect ? '✗' : String.fromCharCode(65 + idx)}
+                {isAnswered && isCorrect ? (
+                  <Check size={14} aria-hidden="true" />
+                ) : isAnswered && isSelected && !isCorrect ? (
+                  <X size={14} aria-hidden="true" />
+                ) : (
+                  String.fromCharCode(65 + idx)
+                )}
               </span>
               {opt}
             </button>
@@ -462,6 +487,8 @@ function PhaseQuiz({
       {/* Explanation */}
       {feedback && (
         <div
+          role="status"
+          aria-live="polite"
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '0.65rem',
@@ -470,9 +497,13 @@ function PhaseQuiz({
             marginBottom: '1rem',
           }}
         >
-          <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
-            <strong>{feedback.correct ? '✅ Exactly right!' : '💡 Here\'s why:'}</strong>{' '}
-            {feedback.explanation}
+          <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.55, color: 'var(--color-on-surface)', display: 'flex', gap: '0.4rem' }}>
+            <span style={{ flexShrink: 0, marginTop: '0.15rem', color: feedback.correct ? 'var(--color-green)' : 'var(--color-amber)' }}>
+              {feedback.correct ? <CheckCircle2 size={16} aria-hidden="true" /> : <Lightbulb size={16} aria-hidden="true" />}
+            </span>
+            <span>
+              <strong>{feedback.correct ? 'Exactly right!' : "Here's why:"}</strong> {feedback.explanation}
+            </span>
           </p>
         </div>
       )}
@@ -542,11 +573,12 @@ function PhaseScenario({
           border: correctCount === 3 ? '1px solid rgba(74,155,79,0.22)' : '1px solid rgba(194,120,0,0.22)',
           fontSize: '0.78rem',
           fontWeight: 700,
-          color: correctCount === 3 ? '#256b2a' : '#8a5a00',
+          color: correctCount === 3 ? 'var(--color-green)' : 'var(--color-amber)',
           marginBottom: '1rem',
         }}
       >
-        {correctCount === 3 ? '🎯' : '📚'} {correctCount}/3 quiz questions correct
+        {correctCount === 3 ? <Target size={14} aria-hidden="true" /> : <BookOpenCheck size={14} aria-hidden="true" />}
+        {correctCount}/3 quiz questions correct
       </div>
 
       <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.15rem', fontWeight: 800, paddingRight: '1.5rem' }}>
@@ -605,7 +637,7 @@ function PhaseScenario({
         style={{
           margin: '0 0 0.6rem',
           fontSize: '0.76rem',
-          color: wordCount >= 150 ? '#256b2a' : wordCount >= 50 ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface-variant)',
+          color: wordCount >= 150 ? 'var(--color-green)' : 'var(--color-on-surface-variant)',
           fontWeight: wordCount >= 150 ? 700 : 400,
         }}
       >
@@ -629,13 +661,14 @@ function PhaseScenario({
 
       {error && (
         <div
+          role="alert"
           style={{
             padding: '0.65rem 0.85rem',
             borderRadius: '0.55rem',
             background: 'rgba(194,60,60,0.08)',
             border: '1px solid rgba(194,60,60,0.25)',
             fontSize: '0.85rem',
-            color: '#892020',
+            color: 'var(--color-error)',
             marginBottom: '1rem',
           }}
         >
@@ -721,11 +754,15 @@ function PhaseResult({
           margin: '0 0 0.75rem',
           fontSize: '1.4rem',
           fontWeight: 900,
-          color: passed ? '#256b2a' : '#8a5a00',
+          color: passed ? 'var(--color-green)' : 'var(--color-amber)',
           paddingRight: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
         }}
       >
-        {passed ? 'Mission Passed! 🎯' : 'Keep Going 💪'}
+        {passed ? <Trophy size={22} aria-hidden="true" /> : <RotateCcw size={22} aria-hidden="true" />}
+        {passed ? 'Mission Passed!' : 'Keep Going'}
       </h2>
 
       {/* Coaching note */}
@@ -840,7 +877,7 @@ function PhaseResult({
             type="button"
             className="btn btn-primary"
             onClick={onClose}
-            style={{ fontSize: '0.9rem', background: '#8a5a00', borderColor: '#8a5a00' }}
+            style={{ fontSize: '0.9rem', background: 'var(--color-amber)', borderColor: 'var(--color-amber)' }}
           >
             Close &amp; Review
           </button>
@@ -866,7 +903,11 @@ function PhaseCelebration({
         textAlign: 'center',
       }}
     >
-      <div style={{ fontSize: '3.5rem', marginBottom: '0.5rem' }}>🏆</div>
+      <Trophy
+        size={48}
+        aria-hidden="true"
+        style={{ color: 'var(--color-gold)', marginBottom: '0.5rem', display: 'inline-block' }}
+      />
       <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-on-surface)' }}>
         Career proof unlocked!
       </h2>
@@ -879,7 +920,7 @@ function PhaseCelebration({
         style={{
           padding: '1rem 1.25rem',
           borderRadius: '0.8rem',
-          background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, white), color-mix(in srgb, var(--color-accent) 4%, white))',
+          background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-lowest)), color-mix(in srgb, var(--color-accent) 4%, var(--surface-container-lowest)))',
           border: '1.5px solid color-mix(in srgb, var(--color-accent) 22%, transparent)',
           marginBottom: '1.25rem',
           textAlign: 'left',

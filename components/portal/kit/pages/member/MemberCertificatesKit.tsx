@@ -100,6 +100,7 @@ export function MemberCertificatesKit({
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4">
           {/* Earned certificates */}
+          <h2 className="sr-only">Earned certificates</h2>
           {earned.length === 0 ? (
             <div className="wa-kit-card wa-kit-card--sm">
               <div style={{ fontWeight: 800, color: 'var(--wa-text)' }}>No certificates yet</div>
@@ -123,7 +124,7 @@ export function MemberCertificatesKit({
                   flexShrink: 0,
                 }}
               >
-                <Award size={26} />
+                <Award size={26} aria-hidden="true" />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
@@ -150,7 +151,7 @@ export function MemberCertificatesKit({
                       textDecoration: 'none',
                     }}
                   >
-                    <Download size={11} /> Download
+                    <Download size={11} aria-hidden="true" /> Download
                   </a>
                   <EarnedCertShareButton title={cert.title} earnedAtIso={cert.earnedAtIso} />
                 </div>
@@ -159,6 +160,7 @@ export function MemberCertificatesKit({
           ))}
 
           {/* In-progress certificates (full-width) */}
+          {inProgress.length > 0 ? <h2 className="sr-only">Certificates in progress</h2> : null}
           {inProgress.map((cert) => {
             const pct = Math.max(0, Math.min(100, Math.round(cert.percent)));
             return (
@@ -181,7 +183,7 @@ export function MemberCertificatesKit({
                     border: '1px solid var(--wa-accent-soft)',
                   }}
                 >
-                  <Hourglass size={26} />
+                  <Hourglass size={26} aria-hidden="true" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">

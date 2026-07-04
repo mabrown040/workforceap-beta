@@ -72,7 +72,7 @@ export default async function TrainingBridgePage() {
   }
 
   return (
-    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div style={{ paddingBottom: '6rem' }}>
         <div
           style={{

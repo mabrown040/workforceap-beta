@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 
@@ -77,6 +77,13 @@ export default function DashboardProfileForm({
   const [hasEmploymentBarrier, setHasEmploymentBarrier] = useState(defaultHasEmploymentBarrier);
   const [barrierTypes, setBarrierTypes] = useState<string[]>(defaultBarrierTypes);
   const [employmentStatusAtEnroll, setEmploymentStatusAtEnroll] = useState<string>(defaultEmploymentStatusAtEnroll ?? '');
+
+  // Move focus to the error message on a failed save so keyboard/screen
+  // reader users land on it immediately instead of hunting for it below the fold.
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   const toggleBarrierType = (value: string) => {
     setBarrierTypes((prev) =>
@@ -330,7 +337,7 @@ export default function DashboardProfileForm({
           </div>
         </div>
       </div>
-      {error && <p className="form-error" role="alert">{error}</p>}
+      {error && <p ref={errorRef} className="form-error" role="alert" tabIndex={-1}>{error}</p>}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' }}>
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? 'Saving...' : 'Save'}

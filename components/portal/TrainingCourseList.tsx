@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import type { CourseProgressStatus } from '@prisma/client';
@@ -173,8 +174,22 @@ export default function TrainingCourseList({
 
   if (courses.length === 0) {
     return (
-      <div className="training-empty-courses" role="status" aria-live="polite">
-        <p className="training-empty-courses__text">No courses are listed for this program yet.</p>
+      <div
+        className="training-empty-courses"
+        role="status"
+        aria-live="polite"
+        style={{ background: 'var(--surface-container-low)' }}
+      >
+        <p className="training-empty-courses__text">
+          Your course list isn&apos;t loaded yet — this usually means your program&apos;s catalog is still being set up.
+        </p>
+        <Link
+          href="/dashboard/messages"
+          className="btn btn-outline btn-sm"
+          style={{ marginTop: '0.75rem', display: 'inline-flex' }}
+        >
+          Message your counselor
+        </Link>
       </div>
     );
   }
@@ -230,7 +245,7 @@ export default function TrainingCourseList({
           <div
             style={{
               maxWidth: '28rem',
-              background: 'var(--color-surface, #fff)',
+              background: 'var(--surface-container-lowest)',
               borderRadius: 'var(--radius-lg, 0.75rem)',
               padding: '1.5rem',
               boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
@@ -427,8 +442,8 @@ export default function TrainingCourseList({
                       gap: '0.4rem',
                       padding: '0.45rem 0.75rem',
                       borderRadius: 'var(--radius-md, 0.5rem)',
-                      background: 'rgba(0,0,0,0.04)',
-                      border: '1px dashed rgba(0,0,0,0.18)',
+                      background: 'var(--surface-container-high)',
+                      border: '1px dashed var(--outline-variant)',
                       fontSize: '0.85rem',
                       color: 'var(--color-on-surface-variant)',
                       maxWidth: '22rem',

@@ -203,7 +203,33 @@ export default function ResumeClient({
   }, [resumeData?.enhancedExt, resumeData?.hasEnhanced]);
 
   if (loading && !resumeData) {
-    return <p style={{ color: "var(--color-on-surface-variant)" }}>Loading…</p>;
+    const controlsSkeleton = (
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div className="skeleton skeleton-text" style={{ width: "40%", height: "1rem" }} />
+        <div className="skeleton skeleton-rounded" style={{ height: "6rem" }} />
+        <div className="skeleton skeleton-text" style={{ width: "55%", height: "1rem", marginTop: "0.5rem" }} />
+        <div className="skeleton skeleton-rounded" style={{ height: "2.5rem", width: "10rem" }} />
+      </div>
+    );
+    const previewSkeleton = (
+      <div className="skeleton skeleton-rounded" style={{ minHeight: "420px" }} />
+    );
+    return (
+      <div role="status" aria-live="polite" aria-label="Loading your resume tools">
+        {layout === "side-by-side" ? (
+          <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: "2rem", alignItems: "start" }}>
+            <div>{controlsSkeleton}</div>
+            <div>{previewSkeleton}</div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            {controlsSkeleton}
+            {previewSkeleton}
+          </div>
+        )}
+        <span className="sr-only">Loading your resume tools…</span>
+      </div>
+    );
   }
 
   const hasOriginal = resumeData?.hasOriginal ?? initialHasOriginal;
@@ -393,7 +419,7 @@ export default function ResumeClient({
               resumeData.originalExt === "pdf" && (
                 originalPdfFailed ? (
                   <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--surface-container)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }}>picture_as_pdf</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">picture_as_pdf</span>
                     <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
                     {resumeData.originalUrl && (
                       <a href={resumeData.originalUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>Download to view ↗</a>
@@ -518,7 +544,7 @@ export default function ResumeClient({
               resumeData.enhancedExt === "pdf" && (
                 enhancedPdfFailed ? (
                   <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--surface-container)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }}>picture_as_pdf</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">picture_as_pdf</span>
                     <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
                     {resumeData.enhancedUrl && (
                       <a href={resumeData.enhancedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>Download to view ↗</a>
@@ -609,7 +635,7 @@ export default function ResumeClient({
                   className="markdown-body"
                   style={{
                     padding: "1.25rem",
-                    background: "var(--color-surface)",
+                    background: "var(--surface-container-lowest)",
                     fontSize: "0.9375rem",
                     lineHeight: 1.65,
                     maxHeight: "min(70vh, 720px)",

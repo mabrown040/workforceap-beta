@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import styles from './InterestProfilerClient.module.css';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
   INTEREST_PROFILER_STORAGE_KEY,
@@ -179,9 +180,16 @@ export default function InterestProfilerClient() {
 
   if (loading) {
     return (
-      <p style={{ color: 'var(--color-on-surface-variant)' }} role="status">
-        Loading Interest Profiler questions…
-      </p>
+      <div aria-busy="true" aria-label="Loading Interest Profiler questions">
+        <span className="skeleton skeleton-text" style={{ display: 'block', width: '60%', height: '1.75rem', marginBottom: '0.75rem' }} />
+        <span className="skeleton skeleton-text" style={{ display: 'block', width: '95%', height: '1rem', marginBottom: '0.4rem' }} />
+        <span className="skeleton skeleton-text" style={{ display: 'block', width: '80%', height: '1rem', marginBottom: '1.5rem' }} />
+        <span className="skeleton skeleton-rounded" style={{ display: 'block', height: '6px', marginBottom: '1.25rem' }} />
+        <span className="skeleton skeleton-rounded" style={{ display: 'block', height: '5.5rem', marginBottom: '1.25rem' }} />
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span key={i} className="skeleton skeleton-rounded" style={{ display: 'block', height: '3.25rem', marginBottom: '0.5rem' }} />
+        ))}
+      </div>
     );
   }
 
@@ -205,7 +213,7 @@ export default function InterestProfilerClient() {
         <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>
           O*NET Interest Profiler
         </h1>
-        <p style={{ color: '#b91c1c' }}>{loadError}</p>
+        <p style={{ color: 'var(--color-error)' }}>{loadError}</p>
         <p style={{ marginTop: '1rem', fontSize: '0.95rem', lineHeight: 1.6 }}>
           The Interest Profiler is provided by the U.S. Department of Labor through O*NET Web Services. Your site needs a
           valid <code>ONET_API_KEY</code> to load questions.
@@ -255,7 +263,7 @@ export default function InterestProfilerClient() {
             </span>
           </button>
           {exportError && (
-            <span role="alert" style={{ color: '#b91c1c', fontSize: '0.85rem' }}>
+            <span role="alert" style={{ color: 'var(--color-error)', fontSize: '0.85rem' }}>
               {exportError}
             </span>
           )}
@@ -284,7 +292,7 @@ export default function InterestProfilerClient() {
                     style={{
                       width: `${(r.score / maxRiasec) * 100}%`,
                       height: '100%',
-                      background: 'linear-gradient(90deg, #8c0f37, #ad2c4d)',
+                      background: 'linear-gradient(90deg, var(--color-accent-dark), var(--color-accent))',
                     }}
                   />
                 </div>
@@ -398,7 +406,7 @@ export default function InterestProfilerClient() {
           style={{
             width: `${progress}%`,
             height: '100%',
-            background: '#8c0f37',
+            background: 'var(--color-accent-dark)',
             transition: 'width 0.2s ease',
           }}
         />
@@ -415,7 +423,7 @@ export default function InterestProfilerClient() {
           }}
         >
           {q.area && (
-            <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', color: '#8c0f37', margin: '0 0 0.5rem' }}>
+            <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-accent-dark)', margin: '0 0 0.5rem' }}>
               {q.area}
             </p>
           )}
@@ -439,14 +447,15 @@ export default function InterestProfilerClient() {
             return (
               <label
                 key={v}
+                className={styles.likertOption}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
                   padding: '0.875rem 1rem',
                   borderRadius: '0.75rem',
-                  border: selected ? '2px solid #8c0f37' : '1px solid var(--outline-variant)',
-                  background: selected ? 'rgba(140, 15, 55, 0.06)' : 'var(--surface)',
+                  border: selected ? '2px solid var(--color-accent-dark)' : '1px solid var(--outline-variant)',
+                  background: selected ? 'rgba(140, 15, 55, 0.06)' : 'var(--surface-container-lowest)',
                   cursor: 'pointer',
                   fontSize: '0.875rem',
                   transition: 'border-color 0.15s, background 0.15s',
@@ -464,14 +473,15 @@ export default function InterestProfilerClient() {
                       return next;
                     });
                   }}
-                  style={{ display: 'none' }}
+                  className="sr-only"
                 />
                 <span
+                  aria-hidden="true"
                   style={{
                     width: '28px', height: '28px', borderRadius: '9999px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
-                    background: selected ? '#8c0f37' : 'var(--surface-container-highest, #e5e2e1)',
+                    background: selected ? 'var(--color-accent-dark)' : 'var(--surface-container-highest, #e5e2e1)',
                     color: selected ? '#fff' : 'var(--color-on-surface-variant)',
                     fontSize: '0.75rem', fontWeight: 700,
                     transition: 'background 0.15s, color 0.15s',
@@ -479,7 +489,7 @@ export default function InterestProfilerClient() {
                 >
                   {v}
                 </span>
-                <span style={{ fontWeight: selected ? 600 : 400, color: selected ? '#8c0f37' : 'var(--color-on-surface)' }}>
+                <span style={{ fontWeight: selected ? 600 : 400, color: selected ? 'var(--color-accent-dark)' : 'var(--color-on-surface)' }}>
                   {label}
                 </span>
               </label>
@@ -489,7 +499,7 @@ export default function InterestProfilerClient() {
       </fieldset>
 
       {scoreError && (
-        <p style={{ color: '#b91c1c', marginBottom: '1rem' }} role="alert">
+        <p style={{ color: 'var(--color-error)', marginBottom: '1rem' }} role="alert">
           {scoreError}
         </p>
       )}
@@ -517,7 +527,7 @@ export default function InterestProfilerClient() {
             {submitting ? 'Scoring…' : 'See results'}
           </button>
         )}
-        <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }} aria-live="polite">
           Question {step + 1} of {total}
         </span>
       </div>

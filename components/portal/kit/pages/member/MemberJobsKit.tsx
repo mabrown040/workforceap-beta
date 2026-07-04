@@ -93,7 +93,7 @@ export function MemberJobsKit({
         <div className="wa-kit-card">
           <div className="wa-flex wa-flex-col md:wa-flex-row md:wa-items-center wa-justify-between wa-gap-3" style={{ marginBottom: 16 }}>
             <div>
-              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Application Pipeline</h3>
+              <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Application Pipeline</h2>
               <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{syncedLabel}</p>
             </div>
             <a
@@ -118,7 +118,7 @@ export function MemberJobsKit({
 
         {/* Recommended for you */}
         <div>
-          <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 12 }}>Recommended for you</h3>
+          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 12 }}>Recommended for you</h2>
           {recommended.length === 0 ? (
             <div className="wa-kit-card wa-kit-card--sm">
               <p style={{ fontSize: 13, fontWeight: 600 }}>No recommendations yet</p>
@@ -149,7 +149,7 @@ export function MemberJobsKit({
                   </div>
                   <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-success)' }}>{job.match}</span>
                 </div>
-                <h4 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{job.title}</h4>
+                <h3 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{job.title}</h3>
                 <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{job.meta}</p>
                 <a
                   href={`/dashboard/jobs/${job.id}`}

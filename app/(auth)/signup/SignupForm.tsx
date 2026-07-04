@@ -23,7 +23,10 @@ const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => 
 const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
-/* ─── constants (preserved from MemberSignupForm) ─── */
+/* ─── constants (preserved from MemberSignupForm) ───
+   Values are the canonical strings stored via the API — unchanged. Only the
+   displayed label is localized (see EMPLOYMENT_OPTION_KEYS / VETERAN_OPTION_KEYS
+   below), so translating the label can't drift from what's persisted. */
 const EMPLOYMENT_OPTIONS = [
   'Employed full-time',
   'Employed part-time',
@@ -32,7 +35,20 @@ const EMPLOYMENT_OPTIONS = [
   'Self-employed',
   'Other',
 ];
+const EMPLOYMENT_OPTION_KEYS: Record<string, string> = {
+  'Employed full-time': 'employedFullTime',
+  'Employed part-time': 'employedPartTime',
+  'Unemployed': 'unemployed',
+  'Member': 'member',
+  'Self-employed': 'selfEmployed',
+  'Other': 'other',
+};
 const VETERAN_OPTIONS = ['Yes', 'No', 'Prefer not to say'];
+const VETERAN_OPTION_KEYS: Record<string, string> = {
+  'Yes': 'yes',
+  'No': 'no',
+  'Prefer not to say': 'preferNotToSay',
+};
 
 type SignupFormProps = {
   initialRedirectTo?: string;
@@ -367,10 +383,10 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
         {/* Testimonial glass card */}
         <div style={s.testimonialCard}>
           <p style={{ fontSize: 'var(--font-size-base)', lineHeight: 'var(--line-height-normal)', fontStyle: 'italic', opacity: 0.9, margin: 0 }}>
-            &ldquo;WorkforceAP gave me the skills and support to transition into a tech career. The program changed my life.&rdquo;
+            &ldquo;{tAuth('signup.testimonialQuote')}&rdquo;
           </p>
           <p style={{ marginTop: 'var(--space-3)', fontSize: 'var(--font-size-sm)', opacity: 0.6, margin: 'var(--space-3) 0 0' }}>
-            — Member, 2025
+            {tAuth('signup.testimonialAttribution')}
           </p>
         </div>
       </div>
@@ -416,7 +432,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 type="email"
                 autoComplete="email"
                 inputMode="email"
-                placeholder="you@example.com"
+                placeholder={tAuth('signup.emailPlaceholder')}
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 style={s.input}
@@ -525,7 +541,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               <select id="employmentStatus" style={s.select} {...register('employmentStatus')}>
                 <option value="">{tAuth('signup.selectOption')}</option>
                 {EMPLOYMENT_OPTIONS.map((o) => (
-                  <option key={o} value={o}>{o}</option>
+                  <option key={o} value={o}>{tAuth(`signup.employmentOptions.${EMPLOYMENT_OPTION_KEYS[o]}`)}</option>
                 ))}
               </select>
             </div>
@@ -536,7 +552,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               <select id="veteranStatus" style={s.select} {...register('veteranStatus')}>
                 <option value="">{tAuth('signup.selectOption')}</option>
                 {VETERAN_OPTIONS.map((o) => (
-                  <option key={o} value={o}>{o}</option>
+                  <option key={o} value={o}>{tAuth(`signup.veteranOptions.${VETERAN_OPTION_KEYS[o]}`)}</option>
                 ))}
               </select>
             </div>

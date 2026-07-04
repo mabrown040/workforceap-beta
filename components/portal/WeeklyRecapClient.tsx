@@ -159,7 +159,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
       )}
 
       {/* Nav */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)' }}>
         <Link href="/dashboard" style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>← Dashboard</Link>
         <Link href="/dashboard/career-brief" style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Career Brief →</Link>
       </div>

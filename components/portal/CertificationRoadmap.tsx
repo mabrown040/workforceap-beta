@@ -3,7 +3,49 @@
 import { useState, useEffect } from 'react';
 import type { CertTrack } from '@/lib/content/certificationTracks';
 import { CERTIFICATION_TRACKS } from '@/lib/content/certificationTracks';
-import PortalLoadingState from '@/components/portal/PortalLoadingState';
+
+const SKELETON_BAR: React.CSSProperties = {
+  borderRadius: '0.35rem',
+  background: 'var(--surface-container-high)',
+  animation: 'cert-roadmap-pulse 1.4s ease-in-out infinite',
+};
+
+/** Shaped placeholder — mirrors the track-card / cert-item layout so the
+ * page doesn't jump when real data arrives. */
+function CertificationRoadmapSkeleton() {
+  return (
+    <div className="certification-roadmap">
+      <p role="status" className="sr-only">
+        Loading certifications…
+      </p>
+      <div aria-hidden="true" style={{ ...SKELETON_BAR, height: '0.9rem', width: '70%', marginBottom: '1.5rem' }} />
+      <div className="certification-tracks" aria-hidden="true">
+        {[0, 1].map((trackIdx) => (
+          <div
+            key={trackIdx}
+            className="cert-track-card"
+            style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}
+          >
+            <div style={{ ...SKELETON_BAR, height: '1.1rem', width: '45%', marginBottom: '1rem' }} />
+            <ul className="cert-track-list">
+              {[0, 1, 2].map((itemIdx) => (
+                <li
+                  key={itemIdx}
+                  className="cert-item"
+                  style={{ background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}
+                >
+                  <div style={{ ...SKELETON_BAR, height: '1rem', width: '60%', marginBottom: '0.6rem' }} />
+                  <div style={{ ...SKELETON_BAR, height: '0.75rem', width: '40%', marginLeft: '1.85rem' }} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <style>{`@keyframes cert-roadmap-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }`}</style>
+    </div>
+  );
+}
 
 export default function CertificationRoadmap() {
   const [earned, setEarned] = useState<Set<string>>(new Set());
@@ -44,7 +86,7 @@ export default function CertificationRoadmap() {
     }
   };
 
-  if (loading) return <PortalLoadingState message="Loading certifications…" />;
+  if (loading) return <CertificationRoadmapSkeleton />;
 
   return (
     <div className="certification-roadmap">
@@ -75,14 +117,24 @@ function CertTrackCard({
   onToggle: (certName: string, currentlyEarned: boolean) => void;
 }) {
   return (
-    <div className="cert-track-card">
+    <div
+      className="cert-track-card"
+      style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}
+    >
       <h3 className="cert-track-title">{track.name}</h3>
       <ul className="cert-track-list">
         {track.certs.map((cert) => {
           const isEarned = earned.has(cert.name);
           return (
-            <li key={cert.name} className={`cert-item ${isEarned ? 'cert-item-earned' : ''}`}>
-              <label className="cert-item-row">
+            <li
+              key={cert.name}
+              className={`cert-item ${isEarned ? 'cert-item-earned' : ''}`}
+              style={{
+                background: isEarned ? 'rgba(74,155,79,0.12)' : 'var(--surface-container-lowest)',
+                border: `1px solid ${isEarned ? 'var(--color-green)' : 'var(--outline-variant)'}`,
+              }}
+            >
+              <label className="cert-item-row" style={{ minHeight: 44 }}>
                 <input
                   type="checkbox"
                   checked={isEarned}

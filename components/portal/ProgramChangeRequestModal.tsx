@@ -158,6 +158,12 @@ export default function ProgramChangeRequestModal({ currentProgram, programs, ha
                   fontSize: '1.25rem',
                   color: 'var(--color-on-surface-variant)',
                   lineHeight: 1,
+                  minWidth: 44,
+                  minHeight: 44,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '0.5rem',
                 }}
               >
                 ×
@@ -265,9 +271,9 @@ export default function ProgramChangeRequestModal({ currentProgram, programs, ha
                         margin: 0,
                         padding: '0.6rem 0.75rem',
                         borderRadius: '0.5rem',
-                        background: 'rgba(220, 38, 38, 0.08)',
-                        border: '1px solid #b91c1c',
-                        color: '#b91c1c',
+                        background: 'var(--color-error-container, rgba(220, 38, 38, 0.12))',
+                        border: '1px solid var(--color-error)',
+                        color: 'var(--color-error)',
                         fontSize: '0.9rem',
                       }}
                     >

@@ -140,7 +140,7 @@ export default function MotivatingRecapClient({ recap, recapData, weekStart }: P
                 textAlign: 'center',
                 padding: '0.75rem 1rem',
                 borderRadius: '0.875rem',
-                background: 'var(--color-surface, rgba(255,255,255,0.04))',
+                background: 'var(--surface-container-lowest)',
                 border: '1px solid rgba(173,44,77,0.18)',
                 flexShrink: 0,
               }}
@@ -251,7 +251,7 @@ export default function MotivatingRecapClient({ recap, recapData, weekStart }: P
                     </span>
                     <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>{goalDetail(g)}</span>
                   </div>
-                  <div style={{ height: '0.5rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                  <div style={{ height: '0.5rem', borderRadius: '999px', background: 'var(--surface-container-highest)', overflow: 'hidden' }}>
                     <div
                       style={{
                         height: '100%',
@@ -329,7 +329,7 @@ export default function MotivatingRecapClient({ recap, recapData, weekStart }: P
       )}
 
       {/* Nav */}
-      <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', paddingTop: '1rem', borderTop: '1px solid var(--outline-variant)' }}>
         <Link href="/dashboard" style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>← Dashboard</Link>
         <Link href="/dashboard/career-brief" style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>
           Career Brief →

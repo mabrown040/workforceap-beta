@@ -52,6 +52,8 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
   const [programInterest, setProgramInterest] = useState('');
   const [answers, setAnswers] = useState<Record<number, QuestionChoice>>({});
   const confirmHeadingRef = useRef<HTMLHeadingElement>(null);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const isFirstStepRender = useRef(true);
 
   // Move focus to the confirmation heading so keyboard/screen-reader users
   // land on the new content instead of staying on the (now-removed) submit
@@ -60,6 +62,18 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
   useEffect(() => {
     if (step === 'confirm') confirmHeadingRef.current?.focus();
   }, [step]);
+
+  // Move focus to each step's heading on Next/Back so keyboard and
+  // screen-reader users get a clear signal the section changed, instead of
+  // silently staying on a button that scrolled out of view. Skipped on the
+  // initial mount so load focus stays with the browser default.
+  useEffect(() => {
+    if (isFirstStepRender.current) {
+      isFirstStepRender.current = false;
+      return;
+    }
+    stepHeadingRef.current?.focus();
+  }, [currentStep]);
 
   const config = STEP_CONFIG[currentStep - 1];
   const questionsInStep = config?.questionRange
@@ -240,7 +254,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
 
         {currentStep === 1 ? (
           <section className="assessment-section">
-            <h2 className="quiz-question" style={{ marginBottom: '1.25rem' }}>
+            <h2 ref={stepHeadingRef} tabIndex={-1} className="quiz-question" style={{ marginBottom: '1.25rem' }}>
               About You
             </h2>
             <div style={{ display: 'grid', gap: '1rem' }}>
@@ -297,7 +311,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
           </section>
         ) : (
           <section className="assessment-section">
-            <h2 className="quiz-question" style={{ marginBottom: '0.5rem' }}>
+            <h2 ref={stepHeadingRef} tabIndex={-1} className="quiz-question" style={{ marginBottom: '0.5rem' }}>
               {config?.title}
             </h2>
             <p style={{ marginBottom: '1.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>

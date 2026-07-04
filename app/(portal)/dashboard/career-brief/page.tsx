@@ -126,7 +126,7 @@ export default async function CareerBriefPage() {
         <Link href="/dashboard/learning" className="wa-no-underline">
           <div className="portal-metric-card portal-card--action">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 school
               </span>
             </div>
@@ -151,7 +151,7 @@ export default async function CareerBriefPage() {
         <Link href="/dashboard/ai-tools/skill-mapper" className="wa-no-underline">
           <div className="portal-metric-card portal-card--action">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 radar
               </span>
             </div>
@@ -182,7 +182,7 @@ export default async function CareerBriefPage() {
                     : 'portal-metric-card__icon-wrap--accent'
               }`}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 description
               </span>
             </div>
@@ -210,7 +210,7 @@ export default async function CareerBriefPage() {
         <Link href="/dashboard/jobs" className="wa-no-underline">
           <div className="portal-metric-card portal-card--action">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 auto_awesome
               </span>
             </div>
@@ -228,7 +228,7 @@ export default async function CareerBriefPage() {
         <Link href="/dashboard/job-applications" className="wa-no-underline">
           <div className="portal-metric-card portal-card--action">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 work
               </span>
             </div>
@@ -246,7 +246,7 @@ export default async function CareerBriefPage() {
         {isPlaced ? (
           <div className="portal-metric-card portal-card--gradient-accent">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 verified
               </span>
             </div>
@@ -266,7 +266,7 @@ export default async function CareerBriefPage() {
         ) : (
           <div className="portal-metric-card">
             <div className="portal-metric-card__icon-wrap">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1", color: 'var(--color-on-surface-variant)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1", color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
                 work_outline
               </span>
             </div>
@@ -287,7 +287,7 @@ export default async function CareerBriefPage() {
       {dominantNextAction && (
         <div style={{ marginTop: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
               priority_high
             </span>
             <h2
@@ -308,18 +308,18 @@ export default async function CareerBriefPage() {
             className="portal-quick-action-item"
             style={{
               textDecoration: 'none',
-              border: '1px solid rgba(173,44,77,0.2)',
-              background: 'rgba(173,44,77,0.04)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
+              background: 'color-mix(in srgb, var(--color-accent) 4%, transparent)',
             }}
           >
             <div
               className="portal-quick-action-item__icon"
               style={{
-                background: 'rgba(173,44,77,0.1)',
+                background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                 color: 'var(--color-accent)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 {dominantNextAction.icon ?? 'arrow_forward'}
               </span>
             </div>
@@ -334,6 +334,7 @@ export default async function CareerBriefPage() {
             <span
               className="material-symbols-outlined"
               style={{ fontSize: '1rem', color: 'var(--color-accent)', opacity: 0.6, flexShrink: 0 }}
+              aria-hidden="true"
             >
               chevron_right
             </span>
@@ -346,7 +347,7 @@ export default async function CareerBriefPage() {
         <div style={{ marginTop: '1.5rem' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1.125rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                 flag
               </span>
               <h2
@@ -380,7 +381,7 @@ export default async function CareerBriefPage() {
       {/* ── Quick Links ── */}
       <div style={{ marginTop: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
             build
           </span>
           <h2
@@ -433,6 +434,7 @@ export default async function CareerBriefPage() {
               <span
                 className="material-symbols-outlined"
                 style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
+                aria-hidden="true"
               >
                 {link.icon}
               </span>

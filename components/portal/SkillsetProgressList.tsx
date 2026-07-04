@@ -112,7 +112,7 @@ export default function SkillsetProgressList({ rows, variant = 'member', emptyHi
                 gridColumn: '1 / -1',
                 height: 4,
                 borderRadius: 999,
-                background: 'rgba(0,0,0,0.06)',
+                background: 'var(--surface-container-highest)',
                 overflow: 'hidden',
               }}
             >

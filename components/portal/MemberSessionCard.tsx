@@ -32,7 +32,8 @@ export default function MemberSessionCard({ actorName, startedAt, toolCount }: M
         className="portal-card portal-card--flat"
         style={{
           padding: '1.25rem 1.5rem',
-          background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, white), white 70%)',
+          background:
+            'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-lowest)), var(--surface-container-lowest) 70%)',
           border: '1px solid color-mix(in srgb, var(--color-accent) 18%, var(--outline-variant))',
           display: 'flex',
           alignItems: 'center',

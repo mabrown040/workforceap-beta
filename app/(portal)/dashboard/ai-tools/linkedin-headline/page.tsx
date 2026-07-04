@@ -22,7 +22,7 @@ export default async function LinkedInHeadlinePage() {
 
   return (
     <>
-    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div
         style={{
           padding: '1.25rem 2rem 1.5rem',

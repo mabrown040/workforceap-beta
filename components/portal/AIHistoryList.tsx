@@ -110,12 +110,14 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
               {/* Card header */}
               <button
                 type="button"
-                aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse details for " + r.toolLabel : "Expand details for " + r.toolLabel} onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                aria-expanded={isExpanded}
+                aria-controls={`ai-history-panel-${r.id}`}
+                aria-label={isExpanded ? "Collapse details for " + r.toolLabel : "Expand details for " + r.toolLabel} onClick={() => setExpandedId(isExpanded ? null : r.id)}
                 style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 {/* Tool icon */}
                 <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: `color-mix(in srgb, ${accent} 12%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: accent, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.25rem', color: accent, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
                 </div>
                 {/* Label + summary */}
                 <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
@@ -132,14 +134,14 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
                   )}
                 </div>
                 {/* Expand chevron */}
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>
                   expand_more
                 </span>
               </button>
 
               {/* Expanded content */}
               {isExpanded && (
-                <div style={{ padding: '0 1rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div id={`ai-history-panel-${r.id}`} style={{ padding: '0 1rem 1rem', borderTop: '1px solid var(--outline-variant)' }}>
                   <div style={{ paddingTop: '0.875rem' }}>
                     <AiResultRenderer
                       toolType={r.toolType}

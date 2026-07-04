@@ -52,9 +52,9 @@ export interface MemberToolkitKitProps {
  * used across the portal, e.g. ai-tools index, certifications, CareerCounselor).
  */
 const DEFAULT_TOOLS: ToolCard[] = [
-  { id: 'resume', icon: <FileText size={20} />, title: 'Resume Audit', body: 'Score your resume against the role and get fix-it suggestions.', cta: 'Run Audit', href: '/dashboard/ai-tools/resume-analysis' },
-  { id: 'cover', icon: <MailOpen size={20} />, title: 'Cover Letter', body: 'Generate a tailored cover letter for any saved job in seconds.', cta: 'Generate', href: '/dashboard/ai-tools/cover-letter' },
-  { id: 'interview', icon: <Mic size={20} />, title: 'Interview Prep', body: 'Practice common questions with instant AI feedback.', cta: 'Start Session', href: '/dashboard/ai-tools/interview-prep' },
+  { id: 'resume', icon: <FileText size={20} aria-hidden="true" />, title: 'Resume Audit', body: 'Score your resume against the role and get fix-it suggestions.', cta: 'Run Audit', href: '/dashboard/ai-tools/resume-analysis' },
+  { id: 'cover', icon: <MailOpen size={20} aria-hidden="true" />, title: 'Cover Letter', body: 'Generate a tailored cover letter for any saved job in seconds.', cta: 'Generate', href: '/dashboard/ai-tools/cover-letter' },
+  { id: 'interview', icon: <Mic size={20} aria-hidden="true" />, title: 'Interview Prep', body: 'Practice common questions with instant AI feedback.', cta: 'Start Session', href: '/dashboard/ai-tools/interview-prep' },
 ];
 
 export function MemberToolkitKit({
@@ -85,7 +85,7 @@ export function MemberToolkitKit({
         {/* Gradient hero */}
         <div className="wa-kit-card wa-kit-card--gradient-crimson">
           <div className="wa-flex wa-items-center wa-gap-2" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
-            <Wand2 size={13} />
+            <Wand2 size={13} aria-hidden="true" />
             AI Career Toolkit
           </div>
           <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
@@ -139,7 +139,13 @@ export function MemberToolkitKit({
                     {tool.cta}
                   </Link>
                 ) : (
-                  <button type="button" className="wa-kit-focus" style={ctaStyle} disabled>
+                  <button
+                    type="button"
+                    className="wa-kit-focus"
+                    style={{ ...ctaStyle, cursor: 'not-allowed', opacity: 0.6 }}
+                    disabled
+                    aria-label={`${tool.cta} — not available yet`}
+                  >
                     {tool.cta}
                   </button>
                 )}
@@ -152,7 +158,7 @@ export function MemberToolkitKit({
         <div className="wa-kit-card">
           <div className="wa-flex wa-items-center wa-gap-3" style={{ marginBottom: 16 }}>
             <div style={{ padding: 10, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)' }}>
-              <MessagesSquare size={18} />
+              <MessagesSquare size={18} aria-hidden="true" />
             </div>
             <div>
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>AI Advisor</h3>
@@ -163,7 +169,7 @@ export function MemberToolkitKit({
                 className="wa-flex wa-items-center wa-gap-1"
                 style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: 'var(--wa-success)' }}
               >
-                <Circle size={6} fill="currentColor" />
+                <Circle size={6} fill="currentColor" aria-hidden="true" />
                 Online
               </span>
             ) : null}

@@ -56,11 +56,11 @@ export default function MemberCareerPathSection({
             marginBottom: '0.9rem',
             padding: '0.9rem',
             borderRadius: '0.75rem',
-            border: '1px solid rgba(173,44,77,0.22)',
-            background: 'rgba(173,44,77,0.07)',
+            border: '1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)',
+            background: 'color-mix(in srgb, var(--color-accent) 7%, transparent)',
           }}
         >
-          <p style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#8c0f37' }}>
+          <p style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
             Training next step
           </p>
           <p style={{ margin: '0 0 0.55rem', fontSize: '0.92rem', lineHeight: 1.45 }}>

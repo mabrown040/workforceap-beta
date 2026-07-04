@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
@@ -15,6 +15,11 @@ export default function SettingsForm({ defaultUpdates, defaultReminders }: Setti
   const [updates, setUpdates] = useState(defaultUpdates);
   const [reminders, setReminders] = useState(defaultReminders);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
 
   const handleChange = async (field: 'updates' | 'reminders', value: boolean) => {
     setError(null);
@@ -54,8 +59,10 @@ export default function SettingsForm({ defaultUpdates, defaultReminders }: Setti
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {error && (
         <div
+          ref={errorRef}
           role="alert"
           aria-live="polite"
+          tabIndex={-1}
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '0.75rem',
@@ -72,7 +79,7 @@ export default function SettingsForm({ defaultUpdates, defaultReminders }: Setti
           <p style={{ margin: 0, fontWeight: 600 }}>{error}</p>
         </div>
       )}
-      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minHeight: '44px', cursor: loading ? 'not-allowed' : 'pointer' }}>
         <input
           type="checkbox"
           checked={updates}
@@ -81,7 +88,7 @@ export default function SettingsForm({ defaultUpdates, defaultReminders }: Setti
         />
         <span>Updates from WorkforceAP</span>
       </label>
-      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minHeight: '44px', cursor: loading ? 'not-allowed' : 'pointer' }}>
         <input
           type="checkbox"
           checked={reminders}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 
 // Mirror the apply flow's option lists so member-supplied data stays
@@ -35,7 +35,7 @@ const inputStyle = {
   padding: '0.6rem 0.75rem',
   borderRadius: 'var(--radius-md, 8px)',
   border: '1px solid var(--outline-variant, rgba(0,0,0,0.18))',
-  background: 'var(--color-surface, #fff)',
+  background: 'var(--surface-container-lowest)',
   color: 'var(--color-on-surface)',
   fontSize: '0.9375rem',
 } as const;
@@ -51,6 +51,13 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   );
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const feedbackRef = useRef<HTMLSpanElement>(null);
+
+  // Move focus to the save result so keyboard/screen reader users get
+  // immediate confirmation instead of having to scan the page for it.
+  useEffect(() => {
+    if (feedback) feedbackRef.current?.focus();
+  }, [feedback]);
 
   const toggleBarrier = (value: string) => {
     setBarriers((prev) =>
@@ -149,6 +156,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '0.6rem',
+                minHeight: '44px',
                 fontSize: '0.875rem',
                 color: 'var(--color-on-surface)',
                 cursor: 'pointer',
@@ -158,7 +166,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
                 type="checkbox"
                 checked={barriers.includes(opt.value)}
                 onChange={() => toggleBarrier(opt.value)}
-                style={{ marginTop: '0.2rem' }}
+                style={{ marginTop: '0.2rem', flexShrink: 0 }}
               />
               <span>{opt.label}</span>
             </label>
@@ -174,10 +182,11 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
           style={{
             fontWeight: 600,
             padding: '0.6rem 1.1rem',
+            minHeight: '44px',
             borderRadius: '0.45rem',
             border: '1px solid var(--color-accent, #ad2c4d)',
             background: 'var(--color-accent, #ad2c4d)',
-            color: '#fff',
+            color: 'var(--color-on-accent, #fff)',
             cursor: isPending ? 'wait' : 'pointer',
           }}
         >
@@ -185,10 +194,13 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
         </button>
         {feedback ? (
           <span
+            ref={feedbackRef}
             role={feedback.ok ? 'status' : 'alert'}
+            tabIndex={-1}
             style={{
               fontSize: '0.875rem',
-              color: feedback.ok ? 'var(--color-green, #15803d)' : 'rgb(153,27,27)',
+              fontWeight: 600,
+              color: feedback.ok ? 'var(--color-green, #15803d)' : 'var(--color-accent)',
             }}
           >
             {feedback.message}

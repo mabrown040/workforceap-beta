@@ -211,15 +211,25 @@ export default function WioaQualificationClient({
             display: 'inline-flex',
             padding: '0.25rem',
             borderRadius: '999px',
-            background: 'var(--color-surface-2, rgba(0,0,0,0.04))',
+            background: 'var(--surface-container-high)',
             gap: '0.25rem',
             marginBottom: '1rem',
+          }}
+          onKeyDown={(e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            const next = entryMode === 'voice' ? 'form' : 'voice';
+            setEntryMode(next);
+            document.getElementById(`wioa-tab-${next}`)?.focus();
           }}
         >
           <button
             type="button"
             role="tab"
+            id="wioa-tab-voice"
             aria-selected={entryMode === 'voice'}
+            aria-controls="wioa-tabpanel"
+            tabIndex={entryMode === 'voice' ? 0 : -1}
             onClick={() => setEntryMode('voice')}
             className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-muted'}
           >
@@ -228,7 +238,10 @@ export default function WioaQualificationClient({
           <button
             type="button"
             role="tab"
+            id="wioa-tab-form"
             aria-selected={entryMode === 'form'}
+            aria-controls="wioa-tabpanel"
+            tabIndex={entryMode === 'form' ? 0 : -1}
             onClick={() => setEntryMode('form')}
             className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-muted'}
           >
@@ -242,6 +255,11 @@ export default function WioaQualificationClient({
             : 'The voice option is meant to feel like a quick guided intake. If you would rather type, switch to the form and we will save the same qualification details for staff review.'}
         </p>
 
+        <div
+          id="wioa-tabpanel"
+          role="tabpanel"
+          aria-labelledby={entryMode === 'voice' ? 'wioa-tab-voice' : 'wioa-tab-form'}
+        >
         {entryMode === 'voice' ? (
           <>
             {isPublic ? (
@@ -392,28 +410,28 @@ export default function WioaQualificationClient({
             </div>
 
             <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
                 <span><strong>I am currently unemployed or was laid off</strong> — this is a standalone WIOA qualifier</span>
               </label>
             </div>
 
             <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
                 <span>My household income is limited or near self-sufficiency (additional documentation for WIOA)</span>
               </label>
             </div>
 
             <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
                 <span>I want training that leads to an in-demand job</span>
               </label>
             </div>
 
             <div className="portal-field">
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={completedIntakeSelfReport}
@@ -424,7 +442,7 @@ export default function WioaQualificationClient({
             </div>
 
             {error ? (
-              <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
+              <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.9rem' }}>
                 {error}
               </p>
             ) : null}
@@ -442,6 +460,7 @@ export default function WioaQualificationClient({
             </button>
           </form>
         )}
+        </div>
       </PortalCard>
 
       <section style={{ marginTop: '2rem' }}>

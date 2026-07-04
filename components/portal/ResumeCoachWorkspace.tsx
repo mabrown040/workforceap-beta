@@ -25,7 +25,7 @@ function CopyDraftButton({ text }: { text: string }) {
       style={{
         fontSize: '0.72rem',
         fontWeight: 600,
-        color: copied ? '#16a34a' : 'var(--color-on-surface-variant)',
+        color: copied ? 'var(--color-green)' : 'var(--color-on-surface-variant)',
         background: 'none',
         border: 'none',
         cursor: 'pointer',
@@ -38,7 +38,7 @@ function CopyDraftButton({ text }: { text: string }) {
       >
         {copied ? (
           <>
-            <Check className="h-3.5 w-3.5" aria-hidden />
+            <Check size={14} aria-hidden />
             Copied
           </>
         ) : (
@@ -96,7 +96,7 @@ function ResumeDraftPendingPreview({
           lineHeight: 1.55,
           padding: '0.75rem',
           borderRadius: '0.5rem',
-          border: '2px solid rgba(37, 99, 235, 0.45)',
+          border: '2px solid color-mix(in srgb, var(--color-blue) 45%, transparent)',
           background: 'var(--surface-container-low)',
           maxHeight: 'min(42vh, 340px)',
           overflow: 'auto',
@@ -105,7 +105,7 @@ function ResumeDraftPendingPreview({
       >
         <mark
           style={{
-            background: 'rgba(34, 197, 94, 0.35)',
+            background: 'color-mix(in srgb, var(--color-green) 35%, transparent)',
             color: 'var(--color-on-surface)',
             fontWeight: 600,
             padding: '0 2px',
@@ -142,7 +142,7 @@ function ResumeDraftPendingPreview({
         lineHeight: 1.55,
         padding: '0.75rem',
         borderRadius: '0.5rem',
-        border: '2px solid rgba(37, 99, 235, 0.45)',
+        border: '2px solid color-mix(in srgb, var(--color-blue) 45%, transparent)',
         background: 'var(--surface-container-low)',
         maxHeight: 'min(42vh, 340px)',
         overflow: 'auto',
@@ -152,7 +152,7 @@ function ResumeDraftPendingPreview({
       {resumeText.slice(0, idx)}
       <mark
         style={{
-          background: 'rgba(239, 68, 68, 0.22)',
+          background: 'color-mix(in srgb, var(--color-error) 22%, transparent)',
           textDecoration: 'line-through',
           color: 'var(--color-on-surface)',
           padding: '0 2px',
@@ -162,7 +162,7 @@ function ResumeDraftPendingPreview({
       </mark>
       <mark
         style={{
-          background: 'rgba(34, 197, 94, 0.35)',
+          background: 'color-mix(in srgb, var(--color-green) 35%, transparent)',
           color: 'var(--color-on-surface)',
           fontWeight: 600,
           padding: '0 2px',
@@ -421,8 +421,6 @@ export default function ResumeCoachWorkspace() {
             onPostSessionParsingChange={setPostSessionParsing}
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
-            accent="#ad2c4d"
-            accentDark="#8b1f38"
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — describe your background"
             onAcceptSuggestion={handleAccept}
@@ -455,12 +453,14 @@ export default function ResumeCoachWorkspace() {
               )}
               {hydrated && saveStatus !== 'idle' ? (
               <span
+                role={saveStatus === 'error' ? 'alert' : 'status'}
+                aria-live="polite"
                 style={{
                   fontSize: '0.72rem',
                   fontWeight: 600,
                   color:
                     saveStatus === 'error'
-                      ? '#b91c1c'
+                      ? 'var(--color-error)'
                       : saveStatus === 'saving'
                         ? 'var(--color-on-surface-variant)'
                         : 'var(--color-on-surface-variant)',
@@ -530,7 +530,7 @@ export default function ResumeCoachWorkspace() {
                   }}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                 >
-                  <Check className="h-4 w-4" aria-hidden />
+                  <Check size={16} aria-hidden />
                   Apply
                 </button>
                 <button
@@ -625,7 +625,7 @@ export default function ResumeCoachWorkspace() {
                       }}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                     >
-                      <Check className="h-4 w-4" aria-hidden />
+                      <Check size={16} aria-hidden />
                       Apply
                     </button>
                     <button

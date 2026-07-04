@@ -2,14 +2,10 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--surface, #ffffff);
+  background: var(--surface-container-lowest);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-html.dark .mobile-funnel-overlay {
-  background: var(--surface, #1a1a1a);
 }
 
 .mobile-funnel-header {
@@ -19,12 +15,7 @@ html.dark .mobile-funnel-overlay {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: var(--surface, #ffffff);
-}
-
-html.dark .mobile-funnel-header {
-  border-bottom-color: var(--outline-variant, #333);
-  background: var(--surface, #1a1a1a);
+  background: var(--surface-container-lowest);
 }
 
 .mobile-funnel-back-btn {
@@ -79,13 +70,8 @@ html.dark .mobile-funnel-back-btn:hover {
   flex-shrink: 0;
   padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--outline-variant, #e5e5e5);
-  background: var(--surface, #ffffff);
+  background: var(--surface-container-lowest);
   position: relative;
-}
-
-html.dark .mobile-funnel-footer {
-  border-top-color: var(--outline-variant, #333);
-  background: var(--surface, #1a1a1a);
 }
 
 /* Progress bar */
@@ -199,17 +185,20 @@ html.dark .consent-card {
 
 /* Step 3: Success */
 .success-card {
-  background: rgba(74, 155, 79, 0.08);
+  background: color-mix(in srgb, var(--color-green, #4a9b4f) 8%, transparent);
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid rgba(74, 155, 79, 0.25);
+  border: 1px solid color-mix(in srgb, var(--color-green, #4a9b4f) 25%, transparent);
   text-align: center;
   margin-bottom: 1rem;
 }
 
 .success-title {
   font-weight: 700;
-  color: var(--color-accent, #4a9b4f);
+  /* Was `--color-accent` with a green fallback that never triggers (accent
+     is always defined) — rendered the success title in brand magenta, at
+     odds with the green success-card tint above. */
+  color: var(--color-green, #4a9b4f);
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
 }
@@ -305,7 +294,7 @@ html.dark .tracked-card {
   right: 0;
   z-index: 50;
   padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-  background: var(--surface, #ffffff);
+  background: var(--surface-container-lowest);
   border-top: 1px solid var(--outline-variant, #e5e5e5);
   box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
   display: flex;
@@ -314,8 +303,6 @@ html.dark .tracked-card {
 }
 
 html.dark .mobile-sticky-cta {
-  background: var(--surface, #1a1a1a);
-  border-top-color: var(--outline-variant, #333);
   box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
 }
 

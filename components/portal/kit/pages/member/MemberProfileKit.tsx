@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DesignSurface, Avatar, FormField, Toggle } from '@/components/portal/kit';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 import LanguageToggle from '@/components/portal/LanguageToggle';
+import PushNotificationsToggle from '@/components/portal/PushNotificationsToggle';
+import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 
 /**
  * Member Portal — PROFILE view (account details + notification prefs).
@@ -89,7 +91,7 @@ export interface MemberProfileKitProps {
 
 const DEFAULT_BADGES: ProfileBadge[] = [
   { label: '2 Certs', bg: 'var(--wa-gold-soft, #FEF3C7)', color: 'var(--wa-gold)' },
-  { label: '84 Readiness', bg: '#ecfdf3', color: 'var(--wa-success)' },
+  { label: '84 Readiness', bg: 'var(--wa-success-soft, rgba(74,155,79,0.12))', color: 'var(--wa-success)' },
   { label: '12-day streak', bg: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' },
 ];
 
@@ -129,6 +131,17 @@ export function MemberProfileKit({
   // Notification toggle state (per-key error/saving).
   const [savingPref, setSavingPref] = useState<string | null>(null);
   const [prefError, setPrefError] = useState<string | null>(null);
+
+  // Move focus to save/toggle errors so screen reader + keyboard users land
+  // on the message instead of having to hunt for it after a failed save.
+  const accountErrorRef = useRef<HTMLParagraphElement>(null);
+  const prefErrorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (accountError) accountErrorRef.current?.focus();
+  }, [accountError]);
+  useEffect(() => {
+    if (prefError) prefErrorRef.current?.focus();
+  }, [prefError]);
 
   const togglePref = async (key: string, value: boolean) => {
     const pref = prefs.find((p) => p.key === key);
@@ -288,7 +301,12 @@ export function MemberProfileKit({
               </p>
             ) : null}
             {accountError ? (
-              <p role="alert" style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginTop: 12 }}>
+              <p
+                ref={accountErrorRef}
+                role="alert"
+                tabIndex={-1}
+                style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginTop: 12 }}
+              >
                 {accountError}
               </p>
             ) : null}
@@ -323,7 +341,12 @@ export function MemberProfileKit({
           <div className="wa-kit-card">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Notifications</h3>
             {prefError ? (
-              <p role="alert" style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginBottom: 12 }}>
+              <p
+                ref={prefErrorRef}
+                role="alert"
+                tabIndex={-1}
+                style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginBottom: 12 }}
+              >
                 {prefError}
               </p>
             ) : null}
@@ -337,6 +360,11 @@ export function MemberProfileKit({
                 />
               ))}
             </div>
+            {live ? (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--wa-border)' }}>
+                <PushNotificationsToggle />
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -347,6 +375,50 @@ export function MemberProfileKit({
           <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Language</h3>
           <LanguageToggle />
         </div>
+
+        {live ? (
+          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-5">
+            {/* Password & security — the live kit profile had no entry point to
+                change a password at all; members were stranded unless they knew
+                to log out and use "forgot password" on the sign-in screen. */}
+            <div className="wa-kit-card">
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8 }}>Password &amp; Security</h3>
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+                Reset your password by email any time — no need to remember your current one.
+              </p>
+              <a
+                href={`/forgot-password?email=${encodeURIComponent(email)}`}
+                className="wa-kit-focus"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
+                  padding: '10px 20px',
+                  borderRadius: 999,
+                  border: '1px solid var(--wa-border)',
+                  color: 'var(--wa-text)',
+                  fontWeight: 600,
+                  fontSize: 14,
+                  textDecoration: 'none',
+                }}
+              >
+                Reset password
+              </a>
+            </div>
+
+            {/* Danger zone — same reasoning: account deletion was only reachable
+                via the legacy (?ui=legacy) fallback, not the live default UI. */}
+            <div className="wa-kit-card" style={{ borderColor: 'var(--wa-danger)' }}>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8, color: 'var(--wa-danger)' }}>
+                Danger Zone
+              </h3>
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+                Permanently delete your WorkforceAP account and training progress. This can&apos;t be undone.
+              </p>
+              <DeleteAccountButton />
+            </div>
+          </div>
+        ) : null}
       </div>
     </DesignSurface>
   );

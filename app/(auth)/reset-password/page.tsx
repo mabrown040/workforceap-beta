@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { createSupabaseBrowserClient } from '@/lib/auth/client';
 import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
@@ -9,6 +10,7 @@ import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 type Stage = 'verifying' | 'ready' | 'submitting' | 'success' | 'error';
 
 function ResetPasswordForm() {
+  const tAuth = useTranslations('auth');
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = useRef(createSupabaseBrowserClient()).current;
@@ -18,10 +20,14 @@ function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
-    const invalidLinkMessage = 'This reset link is invalid or has expired. Please request a new one.';
+    const invalidLinkMessage = tAuth('resetPassword.linkInvalidMessage');
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
@@ -90,7 +96,7 @@ function ResetPasswordForm() {
         return;
       }
 
-      setVerifyError('No password reset token found. Please request a new reset link.');
+      setVerifyError(tAuth('resetPassword.noTokenMessage'));
       setStage('error');
     }
 
@@ -107,19 +113,22 @@ function ResetPasswordForm() {
     setFormError(null);
 
     if (password.length < 8) {
-      setFormError('Password must be at least 8 characters.');
+      setFormError(tAuth('resetPassword.passwordTooShort'));
+      passwordRef.current?.focus();
       return;
     }
     if (password !== confirm) {
-      setFormError('Passwords do not match.');
+      setFormError(tAuth('resetPassword.passwordMismatch'));
+      confirmRef.current?.focus();
       return;
     }
 
     setStage('submitting');
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setFormError(error.message ?? 'Could not update password. Please try again.');
+      setFormError(error.message ?? tAuth('resetPassword.updateFailed'));
       setStage('ready');
+      passwordRef.current?.focus();
       return;
     }
 
@@ -131,7 +140,8 @@ function ResetPasswordForm() {
   if (stage === 'verifying') {
     return (
       <div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-        <p>Verifying your reset link…</p>
+        <h1 className="sr-only">{tAuth('resetPassword.verifying')}</h1>
+        <p>{tAuth('resetPassword.verifying')}</p>
       </div>
     );
   }
@@ -141,10 +151,10 @@ function ResetPasswordForm() {
       <div className="inner-page">
         <section className="page-hero">
           <div className="page-hero-content">
-            <h1>Link invalid or expired</h1>
-            <p>{verifyError}</p>
-            <LocalizedLink href="/forgot-password" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-              Request a new reset link
+            <h1>{tAuth('resetPassword.linkInvalidHeading')}</h1>
+            <p role="alert">{verifyError}</p>
+            <LocalizedLink href="/forgot-password" className="btn btn-primary" style={{ marginTop: '1rem', minHeight: 44 }}>
+              {tAuth('resetPassword.requestNewLink')}
             </LocalizedLink>
           </div>
         </section>
@@ -157,8 +167,8 @@ function ResetPasswordForm() {
       <div className="inner-page">
         <section className="page-hero">
           <div className="page-hero-content">
-            <h1>Password updated</h1>
-            <p>Your password has been changed. Taking you to your dashboard…</p>
+            <h1>{tAuth('resetPassword.successHeading')}</h1>
+            <p role="status">{tAuth('resetPassword.successMessage')}</p>
           </div>
         </section>
       </div>
@@ -169,8 +179,8 @@ function ResetPasswordForm() {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Set new password</h1>
-          <p>Choose a new password for your account.</p>
+          <h1>{tAuth('resetPassword.heading')}</h1>
+          <p>{tAuth('resetPassword.subheading')}</p>
         </div>
       </section>
 
@@ -180,33 +190,96 @@ function ResetPasswordForm() {
             <div className="apply-form">
               <form onSubmit={handleSubmit} noValidate>
                 <div className="form-group">
-                  <label htmlFor="new-password">New password *</label>
-                  <input
-                    id="new-password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                  />
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                    At least 8 characters
+                  <label htmlFor="new-password">{tAuth('resetPassword.newPasswordLabel')} *</label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input
+                      ref={passwordRef}
+                      id="new-password"
+                      name="new-password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={(e) => { setPassword(e.target.value); if (formError) setFormError(null); }}
+                      required
+                      minLength={8}
+                      aria-invalid={!!formError}
+                      aria-describedby="new-password-hint"
+                      style={{ paddingRight: '2.75rem' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? tAuth('resetPassword.hidePassword') : tAuth('resetPassword.showPassword')}
+                      aria-pressed={showPassword}
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--color-on-surface-variant)',
+                        cursor: 'pointer',
+                        padding: '12px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 44,
+                        minHeight: 44,
+                      }}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20 }}>
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
+                  <p id="new-password-hint" className="form-hint">
+                    {tAuth('resetPassword.passwordHint')}
                   </p>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="confirm-password">Confirm new password *</label>
-                  <input
-                    id="confirm-password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    required
-                  />
+                  <label htmlFor="confirm-password">{tAuth('resetPassword.confirmPasswordLabel')} *</label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input
+                      ref={confirmRef}
+                      id="confirm-password"
+                      name="confirm-password"
+                      type={showConfirm ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      value={confirm}
+                      onChange={(e) => { setConfirm(e.target.value); if (formError) setFormError(null); }}
+                      required
+                      aria-invalid={!!formError}
+                      aria-describedby={formError ? 'reset-password-error' : undefined}
+                      style={{ paddingRight: '2.75rem' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm((v) => !v)}
+                      aria-label={showConfirm ? tAuth('resetPassword.hidePassword') : tAuth('resetPassword.showPassword')}
+                      aria-pressed={showConfirm}
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--color-on-surface-variant)',
+                        cursor: 'pointer',
+                        padding: '12px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 44,
+                        minHeight: 44,
+                      }}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20 }}>
+                        {showConfirm ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
                 {formError && (
                   <div
+                    id="reset-password-error"
                     className="form-error-banner"
                     role="alert"
                     style={{
@@ -223,13 +296,14 @@ function ResetPasswordForm() {
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  style={{ width: '100%', padding: '1rem' }}
+                  style={{ width: '100%', padding: '1rem', minHeight: 44 }}
                   disabled={stage === 'submitting'}
+                  aria-busy={stage === 'submitting'}
                 >
-                  {stage === 'submitting' ? 'Saving…' : 'Save new password'}
+                  <span aria-live="polite">{stage === 'submitting' ? tAuth('resetPassword.saving') : tAuth('resetPassword.submit')}</span>
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-                  <LocalizedLink href="/login">Back to login</LocalizedLink>
+                  <LocalizedLink href="/login">{tAuth('resetPassword.backToLogin')}</LocalizedLink>
                 </p>
               </form>
             </div>
@@ -240,15 +314,18 @@ function ResetPasswordForm() {
   );
 }
 
+function ResetPasswordLoadingFallback() {
+  const tAuth = useTranslations('auth');
+  return (
+    <div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+      {tAuth('resetPassword.loading')}
+    </div>
+  );
+}
+
 export default function ResetPasswordPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-          Loading…
-        </div>
-      }
-    >
+    <Suspense fallback={<ResetPasswordLoadingFallback />}>
       <ResetPasswordForm />
     </Suspense>
   );

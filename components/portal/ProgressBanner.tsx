@@ -16,7 +16,14 @@ export default function ProgressBanner({ programTitle, completedCount, totalCoun
       <div className="progress-banner-main">
         <span className="progress-banner-title">{programTitle}</span>
         <div className="progress-banner-track-wrap">
-          <div className="progress-banner-track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+          <div
+            className="progress-banner-track"
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuetext={`${completedCount} of ${totalCount} courses complete`}
+          >
             <div className="progress-banner-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>

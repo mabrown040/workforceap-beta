@@ -176,6 +176,7 @@ export function VoiceStudioKit({
   initialAgent,
 }: VoiceStudioKitProps) {
   const [tab, setTab] = useState<StudioTab>(initialTab);
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const fallbackAgent: SessionAgentConfig = {
     label: 'Mock Interview',
@@ -191,6 +192,32 @@ export function VoiceStudioKit({
   const pickAgent = (next: SessionAgentConfig) => {
     setAgent(next);
     setTab('session');
+  };
+
+  // Roving-tabindex keyboard nav for the custom tablist (WAI-ARIA tabs
+  // pattern): arrow keys move focus AND activate the tab; Home/End jump to
+  // the ends. Mirrors the existing click-to-activate behavior.
+  const focusTabAt = (index: number) => {
+    const count = TABS.length;
+    const next = ((index % count) + count) % count;
+    setTab(TABS[next].id);
+    tabRefs.current[next]?.focus();
+  };
+
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      focusTabAt(index + 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      focusTabAt(index - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      focusTabAt(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      focusTabAt(TABS.length - 1);
+    }
   };
 
   return (
@@ -233,7 +260,7 @@ export function VoiceStudioKit({
                   justifyContent: 'center',
                 }}
               >
-                <AudioLines size={16} />
+                <AudioLines size={16} aria-hidden="true" />
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Voice + Career Studio</div>
@@ -263,14 +290,21 @@ export function VoiceStudioKit({
                 maxWidth: '100%',
               }}
             >
-              {TABS.map((t) => {
+              {TABS.map((t, i) => {
                 const on = tab === t.id;
                 return (
                   <button
                     key={t.id}
+                    ref={(el) => {
+                      tabRefs.current[i] = el;
+                    }}
+                    id={`vs-tab-${t.id}`}
                     role="tab"
                     aria-selected={on}
+                    aria-controls={`vs-panel-${t.id}`}
+                    tabIndex={on ? 0 : -1}
                     onClick={() => setTab(t.id)}
+                    onKeyDown={(e) => handleTabKeyDown(e, i)}
                     className="wa-kit-focus"
                     style={{
                       minHeight: 44,
@@ -296,12 +330,21 @@ export function VoiceStudioKit({
         </header>
 
         <main style={{ flexGrow: 1, width: '100%', maxWidth: 1280, margin: '0 auto', padding: 16, boxSizing: 'border-box' }}>
-          {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
-          {tab === 'session' && <SessionPanel agent={agent} />}
-          {tab === 'studio' && (
-            <StudioPanel data={resumeStudio} />
-          )}
-          {tab === 'toolkit' && <ToolkitPanel />}
+          <h1 className="sr-only">Voice and Career Studio</h1>
+          <div
+            role="tabpanel"
+            id={`vs-panel-${tab}`}
+            aria-labelledby={`vs-tab-${tab}`}
+            tabIndex={0}
+            className="wa-kit-focus"
+          >
+            {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
+            {tab === 'session' && <SessionPanel agent={agent} />}
+            {tab === 'studio' && (
+              <StudioPanel data={resumeStudio} />
+            )}
+            {tab === 'toolkit' && <ToolkitPanel />}
+          </div>
         </main>
 
         <footer style={{ background: '#1a1a1a', color: '#737373', fontSize: 10, textAlign: 'center', padding: '12px 16px' }}>
@@ -420,7 +463,7 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
               textTransform: 'uppercase',
             }}
           >
-            <Headset size={13} />
+            <Headset size={13} aria-hidden="true" />
             <span>Talk it out</span>
           </div>
           <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
@@ -443,7 +486,7 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
             gap: 8,
           }}
         >
-          <Circle size={7} fill="var(--wa-success)" color="var(--wa-success)" />
+          <Circle size={7} fill="var(--wa-success)" color="var(--wa-success)" aria-hidden="true" />
           Live voice · ~5 min
         </div>
       </div>
@@ -542,7 +585,7 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ padding: 12, borderRadius: 16, display: 'inline-flex', ...iconChip }}>
-          <Icon size={20} />
+          <Icon size={20} aria-hidden="true" />
         </div>
         <span
           style={{
@@ -571,7 +614,7 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
             color: ctaColor ?? (isLightBody ? 'var(--wa-text)' : '#fff'),
           }}
         >
-          <Cta size={13} />
+          <Cta size={13} aria-hidden="true" />
           {cta}
         </div>
       </div>
@@ -855,6 +898,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
 
   return (
     <section>
+      <h2 className="sr-only">Live voice session</h2>
       <div style={{ background: '#1a1a1a', borderRadius: 24, overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)' }}>
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-5" style={{ minHeight: 560 }}>
           {/* Orb / status — spans 3 of 5 on lg */}
@@ -871,11 +915,11 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             }}
           >
             <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700 }}>
-              <span className={isLive ? 'vs-dot' : undefined} style={{ width: 8, height: 8, borderRadius: 999, background: dotColor }} />
+              <span aria-hidden="true" className={isLive ? 'vs-dot' : undefined} style={{ width: 8, height: 8, borderRadius: 999, background: dotColor }} />
               {status}
             </div>
             <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
-              <Clock size={13} />
+              <Clock size={13} aria-hidden="true" />
               {formatClock(elapsed)}
             </div>
 
@@ -998,7 +1042,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     onClick={toggleMute}
                     style={{ ...circleBtn, background: muted ? accent : 'rgba(255,255,255,0.1)' }}
                   >
-                    {muted ? <MicOff size={16} /> : <Mic size={16} />}
+                    {muted ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />}
                   </button>
                   <button
                     type="button"
@@ -1018,7 +1062,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                       gap: 8,
                     }}
                   >
-                    <PhoneOff size={15} />
+                    <PhoneOff size={15} aria-hidden="true" />
                     End Session
                   </button>
                 </>
@@ -1064,7 +1108,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     gap: 8,
                   }}
                 >
-                  {phase === 'ended' ? <Play size={15} /> : <Mic size={15} />}
+                  {phase === 'ended' ? <Play size={15} aria-hidden="true" /> : <Mic size={15} aria-hidden="true" />}
                   {phase === 'ended' ? 'Start again' : 'Start session'}
                 </button>
               )}
@@ -1084,7 +1128,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ fontWeight: 700, color: '#fff', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Captions size={15} color={accent} />
+                <Captions size={15} color={accent} aria-hidden="true" />
                 Live Transcript
               </h3>
               <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
@@ -1262,7 +1306,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               gap: 8,
             }}
           >
-            <FlaskConical size={13} />
+            <FlaskConical size={13} aria-hidden="true" />
             Career Studio
             <span style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 4, fontSize: 8 }}>BETA</span>
           </div>
@@ -1294,7 +1338,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             textDecoration: 'none',
           }}
         >
-          <Upload size={14} />
+          <Upload size={14} aria-hidden="true" />
           {hasResume ? 'Open full analysis' : 'Add résumé'}
         </Link>
       </div>
@@ -1313,7 +1357,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               </h3>
               <div style={{ position: 'relative' }}>
                 <svg width="150" height="150" viewBox="0 0 120 120" role="img" aria-label={`Structure score ${score} of 100`}>
-                  <circle cx="60" cy="60" r={ringR} fill="none" stroke="#f0eef0" strokeWidth="11" />
+                  <circle cx="60" cy="60" r={ringR} fill="none" stroke="var(--wa-track)" strokeWidth="11" />
                   <circle
                     cx="60"
                     cy="60"
@@ -1355,8 +1399,8 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 14, background: 'var(--wa-bg)', border: '1px solid var(--wa-border)', borderRadius: 16 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--wa-accent-soft)', color: 'var(--wa-success)' }}>
-                    <CheckCircle2 size={15} />
+                  <div style={{ width: 28, height: 28, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--wa-success-soft, rgba(74,155,79,0.12))', color: 'var(--wa-success)' }}>
+                    <CheckCircle2 size={15} aria-hidden="true" />
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 12 }}>No structural issues</div>
@@ -1396,7 +1440,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                     gap: 6,
                   }}
                 >
-                  <Sparkles size={14} />
+                  <Sparkles size={14} aria-hidden="true" />
                   Run full analysis
                 </Link>
                 <Link
@@ -1442,7 +1486,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             >
               <div>
                 <div style={{ padding: 12, width: 'fit-content', background: 'rgba(255,255,255,0.15)', borderRadius: 16, display: 'inline-flex' }}>
-                  <Sparkles size={20} />
+                  <Sparkles size={20} aria-hidden="true" />
                 </div>
                 <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
@@ -1450,7 +1494,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 </p>
               </div>
               <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700 }}>
-                <Mic size={13} />
+                <Mic size={13} aria-hidden="true" />
                 Start voice session
               </div>
             </Link>
@@ -1463,7 +1507,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
           style={{ textAlign: 'center', padding: '48px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
         >
           <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FileText size={26} />
+            <FileText size={26} aria-hidden="true" />
           </div>
           <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>No resume on file yet</h3>
           <p style={{ fontSize: 13, color: 'var(--wa-muted)', maxWidth: 420, margin: 0, lineHeight: 1.5 }}>
@@ -1487,7 +1531,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               gap: 6,
             }}
           >
-            <Upload size={14} />
+            <Upload size={14} aria-hidden="true" />
             Add your resume
           </Link>
         </div>
@@ -1523,7 +1567,7 @@ function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
           color: 'var(--wa-accent)',
         }}
       >
-        <Sparkles size={13} />
+        <Sparkles size={13} aria-hidden="true" />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
@@ -1611,6 +1655,9 @@ const TOOLKIT_STEPS: ToolStep[] = [
 ];
 
 function ToolkitPanel() {
+  // Computed (not hardcoded) so the count can never drift from what's
+  // actually rendered below as tools are added or removed from a step.
+  const toolCount = TOOLKIT_STEPS.reduce((n, step) => n + step.tools.length, 0);
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
@@ -1626,14 +1673,14 @@ function ToolkitPanel() {
             textTransform: 'uppercase',
           }}
         >
-          <Sparkles size={13} />
+          <Sparkles size={13} aria-hidden="true" />
           <span>AI Career Toolkit</span>
         </div>
         <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
           Everything to get hired, in order.
         </h2>
         <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-          17 AI tools tuned to your AWS path and the Austin market. Work top to bottom.
+          {toolCount} AI tools tuned to your training path and the Austin market. Work top to bottom.
         </p>
       </div>
 
@@ -1702,7 +1749,7 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ padding: 10, borderRadius: 12, display: 'inline-flex', ...accentStyle }}>
-          <Icon size={16} />
+          <Icon size={16} aria-hidden="true" />
         </div>
         {tag === 'BETA' ? (
           <span style={{ padding: '2px 8px', fontSize: 9, fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>

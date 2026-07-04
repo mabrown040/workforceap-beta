@@ -174,7 +174,7 @@ export default async function DashboardResumePage() {
       {/* ── Desktop ── */}
       <div
         className="wa-hidden md:wa-block"
-        style={{ background: "var(--color-surface)", minHeight: "100vh" }}
+        style={{ background: "var(--surface-container-lowest)", minHeight: "100vh" }}
       >
         <div
           style={{

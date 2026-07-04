@@ -256,7 +256,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
     <div className={styles.shell}>
       <div className={styles.greeting}>
         <span className={styles.greetingIcon} aria-hidden>
-          💬
+          <span className="material-symbols-outlined">forum</span>
         </span>
         <div className={styles.greetingBody}>
           <h2 className={styles.greetingTitle}>{title}</h2>

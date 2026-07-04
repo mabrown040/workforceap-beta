@@ -1,8 +1,9 @@
 'use client';
 
 import { fetchAuth } from '@/lib/fetchWithTimeout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { trackFunnelEvent } from '@/lib/analytics/events';
@@ -13,6 +14,7 @@ function getMfaSetupNextPath() {
 }
 
 export default function SetupMfaPage() {
+  const tAuth = useTranslations('auth');
   const [step, setStep] = useState<'loading' | 'qr' | 'confirm' | 'done' | 'error'>('loading');
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
@@ -21,6 +23,7 @@ export default function SetupMfaPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [nextPath, setNextPath] = useState('/dashboard');
+  const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setNextPath(getMfaSetupNextPath());
@@ -30,7 +33,7 @@ export default function SetupMfaPage() {
       .then(async (r) => {
         if (!r.ok) {
           const data = await r.json().catch(() => ({}));
-          throw new Error(data.error ?? 'Failed to start MFA setup.');
+          throw new Error(data.error ?? tAuth('mfaSetup.setupInitFailed'));
         }
         return r.json();
       })
@@ -47,6 +50,7 @@ export default function SetupMfaPage() {
           error_message: e?.message?.slice(0, 120) ?? 'unknown',
         });
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleConfirm = async (e: React.FormEvent) => {
@@ -54,7 +58,8 @@ export default function SetupMfaPage() {
     setError(null);
 
     if (!code || code.length !== 6) {
-      setError('Please enter the 6-digit code from your authenticator app.');
+      setError(tAuth('mfaSetup.codeRequired'));
+      codeInputRef.current?.focus();
       return;
     }
 
@@ -70,27 +75,30 @@ export default function SetupMfaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'Invalid code. Please try again.');
+        setError(data.error ?? tAuth('mfaSetup.codeInvalid'));
         trackFunnelEvent('member_login_mfa', 'setup_confirm_failed', {
           status_code: res.status,
         });
         setLoading(false);
+        codeInputRef.current?.focus();
         return;
       }
 
       trackFunnelEvent('member_login_mfa', 'setup_completed');
       setStep('done');
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(tAuth('mfaSetup.genericError'));
       trackFunnelEvent('member_login_mfa', 'setup_network_error');
       setLoading(false);
+      codeInputRef.current?.focus();
     }
   };
 
   if (step === 'loading') {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Setting up two-factor authentication…</p>
+        <h1 className="sr-only">{tAuth('mfaSetup.heading')}</h1>
+        <p>{tAuth('mfaSetup.settingUp')}</p>
       </div>
     );
   }
@@ -100,9 +108,9 @@ export default function SetupMfaPage() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: '0.5rem' }}>error</span>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Setup Failed</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{tAuth('mfaSetup.setupFailedHeading')}</h1>
           <p role="alert" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>{error}</p>
-          <LocalizedLink href={nextPath} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Continue</LocalizedLink>
+          <LocalizedLink href={nextPath} style={{ color: 'var(--color-accent)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 44 }}>{tAuth('mfaSetup.continueButton')}</LocalizedLink>
         </div>
       </div>
     );
@@ -113,24 +121,27 @@ export default function SetupMfaPage() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>2FA Enabled</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>{tAuth('mfaSetup.doneHeading')}</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-            Two-factor authentication is now active on your account. You'll need your authenticator app each time you sign in.
+            {tAuth('mfaSetup.doneMessage')}
           </p>
           <LocalizedLink
             href={nextPath}
             style={{
-              display: 'inline-block',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 44,
               padding: '0.75rem 1.5rem',
               background: 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
-              color: '#fff',
+              color: 'var(--color-white)',
               borderRadius: 'var(--radius-md)',
               fontWeight: 700,
               textDecoration: 'none',
               boxShadow: '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
             }}
           >
-            Continue
+            {tAuth('mfaSetup.continueButton')}
           </LocalizedLink>
         </div>
       </div>
@@ -142,9 +153,9 @@ export default function SetupMfaPage() {
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 48, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>qr_code_2</span>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Set Up Two-Factor Authentication</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{tAuth('mfaSetup.heading')}</h1>
           <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-            Required for admin and counselor accounts. Scan the QR code with your authenticator app.
+            {tAuth('mfaSetup.subheading')}
           </p>
         </div>
 
@@ -155,22 +166,22 @@ export default function SetupMfaPage() {
               <div
                 style={{
                   display: 'inline-block',
-                  background: '#fff',
+                  background: 'var(--color-white)',
                   padding: '1rem',
                   borderRadius: 'var(--radius-lg)',
                   border: '1px solid var(--outline-variant)',
                 }}
               >
                 {qrCode ? (
-                  <Image src={qrCode} alt="MFA QR Code" width={200} height={200} unoptimized style={{ display: 'block' }} />
+                  <Image src={qrCode} alt={tAuth('mfaSetup.qrAlt')} width={200} height={200} unoptimized style={{ display: 'block' }} />
                 ) : (
                   <div style={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-on-surface-variant)' }}>
-                    Loading QR…
+                    {tAuth('mfaSetup.qrLoading')}
                   </div>
                 )}
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
-                Can't scan? Enter this code manually: <code style={{ background: 'var(--surface-container-high)', padding: '0.15rem 0.35rem', borderRadius: 4, fontFamily: 'monospace' }}>{secret}</code>
+                {tAuth('mfaSetup.manualEntryHint')} <code style={{ background: 'var(--surface-container-high)', padding: '0.15rem 0.35rem', borderRadius: 4, fontFamily: 'monospace' }}>{secret}</code>
               </p>
             </div>
 
@@ -178,9 +189,10 @@ export default function SetupMfaPage() {
               onClick={() => setStep('confirm')}
               style={{
                 width: '100%',
+                minHeight: 44,
                 padding: '0.875rem',
                 background: 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
-                color: '#fff',
+                color: 'var(--color-white)',
                 border: 'none',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
@@ -190,7 +202,7 @@ export default function SetupMfaPage() {
                 boxShadow: '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
               }}
             >
-              I've scanned the code
+              {tAuth('mfaSetup.scannedButton')}
             </button>
           </>
         )}
@@ -198,20 +210,32 @@ export default function SetupMfaPage() {
         {step === 'confirm' && (
           <form onSubmit={handleConfirm} noValidate>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', textAlign: 'center' }}>
-              Enter the 6-digit code from your authenticator app to confirm setup.
+              {tAuth('mfaSetup.confirmPrompt')}
             </p>
 
             <div style={{ marginBottom: '1rem' }}>
+              <label
+                htmlFor="mfa-setup-code"
+                style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+              >
+                {tAuth('mfaSetup.codeLabel')}
+              </label>
               <input
+                ref={codeInputRef}
+                id="mfa-setup-code"
+                name="code"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={6}
+                autoComplete="one-time-code"
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '')); if (error) setError(null); }}
                 placeholder="000000"
-                aria-label="6-digit MFA code"
                 autoFocus
+                aria-invalid={!!error}
+                aria-describedby={error ? 'mfa-setup-code-error' : undefined}
+                className="mfa-code-input"
                 style={{
                   width: '100%',
                   padding: '0.75rem 1rem',
@@ -229,7 +253,7 @@ export default function SetupMfaPage() {
             </div>
 
             {error && (
-              <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
+              <p id="mfa-setup-code-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
             )}
 
             <button
@@ -238,9 +262,10 @@ export default function SetupMfaPage() {
               aria-busy={loading}
               style={{
                 width: '100%',
+                minHeight: 44,
                 padding: '0.875rem',
                 background: loading || code.length !== 6 ? 'var(--surface-container-high)' : 'linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%)',
-                color: loading || code.length !== 6 ? 'var(--color-on-surface-variant)' : '#fff',
+                color: loading || code.length !== 6 ? 'var(--color-on-surface-variant)' : 'var(--color-white)',
                 border: 'none',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
@@ -249,7 +274,7 @@ export default function SetupMfaPage() {
                 boxShadow: loading || code.length !== 6 ? 'none' : '0 12px 30px -12px rgba(124, 92, 38, 0.5)',
               }}
             >
-              <span aria-live="polite">{loading ? 'Verifying…' : 'Enable 2FA'}</span>
+              <span aria-live="polite">{loading ? tAuth('mfaSetup.verifying') : tAuth('mfaSetup.enableButton')}</span>
             </button>
 
             <button
@@ -257,6 +282,7 @@ export default function SetupMfaPage() {
               onClick={() => setStep('qr')}
               style={{
                 width: '100%',
+                minHeight: 44,
                 padding: '0.75rem',
                 background: 'transparent',
                 color: 'var(--color-on-surface-variant)',
@@ -266,15 +292,22 @@ export default function SetupMfaPage() {
                 marginTop: '0.5rem',
               }}
             >
-              Back to QR code
+              {tAuth('mfaSetup.backToQr')}
             </button>
           </form>
         )}
 
         <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          Recommended apps: Google Authenticator, Authy, 1Password
+          {tAuth('mfaSetup.recommendedApps')}
         </p>
       </div>
+
+      <style>{`
+        .mfa-code-input:focus-visible {
+          outline: 2px solid var(--color-accent);
+          outline-offset: 2px;
+        }
+      `}</style>
     </div>
   );
 }

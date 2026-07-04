@@ -130,12 +130,12 @@ export default function GoogleDocsStyleResumeEditor({
   const delStyle: CSSProperties = {
     textDecoration: 'line-through',
     textDecorationThickness: 'from-font',
-    background: 'rgba(239, 68, 68, 0.22)',
+    background: 'color-mix(in srgb, var(--color-error) 22%, transparent)',
     borderRadius: 2,
     padding: '0 2px',
   };
   const insStyle: CSSProperties = {
-    background: 'rgba(34, 197, 94, 0.38)',
+    background: 'color-mix(in srgb, var(--color-green) 38%, transparent)',
     borderRadius: 2,
     padding: '0 2px',
     fontWeight: 600,
@@ -208,7 +208,7 @@ export default function GoogleDocsStyleResumeEditor({
             padding: '0.35rem 0.45rem',
             borderRadius: '0.5rem',
             border: '1px solid var(--outline-variant)',
-            background: 'var(--surface-container-high, #fff)',
+            background: 'var(--surface-container-high)',
             boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
             pointerEvents: 'auto',
             maxWidth: 'min(100%, 260px)',

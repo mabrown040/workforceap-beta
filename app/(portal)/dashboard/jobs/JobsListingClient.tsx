@@ -158,17 +158,25 @@ function JobCard({
                 Applied
               </span>
             )}
-            {matchPct !== undefined && matchPct > 0 && (
-              <span style={{
-                fontSize: '0.7rem', fontWeight: 700,
-                background: matchPct >= 70 ? 'rgba(13,148,136,0.12)' : matchPct >= 40 ? 'rgba(217,119,6,0.12)' : 'rgba(107,114,128,0.12)',
-                color: matchPct >= 70 ? '#0d9488' : matchPct >= 40 ? '#d97706' : '#6b7280',
-                border: `1px solid ${matchPct >= 70 ? 'rgba(13,148,136,0.3)' : matchPct >= 40 ? 'rgba(217,119,6,0.3)' : 'rgba(107,114,128,0.3)'}`,
-                borderRadius: '999px', padding: '0.15rem 0.5rem',
-              }}>
-                {matchPct}% {t('match')}
-              </span>
-            )}
+            {matchPct !== undefined && matchPct > 0 && (() => {
+              const matchColor =
+                matchPct >= 70
+                  ? 'var(--color-teal, #0d9488)'
+                  : matchPct >= 40
+                    ? 'var(--color-amber)'
+                    : 'var(--color-on-surface-variant)';
+              return (
+                <span style={{
+                  fontSize: '0.7rem', fontWeight: 700,
+                  background: `color-mix(in srgb, ${matchColor} 12%, transparent)`,
+                  color: matchColor,
+                  border: `1px solid color-mix(in srgb, ${matchColor} 30%, transparent)`,
+                  borderRadius: '999px', padding: '0.15rem 0.5rem',
+                }}>
+                  {matchPct}% {t('match')}
+                </span>
+              );
+            })()}
           </div>
         </div>
         <p className="job-card__company">{job.employer.companyName}</p>

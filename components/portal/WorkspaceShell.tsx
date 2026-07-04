@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
-import { ChevronLeft, ChevronRight, Menu, ShieldHalf } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Menu, ShieldHalf } from 'lucide-react';
 import { getBestActiveHref, isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import {
@@ -408,9 +408,7 @@ export default function WorkspaceShell({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="material-symbols-outlined" aria-hidden style={{ fontSize: '1rem' }}>
-                  open_in_new
-                </span>
+                <ExternalLink size={14} aria-hidden />
                 {marketingSiteLabel ?? tNav('publicSite')}
               </Link>
             ) : null}

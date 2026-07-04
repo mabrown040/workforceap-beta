@@ -236,7 +236,35 @@ export default function GoalsModule() {
 
   const activeGoals = goals.filter((g) => g.status === 'ACTIVE');
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div
+        className="goals-module portal-card portal-card--flat"
+        style={{
+          borderRadius: '0.875rem',
+          padding: '1.1rem 1.15rem 1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.85rem',
+        }}
+        aria-busy="true"
+        aria-label={t('title')}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.25rem', color: ACCENT }}>
+            flag
+          </span>
+          <h3 className="goals-module-title" style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: SURFACE }}>
+            {t('title')}
+          </h3>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <div className="portal-skeleton" style={{ height: '4.5rem', borderRadius: '0.75rem' }} />
+          <div className="portal-skeleton" style={{ height: '4.5rem', borderRadius: '0.75rem' }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

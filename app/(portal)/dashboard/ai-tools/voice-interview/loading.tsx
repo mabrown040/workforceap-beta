@@ -1,6 +1,6 @@
 import PortalRouteLoading from '@/components/portal/PortalRouteLoading';
 
 export default function Loading() {
-  return <PortalRouteLoading />;
+  return <PortalRouteLoading variant="detail" />;
 }
 

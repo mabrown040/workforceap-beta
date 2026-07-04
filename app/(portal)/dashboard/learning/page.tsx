@@ -139,7 +139,7 @@ export default async function LearningPage() {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="wa-text-base wa-font-bold wa-text-[var(--color-gold)]" style={{ position: 'absolute' }}>{overallPct}%</span>
+            <span className="wa-text-base wa-font-bold wa-text-[var(--color-gold)]" style={{ position: 'absolute', fontVariantNumeric: 'tabular-nums' }}>{overallPct}%</span>
           </div>
         </div>
         {/* Progress bar */}
@@ -311,7 +311,7 @@ export default async function LearningPage() {
           <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-2)' }}>
             Pathway Progress
           </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)', fontVariantNumeric: 'tabular-nums' }}>
             {overallPct}%
           </div>
           <div style={{ height: '6px', background: 'var(--surface-container-highest)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>

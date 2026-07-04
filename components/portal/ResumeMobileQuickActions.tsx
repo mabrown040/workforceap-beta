@@ -55,7 +55,7 @@ export default function ResumeMobileQuickActions() {
           color: 'inherit',
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-accent)', '--ms-fill': 1 }} aria-hidden="true">
           auto_fix_high
         </span>
         <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>AI Rewrite</span>

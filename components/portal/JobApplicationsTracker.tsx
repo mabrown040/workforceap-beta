@@ -107,8 +107,21 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
   if (isLoading) {
     return (
-      <div className="wa-flex wa-items-center wa-justify-center wa-py-12">
-        <p className="wa-text-gray-500">Loading applications...</p>
+      <div role="status" aria-live="polite" aria-label="Loading your applications">
+        <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center">
+          <div className="skeleton skeleton-text wa-h-6 wa-w-40" />
+          <div className="skeleton skeleton-rounded wa-h-9 wa-w-36" />
+        </div>
+        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="wa-space-y-3">
+              <div className="skeleton skeleton-text wa-h-8" />
+              <div className="skeleton skeleton-rounded wa-h-24" />
+              {i % 2 === 0 && <div className="skeleton skeleton-rounded wa-h-24" />}
+            </div>
+          ))}
+        </div>
+        <span className="wa-sr-only">Loading applications…</span>
       </div>
     );
   }
@@ -117,7 +130,15 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
     <div>
       {/* Error Alert */}
       {error && (
-        <div className="wa-mb-6 wa-p-4 wa-bg-red-50 wa-border wa-border-red-200 wa-rounded-lg wa-text-red-700">
+        <div
+          role="alert"
+          className="wa-mb-6 wa-p-4 wa-rounded-lg"
+          style={{
+            background: "color-mix(in srgb, var(--wa-danger, #dc2626) 10%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--wa-danger, #dc2626) 30%, transparent)",
+            color: "var(--wa-danger, #dc2626)",
+          }}
+        >
           {error}
         </div>
       )}
@@ -134,13 +155,14 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
       {/* Header with Button */}
       <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center">
         <div>
-          <h2 className="wa-text-xl wa-font-semibold wa-text-gray-900">
+          <h2 className="wa-text-xl wa-font-semibold" style={{ color: "var(--color-on-surface)" }}>
             {applications.length} Application{applications.length !== 1 ? 's' : ''}
           </h2>
         </div>
         <button type="button"
           onClick={() => setIsModalOpen(true)}
-          className="wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-rounded-lg hover:wa-bg-[#6b0a2a] wa-transition-colors wa-font-medium"
+          className="wa-px-4 wa-py-2 wa-text-white wa-rounded-lg hover:wa-opacity-90 wa-transition-opacity wa-font-medium focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+          style={{ background: "var(--color-accent-dark, #6b0c29)" }}
         >
           + Add Application
         </button>

@@ -224,7 +224,7 @@ export function MemberMessagesKit({
             style={{ borderRight: '1px solid var(--wa-border)' }}
           >
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
-              <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Messages</h3>
+              <h2 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Messages</h2>
             </div>
             <div>
               {conversations.map((c) => (
@@ -239,7 +239,7 @@ export function MemberMessagesKit({
                     textAlign: 'left',
                     padding: '16px 20px',
                     border: 'none',
-                    borderBottom: '1px solid #f5f5f5',
+                    borderBottom: '1px solid var(--wa-border)',
                     borderLeft: c.active ? '2px solid var(--wa-accent)' : '2px solid transparent',
                     background: c.active ? 'var(--wa-accent-soft)' : 'transparent',
                     cursor: 'pointer',
@@ -247,13 +247,18 @@ export function MemberMessagesKit({
                 >
                   <div className="wa-flex wa-items-center wa-justify-between">
                     <span style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</span>
-                    {c.unread ? <span style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--wa-accent)' }} /> : null}
+                    {c.unread ? (
+                      <span className="wa-flex wa-items-center wa-gap-1">
+                        <span className="sr-only">Unread</span>
+                        <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--wa-accent)' }} />
+                      </span>
+                    ) : null}
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{c.role}</div>
                   <p
                     style={{
                       fontSize: 12,
-                      color: c.active ? '#525252' : 'var(--wa-muted)',
+                      color: c.active ? 'var(--wa-text)' : 'var(--wa-muted)',
                       marginTop: 4,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -293,13 +298,13 @@ export function MemberMessagesKit({
                   cursor: 'pointer',
                 }}
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={18} aria-hidden="true" />
               </button>
               <Avatar initials={activeInitials} size={36} gradient={false} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{activeName}</div>
                 <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 10, fontWeight: 700, color: 'var(--wa-success)' }}>
-                  {activeOnline ? <Circle size={6} fill="currentColor" /> : null}
+                  {activeOnline ? <Circle size={6} fill="currentColor" aria-hidden="true" /> : null}
                   {activeOnline ? 'Online · ' : ''}{activeRole}
                 </div>
               </div>

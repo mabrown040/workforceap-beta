@@ -20,8 +20,8 @@ export default async function MentorProfilePage({ params }: { params: Promise<{ 
       {/* Mobile */}
       <div className="md:wa-hidden" style={{ padding: '1rem', paddingBottom: '6rem' }}>
         <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{mentor.fullName}</h1>
-        <div style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{mentor.title}</div>
-        <div style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>{mentor.company} · {mentor.industry}</div>
+        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>{mentor.title}</div>
+        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{mentor.company} · {mentor.industry}</div>
         <p style={{ lineHeight: 1.6 }}>{mentor.bio}</p>
         {mentor.linkedinUrl ? (
           <a href={mentor.linkedinUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '0.75rem', color: 'var(--color-accent)' }}>LinkedIn Profile</a>
@@ -31,9 +31,12 @@ export default async function MentorProfilePage({ params }: { params: Promise<{ 
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem', maxWidth: '52rem' }}>
-        <h2 aria-hidden="true" style={{ fontSize: '1.9rem', fontWeight: 700 }}>{mentor.fullName}</h2>
-        <div style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{mentor.title}</div>
-        <div style={{ color: 'var(--text-secondary)', marginBottom: '0.9rem' }}>{mentor.company} · {mentor.industry}</div>
+        {/* Mobile's <h1> above is display:none at this breakpoint (md:wa-hidden), so
+            it's already excluded from the accessibility tree — this <h2> is the
+            only heading screen readers see on desktop and must stay unhidden. */}
+        <h2 style={{ fontSize: '1.9rem', fontWeight: 700 }}>{mentor.fullName}</h2>
+        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>{mentor.title}</div>
+        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.9rem' }}>{mentor.company} · {mentor.industry}</div>
         <p style={{ lineHeight: 1.7 }}>{mentor.bio}</p>
         {mentor.linkedinUrl ? (
           <a href={mentor.linkedinUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '0.75rem', color: 'var(--color-accent)' }}>LinkedIn Profile</a>

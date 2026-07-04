@@ -24,7 +24,7 @@ const inputStyle: React.CSSProperties = {
   padding: '0.55rem 0.75rem',
   borderRadius: 10,
   border: '1px solid var(--surface-container-high)',
-  background: 'var(--color-surface)',
+  background: 'var(--surface-container-lowest)',
   color: 'var(--color-on-surface)',
   fontSize: '0.9rem',
   fontWeight: 600,
@@ -79,7 +79,7 @@ export default function BenefitsCliffClient() {
   const verdictMeta =
     result &&
     {
-      better_off: { icon: 'trending_up', color: '#2e7d32', bg: 'rgba(46,125,50,0.10)', title: t('verdictBetter') },
+      better_off: { icon: 'trending_up', color: 'var(--color-green)', bg: 'color-mix(in srgb, var(--color-green) 10%, transparent)', title: t('verdictBetter') },
       worse_off: { icon: 'trending_down', color: 'var(--color-accent)', bg: 'rgba(173,44,77,0.10)', title: t('verdictWorse') },
       about_the_same: { icon: 'remove', color: 'var(--color-on-surface-variant)', bg: 'var(--surface-container-high)', title: t('verdictSame') },
     }[result.verdict];
@@ -152,7 +152,7 @@ export default function BenefitsCliffClient() {
                   padding: '0.35rem 0.6rem',
                   borderRadius: 10,
                   border: '1px solid var(--surface-container-high)',
-                  background: receives.includes(p.id) ? 'var(--surface-container-low)' : 'var(--color-surface)',
+                  background: receives.includes(p.id) ? 'var(--surface-container-low)' : 'var(--surface-container-lowest)',
                   fontSize: '0.88rem',
                   fontWeight: 600,
                   color: 'var(--color-on-surface)',
@@ -336,7 +336,7 @@ export default function BenefitsCliffClient() {
                       </p>
                     )}
                   </div>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', color: p.kind === 'coverage' ? 'var(--color-on-surface-variant)' : p.changeMonthly < 0 ? 'var(--color-accent)' : '#2e7d32' }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', color: p.kind === 'coverage' ? 'var(--color-on-surface-variant)' : p.changeMonthly < 0 ? 'var(--color-accent)' : 'var(--color-green)' }}>
                     {p.kind === 'coverage'
                       ? p.losesEligibility
                         ? t('coverageAtRisk')

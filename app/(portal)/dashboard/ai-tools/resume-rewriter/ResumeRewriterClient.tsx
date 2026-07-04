@@ -118,9 +118,9 @@ function ResumeRewriterWithPrefill({ initialData }: { initialData?: { resume: st
                 flexWrap: 'wrap',
                 padding: '0.85rem 1rem',
                 borderRadius: 10,
-                background: 'rgba(74,155,79,0.1)',
+                background: 'color-mix(in srgb, var(--color-green, #4a9b4f) 10%, transparent)',
                 color: 'var(--color-green, #4a9b4f)',
-                border: '1px solid rgba(74,155,79,0.2)',
+                border: '1px solid color-mix(in srgb, var(--color-green, #4a9b4f) 20%, transparent)',
                 marginBottom: '0.75rem',
               }}
             >

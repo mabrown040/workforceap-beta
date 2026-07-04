@@ -97,9 +97,18 @@ export default function InterviewPrepBundle() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', padding: '2rem 0' }}>
-        <Loader2 size={20} className="ai-tool-submit-spinner" />
-        <span>Building your prep bundle…</span>
+      <div role="status" aria-live="polite">
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
+          <Loader2 size={20} className="ai-tool-submit-spinner" aria-hidden="true" />
+          <span>Building your prep bundle…</span>
+        </div>
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="skeleton skeleton-rounded"
+            style={{ height: '4.5rem', marginBottom: '0.75rem' }}
+          />
+        ))}
       </div>
     );
   }
@@ -237,7 +246,7 @@ export default function InterviewPrepBundle() {
       {errorMessage && (
         <p
           role="alert"
-          style={{ margin: '0 0 1rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error, #dc2626)' }}
+          style={{ margin: '0 0 1rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error)' }}
         >
           {errorMessage}
         </p>
@@ -260,7 +269,7 @@ export default function InterviewPrepBundle() {
             key={item.toolType}
             style={{
               marginBottom: '1rem',
-              border: `1px solid ${isSelected ? 'var(--color-accent)' : 'var(--color-border-subtle)'}`,
+              border: `1px solid ${isSelected ? 'var(--color-accent)' : 'var(--outline-variant)'}`,
               borderRadius: '0.75rem',
               background: 'var(--surface-container)',
               overflow: 'hidden',
@@ -271,7 +280,7 @@ export default function InterviewPrepBundle() {
             <div
               style={{
                 padding: '0.75rem 1rem',
-                borderBottom: '1px solid var(--color-border-subtle)',
+                borderBottom: '1px solid var(--outline-variant)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',

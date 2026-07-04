@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 
 type Props = { compact?: boolean };
 
@@ -10,30 +9,43 @@ export default function FindYourCareerSection({ compact }: Props) {
   if (compact) {
     return (
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
-        <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '0.75rem' }}>
+        <h5
+          className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest"
+          style={{ marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}
+        >
           Find your career
         </h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <Link
             href="/dashboard/learning/find-your-career"
-            className="wa-bg-white wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border wa-border-[#e8e0dd]"
-            style={{ textDecoration: 'none', color: 'inherit' }}
+            className="wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border"
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
+              background: 'var(--surface-container-lowest)',
+              borderColor: 'var(--outline-variant)',
+            }}
           >
-            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">explore</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent-dark)' }} aria-hidden="true">explore</span>
             <div>
-              <div className="wa-font-semibold wa-text-[#1c1b1b]">O*NET Interest Profiler</div>
-              <div className="wa-text-xs wa-text-[#584144]">RIASEC interests · 30 questions</div>
+              <div className="wa-font-semibold" style={{ color: 'var(--color-on-surface)' }}>O*NET Interest Profiler</div>
+              <div className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>RIASEC interests · 30 questions</div>
             </div>
           </Link>
           <Link
             href="/dashboard/ai-tools/skill-mapper"
-            className="wa-bg-white wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border wa-border-[#e8e0dd]"
-            style={{ textDecoration: 'none', color: 'inherit' }}
+            className="wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border"
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
+              background: 'var(--surface-container-lowest)',
+              borderColor: 'var(--outline-variant)',
+            }}
           >
-            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">radar</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent-dark)' }} aria-hidden="true">radar</span>
             <div>
-              <div className="wa-font-semibold wa-text-[#1c1b1b]">O*NET skill mapping</div>
-              <div className="wa-text-xs wa-text-[#584144]">Explore occupation skills &amp; gaps</div>
+              <div className="wa-font-semibold" style={{ color: 'var(--color-on-surface)' }}>O*NET skill mapping</div>
+              <div className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>Explore occupation skills &amp; gaps</div>
             </div>
           </Link>
         </div>
@@ -63,7 +75,9 @@ export default function FindYourCareerSection({ compact }: Props) {
                   Mini Interest Profiler (30 questions), RIASEC scores, and program alignment.
                 </span>
               </span>
-              <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />
+              <span className="material-symbols-outlined learning-hub-card-chevron" style={{ fontSize: 22 }} aria-hidden="true">
+                chevron_right
+              </span>
             </Link>
           </li>
           <li>
@@ -79,7 +93,9 @@ export default function FindYourCareerSection({ compact }: Props) {
                   Visualize skills for occupations and compare to your background — same tool as AI Tools → Skill mapping.
                 </span>
               </span>
-              <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />
+              <span className="material-symbols-outlined learning-hub-card-chevron" style={{ fontSize: 22 }} aria-hidden="true">
+                chevron_right
+              </span>
             </Link>
           </li>
         </ul>

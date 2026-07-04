@@ -12,6 +12,7 @@ type ResourceCardProps = {
 
 export default function ResourceCard({ resource, progress }: ResourceCardProps) {
   const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
   const isExternal = resource.url.startsWith('http');
   const href = resource.url;
   const isCompleted = !!progress?.completedAt;
@@ -27,6 +28,7 @@ export default function ResourceCard({ resource, progress }: ResourceCardProps) 
     e.stopPropagation();
     if (downloading || !hasFile) return;
     setDownloading(true);
+    setDownloadError(false);
     try {
       const res = await fetch(`/api/member/resources/${resource.id}/download`, { credentials: 'include' });
       if (!res.ok) throw new Error();
@@ -46,7 +48,9 @@ export default function ResourceCard({ resource, progress }: ResourceCardProps) 
         credentials: 'include',
       }).catch(() => {});
     } catch {
-      // ignore
+      // Previously failed silently — the button just reset with no sign
+      // anything went wrong.
+      setDownloadError(true);
     } finally {
       setDownloading(false);
     }
@@ -76,15 +80,20 @@ export default function ResourceCard({ resource, progress }: ResourceCardProps) 
         </div>
       ) : null}
       <div className="resource-card-footer">
+        {downloadError && (
+          <span role="alert" style={{ fontSize: '0.75rem', color: 'var(--color-error, #dc2626)' }}>
+            Couldn&rsquo;t download — try again
+          </span>
+        )}
         {hasFile && (
           <button
             type="button"
             className="resource-card-download"
             onClick={handleDownload}
             disabled={downloading}
-            aria-label={`Download ${resource.title}`}
+            aria-label={downloading ? `Downloading ${resource.title}` : `Download ${resource.title}`}
           >
-            {downloading ? '…' : '↓ Download'}
+            {downloading ? 'Downloading…' : '↓ Download'}
           </button>
         )}
         <span className="resource-card-arrow" aria-hidden>

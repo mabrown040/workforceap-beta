@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock, CheckCircle2, RotateCcw, Flame } from 'lucide-react';
 import SkillMissionChallenge from './SkillMissionChallenge';
 
 // ── Local type copies (server-only lib not importable here) ──────────────────
@@ -91,7 +92,11 @@ function LockedCard({ mission }: { mission: SkillMissionSummaryItem }) {
         gap: '0.75rem',
       }}
     >
-      <span style={{ fontSize: '1.4rem', lineHeight: 1, flexShrink: 0 }}>🔒</span>
+      <Lock
+        size={22}
+        aria-hidden="true"
+        style={{ flexShrink: 0, color: 'var(--color-on-surface-variant)', marginTop: '0.1rem' }}
+      />
       <div>
         <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
           {mission.missionName}
@@ -207,12 +212,12 @@ function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.45rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '1.15rem', lineHeight: 1 }}>✅</span>
+          <CheckCircle2 size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--color-green)' }} />
           <div>
             <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
               {mission.missionName}
             </h4>
-            <p style={{ margin: '0.1rem 0 0', fontSize: '0.78rem', color: '#3d8b41' }}>
+            <p style={{ margin: '0.1rem 0 0', fontSize: '0.78rem', color: 'var(--color-green)' }}>
               {formatPassedDate(mission.completedAt)}
             </p>
           </div>
@@ -233,7 +238,7 @@ function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
                 border: '1px solid rgba(74,155,79,0.2)',
                 fontSize: '0.73rem',
                 fontWeight: 600,
-                color: '#256b2a',
+                color: 'var(--color-green)',
               }}
             >
               {s}
@@ -244,7 +249,7 @@ function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
 
       {result && result.resumeBullet && (
         <p style={{ margin: '0.25rem 0 0.45rem', fontSize: '0.82rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-          "{result.resumeBullet}"
+          &ldquo;{result.resumeBullet}&rdquo;
         </p>
       )}
 
@@ -290,7 +295,7 @@ function RetryCard({
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: '#8a5a00',
+              color: 'var(--color-amber)',
               marginBottom: '0.25rem',
             }}
           >
@@ -300,7 +305,7 @@ function RetryCard({
             {mission.missionName}
           </h4>
         </div>
-        <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>💪</span>
+        <RotateCcw size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--color-amber)' }} />
       </div>
 
       {preview && (
@@ -313,7 +318,7 @@ function RetryCard({
         type="button"
         className="btn btn-primary"
         onClick={onRetry}
-        style={{ fontSize: '0.85rem', background: '#8a5a00', borderColor: '#8a5a00' }}
+        style={{ fontSize: '0.85rem', background: 'var(--color-amber)', borderColor: 'var(--color-amber)' }}
       >
         Retry Mission →
       </button>
@@ -429,10 +434,10 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
                 border: '1px solid rgba(230,120,0,0.25)',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#8a4a00',
+                color: 'var(--color-amber)',
               }}
             >
-              🔥 {summary.streak} streak
+              <Flame size={13} aria-hidden="true" /> {summary.streak} streak
             </span>
           )}
         </div>
@@ -458,7 +463,7 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
                     border: '1px solid rgba(74,155,79,0.2)',
                     fontSize: '0.75rem',
                     fontWeight: 600,
-                    color: '#256b2a',
+                    color: 'var(--color-green)',
                     animation: 'fadeIn 0.4s ease both',
                   }}
                 >

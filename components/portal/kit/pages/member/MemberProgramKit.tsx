@@ -184,7 +184,7 @@ export function MemberProgramKit({
               whiteSpace: 'nowrap',
             }}
           >
-            Resume Module <Play size={12} />
+            Resume Module <Play size={12} aria-hidden="true" />
           </a>
         </div>
 
@@ -228,7 +228,7 @@ export function MemberProgramKit({
                         flexShrink: 0,
                       }}
                     >
-                      <Icon size={meta.iconSize} />
+                      <Icon size={meta.iconSize} aria-hidden="true" />
                     </div>
                     <span style={{ fontWeight: 600, fontSize: 14, flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
                       {m.title}
@@ -251,7 +251,7 @@ export function MemberProgramKit({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Continue in Coursera <ArrowRight size={11} />
+                        Continue in Coursera <ArrowRight size={11} aria-hidden="true" />
                       </a>
                     ) : (
                       <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: meta.color }}>
@@ -269,7 +269,7 @@ export function MemberProgramKit({
             {hasLiveSession && (
               <div className="wa-kit-card">
                 <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-accent)', marginBottom: 8 }}>
-                  <CalendarDays size={15} />
+                  <CalendarDays size={15} aria-hidden="true" />
                   <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Next Live Session</h3>
                 </div>
                 <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
@@ -301,7 +301,7 @@ export function MemberProgramKit({
 
             <div className="wa-kit-card" style={{ background: 'var(--wa-gold-soft)', borderColor: 'var(--wa-gold-soft)' }}>
               <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-gold)', marginBottom: 8 }}>
-                <Target size={15} />
+                <Target size={15} aria-hidden="true" />
                 <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Skill Missions</h3>
               </div>
               <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
@@ -312,7 +312,7 @@ export function MemberProgramKit({
                 className="wa-kit-focus"
                 style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'var(--wa-gold)', textDecoration: 'none' }}
               >
-                View missions <ArrowRight size={12} />
+                View missions <ArrowRight size={12} aria-hidden="true" />
               </a>
             </div>
           </div>

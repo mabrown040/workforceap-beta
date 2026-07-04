@@ -138,7 +138,8 @@
   border-radius: 50%;
   font-size: 1.05rem;
   line-height: 1;
-  background: color-mix(in srgb, var(--color-accent, #ad2c4d) 13%, #fff);
+  color: var(--color-accent-dark, #8c0f37);
+  background: color-mix(in srgb, var(--color-accent, #ad2c4d) 13%, var(--surface-container-lowest, #fff));
 }
 
 .quickBody {

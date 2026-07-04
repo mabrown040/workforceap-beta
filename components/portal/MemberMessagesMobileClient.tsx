@@ -355,7 +355,8 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       {error && (
         <div
           className="wa-flex-shrink-0 wa-mx-4 wa-mb-2 wa-px-3 wa-py-2 wa-rounded-lg wa-text-xs wa-text-white"
-          style={{ background: 'var(--color-error, #ba1a1a)' }}role="alert"
+          style={{ background: 'var(--color-error, #ba1a1a)' }}
+          role="alert"
         >
           {error}
         </div>

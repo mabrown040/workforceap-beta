@@ -30,7 +30,7 @@ function SkillChips({ skills, tone }: { skills: BridgeSkill[]; tone: 'missing' |
     tone === 'missing'
       ? { background: 'rgba(173,44,77,0.10)', color: 'var(--color-accent)' }
       : tone === 'have'
-        ? { background: 'rgba(46,125,50,0.12)', color: '#2e7d32' }
+        ? { background: 'rgba(46,125,50,0.12)', color: 'var(--color-green)' }
         : { background: 'var(--surface-container-high)', color: 'var(--color-on-surface)' };
   return (
     <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', margin: 0, padding: 0, listStyle: 'none' }}>
@@ -139,7 +139,7 @@ export default function TrainingBridgeClient({ assessment }: Props) {
             padding: '0.55rem 0.75rem',
             borderRadius: 10,
             border: '1px solid var(--surface-container-high)',
-            background: 'var(--color-surface)',
+            background: 'var(--surface-container-lowest)',
             color: 'var(--color-on-surface)',
             fontSize: '0.9rem',
             fontWeight: 600,

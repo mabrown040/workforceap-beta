@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const FEEDBACK_TYPES = [
   { value: 'training', label: 'Training / Courses' },
@@ -25,6 +25,13 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  // Move focus into the dialog when it opens so keyboard/screen-reader users
+  // land on it instead of staying on the (now-obscured) trigger button.
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
 
   if (!open) return null;
 
@@ -75,6 +82,9 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') handleClose();
+      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -88,7 +98,7 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
     >
       <div
         style={{
-          background: 'var(--surface)',
+          background: 'var(--surface-container-lowest, #fff)',
           borderRadius: '1rem',
           width: '100%',
           maxWidth: '420px',
@@ -98,7 +108,7 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
         }}
       >
         <div style={{ padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid var(--outline-variant)' }}>
-          <h2 id="feedback-title" style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
+          <h2 ref={titleRef} tabIndex={-1} id="feedback-title" style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
             Share Feedback
           </h2>
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
@@ -126,6 +136,7 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
           <form onSubmit={handleSubmit} style={{ padding: '1rem 1.25rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
             {error && (
               <div
+                role="alert"
                 style={{
                   padding: '0.625rem 0.875rem',
                   borderRadius: '0.625rem',
@@ -164,14 +175,16 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
             </div>
 
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+              <span id="memberfeedbackmodal-rating-label" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
                 Rating
-              </label>
-              <div style={{ display: 'flex', gap: '0.25rem' }}>
+              </span>
+              <div role="radiogroup" aria-labelledby="memberfeedbackmodal-rating-label" style={{ display: 'flex', gap: '0.25rem' }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
+                    role="radio"
+                    aria-checked={star === rating}
                     onClick={() => setRating(star)}
                     aria-label={`Rate ${star} out of 5`}
                     style={{
@@ -181,7 +194,7 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
                       padding: '0.25rem',
                       fontSize: '1.5rem',
                       lineHeight: 1,
-                      color: star <= rating ? '#f5a623' : 'var(--outline-variant)',
+                      color: star <= rating ? 'var(--color-gold, #f5a623)' : 'var(--outline-variant)',
                       transition: 'color 0.15s',
                     }}
                   >

@@ -20,6 +20,7 @@ export default function LearningHubDestinationCards() {
             <Link
               href="/dashboard/career-library"
               className="learning-hub-card"
+              style={{ background: 'var(--surface-container-low)', borderColor: 'var(--outline-variant)' }}
               onClick={() => trackLearningHubNavigate('career_library')}
             >
               <span className="learning-hub-card-icon" aria-hidden>
@@ -38,6 +39,7 @@ export default function LearningHubDestinationCards() {
             <Link
               href="/dashboard/resources"
               className="learning-hub-card"
+              style={{ background: 'var(--surface-container-low)', borderColor: 'var(--outline-variant)' }}
               onClick={() => trackLearningHubNavigate('program_resources')}
             >
               <span className="learning-hub-card-icon" aria-hidden>
@@ -57,6 +59,7 @@ export default function LearningHubDestinationCards() {
               <Link
                 href="/dashboard/learning/wioa-qualification"
                 className="learning-hub-card"
+                style={{ background: 'var(--surface-container-low)', borderColor: 'var(--outline-variant)' }}
                 onClick={() => trackLearningHubNavigate('wioa_screening')}
               >
                 <span className="learning-hub-card-icon" aria-hidden>

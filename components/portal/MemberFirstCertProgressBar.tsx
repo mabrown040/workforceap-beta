@@ -60,8 +60,9 @@ export default function MemberFirstCertProgressBar({ progress, compact }: Props)
           style={{
             fontSize: compact ? '0.8125rem' : '0.875rem',
             fontWeight: 800,
-            color: isComplete ? 'var(--color-success, #4a9b4f)' : 'var(--color-accent)',
+            color: isComplete ? 'var(--color-green)' : 'var(--color-accent)',
             whiteSpace: 'nowrap',
+            fontVariantNumeric: 'tabular-nums',
           }}
         >
           {clamped}%
@@ -88,7 +89,7 @@ export default function MemberFirstCertProgressBar({ progress, compact }: Props)
             width: `${clamped}%`,
             height: '100%',
             background: isComplete
-              ? 'var(--color-success, #4a9b4f)'
+              ? 'var(--color-green)'
               : 'var(--color-accent)',
             borderRadius: '999px',
             transition: 'width 0.6s ease-out',

@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import MemberFeedbackModal from './MemberFeedbackModal';
 
 export default function MemberFeedbackButton() {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
       <button
+        ref={triggerRef}
         onClick={() => setOpen(true)}
         className="btn btn-outline"
         style={{
@@ -28,7 +30,15 @@ export default function MemberFeedbackButton() {
         </span>
         Feedback
       </button>
-      <MemberFeedbackModal open={open} onClose={() => setOpen(false)} />
+      <MemberFeedbackModal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          // Return focus to the button that opened the dialog instead of
+          // letting it fall back to <body> when the modal unmounts.
+          triggerRef.current?.focus();
+        }}
+      />
     </>
   );
 }

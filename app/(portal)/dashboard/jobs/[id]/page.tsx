@@ -163,6 +163,7 @@ export default async function JobDetailPage({ params }: Props) {
     <div className="inner-page">
       <PageHeader
         title="Job Details"
+        titleHeadingLevel={2}
         breadcrumbs={[
           { label: 'Job Board', href: '/dashboard/jobs' },
           { label: 'Job Details' },
@@ -270,7 +271,7 @@ export default async function JobDetailPage({ params }: Props) {
                   padding: '0.85rem 1rem',
                   borderRadius: '0.65rem',
                   border: '1px solid var(--outline-variant)',
-                  background: 'var(--color-surface, #fff)',
+                  background: 'var(--surface-container-lowest)',
                   marginBottom: '0.75rem',
                 }}
               >

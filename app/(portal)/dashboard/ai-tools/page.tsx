@@ -65,7 +65,7 @@ export default async function AIToolsPage() {
               letterSpacing: '0.1em',
               padding: '0.3rem 0.75rem',
               borderRadius: '999px',
-              background: 'rgba(173,44,77,0.12)',
+              background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
               color: 'var(--color-accent)',
               marginBottom: '1rem',
             }}
@@ -90,7 +90,7 @@ export default async function AIToolsPage() {
             href="/dashboard/ai-tools/history"
             className="btn btn-outline"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               history
             </span>
             {tCommon('viewMyPastResults')}
@@ -100,7 +100,7 @@ export default async function AIToolsPage() {
             className="btn btn-outline"
             style={{ marginLeft: '0.5rem' }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               library_books
             </span>
             {tCommon('prepBundle')}
@@ -138,7 +138,7 @@ export default async function AIToolsPage() {
       {/* Guided job search steps */}
       <section style={{ maxWidth: '1100px', margin: '0 auto 2rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             {tCommon('guidedJobSearch')}
           </h2>
@@ -174,14 +174,14 @@ export default async function AIToolsPage() {
                     style={{ textDecoration: 'none', padding: '0.75rem 0.875rem', flex: '1 1 160px', maxWidth: '220px' }}
                   >
                     <div className="portal-quick-action-item__icon">
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{tool.icon}</span>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p className="portal-quick-action-item__label" style={{ whiteSpace: 'normal', lineHeight: 1.35, overflowWrap: 'break-word' }}>
                         {tool.label}
                       </p>
                     </div>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35, flexShrink: 0, marginTop: '0.15rem' }}>chevron_right</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35, flexShrink: 0, marginTop: '0.15rem' }} aria-hidden="true">chevron_right</span>
                   </Link>
                 ))}
               </div>

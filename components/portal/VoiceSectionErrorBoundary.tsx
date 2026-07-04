@@ -37,10 +37,17 @@ export default class VoiceSectionErrorBoundary extends Component<Props, State> {
           }}
           role="status"
         >
-          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
             Voice assistants could not load in this browser session. You can still use every other part of your
-            dashboard; try refreshing the page later if you need voice coaching.
+            dashboard — refresh the page if you&rsquo;d like to try voice coaching again.
           </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="btn btn-outline btn-sm"
+          >
+            Refresh page
+          </button>
         </section>
       );
     }

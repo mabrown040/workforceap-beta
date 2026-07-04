@@ -24,16 +24,6 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   REJECTED: "Rejected",
 };
 
-const STATUS_BADGE_CLASSES: Record<JobApplicationStatus, string> = {
-  APPLIED: "wa-bg-gray-100 wa-text-gray-700",
-  PHONE_SCREEN: "wa-bg-blue-100 wa-text-blue-700",
-  INTERVIEWING: "wa-bg-amber-100 wa-text-amber-700",
-  OFFER: "wa-bg-green-100 wa-text-green-700",
-  ACCEPTED: "wa-bg-emerald-100 wa-text-emerald-800",
-  SAVED: "wa-bg-slate-200 wa-text-slate-800",
-  REJECTED: "wa-bg-red-100 wa-text-red-700",
-};
-
 /** Left accent on kanban cards / columns — WorkforceAP burgundy on Applied */
 const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
   SAVED: "#64748b",
@@ -44,6 +34,18 @@ const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
   ACCEPTED: "#059669",
   REJECTED: "#dc2626",
 };
+
+/** Status badge tint, derived from the same accent hexes above via color-mix
+ * so the badge stays legible (and doesn't turn into a pale, near-white
+ * patch) on dark surfaces — matches the `--wa-accent-soft` tinting idiom
+ * used across the kit instead of fixed Tailwind gray/blue/amber swatches. */
+function statusBadgeStyle(status: JobApplicationStatus): CSSProperties {
+  const hex = STATUS_ACCENTS[status];
+  return {
+    background: `color-mix(in srgb, ${hex} 16%, transparent)`,
+    color: hex,
+  };
+}
 
 function MobileApplicationCard({
   application,
@@ -111,7 +113,8 @@ function MobileApplicationCard({
           )}
         </div>
         <span
-          className={`wa-shrink-0 wa-text-xs wa-font-semibold wa-px-2 wa-py-1 wa-rounded-full ${STATUS_BADGE_CLASSES[application.status]}`}
+          className="wa-shrink-0 wa-text-xs wa-font-semibold wa-px-2 wa-py-1 wa-rounded-full"
+          style={statusBadgeStyle(application.status)}
         >
           {STATUS_LABELS[application.status]}
         </span>
@@ -124,7 +127,8 @@ function MobileApplicationCard({
         >
           <label
             htmlFor={`mobile-status-${application.id}`}
-            className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-1"
+            className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-1"
+            style={{ color: "var(--color-on-surface-variant)" }}
           >
             Update Status
           </label>
@@ -134,7 +138,12 @@ function MobileApplicationCard({
             onChange={(e) =>
               setSelectedStatus(e.target.value as JobApplicationStatus)
             }
-            className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm wa-mb-3"
+            className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm wa-mb-3"
+            style={{
+              border: "1px solid var(--outline-variant)",
+              background: "var(--surface-container-lowest)",
+              color: "var(--color-on-surface)",
+            }}
           >
             {JOB_APPLICATION_PIPELINE_COLUMNS.map((s) => (
               <option key={s} value={s}>
@@ -146,14 +155,16 @@ function MobileApplicationCard({
             <button
               type="button"
               onClick={handleSave}
-              className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-bg-[#6b0a2a]"
+              className="wa-flex-1 wa-px-3 wa-py-2 wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-opacity-90 wa-transition-opacity focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+              style={{ background: "var(--color-accent-dark, #6b0c29)" }}
             >
               Save
             </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-text-sm wa-font-medium wa-rounded"
+              className="wa-flex-1 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-rounded focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+              style={{ background: "var(--surface-container-high)", color: "var(--color-on-surface)" }}
             >
               Cancel
             </button>
@@ -165,7 +176,8 @@ function MobileApplicationCard({
           onClick={() => setOpen(true)}
           aria-expanded={open}
           aria-controls={`mobile-status-panel-${application.id}`}
-          className="wa-mt-3 wa-text-xs wa-text-[#8c0f37] wa-font-medium hover:wa-underline focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1 wa-rounded-sm"
+          className="wa-mt-3 wa-text-xs wa-font-medium hover:wa-underline focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1 wa-rounded-sm"
+          style={{ color: "var(--color-accent)" }}
         >
           Update Status
         </button>
@@ -203,11 +215,12 @@ export default function JobApplicationKanban({
                 <div key={status} className="wa-mb-4">
                   <div className="wa-flex wa-items-center wa-gap-2 wa-mb-2">
                     <span
-                      className={`wa-text-xs wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded-full ${STATUS_BADGE_CLASSES[status]}`}
+                      className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded-full"
+                      style={statusBadgeStyle(status)}
                     >
                       {STATUS_LABELS[status]}
                     </span>
-                    <span className="wa-text-xs wa-text-gray-500">
+                    <span className="wa-text-xs" style={{ color: "var(--color-on-surface-variant)" }}>
                       {group.length}
                     </span>
                   </div>

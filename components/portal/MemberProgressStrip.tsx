@@ -114,7 +114,7 @@ export default function MemberProgressStrip(props: Props) {
                 background: done
                   ? 'var(--color-accent)'
                   : isCurrent
-                    ? '#fff'
+                    ? 'var(--surface-container-lowest)'
                     : 'var(--surface-container-low)',
                 border: done
                   ? '2px solid var(--color-accent)'

@@ -342,7 +342,13 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
               alignItems: 'flex-start',
             }}
           >
-            <span style={{ fontSize: '1.1rem', flexShrink: 0, marginTop: '0.1rem' }}>📋</span>
+            <span
+              className="material-symbols-outlined"
+              aria-hidden="true"
+              style={{ fontSize: '1.1rem', flexShrink: 0, marginTop: '0.1rem', color: 'var(--color-on-surface-variant)' }}
+            >
+              assignment
+            </span>
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>
                 Scenario
@@ -369,13 +375,13 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
 
               if (revealed) {
                 if (isRight) {
-                  bgColor = 'var(--color-success-container, #d4edda)';
-                  borderColor = 'var(--color-success, #28a745)';
-                  textColor = 'var(--color-on-success-container, #155724)';
+                  bgColor = 'rgba(74,155,79,0.12)';
+                  borderColor = 'var(--color-green)';
+                  textColor = 'var(--color-green)';
                 } else if (isSelected && !isRight) {
-                  bgColor = 'var(--color-error-container, #fde8e8)';
-                  borderColor = 'var(--color-error, #d32f2f)';
-                  textColor = 'var(--color-on-error-container, #7f1d1d)';
+                  bgColor = 'var(--color-error-container)';
+                  borderColor = 'var(--color-error)';
+                  textColor = 'var(--color-error)';
                 }
               } else if (isSelected) {
                 borderColor = 'var(--color-accent, #1a73e8)';
@@ -423,7 +429,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   </span>
                   {opt.text}
                   {revealed && isRight && (
-                    <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18, marginLeft: 'auto', fontVariationSettings: "'FILL' 1", color: 'var(--color-success, #28a745)' }}>
+                    <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18, marginLeft: 'auto', fontVariationSettings: "'FILL' 1", color: 'var(--color-green)' }}>
                       check_circle
                     </span>
                   )}
@@ -435,13 +441,15 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
           {/* Feedback */}
           {revealed && (
             <div
+              role="status"
+              aria-live="polite"
               style={{
                 padding: '0.85rem 1rem',
                 borderRadius: 10,
                 background: isCorrect
-                  ? 'var(--color-success-container, #d4edda)'
-                  : 'var(--color-error-container, #fde8e8)',
-                border: `1px solid ${isCorrect ? 'var(--color-success, #28a745)' : 'var(--color-error, #d32f2f)'}`,
+                  ? 'rgba(74,155,79,0.12)'
+                  : 'var(--color-error-container)',
+                border: `1px solid ${isCorrect ? 'var(--color-green)' : 'var(--color-error)'}`,
                 marginBottom: '1rem',
               }}
             >
@@ -449,7 +457,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                 style={{
                   fontWeight: 700,
                   fontSize: '0.85rem',
-                  color: isCorrect ? 'var(--color-on-success-container, #155724)' : 'var(--color-on-error-container, #7f1d1d)',
+                  color: isCorrect ? 'var(--color-green)' : 'var(--color-error)',
                   marginBottom: '0.3rem',
                   display: 'flex',
                   alignItems: 'center',
@@ -461,7 +469,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                 </span>
                 {isCorrect ? 'Correct' : 'Not quite'}
               </div>
-              <div style={{ fontSize: '0.83rem', lineHeight: 1.55, color: isCorrect ? 'var(--color-on-success-container, #155724)' : 'var(--color-on-error-container, #7f1d1d)' }}>
+              <div style={{ fontSize: '0.83rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
                 {cp.explanation}
               </div>
             </div>

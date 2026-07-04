@@ -107,6 +107,11 @@ export default function GlobalSearch() {
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-expanded={results.length > 0}
+            aria-controls="global-search-listbox"
+            aria-activedescendant={results.length > 0 ? `global-search-option-${selectedIndex}` : undefined}
+            aria-autocomplete="list"
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -115,16 +120,26 @@ export default function GlobalSearch() {
             style={{ flex: 1, background: 'none', border: 'none', fontSize: '1rem', color: 'var(--color-on-surface)', fontFamily: 'inherit' }}
           />
           {loading && <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', animation: 'spin 1s linear infinite' }}>progress_activity</span>}
-          <kbd onClick={() => setOpen(false)} style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '0.25rem', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', cursor: 'pointer' }}>Esc</kbd>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close search"
+            style={{ fontSize: '0.75rem', fontFamily: 'inherit', padding: '0.15rem 0.5rem', borderRadius: '0.25rem', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', cursor: 'pointer' }}
+          >
+            Esc
+          </button>
         </div>
 
         {/* Results */}
         {results.length > 0 ? (
-          <ul style={{ listStyle: 'none', margin: 0, padding: '0.375rem 0', maxHeight: '360px', overflowY: 'auto' }}>
+          <ul id="global-search-listbox" role="listbox" aria-label="Search results" style={{ listStyle: 'none', margin: 0, padding: '0.375rem 0', maxHeight: '360px', overflowY: 'auto' }}>
             {results.map((r, i) => (
-              <li key={`${r.type}-${r.id}`}>
+              <li key={`${r.type}-${r.id}`} role="presentation">
                 <a
                   href={r.href}
+                  id={`global-search-option-${i}`}
+                  role="option"
+                  aria-selected={i === selectedIndex}
                   onClick={() => setOpen(false)}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', textDecoration: 'none', color: 'inherit', background: i === selectedIndex ? 'var(--surface-container)' : 'transparent', transition: 'background 0.15s' }}
                   onMouseEnter={() => setSelectedIndex(i)}

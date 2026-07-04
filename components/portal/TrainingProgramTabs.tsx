@@ -92,9 +92,10 @@ export default function TrainingProgramTabs({
               disabled={isPending}
               style={{
                 padding: '0.5rem 0.875rem',
+                minHeight: 44,
                 borderRadius: '999px',
-                border: '1px solid var(--color-outline-variant, rgba(0,0,0,0.12))',
-                background: isActive ? 'var(--color-accent)' : 'var(--color-surface)',
+                border: '1px solid var(--outline-variant)',
+                background: isActive ? 'var(--color-accent)' : 'var(--surface-container-lowest)',
                 color: isActive ? 'white' : 'var(--color-on-surface)',
                 fontSize: '0.875rem',
                 fontWeight: 600,

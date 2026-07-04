@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Target, Flame } from 'lucide-react';
 
 /* Dashboard-home teaser for Skill Missions. Server-renderable (no client
    state) — every state links to /dashboard/missions so the feature is always
@@ -64,6 +65,9 @@ export default function SkillMissionTeaserCard({
         <p
           style={{
             margin: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.3rem',
             fontSize: '0.72rem',
             fontWeight: 700,
             letterSpacing: '0.08em',
@@ -71,22 +75,25 @@ export default function SkillMissionTeaserCard({
             color: 'var(--color-accent)',
           }}
         >
-          🎯 Skill Missions
+          <Target size={13} aria-hidden="true" /> Skill Missions
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {data && data.streak > 1 && (
             <span
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.2rem',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                color: '#b45309',
+                color: 'var(--color-amber)',
                 background: 'rgba(245,158,11,0.12)',
                 padding: '0.12rem 0.5rem',
                 borderRadius: '9999px',
                 whiteSpace: 'nowrap',
               }}
             >
-              🔥 {data.streak} streak
+              <Flame size={12} aria-hidden="true" /> {data.streak} streak
             </span>
           )}
           {data && (

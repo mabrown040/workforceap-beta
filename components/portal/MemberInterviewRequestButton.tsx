@@ -30,7 +30,11 @@ export default function MemberInterviewRequestButton() {
   };
 
   if (done) {
-    return <p style={{ color: 'var(--color-on-surface)', margin: 0 }}>Interview request sent. A counselor will follow up.</p>;
+    return (
+      <p role="status" aria-live="polite" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+        Interview request sent. A counselor will follow up.
+      </p>
+    );
   }
 
   return (

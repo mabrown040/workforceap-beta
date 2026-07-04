@@ -14,9 +14,9 @@ type TailorResult = {
 type TailorResponse = (TailorResult & { ok: true }) | { ok: false; error: string };
 
 function scoreColor(score: number): string {
-  if (score >= 75) return '#256b2a';
-  if (score >= 50) return '#8a5a00';
-  return '#9b1c1c';
+  if (score >= 75) return 'var(--color-green)';
+  if (score >= 50) return 'var(--color-amber)';
+  return 'var(--color-error)';
 }
 
 function ScoreBadge({ label, score }: { label: string; score: number }) {
@@ -111,9 +111,15 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
           color: 'var(--color-accent)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.3rem',
         }}
       >
-        ✨ AI Resume Tailor
+        <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }} aria-hidden="true">
+          auto_awesome
+        </span>
+        AI Resume Tailor
       </p>
 
       {!result && (
@@ -143,7 +149,7 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
             </p>
           )}
           {error && (
-            <p role="alert" style={{ margin: '0.7rem 0 0', fontSize: '0.87rem', color: 'var(--color-error, #c83232)' }}>
+            <p role="alert" style={{ margin: '0.7rem 0 0', fontSize: '0.87rem', color: 'var(--color-error)' }}>
               {error}
             </p>
           )}
@@ -182,11 +188,11 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
                 marginBottom: '0.9rem',
                 padding: '0.6rem 0.85rem',
                 borderRadius: '0.55rem',
-                background: 'rgba(194,120,0,0.08)',
-                border: '1px solid rgba(194,120,0,0.2)',
+                background: 'color-mix(in srgb, var(--color-amber) 8%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--color-amber) 20%, transparent)',
               }}
             >
-              <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8a5a00' }}>
+              <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-amber)' }}>
                 Address these in your cover letter
               </p>
               <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.88rem', lineHeight: 1.6 }}>
@@ -227,7 +233,8 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
                 padding: '0.85rem 1rem',
                 borderRadius: '0.65rem',
                 border: '1px solid var(--outline-variant)',
-                background: 'var(--color-surface, #fff)',
+                background: 'var(--surface-container-lowest)',
+                color: 'var(--color-on-surface)',
                 fontSize: '0.85rem',
                 lineHeight: 1.55,
                 fontFamily: 'inherit',

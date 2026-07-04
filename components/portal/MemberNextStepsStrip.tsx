@@ -174,7 +174,7 @@ export default function MemberNextStepsStrip({
                   padding: '0.3rem 0.6rem',
                   borderRadius: '9999px',
                   background: 'var(--color-accent)',
-                  color: '#fff',
+                  color: 'var(--color-on-accent)',
                   fontSize: '0.72rem',
                   fontWeight: 700,
                   letterSpacing: '0.04em',

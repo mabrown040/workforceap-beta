@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { MessageCircle, Target } from 'lucide-react';
 import type { ProactiveInsight } from '@/lib/member/proactiveInsights';
 import ProactiveInsightCard from './ProactiveInsightCard';
 import styles from './TodayHero.module.css';
@@ -59,7 +60,7 @@ export default function TodayHero({
       <div className={styles.quickRow}>
         <Link href="/coach" className={`${styles.quick} ${styles.quickPrimary}`}>
           <span className={styles.quickGlyph} aria-hidden>
-            💬
+            <MessageCircle size={18} strokeWidth={2.25} />
           </span>
           <span className={styles.quickBody}>
             <span className={styles.quickTitle}>Talk to your coach</span>
@@ -68,7 +69,7 @@ export default function TodayHero({
         </Link>
         <Link href="/dashboard#goals" className={styles.quick}>
           <span className={styles.quickGlyph} aria-hidden>
-            🎯
+            <Target size={18} strokeWidth={2.25} />
           </span>
           <span className={styles.quickBody}>
             <span className={styles.quickTitle}>Your goals</span>

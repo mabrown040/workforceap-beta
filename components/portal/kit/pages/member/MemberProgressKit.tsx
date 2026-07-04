@@ -76,11 +76,11 @@ export function MemberProgressKit({
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Job readiness ring */}
           <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <h3
+            <h2
               style={{ fontWeight: 800, fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}
             >
               Job Readiness
-            </h3>
+            </h2>
             <div
               role="progressbar"
               aria-label="Job readiness"
@@ -141,7 +141,7 @@ export function MemberProgressKit({
               mobile/tablet — span only applies where the 3-col grid exists so
               it can't force an overflowing implicit track at narrow widths). */}
           <div className="wa-kit-card lg:wa-col-span-2">
-            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>{statsHeading}</h3>
+            <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>{statsHeading}</h2>
             <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 20 }}>
               {weekStats.map((stat) => (
                 <div key={stat.label} style={{ textAlign: 'center', padding: 12, background: 'var(--wa-bg)', borderRadius: 'var(--wa-radius-sm)' }}>
@@ -151,9 +151,9 @@ export function MemberProgressKit({
               ))}
             </div>
 
-            <h4 style={{ fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--wa-muted)', marginBottom: 12 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--wa-muted)', marginBottom: 12 }}>
               Milestones
-            </h4>
+            </h3>
             <div className="wa-space-y-3">
               {milestones.map((m) => {
                 const meta = MILESTONE_META[m.state];
@@ -173,7 +173,7 @@ export function MemberProgressKit({
                         flexShrink: 0,
                       }}
                     >
-                      <Icon size={meta.iconSize} />
+                      <Icon size={meta.iconSize} aria-hidden="true" />
                     </div>
                     <span style={{ fontSize: 14, fontWeight: 600, flex: 1, minWidth: 0, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
                     <span style={{ fontSize: 10, fontWeight: m.state === 'active' ? 700 : 400, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap' }}>{m.when}</span>

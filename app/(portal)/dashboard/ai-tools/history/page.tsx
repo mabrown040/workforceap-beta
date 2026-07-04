@@ -72,7 +72,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
 
   return (
     <>
-    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div
         style={{
           padding: '1.25rem 2rem 1.5rem',
@@ -113,7 +113,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                   padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
-                  borderRadius: '8px', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', textDecoration: 'none',
+                  borderRadius: '8px', background: 'var(--color-accent)', color: '#ffffff', textDecoration: 'none',
                 }}
               >
                 Resume Rewriter

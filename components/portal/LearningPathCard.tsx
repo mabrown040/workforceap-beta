@@ -68,7 +68,10 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
   const isCompleted = pct >= 100;
 
   return (
-    <div className="learning-path-card">
+    <div
+      className="learning-path-card"
+      style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}
+    >
       <div className="learning-path-header">
         <span className="learning-path-category">{pathway.category}</span>
         <h3>{pathway.title}</h3>
@@ -80,7 +83,7 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
           const done = sp?.status === 'completed';
           return (
             <li key={i} className={done ? 'step-completed' : ''}>
-              <label className="learning-step-label">
+              <label className="learning-step-label" style={{ minHeight: 44 }}>
                 <input
                   type="checkbox"
                   checked={done}
@@ -97,14 +100,22 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
 
       {pathwayProgress || completedSteps > 0 ? (
         <div className="learning-path-progress">
-          <div className="learning-path-progress-bar">
+          <div
+            className="learning-path-progress-bar"
+            style={{ background: 'var(--surface-container-highest)' }}
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${pathway.title} progress`}
+          >
             <div
               className="learning-path-progress-fill"
               style={{ width: `${pct}%` }}
             />
           </div>
           <div className="learning-path-progress-actions">
-            <span>{pct}% complete</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{pct}% complete</span>
             {isCompleted && <span className="learning-path-done">Complete</span>}
           </div>
         </div>

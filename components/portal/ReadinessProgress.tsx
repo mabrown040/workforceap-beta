@@ -26,8 +26,8 @@ export default function ReadinessProgress({
             className={`readiness-progress-item${item.done ? ' done' : ''}`}
             aria-label={`${item.label}: ${item.done ? 'Complete' : 'In progress'}`}
           >
-            <span className="readiness-progress-icon" aria-hidden>
-              {item.done ? '✓' : '○'}
+            <span className="readiness-progress-icon material-symbols-outlined" aria-hidden>
+              {item.done ? 'check_circle' : 'radio_button_unchecked'}
             </span>
             <span className="readiness-progress-label">{item.label}</span>
             {item.value !== undefined && item.value > 0 && (

@@ -65,6 +65,23 @@ const TARGETS = [
   { name: 'voice-toolkit', path: '/dev/voice-studio', tab: 'Toolkit' },
   { name: 'voice-resume', path: '/dev/voice-studio', tab: 'Resume' },
   { name: 'compare', path: '/dev/compare' },
+  // Member kit tabs (app/dev/member/** showcase routes, mock data)
+  { name: 'member-jobs', path: '/dev/member/jobs' },
+  { name: 'member-jobs-empty', path: '/dev/member/jobs-empty' },
+  { name: 'member-certificates', path: '/dev/member/certificates' },
+  { name: 'member-certificates-empty', path: '/dev/member/certificates-empty' },
+  { name: 'member-messages', path: '/dev/member/messages' },
+  { name: 'member-profile', path: '/dev/member/profile' },
+  { name: 'member-program', path: '/dev/member/program' },
+  { name: 'member-progress', path: '/dev/member/progress' },
+  { name: 'member-toolkit', path: '/dev/member/toolkit' },
+  // Staff kits (app/dev/staff/** showcase routes, mock data)
+  { name: 'staff-partner', path: '/dev/staff/partner' },
+  { name: 'staff-placements', path: '/dev/staff/placements' },
+  { name: 'staff-jobs-board', path: '/dev/staff/jobs-board' },
+  { name: 'staff-pipeline-funnel', path: '/dev/staff/pipeline-funnel' },
+  { name: 'staff-crons-monitor', path: '/dev/staff/crons-monitor' },
+  { name: 'staff-counselors', path: '/dev/staff/counselors' },
 ].filter((t) => !ONLY || t.name === ONLY || t.path.includes(ONLY));
 
 const DEV_ENV = {
@@ -175,7 +192,13 @@ async function main() {
         for (const target of TARGETS) {
           const t =
             viewports.length > 1 ? { ...target, name: `${vp.name}-${target.name}` } : target;
-          await shoot(context, t, mode);
+          // Per-target isolation: one bad route (500, hang, missing element)
+          // must not abort the whole capture batch.
+          try {
+            await shoot(context, t, mode);
+          } catch (err) {
+            console.error(`  SKIP ${t.name} [${mode}]: ${err.message?.split('\n')[0] ?? err}`);
+          }
         }
         await context.close();
       }

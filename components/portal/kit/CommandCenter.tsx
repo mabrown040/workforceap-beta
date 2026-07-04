@@ -1,0 +1,192 @@
+/**
+ * Portal Design Kit — Command Center primitives.
+ *
+ * The reusable building blocks behind the member "Command Center" (shipped in
+ * MemberHomeKit), lifted here so every portal — admin, counselor, employer,
+ * partner — renders the same stat tile, delta chip, stage tracker and card
+ * head. Pure presentational, dependency-free, works in server components.
+ *
+ * Chart primitives (Sparkline, AreaChartMini) live alongside BarChartMini /
+ * RankBars in ./Charts.
+ */
+import { ArrowUp, ArrowDown } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Sparkline } from './Charts';
+import { colorVar, type KitColor } from './tokens';
+
+/** Trend series + optional delta chip for a stat tile. Omit any field to hide that piece. */
+export interface SparkStat {
+  /** 2+ points; auto-scaled. Fewer than 2 hides the sparkline. */
+  series?: number[];
+  /** Delta chip text, e.g. "6.2%" or "12". Omit to hide the chip. */
+  delta?: string;
+  /** Chip arrow + tone. Defaults to 'up'. */
+  direction?: 'up' | 'down';
+}
+
+function clampPct(n: number): number {
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/** Card header row: uppercase label + optional right-aligned accent link. */
+export function CardHead({ title, linkLabel, linkHref }: { title: string; linkLabel?: string; linkHref?: string }) {
+  return (
+    <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 14, gap: 12 }}>
+      <span className="wa-kit-stat-label">{title}</span>
+      {linkLabel && linkHref ? (
+        <a
+          href={linkHref}
+          className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+          style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none', flexShrink: 0 }}
+        >
+          {linkLabel}
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+/** Trend pill: arrow + value, success (up) or danger (down) tone. */
+export function DeltaChip({ delta, direction = 'up' }: { delta: string; direction?: 'up' | 'down' }) {
+  const color = direction === 'down' ? 'var(--wa-danger)' : 'var(--wa-success)';
+  const Icon = direction === 'down' ? ArrowDown : ArrowUp;
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 3,
+        fontSize: 11,
+        fontWeight: 700,
+        padding: '3px 7px',
+        borderRadius: 999,
+        color,
+        background: `color-mix(in srgb, ${color} 12%, transparent)`,
+        fontVariantNumeric: 'tabular-nums',
+      }}
+    >
+      <Icon size={10} aria-hidden />
+      {delta}
+    </span>
+  );
+}
+
+/**
+ * KPI tile: icon chip + optional delta chip, big tabular value, label, and an
+ * optional inline sparkline. `color` is a KitColor token name (defaults to the
+ * crimson accent). This is the richer counterpart to the text-only StatTile.
+ */
+export function StatSparkTile({
+  icon: Icon,
+  label,
+  value,
+  color = 'accent',
+  spark,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  color?: KitColor;
+  spark?: SparkStat;
+}) {
+  const c = colorVar(color);
+  return (
+    <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="wa-flex wa-items-start wa-justify-between">
+        <div
+          aria-hidden
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 'var(--wa-radius-sm)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            background: `color-mix(in srgb, ${c} 12%, transparent)`,
+            color: c,
+          }}
+        >
+          <Icon size={16} />
+        </div>
+        {spark?.delta ? <DeltaChip delta={spark.delta} direction={spark.direction} /> : null}
+      </div>
+      <div>
+        <div
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            color: 'var(--wa-text)',
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          {value}
+        </div>
+        <div className="wa-kit-stat-label" style={{ marginTop: 4 }}>
+          {label}
+        </div>
+      </div>
+      {spark?.series && spark.series.length > 1 ? <Sparkline series={spark.series} color={color} /> : null}
+    </div>
+  );
+}
+
+/**
+ * N-segment stage tracker (e.g. a 3-step application/candidate pipeline). Fills
+ * `index` of `total` segments with the tone color. Decorative (aria-hidden);
+ * pair with a visible status label.
+ */
+export function StageTrack({
+  index,
+  total = 3,
+  color = 'accent',
+  width = 84,
+}: {
+  index: number;
+  total?: number;
+  color?: KitColor;
+  width?: number;
+}) {
+  const filled = Math.max(0, Math.min(total, index));
+  const c = colorVar(color);
+  return (
+    <div aria-hidden className="wa-flex wa-items-center wa-gap-1" style={{ width }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <span key={i} style={{ height: 5, flex: 1, borderRadius: 3, background: i < filled ? c : 'var(--wa-track)' }} />
+      ))}
+    </div>
+  );
+}
+
+/** Percent → segmented progress bar with progressbar semantics (next-badge/goal look). */
+export function SegmentedProgress({
+  pct,
+  segments,
+  color = 'accent',
+  label,
+}: {
+  pct: number;
+  segments: number;
+  color?: KitColor;
+  label: string;
+}) {
+  const clamped = clampPct(pct);
+  const filled = Math.round((clamped / 100) * segments);
+  const c = colorVar(color);
+  return (
+    <div
+      role="progressbar"
+      aria-valuenow={clamped}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={label}
+      className="wa-flex wa-items-center wa-gap-1"
+    >
+      {Array.from({ length: segments }).map((_, i) => (
+        <span key={i} aria-hidden style={{ flex: 1, height: 6, borderRadius: 3, background: i < filled ? c : 'var(--wa-track)' }} />
+      ))}
+    </div>
+  );
+}

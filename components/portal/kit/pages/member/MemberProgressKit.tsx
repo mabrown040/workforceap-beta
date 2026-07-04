@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Mic, Zap, Flag } from 'lucide-react';
+import { ArrowRight, Check, Mic, TrendingUp, Zap, Flag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface } from '@/components/portal/kit';
 
@@ -71,8 +71,35 @@ export function MemberProgressKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <h1 className="sr-only">Readiness progress</h1>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
+        {/* Page opener — eyebrow + title so the tab reads as an intentional
+            page rather than a floating widget (matches VoiceStudioKit idiom). */}
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: 'var(--wa-accent)',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <TrendingUp size={13} aria-hidden="true" />
+            <span>Your progress</span>
+          </div>
+          <h1
+            className="h-font"
+            style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}
+          >
+            Readiness &amp; Progress
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+            Your job-readiness score, this week&rsquo;s activity, and the milestones ahead.
+          </p>
+        </div>
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Job readiness ring */}
           <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -114,7 +141,7 @@ export function MemberProgressKit({
             <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>{readinessNote}</p>
             <a
               href={readinessCoachHref}
-              className="wa-kit-focus"
+              className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
               style={{
                 marginTop: 16,
                 width: '100%',

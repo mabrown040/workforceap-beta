@@ -88,7 +88,7 @@ export function MemberToolkitKit({
             <Wand2 size={13} aria-hidden="true" />
             AI Career Toolkit
           </div>
-          <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+          <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
             {heroTitle}
           </h2>
           <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>{heroSubtitle}</p>
@@ -129,7 +129,7 @@ export function MemberToolkitKit({
                       Step {i + 1}
                     </span>
                   </div>
-                  <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginTop: 16 }}>{tool.title}</h3>
+                  <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginTop: 16, textWrap: 'balance' }}>{tool.title}</h3>
                   <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>{tool.body}</p>
                 </div>
                 {onAction ? (
@@ -211,7 +211,7 @@ export function MemberToolkitKit({
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  marginTop: 8,
+                  marginTop: 16,
                   minHeight: 44,
                   padding: '8px 16px',
                   background: 'var(--wa-accent)',

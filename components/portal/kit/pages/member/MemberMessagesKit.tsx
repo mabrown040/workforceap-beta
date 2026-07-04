@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Circle } from 'lucide-react';
+import { ArrowLeft, Circle, MessageCircle } from 'lucide-react';
 import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/components/portal/kit';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
@@ -211,8 +211,25 @@ export function MemberMessagesKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }}>
-        <h1 className="sr-only">Messages</h1>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
+        {/* Page opener — eyebrow + title, matching the VoiceStudioKit idiom,
+            so the tab reads as an intentional page rather than a floating
+            widget. */}
+        <div>
+          <div
+            className="wa-flex wa-items-center wa-gap-2"
+            style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+          >
+            <MessageCircle size={13} aria-hidden="true" />
+            <span>Inbox</span>
+          </div>
+          <h1 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
+            Messages
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+            Reach your counselor and the WorkforceAP support team in one place.
+          </p>
+        </div>
         <div
           className="wa-kit-card wa-grid wa-grid-cols-1 md:wa-grid-cols-3"
           style={{ padding: 0, overflow: 'hidden', minHeight: 520 }}
@@ -224,7 +241,7 @@ export function MemberMessagesKit({
             style={{ borderRight: '1px solid var(--wa-border)' }}
           >
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
-              <h2 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Messages</h2>
+              <h2 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Conversations</h2>
             </div>
             <div>
               {conversations.map((c) => (

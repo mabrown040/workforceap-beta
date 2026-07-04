@@ -1,6 +1,6 @@
 'use client';
 
-import { Play, Check, Lock, CalendarDays, Target, ArrowRight } from 'lucide-react';
+import { Play, Check, Lock, CalendarDays, Target, ArrowRight, GraduationCap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface, ProgressRing } from '@/components/portal/kit';
 
@@ -146,8 +146,35 @@ export function MemberProgramKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <h1 className="sr-only">My program</h1>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
+        {/* Page opener — eyebrow + title so the tab reads as an intentional
+            page rather than a floating widget (matches VoiceStudioKit idiom). */}
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: 'var(--wa-accent)',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <GraduationCap size={13} aria-hidden="true" />
+            <span>My program</span>
+          </div>
+          <h1
+            className="h-font"
+            style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}
+          >
+            Your certification path
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+            Modules, live sessions, and missions in one place.
+          </p>
+        </div>
         {/* Gradient hero */}
         <div
           className="wa-kit-card wa-kit-card--gradient-crimson wa-flex wa-flex-col md:wa-flex-row md:wa-items-center"
@@ -160,7 +187,7 @@ export function MemberProgramKit({
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
               Current Program
             </div>
-            <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+            <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
               {programTitle}
             </h2>
             <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
@@ -169,7 +196,7 @@ export function MemberProgramKit({
           </div>
           <a
             href={resumeHref}
-            className="wa-kit-focus"
+            className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -191,7 +218,7 @@ export function MemberProgramKit({
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Modules list (2-wide) */}
           <div className="wa-kit-card lg:wa-col-span-2">
-            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Modules</h3>
+            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16, textWrap: 'balance' }}>Modules</h3>
             <div className="wa-space-y-2">
               {modules.map((m) => {
                 const meta = MODULE_META[m.state];
@@ -236,7 +263,7 @@ export function MemberProgramKit({
                     {isActive ? (
                       <a
                         href={moduleHref}
-                        className="wa-kit-focus"
+                        className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -279,7 +306,7 @@ export function MemberProgramKit({
                 <button
                   type="button"
                   onClick={handleAddToCalendar}
-                  className="wa-kit-focus"
+                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                   style={{
                     marginTop: 12,
                     width: '100%',
@@ -326,7 +353,7 @@ export function MemberProgramKit({
               </p>
               <a
                 href={missionsHref}
-                className="wa-kit-focus"
+                className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
                 style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'var(--wa-gold)', textDecoration: 'none' }}
               >
                 View missions <ArrowRight size={12} aria-hidden="true" />

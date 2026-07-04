@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { IdCard } from 'lucide-react';
 import { DesignSurface, Avatar, FormField, Toggle } from '@/components/portal/kit';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 import LanguageToggle from '@/components/portal/LanguageToggle';
@@ -228,8 +229,25 @@ export function MemberProfileKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <h1 className="sr-only">My profile</h1>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
+        {/* Page opener — eyebrow + title, matching the VoiceStudioKit idiom,
+            so the tab reads as an intentional page rather than a floating
+            widget stack. */}
+        <div>
+          <div
+            className="wa-flex wa-items-center wa-gap-2"
+            style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+          >
+            <IdCard size={13} aria-hidden="true" />
+            <span>Account</span>
+          </div>
+          <h1 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
+            Profile &amp; settings
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+            Update your details, notification preferences, and account security.
+          </p>
+        </div>
         {/* Profile header */}
         <div className="wa-kit-card wa-flex wa-flex-col sm:wa-flex-row wa-items-center wa-gap-5">
           <Avatar initials={initials} size={80} gradient />

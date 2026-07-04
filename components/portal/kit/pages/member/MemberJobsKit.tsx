@@ -1,4 +1,4 @@
-import { Briefcase, Sparkles } from 'lucide-react';
+import { Briefcase, Compass, Sparkles } from 'lucide-react';
 import { DesignSurface, KpiStrip, DataTable, StatusTag, type Column, type KitTone } from '@/components/portal/kit';
 
 /**
@@ -80,8 +80,35 @@ export function MemberJobsKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <h1 className="sr-only">Job pipeline</h1>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
+        {/* Page opener — eyebrow + title so the tab reads as an intentional
+            page rather than a floating widget (matches VoiceStudioKit idiom). */}
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: 'var(--wa-accent)',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <Compass size={13} aria-hidden="true" />
+            <span>Job search</span>
+          </div>
+          <h1
+            className="h-font"
+            style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}
+          >
+            Job Pipeline
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+            Track applications, discover new roles, and keep momentum toward an offer.
+          </p>
+        </div>
         {/* KPI strip */}
         <KpiStrip
           items={[
@@ -145,7 +172,7 @@ export function MemberJobsKit({
 
         {/* Recommended for you */}
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 12 }}>Recommended for you</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Recommended for you</h2>
           {recommended.length === 0 ? (
             <div className="wa-kit-card wa-kit-card--sm wa-flex wa-items-start wa-gap-3">
               <div

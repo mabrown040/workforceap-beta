@@ -146,9 +146,10 @@ export function MemberHomeKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
         <h1 className="sr-only">Member dashboard</h1>
-        {/* Greeting */}
+        {/* Page opener — eyebrow + greeting, matching the VoiceStudioKit idiom
+            (already present here from an earlier round; kept dominant). */}
         <div>
           <div
             className="wa-flex wa-items-center wa-gap-2 wa-text-xs wa-font-bold wa-uppercase"
@@ -157,7 +158,7 @@ export function MemberHomeKit({
             <Home size={13} />
             <span>{greeting}</span>
           </div>
-          <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+          <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
             Keep climbing, {firstName}.
           </h2>
         </div>
@@ -256,14 +257,14 @@ export function MemberHomeKit({
             <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
             <div>
               <StatusTag tone="ok">{programStatus}</StatusTag>
-              <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8 }}>{programTitle}</h3>
+              <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8, textWrap: 'balance' }}>{programTitle}</h3>
               <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
                 Next: {nextLesson} ·{' '}
                 <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
               </p>
               <a
                 href={resumeHref}
-                className="wa-kit-focus"
+                className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                 style={{
                   marginTop: 12,
                   display: 'inline-flex',
@@ -309,7 +310,7 @@ export function MemberHomeKit({
               <span className="wa-kit-tag wa-kit-tag--alert">AI</span>
             </div>
             <div>
-              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>Career Toolkit</h3>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)', textWrap: 'balance' }}>Career Toolkit</h3>
               <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>Resume audit + cover letters.</p>
             </div>
             <span
@@ -341,7 +342,7 @@ export function MemberHomeKit({
                 <Medal size={18} />
               </div>
               <div style={{ marginTop: 12 }}>
-                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Next Badge</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', textWrap: 'balance' }}>Next Badge</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
                   {nextBadgeRemaining} to &ldquo;{nextBadgeName}&rdquo;.
                 </p>
@@ -378,7 +379,7 @@ export function MemberHomeKit({
             </div>
             {goals.length === 0 ? (
               <div>
-                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>Goals</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)', textWrap: 'balance' }}>Goals</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
                   Set a goal to track your momentum.
                 </p>
@@ -407,10 +408,10 @@ export function MemberHomeKit({
           {/* Active Job Pipeline (2-wide) */}
           <div className="wa-kit-card md:wa-col-span-2">
             <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 12 }}>
-              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Active Job Pipeline</h3>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', textWrap: 'balance' }}>Active Job Pipeline</h3>
               <a
                 href={jobsHref}
-                className="wa-kit-focus"
+                className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
                 style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
               >
                 View all &rarr;
@@ -437,13 +438,13 @@ export function MemberHomeKit({
                 <GraduationCap size={18} />
               </div>
               <div style={{ marginTop: 12 }}>
-                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Learning Hub</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', textWrap: 'balance' }}>Learning Hub</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>Coursera B2B courses.</p>
               </div>
             </div>
             <a
               href={coursesHref}
-              className="wa-kit-focus"
+              className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
               style={{ marginTop: 'auto', fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
             >
               Go to courses <ArrowRight size={12} />

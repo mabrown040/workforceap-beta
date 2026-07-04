@@ -11,6 +11,7 @@ import {
   Users,
   CheckCircle2,
   Activity,
+  GraduationCap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -98,8 +99,14 @@ export type ProgramHealthDatum = RankDatum;
 
 /** A KPI tile — the plain `KpiItem` plus an optional icon + sparkline/trend. */
 export interface CommandCenterKpiItem extends KpiItem {
-  /** Icon for the tile's chip. Omit to fall back to a label-derived icon so plain `KpiItem[]` callers still render sensibly. */
-  icon?: LucideIcon;
+  /**
+   * Icon for the tile's chip, as a STRING KEY (e.g. 'students', 'placements',
+   * 'risk') resolved to a lucide icon inside this client component. A string —
+   * not a component — because this kit is a Client Component and function props
+   * can't cross the server→client boundary. Omit to fall back to a
+   * label-derived icon so plain `KpiItem[]` callers still render sensibly.
+   */
+  iconKey?: string;
   /**
    * Sparkline + delta chip. Omit to fall back to the tile's own `delta` /
    * `deltaColor` fields (rendered as a chip instead of plain text) — existing
@@ -238,6 +245,23 @@ function clampPct(n: number): number {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
 
+/** Explicit string-key → icon map (keeps function props off the server→client boundary). */
+const KPI_ICON_MAP: Record<string, LucideIcon> = {
+  students: Users,
+  members: Users,
+  active: Users,
+  placements: Briefcase,
+  jobs: Briefcase,
+  interviewing: UserPlus,
+  applicants: UserPlus,
+  completion: GraduationCap,
+  rate: GraduationCap,
+  ready: Award,
+  certs: Award,
+  certifications: Award,
+  risk: TriangleAlert,
+};
+
 /** Label-derived fallback icon so plain `KpiItem[]` callers still get a sensible chip glyph. */
 function defaultKpiIcon(label: string): LucideIcon {
   const l = label.toLowerCase();
@@ -247,6 +271,12 @@ function defaultKpiIcon(label: string): LucideIcon {
   if (l.includes('complet')) return CheckCircle2;
   if (l.includes('student') || l.includes('active')) return Users;
   return Activity;
+}
+
+/** Resolve a KPI tile's icon from its string `iconKey`, falling back to a label-derived glyph. */
+function resolveKpiIcon(it: CommandCenterKpiItem): LucideIcon {
+  if (it.iconKey && KPI_ICON_MAP[it.iconKey]) return KPI_ICON_MAP[it.iconKey];
+  return defaultKpiIcon(it.label);
 }
 
 /** Falls back to the tile's plain `delta`/`deltaColor` (as a chip) when `spark` isn't set. */
@@ -474,7 +504,7 @@ export function CommandCenterKit({
         {kpis.map((it) => (
           <StatSparkTile
             key={it.label}
-            icon={it.icon ?? defaultKpiIcon(it.label)}
+            icon={resolveKpiIcon(it)}
             label={it.label}
             value={it.value}
             color={it.color ?? 'accent'}

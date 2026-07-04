@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { Users, Briefcase, GraduationCap, TriangleAlert, Award, UserPlus, Bell } from 'lucide-react';
+import { Briefcase, TriangleAlert, Award, UserPlus, Bell } from 'lucide-react';
 import {
   CommandCenterKit,
   type CommandCenterKpiItem,
@@ -24,28 +24,28 @@ const KPIS: CommandCenterKpiItem[] = [
     label: 'Active Students',
     value: 847,
     color: 'text',
-    icon: Users,
+    iconKey: 'students',
     spark: { series: [790, 805, 812, 820, 831, 840, 847], delta: '32 this month', direction: 'up' },
   },
   {
     label: 'Placements YTD',
     value: 213,
     color: 'success',
-    icon: Briefcase,
+    iconKey: 'placements',
     spark: { series: [38, 46, 55, 62, 78, 90, 101], delta: '18 this month', direction: 'up' },
   },
   {
     label: 'Completion Rate',
     value: '71%',
     color: 'info',
-    icon: GraduationCap,
+    iconKey: 'completion',
     spark: { series: [64, 65, 67, 68, 69, 70, 71], delta: 'cohort avg', direction: 'up' },
   },
   {
     label: 'Job-Ready Now',
     value: 64,
     color: 'gold',
-    icon: Award,
+    iconKey: 'ready',
     delta: 'ready to place',
     deltaColor: 'muted',
   },
@@ -53,7 +53,7 @@ const KPIS: CommandCenterKpiItem[] = [
     label: 'At Risk',
     value: 19,
     color: 'accent',
-    icon: TriangleAlert,
+    iconKey: 'risk',
     spark: { series: [12, 14, 15, 17, 18, 20, 19], delta: '19 need outreach', direction: 'down' },
   },
 ];

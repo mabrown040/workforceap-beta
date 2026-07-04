@@ -143,6 +143,7 @@ export default async function MemberGuidePage() {
 
       {/* Journey Steps */}
       <section style={{ marginBottom: '3rem' }}>
+        <h2 className="wa-sr-only">Your five-step journey</h2>
         <div style={{ position: 'relative' }}>
           {/* Vertical connector line */}
           <div style={{

@@ -240,7 +240,7 @@ export function MemberProfileKit({
               {badges.map((b) => (
                 <span
                   key={b.label}
-                  style={{ padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: b.bg, color: b.color }}
+                  style={{ padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: b.bg, color: b.color, fontVariantNumeric: 'tabular-nums' }}
                 >
                   {b.label}
                 </span>
@@ -319,7 +319,7 @@ export function MemberProfileKit({
               type="button"
               onClick={handleSaveAccount}
               disabled={!live || savingAccount}
-              className="wa-kit-focus"
+              className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
               style={{
                 marginTop: 20,
                 padding: '10px 20px',
@@ -388,7 +388,7 @@ export function MemberProfileKit({
               </p>
               <a
                 href={`/forgot-password?email=${encodeURIComponent(email)}`}
-                className="wa-kit-focus"
+                className="wa-kit-focus hover:wa-bg-[var(--wa-bg)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

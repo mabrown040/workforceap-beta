@@ -435,7 +435,7 @@ const SHOW_TURNSTILE = CAPTCHA_ENABLED && TURNSTILE_SITE_KEY.length > 0;
   .deck{position:relative}
   .gcard{position:relative;border-radius:22px;padding:52px 26px 26px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff;overflow:hidden}
+    box-shadow:var(--shadow-glass);color:#fff;overflow:hidden}
   /* gold pill at the top — inside bounds so overflow never clips it */
   .floatbadge{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:2;display:inline-flex;align-items:center;gap:6px;
     white-space:nowrap;max-width:calc(100% - 32px);background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;

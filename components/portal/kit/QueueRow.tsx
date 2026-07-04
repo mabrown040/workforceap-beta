@@ -14,11 +14,13 @@ interface QueueRowProps {
 }
 
 const TONE: Record<QueueTone, { c: string; bg: string }> = {
-  // Was `--wa-accent` (brand magenta) — a tone literally named "red" rendering
-  // as pink/magenta while every other "urgent/error" surface in the app
-  // (MemberMessagesKit, CertificationsQueueKit, StatusTag danger states) uses
-  // `--wa-danger`. Aligned so "red" means red everywhere.
-  red: { c: 'var(--wa-danger)', bg: 'var(--wa-danger-soft)' },
+  // Follows lib/ui/statusColors.ts: status-severity color is the brand accent
+  // app-wide (StatusBadge 'error', AtRiskDashboard CRITICAL, counselor triage
+  // via statusColors 'danger'), while `--wa-danger` true red is reserved for
+  // destructive ACTION affordances (e.g. ConfirmDialog's delete button).
+  // This briefly pointed at --wa-danger, which made the counselor overview's
+  // critical rows disagree with every other at-risk surface in the portal.
+  red: { c: 'var(--color-accent)', bg: 'color-mix(in srgb, var(--color-accent) 12%, transparent)' },
   yellow: { c: 'var(--wa-gold)', bg: 'var(--wa-gold-soft)' },
   blue: { c: 'var(--wa-info)', bg: 'var(--wa-info-soft)' },
 };

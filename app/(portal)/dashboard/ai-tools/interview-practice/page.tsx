@@ -85,7 +85,8 @@ export default async function InterviewPracticePage({ searchParams }: { searchPa
           </div>
 
           <InterviewPracticeSaved results={savedResults} />
-        </div>      </div>
+        </div>
+      </div>
     </>
   );
 }

@@ -97,7 +97,7 @@ export default async function TrainingBridgePage() {
                   letterSpacing: '0.08em',
                   padding: '0.2rem 0.55rem',
                   borderRadius: '999px',
-                  background: 'rgba(173,44,77,0.12)',
+                  background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
                   color: 'var(--color-accent)',
                   whiteSpace: 'nowrap',
                 }}

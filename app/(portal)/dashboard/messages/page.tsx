@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import { getTranslations } from 'next-intl/server';
@@ -49,21 +50,21 @@ export default async function MemberMessagesPage({
           title={t('inbox')}
           breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
         />
-        <div
-          style={{
-            maxWidth: 560,
-            margin: '2rem auto',
-            padding: '1.75rem',
-            textAlign: 'center',
-            border: '1px solid var(--wa-border, #e5e0dc)',
-            borderRadius: 16,
-          }}
-        >
-          <p style={{ fontWeight: 700, marginBottom: 6 }}>{t('noMessagesYet')}</p>
-          <p style={{ color: 'var(--wa-muted, #6b6460)', fontSize: 14 }}>
-            Your inbox is still being set up. Please check back shortly, or contact{' '}
-            <a href="mailto:info@workforceap.org" style={{ fontWeight: 600 }}>info@workforceap.org</a>.
-          </p>
+        <div style={{ maxWidth: 480, margin: '2rem auto', padding: '0 1rem' }}>
+          <PortalEmptyState
+            icon={
+              <span
+                className="material-symbols-outlined"
+                aria-hidden="true"
+                style={{ fontSize: '2.5rem', color: 'var(--wa-accent, var(--color-accent))' }}
+              >
+                mail
+              </span>
+            }
+            title={t('noMessagesYet')}
+            description="Your inbox is still being set up. Check back shortly, or reach out and we'll help right away."
+            primaryAction={{ label: 'Email support', href: 'mailto:info@workforceap.org' }}
+          />
         </div>
       </>
     );

@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import styles from './resources.module.css';
 
 const WORKFLOW_LINKS = [
   { href: '/counselor/students', icon: 'groups', label: 'My Members', desc: 'Roster and detail views' },
@@ -22,7 +23,7 @@ const REFERENCE_LINKS = [
 function ResourceCard({ href, icon, label, desc }: { href: string; icon: string; label: string; desc: string }) {
   return (
     <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'background-color 0.15s' }}>
+      <div className={`portal-card portal-card--flat portal-card--padded-sm ${styles.row}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <span
           className="material-symbols-outlined"
           style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1, flexShrink: 0 }}
@@ -101,7 +102,7 @@ export default async function CounselorResourcesPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           <section>
             <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-              Counseling Workflow
+              {t('counselingWorkflow')}
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {WORKFLOW_LINKS.map((link) => (
@@ -112,7 +113,7 @@ export default async function CounselorResourcesPage() {
 
           <section>
             <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-              Member-Facing Reference
+              {t('memberFacingReference')}
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {REFERENCE_LINKS.map((link) => (

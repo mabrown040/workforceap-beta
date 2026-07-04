@@ -7,11 +7,14 @@ import {
   Home,
   Flame,
   Target,
+  BookOpen,
+  Briefcase,
+  Star,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
   DataTable,
   DesignSurface,
-  KpiStrip,
   ProgressRing,
   StatusTag,
   type Column,
@@ -188,15 +191,60 @@ export function MemberHomeKit({
           </div>
         )}
 
-        {/* KPI strip */}
-        <KpiStrip
-          items={[
-            { label: 'Course', value: `${pct}%`, color: 'accent' },
-            { label: 'Active Jobs', value: activeJobs, color: 'text' },
-            { label: 'Certs', value: certs, color: 'gold' },
-            { label: 'Points', value: points.toLocaleString(), color: 'info' },
-          ]}
-        />
+        {/* KPI strip — compact icon + number/label unit on an 8px rhythm.
+            Each stat gets a small tinted icon chip for identity instead of
+            an oversized empty card (design review: the generic KpiStrip
+            tiles had large dead vertical gaps here). */}
+        <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
+          {(
+            [
+              { icon: BookOpen, label: 'Course', value: `${pct}%`, color: 'var(--wa-accent)' },
+              { icon: Briefcase, label: 'Active Jobs', value: activeJobs, color: 'var(--wa-text)' },
+              { icon: Medal, label: 'Certs', value: certs, color: 'var(--wa-gold)' },
+              { icon: Star, label: 'Points', value: points.toLocaleString(), color: 'var(--wa-info)' },
+            ] as Array<{ icon: LucideIcon; label: string; value: string | number; color: string }>
+          ).map((stat) => (
+            <div
+              key={stat.label}
+              className="wa-kit-card wa-kit-card--sm"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 32,
+                  height: 32,
+                  borderRadius: 'var(--wa-radius-sm)',
+                  background: `color-mix(in srgb, ${stat.color} 12%, transparent)`,
+                  color: stat.color,
+                  flexShrink: 0,
+                }}
+              >
+                <stat.icon size={15} />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 800,
+                    lineHeight: 1.1,
+                    letterSpacing: '-0.01em',
+                    color: stat.color,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {stat.value}
+                </div>
+                <div className="wa-kit-stat-label" style={{ marginTop: 1 }}>
+                  {stat.label}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Bento grid */}
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 lg:wa-grid-cols-4 wa-gap-5">
@@ -238,30 +286,45 @@ export function MemberHomeKit({
 
           {/* Career Toolkit — a static shortcut, not a personalized action;
               quieted (plain card, no gradient) so it doesn't compete with
-              the dominant next-best-action banner above. */}
+              the dominant next-best-action banner above. Height now comes
+              from content + a bottom CTA (grid row stretch keeps it level
+              with its siblings) instead of a fixed minHeight that left a
+              dead gap between the icon row and the copy. */}
           <a
             href={toolkitHref}
             className="wa-kit-card wa-kit-card--hover wa-kit-focus"
             style={{
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: 180,
+              gap: 14,
               textDecoration: 'none',
             }}
           >
             <div className="wa-flex wa-items-start wa-justify-between">
               <div
-                style={{ padding: 12, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
+                style={{ padding: 10, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
               >
-                <Wand2 size={20} />
+                <Wand2 size={18} />
               </div>
               <span className="wa-kit-tag wa-kit-tag--alert">AI</span>
             </div>
-            <div style={{ marginTop: 16 }}>
+            <div>
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>Career Toolkit</h3>
               <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>Resume audit + cover letters.</p>
             </div>
+            <span
+              style={{
+                marginTop: 'auto',
+                fontSize: 12,
+                fontWeight: 700,
+                color: 'var(--wa-accent)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              Open toolkit <ArrowRight size={12} aria-hidden />
+            </span>
           </a>
 
           {/* Next Badge — informational (gamification), quieted to a plain
@@ -269,15 +332,15 @@ export function MemberHomeKit({
               actionable tile. */}
           <div
             className="wa-kit-card"
-            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 180 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
           >
             <div>
               <div
-                style={{ padding: 12, width: 'fit-content', background: 'var(--wa-gold-soft, #FEF3C7)', color: 'var(--wa-gold)', borderRadius: 'var(--wa-radius-sm)' }}
+                style={{ padding: 10, width: 'fit-content', background: 'var(--wa-gold-soft, #FEF3C7)', color: 'var(--wa-gold)', borderRadius: 'var(--wa-radius-sm)' }}
               >
-                <Medal size={20} />
+                <Medal size={18} />
               </div>
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 12 }}>
                 <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Next Badge</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
                   {nextBadgeRemaining} to &ldquo;{nextBadgeName}&rdquo;.
@@ -286,6 +349,7 @@ export function MemberHomeKit({
             </div>
             <div
               className="wa-kit-bar-track"
+              style={{ marginTop: 'auto' }}
               role="progressbar"
               aria-valuenow={nextBadgePercent}
               aria-valuemin={0}
@@ -300,13 +364,13 @@ export function MemberHomeKit({
           <a
             href={goalsHref}
             className="wa-kit-card wa-kit-card--hover wa-kit-focus"
-            style={{ display: 'flex', flexDirection: 'column', minHeight: 180, textDecoration: 'none', gap: 10 }}
+            style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', gap: 12 }}
           >
             <div className="wa-flex wa-items-center wa-justify-between">
               <div
-                style={{ padding: 12, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
+                style={{ padding: 10, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
               >
-                <Target size={20} />
+                <Target size={18} />
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-accent)' }}>
                 {goals.length} active
@@ -327,7 +391,7 @@ export function MemberHomeKit({
                       <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {g.title}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>
                         {g.percent}%
                       </span>
                     </div>
@@ -365,14 +429,14 @@ export function MemberHomeKit({
           </div>
 
           {/* Learning Hub */}
-          <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 180 }}>
+          <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
               <div
-                style={{ padding: 12, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-info)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
+                style={{ padding: 10, width: 'fit-content', background: 'var(--wa-bg)', color: 'var(--wa-info)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)' }}
               >
-                <GraduationCap size={20} />
+                <GraduationCap size={18} />
               </div>
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 12 }}>
                 <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Learning Hub</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>Coursera B2B courses.</p>
               </div>
@@ -380,7 +444,7 @@ export function MemberHomeKit({
             <a
               href={coursesHref}
               className="wa-kit-focus"
-              style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+              style={{ marginTop: 'auto', fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
             >
               Go to courses <ArrowRight size={12} />
             </a>

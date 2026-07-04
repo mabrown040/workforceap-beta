@@ -263,7 +263,10 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                       {step.done ? '✓' : idx + 1}
                     </span>
                     <div>
-                      <p style={{ margin: 0, fontWeight: 800 }}>{step.label}</p>
+                      <p style={{ margin: 0, fontWeight: 800 }}>
+                        <span className="wa-sr-only">{step.done ? 'Completed: ' : 'Not yet reached: '}</span>
+                        {step.label}
+                      </p>
                       <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{step.detail}</p>
                       {step.date ? (
                         <p style={{ margin: '0.25rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(step.date)}</p>
@@ -321,25 +324,32 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
               <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
                 {sectionHeading('Course completions')}
                 <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
-                  {program.courses.map((course) => (
-                    <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
-                      {coursesDone.includes(course.slug) ? (
-                        <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
-                      ) : (
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            width: 18,
-                            height: 18,
-                            border: '2px solid var(--outline-variant)',
-                            borderRadius: 4,
-                            flexShrink: 0,
-                          }}
-                        />
-                      )}
-                      <span>{course.name}</span>
-                    </li>
-                  ))}
+                  {program.courses.map((course) => {
+                    const done = coursesDone.includes(course.slug);
+                    return (
+                      <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                        {done ? (
+                          <CheckCircle size={18} aria-hidden style={{ color: 'var(--color-green)', flexShrink: 0 }} />
+                        ) : (
+                          <span
+                            aria-hidden
+                            style={{
+                              display: 'inline-block',
+                              width: 18,
+                              height: 18,
+                              border: '2px solid var(--outline-variant)',
+                              borderRadius: 4,
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                        <span>
+                          <span className="wa-sr-only">{done ? 'Completed: ' : 'Not yet completed: '}</span>
+                          {course.name}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
                 <SkillsetProgressList rows={skillsetProgress} variant="compact" />
               </section>
@@ -372,8 +382,8 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                 <div style={{ marginTop: '0.75rem' }}>
                   <div
                     style={{
-                      background: 'rgba(255,193,7,0.08)',
-                      border: '1px solid rgba(255,193,7,0.2)',
+                      background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)',
+                      border: '1px solid color-mix(in srgb, var(--color-gold) 40%, transparent)',
                       borderRadius: '0.75rem',
                       padding: '0.875rem 1rem',
                       display: 'flex',
@@ -381,7 +391,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                       gap: '0.625rem',
                     }}
                   >
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', flexShrink: 0 }} aria-hidden="true">pending</span>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)', flexShrink: 0 }} aria-hidden="true">pending</span>
                     <div>
                       <p style={{ margin: '0 0 0.25rem', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Offer reported — under review</p>
                       <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>

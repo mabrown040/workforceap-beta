@@ -71,9 +71,16 @@ export default async function AssessmentPage({
         <section className="content-section">
           <div className="container" style={{ maxWidth: '720px' }}>
             <div className="portal-card portal-card--flat portal-card--padded">
-              <h2 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.125rem' }}>
-                Not available yet
-              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}
+                >
+                  lock
+                </span>
+                <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Not available yet</h2>
+              </div>
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
                 Your skills assessment unlocks after your intake conversation with our team. That short
                 conversation helps your counselor personalize your learning path before we ask you to
@@ -134,7 +141,16 @@ export default async function AssessmentPage({
               className="portal-card portal-card--flat portal-card--padded"
               style={{ border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)' }}
             >
-              <h2 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.125rem' }}>Review your starter details first</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontSize: '1.25rem', color: 'var(--color-accent)' }}
+                >
+                  checklist
+                </span>
+                <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Review your starter details first</h2>
+              </div>
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
                 Your counselor started this account for you. Before WorkforceAP unlocks your Training Preassessment,
                 confirm your contact and referral details on your profile.

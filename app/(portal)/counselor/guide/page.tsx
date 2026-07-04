@@ -167,7 +167,7 @@ export default async function CounselorGuidePage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
         {/* What you can do */}
-        <section className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
+        <section className="portal-card portal-card--flat" style={{ padding: 'clamp(1.25rem, 4vw, 2rem)' }}>
           <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             What you can do here
           </h2>
@@ -219,7 +219,7 @@ export default async function CounselorGuidePage() {
       </div>
 
       {/* Member Journey Reference */}
-      <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
+      <section className="portal-card portal-card--flat" style={{ padding: 'clamp(1.25rem, 4vw, 2rem)', marginBottom: '2.5rem' }}>
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
           Member journey reference
         </h2>

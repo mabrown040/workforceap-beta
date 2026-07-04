@@ -22,7 +22,7 @@ export default async function CoverLetterPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/cover-letter');
 
   return (
-    <>
+    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div style={{ paddingBottom: '6rem' }}>
         <div
           style={{
@@ -54,7 +54,8 @@ export default async function CoverLetterPage() {
           </div>
 
           <ToolHistoryPanel userId={user.id} toolType="cover_letter" />
-        </div>      </div>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }

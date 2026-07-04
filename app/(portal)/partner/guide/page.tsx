@@ -222,7 +222,7 @@ export default async function PartnerGuidePage() {
       <div style={{
         padding: '1.5rem 2rem',
         background: 'var(--surface-container-lowest)',
-        border: '1px solid rgba(88,65,68,0.1)',
+        border: '1px solid color-mix(in srgb, var(--outline-variant) 40%, transparent)',
         borderRadius: '0.875rem',
         display: 'flex',
         alignItems: 'center',

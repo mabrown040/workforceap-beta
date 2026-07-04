@@ -10,8 +10,15 @@ import { getUser } from '@/lib/auth/server';
 
 const InterviewCoach = dynamic(() => import('@/components/portal/tools/InterviewCoach'), {
   loading: () => (
-    <div className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '1rem' }}>
-      <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>Loading interview coach…</p>
+    <div
+      role="status"
+      aria-live="polite"
+      className="portal-card portal-card--flat"
+      style={{ padding: '2rem', marginBottom: '1rem' }}
+    >
+      <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontWeight: 600, fontSize: '0.9rem' }}>
+        Loading interview coach…
+      </p>
     </div>
   ),
 });
@@ -53,7 +60,12 @@ export default async function InterviewCoachPage() {
       <div style={{ paddingBottom: '6rem' }}>
         <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <InterviewCoach />
-          <ToolHistoryPanel userId={user.id} toolType="interview_coach" />
+          <ToolHistoryPanel
+            userId={user.id}
+            toolType="interview_coach"
+            title="Recent coaching sessions"
+            emptyMessage="No coaching sessions yet — run a mock interview above and it will show up here."
+          />
         </div>
         <MobileBottomNav variant="portal" />
       </div>

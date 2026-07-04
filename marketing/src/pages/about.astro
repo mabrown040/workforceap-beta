@@ -126,7 +126,7 @@ import Layout from '../layouts/Layout.astro';
   /* translucent glass stat card */
   .glass-stat{position:relative;border-radius:22px;padding:28px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+    box-shadow:var(--shadow-glass);color:#fff}
   .gs-row{margin-bottom:0}
   .gs-row small{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.72);font-weight:700}
   .gs-big{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;margin:10px 0 22px;letter-spacing:-.01em}
@@ -136,7 +136,10 @@ import Layout from '../layouts/Layout.astro';
   .gs-i span{font-size:13px;color:rgba(255,255,255,.78);line-height:1.4}
 
   /* ---------------- LIGHT MISSION BAND ---------------- */
-  .head{margin-bottom:32px}
+  /* left-align over the asymmetric prose/photo split below instead of the
+     shared .sec-head centered default — a centered kicker above a 1.1fr/.9fr
+     split read as a layout mismatch. */
+  .head{margin:0 0 32px;text-align:left;max-width:640px}
   .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--crimson)}
 
   .about-split{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}

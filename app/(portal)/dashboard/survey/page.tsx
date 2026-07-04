@@ -81,7 +81,7 @@ export default async function SurveyPage() {
             className="material-symbols-outlined"
             style={{
               fontSize: '2.5rem',
-              color: 'var(--color-success)',
+              color: 'var(--color-success, #16a34a)',
               marginBottom: '0.75rem',
               display: 'block',
             }}

@@ -104,22 +104,31 @@ export default function ReadinessMemberClient({
       </div>
 
       <div className="readiness-sections">
-        {sections.map((sec) => (
+        {sections.map((sec) => {
+          const isExpanded = expandedMap[sec.section] !== false;
+          const sectionCompleted = sec.items.filter((i) => i.completed).length;
+          const panelId = `readiness-section-${sec.section}-panel`;
+          return (
           <div key={sec.section} className="readiness-section-card">
             <button
               type="button"
               className="readiness-section-header"
+              aria-expanded={isExpanded}
+              aria-controls={panelId}
               onClick={() => setExpandedMap((e) => ({ ...e, [sec.section]: !e[sec.section] }))}
             >
-              <span>{expandedMap[sec.section] !== false ? <ChevronDown size={20} /> : <ChevronRight size={20} />}</span>
+              <span aria-hidden="true">{isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}</span>
               <span>Section {sec.section} — {sec.title}</span>
+              <span className="readiness-section-count" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {sectionCompleted}/{sec.items.length} complete
+              </span>
             </button>
-            {expandedMap[sec.section] !== false && (
-              <div className="readiness-section-body">
+            {isExpanded && (
+              <div className="readiness-section-body" id={panelId}>
                 {sec.items.map((item) => (
                   <div key={item.key} className="readiness-member-item">
                     <span className="readiness-member-icon">
-                      {item.completed ? <CheckCircle size={20} className="readiness-icon-done" /> : <span className="readiness-icon-empty" />}
+                      {item.completed ? <CheckCircle size={20} className="readiness-icon-done" aria-hidden="true" /> : <span className="readiness-icon-empty" aria-hidden="true" />}
                     </span>
                     <div>
                       <span>{item.label}</span>
@@ -132,7 +141,8 @@ export default function ReadinessMemberClient({
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

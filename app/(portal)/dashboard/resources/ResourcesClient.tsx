@@ -11,6 +11,7 @@ type Resource = {
 
 export default function ResourcesClient({ resources }: { resources: Resource[] }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (resources.length === 0) {
     return (
@@ -40,16 +41,20 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
             <button
               type="button"
               onClick={() => setOpenIdx(isOpen ? null : i)}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              aria-expanded={isOpen}
               style={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.875rem',
                 padding: '1rem 1.25rem',
-                background: 'none',
+                background: hoveredIdx === i ? 'var(--surface-container)' : 'none',
                 border: 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
+                transition: 'background-color 0.15s ease',
               }}
             >
               <div

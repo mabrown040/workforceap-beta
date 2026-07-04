@@ -850,15 +850,18 @@ export default async function PartnerDashboardPage({
       {/* Next Step Guidance */}
       <div style={{ padding: '0.75rem 1.25rem 1rem' }}>
         <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(173,44,77,0.1) 0%, rgba(173,44,77,0.03) 100%)',
-            border: '1px solid rgba(173,44,77,0.18)',
-            borderRadius: '0.875rem',
-            padding: '1rem 1.125rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.875rem',
-          }}>
+          <div
+            className="active:wa-scale-[0.98] wa-transition-all"
+            style={{
+              background: 'linear-gradient(135deg, rgba(173,44,77,0.1) 0%, rgba(173,44,77,0.03) 100%)',
+              border: '1px solid rgba(173,44,77,0.18)',
+              borderRadius: '0.875rem',
+              padding: '1rem 1.125rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.875rem',
+            }}
+          >
             <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', background: 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">lightbulb</span>
             </div>
@@ -1144,7 +1147,10 @@ export default async function PartnerDashboardPage({
       {/* ── Next Step ── */}
       <section style={{ marginBottom: '2rem' }}>
         <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
-          <div className="portal-alert portal-alert--accent" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            className="portal-alert portal-alert--accent hover:wa-opacity-80 active:wa-scale-[0.99] wa-transition-all"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+          >
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden="true">lightbulb</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0 }}>{nextAction.label}</p>
@@ -1196,7 +1202,10 @@ export default async function PartnerDashboardPage({
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
                     <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                      <div
+                        className="portal-card portal-card--flat portal-card--padded-sm hover:wa-bg-[var(--surface-container)] wa-transition-colors"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                      >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
                             width: '2.25rem', height: '2.25rem', borderRadius: '9999px',
@@ -1270,8 +1279,13 @@ export default async function PartnerDashboardPage({
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {nearCompletion.slice(0, 3).map((p) => (
-                      <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
+                      <Link
+                        key={p.member.id}
+                        href={`/partner/referred-members/${p.member.id}`}
+                        className="hover:wa-bg-[var(--surface-container)] wa-transition-colors wa-rounded-md"
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.375rem', borderBottom: '1px solid color-mix(in srgb, var(--outline-variant) 40%, transparent)' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>{p.member.fullName}</span>
                           <span className="wa-tabular-nums" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-green)' }}>{p.progress}%</span>
                         </div>

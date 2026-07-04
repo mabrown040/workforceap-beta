@@ -51,6 +51,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   );
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [hoveredBarrier, setHoveredBarrier] = useState<string | null>(null);
   const feedbackRef = useRef<HTMLSpanElement>(null);
 
   // Move focus to the save result so keyboard/screen reader users get
@@ -149,28 +150,45 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
       <fieldset style={{ border: 'none', margin: 0, padding: 0 }}>
         <legend style={{ ...labelStyle, marginBottom: '0.625rem' }}>Primary barriers (select all that apply)</legend>
         <div style={{ display: 'grid', gap: '0.5rem' }}>
-          {PRIMARY_BARRIER_OPTIONS.map((opt) => (
-            <label
-              key={opt.value}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.6rem',
-                minHeight: '44px',
-                fontSize: '0.875rem',
-                color: 'var(--color-on-surface)',
-                cursor: 'pointer',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={barriers.includes(opt.value)}
-                onChange={() => toggleBarrier(opt.value)}
-                style={{ marginTop: '0.2rem', flexShrink: 0 }}
-              />
-              <span>{opt.label}</span>
-            </label>
-          ))}
+          {PRIMARY_BARRIER_OPTIONS.map((opt) => {
+            const checked = barriers.includes(opt.value);
+            const hovered = hoveredBarrier === opt.value;
+            return (
+              <label
+                key={opt.value}
+                onMouseEnter={() => setHoveredBarrier(opt.value)}
+                onMouseLeave={() => setHoveredBarrier((v) => (v === opt.value ? null : v))}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.6rem',
+                  minHeight: '44px',
+                  padding: '0.5rem 0.75rem',
+                  borderRadius: 'var(--radius-md, 8px)',
+                  border: checked
+                    ? '1px solid var(--color-accent)'
+                    : '1px solid var(--outline-variant, rgba(0,0,0,0.18))',
+                  background: checked
+                    ? 'color-mix(in srgb, var(--color-accent) 8%, transparent)'
+                    : hovered
+                      ? 'var(--surface-container-low)'
+                      : 'var(--surface-container-lowest)',
+                  fontSize: '0.875rem',
+                  color: 'var(--color-on-surface)',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s, border-color 0.15s',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleBarrier(opt.value)}
+                  style={{ marginTop: '0.2rem', flexShrink: 0, accentColor: 'var(--color-accent)' }}
+                />
+                <span>{opt.label}</span>
+              </label>
+            );
+          })}
         </div>
       </fieldset>
 

@@ -94,9 +94,10 @@ export function MemberToolkitKit({
           <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>{heroSubtitle}</p>
         </div>
 
-        {/* Tool cards */}
+        {/* Tool cards — numbered so the row reads as an ordered path
+            (audit → tailor → practice), not just three unrelated options. */}
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
-          {tools.map((tool) => {
+          {tools.map((tool, i) => {
             const ctaStyle = {
               marginTop: 16,
               width: '100%',
@@ -110,13 +111,23 @@ export function MemberToolkitKit({
               border: 'none',
               cursor: 'pointer',
             } as const;
+            const ctaClassName =
+              'wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
             return (
               <div key={tool.id} className="wa-kit-card wa-kit-card--hover" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
-                  <div
-                    style={{ padding: 12, width: 'fit-content', background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)' }}
-                  >
-                    {tool.icon}
+                  <div className="wa-flex wa-items-center wa-justify-between">
+                    <div
+                      style={{ padding: 12, width: 'fit-content', background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)' }}
+                    >
+                      {tool.icon}
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      Step {i + 1}
+                    </span>
                   </div>
                   <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginTop: 16 }}>{tool.title}</h3>
                   <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>{tool.body}</p>
@@ -125,7 +136,7 @@ export function MemberToolkitKit({
                   <button
                     type="button"
                     onClick={() => onAction(tool.id)}
-                    className="wa-kit-focus"
+                    className={ctaClassName}
                     style={ctaStyle}
                   >
                     {tool.cta}
@@ -133,7 +144,7 @@ export function MemberToolkitKit({
                 ) : tool.href ? (
                   <Link
                     href={tool.href}
-                    className="wa-kit-focus"
+                    className={ctaClassName}
                     style={{ ...ctaStyle, display: 'block', textAlign: 'center', textDecoration: 'none' }}
                   >
                     {tool.cta}
@@ -196,7 +207,7 @@ export function MemberToolkitKit({
               ))}
               <Link
                 href="/dashboard/ai-tools/career-business-coach"
-                className="wa-kit-focus"
+                className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

@@ -5,6 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import MotivatingRecapClient, { type MotivatingRecapData } from './MotivatingRecapClient';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -63,12 +64,21 @@ export default async function WeeklyRecapPage() {
           breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
         />
         {recap === null ? (
-          <div className="mx-auto max-w-2xl px-4 py-8">
-            <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
-              {generationError
-                ? 'Unable to generate recap. Please try again later.'
-                : "Your recap isn't ready yet — check back after your next activity or try refreshing."}
-            </div>
+          <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '0 1rem' }}>
+            <PortalEmptyState
+              icon={
+                <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
+                  calendar_month
+                </span>
+              }
+              title={generationError ? 'Unable to load your recap' : 'Your recap isn’t ready yet'}
+              description={
+                generationError
+                  ? 'Something went wrong generating your recap. Please try again in a moment.'
+                  : 'Check back after your next activity, or head to your dashboard to keep the momentum going.'
+              }
+              primaryAction={{ href: '/dashboard', label: 'Go to dashboard' }}
+            />
           </div>
         ) : (
           <MotivatingRecapClient

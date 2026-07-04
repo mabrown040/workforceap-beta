@@ -72,7 +72,7 @@ export default async function FindYourCareerPage() {
             <li key={tool.href}>
               <Link
                 href={tool.href}
-                className="portal-card portal-card--flat"
+                className="portal-card portal-card--flat hover:wa-bg-[var(--surface-container-low)] wa-transition-colors wa-duration-150"
                 style={{
                   display: 'block',
                   padding: '1.25rem',
@@ -84,6 +84,7 @@ export default async function FindYourCareerPage() {
                   <span
                     className="material-symbols-outlined"
                     style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}
+                    aria-hidden="true"
                   >
                     {tool.icon}
                   </span>
@@ -120,30 +121,17 @@ export default async function FindYourCareerPage() {
               { href: '/dashboard/ai-tools', icon: 'auto_awesome', label: 'AI Tools', desc: 'Resume, interview prep, and more' },
               { href: '/dashboard', icon: 'trending_up', label: 'Training', desc: 'Your enrolled program progress' },
             ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  background: 'var(--surface-container-low)',
-                  transition: 'background-color 0.15s',
-                }}
-              >
+              <Link key={link.href} href={link.href} className="portal-action-row" style={{ gap: '0.75rem' }}>
                 <span
                   className="material-symbols-outlined"
                   style={{ fontSize: '1.125rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
+                  aria-hidden="true"
                 >
                   {link.icon}
                 </span>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{link.label}</p>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="portal-action-row__title">{link.label}</p>
+                  <p className="portal-action-row__desc">{link.desc}</p>
                 </div>
               </Link>
             ))}

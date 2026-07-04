@@ -21,6 +21,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { DesignSurface, FeatureTile, KpiStrip, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
+import { CheckCircle2 } from 'lucide-react';
 
 // Quick Links accents: each link declares which severity it wants to signal
 // (accent/green/blue/gold/error) so At-Risk and Inactive Members read as
@@ -124,8 +125,14 @@ export default async function CounselorPortalPage({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <SectionHeader title="Triage" goal={`${kitQueue.totals.total} member${kitQueue.totals.total === 1 ? '' : 's'} in queue`} />
             {triageRows.length === 0 ? (
-              <div className="wa-kit-card wa-kit-card--sm" style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
-                No members need attention right now.
+              <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <CheckCircle2 size={18} aria-hidden="true" style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Nice work — no one&rsquo;s waiting on you right now.</p>
+                  <Link href="/counselor/students" style={{ fontSize: 12, fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}>
+                    Browse your full roster
+                  </Link>
+                </div>
               </div>
             ) : (
               triageRows.map((row) => (
@@ -331,7 +338,7 @@ export default async function CounselorPortalPage({
           <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
             <div style={{ position:"relative", zIndex:10 }}>
               <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>{t('yourMembers')}</p>
-              <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
+              <p className="wa-text-4xl wa-font-bold wa-tracking-tighter" style={{ fontVariantNumeric: 'tabular-nums' }}>{assignments.length}</p>
             </div>
             <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">group</span>
           </div>
@@ -339,14 +346,14 @@ export default async function CounselorPortalPage({
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">school</span>
             </div>
-            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{enrolledCount}</p>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', fontVariantNumeric: 'tabular-nums' }}>{enrolledCount}</p>
             <p className="portal-metric-card__label">{t('inAProgram')}</p>
           </div>
           <div className="portal-metric-card">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">mark_email_unread</span>
             </div>
-            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', fontVariantNumeric: 'tabular-nums', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
             <p className="portal-metric-card__label">{t('awaitingReply')}</p>
           </div>
         </div>
@@ -410,7 +417,7 @@ export default async function CounselorPortalPage({
                           <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
                             <div style={{height:"100%", borderRadius:"9999px", width: `${trainingProgressPct}%`, background: 'var(--color-accent)'}} />
                           </div>
-                          <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{trainingProgressPct}%</span>
+                          <span className="wa-text-[11px] wa-font-bold text-on-surface-variant" style={{ fontVariantNumeric: 'tabular-nums' }}>{trainingProgressPct}%</span>
                         </div>
                       )}
                     </div>
@@ -445,7 +452,7 @@ export default async function CounselorPortalPage({
             <div className="portal-metric-card__icon-wrap" style={{ background: card.bg }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: card.iconColor, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{card.icon}</span>
             </div>
-            <p className="portal-metric-card__value" style={{ color: card.value > 0 && card.label === t('awaitingReply') ? 'var(--color-accent)' : undefined }}>{card.value}</p>
+            <p className="portal-metric-card__value" style={{ fontVariantNumeric: 'tabular-nums', color: card.value > 0 && card.label === t('awaitingReply') ? 'var(--color-accent)' : undefined }}>{card.value}</p>
             <p className="portal-metric-card__label">{card.label}</p>
           </div>
         ))}
@@ -559,17 +566,17 @@ export default async function CounselorPortalPage({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{t('activeMembers')}</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{assignments.length}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--color-on-surface)' }}>{assignments.length}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{t('enrolledInModules')}</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-green)' }}>{enrolledCount}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--color-green)' }}>{enrolledCount}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{t('awaitingReply')}</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
               </div>
-              <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
+              <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '1rem', marginTop: '0.25rem' }}>
                 <Link href="/counselor/messages" className="btn btn-primary btn-full-width" style={{ fontSize: '0.75rem' }}>
                   {t('openMessages')}
                 </Link>

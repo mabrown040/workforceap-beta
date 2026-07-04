@@ -23,6 +23,7 @@ export default async function JobMatchScorerPage() {
 
   return (
     <>
+    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div style={{ paddingBottom: '6rem' }}>
         <div
           style={{
@@ -107,6 +108,7 @@ export default async function JobMatchScorerPage() {
             </div>
           </div>
         </div>      </div>
+    </div>
     </>
   );
 }

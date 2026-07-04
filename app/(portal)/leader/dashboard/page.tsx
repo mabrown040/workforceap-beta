@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import PortalPageFrame from "@/components/portal/PortalPageFrame";
 import PageHeader from "@/components/portal/PageHeader";
 import DataTable, { type DataTableColumn } from "@/components/portal/ui/DataTable";
+import { statusColor, type StatusTone } from "@/lib/ui/statusColors";
 
 interface Member {
   id: string;
@@ -48,6 +49,39 @@ interface Chapter {
   curriculumItems: CurriculumItem[];
 }
 
+/** Warm one-liner + quiet icon for empty panels (no destructive/blank text). */
+function EmptyPanel({ icon, text }: { icon: string; text: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "0.5rem",
+        padding: "1.75rem 1rem",
+        textAlign: "center",
+        color: "var(--color-on-surface-variant)",
+      }}
+    >
+      <span
+        className="material-symbols-outlined"
+        aria-hidden
+        style={{ fontSize: "1.75rem", opacity: 0.6 }}
+      >
+        {icon}
+      </span>
+      <p style={{ margin: 0, fontSize: "0.85rem" }}>{text}</p>
+    </div>
+  );
+}
+
+function memberStatusTone(m: Member): { tone: StatusTone; label: string } {
+  if (m.placementRecord) return { tone: "success", label: "Placed" };
+  if (m.interviewEligible) return { tone: "info", label: "Interview ready" };
+  if (m.assessmentCompleted) return { tone: "warning", label: "Assessed" };
+  return { tone: "neutral", label: "New" };
+}
+
 export default function LeaderDashboardPage() {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,23 +112,38 @@ export default function LeaderDashboardPage() {
   } : null;
 
   const memberColumns: DataTableColumn<ChapterMemberRow>[] = [
-    { key: "name", header: "Name", cell: (m) => m.user.fullName },
+    {
+      key: "name",
+      header: "Name",
+      cell: (m) => <span style={{ fontWeight: 600 }}>{m.user.fullName}</span>,
+    },
     { key: "program", header: "Program", cell: (m) => m.user.enrolledProgram || "—" },
     {
       key: "status",
       header: "Status",
-      cell: (m) => (
-        <span className={`px-2 py-0.5 rounded text-xs ${
-          m.user.placementRecord ? "bg-green-100 text-green-800" :
-          m.user.interviewEligible ? "bg-blue-100 text-blue-800" :
-          m.user.assessmentCompleted ? "bg-yellow-100 text-yellow-800" :
-          "bg-gray-100"
-        }`}>
-          {m.user.placementRecord ? "Placed" :
-           m.user.interviewEligible ? "Interview Ready" :
-           m.user.assessmentCompleted ? "Assessed" : "New"}
-        </span>
-      ),
+      align: "right",
+      cell: (m) => {
+        const { tone, label } = memberStatusTone(m.user);
+        const { fg, bg, border } = statusColor(tone);
+        return (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "0.2rem 0.6rem",
+              borderRadius: "var(--radius-full)",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              color: fg,
+              background: bg,
+              border: `1px solid ${border}`,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {label}
+          </span>
+        );
+      },
     },
   ];
 
@@ -102,85 +151,219 @@ export default function LeaderDashboardPage() {
     <PortalPageFrame>
       <PageHeader
         title={chapter?.name || "Leader Dashboard"}
-        subtitle={chapter ? `${chapter.city}${chapter.state ? `, ${chapter.state}` : ""} — ${chapter.meetingSchedule || ""}` : "Launchpad Job Club"}
+        subtitle={
+          chapter
+            ? `${chapter.city ?? ""}${chapter.state ? `, ${chapter.state}` : ""}${chapter.meetingSchedule ? ` — ${chapter.meetingSchedule}` : ""}`
+            : "Launchpad Job Club"
+        }
       />
 
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {loading && (
+        <div
+          className="portal-card portal-card--padded-sm"
+          style={{
+            marginTop: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            color: "var(--color-on-surface-variant)",
+            fontSize: "0.875rem",
+          }}
+        >
+          <span
+            className="material-symbols-outlined"
+            aria-hidden
+            style={{ fontSize: "1.1rem", animation: "spin 1s linear infinite" }}
+          >
+            progress_activity
+          </span>
+          Loading your chapter…
+        </div>
+      )}
+
+      {error && !loading && (
+        <div
+          role="alert"
+          className="portal-card portal-card--padded-sm"
+          style={{
+            marginTop: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            color: statusColor("danger").fg,
+            background: statusColor("danger").bg,
+            borderColor: statusColor("danger").border,
+          }}
+        >
+          <span className="material-symbols-outlined" aria-hidden style={{ fontSize: "1.2rem" }}>
+            error
+          </span>
+          <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>{error}</span>
+        </div>
+      )}
 
       {stats && (
-        <div className="grid grid-cols-5 gap-4 mb-6">
-          <div className="bg-white p-4 rounded shadow text-center">
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-sm text-gray-500">Total Members</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow text-center">
-            <div className="text-2xl font-bold">{stats.active}</div>
-            <div className="text-sm text-gray-500">Active</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow text-center">
-            <div className="text-2xl font-bold">{stats.assessed}</div>
-            <div className="text-sm text-gray-500">Assessed</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow text-center">
-            <div className="text-2xl font-bold">{stats.interviewReady}</div>
-            <div className="text-sm text-gray-500">Interview Ready</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow text-center">
-            <div className="text-2xl font-bold">{stats.placed}</div>
-            <div className="text-sm text-gray-500">Placed</div>
-          </div>
+        <div
+          className="wa-grid wa-grid-cols-2 md:wa-grid-cols-5 wa-gap-3"
+          style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}
+        >
+          {[
+            { label: "Total members", value: stats.total },
+            { label: "Active", value: stats.active },
+            { label: "Assessed", value: stats.assessed },
+            { label: "Interview ready", value: stats.interviewReady },
+            { label: "Placed", value: stats.placed },
+          ].map((s) => (
+            <div key={s.label} className="portal-card portal-card--padded-sm" style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  fontVariantNumeric: "tabular-nums",
+                  color: "var(--color-on-surface)",
+                }}
+              >
+                {s.value}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: "var(--color-on-surface-variant)",
+                  marginTop: "0.25rem",
+                }}
+              >
+                {s.label}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {chapter && (
-        <div className="grid grid-cols-2 gap-6">
-          <div className="bg-white p-4 rounded shadow">
-            <h3 className="font-semibold mb-3">Members</h3>
-            <DataTable columns={memberColumns} rows={chapter.members} rowKey={(m) => m.user.id} />
-          </div>
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-2 wa-gap-4">
+          <section className="portal-card portal-card--flat">
+            <div className="portal-card__header">
+              <div className="portal-card__headings">
+                <h2 className="portal-card__title">Members</h2>
+              </div>
+            </div>
+            <div className="portal-card__body" style={{ padding: 0 }}>
+              {chapter.members.length === 0 ? (
+                <EmptyPanel icon="group" text="No members have joined this chapter yet." />
+              ) : (
+                <DataTable columns={memberColumns} rows={chapter.members} rowKey={(m) => m.user.id} />
+              )}
+            </div>
+          </section>
 
-          <div className="bg-white p-4 rounded shadow">
-            <h3 className="font-semibold mb-3">Meetings</h3>
-            {chapter.meetings.length === 0 ? (
-              <p className="text-gray-500 text-sm">No meetings scheduled yet.</p>
-            ) : (
-              <ul className="space-y-2">
-                {chapter.meetings.map((mtg) => (
-                  <li key={mtg.id} className="border p-2 rounded text-sm">
-                    <div className="font-medium">{new Date(mtg.scheduledAt).toLocaleDateString()}</div>
-                    <div className="text-gray-500">{mtg.topic || "General meeting"}</div>
-                    <div className="text-gray-500">{mtg.location || chapter.meetingLocation || "TBD"}</div>
-                    {mtg.attendanceCount !== null && (
-                      <div className="text-xs text-gray-400">Attendance: {mtg.attendanceCount}</div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <section className="portal-card portal-card--flat">
+            <div className="portal-card__header">
+              <div className="portal-card__headings">
+                <h2 className="portal-card__title">Meetings</h2>
+              </div>
+            </div>
+            <div className="portal-card__body">
+              {chapter.meetings.length === 0 ? (
+                <EmptyPanel icon="event" text="No meetings scheduled yet." />
+              ) : (
+                <ul style={{ display: "flex", flexDirection: "column", gap: "0.5rem", listStyle: "none", margin: 0, padding: 0 }}>
+                  {chapter.meetings.map((mtg) => (
+                    <li
+                      key={mtg.id}
+                      style={{
+                        border: "1px solid var(--outline-variant)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "0.6rem 0.75rem",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
+                        <span style={{ fontWeight: 700 }}>{new Date(mtg.scheduledAt).toLocaleDateString()}</span>
+                        {mtg.attendanceCount !== null && (
+                          <span
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "var(--color-on-surface-variant)",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            {mtg.attendanceCount} attended
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ color: "var(--color-on-surface-variant)", marginTop: "0.15rem" }}>
+                        {mtg.topic || "General meeting"}
+                      </div>
+                      <div style={{ color: "var(--color-on-surface-variant)" }}>
+                        {mtg.location || chapter.meetingLocation || "Location TBD"}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
 
-          <div className="bg-white p-4 rounded shadow col-span-2">
-            <h3 className="font-semibold mb-3">Curriculum</h3>
-            {chapter.curriculumItems.length === 0 ? (
-              <p className="text-gray-500 text-sm">No curriculum items assigned yet.</p>
-            ) : (
-              <ol className="space-y-2">
-                {chapter.curriculumItems.map((item) => (
-                  <li key={item.id} className="flex items-center gap-3 border p-2 rounded">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-mono">
-                      {item.orderIndex + 1}
-                    </span>
-                    <div>
-                      <div className="font-medium">{item.course.name}</div>
-                      <div className="text-xs text-gray-500">{item.course.programSlug}</div>
-                    </div>
-                    {item.notes && <div className="text-xs text-gray-400">{item.notes}</div>}
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
+          <section className="portal-card portal-card--flat lg:wa-col-span-2">
+            <div className="portal-card__header">
+              <div className="portal-card__headings">
+                <h2 className="portal-card__title">Curriculum</h2>
+              </div>
+            </div>
+            <div className="portal-card__body">
+              {chapter.curriculumItems.length === 0 ? (
+                <EmptyPanel icon="menu_book" text="No curriculum items assigned yet." />
+              ) : (
+                <ol style={{ display: "flex", flexDirection: "column", gap: "0.5rem", listStyle: "none", margin: 0, padding: 0 }}>
+                  {chapter.curriculumItems.map((item) => (
+                    <li
+                      key={item.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                        border: "1px solid var(--outline-variant)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "0.6rem 0.75rem",
+                      }}
+                    >
+                      <span
+                        aria-hidden
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          minWidth: "1.5rem",
+                          height: "1.5rem",
+                          borderRadius: "var(--radius-full)",
+                          background: statusColor("info").bg,
+                          color: statusColor("info").fg,
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          fontVariantNumeric: "tabular-nums",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {item.orderIndex + 1}
+                      </span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{item.course.name}</div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)" }}>
+                          {item.course.programSlug}
+                        </div>
+                      </div>
+                      {item.notes && (
+                        <div style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginLeft: "auto" }}>
+                          {item.notes}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </section>
         </div>
       )}
     </PortalPageFrame>

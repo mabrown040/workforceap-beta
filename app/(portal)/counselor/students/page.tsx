@@ -13,6 +13,7 @@ import CounselorAnalyticsCards, { CounselorAnalyticsCardsDesktop } from '@/compo
 import ProgressDistributionChart from '@/components/portal/counselor/ProgressDistributionChartLazy';
 import AtRiskMemberList from '@/components/portal/counselor/AtRiskMemberList';
 import RecentActivityFeed from '@/components/portal/counselor/RecentActivityFeed';
+import styles from './students.module.css';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 const UPCOMING_SESSION_DAYS = 7;
@@ -326,8 +327,8 @@ export default async function CounselorStudentsPage({
                     style={{ textDecoration: 'none' }}
                   >
                     <div
+                      className={styles.hotQueueCardMobile}
                       style={{
-                        background: 'rgba(255,255,255,0.9)',
                         borderRadius: '0.875rem',
                         border: '1px solid color-mix(in srgb, var(--color-amber) 15%, transparent)',
                         padding: '0.875rem',
@@ -408,6 +409,7 @@ export default async function CounselorStudentsPage({
                   <Link
                     key={action.id}
                     href={`/counselor/students/${action.memberId}`}
+                    className={styles.hotQueueCardDesktop}
                     style={{
                       display: 'grid',
                       gridTemplateColumns: 'minmax(0, 1fr) auto',
@@ -417,7 +419,6 @@ export default async function CounselorStudentsPage({
                       border: '1px solid color-mix(in srgb, var(--color-amber) 15%, transparent)',
                       borderRadius: '0.9rem',
                       padding: '0.9rem 1rem',
-                      background: 'var(--surface-container-lowest)',
                     }}
                   >
                     <div style={{ minWidth: 0 }}>

@@ -34,10 +34,34 @@ export default function ResourcesClient({ resources, progressByResource = {} }: 
       />
       {filtered.length === 0 ? (
         <div className="resource-empty-state">
-          <p>No resources match your filters.</p>
-          <p className="resource-empty-hint">
-            Try adjusting your filters, or explore our recommended next actions: Build your resume, practice interview questions, or start a learning path.
+          <span
+            className="material-symbols-outlined"
+            aria-hidden
+            style={{ fontSize: '1.75rem', opacity: 0.6 }}
+          >
+            filter_alt_off
+          </span>
+          <p style={{ fontWeight: 700, marginTop: '0.5rem' }}>
+            {category || stage ? 'No resources match those filters.' : 'No resources available right now.'}
           </p>
+          <p className="resource-empty-hint">
+            {category || stage
+              ? 'Try a different category or stage — or clear your filters to see everything we have.'
+              : 'Check back soon, or explore your other career tools in the meantime.'}
+          </p>
+          {(category || stage) && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ marginTop: '1rem' }}
+              onClick={() => {
+                setCategory('');
+                setStage('');
+              }}
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       ) : (
         <ul className="resource-grid">

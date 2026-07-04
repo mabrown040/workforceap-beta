@@ -183,7 +183,7 @@ const leadConsultants = LEADERS.filter((l) => l.section === 'consultant' || l.ro
   /* translucent glass quote card — hero companion */
   .quote-card{background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
     border-radius:22px;padding:30px;color:#fff;
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
+    box-shadow:var(--shadow-glass)}
   .qhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .qbadge{width:40px;height:40px;border-radius:12px;background:rgba(127,227,137,.18);color:#caffce;
     border:1px solid rgba(120,220,130,.4);display:grid;place-items:center;flex-shrink:0}
@@ -197,7 +197,10 @@ const leadConsultants = LEADERS.filter((l) => l.section === 'consultant' || l.ro
   .band--bg{background:var(--bg);color:var(--text)}
   .band--surface{background:var(--surface);color:var(--text)}
 
-  .sec-head{text-align:center;max-width:640px;margin:0 auto 52px}
+  /* left-align over the left-aligned leader-card grids below — a centered
+     kicker/heading above a left-set grid of cards was the one remaining
+     symmetric mismatch on this page. */
+  .sec-head{text-align:left;max-width:640px;margin:0 0 52px}
   .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px}
   .kick--crimson{color:var(--crimson)}
   .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,4.4vw,50px);line-height:1.02;letter-spacing:-.02em}

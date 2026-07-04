@@ -10,6 +10,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { EMPLOYER_TIERS } from '@/lib/stripe/client';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import { statusColor } from '@/lib/ui/statusColors';
 import TierCheckoutForm from './TierCheckoutForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,6 +59,9 @@ export default async function EmployerBillingPage({
     isCurrent: key === currentTierKey,
   }));
 
+  const successColors = statusColor('success');
+  const canceledColors = statusColor('warning');
+
   return (
     <PortalPageFrame>
       <PageHeader
@@ -71,8 +75,9 @@ export default async function EmployerBillingPage({
             marginBottom: '1.5rem',
             padding: '0.75rem 1rem',
             borderRadius: '0.5rem',
-            background: 'var(--color-success-container, #d4edda)',
-            color: 'var(--color-on-success-container, #155724)',
+            background: successColors.bg,
+            border: `1px solid ${successColors.border}`,
+            color: 'var(--color-on-surface)',
             fontSize: '0.875rem',
             fontWeight: 600,
           }}
@@ -87,8 +92,9 @@ export default async function EmployerBillingPage({
             marginBottom: '1.5rem',
             padding: '0.75rem 1rem',
             borderRadius: '0.5rem',
-            background: 'var(--color-warning-container, #fff3cd)',
-            color: 'var(--color-on-warning-container, #856404)',
+            background: canceledColors.bg,
+            border: `1px solid ${canceledColors.border}`,
+            color: 'var(--color-on-surface)',
             fontSize: '0.875rem',
             fontWeight: 600,
           }}

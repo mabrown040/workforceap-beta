@@ -224,7 +224,7 @@ export default async function EmployerDashboardPage({
         {kitTopApplicant ? (
           <Link
             href={`/employer/applications/${kitTopApplicant.id}`}
-            className="wa-mt-5"
+            className="wa-mt-5 hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
             style={{
               background: 'var(--wa-accent)',
               color: 'var(--wa-on-accent)',
@@ -338,6 +338,7 @@ export default async function EmployerDashboardPage({
               <Link
                 key={app.id}
                 href={`/employer/jobs/${app.jobId}`}
+                className="hover:wa-opacity-70 wa-transition-opacity motion-reduce:wa-transition-none"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -565,8 +566,8 @@ export default async function EmployerDashboardPage({
     <PortalPageFrame>
       {isPendingApproval && (
         <div style={{
-          background: 'rgba(245, 158, 11, 0.08)',
-          border: '1px solid rgba(245, 158, 11, 0.25)',
+          background: 'color-mix(in srgb, var(--color-gold) 12%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--color-gold) 32%, transparent)',
           borderRadius: '0.75rem',
           padding: '1rem 1.25rem',
           marginBottom: '1rem',
@@ -574,12 +575,12 @@ export default async function EmployerDashboardPage({
           alignItems: 'center',
           gap: '0.75rem',
         }}>
-          <span className="material-symbols-outlined" style={{ color: '#b45309', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">hourglass_empty</span>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-warning-on-surface)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">hourglass_empty</span>
           <div>
-            <p style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#b45309', margin: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-warning-on-surface)', margin: 0 }}>
               Your account is pending approval
             </p>
-            <p style={{ fontSize: '0.8125rem', color: '#92400e', margin: '0.125rem 0 0' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
               You can draft jobs now. After our team approves your account, you can submit them for review and they will go live.
             </p>
           </div>
@@ -673,12 +674,12 @@ export default async function EmployerDashboardPage({
             </Link>
           )}
           <Link href="/employer/jobs/new"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
+            className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px", background: 'var(--surface-container-high)', color: 'var(--color-on-surface)' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">add_circle</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">{t('postARole')}</span>
           </Link>
           <Link href="/employer/messages"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
+            className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px", background: 'var(--surface-container-high)', color: 'var(--color-on-surface)' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }} aria-hidden="true">forum</span>
             <span className="wa-text-sm wa-font-bold wa-leading-tight">{t('messages')}</span>
           </Link>
@@ -706,7 +707,7 @@ export default async function EmployerDashboardPage({
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
-                  className="active:scale-[0.98] wa-transition-all"
+                  className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
                   style={{ textDecoration:"none" }}
                 >
                   <PortalCard>

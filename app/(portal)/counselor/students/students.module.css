@@ -1,0 +1,42 @@
+/* Hover/press feedback for the "hot member queue" link-cards on the
+   counselor students roster page. Colocated with students/page.tsx.
+   Background lives here (not inline) so :hover can actually override it. */
+
+.hotQueueCardMobile {
+  background: var(--surface-container-lowest);
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.hotQueueCardMobile:hover {
+  background: color-mix(in srgb, var(--color-amber) 10%, var(--surface-container-lowest));
+}
+
+.hotQueueCardDesktop {
+  background: var(--surface-container-lowest);
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.hotQueueCardDesktop:hover {
+  background: color-mix(in srgb, var(--color-amber) 10%, var(--surface-container-lowest));
+}
+
+.hotQueueCardMobile:active,
+.hotQueueCardDesktop:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotQueueCardMobile,
+  .hotQueueCardDesktop {
+    transition: none;
+  }
+
+  .hotQueueCardMobile:active,
+  .hotQueueCardDesktop:active {
+    transform: none;
+  }
+}

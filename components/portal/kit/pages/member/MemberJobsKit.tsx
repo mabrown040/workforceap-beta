@@ -1,3 +1,4 @@
+import { Briefcase, Sparkles } from 'lucide-react';
 import { DesignSurface, KpiStrip, DataTable, StatusTag, type Column, type KitTone } from '@/components/portal/kit';
 
 /**
@@ -59,7 +60,7 @@ export function MemberJobsKit({
     { key: 'role', header: 'Role', render: (r) => <span style={{ fontWeight: 700 }}>{r.role}</span> },
     { key: 'company', header: 'Company', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.company}</span> },
     { key: 'location', header: 'Location', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.location}</span> },
-    { key: 'applied', header: 'Applied', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.applied}</span> },
+    { key: 'applied', header: 'Applied', render: (r) => <span style={{ color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{r.applied}</span> },
     { key: 'stage', header: 'Stage', align: 'right', render: (r) => <StatusTag tone={r.tone}>{r.stage}</StatusTag> },
   ];
   const applicationCard = (row: ApplicationRow) => (
@@ -68,7 +69,9 @@ export function MemberJobsKit({
         <div>
           <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
           <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.company}</div>
-          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.location} · {row.applied}</div>
+          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>
+            {row.location} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.applied}</span>
+          </div>
         </div>
         <StatusTag tone={row.tone}>{row.stage}</StatusTag>
       </div>
@@ -98,33 +101,72 @@ export function MemberJobsKit({
             </div>
             <a
               href={browseHref}
-              className="wa-kit-focus"
+              className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
               style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '8px 16px', background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
               Browse Job Board
             </a>
           </div>
-          <DataTable<ApplicationRow>
-            columns={columns}
-            rows={applications}
-            rowKey={(r) => r.id}
-            mobile="cards"
-            cardRender={applicationCard}
-            minWidth={560}
-            emptyTitle="No applications yet"
-            emptyDescription="Track jobs you apply to and they'll show up here."
-          />
+          {applications.length === 0 ? (
+            <div className="wa-kit-card wa-kit-card--sm wa-flex wa-items-start wa-gap-3">
+              <div
+                aria-hidden="true"
+                style={{ width: 40, height: 40, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+              >
+                <Briefcase size={18} aria-hidden="true" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)' }}>No applications yet</p>
+                <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>
+                  Track jobs you apply to and they&rsquo;ll show up here.
+                </p>
+                <a
+                  href={browseHref}
+                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{ display: 'inline-flex', alignItems: 'center', minHeight: 36, marginTop: 12, padding: '8px 14px', background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none' }}
+                >
+                  Browse Job Board
+                </a>
+              </div>
+            </div>
+          ) : (
+            <DataTable<ApplicationRow>
+              columns={columns}
+              rows={applications}
+              rowKey={(r) => r.id}
+              mobile="cards"
+              cardRender={applicationCard}
+              minWidth={560}
+              emptyTitle="No applications yet"
+              emptyDescription="Track jobs you apply to and they'll show up here."
+            />
+          )}
         </div>
 
         {/* Recommended for you */}
         <div>
           <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 12 }}>Recommended for you</h2>
           {recommended.length === 0 ? (
-            <div className="wa-kit-card wa-kit-card--sm">
-              <p style={{ fontSize: 13, fontWeight: 600 }}>No recommendations yet</p>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
-                Keep your profile and certifications up to date and we&rsquo;ll surface matching roles here.
-              </p>
+            <div className="wa-kit-card wa-kit-card--sm wa-flex wa-items-start wa-gap-3">
+              <div
+                aria-hidden="true"
+                style={{ width: 40, height: 40, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+              >
+                <Sparkles size={18} aria-hidden="true" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)' }}>No recommendations yet</p>
+                <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>
+                  Keep your profile and certifications up to date and we&rsquo;ll surface matching roles here.
+                </p>
+                <a
+                  href={browseHref}
+                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{ display: 'inline-flex', alignItems: 'center', minHeight: 36, marginTop: 12, padding: '8px 14px', background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none' }}
+                >
+                  Browse Job Board
+                </a>
+              </div>
             </div>
           ) : (
           <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
@@ -153,7 +195,7 @@ export function MemberJobsKit({
                 <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{job.meta}</p>
                 <a
                   href={`/dashboard/jobs/${job.id}`}
-                  className="wa-kit-focus"
+                  className="wa-kit-focus hover:wa-bg-[var(--wa-accent-soft)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none"
                   style={{
                     marginTop: 12,
                     display: 'block',

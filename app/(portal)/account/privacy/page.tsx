@@ -113,20 +113,23 @@ export default function PrivacySettingsPage() {
           {t('exportBody')}
         </p>
         <button type="button"
+          className="btn btn-primary"
           onClick={handleExport}
           disabled={exporting}
           style={{
-            padding: '0.75rem 1.25rem',
-            background: 'var(--color-accent)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-md)',
-            fontWeight: 700,
-            fontSize: '0.9rem',
             cursor: exporting ? 'not-allowed' : 'pointer',
             opacity: exporting ? 0.7 : 1,
           }}
         >
+          {exporting && (
+            <span
+              className="material-symbols-outlined"
+              aria-hidden
+              style={{ fontSize: '1.1rem', animation: 'spin 1s linear infinite' }}
+            >
+              progress_activity
+            </span>
+          )}
           {exporting ? t('exportPreparing') : t('exportButton')}
         </button>
       </section>
@@ -134,15 +137,20 @@ export default function PrivacySettingsPage() {
       {/* Consent Management */}
       <section style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('consentHeading')}</h2>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          padding: '1rem',
-          background: 'var(--surface-container)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--outline-variant)',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '1rem',
+            background: 'var(--surface-container)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--outline-variant)',
+            transition: 'border-color 150ms ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--outline-variant)'; }}
+        >
           <input
             type="checkbox"
             id="consent-marketing"
@@ -179,7 +187,10 @@ export default function PrivacySettingsPage() {
               fontWeight: 700,
               fontSize: '0.9rem',
               cursor: 'pointer',
+              transition: 'background-color 150ms ease',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'color-mix(in srgb, var(--color-error) 8%, transparent)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
           >
             {t('deleteButton')}
           </button>
@@ -200,30 +211,36 @@ export default function PrivacySettingsPage() {
                 style={{
                   padding: '0.75rem 1.25rem',
                   background: 'var(--color-error)',
-                  color: '#fff',
+                  color: 'var(--color-white)',
                   border: 'none',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 700,
                   fontSize: '0.9rem',
                   cursor: deleting ? 'not-allowed' : 'pointer',
                   opacity: deleting ? 0.7 : 1,
+                  transition: 'background-color 150ms ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
                 }}
+                onMouseEnter={(e) => { if (!deleting) e.currentTarget.style.background = 'color-mix(in srgb, var(--color-error) 85%, black)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-error)'; }}
               >
+                {deleting && (
+                  <span
+                    className="material-symbols-outlined"
+                    aria-hidden
+                    style={{ fontSize: '1.1rem', animation: 'spin 1s linear infinite' }}
+                  >
+                    progress_activity
+                  </span>
+                )}
                 {deleting ? t('deleteDeleting') : t('deleteConfirmYes')}
               </button>
               <button type="button"
+                className="btn btn-muted"
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={deleting}
-                style={{
-                  padding: '0.75rem 1.25rem',
-                  background: 'var(--surface-container-high)',
-                  color: 'var(--color-on-surface)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-md)',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                }}
               >
                 {t('deleteCancel')}
               </button>

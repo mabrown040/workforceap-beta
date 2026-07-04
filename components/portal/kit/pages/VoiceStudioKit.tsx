@@ -305,7 +305,7 @@ export function VoiceStudioKit({
                     tabIndex={on ? 0 : -1}
                     onClick={() => setTab(t.id)}
                     onKeyDown={(e) => handleTabKeyDown(e, i)}
-                    className="wa-kit-focus"
+                    className={`wa-kit-focus${on ? '' : ' vs-tab-btn'}`}
                     style={{
                       minHeight: 44,
                       padding: '8px 12px',
@@ -319,6 +319,7 @@ export function VoiceStudioKit({
                       whiteSpace: 'nowrap',
                       flex: '0 0 auto',
                       scrollSnapAlign: 'start',
+                      transition: 'background-color 150ms ease',
                     }}
                   >
                     {t.label}
@@ -329,7 +330,18 @@ export function VoiceStudioKit({
           </div>
         </header>
 
-        <main style={{ flexGrow: 1, width: '100%', maxWidth: 1280, margin: '0 auto', padding: 16, boxSizing: 'border-box' }}>
+        <main
+          style={{
+            flexGrow: 1,
+            width: '100%',
+            maxWidth: 1280,
+            margin: '0 auto',
+            padding: 16,
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <h1 className="sr-only">Voice and Career Studio</h1>
           <div
             role="tabpanel"
@@ -337,6 +349,7 @@ export function VoiceStudioKit({
             aria-labelledby={`vs-tab-${tab}`}
             tabIndex={0}
             className="wa-kit-focus"
+            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
           >
             {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
             {tab === 'session' && <SessionPanel agent={agent} />}
@@ -626,20 +639,20 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
   if (card.agent) {
     const agent = card.agent;
     return (
-      <button type="button" onClick={() => onPick(agent)} className="wa-kit-focus" style={sharedStyle}>
+      <button type="button" onClick={() => onPick(agent)} className="wa-kit-focus vs-hero-card" style={sharedStyle}>
         {inner}
       </button>
     );
   }
   if (card.href) {
     return (
-      <Link href={card.href} className="wa-kit-focus" style={{ ...sharedStyle, textDecoration: 'none' }}>
+      <Link href={card.href} className="wa-kit-focus vs-hero-card" style={{ ...sharedStyle, textDecoration: 'none' }}>
         {inner}
       </Link>
     );
   }
   return (
-    <div className="wa-kit-focus" style={sharedStyle}>
+    <div className="wa-kit-focus vs-hero-card" style={sharedStyle}>
       {inner}
     </div>
   );
@@ -897,10 +910,45 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
           : 'Checking your microphone and connecting to your coach…';
 
   return (
-    <section>
-      <h2 className="sr-only">Live voice session</h2>
-      <div style={{ background: '#1a1a1a', borderRadius: 24, overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)' }}>
-        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-5" style={{ minHeight: 560 }}>
+    <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
+      <div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 12,
+            fontWeight: 700,
+            color: 'var(--wa-accent)',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+          }}
+        >
+          <Headset size={13} aria-hidden="true" />
+          <span>Live session</span>
+        </div>
+        <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
+          {label}
+        </h2>
+        <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+          Real-time spoken coaching — your program context is included automatically.
+        </p>
+      </div>
+
+      {/* Dark "stage" — an intentional, always-dark media surface (like a call/theater
+          screen) rather than a page-theme surface, framed in a themed bezel so it
+          reads as deliberate in both light and dark mode instead of a stray black box. */}
+      <div
+        style={{
+          background: 'var(--wa-surface)',
+          border: '1px solid var(--wa-border)',
+          borderRadius: 28,
+          padding: 6,
+          boxShadow: 'var(--wa-shadow-lg)',
+        }}
+      >
+        <div style={{ background: '#1a1a1a', borderRadius: 22, overflow: 'hidden' }}>
+          <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-5" style={{ minHeight: 'clamp(560px, 60vh, 720px)' }}>
           {/* Orb / status — spans 3 of 5 on lg */}
           <div
             className="lg:wa-col-span-3"
@@ -1035,7 +1083,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                 <>
                   <button
                     type="button"
-                    className="vs-focus-dark"
+                    className="vs-focus-dark vs-btn-solid"
                     aria-label={muted ? 'Unmute microphone' : 'Mute microphone'}
                     aria-pressed={muted}
                     title={muted ? 'Unmute microphone' : 'Mute microphone'}
@@ -1046,7 +1094,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   </button>
                   <button
                     type="button"
-                    className="vs-focus-dark"
+                    className="vs-focus-dark vs-btn-solid"
                     onClick={end}
                     style={{
                       padding: '12px 24px',
@@ -1092,7 +1140,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               ) : (
                 <button
                   type="button"
-                  className="vs-focus-dark"
+                  className="vs-focus-dark vs-btn-solid"
                   onClick={() => void start()}
                   style={{
                     padding: '12px 28px',
@@ -1197,8 +1245,9 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             </div>
           </div>
         </div>
+        </div>
       </div>
-      <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 16 }}>
+      <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 0 }}>
         Speak naturally with the AI coach. Your live transcript appears here while you practice.
       </p>
     </section>
@@ -1321,7 +1370,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
         </div>
         <Link
           href={hasResume ? TOOL_HREF['resume-studio'] + '?view=score' : TOOL_HREF['resume-studio']}
-          className="vs-focus-dark"
+          className="vs-focus-dark vs-btn-solid"
           style={{
             padding: '12px 20px',
             background: '#fff',
@@ -1424,7 +1473,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
                 <Link
                   href={TOOL_HREF['resume-studio'] + '?view=score'}
-                  className="wa-kit-focus"
+                  className="wa-kit-focus vs-btn-solid"
                   style={{
                     padding: '10px 18px',
                     background: 'var(--wa-accent)',
@@ -1445,7 +1494,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 </Link>
                 <Link
                   href={TOOL_HREF['resume-rewriter']}
-                  className="wa-kit-focus"
+                  className="wa-kit-focus vs-btn-solid"
                   style={{
                     padding: '10px 18px',
                     background: 'transparent',
@@ -1468,7 +1517,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             {/* Crimson "Talk it through" voice card → unified Resume Coach session */}
             <Link
               href="/dashboard/ai-tools/studio?tab=session&agent=resume"
-              className="wa-kit-focus"
+              className="wa-kit-focus vs-hero-card"
               style={{
                 textAlign: 'left',
                 background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
@@ -1516,7 +1565,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
           </p>
           <Link
             href={TOOL_HREF['resume-studio']}
-            className="wa-kit-focus"
+            className="wa-kit-focus vs-btn-solid"
             style={{
               marginTop: 4,
               padding: '10px 20px',
@@ -1575,7 +1624,7 @@ function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
       </div>
       <Link
         href={TOOL_HREF['resume-rewriter']}
-        className="wa-kit-focus"
+        className="wa-kit-focus vs-btn-solid"
         style={{
           padding: '6px 12px',
           background: 'var(--wa-accent)',
@@ -1733,7 +1782,7 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
   return (
     <Link
       href={href}
-      className="wa-kit-focus"
+      className="wa-kit-focus vs-hero-card"
       style={{
         textAlign: 'left',
         background: 'var(--wa-surface)',
@@ -1779,7 +1828,24 @@ const ORB_CSS = `
 .vs-eqbar { height: 60%; animation: vsEq 1s ease-in-out infinite; }
 .vs-dot { animation: vsPulse 1.6s ease-in-out infinite; }
 .vs-focus-dark:focus-visible { outline: none; box-shadow: 0 0 0 2px #121212, 0 0 0 4px #ad2c4d; }
+
+/* Micro-interactions — transform/opacity only, so they're cheap to composite
+   and safe to disable wholesale under reduced motion below. */
+.vs-tab-btn { transition: background-color 150ms ease; }
+.vs-tab-btn:hover { background: rgba(255,255,255,0.08); }
+.vs-hero-card { transition: transform 180ms ease; }
+.vs-hero-card:hover { transform: translateY(-3px); }
+.vs-hero-card:active { transform: scale(0.98); }
+.vs-btn-solid { transition: transform 160ms ease, opacity 160ms ease; }
+.vs-btn-solid:hover { opacity: 0.92; }
+.vs-btn-solid:active { transform: scale(0.97); }
+
 @media (prefers-reduced-motion: reduce) {
   .vs-orb-core, .vs-orb-ring, .vs-eqbar, .vs-dot { animation: none; }
+  .vs-tab-btn, .vs-hero-card, .vs-btn-solid { transition: none; }
+  .vs-hero-card:hover, .vs-hero-card:active, .vs-btn-solid:hover, .vs-btn-solid:active {
+    transform: none;
+    opacity: 1;
+  }
 }
 `;

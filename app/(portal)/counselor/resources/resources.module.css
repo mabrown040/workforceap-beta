@@ -1,0 +1,26 @@
+/* Hover/press feedback for resource link rows. Colocated with
+   resources/page.tsx (matches queue/queue.module.css's approach). */
+
+.row {
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.row:hover {
+  background: var(--surface-container-high);
+}
+
+.row:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+
+  .row:active {
+    transform: none;
+  }
+}

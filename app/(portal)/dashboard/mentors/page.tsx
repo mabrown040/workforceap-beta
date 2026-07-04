@@ -43,7 +43,7 @@ export default async function MentorsBrowsePage() {
         {mentors.length === 0 ? (
           <PortalEmptyState
             icon={
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
                 people_outline
               </span>
             }
@@ -53,12 +53,12 @@ export default async function MentorsBrowsePage() {
         ) : (
           <div style={{ display: 'grid', gap: '0.75rem' }}>
             {mentors.map((mentor) => (
-              <div key={mentor.id} style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '0.9rem', background: 'var(--surface-container-lowest)' }}>
+              <div key={mentor.id} className="mentor-browse-card" style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '0.9rem', background: 'var(--surface-container-lowest)' }}>
                 <div style={{ fontWeight: 700 }}>{mentor.fullName}</div>
                 <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>{mentor.title}</div>
                 <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{mentor.company} · {mentor.industry}</div>
-                <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.6rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: 600, minHeight: '44px' }}>
-                  Request Session
+                <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.6rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-on-accent, #fff)', padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: 600, minHeight: '44px' }}>
+                  Request session
                 </Link>
               </div>
             ))}
@@ -71,7 +71,7 @@ export default async function MentorsBrowsePage() {
         {mentors.length === 0 ? (
           <PortalEmptyState
             icon={
-              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
                 people_outline
               </span>
             }
@@ -81,18 +81,25 @@ export default async function MentorsBrowsePage() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
             {mentors.map((mentor) => (
-              <div key={mentor.id} style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '1rem', background: 'var(--surface-container-lowest)' }}>
+              <div key={mentor.id} className="mentor-browse-card" style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '1rem', background: 'var(--surface-container-lowest)' }}>
                 <div style={{ fontSize: '1.05rem', fontWeight: 700 }}>{mentor.fullName}</div>
                 <div style={{ color: 'var(--color-on-surface-variant)' }}>{mentor.title}</div>
                 <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>{mentor.company} · {mentor.industry}</div>
-                <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.75rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', padding: '0.55rem 0.85rem', borderRadius: '0.5rem', fontWeight: 600 }}>
-                  Request Session
+                <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.75rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-on-accent, #fff)', padding: '0.55rem 0.85rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+                  Request session
                 </Link>
               </div>
             ))}
           </div>
         )}
       </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .mentor-browse-card { transition: border-color 0.15s, background 0.15s; }
+        .mentor-browse-card:hover { border-color: var(--color-accent); background: var(--surface-container-low); }
+        @media (prefers-reduced-motion: reduce) {
+          .mentor-browse-card { transition: none; }
+        }
+      `}} />
     </>
   );
 }

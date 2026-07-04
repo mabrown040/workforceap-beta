@@ -90,6 +90,7 @@ export default async function EmployerApplicationPage({
       <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
         <Link
           href="/employer"
+          className="hover:wa-opacity-75 wa-transition-opacity motion-reduce:wa-transition-none"
           style={{
             fontSize: '0.8125rem',
             color: 'var(--color-accent)',
@@ -103,7 +104,7 @@ export default async function EmployerApplicationPage({
           <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
             arrow_back
           </span>
-          Back to jobs
+          Back to dashboard
         </Link>
 
         <h1
@@ -221,7 +222,7 @@ export default async function EmployerApplicationPage({
           {application.employerNotes ? (
             <p style={{ fontSize: '0.875rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{application.employerNotes}</p>
           ) : (
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>No notes yet. Add notes in the admin panel.</p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>No notes yet — add context in the admin panel whenever you're ready.</p>
           )}
         </PortalCard>
 
@@ -236,8 +237,8 @@ export default async function EmployerApplicationPage({
                   style={{
                     padding: '0.75rem',
                     borderRadius: '0.5rem',
-                    background: msg.authorId === user.id ? 'rgba(173,44,77,0.08)' : 'var(--surface-container)',
-                    border: `1px solid ${msg.authorId === user.id ? 'rgba(173,44,77,0.15)' : 'var(--outline-variant)'}`,
+                    background: msg.authorId === user.id ? 'color-mix(in srgb, var(--color-accent) 8%, transparent)' : 'var(--surface-container)',
+                    border: `1px solid ${msg.authorId === user.id ? 'color-mix(in srgb, var(--color-accent) 15%, transparent)' : 'var(--outline-variant)'}`,
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>

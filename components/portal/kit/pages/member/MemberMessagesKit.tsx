@@ -232,7 +232,7 @@ export function MemberMessagesKit({
                   key={c.id}
                   type="button"
                   onClick={() => setMobileView('thread')}
-                  className="wa-kit-focus"
+                  className={`wa-kit-focus wa-transition-colors wa-duration-150 motion-reduce:wa-transition-none${c.active ? '' : ' hover:wa-bg-[var(--wa-bg)]'}`}
                   style={{
                     display: 'block',
                     width: '100%',
@@ -285,7 +285,7 @@ export function MemberMessagesKit({
                 type="button"
                 onClick={() => setMobileView('list')}
                 aria-label="Back to messages"
-                className="wa-kit-focus wa-flex wa-items-center wa-justify-center md:wa-hidden"
+                className="wa-kit-focus hover:wa-bg-[var(--wa-bg)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none wa-flex wa-items-center wa-justify-center md:wa-hidden"
                 style={{
                   width: 44,
                   height: 44,

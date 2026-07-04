@@ -20,8 +20,11 @@ import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
-import { DesignSurface, FeatureTile, KpiStrip, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
-import { CheckCircle2 } from 'lucide-react';
+import {
+  CounselorHomeKit,
+  type CounselorQueueRow,
+  type CounselorSessionRow,
+} from '@/components/portal/kit/pages/counselor/CounselorHomeKit';
 
 // Quick Links accents: each link declares which severity it wants to signal
 // (accent/green/blue/gold/error) so At-Risk and Inactive Members read as
@@ -94,69 +97,39 @@ export default async function CounselorPortalPage({
       console.error('[counselor:kit] priority queue failed:', err);
     }
 
-    const kitStats = [
-      { label: 'Assigned members', value: assignedCount, color: 'accent' as const },
-      { label: 'Needs attention', value: kitQueue.totals.critical + kitQueue.totals.warning, color: kitQueue.totals.critical > 0 ? ('accent' as const) : ('text' as const) },
-      { label: 'Awaiting reply', value: kitCenter.totals.needsReplyCount, color: kitCenter.totals.needsReplyCount > 0 ? ('accent' as const) : ('text' as const) },
-      { label: 'On track', value: kitQueue.totals.ontrack, color: 'success' as const },
-    ];
+    const kitQueueRows: CounselorQueueRow[] = kitQueue.rows.slice(0, 12).map((row) => ({
+      memberId: row.memberId,
+      memberName: row.memberName,
+      bucket: row.bucket,
+      blockerReason: row.blockerReason,
+      enrolledProgram: row.enrolledProgram,
+      daysSinceLogin: row.daysSinceLogin,
+      hoursWaitingReply: row.hoursWaitingReply,
+    }));
 
-    const bucketTone: Record<typeof kitQueue.rows[number]['bucket'], QueueTone> = {
-      critical: 'red',
-      warning: 'yellow',
-      ontrack: 'blue',
-    };
-    const triageRows = kitQueue.rows.slice(0, 12);
+    const kitSessions: CounselorSessionRow[] = kitCenter.interviewing.map((row) => ({
+      memberId: row.memberId,
+      memberName: row.memberName,
+      role: row.role,
+      lastRunAt: row.lastRunAt,
+    }));
 
     return (
-      <DesignSurface surface="dense">
-        <div style={{ padding: 'clamp(1rem, 4vw, 1.5rem)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <h1 className="wa-sr-only">Counselor overview</h1>
-          <SectionHeader title="Counselor overview" goal="Know who needs me today." />
-          <KpiStrip items={kitStats} cols={4} />
-          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
-            <FeatureTile title="Inbox" body="Reply to member messages." href="/counselor/inbox" />
-            <FeatureTile title="Sessions" body="Run check-ins and walk-ins." href="/counselor/sessions" tone="gold" />
-            <FeatureTile title="Triage queue" body="Prioritize students who need support." href="/counselor/triage" />
-            <FeatureTile title="At-risk members" body="Review inactivity and blockers." href="/counselor/at-risk" tone="gold" />
-            <FeatureTile title="Placements" body="Track job placement follow-up." href="/counselor/placements" />
-            <FeatureTile title="Inactive members" body="Find members who have gone quiet." href="/counselor/inactive-members" tone="gold" />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <SectionHeader title="Triage" goal={`${kitQueue.totals.total} member${kitQueue.totals.total === 1 ? '' : 's'} in queue`} />
-            {triageRows.length === 0 ? (
-              <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <CheckCircle2 size={18} aria-hidden="true" style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Nice work — no one&rsquo;s waiting on you right now.</p>
-                  <Link href="/counselor/students" style={{ fontSize: 12, fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}>
-                    Browse your full roster
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              triageRows.map((row) => (
-                <QueueRow
-                  key={row.memberId}
-                  tone={bucketTone[row.bucket]}
-                  title={row.memberName}
-                  meta={row.blockerReason}
-                  flag={row.bucket === 'critical' ? 'Urgent' : row.bucket === 'warning' ? 'Watch' : undefined}
-                  action={
-                    <Link
-                      href={`/counselor/students/${row.memberId}`}
-                      className="btn btn-sm btn-secondary"
-                      style={{ fontSize: 11, textDecoration: 'none' }}
-                    >
-                      View
-                    </Link>
-                  }
-                />
-              ))
-            )}
-          </div>
-        </div>
-      </DesignSurface>
+      <CounselorHomeKit
+        assignedCount={assignedCount}
+        atRiskCount={kitQueue.totals.critical + kitQueue.totals.warning}
+        needsReplyCount={kitCenter.totals.needsReplyCount}
+        onTrackCount={kitQueue.totals.ontrack}
+        slaBreachCount={kitCenter.totals.slaBreachCount}
+        queueRows={kitQueueRows}
+        queueTotal={kitQueue.totals.total}
+        sessions={kitSessions}
+        bucketCounts={{
+          critical: kitQueue.totals.critical,
+          warning: kitQueue.totals.warning,
+          ontrack: kitQueue.totals.ontrack,
+        }}
+      />
     );
   }
 

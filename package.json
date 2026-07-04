@@ -43,7 +43,8 @@
     "email": "email dev -p 3001",
     "analyze": "ANALYZE=true npm run build",
     "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh",
-    "smoke:prod": "node scripts/prod-paid-funnel-smoke.mjs"
+    "smoke:prod": "node scripts/prod-paid-funnel-smoke.mjs",
+    "screenshots:portal": "node scripts/portal-screenshots.mjs"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

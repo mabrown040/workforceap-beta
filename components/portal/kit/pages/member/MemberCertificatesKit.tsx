@@ -87,7 +87,24 @@ export function MemberCertificatesKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <h1 className="sr-only">Certificates and achievements</h1>
+        {/* Page opener — eyebrow + title, matching the VoiceStudioKit idiom,
+            so the tab reads as an intentional page rather than a floating
+            widget stack. */}
+        <div>
+          <div
+            className="wa-flex wa-items-center wa-gap-2"
+            style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+          >
+            <Award size={13} aria-hidden="true" />
+            <span>Credentials</span>
+          </div>
+          <h1 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
+            Certificates and achievements
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+            Verified credentials, plus what&apos;s in progress.
+          </p>
+        </div>
         {/* KPI strip */}
         <KpiStrip
           items={[
@@ -189,7 +206,7 @@ export function MemberCertificatesKit({
           {/* In-progress certificates — the one deliberate color-filled surface
               on this view (calls out active, in-flight work). */}
           {inProgress.length > 0 ? (
-            <div className="wa-space-y-3">
+            <div className="wa-space-y-4">
               <h2 className="sr-only">Certificates in progress</h2>
               {inProgress.map((cert) => {
                 const pct = Math.max(0, Math.min(100, Math.round(cert.percent)));

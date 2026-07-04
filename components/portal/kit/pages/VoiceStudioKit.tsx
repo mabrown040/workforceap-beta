@@ -910,7 +910,10 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
           : 'Checking your microphone and connecting to your coach…';
 
   return (
-    <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
+    // flex-start (not center): centering split the leftover height into a
+    // large dead band ABOVE the section title; anchoring to the top with the
+    // tall clamped stage reads intentional and keeps the heading scannable.
+    <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: 8, gap: 16 }}>
       <div>
         <div
           style={{

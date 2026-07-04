@@ -8,7 +8,7 @@ import {
  * Showcase-only render of the admin Counselors roster with inline mock data —
  * no auth/DB, so screenshot tooling can photograph the kit component directly.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const COUNSELORS: CounselorRow[] = [
   {

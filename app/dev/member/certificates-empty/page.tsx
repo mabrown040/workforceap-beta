@@ -5,7 +5,7 @@ import { MemberCertificatesKit } from '@/components/portal/kit/pages/member/Memb
  * Storybook-lite showcase — MemberCertificatesKit EMPTY state (nothing earned
  * or in progress yet). Preview-only, no auth/DB.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function DevMemberCertificatesEmptyPage() {
   if (process.env.VERCEL_ENV === 'production') notFound();

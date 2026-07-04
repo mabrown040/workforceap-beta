@@ -9,7 +9,7 @@ import type { KpiItem, RankDatum } from '@/components/portal/kit';
  * data — no auth/DB, so screenshot tooling can photograph the kit component
  * directly.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const KPIS: KpiItem[] = [
   { label: 'Started', value: 1204 },

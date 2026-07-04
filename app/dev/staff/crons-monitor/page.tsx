@@ -5,7 +5,7 @@ import { CronsMonitorKit, type CronJobRow } from '@/components/portal/kit/pages/
  * Showcase-only render of the admin Cron Monitor with inline mock data —
  * no auth/DB, so screenshot tooling can photograph the kit component directly.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const JOBS: CronJobRow[] = [
   {

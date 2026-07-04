@@ -6,7 +6,7 @@ import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKi
  * Preview-only, no auth/DB. See app/dev/dashboard/page.tsx for the pattern.
  * Empty-state variant: app/dev/member/jobs-empty/page.tsx.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function DevMemberJobsPage() {
   if (process.env.VERCEL_ENV === 'production') notFound();

@@ -7,7 +7,7 @@ import { MemberProfileKit } from '@/components/portal/kit/pages/member/MemberPro
  * no PATCH calls to /api/member/dashboard-profile or /api/member/settings.
  * Preview-only, no auth/DB. See app/dev/dashboard/page.tsx for the pattern.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function DevMemberProfilePage() {
   if (process.env.VERCEL_ENV === 'production') notFound();

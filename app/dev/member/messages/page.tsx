@@ -7,7 +7,7 @@ import { MemberMessagesKit } from '@/components/portal/kit/pages/member/MemberMe
  * kit stays fully local (no Supabase realtime, no /api/member/messages POST).
  * Preview-only, no auth/DB. See app/dev/dashboard/page.tsx for the pattern.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function DevMemberMessagesPage() {
   if (process.env.VERCEL_ENV === 'production') notFound();

@@ -20,7 +20,7 @@ import {
  * app/(portal)/partner/page.tsx) with inline mock data — no auth/DB, so
  * screenshot tooling can photograph the partner-facing kit pieces directly.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 interface ReferralRow {
   id: string;

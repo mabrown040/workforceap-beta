@@ -5,7 +5,7 @@ import { JobsBoardKit, type JobRow } from '@/components/portal/kit/pages/admin-s
  * Showcase-only render of the admin Jobs board with inline mock data —
  * no auth/DB, so screenshot tooling can photograph the kit component directly.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const JOBS: JobRow[] = [
   {

@@ -9,7 +9,7 @@ import { MemberToolkitKit } from '@/components/portal/kit/pages/member/MemberToo
  * kit behaves with no wired backend. Preview-only, no auth/DB. See
  * app/dev/dashboard/page.tsx for the pattern.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function DevMemberToolkitPage() {
   if (process.env.VERCEL_ENV === 'production') notFound();

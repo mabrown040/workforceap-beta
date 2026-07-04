@@ -5,7 +5,7 @@ import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKi
  * Storybook-lite showcase — MemberJobsKit EMPTY state (no applications, no
  * recommendations yet). Preview-only, no auth/DB.
  */
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function DevMemberJobsEmptyPage() {
   if (process.env.VERCEL_ENV === 'production') notFound();

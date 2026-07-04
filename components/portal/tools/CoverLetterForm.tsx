@@ -114,14 +114,16 @@ export default function CoverLetterForm() {
       </div>
       {error && <div className="form-error" role="alert">{error}</div>}
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
-            Generating cover letter…
-          </>
-        ) : (
-          'Generate cover letter'
-        )}
+        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          {loading ? (
+            <>
+              <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+              Generating cover letter…
+            </>
+          ) : (
+            'Generate cover letter'
+          )}
+        </span>
       </button>
       {output && (
         <div className="resume-rewriter-output">

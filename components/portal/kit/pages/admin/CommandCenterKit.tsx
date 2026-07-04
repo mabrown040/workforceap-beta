@@ -8,17 +8,30 @@ import {
   Award,
   UserPlus,
   Briefcase,
+  Users,
+  CheckCircle2,
+  Activity,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
   DesignSurface,
-  StatTile,
   SectionHeader,
   StatusTag,
   RankBars,
-  BarChartMini,
+  AreaChartMini,
+  StatSparkTile,
+  QueueRow,
+  CardHead,
+  DataTable,
+  colorVar,
   type KpiItem,
   type RankDatum,
   type ChartDatum,
+  type QueueTone,
+  type Column,
+  type KitColor,
+  type KitTone,
+  type SparkStat,
 } from '@/components/portal/kit';
 
 /**
@@ -28,6 +41,13 @@ import {
  * Faithful port of: the "Command Center" header (date + "Add Student"),
  * the KPI strip, the "What needs you today" prioritized work queue, and the
  * "Program Health" breakdown. Dense surface (admin/staff/data).
+ *
+ * Elevated to the shared Command Center visual language (see the member
+ * MemberHomeKit): `StatSparkTile` KPIs (icon + delta chip + optional
+ * sparkline), an `AreaChartMini` placements trend, severity-coded `QueueRow`s,
+ * plus two fully-optional panels (System health, Members) that render nothing
+ * when their data isn't wired. Every new field is additive/optional so the
+ * existing `app/admin/page.tsx` wiring keeps working unchanged.
  *
  * Presentational: every prop defaults to the mockup's own numbers/copy so the
  * component renders standalone with no wiring. Target route: /admin/command-center.
@@ -42,6 +62,7 @@ export interface CommandCenterQueueItem {
    * across the Server→Client boundary throws "Functions cannot be passed
    * directly to Client Components". A rendered element is serializable, so the
    * server page builds it (lucide icons are universal) and we render it as-is.
+   * Ignored when `count` is set (the count number takes the leading chip).
    */
   icon: ReactNode;
   /** Chip background color (CSS color / token). Mockup roles: crimson/gold/info/green. */
@@ -59,27 +80,71 @@ export interface CommandCenterQueueItem {
    * callback behavior.
    */
   href?: string;
+  /**
+   * Explicit severity tone for the row's leading chip (red = urgent today,
+   * yellow = watch, blue = fyi/celebrate). Omit to infer from `urgent` /
+   * `iconColor` — every existing caller already renders sensibly without this.
+   */
+  tone?: QueueTone;
+  /**
+   * Leading score/count shown in the row's chip instead of the icon glyph
+   * (e.g. `5` for "5 students inactive"). Omit to keep the icon glyph.
+   */
+  count?: number;
 }
 
 /** A program health row in the right-hand breakdown. */
 export type ProgramHealthDatum = RankDatum;
 
+/** A KPI tile — the plain `KpiItem` plus an optional icon + sparkline/trend. */
+export interface CommandCenterKpiItem extends KpiItem {
+  /** Icon for the tile's chip. Omit to fall back to a label-derived icon so plain `KpiItem[]` callers still render sensibly. */
+  icon?: LucideIcon;
+  /**
+   * Sparkline + delta chip. Omit to fall back to the tile's own `delta` /
+   * `deltaColor` fields (rendered as a chip instead of plain text) — existing
+   * callers that only set `delta` keep working, just a little richer-looking.
+   */
+  spark?: SparkStat;
+}
+
+/** One "System health" row (cron/system status). */
+export interface CommandCenterSystemHealthRow {
+  name: string;
+  status: 'ok' | 'warn';
+  /** Small caption, e.g. "2 errors this week" or "Nightly at 2:00 AM". */
+  meta?: string;
+}
+
+/** One row in the optional "Members" roster table. */
+export interface CommandCenterMemberRow {
+  id: string;
+  name: string;
+  program: string;
+  /** 0–100 course/module completion. */
+  progress: number;
+  /** Status chip text, e.g. "On track", "At risk". */
+  status: string;
+  /** Status chip tone. Defaults to 'muted'. */
+  statusTone?: KitTone;
+  lastActive: string;
+}
+
 export interface CommandCenterKitProps {
   /** Date/time shown in the header, e.g. "Tue, Jun 21 · 9:42 AM". */
   dateLabel?: string;
   /** KPI cards across the top. */
-  kpis?: KpiItem[];
+  kpis?: CommandCenterKpiItem[];
   /** Prioritized work-queue rows ("What needs you today"). */
   queueItems?: CommandCenterQueueItem[];
   /** Program Health breakdown rows. */
   programHealth?: ProgramHealthDatum[];
   /**
-   * "Placements by month" vertical bar chart (mockup: board outcomes). Each
-   * datum is one month, e.g. `{ label: 'Jun', value: 90 }`. The final bar is
-   * highlighted to read as "this month".
+   * "Placements trend" area chart. Each datum is one month, e.g.
+   * `{ label: 'Jun', value: 90 }`.
    */
   placementsByMonth?: ChartDatum[];
-  /** Sub-caption under the "Placements by month" title, e.g. "2026 YTD · 213 total". */
+  /** Sub-caption under the "Placements trend" title, e.g. "2026 YTD · 213 total". */
   placementsSubtitle?: string;
   /** Fired when the header "Add Student" button is pressed. */
   onAddStudent?: () => void;
@@ -91,11 +156,17 @@ export interface CommandCenterKitProps {
   addStudentHref?: string;
   /** Fired when a work-queue row's action button is pressed (passes the row id). */
   onQueueAction?: (id: string) => void;
+  /** "System health" panel rows (cron/system status). Omit to hide the panel entirely. */
+  systemHealth?: CommandCenterSystemHealthRow[];
+  /** "Members" roster table rows. Omit/empty to hide the panel entirely. */
+  members?: CommandCenterMemberRow[];
+  /** Nav target for the Members panel's "View all" link. Defaults to /admin/members. */
+  membersHref?: string;
 }
 
 /* ---- Defaults pulled straight from the mockup ---------------------------- */
 
-const DEFAULT_KPIS: KpiItem[] = [
+const DEFAULT_KPIS: CommandCenterKpiItem[] = [
   { label: 'Active Students', value: '847', color: 'text', delta: '↑ 32 this month', deltaColor: 'success' },
   { label: 'Placements YTD', value: '213', color: 'success', delta: '↑ 18 this month', deltaColor: 'success' },
   { label: 'Completion Rate', value: '71%', color: 'info', delta: 'cohort avg', deltaColor: 'muted' },
@@ -112,6 +183,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
     detail: 'Cloud & IT cohort · likely to drop',
     actionLabel: 'Assign outreach',
     urgent: true,
+    count: 5,
   },
   {
     id: 'certifications',
@@ -120,6 +192,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
     title: '12 certifications awaiting approval',
     detail: 'Verify proof to count toward outcomes',
     actionLabel: 'Review',
+    count: 12,
   },
   {
     id: 'applicants',
@@ -128,6 +201,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
     title: '8 new applicants need eligibility review',
     detail: 'WIOA screening pending',
     actionLabel: 'Open queue',
+    count: 8,
   },
   {
     id: 'placements',
@@ -136,10 +210,11 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
     title: '3 placements to confirm',
     detail: 'Employers reported hires',
     actionLabel: 'Confirm',
+    count: 3,
   },
 ];
 
-// Mockup "Placements by month" — 2026 YTD bars (board outcomes panel).
+// "Placements trend" — 2026 YTD area chart (board outcomes panel).
 const DEFAULT_PLACEMENTS_BY_MONTH: ChartDatum[] = [
   { label: 'Jan', value: 38 },
   { label: 'Feb', value: 46 },
@@ -156,6 +231,39 @@ const DEFAULT_PROGRAM_HEALTH: ProgramHealthDatum[] = [
   { label: 'Skilled Trades', value: '81 · 52%', pct: 52, color: 'accent' },
   { label: 'Manufacturing', value: '100 · 70%', pct: 70, color: 'success' },
 ];
+
+/* ---- Small pure helpers ---------------------------------------------------- */
+
+function clampPct(n: number): number {
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/** Label-derived fallback icon so plain `KpiItem[]` callers still get a sensible chip glyph. */
+function defaultKpiIcon(label: string): LucideIcon {
+  const l = label.toLowerCase();
+  if (l.includes('risk')) return TriangleAlert;
+  if (l.includes('placement')) return Briefcase;
+  if (l.includes('cert') || l.includes('ready')) return Award;
+  if (l.includes('complet')) return CheckCircle2;
+  if (l.includes('student') || l.includes('active')) return Users;
+  return Activity;
+}
+
+/** Falls back to the tile's plain `delta`/`deltaColor` (as a chip) when `spark` isn't set. */
+function kpiSpark(it: CommandCenterKpiItem): SparkStat | undefined {
+  if (it.spark) return it.spark;
+  if (it.delta) return { delta: it.delta, direction: it.deltaColor === 'accent' ? 'down' : 'up' };
+  return undefined;
+}
+
+/** Infers a QueueRow severity tone from the row's existing `urgent`/`iconColor` fields when `tone` isn't set explicitly. */
+function inferQueueTone(item: CommandCenterQueueItem): QueueTone {
+  if (item.tone) return item.tone;
+  if (item.urgent) return 'red';
+  if (item.iconColor.includes('accent') || item.iconColor.includes('danger')) return 'red';
+  if (item.iconColor.includes('gold')) return 'yellow';
+  return 'blue';
+}
 
 /* ---- Header pieces -------------------------------------------------------- */
 
@@ -242,17 +350,16 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
   );
 }
 
-/* ---- Work-queue row ------------------------------------------------------- */
-
-/**
- * "What needs you today" row. Mirrors the mockup faithfully: only the urgent
- * row is crimson-tinted (others sit on a neutral surface), and every row keeps
- * its own role-colored icon chip (crimson/gold/info/green). The kit's
- * <WorkQueueItem> only supports two chip colors, so this preserves the
- * per-row color the mockup shows.
+/* ---- Work-queue row --------------------------------------------------------
+ * Thin wrapper around the shared `QueueRow` primitive: derives a red/yellow/
+ * blue severity tone (so every admin queue reads the same as the counselor/
+ * partner triage queues) and keeps this component's own action-button
+ * treatment (filled pill for `urgent`, outline otherwise) plus the
+ * href-vs-callback affordance from the original implementation.
  */
-function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
-    const actionStyle: React.CSSProperties = {
+
+function queueActionStyle(urgent: boolean | undefined): React.CSSProperties {
+  return {
     flexShrink: 0,
     minHeight: 44,
     padding: '8px 12px',
@@ -261,56 +368,78 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
     borderRadius: 999,
     cursor: 'pointer',
     textDecoration: 'none',
-    border: item.urgent ? 'none' : '1px solid var(--wa-border)',
-    background: item.urgent ? 'var(--wa-accent)' : 'var(--wa-surface)',
-    color: item.urgent ? 'var(--wa-on-accent)' : 'var(--wa-text)',
+    border: urgent ? 'none' : '1px solid var(--wa-border)',
+    background: urgent ? 'var(--wa-accent)' : 'var(--wa-surface)',
+    color: urgent ? 'var(--wa-on-accent)' : 'var(--wa-text)',
   };
-  return (
-    <div
-      className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-flex-wrap sm:wa-flex-nowrap"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        background: item.urgent ? 'var(--wa-accent-soft)' : 'var(--wa-bg)',
-        borderColor: item.urgent ? 'var(--wa-accent-soft)' : 'var(--wa-border)',
-      }}
-    >
-      {/* Icon + text stay locked together; the action is the wrap target so on
-          the smallest phones it drops to its own line instead of overflowing. */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 100%', minWidth: 0 }}>
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--wa-on-accent)',
-            background: item.iconColor,
-          }}
-        >
-          {item.icon}
-        </div>
-        <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
-          <div style={{ fontWeight: 700, fontSize: 14 }}>{item.title}</div>
-          <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{item.detail}</div>
-        </div>
-      </div>
-      {item.href ? (
-        <a href={item.href} className="wa-kit-focus" style={actionStyle}>
-          {item.actionLabel}
-        </a>
-      ) : (
-        <button type="button" onClick={onAction} className="wa-kit-focus" style={actionStyle}>
-          {item.actionLabel}
-        </button>
-      )}
-    </div>
-  );
 }
+
+function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
+  const tone = inferQueueTone(item);
+  const actionStyle = queueActionStyle(item.urgent);
+  const leadingIcon =
+    typeof item.count === 'number' ? (
+      <span style={{ fontWeight: 800, fontSize: 16, fontVariantNumeric: 'tabular-nums' }}>{item.count}</span>
+    ) : (
+      item.icon
+    );
+  const action = item.href ? (
+    <a href={item.href} className="wa-kit-focus" style={actionStyle}>
+      {item.actionLabel}
+    </a>
+  ) : (
+    <button type="button" onClick={onAction} className="wa-kit-focus" style={actionStyle}>
+      {item.actionLabel}
+    </button>
+  );
+
+  return <QueueRow tone={tone} icon={leadingIcon} title={item.title} meta={item.detail} action={action} />;
+}
+
+/* ---- Members table columns ------------------------------------------------ */
+
+const memberColumns: Column<CommandCenterMemberRow>[] = [
+  {
+    key: 'name',
+    header: 'Member',
+    render: (row) => <span style={{ fontWeight: 700, fontSize: 13 }}>{row.name}</span>,
+  },
+  {
+    key: 'program',
+    header: 'Program',
+    render: (row) => <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{row.program}</span>,
+  },
+  {
+    key: 'progress',
+    header: 'Progress',
+    render: (row) => {
+      const pct = clampPct(row.progress);
+      return (
+        <div className="wa-flex wa-items-center wa-gap-2">
+          <div className="wa-kit-bar-track" style={{ width: 80 }}>
+            <div className="wa-kit-bar-fill" style={{ width: `${pct}%` }} />
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{pct}%</span>
+        </div>
+      );
+    },
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    render: (row) => <StatusTag tone={row.statusTone ?? 'muted'}>{row.status}</StatusTag>,
+  },
+  {
+    key: 'lastActive',
+    header: 'Last active',
+    align: 'right',
+    render: (row) => (
+      <span style={{ fontSize: 12, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>
+        {row.lastActive}
+      </span>
+    ),
+  },
+];
 
 /* ---- Main ----------------------------------------------------------------- */
 
@@ -324,6 +453,9 @@ export function CommandCenterKit({
   onAddStudent,
   addStudentHref,
   onQueueAction,
+  systemHealth,
+  members,
+  membersHref = '/admin/members',
 }: CommandCenterKitProps) {
   return (
     <DesignSurface surface="dense" className="wa-p-6">
@@ -331,13 +463,23 @@ export function CommandCenterKit({
 
       {/* KPI strip — 5 cards on desktop (lg, unchanged), 2-up on small
           tablets/large phones (sm), and 1-up on the smallest phones so a long
-          tabular value never forces horizontal overflow at 360–414px. */}
+          tabular value never forces horizontal overflow at 360–414px. Each
+          tile is an icon chip + optional delta chip + big tabular value +
+          optional inline sparkline (StatSparkTile), matching the member
+          Command Center's KPI row. */}
       <div
         className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-5 wa-gap-3"
         style={{ marginBottom: 20 }}
       >
         {kpis.map((it) => (
-          <StatTile key={it.label} {...it} />
+          <StatSparkTile
+            key={it.label}
+            icon={it.icon ?? defaultKpiIcon(it.label)}
+            label={it.label}
+            value={it.value}
+            color={it.color ?? 'accent'}
+            spark={kpiSpark(it)}
+          />
         ))}
       </div>
 
@@ -378,20 +520,68 @@ export function CommandCenterKit({
         </section>
       </div>
 
-      {/* Placements by month — board-outcomes bar chart (mockup `board`),
-          surfaced on the command center so the operator sees the trend in
-          context. The final month is highlighted to read as "this month". */}
-      {placementsByMonth.length > 0 ? (
+      {/* Placements trend — area chart (mockup `board`), surfaced on the
+          command center so the operator sees the trend in context. */}
+      {placementsByMonth.length > 1 ? (
         <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
-          <div style={{ marginBottom: 16 }}>
-            <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>
-              Placements by month
-            </h3>
-            <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '4px 0 0' }}>
-              {placementsSubtitle}
-            </p>
+          <CardHead title="Placements trend" />
+          <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '-8px 0 12px' }}>{placementsSubtitle}</p>
+          <AreaChartMini
+            data={placementsByMonth}
+            id="admin-cc-placements"
+            color="accent"
+            height={176}
+            ariaLabel={`Placements trend, ${placementsSubtitle}`}
+          />
+        </section>
+      ) : null}
+
+      {/* System health — optional; renders nothing when the caller hasn't
+          wired any cron/system signals. */}
+      {systemHealth && systemHealth.length > 0 ? (
+        <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+          <CardHead title="System health" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {systemHealth.map((row) => {
+              const dotColor: KitColor = row.status === 'ok' ? 'success' : 'gold';
+              return (
+                <div key={row.name} className="wa-flex wa-items-center wa-justify-between" style={{ gap: 12 }}>
+                  <span className="wa-flex wa-items-center wa-gap-2" style={{ minWidth: 0 }}>
+                    <span
+                      aria-hidden
+                      style={{ width: 8, height: 8, borderRadius: 999, background: colorVar(dotColor), flexShrink: 0 }}
+                    />
+                    <span style={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {row.name}
+                    </span>
+                  </span>
+                  <span className="wa-flex wa-items-center wa-gap-2" style={{ flexShrink: 0 }}>
+                    {row.meta ? (
+                      <span style={{ fontSize: 11, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>
+                        {row.meta}
+                      </span>
+                    ) : null}
+                    <StatusTag tone={row.status === 'ok' ? 'ok' : 'warn'}>{row.status === 'ok' ? 'OK' : 'Warn'}</StatusTag>
+                  </span>
+                </div>
+              );
+            })}
           </div>
-          <BarChartMini data={placementsByMonth} highlightLast height={176} />
+        </section>
+      ) : null}
+
+      {/* Members — optional roster table; renders nothing when the caller
+          hasn't wired any rows. */}
+      {members && members.length > 0 ? (
+        <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+          <CardHead title="Members" linkLabel="View all" linkHref={membersHref} />
+          <DataTable<CommandCenterMemberRow>
+            columns={memberColumns}
+            rows={members}
+            rowKey={(row) => row.id}
+            minWidth={560}
+            emptyTitle="No members yet"
+          />
         </section>
       ) : null}
     </DesignSurface>

@@ -45,7 +45,7 @@ import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgra
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import { getMemberPoints } from '@/lib/member/points';
-import { getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
+import { getLevelForPoints, getNextLevel, EVENT_LABELS } from '@/lib/member/pointsConfig';
 import First90DaysCard from '@/components/portal/First90DaysCard';
 import {
   FIRST90_CHECK_IN_EVENT,
@@ -181,7 +181,7 @@ async function renderMemberDashboard(
     // Cheap, count/findMany-only queries — keep the lean path fast (no
     // loadMemberCareerBriefBundle / getMemberState / B4B). These mirror the
     // existing Promise.all style and feed the richer MemberHomeKit.
-    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline, leanGoals] = await withDbRetry(() => Promise.all([
+    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline, leanGoals, leanRecentPoints, leanWeekPoints] = await withDbRetry(() => Promise.all([
       prisma.courseEnrollment.findFirst({
         where: { userId: user.id, isPrimary: true },
         select: { programSlug: true },
@@ -208,8 +208,8 @@ async function renderMemberDashboard(
       prisma.jobApplication.findMany({
         where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
         orderBy: { updatedAt: 'desc' },
-        take: 3,
-        select: { role: true, company: true, status: true },
+        take: 4,
+        select: { role: true, company: true, status: true, updatedAt: true },
       }),
       // Active goals for the compact goals summary card.
       prisma.goal.findMany({
@@ -217,6 +217,18 @@ async function renderMemberDashboard(
         orderBy: { createdAt: 'desc' },
         take: 3,
         select: { title: true, description: true, targetMetricValue: true, currentMetricValue: true },
+      }),
+      // Recent point-earning events → the command-center "Points" ledger.
+      prisma.pointsTransaction.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        select: { event: true, points: true },
+      }),
+      // Points earned in the trailing 7 days → the "N this week" chip.
+      prisma.pointsTransaction.aggregate({
+        _sum: { points: true },
+        where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
       }),
     ]));
     const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
@@ -256,18 +268,42 @@ async function renderMemberDashboard(
         }
       : null;
 
-    // JobApplicationStatus → pipeline stage label + tone for the kit table.
-    const stageToneByStatus: Record<string, { label: string; tone: 'warn' | 'muted' | 'info' }> = {
-      SAVED: { label: 'Saved', tone: 'muted' },
-      APPLIED: { label: 'Applied', tone: 'muted' },
-      PHONE_SCREEN: { label: 'Screening', tone: 'info' },
-      INTERVIEWING: { label: 'Interviewing', tone: 'warn' },
-      OFFER: { label: 'Offer', tone: 'warn' },
+    // JobApplicationStatus → pipeline stage label + tone + 3-step stage index
+    // for the command-center table's segmented tracker.
+    const stageToneByStatus: Record<string, { label: string; tone: 'warn' | 'muted' | 'info'; step: number }> = {
+      SAVED: { label: 'Saved', tone: 'muted', step: 0 },
+      APPLIED: { label: 'Applied', tone: 'muted', step: 1 },
+      PHONE_SCREEN: { label: 'Screening', tone: 'info', step: 2 },
+      INTERVIEWING: { label: 'Interviewing', tone: 'warn', step: 3 },
+      OFFER: { label: 'Offer', tone: 'warn', step: 3 },
     };
     const leanPipelineRows = leanPipeline.map((j) => {
-      const meta = stageToneByStatus[j.status] ?? { label: 'Applied', tone: 'muted' as const };
-      return { role: j.role, company: j.company, stage: meta.label, tone: meta.tone };
+      const meta = stageToneByStatus[j.status] ?? { label: 'Applied', tone: 'muted' as const, step: 1 };
+      return {
+        role: j.role,
+        company: j.company,
+        stage: meta.label,
+        tone: meta.tone,
+        stageIndex: meta.step,
+        stageTotal: 3,
+        appliedLabel: j.updatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      };
     });
+
+    // Recent point events → command-center ledger. Map each event to a human
+    // label (EVENT_LABELS) + a semantic dot color distinct from the crimson
+    // accent (learning=accent, career=info, streak/enrollment=gold).
+    const pointsLedgerColor = (event: string): 'accent' | 'info' | 'gold' => {
+      if (event === 'job_application' || event === 'interview_requested' || event === 'placement_recorded') return 'info';
+      if (event === 'daily_study' || event.startsWith('referral_') || event === 'program_enrolled') return 'gold';
+      return 'accent';
+    };
+    const leanPointsLedger = leanRecentPoints.map((t) => ({
+      label: EVENT_LABELS[t.event] ?? 'Points earned',
+      amount: t.points,
+      color: pointsLedgerColor(t.event),
+    }));
+    const leanPointsThisWeek = leanWeekPoints._sum.points ?? 0;
 
     // ── Next badge / milestone (REAL data) ──
     // Derived from the points level ladder (lib/member/pointsConfig LEVELS:
@@ -332,6 +368,10 @@ async function renderMemberDashboard(
         nextBadgePercent={nextBadgePercent}
         nextBadgeRemaining={nextBadgeRemaining}
         pipeline={leanPipelineRows.length > 0 ? leanPipelineRows : []}
+        certModulesDone={leanCompleted}
+        certModulesTotal={leanTotal}
+        pointsLedger={leanPointsLedger}
+        pointsThisWeek={leanPointsThisWeek > 0 ? leanPointsThisWeek : undefined}
         resumeHref={topLeanAction?.ctaHref ?? programHref}
         coursesHref={programHref}
         toolkitHref="/dashboard/toolkit"

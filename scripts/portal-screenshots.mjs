@@ -66,6 +66,7 @@ const TARGETS = [
   { name: 'voice-resume', path: '/dev/voice-studio', tab: 'Resume' },
   { name: 'compare', path: '/dev/compare' },
   // Member kit tabs (app/dev/member/** showcase routes, mock data)
+  { name: 'member-home', path: '/dev/member/home' },
   { name: 'member-jobs', path: '/dev/member/jobs' },
   { name: 'member-jobs-empty', path: '/dev/member/jobs-empty' },
   { name: 'member-certificates', path: '/dev/member/certificates' },

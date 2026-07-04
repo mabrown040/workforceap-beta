@@ -19,7 +19,7 @@ import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
 import { getTranslations } from 'next-intl/server';
-import { BarChart3, Download, Target } from 'lucide-react';
+import { BarChart3, CheckCircle2, Download, GraduationCap, Percent, Target, Users, Wallet } from 'lucide-react';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
@@ -44,6 +44,9 @@ import {
   PartnerAttentionCard,
   PartnerAssistantAccordion,
   PartnerQuickActions,
+  PartnerReferralFunnel,
+  PartnerPayoutLedger,
+  type PartnerPayoutLedgerRow,
 } from '@/components/portal/kit/pages/PartnerOverviewKit';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -284,6 +287,43 @@ export default async function PartnerDashboardPage({
         };
       });
 
+    // Payout ledger — same rows as the payout-history table, recomposed for
+    // the period/amount/status ledger shape (member + date folded into one
+    // "period" label since every one of these events is already a sent payout).
+    const payoutLedgerRows: PartnerPayoutLedgerRow[] = payoutHistoryRows.map((row) => ({
+      id: row.id,
+      period: `${row.memberLabel} · ${row.dateLabel}`,
+      amount: row.amountLabel,
+      status: 'Paid',
+      statusTone: 'ok',
+    }));
+
+    // Referral funnel — Referred → Enrolled → Placed, derived from the counts
+    // already loaded above (no extra query). Each stage's bar width is its
+    // share of the top-of-funnel referred count.
+    const funnelStages = [
+      { label: t('membersReferred'), value: referredCount, pct: 100, color: 'accent' as const },
+      {
+        label: t('membersEnrolled'),
+        value: enrolledCount,
+        pct: referredCount > 0 ? Math.round((enrolledCount / referredCount) * 100) : 0,
+        color: 'info' as const,
+      },
+      {
+        label: t('membersPlaced'),
+        value: placedCount,
+        pct: referredCount > 0 ? Math.round((placedCount / referredCount) * 100) : 0,
+        color: 'success' as const,
+      },
+    ];
+
+    // "Payout due" KPI — same estimate formula as the legacy path's
+    // Estimated Payout card (placements × payout-per-placement), computed
+    // from counts already in hand. Referral-partner track only.
+    const payoutDueUsd = placedCount * getPartnerPlacementPayoutUsd();
+    const fmtMoneyKit = (n: number) =>
+      new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+
     return (
       <PortalPageFrame maxWidth="80rem">
         <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
@@ -302,27 +342,41 @@ export default async function PartnerDashboardPage({
                 value: referredCount,
                 subtitle: t('inYourPortal'),
                 color: 'accent',
+                icon: Users,
               },
               {
                 label: t('membersEnrolled'),
                 value: enrolledCount,
                 subtitle: t('startedAProgram'),
                 color: 'info',
-              },
-              {
-                label: t('membersPlaced'),
-                value: placedCount,
-                subtitle: t('verifiedHires'),
-                color: 'success',
+                icon: GraduationCap,
               },
               {
                 label: t('placementRate'),
                 value: `${placementRate}%`,
                 subtitle: t('placementEstimate'),
                 color: 'gold',
+                icon: Percent,
               },
+              showPayouts
+                ? {
+                    label: 'Payout due',
+                    value: fmtMoneyKit(payoutDueUsd),
+                    subtitle: t('placementEstimate'),
+                    color: 'success',
+                    icon: Wallet,
+                  }
+                : {
+                    label: t('membersPlaced'),
+                    value: placedCount,
+                    subtitle: t('verifiedHires'),
+                    color: 'success',
+                    icon: CheckCircle2,
+                  },
             ]}
           />
+
+          <PartnerReferralFunnel stages={funnelStages} />
 
           <PartnerAttentionCard
             title={t('nextActionReviewProgress')}
@@ -425,18 +479,7 @@ export default async function PartnerDashboardPage({
                 title="Payout history"
                 goal="Verified placements that generated a payout to your organization."
               />
-              <KitDataTable<PayoutHistoryRow>
-                columns={[
-                  { key: 'memberLabel', header: t('name') },
-                  { key: 'dateLabel', header: 'Date' },
-                  { key: 'amountLabel', header: 'Amount' },
-                ]}
-                rows={payoutHistoryRows}
-                rowKey={(row) => row.id}
-                mobile="scroll"
-                emptyTitle="No payouts yet"
-                emptyDescription="Verified placements that generate a payout will appear here."
-              />
+              <PartnerPayoutLedger rows={payoutLedgerRows} />
             </div>
           ) : null}
 

@@ -1,0 +1,28 @@
+/* Hover/press feedback for work-queue rows. Colocated with queue/page.tsx —
+   kept minimal since the row's static styling lives inline (matches the
+   file's existing idiom of inline styles + a couple of shared global
+   classes from portal.css). */
+
+.row {
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.row:hover {
+  background: var(--surface-container-high);
+}
+
+.row:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+
+  .row:active {
+    transform: none;
+  }
+}

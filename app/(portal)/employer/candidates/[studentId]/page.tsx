@@ -341,7 +341,7 @@ export default async function EmployerCandidateProfilePage({
                   <div key={match.id} style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
                       <div style={{ minWidth: 0 }}>
-                        <Link href={`/employer/jobs/${match.jobId}`} style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                        <Link href={`/employer/jobs/${match.jobId}`} className="hover:wa-underline" style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
                           {match.job.title}
                         </Link>
                         <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
@@ -375,7 +375,7 @@ export default async function EmployerCandidateProfilePage({
               <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
                 {applications.map((application) => (
                   <div key={application.id} style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
-                    <Link href={`/employer/jobs/${application.jobId}`} style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
+                    <Link href={`/employer/jobs/${application.jobId}`} className="hover:wa-underline" style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
                       {application.job.title}
                     </Link>
                     <div style={{ marginTop: '0.35rem' }}>
@@ -396,21 +396,24 @@ export default async function EmployerCandidateProfilePage({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.65rem' }}>
             <Link
               href="/employer/pipeline"
+              className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
               style={{
                 display: 'block',
                 textAlign: 'center',
                 padding: '0.8rem',
                 background: 'var(--color-accent)',
-                color: '#fff',
+                color: 'var(--color-on-accent)',
                 borderRadius: '0.75rem',
                 fontWeight: 700,
                 textDecoration: 'none',
+                minHeight: '44px',
               }}
             >
               Open pipeline
             </Link>
             <Link
               href="/employer/messages"
+              className="hover:wa-opacity-80 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
               style={{
                 display: 'block',
                 textAlign: 'center',
@@ -420,6 +423,7 @@ export default async function EmployerCandidateProfilePage({
                 borderRadius: '0.75rem',
                 fontWeight: 700,
                 textDecoration: 'none',
+                minHeight: '44px',
               }}
             >
               Contact member

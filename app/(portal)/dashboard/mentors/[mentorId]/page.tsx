@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import PageHeader from '@/components/portal/PageHeader';
 import MentorSessionForm from '@/components/portal/MentorSessionForm';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -15,32 +16,47 @@ export default async function MentorProfilePage({ params }: { params: Promise<{ 
 
   if (!mentor || !mentor.id) redirect('/dashboard/mentors');
 
+  const linkedinLink = mentor.linkedinUrl ? (
+    <a
+      href={mentor.linkedinUrl}
+      target="_blank"
+      rel="noreferrer"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.9rem', color: 'var(--color-accent)', fontWeight: 600 }}
+    >
+      View LinkedIn profile
+    </a>
+  ) : null;
+
   return (
     <>
-      {/* Mobile */}
-      <div className="md:wa-hidden" style={{ padding: '1rem', paddingBottom: '6rem' }}>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{mentor.fullName}</h1>
-        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>{mentor.title}</div>
-        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{mentor.company} · {mentor.industry}</div>
-        <p style={{ lineHeight: 1.6 }}>{mentor.bio}</p>
-        {mentor.linkedinUrl ? (
-          <a href={mentor.linkedinUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '0.75rem', color: 'var(--color-accent)' }}>LinkedIn Profile</a>
-        ) : null}
+      <div style={{ maxWidth: '52rem', margin: '0 auto', padding: '0.5rem 1rem 0' }}>
+        <PageHeader
+          title={mentor.fullName}
+          subtitle={`${mentor.title} · ${mentor.company}`}
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'Mentors', href: '/dashboard/mentors' },
+            { label: mentor.fullName },
+          ]}
+        />
+      </div>
 
-        <MentorSessionForm mentorId={mentor.id} />      </div>
+      {/* Mobile */}
+      <div className="md:wa-hidden" style={{ padding: '0 1rem', paddingBottom: '6rem' }}>
+        <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{mentor.industry}</div>
+        <p style={{ lineHeight: 1.6 }}>{mentor.bio}</p>
+        {linkedinLink}
+
+        <div style={{ marginTop: '1.25rem' }}>
+          <MentorSessionForm mentorId={mentor.id} />
+        </div>
+      </div>
 
       {/* Desktop */}
-      <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem', maxWidth: '52rem' }}>
-        {/* Mobile's <h1> above is display:none at this breakpoint (md:wa-hidden), so
-            it's already excluded from the accessibility tree — this <h2> is the
-            only heading screen readers see on desktop and must stay unhidden. */}
-        <h2 style={{ fontSize: '1.9rem', fontWeight: 700 }}>{mentor.fullName}</h2>
-        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>{mentor.title}</div>
-        <div style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.9rem' }}>{mentor.company} · {mentor.industry}</div>
+      <div className="wa-hidden md:wa-block" style={{ padding: '0 1.5rem 3rem', maxWidth: '52rem', margin: '0 auto' }}>
+        <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '0.9rem' }}>{mentor.industry}</div>
         <p style={{ lineHeight: 1.7 }}>{mentor.bio}</p>
-        {mentor.linkedinUrl ? (
-          <a href={mentor.linkedinUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '0.75rem', color: 'var(--color-accent)' }}>LinkedIn Profile</a>
-        ) : null}
+        {linkedinLink}
 
         <div style={{ marginTop: '1.25rem', maxWidth: '32rem' }}>
           <MentorSessionForm mentorId={mentor.id} />

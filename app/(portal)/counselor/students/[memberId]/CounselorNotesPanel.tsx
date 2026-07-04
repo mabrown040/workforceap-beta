@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import styles from './notesPanel.module.css';
 
 interface Note {
   id: string;
@@ -96,21 +97,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
         {!adding && (
           <button type="button"
             onClick={() => setAdding(true)}
-            style={{
-              minWidth: '2.75rem',
-              minHeight: '2.75rem',
-              padding: '0.5rem 0.875rem',
-              background: 'var(--surface-container-highest)',
-              border: 'none',
-              borderRadius: '0.5rem',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              color: 'var(--color-on-surface)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            className={styles.addButton}
           >
             + Add Note
           </button>
@@ -136,7 +123,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               fontSize: '0.8rem',
               fontFamily: 'inherit',
               resize: 'vertical',
-              background: 'var(--color-surface)',
+              background: 'var(--surface-container-low)',
               color: 'var(--color-on-surface)',
               boxSizing: 'border-box',
             }}
@@ -146,41 +133,14 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
             <button type="button"
               onClick={handleAdd}
               disabled={submitting || !newNote.trim()}
-              style={{
-                minWidth: '2.75rem',
-                minHeight: '2.75rem',
-                padding: '0.5rem 1rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                opacity: submitting ? 0.6 : 1,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className={styles.saveButton}
+              style={{ opacity: submitting ? 0.6 : 1 }}
             >
               {submitting ? 'Saving…' : 'Save'}
             </button>
             <button type="button"
               onClick={() => { setAdding(false); setNewNote(''); setError(''); }}
-              style={{
-                minWidth: '2.75rem',
-                minHeight: '2.75rem',
-                padding: '0.5rem 1rem',
-                background: 'transparent',
-                color: 'var(--color-on-surface-variant)',
-                border: '1px solid var(--outline-variant)',
-                borderRadius: '0.5rem',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className={styles.cancelButton}
             >
               Cancel
             </button>
@@ -217,20 +177,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               </p>
               <button type="button"
                 onClick={() => setConfirmDeleteId(note.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--color-on-surface-variant)',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  padding: '0.375rem 0.5rem',
-                  lineHeight: 1,
-                  minWidth: '2.75rem',
-                  minHeight: '2.75rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                className={styles.deleteButton}
                 title="Delete note"
                 aria-label="Delete note"
               >

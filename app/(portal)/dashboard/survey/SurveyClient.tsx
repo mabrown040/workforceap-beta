@@ -300,7 +300,7 @@ export default function SurveyClient({ userId, placementId }: SurveyClientProps)
           className="material-symbols-outlined"
           style={{
             fontSize: '3rem',
-            color: 'var(--color-success)',
+            color: 'var(--color-success, #16a34a)',
             marginBottom: '0.75rem',
             display: 'block',
           }}

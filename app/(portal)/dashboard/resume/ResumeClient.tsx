@@ -286,7 +286,7 @@ export default function ResumeClient({
         </label>
       </div>
       {uploadError && (
-        <p style={{ color: "var(--color-accent)", marginTop: "0.5rem" }}>{uploadError}</p>
+        <p role="alert" style={{ color: "var(--color-error, #dc2626)", marginTop: "0.5rem" }}>{uploadError}</p>
       )}
     </section>
   );
@@ -331,7 +331,7 @@ export default function ResumeClient({
             : "Build Resume"}
       </button>
       {generateError && (
-        <p style={{ color: "var(--color-accent)", marginTop: "0.5rem" }}>{generateError}</p>
+        <p role="alert" style={{ color: "var(--color-error, #dc2626)", marginTop: "0.5rem" }}>{generateError}</p>
       )}
     </section>
   );
@@ -683,8 +683,12 @@ export default function ResumeClient({
             href: "/dashboard/ai-tools/resume-studio?view=score",
           },
         ].map(({ icon, title, desc, href }) => (
-          <div
+          // Whole card is the interactive target (not just the "Open" text)
+          // — matches "cards only where the card IS the interaction".
+          <Link
             key={href}
+            href={href}
+            className="wa-transition-[border-color,box-shadow,transform] wa-duration-150 hover:wa-border-[var(--color-accent)] hover:wa-shadow-sm active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 motion-reduce:wa-transition-none focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
             style={{
               background: "var(--surface-container)",
               borderRadius: "0.75rem",
@@ -693,6 +697,8 @@ export default function ResumeClient({
               flexDirection: "column",
               gap: "0.4rem",
               border: "1px solid var(--outline-variant)",
+              textDecoration: "none",
+              color: "inherit",
             }}
           >
             <span
@@ -706,7 +712,7 @@ export default function ResumeClient({
             >
               {icon}
             </span>
-            <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>
+            <span style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-on-surface)" }}>
               {title}
             </span>
             <span
@@ -718,19 +724,18 @@ export default function ResumeClient({
             >
               {desc}
             </span>
-            <Link
-              href={href}
+            <span
+              aria-hidden="true"
               style={{
                 color: "var(--color-accent)",
                 fontWeight: 600,
                 fontSize: "0.875rem",
-                textDecoration: "none",
                 marginTop: "0.25rem",
               }}
             >
               Open →
-            </Link>
-          </div>
+            </span>
+          </Link>
         ))}
       </div>
     </section>

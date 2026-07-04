@@ -110,23 +110,15 @@ export default async function AIHistoryPage({ searchParams }: Props) {
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <Link
                 href="/dashboard/ai-tools/resume-studio?view=rewrite"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-                  padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
-                  borderRadius: '8px', background: 'var(--color-accent)', color: '#ffffff', textDecoration: 'none',
-                }}
+                className="btn btn-primary btn-sm"
               >
-                Resume Rewriter
+                Start with Resume Rewriter
               </Link>
               <Link
                 href="/dashboard/ai-tools/interview-practice"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-                  padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
-                  borderRadius: '8px', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', textDecoration: 'none',
-                }}
+                className="btn btn-muted btn-sm"
               >
-                Interview Practice
+                Try Interview Practice
               </Link>
             </div>
           </div>

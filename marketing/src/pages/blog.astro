@@ -173,7 +173,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
 
   .hcard{position:relative;border-radius:22px;padding:28px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+    box-shadow:var(--shadow-glass);color:#fff}
   .hcard-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .hcard-ic{display:inline-flex}
   .dot-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;

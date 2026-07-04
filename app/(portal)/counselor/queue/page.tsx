@@ -10,7 +10,9 @@ import {
   getCounselorWorkQueue,
   previewMessageBody,
 } from '@/lib/counselor/workQueue';
+import { statusColor } from '@/lib/ui/statusColors';
 import { getTranslations } from 'next-intl/server';
+import styles from './queue.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,16 +141,13 @@ export default async function CounselorWorkQueuePage() {
                   .slice(0, 2)
                   .join('')
                   .toUpperCase();
-                // `--color-error` isn't defined in the counselor portal's
-                // stylesheet (only inside the unrelated .auth-depth scope),
-                // so the most-overdue rows were rendering with no color at
-                // all — less urgent-looking than the 48-71h tier below it.
-                const overdueColor =
-                  row.hoursWaiting >= 72
-                    ? 'var(--color-error, #dc2626)'
-                    : row.hoursWaiting >= 48
-                      ? 'var(--color-orange, var(--color-accent))'
-                      : 'var(--color-accent)';
+                // Severity tiers use lib/ui/statusColors.ts tones so the
+                // "overdue" semantic matches StatusBadge + AtRiskDashboard
+                // elsewhere in the app (danger = --color-accent, not a
+                // separate true-red).
+                const overdueTone = row.hoursWaiting >= 72 ? 'danger' : row.hoursWaiting >= 48 ? 'warning' : 'neutral';
+                const overdueColors = statusColor(overdueTone);
+                const overdueColor = overdueColors.fg;
                 return (
                   <li key={row.threadId}>
                     <Link
@@ -156,12 +155,11 @@ export default async function CounselorWorkQueuePage() {
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                       <div
-                        className="portal-card portal-card--flat portal-card--padded-sm"
+                        className={`portal-card portal-card--flat portal-card--padded-sm ${styles.row}`}
                         style={{
                           display: 'flex',
                           alignItems: 'flex-start',
                           gap: '1rem',
-                          transition: 'background-color 0.15s',
                         }}
                       >
                         <div
@@ -233,7 +231,7 @@ export default async function CounselorWorkQueuePage() {
                                     letterSpacing: '0.03em',
                                     whiteSpace: 'nowrap',
                                     color: overdueColor,
-                                    background: 'color-mix(in srgb, var(--color-error, #dc2626) 12%, transparent)',
+                                    background: overdueColors.bg,
                                   }}
                                 >
                                   <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">

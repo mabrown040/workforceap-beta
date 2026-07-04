@@ -142,7 +142,7 @@ export function MemberProgressKit({
               it can't force an overflowing implicit track at narrow widths). */}
           <div className="wa-kit-card lg:wa-col-span-2">
             <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>{statsHeading}</h2>
-            <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 20 }}>
+            <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 24 }}>
               {weekStats.map((stat) => (
                 <div key={stat.label} style={{ textAlign: 'center', padding: 12, background: 'var(--wa-bg)', borderRadius: 'var(--wa-radius-sm)' }}>
                   <div style={{ fontSize: 22, fontWeight: 800, color: stat.color, fontVariantNumeric: 'tabular-nums' }}>{stat.value}</div>
@@ -176,7 +176,7 @@ export function MemberProgressKit({
                       <Icon size={meta.iconSize} aria-hidden="true" />
                     </div>
                     <span style={{ fontSize: 14, fontWeight: 600, flex: 1, minWidth: 0, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
-                    <span style={{ fontSize: 10, fontWeight: m.state === 'active' ? 700 : 400, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap' }}>{m.when}</span>
+                    <span style={{ fontSize: 10, fontWeight: m.state === 'active' ? 700 : 400, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{m.when}</span>
                   </div>
                 );
               })}

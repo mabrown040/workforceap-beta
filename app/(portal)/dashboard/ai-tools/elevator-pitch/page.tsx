@@ -42,7 +42,7 @@ export default async function ElevatorPitchPage({ searchParams }: { searchParams
           title="AI Elevator Introduction"
           subtitle="Answer a few quick questions. AI writes your 10–20 second intro, saves it, emails it to you, then lets you rehearse it with your voice."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'AI Elevator Introduction' },
           ]}
         />

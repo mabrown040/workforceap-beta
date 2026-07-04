@@ -21,7 +21,6 @@ export default async function LinkedInAboutPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/linkedin-about');
 
   return (
-    <>
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div
         style={{
@@ -47,6 +46,6 @@ export default async function LinkedInAboutPage() {
         </div>
         <ToolHistoryPanel userId={user.id} toolType="linkedin_about" />
       </div>
-    </div>    </>
+    </div>
   );
 }

@@ -184,7 +184,7 @@ export default async function LearningPage() {
           <p className="text-white/80 wa-text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
           <Link
             href="/dashboard"
-            className="wa-bg-white wa-text-[var(--color-accent)] wa-font-bold active:wa-scale-95 wa-transition-transform"
+            className="wa-bg-white wa-text-[var(--color-accent)] wa-font-bold hover:wa-opacity-90 active:wa-scale-95 wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
             style={{
               width: '100%',
               padding: '0.75rem 0',
@@ -228,10 +228,10 @@ export default async function LearningPage() {
                     justifyContent: 'center',
                     flexShrink: 0,
                     background: isCompleted
-                      ? 'rgba(123,88,0,0.1)'
+                      ? 'color-mix(in srgb, var(--color-gold) 12%, transparent)'
                       : isActive
                       ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)'
-                      : 'rgba(88,65,68,0.1)',
+                      : 'color-mix(in srgb, var(--color-on-surface-variant) 10%, transparent)',
                   }}
                 >
                   <span
@@ -268,7 +268,7 @@ export default async function LearningPage() {
               .filter((m) => m.status === 'complete')
               .map((m) => (
               <div key={m.stepIndex} className="wa-bg-[var(--surface-container)] wa-border-l-4 wa-border-[var(--color-gold)]" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '0.75rem', padding: '0.75rem 1rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(123,88,0,0.1)' }}>
+                <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'color-mix(in srgb, var(--color-gold) 12%, transparent)' }}>
                   <span className="material-symbols-outlined wa-text-base" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }}>
                     check_circle
                   </span>
@@ -389,7 +389,7 @@ export default async function LearningPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)',
-                background: 'rgba(173,44,77,0.12)',
+                background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
                 color: 'var(--color-accent)',
                 padding: 'var(--space-1) var(--space-3)',
                 borderRadius: 'var(--radius-full)',

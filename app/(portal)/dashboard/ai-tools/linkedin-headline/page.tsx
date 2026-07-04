@@ -21,7 +21,6 @@ export default async function LinkedInHeadlinePage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/linkedin-headline');
 
   return (
-    <>
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div
         style={{
@@ -47,6 +46,6 @@ export default async function LinkedInHeadlinePage() {
         </div>
         <ToolHistoryPanel userId={user.id} toolType="linkedin_headline" />
       </div>
-    </div>    </>
+    </div>
   );
 }

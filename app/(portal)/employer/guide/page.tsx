@@ -138,19 +138,23 @@ export default async function EmployerGuidePage() {
                 {step.desc}
               </p>
               {step.cta && step.href && (
-                <Link href={step.href} style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.375rem',
-                  padding: '0.5625rem 1.125rem',
-                  background: 'var(--color-accent)',
-                  color: '#fff',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  letterSpacing: '-0.01em',
-                }}>
+                <Link
+                  href={step.href}
+                  className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    padding: '0.5625rem 1.125rem',
+                    background: 'var(--color-accent)',
+                    color: 'var(--color-on-accent)',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8125rem',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
                   {step.cta}
                   <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
@@ -192,21 +196,25 @@ export default async function EmployerGuidePage() {
             ))}
           </div>
 
-          <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(88,65,68,0.08)' }}>
-            <Link href="/employer/jobs/new" style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem',
-              background: 'linear-gradient(135deg, var(--color-accent), #670024)',
-              color: '#fff',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              textDecoration: 'none',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-            }}>
+          <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 12%, transparent)' }}>
+            <Link
+              href="/employer/jobs/new"
+              className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem',
+                background: 'linear-gradient(135deg, var(--color-accent), #670024)',
+                color: 'var(--color-on-accent)',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+              }}
+            >
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">post_add</span>
               Post your first job
             </Link>
@@ -220,17 +228,21 @@ export default async function EmployerGuidePage() {
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {QUICK_NAV.map((item) => (
-              <Link key={item.label} href={item.href} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '1rem 1.125rem',
-                background: 'var(--surface-container-lowest)',
-                border: '1px solid rgba(88,65,68,0.08)',
-                borderRadius: '0.625rem',
-                textDecoration: 'none',
-                transition: 'background 0.15s',
-              }}>
+              <Link
+                key={item.label}
+                href={item.href}
+                className="hover:wa-bg-[var(--surface-container-low)] wa-transition-colors wa-duration-150 motion-reduce:wa-transition-none"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '1rem 1.125rem',
+                  background: 'var(--surface-container-lowest)',
+                  border: '1px solid color-mix(in srgb, var(--outline-variant) 12%, transparent)',
+                  borderRadius: '0.625rem',
+                  textDecoration: 'none',
+                }}
+              >
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{item.icon}</span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', flex: 1 }}>{item.label}</span>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
@@ -263,7 +275,7 @@ export default async function EmployerGuidePage() {
       <div style={{
         padding: '2rem',
         background: 'var(--surface-container-lowest)',
-        border: '1px solid rgba(88,65,68,0.1)',
+        border: '1px solid color-mix(in srgb, var(--outline-variant) 14%, transparent)',
         borderRadius: '0.875rem',
         display: 'flex',
         alignItems: 'center',
@@ -282,19 +294,23 @@ export default async function EmployerGuidePage() {
             </a>
           </p>
         </div>
-        <Link href="/employer/jobs/new" style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.375rem',
-          padding: '0.625rem 1.25rem',
-          background: 'var(--color-accent)',
-          color: '#fff',
-          borderRadius: '0.5rem',
-          fontSize: '0.875rem',
-          fontWeight: 700,
-          textDecoration: 'none',
-          whiteSpace: 'nowrap',
-        }}>
+        <Link
+          href="/employer/jobs/new"
+          className="hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] motion-reduce:wa-transition-none"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            padding: '0.625rem 1.25rem',
+            background: 'var(--color-accent)',
+            color: 'var(--color-on-accent)',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
           Post a job
           <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
         </Link>

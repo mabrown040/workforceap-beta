@@ -73,7 +73,7 @@ export default async function PartnerOutcomesPage() {
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('placed')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>{pendingPlacementCount}</div>
+            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800, color: 'var(--color-gold)' }}>{pendingPlacementCount}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('pendingReview')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
@@ -94,13 +94,13 @@ export default async function PartnerOutcomesPage() {
             style={{
               marginTop: '1.5rem',
               padding: '1rem 1.25rem',
-              background: 'rgba(255,193,7,0.08)',
-              border: '1px solid rgba(255,193,7,0.2)',
+              background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-gold) 40%, transparent)',
               borderRadius: '0.75rem',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)' }} aria-hidden="true">info</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }} aria-hidden="true">info</span>
               <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>{t('pendingPlacementReviews')}</span>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>

@@ -303,7 +303,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   /* hero glass card */
   .hero-glass{position:relative;border-radius:22px;padding:30px 28px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+    box-shadow:var(--shadow-glass);color:#fff}
   .hg-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;
     background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);margin-bottom:16px}
   .hg-h{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px}
@@ -388,7 +388,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .close-glass{display:grid;place-items:center;gap:16px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
     border-radius:22px;padding:48px;width:100%;text-align:center;
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
+    box-shadow:var(--shadow-glass)}
   .cg-ic{font-size:52px}
   .cg-lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9)}
 

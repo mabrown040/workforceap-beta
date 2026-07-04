@@ -104,7 +104,7 @@ function JobCard({
       {isAuthenticated && onToggleSave && (
         <button
           type="button"
-          className="job-card__save-toggle"
+          className="job-card__save-toggle wa-transition-[background-color,transform] wa-duration-150 hover:wa-bg-[var(--surface-container-high)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 motion-reduce:wa-transition-none focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
           aria-pressed={!!isSaved}
           aria-label={isSaved ? 'Saved' : 'Save job'}
           title={isSaved ? 'Saved' : 'Save job'}
@@ -595,6 +595,7 @@ export default function JobsListingClient({
                 <Link
                   key={job.id}
                   href={`/dashboard/jobs/${job.id}`}
+                  className="wa-transition-colors wa-duration-150 hover:wa-bg-[var(--surface-container-high)]"
                   style={{
                     display: 'flex',
                     alignItems: 'center',

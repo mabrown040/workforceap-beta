@@ -66,15 +66,38 @@ export default async function EmployerScreeningMemberPage() {
             { label: 'Employer screening' },
           ]}
         />
-        <ol style={{ margin: '1rem 0 0', paddingLeft: '1.1rem', display: 'grid', gap: '1rem' }}>
-          {questions.map((q, i) => (
-            <li key={q.id} style={{ lineHeight: 1.55 }}>
-              <span style={{ fontWeight: 700 }}>{i + 1}. </span>
-              {q.prompt}{' '}
-              <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>({q.type.replace('_', ' ')})</span>
-            </li>
-          ))}
-        </ol>
+        <div
+          style={{
+            marginTop: '1.25rem',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: 'var(--radius-lg, 12px)',
+            overflow: 'hidden',
+          }}
+        >
+          <ol style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+            {questions.map((q, i) => (
+              <li
+                key={q.id}
+                style={{
+                  display: 'flex',
+                  gap: '0.75rem',
+                  padding: '0.9rem 1rem',
+                  borderBottom: i < questions.length - 1 ? '1px solid var(--outline-variant)' : 'none',
+                }}
+              >
+                <span aria-hidden style={{ flexShrink: 0, minWidth: '1.4rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                  {i + 1}.
+                </span>
+                <div>
+                  <p style={{ margin: 0, lineHeight: 1.55 }}>{q.prompt}</p>
+                  <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                    {q.type.replace('_', ' ')}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
         <p style={{ margin: '1.25rem 0 0', fontSize: '0.88rem', color: 'var(--color-on-surface-variant)' }}>
           Your counselor may collect answers separately or add a digital form later — this page is the canonical list of what a partner employer asked us to surface.
         </p>

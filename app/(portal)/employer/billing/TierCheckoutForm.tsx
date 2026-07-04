@@ -49,8 +49,9 @@ export default function TierCheckoutForm({
         className="btn btn-primary"
         style={{ width: '100%' }}
         disabled={loading}
+        aria-busy={loading}
       >
-        {loading ? '...' : label}
+        {loading ? 'Processing…' : label}
       </button>
       {error ? (
         <p role="alert" style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error, #dc2626)' }}>

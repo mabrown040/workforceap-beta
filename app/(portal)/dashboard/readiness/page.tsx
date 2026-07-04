@@ -188,15 +188,15 @@ export default async function DashboardReadinessPage({
                     />
                   </svg>
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{overallScore}</span>
+                    <span style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{overallScore}</span>
                     <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>/ 100</span>
                   </div>
                 </div>
                 <div>
                   <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>Overall Score</p>
-                  <p style={{ fontSize: '1.375rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: 0 }}>{overallScore}<span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}> / 100</span></p>
+                  <p style={{ fontSize: '1.375rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: 0, fontVariantNumeric: 'tabular-nums' }}>{overallScore}<span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}> / 100</span></p>
                   {priorityAction && (
-                    <a href={priorityAction.href} style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none', display: 'block', marginTop: '0.375rem' }}>
+                    <a href={priorityAction.href} className="hover:wa-underline" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none', display: 'block', marginTop: '0.375rem' }}>
                       Next: {priorityAction.label.slice(0, 50)}{priorityAction.label.length > 50 ? '…' : ''} →
                     </a>
                   )}
@@ -208,9 +208,9 @@ export default async function DashboardReadinessPage({
                 {categories.map((cat) => (
                   <div key={cat.label} className="portal-metric-card">
                     <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: `${cat.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.25rem' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}>{cat.icon}</span>
+                      <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}>{cat.icon}</span>
                     </div>
-                    <p className="portal-metric-card__value" style={{ fontSize: '1.375rem', color: cat.pct >= 60 ? cat.color : 'var(--color-on-surface)' }}>{cat.pct}%</p>
+                    <p className="portal-metric-card__value" style={{ fontSize: '1.375rem', color: cat.pct >= 60 ? cat.color : 'var(--color-on-surface)', fontVariantNumeric: 'tabular-nums' }}>{cat.pct}%</p>
                     <p className="portal-metric-card__label">{cat.label}</p>
                     <div className="portal-progress-bar portal-progress-bar--thin" style={{ marginTop: '0.5rem' }}>
                       <div className="portal-progress-bar__fill" style={{ width: `${cat.pct}%`, background: cat.color }} />

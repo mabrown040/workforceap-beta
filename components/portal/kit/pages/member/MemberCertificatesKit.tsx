@@ -98,116 +98,149 @@ export function MemberCertificatesKit({
           ]}
         />
 
-        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4">
-          {/* Earned certificates */}
-          <h2 className="sr-only">Earned certificates</h2>
-          {earned.length === 0 ? (
-            <div className="wa-kit-card wa-kit-card--sm">
-              <div style={{ fontWeight: 800, color: 'var(--wa-text)' }}>No certificates yet</div>
-              <p style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
-                Completed credentials will appear here after they are logged and verified.
-              </p>
-            </div>
-          ) : null}
-          {earned.map((cert) => (
-            <div key={cert.id} className="wa-kit-card wa-kit-card--hover wa-flex wa-gap-4 sm:wa-gap-5" style={{ borderColor: 'var(--wa-gold-soft)' }}>
-              <div
-                style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 'var(--wa-radius-sm)',
-                      background: 'var(--wa-gold-soft)',
-                  color: 'var(--wa-gold)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                <Award size={26} aria-hidden="true" />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
-                  <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                  {cert.verified ? <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} /> : null}
-                </div>
-                <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{cert.meta}</p>
-                <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
-                  <a
-                    href="/api/member/certifications/export"
-                    download="my-certificates.csv"
-                    className="wa-kit-focus wa-flex wa-items-center wa-gap-1"
-                    title="Download your certificate records (CSV)"
-                    style={{
-                      minHeight: 44,
-                      padding: '10px 12px',
-                      background: 'var(--wa-gold)',
-                      color: 'var(--wa-on-accent)',
-                      fontWeight: 600,
-                      fontSize: 11,
-                      borderRadius: 999,
-                      border: 'none',
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <Download size={11} aria-hidden="true" /> Download
-                  </a>
-                  <EarnedCertShareButton title={cert.title} earnedAtIso={cert.earnedAtIso} />
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* In-progress certificates (full-width) */}
-          {inProgress.length > 0 ? <h2 className="sr-only">Certificates in progress</h2> : null}
-          {inProgress.map((cert) => {
-            const pct = Math.max(0, Math.min(100, Math.round(cert.percent)));
-            return (
-              <div
-                key={cert.id}
-                className="wa-kit-card wa-flex wa-gap-4 sm:wa-gap-5"
-                style={{ gridColumn: '1 / -1', background: 'var(--wa-accent-soft)', borderColor: 'var(--wa-accent-soft)' }}
-              >
+        <div className="wa-space-y-4">
+          {/* Earned certificates — quiet bordered surface, rows + hairlines
+              rather than a card mosaic (each row's own actions are the
+              interaction, not the row itself). */}
+          <div>
+            <h2 className="sr-only">Earned certificates</h2>
+            {earned.length === 0 ? (
+              <div className="wa-kit-card wa-kit-card--sm wa-flex wa-items-start wa-gap-3">
                 <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 'var(--wa-radius-sm)',
-                    background: 'var(--wa-surface)',
-                    color: 'var(--wa-accent)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    border: '1px solid var(--wa-accent-soft)',
-                  }}
+                  aria-hidden="true"
+                  style={{ width: 40, height: 40, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                 >
-                  <Hourglass size={26} aria-hidden="true" />
+                  <Award size={18} aria-hidden="true" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
-                    <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-accent)', flexShrink: 0 }}>
-                      In Progress · {pct}%
-                    </span>
-                  </div>
-                  <div
-                    className="wa-kit-bar-track"
-                    role="progressbar"
-                    aria-valuenow={pct}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label={`${cert.title} progress`}
-                    style={{ marginTop: 12, background: 'var(--wa-surface)' }}
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)' }}>No certificates yet</p>
+                  <p style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>
+                    Completed credentials will appear here after they are logged and verified.
+                  </p>
+                  <a
+                    href="/dashboard/messages"
+                    className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                    style={{ display: 'inline-flex', alignItems: 'center', minHeight: 36, marginTop: 12, padding: '8px 14px', background: 'var(--wa-gold)', color: 'var(--wa-on-accent)', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none' }}
                   >
-                    <div className="wa-kit-bar-fill" style={{ width: `${pct}%`, background: 'var(--wa-accent)' }} />
-                  </div>
-                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 8 }}>{cert.note}</p>
+                    Message your counselor
+                  </a>
                 </div>
               </div>
-            );
-          })}
+            ) : (
+              <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
+                {earned.map((cert, i) => (
+                  <div
+                    key={cert.id}
+                    className="wa-flex wa-gap-4"
+                    style={{ padding: '16px 20px', borderTop: i === 0 ? 'none' : '1px solid var(--wa-border)' }}
+                  >
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 'var(--wa-radius-sm)',
+                        background: 'var(--wa-gold-soft)',
+                        color: 'var(--wa-gold)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Award size={22} aria-hidden="true" />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
+                        <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
+                        {cert.verified ? <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} /> : null}
+                      </div>
+                      <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{cert.meta}</p>
+                      <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
+                        <a
+                          href="/api/member/certifications/export"
+                          download="my-certificates.csv"
+                          className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none wa-flex wa-items-center wa-gap-1"
+                          title="Download your certificate records (CSV)"
+                          style={{
+                            minHeight: 44,
+                            padding: '10px 12px',
+                            background: 'var(--wa-gold)',
+                            color: 'var(--wa-on-accent)',
+                            fontWeight: 600,
+                            fontSize: 11,
+                            borderRadius: 999,
+                            border: 'none',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                          }}
+                        >
+                          <Download size={11} aria-hidden="true" /> Download
+                        </a>
+                        <EarnedCertShareButton title={cert.title} earnedAtIso={cert.earnedAtIso} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* In-progress certificates — the one deliberate color-filled surface
+              on this view (calls out active, in-flight work). */}
+          {inProgress.length > 0 ? (
+            <div className="wa-space-y-3">
+              <h2 className="sr-only">Certificates in progress</h2>
+              {inProgress.map((cert) => {
+                const pct = Math.max(0, Math.min(100, Math.round(cert.percent)));
+                return (
+                  <div
+                    key={cert.id}
+                    className="wa-kit-card wa-flex wa-gap-4 sm:wa-gap-5"
+                    style={{ background: 'var(--wa-accent-soft)', borderColor: 'var(--wa-accent-soft)' }}
+                  >
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 'var(--wa-radius-sm)',
+                        background: 'var(--wa-surface)',
+                        color: 'var(--wa-accent)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        border: '1px solid var(--wa-accent-soft)',
+                      }}
+                    >
+                      <Hourglass size={22} aria-hidden="true" />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
+                        <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
+                        <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                          In Progress · {pct}%
+                        </span>
+                      </div>
+                      <div
+                        className="wa-kit-bar-track"
+                        role="progressbar"
+                        aria-valuenow={pct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${cert.title} progress`}
+                        style={{ marginTop: 12, background: 'var(--wa-surface)' }}
+                      >
+                        <div className="wa-kit-bar-fill" style={{ width: `${pct}%`, background: 'var(--wa-accent)' }} />
+                      </div>
+                      <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 8 }}>{cert.note}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
       </div>
     </DesignSurface>

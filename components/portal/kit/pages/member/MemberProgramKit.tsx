@@ -163,7 +163,7 @@ export function MemberProgramKit({
             <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
               {programTitle}
             </h2>
-            <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>
+            <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
               {modulesComplete} of {modulesTotal} modules complete · Est. {estRemaining}
             </p>
           </div>
@@ -274,7 +274,7 @@ export function MemberProgramKit({
                 </div>
                 <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
                 {liveSessionWhen && (
-                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{liveSessionWhen}</p>
+                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{liveSessionWhen}</p>
                 )}
                 <button
                   type="button"
@@ -299,9 +299,26 @@ export function MemberProgramKit({
               </div>
             )}
 
-            <div className="wa-kit-card" style={{ background: 'var(--wa-gold-soft)', borderColor: 'var(--wa-gold-soft)' }}>
-              <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-gold)', marginBottom: 8 }}>
-                <Target size={15} aria-hidden="true" />
+            {/* Quiet bordered surface with a small gold accent chip — the
+                gradient hero above is the page's one filled color block, so
+                this stays a calm card rather than a second full-tint tile. */}
+            <div className="wa-kit-card">
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: 8 }}>
+                <div
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 'var(--wa-radius-sm)',
+                    background: 'var(--wa-gold-soft)',
+                    color: 'var(--wa-gold)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Target size={14} aria-hidden="true" />
+                </div>
                 <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Skill Missions</h3>
               </div>
               <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>

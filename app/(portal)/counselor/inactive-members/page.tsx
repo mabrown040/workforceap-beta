@@ -170,6 +170,7 @@ export default function InactiveMembersPage() {
           title={t('everyoneIsActive')}
           description={t('noMembersInactive', { days })}
           icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>celebration</span>}
+          primaryAction={{ label: t('myMembersTitle'), href: '/counselor/students' }}
         />
       ) : null}
 

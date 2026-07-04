@@ -120,13 +120,13 @@ export default async function EmployerPipelinePage() {
             <span className="wa-hidden md:wa-block">{t('candidatePipelineSubtitleDesktop')}</span>
           </>
         }
-        action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>{t('backToJobs')}</Link>}
+        action={<Link href="/employer/jobs" className="btn btn-outline btn-sm">{t('backToJobs')}</Link>}
       />
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
           {PIPELINE_STRIP.map((stage) => (
             <div key={stage.label} className="portal-card portal-card--flat" style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', minWidth: '80px' }}>
-              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)' }}>{stage.count}</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)', fontVariantNumeric: 'tabular-nums' }}>{stage.count}</div>
               <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.125rem' }}>{stage.label}</div>
             </div>
           ))}
@@ -137,7 +137,7 @@ export default async function EmployerPipelinePage() {
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">account_tree</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No pipeline yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post a job to receive matched candidates.</p>
-              <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/employer/jobs/new" className="btn btn-primary btn-sm">
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">add</span>Post a Job
               </Link>
             </div>
@@ -146,7 +146,7 @@ export default async function EmployerPipelinePage() {
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">psychology</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Matches will appear once your jobs are live.</p>
-              <Link href="/employer/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/employer/jobs" className="btn btn-muted btn-sm">
                 View Your Jobs
               </Link>
             </div>
@@ -169,7 +169,7 @@ export default async function EmployerPipelinePage() {
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{programDisplayFor(m.student)}</div>
                           </div>
                           <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 0, maxWidth: '42%' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', fontVariantNumeric: 'tabular-nums' }}>{matchScoreAsPercent(m.matchScore)}%</div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
                               <StatusBadge className="wa-truncate max-w-full" label={employerMatchPipelineLabel(m.status)} variant={employerAiMatchStatusBadgeVariant(m.status)} />
                             </div>
@@ -191,14 +191,14 @@ export default async function EmployerPipelinePage() {
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">account_tree</span>
             <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job to receive matched candidates here.</p>
-            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Post your first job</Link>
+            <Link href="/employer/jobs/new" className="btn btn-primary">Post your first job</Link>
           </div>
         ) : allMatches.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">psychology</span>
             <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Matches appear here after admin runs job–candidate matching.</p>
-            <Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>View Your Jobs</Link>
+            <Link href="/employer/jobs" className="btn btn-muted">View Your Jobs</Link>
           </div>
         ) : (
           <EmployerKanban initialMatches={allMatches.map(m => ({ id: m.id, jobId: m.jobId, jobTitle: jobs.find(j => j.id === m.jobId)?.title ?? 'Job', matchScore: m.matchScore, matchReasons: m.matchReasons, status: m.status, student: m.student }))} />

@@ -392,7 +392,7 @@ export default async function DashboardProfilePage({
                 gap: "0.75rem",
               }}
             >
-              <div className="portal-progress-bar w-full md:w-[180px]">
+              <div className="portal-progress-bar wa-w-full md:wa-w-[180px]">
                 <div
                   className="portal-progress-bar__fill"
                   style={{ width: `${profilePct}%` }}

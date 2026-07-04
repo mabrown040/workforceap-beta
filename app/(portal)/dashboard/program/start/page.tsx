@@ -122,7 +122,7 @@ export default async function ProgramStartPage() {
                         height: '2rem',
                         borderRadius: '999px',
                         background: 'var(--color-accent)',
-                        color: '#fff',
+                        color: 'var(--color-on-accent, #fff)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

@@ -408,6 +408,10 @@ export default async function JobsPage({
           ) : null}
 
           {user ? (
+            // Quiet bordered surface — the accent-filled button below is this
+            // view's one color-carrying call to action; the cert-pathway
+            // banner above already owns the page's single accent-tinted hero,
+            // so this stays neutral to avoid two competing color blocks.
             <div
               className="portal-card portal-card--flat"
               style={{
@@ -415,8 +419,8 @@ export default async function JobsPage({
                 alignItems: 'center',
                 gap: '1rem',
                 padding: '1rem 1.25rem',
-                border: '2px solid color-mix(in srgb, var(--color-accent) 35%, transparent)',
-                background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-low))',
+                border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
+                background: 'var(--surface-container-low)',
                 marginBottom: '1.25rem',
                 flexWrap: 'wrap',
               }}
@@ -465,9 +469,13 @@ export default async function JobsPage({
                   href={engine.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  className="wa-transition-[border-color,box-shadow] wa-duration-150 hover:wa-shadow-sm"
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', borderRadius: '0.875rem' }}
                 >
-                  <div className="portal-card portal-card--flat" style={{ padding: '0.875rem', height: '100%' }}>
+                  <div
+                    className="portal-card portal-card--flat hover:wa-border-[var(--color-accent)]"
+                    style={{ padding: '0.875rem', height: '100%', transition: 'border-color 150ms ease' }}
+                  >
                     <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
                       {engine.label} ↗
                     </p>

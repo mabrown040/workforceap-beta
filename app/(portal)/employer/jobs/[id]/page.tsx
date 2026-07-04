@@ -13,6 +13,8 @@ import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
 import { getTranslations } from 'next-intl/server';
 
 type Props = { params: Promise<{ id: string }> };
@@ -106,7 +108,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
       ? { bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)' }
       : editReadiness.level === 'usable'
         ? { bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', color: 'var(--color-gold)' }
-        : { bg: 'rgba(140, 15, 55, 0.1)', color: 'var(--color-accent)' };
+        : { bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' };
 
   return (
     <>
@@ -131,10 +133,14 @@ export default async function EmployerJobDetailPage({ params }: Props) {
               <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                 <header className="employer-job-edit__header" style={{ marginBottom: '1rem' }}>
                   <div>
-                    <h2>{job.title}</h2>
-                    <span className="employer-job-edit__meta">
-                      {job.status}
-                      {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
+                    <h2 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '0 0 0.375rem' }}>{job.title}</h2>
+                    <span className="employer-job-edit__meta" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <StatusBadge label={employerJobPortalStatusLabel(job.status)} variant={employerJobPortalBadgeVariant(job.status)} />
+                      {job.applicationsCount > 0 && (
+                        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          {job.applicationsCount} application{job.applicationsCount === 1 ? '' : 's'}
+                        </span>
+                      )}
                     </span>
                   </div>
                   <div
@@ -156,7 +162,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem' }}>
                   {summaryStats.map((stat) => (
                     <div key={stat.label} style={{ padding: '0.9rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
-                      <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{stat.value}</div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{stat.value}</div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{stat.label}</div>
                     </div>
                   ))}

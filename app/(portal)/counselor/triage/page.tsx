@@ -16,6 +16,7 @@ import {
 import { listTemplates, NUDGE_TEMPLATES, renderNudge } from '@/lib/counselor/nudgeTemplates';
 import TriageNudgePanel from '@/components/portal/counselor/TriageNudgePanel';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { statusColor } from '@/lib/ui/statusColors';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,10 +26,13 @@ const PRIORITY_DESCRIPTIONS = {
   blue: 'Celebrate - reinforce a recent win.',
 } as const;
 
+// Priority dots/chips map onto lib/ui/statusColors.ts tones (red = danger,
+// yellow = warning, blue = info) so they agree with StatusBadge and
+// AtRiskDashboard's RISK_CONFIG elsewhere in the counselor lane.
 const PRIORITY_COLORS = {
-  red: 'var(--color-accent, #b00020)',
-  yellow: 'var(--color-gold, #b07d2c)',
-  blue: 'var(--color-blue, #1f6feb)',
+  red: statusColor('danger').fg,
+  yellow: statusColor('warning').fg,
+  blue: statusColor('info').fg,
 } as const;
 
 export default async function CounselorTriagePage() {
@@ -91,11 +95,13 @@ export default async function CounselorTriagePage() {
             className="content-card"
             style={{
               padding: '1rem 1.25rem',
-              borderLeft: '4px solid var(--color-accent, #b00020)',
-              background: 'var(--color-surface-variant, #fafafa)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--outline-variant)',
+              borderLeft: `4px solid ${statusColor('danger').fg}`,
+              background: 'var(--surface-container-low)',
             }}
           >
-            <p style={{ margin: 0, fontWeight: 600, color: 'var(--color-accent, #b00020)' }}>
+            <p style={{ margin: 0, fontWeight: 600, color: statusColor('danger').fg }}>
               {t('couldntLoadTriageQueue')}
             </p>
             <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
@@ -135,11 +141,19 @@ function SummaryCard({ queue }: { queue: TriageQueue }) {
   ];
 
   return (
-    <div className="content-card" style={{ padding: '1rem 1.25rem' }}>
+    <div
+      className="content-card"
+      style={{
+        padding: '1rem 1.25rem',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--outline-variant)',
+        background: 'var(--surface-container-low)',
+      }}
+    >
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <div>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
-            {queue.totals.total} member{queue.totals.total === 1 ? '' : 's'} in the queue right now
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{queue.totals.total}</span> member{queue.totals.total === 1 ? '' : 's'} in the queue right now
           </p>
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
             Each member appears once at their highest-priority flag. Multi-flag members show their other flags inline.
@@ -166,7 +180,7 @@ function SummaryCard({ queue }: { queue: TriageQueue }) {
             style={{
               padding: '0.5rem 0.75rem',
               borderRadius: 6,
-              background: 'var(--color-surface-variant, #f5f5f5)',
+              background: 'var(--surface-container-high)',
               fontSize: '0.8rem',
               display: 'flex',
               justifyContent: 'space-between',
@@ -175,7 +189,7 @@ function SummaryCard({ queue }: { queue: TriageQueue }) {
             }}
           >
             <span style={{ color: 'var(--color-on-surface-variant)' }}>{c.label}</span>
-            <strong>{c.value}</strong>
+            <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{c.value}</strong>
           </div>
         ))}
       </div>
@@ -208,7 +222,7 @@ function PriorityChip({ color, label, count }: { color: string; label: string; c
           display: 'inline-block',
         }}
       />
-      {label} · {count}
+      {label} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{count}</span>
     </span>
   );
 }
@@ -217,7 +231,15 @@ function PriorityBucket({ priority, rows }: { priority: 'red' | 'yellow' | 'blue
   if (rows.length === 0) return null;
 
   return (
-    <div className="content-card" style={{ padding: '1rem 1.25rem' }}>
+    <div
+      className="content-card"
+      style={{
+        padding: '1rem 1.25rem',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--outline-variant)',
+        background: 'var(--surface-container-low)',
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
         <span
           aria-hidden
@@ -278,8 +300,8 @@ function TriageRowCard({ row, priority }: { row: TriageRow; priority: 'red' | 'y
       style={{
         padding: '0.75rem',
         borderRadius: 8,
-        background: 'var(--color-surface-variant, #fafafa)',
-        border: '1px solid var(--color-outline-variant, #ececec)',
+        background: 'var(--surface-container)',
+        border: '1px solid var(--outline-variant)',
       }}
     >
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>

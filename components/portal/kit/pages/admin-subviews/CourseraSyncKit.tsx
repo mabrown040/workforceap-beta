@@ -63,7 +63,10 @@ export interface CourseraSyncKitProps {
    * then shows "unavailable in preview" instead of a fabricated number.
    */
   b4bLatency: string | null;
-  /** "Errors (24h)" / statements-needing-attention count caption (e.g. "0", "12"). */
+  /**
+   * Statements-needing-attention count caption (e.g. "0", "12"). This is an
+   * unbounded, all-time backlog count — not scoped to any rolling window.
+   */
   errors: string;
   /** Unmatched learners (Coursera identities with no bound WAP member). */
   unmatched: UnmatchedLearnerRow[];
@@ -157,7 +160,7 @@ export function CourseraSyncKit({
     },
     {
       icon: <CircleSlash size={14} />,
-      label: 'Errors (24h)',
+      label: 'Needs attention',
       value: errors,
       alert: errors !== '0' && errors !== '—',
     },

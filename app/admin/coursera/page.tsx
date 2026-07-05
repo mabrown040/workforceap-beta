@@ -423,11 +423,24 @@ export default async function AdminCourseraPage({
       };
     });
 
-    // Health: a read failure → unavailable; statements needing attention →
-    // attention; no xAPI ever received → idle; otherwise healthy.
+    // Health: a read failure → unavailable; statements needing attention, an
+    // unmatched-learner backlog, or no xAPI in a week → attention; no xAPI
+    // ever received → idle; otherwise healthy.
+    //
+    // The 7-day staleness window (vs. the 12h threshold used for the B4B cron
+    // on /admin/coursera/health) is deliberately looser: lastXapiReceivedAt is
+    // driven by Coursera's webhook firing on real learner activity, not a
+    // fixed cron cadence, so a quiet day or two across a small cohort is
+    // normal. A full week of silence is a much stronger signal that the
+    // webhook subscription itself has broken.
+    const unmatchedTotal = unmatchedRows.length + kitHiddenTest;
+    const STALE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
+    const isStale = kitSyncStatus.lastXapiReceivedAt
+      ? Date.now() - kitSyncStatus.lastXapiReceivedAt.getTime() > STALE_THRESHOLD_MS
+      : false;
     const health: SyncHealth = !kitSyncOk
       ? 'unavailable'
-      : kitSyncStatus.attentionStatementCount > 0
+      : kitSyncStatus.attentionStatementCount > 0 || unmatchedTotal > 0 || isStale
         ? 'attention'
         : kitSyncStatus.lastXapiReceivedAt === null
           ? 'idle'
@@ -453,7 +466,7 @@ export default async function AdminCourseraPage({
           b4bLatency={null}
           errors={kitSyncOk ? String(kitSyncStatus.attentionStatementCount) : '—'}
           unmatched={unmatchedRows}
-          unmatchedTotal={unmatchedRows.length + kitHiddenTest}
+          unmatchedTotal={unmatchedTotal}
           approvedForEnrollment={String(kitApprovedForEnrollment)}
           activeLast30Days={String(kitActiveLast30Days)}
           forceSyncHref="/admin/coursera?ui=legacy"

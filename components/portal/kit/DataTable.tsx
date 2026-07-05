@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cx, type KitBaseProps, type KitDataAttrs } from './base';
+import { KitEmptyState } from './KitEmptyState';
 
 export interface Column<T> {
   /** Stable key for React. */
@@ -31,7 +32,7 @@ interface DataTableProps<T> extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
  * Dense, token-styled table for rosters / CSV / placements / jobs. The linchpin
  * for "data views = Dense" AND "mobile works": on mobile it either scrolls or
  * collapses each row to a card (the pattern proven in the mobile-proof mockup).
- * Mockup: admin students/jobs/placements + mobile-proof phone 3.
+ * Empty rows use Astryx `EmptyState`.
  */
 export function DataTable<T>({
   columns,
@@ -77,14 +78,7 @@ export function DataTable<T>({
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length || 1}>
-                  <div className="wa-kit-card wa-kit-card--sm" style={{ margin: 0 }}>
-                    <div style={{ fontWeight: 700, color: 'var(--wa-text)' }}>{emptyTitle}</div>
-                    {emptyDescription ? (
-                      <div style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
-                        {emptyDescription}
-                      </div>
-                    ) : null}
-                  </div>
+                  <KitEmptyState title={emptyTitle} description={emptyDescription} />
                 </td>
               </tr>
             ) : (
@@ -131,14 +125,7 @@ export function DataTable<T>({
       <div className="wa-hidden lg:wa-block">{tableEl}</div>
       <div className="lg:wa-hidden wa-space-y-2">
         {rows.length === 0 ? (
-          <div className="wa-kit-card wa-kit-card--sm">
-            <div style={{ fontWeight: 700, color: 'var(--wa-text)' }}>{emptyTitle}</div>
-            {emptyDescription ? (
-              <div style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
-                {emptyDescription}
-              </div>
-            ) : null}
-          </div>
+          <KitEmptyState title={emptyTitle} description={emptyDescription} />
         ) : (
           rows.map((row) => (
             <div

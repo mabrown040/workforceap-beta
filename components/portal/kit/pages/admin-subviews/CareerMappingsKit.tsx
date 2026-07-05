@@ -18,6 +18,9 @@ import {
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { Button } from '@astryxdesign/core/Button';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 
 /**
  * Career paths — program → role mappings that power matching, as a responsive
@@ -93,51 +96,46 @@ function PathTile({ card }: { card: CareerPathCard }) {
   const partnersLabel = `${card.employerPartners} employer ${card.employerPartners === 1 ? 'partner' : 'partners'}`;
 
   return (
-    <a
+    <ClickableCard
+      label={`${card.program} → ${card.role}`}
       href={`/admin/career-mappings?ui=legacy#${card.slug}`}
-      className="wa-kit-card wa-kit-card--hover wa-kit-focus"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
     >
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 12,
-          background: bg,
-          color: fg,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <Icon className="h-5 w-5" />
-      </div>
-
-      <div style={{ minWidth: 0 }}>
-        <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0 }}>
-          {card.program} <span style={{ color: 'var(--wa-muted)' }}>→</span> {card.role}
-        </h3>
-        <p
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div
           style={{
-            fontSize: 12,
-            color: 'var(--wa-muted)',
-            margin: '4px 0 0',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: bg,
+            color: fg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
           }}
         >
-          {rolesLabel} · {partnersLabel}
-        </p>
+          <Icon className="h-5 w-5" />
+        </div>
+
+        <div style={{ minWidth: 0 }}>
+          <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0 }}>
+            {card.program} <span style={{ color: 'var(--wa-muted)' }}>→</span> {card.role}
+          </h3>
+          <p
+            style={{
+              fontSize: 12,
+              color: 'var(--wa-muted)',
+              margin: '4px 0 0',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {rolesLabel} · {partnersLabel}
+          </p>
+        </div>
       </div>
-    </a>
+    </ClickableCard>
   );
 }
 
@@ -164,24 +162,12 @@ export function CareerMappingsKit({
         kicker="Matching"
         goal="Program → role mappings that power matching"
         action={
-          <a
+          <Button
+            label="Edit mappings"
             href="/admin/career-mappings?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Edit mappings
-          </a>
+            variant="secondary"
+            size="sm"
+          />
         }
       />
 
@@ -190,16 +176,11 @@ export function CareerMappingsKit({
       </div>
 
       {paths.length === 0 ? (
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
-        >
-          <Target className="h-6 w-6" style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No career paths yet</p>
-          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
-            Map an O*NET occupation to a program to start powering member matching.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Target className="h-6 w-6" />}
+          title="No career paths yet"
+          description="Map an O*NET occupation to a program to start powering member matching."
+        />
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
           {paths.map((card) => (

@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Search, Sparkles, Upload, User } from 'lucide-react';
+import { CheckCircle2, ExternalLink, FileText, Keyboard, MessagesSquare, Mic, PenLine, Search, Sparkles, Upload, User } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
@@ -74,8 +74,7 @@ export default function SessionRunClient({
   existingResume,
   isFreshWalkIn,
   memberDetailHref,
-  sessionsListHref,
-}: Props) {
+  sessionsListHref}: Props) {
   // Default to counselor paths so callers that don't pass these (legacy
   // call sites) keep their existing behavior.
   const editProfileHref = memberDetailHref ?? `/counselor/students/${memberId}`;
@@ -143,21 +142,18 @@ export default function SessionRunClient({
     walkthrough: [],
     resume: [],
     cover: [],
-    interview: [],
-  });
+    interview: []});
   const [voiceComplete, setVoiceComplete] = useState<Record<CardVoiceKey, boolean>>({
     walkthrough: false,
     resume: false,
     cover: false,
-    interview: false,
-  });
+    interview: false});
 
   const makeTranscriptHandler = (card: CardVoiceKey) =>
     (chunk: { speaker: 'agent' | 'user'; text: string }) => {
       setTranscripts((prev) => ({
         ...prev,
-        [card]: [...prev[card], `${chunk.speaker === 'user' ? 'Member' : 'Coach'}: ${chunk.text}`],
-      }));
+        [card]: [...prev[card], `${chunk.speaker === 'user' ? 'Member' : 'Coach'}: ${chunk.text}`]}));
     };
   const makePhaseHandler = (card: CardVoiceKey) =>
     (phase: string) => {
@@ -222,16 +218,14 @@ export default function SessionRunClient({
   const walkthroughPayload = useMemo(() => ({
     memberId,
     sessionId,
-    card: 'walkthrough' as const,
-  }), [memberId, sessionId]);
+    card: 'walkthrough' as const}), [memberId, sessionId]);
 
   const resumeVoicePayload = useMemo(() => ({
     memberId,
     sessionId,
     card: 'resume' as const,
     resumeDraft: resumeText,
-    jobTarget,
-  }), [memberId, sessionId, resumeText, jobTarget]);
+    jobTarget}), [memberId, sessionId, resumeText, jobTarget]);
 
   const coverVoicePayload = useMemo(() => ({
     memberId,
@@ -240,8 +234,7 @@ export default function SessionRunClient({
     resumeDraft: resumeState.output ?? resumeText,
     jobTarget,
     jobDescription,
-    companyName,
-  }), [memberId, sessionId, resumeState.output, resumeText, jobTarget, jobDescription, companyName]);
+    companyName}), [memberId, sessionId, resumeState.output, resumeText, jobTarget, jobDescription, companyName]);
 
   const interviewVoicePayload = useMemo(() => ({
     memberId,
@@ -250,8 +243,7 @@ export default function SessionRunClient({
     resumeDraft: resumeState.output ?? resumeText,
     coverDraft: coverState.output ?? '',
     jobTarget,
-    interviewLevel,
-  }), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
+    interviewLevel}), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
 
   const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output ||
     resumeAnalysisState.output || gapState.output || jobMatchState.output ||
@@ -287,8 +279,7 @@ export default function SessionRunClient({
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body, subjectMemberId: memberId, sessionId }),
-      });
+        body: JSON.stringify({ ...body, subjectMemberId: memberId, sessionId })});
       const data = await res.json();
       if (!res.ok) {
         setState({ status: 'error', error: data.error ?? 'Tool failed', output: null, context: contextLabel });
@@ -378,8 +369,7 @@ export default function SessionRunClient({
       const res = await fetch('/api/counselor/sessions/email-packet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memberId, sessionId }),
-      });
+        body: JSON.stringify({ memberId, sessionId })});
       const data = await res.json();
       if (!res.ok) {
         setPacketError(data.error ?? 'Failed to send packet');
@@ -435,13 +425,11 @@ export default function SessionRunClient({
                     : 'var(--surface-container)',
                   border: `1px solid ${isDone ? t.accent : 'var(--surface-container-highest)'}`,
                   cursor: 'pointer', textAlign: 'left',
-                  transition: 'background 0.15s',
-                }}
+                  transition: 'background 0.15s'}}
               >
                 <span style={{
                   width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                  background: isDone ? '#4a9b4f' : isRunning ? t.accent : isError ? 'var(--color-error, #d32f2f)' : 'var(--surface-container-highest)',
-                }} />
+                  background: isDone ? '#4a9b4f' : isRunning ? t.accent : isError ? 'var(--color-error, #d32f2f)' : 'var(--surface-container-highest)'}} />
                 <span style={{ fontSize: '0.78rem', fontWeight: isDone ? 700 : 500, color: isDone ? t.accent : 'var(--color-on-surface)', lineHeight: 1.3 }}>
                   {t.label}
                 </span>
@@ -664,8 +652,7 @@ export default function SessionRunClient({
                 fontWeight: 600,
                 cursor: uploadingResume || resumeState.status === 'running' ? 'not-allowed' : 'pointer',
                 opacity: uploadingResume || resumeState.status === 'running' ? 0.5 : 1,
-                color: 'var(--color-on-surface-variant)',
-              }}
+                color: 'var(--color-on-surface-variant)'}}
             >
               {uploadingResume
                 ? <PortalInlineSpinner size={14} />
@@ -1156,8 +1143,7 @@ export default function SessionRunClient({
                   padding: '0.25rem 0.625rem', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600,
                   background: `color-mix(in srgb, ${t.accent} 10%, transparent)`,
                   color: t.accent,
-                  border: `1px solid color-mix(in srgb, ${t.accent} 25%, transparent)`,
-                }}>
+                  border: `1px solid color-mix(in srgb, ${t.accent} 25%, transparent)`}}>
                   <CheckCircle2 size={11} aria-hidden /> {t.label}
                 </span>
               ))}
@@ -1196,8 +1182,7 @@ function SectionCard({
   contextNote,
   isOpen = true,
   onToggle,
-  children,
-}: {
+  children}: {
   id?: string;
   step?: number;
   title: string;
@@ -1220,8 +1205,7 @@ function SectionCard({
           marginBottom: isOpen ? (contextNote ? '0.5rem' : '1rem') : 0,
           flexWrap: 'wrap',
           cursor: onToggle ? 'pointer' : undefined,
-          userSelect: 'none',
-        }}
+          userSelect: 'none'}}
       >
         <span
           aria-hidden
@@ -1230,8 +1214,7 @@ function SectionCard({
             color: accent,
             width: '2.25rem', height: '2.25rem', borderRadius: '999px',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: '0.95rem', flexShrink: 0,
-          }}
+            fontWeight: 700, fontSize: '0.95rem', flexShrink: 0}}
         >
           {isDone ? <CheckCircle2 size={16} aria-hidden /> : step !== undefined ? step : <Icon size={16} aria-hidden />}
         </span>
@@ -1244,8 +1227,7 @@ function SectionCard({
           borderRadius: '999px',
           background: isDone ? 'color-mix(in srgb, #4a9b4f 12%, transparent)' : 'var(--surface-container)',
           color: isDone ? '#4a9b4f' : 'var(--color-on-surface-variant)',
-          textTransform: 'uppercase', letterSpacing: '0.04em',
-        }}>
+          textTransform: 'uppercase', letterSpacing: '0.04em'}}>
           {statusBadge}
         </span>
         {headerAction ? <div onClick={e => e.stopPropagation()}>{headerAction}</div> : null}

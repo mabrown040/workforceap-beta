@@ -2,15 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 import {
-  Loader2,
   Sparkles,
   Copy,
   Check,
   Video,
   CircleStop,
   RotateCcw,
-  CheckCircle2,
-} from 'lucide-react';
+  CheckCircle2} from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import { FormField, StatusTag } from '@/components/portal/kit';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
@@ -28,8 +27,7 @@ const fieldStyle: React.CSSProperties = {
   outline: 'none',
   background: 'var(--wa-surface)',
   color: 'var(--wa-text)',
-  fontFamily: 'inherit',
-};
+  fontFamily: 'inherit'};
 
 const primaryBtnStyle: React.CSSProperties = {
   display: 'inline-flex',
@@ -44,8 +42,7 @@ const primaryBtnStyle: React.CSSProperties = {
   fontSize: 14,
   borderRadius: 999,
   border: 'none',
-  cursor: 'pointer',
-};
+  cursor: 'pointer'};
 
 const outlineBtnStyle: React.CSSProperties = {
   display: 'inline-flex',
@@ -59,8 +56,7 @@ const outlineBtnStyle: React.CSSProperties = {
   border: '1px solid var(--wa-border)',
   background: 'var(--wa-surface)',
   color: 'var(--wa-text)',
-  cursor: 'pointer',
-};
+  cursor: 'pointer'};
 
 const btnFocusClass =
   'wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
@@ -120,8 +116,7 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, targetRole, strengths, certifications, industry, language }),
-      });
+        body: JSON.stringify({ name, targetRole, strengths, certifications, industry, language })});
       const data = await res.json() as { pitch?: string; error?: string; emailSent?: boolean; emailError?: string };
       if (!res.ok || !data.pitch) { setGenError(data.error ?? 'Could not generate. Try again.'); return; }
       setPitch(data.pitch);
@@ -245,7 +240,7 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
           <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             {generating ? (
               <>
-                <Loader2 size={16} className="wa-animate-spin" aria-hidden /> Writing your pitch…
+                <PortalInlineSpinner size={16} /> Writing your pitch…
               </>
             ) : (
               <>

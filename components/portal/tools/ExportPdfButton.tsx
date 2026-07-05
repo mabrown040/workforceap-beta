@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 const GENERIC_ERROR = "Couldn't generate the PDF — please try again. If this keeps happening, contact support.";
@@ -10,8 +10,7 @@ export default function ExportPdfButton({
   text,
   title,
   toolName,
-  label = 'Download PDF',
-}: {
+  label = 'Download PDF'}: {
   text: string;
   title?: string;
   toolName?: string;
@@ -27,8 +26,7 @@ export default function ExportPdfButton({
       const res = await fetch('/api/ai/export-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, title, toolName }),
-      });
+        body: JSON.stringify({ text, title, toolName })});
       if (!res.ok) {
         setError(GENERIC_ERROR);
         return;

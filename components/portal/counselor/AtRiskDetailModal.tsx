@@ -11,13 +11,12 @@ import {
   AlertTriangle,
   MessageSquare,
   Check,
-  Loader2,
   RotateCcw,
   ArrowUpRight,
   Clock,
   StickyNote,
-  Activity,
-} from 'lucide-react';
+  Activity} from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 interface AtRiskFactor {
   name: string;
@@ -129,8 +128,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
       const res = await fetch(`/api/counselor/members/${member.userId}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: noteText.trim() }),
-      });
+        body: JSON.stringify({ content: noteText.trim() })});
       if (!res.ok) throw new Error('Failed to save note');
       const data = await res.json();
       setNotes((prev) => [data.note, ...prev]);
@@ -180,8 +178,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
         alignItems: 'flex-start',
         justifyContent: 'center',
         padding: '1rem',
-        overflowY: 'auto',
-      }}
+        overflowY: 'auto'}}
     >
       <div
         className="at-risk-modal"
@@ -195,8 +192,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
           border: '1px solid var(--outline-variant)',
           boxShadow: '0 24px 48px rgba(0,0,0,0.25)',
           display: 'flex',
-          flexDirection: 'column',
-        }}
+          flexDirection: 'column'}}
       >
         {/* Header */}
         <div
@@ -211,8 +207,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
             top: 0,
             background: 'var(--surface-container-lowest)',
             zIndex: 10,
-            borderRadius: '1rem 1rem 0 0',
-          }}
+            borderRadius: '1rem 1rem 0 0'}}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
             <div
@@ -225,8 +220,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 justifyContent: 'center',
                 background: `color-mix(in srgb, ${riskColor} 12%, transparent)`,
                 border: `2px solid ${riskColor}40`,
-                flexShrink: 0,
-              }}
+                flexShrink: 0}}
             >
               <span style={{ fontWeight: 700, fontSize: '0.9rem', color: riskColor }}>{member.score}</span>
             </div>
@@ -248,8 +242,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
               padding: '0.35rem',
               borderRadius: '0.5rem',
               color: 'var(--color-on-surface-variant)',
-              flexShrink: 0,
-            }}
+              flexShrink: 0}}
             aria-label="Close"
           >
             <X size={20} />
@@ -271,8 +264,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 fontWeight: 700,
                 background: `color-mix(in srgb, ${riskColor} 12%, transparent)`,
                 color: riskColor,
-                border: `1.5px solid ${riskColor}40`,
-              }}
+                border: `1.5px solid ${riskColor}40`}}
             >
               {member.riskLevel === 'CRITICAL' && <ShieldAlert size={14} />}
               {member.riskLevel === 'HIGH' && <ShieldHalf size={14} />}
@@ -289,8 +281,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 background: 'var(--surface-container-high)',
-                color: 'var(--color-on-surface-variant)',
-              }}
+                color: 'var(--color-on-surface-variant)'}}
             >
               Status: {member.status}
             </span>
@@ -328,8 +319,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 fontWeight: 700,
                 color: 'var(--color-on-surface-variant)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-              }}
+                letterSpacing: '0.08em'}}
             >
               <AlertTriangle size={14} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} />
               Risk factors ({member.factors.length})
@@ -350,8 +340,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      gap: '0.75rem',
-                    }}
+                      gap: '0.75rem'}}
                   >
                     <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{f.description}</span>
                     <span
@@ -360,8 +349,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                         fontWeight: 700,
                         color: 'var(--color-on-surface-variant)',
                         whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                      }}
+                        flexShrink: 0}}
                     >
                       weight {f.weight}
                     </span>
@@ -380,15 +368,14 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 fontWeight: 700,
                 color: 'var(--color-on-surface-variant)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-              }}
+                letterSpacing: '0.08em'}}
             >
               <Activity size={14} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} />
               Recent activity
             </h3>
             {loadingTimeline ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                <Loader2 size={14} className="wa-animate-spin" />
+                <PortalInlineSpinner size={14} />
                 Loading timeline…
               </div>
             ) : timeline.length === 0 ? (
@@ -407,8 +394,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      gap: '0.75rem',
-                    }}
+                      gap: '0.75rem'}}
                   >
                     <div>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{ev.eventName}</span>
@@ -437,8 +423,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 fontWeight: 700,
                 color: 'var(--color-on-surface-variant)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-              }}
+                letterSpacing: '0.08em'}}
             >
               <StickyNote size={14} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} />
               Counselor notes
@@ -462,8 +447,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                   border: '1px solid var(--outline-variant)',
                   background: 'var(--surface-container-high)',
                   color: 'inherit',
-                  fontSize: '0.85rem',
-                }}
+                  fontSize: '0.85rem'}}
               />
               <button
                 type="button"
@@ -471,7 +455,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                 onClick={addNote}
                 disabled={savingNote || !noteText.trim()}
               >
-                {savingNote ? <Loader2 size={14} className="wa-animate-spin" /> : 'Add'}
+                {savingNote ? <PortalInlineSpinner size={14} /> : 'Add'}
               </button>
             </div>
             {error && (
@@ -481,7 +465,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
             )}
             {loadingNotes ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                <Loader2 size={14} className="wa-animate-spin" />
+                <PortalInlineSpinner size={14} />
                 Loading notes…
               </div>
             ) : notes.length === 0 ? (
@@ -496,8 +480,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
                     style={{
                       padding: '0.6rem 0.85rem',
                       borderRadius: '0.625rem',
-                      background: 'var(--surface-container-high)',
-                    }}
+                      background: 'var(--surface-container-high)'}}
                   >
                     <p style={{ margin: '0 0 0.35rem', fontSize: '0.85rem', lineHeight: 1.45 }}>{note.content}</p>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
@@ -522,8 +505,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
             position: 'sticky',
             bottom: 0,
             background: 'var(--surface-container-lowest)',
-            borderRadius: '0 0 1rem 1rem',
-          }}
+            borderRadius: '0 0 1rem 1rem'}}
         >
           {member.status === 'open' && (
             <button
@@ -532,7 +514,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
               disabled={acting}
               onClick={() => handleStatusChange('acknowledged')}
             >
-              {acting ? <Loader2 size={14} className="wa-animate-spin" /> : <Check size={14} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />}
+              {acting ? <PortalInlineSpinner size={14} /> : <Check size={14} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />}
               Acknowledge
             </button>
           )}
@@ -543,7 +525,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
               disabled={acting}
               onClick={() => handleStatusChange('resolved')}
             >
-              {acting ? <Loader2 size={14} className="wa-animate-spin" /> : 'Resolve'}
+              {acting ? <PortalInlineSpinner size={14} /> : 'Resolve'}
             </button>
           )}
           {member.status !== 'escalated' && (
@@ -554,7 +536,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
               onClick={() => handleStatusChange('escalated')}
               title="Escalate to admin for additional support"
             >
-              {acting ? <Loader2 size={14} className="wa-animate-spin" /> : <AlertTriangle size={14} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />}
+              {acting ? <PortalInlineSpinner size={14} /> : <AlertTriangle size={14} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />}
               Escalate
             </button>
           )}

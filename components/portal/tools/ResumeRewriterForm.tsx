@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
@@ -34,8 +34,7 @@ export default function ResumeRewriterForm({
   initialResume,
   resumeControlled,
   onResumeChange,
-  resumeBanner,
-}: ResumeRewriterFormProps = {}) {
+  resumeBanner}: ResumeRewriterFormProps = {}) {
   const [internalResume, setInternalResume] = useState(initialResume ?? '');
   const isControlled = onResumeChange != null;
   const resume = isControlled ? (resumeControlled ?? '') : internalResume;
@@ -99,9 +98,7 @@ export default function ResumeRewriterForm({
             targetLocation: targetLocation.trim() || undefined,
             tone,
             atsOptimize,
-            language,
-          }),
-        });
+            language})});
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
         return data;
@@ -133,8 +130,7 @@ export default function ResumeRewriterForm({
       formData.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', {
         method: 'POST',
-        body: formData,
-      });
+        body: formData});
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);

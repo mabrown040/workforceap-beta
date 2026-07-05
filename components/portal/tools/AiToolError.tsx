@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 type AiToolErrorProps = {
   error: string;
@@ -16,8 +17,7 @@ export default function AiToolError({
   onRetry,
   isRetrying,
   nextRetryIn,
-  retryCount,
-}: AiToolErrorProps) {
+  retryCount}: AiToolErrorProps) {
   const [countdown, setCountdown] = useState(nextRetryIn ?? 0);
 
   useEffect(() => {
@@ -64,8 +64,7 @@ export default function AiToolError({
         border: '1px solid rgba(173,44,77,0.2)',
         color: 'var(--color-accent)',
         fontSize: '0.875rem',
-        lineHeight: 1.5,
-      }}
+        lineHeight: 1.5}}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: isRetryable ? '0.75rem' : 0 }}>
         <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
@@ -88,13 +87,12 @@ export default function AiToolError({
               cursor: isRetrying ? 'not-allowed' : 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.4rem',
-            }}
+              gap: '0.4rem'}}
             aria-label={isRetrying ? 'Retrying automatically' : 'Retry now'}
           >
             {isRetrying ? (
               <>
-                <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                <PortalInlineSpinner size={14} />
                 Retrying{retryCount != null ? ` (${retryCount + 1}/${3})` : ''}…
               </>
             ) : (

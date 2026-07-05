@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRetryableFetch } from '@/hooks/useRetryableFetch';
 import AiToolError from './AiToolError';
 import ToolFollowThrough from './ToolFollowThrough';
-import { Loader2 } from 'lucide-react';
+import { } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
@@ -73,9 +73,7 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
             count: 8,
             resumeContext: resumeContext.trim() || undefined,
             language,
-            ...(memberId ? { subjectMemberId: memberId } : {}),
-          }),
-        });
+            ...(memberId ? { subjectMemberId: memberId } : {})})});
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
         return data;
@@ -152,8 +150,7 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
   const updateStar = (index: number, field: keyof StarWorksheet, value: string) => {
     setStarByIndex((prev) => ({
       ...prev,
-      [index]: { ...(prev[index] ?? emptyStar()), [field]: value },
-    }));
+      [index]: { ...(prev[index] ?? emptyStar()), [field]: value }}));
   };
 
   const pdfExportText = buildSessionTranscript();
@@ -224,8 +221,7 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
                 fontWeight: 600,
                 color: focusAreas.includes(opt.id) ? 'var(--color-accent)' : 'var(--color-on-surface)',
                 minHeight: '44px',
-                transition: 'all 0.15s ease',
-              }}
+                transition: 'all 0.15s ease'}}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">{opt.icon}</span>
               {opt.label}

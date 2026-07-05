@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Loader2, Link as LinkIcon } from 'lucide-react';
+import { Link as LinkIcon } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
@@ -46,8 +46,7 @@ function deriveSectionAuditCards(parsed: ParsedMatchOutput | null, resumeText: s
     description: `Overall match score: ${parsed.matchScore}%. ${parsed.strengths.length} strengths identified, ${parsed.gaps.length} gaps to address.`,
     accent: summaryColor,
     accentSoft: `${summaryColor}20`,
-    statusColor: summaryColor,
-  });
+    statusColor: summaryColor});
 
   // Experience card based on gaps analysis
   const hasExperienceGaps = parsed.gaps.some(g => 
@@ -61,8 +60,7 @@ function deriveSectionAuditCards(parsed: ParsedMatchOutput | null, resumeText: s
       : 'Your experience aligns well with the role requirements.',
     accent: hasExperienceGaps ? '#ed8b00' : '#2e7d32',
     accentSoft: hasExperienceGaps ? 'rgba(237, 139, 0, 0.14)' : 'rgba(46, 125, 50, 0.12)',
-    statusColor: hasExperienceGaps ? '#b26a00' : 'var(--color-green)',
-  });
+    statusColor: hasExperienceGaps ? '#b26a00' : 'var(--color-green)'});
 
   // Skills card based on strengths
   const skillsMatch = parsed.strengths.length;
@@ -74,8 +72,7 @@ function deriveSectionAuditCards(parsed: ParsedMatchOutput | null, resumeText: s
       : 'Limited direct skill matches found. Review the gaps section.',
     accent: skillsMatch >= 2 ? '#2e7d32' : '#ed8b00',
     accentSoft: skillsMatch >= 2 ? 'rgba(46, 125, 50, 0.12)' : 'rgba(237, 139, 0, 0.14)',
-    statusColor: skillsMatch >= 2 ? 'var(--color-green)' : '#b26a00',
-  });
+    statusColor: skillsMatch >= 2 ? 'var(--color-green)' : '#b26a00'});
 
   // Education card - basic heuristic
   const hasEducationSection = /education|degree|bachelor|master|phd|certification/i.test(resumeLower);
@@ -87,8 +84,7 @@ function deriveSectionAuditCards(parsed: ParsedMatchOutput | null, resumeText: s
       : 'Education details not clearly found. Consider adding relevant credentials.',
     accent: hasEducationSection ? '#2b7bb9' : '#d32f2f',
     accentSoft: hasEducationSection ? 'rgba(43, 123, 185, 0.12)' : 'rgba(211, 47, 47, 0.12)',
-    statusColor: hasEducationSection ? '#2b7bb9' : '#d32f2f',
-  });
+    statusColor: hasEducationSection ? '#2b7bb9' : '#d32f2f'});
 
   return cards;
 }
@@ -131,7 +127,7 @@ const BULLET_STOPWORDS = new Set([
 function bulletKeywords(text: string): string[] {
   return Array.from(
     new Set(
-      (text.toLowerCase().match(/[a-z][a-z0-9+#.]{3,}/g) ?? []).filter(
+      (text.toLowerCase().match(/[a-z][a-z0-9+#.]{3}/g) ?? []).filter(
         (w) => !BULLET_STOPWORDS.has(w)
       )
     )
@@ -190,8 +186,7 @@ function deriveBulletSuggestions(
     usedLineIndexes.add(bestIdx);
     suggestions.push({
       before: lines[bestIdx],
-      after: win,
-    });
+      after: win});
   }
 
   return suggestions;
@@ -204,7 +199,7 @@ function extractSkillsFromAnalysis(parsed: ParsedMatchOutput | null, resumeText:
   const matched = parsed.strengths
     .map(s => {
       // Extract capitalized terms or technical terms
-      const terms = s.match(/\b([A-Z][a-zA-Z]{2,}|Python|SQL|JavaScript|React|AWS|Azure|GCP|Kubernetes|Docker|AI|ML|Data)\b/g);
+      const terms = s.match(/\b([A-Z][a-zA-Z]{2}|Python|SQL|JavaScript|React|AWS|Azure|GCP|Kubernetes|Docker|AI|ML|Data)\b/g);
       return terms ? terms[0] : null;
     })
     .filter((s): s is string => Boolean(s))
@@ -213,7 +208,7 @@ function extractSkillsFromAnalysis(parsed: ParsedMatchOutput | null, resumeText:
   // Use gaps as missing skills
   const missing = parsed.gaps
     .map(g => {
-      const terms = g.match(/\b([A-Z][a-zA-Z]{2,}|Python|SQL|JavaScript|React|AWS|Azure|GCP|Kubernetes|Docker|AI|ML|Data)\b/g);
+      const terms = g.match(/\b([A-Z][a-zA-Z]{2}|Python|SQL|JavaScript|React|AWS|Azure|GCP|Kubernetes|Docker|AI|ML|Data)\b/g);
       return terms ? terms[0] : null;
     })
     .filter((s): s is string => Boolean(s))
@@ -275,14 +270,12 @@ export default function JobMatchScorerForm() {
       const payload = {
         resume,
         ...(jobDescription.trim() ? { jobDescription: jobDescription.trim() } : {}),
-        ...(jobUrl.trim() ? { jobUrl: jobUrl.trim() } : {}),
-      };
+        ...(jobUrl.trim() ? { jobUrl: jobUrl.trim() } : {})};
 
       const res = await fetch('/api/ai/job-match-scorer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+        body: JSON.stringify(payload)});
 
       const data = await res.json();
 
@@ -313,8 +306,7 @@ export default function JobMatchScorerForm() {
       formData.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', {
         method: 'POST',
-        body: formData,
-      });
+        body: formData});
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
@@ -443,8 +435,7 @@ export default function JobMatchScorerForm() {
             left: '1rem',
             right: '1rem',
             zIndex: 50,
-            display: 'flex',
-          }}
+            display: 'flex'}}
           className="md:wa-hidden"
         >
           <button
@@ -461,8 +452,7 @@ export default function JobMatchScorerForm() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
-            }}
+              gap: '0.5rem'}}
           >
             {loading ? (
               <>

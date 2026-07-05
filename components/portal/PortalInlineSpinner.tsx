@@ -23,14 +23,13 @@ interface PortalInlineSpinnerProps {
 
 /**
  * Inline loading indicator for portal buttons and tool forms.
- * Replaces Lucide `Loader2` + `ai-tool-submit-spinner` with Astryx `Spinner`.
+ * Replaces Lucide `` + `ai-tool-submit-spinner` with Astryx `Spinner`.
  */
 export function PortalInlineSpinner({
   size = 16,
   label = 'Loading',
   className,
-  style,
-}: PortalInlineSpinnerProps) {
+  style}: PortalInlineSpinnerProps) {
   return (
     <Spinner
       size={pixelToSpinnerSize(size)}

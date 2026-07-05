@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
+import { CheckCircle2, ExternalLink } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
 import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
@@ -87,9 +87,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
           role: role.trim(),
           url: url.trim() || undefined,
           source,
-          notes: notes.trim() || undefined,
-        }),
-      });
+          notes: notes.trim() || undefined})});
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? 'Could not log application. Try again.');
@@ -141,8 +139,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
           width: '92vw',
           background: 'var(--color-surface, white)',
           color: 'var(--color-on-surface)',
-          boxShadow: '0 24px 64px rgba(17, 24, 39, 0.2)',
-        }}
+          boxShadow: '0 24px 64px rgba(17, 24, 39, 0.2)'}}
       >
         <div style={{ padding: '1.5rem 1.5rem 1.25rem' }}>
           {savedAt ? (

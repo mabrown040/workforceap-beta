@@ -18,7 +18,7 @@ import { getTranslations } from 'next-intl/server';
 export const dynamic = 'force-dynamic';
 
 /** hoursWaiting → severity tier, shared by the real page and the dev showcase. */
-export function workQueueTier(hoursWaiting: number): { color: KitColor; tone: KitTone; label: string } {
+function workQueueTier(hoursWaiting: number): { color: KitColor; tone: KitTone; label: string } {
   if (hoursWaiting >= 72) return { color: 'accent', tone: 'alert', label: 'Overdue' };
   if (hoursWaiting >= 48) return { color: 'gold', tone: 'warn', label: 'At risk' };
   return { color: 'info', tone: 'info', label: 'Waiting' };
@@ -35,7 +35,7 @@ function getInitials(name: string): string {
 }
 
 /** Presentational work-queue row — shared by the real page and the dev showcase. */
-export function WorkQueueRowCard({ row }: { row: WorkQueueRow }) {
+function WorkQueueRowCard({ row }: { row: WorkQueueRow }) {
   const tier = workQueueTier(row.hoursWaiting);
   const c = colorVar(tier.color);
   return (

@@ -1,4 +1,5 @@
 import { DesignSurface, SectionHeader, KpiStrip, type KpiItem } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
 
 /**
  * Weekly recap — auto-generated weekly summary (dense).
@@ -91,7 +92,7 @@ export function WeeklyRecapKit({
         <KpiStrip items={kpis} />
       </div>
 
-      <div className="wa-kit-card">
+      <Card>
         <p
           style={{
             fontSize: 13,
@@ -106,7 +107,7 @@ export function WeeklyRecapKit({
           and the at-risk member pool. Each card compares this week against the prior seven days so
           the recap stays scannable instead of a wall of text.
         </p>
-      </div>
+      </Card>
     </DesignSurface>
   );
 }

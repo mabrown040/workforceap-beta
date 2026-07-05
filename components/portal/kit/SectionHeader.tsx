@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
+import { cx, type KitBaseProps, type KitDataAttrs } from './base';
 
-interface SectionHeaderProps {
+interface SectionHeaderProps extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   title: string;
   /** Optional persona/page goal caption (e.g. "Know who needs me today"). */
   goal?: string;
@@ -14,9 +15,14 @@ interface SectionHeaderProps {
  * Page/section header with optional goal caption + action. The goal line is the
  * validation hook from the concept mockups ("does this view serve the goal?").
  */
-export function SectionHeader({ title, goal, kicker, action }: SectionHeaderProps) {
+export function SectionHeader({ title, goal, kicker, action, className, style, ref, ...rest }: SectionHeaderProps) {
   return (
-    <div className="wa-flex wa-flex-col md:wa-flex-row md:wa-items-end wa-justify-between wa-gap-3 wa-mb-5">
+    <div
+      ref={ref}
+      className={cx('wa-flex wa-flex-col md:wa-flex-row md:wa-items-end wa-justify-between wa-gap-3 wa-mb-5', className)}
+      style={style}
+      {...rest}
+    >
       <div>
         {kicker ? (
           <div

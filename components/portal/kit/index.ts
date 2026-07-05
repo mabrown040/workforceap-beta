@@ -1,12 +1,19 @@
 /**
  * Portal Design Kit — public barrel (Phase 0).
  * Spec: docs/PORTAL_DESIGN_KIT.md
+ * READ FIRST: docs/KIT_GUIDE.md — token families, surface modes, status-tone
+ * semantics, the KitBaseProps contract, and the anti-pattern list. If you
+ * change exports here, update the guide's component index in the same PR.
  *
  * Phase 0 ships the foundation + primitives. Layout/data/persona components
  * (DataTable, AppShell*, FeatureTile, QueueRow, Kanban, ChatThread, …) land in
  * subsequent Phase 0 steps before any real page conversion.
  */
 export { DesignSurface, useSurface, type SurfaceMode } from './DesignSurface';
+export { cx, type KitBaseProps, type KitDataAttrs } from './base';
+export { useFocusTrap, getFocusable, type FocusTrapOptions } from './hooks/useFocusTrap';
+export { useListFocus, LIST_ITEM_ATTR, type ListFocusOptions } from './hooks/useListFocus';
+export { useAnnounce, announce } from './hooks/useAnnounce';
 export { StatTile } from './StatTile';
 export { KpiStrip, type KpiItem } from './KpiStrip';
 export { StatusTag } from './StatusTag';

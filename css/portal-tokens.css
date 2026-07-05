@@ -15,30 +15,47 @@
  */
 
 :root {
+  /*
+   * Every mode-dependent token is a SINGLE light-dark(light, dark) declaration,
+   * resolved natively by the browser via the `color-scheme` property below —
+   * no duplicated dark variable block, no possibility of a token existing in
+   * light but missing in dark. The theme system (ThemeInitScript / useTheme)
+   * keeps `html.dark` mirroring the effective mode (including "system"), so
+   * the class-based color-scheme override further down is always correct.
+   */
+  color-scheme: light;
+
   /* — brand (constant; mirrors DESIGN.md + tailwind.config.ts wa-brand-*) — */
   --wa-accent: #ad2c4d;
   --wa-accent-dark: #8c0f37;
-  --wa-accent-soft: #fdf2f4;
   --wa-on-accent: #ffffff;
   --wa-gold: #a47f38;
   --wa-gold-dark: #7d5f26;
-  --wa-gold-soft: #fef3c7;
   --wa-info: #2b7bb9;
-  --wa-info-soft: #eef5fb;
   --wa-success: #4a9b4f;
   --wa-danger: #dc2626;
-  --wa-danger-soft: rgba(220, 38, 38, 0.12);
+  --wa-danger-soft: rgba(220, 38, 38, 0.12); /* alpha tint — reads fine on both modes */
   --wa-violet: #7c3aed;
 
-  /* — neutrals — */
-  --wa-bg: #f7f8fa;
-  --wa-surface: #ffffff;
-  --wa-surface-2: #f4f4f5; /* subtle raised fill (icon tiles, chips) */
-  --wa-text: #1a1a1a;
-  --wa-muted: #737373;
-  --wa-border: #e8e8e8;
-  --wa-track: #f0eef0;
-  --wa-shell-header-bg: color-mix(in srgb, var(--wa-surface) 92%, transparent);
+  /* brand soft-tints: opaque pastels in light; translucent overlays in dark
+     (opaque pastels "glow" on dark bodies) */
+  --wa-accent-soft: light-dark(#fdf2f4, rgba(173, 44, 77, 0.18));
+  --wa-gold-soft: light-dark(#fef3c7, rgba(164, 127, 56, 0.2));
+  --wa-info-soft: light-dark(#eef5fb, rgba(43, 123, 185, 0.18));
+
+  /* — neutrals (flip per mode) — */
+  --wa-bg: light-dark(#f7f8fa, #0f1115);
+  --wa-surface: light-dark(#ffffff, #1a1b1f);
+  --wa-surface-2: light-dark(#f4f4f5, #26272c); /* subtle raised fill (icon tiles, chips) */
+  --wa-text: light-dark(#1a1a1a, #f4f4f5);
+  --wa-muted: light-dark(#737373, #a1a1aa);
+  --wa-border: light-dark(#e8e8e8, #2c2d33);
+  --wa-track: light-dark(#f0eef0, #2c2d33);
+  --wa-shell-header-bg: light-dark(
+    color-mix(in srgb, #ffffff 92%, transparent),
+    color-mix(in srgb, #1a1b1f 88%, transparent)
+  );
+  /* sidebar is dark chrome in both modes */
   --wa-sidebar-bg: #161616;
   --wa-sidebar-border: #2a2a2a;
   --wa-sidebar-text: #ffffff;
@@ -62,8 +79,26 @@
   --wa-pad: 24px;
   --wa-pad-sm: 16px;
   --wa-pop: 1; /* 0 = calm tints, 1 = gradient feature tiles */
-  --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --wa-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.06);
+  /*
+   * Elevation: shadows deepen in dark mode, plus a 1px inset "bezel" highlight
+   * so cards separate from the dark body without a tonal surface ramp
+   * (--wa-surface / --wa-surface-2 are the whole surface ladder — see
+   * docs/KIT_GUIDE.md §3). The bezel is transparent in light mode.
+   */
+  --wa-shadow: 0 1px 2px light-dark(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.5)),
+    inset 0 1px 0 light-dark(transparent, rgba(255, 255, 255, 0.06));
+  --wa-shadow-lg: 0 12px 24px light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.6)),
+    inset 0 1px 0 light-dark(transparent, rgba(255, 255, 255, 0.06));
+
+  /*
+   * — motion — one duration/easing scale for the whole kit; zeroed under
+   * prefers-reduced-motion below. Guidance on where motion helps vs hurts:
+   * docs/KIT_GUIDE.md §7.
+   */
+  --wa-dur-fast: 120ms; /* hovers, color/border feedback */
+  --wa-dur-base: 200ms; /* most transitions (shadow, background) */
+  --wa-dur-slow: 300ms; /* larger movements: drawers, surface morphs */
+  --wa-ease: cubic-bezier(0.2, 0, 0, 1);
 
   /*
    * — z-index scale (Foundation) — ordered low → high. Fixed-position layers
@@ -119,33 +154,23 @@
 }
 
 /*
- * DARK MODE — flips the kit NEUTRALS; brand hues (accent/gold/info/success)
- * stay constant since they read fine on dark. Activated by the app's existing
+ * DARK MODE — a one-line color-scheme flip; every light-dark() token above
+ * resolves to its dark value automatically. Activated by the app's existing
  * theme system, which sets `html.dark` (system preference or explicit) and
  * `[data-theme="dark"]` (explicit) — see components/theme/ThemeInitScript.tsx.
  * Works under both surfaces (warm/dense only change radius/pad/pop, not color).
  */
 html.dark,
 [data-theme='dark'] {
-  --wa-bg: #0f1115;
-  --wa-surface: #1a1b1f;
-  --wa-surface-2: #26272c; /* raised fill on dark (icon tiles, chips) */
-  --wa-text: #f4f4f5;
-  --wa-muted: #a1a1aa;
-  --wa-border: #2c2d33;
-  --wa-track: #2c2d33;
-  --wa-shell-header-bg: color-mix(in srgb, var(--wa-surface) 88%, transparent);
-  /* brand soft-tints become translucent so they sit on dark surfaces */
-  --wa-accent-soft: rgba(173, 44, 77, 0.18);
-  --wa-gold-soft: rgba(164, 127, 56, 0.20);
-  --wa-info-soft: rgba(43, 123, 185, 0.18);
-  --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --wa-shadow-lg: 0 14px 28px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
 }
 
 /* Reduced motion: kit components gate their own animations on this too. */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --wa-shadow-lg: var(--wa-shadow);
+    --wa-dur-fast: 0s;
+    --wa-dur-base: 0s;
+    --wa-dur-slow: 0s;
   }
 }

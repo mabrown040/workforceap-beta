@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 // which needs counselor.css) render exactly as production does.
 import '@/css/portal.css';
 import '@/css/portal-a11y.css';
-import '@/css/dark-mode.css';
 import '@/css/counselor.css';
 import '@/css/language-toggle.css';
 import '@/css/mobile-dashboard-fixes.css';

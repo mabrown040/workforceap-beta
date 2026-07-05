@@ -31,6 +31,7 @@ Open `http://localhost:3000` in a browser.
 - `Caddyfile` — production reverse-proxy config
 - `DEPLOY.md` — production deployment instructions
 - `docs/COMPLETED-WORK-LOG.md` — shipped tasks (backlog hygiene: `docs/BACKLOG-MAINTENANCE.md`)
+- `docs/KIT_GUIDE.md` — **read before touching portal UI**: canonical `--wa-*` tokens (`light-dark()` based), warm/dense surfaces, `KitTone`/`StatusTone` semantics, the `KitBaseProps` contract, kit a11y hooks, and the anti-pattern list
 
 ### Lint / Test / Build
 

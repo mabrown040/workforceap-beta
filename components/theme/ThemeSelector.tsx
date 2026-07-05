@@ -42,13 +42,13 @@ export default function ThemeSelector() {
               cursor: 'pointer',
               border: active
                 ? '1.5px solid var(--color-accent, #2563eb)'
-                : '1.5px solid var(--dm-border, #e2e8f0)',
+                : '1.5px solid var(--wa-border, #e2e8f0)',
               background: active
                 ? 'color-mix(in srgb, var(--color-accent, #2563eb) 10%, transparent)'
                 : 'transparent',
               color: active
                 ? 'var(--color-accent, #2563eb)'
-                : 'var(--dm-on-surface, #334155)',
+                : 'var(--wa-text, #334155)',
               transition: 'border-color 150ms, background 150ms, color 150ms',
             }}
           >

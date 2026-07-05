@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Search } from 'lucide-react';
+import { type KitBaseProps, type KitDataAttrs } from './base';
 
-interface UniversalSearchProps {
+interface UniversalSearchProps extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   placeholder?: string;
   onSearch?: (q: string) => void;
   /** Show the ⌘K hint chip (desktop). */
@@ -14,10 +15,10 @@ interface UniversalSearchProps {
  * Universal search / command bar. The "finding is simple" surface.
  * Mockup: design-system header search.
  */
-export function UniversalSearch({ placeholder = 'Find anything…', onSearch, hint = true }: UniversalSearchProps) {
+export function UniversalSearch({ placeholder = 'Find anything…', onSearch, hint = true, className, style, ref, ...rest }: UniversalSearchProps) {
   const [q, setQ] = useState('');
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 520 }}>
+    <div ref={ref} className={className} style={{ position: 'relative', width: '100%', maxWidth: 520, ...style }} {...rest}>
       <Search size={15} aria-hidden="true" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--wa-muted)', pointerEvents: 'none' }} />
       <input
         value={q}
@@ -35,7 +36,7 @@ export function UniversalSearch({ placeholder = 'Find anything…', onSearch, hi
           fontSize: 13,
           outline: 'none',
           color: 'var(--wa-text)',
-          transition: 'border-color 0.2s, box-shadow 0.2s',
+          transition: 'border-color var(--wa-dur-base) var(--wa-ease), box-shadow var(--wa-dur-base) var(--wa-ease)',
         }}
       />
       {hint ? (

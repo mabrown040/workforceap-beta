@@ -1,4 +1,6 @@
-interface AvatarProps {
+import { type KitBaseProps, type KitDataAttrs } from './base';
+
+interface AvatarProps extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   initials: string;
   size?: number;
   /** Gradient background (crimson) vs flat info-blue. */
@@ -6,9 +8,11 @@ interface AvatarProps {
 }
 
 /** Initials avatar in a gradient/solid circle. Used in tables, headers, threads. */
-export function Avatar({ initials, size = 36, gradient = true }: AvatarProps) {
+export function Avatar({ initials, size = 36, gradient = true, className, style, ref, ...rest }: AvatarProps) {
   return (
     <div
+      ref={ref}
+      className={className}
       style={{
         width: size,
         height: size,
@@ -18,12 +22,14 @@ export function Avatar({ initials, size = 36, gradient = true }: AvatarProps) {
         justifyContent: 'center',
         fontWeight: 700,
         fontSize: size * 0.34,
-        color: '#fff',
+        color: 'var(--wa-on-accent)',
         flexShrink: 0,
         background: gradient
           ? 'linear-gradient(135deg, var(--wa-accent), var(--wa-accent-dark))'
           : 'var(--wa-info)',
+        ...style,
       }}
+      {...rest}
     >
       {initials}
     </div>

@@ -73,6 +73,18 @@
   --color-on-surface: var(--wa-text);
   --color-on-surface-variant: var(--wa-muted);
 
+  /*
+   * #2123 (css/astryx-brand-bridge.css) bridged Astryx's categorical
+   * pink/red/yellow/green/blue tokens. Two more Astryx internals still leak
+   * through unbridged: every bare <Card> (no variant prop, which is most of
+   * them — Card has no brand/accent variant to opt into) reads Astryx's own
+   * --color-background-card, and --color-border has no light-mode override
+   * anywhere (only a dark-mode one in css/main.css), so Astryx borders read
+   * its stock translucent-navy tint in light mode.
+   */
+  --color-background-card: var(--wa-surface);
+  --color-border: var(--wa-border);
+
   /* — shape / density / pop (overridden per surface below) — */
   --wa-radius: 20px;
   --wa-radius-sm: 12px;

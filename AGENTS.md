@@ -124,6 +124,14 @@ Use the **Google Stitch MCP** from Cursor when you need authoritative UI referen
 
 Implement the resulting layout and copy in `app/` and `components/`; treat Stitch output as the design source of truth when the task says to match Stitch.
 
+## Design intelligence & review skills (use with all UI work)
+
+Two skill packs are wired into this repo — pair them with the kit guide, Astryx workflow, and Stitch MCP on every UI task:
+
+- **UI/UX Pro Max** (`.cursor/skills/ui-ux-pro-max/`, from [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), installed via `npx -y ui-ux-pro-max-cli init --ai cursor`): searchable design database (67 styles, 161 palettes, 57 font pairings, 99 UX guidelines, 25 chart types). Query it BEFORE building new surfaces, e.g.
+  `python3 .cursor/skills/ui-ux-pro-max/scripts/search.py "<what you're building>" --design-system -s nextjs` (domain searches: `-d style|ux|chart|typography`). **Guardrail:** its palette/font output is advisory inspiration only — production colors/typography still come from the `--wa-*` tokens (`docs/KIT_GUIDE.md`) and the Astryx token layer; never paste its hex palettes into components. Its UX guidelines and chart-type/a11y recommendations apply directly.
+- **Design review** (`.agents/skills/design-review/SKILL.md`, adapted from [garrytan/gstack](https://github.com/garrytan/gstack), MIT): designer's-eye audit → fix → verify loop — UX laws, an 80-item checklist, landing vs app-UI hard rules, and the AI-slop blacklist. Run it before shipping significant UI and whenever asked to "polish"/"audit" design. The full gstack suite (23 skills: /review, /qa, /ship, …) targets Claude Code and is NOT vendored; clone `https://github.com/garrytan/gstack` to /tmp if you need its other playbooks for reference.
+
 ## Astryx design system (site-wide, coexistence rules)
 
 The Astryx packages (`@astryxdesign/core`, `@astryxdesign/theme-neutral`, `@astryxdesign/cli`) are installed and loaded site-wide, superseding the earlier non-adoption note in `docs/ASTRYX_LESSONS.md`. How the two systems coexist (full policy: `docs/KIT_GUIDE.md` §9):

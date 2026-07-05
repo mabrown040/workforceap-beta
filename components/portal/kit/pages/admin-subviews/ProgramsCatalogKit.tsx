@@ -17,10 +17,15 @@ import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
-  StatusTag,
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import NextLink from 'next/link';
 
 /**
  * Programs catalog — program card grid (dense).
@@ -28,7 +33,7 @@ import {
  * Target route: /admin/programs
  *
  * Each card: a tinted category-icon tile, the program name, a credential/skills
- * description line, a StatusTag (Healthy=ok / Attention=alert based on the
+ * description line, a status Token (Healthy=green / Attention=pink based on the
  * program's completion %), and a footer row "{N} enrolled" (muted) + "{X}%"
  * completion (green when healthy, crimson when low). The header subtitle
  * ("{N} active · {N} enrolled") is a real aggregate computed server-side.
@@ -90,87 +95,89 @@ const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; fg: string }
 
 const FALLBACK_ICON = { Icon: BookOpen, bg: 'var(--wa-surface-2)', fg: 'var(--wa-text)' };
 
+/** Maps the kit's semantic tone vocabulary to a real Token color. */
+const TONE_TOKEN_COLOR: Record<'ok' | 'alert', TokenColor> = {
+  ok: 'green',
+  alert: 'pink',
+};
+
 function ProgramTile({ card }: { card: ProgramCard }) {
   const { Icon, bg, fg } = CATEGORY_ICON[card.category] ?? FALLBACK_ICON;
   const healthy = card.completion != null && card.completion >= HEALTHY_THRESHOLD;
 
   return (
-    <a
-      href={`/admin/programs?ui=legacy#${card.slug}`}
-      className="wa-kit-card wa-kit-card--hover wa-kit-focus"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+    <ClickableCard label={card.title} href={`/admin/programs?ui=legacy#${card.slug}`}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: bg,
+              color: fg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Icon className="h-5 w-5" aria-hidden />
+          </div>
+          {card.completion != null ? (
+            <Token
+              label={healthy ? 'Healthy' : 'Attention'}
+              size="sm"
+              color={TONE_TOKEN_COLOR[healthy ? 'ok' : 'alert']}
+            />
+          ) : null}
+        </div>
+
+        <div style={{ minWidth: 0 }}>
+          <h3
+            style={{
+              fontWeight: 800,
+              fontSize: 16,
+              letterSpacing: '-0.02em',
+              margin: 0,
+            }}
+          >
+            {card.title}
+          </h3>
+          <p
+            style={{
+              fontSize: 12,
+              color: 'var(--wa-muted)',
+              margin: '2px 0 0',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {card.description}
+          </p>
+        </div>
+
         <div
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            background: bg,
-            color: fg,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <Icon className="h-5 w-5" aria-hidden />
-        </div>
-        {card.completion != null ? (
-          <StatusTag tone={healthy ? 'ok' : 'alert'}>{healthy ? 'Healthy' : 'Attention'}</StatusTag>
-        ) : null}
-      </div>
-
-      <div style={{ minWidth: 0 }}>
-        <h3
-          style={{
-            fontWeight: 800,
-            fontSize: 16,
-            letterSpacing: '-0.02em',
-            margin: 0,
-          }}
-        >
-          {card.title}
-        </h3>
-        <p
-          style={{
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            gap: 10,
             fontSize: 12,
-            color: 'var(--wa-muted)',
-            margin: '2px 0 0',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            paddingTop: 12,
+            borderTop: '1px solid var(--wa-border)',
           }}
         >
-          {card.description}
-        </p>
+          <span style={{ color: 'var(--wa-muted)' }}>{card.enrolled} enrolled</span>
+          {card.completion != null ? (
+            <span style={{ fontWeight: 700, color: colorVar(healthy ? 'success' : 'accent') }}>
+              {card.completion}%
+            </span>
+          ) : null}
+        </div>
       </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-          gap: 10,
-          fontSize: 12,
-          paddingTop: 12,
-          borderTop: '1px solid var(--wa-border)',
-        }}
-      >
-        <span style={{ color: 'var(--wa-muted)' }}>{card.enrolled} enrolled</span>
-        {card.completion != null ? (
-          <span style={{ fontWeight: 700, color: colorVar(healthy ? 'success' : 'accent') }}>
-            {card.completion}%
-          </span>
-        ) : null}
-      </div>
-    </a>
+    </ClickableCard>
   );
 }
 
@@ -211,24 +218,14 @@ export function ProgramsCatalogKit({
         kicker="Catalog"
         goal={subtitle}
         action={
-          <a
-            href="/admin/programs?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            <SlidersHorizontal className="h-4 w-4" aria-hidden /> Manage catalog
-          </a>
+          <AstryxLink href="/admin/programs?ui=legacy" as={NextLink as never} isStandalone>
+            <Button
+              label="Manage catalog"
+              variant="primary"
+              size="sm"
+              icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />}
+            />
+          </AstryxLink>
         }
       />
 
@@ -243,16 +240,11 @@ export function ProgramsCatalogKit({
           ))}
         </div>
       ) : (
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
-        >
-          <BookOpen className="h-6 w-6" aria-hidden style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No programs yet</p>
-          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
-            Add your first program to start tracking enrollment and completion.
-          </p>
-        </div>
+        <EmptyState
+          icon={<BookOpen className="h-6 w-6" aria-hidden />}
+          title="No programs yet"
+          description="Add your first program to start tracking enrollment and completion."
+        />
       )}
 
       {avgCompletion != null ? (

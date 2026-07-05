@@ -1,12 +1,15 @@
 'use client';
 
+import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
-  StatusTag,
   type Column,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -15,8 +18,8 @@ import {
  * Target route: /admin/program-change-requests
  *
  * Columns: Student · Current · Requested · Reason · Status.
- * Status is a StatusTag (Pending=warn, Approved=ok, Rejected=alert, …). Wide
- * table collapses to stacked cards on mobile via DataTable mobile="cards".
+ * Status is an Astryx Token (Pending=yellow, Approved=green, Rejected=pink, …).
+ * Wide table collapses to stacked cards on mobile via DataTable mobile="cards".
  *
  * This is a pure presenter: the page resolves program slugs → friendly titles
  * and the raw status enum → display status server-side, then hands rows down.
@@ -74,11 +77,11 @@ const DEFAULT_REQUESTS: ProgramChangeRow[] = [
   },
 ];
 
-const STATUS_TONE: Record<ProgramChangeDisplayStatus, KitTone> = {
-  Pending: 'warn',
-  Approved: 'ok',
-  Rejected: 'alert',
-  Cancelled: 'muted',
+const STATUS_TOKEN_COLOR: Record<ProgramChangeDisplayStatus, TokenColor> = {
+  Pending: 'yellow',
+  Approved: 'green',
+  Rejected: 'pink',
+  Cancelled: 'gray',
 };
 
 export function ProgramChangeRequestsKit({
@@ -111,7 +114,7 @@ export function ProgramChangeRequestsKit({
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />,
     },
   ];
 
@@ -122,24 +125,9 @@ export function ProgramChangeRequestsKit({
         kicker="Enrollment"
         goal={subtitle}
         action={
-          <a
-            href="/admin/program-change-requests?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Review &amp; decide
-          </a>
+          <AstryxLink href="/admin/program-change-requests?ui=legacy" as={Link as never} isStandalone>
+            <Button label="Review & decide" variant="secondary" size="sm" />
+          </AstryxLink>
         }
       />
 
@@ -150,7 +138,7 @@ export function ProgramChangeRequestsKit({
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -183,7 +171,7 @@ export function ProgramChangeRequestsKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />
               </div>
             </div>
             <div
@@ -195,7 +183,7 @@ export function ProgramChangeRequestsKit({
             >
               {row.reason}
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No program change requests"
         emptyDescription="When members request to switch programs, they'll appear here for review."

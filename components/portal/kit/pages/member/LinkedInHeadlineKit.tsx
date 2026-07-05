@@ -1,3 +1,4 @@
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -20,9 +21,9 @@ export function LinkedInHeadlineKit({ userId }: { userId: string }) {
           title="LinkedIn Headline"
           goal="Craft a compelling LinkedIn headline that gets you noticed by recruiters."
         />
-        <div className="wa-kit-card">
+        <Card>
           <LinkedInHeadlineForm />
-        </div>
+        </Card>
         <ToolHistoryPanel userId={userId} toolType="linkedin_headline" />
       </div>
     </DesignSurface>

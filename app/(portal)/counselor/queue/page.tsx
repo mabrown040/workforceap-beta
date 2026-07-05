@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { AlertTriangle, Clock, MessageSquare, RotateCcw } from 'lucide-react';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -9,12 +10,77 @@ import {
   formatTimeWaiting,
   getCounselorWorkQueue,
   previewMessageBody,
+  type WorkQueueRow,
 } from '@/lib/counselor/workQueue';
-import { statusColor } from '@/lib/ui/statusColors';
+import { DesignSurface, SectionHeader, Avatar, StatusTag, colorVar, type KitColor, type KitTone } from '@/components/portal/kit';
 import { getTranslations } from 'next-intl/server';
-import styles from './queue.module.css';
 
 export const dynamic = 'force-dynamic';
+
+/** hoursWaiting → severity tier, shared by the real page and the dev showcase. */
+export function workQueueTier(hoursWaiting: number): { color: KitColor; tone: KitTone; label: string } {
+  if (hoursWaiting >= 72) return { color: 'accent', tone: 'alert', label: 'Overdue' };
+  if (hoursWaiting >= 48) return { color: 'gold', tone: 'warn', label: 'At risk' };
+  return { color: 'info', tone: 'info', label: 'Waiting' };
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+/** Presentational work-queue row — shared by the real page and the dev showcase. */
+export function WorkQueueRowCard({ row }: { row: WorkQueueRow }) {
+  const tier = workQueueTier(row.hoursWaiting);
+  const c = colorVar(tier.color);
+  return (
+    <Link href={`/counselor/messages?studentId=${row.memberId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <div
+        className="wa-kit-card wa-kit-card--sm wa-kit-card--hover"
+        style={{ display: 'flex', alignItems: 'flex-start', gap: 12, borderLeft: `3px solid ${c}` }}
+      >
+        <Avatar initials={getInitials(row.memberName) || '?'} size={44} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <h3
+              title={row.memberName}
+              style={{ fontWeight: 700, fontSize: 14, color: 'var(--wa-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
+              {row.memberName}
+            </h3>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: c, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                {formatTimeWaiting(row.hoursWaiting)}
+              </span>
+              <StatusTag tone={tier.tone}>{tier.label}</StatusTag>
+            </span>
+          </div>
+          <p
+            style={{
+              margin: '4px 0 0',
+              fontSize: 12,
+              color: 'var(--wa-muted)',
+              lineHeight: 1.45,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
+            {previewMessageBody(row.lastMessageBody) || 'No message preview available'}
+          </p>
+        </div>
+        <MessageSquare size={16} aria-hidden style={{ color: 'var(--wa-muted)', opacity: 0.5, flexShrink: 0, marginTop: 2 }} />
+      </div>
+    </Link>
+  );
+}
 
 export default async function CounselorWorkQueuePage() {
   const user = await getUser();
@@ -48,239 +114,47 @@ export default async function CounselorWorkQueuePage() {
       />
 
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
-        {error ? (
-          <div
-            style={{
-              padding: '2rem',
-              textAlign: 'center',
-              background: 'var(--surface-container-low)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--outline-variant)',
-            }}
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '2rem', color: 'var(--color-error)', display: 'block', marginBottom: '1rem' }}
-              aria-hidden="true"
-            >
-              error
-            </span>
-            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
-              {t('workQueueLoadError')}
-            </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-              {t('workQueueLoadErrorDesc')}
-            </p>
-            <Link href="/counselor/queue" className="btn btn-primary">
-              {t('retry')}
-            </Link>
-          </div>
-        ) : rows.length === 0 ? (
-          <PortalEmptyState
-            title={t('allCaughtUp')}
-            description={t('workQueueEmptyDesc')}
-            icon={
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '2rem', color: 'var(--color-green)' }}
-                aria-hidden="true"
-              >
-                done_all
-              </span>
-            }
-            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
-            secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
-          />
-        ) : (
-          <>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '1rem',
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.875rem',
-                  color: 'var(--color-on-surface-variant)',
-                  fontWeight: 600,
-                }}
-              >
-                {t('workQueueMembersAwaiting', { count: rows.length })}
-              </p>
-              <Link
-                href="/counselor/messages"
-                style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: 'var(--color-accent)',
-                }}
-              >
-                {t('openMessages')} →
+        <DesignSurface surface="dense">
+          {error ? (
+            <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+              <AlertTriangle size={28} aria-hidden style={{ color: 'var(--wa-accent)', display: 'block', margin: '0 auto 1rem' }} />
+              <h3 style={{ fontWeight: 700, fontSize: 18, marginBottom: 8, color: 'var(--wa-text)' }}>
+                {t('workQueueLoadError')}
+              </h3>
+              <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginBottom: 20 }}>{t('workQueueLoadErrorDesc')}</p>
+              <Link href="/counselor/queue" className="btn btn-primary">
+                <RotateCcw size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                {t('retry')}
               </Link>
             </div>
-
-            <ul
-              style={{
-                listStyle: 'none',
-                margin: 0,
-                padding: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.625rem',
-              }}
-            >
-              {rows.map((row) => {
-                const initials = row.memberName
-                  .split(' ')
-                  .filter(Boolean)
-                  .map((n) => n[0])
-                  .slice(0, 2)
-                  .join('')
-                  .toUpperCase();
-                // Severity tiers use lib/ui/statusColors.ts tones so the
-                // "overdue" semantic matches StatusBadge + AtRiskDashboard
-                // elsewhere in the app (danger = --color-accent, not a
-                // separate true-red).
-                const overdueTone = row.hoursWaiting >= 72 ? 'danger' : row.hoursWaiting >= 48 ? 'warning' : 'neutral';
-                const overdueColors = statusColor(overdueTone);
-                const overdueColor = overdueColors.fg;
-                return (
-                  <li key={row.threadId}>
-                    <Link
-                      href={`/counselor/messages?studentId=${row.memberId}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <div
-                        className={`portal-card portal-card--flat portal-card--padded-sm ${styles.row}`}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '1rem',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: '2.75rem',
-                            height: '2.75rem',
-                            borderRadius: '0.75rem',
-                            background:
-                              'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.875rem',
-                            fontWeight: 700,
-                            color: '#fff',
-                            flexShrink: 0,
-                          }}
-                          aria-hidden="true"
-                        >
-                          {initials || '?'}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'baseline',
-                              gap: '0.75rem',
-                              justifyContent: 'space-between',
-                              marginBottom: '0.25rem',
-                            }}
-                          >
-                            <h3
-                              title={row.memberName}
-                              style={{
-                                fontWeight: 700,
-                                fontSize: '0.9375rem',
-                                color: 'var(--color-on-surface)',
-                                margin: 0,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {row.memberName}
-                            </h3>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
-                              <span
-                                style={{
-                                  fontSize: '0.75rem',
-                                  fontWeight: 700,
-                                  color: overdueColor,
-                                  whiteSpace: 'nowrap',
-                                  fontVariantNumeric: 'tabular-nums',
-                                }}
-                              >
-                                {formatTimeWaiting(row.hoursWaiting)}
-                              </span>
-                              {row.hoursWaiting >= 72 && (
-                                <span
-                                  style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '0.15rem',
-                                    padding: '0.05rem 0.375rem',
-                                    borderRadius: '9999px',
-                                    fontSize: '0.625rem',
-                                    fontWeight: 700,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.03em',
-                                    whiteSpace: 'nowrap',
-                                    color: overdueColor,
-                                    background: overdueColors.bg,
-                                  }}
-                                >
-                                  <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">
-                                    warning
-                                  </span>
-                                  {t('workQueueOverdueChip')}
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                          <p
-                            style={{
-                              margin: 0,
-                              fontSize: '0.8125rem',
-                              color: 'var(--color-on-surface-variant)',
-                              lineHeight: 1.45,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                            }}
-                          >
-                            {previewMessageBody(row.lastMessageBody) || t('emptyMessagePreview')}
-                          </p>
-                        </div>
-                        <span
-                          className="material-symbols-outlined"
-                          style={{
-                            color: 'var(--color-on-surface-variant)',
-                            opacity: 0.35,
-                            fontSize: '1rem',
-                            alignSelf: 'center',
-                            flexShrink: 0,
-                          }}
-                          aria-hidden="true"
-                        >
-                          chevron_right
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
+          ) : rows.length === 0 ? (
+            <PortalEmptyState
+              title={t('allCaughtUp')}
+              description={t('workQueueEmptyDesc')}
+              icon={<Clock size={28} style={{ color: 'var(--wa-success)' }} />}
+              primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+              secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
+            />
+          ) : (
+            <>
+              <SectionHeader
+                title="Work queue"
+                goal={t('workQueueMembersAwaiting', { count: rows.length })}
+                action={
+                  <Link href="/counselor/messages" style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}>
+                    {t('openMessages')} →
+                  </Link>
+                }
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {rows.map((row) => (
+                  <WorkQueueRowCard key={row.threadId} row={row} />
+                ))}
+              </div>
+            </>
+          )}
+        </DesignSurface>
       </section>
-
     </PortalPageFrame>
   );
 }

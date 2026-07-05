@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { CheckCircle2, Clock, MessageSquare, TriangleAlert } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
   listFollowUpTemplates,
   templateMatchesPriorities,
@@ -13,17 +15,16 @@ import type {
   PriorityBucket,
   PriorityQueueRow,
 } from '@/lib/counselor/priorityQueue';
+import { DesignSurface, SectionHeader, StatSparkTile, colorVar, type KitColor } from '@/components/portal/kit';
 
 /**
- * Counselor Priority Queue — single sortable table that replaces the
- * scattered "alerts here, inactive list there" pattern with one tactical
- * view. Three priority buckets: CRITICAL (red), WARNING (yellow),
- * ON TRACK (green). Bulk-select rows → choose a follow-up template →
- * fan out via /api/counselor/bulk-followup.
+ * Counselor Priority Queue — Command Center redesign.
  *
- * The component is intentionally a single self-contained client component
- * so the counselor can sort and act without page reloads. Server-side data
- * comes in via props (see lib/counselor/priorityQueue.ts).
+ * Same tactical triage surface (three priority buckets, bulk-select,
+ * template fan-out via /api/counselor/bulk-followup) reskinned onto the
+ * shared portal kit: bucket totals as StatSparkTiles, rows as severity-coded
+ * cards (the QueueRow idiom) instead of a raw HTML table. All data, sorting,
+ * selection, and send behavior are unchanged from the legacy version.
  */
 
 type SortKey = 'severity' | 'days_inactive' | 'last_contact';
@@ -47,28 +48,10 @@ const BUCKET_AUDIENCE: Record<PriorityBucket, FollowUpAudience> = {
   ontrack: 'all',
 };
 
-const BUCKET_ACCENT: Record<
-  PriorityBucket,
-  { dot: string; surface: string; text: string }
-> = {
-  critical: {
-    dot: 'var(--color-accent)',
-    surface:
-      'color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-lowest))',
-    text: 'var(--color-accent)',
-  },
-  warning: {
-    dot: 'var(--color-warning-on-surface)',
-    surface:
-      'color-mix(in srgb, var(--color-warning-on-surface) 10%, var(--surface-container-lowest))',
-    text: 'var(--color-warning-on-surface)',
-  },
-  ontrack: {
-    dot: 'var(--color-green)',
-    surface:
-      'color-mix(in srgb, var(--color-green) 8%, var(--surface-container-lowest))',
-    text: 'var(--color-green)',
-  },
+const BUCKET_STYLE: Record<PriorityBucket, { color: KitColor; icon: LucideIcon }> = {
+  critical: { color: 'accent', icon: TriangleAlert },
+  warning: { color: 'gold', icon: Clock },
+  ontrack: { color: 'success', icon: CheckCircle2 },
 };
 
 export type CounselorPriorityQueueProps = {
@@ -183,350 +166,149 @@ export default function CounselorPriorityQueue({ rows, totals }: CounselorPriori
   }
 
   return (
-    <section
-      aria-label={t('priorityQueueTitle')}
-      className="portal-card portal-card--flat"
-      style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}
-    >
-      <header
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '0.75rem',
-          marginBottom: '1rem',
-        }}
-      >
-        <div>
-          <h2 className="portal-section-heading" style={{ margin: 0 }}>
-            {t('priorityQueueTitle')}
-          </h2>
-          <p
-            className="portal-page-subtitle"
-            style={{ margin: '0.25rem 0 0', fontSize: '0.85rem' }}
-          >
-            {t('priorityQueueSubtitle')}
-          </p>
+    <DesignSurface surface="dense">
+      <section aria-label={t('priorityQueueTitle')} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <SectionHeader title={t('priorityQueueTitle')} goal={t('priorityQueueSubtitle')} />
+
+        {/* Bucket totals */}
+        <div className="wa-grid wa-grid-cols-3 wa-gap-3">
+          {(['critical', 'warning', 'ontrack'] as const).map((bucket) => (
+            <StatSparkTile
+              key={bucket}
+              icon={BUCKET_STYLE[bucket].icon}
+              label={bucketLabel(bucket, t)}
+              value={totals[bucket]}
+              color={BUCKET_STYLE[bucket].color}
+            />
+          ))}
         </div>
-        <PriorityChips totals={totals} t={t} />
-      </header>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          marginBottom: '0.75rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        <label
-          htmlFor="counselor-pq-sort"
-          style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}
-        >
-          {t('priorityQueueSortLabel')}
-        </label>
-        <select
-          id="counselor-pq-sort"
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as SortKey)}
-          style={{
-            padding: '0.4rem 0.6rem',
-            borderRadius: '0.5rem',
-            border: '1px solid var(--outline-variant)',
-            background: 'var(--surface-container)',
-            color: 'var(--color-on-surface)',
-            fontSize: '0.8125rem',
-            minHeight: '2.25rem',
-          }}
-        >
-          <option value="severity">{t('priorityQueueSortSeverity')}</option>
-          <option value="days_inactive">{t('priorityQueueSortDaysInactive')}</option>
-          <option value="last_contact">{t('priorityQueueSortLastContact')}</option>
-        </select>
-      </div>
-
-      {selectedIds.size > 0 ? (
-        <div
-          role="region"
-          aria-label={t('priorityQueueBulkToolbar')}
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: '0.75rem',
-            padding: '0.75rem 1rem',
-            marginBottom: '0.75rem',
-            borderRadius: '0.625rem',
-            background:
-              'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container))',
-            border: '1px solid color-mix(in srgb, var(--color-accent) 25%, var(--outline-variant))',
-          }}
-        >
-          <span style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
-            {t('priorityQueueSelectedCount', { count: selectedIds.size })}
-          </span>
+        {/* Sort control */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <label htmlFor="counselor-pq-sort" style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-muted)' }}>
+            {t('priorityQueueSortLabel')}
+          </label>
           <select
-            aria-label={t('priorityQueueChooseTemplate')}
-            value={templateId}
-            onChange={(e) => setTemplateId(e.target.value as FollowUpTemplateId | '')}
+            id="counselor-pq-sort"
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as SortKey)}
+            className="wa-kit-focus"
             style={{
-              padding: '0.45rem 0.6rem',
-              borderRadius: '0.5rem',
-              border: '1px solid var(--outline-variant)',
-              background: 'var(--surface-container-low)',
-              color: 'var(--color-on-surface)',
-              fontSize: '0.8125rem',
-              minHeight: '2.25rem',
+              padding: '7px 10px',
+              borderRadius: 'var(--wa-radius-sm)',
+              border: '1px solid var(--wa-border)',
+              background: 'var(--wa-bg)',
+              color: 'var(--wa-text)',
+              fontSize: 12,
+              minHeight: 36,
             }}
           >
-            <option value="">{t('priorityQueueChooseTemplate')}</option>
-            {applicableTemplates.map((tpl) => (
-              <option key={tpl.id} value={tpl.id}>
-                {tpl.name}
-              </option>
-            ))}
+            <option value="severity">{t('priorityQueueSortSeverity')}</option>
+            <option value="days_inactive">{t('priorityQueueSortDaysInactive')}</option>
+            <option value="last_contact">{t('priorityQueueSortLastContact')}</option>
           </select>
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            disabled={!templateId || sending}
-            onClick={handleSend}
-            style={{ fontSize: '0.8125rem', minHeight: '2.25rem' }}
+          {sortedRows.length > 0 ? (
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: 'var(--wa-muted)', marginLeft: 'auto' }}>
+              <input
+                type="checkbox"
+                aria-label={t('priorityQueueSelectAll')}
+                checked={selectedIds.size === sortedRows.length && sortedRows.length > 0}
+                onChange={toggleAll}
+                style={{ cursor: 'pointer', width: 15, height: 15 }}
+              />
+              {t('priorityQueueSelectAll')}
+            </label>
+          ) : null}
+        </div>
+
+        {/* Bulk toolbar */}
+        {selectedIds.size > 0 ? (
+          <div
+            role="region"
+            aria-label={t('priorityQueueBulkToolbar')}
+            className="wa-kit-card wa-kit-card--sm"
+            style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, background: 'var(--wa-accent-soft)', borderColor: 'transparent' }}
           >
-            {sending ? t('priorityQueueSending') : t('priorityQueueSend')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={() => {
-              setSelectedIds(new Set());
-              setTemplateId('');
+            <span style={{ fontWeight: 700, color: 'var(--wa-text)', fontSize: 13 }}>
+              {t('priorityQueueSelectedCount', { count: selectedIds.size })}
+            </span>
+            <select
+              aria-label={t('priorityQueueChooseTemplate')}
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value as FollowUpTemplateId | '')}
+              className="wa-kit-focus"
+              style={{
+                padding: '7px 10px',
+                borderRadius: 'var(--wa-radius-sm)',
+                border: '1px solid var(--wa-border)',
+                background: 'var(--wa-surface)',
+                color: 'var(--wa-text)',
+                fontSize: 12,
+                minHeight: 36,
+              }}
+            >
+              <option value="">{t('priorityQueueChooseTemplate')}</option>
+              {applicableTemplates.map((tpl) => (
+                <option key={tpl.id} value={tpl.id}>
+                  {tpl.name}
+                </option>
+              ))}
+            </select>
+            <button type="button" className="btn btn-primary btn-sm" disabled={!templateId || sending} onClick={handleSend} style={{ fontSize: 12, minHeight: 36 }}>
+              {sending ? t('priorityQueueSending') : t('priorityQueueSend')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => {
+                setSelectedIds(new Set());
+                setTemplateId('');
+              }}
+              style={{ fontSize: 12, minHeight: 36 }}
+            >
+              {t('priorityQueueClear')}
+            </button>
+          </div>
+        ) : null}
+
+        {lastResult ? (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="wa-kit-card wa-kit-card--sm"
+            style={{
+              background: lastResult.ok ? 'var(--wa-success-soft, var(--wa-info-soft))' : 'var(--wa-accent-soft)',
+              borderColor: 'transparent',
+              color: 'var(--wa-text)',
+              fontSize: 13,
             }}
-            style={{ fontSize: '0.8125rem', minHeight: '2.25rem' }}
           >
-            {t('priorityQueueClear')}
-          </button>
-        </div>
-      ) : null}
+            {lastResult.ok
+              ? t('priorityQueueSendSuccess', { count: lastResult.sent, template: lastResult.templateName })
+              : t('priorityQueueSendError', { failed: lastResult.failed, sent: lastResult.sent })}
+          </div>
+        ) : null}
 
-      {lastResult ? (
-        <div
-          role="alert"
-          aria-live="polite"
-          style={{
-            padding: '0.75rem 1rem',
-            marginBottom: '0.75rem',
-            borderRadius: '0.625rem',
-            background: lastResult.ok
-              ? 'color-mix(in srgb, var(--color-green) 12%, var(--surface-container-lowest))'
-              : 'color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-lowest))',
-            border: `1px solid ${
-              lastResult.ok ? 'var(--color-green)' : 'var(--color-accent)'
-            }`,
-            color: 'var(--color-on-surface)',
-            fontSize: '0.875rem',
-          }}
-        >
-          {lastResult.ok
-            ? t('priorityQueueSendSuccess', {
-                count: lastResult.sent,
-                template: lastResult.templateName,
-              })
-            : t('priorityQueueSendError', {
-                failed: lastResult.failed,
-                sent: lastResult.sent,
-              })}
-        </div>
-      ) : null}
-
-      {sortedRows.length === 0 ? (
-        <p
-          style={{
-            margin: 0,
-            padding: '1.5rem',
-            textAlign: 'center',
-            color: 'var(--color-on-surface-variant)',
-            fontSize: '0.9rem',
-          }}
-        >
-          {t('priorityQueueEmpty')}
-        </p>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table
-            role="table"
-            style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}
-          >
-            <caption className="wa-sr-only">{t('priorityQueueTableCaption')}</caption>
-            <thead>
-              <tr
-                style={{
-                  textAlign: 'left',
-                  fontSize: '0.7rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--color-on-surface-variant)',
-                }}
-              >
-                <th scope="col" style={{ padding: '0.5rem 0.5rem' }}>
-                  <label className="wa-sr-only" htmlFor="counselor-pq-select-all">
-                    {t('priorityQueueSelectAll')}
-                  </label>
-                  <input
-                    id="counselor-pq-select-all"
-                    type="checkbox"
-                    aria-label={t('priorityQueueSelectAll')}
-                    checked={selectedIds.size === sortedRows.length && sortedRows.length > 0}
-                    onChange={toggleAll}
-                    style={{ width: '1.25rem', height: '1.25rem' }}
-                  />
-                </th>
-                <th scope="col" style={{ padding: '0.5rem 0.5rem' }}>
-                  {t('priorityQueueColPriority')}
-                </th>
-                <th scope="col" style={{ padding: '0.5rem 0.5rem' }}>
-                  {t('priorityQueueColMember')}
-                </th>
-                <th scope="col" style={{ padding: '0.5rem 0.5rem' }}>
-                  {t('priorityQueueColBlocker')}
-                </th>
-                <th scope="col" style={{ padding: '0.5rem 0.5rem' }}>
-                  {t('priorityQueueColDays')}
-                </th>
-                <th scope="col" style={{ padding: '0.5rem 0.5rem' }}>
-                  {t('priorityQueueColActions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedRows.map((row) => {
-                const accent = BUCKET_ACCENT[row.bucket];
-                const isSelected = selectedIds.has(row.memberId);
-                return (
-                  <tr
-                    key={row.memberId}
-                    style={{
-                      borderTop: '1px solid var(--outline-variant)',
-                      background: isSelected
-                        ? 'color-mix(in srgb, var(--color-accent) 6%, transparent)'
-                        : undefined,
-                    }}
-                  >
-                    <td style={{ padding: '0.6rem 0.5rem' }}>
-                      <label
-                        className="wa-sr-only"
-                        htmlFor={`counselor-pq-select-${row.memberId}`}
-                      >
-                        {t('priorityQueueSelectMember', { name: row.memberName })}
-                      </label>
-                      <input
-                        id={`counselor-pq-select-${row.memberId}`}
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleRow(row.memberId)}
-                        aria-label={t('priorityQueueSelectMember', { name: row.memberName })}
-                        style={{
-                          width: '2.75rem',
-                          height: '2.75rem',
-                          // ≥44px tap target per a11y constraint. The visible
-                          // checkbox is intrinsic but the input fills the
-                          // hit area via padding-trick:
-                          padding: 0,
-                          margin: 0,
-                          cursor: 'pointer',
-                        }}
-                      />
-                    </td>
-                    <td style={{ padding: '0.6rem 0.5rem' }}>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.4rem',
-                          padding: '0.25rem 0.55rem',
-                          borderRadius: '999px',
-                          background: accent.surface,
-                          color: accent.text,
-                          fontWeight: 700,
-                          fontSize: '0.7rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.06em',
-                        }}
-                      >
-                        <span
-                          aria-hidden="true"
-                          style={{
-                            width: '0.55rem',
-                            height: '0.55rem',
-                            borderRadius: '50%',
-                            background: accent.dot,
-                          }}
-                        />
-                        {bucketLabel(row.bucket, t)}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.6rem 0.5rem' }}>
-                      <Link
-                        href={`/counselor/students/${row.memberId}`}
-                        style={{ color: 'var(--color-on-surface)', fontWeight: 600, textDecoration: 'none' }}
-                      >
-                        {row.memberName}
-                      </Link>
-                      <p
-                        style={{
-                          margin: '0.1rem 0 0',
-                          fontSize: '0.75rem',
-                          color: 'var(--color-on-surface-variant)',
-                        }}
-                      >
-                        {row.enrolledProgram ?? t('priorityQueueNoProgram')}
-                      </p>
-                    </td>
-                    <td
-                      style={{
-                        padding: '0.6rem 0.5rem',
-                        color: 'var(--color-on-surface)',
-                      }}
-                    >
-                      {row.blockerReason}
-                    </td>
-                    <td style={{ padding: '0.6rem 0.5rem', color: 'var(--color-on-surface-variant)' }}>
-                      {row.daysSinceLogin == null
-                        ? '—'
-                        : t('priorityQueueDays', { count: row.daysSinceLogin })}
-                    </td>
-                    <td style={{ padding: '0.6rem 0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <Link
-                          href={
-                            row.threadId
-                              ? `/counselor/messages?thread=${row.threadId}`
-                              : `/counselor/students/${row.memberId}`
-                          }
-                          className="btn btn-primary btn-sm"
-                          style={{ fontSize: '0.75rem', minHeight: '2.25rem' }}
-                        >
-                          {t('priorityQueueActionMessage')}
-                        </Link>
-                        <Link
-                          href={`/counselor/students/${row.memberId}`}
-                          className="btn btn-outline btn-sm"
-                          style={{ fontSize: '0.75rem', minHeight: '2.25rem' }}
-                        >
-                          {t('priorityQueueActionProfile')}
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
+        {/* Hero list */}
+        {sortedRows.length === 0 ? (
+          <p style={{ margin: 0, padding: '1.5rem', textAlign: 'center', color: 'var(--wa-muted)', fontSize: 14 }}>
+            {t('priorityQueueEmpty')}
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {sortedRows.map((row) => (
+              <PriorityRow
+                key={row.memberId}
+                row={row}
+                selected={selectedIds.has(row.memberId)}
+                onToggleSelect={() => toggleRow(row.memberId)}
+                t={t}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </DesignSurface>
   );
 }
 
@@ -536,50 +318,85 @@ function bucketLabel(bucket: PriorityBucket, t: ReturnType<typeof useTranslation
   return t('priorityQueueBucketOnTrack');
 }
 
-function PriorityChips({
-  totals,
+function PriorityRow({
+  row,
+  selected,
+  onToggleSelect,
   t,
 }: {
-  totals: CounselorPriorityQueueProps['totals'];
+  row: PriorityQueueRow;
+  selected: boolean;
+  onToggleSelect: () => void;
   t: ReturnType<typeof useTranslations>;
 }) {
-  const items: Array<{ bucket: PriorityBucket; value: number; label: string }> = [
-    { bucket: 'critical', value: totals.critical, label: t('priorityQueueBucketCritical') },
-    { bucket: 'warning', value: totals.warning, label: t('priorityQueueBucketWarning') },
-    { bucket: 'ontrack', value: totals.ontrack, label: t('priorityQueueBucketOnTrack') },
-  ];
+  const style = BUCKET_STYLE[row.bucket];
+  const c = colorVar(style.color);
+  const Icon = style.icon;
+
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-      {items.map((item) => {
-        const accent = BUCKET_ACCENT[item.bucket];
-        return (
-          <span
-            key={item.bucket}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.3rem 0.6rem',
-              borderRadius: '999px',
-              background: accent.surface,
-              color: accent.text,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-            }}
-          >
-            <span
-              aria-hidden="true"
-              style={{
-                width: '0.5rem',
-                height: '0.5rem',
-                borderRadius: '50%',
-                background: accent.dot,
-              }}
-            />
-            {item.value} {item.label}
+    <div
+      className="wa-kit-card wa-kit-card--sm"
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 12,
+        borderLeft: `3px solid ${c}`,
+        background: selected ? `color-mix(in srgb, ${c} 6%, var(--wa-surface))` : 'var(--wa-surface)',
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={selected}
+        onChange={onToggleSelect}
+        aria-label={t('priorityQueueSelectMember', { name: row.memberName })}
+        style={{ cursor: 'pointer', width: 16, height: 16, marginTop: 10, flexShrink: 0 }}
+      />
+      <div
+        aria-hidden
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 12,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: `color-mix(in srgb, ${c} 14%, transparent)`,
+          color: c,
+        }}
+      >
+        <Icon size={18} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <Link href={`/counselor/students/${row.memberId}`} style={{ fontWeight: 700, fontSize: 14, color: 'var(--wa-text)', textDecoration: 'none' }}>
+            {row.memberName}
+          </Link>
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: c }}>
+            {bucketLabel(row.bucket, t)}
           </span>
-        );
-      })}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
+          {row.enrolledProgram ?? t('priorityQueueNoProgram')}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--wa-text)', marginTop: 4 }}>{row.blockerReason}</div>
+        <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
+          {row.daysSinceLogin == null ? '—' : t('priorityQueueDays', { count: row.daysSinceLogin })}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
+        <Link
+          href={row.threadId ? `/counselor/messages?thread=${row.threadId}` : `/counselor/students/${row.memberId}`}
+          className="btn btn-primary btn-sm"
+          style={{ fontSize: 12, minHeight: 36 }}
+        >
+          <MessageSquare size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+          {t('priorityQueueActionMessage')}
+        </Link>
+        <Link href={`/counselor/students/${row.memberId}`} className="btn btn-outline btn-sm" style={{ fontSize: 12, minHeight: 36 }}>
+          {t('priorityQueueActionProfile')}
+        </Link>
+      </div>
     </div>
   );
 }

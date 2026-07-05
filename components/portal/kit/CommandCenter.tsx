@@ -4,13 +4,16 @@
  * The reusable building blocks behind the member "Command Center" (shipped in
  * MemberHomeKit), lifted here so every portal — admin, counselor, employer,
  * partner — renders the same stat tile, delta chip, stage tracker and card
- * head. Pure presentational, dependency-free, works in server components.
- *
- * Chart primitives (Sparkline, AreaChartMini) live alongside BarChartMini /
- * RankBars in ./Charts.
+ * head. Astryx Card/Badge polish fans out to every persona home kit.
  */
+'use client';
+
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import Link from 'next/link';
 import { Sparkline } from './Charts';
 import { colorVar, type KitColor } from './tokens';
 
@@ -34,13 +37,9 @@ export function CardHead({ title, linkLabel, linkHref }: { title: string; linkLa
     <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 14, gap: 12 }}>
       <span className="wa-kit-stat-label">{title}</span>
       {linkLabel && linkHref ? (
-        <a
-          href={linkHref}
-          className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-          style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none', flexShrink: 0 }}
-        >
+        <AstryxLink href={linkHref} as={Link as never} isStandalone>
           {linkLabel}
-        </a>
+        </AstryxLink>
       ) : null}
     </div>
   );
@@ -48,26 +47,13 @@ export function CardHead({ title, linkLabel, linkHref }: { title: string; linkLa
 
 /** Trend pill: arrow + value, success (up) or danger (down) tone. */
 export function DeltaChip({ delta, direction = 'up' }: { delta: string; direction?: 'up' | 'down' }) {
-  const color = direction === 'down' ? 'var(--wa-danger)' : 'var(--wa-success)';
   const Icon = direction === 'down' ? ArrowDown : ArrowUp;
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 3,
-        fontSize: 11,
-        fontWeight: 700,
-        padding: '3px 7px',
-        borderRadius: 999,
-        color,
-        background: `color-mix(in srgb, ${color} 12%, transparent)`,
-        fontVariantNumeric: 'tabular-nums',
-      }}
-    >
-      <Icon size={10} aria-hidden />
-      {delta}
-    </span>
+    <Badge
+      label={delta}
+      variant={direction === 'down' ? 'error' : 'success'}
+      icon={<Icon size={10} aria-hidden />}
+    />
   );
 }
 
@@ -91,7 +77,8 @@ export function StatSparkTile({
 }) {
   const c = colorVar(color);
   return (
-    <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <Card>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div className="wa-flex wa-items-start wa-justify-between">
         <div
           aria-hidden
@@ -129,7 +116,8 @@ export function StatSparkTile({
         </div>
       </div>
       {spark?.series && spark.series.length > 1 ? <Sparkline series={spark.series} color={color} /> : null}
-    </div>
+      </div>
+    </Card>
   );
 }
 

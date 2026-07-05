@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, ExternalLink, CheckCircle2, XCircle } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { postMemberEvent } from '@/lib/events/client';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import {
@@ -336,7 +337,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
                 flexShrink: 0,
               }}
             >
-              {approving ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
+              {approving ? <PortalInlineSpinner size={14} /> : null}
               {approving ? 'Approving…' : 'Approve'}
             </button>
           )}
@@ -385,7 +386,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
                     cursor: rejecting ? 'default' : 'pointer',
                   }}
                 >
-                  {rejecting ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
+                  {rejecting ? <PortalInlineSpinner size={14} /> : null}
                   {rejecting ? 'Rejecting…' : 'Reject'}
                 </button>
               </div>
@@ -482,7 +483,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
               cursor: loadingMatches ? 'default' : 'pointer',
             }}
           >
-            {loadingMatches ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
+            {loadingMatches ? <PortalInlineSpinner size={14} /> : null}
             {loadingMatches ? 'Loading…' : 'View AI Matches'}
           </button>
         ) : (
@@ -515,7 +516,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
                       opacity: suggesting ? 0.75 : 1,
                     }}
                   >
-                    {suggesting ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
+                    {suggesting ? <PortalInlineSpinner size={14} /> : null}
                     {suggesting ? 'Sending…' : 'Send Match Suggestions to Employer'}
                   </button>
                 )}

@@ -19,15 +19,14 @@ describe('KitBaseProps contract', () => {
     );
     const el = screen.getByTestId('tag');
     expect(ref.current).toBe(el);
-    // Internal classes first, consumer class last.
-    expect(el.className).toBe('wa-kit-tag wa-kit-tag--ok wa-ml-2');
+    expect(el.className).toBe('wa-ml-2');
     expect(el.style.marginTop).toBe('4px');
+    expect(screen.getByText('Active')).toBeTruthy();
   });
 
-  it('StatTile keeps internal card classes and appends consumer className', () => {
+  it('StatTile keeps consumer className on the outer wrapper', () => {
     render(<StatTile label="Members" value={42} data-testid="tile" className="custom" />);
     const el = screen.getByTestId('tile');
-    expect(el.className).toContain('wa-kit-card');
-    expect(el.className.endsWith('custom')).toBe(true);
+    expect(el.className).toBe('custom');
   });
 });

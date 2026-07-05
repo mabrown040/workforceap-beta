@@ -2,6 +2,8 @@
 
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import { cloneElement, isValidElement, useId } from 'react';
+import { Field } from '@astryxdesign/core/Field';
+import { Switch } from '@astryxdesign/core/Switch';
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -9,7 +11,7 @@ interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   children?: ReactNode; // pass a <select> etc. instead of the default input
 }
 
-/** Labeled input/select field. Mockup: profile/settings forms. */
+/** Labeled input/select field — Astryx `Field` + `FieldLabel`. */
 export function FormField({ label, full, children, id, ...inputProps }: FormFieldProps) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
@@ -21,8 +23,7 @@ export function FormField({ label, full, children, id, ...inputProps }: FormFiel
     : children;
 
   return (
-    <div style={full ? { gridColumn: '1 / -1' } : undefined}>
-      <label className="wa-kit-field-label" htmlFor={fieldId}>{label}</label>
+    <Field label={label} inputID={fieldId} style={full ? { gridColumn: '1 / -1' } : undefined}>
       {labeledChild ?? (
         <input
           {...inputProps}
@@ -42,7 +43,7 @@ export function FormField({ label, full, children, id, ...inputProps }: FormFiel
           }}
         />
       )}
-    </div>
+    </Field>
   );
 }
 
@@ -52,47 +53,7 @@ interface ToggleProps {
   label?: string;
 }
 
-/** Crimson switch. Mockup: notification preference toggles. */
-export function Toggle({ checked = false, onChange, label }: ToggleProps) {
-  const id = useId();
-  return (
-    <label htmlFor={id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', gap: 12, minHeight: 44 }}>
-      {label ? <span style={{ fontSize: 14, fontWeight: 600 }}>{label}</span> : null}
-      <span style={{ position: 'relative', display: 'inline-flex', width: 44, height: 44, flexShrink: 0, alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ position: 'relative', display: 'inline-block', width: 40, height: 24 }}>
-        <input
-          id={id}
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange?.(e.target.checked)}
-          aria-label={label}
-          className="wa-kit-focus"
-          style={{ position: 'absolute', inset: 0, margin: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', borderRadius: 999 }}
-        />
-        <span
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: 999,
-            background: checked ? 'var(--wa-accent)' : 'var(--wa-border)',
-            transition: 'background-color .15s',
-          }}
-        />
-        <span
-          style={{
-            position: 'absolute',
-            left: 2,
-            top: 2,
-            width: 20,
-            height: 20,
-            borderRadius: 999,
-            background: 'var(--wa-surface)',
-            transform: checked ? 'translateX(16px)' : 'translateX(0)',
-            transition: 'transform .15s',
-          }}
-        />
-        </span>
-      </span>
-    </label>
-  );
+/** Settings toggle — Astryx `Switch`. */
+export function Toggle({ checked = false, onChange, label = 'Toggle setting' }: ToggleProps) {
+  return <Switch label={label} value={checked} onChange={(v) => onChange?.(v)} />;
 }

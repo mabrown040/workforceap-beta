@@ -1,14 +1,20 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { useState } from 'react';
+import {
+  ChatMessageList,
+  ChatMessage as AstryxChatMessage,
+  ChatMessageBubble,
+  ChatComposer,
+} from '@astryxdesign/core/Chat';
+import { Avatar } from '@astryxdesign/core/Avatar';
 
 export interface ChatMessage {
   id: string;
   from: 'self' | 'other';
   text: string;
   /** Label/avatar content for "other" messages (e.g. initials). */
-  author?: ReactNode;
+  author?: React.ReactNode;
 }
 
 interface ChatThreadProps {
@@ -17,63 +23,64 @@ interface ChatThreadProps {
   onSend?: (text: string) => void;
 }
 
+function authorLabel(author: React.ReactNode | undefined): string {
+  if (author == null) return 'Counselor';
+  if (typeof author === 'string' || typeof author === 'number') return String(author);
+  return 'Counselor';
+}
+
 /**
- * Message thread + composer. Member↔counselor messages and the AI advisor.
- * Mockup: voice-studio AI advisor, member messages.
+ * Message thread + composer — Astryx Chat suite (same primitives as CoachChat).
+ * Member↔counselor messages and AI advisor surfaces.
  */
 export function ChatThread({ messages, placeholder = 'Type a message…', onSend }: ChatThreadProps) {
   const [text, setText] = useState('');
-  const send = () => {
-    const t = text.trim();
+
+  const send = (value: string) => {
+    const t = value.trim();
     if (!t || !onSend) return;
     onSend(t);
     setText('');
   };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: 4 }}>
-        {messages.map((m) => (
-          <div key={m.id} style={{ display: 'flex', gap: 10, justifyContent: m.from === 'self' ? 'flex-end' : 'flex-start' }}>
-            {m.from === 'other' && m.author ? (
-              <div style={{ width: 28, height: 28, borderRadius: 999, background: 'var(--wa-info)', color: 'var(--wa-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
-                {m.author}
-              </div>
-            ) : null}
-            <div
-              style={{
-                maxWidth: '78%',
-                fontSize: 13,
-                padding: '10px 14px',
-                borderRadius: 18,
-                ...(m.from === 'self'
-                  ? { background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', borderTopRightRadius: 4 }
-                  : { background: 'var(--wa-bg)', border: '1px solid var(--wa-border)', borderTopLeftRadius: 4 }),
-              }}
-            >
-              {m.text}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, border: '1px solid var(--wa-border)', borderRadius: 999, padding: '6px 6px 6px 16px' }}>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
-          placeholder={placeholder}
-          aria-label="Message"
-          style={{ flex: 1, fontSize: 13, border: 'none', outline: 'none', background: 'transparent', color: 'var(--wa-text)' }}
-        />
-        <button
-          type="button"
-          onClick={send}
-          aria-label="Send"
-          className="wa-kit-focus"
-          disabled={!onSend}
-          style={{ width: 44, height: 44, borderRadius: 999, border: 'none', cursor: onSend ? 'pointer' : 'not-allowed', background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', opacity: onSend ? 1 : 0.6, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <ChatMessageList
+          density="compact"
+          emptyState={
+            messages.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>No messages yet — say hello.</p>
+            ) : undefined
+          }
         >
-          <ArrowUp size={18} aria-hidden="true" />
-        </button>
+          {messages.map((m) =>
+            m.from === 'self' ? (
+              <AstryxChatMessage key={m.id} sender="user">
+                <ChatMessageBubble>{m.text}</ChatMessageBubble>
+              </AstryxChatMessage>
+            ) : (
+              <AstryxChatMessage
+                key={m.id}
+                sender="assistant"
+                avatar={<Avatar name={authorLabel(m.author)} size="small" />}
+                name={authorLabel(m.author)}
+              >
+                <ChatMessageBubble>{m.text}</ChatMessageBubble>
+              </AstryxChatMessage>
+            ),
+          )}
+        </ChatMessageList>
+      </div>
+      <div style={{ marginTop: 12, flexShrink: 0 }}>
+        <ChatComposer
+          value={text}
+          onChange={setText}
+          onSubmit={send}
+          isDisabled={!onSend}
+          placeholder={placeholder}
+          density="compact"
+        />
       </div>
     </div>
   );

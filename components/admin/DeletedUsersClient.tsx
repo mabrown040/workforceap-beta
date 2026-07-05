@@ -4,6 +4,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, MailX, RotateCcw, Users, Wand2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 export type DeletedUserRow = {
   id: string;
@@ -140,7 +141,7 @@ export default function DeletedUsersClient({
             disabled={batchStatus === 'loading'}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
-            {batchStatus === 'loading' ? <Loader2 size={14} className="ai-tool-submit-spinner" aria-hidden /> : <Wand2 size={14} aria-hidden />}
+            {batchStatus === 'loading' ? <PortalInlineSpinner size={14} /> : <Wand2 size={14} aria-hidden />}
             Free emails on all {stillBoundCount}
           </button>
         ) : null}
@@ -271,7 +272,7 @@ export default function DeletedUsersClient({
                       disabled={isBusy}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                     >
-                      {isBusy ? <Loader2 size={14} className="ai-tool-submit-spinner" aria-hidden /> : <MailX size={14} aria-hidden />}
+                      {isBusy ? <PortalInlineSpinner size={14} /> : <MailX size={14} aria-hidden />}
                       Free email
                     </button>
                   ) : null}
@@ -282,7 +283,7 @@ export default function DeletedUsersClient({
                     disabled={isBusy}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                   >
-                    {isBusy ? <Loader2 size={14} className="ai-tool-submit-spinner" aria-hidden /> : <RotateCcw size={14} aria-hidden />}
+                    {isBusy ? <PortalInlineSpinner size={14} /> : <RotateCcw size={14} aria-hidden />}
                     Restore
                   </button>
                 </div>

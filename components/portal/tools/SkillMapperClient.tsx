@@ -20,6 +20,7 @@ import {
   UploadCloud,
   ListChecks,
 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import Link from 'next/link';
 import ToolFollowThrough from './ToolFollowThrough';
 import { trackFunnelEvent } from '@/lib/analytics/events';
@@ -984,12 +985,12 @@ export default function SkillMapperClient() {
       {activeTab === 'profile' && (
         <div>
           {loadingProfile && (
-            <p style={{ textAlign: 'center', padding: '2rem' }}><Loader2 size={24} className="ai-tool-submit-spinner" /></p>
+            <p style={{ textAlign: 'center', padding: '2rem' }}><PortalInlineSpinner size={24} /></p>
           )}
 
           {!loadingProfile && autoExtracting && (
             <div style={{ padding: '1rem 1.25rem', background: 'var(--wa-info-soft)', border: '1px solid var(--wa-border)', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
-              <Loader2 size={20} className="ai-tool-submit-spinner" style={{ flexShrink: 0 }} />
+              <PortalInlineSpinner size={20} style={{ flexShrink: 0 }} />
               <div>
                 <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
                   Analyzing your resume with AI…

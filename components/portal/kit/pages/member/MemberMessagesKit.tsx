@@ -1,7 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Circle, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/components/portal/kit';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
@@ -230,10 +233,11 @@ export function MemberMessagesKit({
             Reach your counselor and the WorkforceAP support team in one place.
           </p>
         </div>
-        <div
-          className="wa-kit-card wa-grid wa-grid-cols-1 md:wa-grid-cols-3"
-          style={{ padding: 0, overflow: 'hidden', minHeight: 520 }}
-        >
+        <Card>
+          <div
+            className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3"
+            style={{ overflow: 'hidden', minHeight: 520 }}
+          >
           {/* Conversation list — single pane on mobile (hidden when a thread is
               open), always visible alongside the thread on md+. */}
           <div
@@ -264,12 +268,7 @@ export function MemberMessagesKit({
                 >
                   <div className="wa-flex wa-items-center wa-justify-between">
                     <span style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</span>
-                    {c.unread ? (
-                      <span className="wa-flex wa-items-center wa-gap-1">
-                        <span className="sr-only">Unread</span>
-                        <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--wa-accent)' }} />
-                      </span>
-                    ) : null}
+                    {c.unread ? <StatusDot variant="accent" label="Unread message" /> : null}
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{c.role}</div>
                   <p
@@ -298,31 +297,23 @@ export function MemberMessagesKit({
           >
             <div className="wa-flex wa-items-center wa-gap-3" style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
               {/* Mobile-only back button → return to the conversation list. */}
-              <button
-                type="button"
-                onClick={() => setMobileView('list')}
-                aria-label="Back to messages"
-                className="wa-kit-focus hover:wa-bg-[var(--wa-bg)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none wa-flex wa-items-center wa-justify-center md:wa-hidden"
-                style={{
-                  width: 44,
-                  height: 44,
-                  flexShrink: 0,
-                  marginLeft: -4,
-                  borderRadius: 999,
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--wa-text)',
-                  cursor: 'pointer',
-                }}
-              >
-                <ArrowLeft size={18} aria-hidden="true" />
-              </button>
+              <span className="md:wa-hidden" style={{ marginLeft: -4, flexShrink: 0 }}>
+                <IconButton
+                  label="Back to messages"
+                  icon={<ArrowLeft size={18} aria-hidden="true" />}
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setMobileView('list')}
+                />
+              </span>
               <Avatar initials={activeInitials} size={36} gradient={false} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{activeName}</div>
-                <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 10, fontWeight: 700, color: 'var(--wa-success)' }}>
-                  {activeOnline ? <Circle size={6} fill="currentColor" aria-hidden="true" /> : null}
-                  {activeOnline ? 'Online · ' : ''}{activeRole}
+                <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 10, fontWeight: 700, color: 'var(--wa-muted)' }}>
+                  {activeOnline ? <StatusDot variant="success" label="Online" isPulsing /> : null}
+                  <span style={{ color: activeOnline ? 'var(--wa-success)' : undefined }}>
+                    {activeOnline ? 'Online · ' : ''}{activeRole}
+                  </span>
                 </div>
               </div>
             </div>
@@ -339,7 +330,8 @@ export function MemberMessagesKit({
               />
             </div>
           </div>
-        </div>
+          </div>
+        </Card>
       </div>
     </DesignSurface>
   );

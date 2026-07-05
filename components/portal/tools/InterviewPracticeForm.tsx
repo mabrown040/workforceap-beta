@@ -6,6 +6,7 @@ import { useRetryableFetch } from '@/hooks/useRetryableFetch';
 import AiToolError from './AiToolError';
 import ToolFollowThrough from './ToolFollowThrough';
 import { Loader2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
@@ -271,7 +272,7 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
         {loading ? (
           <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            <PortalInlineSpinner size={18} />
             Generating questions…
           </>
         ) : (

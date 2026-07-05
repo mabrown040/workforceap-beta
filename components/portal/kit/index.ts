@@ -6,8 +6,8 @@
  * change exports here, update the guide's component index in the same PR.
  *
  * Phase 0 ships the foundation + primitives. Layout/data/persona components
- * (DataTable, AppShell*, FeatureTile, QueueRow, Kanban, ChatThread, …) land in
- * subsequent Phase 0 steps before any real page conversion.
+ * fan out Astryx under the hood (Badge, Card, Avatar, ProgressBar, EmptyState,
+ * Switch, ClickableCard, StatusDot, Token) — see ./astryxMap.ts for tone maps.
  */
 export { DesignSurface, useSurface, type SurfaceMode } from './DesignSurface';
 export { cx, type KitBaseProps, type KitDataAttrs } from './base';

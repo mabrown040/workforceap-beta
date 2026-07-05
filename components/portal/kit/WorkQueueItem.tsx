@@ -1,4 +1,9 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
+import { Badge } from '@astryxdesign/core/Badge';
+import { HStack } from '@astryxdesign/core/Layout';
 
 interface WorkQueueItemProps {
   icon?: ReactNode;
@@ -10,41 +15,45 @@ interface WorkQueueItemProps {
 }
 
 /**
- * "What needs you today" row for admin/employer command surfaces.
- * Mockup: admin command center work queue, employer work queue.
+ * "What needs you today" row — Astryx `Card` + optional urgent `Badge`.
+ * Admin/employer command surfaces.
  */
 export function WorkQueueItem({ icon, title, detail, action, urgent = false }: WorkQueueItemProps) {
   return (
-    <div
-      className="wa-kit-card wa-kit-card--sm"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        background: urgent ? 'var(--wa-accent-soft)' : 'var(--wa-surface)',
-        borderColor: urgent ? 'transparent' : 'var(--wa-border)',
-      }}
-    >
-      <div
+    <Card>
+      <HStack
+        gap={3}
+        align="center"
         style={{
-          width: 34,
-          height: 34,
-          borderRadius: 10,
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--wa-on-accent)',
-          background: urgent ? 'var(--wa-accent)' : 'var(--wa-info)',
+          background: urgent ? 'var(--wa-accent-soft)' : 'var(--wa-surface)',
+          borderRadius: 12,
+          padding: '10px 12px',
         }}
       >
-        {icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 14 }}>{title}</div>
-        {detail ? <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{detail}</div> : null}
-      </div>
-      {action}
-    </div>
+        <div
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 10,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--wa-on-accent)',
+            background: urgent ? 'var(--wa-accent)' : 'var(--wa-info)',
+          }}
+        >
+          {icon}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <HStack gap={2} align="center">
+            <div style={{ fontWeight: 700, fontSize: 14 }}>{title}</div>
+            {urgent ? <Badge label="Urgent" variant="error" /> : null}
+          </HStack>
+          {detail ? <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{detail}</div> : null}
+        </div>
+        {action}
+      </HStack>
+    </Card>
   );
 }

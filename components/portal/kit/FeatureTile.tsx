@@ -1,5 +1,8 @@
+'use client';
+
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { Token } from '@astryxdesign/core/Token';
 
 interface FeatureTileProps {
   icon?: ReactNode;
@@ -13,20 +16,15 @@ interface FeatureTileProps {
 }
 
 /**
- * Bold/Calm feature tile. Gradient when surface pop is on (warm/member), calm
- * tint when off (dense) — handled by .wa-kit-card--gradient-* token CSS.
- * Mockup: member home Career Toolkit / Next Badge.
+ * Bold feature tile — Astryx `ClickableCard` with optional `Token` badge.
+ * Gradient chrome still comes from kit CSS classes on the wrapper when needed.
  */
 export function FeatureTile({ icon, title, body, badge, tone = 'crimson', href, onClick }: FeatureTileProps) {
   const content = (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         {icon ? <div style={{ fontSize: 22, lineHeight: 1 }}>{icon}</div> : <span />}
-        {badge ? (
-          <span style={{ padding: '2px 9px', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', background: 'rgba(255,255,255,0.2)', borderRadius: 999 }}>
-            {badge}
-          </span>
-        ) : null}
+        {badge ? <Token label={badge} size="sm" color={tone === 'gold' ? 'yellow' : 'pink'} /> : null}
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>
@@ -34,38 +32,24 @@ export function FeatureTile({ icon, title, body, badge, tone = 'crimson', href, 
       </div>
     </>
   );
-  const className = `wa-kit-card wa-kit-card--gradient-${tone} wa-kit-card--hover wa-kit-focus`;
-  const style = {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    minHeight: 170,
-    textAlign: 'left',
-    cursor: 'pointer',
-    border: 'none',
-    transition: 'box-shadow 0.2s, transform 0.2s',
-  } as const;
+
+  const className = `wa-kit-card wa-kit-card--gradient-${tone} wa-kit-card--hover`;
 
   if (href) {
     return (
-      <Link
-        href={href}
-        className={className}
-        style={{ ...style, textDecoration: 'none' }}
-      >
-        {content}
-      </Link>
+      <div className={className} style={{ minHeight: 170 }}>
+        <ClickableCard label={title} href={href} padding={4}>
+          {content}
+        </ClickableCard>
+      </div>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`wa-kit-card wa-kit-card--gradient-${tone} wa-kit-card--hover wa-kit-focus`}
-      style={style}
-    >
-      {content}
-    </button>
+    <div className={className} style={{ minHeight: 170 }}>
+      <ClickableCard label={title} onClick={onClick} padding={4}>
+        {content}
+      </ClickableCard>
+    </div>
   );
 }

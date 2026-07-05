@@ -1,4 +1,10 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
+import { Token } from '@astryxdesign/core/Token';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
+import { HStack } from '@astryxdesign/core/Layout';
 
 export type QueueTone = 'red' | 'yellow' | 'blue';
 
@@ -13,24 +19,29 @@ interface QueueRowProps {
   onClick?: () => void;
 }
 
-const TONE: Record<QueueTone, { c: string; bg: string }> = {
-  // Follows lib/ui/statusColors.ts: status-severity color is the brand accent
-  // app-wide (StatusBadge 'error', AtRiskDashboard CRITICAL, counselor triage
-  // via statusColors 'danger'), while `--wa-danger` true red is reserved for
-  // destructive ACTION affordances (e.g. ConfirmDialog's delete button).
-  // This briefly pointed at --wa-danger, which made the counselor overview's
-  // critical rows disagree with every other at-risk surface in the portal.
-  red: { c: 'var(--color-accent)', bg: 'color-mix(in srgb, var(--color-accent) 12%, transparent)' },
-  yellow: { c: 'var(--wa-gold)', bg: 'var(--wa-gold-soft)' },
-  blue: { c: 'var(--wa-info)', bg: 'var(--wa-info-soft)' },
+const TONE_DOT: Record<QueueTone, 'error' | 'warning' | 'accent'> = {
+  red: 'error',
+  yellow: 'warning',
+  blue: 'accent',
+};
+
+const TONE_TOKEN: Record<QueueTone, 'pink' | 'yellow' | 'blue'> = {
+  red: 'pink',
+  yellow: 'yellow',
+  blue: 'blue',
+};
+
+const TONE_BG: Record<QueueTone, string> = {
+  red: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
+  yellow: 'var(--wa-gold-soft)',
+  blue: 'var(--wa-info-soft)',
 };
 
 /**
- * Triage / attention row. red = urgent today, yellow = watch, blue = celebrate.
- * Mockup: counselor triage, partner attention queue.
+ * Triage / attention row — Astryx `Card` + `StatusDot` + `Token`.
+ * red = urgent today, yellow = watch, blue = celebrate.
  */
 export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: QueueRowProps) {
-  const t = TONE[tone];
   return (
     <div
       onClick={onClick}
@@ -46,22 +57,41 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
       }
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      className={`wa-kit-card wa-kit-card--sm wa-kit-card--hover${onClick ? ' wa-kit-focus' : ''}`}
-      style={{ background: t.bg, borderColor: 'transparent', display: 'flex', alignItems: 'center', gap: 12, minHeight: 44, cursor: onClick ? 'pointer' : undefined }}
+      className={onClick ? 'wa-kit-focus' : undefined}
+      style={{ cursor: onClick ? 'pointer' : undefined }}
     >
-      <div style={{ width: 38, height: 38, borderRadius: 12, background: t.c, color: 'var(--wa-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        {icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 14 }}>{title}</div>
-        {meta ? <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{meta}</div> : null}
-      </div>
-      {flag ? (
-        <span className="wa-hidden md:wa-inline" style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: t.c }}>
-          {flag}
-        </span>
-      ) : null}
-      {action}
+      <Card>
+        <HStack gap={3} align="center" style={{ background: TONE_BG[tone], borderRadius: 12, padding: '10px 12px' }}>
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 12,
+              background: tone === 'red' ? 'var(--color-accent)' : tone === 'yellow' ? 'var(--wa-gold)' : 'var(--wa-info)',
+              color: 'var(--wa-on-accent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            {icon}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <HStack gap={2} align="center">
+              <StatusDot variant={TONE_DOT[tone]} label={title} />
+              <div style={{ fontWeight: 700, fontSize: 14 }}>{title}</div>
+            </HStack>
+            {meta ? <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{meta}</div> : null}
+          </div>
+          {flag ? (
+            <span className="wa-hidden md:wa-inline">
+              <Token label={flag} size="sm" color={TONE_TOKEN[tone]} />
+            </span>
+          ) : null}
+          {action}
+        </HStack>
+      </Card>
     </div>
   );
 }

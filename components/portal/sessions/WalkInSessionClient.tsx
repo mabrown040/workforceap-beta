@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, UserPlus } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 /**
  * Walk-in session intake form.
@@ -178,7 +179,7 @@ export default function WalkInSessionClient({
         disabled={!canSubmit}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
       >
-        {submitting ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <UserPlus size={18} aria-hidden />}
+        {submitting ? <PortalInlineSpinner size={18} /> : <UserPlus size={18} aria-hidden />}
         {submitting ? 'Creating account…' : 'Create account & start session'}
       </button>
     </form>

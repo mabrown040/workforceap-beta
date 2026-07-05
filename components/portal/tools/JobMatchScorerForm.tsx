@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Loader2, Link as LinkIcon } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
@@ -354,7 +355,7 @@ export default function JobMatchScorerForm() {
             disabled={loading || scrapingUrl}
             style={{ flex: 1 }}
           />
-          {scrapingUrl && <Loader2 size={18} className="ai-tool-submit-spinner" />}
+          {scrapingUrl && <PortalInlineSpinner size={18} />}
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
           <LinkIcon size={12} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
@@ -409,7 +410,7 @@ export default function JobMatchScorerForm() {
       <button type="submit" className="btn btn-primary" disabled={!canSubmit} aria-busy={loading}>
         {loading ? (
           <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            <PortalInlineSpinner size={18} />
             Analyzing match…
           </>
         ) : (
@@ -465,7 +466,7 @@ export default function JobMatchScorerForm() {
           >
             {loading ? (
               <>
-                <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+                <PortalInlineSpinner size={18} />
                 Analyzing…
               </>
             ) : (

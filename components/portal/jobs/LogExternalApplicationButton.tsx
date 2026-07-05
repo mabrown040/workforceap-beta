@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
 import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
 
@@ -272,7 +273,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
                   disabled={!canSubmit}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
-                  {submitting ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : null}
+                  {submitting ? <PortalInlineSpinner size={16} /> : null}
                   {submitting ? 'Logging…' : 'Log application'}
                 </button>
               </div>

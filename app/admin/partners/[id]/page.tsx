@@ -1,18 +1,46 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Users, Activity, GraduationCap, Trophy } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
-import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
 import PartnerPayoutsPanel, { type PayoutRow } from '@/components/admin/PartnerPayoutsPanel';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import PartnerDetailActions from '@/components/admin/PartnerDetailActions';
 import PageHeader from '@/components/portal/PageHeader';
-import DataTable from '@/components/portal/ui/DataTable';
+import {
+  DesignSurface,
+  CardHead,
+  StatSparkTile,
+  StatusTag,
+  DataTable,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
 
 type Props = { params: Promise<{ id: string }> };
+
+/** Semantic tone for a pipeline stage pill — matches /admin/pipeline's tone language. */
+function pipelineStageTone(stage: PipelineStage): KitTone {
+  switch (stage) {
+    case 'placed':
+      return 'ok';
+    case 'certified':
+      return 'ok';
+    case 'in_training':
+    case 'job_searching':
+      return 'warn';
+    case 'enrolled':
+      return 'info';
+    case 'closed':
+      return 'muted';
+    default:
+      return 'muted';
+  }
+}
 
 export default async function AdminPartnerDetailPage({ params }: Props) {
   const { id } = await params;
@@ -122,183 +150,146 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
     }
   }
 
+  type Referral = (typeof partner.referrals)[number];
+
+  const referralColumns: Column<Referral>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      render: (ref) => (
+        <Link href={`/admin/members/${ref.member.id}`} style={{ fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}>
+          {ref.member.fullName}
+        </Link>
+      ),
+    },
+    {
+      key: 'program',
+      header: 'Program',
+      render: (ref) => {
+        const m = ref.member;
+        const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
+        return program?.title ?? '—';
+      },
+    },
+    {
+      key: 'progress',
+      header: 'Progress',
+      render: (ref) => {
+        const m = ref.member;
+        const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+        return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{pct}%</span>;
+      },
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (ref) => {
+        const m = ref.member;
+        const student: PipelineStudent = {
+          id: m.id,
+          fullName: m.fullName,
+          email: m.email,
+          enrolledProgram: m.enrolledProgram,
+          enrolledAt: m.enrolledAt,
+          assessmentCompleted: m.assessmentCompleted,
+          deletedAt: m.deletedAt,
+          placementRecord: m.placementRecord,
+          userCertifications: m.userCertifications,
+          applications: m.applications,
+          memberProgramProgress: m.memberProgramProgress,
+        };
+        const stage = getPipelineStage(student);
+        return <StatusTag tone={pipelineStageTone(stage)}>{PIPELINE_STAGE_LABELS[stage]}</StatusTag>;
+      },
+    },
+    {
+      key: 'enrolled',
+      header: 'Enrolled',
+      render: (ref) => ref.member.enrolledAt?.toLocaleDateString() ?? '—',
+    },
+  ];
+
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
+    <DesignSurface surface="dense" className="wa-p-6">
       <PageHeader
         breadcrumbs={[{ label: 'Partners', href: '/admin/partners' }, { label: 'Partner Details' }]}
         title={partner.name}
         subtitle={`${partner._count.counselors} counselor${partner._count.counselors !== 1 ? 's' : ''} · ${partner._count.referrals} referral${partner._count.referrals !== 1 ? 's' : ''}`}
         action={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span
-              style={{
-                padding: '0.3rem 0.75rem',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                background: partner.active ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
-                color: partner.active ? '#2d7a32' : 'var(--color-on-surface-variant)',
-              }}
-            >
-              {partner.active ? 'Active' : 'Inactive'}
-            </span>
+          <div className="wa-flex wa-items-center" style={{ gap: 12 }}>
+            <StatusTag tone={partner.active ? 'ok' : 'muted'}>{partner.active ? 'Active' : 'Inactive'}</StatusTag>
             <PartnerDetailActions partner={partner} subgroups={subgroups} allPartners={allPartners} />
           </div>
         }
       />
 
-      <section style={{ marginBottom: '2rem', padding: '1rem', background: 'var(--surface-container)', borderRadius: '8px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Invite partner user</h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+      <div className="wa-kit-card" style={{ marginBottom: 24 }}>
+        <CardHead title="Invite partner user" />
+        <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 12 }}>
           Sends an email invitation with a link to the partner portal ({partner.contactEmail ? 'milestone notifications go to ' + partner.contactEmail : 'add a contact email on the partner record for notifications'}).
         </p>
         <InvitePartnerUserButton partnerId={partner.id} />
-      </section>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
-        {[
-          { label: 'Total referred', value: members.length },
-          { label: 'Active (not placed)', value: active },
-          { label: 'Completions', value: completions },
-          { label: 'Placements', value: placements },
-        ].map((s) => (
-          <div
-            key={s.label}
-            style={{
-              padding: '1rem',
-              borderRadius: '8px',
-              background: 'var(--surface-container)',
-            }}
-          >
-            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{s.value}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
-          </div>
-        ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '2rem' }}>
-        <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Counselors ({partner.counselors.length})</h2>
-            <Link
-              href={`/admin/partners/${id}/quarterly-outcomes`}
-              className="btn btn-outline"
-              style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>assessment</span>
-              Outcomes Report
-            </Link>
-          </div>
+      <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 24 }}>
+        <StatSparkTile icon={Users} label="Total Referred" value={members.length} color="text" />
+        <StatSparkTile icon={Activity} label="Active (Not Placed)" value={active} color="info" />
+        <StatSparkTile icon={GraduationCap} label="Completions" value={completions} color="gold" />
+        <StatSparkTile icon={Trophy} label="Placements" value={placements} color="success" />
+      </div>
+
+      <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-2 wa-gap-4" style={{ marginBottom: 24 }}>
+        <div className="wa-kit-card">
+          <CardHead
+            title={`Counselors (${partner.counselors.length})`}
+            linkLabel="Outcomes Report"
+            linkHref={`/admin/partners/${id}/quarterly-outcomes`}
+          />
           {partner.counselors.length === 0 ? (
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No counselors assigned yet.</p>
+            <p style={{ color: 'var(--wa-muted)', fontSize: 13 }}>No counselors assigned yet.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {partner.counselors.map((c) => (
-                <div key={c.id} style={{ padding: '0.75rem', background: 'var(--surface-container-low)', borderRadius: '6px' }}>
-                  <div style={{ fontWeight: 600 }}>{c.user.fullName}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{c.user.email}</div>
-                  {c.title && <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{c.title}</div>}
+                <div key={c.id} className="wa-kit-card wa-kit-card--sm">
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--wa-text)' }}>{c.user.fullName}</div>
+                  <div style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{c.user.email}</div>
+                  {c.title && <div style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{c.title}</div>}
                 </div>
               ))}
             </div>
           )}
-        </section>
+        </div>
 
-        <section>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Partner details</h2>
-          <p style={{ fontSize: '0.9rem', margin: '0.25rem 0' }}>
-            <strong>Contact:</strong> {partner.contactName ?? '—'}
-          </p>
-          <p style={{ fontSize: '0.9rem', margin: '0.25rem 0' }}>
-            <strong>Email:</strong> {partner.contactEmail ?? '—'}
-          </p>
-          <p style={{ fontSize: '0.9rem', margin: '0.25rem 0' }}>
-            <strong>Phone:</strong> {partner.contactPhone ?? '—'}
-          </p>
-        </section>
+        <div className="wa-kit-card">
+          <CardHead title="Partner details" />
+          <dl style={{ display: 'flex', flexDirection: 'column', gap: 10, margin: 0 }}>
+            {[
+              { label: 'Contact', value: partner.contactName ?? '—' },
+              { label: 'Email', value: partner.contactEmail ?? '—' },
+              { label: 'Phone', value: partner.contactPhone ?? '—' },
+            ].map((row) => (
+              <div key={row.label}>
+                <dt className="wa-kit-stat-label" style={{ marginBottom: 2 }}>{row.label}</dt>
+                <dd style={{ margin: 0, fontSize: 14, color: 'var(--wa-text)' }}>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
 
-      <section style={{ marginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Referred members</h2>
+      <div className="wa-kit-card" style={{ marginBottom: 24 }}>
+        <CardHead title="Referred members" />
         {members.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No referrals recorded yet.</p>
+          <p style={{ color: 'var(--wa-muted)', fontSize: 13 }}>No referrals recorded yet.</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <DataTable
-              variant="admin"
-              tableClassName="admin-table"
-              scrollX={false}
-              rows={partner.referrals}
-              rowKey={(r) => r.id}
-              columns={[
-                {
-                  key: 'name',
-                  header: 'Name',
-                  cell: (ref) => {
-                    const m = ref.member;
-                    return (
-                      <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                        {m.fullName}
-                      </Link>
-                    );
-                  },
-                },
-                {
-                  key: 'program',
-                  header: 'Program',
-                  cell: (ref) => {
-                    const m = ref.member;
-                    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-                    return program?.title ?? '—';
-                  },
-                },
-                {
-                  key: 'progress',
-                  header: 'Progress',
-                  cell: (ref) => {
-                    const m = ref.member;
-                    const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
-                    return `${pct}%`;
-                  },
-                },
-                {
-                  key: 'status',
-                  header: 'Status',
-                  cell: (ref) => {
-                    const m = ref.member;
-                    const student: PipelineStudent = {
-                      id: m.id,
-                      fullName: m.fullName,
-                      email: m.email,
-                      enrolledProgram: m.enrolledProgram,
-                      enrolledAt: m.enrolledAt,
-                      assessmentCompleted: m.assessmentCompleted,
-                      deletedAt: m.deletedAt,
-                      placementRecord: m.placementRecord,
-                      userCertifications: m.userCertifications,
-                      applications: m.applications,
-                      memberProgramProgress: m.memberProgramProgress,
-                    };
-                    const stage = getPipelineStage(student);
-                    return PIPELINE_STAGE_LABELS[stage];
-                  },
-                },
-                {
-                  key: 'enrolled',
-                  header: 'Enrolled',
-                  cell: (ref) => ref.member.enrolledAt?.toLocaleDateString() ?? '—',
-                },
-              ]}
-            />
-          </div>
+          <DataTable<Referral>
+            columns={referralColumns}
+            rows={partner.referrals}
+            rowKey={(r) => r.id}
+            emptyTitle="No referrals recorded yet"
+          />
         )}
-      </section>
+      </div>
 
       <PartnerPayoutsPanel
         partnerId={partner.id}
@@ -307,6 +298,6 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         payoutsAvailable={payoutsAvailable}
         payoutsUnavailableReason={payoutsUnavailableReason}
       />
-    </div>
+    </DesignSurface>
   );
 }

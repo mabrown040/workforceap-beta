@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2, ExternalLink, CheckCircle2, XCircle } from 'lucide-react';
 import { postMemberEvent } from '@/lib/events/client';
 import { trackFunnelEvent } from '@/lib/analytics/events';
+import {
+  CardHead,
+  StatusTag,
+  DataTable,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
 
 type Job = {
   id: string;
@@ -30,6 +38,13 @@ type Job = {
   applications?: { id: string; student: { fullName: string; email: string } }[];
 };
 
+type MatchRow = {
+  studentId: string;
+  matchScore: number;
+  matchReasons: string[];
+  student: { fullName: string; email: string; enrolledProgram: string | null };
+};
+
 function formatAdminDate(value: string | Date | null | undefined): string {
   if (value == null) return '—';
   const d = typeof value === 'string' ? new Date(value) : value;
@@ -46,29 +61,28 @@ const JOB_STATUS_LABELS: Record<string, string> = {
   closed: 'Closed',
 };
 
-// Same pill classes as the jobs table (JobsTableClient / app/admin/jobs) —
-// keeps status color coding consistent between the queue and the detail page.
-function getJobStatusPillClass(status: string): string {
-  if (status === 'live') return 'admin-job-status-pill admin-job-status-pill--live';
-  if (status === 'pending') return 'admin-job-status-pill admin-job-status-pill--pending';
-  if (status === 'draft') return 'admin-job-status-pill admin-job-status-pill--draft';
-  if (status === 'approved') return 'admin-job-status-pill admin-job-status-pill--approved';
-  if (status === 'filled') return 'admin-job-status-pill admin-job-status-pill--filled';
-  if (status === 'closed') return 'admin-job-status-pill admin-job-status-pill--closed';
-  return 'admin-job-status-pill';
+/** Tone for the job status pill — mirrors the color language on the jobs queue. */
+function jobStatusTone(status: string): KitTone {
+  if (status === 'live') return 'ok';
+  if (status === 'pending') return 'warn';
+  if (status === 'approved') return 'info';
+  if (status === 'filled') return 'ok';
+  if (status === 'closed') return 'muted';
+  return 'muted';
 }
 
-function matchEmailBadgeStyle(status: string | null | undefined): { bg: string; color: string; label: string } {
+function matchEmailBadge(status: string | null | undefined): { tone: KitTone; label: string } {
   switch (status) {
     case 'success':
+      return { tone: 'ok', label: 'Success' };
     case 'test_sent':
-      return { bg: 'rgba(74, 155, 79, 0.15)', color: '#2d6a32', label: status === 'test_sent' ? 'Test sent' : 'Success' };
+      return { tone: 'ok', label: 'Test sent' };
     case 'failed':
-      return { bg: 'rgba(220, 38, 38, 0.12)', color: '#b91c1c', label: 'Failed' };
+      return { tone: 'danger', label: 'Failed' };
     case 'dry_run':
-      return { bg: 'rgba(59, 130, 246, 0.12)', color: '#1d4ed8', label: 'Dry run' };
+      return { tone: 'info', label: 'Dry run' };
     default:
-      return { bg: 'var(--surface-container)', color: 'var(--color-on-surface)', label: status ? status : 'None' };
+      return { tone: 'muted', label: status ? status : 'None' };
   }
 }
 
@@ -88,19 +102,14 @@ export default function AdminJobReview({ job }: { job: Job }) {
   const [rejectReason, setRejectReason] = useState('');
   const [rejectReasonError, setRejectReasonError] = useState('');
   const [loadingMatches, setLoadingMatches] = useState(false);
-  const [matches, setMatches] = useState<Array<{
-    studentId: string;
-    matchScore: number;
-    matchReasons: string[];
-    student: { fullName: string; email: string; enrolledProgram: string | null };
-  }> | null>(null);
+  const [matches, setMatches] = useState<MatchRow[] | null>(null);
   const [suggesting, setSuggesting] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const canApprove = job.status === 'pending';
   const canReject = job.status === 'pending';
   const hasProvenance = !!(job.sourceUrl || job.importProvider || job.importMethod);
-  const suggestionBadge = matchEmailBadgeStyle(job.matchSuggestionsLastStatus);
+  const suggestionBadge = matchEmailBadge(job.matchSuggestionsLastStatus);
 
   useEffect(() => {
     trackFunnelEvent('admin_review_queue', 'job_review_opened', { job_id: job.id, status: job.status });
@@ -205,88 +214,135 @@ export default function AdminJobReview({ job }: { job: Job }) {
     }
   }
 
+  const applicationColumns: Column<NonNullable<Job['applications']>[number]>[] = [
+    { key: 'name', header: 'Name', render: (app) => <span style={{ fontWeight: 700 }}>{app.student?.fullName ?? 'Unknown'}</span> },
+    { key: 'email', header: 'Email', render: (app) => app.student?.email ?? '—' },
+  ];
+
+  const matchColumns: Column<MatchRow>[] = [
+    { key: 'name', header: 'Member', render: (m) => <span style={{ fontWeight: 700 }}>{m.student.fullName}</span> },
+    { key: 'program', header: 'Program', render: (m) => m.student.enrolledProgram ?? '—' },
+    {
+      key: 'score',
+      header: 'Match',
+      align: 'right',
+      render: (m) => <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--wa-accent)' }}>{m.matchScore}%</span>,
+    },
+    {
+      key: 'reasons',
+      header: 'Reasons',
+      render: (m) => (m.matchReasons.length > 0 ? m.matchReasons.join('; ') : '—'),
+    },
+  ];
+
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {actionFeedback && (
         <div
-          className={`admin-inline-feedback ${actionFeedback.type === 'success' ? 'admin-inline-feedback--success' : 'admin-inline-feedback--error'}`}
           role="status"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '12px 16px',
+            borderRadius: 'var(--wa-radius-sm)',
+            fontSize: 13,
+            fontWeight: 600,
+            color: actionFeedback.type === 'success' ? 'var(--wa-success)' : 'var(--wa-danger)',
+            background: `color-mix(in srgb, ${actionFeedback.type === 'success' ? 'var(--wa-success)' : 'var(--wa-danger)'} 10%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${actionFeedback.type === 'success' ? 'var(--wa-success)' : 'var(--wa-danger)'} 25%, transparent)`,
+          }}
         >
-          <p>{actionFeedback.message}</p>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setActionFeedback(null)}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {actionFeedback.type === 'success' ? <CheckCircle2 size={14} aria-hidden /> : <XCircle size={14} aria-hidden />}
+            {actionFeedback.message}
+          </span>
+          <button
+            type="button"
+            onClick={() => setActionFeedback(null)}
+            className="wa-kit-focus"
+            style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, fontWeight: 700, color: 'inherit', cursor: 'pointer' }}
+          >
             Dismiss
           </button>
         </div>
       )}
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{job.title}</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-        <span>
-          {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'} · Status:
+
+      <div className="wa-flex wa-items-center wa-flex-wrap" style={{ gap: 10 }}>
+        <span style={{ fontSize: 14, color: 'var(--wa-muted)' }}>
+          {job.employer?.companyName ?? 'Unknown'} · {job.employer?.contactName ?? job.employer?.contactEmail ?? '—'}
         </span>
-        <span className={getJobStatusPillClass(job.status)}>{JOB_STATUS_LABELS[job.status] ?? job.status}</span>
-      </p>
+        <StatusTag tone={jobStatusTone(job.status)}>{JOB_STATUS_LABELS[job.status] ?? job.status}</StatusTag>
+      </div>
 
       {hasProvenance && (
-        <section
-          style={{
-            marginBottom: '1.5rem',
-            padding: '1rem',
-            background: 'var(--color-light)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Import provenance</h2>
-          <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem 1rem', fontSize: '0.95rem' }}>
+        <div className="wa-kit-card">
+          <CardHead title="Import Provenance" />
+          <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '10px 16px', fontSize: 14, margin: 0 }}>
             {job.importProvider && (
               <>
-                <dt style={{ color: 'var(--color-on-surface-variant)' }}>Provider</dt>
-                <dd>{job.importProvider}</dd>
+                <dt className="wa-kit-stat-label">Provider</dt>
+                <dd style={{ margin: 0, color: 'var(--wa-text)' }}>{job.importProvider}</dd>
               </>
             )}
             {job.importMethod && (
               <>
-                <dt style={{ color: 'var(--color-on-surface-variant)' }}>Method</dt>
-                <dd>{formatImportMethod(job.importMethod)}</dd>
+                <dt className="wa-kit-stat-label">Method</dt>
+                <dd style={{ margin: 0, color: 'var(--wa-text)' }}>{formatImportMethod(job.importMethod)}</dd>
               </>
             )}
             {job.sourceUrl && (
               <>
-                <dt style={{ color: 'var(--color-on-surface-variant)' }}>Source</dt>
-                <dd>
-                  <a href={job.sourceUrl} target="_blank" rel="noreferrer">{job.sourceUrl}</a>
+                <dt className="wa-kit-stat-label">Source</dt>
+                <dd style={{ margin: 0 }}>
+                  <a
+                    href={job.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--wa-accent)' }}
+                  >
+                    {job.sourceUrl} <ExternalLink size={12} aria-hidden />
+                  </a>
                 </dd>
               </>
             )}
           </dl>
-        </section>
+        </div>
       )}
 
       {(canApprove || canReject) && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            marginBottom: '2rem',
-            padding: '1rem',
-            background: 'var(--color-light)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
+        <div className="wa-kit-card" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           {canApprove && (
             <button
               type="button"
-              className="btn btn-primary"
               onClick={handleApprove}
               disabled={approving}
+              className="wa-kit-focus"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '10px 20px',
+                borderRadius: 999,
+                border: 'none',
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'var(--wa-on-accent)',
+                background: 'var(--wa-accent)',
+                cursor: approving ? 'default' : 'pointer',
+                opacity: approving ? 0.75 : 1,
+                flexShrink: 0,
+              }}
             >
+              {approving ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
               {approving ? 'Approving…' : 'Approve'}
             </button>
           )}
           {canReject && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minWidth: 220 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
                 <input
                   type="text"
                   aria-label="Rejection reason"
@@ -298,14 +354,43 @@ export default function AdminJobReview({ job }: { job: Job }) {
                   }}
                   aria-invalid={!!rejectReasonError}
                   aria-describedby={rejectReasonError ? 'admin-job-reject-reason-error' : undefined}
-                  style={{ flex: 1, minWidth: '12rem', padding: '0.5rem' }}
+                  className="wa-kit-focus"
+                  style={{
+                    flex: 1,
+                    minWidth: 180,
+                    fontSize: 13,
+                    padding: '9px 12px',
+                    border: '1px solid var(--wa-border)',
+                    borderRadius: 'var(--wa-radius-sm)',
+                    background: 'var(--wa-surface)',
+                    color: 'var(--wa-text)',
+                  }}
                 />
-                <button type="button" className="btn btn-ghost" onClick={handleReject} disabled={rejecting}>
+                <button
+                  type="button"
+                  onClick={handleReject}
+                  disabled={rejecting}
+                  className="wa-kit-focus"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '9px 16px',
+                    borderRadius: 999,
+                    border: '1px solid var(--wa-border)',
+                    background: 'transparent',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: 'var(--wa-text)',
+                    cursor: rejecting ? 'default' : 'pointer',
+                  }}
+                >
+                  {rejecting ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
                   {rejecting ? 'Rejecting…' : 'Reject'}
                 </button>
               </div>
               {rejectReasonError ? (
-                <p id="admin-job-reject-reason-error" style={{ margin: 0, fontSize: '0.85rem', color: '#b91c1c' }}>
+                <p id="admin-job-reject-reason-error" style={{ margin: 0, fontSize: 12, color: 'var(--wa-danger)' }}>
                   {rejectReasonError}
                 </p>
               ) : null}
@@ -314,102 +399,65 @@ export default function AdminJobReview({ job }: { job: Job }) {
         </div>
       )}
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Details</h2>
-        <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem 1rem', fontSize: '0.95rem' }}>
-          <dt style={{ color: 'var(--color-on-surface-variant)' }}>Location</dt>
-          <dd>{job.location ?? '—'}</dd>
-          <dt style={{ color: 'var(--color-on-surface-variant)' }}>Type</dt>
-          <dd>{job.jobType} · {job.locationType}</dd>
-          <dt style={{ color: 'var(--color-on-surface-variant)' }}>Salary</dt>
-          <dd>
+      <div className="wa-kit-card">
+        <CardHead title="Details" />
+        <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '10px 16px', fontSize: 14, margin: 0 }}>
+          <dt className="wa-kit-stat-label">Location</dt>
+          <dd style={{ margin: 0, color: 'var(--wa-text)' }}>{job.location ?? '—'}</dd>
+          <dt className="wa-kit-stat-label">Type</dt>
+          <dd style={{ margin: 0, color: 'var(--wa-text)' }}>{job.jobType} · {job.locationType}</dd>
+          <dt className="wa-kit-stat-label">Salary</dt>
+          <dd style={{ margin: 0, color: 'var(--wa-text)', fontVariantNumeric: 'tabular-nums' }}>
             {job.salaryMin ?? job.salaryMax
               ? `$${(job.salaryMin ?? 0).toLocaleString()} – $${(job.salaryMax ?? 0).toLocaleString()}`
               : '—'}
           </dd>
         </dl>
-        <div style={{ marginTop: '1rem' }}>
-          <strong>Description</strong>
-          <div style={{ whiteSpace: 'pre-wrap', marginTop: '0.5rem', fontSize: '0.95rem' }}>{job.description}</div>
+        <div style={{ marginTop: 16 }}>
+          <div className="wa-kit-stat-label" style={{ marginBottom: 6 }}>Description</div>
+          <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--wa-text)' }}>{job.description}</div>
         </div>
         {(job.requirements?.length ?? 0) > 0 && (
-          <div style={{ marginTop: '1rem' }}>
-            <strong>Requirements</strong>
-            <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem' }}>
+          <div style={{ marginTop: 16 }}>
+            <div className="wa-kit-stat-label" style={{ marginBottom: 8 }}>Requirements</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {job.requirements.map((r, i) => (
-                <li key={i}>{r}</li>
+                <StatusTag key={i} tone="muted">{r}</StatusTag>
               ))}
-            </ul>
+            </div>
           </div>
         )}
-      </section>
+      </div>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>Applications ({job.applications?.length ?? 0})</h2>
+      <div className="wa-kit-card">
+        <CardHead title={`Applications (${job.applications?.length ?? 0})`} />
         {(job.applications?.length ?? 0) === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications yet.</p>
+          <p style={{ color: 'var(--wa-muted)', fontSize: 13 }}>No applications yet.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {(job.applications ?? []).map((app) => (
-              <li
-                key={app.id}
-                style={{
-                  padding: '0.75rem',
-                  borderBottom: '1px solid var(--color-border)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span>
-                  <strong>{app.student?.fullName ?? 'Unknown'}</strong> · {app.student?.email ?? '—'}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <DataTable columns={applicationColumns} rows={job.applications ?? []} rowKey={(app) => app.id} emptyTitle="No applications yet" />
         )}
-      </section>
+      </div>
 
-      <section id="matches" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>AI Member Matches</h2>
-        <div
-          style={{
-            marginBottom: '1rem',
-            padding: '0.85rem 1rem',
-            background: 'var(--surface-container-lowest)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '0.9rem',
-          }}
-        >
+      <div id="matches" className="wa-kit-card">
+        <CardHead title="AI Member Matches" />
+        <div className="wa-kit-card wa-kit-card--sm" style={{ marginBottom: 16 }}>
           {job.status === 'pending' && !job.aiMatchesComputedAt && (
-            <p style={{ margin: '0 0 0.65rem', color: 'var(--color-on-surface)', fontSize: '0.88rem' }}>
+            <p style={{ margin: '0 0 10px', fontSize: 13, color: 'var(--wa-text)' }}>
               Member matches are calculated automatically when you approve this job (they may show as &quot;None&quot; until then).
             </p>
           )}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem 1rem', marginBottom: '0.35rem' }}>
-            <span style={{ color: 'var(--color-on-surface-variant)' }}>Matches calculated at</span>
-            <strong>{formatAdminDate(job.aiMatchesComputedAt)}</strong>
-            <span
-              style={{
-                marginLeft: 'auto',
-                padding: '0.2rem 0.55rem',
-                borderRadius: '999px',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                background: suggestionBadge.bg,
-                color: suggestionBadge.color,
-              }}
-            >
-              {suggestionBadge.label}
+          <div className="wa-flex wa-items-center wa-flex-wrap" style={{ gap: '6px 16px', marginBottom: 6 }}>
+            <span style={{ color: 'var(--wa-muted)', fontSize: 13 }}>Matches calculated at</span>
+            <strong style={{ fontSize: 13 }}>{formatAdminDate(job.aiMatchesComputedAt)}</strong>
+            <span style={{ marginLeft: 'auto' }}>
+              <StatusTag tone={suggestionBadge.tone}>{suggestionBadge.label}</StatusTag>
             </span>
           </div>
-          <div style={{ color: 'var(--color-on-surface-variant)' }}>
-            Last suggestion email: <strong>{formatAdminDate(job.matchSuggestionsLastSentAt)}</strong>
+          <div style={{ color: 'var(--wa-muted)', fontSize: 13 }}>
+            Last suggestion email: <strong style={{ color: 'var(--wa-text)' }}>{formatAdminDate(job.matchSuggestionsLastSentAt)}</strong>
           </div>
           {job.matchSuggestionsLastError && (
-            <p style={{ margin: '0.5rem 0 0', color: '#b91c1c', fontSize: '0.85rem' }}>
+            <p style={{ margin: '8px 0 0', color: 'var(--wa-danger)', fontSize: 12 }}>
               Last error: {job.matchSuggestionsLastError}
             </p>
           )}
@@ -417,45 +465,57 @@ export default function AdminJobReview({ job }: { job: Job }) {
         {!matches ? (
           <button
             type="button"
-            className="btn btn-muted"
             onClick={loadMatches}
             disabled={loadingMatches}
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '9px 18px',
+              borderRadius: 999,
+              border: '1px solid var(--wa-border)',
+              background: 'transparent',
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--wa-text)',
+              cursor: loadingMatches ? 'default' : 'pointer',
+            }}
           >
+            {loadingMatches ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
             {loadingMatches ? 'Loading…' : 'View AI Matches'}
           </button>
         ) : (
           <>
             {matches.length === 0 ? (
-              <p style={{ color: 'var(--color-on-surface-variant)' }}>No matching members found.</p>
+              <p style={{ color: 'var(--wa-muted)', fontSize: 13 }}>No matching members found.</p>
             ) : (
               <>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginBottom: '1rem' }}>
-                  {matches.map((m) => (
-                    <li
-                      key={m.studentId}
-                      style={{
-                        padding: '0.75rem',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-sm)',
-                        marginBottom: '0.5rem',
-                      }}
-                    >
-                      <strong>{m.student.fullName}</strong> · {m.student.enrolledProgram ?? '—'} · Match: {m.matchScore}%
-                      {m.matchReasons.length > 0 && (
-                        <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-                          {m.matchReasons.join('; ')}
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                <div style={{ marginBottom: 16 }}>
+                  <DataTable columns={matchColumns} rows={matches} rowKey={(m) => m.studentId} emptyTitle="No matching members found" />
+                </div>
                 {job.status === 'live' && (
                   <button
                     type="button"
-                    className="btn btn-primary"
                     onClick={handleSuggestMatches}
                     disabled={suggesting}
+                    className="wa-kit-focus"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '10px 20px',
+                      borderRadius: 999,
+                      border: 'none',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: 'var(--wa-on-accent)',
+                      background: 'var(--wa-accent)',
+                      cursor: suggesting ? 'default' : 'pointer',
+                      opacity: suggesting ? 0.75 : 1,
+                    }}
                   >
+                    {suggesting ? <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" /> : null}
                     {suggesting ? 'Sending…' : 'Send Match Suggestions to Employer'}
                   </button>
                 )}
@@ -463,7 +523,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
             )}
           </>
         )}
-      </section>
+      </div>
     </div>
   );
 }

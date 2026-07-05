@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import AdminJobReview from '@/components/admin/AdminJobReview';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -56,12 +57,12 @@ export default async function AdminJobDetailPage({ params }: Props) {
   if (!job) notFound();
 
   return (
-    <div>
+    <DesignSurface surface="dense" className="wa-p-6">
       <PageHeader
         breadcrumbs={[{ label: 'Jobs', href: '/admin/jobs' }, { label: 'Job Review' }]}
         title={job.title}
       />
       <AdminJobReview job={job} />
-    </div>
+    </DesignSurface>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ToolFollowThrough from './ToolFollowThrough';
@@ -98,7 +99,7 @@ export default function LinkedInHeadlineForm() {
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
         {loading ? (
           <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            <PortalInlineSpinner size={18} />
             Generating headlines…
           </>
         ) : (

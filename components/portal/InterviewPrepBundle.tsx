@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FileText, Loader2, Mail, Copy, Check, ChevronRight } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 export type PrepBundleItem = {
   toolType: string;
@@ -99,7 +100,7 @@ export default function InterviewPrepBundle() {
     return (
       <div role="status" aria-live="polite">
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
-          <Loader2 size={20} className="ai-tool-submit-spinner" aria-hidden="true" />
+          <PortalInlineSpinner size={20} />
           <span>Building your prep bundle…</span>
         </div>
         {[0, 1, 2].map((i) => (
@@ -228,7 +229,7 @@ export default function InterviewPrepBundle() {
           aria-busy={sending}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         >
-          {sending ? <Loader2 size={16} className="ai-tool-submit-spinner" /> : <Mail size={16} />}
+          {sending ? <PortalInlineSpinner size={16} /> : <Mail size={16} />}
           <span aria-live="polite">{sending ? 'Sending…' : 'Email me'}</span>
         </button>
         <button

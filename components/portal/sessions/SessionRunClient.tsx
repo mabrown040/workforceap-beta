@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Search, Sparkles, Upload, User } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
@@ -667,7 +668,7 @@ export default function SessionRunClient({
               }}
             >
               {uploadingResume
-                ? <Loader2 size={14} className="ai-tool-submit-spinner" aria-hidden />
+                ? <PortalInlineSpinner size={14} />
                 : <Upload size={14} aria-hidden />}
               {uploadingResume ? 'Uploading…' : 'Upload file'}
               <input
@@ -699,7 +700,7 @@ export default function SessionRunClient({
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
         >
           {resumeState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
+            <PortalInlineSpinner size={16} />
           ) : (
             <Sparkles size={16} aria-hidden />
           )}
@@ -818,7 +819,7 @@ export default function SessionRunClient({
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
         >
           {coverState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
+            <PortalInlineSpinner size={16} />
           ) : (
             <Sparkles size={16} aria-hidden />
           )}
@@ -911,7 +912,7 @@ export default function SessionRunClient({
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
         >
           {interviewState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
+            <PortalInlineSpinner size={16} />
           ) : (
             <Sparkles size={16} aria-hidden />
           )}
@@ -937,7 +938,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runResumeAnalysis}
           disabled={resumeAnalysisState.status === 'running' || resumeText.trim().length < 100}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {resumeAnalysisState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {resumeAnalysisState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {resumeAnalysisState.status === 'running' ? 'Analyzing…' : resumeAnalysisState.output ? 'Re-run' : 'Analyze resume'}
         </button>
         {resumeAnalysisState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{resumeAnalysisState.error}</p>}
@@ -956,7 +957,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runGapAnalyzer}
           disabled={gapState.status === 'running' || resumeText.trim().length < 100}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {gapState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {gapState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {gapState.status === 'running' ? 'Analyzing…' : gapState.output ? 'Re-run' : 'Analyze gaps'}
         </button>
         {gapState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{gapState.error}</p>}
@@ -981,7 +982,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch}
           disabled={jobMatchState.status === 'running' || resumeText.trim().length < 100 || jobDescription.trim().length < 50}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {jobMatchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {jobMatchState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run' : 'Score match'}
         </button>
         {jobMatchState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p>}
@@ -1009,7 +1010,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runHeadline}
           disabled={headlineState.status === 'running' || !jobTarget.trim() || keySkills.trim().length < 2}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {headlineState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {headlineState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {headlineState.status === 'running' ? 'Generating…' : headlineState.output ? 'Re-run' : 'Generate headlines'}
         </button>
         {headlineState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{headlineState.error}</p>}
@@ -1034,7 +1035,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runAbout}
           disabled={aboutState.status === 'running' || !jobTarget.trim()}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {aboutState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {aboutState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {aboutState.status === 'running' ? 'Generating…' : aboutState.output ? 'Re-run' : 'Write About section'}
         </button>
         {aboutState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{aboutState.error}</p>}
@@ -1072,7 +1073,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runSalary}
           disabled={salaryState.status === 'running' || !currentOffer || !targetSalary || !jobTarget.trim()}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {salaryState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build script'}
         </button>
         {salaryState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p>}
@@ -1107,7 +1108,7 @@ export default function SessionRunClient({
         <button type="button" className="btn btn-primary btn-small" onClick={runPitch}
           disabled={pitchState.status === 'running' || !jobTarget.trim()}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          {pitchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {pitchState.status === 'running' ? <PortalInlineSpinner size={16} /> : <Sparkles size={16} aria-hidden />}
           {pitchState.status === 'running' ? 'Generating…' : pitchState.output ? 'Re-run' : 'Build pitch'}
         </button>
         {pitchState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{pitchState.error}</p>}
@@ -1137,7 +1138,7 @@ export default function SessionRunClient({
             title={!hasAnyOutput ? 'Run at least one tool before ending the session' : undefined}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}
           >
-            {endingSession ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={18} aria-hidden />}
+            {endingSession ? <PortalInlineSpinner size={18} /> : <Sparkles size={18} aria-hidden />}
             {packetSent ? 'Packet sent' : endingSession ? 'Sending…' : 'End session & email recap'}
           </button>
         </div>

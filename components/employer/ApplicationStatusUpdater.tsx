@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
@@ -74,7 +75,7 @@ export default function ApplicationStatusUpdater({
           </option>
         ))}
       </select>
-      {saving && <Loader2 size={16} className="ai-tool-submit-spinner" />}
+      {saving && <PortalInlineSpinner size={16} />}
       {saved && (
         <span style={{ fontSize: '0.75rem', color: 'var(--color-green)', fontWeight: 700 }} aria-live="polite">Saved</span>
       )}

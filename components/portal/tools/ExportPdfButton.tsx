@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 const GENERIC_ERROR = "Couldn't generate the PDF — please try again. If this keeps happening, contact support.";
 
@@ -57,7 +58,7 @@ export default function ExportPdfButton({
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}
       >
         {loading ? (
-          <Loader2 size={14} className="ai-tool-submit-spinner" />
+          <PortalInlineSpinner size={14} />
         ) : (
           <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">picture_as_pdf</span>
         )}

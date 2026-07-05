@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
 import ResumeAnalysisPanel, { type ResumeSectionAuditCard } from './ResumeAnalysisPanel';
@@ -246,7 +247,7 @@ export default function ResumeStrengthForm() {
       <button type="submit" className="btn btn-primary" disabled={loading || !canSubmit} aria-busy={loading}>
         {loading ? (
           <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            <PortalInlineSpinner size={18} />
             Analyzing…
           </>
         ) : (

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { cx, type KitBaseProps, type KitDataAttrs } from './base';
+import { type KitBaseProps, type KitDataAttrs } from './base';
 import { KitEmptyState } from './KitEmptyState';
+import { KitTableShell } from './KitTableShell';
 
 export interface Column<T> {
   /** Stable key for React. */
@@ -29,10 +30,8 @@ interface DataTableProps<T> extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
 }
 
 /**
- * Dense, token-styled table for rosters / CSV / placements / jobs. The linchpin
- * for "data views = Dense" AND "mobile works": on mobile it either scrolls or
- * collapses each row to a card (the pattern proven in the mobile-proof mockup).
- * Empty rows use Astryx `EmptyState`.
+ * Dense roster table — Astryx `Table` chrome via `KitTableShell` (pre-rendered
+ * cells keep server `render` columns RSC-safe). Mobile: scroll or stacked cards.
  */
 export function DataTable<T>({
   columns,
@@ -52,74 +51,40 @@ export function DataTable<T>({
   const cell = (col: Column<T>, row: T): ReactNode =>
     col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '');
 
-  // In 'cards' mode the base props land on a neutral outer wrapper instead so
-  // there is exactly one root carrying className/style/ref/data-*.
+  const shellColumns = columns.map((c) => ({ key: c.key, header: c.header, align: c.align }));
+  const shellRows = rows.map((row) => ({
+    key: rowKey(row),
+    cells: columns.map((c) => cell(c, row)),
+  }));
+
+  const onRowKeyClick = onRowClick
+    ? (key: string) => {
+        const row = rows.find((r) => rowKey(r) === key);
+        if (row) onRowClick(row);
+      }
+    : undefined;
+
   const single = mobile === 'scroll' || !cardRender;
 
   const tableEl = (
-    <div
+    <KitTableShell
+      columns={shellColumns}
+      rows={shellRows}
+      minWidth={minWidth}
+      emptyTitle={emptyTitle}
+      emptyDescription={emptyDescription}
+      onRowKeyClick={onRowKeyClick}
       ref={single ? ref : undefined}
-      className={cx('wa-kit-table-wrap', single ? className : undefined)}
+      className={single ? className : 'wa-kit-table-wrap'}
       style={single ? style : undefined}
       {...(single ? rest : {})}
-    >
-      <div className="wa-overflow-x-auto">
-        <table className="wa-kit-table" style={{ minWidth }}>
-          <thead>
-            <tr>
-              {columns.map((c) => (
-                <th key={c.key} scope="col" style={c.align === 'right' ? { textAlign: 'right' } : undefined}>
-                  {c.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length || 1}>
-                  <KitEmptyState title={emptyTitle} description={emptyDescription} />
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => (
-                <tr
-                  key={rowKey(row)}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  onKeyDown={
-                    onRowClick
-                      ? (e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onRowClick(row);
-                          }
-                        }
-                      : undefined
-                  }
-                  role={onRowClick ? 'button' : undefined}
-                  tabIndex={onRowClick ? 0 : undefined}
-                  className={onRowClick ? 'wa-kit-focus' : undefined}
-                  style={onRowClick ? { cursor: 'pointer' } : undefined}
-                >
-                  {columns.map((c) => (
-                    <td key={c.key} style={c.align === 'right' ? { textAlign: 'right' } : undefined}>
-                      {cell(c, row)}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    />
   );
 
   if (single || !cardRender) {
     return tableEl;
   }
 
-  // 'cards': table on desktop, stacked cards on mobile.
   return (
     <div ref={ref} className={className} style={style} {...rest}>
       <div className="wa-hidden lg:wa-block">{tableEl}</div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2 } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { DEFAULT_BRAND_ACCENT } from '@/lib/platform/brandColors';
 import { FormField } from '@/components/portal/kit';
 
@@ -199,12 +200,12 @@ export default function AdminOrgSettingsForm({
         <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           {loading ? (
             <>
-              <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" />
+              <PortalInlineSpinner size={14} />
               Saving…
             </>
           ) : logoUploading ? (
             <>
-              <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" />
+              <PortalInlineSpinner size={14} />
               Uploading logo…
             </>
           ) : (

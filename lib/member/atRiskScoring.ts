@@ -24,13 +24,24 @@ export interface AtRiskScore {
 const FACTORS = {
   NO_LOGIN_7_DAYS: { weight: 25, description: 'No login in 7 days' },
   NO_LOGIN_14_DAYS: { weight: 40, description: 'No login in 14 days' },
-  STALE_TRAINING: { weight: 30, description: 'Training flagged as stale' },
+  NO_COURSE_ACTIVITY_7_DAYS: { weight: 15, description: 'No course activity in 7+ days' },
+  NO_COURSE_ACTIVITY_14_DAYS: { weight: 25, description: 'No course activity in 14+ days' },
+  NO_COURSE_ACTIVITY_30_DAYS: { weight: 35, description: 'No course activity in 30+ days' },
   INCOMPLETE_FIRST_COURSE: { weight: 20, description: 'Enrolled but has not started first course' },
   NO_COUNSELOR_MESSAGE_7_DAYS: { weight: 15, description: 'No counselor message in 7 days' },
   ASSESSMENT_INCOMPLETE: { weight: 25, description: 'Enrolled but assessment not completed' },
   NO_RESUME: { weight: 10, description: 'No resume uploaded' },
   NO_JOB_APPLICATIONS: { weight: 15, description: 'No job applications after placement-ready' },
 } as const;
+
+// Graduated in place of a flat "flagged stale" weight — severity now tracks
+// actual days since the member's last CourseProgress touch (xAPI-driven),
+// checked highest-first so only the matching tier's weight applies.
+const COURSE_ACTIVITY_GAP_TIERS = [
+  { minDays: 30, name: 'NO_COURSE_ACTIVITY_30_DAYS' as const },
+  { minDays: 14, name: 'NO_COURSE_ACTIVITY_14_DAYS' as const },
+  { minDays: 7, name: 'NO_COURSE_ACTIVITY_7_DAYS' as const },
+];
 
 export const THRESHOLDS = {
   CRITICAL: 70,
@@ -57,7 +68,6 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
         email: true,
         enrolledProgram: true,
         assessmentCompleted: true,
-        staleTrainingDetectedAt: true,
         lastCourseraAutoSyncAt: true,
         createdAt: true,
         profile: {
@@ -96,17 +106,6 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
     factors.push({ ...FACTORS.NO_LOGIN_7_DAYS, name: 'NO_LOGIN_7_DAYS' });
   }
 
-  // Stale training
-  if (user.staleTrainingDetectedAt) {
-    const daysStale = Math.floor(
-      (Date.now() - user.staleTrainingDetectedAt.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    if (daysStale <= 7) {
-      score += FACTORS.STALE_TRAINING.weight;
-      factors.push({ ...FACTORS.STALE_TRAINING, name: 'STALE_TRAINING' });
-    }
-  }
-
   // Enrollment + training progress (prefer live B4B enrollmentReports when configured).
   if (user.enrolledProgram) {
     const courseraProgramId =
@@ -130,6 +129,17 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
     } else if (!trainingView.hasStartedTraining) {
       score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
       factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
+    } else if (!trainingView.allCoursesComplete && trainingView.lastTrainingActivityAt) {
+      // Started but has gone quiet — graduated by actual days since last
+      // CourseProgress touch instead of a flat "flagged stale" weight.
+      const daysSinceActivity = Math.floor(
+        (Date.now() - trainingView.lastTrainingActivityAt.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const tier = COURSE_ACTIVITY_GAP_TIERS.find((t) => daysSinceActivity >= t.minDays);
+      if (tier) {
+        score += FACTORS[tier.name].weight;
+        factors.push({ ...FACTORS[tier.name], name: tier.name });
+      }
     }
 
     if (!user.assessmentCompleted) {

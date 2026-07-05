@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { DEFAULT_BRAND_ACCENT } from '@/lib/platform/brandColors';
+import { FormField } from '@/components/portal/kit';
 
 type Props = {
   defaultName: string;
@@ -75,34 +77,53 @@ export default function AdminOrgSettingsForm({
     }
   };
 
+  const validPrimaryColor = /^#[0-9A-Fa-f]{6}$/.test(primaryColor);
+
   return (
-    <form onSubmit={save} style={{ maxWidth: '520px' }}>
-      {error && <p className="form-error" role="alert">{error}</p>}
-      {ok && <p style={{ color: 'green', marginBottom: '0.75rem' }}>Saved.</p>}
-      <div className="form-group">
-        <label htmlFor="orgName">Organization display name</label>
-        <input id="orgName" value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div className="form-group">
-        <label htmlFor="logo">Organization logo</label>
+    <form onSubmit={save} className="wa-kit-card" style={{ maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 18 }}>
+      {error ? (
+        <p role="alert" style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--wa-danger)' }}>
+          {error}
+        </p>
+      ) : null}
+      {ok ? (
+        <p style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--wa-success)' }}>
+          <CheckCircle2 size={14} aria-hidden /> Saved.
+        </p>
+      ) : null}
+
+      <FormField label="Organization display name" id="orgName" value={name} onChange={(e) => setName(e.target.value)} required />
+
+      <div>
+        <label className="wa-kit-field-label" htmlFor="logo">Organization logo</label>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="" style={{ display: 'block', maxHeight: 48, marginBottom: '0.5rem' }} />
+          <img src={logoUrl} alt="" style={{ display: 'block', maxHeight: 48, margin: '6px 0' }} />
         ) : null}
-        <input id="logo" type="file" accept="image/*" onChange={(e) => void onLogo(e)} disabled={logoUploading} />
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
+        <input
+          id="logo"
+          type="file"
+          accept="image/*"
+          onChange={(e) => void onLogo(e)}
+          disabled={logoUploading}
+          className="wa-kit-focus"
+          style={{ display: 'block', marginTop: 4, fontSize: 13, color: 'var(--wa-text)' }}
+        />
+        <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 6 }}>
           {logoUploading ? 'Uploading…' : 'Stored in Supabase bucket organization-branding and resolved at render time.'}
         </p>
       </div>
-      <div className="form-group">
-        <label htmlFor="pc">Primary color (hex)</label>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+
+      <div>
+        <label className="wa-kit-field-label" htmlFor="pc">Primary color (hex)</label>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginTop: 4 }}>
           <input
             id="pc"
             type="color"
-            value={/^#[0-9A-Fa-f]{6}$/.test(primaryColor) ? primaryColor : DEFAULT_BRAND_ACCENT}
+            value={validPrimaryColor ? primaryColor : DEFAULT_BRAND_ACCENT}
             onChange={(e) => setPrimaryColor(e.target.value)}
-            style={{ width: 48, height: 36, padding: 0, border: 'none', cursor: 'pointer' }}
+            className="wa-kit-focus"
+            style={{ width: 48, height: 36, padding: 0, border: 'none', cursor: 'pointer', background: 'transparent' }}
             aria-label="Color picker"
           />
           <input
@@ -111,46 +132,79 @@ export default function AdminOrgSettingsForm({
             onChange={(e) => setPrimaryColor(e.target.value)}
             placeholder={DEFAULT_BRAND_ACCENT}
             pattern="^#[0-9A-Fa-f]{6}$"
-            style={{ maxWidth: '120px', fontFamily: 'monospace' }}
+            aria-label="Primary color hex value"
+            className="wa-kit-focus"
+            style={{
+              maxWidth: 120,
+              fontFamily: 'monospace',
+              fontSize: 13,
+              border: '1px solid var(--wa-border)',
+              borderRadius: 'var(--wa-radius-sm)',
+              padding: '8px 10px',
+              background: 'var(--wa-surface)',
+              color: 'var(--wa-text)',
+            }}
           />
           <span
+            aria-hidden
             style={{
               width: 36,
               height: 36,
               borderRadius: 6,
-              background: /^#[0-9A-Fa-f]{6}$/.test(primaryColor) ? primaryColor : '#ccc',
-              border: '1px solid var(--color-border, #ddd)',
+              background: validPrimaryColor ? primaryColor : 'var(--wa-border)',
+              border: '1px solid var(--wa-border)',
             }}
-            aria-hidden
           />
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
+        <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 6 }}>
           Drives accent buttons and links site-wide via CSS variables.
         </p>
       </div>
-      <div className="form-group">
-        <label htmlFor="vid">Overview step video URL (Loom, YouTube, Vimeo)</label>
-        <input
+
+      <div>
+        <FormField
+          label="Overview step video URL (Loom, YouTube, Vimeo)"
           id="vid"
           type="url"
           value={overviewVideoUrl}
           onChange={(e) => setOverviewVideoUrl(e.target.value)}
           placeholder="https://..."
         />
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
+        <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 6 }}>
           Shown on the public &ldquo;How it works&rdquo; page for the Overview step. Leave blank to use text only.
         </p>
       </div>
-      <button type="submit" className="btn btn-primary" disabled={loading || logoUploading} aria-busy={loading || logoUploading}>
-        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+
+      <button
+        type="submit"
+        className="wa-kit-focus"
+        disabled={loading || logoUploading}
+        aria-busy={loading || logoUploading}
+        style={{
+          alignSelf: 'flex-start',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '10px 20px',
+          borderRadius: 999,
+          border: 'none',
+          fontSize: 13,
+          fontWeight: 700,
+          color: 'var(--wa-on-accent)',
+          background: 'var(--wa-accent)',
+          cursor: loading || logoUploading ? 'default' : 'pointer',
+          opacity: loading || logoUploading ? 0.75 : 1,
+        }}
+      >
+        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           {loading ? (
             <>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+              <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" />
               Saving…
             </>
           ) : logoUploading ? (
-             <>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+            <>
+              <Loader2 size={14} aria-hidden className="ai-tool-submit-spinner" />
               Uploading logo…
             </>
           ) : (

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import StatusBadge from '@/components/portal/StatusBadge';
+import { Avatar, StatusTag, StageTrack, type KitTone } from '@/components/portal/kit';
+import { PIPELINE_STAGES_ORDERED, type PipelineStage } from '@/lib/pipeline/stage';
 
 export type PartnerMemberRow = {
   id: string;
@@ -18,6 +19,23 @@ export type PartnerMemberRow = {
 };
 
 type Filter = 'all' | 'active' | 'placed' | 'atRisk';
+
+const STAGE_ORDER = PIPELINE_STAGES_ORDERED;
+
+const STAGE_TONE: Record<string, KitTone> = {
+  applied: 'muted',
+  enrolled: 'info',
+  in_training: 'warn',
+  certified: 'info',
+  job_searching: 'warn',
+  placed: 'ok',
+  closed: 'danger',
+};
+
+function stageTrackIndex(stage: string): number {
+  const idx = STAGE_ORDER.indexOf(stage as PipelineStage);
+  return idx === -1 ? 0 : idx + 1;
+}
 
 export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMemberRow[] }) {
   const [filter, setFilter] = useState<Filter>('all');
@@ -58,15 +76,16 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
               type="button"
               onClick={() => setFilter(chip.key)}
               aria-pressed={active}
+              className="wa-kit-focus"
               style={{
                 flexShrink: 0,
                 padding: '0.375rem 0.875rem',
                 borderRadius: '9999px',
                 fontSize: '0.75rem',
                 fontWeight: 700,
-                background: active ? 'var(--color-accent)' : 'var(--surface-container-low)',
-                color: active ? 'var(--color-on-accent)' : 'var(--color-on-surface-variant)',
-                border: `1px solid ${active ? 'var(--color-accent)' : 'var(--outline-variant)'}`,
+                background: active ? 'var(--wa-accent)' : 'var(--wa-surface)',
+                color: active ? 'var(--wa-on-accent)' : 'var(--wa-muted)',
+                border: `1px solid ${active ? 'var(--wa-accent)' : 'var(--wa-border)'}`,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -80,21 +99,16 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
         })}
       </div>
 
-      <div style={{ padding: '0 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ padding: '0 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
         {rows.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">
-              group
-            </span>
-            <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-              No members yet
-            </p>
-            <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>
-              You haven't referred any members yet. Tap Invite Member above to start building your pipeline.
+          <div className="wa-kit-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--wa-text)', marginBottom: 4 }}>No members yet</p>
+            <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
+              You haven&rsquo;t referred any members yet. Tap Invite Member above to start building your pipeline.
             </p>
           </div>
         ) : filtered.length === 0 ? (
-          <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '1.5rem' }}>
+          <p style={{ fontSize: 13, color: 'var(--wa-muted)', textAlign: 'center', padding: '1.5rem' }}>
             No members match this filter. Try a different filter option.
           </p>
         ) : (
@@ -106,65 +120,46 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
               .slice(0, 2)
               .toUpperCase();
             const isPlaced = row.stage === 'placed';
-            const isAtRisk = row.progress < 30 && row.stage === 'in_training';
-            const stageBadgeVariant: 'success' | 'warning' | 'accent' = isPlaced ? 'success' : isAtRisk ? 'warning' : 'accent';
 
             return (
               <Link key={row.id} href={`/partner/referred-members/${row.id}`} style={{ textDecoration: 'none' }}>
                 <div
-                  style={{
-                    background: 'var(--surface-container-low)',
-                    borderRadius: '0.75rem',
-                    padding: '0.875rem 1rem',
-                    border: '1px solid var(--outline-variant)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.875rem',
-                  }}
+                  className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}
                 >
-                  <div
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: '9999px',
-                      background: 'var(--color-accent)',
-                      color: 'var(--color-on-accent)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: '0.75rem',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {initials}
-                  </div>
+                  <Avatar initials={initials} size={38} gradient={isPlaced} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p
-                      className="wa-text-sm wa-font-semibold"
-                      title={row.fullName ?? undefined}
                       style={{
-                        color: 'var(--color-on-surface)',
+                        fontWeight: 700,
+                        fontSize: 13,
+                        color: 'var(--wa-text)',
                         margin: 0,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                       }}
+                      title={row.fullName ?? undefined}
                     >
                       {row.fullName}
                     </p>
-                    <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                      {row.programTitle} · Enrolled {row.referredAtLabel}
+                    <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '2px 0 6px' }}>
+                      {row.programTitle} &middot; Referred {row.referredAtLabel}
                     </p>
+                    <StageTrack
+                      index={stageTrackIndex(row.stage)}
+                      total={STAGE_ORDER.length}
+                      color={isPlaced ? 'success' : 'accent'}
+                      width={90}
+                    />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem', flexShrink: 0 }}>
-                    <StatusBadge label={row.stageLabel} variant={stageBadgeVariant} />
-                    {isPlaced && (
-                      <StatusBadge
-                        label={row.placementVerified ? 'Verified' : 'Pending verification'}
-                        variant={row.placementVerified ? 'success' : 'warning'}
-                      />
-                    )}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.3rem', flexShrink: 0 }}>
+                    <StatusTag tone={STAGE_TONE[row.stage] ?? 'muted'}>{row.stageLabel}</StatusTag>
+                    {isPlaced ? (
+                      <StatusTag tone={row.placementVerified ? 'ok' : 'warn'}>
+                        {row.placementVerified ? 'Verified' : 'Pending'}
+                      </StatusTag>
+                    ) : null}
                   </div>
                 </div>
               </Link>

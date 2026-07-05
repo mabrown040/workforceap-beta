@@ -2,11 +2,18 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { PartyPopper } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import DataTable from '@/components/portal/ui/DataTable';
-import SectionHeader from '@/components/portal/ui/SectionHeader';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+import {
+  DesignSurface,
+  SectionHeader,
+  DataTable,
+  StatusTag,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
 
 interface InactiveMember {
   id: string;
@@ -28,7 +35,7 @@ function PortalListSkeleton({ label }: { label: string }) {
       style={{
         textAlign: 'center',
         padding: '2.5rem 1rem',
-        color: 'var(--color-on-surface-variant)',
+        color: 'var(--wa-muted)',
         fontSize: '0.9rem',
       }}
     >
@@ -101,66 +108,160 @@ export default function InactiveMembersPage() {
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Colors match the CRITICAL/HIGH/MEDIUM risk-tier palette used by the
-  // at-risk dashboard and member 360 view (accent = critical, gold = high,
-  // blue = medium) — `--color-error`/`--color-orange`/`--color-yellow` are
-  // not defined anywhere in the counselor portal's stylesheet, so they were
-  // rendering with no color at all.
-  const severity = (daysInactive: number) => {
-    if (daysInactive >= 30) return { color: 'var(--color-accent)', label: t('critical') };
-    if (daysInactive >= 14) return { color: 'var(--color-gold)', label: t('warning') };
-    return { color: 'var(--color-blue)', label: t('atRiskShort') };
+  // Risk tiers match the CRITICAL/HIGH/MEDIUM palette used elsewhere in the
+  // portal (>=30 days = critical, >=14 = warning, else the mildest at-risk
+  // tier). Mapped onto kit StatusTag tones: 'alert' (brand crimson, "needs a
+  // look") for critical, 'warn' (gold) for the mid tier, 'info' (blue) for
+  // the mildest tier — 'danger' (true red) is reserved for destructive/failed
+  // states, not a stale-member tier.
+  const severity = (daysInactive: number): { tone: KitTone; label: string } => {
+    if (daysInactive >= 30) return { tone: 'alert', label: t('critical') };
+    if (daysInactive >= 14) return { tone: 'warn', label: t('warning') };
+    return { tone: 'info', label: t('atRiskShort') };
   };
 
+  const columns: Column<InactiveMember>[] = [
+    {
+      key: 'member',
+      header: t('member'),
+      render: (m) => (
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{m.email}</div>
+          {m.phone ? (
+            <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)', marginTop: '0.15rem' }}>{m.phone}</div>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      key: 'days',
+      header: t('daysInactive'),
+      render: (m) => {
+        const sev = severity(m.daysInactive);
+        return (
+          <StatusTag tone={sev.tone}>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m.daysInactive}</span> {t('days')}
+          </StatusTag>
+        );
+      },
+    },
+    {
+      key: 'last',
+      header: t('lastActive'),
+      render: (m) => (
+        <span style={{ color: 'var(--wa-muted)', fontSize: '0.85rem' }}>{formatDate(m.lastActiveAt)}</span>
+      ),
+    },
+    {
+      key: 'joined',
+      header: t('joined'),
+      render: (m) => (
+        <span style={{ color: 'var(--wa-muted)', fontSize: '0.85rem' }}>{formatDate(m.joinedAt)}</span>
+      ),
+    },
+    {
+      key: 'action',
+      header: t('action'),
+      align: 'right',
+      render: (m) => {
+        const sent = reminderSent.has(m.id);
+        const sending = sendingReminder === m.id;
+        return (
+          <button
+            type="button"
+            onClick={() => logOutreach(m)}
+            disabled={sending || sent}
+            title={t('logOutreachTooltip')}
+            aria-label={sent ? t('outreachLoggedFor', { email: m.email }) : t('logOutreachFor', { email: m.email })}
+            className="wa-kit-focus"
+            style={{
+              minWidth: '2.75rem',
+              minHeight: '2.75rem',
+              padding: '0.5rem 1rem',
+              borderRadius: 999,
+              border: 'none',
+              background: sent ? 'var(--wa-success)' : 'var(--wa-accent)',
+              color: 'var(--wa-on-accent)',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              cursor: sending || sent ? 'not-allowed' : 'pointer',
+              opacity: sending ? 0.7 : 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {sending ? t('saving') : sent ? t('logged') : t('logOutreach')}
+          </button>
+        );
+      },
+    },
+  ];
+
   return (
-    <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
+    <DesignSurface surface="dense" className="wa-p-6">
       <PageHeader
         title={t('inactiveMembersTitle')}
         subtitle={t('inactiveMembersSubtitle')}
         breadcrumbs={[{ label: t('counselorPortalBreadcrumb'), href: '/counselor' }, { label: t('inactiveMembersTitle') }]}
       />
 
-      <div role="tablist" aria-label={t('minDaysInactive')} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        {THRESHOLDS.map((d) => (
-          <button
-            type="button"
-            key={d}
-            role="tab"
-            aria-selected={days === d}
-            id={`inactive-tab-${d}`}
-            onClick={() => setDays(d)}
-            style={{
-              minWidth: '2.75rem',
-              minHeight: '2.75rem',
-              padding: '0.625rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
-              background: days === d ? 'var(--color-accent)' : 'var(--surface-container-high)',
-              color: days === d ? 'var(--color-white, #fff)' : 'var(--color-on-surface-variant)',
-              fontWeight: days === d ? 700 : 500,
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              outlineOffset: '2px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {t('daysThreshold', { days: d })}
-          </button>
-        ))}
+      <div role="tablist" aria-label={t('minDaysInactive')} className="wa-flex wa-flex-wrap wa-items-center wa-gap-2 wa-mb-5">
+        {THRESHOLDS.map((d) => {
+          const on = days === d;
+          return (
+            <button
+              type="button"
+              key={d}
+              role="tab"
+              aria-selected={on}
+              id={`inactive-tab-${d}`}
+              onClick={() => setDays(d)}
+              className="wa-kit-focus"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '2.75rem',
+                minHeight: '2.75rem',
+                padding: '0.5rem 1rem',
+                borderRadius: 999,
+                border: '1px solid',
+                borderColor: on ? 'transparent' : 'var(--wa-border)',
+                background: on ? 'var(--wa-accent)' : 'var(--wa-surface)',
+                color: on ? 'var(--wa-on-accent)' : 'var(--wa-text)',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+              }}
+            >
+              {t('daysThreshold', { days: d })}
+            </button>
+          );
+        })}
       </div>
 
       {loading ? <PortalListSkeleton label={t('loadingMemberList')} /> : null}
 
       {error ? (
-        <div role="alert" style={{ color: 'var(--color-error, #dc2626)', padding: '1rem', textAlign: 'center', fontWeight: 600 }}>
+        <div role="alert" style={{ color: 'var(--wa-danger)', padding: '1rem', textAlign: 'center', fontWeight: 600 }}>
           {error}
         </div>
       ) : null}
 
       {actionError ? (
-        <div role="alert" style={{ color: 'var(--color-error, #dc2626)', padding: '0.75rem 1rem', marginBottom: '1rem', background: 'color-mix(in srgb, var(--color-error, #dc2626) 8%, transparent)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
+        <div
+          role="alert"
+          style={{
+            color: 'var(--wa-danger)',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            background: 'color-mix(in srgb, var(--wa-danger) 8%, transparent)',
+            borderRadius: 'var(--wa-radius-sm)',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+          }}
+        >
           {actionError}
         </div>
       ) : null}
@@ -169,131 +270,92 @@ export default function InactiveMembersPage() {
         <PortalEmptyState
           title={t('everyoneIsActive')}
           description={t('noMembersInactive', { days })}
-          icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>celebration</span>}
+          icon={<PartyPopper size={48} style={{ color: 'var(--wa-muted)' }} aria-hidden />}
           primaryAction={{ label: t('myMembersTitle'), href: '/counselor/students' }}
         />
       ) : null}
 
       {!loading && !error && members.length > 0 ? (
-        <div
-          style={{
-            background: 'var(--surface-container)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--outline-variant)',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)' }}>
-            <SectionHeader
-              density="compact"
-              title={t('needsAttention')}
-              subtitle={t('membersThreshold', { count: members.length, days })}
-              action={
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                  Updated {new Date().toLocaleTimeString()}
-                </span>
-              }
-            />
-          </div>
-          <DataTable
-            density="compact"
-            variant="portal"
-            scrollX
+        <>
+          <SectionHeader
+            title={t('needsAttention')}
+            goal={t('membersThreshold', { count: members.length, days })}
+            action={
+              <span style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>
+                Updated {new Date().toLocaleTimeString()}
+              </span>
+            }
+          />
+          <DataTable<InactiveMember>
+            columns={columns}
             rows={members}
             rowKey={(m) => m.id}
-            columns={[
-              {
-                key: 'member',
-                header: t('member'),
-                cell: (m) => (
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{m.email}</div>
-                    {m.phone ? (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>{m.phone}</div>
-                    ) : null}
+            minWidth={640}
+            mobile="cards"
+            cardRender={(m) => {
+              const sev = severity(m.daysInactive);
+              const sent = reminderSent.has(m.id);
+              const sending = sendingReminder === m.id;
+              return (
+                <div className="wa-kit-card wa-kit-card--sm">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{m.email}</div>
+                      {m.phone ? (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)', marginTop: '0.15rem' }}>{m.phone}</div>
+                      ) : null}
+                    </div>
+                    <div style={{ flexShrink: 0 }}>
+                      <StatusTag tone={sev.tone}>
+                        <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m.daysInactive}</span> {t('days')}
+                      </StatusTag>
+                    </div>
                   </div>
-                ),
-              },
-              {
-                key: 'days',
-                header: t('daysInactive'),
-                align: 'center',
-                cell: (m) => {
-                  const sev = severity(m.daysInactive);
-                  return (
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.35rem',
-                        padding: '0.35rem 0.75rem',
-                        borderRadius: 'var(--radius-md)',
-                        background: `color-mix(in srgb, ${sev.color} 12%, transparent)`,
-                        color: sev.color,
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
-                      {m.daysInactive} {t('days')}
-                    </span>
-                  );
-                },
-              },
-              {
-                key: 'last',
-                header: t('lastActive'),
-                cell: (m) => (
-                  <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatDate(m.lastActiveAt)}</span>
-                ),
-              },
-              {
-                key: 'joined',
-                header: t('joined'),
-                cell: (m) => (
-                  <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatDate(m.joinedAt)}</span>
-                ),
-              },
-              {
-                key: 'action',
-                header: t('action'),
-                align: 'right',
-                cell: (m) => (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'space-between',
+                      gap: 8,
+                      fontSize: 11,
+                      color: 'var(--wa-muted)',
+                      margin: '12px 0',
+                    }}
+                  >
+                    <span>{t('lastActive')}: {formatDate(m.lastActiveAt)}</span>
+                    <span>{t('joined')}: {formatDate(m.joinedAt)}</span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => logOutreach(m)}
-                    disabled={sendingReminder === m.id || reminderSent.has(m.id)}
+                    disabled={sending || sent}
                     title={t('logOutreachTooltip')}
-                    aria-label={
-                      reminderSent.has(m.id)
-                        ? t('outreachLoggedFor', { email: m.email })
-                        : t('logOutreachFor', { email: m.email })
-                    }
+                    aria-label={sent ? t('outreachLoggedFor', { email: m.email }) : t('logOutreachFor', { email: m.email })}
+                    className="wa-kit-focus"
                     style={{
-                      minWidth: '2.75rem',
+                      width: '100%',
                       minHeight: '2.75rem',
-                      padding: '0.625rem 1rem',
-                      borderRadius: 'var(--radius-md)',
+                      padding: '0.5rem 1rem',
+                      borderRadius: 999,
                       border: 'none',
-                      background: reminderSent.has(m.id) ? 'var(--color-green)' : 'var(--color-accent)',
-                      color: 'var(--color-white, #fff)',
-                      fontWeight: 600,
+                      background: sent ? 'var(--wa-success)' : 'var(--wa-accent)',
+                      color: 'var(--wa-on-accent)',
+                      fontWeight: 700,
                       fontSize: '0.8rem',
-                      cursor: sendingReminder === m.id || reminderSent.has(m.id) ? 'not-allowed' : 'pointer',
-                      opacity: sendingReminder === m.id ? 0.7 : 1,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      cursor: sending || sent ? 'not-allowed' : 'pointer',
+                      opacity: sending ? 0.7 : 1,
                     }}
                   >
-                    {sendingReminder === m.id ? t('saving') : reminderSent.has(m.id) ? t('logged') : t('logOutreach')}
+                    {sending ? t('saving') : sent ? t('logged') : t('logOutreach')}
                   </button>
-                ),
-              },
-            ]}
+                </div>
+              );
+            }}
+            emptyTitle={t('everyoneIsActive')}
+            emptyDescription={t('noMembersInactive', { days })}
           />
-        </div>
+        </>
       ) : null}
-    </div>
+    </DesignSurface>
   );
 }

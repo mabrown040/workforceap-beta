@@ -2,9 +2,12 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import type { LucideIcon } from 'lucide-react';
+import { Gift, GraduationCap, Headset, Sparkles, ArrowRight, MessageCircle } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface, CardHead } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -15,21 +18,21 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const HELP_ITEMS = [
+const HELP_ITEMS: Array<{ icon: LucideIcon; title: string; body: string; href?: string; cta?: string }> = [
   {
-    icon: 'school',
+    icon: GraduationCap,
     title: 'Coursera Access',
     body: 'Request access to professional certificate courses included through your WorkforceAP membership.',
   },
   {
-    icon: 'support_agent',
+    icon: Headset,
     title: 'Talk to your counselor',
     body: 'Your counselor is your main point of contact. Message them directly from the Messages page for any support.',
     href: '/dashboard/messages',
     cta: 'Open messages',
   },
   {
-    icon: 'auto_awesome',
+    icon: Sparkles,
     title: 'Career Toolkit',
     body: 'Use our suite of tools to build your resume, prep for interviews, and match to jobs.',
     href: '/dashboard/ai-tools',
@@ -42,7 +45,7 @@ export default async function DashboardHelpPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/help');
 
   return (
-    <>
+    <DesignSurface surface="warm">
       <div style={{ maxWidth: 'var(--max-width, 52rem)', margin: '0 auto', padding: '0 1rem 4rem' }}>
         <div style={{ marginTop: '1rem', marginBottom: '2rem' }}>
           <PageHeader
@@ -57,37 +60,35 @@ export default async function DashboardHelpPage() {
 
         {/* Request benefit access */}
         <section style={{ marginBottom: '2rem' }}>
-          <div
-            className="portal-card portal-card--flat"
-            style={{ padding: '1.5rem' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+          <div className="wa-kit-card">
+            <div className="wa-flex wa-items-start wa-gap-4">
               <div
+                aria-hidden="true"
                 style={{
                   width: '2.5rem',
                   height: '2.5rem',
-                  borderRadius: '0.625rem',
-                  background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  background: 'var(--wa-accent-soft)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">redeem</span>
+                <Gift size={20} style={{ color: 'var(--wa-accent)' }} aria-hidden="true" />
               </div>
               <div>
-                <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--wa-text)', marginBottom: '0.5rem' }}>
                   Request Benefit Access
                 </h2>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '0.75rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: '0.75rem' }}>
                   To request access to Coursera or other member benefits, contact your WorkforceAP counselor or email{' '}
-                  <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  <a href="mailto:info@workforceap.org" style={{ color: 'var(--wa-accent)', fontWeight: 600, textDecoration: 'none' }}>
                     info@workforceap.org
                   </a>{' '}
                   with your name and the benefit you&rsquo;d like to request.
                 </p>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', lineHeight: 1.5, margin: 0 }}>
                   We&rsquo;ll process your request and follow up within 2–3 business days.
                 </p>
               </div>
@@ -97,65 +98,73 @@ export default async function DashboardHelpPage() {
 
         {/* Quick links */}
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-            Quick links
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {HELP_ITEMS.map((item) => (
-              <div key={item.title} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div
-                    style={{
-                      width: '2.25rem',
-                      height: '2.25rem',
-                      borderRadius: '0.5rem',
-                      background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }} aria-hidden="true">{item.icon}</span>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{item.title}</h3>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, marginBottom: item.href ? '0.75rem' : 0 }}>{item.body}</p>
-                    {item.href && (
-                      <Link
-                        href={item.href}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
-                      >
-                        {item.cta}
-                        <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
-                      </Link>
-                    )}
+          <CardHead title="Quick links" />
+          <div className="wa-space-y-3">
+            {HELP_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="wa-kit-card wa-kit-card--sm">
+                  <div className="wa-flex wa-items-start wa-gap-4">
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        width: '2.25rem',
+                        height: '2.25rem',
+                        borderRadius: 'var(--wa-radius-sm)',
+                        background: 'var(--wa-accent-soft)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon size={18} style={{ color: 'var(--wa-accent)' }} aria-hidden="true" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--wa-text)', marginBottom: '0.25rem' }}>{item.title}</h3>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', lineHeight: 1.55, marginBottom: item.href ? '0.75rem' : 0 }}>{item.body}</p>
+                      {item.href && (
+                        <Link
+                          href={item.href}
+                          className="wa-kit-focus"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}
+                        >
+                          {item.cta}
+                          <ArrowRight size={14} aria-hidden="true" />
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
         {/* Contact */}
         <div
+          className="wa-kit-card wa-kit-card--sm"
           style={{
-            padding: '1.5rem',
-            background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)',
-            borderRadius: '0.875rem',
-            border: '1px solid color-mix(in srgb, var(--color-accent) 15%, transparent)',
+            background: 'var(--wa-accent-soft)',
+            border: '1px solid color-mix(in srgb, var(--wa-accent) 15%, transparent)',
           }}
         >
-          <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-            Still need help?
-          </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-            Message your counselor — they&rsquo;re your fastest path to answers.{' '}
-            <Link href="/dashboard/messages" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-              Send a message →
-            </Link>
-          </p>
+          <div className="wa-flex wa-items-start wa-gap-3">
+            <MessageCircle size={18} style={{ color: 'var(--wa-accent)', flexShrink: 0, marginTop: 2 }} aria-hidden="true" />
+            <div>
+              <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--wa-text)', marginBottom: '0.25rem' }}>
+                Still need help?
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--wa-muted)', lineHeight: 1.6, margin: 0 }}>
+                Message your counselor — they&rsquo;re your fastest path to answers.{' '}
+                <Link href="/dashboard/messages" className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  Send a message →
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
-      </div>    </>
+      </div>
+    </DesignSurface>
   );
 }

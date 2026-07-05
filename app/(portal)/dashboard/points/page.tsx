@@ -2,11 +2,22 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Sprout, Hammer, Star, Trophy, Flame } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { getMemberPoints } from '@/lib/member/points';
 import ReferralShareCard from './ReferralShareCard';
+import {
+  DesignSurface,
+  CardHead,
+  StatSparkTile,
+  SegmentedProgress,
+  StatusTag,
+  colorVar,
+  type KitColor,
+} from '@/components/portal/kit';
 import {
   EVENT_LABELS,
   LEVELS,
@@ -24,12 +35,19 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const LEVEL_ICONS: Record<string, string> = {
-  starter: 'sprout',
-  builder: 'build',
-  achiever: 'star',
-  champion: 'emoji_events',
+const LEVEL_ICONS: Record<string, typeof Sprout> = {
+  starter: Sprout,
+  builder: Hammer,
+  achiever: Star,
+  champion: Trophy,
 };
+
+/** Recent point-earning event → command-center ledger dot color, distinct from the crimson accent. */
+function ledgerColor(event: string): KitColor {
+  if (event === 'job_application' || event === 'interview_requested' || event === 'placement_recorded') return 'info';
+  if (event === 'daily_study' || event.startsWith('referral_') || event === 'program_enrolled') return 'gold';
+  return 'success';
+}
 
 /**
  * Static catalogue of earnable actions sourced from `lib/member/pointsConfig`.
@@ -109,7 +127,23 @@ export default async function DashboardPointsPage() {
   const pctToNext = nextLevel
     ? Math.min(100, Math.round(((total - levelMeta.min) / (nextLevel.min - levelMeta.min)) * 100))
     : 100;
-  const icon = LEVEL_ICONS[memberPoints.level] ?? 'sprout';
+  const LevelIcon = LEVEL_ICONS[memberPoints.level] ?? Sprout;
+  const levelRank = LEVELS.findIndex((l) => l.name === memberPoints.level) + 1;
+
+  // Recent point-earning events → command-center style ledger. Read-only,
+  // additive query (mirrors the same lean read the /dashboard home already
+  // runs for its own points ledger card).
+  const recentTx = await prisma.pointsTransaction.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 6,
+    select: { event: true, points: true },
+  });
+  const pointsLedger = recentTx.map((tx) => ({
+    label: EVENT_LABELS[tx.event] ?? 'Points earned',
+    amount: tx.points,
+    color: ledgerColor(tx.event),
+  }));
 
   // Codex P2 catch on PR #1054: only show actions that are actually wired
   // to call `awardPoints()` in production code. POINT_VALUES has rows for
@@ -160,328 +194,254 @@ export default async function DashboardPointsPage() {
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Your Points' }]}
       />
 
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 1.25rem 4rem' }}>
-        {/* ── Invite a friend (referral) ── */}
-        <ReferralShareCard />
+      <DesignSurface surface="warm">
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 1.25rem 4rem' }} className="wa-space-y-4">
+          {/* ── KPI strip ── */}
+          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-3 wa-gap-3">
+            <StatSparkTile icon={Trophy} label="Total points" value={total.toLocaleString()} color="accent" />
+            <StatSparkTile
+              icon={Flame}
+              label="Current streak"
+              value={`${memberPoints.currentStreak} ${memberPoints.currentStreak === 1 ? 'day' : 'days'}`}
+              color="gold"
+            />
+            <StatSparkTile icon={Star} label="Level rank" value={`${levelRank} of ${LEVELS.length} · ${levelMeta.label}`} color="info" />
+          </div>
 
-        {/* ── Current points summary ── */}
-        <section
-          className="portal-card portal-card--flat"
-          style={{ padding: '1.5rem', marginBottom: '1.5rem' }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '1rem',
-              flexWrap: 'wrap',
-              marginBottom: '1.25rem',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-              <span
-                className="material-symbols-outlined"
-                style={{
-                  fontSize: '2.25rem',
-                  color: levelMeta.color,
-                  ['--ms-fill' as string]: 1,
-                } as React.CSSProperties}
-              >
-                {icon}
-              </span>
-              <div>
-                <p
+          {/* ── Invite a friend (referral) ── */}
+          <ReferralShareCard />
+
+          {/* ── Current points summary + level progress ── */}
+          <section className="wa-kit-card">
+            <CardHead title="Level progress" />
+            <div
+              className="wa-flex wa-items-center wa-justify-between"
+              style={{ gap: '1rem', flexWrap: 'wrap', marginBottom: 18 }}
+            >
+              <div className="wa-flex wa-items-center" style={{ gap: 14 }}>
+                <div
+                  aria-hidden="true"
                   style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: 'var(--color-on-surface-variant)',
-                    margin: 0,
-                  }}
-                >
-                  My Points
-                </p>
-                <p
-                  style={{
-                    fontSize: '2.25rem',
-                    fontWeight: 800,
-                    letterSpacing: '-0.04em',
-                    lineHeight: 1,
-                    margin: '0.2rem 0 0',
+                    width: 44,
+                    height: 44,
+                    borderRadius: 'var(--wa-radius-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    background: `color-mix(in srgb, ${levelMeta.color} 14%, transparent)`,
                     color: levelMeta.color,
                   }}
                 >
-                  {total.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <span
-              style={{
-                background: `${levelMeta.color}18`,
-                color: levelMeta.color,
-                border: `1px solid ${levelMeta.color}30`,
-                borderRadius: 'var(--radius-full)',
-                padding: '0.4rem 0.9rem',
-                fontSize: '0.875rem',
-                fontWeight: 700,
-              }}
-            >
-              {levelMeta.label}
-            </span>
-          </div>
-
-          {nextLevel ? (
-            <>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '0.8125rem',
-                  color: 'var(--color-on-surface-variant)',
-                  marginBottom: '0.4rem',
-                }}
-              >
-                <span>
-                  {pctToNext}% to {nextLevel.label}
-                </span>
-                <span>
-                  Next: {nextLevel.label} at {nextLevel.min.toLocaleString()} pts
-                </span>
-              </div>
-              <div
-                style={{
-                  height: '8px',
-                  background: 'var(--surface-container-highest)',
-                  borderRadius: 'var(--radius-full)',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${pctToNext}%`,
-                    background: levelMeta.color,
-                    borderRadius: 'var(--radius-full)',
-                    transition: 'width 0.4s ease',
-                  }}
-                />
-              </div>
-            </>
-          ) : (
-            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-              You&apos;ve reached the top tier. Keep going to set the bar even higher.
-            </p>
-          )}
-        </section>
-
-        {/* ── Tier ladder ── */}
-        <section
-          className="portal-card portal-card--flat"
-          style={{ padding: '1.5rem', marginBottom: '1.5rem' }}
-        >
-          <h2
-            style={{
-              fontSize: '1rem',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--color-on-surface-variant)',
-              margin: '0 0 1rem',
-            }}
-          >
-            Levels
-          </h2>
-          <div style={{ display: 'grid', gap: '0.625rem' }}>
-            {LEVELS.map((l) => {
-              const reached = total >= l.min;
-              const current = l.name === memberPoints.level;
-              const range =
-                l.max === Infinity ? `${l.min.toLocaleString()}+ pts` : `${l.min.toLocaleString()}–${l.max.toLocaleString()} pts`;
-              return (
-                <div
-                  key={l.name}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.875rem',
-                    padding: '0.75rem 1rem',
-                    border: `1px solid ${current ? l.color + '60' : 'var(--outline-variant)'}`,
-                    borderRadius: 'var(--radius-md, 0.625rem)',
-                    background: current ? `${l.color}14` : 'transparent',
-                    opacity: reached ? 1 : 0.7,
-                  }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      fontSize: '1.5rem',
-                      color: l.color,
-                      ['--ms-fill' as string]: reached ? 1 : 0,
-                    } as React.CSSProperties}
-                  >
-                    {LEVEL_ICONS[l.name] ?? 'sprout'}
-                  </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontWeight: 700,
-                        fontSize: '0.9375rem',
-                        color: 'var(--color-on-surface)',
-                      }}
-                    >
-                      {l.label}
-                      {current && (
-                        <span
-                          style={{
-                            marginLeft: '0.5rem',
-                            fontSize: '0.6875rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.08em',
-                            color: l.color,
-                          }}
-                        >
-                          You are here
-                        </span>
-                      )}
-                    </p>
-                    <p
-                      style={{
-                        margin: '0.15rem 0 0',
-                        fontSize: '0.8125rem',
-                        color: 'var(--color-on-surface-variant)',
-                      }}
-                    >
-                      {range}
-                    </p>
-                  </div>
+                  <LevelIcon size={20} />
                 </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── How to earn points ── */}
-        <section
-          className="portal-card portal-card--flat"
-          style={{ padding: '1.5rem' }}
-        >
-          <h2
-            style={{
-              fontSize: '1rem',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--color-on-surface-variant)',
-              margin: '0 0 0.75rem',
-            }}
-          >
-            How to earn points
-          </h2>
-          <p
-            style={{
-              margin: '0 0 1.25rem',
-              fontSize: '0.875rem',
-              lineHeight: 1.6,
-              color: 'var(--color-on-surface-variant)',
-            }}
-          >
-            Points are awarded automatically when you hit a milestone. Most actions are
-            counted once — finishing the same course or uploading the same resume twice
-            won&apos;t double-count. Daily study points are the exception: they&apos;re
-            earned again each new day you&apos;re active.
-          </p>
-
-          <ul
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              display: 'grid',
-              gap: '0.5rem',
-            }}
-          >
-            {earnableActions.map((action) => {
-              const points = POINT_VALUES[action.event];
-              const label = EVENT_LABELS[action.event] ?? action.event;
-              const content = (
-                <>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontWeight: 700,
-                        fontSize: '0.9375rem',
-                        color: 'var(--color-on-surface)',
-                      }}
-                    >
-                      {label}
-                    </p>
-                    <p
-                      style={{
-                        margin: '0.2rem 0 0',
-                        fontSize: '0.8125rem',
-                        color: 'var(--color-on-surface-variant)',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      {action.blurb}
-                    </p>
-                  </div>
-                  <span
+                <div>
+                  <div className="wa-kit-stat-label">My points</div>
+                  <div
                     style={{
-                      flexShrink: 0,
-                      fontSize: '0.875rem',
+                      fontSize: 28,
                       fontWeight: 800,
-                      color: 'var(--color-green, #16a34a)',
-                      whiteSpace: 'nowrap',
+                      letterSpacing: '-0.03em',
+                      lineHeight: 1,
+                      marginTop: 4,
+                      color: levelMeta.color,
+                      fontVariantNumeric: 'tabular-nums',
                     }}
                   >
-                    +{points} pts
-                  </span>
-                </>
-              );
+                    {total.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+              <span
+                style={{
+                  background: `color-mix(in srgb, ${levelMeta.color} 14%, transparent)`,
+                  color: levelMeta.color,
+                  borderRadius: 999,
+                  padding: '0.4rem 0.9rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 700,
+                }}
+              >
+                {levelMeta.label}
+              </span>
+            </div>
 
-              const itemStyle: React.CSSProperties = {
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '0.875rem 1rem',
-                border: '1px solid var(--outline-variant)',
-                borderRadius: 'var(--radius-md, 0.625rem)',
-                background: 'var(--surface-container-lowest, transparent)',
-                textDecoration: 'none',
-                color: 'inherit',
-              };
+            {nextLevel ? (
+              <>
+                <div
+                  className="wa-flex wa-items-center wa-justify-between"
+                  style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', marginBottom: 8 }}
+                >
+                  <span>{pctToNext}% to {nextLevel.label}</span>
+                  <span>Next: {nextLevel.label} at {nextLevel.min.toLocaleString()} pts</span>
+                </div>
+                <SegmentedProgress pct={pctToNext} segments={12} color="accent" label={`Progress toward ${nextLevel.label}`} />
+              </>
+            ) : (
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--wa-muted)' }}>
+                You&apos;ve reached the top tier. Keep going to set the bar even higher.
+              </p>
+            )}
+          </section>
 
-              return (
-                <li key={action.event}>
-                  {action.href ? (
-                    <Link href={action.href} style={itemStyle}>
-                      {content}
-                    </Link>
-                  ) : (
-                    <div style={itemStyle}>{content}</div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          {/* ── Tier ladder ── */}
+          <section className="wa-kit-card">
+            <CardHead title="Levels" />
+            <div style={{ display: 'grid', gap: '0.625rem' }}>
+              {LEVELS.map((l) => {
+                const reached = total >= l.min;
+                const current = l.name === memberPoints.level;
+                const Icon = LEVEL_ICONS[l.name] ?? Sprout;
+                const range =
+                  l.max === Infinity ? `${l.min.toLocaleString()}+ pts` : `${l.min.toLocaleString()}–${l.max.toLocaleString()} pts`;
+                return (
+                  <div
+                    key={l.name}
+                    className="wa-flex wa-items-center"
+                    style={{
+                      gap: '0.875rem',
+                      padding: '0.75rem 1rem',
+                      border: `1px solid ${current ? `color-mix(in srgb, ${l.color} 45%, transparent)` : 'var(--wa-border)'}`,
+                      borderRadius: 'var(--wa-radius-sm)',
+                      background: current ? `color-mix(in srgb, ${l.color} 10%, transparent)` : 'transparent',
+                      opacity: reached ? 1 : 0.7,
+                    }}
+                  >
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: 'var(--wa-radius-sm)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        background: `color-mix(in srgb, ${l.color} 14%, transparent)`,
+                        color: l.color,
+                      }}
+                    >
+                      <Icon size={16} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p className="wa-flex wa-items-center wa-gap-2" style={{ margin: 0, fontWeight: 700, fontSize: '0.9375rem', color: 'var(--wa-text)' }}>
+                        {l.label}
+                        {current ? <StatusTag tone="ok">You are here</StatusTag> : null}
+                      </p>
+                      <p style={{ margin: '0.15rem 0 0', fontSize: '0.8125rem', color: 'var(--wa-muted)' }}>{range}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
-          <div style={{ marginTop: '1.25rem' }}>
-            <Link
-              href="/dashboard"
-              className="btn btn-muted"
-              style={{ fontSize: '0.875rem' }}
-            >
-              Back to dashboard
-            </Link>
-          </div>
-        </section>
-      </div>
+          {/* ── Recent points ledger ── */}
+          {pointsLedger.length > 0 ? (
+            <section className="wa-kit-card">
+              <CardHead title="Recent points" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {pointsLedger.map((entry, i) => (
+                  <div key={`${entry.label}-${i}`} className="wa-flex wa-items-center wa-justify-between" style={{ fontSize: 13 }}>
+                    <span className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-muted)', fontWeight: 600 }}>
+                      <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, background: colorVar(entry.color) }} />
+                      {entry.label}
+                    </span>
+                    <span style={{ fontWeight: 700, color: 'var(--wa-success)', fontVariantNumeric: 'tabular-nums' }}>+{entry.amount}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {/* ── How to earn points ── */}
+          <section className="wa-kit-card">
+            <CardHead title="How to earn points" />
+            <p style={{ margin: '0 0 1.25rem', fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--wa-muted)' }}>
+              Points are awarded automatically when you hit a milestone. Most actions are
+              counted once — finishing the same course or uploading the same resume twice
+              won&apos;t double-count. Daily study points are the exception: they&apos;re
+              earned again each new day you&apos;re active.
+            </p>
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
+              {earnableActions.map((action) => {
+                const points = POINT_VALUES[action.event];
+                const label = EVENT_LABELS[action.event] ?? action.event;
+                const content = (
+                  <>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9375rem', color: 'var(--wa-text)' }}>{label}</p>
+                      <p style={{ margin: '0.2rem 0 0', fontSize: '0.8125rem', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+                        {action.blurb}
+                      </p>
+                    </div>
+                    <span
+                      style={{
+                        flexShrink: 0,
+                        fontSize: '0.8125rem',
+                        fontWeight: 800,
+                        color: 'var(--wa-success)',
+                        background: 'color-mix(in srgb, var(--wa-success) 12%, transparent)',
+                        borderRadius: 999,
+                        padding: '3px 10px',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      +{points} pts
+                    </span>
+                  </>
+                );
+
+                const itemStyle: React.CSSProperties = {
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '0.875rem 1rem',
+                  border: '1px solid var(--wa-border)',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  background: 'var(--wa-surface)',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                };
+
+                return (
+                  <li key={action.event}>
+                    {action.href ? (
+                      <Link href={action.href} style={itemStyle} className="wa-kit-focus wa-kit-card--hover">
+                        {content}
+                      </Link>
+                    ) : (
+                      <div style={itemStyle}>{content}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div style={{ marginTop: '1.25rem' }}>
+              <Link
+                href="/dashboard"
+                className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 40,
+                  padding: '8px 16px',
+                  border: '1px solid var(--wa-border)',
+                  color: 'var(--wa-text)',
+                  fontWeight: 600,
+                  fontSize: '0.8125rem',
+                  borderRadius: 999,
+                  textDecoration: 'none',
+                }}
+              >
+                Back to dashboard
+              </Link>
+            </div>
+          </section>
+        </div>
+      </DesignSurface>
     </>
   );
 }

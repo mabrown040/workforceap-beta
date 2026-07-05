@@ -3,6 +3,9 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { AlertTriangle, Bell, Clock, Eye, MessageSquare } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { CardHead, FormField, QueueRow, StatusTag, type QueueTone } from '@/components/portal/kit';
 
 type AttentionMember = {
   memberId: string;
@@ -38,6 +41,42 @@ const TIER_ORDER: Record<AttentionMember['riskTier'], number> = {
   medium: 1,
   low: 2,
   watch: 3,
+};
+
+const TIER_TONE: Record<AttentionMember['riskTier'], QueueTone> = {
+  high: 'red',
+  medium: 'yellow',
+  low: 'blue',
+  watch: 'blue',
+};
+
+const TIER_ICON: Record<AttentionMember['riskTier'], LucideIcon> = {
+  high: AlertTriangle,
+  medium: Clock,
+  low: Eye,
+  watch: Bell,
+};
+
+const kitFieldStyle: React.CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 13,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '8px 10px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+};
+
+const kitSmallSelectStyle: React.CSSProperties = {
+  fontSize: 12,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '5px 8px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
 };
 
 export default function PartnerAttentionClient({ initialTier = 'high' as TierFilter }) {
@@ -189,111 +228,133 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
   };
 
   return (
-    <div className="partner-attention-console">
-      <section className="partner-panel partner-attention-queue" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.35rem' }}>Who needs you right now</h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-          Sorted with highest urgency first — quiet days show how long it has been since the member updated their profile. Assign owners
-          and log outreach so nothing slips through the cracks.
+    <div className="wa-flex wa-flex-col wa-gap-4">
+      <section className="wa-kit-card">
+        <CardHead title="Who needs you right now" />
+        <p style={{ color: 'var(--wa-muted)', fontSize: 13, marginTop: -8, marginBottom: 16, lineHeight: 1.5 }}>
+          Sorted with highest urgency first — quiet days show how long it has been since the member updated their
+          profile. Assign owners and log outreach so nothing slips through the cracks.
         </p>
-        <div className="partner-tier-filters" role="tablist" aria-label="Risk tier">
-          {(['all', 'high', 'medium', 'low', 'watch'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              className={`partner-tier-filter${tierFilter === t ? ' is-active' : ''}`}
-              onClick={() => pushTierRoute(t)}
-              role="tab"
-              aria-selected={tierFilter === t}
-            >
-              <span className="partner-tier-filter-inner">
+        <div role="tablist" aria-label="Risk tier" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+          {(['all', 'high', 'medium', 'low', 'watch'] as const).map((t) => {
+            const active = tierFilter === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => pushTierRoute(t)}
+                className="wa-kit-focus"
+                style={{
+                  textTransform: 'capitalize',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: '6px 14px',
+                  borderRadius: 999,
+                  border: `1px solid ${active ? 'var(--wa-accent)' : 'var(--wa-border)'}`,
+                  background: active ? 'var(--wa-accent)' : 'var(--wa-surface)',
+                  color: active ? 'var(--wa-on-accent)' : 'var(--wa-text)',
+                  cursor: 'pointer',
+                }}
+              >
                 {t === 'all' ? 'All' : t}
                 {tierCounts ? (
-                  <span className="partner-tier-filter-count wa-tabular-nums">{t === 'all' ? tierCounts.all : tierCounts[t]}</span>
+                  <span className="wa-tabular-nums" style={{ marginLeft: 6, opacity: 0.85 }}>
+                    {t === 'all' ? tierCounts.all : tierCounts[t]}
+                  </span>
                 ) : null}
-              </span>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
+
         {loadError ? (
-          <div role="alert" className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{loadError}</p>
+          <div role="alert" className="wa-kit-card wa-kit-card--sm">
+            <p style={{ color: 'var(--wa-muted)', marginBottom: 12 }}>{loadError}</p>
             <button type="button" className="btn btn-outline btn-sm" onClick={() => void reload()}>
               Retry
             </button>
           </div>
         ) : !rows ? (
-          <p>Loading…</p>
+          <p style={{ color: 'var(--wa-muted)' }}>Loading…</p>
         ) : filtered.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No members in this filter. Try “All” or check back later.</p>
+          <p style={{ color: 'var(--wa-muted)' }}>No members in this filter. Try &ldquo;All&rdquo; or check back later.</p>
         ) : (
-          <ul className="partner-attention-list">
-            {filtered.map((m) => (
-              <li key={m.memberId} className={`partner-attention-row tier-${m.riskTier}`}>
-                <div className="partner-attention-main">
-                  <span className={`partner-risk-pill tier-${m.riskTier}`}>{m.riskTier}</span>
-                  <Link href={`/partner/referred-members/${m.memberId}`} className="partner-attention-name">
-                    {m.fullName}
-                  </Link>
-                  <div className="partner-attention-meta">
-                    {m.stageLabel} · {m.programTitle} · quiet <span className="wa-tabular-nums">{m.staleDays}</span>d
+          <div className="wa-flex wa-flex-col wa-gap-3">
+            {filtered.map((m) => {
+              const Icon = TIER_ICON[m.riskTier];
+              return (
+                <div key={m.memberId} className="wa-flex wa-flex-col wa-gap-2">
+                  <QueueRow
+                    tone={TIER_TONE[m.riskTier]}
+                    icon={<Icon size={16} aria-hidden />}
+                    title={m.fullName}
+                    meta={`${m.stageLabel} · ${m.programTitle} · quiet ${m.staleDays}d`}
+                    flag={m.riskTier.toUpperCase()}
+                    action={
+                      <Link href={`/partner/referred-members/${m.memberId}`} className="portal-section-action">
+                        Review
+                      </Link>
+                    }
+                  />
+                  <div style={{ paddingLeft: 50, fontSize: 12, color: 'var(--wa-text)' }}>
+                    <strong>Next:</strong> <span style={{ color: 'var(--wa-muted)' }}>{m.nextBestAction}</span>
                   </div>
-                  <div className="partner-attention-next">
-                    <strong>Next:</strong> {m.nextBestAction}
-                  </div>
-                  <div className="partner-attention-owners">
-                    <span>Owner: {m.assignedToName ?? '—'}</span>
-                    <span> · Last touch: {m.lastTouchName ?? '—'}</span>
+                  <div style={{ paddingLeft: 50, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--wa-muted)' }}>
+                      Owner
+                      <select
+                        aria-label={`Assign owner for ${m.fullName}`}
+                        value={m.assignedPartnerUserId ?? ''}
+                        disabled={assignBusy === m.memberId || !team}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          void assign(m.memberId, v === '' ? null : v);
+                        }}
+                        className="wa-kit-focus"
+                        style={kitSmallSelectStyle}
+                      >
+                        <option value="">Unassigned</option>
+                        {(team ?? []).map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <span style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
+                      Last touch: {m.lastTouchName ?? '—'}
+                    </span>
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.memberId)}>
+                      Log outreach
+                    </button>
+                    <Link
+                      href={`/partner/messages?memberId=${m.memberId}`}
+                      className="btn btn-outline btn-sm"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <MessageSquare size={13} aria-hidden />
+                      Message
+                    </Link>
                   </div>
                 </div>
-                <div className="partner-attention-side">
-                  <select
-                    className="partner-assign-select"
-                    aria-label={`Assign owner for ${m.fullName}`}
-                    value={m.assignedPartnerUserId ?? ''}
-                    disabled={assignBusy === m.memberId || !team}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      void assign(m.memberId, v === '' ? null : v);
-                    }}
-                  >
-                    <option value="">Unassigned</option>
-                    {(team ?? []).map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.fullName}
-                      </option>
-                    ))}
-                  </select>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.memberId)}>
-                    Log outreach
-                  </button>
-                  <a
-                    href={`/partner/messages?memberId=${m.memberId}`}
-                    className="btn btn-outline btn-sm"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">forum</span>
-                    Message
-                  </a>
-                </div>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         )}
       </section>
 
-      <section className="partner-panel" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Log outreach</h2>
-        {message ? <p role="status">{message}</p> : null}
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: 480 }}>
-          <label>
-            <span className="sr-only">Member</span>
-            <select
-              value={memberId}
-              onChange={(e) => setMemberId(e.target.value)}
-              required
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
+      <section className="wa-kit-card">
+        <CardHead title="Log outreach" />
+        {message ? (
+          <p role="status" style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginTop: -8, marginBottom: 12 }}>
+            {message}
+          </p>
+        ) : null}
+        <form onSubmit={submit} className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-3" style={{ maxWidth: 640 }}>
+          <FormField label="Member">
+            <select value={memberId} onChange={(e) => setMemberId(e.target.value)} required style={kitFieldStyle}>
               <option value="">Select member…</option>
               {(allMembers ?? []).map((m) => (
                 <option key={m.id} value={m.id}>
@@ -301,56 +362,49 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            Channel
-            <select
-              value={channel}
-              onChange={(e) => setChannel(e.target.value as typeof channel)}
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
+          </FormField>
+          <FormField label="Channel">
+            <select value={channel} onChange={(e) => setChannel(e.target.value as typeof channel)} style={kitFieldStyle}>
               <option value="email">Email</option>
               <option value="call">Call</option>
               <option value="text">Text</option>
               <option value="other">Other</option>
             </select>
-          </label>
-          <label>
-            Note
+          </FormField>
+          <FormField label="Note" full>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
-              style={{ width: '100%', padding: '0.5rem' }}
               required
+              style={{ ...kitFieldStyle, resize: 'vertical' }}
             />
-          </label>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Saving…' : 'Save log'}
-          </button>
+          </FormField>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving…' : 'Save log'}
+            </button>
+          </div>
         </form>
       </section>
 
-      <section className="partner-panel" style={{ padding: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Recent outreach</h2>
+      <section className="wa-kit-card">
+        <CardHead title="Recent outreach" />
         {!logs ? (
-          <p>Loading…</p>
+          <p style={{ color: 'var(--wa-muted)' }}>Loading…</p>
         ) : logs.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No logs yet.</p>
+          <p style={{ color: 'var(--wa-muted)' }}>No logs yet.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {logs.map((l) => (
-              <li
-                key={l.id}
-                style={{
-                  padding: '0.65rem 0',
-                  borderBottom: '1px solid var(--color-border)',
-                  fontSize: '0.9rem',
-                }}
-              >
-                <strong>{l.memberName}</strong> · {l.channel} · {new Date(l.createdAt).toLocaleString()}
-                <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{l.note}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>By {l.createdByName}</div>
+              <li key={l.id} style={{ paddingBottom: 10, borderBottom: '1px solid var(--wa-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--wa-text)' }}>{l.memberName}</span>
+                  <StatusTag tone="muted">{l.channel}</StatusTag>
+                  <span style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{new Date(l.createdAt).toLocaleString()}</span>
+                </div>
+                <div style={{ color: 'var(--wa-muted)', marginTop: 4, fontSize: 13 }}>{l.note}</div>
+                <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>By {l.createdByName}</div>
               </li>
             ))}
           </ul>

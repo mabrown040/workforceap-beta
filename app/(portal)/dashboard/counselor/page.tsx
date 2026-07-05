@@ -2,19 +2,17 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import PageHeader from '@/components/portal/PageHeader';
-import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getTranslations } from 'next-intl/server';
+import { MemberCounselorKit } from '@/components/portal/kit/pages/member/MemberCounselorKit';
 
 const CareerCounselor = dynamic(() => import('@/components/portal/tools/CareerCounselor'), {
   loading: () => (
-    <div className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
-      <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>Loading voice counselor…</p>
+    <div className="wa-kit-card" style={{ padding: '2rem' }}>
+      <p style={{ margin: 0, color: 'var(--wa-muted)' }}>Loading voice counselor…</p>
     </div>
   ),
 });
@@ -61,81 +59,23 @@ export default async function CounselorPage() {
     select: { id: true, output: true, createdAt: true },
   });
 
-  const historySection = pastSessions.length > 0 ? (
-    <section style={{ padding: '1.5rem 1rem 2rem' }}>
-      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>{tCounselor('pastSessions')}</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {pastSessions.map((session) => {
-          const steps = parseActionPlan(session.output as string | null);
-          return (
-            <Link
-              key={session.id}
-              href={`/dashboard/counselor/${session.id}`}
-              className="counselor-history-card"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'block',
-                padding: '1rem 1.25rem',
-                borderRadius: '0.75rem',
-                border: '1px solid var(--color-border-subtle)',
-                background: 'var(--surface-container)',
-                cursor: 'pointer',
-                transition: 'background 0.15s, border-color 0.15s',
-              }}
-            >
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: steps.length > 0 ? '0.5rem' : 0 }}>
-                {new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </p>
-              {steps.length > 0 && (
-                <ul style={{ margin: 0, padding: '0 0 0 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  {steps.map((step, i) => (
-                    <li key={i} style={{ fontSize: '0.875rem' }}>{step}</li>
-                  ))}
-                </ul>
-              )}
-            </Link>
-          );
-        })}
-      </div>
-      <style dangerouslySetInnerHTML={{ __html: `
-        .counselor-history-card:hover {
-          background: var(--surface-container-high) !important;
-          border-color: var(--color-accent) !important;
-        }
-      `}} />
-    </section>
-  ) : null;
+  const sessionSummaries = pastSessions.map((session) => ({
+    id: session.id,
+    dateLabel: new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    steps: parseActionPlan(session.output as string | null),
+  }));
 
   return (
-    <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>
-      <PageHeader
-        title={tCommon('aiCounselor')}
-        subtitle="Your session is private. Speak naturally — I'm here to help."
-        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: tCommon('aiCounselor') }]}
-      />
-
-      {/* Mobile */}
-      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '0 1rem 1.5rem' }}>
-          <VoiceAgentSurface {...studentCounselorVoiceSurface}>
-            <CareerCounselor firstName={firstName} />
-          </VoiceAgentSurface>
-        </div>
-        {historySection}
-      </div>
-
-      {/* Desktop */}
-      <div className="wa-hidden md:wa-block">
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 1.5rem 3rem' }}>
-          <VoiceAgentSurface {...studentCounselorVoiceSurface}>
-            <CareerCounselor firstName={firstName} />
-          </VoiceAgentSurface>
-          {historySection}
-        </div>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </div>
+    <MemberCounselorKit
+      title={tCommon('aiCounselor')}
+      subtitle="Your session is private. Speak naturally — I'm here to help."
+      pastSessionsLabel={tCounselor('pastSessions')}
+      pastSessions={sessionSummaries}
+      voiceSurface={
+        <VoiceAgentSurface {...studentCounselorVoiceSurface}>
+          <CareerCounselor firstName={firstName} />
+        </VoiceAgentSurface>
+      }
+    />
   );
 }

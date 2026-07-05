@@ -4,7 +4,8 @@ import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 const SkillMapperClient = dynamic(() => import('@/components/portal/tools/SkillMapperClient'), {
@@ -12,12 +13,11 @@ const SkillMapperClient = dynamic(() => import('@/components/portal/tools/SkillM
     <div
       role="status"
       aria-live="polite"
-      className="portal-card portal-card--flat"
+      className="wa-kit-card"
       style={{
         padding: '2.5rem 1.25rem',
-        borderRadius: 12,
         textAlign: 'center',
-        color: 'var(--color-on-surface-variant)',
+        color: 'var(--wa-muted)',
         fontSize: '0.9rem',
         fontWeight: 600,
       }}
@@ -41,37 +41,30 @@ export default async function SkillMapperPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/skill-mapper');
 
   return (
-    <>
-      <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
-      <div style={{ paddingBottom: '6rem' }}>
-        <div
-          style={{
-            padding: '1.25rem 2rem 1.5rem',
-            borderBottom: '1px solid var(--surface-container-high)',
-            background: 'var(--surface-container-low)',
-          }}
-        >
-          <PageHeader
-            title="Skill Mapper"
-            subtitle="Search any occupation to see its top skills and competency radar chart."
-            breadcrumbs={[
+    <DesignSurface surface="warm">
+      <div className="skill-mapper-page-shell" style={{ maxWidth: 900, margin: '0 auto', padding: '1.25rem 1rem 3rem' }}>
+        <div className="wa-space-y-5" style={{ marginBottom: 20 }}>
+          <PortalBreadcrumb
+            items={[
               { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Skill Mapper' },
             ]}
           />
-        </div>
-
-        <div className="skill-mapper-page-shell" style={{ maxWidth: 900, margin: '0 auto', padding: '1rem 1.5rem 2rem' }}>
-          <div className="portal-card portal-card--flat skill-mapper-card" style={{ padding: '1rem', borderRadius: 12 }}>
-            <SkillMapperClient />
-          </div>
-          <ToolHistoryPanel
-            userId={user.id}
-            toolType="skill_assessment"
-            title="Recent Skill Mapper Lookups"
+          <SectionHeader
+            kicker="AI Career Toolkit"
+            title="Skill Mapper"
+            goal="Search any occupation to see its top skills and competency radar chart."
           />
-        </div>      </div>
+        </div>
+        <div className="wa-kit-card skill-mapper-card">
+          <SkillMapperClient />
+        </div>
+        <ToolHistoryPanel
+          userId={user.id}
+          toolType="skill_assessment"
+          title="Recent Skill Mapper Lookups"
+        />
       </div>
-    </>
+    </DesignSurface>
   );
 }

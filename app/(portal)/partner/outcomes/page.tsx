@@ -1,24 +1,51 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
-import PageHeader from '@/components/portal/PageHeader';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
+import { Award, CheckCircle2, Clock, GraduationCap, Trophy, Users } from 'lucide-react';
+import {
+  DesignSurface,
+  SectionHeader,
+  DataTable,
+  StatusTag,
+  colorVar,
+  type Column,
+} from '@/components/portal/kit';
+import { PartnerKpiGrid } from '@/components/portal/kit/pages/PartnerOverviewKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: t('outcomesSnapshotTitle'),
-  description: t('outcomesSnapshotDescription'),
-  path: '/partner/outcomes',
-});
+    title: t('outcomesSnapshotTitle'),
+    description: t('outcomesSnapshotDescription'),
+    path: '/partner/outcomes',
+  });
 }
+
+const overviewLinkStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '8px 16px',
+  borderRadius: 'var(--wa-radius-sm)',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 700,
+  fontSize: 13,
+  textDecoration: 'none',
+} as const;
+
+type PendingReviewRow = {
+  id: string;
+  member: string;
+  submittedLabel: string;
+};
 
 export default async function PartnerOutcomesPage() {
   const user = await getUser();
@@ -45,70 +72,81 @@ export default async function PartnerOutcomesPage() {
     return memberProgramCompleted(p.member.enrolledProgram, null, p.member.memberProgramProgress);
   }).length;
 
+  const memberNameById = new Map(members.map((m) => [m.id, m.fullName]));
+  const pendingRows: PendingReviewRow[] = pendingPlacements.map((p) => ({
+    id: `${p.userId}-${p.createdAt.toISOString()}`,
+    member: memberNameById.get(p.userId) ?? t('memberFallback'),
+    submittedLabel: p.createdAt.toLocaleDateString('en-US'),
+  }));
+
+  const pendingColumns: Column<PendingReviewRow>[] = [
+    { key: 'member', header: 'Member' },
+    {
+      key: 'submittedLabel',
+      header: 'Submitted',
+      render: (row) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.submittedLabel}</span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: () => <StatusTag tone="warn">{t('pendingReview')}</StatusTag>,
+    },
+  ];
+
   return (
-    <PortalPageFrame>
-      <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
-        <PageHeader
+    <PortalPageFrame maxWidth="80rem">
+      <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
+        <SectionHeader
+          kicker={t('partnerDashboard')}
           title={t('outcomesSnapshotTitle')}
-          subtitle={t('quickCountsFor', { partnerName: ctx.partner.name })}
+          goal={t('quickCountsFor', { partnerName: ctx.partner.name })}
           action={
-            <Link href="/partner" className="btn btn-muted btn-sm">
+            <a href="/partner" style={overviewLinkStyle} className="wa-kit-focus">
               {t('partnerOverviewBtn')}
-            </Link>
+            </a>
           }
         />
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)' }}>{members.length}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('totalReferrals')}</div>
+
+        <PartnerKpiGrid
+          items={[
+            { label: t('totalReferrals'), value: members.length, color: 'accent', icon: Users },
+            { label: t('placed'), value: placements, color: 'success', icon: CheckCircle2 },
+            { label: t('pendingReview'), value: pendingPlacementCount, color: 'gold', icon: Clock },
+            { label: t('withCertificate'), value: certified, color: 'info', icon: Award },
+            { label: t('inTrainingCertifiedStage'), value: inTraining, color: 'text', icon: GraduationCap },
+            { label: t('programCompletions'), value: completions, color: 'accentDark', icon: Trophy },
+          ]}
+        />
+
+        {pendingPlacementCount > 0 ? (
+          <div>
+            <SectionHeader
+              title={t('pendingPlacementReviews')}
+              goal={t('pendingPlacementDesc', { count: pendingPlacementCount })}
+            />
+            <DataTable<PendingReviewRow>
+              columns={pendingColumns}
+              rows={pendingRows}
+              rowKey={(row) => row.id}
+              mobile="cards"
+              cardRender={(row) => (
+                <div className="wa-kit-card wa-kit-card--sm">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    <span style={{ fontWeight: 700 }}>{row.member}</span>
+                    <StatusTag tone="warn">{t('pendingReview')}</StatusTag>
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 12, color: colorVar('muted'), fontVariantNumeric: 'tabular-nums' }}>
+                    {row.submittedLabel}
+                  </div>
+                </div>
+              )}
+              emptyTitle={t('pendingPlacementReviews')}
+            />
           </div>
-          <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{placements}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('placed')}</div>
-          </div>
-          <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800, color: 'var(--color-gold)' }}>{pendingPlacementCount}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('pendingReview')}</div>
-          </div>
-          <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('withCertificate')}</div>
-          </div>
-          <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('inTrainingCertifiedStage')}</div>
-          </div>
-          <div className="partner-panel" style={{ padding: '1.25rem' }}>
-            <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('programCompletions')}</div>
-          </div>
-        </div>
-        {pendingPlacementCount > 0 && (
-          <div
-            style={{
-              marginTop: '1.5rem',
-              padding: '1rem 1.25rem',
-              background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)',
-              border: '1px solid color-mix(in srgb, var(--color-gold) 40%, transparent)',
-              borderRadius: '0.75rem',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }} aria-hidden="true">info</span>
-              <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>{t('pendingPlacementReviews')}</span>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-              {t('pendingPlacementDesc', { count: pendingPlacementCount })}
-            </p>
-          </div>
-        )}
-      </div>
+        ) : null}
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

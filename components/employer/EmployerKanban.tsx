@@ -2,7 +2,16 @@
 
 import { useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { Sparkles, Mail, Video, CheckCircle2, Ban, GripVertical, Briefcase } from 'lucide-react';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import { Avatar, DesignSurface, colorVar, type KitColor } from '@/components/portal/kit';
+
+/**
+ * Employer candidate pipeline (Kanban) — Command Center visual language.
+ * Reskin only: drag/drop wiring, the optimistic-update + revert-on-error
+ * flow, and every API call below are unchanged from the legacy version —
+ * only the column/card chrome now uses kit tokens instead of ad hoc CSS vars.
+ */
 
 type MatchRow = {
   id: string;
@@ -14,12 +23,12 @@ type MatchRow = {
   student: { id: string; fullName: string; email: string; enrolledProgram: string | null };
 };
 
-const COLUMNS: { id: string; label: string; statuses: string[]; color: string; icon: string }[] = [
-  { id: 'new', label: 'New Matches', statuses: ['suggested', 'employer_notified', 'student_notified'], color: 'var(--color-blue, #2b7bb9)', icon: 'auto_awesome' },
-  { id: 'contacted', label: 'Contacted', statuses: ['contacted'], color: 'var(--color-gold)', icon: 'mail' },
-  { id: 'interviewing', label: 'Interviewing', statuses: ['interviewing'], color: 'var(--color-accent)', icon: 'videocam' },
-  { id: 'hired', label: 'Hired', statuses: ['hired'], color: 'var(--color-green, #4a9b4f)', icon: 'check_circle' },
-  { id: 'declined', label: 'Declined', statuses: ['rejected'], color: 'var(--color-on-surface-variant)', icon: 'block' },
+const COLUMNS: { id: string; label: string; statuses: string[]; color: KitColor; icon: typeof Sparkles }[] = [
+  { id: 'new', label: 'New Matches', statuses: ['suggested', 'employer_notified', 'student_notified'], color: 'info', icon: Sparkles },
+  { id: 'contacted', label: 'Contacted', statuses: ['contacted'], color: 'gold', icon: Mail },
+  { id: 'interviewing', label: 'Interviewing', statuses: ['interviewing'], color: 'accent', icon: Video },
+  { id: 'hired', label: 'Hired', statuses: ['hired'], color: 'success', icon: CheckCircle2 },
+  { id: 'declined', label: 'Declined', statuses: ['rejected'], color: 'muted', icon: Ban },
 ];
 
 const STATUS_FOR_COLUMN: Record<string, string> = {
@@ -30,14 +39,15 @@ const STATUS_FOR_COLUMN: Record<string, string> = {
   declined: 'rejected',
 };
 
-function scoreColor(score: number) {
-  if (score >= 80) return 'var(--color-green, #4a9b4f)';
-  if (score >= 60) return 'var(--color-gold)';
-  return 'var(--color-on-surface-variant)';
+function scoreColor(score: number): string {
+  if (score >= 80) return 'var(--wa-success)';
+  if (score >= 60) return 'var(--wa-gold)';
+  return 'var(--wa-muted)';
 }
 
-function getInitials(name: string) {
-  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+function getInitials(name: string): string {
+  const parts = (name || '?').split(' ').filter(Boolean);
+  return parts.map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
 }
 
 function matchColumnId(status: string): string {
@@ -103,116 +113,172 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
 
   if (matches.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '1rem' }} aria-hidden="true">account_tree</span>
-        <p style={{ fontWeight: 700, fontSize: '1.125rem', color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>No pipeline yet</p>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job and AI will match qualified candidates from the WorkforceAP member pool.</p>
-        <Link href="/employer/jobs/new" className="btn btn-primary">Post a Job</Link>
-      </div>
+      <DesignSurface surface="dense">
+        <div className="wa-kit-card" style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+          <div
+            aria-hidden
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 999,
+              margin: '0 auto 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--wa-accent-soft)',
+              color: 'var(--wa-accent)',
+            }}
+          >
+            <Briefcase size={26} />
+          </div>
+          <p style={{ fontWeight: 800, fontSize: 17, color: 'var(--wa-text)', margin: '0 0 6px' }}>No pipeline yet</p>
+          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 20px' }}>
+            Post a job and AI will match qualified candidates from the WorkforceAP member pool.
+          </p>
+          <Link href="/employer/jobs/new" className="btn btn-primary">Post a Job</Link>
+        </div>
+      </DesignSurface>
     );
   }
 
   return (
-    <div>
-      <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
+    <DesignSurface surface="dense">
+      <p style={{ fontSize: 12.5, color: 'var(--wa-muted)', marginBottom: 16 }}>
         Drag cards between columns to move candidates through your pipeline.
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${COLUMNS.length}, minmax(220px, 1fr))`, gap: '0.875rem', overflowX: 'auto', paddingBottom: '1rem' }}>
-        {COLUMNS.map(col => {
-          const colMatches = matches.filter(m => matchColumnId(m.status) === col.id);
-          const isOver = dragOver === col.id;
-          return (
-            <div
-              key={col.id}
-              onDragOver={e => { e.preventDefault(); setDragOver(col.id); }}
-              onDragLeave={() => setDragOver(null)}
-              onDrop={() => void handleDrop(col.id)}
-              style={{
-                borderRadius: '0.875rem',
-                background: isOver ? `color-mix(in srgb, ${col.color} 8%, var(--surface-container-low))` : 'var(--surface-container-low)',
-                border: isOver ? `2px solid ${col.color}` : '1px solid rgba(255,255,255,0.05)',
-                transition: 'background 0.15s, border 0.15s',
-                minHeight: '200px',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              {/* Column header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: col.color, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{col.icon}</span>
-                <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)' }}>{col.label}</span>
-                <span style={{ marginLeft: 'auto', fontSize: '0.75rem', fontWeight: 800, color: col.color, background: `color-mix(in srgb, ${col.color} 12%, transparent)`, padding: '0.1rem 0.4rem', borderRadius: '9999px' }}>
-                  {colMatches.length}
-                </span>
-              </div>
+      <div className="wa-overflow-x-auto">
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${COLUMNS.length}, minmax(240px, 1fr))`, gap: 12, paddingBottom: 8 }}>
+          {COLUMNS.map(col => {
+            const colMatches = matches.filter(m => matchColumnId(m.status) === col.id);
+            const isOver = dragOver === col.id;
+            const c = colorVar(col.color);
+            const Icon = col.icon;
+            return (
+              <div
+                key={col.id}
+                onDragOver={e => { e.preventDefault(); setDragOver(col.id); }}
+                onDragLeave={() => setDragOver(null)}
+                onDrop={() => void handleDrop(col.id)}
+                className="wa-kit-card wa-kit-card--sm"
+                style={{
+                  background: isOver ? `color-mix(in srgb, ${c} 10%, var(--wa-surface))` : 'var(--wa-surface)',
+                  border: isOver ? `2px solid ${c}` : '1px solid var(--wa-border)',
+                  transition: 'background 0.15s, border 0.15s',
+                  minHeight: 220,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: 0,
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Column header */}
+                <div
+                  className="wa-flex wa-items-center wa-gap-2"
+                  style={{ padding: '12px 14px', borderBottom: '1px solid var(--wa-border)', background: 'var(--wa-bg)' }}
+                >
+                  <Icon size={14} aria-hidden style={{ color: c, flexShrink: 0 }} />
+                  <span style={{ fontWeight: 700, fontSize: 12.5, color: 'var(--wa-text)' }}>{col.label}</span>
+                  <span
+                    style={{
+                      marginLeft: 'auto',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: c,
+                      background: `color-mix(in srgb, ${c} 14%, transparent)`,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      fontVariantNumeric: 'tabular-nums',
+                    }}
+                  >
+                    {colMatches.length}
+                  </span>
+                </div>
 
-              {/* Cards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.625rem', flex: 1 }}>
-                {colMatches.map(m => {
-                  const score = matchScoreAsPercent(m.matchScore);
-                  const isBusy = busy === m.id;
-                  const isDragging = dragId === m.id;
-                  return (
-                    <div
-                      key={m.id}
-                      draggable={!isBusy}
-                      onDragStart={() => handleDragStart(m)}
-                      onDragEnd={() => { setDragId(null); setDragOver(null); dragMatch.current = null; }}
-                      style={{
-                        borderRadius: '0.75rem',
-                        background: isDragging ? 'var(--surface-container-highest)' : 'var(--surface-container)',
-                        border: '1px solid rgba(255,255,255,0.06)',
-                        padding: '0.75rem',
-                        cursor: isBusy ? 'default' : 'grab',
-                        opacity: isDragging ? 0.5 : isBusy ? 0.7 : 1,
-                        transition: 'opacity 0.15s',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
-                        <div style={{ width: '2rem', height: '2rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.7rem', flexShrink: 0 }}>
-                          {getInitials(m.student.fullName ?? '?')}
+                {/* Cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 10, flex: 1 }}>
+                  {colMatches.map(m => {
+                    const score = matchScoreAsPercent(m.matchScore);
+                    const isBusy = busy === m.id;
+                    const isDragging = dragId === m.id;
+                    return (
+                      <div
+                        key={m.id}
+                        draggable={!isBusy}
+                        onDragStart={() => handleDragStart(m)}
+                        onDragEnd={() => { setDragId(null); setDragOver(null); dragMatch.current = null; }}
+                        className="wa-kit-card wa-kit-card--sm"
+                        style={{
+                          background: isDragging ? 'var(--wa-surface-2)' : 'var(--wa-bg)',
+                          cursor: isBusy ? 'default' : 'grab',
+                          opacity: isDragging ? 0.5 : isBusy ? 0.7 : 1,
+                          transition: 'opacity 0.15s',
+                          userSelect: 'none',
+                        }}
+                      >
+                        <div className="wa-flex wa-items-start wa-gap-2">
+                          <Avatar initials={getInitials(m.student.fullName ?? '?')} size={30} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p
+                              style={{
+                                fontWeight: 700,
+                                fontSize: 12.5,
+                                color: 'var(--wa-text)',
+                                margin: 0,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {m.student.fullName}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                color: 'var(--wa-muted)',
+                                margin: '1px 0 0',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {m.jobTitle}
+                            </p>
+                          </div>
+                          <span style={{ fontSize: 12.5, fontWeight: 800, color: scoreColor(score), flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                            {score}%
+                          </span>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {m.student.fullName}
+                        {m.matchReasons.length > 0 && (
+                          <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '8px 0 0', lineHeight: 1.4 }}>
+                            {m.matchReasons[0]}
                           </p>
-                          <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {m.jobTitle}
-                          </p>
+                        )}
+                        <div className="wa-flex wa-items-center wa-gap-2" style={{ marginTop: 8 }}>
+                          <Link href={`/employer/candidates/${m.student.id}?jobId=${m.jobId}`} style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}>
+                            View →
+                          </Link>
+                          {isBusy && <span style={{ fontSize: 11, color: 'var(--wa-muted)' }}>Moving…</span>}
                         </div>
-                        <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: scoreColor(score), flexShrink: 0 }}>{score}%</span>
+                        {revertError === m.id && (
+                          <p role="alert" style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-danger)', margin: '6px 0 0' }}>
+                            Couldn&apos;t update status — try again
+                          </p>
+                        )}
                       </div>
-                      {m.matchReasons.length > 0 && (
-                        <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                          {m.matchReasons[0]}
-                        </p>
-                      )}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.5rem' }}>
-                        <Link href={`/employer/candidates/${m.student.id}?jobId=${m.jobId}`} style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>
-                          View →
-                        </Link>
-                        {isBusy && <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Moving…</span>}
-                      </div>
-                      {revertError === m.id && (
-                        <p role="alert" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--wa-danger, #dc2626)', margin: '0.375rem 0 0' }}>
-                          Couldn&apos;t update status — try again
-                        </p>
-                      )}
+                    );
+                  })}
+                  {colMatches.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '24px 8px', opacity: 0.5 }}>
+                      <GripVertical size={20} aria-hidden style={{ color: 'var(--wa-muted)' }} />
+                      <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '4px 0 0' }}>Drop here</p>
                     </div>
-                  );
-                })}
-                {colMatches.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem', opacity: 0.4 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">drag_indicator</span>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>Drop here</p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </DesignSurface>
   );
 }

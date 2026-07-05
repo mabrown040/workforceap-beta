@@ -2,12 +2,14 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { FolderOpen, History as HistoryIcon } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AIHistoryList from '@/components/portal/AIHistoryList';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -71,63 +73,74 @@ export default async function AIHistoryPage({ searchParams }: Props) {
   }));
 
   return (
-    <>
-    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
-      <div
-        style={{
-          padding: '1.25rem 2rem 1.5rem',
-          borderBottom: '1px solid var(--surface-container-high)',
-          background: 'var(--surface-container-low)',
-        }}
-      >
-        <PageHeader
-          title="My AI results"
-          subtitle="Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines."
-          breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'History' },
-          ]}
-        />
-      </div>
+    <DesignSurface surface="warm">
+      <div style={{ background: 'var(--wa-bg)', minHeight: '100vh' }}>
+        <div
+          style={{
+            padding: '1.25rem 2rem 1.5rem',
+            borderBottom: '1px solid var(--wa-border)',
+            background: 'var(--wa-surface)',
+          }}
+        >
+          <PageHeader
+            title="My AI results"
+            subtitle="Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines."
+            breadcrumbs={[
+              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'History' },
+            ]}
+          />
+        </div>
 
-      {/* Main content */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        {withLabels.length === 0 ? (
-          <div
-            className="portal-card portal-card--flat"
-            style={{
-              padding: '3rem 2rem',
-              textAlign: 'center',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">
-              folder_open
-            </span>
-            <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>No saved results yet</p>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', fontSize: '0.875rem' }}>
-              Start with the Resume Rewriter or Interview Practice — your outputs save here automatically.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <Link
-                href="/dashboard/ai-tools/resume-studio?view=rewrite"
-                className="btn btn-primary btn-sm"
+        {/* Main content */}
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1.5rem 6rem' }}>
+          {withLabels.length === 0 ? (
+            <div className="wa-kit-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+              <div
+                aria-hidden="true"
+                style={{
+                  width: 56,
+                  height: 56,
+                  margin: '0 auto 0.9rem',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'color-mix(in srgb, var(--wa-accent) 12%, transparent)',
+                  color: 'var(--wa-accent)',
+                }}
               >
-                Start with Resume Rewriter
-              </Link>
-              <Link
-                href="/dashboard/ai-tools/interview-practice"
-                className="btn btn-muted btn-sm"
-              >
-                Try Interview Practice
-              </Link>
+                <FolderOpen size={26} />
+              </div>
+              <p style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--wa-text)', margin: '0 0 0.375rem', letterSpacing: '-0.01em' }}>
+                No saved results yet
+              </p>
+              <p style={{ color: 'var(--wa-muted)', marginBottom: '1.25rem', fontSize: '0.875rem' }}>
+                Start with the Resume Rewriter or Interview Practice — your outputs save here automatically.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Link href="/dashboard/ai-tools/resume-studio?view=rewrite" className="btn btn-primary btn-sm">
+                  Start with Resume Rewriter
+                </Link>
+                <Link href="/dashboard/ai-tools/interview-practice" className="btn btn-muted btn-sm">
+                  Try Interview Practice
+                </Link>
+              </div>
             </div>
-          </div>
-        ) : (
-          <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
-        )}
+          ) : (
+            <>
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: '0.875rem' }}>
+                <HistoryIcon size={16} color="var(--wa-accent)" aria-hidden="true" />
+                <span className="wa-kit-stat-label" style={{ fontSize: 11 }}>
+                  {withLabels.length} saved result{withLabels.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
+            </>
+          )}
+        </div>
       </div>
-    </div>
       <MobileBottomNav variant="portal" />
-    </>
+    </DesignSurface>
   );
 }

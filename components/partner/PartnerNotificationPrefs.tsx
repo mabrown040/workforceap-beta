@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { CardHead, Toggle } from '@/components/portal/kit';
 
 type Prefs = {
   notifyOnEnrollment: boolean;
@@ -44,40 +45,29 @@ export default function PartnerNotificationPrefs({ initial }: { initial: Prefs }
   }, [prefs]);
 
   return (
-    <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1.25rem' }}>
-      <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Email notifications</h2>
+    <div className="wa-kit-card">
+      <CardHead title="Email notifications" />
       <p aria-live="polite" className="wa-sr-only">{announcement}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {PREF_LABELS.map(({ key, label, desc }) => (
-          <label
+          <div
             key={key}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '1rem',
-              padding: '0.5rem 0',
-              borderBottom: '1px solid var(--outline-variant)',
-              cursor: 'pointer',
+              padding: '10px 0',
+              borderBottom: '1px solid var(--wa-border)',
               opacity: saving === key ? 0.6 : 1,
             }}
           >
-            <div>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', display: 'block' }}>
-                {label}
-              </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                {desc}
-              </span>
-            </div>
-            <input
-              type="checkbox"
+            <Toggle
               checked={prefs[key]}
-              onChange={() => toggle(key, label)}
-              disabled={saving !== null}
-              style={{ width: 20, height: 20, accentColor: 'var(--color-accent)', cursor: 'pointer', flexShrink: 0 }}
+              onChange={() => {
+                if (saving !== null) return;
+                void toggle(key, label);
+              }}
+              label={label}
             />
-          </label>
+            <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{desc}</span>
+          </div>
         ))}
       </div>
     </div>

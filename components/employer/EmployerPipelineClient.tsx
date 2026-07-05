@@ -2,8 +2,8 @@
 
 import { useState, useCallback } from 'react';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
-import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
+import { Avatar, DesignSurface, StatusTag, type KitTone } from '@/components/portal/kit';
 
 type MatchRow = {
   id: string;
@@ -12,6 +12,31 @@ type MatchRow = {
   status: string;
   student: { id: string; fullName: string; email: string; enrolledProgram: string | null };
 };
+
+/** Bridges the shared BadgeVariant vocabulary (employerAiMatchStatusBadgeVariant) to a KitTone. */
+const BADGE_VARIANT_TONE: Record<string, KitTone> = {
+  success: 'ok',
+  warning: 'warn',
+  error: 'alert',
+  info: 'info',
+  neutral: 'muted',
+  accent: 'muted',
+};
+
+function statusTone(status: string): KitTone {
+  return BADGE_VARIANT_TONE[employerAiMatchStatusBadgeVariant(status)] ?? 'muted';
+}
+
+function scoreColor(score: number): string {
+  if (score >= 80) return 'var(--wa-success)';
+  if (score >= 60) return 'var(--wa-gold)';
+  return 'var(--wa-muted)';
+}
+
+function getInitials(name: string): string {
+  const parts = (name || '?').split(' ').filter(Boolean);
+  return parts.map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+}
 
 export default function EmployerPipelineClient({
   jobId,
@@ -48,48 +73,64 @@ export default function EmployerPipelineClient({
 
   if (matches.length === 0) {
     return (
-      <p style={{ color: 'var(--color-on-surface-variant)' }}>
+      <p style={{ color: 'var(--wa-muted)' }}>
         No AI-suggested matches for <strong>{jobTitle}</strong> yet. Matches appear after admin review runs.
       </p>
     );
   }
 
   return (
-    <div className="employer-pipeline-job-block">
-      <h3 className="employer-pipeline-job-title">{jobTitle}</h3>
-      <ul className="employer-pipeline-match-list">
-        {matches.map((m) => (
-          <li key={m.id} className="employer-pipeline-match-card">
-            <div>
-              <strong>{m.student.fullName}</strong>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{m.student.email}</div>
-              <div style={{ fontSize: '0.8rem', marginTop: '0.35rem' }}>
-                Score: {matchScoreAsPercent(m.matchScore)}%
-                {m.matchReasons?.length ? (
-                  <span style={{ color: 'var(--color-on-surface-variant)' }}> · {m.matchReasons.slice(0, 2).join(' · ')}</span>
-                ) : null}
+    <DesignSurface surface="dense" className="wa-kit-card">
+      <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', margin: '0 0 12px' }}>{jobTitle}</h3>
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {matches.map((m) => {
+          const score = matchScoreAsPercent(m.matchScore);
+          return (
+            <li
+              key={m.id}
+              className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-3"
+              style={{ padding: 12, borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)', background: 'var(--wa-bg)' }}
+            >
+              <div className="wa-flex wa-items-center wa-gap-3" style={{ minWidth: 0 }}>
+                <Avatar initials={getInitials(m.student.fullName)} size={32} />
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ fontSize: 13, color: 'var(--wa-text)' }}>{m.student.fullName}</strong>
+                  <div style={{ fontSize: 11.5, color: 'var(--wa-muted)' }}>{m.student.email}</div>
+                  <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 11.5, marginTop: 3 }}>
+                    <span style={{ fontWeight: 800, color: scoreColor(score), fontVariantNumeric: 'tabular-nums' }}>{score}%</span>
+                    {m.matchReasons?.length ? (
+                      <span style={{ color: 'var(--wa-muted)' }}> · {m.matchReasons.slice(0, 2).join(' · ')}</span>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="employer-pipeline-match-actions">
-              <StatusBadge
-                label={employerMatchPipelineLabel(m.status)}
-                variant={employerAiMatchStatusBadgeVariant(m.status)}
-              />
-              <select
-                value={m.status}
-                disabled={busy === m.student.id}
-                onChange={(e) => void setStatus(m.student.id, e.target.value)}
-                aria-label={`Match status for ${m.student.fullName}`}
-              >
-                <option value="suggested">Suggested</option>
-                <option value="employer_notified">Employer notified</option>
-                <option value="student_notified">Student notified</option>
-                <option value="rejected">Not a fit</option>
-              </select>
-            </div>
-          </li>
-        ))}
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ flexShrink: 0 }}>
+                <StatusTag tone={statusTone(m.status)}>{employerMatchPipelineLabel(m.status)}</StatusTag>
+                <select
+                  value={m.status}
+                  disabled={busy === m.student.id}
+                  onChange={(e) => void setStatus(m.student.id, e.target.value)}
+                  aria-label={`Match status for ${m.student.fullName}`}
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: 'var(--wa-radius-sm)',
+                    border: '1px solid var(--wa-border)',
+                    background: 'var(--wa-surface)',
+                    color: 'var(--wa-text)',
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  <option value="suggested">Suggested</option>
+                  <option value="employer_notified">Employer notified</option>
+                  <option value="student_notified">Student notified</option>
+                  <option value="rejected">Not a fit</option>
+                </select>
+              </div>
+            </li>
+          );
+        })}
       </ul>
-    </div>
+    </DesignSurface>
   );
 }

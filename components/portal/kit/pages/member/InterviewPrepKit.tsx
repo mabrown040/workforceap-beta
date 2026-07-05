@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import InterviewPrepBundle from '@/components/portal/InterviewPrepBundle';
 
@@ -23,14 +24,9 @@ export function InterviewPrepKit() {
         />
         <Suspense
           fallback={
-            <div
-              role="status"
-              aria-live="polite"
-              className="wa-kit-card"
-              style={{ fontSize: 13, color: 'var(--wa-muted)' }}
-            >
+            <Card role="status" aria-live="polite" style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
               Building your bundle…
-            </div>
+            </Card>
           }
         >
           <InterviewPrepBundle />

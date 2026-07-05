@@ -1,11 +1,69 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import {
+  Loader2,
+  Sparkles,
+  Copy,
+  Check,
+  Video,
+  CircleStop,
+  RotateCcw,
+  CheckCircle2,
+} from 'lucide-react';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
+import { FormField, StatusTag } from '@/components/portal/kit';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
 import ToolFollowThrough from './ToolFollowThrough';
 
 type Step = 'form' | 'pitch' | 'rehearse';
+
+const fieldStyle: React.CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 14,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  fontFamily: 'inherit',
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 46,
+  padding: '10px 20px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+};
+
+const outlineBtnStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  minHeight: 36,
+  padding: '7px 14px',
+  fontSize: 12.5,
+  fontWeight: 700,
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  cursor: 'pointer',
+};
+
+const btnFocusClass =
+  'wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
 
 export default function ElevatorPitchClient({ initialData }: { initialData?: { name: string; targetRole: string; strengths: string; certifications: string; industry: string } | null }) {
   const [step, setStep] = useState<Step>('form');
@@ -139,8 +197,12 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
     return (
       <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <AiToolLanguageSelector value={language} onChange={setLanguage} />
-        <div className="portal-card portal-card--gradient-accent" style={{ padding: '1.125rem', borderRadius: '0.875rem', marginBottom: '0.25rem' }}>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.55 }}>
+        <div
+          className="wa-kit-card wa-kit-card--sm"
+          style={{ background: 'color-mix(in srgb, var(--wa-accent) 6%, transparent)', border: 'none', display: 'flex', gap: 10, alignItems: 'flex-start' }}
+        >
+          <Sparkles size={17} color="var(--wa-accent)" aria-hidden style={{ flexShrink: 0, marginTop: 1 }} />
+          <p style={{ fontSize: '0.8125rem', color: 'var(--wa-text)', margin: 0, lineHeight: 1.55 }}>
             <strong>Answer 5 quick questions</strong> and we&rsquo;ll write a 10–20 second elevator statement you can rehearse and record.
           </p>
         </div>
@@ -152,20 +214,43 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
           { id: 'ep-certs', label: 'Certifications you have or are working toward', value: certifications, set: setCertifications, placeholder: 'e.g. CompTIA A+, Google IT Support' },
           { id: 'ep-industry', label: 'Industry you are targeting', value: industry, set: setIndustry, placeholder: 'e.g. Healthcare IT, Managed Services' },
         ].map(({ id, label, value, set, placeholder, required }) => (
-          <div key={id} className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor={id}>{label}{required && <span style={{ color: 'var(--color-accent)', marginLeft: '0.25rem' }}>*</span>}</label>
-            <input id={id} type="text" value={value} onChange={e => set(e.target.value)} placeholder={placeholder} required={required} />
-          </div>
+          <FormField
+            key={id}
+            id={id}
+            label={required ? `${label} *` : label}
+          >
+            <input
+              id={id}
+              type="text"
+              value={value}
+              onChange={e => set(e.target.value)}
+              placeholder={placeholder}
+              required={required}
+              style={fieldStyle}
+            />
+          </FormField>
         ))}
 
-        {genError && <p style={{ color: 'var(--color-accent)', fontSize: '0.875rem', margin: 0 }}>{genError}</p>}
+        {genError && (
+          <p role="alert" style={{ color: 'var(--wa-danger)', fontSize: '0.875rem', margin: 0, fontWeight: 600 }}>{genError}</p>
+        )}
 
-        <button type="submit" className="btn btn-primary" disabled={generating || !name.trim() || !targetRole.trim()} aria-busy={generating}>
-          <span aria-live="polite">
+        <button
+          type="submit"
+          disabled={generating || !name.trim() || !targetRole.trim()}
+          aria-busy={generating}
+          className={btnFocusClass}
+          style={{ ...primaryBtnStyle, opacity: generating || !name.trim() || !targetRole.trim() ? 0.7 : 1, alignSelf: 'flex-start' }}
+        >
+          <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             {generating ? (
-              <><span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span> Writing your pitch…</>
+              <>
+                <Loader2 size={16} className="wa-animate-spin" aria-hidden /> Writing your pitch…
+              </>
             ) : (
-              <><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">auto_awesome</span> Write My Elevator Pitch</>
+              <>
+                <Sparkles size={16} aria-hidden /> Write My Elevator Pitch
+              </>
             )}
           </span>
         </button>
@@ -177,31 +262,29 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
   if (step === 'pitch') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderRadius: '0.875rem' }}>
-          <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.75rem' }}>
+        <div className="wa-kit-card wa-kit-card--sm">
+          <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--wa-accent)', margin: '0 0 0.75rem' }}>
             Your Elevator Pitch
           </p>
-          <p style={{ fontSize: '1.0625rem', lineHeight: 1.7, color: 'var(--color-on-surface)', margin: 0, fontStyle: 'italic' }}>
+          <p style={{ fontSize: '1.0625rem', lineHeight: 1.7, color: 'var(--wa-text)', margin: 0, fontStyle: 'italic' }}>
             &ldquo;{pitch}&rdquo;
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => void handleCopy()} className="btn btn-outline btn-sm">
-              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
-                  {copied ? 'check' : 'content_copy'}
-                </span>
+            <button type="button" onClick={() => void handleCopy()} className="wa-kit-focus" style={outlineBtnStyle}>
+              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
                 {copied ? 'Copied!' : 'Copy'}
               </span>
             </button>
-            <button type="button" onClick={() => setStep('form')} className="btn btn-outline btn-sm">Edit answers</button>
+            <button type="button" onClick={() => setStep('form')} className="wa-kit-focus" style={outlineBtnStyle}>
+              Edit answers
+            </button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             {emailStatus?.sent ? (
-              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-green, #4a9b4f)', fontWeight: 600 }}>
-                We emailed this AI elevator speech to you so you can review it later.
-              </p>
+              <StatusTag tone="ok">Emailed to you for later</StatusTag>
             ) : (
-              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--wa-muted)' }}>
                 We generated your speech, but email did not send{emailStatus?.error ? `: ${emailStatus.error}` : '.'} Copy it now and try again if needed.
               </p>
             )}
@@ -209,15 +292,15 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Ready to rehearse?</p>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>Ready to rehearse?</p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: 0, lineHeight: 1.5 }}>
             We&rsquo;ll turn on your camera and mic. Read the speech out loud, watch yourself, and refine the delivery immediately.
           </p>
-          <button type="button" onClick={() => void startRehearsal()} className="btn btn-primary">
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">videocam</span>
+          <button type="button" onClick={() => void startRehearsal()} className={btnFocusClass} style={{ ...primaryBtnStyle, alignSelf: 'flex-start' }}>
+            <Video size={17} aria-hidden />
             Start Rehearsal Recording
           </button>
-          {recordingError && <p style={{ color: 'var(--color-accent)', fontSize: '0.875rem', margin: 0 }}>{recordingError}</p>}
+          {recordingError && <p style={{ color: 'var(--wa-danger)', fontSize: '0.875rem', margin: 0 }}>{recordingError}</p>}
         </div>
 
         <ToolFollowThrough toolType="elevator_pitch" output={pitch} />
@@ -229,17 +312,20 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Pitch prompt card */}
-      <div className="portal-card portal-card--gradient-accent" style={{ padding: '1.25rem', borderRadius: '0.875rem' }}>
-        <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
+      <div
+        className="wa-kit-card wa-kit-card--sm"
+        style={{ background: 'color-mix(in srgb, var(--wa-accent) 6%, transparent)', border: 'none' }}
+      >
+        <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--wa-accent)', margin: '0 0 0.5rem' }}>
           Read this out loud ↓
         </p>
-        <p style={{ fontSize: '1.0625rem', lineHeight: 1.65, color: 'var(--color-on-surface)', margin: 0, fontWeight: 600 }}>
+        <p style={{ fontSize: '1.0625rem', lineHeight: 1.65, color: 'var(--wa-text)', margin: 0, fontWeight: 600 }}>
           &ldquo;{pitch}&rdquo;
         </p>
       </div>
 
       {/* Camera live feed */}
-      <div style={{ position: 'relative', borderRadius: '0.875rem', overflow: 'hidden', background: '#000', aspectRatio: '16/9', maxHeight: '320px' }}>
+      <div style={{ position: 'relative', borderRadius: 'var(--wa-radius-sm)', overflow: 'hidden', background: '#000', aspectRatio: '16/9', maxHeight: '320px' }}>
         <video ref={videoRef} muted autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         {countdown > 0 && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)' }}>
@@ -247,7 +333,7 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
           </div>
         )}
         {recording && (
-          <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.625rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.9)', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>
+          <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.625rem', borderRadius: '9999px', background: 'var(--wa-accent)', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fff', animation: 'portal-pulse 1s ease-in-out infinite', display: 'block' }} />
             REC
           </div>
@@ -256,8 +342,8 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
 
       {/* Controls */}
       {recording && !playbackUrl && (
-        <button type="button" onClick={stopRecording} className="btn btn-primary" style={{ background: 'var(--color-accent)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">stop_circle</span>
+        <button type="button" onClick={stopRecording} className={btnFocusClass} style={{ ...primaryBtnStyle, alignSelf: 'flex-start' }}>
+          <CircleStop size={17} aria-hidden />
           Stop Recording
         </button>
       )}
@@ -265,19 +351,19 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
       {/* Playback */}
       {playbackUrl && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-          <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green, #4a9b4f)', verticalAlign: 'middle', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>{' '}
+          <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--wa-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <CheckCircle2 size={16} color="var(--wa-success)" aria-hidden />
             Playback — watch yourself!
           </p>
-          <video ref={playbackRef} src={playbackUrl} controls playsInline style={{ width: '100%', borderRadius: '0.875rem', background: '#000', maxHeight: '320px', objectFit: 'cover' }} />
+          <video ref={playbackRef} src={playbackUrl} controls playsInline style={{ width: '100%', borderRadius: 'var(--wa-radius-sm)', background: '#000', maxHeight: '320px', objectFit: 'cover' }} />
           <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={resetRehearsal} className="btn btn-outline btn-sm">
-              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">replay</span> Record again
+            <button type="button" onClick={resetRehearsal} className="wa-kit-focus" style={outlineBtnStyle}>
+              <RotateCcw size={13} aria-hidden /> Record again
             </button>
-            <button type="button" onClick={() => setStep('pitch')} className="btn btn-outline btn-sm">
+            <button type="button" onClick={() => setStep('pitch')} className="wa-kit-focus" style={outlineBtnStyle}>
               Edit pitch
             </button>
-            <button type="button" onClick={() => { setStep('form'); setPlaybackUrl(null); }} className="btn btn-outline btn-sm">
+            <button type="button" onClick={() => { setStep('form'); setPlaybackUrl(null); }} className="wa-kit-focus" style={outlineBtnStyle}>
               Start over
             </button>
           </div>
@@ -285,8 +371,8 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
       )}
 
       {!recording && !playbackUrl && countdown === 0 && (
-        <button type="button" onClick={() => void startRehearsal()} className="btn btn-outline btn-sm">
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">replay</span> Try again
+        <button type="button" onClick={() => void startRehearsal()} className="wa-kit-focus" style={outlineBtnStyle}>
+          <RotateCcw size={13} aria-hidden /> Try again
         </button>
       )}
     </div>

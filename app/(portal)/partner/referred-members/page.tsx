@@ -4,7 +4,6 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 
 import { buildPageMetadataAsync } from '@/app/seo';
 import PartnerInviteMemberButton from '@/components/portal/PartnerInviteMemberButton';
-import PageHeader from '@/components/portal/PageHeader';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
@@ -12,6 +11,8 @@ import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partn
 import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMembersMobile';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
+import { Download } from 'lucide-react';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -35,45 +36,45 @@ export default async function PartnerReferredMembersPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader
-        title={t('referredMembers')}
-        subtitle={t('searchAndFilter')}
-        action={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <PartnerInviteMemberButton />
-            <a
-              href="/partner/exports"
-              className="active:scale-[0.98] wa-transition-all"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                padding: '0.5rem 0.875rem',
-                background: 'var(--surface-container)',
-                borderRadius: '0.625rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: 'var(--color-on-surface)',
-                textDecoration: 'none',
-                border: '1px solid var(--outline-variant)',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
-                download
-              </span>
-              {t('exportCsv')}
-            </a>
-          </div>
-        }
-      />
-      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PartnerReferredMembersMobile rows={rows} />
+      <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6 wa-pb-24 md:wa-pb-8">
+        <SectionHeader
+          kicker={t('partnerDashboard')}
+          title={t('referredMembers')}
+          goal={t('searchAndFilter')}
+          action={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <PartnerInviteMemberButton />
+              <a
+                href="/partner/exports"
+                className="active:scale-[0.98] wa-transition-all wa-kit-focus"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.5rem 0.875rem',
+                  background: 'var(--wa-surface-2)',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: 'var(--wa-text)',
+                  textDecoration: 'none',
+                  border: '1px solid var(--wa-border)',
+                }}
+              >
+                <Download size={14} aria-hidden />
+                {t('exportCsv')}
+              </a>
+            </div>
+          }
+        />
+        <div className="wa-block md:wa-hidden">
+          <PartnerReferredMembersMobile rows={rows} />
+        </div>
 
-      </div>
-
-      <div className="wa-hidden md:wa-block">
-        <PartnerMembersList members={rows} />
-      </div>
+        <div className="wa-hidden md:wa-block">
+          <PartnerMembersList members={rows} />
+        </div>
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

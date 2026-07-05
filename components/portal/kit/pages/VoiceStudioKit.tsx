@@ -540,44 +540,48 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
 
   switch (variant) {
     case 'gold':
-      cardStyle = { background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)', color: '#fff', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
-      iconChip = { background: 'rgba(255,255,255,0.15)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.2)' };
-      bodyColor = 'rgba(255,255,255,0.8)';
+      cardStyle = { background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
+      iconChip = { background: 'rgba(255,255,255,0.22)' };
+      badgeStyle = { background: 'rgba(255,255,255,0.28)' };
+      bodyColor = 'rgba(255,255,255,0.92)';
       ctaColor = undefined;
       break;
     case 'crimson':
-      cardStyle = { background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)', color: '#fff', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
-      iconChip = { background: 'rgba(255,255,255,0.15)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.2)' };
-      bodyColor = 'rgba(255,255,255,0.8)';
+      cardStyle = { background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
+      iconChip = { background: 'rgba(255,255,255,0.22)' };
+      badgeStyle = { background: 'rgba(255,255,255,0.28)' };
+      bodyColor = 'rgba(255,255,255,0.92)';
       break;
     case 'crimson-deep':
-      cardStyle = { background: 'linear-gradient(to bottom right, #8b1f38, #5e1426)', color: '#fff', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
-      iconChip = { background: 'rgba(255,255,255,0.15)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.2)' };
-      bodyColor = 'rgba(255,255,255,0.8)';
+      cardStyle = { background: 'linear-gradient(to bottom right, #8b1f38, #5e1426)', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
+      iconChip = { background: 'rgba(255,255,255,0.22)' };
+      badgeStyle = { background: 'rgba(255,255,255,0.28)' };
+      bodyColor = 'rgba(255,255,255,0.92)';
       break;
     case 'counselor':
       cardStyle = { background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
-      iconChip = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)', border: '1px solid #d6e6f3' };
+      iconChip = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)', border: '1px solid var(--wa-border)' };
       badgeStyle = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)' };
       bodyColor = 'var(--wa-muted)';
       ctaColor = 'var(--wa-info)';
       break;
     case 'dark':
-      cardStyle = { background: '#1a1a1a', color: '#fff', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)' };
+      cardStyle = { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)' };
       iconChip = { background: 'var(--wa-accent)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.1)' };
-      bodyColor = 'rgba(255,255,255,0.7)';
+      badgeStyle = { background: 'rgba(255,255,255,0.18)' };
+      bodyColor = 'rgba(255,255,255,0.9)';
       break;
     case 'gold-light':
     default:
-      cardStyle = { background: '#faf7f0', border: '1px solid #ece2c8', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
-      iconChip = { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' };
-      badgeStyle = { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' };
+      // Use theme tokens only (no hardcoded cream) so the card flips in dark
+      // mode — the previous hardcoded #faf7f0 bg + flipping text tokens made
+      // this card unreadable in dark. CTA uses --wa-text for guaranteed AA;
+      // the gold identity carries through the icon chip + badge.
+      cardStyle = { background: 'var(--wa-gold-soft)', border: '1px solid var(--wa-border)', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
+      iconChip = { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)', border: '1px solid var(--wa-border)' };
+      badgeStyle = { background: 'var(--wa-surface)', color: 'var(--wa-gold)' };
       bodyColor = 'var(--wa-muted)';
-      ctaColor = 'var(--wa-gold)';
+      ctaColor = 'var(--wa-text)';
       break;
   }
 
@@ -602,10 +606,10 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
         </div>
         <span
           style={{
-            padding: '2px 10px',
-            fontSize: 9,
+            padding: '3px 11px',
+            fontSize: 11,
             fontWeight: 700,
-            letterSpacing: '0.12em',
+            letterSpacing: '0.1em',
             borderRadius: 999,
             ...badgeStyle,
           }}
@@ -615,14 +619,14 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>
-        <p style={{ fontSize: 12, color: bodyColor, marginTop: 4 }}>{body}</p>
+        <p style={{ fontSize: 13.5, color: bodyColor, marginTop: 6, lineHeight: 1.5 }}>{body}</p>
         <div
           style={{
-            marginTop: 12,
+            marginTop: 14,
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 700,
             color: ctaColor ?? (isLightBody ? 'var(--wa-text)' : '#fff'),
           }}

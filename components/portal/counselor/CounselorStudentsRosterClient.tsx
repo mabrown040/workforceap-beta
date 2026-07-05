@@ -3,11 +3,33 @@
 import Link from 'next/link';
 import { useMemo, useState, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { MessageSquare } from 'lucide-react';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import StatusBadge from '@/components/portal/StatusBadge';
+import type { BadgeVariant } from '@/components/portal/StatusBadge';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
-import { STATUS_COLORS, type StatusTone } from '@/lib/ui/statusColors';
+import {
+  DesignSurface,
+  SectionHeader,
+  DataTable,
+  Avatar,
+  StatusTag,
+  ProgressBar,
+  Toggle,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
+
+/**
+ * Counselor "My students" roster — Command Center redesign.
+ *
+ * Reskins the roster onto the shared portal kit (DataTable + StatusTag +
+ * ProgressBar, --wa-* tokens), modeled on
+ * components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx. All data
+ * (rows/filterMeta), URL-driven filter state, and the at-risk-only client
+ * toggle are unchanged from the legacy version — only the desktop-table +
+ * mobile-card duplication was collapsed into a single responsive DataTable.
+ */
 
 /** Must match `THRESHOLDS.MEDIUM` in `lib/member/atRiskScoring.ts` (avoid importing prisma in client). */
 const RISK_MEDIUM_OR_ABOVE = 30;
@@ -38,23 +60,35 @@ export type CounselorRosterFilterMeta = {
 
 type FilterKey = 'at-risk' | 'upcoming-session' | 'pending-application' | null;
 
-const FILTER_CHIPS: { key: Exclude<FilterKey, null>; label: string; accent: string; accentBg: string }[] = [
-  { key: 'at-risk', label: 'At Risk', accent: '#b91c1c', accentBg: 'color-mix(in srgb, #dc2626 14%, transparent)' },
-  { key: 'upcoming-session', label: 'Upcoming Session', accent: 'var(--color-accent)', accentBg: 'color-mix(in srgb, var(--color-accent) 14%, transparent)' },
-  { key: 'pending-application', label: 'Pending Application', accent: 'var(--color-gold)', accentBg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)' },
+const FILTER_CHIPS: { key: Exclude<FilterKey, null>; label: string }[] = [
+  { key: 'at-risk', label: 'At Risk' },
+  { key: 'upcoming-session', label: 'Upcoming Session' },
+  { key: 'pending-application', label: 'Pending Application' },
 ];
 
-/**
- * Same tone-per-severity mapping as `RISK_CONFIG` in
- * components/portal/counselor/AtRiskDashboard.tsx (accent/gold/blue) —
- * sourced from lib/ui/statusColors so the roster and the at-risk detail page
- * render identical colors for the same risk level.
- */
-const RISK_BADGE_TONE: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; tone: StatusTone }> = {
-  CRITICAL: { label: 'Critical', tone: 'danger' },
-  HIGH: { label: 'High', tone: 'warning' },
+/** Same tone-per-severity mapping as RISK_CONFIG in AtRiskDashboard.tsx (accent/gold/info). */
+const RISK_TAG: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; tone: KitTone }> = {
+  CRITICAL: { label: 'Critical', tone: 'alert' },
+  HIGH: { label: 'High', tone: 'warn' },
   MEDIUM: { label: 'Medium', tone: 'info' },
 };
+
+/** BadgeVariant → KitTone, so shared status helpers (memberStatus.ts) render via StatusTag. */
+function variantToTone(variant: BadgeVariant): KitTone {
+  switch (variant) {
+    case 'success':
+      return 'ok';
+    case 'warning':
+      return 'warn';
+    case 'error':
+    case 'accent':
+      return 'alert';
+    case 'info':
+      return 'info';
+    default:
+      return 'muted';
+  }
+}
 
 function formatLastActivity(iso: string): string {
   const d = new Date(iso);
@@ -68,34 +102,7 @@ function formatLastActivity(iso: string): string {
   return `${diffD}d ago`;
 }
 
-function CounselorRosterRiskBadge({ level }: { level: RiskLevel }) {
-  if (level === 'LOW') return null;
-  const meta = RISK_BADGE_TONE[level];
-  const s = STATUS_COLORS[meta.tone];
-  return (
-    <span
-      title={`Risk: ${meta.label}`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '0.15rem 0.5rem',
-        borderRadius: '9999px',
-        fontSize: '10px',
-        fontWeight: 800,
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-        background: s.bg,
-        color: s.fg,
-        border: `1px solid ${s.border}`,
-        flexShrink: 0,
-      }}
-    >
-      {meta.label}
-    </span>
-  );
-}
-
-function wioaBadgeProps(status: string | null | undefined): { label: string; variant: 'info' | 'success' | 'error' | 'neutral'; tooltip: string } {
+function wioaBadgeProps(status: string | null | undefined): { label: string; variant: BadgeVariant; tooltip: string } {
   switch (status) {
     case 'verified':
       return { label: 'WIOA Verified', variant: 'success', tooltip: 'Member is WIOA-verified and eligible to enroll in training' };
@@ -177,208 +184,6 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
     return rows;
   }, [rows, activeFilter, atRiskOnly, metaByMember]);
 
-  const filterChips = (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.5rem',
-        padding: '0 1rem',
-        marginBottom: '0.75rem',
-      }}
-      className="md:wa-hidden"
-    >
-      {FILTER_CHIPS.map((chip) => {
-        const isActive = activeFilter === chip.key;
-        return (
-          <button
-            key={chip.key}
-            type="button"
-            onClick={() => updateFilter(isActive ? null : chip.key)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              padding: '0.4rem 0.75rem',
-              borderRadius: '9999px',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              border: `1px solid ${isActive ? chip.accent : 'var(--outline-variant)'}`,
-              background: isActive ? chip.accentBg : 'var(--surface-container-high)',
-              color: isActive ? chip.accent : 'var(--color-on-surface-variant)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {chip.label}
-            {isActive && (
-              <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>✕</span>
-            )}
-          </button>
-        );
-      })}
-      {activeFilter && (
-        <button
-          type="button"
-          onClick={() => updateFilter(null)}
-          style={{
-            padding: '0.4rem 0.6rem',
-            borderRadius: '9999px',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            border: '1px solid var(--outline-variant)',
-            background: 'transparent',
-            color: 'var(--color-on-surface-variant)',
-            cursor: 'pointer',
-          }}
-        >
-          Clear
-        </button>
-      )}
-    </div>
-  );
-
-  const filterChipsDesktop = (
-    <div
-      className="wa-hidden md:wa-flex"
-      style={{ flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center' }}
-    >
-      {FILTER_CHIPS.map((chip) => {
-        const isActive = activeFilter === chip.key;
-        return (
-          <button
-            key={chip.key}
-            type="button"
-            onClick={() => updateFilter(isActive ? null : chip.key)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              padding: '0.45rem 0.85rem',
-              borderRadius: '9999px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              border: `1px solid ${isActive ? chip.accent : 'var(--outline-variant)'}`,
-              background: isActive ? chip.accentBg : 'var(--surface-container-high)',
-              color: isActive ? chip.accent : 'var(--color-on-surface-variant)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {chip.label}
-            {isActive && (
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>✕</span>
-            )}
-          </button>
-        );
-      })}
-      {activeFilter && (
-        <button
-          type="button"
-          onClick={() => updateFilter(null)}
-          style={{
-            padding: '0.45rem 0.7rem',
-            borderRadius: '9999px',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            border: '1px solid var(--outline-variant)',
-            background: 'transparent',
-            color: 'var(--color-on-surface-variant)',
-            cursor: 'pointer',
-          }}
-        >
-          Clear
-        </button>
-      )}
-    </div>
-  );
-
-  const toggle = (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0 1rem',
-        marginBottom: '0.75rem',
-      }}
-      className="md:wa-hidden"
-    >
-      <button
-        type="button"
-        role="switch"
-        aria-checked={atRiskOnly}
-        onClick={() => setAtRiskOnly((v) => !v)}
-        style={{
-          position: 'relative',
-          width: 44,
-          height: 26,
-          borderRadius: 999,
-          border: '1px solid var(--outline-variant)',
-          background: atRiskOnly ? 'var(--color-accent)' : 'var(--surface-container-high)',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }}
-      >
-        <span
-          style={{
-            position: 'absolute',
-            top: 3,
-            left: atRiskOnly ? 22 : 3,
-            width: 18,
-            height: 18,
-            borderRadius: '50%',
-            background: '#fff',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
-            transition: 'left 0.15s ease',
-          }}
-        />
-      </button>
-      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>At-risk only</span>
-      <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>(score ≥ medium)</span>
-    </div>
-  );
-
-  const toggleDesktop = (
-    <div
-      className="wa-hidden md:wa-flex"
-      style={{ alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}
-    >
-      <button
-        type="button"
-        role="switch"
-        aria-checked={atRiskOnly}
-        onClick={() => setAtRiskOnly((v) => !v)}
-        style={{
-          position: 'relative',
-          width: 44,
-          height: 26,
-          borderRadius: 999,
-          border: '1px solid var(--outline-variant)',
-          background: atRiskOnly ? 'var(--color-accent)' : 'var(--surface-container-high)',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }}
-      >
-        <span
-          style={{
-            position: 'absolute',
-            top: 3,
-            left: atRiskOnly ? 22 : 3,
-            width: 18,
-            height: 18,
-            borderRadius: '50%',
-            background: '#fff',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
-            transition: 'left 0.15s ease',
-          }}
-        />
-      </button>
-      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>At-risk only</span>
-      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Members with risk score ≥ medium (from nightly alert)</span>
-    </div>
-  );
-
   if (rows.length === 0) return null;
 
   const emptyFiltered = visible.length === 0 && (activeFilter != null || atRiskOnly);
@@ -401,226 +206,215 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
           ? 'All assigned members have completed or had their applications reviewed.'
           : 'Everyone is below the medium risk threshold, or alerts have not run yet.';
 
-  return (
-    <>
-      {/* Mobile */}
-      <div className="md:wa-hidden">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1rem 1rem 0.5rem',
-          }}
-        >
-          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Active Roster</span>
-          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Last activity · oldest first
-          </span>
+  type Row = CounselorRosterClientRow;
+
+  function rowProgress(row: Row): number | null {
+    const enrolledSlug = row.enrolledProgram ?? null;
+    const progress = computeTrainingProgress(enrolledSlug, null, row.memberProgramProgress);
+    return progress.totalCourses > 0 ? progress.pct : null;
+  }
+
+  const StudentCell = ({ row }: { row: Row }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+      <Avatar initials={getInitials(row.fullName ?? 'U')} size={32} />
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {row.fullName}
         </div>
-        {filterChips}
-        {toggle}
-        {emptyFiltered ? (
-          <div style={{ padding: '0 1rem' }}>
-            <PortalEmptyState
-              title={emptyTitle}
-              description={emptyDescription}
-              icon={<span className="material-symbols-outlined" aria-hidden>shield_person</span>}
-              primaryAction={{ label: 'Clear filter', href: pathname ?? '/counselor/students' }}
-            />
-          </div>
-        ) : (
-          <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {visible.map((a) => {
-              const initials = getInitials(a.fullName ?? 'U');
-              const program = a.enrolledProgram ?? a.programInterest ?? '—';
-              const enrolledSlug = a.enrolledProgram ?? null;
-              const progress = computeTrainingProgress(enrolledSlug, null, a.memberProgramProgress);
-              const trainingProgressPct = progress.totalCourses > 0 ? progress.pct : null;
-              const statusBadge = counselorStudentStatusBadge({
-                enrolledProgram: a.enrolledProgram,
-                assessmentScorePct: a.assessmentScorePct,
-              });
-              const statusVariant = counselorStudentStatusBadgeVariant({
-                enrolledProgram: a.enrolledProgram,
-                assessmentScorePct: a.assessmentScorePct,
-              });
-              const wioa = wioaBadgeProps(a.wioaReviewStatus);
-              const showMessage = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE;
-              return (
-                <div
-                  key={a.assignmentId}
-                  className="portal-kpi-card"
-                  style={{
-                    padding: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.875rem',
-                    border: '1px solid var(--outline-variant)',
-                  }}
-                >
-                  <Link
-                    href={`/counselor/students/${a.memberId}`}
-                    style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}
-                  >
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '0.625rem',
-                        background: 'var(--color-accent)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span style={{ color: '#fff', fontWeight: 800, fontSize: '0.875rem' }}>{initials}</span>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p
-                        className="wa-truncate"
-                        style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
-                      >
-                        {a.fullName}
-                      </p>
-                      <p
-                        className="wa-truncate"
-                        style={{
-                          fontSize: '10px',
-                          fontWeight: 700,
-                          color: 'var(--color-accent)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          margin: '0 0 0.375rem',
-                        }}
-                      >
-                        {program}
-                      </p>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                        Last activity: {formatLastActivity(a.lastActivityAt)}
-                      </p>
-                      {trainingProgressPct === null ? (
-                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
-                        </p>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div
-                            style={{
-                              flex: 1,
-                              height: 4,
-                              background: 'var(--surface-container)',
-                              borderRadius: '9999px',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <div
-                              style={{
-                                height: '100%',
-                                width: `${trainingProgressPct}%`,
-                                background: 'var(--color-accent)',
-                                borderRadius: '9999px',
-                              }}
-                            />
-                          </div>
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                            {trainingProgressPct}%
-                          </span>
-                        </div>
-                      )}
-                      <div style={{ marginTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.35rem', alignItems: 'center' }} title={wioa.tooltip}>
-                        <StatusBadge label={wioa.label} variant={wioa.variant} />
-                        <CounselorRosterRiskBadge level={a.riskLevel} />
-                      </div>
-                    </div>
-                  </Link>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem', flexShrink: 0 }}>
-                    <StatusBadge label={statusBadge.label} variant={statusVariant} />
-                    {showMessage ? (
-                      <Link
-                        href={`/counselor/students/${a.memberId}#counselor-member-messages`}
-                        className="btn btn-primary btn-sm"
-                        style={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Message
-                      </Link>
-                    ) : null}
-                    <Link href={`/counselor/students/${a.memberId}`} aria-label={`Open ${a.fullName ?? 'member'}`}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }} aria-hidden>
-                        chevron_right
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div style={{ fontSize: 10, color: 'var(--wa-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {row.email}
+        </div>
+      </div>
+    </div>
+  );
+
+  const ProgressCell = ({ row }: { row: Row }) => {
+    const pct = rowProgress(row);
+    const enrolledSlug = row.enrolledProgram ?? null;
+    if (pct === null) {
+      return (
+        <span style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
+          {enrolledSlug ? 'Progress unavailable' : 'Not enrolled'}
+        </span>
+      );
+    }
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ width: 72 }}>
+          <ProgressBar pct={pct} color={row.riskLevel === 'LOW' ? 'success' : 'accent'} aria-label={`${row.fullName} progress ${pct}%`} />
+        </div>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--wa-muted)' }}>{pct}%</span>
+      </div>
+    );
+  };
+
+  const RiskCell = ({ row }: { row: Row }) => {
+    if (row.riskLevel === 'LOW') return <span style={{ color: 'var(--wa-muted)' }}>—</span>;
+    const cfg = RISK_TAG[row.riskLevel];
+    return <StatusTag tone={cfg.tone}>{cfg.label}</StatusTag>;
+  };
+
+  const ActionsCell = ({ row }: { row: Row }) => {
+    const showMessage = row.riskScore != null && row.riskScore >= RISK_MEDIUM_OR_ABOVE;
+    if (!showMessage) return <span style={{ color: 'var(--wa-muted)' }}>—</span>;
+    return (
+      <Link
+        href={`/counselor/students/${row.memberId}#counselor-member-messages`}
+        className="btn btn-primary btn-sm"
+        style={{ whiteSpace: 'nowrap', fontSize: 11 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MessageSquare size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+        Message
+      </Link>
+    );
+  };
+
+  const columns: Column<Row>[] = [
+    { key: 'name', header: 'Student', render: (row) => <StudentCell row={row} /> },
+    {
+      key: 'program',
+      header: 'Program',
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.enrolledProgram ?? row.programInterest ?? '—'}</span>,
+    },
+    { key: 'progress', header: 'Progress', render: (row) => <ProgressCell row={row} /> },
+    { key: 'risk', header: 'Risk', render: (row) => <RiskCell row={row} /> },
+    {
+      key: 'wioa',
+      header: 'WIOA',
+      render: (row) => {
+        const wioa = wioaBadgeProps(row.wioaReviewStatus);
+        return (
+          <span title={wioa.tooltip}>
+            <StatusTag tone={variantToTone(wioa.variant)}>{wioa.label}</StatusTag>
+          </span>
+        );
+      },
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (row) => {
+        const badge = counselorStudentStatusBadge({ enrolledProgram: row.enrolledProgram, assessmentScorePct: row.assessmentScorePct });
+        const variant = counselorStudentStatusBadgeVariant({ enrolledProgram: row.enrolledProgram, assessmentScorePct: row.assessmentScorePct });
+        return <StatusTag tone={variantToTone(variant)}>{badge.label}</StatusTag>;
+      },
+    },
+    {
+      key: 'lastActive',
+      header: 'Last active',
+      align: 'right',
+      render: (row) => (
+        <span style={{ color: row.riskLevel !== 'LOW' && row.riskScore != null && row.riskScore >= RISK_MEDIUM_OR_ABOVE ? 'var(--wa-accent)' : 'var(--wa-muted)', fontWeight: row.riskScore != null && row.riskScore >= RISK_MEDIUM_OR_ABOVE ? 700 : 400 }}>
+          {formatLastActivity(row.lastActivityAt)}
+        </span>
+      ),
+    },
+    { key: 'actions', header: 'Message', align: 'right', render: (row) => <ActionsCell row={row} /> },
+  ];
+
+  return (
+    <DesignSurface surface="dense">
+      <SectionHeader
+        title="Active roster"
+        kicker="People"
+        goal="Sorted by oldest activity first — the members most likely to have gone quiet."
+      />
+
+      {/* Filter chips + at-risk-only toggle */}
+      <div className="wa-flex wa-flex-col md:wa-flex-row wa-gap-3 md:wa-items-center md:wa-justify-between wa-mb-4">
+        <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2" role="group" aria-label="Roster filters">
+          {FILTER_CHIPS.map((chip) => {
+            const isActive = activeFilter === chip.key;
+            return (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={() => updateFilter(isActive ? null : chip.key)}
+                aria-pressed={isActive}
+                className="wa-kit-focus"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  minHeight: 40,
+                  padding: '7px 14px',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: isActive ? 'transparent' : 'var(--wa-border)',
+                  background: isActive ? 'var(--wa-accent)' : 'var(--wa-surface)',
+                  color: isActive ? 'var(--wa-on-accent)' : 'var(--wa-text)',
+                }}
+              >
+                {chip.label}
+                {isActive ? <span aria-hidden style={{ opacity: 0.85 }}>×</span> : null}
+              </button>
+            );
+          })}
+          {activeFilter && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => updateFilter(null)} style={{ fontSize: 11 }}>
+              Clear
+            </button>
+          )}
+        </div>
+        <Toggle checked={atRiskOnly} onChange={setAtRiskOnly} label="At-risk only" />
       </div>
 
-      {/* Desktop */}
-      <div className="wa-hidden md:wa-block">
-        {filterChipsDesktop}
-        {toggleDesktop}
-        {emptyFiltered ? (
-          <PortalEmptyState
-            title={emptyTitle}
-            description={emptyDescription}
-            icon={<span className="material-symbols-outlined" aria-hidden>shield_person</span>}
-            primaryAction={{ label: 'Clear filter', href: pathname ?? '/counselor/students' }}
-          />
-        ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
-            {visible.map((a) => {
-              const wioa = wioaBadgeProps(a.wioaReviewStatus);
-              const showMessage = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE;
-              return (
-                <li key={a.assignmentId}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      width: '100%',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      flexWrap: 'wrap',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '0.75rem',
-                      border: '1px solid var(--outline-variant)',
-                      background: 'var(--surface-container-lowest)',
-                    }}
-                  >
-                    <Link href={`/counselor/students/${a.memberId}`} style={{ fontWeight: 600, flex: '1 1 160px', minWidth: 0 }}>
-                      {a.fullName}
-                    </Link>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
-                        Last: {formatLastActivity(a.lastActivityAt)}
-                      </span>
-                      <CounselorRosterRiskBadge level={a.riskLevel} />
-                      <span title={wioa.tooltip}>
-                        <StatusBadge label={wioa.label} variant={wioa.variant} />
-                      </span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{a.email}</span>
-                      {showMessage ? (
-                        <Link
-                          href={`/counselor/students/${a.memberId}#counselor-member-messages`}
-                          className="btn btn-primary btn-sm"
-                          style={{ flexShrink: 0 }}
-                        >
-                          Message
-                        </Link>
-                      ) : null}
-                    </div>
+      {emptyFiltered ? (
+        <PortalEmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+          primaryAction={{ label: 'Clear filter', href: pathname ?? '/counselor/students' }}
+        />
+      ) : (
+        <DataTable<Row>
+          columns={columns}
+          rows={visible}
+          rowKey={(row) => row.assignmentId}
+          onRowClick={(row) => router.push(`/counselor/students/${row.memberId}`)}
+          minWidth={860}
+          mobile="cards"
+          cardRender={(row) => {
+            const pct = rowProgress(row);
+            const badge = counselorStudentStatusBadge({ enrolledProgram: row.enrolledProgram, assessmentScorePct: row.assessmentScorePct });
+            const badgeVariant = counselorStudentStatusBadgeVariant({ enrolledProgram: row.enrolledProgram, assessmentScorePct: row.assessmentScorePct });
+            const wioa = wioaBadgeProps(row.wioaReviewStatus);
+            return (
+              <div className="wa-kit-card wa-kit-card--sm">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <StudentCell row={row} />
                   </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </>
+                  <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                    <StatusTag tone={variantToTone(badgeVariant)}>{badge.label}</StatusTag>
+                    <RiskCell row={row} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, fontSize: 11, color: 'var(--wa-muted)', margin: '12px 0 4px' }}>
+                  <span style={{ minWidth: 0 }}>{row.enrolledProgram ?? row.programInterest ?? '—'}</span>
+                  <span style={{ whiteSpace: 'nowrap' }} title={wioa.tooltip}>
+                    <StatusTag tone={variantToTone(wioa.variant)}>{wioa.label}</StatusTag>
+                  </span>
+                </div>
+                {pct !== null ? (
+                  <ProgressBar pct={pct} color={row.riskLevel === 'LOW' ? 'success' : 'accent'} aria-label={`${row.fullName} progress ${pct}%`} />
+                ) : null}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                  <div style={{ fontSize: 10, color: 'var(--wa-muted)' }}>
+                    {pct !== null ? `${pct}% complete · ` : ''}last active {formatLastActivity(row.lastActivityAt)}
+                  </div>
+                  <ActionsCell row={row} />
+                </div>
+              </div>
+            );
+          }}
+          emptyTitle="No students match this view"
+          emptyDescription="Try a different filter."
+        />
+      )}
+    </DesignSurface>
   );
 }

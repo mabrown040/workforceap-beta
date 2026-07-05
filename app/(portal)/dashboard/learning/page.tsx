@@ -9,6 +9,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import { CardHead, ProgressRing, ProgressBar, StatusTag } from '@/components/portal/kit';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
@@ -119,32 +120,19 @@ export default async function LearningPage() {
 
       {/* Progress overview card */}
       {ACTIVE_PATHWAY && (
-      <section className="wa-bg-[var(--surface-container-low)]" style={{ margin: '0 1.5rem 1.5rem', padding: '1.25rem', borderRadius: '0.75rem', position: 'relative', overflow: 'hidden', border: '1px solid color-mix(in srgb, var(--outline-variant) 35%, transparent)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <section className="wa-kit-card" style={{ margin: '0 1.5rem 1.5rem' }}>
+        <CardHead title="Progress overview" />
+        <div className="wa-flex wa-items-start wa-justify-between" style={{ marginTop: -6 }}>
           <div style={{ zIndex: 10, width: '60%' }}>
-            <h3 className="wa-text-lg wa-font-bold wa-leading-tight wa-text-[var(--color-on-surface)]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
-            <p className="wa-text-sm wa-text-[var(--color-on-surface-variant)] wa-font-medium">
+            <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.25, color: 'var(--wa-text)', margin: '0 0 4px' }}>{ACTIVE_PATHWAY.title}</h3>
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 600, margin: 0 }}>
               {learningStatusLabel} · {ACTIVE_PATHWAY.steps.length} modules
             </p>
           </div>
-          {/* Progress orb */}
-          <div style={{ position: 'relative', width: '5rem', height: '5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg className="-wa-rotate-90" style={{ width: '100%', height: '100%' }} viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="32" fill="transparent" stroke="var(--outline-variant)" strokeWidth="5" />
-              <circle
-                cx="40" cy="40" r="32" fill="transparent"
-                stroke="var(--color-gold)" strokeWidth="5"
-                strokeDasharray="201"
-                strokeDashoffset={201 - (201 * Math.min(100, overallPct)) / 100}
-                strokeLinecap="round"
-              />
-            </svg>
-            <span className="wa-text-base wa-font-bold wa-text-[var(--color-gold)]" style={{ position: 'absolute', fontVariantNumeric: 'tabular-nums' }}>{overallPct}%</span>
-          </div>
+          <ProgressRing pct={overallPct} size={80} color="gold" label="Pathway progress" />
         </div>
-        {/* Progress bar */}
-        <div style={{ marginTop: '1rem', height: '0.375rem', width: '100%', borderRadius: '9999px', overflow: 'hidden', background: 'color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
-          <div className="wa-bg-[var(--color-accent)]" style={{ width: `${Math.min(100, overallPct)}%`, height: '100%', borderRadius: '9999px' }} />
+        <div style={{ marginTop: '1rem' }}>
+          <ProgressBar pct={overallPct} color="accent" aria-label="Pathway progress" />
         </div>
       </section>
       )}
@@ -245,12 +233,9 @@ export default async function LearningPage() {
                   </span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p
-                    className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tight"
-                    style={{ marginBottom: '0.125rem', color: isCompleted ? 'var(--color-gold)' : isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }}
-                  >
-                    {m.detail}
-                  </p>
+                  <div style={{ marginBottom: '0.25rem' }}>
+                    <StatusTag tone={isCompleted ? 'ok' : isActive ? 'warn' : 'muted'}>{m.detail}</StatusTag>
+                  </div>
                   <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)] wa-truncate">{m.label}</p>
                 </div>
               </div>

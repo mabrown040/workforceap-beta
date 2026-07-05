@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { Briefcase, UserRound, TriangleAlert, Clock, CalendarClock } from 'lucide-react';
+import { QueueRow, WorkQueueItem, StatusTag, type QueueTone, type KitTone } from '@/components/portal/kit';
 
 export type WqApp = {
   id: string;
@@ -21,6 +23,64 @@ export type WqJob = {
 };
 
 type Focus = 'all' | 'review' | 'stale' | 'interview';
+type SectionId = 'review' | 'stale' | 'interview';
+
+const SECTION_TONE: Record<SectionId, QueueTone> = {
+  review: 'red',
+  stale: 'red',
+  interview: 'blue',
+};
+
+const SECTION_STATUS_TONE: Record<SectionId, KitTone> = {
+  review: 'alert',
+  stale: 'danger',
+  interview: 'info',
+};
+
+function statusLabel(status: string): string {
+  return status
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** Small pill CTA, styled with kit tokens (mirrors EmployerHomeKit's "Post a role" action). */
+function pillButton({
+  label,
+  busy,
+  disabled,
+  onClick,
+  variant = 'accent',
+}: {
+  label: string;
+  busy?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+  variant?: 'accent' | 'outline';
+}) {
+  const base = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '8px 14px',
+    minHeight: 36,
+    fontWeight: 700,
+    fontSize: 12,
+    borderRadius: 999,
+    textDecoration: 'none',
+    border: '1px solid transparent',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.6 : 1,
+  } as const;
+  const style =
+    variant === 'accent'
+      ? { ...base, background: 'var(--wa-accent)', color: 'var(--wa-on-accent)' }
+      : { ...base, background: 'var(--wa-surface)', color: 'var(--wa-text)', borderColor: 'var(--wa-border)' };
+  return (
+    <button type="button" className="wa-kit-focus" disabled={disabled} onClick={onClick} style={style}>
+      {busy ? '…' : label}
+    </button>
+  );
+}
 
 export default function EmployerWorkQueueClient({
   needsReviewTodayApps,
@@ -65,7 +125,6 @@ export default function EmployerWorkQueueClient({
       {
         id: 'review' as const,
         title: 'Needs review today',
-        urgency: 'high',
         subtitle: 'New applications today and jobs awaiting WorkforceAP publish/review.',
         apps: needsReviewTodayApps,
         jobs: jobsAwaitingPublish,
@@ -73,7 +132,6 @@ export default function EmployerWorkQueueClient({
       {
         id: 'stale' as const,
         title: 'Stale >48h',
-        urgency: 'high',
         subtitle: 'Applications still in pending or reviewing with no activity for two days.',
         apps: staleApps,
         jobs: [] as WqJob[],
@@ -81,7 +139,6 @@ export default function EmployerWorkQueueClient({
       {
         id: 'interview' as const,
         title: 'Interview pending',
-        urgency: 'medium',
         subtitle: 'Candidates marked interview — keep momentum with next steps.',
         apps: interviewPending,
         jobs: [] as WqJob[],
@@ -93,14 +150,25 @@ export default function EmployerWorkQueueClient({
   const visible = sections.filter((s) => focus === 'all' || focus === s.id);
 
   return (
-    <div className="employer-work-queue">
+    <div className="wa-space-y-5">
       {msg ? (
-        <p className="employer-work-queue-msg" role="alert">
+        <p
+          role="alert"
+          style={{
+            margin: 0,
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--wa-radius-sm)',
+            background: 'var(--wa-accent-soft)',
+            color: 'var(--wa-accent)',
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
           {msg}
         </p>
       ) : null}
 
-      <div className="employer-work-queue-filters" role="tablist" aria-label="Queue focus">
+      <div role="tablist" aria-label="Queue focus" className="wa-flex wa-flex-wrap wa-gap-2">
         {(
           [
             ['all', 'All queues'],
@@ -114,8 +182,20 @@ export default function EmployerWorkQueueClient({
             type="button"
             role="tab"
             aria-selected={focus === k}
-            className={`employer-work-queue-filter${focus === k ? ' is-active' : ''}`}
             onClick={() => setFocus(k)}
+            className="wa-kit-focus"
+            style={{
+              padding: '8px 14px',
+              minHeight: 36,
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: '1px solid var(--wa-border)',
+              background: focus === k ? 'var(--wa-accent)' : 'var(--wa-surface)',
+              color: focus === k ? 'var(--wa-on-accent)' : 'var(--wa-text)',
+              borderColor: focus === k ? 'var(--wa-accent)' : 'var(--wa-border)',
+            }}
           >
             {label}
           </button>
@@ -123,87 +203,83 @@ export default function EmployerWorkQueueClient({
       </div>
 
       {visible.map((sec) => (
-        <section key={sec.id} className={`employer-work-queue-section urgency-${sec.urgency}`} id={`wq-${sec.id}`}>
-          <header className="employer-work-queue-section-head">
-            <h2>{sec.title}</h2>
-            <p>{sec.subtitle}</p>
+        <section key={sec.id} id={`wq-${sec.id}`} className="wa-space-y-3">
+          <header>
+            <h2 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', margin: 0 }}>{sec.title}</h2>
+            <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>{sec.subtitle}</p>
           </header>
 
-          {sec.jobs.length > 0 ? (
-            <ul className="employer-work-queue-job-list">
-              {sec.jobs.map((j) => (
-                <li key={j.id} className="employer-work-queue-card">
-                  <div>
-                    <span className="employer-work-queue-pill">Job</span>
-                    <strong>{j.title}</strong>
-                    <div className="employer-work-queue-meta">
-                      Status: {j.status} · Updated {new Date(j.updatedAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="employer-work-queue-actions">
-                    <Link href={`/employer/jobs/${j.id}`} className="btn btn-primary btn-sm">
-                      Open job
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          <div className="wa-space-y-2">
+            {sec.jobs.map((j) => (
+              <WorkQueueItem
+                key={j.id}
+                icon={<Briefcase size={16} aria-hidden />}
+                urgent
+                title={j.title}
+                detail={`Status: ${statusLabel(j.status)} · Updated ${new Date(j.updatedAt).toLocaleDateString()}`}
+                action={
+                  <Link href={`/employer/jobs/${j.id}`} style={{ textDecoration: 'none' }}>
+                    {pillButton({ label: 'Open job' })}
+                  </Link>
+                }
+              />
+            ))}
 
-          {sec.apps.length > 0 ? (
-            <ul className="employer-work-queue-app-list">
-              {sec.apps.map((a) => (
-                <li key={a.id} className="employer-work-queue-card">
-                  <div>
-                    <span className="employer-work-queue-pill">Applicant</span>
-                    <strong>{a.studentName}</strong>
-                    <div className="employer-work-queue-meta">
-                      {a.jobTitle} · Applied {new Date(a.appliedAt).toLocaleString()} · {a.status}
+            {sec.apps.map((a) => {
+              const Icon = sec.id === 'review' ? UserRound : sec.id === 'stale' ? TriangleAlert : CalendarClock;
+              return (
+                <QueueRow
+                  key={a.id}
+                  tone={SECTION_TONE[sec.id]}
+                  icon={<Icon size={16} aria-hidden />}
+                  title={a.studentName}
+                  meta={`${a.jobTitle} · Applied ${new Date(a.appliedAt).toLocaleString()}`}
+                  action={
+                    <div
+                      className="wa-flex wa-items-center wa-gap-2 wa-flex-wrap"
+                      style={{ minWidth: 0, flexShrink: 1, justifyContent: 'flex-end' }}
+                    >
+                      <StatusTag tone={SECTION_STATUS_TONE[sec.id]}>{statusLabel(a.status)}</StatusTag>
+                      <Link href="/employer/applications" style={{ textDecoration: 'none' }}>
+                        {pillButton({ label: 'Table view', variant: 'outline' })}
+                      </Link>
+                      {sec.id === 'review' && a.status === 'pending'
+                        ? pillButton({
+                            label: 'Start review',
+                            busy: busy === a.id,
+                            disabled: busy === a.id,
+                            onClick: () => void patchApp(a.id, 'reviewing'),
+                          })
+                        : null}
+                      {sec.id === 'stale' && (a.status === 'pending' || a.status === 'reviewing')
+                        ? pillButton({
+                            label: 'Move to interview',
+                            busy: busy === a.id,
+                            disabled: busy === a.id,
+                            onClick: () => void patchApp(a.id, 'interview'),
+                          })
+                        : null}
+                      {sec.id === 'interview'
+                        ? pillButton({
+                            label: 'Mark offered',
+                            busy: busy === a.id,
+                            disabled: busy === a.id,
+                            onClick: () => void patchApp(a.id, 'offered'),
+                          })
+                        : null}
                     </div>
-                  </div>
-                  <div className="employer-work-queue-actions">
-                    <Link href="/employer/applications" className="btn btn-outline btn-sm">
-                      Table view
-                    </Link>
-                    {sec.id === 'review' && a.status === 'pending' ? (
-                      <button
-                        type="button"
-                        className="btn btn-muted btn-sm"
-                        disabled={busy === a.id}
-                        onClick={() => void patchApp(a.id, 'reviewing')}
-                      >
-                        {busy === a.id ? '…' : 'Start review'}
-                      </button>
-                    ) : null}
-                    {sec.id === 'stale' && (a.status === 'pending' || a.status === 'reviewing') ? (
-                      <button
-                        type="button"
-                        className="btn btn-muted btn-sm"
-                        disabled={busy === a.id}
-                        onClick={() => void patchApp(a.id, 'interview')}
-                      >
-                        {busy === a.id ? '…' : 'Move to interview'}
-                      </button>
-                    ) : null}
-                    {sec.id === 'interview' ? (
-                      <button
-                        type="button"
-                        className="btn btn-muted btn-sm"
-                        disabled={busy === a.id}
-                        onClick={() => void patchApp(a.id, 'offered')}
-                      >
-                        {busy === a.id ? '…' : 'Mark offered'}
-                      </button>
-                    ) : null}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+                  }
+                />
+              );
+            })}
 
-          {sec.apps.length === 0 && sec.jobs.length === 0 ? (
-            <p className="employer-work-queue-empty">Nothing in this queue right now.</p>
-          ) : null}
+            {sec.apps.length === 0 && sec.jobs.length === 0 ? (
+              <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Clock size={16} aria-hidden style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-muted)' }}>Nothing in this queue right now.</p>
+              </div>
+            ) : null}
+          </div>
         </section>
       ))}
     </div>

@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
+import { Briefcase, Award, Calendar, Handshake, FileCheck2 } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { DesignSurface, CardHead, StatSparkTile, StatusTag, type KitTone } from '@/components/portal/kit';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -33,20 +35,26 @@ function accountStatusLabel(status: string): string {
   return 'Inactive';
 }
 
+function accountStatusTone(status: string): KitTone {
+  if (status === 'active') return 'ok';
+  if (status === 'pending_approval') return 'warn';
+  return 'muted';
+}
+
 function getPartnershipTier(
   placementAgreementSigned: boolean,
   hiringPipelineActive: boolean,
-): { label: string; color: string; bg: string } {
+): { label: string; tone: KitTone } {
   if (placementAgreementSigned && hiringPipelineActive) {
-    return { label: 'Strategic Hiring Partner', color: '#7b1fa2', bg: 'rgba(123,31,162,0.10)' };
+    return { label: 'Strategic Hiring Partner', tone: 'ok' };
   }
   if (placementAgreementSigned) {
-    return { label: 'Hiring Partner', color: '#1565c0', bg: 'rgba(21,101,192,0.10)' };
+    return { label: 'Hiring Partner', tone: 'info' };
   }
   if (hiringPipelineActive) {
-    return { label: 'Active Pipeline', color: '#2e7d32', bg: 'rgba(46,125,50,0.10)' };
+    return { label: 'Active Pipeline', tone: 'warn' };
   }
-  return { label: 'Standard', color: 'var(--color-on-surface-variant)', bg: 'var(--surface-container)' };
+  return { label: 'Standard', tone: 'muted' };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -88,6 +96,7 @@ export default async function AdminEmployerDetailPage({ params }: Props) {
   if (!employer) notFound();
 
   const pt = getPartnershipTier(employer.placementAgreementSigned, employer.hiringPipelineActive);
+  const partnerSince = employer.createdAt.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
 
   return (
     <PortalPageFrame>
@@ -97,261 +106,109 @@ export default async function AdminEmployerDetailPage({ params }: Props) {
         subtitle={`${employer.industry ?? 'Unknown industry'} · ${employer.companySize ?? 'Unknown size'}`}
       />
 
-      {/* Partnership Summary Card */}
-      <div
-        className="portal-card portal-card--flat"
-        style={{ padding: '1.75rem', marginBottom: '1.5rem' }}
-      >
-        <h2
-          style={{
-            fontSize: '1rem',
-            fontWeight: 700,
-            color: 'var(--color-on-surface)',
-            marginBottom: '1.25rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
-        >
-          Partnership Overview
-        </h2>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          {/* Partnership tier badge */}
-          <div
-            style={{
-              padding: '1rem',
-              background: 'var(--surface-container)',
-              borderRadius: 'var(--radius-lg)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface-variant)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Partnership Tier
-            </div>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.625rem',
-                borderRadius: '999px',
-                fontSize: '0.8125rem',
-                fontWeight: 700,
-                background: pt.bg,
-                color: pt.color,
-              }}
-            >
-              {pt.label}
-            </span>
-          </div>
-
-          {/* Hiring pipeline status */}
-          <div
-            style={{
-              padding: '1rem',
-              background: 'var(--surface-container)',
-              borderRadius: 'var(--radius-lg)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface-variant)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Hiring Pipeline
-            </div>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.625rem',
-                borderRadius: '999px',
-                fontSize: '0.8125rem',
-                fontWeight: 700,
-                background: employer.hiringPipelineActive
-                  ? 'rgba(46,125,50,0.10)'
-                  : 'var(--surface-container-high)',
-                color: employer.hiringPipelineActive
-                  ? '#2e7d32'
-                  : 'var(--color-on-surface-variant)',
-              }}
-            >
-              {employer.hiringPipelineActive ? 'Active' : 'Inactive'}
-            </span>
-          </div>
-
-          {/* Placement agreement status */}
-          <div
-            style={{
-              padding: '1rem',
-              background: 'var(--surface-container)',
-              borderRadius: 'var(--radius-lg)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface-variant)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Placement Agreement
-            </div>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.625rem',
-                borderRadius: '999px',
-                fontSize: '0.8125rem',
-                fontWeight: 700,
-                background: employer.placementAgreementSigned
-                  ? 'rgba(21,101,192,0.10)'
-                  : 'var(--surface-container-high)',
-                color: employer.placementAgreementSigned
-                  ? '#1565c0'
-                  : 'var(--color-on-surface-variant)',
-              }}
-            >
-              {employer.placementAgreementSigned ? 'Signed' : 'Not signed'}
-            </span>
-          </div>
+      <DesignSurface surface="dense">
+        {/* KPI row */}
+        <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-3" style={{ marginBottom: 20 }}>
+          <StatSparkTile icon={Briefcase} label="Jobs Posted" value={employer._count.jobs} color="accent" />
+          <StatSparkTile icon={Award} label="Target Certifications" value={employer.targetCertifications.length} color="gold" />
+          <StatSparkTile icon={Calendar} label="Partner Since" value={partnerSince} color="info" />
         </div>
 
-        {/* Target certifications */}
-        {employer.targetCertifications.length > 0 && (
-          <div style={{ marginTop: '1.25rem' }}>
-            <div
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface-variant)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                marginBottom: '0.625rem',
-              }}
-            >
-              Target Certifications
+        {/* Partnership Overview */}
+        <div className="wa-kit-card" style={{ marginBottom: 20 }}>
+          <CardHead title="Partnership Overview" />
+
+          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-3">
+            <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="wa-flex wa-items-center wa-gap-2">
+                <Handshake size={14} aria-hidden style={{ color: 'var(--wa-muted)' }} />
+                <span className="wa-kit-stat-label">Partnership Tier</span>
+              </div>
+              <div>
+                <StatusTag tone={pt.tone}>{pt.label}</StatusTag>
+              </div>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {employer.targetCertifications.map((slug) => (
-                <span
-                  key={slug}
-                  style={{
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '999px',
-                    fontSize: '0.8125rem',
-                    fontWeight: 600,
-                    background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                    color: 'var(--color-accent)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
-                  }}
-                >
-                  {certSlugToName(slug)}
-                </span>
-              ))}
+
+            <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="wa-flex wa-items-center wa-gap-2">
+                <Briefcase size={14} aria-hidden style={{ color: 'var(--wa-muted)' }} />
+                <span className="wa-kit-stat-label">Hiring Pipeline</span>
+              </div>
+              <div>
+                <StatusTag tone={employer.hiringPipelineActive ? 'ok' : 'muted'}>
+                  {employer.hiringPipelineActive ? 'Active' : 'Inactive'}
+                </StatusTag>
+              </div>
+            </div>
+
+            <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="wa-flex wa-items-center wa-gap-2">
+                <FileCheck2 size={14} aria-hidden style={{ color: 'var(--wa-muted)' }} />
+                <span className="wa-kit-stat-label">Placement Agreement</span>
+              </div>
+              <div>
+                <StatusTag tone={employer.placementAgreementSigned ? 'info' : 'muted'}>
+                  {employer.placementAgreementSigned ? 'Signed' : 'Not signed'}
+                </StatusTag>
+              </div>
             </div>
           </div>
-        )}
 
-        {employer.targetCertifications.length === 0 && (
-          <p
-            style={{
-              marginTop: '1rem',
-              fontSize: '0.875rem',
-              color: 'var(--color-on-surface-variant)',
-              fontStyle: 'italic',
-            }}
-          >
-            No target certifications specified.
-          </p>
-        )}
-      </div>
+          {/* Target certifications */}
+          {employer.targetCertifications.length > 0 ? (
+            <div style={{ marginTop: 18 }}>
+              <div className="wa-kit-stat-label" style={{ marginBottom: 10 }}>
+                Target Certifications
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {employer.targetCertifications.map((slug) => (
+                  <StatusTag key={slug} tone="info">
+                    {certSlugToName(slug)}
+                  </StatusTag>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p style={{ marginTop: 16, fontSize: 13, color: 'var(--wa-muted)', fontStyle: 'italic' }}>
+              No target certifications specified.
+            </p>
+          )}
+        </div>
 
-      {/* Company details */}
-      <div className="portal-card portal-card--flat" style={{ padding: '1.75rem' }}>
-        <h2
-          style={{
-            fontSize: '1rem',
-            fontWeight: 700,
-            color: 'var(--color-on-surface)',
-            marginBottom: '1.25rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
-        >
-          Company Details
-        </h2>
-        <dl
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem 2rem',
-          }}
-        >
-          {[
-            { label: 'Contact name', value: employer.contactName },
-            { label: 'Contact email', value: employer.contactEmail },
-            { label: 'Contact phone', value: employer.contactPhone ?? '—' },
-            { label: 'Website', value: employer.companyWebsite ?? '—' },
-            { label: 'Industry', value: employer.industry ?? '—' },
-            { label: 'Company size', value: employer.companySize ?? '—' },
-            { label: 'Portal user', value: `${employer.user.fullName} (${employer.user.email})` },
-            { label: 'Account tier', value: TIER_LABELS[employer.tier] ?? employer.tier },
-            { label: 'Status', value: accountStatusLabel(employer.status) },
-            { label: 'Jobs posted', value: String(employer._count.jobs) },
-          ].map((row) => (
-            <div key={row.label}>
-              <dt
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: 'var(--color-on-surface-variant)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '0.25rem',
-                }}
-              >
-                {row.label}
+        {/* Company details */}
+        <div className="wa-kit-card">
+          <CardHead title="Company Details" />
+          <dl className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4">
+            {[
+              { label: 'Contact name', value: employer.contactName },
+              { label: 'Contact email', value: employer.contactEmail },
+              { label: 'Contact phone', value: employer.contactPhone ?? '—' },
+              { label: 'Website', value: employer.companyWebsite ?? '—' },
+              { label: 'Industry', value: employer.industry ?? '—' },
+              { label: 'Company size', value: employer.companySize ?? '—' },
+              { label: 'Portal user', value: `${employer.user.fullName} (${employer.user.email})` },
+              { label: 'Account tier', value: TIER_LABELS[employer.tier] ?? employer.tier },
+            ].map((row) => (
+              <div key={row.label}>
+                <dt className="wa-kit-stat-label" style={{ marginBottom: 4 }}>
+                  {row.label}
+                </dt>
+                <dd style={{ fontSize: 14, color: 'var(--wa-text)', margin: 0, wordBreak: 'break-all' }}>
+                  {row.value}
+                </dd>
+              </div>
+            ))}
+            <div>
+              <dt className="wa-kit-stat-label" style={{ marginBottom: 4 }}>
+                Status
               </dt>
-              <dd
-                style={{
-                  fontSize: '0.875rem',
-                  color: 'var(--color-on-surface)',
-                  margin: 0,
-                  wordBreak: 'break-all',
-                }}
-              >
-                {row.value}
+              <dd style={{ margin: 0 }}>
+                <StatusTag tone={accountStatusTone(employer.status)}>{accountStatusLabel(employer.status)}</StatusTag>
               </dd>
             </div>
-          ))}
-        </dl>
-      </div>
+          </dl>
+        </div>
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

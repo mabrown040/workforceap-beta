@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Sparkles, FolderOpen, Headset, Mail, ArrowRight } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -11,6 +12,7 @@ import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization'
 import ResourcesClient from './ResourcesClient';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import { DesignSurface, CardHead } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -75,7 +77,7 @@ export default async function DashboardResourcesPage() {
   const programResources = getResourcesForCategory(category);
 
   return (
-    <>
+    <DesignSurface surface="warm">
       <div style={{ maxWidth: 'var(--max-width, 60rem)', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
         <div style={{ marginTop: '1rem', marginBottom: '2rem' }}>
           <PageHeader
@@ -92,49 +94,52 @@ export default async function DashboardResourcesPage() {
         {/* Suggested AI tools */}
         {suggestedAiTools.length > 0 && (
           <section style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-              Suggested for you
-            </h2>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <CardHead title="Suggested for you" />
+            <div className="wa-flex wa-flex-wrap wa-gap-2">
               {suggestedAiTools.map((a) => (
                 <Link
                   key={a.href + a.label}
                   href={a.href}
+                  className="wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.375rem',
+                    minHeight: 36,
                     padding: '0.5rem 1rem',
-                    borderRadius: '999px',
-                    background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
-                    color: 'var(--color-accent)',
+                    borderRadius: 999,
+                    background: 'var(--wa-accent-soft)',
+                    border: '1px solid color-mix(in srgb, var(--wa-accent) 20%, transparent)',
+                    color: 'var(--wa-accent)',
                     fontSize: '0.8125rem',
                     fontWeight: 600,
                     textDecoration: 'none',
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">auto_awesome</span>
+                  <Sparkles size={14} aria-hidden="true" />
                   {a.label}
                 </Link>
               ))}
               <Link
                 href="/dashboard/ai-tools"
+                className="wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.375rem',
+                  minHeight: 36,
                   padding: '0.5rem 1rem',
-                  borderRadius: '999px',
-                  background: 'var(--surface-container)',
-                  border: '1px solid var(--outline-variant)',
-                  color: 'var(--color-on-surface-variant)',
+                  borderRadius: 999,
+                  background: 'var(--wa-surface-2)',
+                  border: '1px solid var(--wa-border)',
+                  color: 'var(--wa-muted)',
                   fontSize: '0.8125rem',
                   fontWeight: 600,
                   textDecoration: 'none',
                 }}
               >
-                All AI tools →
+                All AI tools
+                <ArrowRight size={13} aria-hidden="true" />
               </Link>
             </div>
           </section>
@@ -142,16 +147,10 @@ export default async function DashboardResourcesPage() {
 
         {/* Program resources with inline preview */}
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-            {categoryLabel} resources
-          </h2>
+          <CardHead title={`${categoryLabel} resources`} />
           {programResources.length === 0 ? (
             <PortalEmptyState
-              icon={
-                <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
-                  folder_open
-                </span>
-              }
+              icon={<FolderOpen size={40} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />}
               title="No resources yet"
               description="Resources for your program will appear here once you're enrolled."
               primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
@@ -163,54 +162,53 @@ export default async function DashboardResourcesPage() {
 
         {/* Support + Counselor */}
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-            Support
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
+          <CardHead title="Support" />
+          <div className="wa-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
             {/* Counselor card */}
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">support_agent</span>
-                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Your Counselor</h3>
+            <div className="wa-kit-card wa-kit-card--sm">
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: '0.625rem' }}>
+                <Headset size={18} style={{ color: 'var(--wa-accent)' }} aria-hidden="true" />
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>Your Counselor</h3>
               </div>
               {counselorContact ? (
                 <>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>{counselorContact.fullName}</p>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-                    <a href={`mailto:${counselorContact.email}`} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>{counselorContact.email}</a>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--wa-text)', margin: '0 0 0.25rem' }}>{counselorContact.fullName}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: '0 0 0.75rem' }}>
+                    <a href={`mailto:${counselorContact.email}`} style={{ color: 'var(--wa-accent)', textDecoration: 'none' }}>{counselorContact.email}</a>
                   </p>
                 </>
               ) : (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.55 }}>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: '0 0 0.75rem', lineHeight: 1.55 }}>
                   {dbUser?.enrolledAt
                     ? 'Your counselor will reach out shortly — leave a message anytime.'
                     : 'A counselor will be assigned as you move through enrollment.'}
                 </p>
               )}
-              <Link href="/dashboard/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
+              <Link href="/dashboard/messages" className="wa-kit-focus" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}>
                 Open messages
-                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
+                <ArrowRight size={13} aria-hidden="true" />
               </Link>
             </div>
 
             {/* General contact */}
-            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">mail</span>
-                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Contact</h3>
+            <div className="wa-kit-card wa-kit-card--sm">
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: '0.625rem' }}>
+                <Mail size={18} style={{ color: 'var(--wa-accent)' }} aria-hidden="true" />
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>Contact</h3>
               </div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', lineHeight: 1.55 }}>
-                <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}>info@workforceap.org</a>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: '0 0 0.5rem', lineHeight: 1.55 }}>
+                <a href="mailto:info@workforceap.org" style={{ color: 'var(--wa-accent)', textDecoration: 'none', fontWeight: 600 }}>info@workforceap.org</a>
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: '0 0 0.75rem' }}>
                 (512) 777-1808
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.55 }}>
-                <strong>Loaner Laptop:</strong> Earned upon program completion. <Link href="/how-it-works" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Learn more</Link>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: 0, lineHeight: 1.55 }}>
+                <strong style={{ color: 'var(--wa-text)' }}>Loaner Laptop:</strong> Earned upon program completion. <Link href="/how-it-works" style={{ color: 'var(--wa-accent)', textDecoration: 'none' }}>Learn more</Link>
               </p>
             </div>
           </div>
         </section>
-      </div>    </>
+      </div>
+    </DesignSurface>
   );
 }

@@ -8,6 +8,7 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminOrgSettingsForm from '@/components/admin/AdminOrgSettingsForm';
+import { DesignSurface } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -29,7 +30,7 @@ export default async function AdminSettingsPage() {
   });
 
   return (
-    <div>
+    <DesignSurface surface="dense" className="wa-p-6">
       <PageHeader title="Organization settings" subtitle="Platform-wide options for the default tenant." />
       <AdminOrgSettingsForm
         defaultName={org?.name ?? 'WorkforceAP'}
@@ -37,6 +38,6 @@ export default async function AdminSettingsPage() {
         defaultLogoUrl={resolveSupabasePublicAssetUrl('organization-branding', org?.logo) ?? ''}
         defaultPrimaryColor={org?.primaryColor ?? ''}
       />
-    </div>
+    </DesignSurface>
   );
 }

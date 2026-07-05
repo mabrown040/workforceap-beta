@@ -81,6 +81,10 @@ const TARGETS = [
   { name: 'counselor-command', path: '/dev/staff/counselor-command' },
   { name: 'employer-command', path: '/dev/staff/employer-command' },
   { name: 'partner-command', path: '/dev/staff/partner-command' },
+  // Inner-page Command Center redesigns (R18 showcase routes)
+  { name: 'counselor-atrisk', path: '/dev/staff/counselor-atrisk' },
+  { name: 'employer-jobs', path: '/dev/staff/employer-jobs' },
+  { name: 'partner-members', path: '/dev/staff/partner-members' },
   // Staff kits (app/dev/staff/** showcase routes, mock data)
   { name: 'staff-partner', path: '/dev/staff/partner' },
   { name: 'staff-placements', path: '/dev/staff/placements' },

@@ -250,9 +250,19 @@ The Astryx design system is installed site-wide (`app/layout.tsx` imports `reset
   app's `color-scheme` flip drives both. No `<Theme>` provider needed in production surfaces.
 - **Division of labor:** new overlays, command surfaces, confirmation dialogs, and forms →
   Astryx (`Dialog`, `AlertDialog`, `CommandPalette`, `TextInput`, …) — e.g.
-  `components/admin/ConfirmDialog.tsx` and `components/portal/GlobalSearch.tsx`. Data-dense kit
-  pages, KPI/status primitives, and anything already on `--wa-*` → the kit. Do not import Astryx
-  primitives inside `components/portal/kit/**`.
+  `components/admin/ConfirmDialog.tsx` and `components/portal/GlobalSearch.tsx`. Within
+  `components/portal/kit/pages/**`, hand-rolled generic-primitive markup (cards-as-`<div>`,
+  buttons/CTA links styled by hand, badges/pills, tab lists, spinners, pagers, empty states,
+  status dots, single-value progress bars) should be Astryx (`Card`, `Button`, `Token`,
+  `SegmentedControl`, `Spinner`, `Pagination`, `EmptyState`, `StatusDot`, `ProgressBar`, `Link`
+  wrapping Next's `Link` for navigational actions — see `VoiceStudioKit.tsx` /
+  `member/MemberHomeKit.tsx`) — same brand-token bridge as everywhere else Astryx is used.
+  WorkforceAP-specific composites that already encode real layout/business logic —
+  `DataTable`, `StageTrack`, `SegmentedProgress`, `QueueRow`, `WorkQueueItem`, `ChatThread`,
+  `KpiStrip`, `CardHead`, `Sparkline`/`AreaChartMini`, `ProgressRing`, `FeatureTile`,
+  `FormField`, the kit's own `Avatar` — stay on the kit; they have no 1:1 Astryx equivalent and
+  don't need one. The rule is "generic primitive → Astryx, domain composite → kit," not
+  "no Astryx in kit/pages."
 - **Workflow (mandatory):** `pnpm exec astryx build "<idea>"` → `astryx template <name>` →
   `astryx component <Name>` before writing Astryx UI. Do not invent props — the docs are the
   contract. Reference proofs live at `/dev/astryx` (templates + production overlay demos).

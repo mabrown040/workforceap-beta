@@ -1,8 +1,11 @@
 'use client';
 
-import { useId, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { Dialog, DialogHeader } from '@astryxdesign/core/Dialog';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -23,9 +26,11 @@ type ConfirmDialogProps = {
 
 /**
  * Shared styled confirmation dialog for admin/portal flows — replaces native
- * `window.confirm()`. Focus-trapped (Tab cycles inside, Escape cancels via
- * useFocusTrap, focus returns to the trigger on close); backdrop click cancels.
- * Follows the confirmAction dialog pattern in MembersTable.
+ * `window.confirm()`. Built on the Astryx `Dialog` (native `<dialog>` with
+ * built-in focus trap, Escape, backdrop dismiss, and focus restore) — same
+ * external props API as the previous hand-rolled implementation, so the 16
+ * existing consumers are unchanged. Astryx `AlertDialog` was considered but
+ * requires a string description; `body` here is ReactNode by contract.
  */
 export default function ConfirmDialog({
   open,
@@ -39,65 +44,34 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const titleId = useId();
-  const close = () => {
-    if (!busy) onCancel();
-  };
-  const trapRef = useFocusTrap(open, close);
-
-  if (!open) return null;
-
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
-      onClick={(e) => { if (e.target === e.currentTarget) close(); }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 'var(--z-modal, 1100)',
-        background: 'rgba(0,0,0,0.45)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '1rem',
+    <Dialog
+      isOpen={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !busy) onCancel();
       }}
+      width={maxWidth}
+      purpose="info"
     >
-      <div
-        ref={trapRef as React.RefObject<HTMLDivElement>}
-        style={{
-          background: 'var(--surface-container-low)',
-          borderRadius: 'var(--radius-lg, 1rem)',
-          width: '100%',
-          maxWidth: `${maxWidth}px`,
-          boxShadow: 'var(--shadow-xl, 0 20px 40px rgba(0,0,0,0.25))',
-        }}
-      >
-        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {danger && <AlertTriangle size={20} style={{ color: 'var(--wa-danger, #dc2626)', flexShrink: 0 }} aria-hidden />}
-          <h2 id={titleId} style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
-            {title}
-          </h2>
-        </div>
-        <div style={{ padding: '1.25rem 1.5rem' }}>
-          {typeof body === 'string' ? (
-            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{body}</p>
-          ) : (
-            body
-          )}
-        </div>
-        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
-            {cancelLabel}
-          </button>
-          <button
-            type="button"
-            className={danger ? 'btn' : 'btn btn-primary'}
-            style={danger ? { background: 'var(--wa-danger, #dc2626)', color: '#fff', border: 'none' } : undefined}
+      <VStack gap={3}>
+        <DialogHeader
+          title={title}
+          startContent={
+            danger ? <AlertTriangle size={20} style={{ color: 'var(--wa-danger, #dc2626)', flexShrink: 0 }} aria-hidden /> : undefined
+          }
+        />
+        {typeof body === 'string' ? <Text color="secondary">{body}</Text> : body}
+        <HStack gap={2} justify="end">
+          <Button label={cancelLabel} variant="ghost" onClick={onCancel} isDisabled={busy} />
+          <Button
+            label={busy ? 'Working…' : confirmLabel}
+            variant={danger ? 'destructive' : 'primary'}
             onClick={onConfirm}
-            disabled={busy}
-          >
-            {busy ? 'Working…' : confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+            isDisabled={busy}
+            isLoading={busy}
+          />
+        </HStack>
+      </VStack>
+    </Dialog>
   );
 }

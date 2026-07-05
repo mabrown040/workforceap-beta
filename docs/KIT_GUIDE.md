@@ -236,6 +236,29 @@ plus `PartnerOverviewKit.tsx`, `VoiceStudioKit.tsx`. **Start new pages by copyin
 
 ---
 
+## 9. Astryx coexistence (`@astryxdesign/core`)
+
+The Astryx design system is installed site-wide (`app/layout.tsx` imports `reset.css` +
+`astryx.css`). It coexists with the kit, it does not replace it:
+
+- **Cascade safety:** all Astryx CSS lives in `@layer reset` / `@layer astryx-base`; the app's
+  unlayered CSS always wins conflicts. The 11 shared token names (notably `--color-accent`,
+  `--color-error`, `--color-border`) therefore resolve to the app's values everywhere — that is
+  what makes Astryx components render in WorkforceAP crimson instead of Astryx blue. Never wrap
+  app CSS in layers and never redefine Astryx's `--color-*` names in `:root`.
+- **Dark mode:** Astryx tokens are `light-dark()`-based, same mechanism as `--wa-*` (§3). The
+  app's `color-scheme` flip drives both. No `<Theme>` provider needed in production surfaces.
+- **Division of labor:** new overlays, command surfaces, confirmation dialogs, and forms →
+  Astryx (`Dialog`, `AlertDialog`, `CommandPalette`, `TextInput`, …) — e.g.
+  `components/admin/ConfirmDialog.tsx` and `components/portal/GlobalSearch.tsx`. Data-dense kit
+  pages, KPI/status primitives, and anything already on `--wa-*` → the kit. Do not import Astryx
+  primitives inside `components/portal/kit/**`.
+- **Workflow (mandatory):** `pnpm exec astryx build "<idea>"` → `astryx template <name>` →
+  `astryx component <Name>` before writing Astryx UI. Do not invent props — the docs are the
+  contract. Reference proofs live at `/dev/astryx` (templates + production overlay demos).
+
+---
+
 *Maintenance: this file is hand-synced. If you touch `components/portal/kit/index.ts` exports,
 token names in `css/portal-tokens.css`, or `KitTone`/`StatusTone` semantics, update the matching
 section here in the same PR.*

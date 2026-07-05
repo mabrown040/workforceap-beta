@@ -836,7 +836,7 @@ export default function SkillMapperClient() {
               )}
               <h3 className="ai-tool-section-title">{selectedTitle}</h3>
               {isSalesQuery(selectedTitle) && (
-                <div style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface)' }}>
+                <div style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'var(--wa-info-soft)', border: '1px solid var(--wa-border)', borderRadius: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface)' }}>
                   Sales and account roles usually score strongest in <strong>Strategy</strong> and <strong>Ethics</strong> here because this map weighs planning, negotiation, communication, and relationship-building, not just technical tools.
                 </div>
               )}
@@ -950,7 +950,7 @@ export default function SkillMapperClient() {
                     ))}
                   </div>
                   {/* Enrollment CTAs */}
-                  <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(173,44,77,0.06)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.75rem' }}>
+                  <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--wa-accent-soft)', border: '1px solid var(--wa-border)', borderRadius: '0.75rem' }}>
                     <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
                       Ready to start your training?
                     </p>
@@ -988,7 +988,7 @@ export default function SkillMapperClient() {
           )}
 
           {!loadingProfile && autoExtracting && (
-            <div style={{ padding: '1rem 1.25rem', background: 'rgba(43,123,185,0.07)', border: '1px solid rgba(43,123,185,0.18)', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
+            <div style={{ padding: '1rem 1.25rem', background: 'var(--wa-info-soft)', border: '1px solid var(--wa-border)', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
               <Loader2 size={20} className="ai-tool-submit-spinner" style={{ flexShrink: 0 }} />
               <div>
                 <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>

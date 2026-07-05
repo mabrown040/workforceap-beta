@@ -666,7 +666,7 @@ export default async function AdminOverviewPage() {
             }}
           >
             <Download size={18} aria-hidden style={{ color: 'var(--wa-accent)' }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-text)', letterSpacing: '-0.01em' }}>Export funder CSV</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--wa-text)', letterSpacing: '-0.01em' }}>Export funder CSV</span>
           </a>
           {(
             [
@@ -683,7 +683,7 @@ export default async function AdminOverviewPage() {
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
             >
               <action.icon size={18} aria-hidden style={{ marginBottom: 8, color: 'var(--wa-accent)' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-text)', letterSpacing: '-0.01em' }}>{action.label}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--wa-text)', letterSpacing: '-0.01em' }}>{action.label}</span>
             </Link>
           ))}
         </div>

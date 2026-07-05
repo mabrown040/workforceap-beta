@@ -13,6 +13,11 @@ import {
   type RankDatum,
   type KitTone,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token } from '@astryxdesign/core/Token';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import MfaStatusBanner from '@/components/admin/MfaStatusBanner';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 
@@ -227,28 +232,17 @@ export function AdminDashboardKit({
     signupData.length > 0 || enrollmentData.length > 0 || viewData.length > 0;
 
   const ExportAction = (
-    <a
+    <Button
+      label="Export funder CSV"
+      variant="secondary"
+      size="sm"
       href={exportHref}
-      className="wa-kit-focus"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '8px 14px',
-        fontSize: 12,
-        fontWeight: 600,
-        borderRadius: 999,
-        border: '1px solid var(--wa-border)',
-        background: 'var(--wa-surface)',
-        color: 'var(--wa-text)',
-        textDecoration: 'none',
-      }}
-    >
-      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
-        download
-      </span>
-      Export funder CSV
-    </a>
+      icon={
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
+          download
+        </span>
+      }
+    />
   );
 
   return (
@@ -268,7 +262,7 @@ export function AdminDashboardKit({
 
       {/* Work queue (2/3) + CEO funnels (1/3) */}
       <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
-        <section className="wa-kit-card lg:wa-col-span-2" style={{ minWidth: 0 }}>
+        <Card className="lg:wa-col-span-2" style={{ minWidth: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -281,7 +275,7 @@ export function AdminDashboardKit({
             <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>
               Work queue
             </h3>
-            <StatusTag tone="info">{workItems.length} queues</StatusTag>
+            <Token label={`${workItems.length} queues`} size="sm" color="blue" />
           </div>
           <DataTable<AdminDashboardWorkItem>
             columns={workColumns}
@@ -293,15 +287,7 @@ export function AdminDashboardKit({
             }}
             mobile="cards"
             cardRender={(row) => (
-              <a
-                href={row.href}
-                className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
-                style={{
-                  display: 'block',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                }}
-              >
+              <ClickableCard label={row.label} href={row.href}>
                 <div
                   style={{
                     display: 'flex',
@@ -321,27 +307,25 @@ export function AdminDashboardKit({
                     {row.value > 0 ? 'Action needed' : 'Clear'}
                   </StatusTag>
                 </div>
-              </a>
+              </ClickableCard>
             )}
             emptyTitle="Nothing in the queue"
             emptyDescription="No items currently need attention."
           />
-        </section>
+        </Card>
 
-        <section className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <SectionHeader title="CEO Funnels" />
           {funnelBars.length > 0 ? (
             <RankBars data={funnelBars} />
           ) : (
-            <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
-              No funnel data available yet.
-            </p>
+            <EmptyState title="No funnel data available yet." isCompact />
           )}
-        </section>
+        </Card>
       </div>
 
       {/* 30-day trends */}
-      <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+      <Card className="wa-mt-5" style={{ minWidth: 0 }}>
         <div style={{ marginBottom: 16 }}>
           <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>
             30-Day Trends
@@ -365,11 +349,9 @@ export function AdminDashboardKit({
             />
           </ErrorBoundary>
         ) : (
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
-            No trend activity in the last 30 days yet.
-          </p>
+          <EmptyState title="No trend activity in the last 30 days yet." isCompact />
         )}
-      </section>
+      </Card>
 
       <p
         style={{

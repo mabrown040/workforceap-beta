@@ -20,6 +20,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import { ChevronRight, Lightbulb, Users } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
 import {
   CardHead,
   DataTable,
@@ -79,12 +80,12 @@ export interface PartnerFunnelStage {
 
 export function PartnerReferralFunnel({ stages }: { stages: PartnerFunnelStage[] }) {
   return (
-    <div className="wa-kit-card">
+    <Card>
       <CardHead title="Referral funnel" />
       <RankBars
         data={stages.map((s) => ({ label: s.label, value: s.value, pct: s.pct, color: s.color ?? 'accent' }))}
       />
-    </div>
+    </Card>
   );
 }
 

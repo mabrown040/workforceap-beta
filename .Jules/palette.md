@@ -27,3 +27,7 @@
 ## 2024-06-20 - Redundant aria-label on aria-live copy buttons
 **Learning:** Found instances where custom copy buttons had a visually hidden `aria-label` attribute alongside an inner `aria-live` region containing dynamic state text (e.g., changing from "📋 Copy" to "✓ Copied!"). The outer `aria-label` can overshadow the inner live region, preventing screen readers from announcing the dynamic status update.
 **Action:** When implementing custom copy buttons that utilize an inner `<span aria-live="polite">` element to announce a "Copied!" state, remove any static or conditionally rendered `aria-label` from the parent `<button>` element.
+
+## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
+**Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
+**Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.

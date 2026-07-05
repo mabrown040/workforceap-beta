@@ -3,10 +3,22 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
+import {
+  UploadCloud,
+  Sparkles,
+  RefreshCw,
+  FileEdit,
+  Target,
+  LineChart,
+  FileWarning,
+  ArrowUpRight,
+  FileText as FileTextIcon,
+} from 'lucide-react';
 
 const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
 import { uploadMemberResumeFile } from "@/lib/portal/memberResumeUpload";
 import { trackFunnelEvent } from "@/lib/analytics/events";
+import { CardHead, ProgressBar, StatusTag } from '@/components/portal/kit';
 
 type WitData = {
   name: string;
@@ -238,20 +250,22 @@ export default function ResumeClient({
   // ── Section elements ──────────────────────────────────────────────────────
 
   const uploadSection = (
-    <section style={{ marginBottom: "1.5rem" }}>
-      <h2
-        style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.75rem" }}
-      >
-        Upload Resume
-      </h2>
+    <section className="wa-kit-card" style={{ marginBottom: "1.25rem" }}>
+      <CardHead title="Upload resume" />
       <div
-        className={`counselor-resume-upload ${dragover ? "dragover" : ""}`}
         onDragOver={(e) => {
           e.preventDefault();
           setDragover(true);
         }}
         onDragLeave={() => setDragover(false)}
         onDrop={handleDrop}
+        style={{
+          border: `2px dashed ${dragover ? "var(--wa-accent)" : "var(--wa-border)"}`,
+          borderRadius: "var(--wa-radius-sm)",
+          background: dragover ? "color-mix(in srgb, var(--wa-accent) 6%, transparent)" : "var(--wa-surface-2)",
+          padding: "1.5rem 1rem",
+          transition: "border-color 150ms ease, background-color 150ms ease",
+        }}
       >
         <input
           ref={fileInputRef}
@@ -263,22 +277,27 @@ export default function ResumeClient({
         />
         <label
           htmlFor="resume-upload-input"
+          className="wa-kit-focus"
           style={{
             cursor: "pointer",
-            display: "block",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             textAlign: "center",
+            gap: "0.5rem",
           }}
         >
-          <p style={{ margin: 0, color: "var(--color-on-surface-variant)" }}>
+          <UploadCloud size={22} color="var(--wa-accent)" aria-hidden="true" />
+          <p style={{ margin: 0, color: "var(--wa-text)", fontWeight: 600, fontSize: "0.9rem" }}>
             {uploading
               ? "Uploading…"
               : "Drag and drop your resume here, or click to choose a file"}
           </p>
           <p
             style={{
-              margin: "0.5rem 0 0",
-              fontSize: "0.85rem",
-              color: "var(--color-on-surface-variant)",
+              margin: 0,
+              fontSize: "0.8rem",
+              color: "var(--wa-muted)",
             }}
           >
             PDF, DOC, DOCX, TXT — max 5MB
@@ -286,32 +305,26 @@ export default function ResumeClient({
         </label>
       </div>
       {uploadError && (
-        <p role="alert" style={{ color: "var(--color-error, #dc2626)", marginTop: "0.5rem" }}>{uploadError}</p>
+        <p role="alert" style={{ color: "var(--wa-danger)", marginTop: "0.75rem", fontSize: "0.85rem" }}>{uploadError}</p>
       )}
     </section>
   );
 
   const aiGeneratorSection = (
-    <section id="resume-ai-generator" style={{ marginBottom: "1.5rem" }}>
-      <h2
-        style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.75rem" }}
-      >
-        Build from Profile
-      </h2>
-      <div style={{ marginBottom: "0.5rem" }}>
-        <span>Profile completeness: {completeness}%</span>
-        <div className="counselor-profile-bar">
-          <div
-            className="counselor-profile-bar-fill"
-            style={{ width: `${completeness}%` }}
-          />
+    <section id="resume-ai-generator" className="wa-kit-card" style={{ marginBottom: "1.25rem" }}>
+      <CardHead title="Build from profile" />
+      <div style={{ marginBottom: "1rem" }}>
+        <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 6, fontSize: "0.8125rem", color: "var(--wa-muted)" }}>
+          <span>Profile completeness</span>
+          <span style={{ fontWeight: 700, color: "var(--wa-text)" }}>{completeness}%</span>
         </div>
+        <ProgressBar pct={completeness} color={completeness >= recommendedProfileCompleteness ? "success" : "gold"} aria-label="Profile completeness" />
       </div>
       {completeness < recommendedProfileCompleteness && (
-        <p style={{ marginBottom: "0.75rem" }}>
+        <p style={{ marginBottom: "0.875rem", fontSize: "0.875rem", color: "var(--wa-muted)" }}>
           <Link
             href="/dashboard/profile"
-            style={{ color: "var(--color-accent)", fontWeight: 600 }}
+            style={{ color: "var(--wa-accent)", fontWeight: 700, textDecoration: "none" }}
           >
             Complete My Profile
           </Link>{" "}
@@ -320,10 +333,26 @@ export default function ResumeClient({
       )}
       <button
         type="button"
-        className="btn btn-primary"
         onClick={handleGenerate}
         disabled={generating}
+        className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          minHeight: 40,
+          padding: "8px 18px",
+          background: "var(--wa-accent)",
+          color: "var(--wa-on-accent)",
+          fontWeight: 700,
+          fontSize: 13,
+          borderRadius: 999,
+          border: "none",
+          cursor: generating ? "not-allowed" : "pointer",
+          opacity: generating ? 0.7 : 1,
+        }}
       >
+        {generating ? <RefreshCw size={14} className="wa-animate-spin" aria-hidden /> : <Sparkles size={14} aria-hidden />}
         {generating
           ? "Building…"
           : hasEnhanced
@@ -331,27 +360,23 @@ export default function ResumeClient({
             : "Build Resume"}
       </button>
       {generateError && (
-        <p role="alert" style={{ color: "var(--color-error, #dc2626)", marginTop: "0.5rem" }}>{generateError}</p>
+        <p role="alert" style={{ color: "var(--wa-danger)", marginTop: "0.75rem", fontSize: "0.85rem" }}>{generateError}</p>
       )}
     </section>
   );
 
   const resumePreviewSection =
     hasOriginal || hasEnhanced ? (
-      <section style={{ marginBottom: "1.5rem" }}>
-        <h2
-          style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.75rem" }}
-        >
-          Resume Preview
-        </h2>
+      <section className="wa-kit-card" style={{ marginBottom: "1.25rem" }}>
+        <CardHead title="Resume preview" />
 
         {/* Original resume */}
         {hasOriginal && (
           <div
             style={{
               marginBottom: "1.25rem",
-              border: "1px solid var(--outline-variant)",
-              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--wa-border)",
+              borderRadius: "var(--wa-radius-sm)",
               overflow: "hidden",
             }}
           >
@@ -361,19 +386,24 @@ export default function ResumeClient({
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "0.6rem 0.9rem",
-                background: "var(--surface-container)",
-                borderBottom: "1px solid var(--outline-variant)",
+                background: "var(--wa-surface-2)",
+                borderBottom: "1px solid var(--wa-border)",
                 fontSize: "0.85rem",
               }}
             >
-              <span style={{ fontWeight: 600 }}>Original Resume</span>
+              <span className="wa-flex wa-items-center wa-gap-2" style={{ fontWeight: 600 }}>
+                Original Resume
+                <StatusTag tone={resumeData?.originalUrl ? "ok" : "muted"}>
+                  {resumeData?.originalUrl ? "Available" : "On file"}
+                </StatusTag>
+              </span>
               {resumeData?.originalUrl ? (
                 <a
                   href={resumeData.originalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: "var(--color-accent)",
+                    color: "var(--wa-accent)",
                     fontWeight: 600,
                     textDecoration: "none",
                   }}
@@ -383,7 +413,7 @@ export default function ResumeClient({
               ) : loading ? (
                 <span
                   style={{
-                    color: "var(--color-on-surface-variant)",
+                    color: "var(--wa-muted)",
                     fontSize: "0.8rem",
                   }}
                 >
@@ -392,7 +422,7 @@ export default function ResumeClient({
               ) : (
                 <span
                   style={{
-                    color: "var(--color-on-surface-variant)",
+                    color: "var(--wa-muted)",
                     fontSize: "0.8rem",
                   }}
                 >
@@ -403,7 +433,7 @@ export default function ResumeClient({
                     style={{
                       background: "none",
                       border: "none",
-                      color: "var(--color-accent)",
+                      color: "var(--wa-accent)",
                       fontWeight: 600,
                       cursor: "pointer",
                       padding: 0,
@@ -418,9 +448,9 @@ export default function ResumeClient({
             {resumeData?.previewOriginalPath &&
               resumeData.originalExt === "pdf" && (
                 originalPdfFailed ? (
-                  <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--surface-container)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">picture_as_pdf</span>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
+                  <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--wa-surface-2)' }}>
+                    <FileWarning size={30} color="var(--wa-muted)" aria-hidden="true" style={{ display: 'block', margin: '0 auto 0.5rem' }} />
+                    <p style={{ fontSize: '0.85rem', color: 'var(--wa-muted)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
                     {resumeData.originalUrl && (
                       <a href={resumeData.originalUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>Download to view ↗</a>
                     )}
@@ -447,7 +477,7 @@ export default function ResumeClient({
                 )
               )}
             {["doc", "docx"].includes(resumeData?.originalExt ?? "") && (
-              <div style={{ background: "var(--surface-container)" }}>
+              <div style={{ background: "var(--wa-surface-2)" }}>
                 {originalDocHtml ? (
                   <iframe
                     title="Original resume preview"
@@ -466,7 +496,7 @@ export default function ResumeClient({
                       padding: "1rem",
                       margin: 0,
                       fontSize: "0.85rem",
-                      color: "var(--color-on-surface-variant)",
+                      color: "var(--wa-muted)",
                     }}
                   >
                     Loading preview…
@@ -481,7 +511,7 @@ export default function ResumeClient({
                   style={{
                     padding: "1rem",
                     textAlign: "center",
-                    background: "var(--surface-container)",
+                    background: "var(--wa-surface-2)",
                   }}
                 >
                   <a
@@ -508,8 +538,8 @@ export default function ResumeClient({
           <div
             style={{
               marginBottom: "1.25rem",
-              border: "1px solid var(--outline-variant)",
-              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--wa-border)",
+              borderRadius: "var(--wa-radius-sm)",
               overflow: "hidden",
             }}
           >
@@ -519,19 +549,22 @@ export default function ResumeClient({
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "0.6rem 0.9rem",
-                background: "var(--surface-container)",
-                borderBottom: "1px solid var(--outline-variant)",
+                background: "var(--wa-surface-2)",
+                borderBottom: "1px solid var(--wa-border)",
                 fontSize: "0.85rem",
               }}
             >
-              <span style={{ fontWeight: 600 }}>Updated Resume</span>
+              <span className="wa-flex wa-items-center wa-gap-2" style={{ fontWeight: 600 }}>
+                Updated Resume
+                <StatusTag tone="info">AI-built</StatusTag>
+              </span>
               {resumeData?.enhancedUrl ? (
                 <a
                   href={resumeData.enhancedUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: "var(--color-accent)",
+                    color: "var(--wa-accent)",
                     fontWeight: 600,
                     textDecoration: "none",
                   }}
@@ -543,9 +576,9 @@ export default function ResumeClient({
             {resumeData?.previewEnhancedPath &&
               resumeData.enhancedExt === "pdf" && (
                 enhancedPdfFailed ? (
-                  <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--surface-container)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">picture_as_pdf</span>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
+                  <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--wa-surface-2)' }}>
+                    <FileWarning size={30} color="var(--wa-muted)" aria-hidden="true" style={{ display: 'block', margin: '0 auto 0.5rem' }} />
+                    <p style={{ fontSize: '0.85rem', color: 'var(--wa-muted)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
                     {resumeData.enhancedUrl && (
                       <a href={resumeData.enhancedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>Download to view ↗</a>
                     )}
@@ -572,7 +605,7 @@ export default function ResumeClient({
                 )
               )}
             {["doc", "docx"].includes(resumeData?.enhancedExt ?? "") && (
-              <div style={{ background: "var(--surface-container)" }}>
+              <div style={{ background: "var(--wa-surface-2)" }}>
                 {enhancedDocHtml ? (
                   <iframe
                     title="Enhanced resume preview"
@@ -591,7 +624,7 @@ export default function ResumeClient({
                       padding: "1rem",
                       margin: 0,
                       fontSize: "0.85rem",
-                      color: "var(--color-on-surface-variant)",
+                      color: "var(--wa-muted)",
                     }}
                   >
                     Loading preview…
@@ -607,7 +640,7 @@ export default function ResumeClient({
                   style={{
                     padding: "1rem",
                     textAlign: "center",
-                    background: "var(--surface-container)",
+                    background: "var(--wa-surface-2)",
                   }}
                 >
                   <a
@@ -635,12 +668,12 @@ export default function ResumeClient({
                   className="markdown-body"
                   style={{
                     padding: "1.25rem",
-                    background: "var(--surface-container-lowest)",
+                    background: "var(--wa-bg)",
                     fontSize: "0.9375rem",
                     lineHeight: 1.65,
                     maxHeight: "min(70vh, 720px)",
                     overflowY: "auto",
-                    color: "var(--color-on-surface)",
+                    color: "var(--wa-text)",
                   }}
                 >
                 <MarkdownPreview>{resumeData.enhancedText}</MarkdownPreview>
@@ -651,11 +684,30 @@ export default function ResumeClient({
       </section>
     ) : null;
 
+  const RESUME_TOOLS: Array<{ icon: typeof FileEdit; title: string; desc: string; href: string }> = [
+    {
+      icon: FileEdit,
+      title: "Resume Rewriter",
+      desc: "Rewrite and polish your resume for a specific role.",
+      href: "/dashboard/ai-tools/resume-studio?view=rewrite",
+    },
+    {
+      icon: Target,
+      title: "Job Match Scorer",
+      desc: "See how well your resume matches a job posting.",
+      href: "/dashboard/ai-tools/job-match-scorer",
+    },
+    {
+      icon: LineChart,
+      title: "Resume Analysis",
+      desc: "See what is working well and what to strengthen before you apply.",
+      href: "/dashboard/ai-tools/resume-studio?view=score",
+    },
+  ];
+
   const aiToolsSection = (
-    <section style={{ marginBottom: "1.5rem" }}>
-      <h2 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem" }}>
-        Resume Tools
-      </h2>
+    <section className="wa-kit-card" style={{ marginBottom: "1.25rem" }}>
+      <CardHead title="Resume tools" />
       <div
         style={{
           display: "grid",
@@ -663,62 +715,47 @@ export default function ResumeClient({
           gap: "0.75rem",
         }}
       >
-        {[
-          {
-            icon: "edit_document",
-            title: "Resume Rewriter",
-            desc: "Rewrite and polish your resume for a specific role.",
-            href: "/dashboard/ai-tools/resume-studio?view=rewrite",
-          },
-          {
-            icon: "track_changes",
-            title: "Job Match Scorer",
-            desc: "See how well your resume matches a job posting.",
-            href: "/dashboard/ai-tools/job-match-scorer",
-          },
-          {
-            icon: "query_stats",
-            title: "Resume Analysis",
-            desc: "See what is working well and what to strengthen before you apply.",
-            href: "/dashboard/ai-tools/resume-studio?view=score",
-          },
-        ].map(({ icon, title, desc, href }) => (
+        {RESUME_TOOLS.map(({ icon: Icon, title, desc, href }) => (
           // Whole card is the interactive target (not just the "Open" text)
           // — matches "cards only where the card IS the interaction".
           <Link
             key={href}
             href={href}
-            className="wa-transition-[border-color,box-shadow,transform] wa-duration-150 hover:wa-border-[var(--color-accent)] hover:wa-shadow-sm active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 motion-reduce:wa-transition-none focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
+            className="wa-kit-focus wa-kit-card--hover wa-transition-[border-color,box-shadow,transform] wa-duration-150 hover:wa-border-[var(--wa-accent)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 motion-reduce:wa-transition-none"
             style={{
-              background: "var(--surface-container)",
-              borderRadius: "0.75rem",
+              background: "var(--wa-surface-2)",
+              borderRadius: "var(--wa-radius-sm)",
               padding: "1rem 1.1rem",
               display: "flex",
               flexDirection: "column",
               gap: "0.4rem",
-              border: "1px solid var(--outline-variant)",
+              border: "1px solid var(--wa-border)",
               textDecoration: "none",
               color: "inherit",
             }}
           >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: "1.5rem",
-                color: "var(--color-accent)",
-                fontVariationSettings: "'FILL' 1",
-              }}
+            <div
               aria-hidden="true"
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--wa-radius-sm)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "color-mix(in srgb, var(--wa-accent) 12%, transparent)",
+                color: "var(--wa-accent)",
+              }}
             >
-              {icon}
-            </span>
-            <span style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-on-surface)" }}>
+              <Icon size={17} />
+            </div>
+            <span style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--wa-text)" }}>
               {title}
             </span>
             <span
               style={{
                 fontSize: "0.82rem",
-                color: "var(--color-on-surface-variant)",
+                color: "var(--wa-muted)",
                 flexGrow: 1,
               }}
             >
@@ -727,9 +764,9 @@ export default function ResumeClient({
             <span
               aria-hidden="true"
               style={{
-                color: "var(--color-accent)",
-                fontWeight: 600,
-                fontSize: "0.875rem",
+                color: "var(--wa-accent)",
+                fontWeight: 700,
+                fontSize: "0.8125rem",
                 marginTop: "0.25rem",
               }}
             >
@@ -744,23 +781,24 @@ export default function ResumeClient({
   const witDataEmpty = !witData.name && !witData.email && !witData.phone && !witData.recentEmployer && !witData.targetJob && !witData.skills;
 
   const witGuideSection = (
-    <section className="counselor-wit-guide">
-      <h2
-        style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.75rem" }}
-      >
-        WorkInTexas Guide
-      </h2>
+    <section className="wa-kit-card">
+      <CardHead title="WorkInTexas guide" />
+      <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: 12, marginTop: -6 }}>
+        <StatusTag tone={witDataEmpty ? "muted" : "info"}>{witDataEmpty ? "Copy manually" : "Pre-filled"}</StatusTag>
+      </div>
       <p
         style={{
           marginBottom: "1rem",
-          color: "var(--color-on-surface-variant)",
+          color: "var(--wa-muted)",
+          fontSize: "0.875rem",
+          lineHeight: 1.55,
         }}
       >
         {witDataEmpty
           ? "Copy these from your profile. Use these steps when creating your WorkInTexas profile."
           : "Pre-filled with your data. Use these steps when creating your WorkInTexas profile."}
       </p>
-      <ol>
+      <ol style={{ margin: "0 0 1rem", paddingLeft: "1.15rem", color: "var(--wa-text)", fontSize: "0.875rem", lineHeight: 1.85 }}>
         <li>
           <strong>Create account</strong> at workintexas.com
         </li>
@@ -785,10 +823,23 @@ export default function ResumeClient({
         href="https://www.workintexas.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="btn btn-primary"
-        style={{ marginTop: "1rem" }}
+        className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          minHeight: 40,
+          padding: "8px 16px",
+          background: "var(--wa-accent)",
+          color: "var(--wa-on-accent)",
+          fontWeight: 700,
+          fontSize: 13,
+          borderRadius: 999,
+          textDecoration: "none",
+        }}
       >
-        Open WorkInTexas →
+        Open WorkInTexas
+        <ArrowUpRight size={14} aria-hidden />
       </a>
     </section>
   );
@@ -822,25 +873,15 @@ export default function ResumeClient({
                 alignItems: "center",
                 justifyContent: "center",
                 minHeight: "420px",
-                background: "var(--surface-container)",
+                background: "var(--wa-surface-2)",
                 borderRadius: "0.875rem",
-                border: "2px dashed var(--outline-variant)",
-                color: "var(--color-on-surface-variant)",
+                border: "2px dashed var(--wa-border)",
+                color: "var(--wa-muted)",
                 textAlign: "center",
                 padding: "2.5rem",
               }}
             >
-              <span
-                className="material-symbols-outlined"
-                style={{
-                  fontSize: "2.5rem",
-                  marginBottom: "0.75rem",
-                  opacity: 0.35,
-                }}
-                aria-hidden="true"
-              >
-                description
-              </span>
+              <FileTextIcon size={40} aria-hidden="true" style={{ marginBottom: "0.75rem", opacity: 0.35 }} />
               <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.55 }}>
                 Upload a resume or use <strong>Build from Profile</strong> to
                 create one. Your preview will appear here.

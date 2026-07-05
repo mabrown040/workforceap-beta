@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { FileText } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -10,19 +11,19 @@ import { withDbRetry } from '@/lib/db/withDbRetry';
 import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
 import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
+import { DesignSurface } from '@/components/portal/kit';
 
 const ResumeClient = dynamic(() => import('./ResumeClient'), {
   loading: () => (
     <div
       role="status"
       aria-live="polite"
-      className="portal-card portal-card--flat"
+      className="wa-kit-card"
       style={{
         minHeight: 280,
         padding: '2.5rem 1.25rem',
-        borderRadius: 12,
         textAlign: 'center',
-        color: 'var(--color-on-surface-variant)',
+        color: 'var(--wa-muted)',
         fontSize: '0.9rem',
         fontWeight: 600,
       }}
@@ -82,14 +83,14 @@ export default async function DashboardResumePage() {
   };
 
   return (
-    <>
+    <DesignSurface surface="warm">
       {/* ── Mobile ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: "6rem" }}>
         <div
           style={{
             padding: "1rem 1rem 1.25rem",
-            borderBottom: "1px solid var(--surface-container-high)",
-            background: "var(--surface-container-low)",
+            borderBottom: "1px solid var(--wa-border)",
+            background: "var(--wa-surface)",
           }}
         >
           <Link
@@ -99,10 +100,10 @@ export default async function DashboardResumePage() {
               alignItems: "center",
               gap: "0.3rem",
               fontSize: "0.85rem",
-              color: "var(--color-accent)",
+              color: "var(--wa-accent)",
               textDecoration: "none",
               marginBottom: "0.75rem",
-              fontWeight: 500,
+              fontWeight: 600,
             }}
           >
             ← Career Toolkit
@@ -111,32 +112,28 @@ export default async function DashboardResumePage() {
             style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}
           >
             <div
+              aria-hidden="true"
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 10,
-                background: "var(--surface-container-highest)",
+                borderRadius: "var(--wa-radius-sm)",
+                background: "color-mix(in srgb, var(--wa-accent) 12%, transparent)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
+                color: "var(--wa-accent)",
               }}
             >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: "1.2rem", color: "var(--color-accent)" }}
-                aria-hidden="true"
-              >
-                description
-              </span>
+              <FileText size={19} />
             </div>
             <div>
               <h1
                 style={{
                   fontSize: "1.15rem",
-                  fontWeight: 700,
+                  fontWeight: 800,
                   margin: 0,
-                  color: "var(--color-on-surface)",
+                  color: "var(--wa-text)",
                 }}
               >
                 {t('resume')}
@@ -144,7 +141,7 @@ export default async function DashboardResumePage() {
               <p
                 style={{
                   fontSize: "0.78rem",
-                  color: "var(--color-on-surface-variant)",
+                  color: "var(--wa-muted)",
                   margin: "0.1rem 0 0",
                 }}
               >
@@ -174,13 +171,13 @@ export default async function DashboardResumePage() {
       {/* ── Desktop ── */}
       <div
         className="wa-hidden md:wa-block"
-        style={{ background: "var(--surface-container-lowest)", minHeight: "100vh" }}
+        style={{ background: "var(--wa-bg)", minHeight: "100vh" }}
       >
         <div
           style={{
             padding: "1.25rem 2rem 1.5rem",
-            borderBottom: "1px solid var(--surface-container-high)",
-            background: "var(--surface-container-low)",
+            borderBottom: "1px solid var(--wa-border)",
+            background: "var(--wa-surface)",
           }}
         >
           <PageHeader
@@ -210,6 +207,6 @@ export default async function DashboardResumePage() {
           />
         </div>
       </div>
-    </>
+    </DesignSurface>
   );
 }

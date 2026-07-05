@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, MessagesSquare } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface } from '@/components/portal/kit';
 
 /**
@@ -47,9 +48,9 @@ export function MemberCounselorSessionKit({ title, dateLabel, output, backLabel 
           <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{dateLabel}</p>
         </div>
 
-        <div className="wa-kit-card" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.65, fontSize: 14, color: 'var(--wa-text)' }}>
-          {output}
-        </div>
+        <Card>
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.65, fontSize: 14, color: 'var(--wa-text)' }}>{output}</div>
+        </Card>
       </div>
     </DesignSurface>
   );

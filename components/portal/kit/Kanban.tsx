@@ -1,4 +1,9 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
+import { Token } from '@astryxdesign/core/Token';
+import { toneToTokenColor } from './astryxMap';
 import type { KitTone } from './tokens';
 
 export interface KanbanCardData {
@@ -14,38 +19,33 @@ export interface KanbanColumnData {
   cards: KanbanCardData[];
 }
 
-const TONE_C: Record<KitTone, string> = {
-  ok: 'var(--wa-success)',
-  warn: 'var(--wa-gold)',
-  alert: 'var(--wa-accent)',
-  danger: 'var(--wa-danger)',
-  info: 'var(--wa-info)',
-  muted: 'var(--wa-muted)',
-};
-
 /**
- * Employer candidate pipeline. Columns scroll horizontally on mobile.
- * Mockup: employer pipeline (Kanban).
+ * Employer candidate pipeline — Astryx `Card` columns with `Token` counts.
+ * Columns scroll horizontally on mobile.
  */
 export function KanbanBoard({ columns }: { columns: KanbanColumnData[] }) {
   return (
     <div className="wa-overflow-x-auto">
       <div style={{ display: 'flex', gap: 12, minWidth: 'min-content' }}>
         {columns.map((col) => (
-          <div key={col.label} className="wa-kit-card wa-kit-card--sm" style={{ minWidth: 200, flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 12, fontWeight: 700 }}>{col.label}</span>
-              <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, fontWeight: 800, color: TONE_C[col.tone ?? 'muted'] }}>{col.count}</span>
+          <Card key={col.label}>
+            <div style={{ minWidth: 200, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>{col.label}</span>
+                <Token label={String(col.count)} size="sm" color={toneToTokenColor(col.tone ?? 'muted')} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {col.cards.map((c) => (
+                  <Card key={c.id}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 11 }}>{c.title}</div>
+                      {c.meta ? <div style={{ fontSize: 10, color: 'var(--wa-muted)', marginTop: 2 }}>{c.meta}</div> : null}
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {col.cards.map((c) => (
-                <div key={c.id} style={{ padding: 10, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-bg)', border: '1px solid var(--wa-border)' }}>
-                  <div style={{ fontWeight: 700, fontSize: 11 }}>{c.title}</div>
-                  {c.meta ? <div style={{ fontSize: 10, color: 'var(--wa-muted)' }}>{c.meta}</div> : null}
-                </div>
-              ))}
-            </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

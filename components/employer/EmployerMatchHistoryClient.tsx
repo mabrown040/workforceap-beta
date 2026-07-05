@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useState, useCallback } from 'react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
-import DataTable from '@/components/portal/ui/DataTable';
-import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import { DataTable, Avatar, type Column, type KitColor } from '@/components/portal/kit';
 
 export type EmployerMatchHistoryRow = {
   id: string;
@@ -29,6 +29,73 @@ const STATUSES = [
   'hired',
   'rejected',
 ] as const;
+
+function initialsFor(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+/** Fit-score band color, mirrors EmployerHomeKit's candidate-pipeline fit column. */
+function fitScoreColor(pct: number): KitColor {
+  if (pct >= 85) return 'success';
+  if (pct >= 70) return 'gold';
+  if (pct >= 60) return 'accent';
+  return 'muted';
+}
+
+function FitBadge({ pct }: { pct: number }) {
+  const color = fitScoreColor(pct);
+  const varName =
+    color === 'success' ? 'var(--wa-success)' : color === 'gold' ? 'var(--wa-gold)' : color === 'accent' ? 'var(--wa-accent)' : 'var(--wa-muted)';
+  if (pct < 60) {
+    return <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-muted)' }}>Possible fit</span>;
+  }
+  return (
+    <span style={{ fontWeight: 800, fontSize: 13, fontVariantNumeric: 'tabular-nums', color: varName }}>{pct}%</span>
+  );
+}
+
+function StatusSelect({
+  value,
+  disabled,
+  studentName,
+  onChange,
+}: {
+  value: string;
+  disabled: boolean;
+  studentName: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <select
+      className="wa-kit-focus"
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={`Status for ${studentName}`}
+      style={{
+        minWidth: '9.5rem',
+        fontSize: 13,
+        border: '1px solid var(--wa-border)',
+        borderRadius: 'var(--wa-radius-sm)',
+        padding: '7px 10px',
+        background: 'var(--wa-surface)',
+        color: 'var(--wa-text)',
+      }}
+    >
+      {STATUSES.map((s) => (
+        <option key={s} value={s}>
+          {employerMatchPipelineLabel(s)}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export default function EmployerMatchHistoryClient({ initialRows }: { initialRows: EmployerMatchHistoryRow[] }) {
   const [rows, setRows] = useState(initialRows);
@@ -67,90 +134,158 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
 
   if (rows.length === 0) {
     return (
-      <PortalEmptyState
-        title="No suggested candidates yet"
-        description="When WorkforceAP matches members to your open roles, they will appear here with match scores and pipeline status."
-        icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>group_add</span>}
-      />
+      <div className="wa-kit-card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
+        <Sparkles size={40} aria-hidden style={{ color: 'var(--wa-muted)', margin: '0 auto 0.75rem' }} />
+        <p style={{ fontWeight: 800, fontSize: 16, margin: '0 0 0.25rem' }}>No suggested candidates yet</p>
+        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 1.25rem' }}>
+          When WorkforceAP matches members to your open roles, they will appear here with match scores and pipeline
+          status.
+        </p>
+        <Link
+          href="/employer/jobs/new"
+          className="wa-kit-focus"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '10px 18px',
+            minHeight: 44,
+            background: 'var(--wa-accent)',
+            color: 'var(--wa-on-accent)',
+            fontWeight: 700,
+            fontSize: 13,
+            borderRadius: 999,
+            textDecoration: 'none',
+          }}
+        >
+          Post your first job <ArrowRight size={14} aria-hidden />
+        </Link>
+      </div>
     );
   }
 
+  const columns: Column<EmployerMatchHistoryRow>[] = [
+    {
+      key: 'candidate',
+      header: 'Candidate',
+      render: (row) => (
+        <Link
+          href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit' }}
+        >
+          <Avatar initials={initialsFor(row.student.fullName)} size={30} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--wa-accent)' }}>{row.student.fullName}</div>
+            <div style={{ fontSize: 11, color: 'var(--wa-muted)', fontWeight: 600 }}>{row.job.title}</div>
+          </div>
+        </Link>
+      ),
+    },
+    {
+      key: 'fit',
+      header: 'Fit',
+      align: 'right',
+      render: (row) => <FitBadge pct={matchScoreAsPercent(row.matchScore)} />,
+    },
+    {
+      key: 'status',
+      header: 'Your status',
+      render: (row) => (
+        <StatusSelect
+          value={row.status}
+          disabled={busyId === row.id}
+          studentName={row.student.fullName}
+          onChange={(next) => void patchStatus(row.jobId, row.studentId, row.id, next)}
+        />
+      ),
+    },
+    {
+      key: 'updated',
+      header: 'Last update',
+      align: 'right',
+      render: (row) => (
+        <span style={{ fontSize: 12, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+          {new Date(row.statusUpdatedAt ?? row.createdAt).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: 'application',
+      header: 'Application',
+      align: 'right',
+      render: (row) =>
+        row.applicationId ? (
+          <Link href={`/employer/applications#${row.applicationId}`} style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)' }}>
+            Open
+          </Link>
+        ) : (
+          <span style={{ color: 'var(--wa-muted)' }}>—</span>
+        ),
+    },
+  ];
+
   return (
-    <div className="employer-match-history">
+    <div className="wa-space-y-3">
       {error ? (
-        <p className="employer-apps-error" role="alert">
+        <p
+          role="alert"
+          style={{
+            margin: 0,
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--wa-radius-sm)',
+            background: 'var(--wa-accent-soft)',
+            color: 'var(--wa-accent)',
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
           {error}
         </p>
       ) : null}
-      <div style={{ overflowX: 'auto' }}>
-        <DataTable
-          variant="admin"
-          tableClassName="admin-table"
-          scrollX={false}
-          rows={rows}
-          rowKey={(row) => row.id}
-          columns={[
-            {
-              key: 'member',
-              header: 'Member',
-              cell: (row) => (
+      <DataTable<EmployerMatchHistoryRow>
+        columns={columns}
+        rows={rows}
+        rowKey={(row) => row.id}
+        mobile="cards"
+        minWidth={640}
+        cardRender={(row) => (
+          <div className="wa-kit-card wa-kit-card--sm">
+            <div className="wa-flex wa-items-start wa-justify-between wa-gap-3">
+              <Link
+                href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit', minWidth: 0 }}
+              >
+                <Avatar initials={initialsFor(row.student.fullName)} size={32} />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.student.fullName}</div>
+                  <div style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 1 }}>{row.job.title}</div>
+                </div>
+              </Link>
+              <FitBadge pct={matchScoreAsPercent(row.matchScore)} />
+            </div>
+            <div className="wa-flex wa-items-center wa-justify-between wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
+              <StatusSelect
+                value={row.status}
+                disabled={busyId === row.id}
+                studentName={row.student.fullName}
+                onChange={(next) => void patchStatus(row.jobId, row.studentId, row.id, next)}
+              />
+              {row.applicationId ? (
                 <Link
-                  href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`}
-                  style={{ fontWeight: 600, color: 'var(--color-accent)' }}
+                  href={`/employer/applications#${row.applicationId}`}
+                  style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)' }}
                 >
-                  {row.student.fullName}
+                  Open application
                 </Link>
-              ),
-            },
-            { key: 'job', header: 'Job', cell: (row) => row.job.title },
-            {
-              key: 'match',
-              header: 'Match',
-              align: 'right',
-              cell: (row) => <span style={{ fontWeight: 600 }}>{matchScoreAsPercent(row.matchScore)}%</span>,
-            },
-            {
-              key: 'status',
-              header: 'Your status',
-              cell: (row) => (
-                <select
-                  className="form-control"
-                  style={{ minWidth: '10rem', fontSize: '0.85rem' }}
-                  value={row.status}
-                  disabled={busyId === row.id}
-                  onChange={(e) => void patchStatus(row.jobId, row.studentId, row.id, e.target.value)}
-                  aria-label={`Status for ${row.student.fullName}`}
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {employerMatchPipelineLabel(s)}
-                    </option>
-                  ))}
-                </select>
-              ),
-            },
-            {
-              key: 'updated',
-              header: 'Last update',
-              cell: (row) => (
-                <span style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
-                  {new Date(row.statusUpdatedAt ?? row.createdAt).toLocaleString()}
-                </span>
-              ),
-            },
-            {
-              key: 'application',
-              header: 'Application',
-              cell: (row) =>
-                row.applicationId ? (
-                  <Link href={`/employer/applications#${row.applicationId}`}>Open in applicants</Link>
-                ) : (
-                  <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
-                ),
-            },
-          ]}
-        />
-      </div>
+              ) : null}
+            </div>
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>
+              Updated {new Date(row.statusUpdatedAt ?? row.createdAt).toLocaleString()}
+            </div>
+          </div>
+        )}
+        emptyTitle="No suggested candidates yet"
+      />
     </div>
   );
 }

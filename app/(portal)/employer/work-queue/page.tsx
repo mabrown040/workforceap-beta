@@ -4,8 +4,8 @@ import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
-import PageHeader from '@/components/portal/PageHeader';
-import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import EmployerWorkQueueClient from '@/components/employer/EmployerWorkQueueClient';
 import EmployerWorkflowTimeline from '@/components/employer/EmployerWorkflowTimeline';
 import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
@@ -62,29 +62,30 @@ export default async function EmployerWorkQueuePage({
   const t = await getTranslations('employer');
 
   return (
-    <PortalPageFrame>
-    <div className="employer-work-queue-page wa-pb-24 md:wa-pb-0">
-      <PageHeader
-        title={t('workQueue')}
-        subtitle={t('employerWorkQueueSubtitle')}
-        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('workQueue') }]}
+    <div className="wa-pb-24 md:wa-pb-0">
+      <PortalBreadcrumb
+        items={[{ label: t('employerPortal'), href: '/employer' }, { label: t('workQueue') }]}
       />
+      <DesignSurface surface="dense" className="wa-p-6">
+        <div className="wa-space-y-6">
+          <SectionHeader title={t('workQueue')} goal={t('employerWorkQueueSubtitle')} />
 
-      <EmployerWorkQueueClient
-        needsReviewTodayApps={slices.needsReviewTodayApps.map(toApp)}
-        jobsAwaitingPublish={slices.jobsAwaitingPublish.map((j) => ({
-          id: j.id,
-          title: j.title,
-          status: j.status,
-          updatedAt: j.updatedAt.toISOString(),
-        }))}
-        staleApps={slices.staleApps.map(toApp)}
-        interviewPending={slices.interviewPending.map(toApp)}
-        initialFocus={initialFocus}
-      />
+          <EmployerWorkQueueClient
+            needsReviewTodayApps={slices.needsReviewTodayApps.map(toApp)}
+            jobsAwaitingPublish={slices.jobsAwaitingPublish.map((j) => ({
+              id: j.id,
+              title: j.title,
+              status: j.status,
+              updatedAt: j.updatedAt.toISOString(),
+            }))}
+            staleApps={slices.staleApps.map(toApp)}
+            interviewPending={slices.interviewPending.map(toApp)}
+            initialFocus={initialFocus}
+          />
 
-      <EmployerWorkflowTimeline events={events} />
+          <EmployerWorkflowTimeline events={events} />
+        </div>
+      </DesignSurface>
     </div>
-    </PortalPageFrame>
   );
 }

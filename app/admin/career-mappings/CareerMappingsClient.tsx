@@ -388,11 +388,23 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
               type="button"
               onClick={() => void syncOccupation()}
               disabled={syncLoading}
+              aria-busy={syncLoading}
               className="btn btn-outline btn-sm"
               style={{ flexShrink: 0 }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>sync</span>
-              {syncLoading ? 'Syncing…' : 'Sync from O*NET'}
+              <span
+                className="material-symbols-outlined"
+                aria-hidden="true"
+                style={{
+                  fontSize: '1rem',
+                  animation: syncLoading ? 'spin 1s linear infinite' : 'none'
+                }}
+              >
+                {syncLoading ? 'progress_activity' : 'sync'}
+              </span>
+              <span aria-live="polite">
+                {syncLoading ? 'Syncing…' : 'Sync from O*NET'}
+              </span>
             </button>
           </div>
 
@@ -465,21 +477,23 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                                   type="button"
                                   onClick={() => void approveAutoMatch(match)}
                                   disabled={loading || approvingSlug === match.programSlug}
+                                  aria-busy={approvingSlug === match.programSlug}
                                   style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.875rem', borderRadius: '0.5rem', background: 'var(--color-accent)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
                                 >
                                   {approvingSlug === match.programSlug ? (
-                                    <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', animation: 'spin 1s linear infinite' }}>progress_activity</span>Approving…</>
+                                    <><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem', animation: 'spin 1s linear infinite' }}>progress_activity</span><span aria-live="polite">Approving…</span></>
                                   ) : (
-                                    <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check</span>Approve</>
+                                    <><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check</span><span aria-live="polite">Approve</span></>
                                   )}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => rejectAutoMatch(match)}
                                   title="Dismiss suggestion"
+                                  aria-label="Dismiss suggestion"
                                   style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.625rem', borderRadius: '0.5rem', background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                                 >
-                                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>close</span>
+                                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem' }}>close</span>
                                 </button>
                               </div>
                             )}
@@ -606,10 +620,16 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                       type="button"
                       onClick={() => void saveMapping()}
                       disabled={loading}
+                      aria-busy={loading}
                       className="btn btn-primary"
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}
                     >
-                      {loading ? 'Saving…' : 'Save Mapping'}
+                      {loading && (
+                        <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem', animation: 'spin 1s linear infinite' }}>
+                          progress_activity
+                        </span>
+                      )}
+                      <span aria-live="polite">{loading ? 'Saving…' : 'Save Mapping'}</span>
                     </button>
                   </div>
                 )}

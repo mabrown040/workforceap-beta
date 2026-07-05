@@ -1,11 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { Users, Plus } from 'lucide-react';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
-  StatusTag,
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
@@ -17,12 +22,16 @@ import {
  *
  * Each card: a tinted people-icon tile, the subgroup name, and a description
  * line "{N} members · {focus}" (mockup examples: "48 members · Cloud & IT
- * focus"). A subtle status tag carries the subgroup type (Partner / Manager /
+ * focus"). A subtle status token carries the subgroup type (Partner / Manager /
  * Church). The header subtitle stays "Cohorts, chapters & special programs"
  * per the mockup; real counts live in the KPI strip below it.
  *
  * Interactive (cards link to the legacy management view) → 'use client' so the
  * grid is hydration-safe alongside the kit primitives.
+ *
+ * Uses shared primitives from @astryxdesign/core (ClickableCard, Button,
+ * Token, EmptyState, Link) for the card-as-link grid, the header CTA, the
+ * type chip, and the empty state, per docs/KIT_GUIDE.md §9.
  */
 
 export type SubgroupKind = 'partner' | 'manager' | 'church';
@@ -34,7 +43,7 @@ export interface SubgroupCard {
   members: number;
   /** Focus line — e.g. "Cloud & IT focus", a partner name, or the type. */
   focus: string;
-  /** Subgroup type — drives a subtle status tag. */
+  /** Subgroup type — drives a subtle status token. */
   kind: SubgroupKind;
 }
 
@@ -60,65 +69,57 @@ const TILE_TINTS: Array<{ bg: string; fg: string }> = [
   { bg: 'rgba(164,127,56,0.14)', fg: colorVar('gold') },
 ];
 
-const KIND_TAG: Record<SubgroupKind, { tone: 'info' | 'warn' | 'ok'; label: string }> = {
-  partner: { tone: 'info', label: 'Partner' },
-  manager: { tone: 'ok', label: 'Manager' },
-  church: { tone: 'warn', label: 'Church' },
+const KIND_TAG: Record<SubgroupKind, { color: TokenColor; label: string }> = {
+  partner: { color: 'blue', label: 'Partner' },
+  manager: { color: 'green', label: 'Manager' },
+  church: { color: 'yellow', label: 'Church' },
 };
 
 function SubgroupTile({ card, index }: { card: SubgroupCard; index: number }) {
   const tint = TILE_TINTS[index % TILE_TINTS.length];
   const tag = KIND_TAG[card.kind];
   return (
-    <a
-      href={`/admin/subgroups/${card.id}`}
-      className="wa-kit-card wa-kit-card--hover wa-kit-focus"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-        <div
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            background: tint.bg,
-            color: tint.fg,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <Users className="h-5 w-5" aria-hidden />
+    <ClickableCard href={`/admin/subgroups/${card.id}`} label={card.name}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: tint.bg,
+              color: tint.fg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Users className="h-5 w-5" aria-hidden />
+          </div>
+          <Token label={tag.label} size="sm" color={tag.color} />
         </div>
-        <StatusTag tone={tag.tone}>{tag.label}</StatusTag>
-      </div>
 
-      <div style={{ minWidth: 0 }}>
-        <h3
-          style={{
-            fontWeight: 800,
-            fontSize: 16,
-            letterSpacing: '-0.02em',
-            margin: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {card.name}
-        </h3>
-        <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>
-          {card.members} {card.members === 1 ? 'member' : 'members'} · {card.focus}
-        </p>
+        <div style={{ minWidth: 0 }}>
+          <h3
+            style={{
+              fontWeight: 800,
+              fontSize: 16,
+              letterSpacing: '-0.02em',
+              margin: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {card.name}
+          </h3>
+          <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>
+            {card.members} {card.members === 1 ? 'member' : 'members'} · {card.focus}
+          </p>
+        </div>
       </div>
-    </a>
+    </ClickableCard>
   );
 }
 
@@ -146,24 +147,14 @@ export function SubgroupsDirectoryKit({
         kicker="People"
         goal="Cohorts, chapters & special programs"
         action={
-          <a
-            href="/admin/subgroups/new"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            <Plus className="h-4 w-4" aria-hidden /> New Subgroup
-          </a>
+          <AstryxLink href="/admin/subgroups/new" as={Link as never} isStandalone>
+            <Button
+              label="New Subgroup"
+              variant="primary"
+              size="sm"
+              icon={<Plus className="h-4 w-4" aria-hidden />}
+            />
+          </AstryxLink>
         }
       />
 
@@ -178,17 +169,11 @@ export function SubgroupsDirectoryKit({
           ))}
         </div>
       ) : (
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
-        >
-          <Users className="h-6 w-6" aria-hidden style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No subgroups yet</p>
-          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
-            Create subgroups to give partners, managers, or churches visibility into their assigned
-            members.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Users className="h-6 w-6" aria-hidden />}
+          title="No subgroups yet"
+          description="Create subgroups to give partners, managers, or churches visibility into their assigned members."
+        />
       )}
     </DesignSurface>
   );

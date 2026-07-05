@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, useState, useCallback } from 'rea
 import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle } from 'lucide-react';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { getStudentStatus, type StudentStatus } from '@/lib/admin/studentStatus';
 import BulkEmailModal from './BulkEmailModal';
 import BulkUpdateModal from './BulkUpdateModal';
@@ -73,9 +74,13 @@ function FitScoreBadge({ score }: { score: number }) {
 }
 
 function HealthDot({ status }: { status: HealthStatus }) {
-  const color = status === 'green' ? '#16a34a' : status === 'yellow' ? '#d97706' : '#dc2626';
+  const variant = status === 'green' ? 'success' : status === 'yellow' ? 'warning' : 'error';
   const label = status === 'green' ? 'Active' : status === 'yellow' ? 'At Risk' : 'Inactive';
-  return <span title={label} style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: color, marginRight: '0.35rem', verticalAlign: 'middle' }} />;
+  return (
+    <span style={{ display: 'inline-flex', marginRight: '0.35rem', verticalAlign: 'middle' }}>
+      <StatusDot variant={variant} label={label} tooltip={label} />
+    </span>
+  );
 }
 
 function formatTraining(m: Member, variant: 'table' | 'card' = 'table'): string {

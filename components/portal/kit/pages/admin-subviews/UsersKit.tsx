@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import { Button } from '@astryxdesign/core/Button';
+import { Token } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
   Avatar,
-  StatusTag,
   type Column,
 } from '@/components/portal/kit';
 
@@ -37,32 +38,6 @@ export interface UsersKitProps {
   /** Total staff accounts (roster footer). */
   total: number;
 }
-
-const addUserStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '8px 16px',
-  borderRadius: 8,
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  fontWeight: 700,
-  fontSize: 13,
-  textDecoration: 'none',
-};
-
-const manageUsersStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '8px 16px',
-  borderRadius: 8,
-  color: 'var(--wa-text)',
-  fontWeight: 700,
-  fontSize: 13,
-  textDecoration: 'none',
-  border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-};
 
 export function UsersKit({ users, total }: UsersKitProps) {
   const UserCell = ({ row }: { row: UserRow }) => (
@@ -113,9 +88,7 @@ export function UsersKit({ users, total }: UsersKitProps) {
       key: 'status',
       header: 'Status',
       render: (row) => (
-        <StatusTag tone={row.active ? 'ok' : 'muted'}>
-          {row.active ? 'Active' : 'Inactive'}
-        </StatusTag>
+        <Token label={row.active ? 'Active' : 'Inactive'} size="sm" color={row.active ? 'green' : 'gray'} />
       ),
     },
   ];
@@ -128,12 +101,17 @@ export function UsersKit({ users, total }: UsersKitProps) {
         goal="Staff accounts & roles"
         action={
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <Link href="/admin/users?ui=legacy" style={manageUsersStyle} className="wa-kit-focus">
-              Manage
-            </Link>
-            <Link href="/admin/invites/new" style={addUserStyle} className="wa-kit-focus">
-              <Plus className="h-4 w-4" aria-hidden /> Add User
-            </Link>
+            <AstryxLink href="/admin/users?ui=legacy" as={Link as never} isStandalone>
+              <Button label="Manage" variant="secondary" size="sm" />
+            </AstryxLink>
+            <AstryxLink href="/admin/invites/new" as={Link as never} isStandalone>
+              <Button
+                label="Add User"
+                variant="primary"
+                size="sm"
+                icon={<Plus className="h-4 w-4" aria-hidden />}
+              />
+            </AstryxLink>
           </div>
         }
       />
@@ -158,9 +136,7 @@ export function UsersKit({ users, total }: UsersKitProps) {
                 <UserCell row={row} />
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={row.active ? 'ok' : 'muted'}>
-                  {row.active ? 'Active' : 'Inactive'}
-                </StatusTag>
+                <Token label={row.active ? 'Active' : 'Inactive'} size="sm" color={row.active ? 'green' : 'gray'} />
               </div>
             </div>
             <div

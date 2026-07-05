@@ -27,3 +27,6 @@
 ## 2024-06-20 - Redundant aria-label on aria-live copy buttons
 **Learning:** Found instances where custom copy buttons had a visually hidden `aria-label` attribute alongside an inner `aria-live` region containing dynamic state text (e.g., changing from "📋 Copy" to "✓ Copied!"). The outer `aria-label` can overshadow the inner live region, preventing screen readers from announcing the dynamic status update.
 **Action:** When implementing custom copy buttons that utilize an inner `<span aria-live="polite">` element to announce a "Copied!" state, remove any static or conditionally rendered `aria-label` from the parent `<button>` element.
+## 2026-07-28 - Accessible async button states using aria-live
+**Learning:** Found an instance in `components/portal/OtherProgramsList.tsx` where a button triggering an asynchronous form submission altered its visible text dynamically during loading ("Switching..."), but without `aria-live` or `aria-busy` attributes, the status change wasn't announced to screen readers properly.
+**Action:** When a button triggers an async process, wrap the dynamic text label inside a `<span aria-live="polite">` and append `aria-busy={loading}` to the `<button>` element. This ensures the change to "Loading..." or "Switching..." is consistently announced.

@@ -4,6 +4,8 @@ import {
   KpiStrip,
   type KpiItem,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
 
 /**
  * AI Efficacy — does AI tool use correlate with placement outcomes? (dense)
@@ -86,24 +88,12 @@ export function AiEfficacyKit({
         kicker="Analytics"
         goal="Does AI tool use correlate with outcomes?"
         action={
-          <a
+          <Button
+            label="Filter & export"
+            variant="secondary"
+            size="sm"
             href="/admin/analytics/ai-efficacy?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Filter &amp; export
-          </a>
+          />
         }
       />
 
@@ -111,7 +101,7 @@ export function AiEfficacyKit({
         <KpiStrip items={kpis} />
       </div>
 
-      <div className="wa-kit-card">
+      <Card>
         <p
           style={{
             margin: 0,
@@ -122,7 +112,7 @@ export function AiEfficacyKit({
         >
           {noteText}
         </p>
-      </div>
+      </Card>
     </DesignSurface>
   );
 }

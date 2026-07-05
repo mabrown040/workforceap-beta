@@ -16,10 +16,12 @@ import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
-  StatusTag,
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Token } from '@astryxdesign/core/Token';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 
 /**
  * AI tools admin — member AI toolkit usage & config, as a responsive card grid.
@@ -27,7 +29,7 @@ import {
  * Target route: /admin/ai-tools
  *
  * Each card: a tinted icon tile, the tool name, a "{N} uses · {state}"
- * description line, and a StatusTag (On=ok / Beta=warn). Usage counts are real
+ * description line, and a Token (On=green / Beta=yellow). Usage counts are real
  * (per-tool counts from `getAiToolUsageCounts`, merged onto this catalog by
  * matching `toolType` / `usageKeys`). Tools without a tracked count show "—".
  *
@@ -98,10 +100,7 @@ function ToolCard({ tool, uses }: { tool: AiToolDef; uses: number | null }) {
   const countText = uses == null ? '—' : `${uses.toLocaleString()} ${tool.unit}`;
 
   return (
-    <div
-      className="wa-kit-card wa-kit-card--hover"
-      style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
-    >
+    <Card className="wa-kit-card--hover" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
         <div
           style={{
@@ -118,7 +117,7 @@ function ToolCard({ tool, uses }: { tool: AiToolDef; uses: number | null }) {
         >
           <Icon className="h-5 w-5" />
         </div>
-        <StatusTag tone={stateOk ? 'ok' : 'warn'}>{tool.state}</StatusTag>
+        <Token label={tool.state} size="sm" color={stateOk ? 'green' : 'yellow'} />
       </div>
       <div style={{ minWidth: 0 }}>
         <h4 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em', margin: 0 }}>
@@ -128,7 +127,7 @@ function ToolCard({ tool, uses }: { tool: AiToolDef; uses: number | null }) {
           {countText} · {tool.state}
         </p>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -181,16 +180,11 @@ export function AiToolsAdminKit({ usage = [], tools = DEFAULT_TOOLS }: AiToolsAd
           ))}
         </div>
       ) : (
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
-        >
-          <Wand2 className="h-6 w-6" style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No AI tools configured</p>
-          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
-            Tools will appear here once the member toolkit is enabled.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Wand2 className="h-6 w-6" style={{ opacity: 0.5 }} />}
+          title="No AI tools configured"
+          description="Tools will appear here once the member toolkit is enabled."
+        />
       )}
 
       <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>

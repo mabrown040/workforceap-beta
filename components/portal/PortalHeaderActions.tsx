@@ -10,16 +10,34 @@ import { SignOutButton } from './SignOutButton';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
-function ActionItems({ onItemClick, badges }: { onItemClick?: () => void; badges?: Partial<Record<NavBadgeKey, number>> }) {
+function ActionItems({
+  onItemClick,
+  badges,
+  hideSidebarDuplicates,
+}: {
+  onItemClick?: () => void;
+  badges?: Partial<Record<NavBadgeKey, number>>;
+  /**
+   * The mobile drawer sidebar already renders its own public-site link and
+   * sign-out button (WorkspaceShell.tsx), so this dropdown skips them to
+   * avoid duplicates — but NotificationBell/ThemeToggle/DevViewToggle are
+   * NOT duplicated anywhere else in the mobile drawer, so they must stay.
+   */
+  hideSidebarDuplicates?: boolean;
+}) {
   return (
     <>
       <NotificationBell badges={badges} />
       <ThemeToggle variant="portal" />
       <DevViewToggle />
-      <Link href="/" prefetch={false} className="btn btn-outline btn-sm" onClick={onItemClick}>
-        {PRODUCT_COPY.publicSiteLabel}
-      </Link>
-      <SignOutButton className="btn btn-outline btn-sm" onSignOutStart={onItemClick} />
+      {!hideSidebarDuplicates && (
+        <>
+          <Link href="/" prefetch={false} className="btn btn-outline btn-sm" onClick={onItemClick}>
+            {PRODUCT_COPY.publicSiteLabel}
+          </Link>
+          <SignOutButton className="btn btn-outline btn-sm" onSignOutStart={onItemClick} />
+        </>
+      )}
     </>
   );
 }
@@ -65,7 +83,7 @@ export default function PortalHeaderActions({ badges }: { badges?: Partial<Recor
             />
             <div className="portal-header-actions-dropdown" role="menu">
               <div className="portal-header-actions-dropdown__items" onClick={closeMenu} role="menu" tabIndex={-1}>
-                <ActionItems onItemClick={closeMenu} badges={badges} />
+                <ActionItems onItemClick={closeMenu} badges={badges} hideSidebarDuplicates />
               </div>
             </div>
           </>

@@ -3,12 +3,13 @@
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { MessageSquare, Mail, Smartphone } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
   Avatar,
-  StatusTag,
   type Column,
 } from '@/components/portal/kit';
 
@@ -68,10 +69,10 @@ const DEFAULT_THREADS: MessageThread[] = [
   },
 ];
 
-const CHANNEL_META: Record<MessageChannel, { icon: ReactNode; tone: 'info' | 'muted' | 'warn' }> = {
-  'In-app': { icon: <MessageSquare size={13} />, tone: 'info' },
-  Email: { icon: <Mail size={13} />, tone: 'muted' },
-  SMS: { icon: <Smartphone size={13} />, tone: 'warn' },
+const CHANNEL_META: Record<MessageChannel, { icon: ReactNode; color: TokenColor }> = {
+  'In-app': { icon: <MessageSquare size={13} />, color: 'blue' },
+  Email: { icon: <Mail size={13} />, color: 'gray' },
+  SMS: { icon: <Smartphone size={13} />, color: 'yellow' },
 };
 
 function initialsFor(name: string): string {
@@ -86,14 +87,7 @@ function initialsFor(name: string): string {
 
 function ChannelTag({ channel }: { channel: MessageChannel }) {
   const meta = CHANNEL_META[channel];
-  return (
-    <StatusTag tone={meta.tone}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-        {meta.icon}
-        {channel}
-      </span>
-    </StatusTag>
-  );
+  return <Token label={channel} icon={meta.icon} size="sm" color={meta.color} />;
 }
 
 export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
@@ -154,7 +148,7 @@ export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
         onRowClick={openThread}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Avatar initials={row.initials ?? initialsFor(row.from)} size={36} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -196,7 +190,7 @@ export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
                 {row.lastActive ?? '—'}
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No messages yet"
         emptyDescription="Member ↔ staff threads will show up here."

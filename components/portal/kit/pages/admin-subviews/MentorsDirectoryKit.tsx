@@ -1,9 +1,11 @@
 import { GraduationCap } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
-  StatusTag,
   Avatar,
   type KpiItem,
 } from '@/components/portal/kit';
@@ -49,10 +51,10 @@ const DEFAULT_MENTORS: MentorCard[] = [
   { id: 'jo', name: 'James Okoro', initials: 'JO', role: 'Data Lead', company: 'IBM', mentees: 5, isActive: true, isApproved: true },
 ];
 
-function mentorTone(m: MentorCard): { tone: 'ok' | 'warn' | 'muted'; label: string } {
-  if (!m.isApproved) return { tone: 'warn', label: 'Pending' };
-  if (m.isActive) return { tone: 'ok', label: 'Active' };
-  return { tone: 'muted', label: 'Inactive' };
+function mentorTone(m: MentorCard): { color: TokenColor; label: string } {
+  if (!m.isApproved) return { color: 'yellow', label: 'Pending' };
+  if (m.isActive) return { color: 'green', label: 'Active' };
+  return { color: 'gray', label: 'Inactive' };
 }
 
 export function MentorsDirectoryKit({
@@ -85,43 +87,32 @@ export function MentorsDirectoryKit({
       </div>
 
       {mentors.length === 0 ? (
-        <div
-          className="wa-kit-card"
-          style={{ padding: '2.5rem 1.5rem', textAlign: 'center', color: 'var(--wa-muted)' }}
-        >
-          <div style={{ fontSize: 28, marginBottom: 8, display: 'flex', justifyContent: 'center' }}>
-            <GraduationCap size={32} aria-hidden />
-          </div>
-          <div style={{ fontWeight: 700, color: 'var(--wa-text)', marginBottom: 4 }}>
-            No mentors yet
-          </div>
-          <div style={{ fontSize: 13 }}>
-            Approved industry volunteers will appear here once they apply.
-          </div>
-        </div>
+        <EmptyState
+          icon={<GraduationCap size={32} aria-hidden />}
+          title="No mentors yet"
+          description="Approved industry volunteers will appear here once they apply."
+        />
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
           {mentors.map((m) => {
-            const { tone, label } = mentorTone(m);
+            const { color, label } = mentorTone(m);
             return (
-              <div
-                key={m.id}
-                className="wa-kit-card wa-kit-card--hover"
-                style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-                  <Avatar initials={m.initials} size={44} gradient={m.isActive && m.isApproved} />
-                  <StatusTag tone={tone}>{label}</StatusTag>
+              <Card key={m.id} className="wa-kit-card--hover">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                    <Avatar initials={m.initials} size={44} gradient={m.isActive && m.isApproved} />
+                    <Token label={label} size="sm" color={color} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <h4 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em', margin: 0 }}>
+                      {m.name}
+                    </h4>
+                    <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '4px 0 0' }}>
+                      {m.role} @ {m.company} · {m.mentees} {m.mentees === 1 ? 'mentee' : 'mentees'}
+                    </p>
+                  </div>
                 </div>
-                <div style={{ minWidth: 0 }}>
-                  <h4 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em', margin: 0 }}>
-                    {m.name}
-                  </h4>
-                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '4px 0 0' }}>
-                    {m.role} @ {m.company} · {m.mentees} {m.mentees === 1 ? 'mentee' : 'mentees'}
-                  </p>
-                </div>
-              </div>
+              </Card>
             );
           })}
         </div>

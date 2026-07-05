@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import {
   DesignSurface,
   KpiStrip,
@@ -64,18 +65,20 @@ export function PipelineFunnelKit({
         <KpiStrip cols={kpis.length === 5 ? 5 : 4} items={kpis} />
       ) : null}
 
-      <div className="wa-kit-card wa-mt-6" style={{ minWidth: 0 }}>
-        <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>{funnelTitle}</h3>
-        <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2, marginBottom: 20 }}>
-          {funnelSubtitle}
-        </p>
-        {hasData ? (
-          <RankBars data={funnel} />
-        ) : (
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
-            No applicants in this window yet.
+      <div className="wa-mt-6">
+        <Card style={{ minWidth: 0 }}>
+          <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>{funnelTitle}</h3>
+          <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2, marginBottom: 20 }}>
+            {funnelSubtitle}
           </p>
-        )}
+          {hasData ? (
+            <RankBars data={funnel} />
+          ) : (
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+              No applicants in this window yet.
+            </p>
+          )}
+        </Card>
       </div>
     </DesignSurface>
   );

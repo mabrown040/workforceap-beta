@@ -1,7 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import NextLink from 'next/link';
 import { Plus } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
@@ -146,24 +150,14 @@ export function JobsBoardKit({
         kicker="Employers"
         goal={subtitle}
         action={
-          <a
-            href="/admin/jobs?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            <Plus className="h-4 w-4" aria-hidden /> Post Job
-          </a>
+          <AstryxLink href="/admin/jobs?ui=legacy" as={NextLink as never} isStandalone>
+            <Button
+              label="Post Job"
+              variant="primary"
+              size="sm"
+              icon={<Plus size={14} aria-hidden="true" />}
+            />
+          </AstryxLink>
         }
       />
 
@@ -175,7 +169,7 @@ export function JobsBoardKit({
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div
               style={{
                 display: 'flex',
@@ -233,7 +227,7 @@ export function JobsBoardKit({
                 applicants
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No open roles"
         emptyDescription="Approved job postings will appear here once employers publish roles."

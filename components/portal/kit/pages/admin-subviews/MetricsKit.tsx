@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import {
   DesignSurface,
   KpiStrip,
@@ -69,7 +70,7 @@ export function MetricsKit({
       <div className="wa-mt-6">
         {/* RankBars are %-width, so they stay within the card at any width;
             `minWidth: 0` guards against grid/flex overflow on phones. */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>
             Requests by surface
           </h3>
@@ -77,7 +78,7 @@ export function MetricsKit({
             {surfaceCaption}
           </p>
           <RankBars data={bySurface} />
-        </div>
+        </Card>
       </div>
     </DesignSurface>
   );

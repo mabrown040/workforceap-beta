@@ -2,12 +2,44 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, Copy, PhoneCall, Mail } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
+import { FormField } from '@/components/portal/kit';
 import ExportPdfButton from './ExportPdfButton';
 import ToolFollowThrough from './ToolFollowThrough';
+
+const primaryButtonStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 44,
+  padding: '10px 22px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 700,
+  fontSize: 13,
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+} as const;
+
+const outlineButtonStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  minHeight: 36,
+  padding: '6px 14px',
+  background: 'transparent',
+  color: 'var(--wa-text)',
+  fontWeight: 600,
+  fontSize: 12,
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  cursor: 'pointer',
+} as const;
 
 export default function SalaryNegotiationForm() {
   const [currentOffer, setCurrentOffer] = useState('');
@@ -66,101 +98,136 @@ export default function SalaryNegotiationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="offer">Current offer amount ($)</label>
-          <input
-            id="offer"
-            type="text"
-            inputMode="numeric"
-            value={currentOffer}
-            onChange={(e) => setCurrentOffer(e.target.value)}
-            placeholder="e.g. 75000"
-            required
-            disabled={loading}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="target">Target salary ($)</label>
-          <input
-            id="target"
-            type="text"
-            inputMode="numeric"
-            value={targetSalary}
-            onChange={(e) => setTargetSalary(e.target.value)}
-            placeholder="e.g. 85000"
-            required
-            disabled={loading}
-          />
-        </div>
-      </div>
-      <div className="form-group">
-        <label htmlFor="job-title">Job title</label>
-        <input
-          id="job-title"
+    <form onSubmit={handleSubmit} className="wa-space-y-4">
+      <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
+        <FormField
+          label="Current offer amount ($)"
+          id="offer"
           type="text"
-          value={jobTitle}
-          onChange={(e) => setJobTitle(e.target.value)}
-          placeholder="e.g. Senior Software Engineer"
+          inputMode="numeric"
+          value={currentOffer}
+          onChange={(e) => setCurrentOffer(e.target.value)}
+          placeholder="e.g. 75000"
+          required
+          disabled={loading}
+        />
+        <FormField
+          label="Target salary ($)"
+          id="target"
+          type="text"
+          inputMode="numeric"
+          value={targetSalary}
+          onChange={(e) => setTargetSalary(e.target.value)}
+          placeholder="e.g. 85000"
           required
           disabled={loading}
         />
       </div>
-      <div className="form-group">
-        <label htmlFor="company">Company name</label>
-        <input
-          id="company"
-          type="text"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          placeholder="e.g. Acme Corp"
-          required
-          disabled={loading}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="delivery">Delivery method</label>
+      <FormField
+        label="Job title"
+        id="job-title"
+        type="text"
+        value={jobTitle}
+        onChange={(e) => setJobTitle(e.target.value)}
+        placeholder="e.g. Senior Software Engineer"
+        required
+        disabled={loading}
+      />
+      <FormField
+        label="Company name"
+        id="company"
+        type="text"
+        value={companyName}
+        onChange={(e) => setCompanyName(e.target.value)}
+        placeholder="e.g. Acme Corp"
+        required
+        disabled={loading}
+      />
+      <FormField label="Delivery method" id="delivery">
         <select
-          id="delivery"
           value={deliveryMethod}
           onChange={(e) => setDeliveryMethod(e.target.value as 'phone' | 'email')}
           disabled={loading}
+          style={{
+            marginTop: 4,
+            width: '100%',
+            fontSize: 14,
+            border: '1px solid var(--wa-border)',
+            borderRadius: 'var(--wa-radius-sm)',
+            padding: '10px 12px',
+            outline: 'none',
+            background: 'var(--wa-surface)',
+            color: 'var(--wa-text)',
+          }}
         >
           <option value="phone">Phone call</option>
           <option value="email">Email</option>
         </select>
-      </div>
-      {error && <div className="form-error" role="alert">{error}</div>}
-      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
+      </FormField>
+      {error && (
+        <div
+          role="alert"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 'var(--wa-radius-sm)',
+            background: 'var(--wa-danger-soft)',
+            color: 'var(--wa-danger)',
+            fontSize: 13,
+            fontWeight: 600,
+          }}
+        >
+          {error}
+        </div>
+      )}
+      <button type="submit" className="wa-kit-focus" style={primaryButtonStyle} disabled={loading} aria-busy={loading}>
         {loading ? (
           <>
-            <Loader2 className="ai-tool-submit-spinner" size={18} aria-hidden />
+            <Loader2 size={16} className="wa-animate-spin" aria-hidden />
             Generating script…
           </>
         ) : (
-          'Generate script'
+          <>
+            {deliveryMethod === 'phone' ? <PhoneCall size={15} aria-hidden /> : <Mail size={15} aria-hidden />}
+            Generate script
+          </>
         )}
       </button>
       {output && (
-        <div className="resume-rewriter-output">
-          <div className="resume-rewriter-output-header">
-            <h3>{deliveryMethod === 'phone' ? 'Phone script' : 'Email script'}</h3>
-            <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              <span aria-live="polite" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                <span className="material-symbols-outlined" style={{ fontSize: "0.9rem" }} aria-hidden="true">
-                  {copied ? "check" : "content_copy"}
+        <div className="wa-kit-card wa-kit-card--sm" style={{ marginTop: 8 }}>
+          <div className="wa-flex wa-items-center wa-justify-between wa-flex-wrap" style={{ gap: 8, marginBottom: 12 }}>
+            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: 'var(--wa-text)' }}>
+              {deliveryMethod === 'phone' ? 'Phone script' : 'Email script'}
+            </h3>
+            <div className="wa-flex wa-items-center" style={{ gap: 8 }}>
+              <button type="button" className="wa-kit-focus" style={outlineButtonStyle} onClick={handleCopy}>
+                <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+                  {copied ? 'Copied!' : 'Copy'}
                 </span>
-                {copied ? "Copied!" : "Copy to clipboard"}
-              </span>
-
-            </button>
-            <ExportPdfButton text={output} title="Salary Negotiation Script" toolName="Salary Negotiation" />
+              </button>
+              <ExportPdfButton text={output} title="Salary Negotiation Script" toolName="Salary Negotiation" />
+            </div>
           </div>
-          <pre className="resume-rewriter-output-content">{output}</pre>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'inherit',
+              fontSize: 13,
+              lineHeight: 1.6,
+              margin: 0,
+              maxHeight: 400,
+              overflowY: 'auto',
+              color: 'var(--wa-text)',
+            }}
+          >
+            {output}
+          </pre>
           <ToolFollowThrough toolType="salary_negotiation" />
-          <p className="ai-result-saved">
-            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
+          <p style={{ marginTop: 16, fontSize: 13, color: 'var(--wa-muted)' }}>
+            Saved to your history.{' '}
+            <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>
+              View all results
+            </Link>
           </p>
         </div>
       )}

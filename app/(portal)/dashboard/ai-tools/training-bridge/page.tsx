@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface, SectionHeader, StatusTag } from '@/components/portal/kit';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import TrainingBridgeClient, {
   type SavedAssessment,
 } from '@/components/portal/TrainingBridgeClient';
@@ -72,46 +73,22 @@ export default async function TrainingBridgePage() {
   }
 
   return (
-    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
-      <div style={{ paddingBottom: '6rem' }}>
-        <div
-          style={{
-            padding: '1rem 1rem 1.25rem',
-            borderBottom: '1px solid var(--surface-container-high)',
-            background: 'var(--surface-container-low)',
-          }}
-        >
-          <PageHeader
-            title={t('title')}
-            subtitle={t('subtitle')}
-            breadcrumbs={[
-              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
-              { label: t('title') },
-            ]}
-            action={
-              <span
-                style={{
-                  fontSize: '0.6rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  padding: '0.2rem 0.55rem',
-                  borderRadius: '999px',
-                  background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
-                  color: 'var(--color-accent)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {t('betaTag')}
-              </span>
-            }
-          />
-        </div>
-
-        <div style={{ padding: '1rem 1rem 2rem', maxWidth: 900, margin: '0 auto' }}>
-          <TrainingBridgeClient assessment={assessment} />
-        </div>
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '1.25rem 1rem 3rem' }} className="wa-space-y-5">
+        <PortalBreadcrumb
+          items={[
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: t('title') },
+          ]}
+        />
+        <SectionHeader
+          kicker="AI Career Toolkit"
+          title={t('title')}
+          goal={t('subtitle')}
+          action={<StatusTag tone="info">{t('betaTag')}</StatusTag>}
+        />
+        <TrainingBridgeClient assessment={assessment} />
       </div>
-    </div>
+    </DesignSurface>
   );
 }

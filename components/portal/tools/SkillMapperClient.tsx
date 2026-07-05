@@ -1,12 +1,31 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Search, BookOpen, Clock, ArrowRight } from 'lucide-react';
+import {
+  Loader2,
+  Search,
+  BookOpen,
+  Clock,
+  ArrowRight,
+  HelpCircle,
+  ChevronDown,
+  TriangleAlert,
+  Download,
+  ArrowLeftRight,
+  FileText,
+  Award,
+  CheckCircle2,
+  Sparkles,
+  RotateCw,
+  UploadCloud,
+  ListChecks,
+} from 'lucide-react';
 import Link from 'next/link';
 import ToolFollowThrough from './ToolFollowThrough';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
+import { FormField } from '@/components/portal/kit';
 
 const DEMO_RADAR = [
   { axis: 'Analytics', value: 0.72 },
@@ -68,6 +87,34 @@ const AXIS_DESCRIPTIONS: Record<string, { plain: string; examples: string }> = {
   },
 };
 
+const primaryPillStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.375rem',
+  minHeight: 44,
+  padding: '10px 20px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 700,
+  fontSize: '0.85rem',
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+} as const;
+
+const outlinePillStyleSm = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.35rem',
+  padding: '0.4rem 0.875rem',
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-accent)',
+  fontWeight: 700,
+  fontSize: '0.8125rem',
+} as const;
+
 function AxisLegend({ axes }: { axes: string[] }) {
   const [open, setOpen] = useState(false);
   const shown = axes.filter(a => AXIS_DESCRIPTIONS[a]);
@@ -85,12 +132,10 @@ function AxisLegend({ axes }: { axes: string[] }) {
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }}>help_outline</span>
+          <HelpCircle size={15} aria-hidden="true" />
           What do these scores measure?
         </span>
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
-          expand_more
-        </span>
+        <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
       {open && (
         <div style={{ padding: '0.75rem 0.875rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--surface-container)' }}>
@@ -285,7 +330,7 @@ function CoursePathForGaps({ gaps }: { gaps: Array<{ axis: string; member: numbe
                     height: '1.5rem',
                     borderRadius: '50%',
                     background: idx === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--surface-container-highest)',
-                    color: idx === 0 ? '#fff' : 'var(--color-on-surface-variant)',
+                    color: idx === 0 ? 'var(--wa-on-accent)' : 'var(--color-on-surface-variant)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -359,7 +404,7 @@ function CoursePathForGaps({ gaps }: { gaps: Array<{ axis: string; member: numbe
                       padding: '0.35rem 0.5rem',
                       borderRadius: '0.375rem',
                       background: 'var(--color-accent)',
-                      color: '#fff',
+                      color: 'var(--wa-on-accent)',
                       fontSize: '0.7rem',
                       fontWeight: 600,
                       textDecoration: 'none',
@@ -717,60 +762,74 @@ export default function SkillMapperClient() {
       {/* Tab 1: Occupation Search */}
       {activeTab === 'search' && (
         <div>
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search an occupation (e.g. Software Developer, Account Executive, Project Manager)"
-              className="ai-tool-input"
-              style={{ flex: 1, minHeight: '44px' }}
-            />
-            <button type="button" className="btn btn-primary" onClick={handleSearch} disabled={loading || !query.trim()}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', minHeight: '44px' }}>
-              {loading ? <Loader2 size={16} className="ai-tool-submit-spinner" /> : <Search size={16} />}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 260px', minWidth: 200 }}>
+              <FormField
+                label="Search an occupation"
+                id="skill-mapper-query"
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="e.g. Software Developer, Account Executive, Project Manager"
+              />
+            </div>
+            <button type="button" className="wa-kit-focus" onClick={handleSearch} disabled={loading || !query.trim()}
+              style={{ ...primaryPillStyle, opacity: loading || !query.trim() ? 0.6 : 1, cursor: loading || !query.trim() ? 'not-allowed' : 'pointer' }}>
+              {loading ? <Loader2 size={16} className="wa-animate-spin" aria-hidden /> : <Search size={16} aria-hidden />}
               Search
             </button>
           </div>
 
-          {error && <p style={{ color: 'var(--color-error, #d32f2f)', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</p>}
+          {error && (
+            <div role="alert" style={{ padding: '10px 14px', borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-danger-soft)', color: 'var(--wa-danger)', fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem' }}>
+              {error}
+            </div>
+          )}
 
           {occupations.length > 0 && !radarData.length && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <h3 className="ai-tool-section-title">Select an occupation</h3>
               {occupations.map((occ) => (
                 <button type="button" key={occ.code} onClick={() => handleSelect(occ.code, occ.title)}
-                  className="btn btn-outline" style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>
-                  <strong>{occ.title}</strong>
-                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{occ.code} — {occ.description?.slice(0, 120)}</span>
+                  className="wa-kit-focus"
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    padding: '0.75rem 1rem',
+                    borderRadius: 'var(--wa-radius-sm)',
+                    border: '1px solid var(--wa-border)',
+                    background: 'var(--wa-surface)',
+                  }}>
+                  <strong style={{ color: 'var(--wa-text)' }}>{occ.title}</strong>
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--wa-muted)', marginTop: 2 }}>{occ.code} — {occ.description?.slice(0, 120)}</span>
                 </button>
               ))}
             </div>
           )}
 
-          {loadingSkills && <p style={{ textAlign: 'center', padding: '2rem' }}><Loader2 size={24} className="ai-tool-submit-spinner" /></p>}
+          {loadingSkills && <p style={{ textAlign: 'center', padding: '2rem' }}><Loader2 size={24} className="wa-animate-spin" aria-hidden /></p>}
 
           {radarData.length > 0 && (
             <>
               {usingDemo && (
-                <div style={{ 
-                  background: 'rgba(239,68,68,0.08)', 
-                  border: '1px solid rgba(239,68,68,0.25)', 
-                  borderRadius: '0.5rem', 
-                  padding: '1rem', 
-                  marginBottom: '1rem', 
-                  fontSize: '0.85rem', 
-                  color: 'var(--color-on-surface)',
+                <div style={{
+                  background: 'var(--wa-danger-soft)',
+                  border: '1px solid var(--wa-danger)',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  padding: '1rem',
+                  marginBottom: '1rem',
+                  fontSize: '0.85rem',
+                  color: 'var(--wa-text)',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 700, color: '#b91c1c' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>warning</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 700, color: 'var(--wa-danger)' }}>
+                    <TriangleAlert size={16} aria-hidden="true" />
                     DEMO MODE — Sample Data Only
                   </div>
                   <p style={{ margin: 0, lineHeight: 1.5 }}>
                     {demoFallbackReason || 'Showing sample skill ranges for demonstration purposes. This is not real occupational data from O*NET.'}
                   </p>
-                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--wa-muted)' }}>
                     For accurate skill mapping, try again later or upload your resume for personalized results.
                   </p>
                 </div>
@@ -791,7 +850,7 @@ export default function SkillMapperClient() {
                     <div key={s.name} style={{ marginBottom: '0.75rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', marginBottom: '0.25rem' }}>
                         <span style={{ color: 'var(--color-on-surface)' }}>{s.name}</span>
-                        <span style={{ color: 'var(--color-on-surface-variant)' }}>{s.score}%</span>
+                        <span style={{ color: 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>{s.score}%</span>
                       </div>
                       <div style={{ height: 8, borderRadius: 4, background: 'var(--surface-container-highest)', overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${s.score}%`, borderRadius: 4, background: 'var(--color-accent)', transition: 'width 0.4s ease' }} />
@@ -810,19 +869,18 @@ export default function SkillMapperClient() {
                   onClick={() => void exportSkillMap()}
                   disabled={exportingPdf}
                   aria-busy={exportingPdf}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: exportingPdf ? 'default' : 'pointer', opacity: exportingPdf ? 0.6 : 1 }}
+                  className="wa-kit-focus"
+                  style={{ ...outlinePillStyleSm, cursor: exportingPdf ? 'default' : 'pointer', opacity: exportingPdf ? 0.6 : 1 }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
-                    {exportingPdf ? 'hourglass_empty' : 'download'}
-                  </span>
+                  {exportingPdf ? <Loader2 size={14} className="wa-animate-spin" aria-hidden="true" /> : <Download size={14} aria-hidden="true" />}
                   <span aria-live="polite">
                     {exportingPdf ? 'Saving…' : 'Export Skill Map PDF'}
                   </span>
                 </button>
                 {memberProfile.length > 0 && (
-                  <button type="button" onClick={() => setActiveTab('profile')}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid rgba(173,44,77,0.2)', background: 'rgba(173,44,77,0.06)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>compare_arrows</span>
+                  <button type="button" onClick={() => setActiveTab('profile')} className="wa-kit-focus"
+                    style={{ ...outlinePillStyleSm, background: 'var(--wa-accent-soft)', cursor: 'pointer' }}>
+                    <ArrowLeftRight size={14} aria-hidden="true" />
                     Compare with my profile
                   </button>
                 )}
@@ -884,7 +942,7 @@ export default function SkillMapperClient() {
                           )}
                         </div>
                         <Link href={`/programs/${mp.programSlug}`} style={{
-                          background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem',
+                          background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', borderRadius: 'var(--wa-radius-sm)',
                           padding: '0.35rem 0.625rem', fontSize: '0.75rem', fontWeight: 600,
                           textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
                         }} onClick={() => trackFunnelEvent('skill_mapper', 'program_recommendation_viewed', { program_slug: mp.programSlug, recommendation_type: mp.recommendationType })}>View →</Link>
@@ -899,16 +957,16 @@ export default function SkillMapperClient() {
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <Link href={`/programs/${matchedPrograms[0].programSlug}`} style={{
                         display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                        padding: '0.5rem 1rem', borderRadius: '0.5rem',
-                        background: 'var(--color-accent)', color: '#fff',
+                        padding: '0.5rem 1rem', borderRadius: 999,
+                        background: 'var(--wa-accent)', color: 'var(--wa-on-accent)',
                         fontWeight: 700, fontSize: '0.8125rem', textDecoration: 'none',
                       }} onClick={() => trackFunnelEvent('skill_mapper', 'enroll_cta_clicked', { program_slug: matchedPrograms[0].programSlug })}>
                         Enroll in {matchedPrograms[0].programTitle}
                       </Link>
                       <Link href="/dashboard/counselor" style={{
                         display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                        padding: '0.5rem 1rem', borderRadius: '0.5rem',
-                        background: 'var(--surface-container-highest)', color: 'var(--color-on-surface)',
+                        padding: '0.5rem 1rem', borderRadius: 999,
+                        background: 'var(--wa-surface-2)', color: 'var(--wa-text)',
                         fontWeight: 600, fontSize: '0.8125rem', textDecoration: 'none',
                       }} onClick={() => trackFunnelEvent('skill_mapper', 'counselor_cta_clicked', {})}>
                         Talk to a counselor first
@@ -968,11 +1026,10 @@ export default function SkillMapperClient() {
                       onClick={() => void exportComparisonPdf()}
                       disabled={exportingComparison}
                       aria-busy={exportingComparison}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8rem', cursor: exportingComparison ? 'default' : 'pointer', opacity: exportingComparison ? 0.6 : 1 }}
+                      className="wa-kit-focus"
+                      style={{ ...outlinePillStyleSm, fontSize: '0.8rem', cursor: exportingComparison ? 'default' : 'pointer', opacity: exportingComparison ? 0.6 : 1 }}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
-                        {exportingComparison ? 'hourglass_empty' : 'download'}
-                      </span>
+                      {exportingComparison ? <Loader2 size={14} className="wa-animate-spin" aria-hidden="true" /> : <Download size={14} aria-hidden="true" />}
                       <span aria-live="polite">
                         {exportingComparison ? 'Saving…' : 'Export Comparison PDF'}
                       </span>
@@ -996,7 +1053,7 @@ export default function SkillMapperClient() {
                         <div key={d.axis} style={{ marginBottom: '0.625rem' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.2rem' }}>
                             <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{d.axis}</span>
-                            <span style={{ color: 'var(--color-on-surface-variant)' }}>{Math.round(d.value * 100)}%</span>
+                            <span style={{ color: 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>{Math.round(d.value * 100)}%</span>
                           </div>
                           <div style={{ height: 7, borderRadius: 4, background: 'var(--surface-container-highest)', overflow: 'hidden' }}>
                             <div style={{
@@ -1024,9 +1081,13 @@ export default function SkillMapperClient() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                     {memberCerts.map(cert => (
                       <span key={cert} style={{
-                        background: 'rgba(74,155,79,0.12)', color: 'var(--color-green, #4a9b4f)',
-                        borderRadius: '999px', padding: '0.25rem 0.75rem', fontSize: '0.8125rem', fontWeight: 500,
-                      }}>✓ {cert}</span>
+                        display: 'inline-flex', alignItems: 'center', gap: 5,
+                        background: 'color-mix(in srgb, var(--wa-success) 12%, transparent)', color: 'var(--wa-success)',
+                        borderRadius: '999px', padding: '0.25rem 0.75rem', fontSize: '0.8125rem', fontWeight: 600,
+                      }}>
+                        <CheckCircle2 size={13} aria-hidden="true" />
+                        {cert}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -1048,7 +1109,7 @@ export default function SkillMapperClient() {
                     <div key={g.axis} className="skill-mapper-gap-row" style={{ marginBottom: '0.75rem' }}>
                       <div className="skill-mapper-gap-row__meta" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', marginBottom: '0.25rem' }}>
                         <span>{g.axis}</span>
-                        <span style={{ color: g.gap > 30 ? 'var(--color-error, #d32f2f)' : 'var(--color-on-surface-variant)' }}>
+                        <span style={{ color: g.gap > 30 ? 'var(--color-error, #d32f2f)' : 'var(--color-on-surface-variant)', fontVariantNumeric: 'tabular-nums' }}>
                           {Math.round(g.member)}% → {Math.round(g.target)}% ({g.gap > 0 ? `+${Math.round(g.gap)}` : Math.round(g.gap)} needed)
                         </span>
                       </div>
@@ -1103,7 +1164,7 @@ export default function SkillMapperClient() {
                           </div>
                         </div>
                         <a href={`/programs/${rec.program.slug}`} style={{
-                          background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem',
+                          background: 'var(--color-accent)', color: 'var(--wa-on-accent)', borderRadius: '0.5rem',
                           padding: '0.375rem 0.75rem', fontSize: '0.8125rem', fontWeight: 600,
                           textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
                         }}>Enroll →</a>
@@ -1124,22 +1185,22 @@ export default function SkillMapperClient() {
             <div style={{ padding: '1.5rem', color: 'var(--color-on-surface-variant)' }}>
               <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', marginBottom: '0.875rem' }}>Build your skill profile</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                <a href="/dashboard/learning/interest-profiler" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'rgba(173,44,77,0.06)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.75rem', textDecoration: 'none' }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>quiz</span>
+                <a href="/dashboard/learning/interest-profiler" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--wa-accent-soft)', border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)', textDecoration: 'none' }}>
+                  <ListChecks size={20} aria-hidden="true" style={{ color: 'var(--wa-accent)', flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-accent)', margin: '0 0 0.2rem' }}>Take the 30-question Interest Profiler</p>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>~10 minutes — generates your full radar from O*NET interest data</p>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--wa-accent)', margin: '0 0 0.2rem' }}>Take the 30-question Interest Profiler</p>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: 0 }}>~10 minutes — generates your full radar from O*NET interest data</p>
                   </div>
                 </a>
-                <a href="/dashboard/ai-tools/resume-studio?view=rewrite" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', textDecoration: 'none' }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-blue, #2b7bb9)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>description</span>
+                <a href="/dashboard/ai-tools/resume-studio?view=rewrite" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)', textDecoration: 'none' }}>
+                  <FileText size={20} aria-hidden="true" style={{ color: 'var(--wa-info)', flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>Run the AI Resume Rewriter</p>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>We extract skills from your resume and map them to this radar automatically</p>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--wa-text)', margin: '0 0 0.2rem' }}>Run the AI Resume Rewriter</p>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: 0 }}>We extract skills from your resume and map them to this radar automatically</p>
                   </div>
                 </a>
-                <a href="/dashboard/certifications" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', textDecoration: 'none' }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-green, #4a9b4f)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                <a href="/dashboard/certifications" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)', textDecoration: 'none' }}>
+                  <Award size={20} aria-hidden="true" style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
                   <div>
                     <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>Add earned certifications</p>
                     <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Certs like CompTIA A+, IBM AI, Google Data Analytics enrich the Engineering and Analytics axes</p>
@@ -1151,8 +1212,8 @@ export default function SkillMapperClient() {
 
           {/* Interest Profiler CTA — shown when profile exists but no IP data yet */}
           {!loadingProfile && profileLoaded && !hasInterestProfiler && memberProfile.some(p => p.value > 0) && (
-            <div style={{ marginTop: '0.875rem', padding: '1rem 1.125rem', background: 'rgba(173,44,77,0.06)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.875rem', display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.375rem', flexShrink: 0, marginTop: '0.125rem', fontVariationSettings: "'FILL' 1" }}>quiz</span>
+            <div style={{ marginTop: '0.875rem', padding: '1rem 1.125rem', background: 'var(--wa-accent-soft)', border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)', display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+              <ListChecks size={22} aria-hidden="true" style={{ color: 'var(--wa-accent)', flexShrink: 0, marginTop: '0.125rem' }} />
               <div>
                 <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
                   Take the 30-question Interest Profiler
@@ -1160,8 +1221,8 @@ export default function SkillMapperClient() {
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
                   Your current profile is based on certifications and resume. Complete the O*NET Interest Profiler to significantly enrich your radar chart with interest-based signals.
                 </p>
-                <a href="/dashboard/learning/interest-profiler" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.8125rem', textDecoration: 'none' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>arrow_forward</span>
+                <a href="/dashboard/learning/interest-profiler" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: 999, background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', fontWeight: 700, fontSize: '0.8125rem', textDecoration: 'none' }}>
+                  <ArrowRight size={15} aria-hidden="true" />
                   Start 30-question assessment (~10 min)
                 </a>
               </div>
@@ -1170,9 +1231,9 @@ export default function SkillMapperClient() {
 
           {/* IP complete confirmation */}
           {!loadingProfile && profileLoaded && hasInterestProfiler && (
-            <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem', background: 'rgba(74,155,79,0.07)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green, #4a9b4f)', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              <span><strong style={{ color: 'var(--color-green, #4a9b4f)' }}>Interest Profiler complete</strong> — your 30-question results are blended into this radar.{' '}
+            <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem', background: 'color-mix(in srgb, var(--wa-success) 8%, transparent)', border: '1px solid var(--wa-success)', borderRadius: 'var(--wa-radius-sm)', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+              <CheckCircle2 size={16} aria-hidden="true" style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
+              <span><strong style={{ color: 'var(--wa-success)' }}>Interest Profiler complete</strong> — your 30-question results are blended into this radar.{' '}
                 <a href="/dashboard/learning/interest-profiler" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Retake</a>
               </span>
             </div>
@@ -1180,11 +1241,9 @@ export default function SkillMapperClient() {
 
           {/* Resume skill source transparency */}
           {!loadingProfile && resumeSkills.length > 0 && resumeSkills.some(r => r.value > 0) && (
-            <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem' }}>
-              <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-blue, #2b7bb9)', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
-                  {hasAiResumeExtraction ? 'auto_awesome' : 'description'}
-                </span>
+            <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'var(--wa-info-soft)', border: '1px solid var(--wa-info)', borderRadius: 'var(--wa-radius-sm)' }}>
+              <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--wa-info)', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                {hasAiResumeExtraction ? <Sparkles size={16} aria-hidden="true" /> : <FileText size={16} aria-hidden="true" />}
                 {hasAiResumeExtraction ? 'AI-extracted resume skills' : 'Resume skills detected'}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -1206,18 +1265,17 @@ export default function SkillMapperClient() {
                     type="button"
                     onClick={handleAiExtract}
                     disabled={extractingResume}
+                    className="wa-kit-focus"
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                      padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
-                      background: 'var(--color-accent)', color: '#fff',
+                      padding: '0.35rem 0.75rem', borderRadius: 999,
+                      background: 'var(--wa-accent)', color: 'var(--wa-on-accent)',
                       fontWeight: 700, fontSize: '0.75rem', border: 'none',
                       cursor: extractingResume ? 'default' : 'pointer',
                       opacity: extractingResume ? 0.6 : 1,
                     }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.85rem', fontVariationSettings: "'FILL' 1" }}>
-                      {extractingResume ? 'progress_activity' : 'auto_awesome'}
-                    </span>
+                    {extractingResume ? <Loader2 size={13} className="wa-animate-spin" aria-hidden="true" /> : <Sparkles size={13} aria-hidden="true" />}
                     {extractingResume ? 'Analyzing…' : 'Enhance with AI'}
                   </button>
                 )}
@@ -1226,18 +1284,17 @@ export default function SkillMapperClient() {
                     type="button"
                     onClick={handleAiExtract}
                     disabled={extractingResume}
+                    className="wa-kit-focus"
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                      padding: '0.45rem 0.9rem', borderRadius: '0.5rem',
-                      background: 'var(--color-accent)', color: '#fff',
+                      padding: '0.45rem 0.9rem', borderRadius: 999,
+                      background: 'var(--wa-accent)', color: 'var(--wa-on-accent)',
                       fontWeight: 800, fontSize: '0.78rem', border: 'none',
                       cursor: extractingResume ? 'default' : 'pointer',
                       opacity: extractingResume ? 0.6 : 1,
                     }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
-                      {extractingResume ? 'progress_activity' : 'refresh'}
-                    </span>
+                    {extractingResume ? <Loader2 size={14} className="wa-animate-spin" aria-hidden="true" /> : <RotateCw size={14} aria-hidden="true" />}
                     {extractingResume ? 'Re-analyzing…' : 'Reanalyze resume skills'}
                   </button>
                 )}
@@ -1248,8 +1305,8 @@ export default function SkillMapperClient() {
 
           {/* Show AI extraction CTA when no resume skills at all but profile exists */}
           {!loadingProfile && profileLoaded && memberProfile.some(p => p.value > 0) && !hasAiResumeExtraction && resumeSkills.every(r => r.value === 0) && (
-            <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-blue, #2b7bb9)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+            <div style={{ marginTop: '0.875rem', padding: '0.875rem 1rem', background: 'var(--wa-info-soft)', border: '1px solid var(--wa-info)', borderRadius: 'var(--wa-radius-sm)', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <Sparkles size={20} aria-hidden="true" style={{ color: 'var(--wa-info)', flexShrink: 0 }} />
               <div>
                 <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
                   Enhance your profile with AI
@@ -1260,11 +1317,11 @@ export default function SkillMapperClient() {
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <a href="/dashboard/resume" style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                    padding: '0.35rem 0.75rem', borderRadius: '0.5rem',
-                    background: 'var(--color-accent)', color: '#fff',
+                    padding: '0.35rem 0.75rem', borderRadius: 999,
+                    background: 'var(--wa-accent)', color: 'var(--wa-on-accent)',
                     fontWeight: 700, fontSize: '0.75rem', textDecoration: 'none',
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.85rem' }}>upload_file</span>
+                    <UploadCloud size={14} aria-hidden="true" />
                     Upload resume
                   </a>
                 </div>

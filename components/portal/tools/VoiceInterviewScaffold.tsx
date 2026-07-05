@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import ToolFollowThrough from './ToolFollowThrough';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import type { VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
@@ -9,6 +10,7 @@ import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 import AiToolLanguageSelector, { type AiToolLanguage } from '@/components/portal/tools/AiToolLanguageSelector';
+import { FormField } from '@/components/portal/kit';
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
 const EXPERIENCE_LEVELS = [
@@ -16,6 +18,50 @@ const EXPERIENCE_LEVELS = [
   { value: 'mid', label: 'Mid-level (3–7 years)' },
   { value: 'senior', label: 'Senior / Lead (8+ years)' },
 ] as const;
+
+const selectStyle = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 14,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+} as const;
+
+const primaryPillStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 44,
+  width: '100%',
+  padding: '10px 22px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 700,
+  fontSize: 14,
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+} as const;
+
+const outlinePillStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  minHeight: 36,
+  padding: '6px 14px',
+  background: 'transparent',
+  color: 'var(--wa-text)',
+  fontWeight: 600,
+  fontSize: 12,
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  cursor: 'pointer',
+} as const;
 
 /**
  * Dedicated voice mock-interview entry: role + style, ElevenLabs session, live coaching panel.
@@ -71,37 +117,33 @@ export default function VoiceInterviewScaffold() {
   return (
     <div>
       {!ready ? (
-        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
+        <div className="wa-kit-card wa-space-y-4" style={{ marginBottom: '1.25rem' }}>
           <AiToolLanguageSelector value={language} onChange={setLanguage} />
-          <div className="form-group">
-            <label htmlFor="vi-role">Target role</label>
-            <input
-              id="vi-role"
-              type="text"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g. IT Support Specialist"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="vi-level">Experience level</label>
+          <FormField
+            label="Target role"
+            id="vi-role"
+            type="text"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            placeholder="e.g. IT Support Specialist"
+            required
+          />
+          <FormField label="Experience level" id="vi-level">
             <select
-              id="vi-level"
               value={experienceLevel}
               onChange={(e) => setExperienceLevel(e.target.value as 'entry' | 'mid' | 'senior')}
+              style={selectStyle}
             >
               {EXPERIENCE_LEVELS.map((l) => (
                 <option key={l.value} value={l.value}>{l.label}</option>
               ))}
             </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="vi-type">Interview style</label>
+          </FormField>
+          <FormField label="Interview style" id="vi-type">
             <select
-              id="vi-type"
               value={interviewType}
               onChange={(e) => setInterviewType(e.target.value as (typeof INTERVIEW_TYPES)[number])}
+              style={selectStyle}
             >
               {INTERVIEW_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -109,16 +151,9 @@ export default function VoiceInterviewScaffold() {
                 </option>
               ))}
             </select>
-          </div>
-          <div
-            className="form-group"
-            style={{
-              padding: '0.75rem 0',
-              borderTop: '1px solid var(--outline-variant, #e8e0dd)',
-              marginTop: '0.5rem',
-            }}
-          >
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+          </FormField>
+          <div style={{ padding: '0.75rem 0 0', borderTop: '1px solid var(--wa-border)' }}>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontWeight: 600, color: 'var(--wa-text)' }}>
               <input
                 type="checkbox"
                 checked={recordVideo}
@@ -126,10 +161,11 @@ export default function VoiceInterviewScaffold() {
                   setRecordVideo(e.target.checked);
                   if (!e.target.checked) setRecordingConsent(false);
                 }}
+                style={{ accentColor: 'var(--wa-accent)', marginTop: 3 }}
               />
               Record my camera during the session (your voice is captured by the interview session)
             </label>
-            <p style={{ margin: '0.35rem 0 0 1.5rem', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
+            <p style={{ margin: '0.35rem 0 0 1.5rem', fontSize: '0.82rem', color: 'var(--wa-muted)', lineHeight: 1.45 }}>
               Saves a practice video to your secure WorkforceAP storage so you can review your delivery. Authorized staff may
               access recordings only to support your coaching (same retention practices as your resume file).
             </p>
@@ -148,8 +184,9 @@ export default function VoiceInterviewScaffold() {
                   type="checkbox"
                   checked={recordingConsent}
                   onChange={(e) => setRecordingConsent(e.target.checked)}
+                  style={{ accentColor: 'var(--wa-accent)', marginTop: 3 }}
                 />
-                <span style={{ fontSize: '0.85rem', lineHeight: 1.45 }}>
+                <span style={{ fontSize: '0.85rem', lineHeight: 1.45, color: 'var(--wa-text)' }}>
                   I understand the recording includes my voice and image, is stored encrypted, and is used for my career
                   development as described above.
                 </span>
@@ -161,7 +198,7 @@ export default function VoiceInterviewScaffold() {
                 style={{
                   margin: '0.75rem 0 0',
                   fontSize: '0.82rem',
-                  color: 'var(--color-accent)',
+                  color: 'var(--wa-accent)',
                   fontWeight: 600,
                 }}
               >
@@ -175,20 +212,23 @@ export default function VoiceInterviewScaffold() {
             <div
               role="alert"
               style={{
-                marginBottom: '1rem',
                 padding: '0.75rem 1rem',
-                borderRadius: 8,
-                background: 'color-mix(in srgb, #b91c1c 8%, transparent)',
-                border: '1px solid color-mix(in srgb, #b91c1c 35%, transparent)',
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-danger-soft)',
+                border: '1px solid var(--wa-danger)',
                 fontSize: '0.88rem',
                 lineHeight: 1.5,
-                color: 'var(--color-on-surface)',
+                color: 'var(--wa-text)',
               }}
             >
-              <p style={{ margin: '0 0 0.65rem' }}>{videoErr}</p>
+              <p className="wa-flex wa-items-start" style={{ margin: '0 0 0.65rem', gap: 8 }}>
+                <AlertTriangle size={16} aria-hidden="true" style={{ color: 'var(--wa-danger)', flexShrink: 0, marginTop: 2 }} />
+                {videoErr}
+              </p>
               <button
                 type="button"
-                className="btn btn-outline btn-sm"
+                className="wa-kit-focus"
+                style={outlinePillStyle}
                 onClick={() => {
                   videoStreamRef.current?.getTracks().forEach((t) => t.stop());
                   videoStreamRef.current = null;
@@ -205,7 +245,12 @@ export default function VoiceInterviewScaffold() {
 
           <button
             type="button"
-            className="btn btn-primary"
+            className="wa-kit-focus"
+            style={{
+              ...primaryPillStyle,
+              opacity: !canStart || cameraPriming ? 0.6 : 1,
+              cursor: !canStart || cameraPriming ? 'not-allowed' : 'pointer',
+            }}
             disabled={!canStart || cameraPriming}
             onClick={() => {
               void (async () => {
@@ -262,8 +307,8 @@ export default function VoiceInterviewScaffold() {
         </div>
       ) : (
         <div className="voice-interview-layout">
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12 }}>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          <div className="wa-kit-card">
+            <p style={{ fontSize: '0.85rem', color: 'var(--wa-muted)', marginBottom: '1rem' }}>
               Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow <strong>microphone</strong> access to talk with the coach.
               {wantRecording ? (
                 <>
@@ -285,7 +330,7 @@ export default function VoiceInterviewScaffold() {
               />
             ) : null}
             {videoErr ? (
-              <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
+              <p style={{ color: 'var(--wa-danger)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
             ) : null}
             <VoiceAgentSurface {...mockInterviewVoiceSurface}>
               <PortalVoiceSessionLazy
@@ -315,18 +360,18 @@ export default function VoiceInterviewScaffold() {
                   download="mock-interview-recording.webm"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ fontWeight: 600, color: 'var(--color-accent)' }}
+                  style={{ fontWeight: 700, color: 'var(--wa-accent)' }}
                 >
                   Download your practice recording
                 </a>{' '}
-                <span style={{ color: 'var(--color-on-surface-variant)' }}>(link expires in about an hour)</span>
+                <span style={{ color: 'var(--wa-muted)' }}>(link expires in about an hour)</span>
               </p>
             ) : null}
             <ToolFollowThrough toolType="voice_interview" />
             <button
               type="button"
-              className="btn btn-outline btn-sm"
-              style={{ marginTop: '1rem' }}
+              className="wa-kit-focus"
+              style={{ ...outlinePillStyle, marginTop: '1rem' }}
               onClick={() => {
                 videoStreamRef.current?.getTracks().forEach((t) => t.stop());
                 videoStreamRef.current = null;

@@ -1,11 +1,11 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import SalaryNegotiationForm from '@/components/portal/tools/SalaryNegotiationForm';
-import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,33 +22,24 @@ export default async function SalaryNegotiationPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/salary-negotiation');
 
   return (
-    <>
-    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
-      {/* Header */}
-      <div
-        style={{
-          padding: '1.5rem 2rem',
-          borderBottom: '1px solid var(--surface-container-high)',
-          background: 'var(--surface-container-low)',
-        }}
-      >
-        <PageHeader
-          title="Salary Negotiation Script"
-          subtitle="You got an offer -- now negotiate. Enter your numbers and get an exact script for a phone call or email."
-          breadcrumbs={[
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.25rem 1rem 3rem' }} className="wa-space-y-5">
+        <PortalBreadcrumb
+          items={[
             { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'Salary Negotiation' },
           ]}
         />
-      </div>
-
-      {/* Main content */}
-      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+        <SectionHeader
+          kicker="AI Career Toolkit"
+          title="Salary Negotiation Script"
+          goal="You got an offer — now negotiate. Enter your numbers and get an exact script for a phone call or email."
+        />
+        <div className="wa-kit-card">
           <SalaryNegotiationForm />
         </div>
         <ToolHistoryPanel userId={user.id} toolType="salary_negotiation" />
       </div>
-    </div>    </>
+    </DesignSurface>
   );
 }

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { GitBranch, GraduationCap } from 'lucide-react';
 import {
   TRAINING_BRIDGE_OCCUPATIONS,
   computeBridgeGap,
@@ -12,6 +13,7 @@ import {
   type BridgeSkill,
   type MemberSkill,
 } from '@/lib/content/trainingBridge';
+import { FormField, StatusTag, type KitTone } from '@/components/portal/kit';
 
 export type SavedAssessment = {
   occupationTitle: string | null;
@@ -25,30 +27,46 @@ type Props = {
   assessment: SavedAssessment | null;
 };
 
-function SkillChips({ skills, tone }: { skills: BridgeSkill[]; tone: 'missing' | 'have' | 'covers' }) {
-  const palette =
-    tone === 'missing'
-      ? { background: 'rgba(173,44,77,0.10)', color: 'var(--color-accent)' }
-      : tone === 'have'
-        ? { background: 'rgba(46,125,50,0.12)', color: 'var(--color-green)' }
-        : { background: 'var(--surface-container-high)', color: 'var(--color-on-surface)' };
+const primaryPillStyle = {
+  minHeight: 48,
+  flex: '1 1 220px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.4rem',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 700,
+  fontSize: '0.85rem',
+  borderRadius: 999,
+  textDecoration: 'none',
+} as const;
+
+const outlinePillStyle = {
+  minHeight: 48,
+  flex: '1 1 220px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.4rem',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  fontWeight: 700,
+  fontSize: '0.85rem',
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  textDecoration: 'none',
+} as const;
+
+function SkillChips({ skills, tone }: { skills: BridgeSkill[]; tone: KitTone }) {
   return (
-    <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', margin: 0, padding: 0, listStyle: 'none' }}>
+    <div className="wa-flex wa-flex-wrap" style={{ gap: '0.4rem' }}>
       {skills.map((s) => (
-        <li
-          key={s.name}
-          style={{
-            ...palette,
-            fontSize: '0.78rem',
-            fontWeight: 700,
-            padding: '0.3rem 0.65rem',
-            borderRadius: 999,
-          }}
-        >
+        <StatusTag key={s.name} tone={tone}>
           {s.name}
-        </li>
+        </StatusTag>
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -83,14 +101,11 @@ export default function TrainingBridgeClient({ assessment }: Props) {
   const missingNames = gap.missingSkills.map((s) => s.name).join(', ');
 
   return (
-    <div style={{ display: 'grid', gap: '1rem' }}>
+    <div className="wa-space-y-4">
       {/* ── Where the data comes from ── */}
       {personalized ? (
-        <div
-          className="portal-card portal-card--flat"
-          style={{ padding: '0.9rem 1.1rem', borderRadius: 14, background: 'var(--surface-container-low)' }}
-        >
-          <p style={{ margin: 0, fontSize: '0.82rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+        <div className="wa-kit-card wa-kit-card--sm">
+          <p style={{ margin: 0, fontSize: '0.82rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
             {t('basedOn', {
               occupation: assessment!.occupationTitle ?? t('yourLastRun'),
               date: new Date(assessment!.createdAt).toLocaleDateString(),
@@ -98,83 +113,70 @@ export default function TrainingBridgeClient({ assessment }: Props) {
           </p>
         </div>
       ) : (
-        <div
-          className="portal-card portal-card--flat"
-          style={{ padding: '1.1rem 1.25rem', borderRadius: 14, background: 'var(--surface-container-low)' }}
-        >
-          <h2 style={{ margin: '0 0 0.4rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+        <div className="wa-kit-card">
+          <h2 style={{ margin: '0 0 0.4rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--wa-text)' }}>
             {t('noAssessmentTitle')}
           </h2>
-          <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
             {t('noAssessmentBody')}
           </p>
-          <Link
-            href="/dashboard/ai-tools/skill-mapper"
-            className="btn btn-outline"
-            style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
-              account_tree
-            </span>
+          <Link href="/dashboard/ai-tools/skill-mapper" className="wa-kit-focus" style={outlinePillStyle}>
+            <GitBranch size={16} aria-hidden="true" />
             {t('runSkillMapper')}
           </Link>
         </div>
       )}
 
       {/* ── Target job picker ── */}
-      <div className="portal-card portal-card--flat" style={{ padding: '1.1rem 1.25rem', borderRadius: 14 }}>
-        <label
-          htmlFor="training-bridge-occupation"
-          style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-surface)' }}
-        >
-          {t('pickOccupationLabel')}
-        </label>
-        <select
-          id="training-bridge-occupation"
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-          style={{
-            width: '100%',
-            minHeight: 48,
-            padding: '0.55rem 0.75rem',
-            borderRadius: 10,
-            border: '1px solid var(--surface-container-high)',
-            background: 'var(--surface-container-lowest)',
-            color: 'var(--color-on-surface)',
-            fontSize: '0.9rem',
-            fontWeight: 600,
-          }}
-        >
-          {TRAINING_BRIDGE_OCCUPATIONS.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.occupationTitle}
-            </option>
-          ))}
-        </select>
+      <div className="wa-kit-card">
+        <FormField label={t('pickOccupationLabel')} id="training-bridge-occupation">
+          <select
+            value={selectedId}
+            onChange={(e) => setSelectedId(e.target.value)}
+            style={{
+              marginTop: 4,
+              width: '100%',
+              minHeight: 48,
+              padding: '0.55rem 0.75rem',
+              borderRadius: 'var(--wa-radius-sm)',
+              border: '1px solid var(--wa-border)',
+              background: 'var(--wa-surface)',
+              color: 'var(--wa-text)',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+            }}
+          >
+            {TRAINING_BRIDGE_OCCUPATIONS.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.occupationTitle}
+              </option>
+            ))}
+          </select>
+        </FormField>
         {matchedFromAssessment && matchedFromAssessment.id !== selectedId && (
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.78rem', color: 'var(--wa-muted)' }}>
             {t('assessmentMatchedHint', { occupation: matchedFromAssessment.occupationTitle })}
           </p>
         )}
       </div>
 
       {/* ── Gap summary ── */}
-      <div className="portal-card portal-card--flat" style={{ padding: '1.1rem 1.25rem', borderRadius: 14 }}>
+      <div className="wa-kit-card">
         {gap.missingSkills.length > 0 ? (
           <>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', fontWeight: 800, color: 'var(--wa-text)' }}>
               {personalized
                 ? t('missingTitle', { count: gap.missingSkills.length, occupation: occupation.occupationTitle })
                 : t('skillsNeededTitle', { occupation: occupation.occupationTitle })}
             </h2>
-            <SkillChips skills={gap.missingSkills} tone="missing" />
+            <SkillChips skills={gap.missingSkills} tone="alert" />
           </>
         ) : (
           <>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', fontWeight: 800, color: 'var(--wa-text)' }}>
               {t('allCoveredTitle', { occupation: occupation.occupationTitle })}
             </h2>
-            <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+            <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
               {t('allCoveredBody')}
             </p>
           </>
@@ -182,31 +184,28 @@ export default function TrainingBridgeClient({ assessment }: Props) {
 
         {personalized && gap.haveSkills.length > 0 && (
           <div style={{ marginTop: '0.9rem' }}>
-            <p style={{ margin: '0 0 0.4rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+            <p style={{ margin: '0 0 0.4rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--wa-text)' }}>
               {t('haveTitle')}
             </p>
-            <SkillChips skills={gap.haveSkills} tone="have" />
+            <SkillChips skills={gap.haveSkills} tone="ok" />
           </div>
         )}
       </div>
 
       {/* ── Pathway + enroll CTA ── */}
       {program && (
-        <div
-          className="portal-card portal-card--flat"
-          style={{ padding: '1.25rem', borderRadius: 16, borderLeft: '4px solid var(--color-accent)' }}
-        >
-          <p style={{ margin: '0 0 0.25rem', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-accent)' }}>
+        <div className="wa-kit-card" style={{ borderLeft: '4px solid var(--wa-accent)' }}>
+          <p style={{ margin: '0 0 0.25rem', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--wa-accent)' }}>
             {t('pathwayEyebrow')}
           </p>
-          <h2 style={{ margin: '0 0 0.35rem', fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+          <h2 style={{ margin: '0 0 0.35rem', fontSize: '1.05rem', fontWeight: 800, color: 'var(--wa-text)' }}>
             {program.title}
           </h2>
-          <p style={{ margin: '0 0 0.75rem', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.82rem', color: 'var(--wa-muted)' }}>
             {t('pathwayMeta', { partner: program.partner, duration: program.duration })}
           </p>
 
-          <p style={{ margin: '0 0 0.4rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+          <p style={{ margin: '0 0 0.4rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-text)' }}>
             {gap.missingSkills.length > 0 && coveredMissing.length > 0 && personalized
               ? t('pathwayCoversMissing', { skills: missingNames })
               : t('pathwayCovers')}
@@ -214,31 +213,21 @@ export default function TrainingBridgeClient({ assessment }: Props) {
           <div style={{ marginBottom: '1rem' }}>
             <SkillChips
               skills={occupation.requiredSkills.filter((s) => occupation.pathwayCovers.includes(s.name))}
-              tone="covers"
+              tone="info"
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <Link
-              href={`/apply?program=${program.slug}`}
-              className="btn btn-primary"
-              style={{ minHeight: 48, flex: '1 1 220px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
-                school
-              </span>
+          <div className="wa-flex wa-flex-wrap" style={{ gap: '0.6rem' }}>
+            <Link href={`/apply?program=${program.slug}`} className="wa-kit-focus" style={primaryPillStyle}>
+              <GraduationCap size={16} aria-hidden="true" />
               {t('enrollCta')}
             </Link>
-            <Link
-              href={`/programs/${program.slug}`}
-              className="btn btn-outline"
-              style={{ minHeight: 48, flex: '1 1 220px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
-            >
+            <Link href={`/programs/${program.slug}`} className="wa-kit-focus" style={outlinePillStyle}>
               {t('viewProgram')}
             </Link>
           </div>
 
-          <p style={{ margin: '0.85rem 0 0', fontSize: '0.78rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0.85rem 0 0', fontSize: '0.78rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
             {t('disclaimer')}
           </p>
         </div>

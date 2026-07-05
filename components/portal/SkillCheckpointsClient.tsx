@@ -1,16 +1,71 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import {
+  ShieldCheck,
+  CheckCircle2,
+  ArrowLeft,
+  ChevronRight,
+  ClipboardList,
+  XCircle,
+  RotateCcw,
+  ArrowRight,
+} from 'lucide-react';
 import type { ProgramCheckpointPack, CourseCheckpointSet, SkillCheckpoint } from '@/lib/content/checkpoints';
 import { ALL_CHECKPOINT_PACKS } from '@/lib/content/checkpoints';
 import ShareButton from '@/components/ui/ShareButton';
 import { buildSkillCheckpointShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
+import { StatusTag, SegmentedProgress } from '@/components/portal/kit';
 
 type Step =
   | { kind: 'program' }
   | { kind: 'course'; pack: ProgramCheckpointPack }
   | { kind: 'quiz'; pack: ProgramCheckpointPack; course: CourseCheckpointSet; index: number; answers: Record<string, string>; revealed: boolean }
   | { kind: 'done'; pack: ProgramCheckpointPack; course: CourseCheckpointSet; correct: number; total: number };
+
+const backLinkStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  color: 'var(--wa-accent)',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: '0 0 0.75rem',
+  minHeight: 44,
+} as const;
+
+const primaryPillStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '10px 20px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  borderRadius: 999,
+  border: 'none',
+  fontWeight: 700,
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+  minHeight: 44,
+} as const;
+
+const outlinePillStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '10px 18px',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  fontWeight: 700,
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+  minHeight: 44,
+} as const;
 
 function persistCheckpoint(payload: {
   checkpointId: string;
@@ -53,68 +108,42 @@ function ProofCard({
 
   return (
     <div
+      className="wa-kit-card"
       style={{
-        border: '2px solid var(--color-accent, #1a73e8)',
-        borderRadius: 16,
-        padding: '1.5rem',
-        background: 'var(--surface-container-low)',
+        border: '2px solid var(--wa-accent)',
         marginBottom: '1.25rem',
-        position: 'relative',
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-        <span
-          className="material-symbols-outlined" aria-hidden="true"
-          style={{ fontSize: 28, color: 'var(--color-accent, #1a73e8)', fontVariationSettings: "'FILL' 1" }}
-        >
-          verified
-        </span>
+      <div className="wa-flex wa-items-center" style={{ gap: '0.6rem', marginBottom: '0.75rem' }}>
+        <ShieldCheck size={28} aria-hidden="true" style={{ color: 'var(--wa-accent)', flexShrink: 0 }} />
         <div>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent, #1a73e8)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--wa-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Skill Demonstrated
           </div>
-          <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1.25 }}>
+          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--wa-text)', lineHeight: 1.25 }}>
             {course.courseName}
           </div>
         </div>
       </div>
 
       {/* Score */}
-      <div style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+      <div style={{ fontSize: '0.82rem', color: 'var(--wa-muted)', marginBottom: '0.75rem', fontVariantNumeric: 'tabular-nums' }}>
         {correct} of {total} correct · {pack.programTitle}
       </div>
 
       {/* Skills chips */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
+      <div className="wa-flex wa-flex-wrap" style={{ gap: '0.4rem', marginBottom: '1rem' }}>
         {demonstrated.map((skill) => (
-          <span
-            key={skill}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              background: 'var(--color-accent-container, #d2e3fc)',
-              color: 'var(--color-on-accent-container, #0d3277)',
-              borderRadius: 20,
-              padding: '0.25rem 0.65rem',
-              fontSize: '0.8rem',
-              fontWeight: 500,
-            }}
-          >
-            <span
-              className="material-symbols-outlined" aria-hidden="true"
-              style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}
-            >
-              check_circle
-            </span>
+          <StatusTag key={skill} tone="ok">
+            <CheckCircle2 size={12} aria-hidden="true" />
             {skill}
-          </span>
+          </StatusTag>
         ))}
       </div>
 
       {/* Footer */}
-      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', borderTop: '1px solid var(--surface-container-high)', paddingTop: '0.75rem' }}>
+      <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)', borderTop: '1px solid var(--wa-border)', paddingTop: '0.75rem' }}>
         Verified by WorkforceAP · {today}
       </div>
 
@@ -131,41 +160,27 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
   // ─── Step 0: Program picker ───────────────────────────────────────────────
   const renderProgramPicker = () => (
     <div>
-      <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
+      <p style={{ fontSize: '0.9rem', color: 'var(--wa-muted)', marginBottom: '1.25rem' }}>
         Pick a program track. You&rsquo;ll choose a specific course next, then answer a few short workplace scenarios.
       </p>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '0.75rem',
-        }}
-      >
+      <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
         {ALL_CHECKPOINT_PACKS.map((pack) => (
           <button
             key={pack.programSlug}
-            className="portal-card"
+            className="wa-kit-card wa-kit-card--hover wa-kit-focus"
             onClick={() => setStep({ kind: 'course', pack })}
             aria-label={`Select ${pack.programTitle}`}
-            style={{
-              textAlign: 'left',
-              padding: '1rem',
-              borderRadius: 12,
-              border: '1px solid var(--surface-container-high)',
-              background: 'var(--surface-container)',
-              cursor: 'pointer',
-              minHeight: 44,
-              transition: 'border-color 0.15s',
-            }}
+            style={{ textAlign: 'left', cursor: 'pointer', minHeight: 44 }}
           >
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--color-on-surface)', marginBottom: '0.4rem' }}>
+            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--wa-text)', marginBottom: '0.4rem' }}>
               {pack.programTitle}
             </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+            <div style={{ fontSize: '0.8rem', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
               {pack.whyItMatters}
             </div>
-            <div style={{ marginTop: '0.6rem', fontSize: '0.75rem', color: 'var(--color-accent, #1a73e8)', fontWeight: 500 }}>
-              {pack.courses.length} course{pack.courses.length !== 1 ? 's' : ''} →
+            <div className="wa-flex wa-items-center" style={{ gap: 4, marginTop: '0.6rem', fontSize: '0.75rem', color: 'var(--wa-accent)', fontWeight: 700 }}>
+              {pack.courses.length} course{pack.courses.length !== 1 ? 's' : ''}
+              <ChevronRight size={14} aria-hidden="true" />
             </div>
           </button>
         ))}
@@ -176,69 +191,49 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
   // ─── Step 1: Course picker ────────────────────────────────────────────────
   const renderCoursePicker = (pack: ProgramCheckpointPack) => (
     <div>
-      <button
-        onClick={() => setStep({ kind: 'program' })}
-        aria-label="Back to programs"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.3rem',
-          fontSize: '0.82rem',
-          color: 'var(--color-accent, #1a73e8)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: '0 0 0.75rem',
-          minHeight: 44,
-        }}
-      >
-        <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>arrow_back</span>
+      <button onClick={() => setStep({ kind: 'program' })} aria-label="Back to programs" style={backLinkStyle}>
+        <ArrowLeft size={16} aria-hidden="true" />
         Back to programs
       </button>
 
       <div style={{ marginBottom: '1rem' }}>
-        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{pack.programTitle}</div>
-        <div style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{pack.whyItMatters}</div>
+        <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--wa-text)' }}>{pack.programTitle}</div>
+        <div style={{ fontSize: '0.82rem', color: 'var(--wa-muted)' }}>{pack.whyItMatters}</div>
       </div>
 
-      <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--wa-muted)', marginBottom: '1rem' }}>
         Pick a course to verify. You&rsquo;ll answer a few short scenarios — takes about 3–5 minutes.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+      <div className="wa-space-y-2">
         {pack.courses.map((course) => (
           <button
             key={course.courseSlug}
-            className="portal-card"
+            className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
             onClick={() =>
               setStep({ kind: 'quiz', pack, course, index: 0, answers: {}, revealed: false })
             }
             aria-label={`Select ${course.courseName}`}
             style={{
               textAlign: 'left',
-              padding: '0.85rem 1rem',
-              borderRadius: 10,
-              border: '1px solid var(--surface-container-high)',
-              background: 'var(--surface-container)',
               cursor: 'pointer',
               minHeight: 44,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '0.75rem',
+              width: '100%',
             }}
           >
             <div>
-              <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--wa-text)' }}>
                 {course.courseName}
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)', marginTop: '0.15rem' }}>
                 {course.checkpoints.length} checkpoint{course.checkpoints.length !== 1 ? 's' : ''}
               </div>
             </div>
-            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20, color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
-              chevron_right
-            </span>
+            <ChevronRight size={20} aria-hidden="true" style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
           </button>
         ))}
       </div>
@@ -284,107 +279,66 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
       return (
         <div>
           {/* Back */}
-          <button
-            onClick={() => setStep({ kind: 'course', pack })}
-            aria-label={`Back to ${course.courseName}`}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              fontSize: '0.82rem',
-              color: 'var(--color-accent, #1a73e8)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '0 0 0.75rem',
-              minHeight: 44,
-            }}
-          >
-            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>arrow_back</span>
+          <button onClick={() => setStep({ kind: 'course', pack })} aria-label={`Back to ${course.courseName}`} style={backLinkStyle}>
+            <ArrowLeft size={16} aria-hidden="true" />
             {course.courseName}
           </button>
 
           {/* Progress bar */}
-          <div
-            style={{
-              height: 4,
-              background: 'var(--surface-container-high)',
-              borderRadius: 4,
-              marginBottom: '1.25rem',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                height: '100%',
-                width: `${progressPct}%`,
-                background: 'var(--color-accent, #1a73e8)',
-                borderRadius: 4,
-                transition: 'width 0.3s ease',
-              }}
+          <div style={{ marginBottom: '0.6rem' }}>
+            <SegmentedProgress
+              pct={progressPct}
+              segments={course.checkpoints.length}
+              label={`Checkpoint ${index + 1} of ${course.checkpoints.length}`}
             />
           </div>
 
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)', marginBottom: '1rem', fontVariantNumeric: 'tabular-nums' }}>
             Checkpoint {index + 1} of {course.checkpoints.length}
           </div>
 
           {/* Scenario card */}
           <div
-            className="portal-card portal-card--flat"
-            style={{
-              padding: '1rem',
-              borderRadius: 12,
-              background: 'var(--surface-container)',
-              marginBottom: '1rem',
-              display: 'flex',
-              gap: '0.6rem',
-              alignItems: 'flex-start',
-            }}
+            className="wa-kit-card wa-kit-card--sm"
+            style={{ marginBottom: '1rem', display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}
           >
-            <span
-              className="material-symbols-outlined"
-              aria-hidden="true"
-              style={{ fontSize: '1.1rem', flexShrink: 0, marginTop: '0.1rem', color: 'var(--color-on-surface-variant)' }}
-            >
-              assignment
-            </span>
+            <ClipboardList size={18} aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.1rem', color: 'var(--wa-muted)' }} />
             <div>
-              <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>
                 Scenario
               </div>
-              <div style={{ fontSize: '0.88rem', color: 'var(--color-on-surface)', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '0.88rem', color: 'var(--wa-text)', lineHeight: 1.6 }}>
                 {cp.scenario}
               </div>
             </div>
           </div>
 
           {/* Question */}
-          <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.75rem', lineHeight: 1.45 }}>
+          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--wa-text)', marginBottom: '0.75rem', lineHeight: 1.45 }}>
             {cp.question}
           </div>
 
           {/* Options */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+          <div className="wa-space-y-2" style={{ marginBottom: '1rem' }}>
             {cp.options.map((opt) => {
               const isSelected = selected === opt.id;
               const isRight = opt.id === cp.correctOptionId;
-              let bgColor = 'var(--surface-container)';
-              let borderColor = 'var(--surface-container-high)';
-              let textColor = 'var(--color-on-surface)';
+              let bgColor = 'var(--wa-surface)';
+              let borderColor = 'var(--wa-border)';
+              let textColor = 'var(--wa-text)';
 
               if (revealed) {
                 if (isRight) {
-                  bgColor = 'rgba(74,155,79,0.12)';
-                  borderColor = 'var(--color-green)';
-                  textColor = 'var(--color-green)';
+                  bgColor = 'color-mix(in srgb, var(--wa-success) 12%, transparent)';
+                  borderColor = 'var(--wa-success)';
+                  textColor = 'var(--wa-success)';
                 } else if (isSelected && !isRight) {
-                  bgColor = 'var(--color-error-container)';
-                  borderColor = 'var(--color-error)';
-                  textColor = 'var(--color-error)';
+                  bgColor = 'var(--wa-danger-soft)';
+                  borderColor = 'var(--wa-danger)';
+                  textColor = 'var(--wa-danger)';
                 }
               } else if (isSelected) {
-                borderColor = 'var(--color-accent, #1a73e8)';
+                borderColor = 'var(--wa-accent)';
               }
 
               return (
@@ -393,10 +347,11 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   onClick={() => handleSelect(opt.id)}
                   disabled={revealed}
                   aria-label={opt.text}
+                  className="wa-kit-focus"
                   style={{
                     textAlign: 'left',
                     padding: '0.75rem 1rem',
-                    borderRadius: 10,
+                    borderRadius: 'var(--wa-radius-sm)',
                     border: `2px solid ${borderColor}`,
                     background: bgColor,
                     color: textColor,
@@ -404,6 +359,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                     fontSize: '0.88rem',
                     lineHeight: 1.5,
                     minHeight: 44,
+                    width: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.6rem',
@@ -411,6 +367,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   }}
                 >
                   <span
+                    aria-hidden="true"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -418,8 +375,8 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                       width: 24,
                       height: 24,
                       borderRadius: '50%',
-                      background: isSelected || (revealed && isRight) ? borderColor : 'var(--surface-container-high)',
-                      color: isSelected || (revealed && isRight) ? '#fff' : 'var(--color-on-surface-variant)',
+                      background: isSelected || (revealed && isRight) ? borderColor : 'var(--wa-surface-2)',
+                      color: isSelected || (revealed && isRight) ? 'var(--wa-on-accent)' : 'var(--wa-muted)',
                       fontSize: '0.75rem',
                       fontWeight: 700,
                       flexShrink: 0,
@@ -429,9 +386,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   </span>
                   {opt.text}
                   {revealed && isRight && (
-                    <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18, marginLeft: 'auto', fontVariationSettings: "'FILL' 1", color: 'var(--color-green)' }}>
-                      check_circle
-                    </span>
+                    <CheckCircle2 size={18} aria-hidden="true" style={{ marginLeft: 'auto', color: 'var(--wa-success)', flexShrink: 0 }} />
                   )}
                 </button>
               );
@@ -445,31 +400,26 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
               aria-live="polite"
               style={{
                 padding: '0.85rem 1rem',
-                borderRadius: 10,
-                background: isCorrect
-                  ? 'rgba(74,155,79,0.12)'
-                  : 'var(--color-error-container)',
-                border: `1px solid ${isCorrect ? 'var(--color-green)' : 'var(--color-error)'}`,
+                borderRadius: 'var(--wa-radius-sm)',
+                background: isCorrect ? 'color-mix(in srgb, var(--wa-success) 12%, transparent)' : 'var(--wa-danger-soft)',
+                border: `1px solid ${isCorrect ? 'var(--wa-success)' : 'var(--wa-danger)'}`,
                 marginBottom: '1rem',
               }}
             >
               <div
+                className="wa-flex wa-items-center"
                 style={{
                   fontWeight: 700,
                   fontSize: '0.85rem',
-                  color: isCorrect ? 'var(--color-green)' : 'var(--color-error)',
+                  color: isCorrect ? 'var(--wa-success)' : 'var(--wa-danger)',
                   marginBottom: '0.3rem',
-                  display: 'flex',
-                  alignItems: 'center',
                   gap: '0.3rem',
                 }}
               >
-                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>
-                  {isCorrect ? 'check_circle' : 'cancel'}
-                </span>
+                {isCorrect ? <CheckCircle2 size={16} aria-hidden="true" /> : <XCircle size={16} aria-hidden="true" />}
                 {isCorrect ? 'Correct' : 'Not quite'}
               </div>
-              <div style={{ fontSize: '0.83rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
+              <div style={{ fontSize: '0.83rem', lineHeight: 1.55, color: 'var(--wa-text)' }}>
                 {cp.explanation}
               </div>
             </div>
@@ -480,23 +430,11 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
             <button
               onClick={handleNext}
               aria-label={index + 1 >= course.checkpoints.length ? 'See my results' : 'Next checkpoint'}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.7rem 1.25rem',
-                background: 'var(--color-accent, #1a73e8)',
-                color: '#fff',
-                borderRadius: 8,
-                border: 'none',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                minHeight: 44,
-              }}
+              className="wa-kit-focus"
+              style={primaryPillStyle}
             >
               {index + 1 >= course.checkpoints.length ? 'See my results' : 'Next checkpoint'}
-              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18 }}>arrow_forward</span>
+              <ArrowRight size={16} aria-hidden="true" />
             </button>
           )}
         </div>
@@ -512,35 +450,18 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
     return (
       <div>
         <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--wa-text)' }}>
             Skills demonstrated
           </div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>
             You answered {correct} of {total} correctly.
           </div>
         </div>
 
         <ProofCard course={course} pack={pack} correct={correct} total={total} />
 
-        <button
-          onClick={() => setStep({ kind: 'course', pack })}
-          aria-label="Try another course"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.65rem 1rem',
-            background: 'var(--surface-container)',
-            color: 'var(--color-on-surface)',
-            borderRadius: 8,
-            border: '1px solid var(--surface-container-high)',
-            fontWeight: 500,
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            minHeight: 44,
-          }}
-        >
-          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 18 }}>replay</span>
+        <button onClick={() => setStep({ kind: 'course', pack })} aria-label="Try another course" className="wa-kit-focus" style={outlinePillStyle}>
+          <RotateCcw size={16} aria-hidden="true" />
           Try another course
         </button>
       </div>

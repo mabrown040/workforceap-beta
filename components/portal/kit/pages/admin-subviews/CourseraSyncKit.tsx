@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import NextLink from 'next/link';
 import {
   CircleCheck,
   TriangleAlert,
@@ -10,12 +11,12 @@ import {
   CircleSlash,
   Activity,
 } from 'lucide-react';
-import {
-  DesignSurface,
-  SectionHeader,
-  StatusTag,
-  type KitTone,
-} from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
 /**
  * Coursera Sync — sync-status card + unmatched-learners list (dense).
@@ -78,19 +79,6 @@ export interface CourseraSyncKitProps {
   activeLast30Days: string;
 }
 
-function healthTone(health: SyncHealth): KitTone {
-  switch (health) {
-    case 'healthy':
-      return 'ok';
-    case 'attention':
-      return 'alert';
-    case 'unavailable':
-      return 'muted';
-    default:
-      return 'info';
-  }
-}
-
 function healthColorVar(health: SyncHealth): string {
   switch (health) {
     case 'healthy':
@@ -114,6 +102,20 @@ function healthChipBg(health: SyncHealth): string {
       return 'color-mix(in srgb, var(--wa-muted) 12%, transparent)';
     default:
       return 'color-mix(in srgb, var(--wa-info) 12%, transparent)';
+  }
+}
+
+/** Health → Token color, mirroring the same semantic mapping as healthColorVar. */
+function healthTokenColor(health: SyncHealth): TokenColor {
+  switch (health) {
+    case 'healthy':
+      return 'green';
+    case 'attention':
+      return 'pink';
+    case 'unavailable':
+      return 'gray';
+    default:
+      return 'blue';
   }
 }
 
@@ -174,7 +176,7 @@ export function CourseraSyncKit({
 
       <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-4">
         {/* LEFT — Sync Status card + Force Sync action. */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <div
               style={{
@@ -194,7 +196,7 @@ export function CourseraSyncKit({
             <div style={{ minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: 14 }}>Sync Status</div>
               <div style={{ marginTop: 2 }}>
-                <StatusTag tone={healthTone(health)}>{healthLabel}</StatusTag>
+                <Token label={healthLabel} size="sm" color={healthTokenColor(health)} />
               </div>
             </div>
           </div>
@@ -242,29 +244,15 @@ export function CourseraSyncKit({
             ))}
           </div>
 
-          <a
-            href={forceSyncHref}
-            className="wa-kit-focus"
-            style={{
-              marginTop: 18,
-              width: '100%',
-              boxSizing: 'border-box',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              padding: '10px 14px',
-              borderRadius: 999,
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-            }}
-          >
-            <RefreshCw size={14} />
-            Force Sync
-          </a>
+          <AstryxLink href={forceSyncHref} as={NextLink as never} isStandalone style={{ display: 'block', marginTop: 18 }}>
+            <Button
+              label="Force Sync"
+              variant="primary"
+              size="sm"
+              icon={<RefreshCw size={14} />}
+              style={{ width: '100%' }}
+            />
+          </AstryxLink>
           <p
             style={{
               marginTop: 8,
@@ -275,10 +263,10 @@ export function CourseraSyncKit({
           >
             Opens the sync &amp; mapping tools
           </p>
-        </div>
+        </Card>
 
         {/* RIGHT — Unmatched learners + per-row Link affordance. */}
-        <div className="wa-kit-card lg:wa-col-span-2" style={{ minWidth: 0 }}>
+        <Card className="lg:wa-col-span-2" style={{ minWidth: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -292,9 +280,9 @@ export function CourseraSyncKit({
               Unmatched Learners
             </h3>
             {unmatchedTotal > 0 ? (
-              <StatusTag tone="alert">{unmatchedTotal} to link</StatusTag>
+              <Token label={`${unmatchedTotal} to link`} size="sm" color="pink" />
             ) : (
-              <StatusTag tone="ok">All linked</StatusTag>
+              <Token label="All linked" size="sm" color="green" />
             )}
           </div>
           <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '0 0 14px' }}>
@@ -302,19 +290,17 @@ export function CourseraSyncKit({
           </p>
 
           {unmatched.length === 0 ? (
-            <div className="wa-kit-card wa-kit-card--sm" style={{ margin: 0 }}>
-              <div style={{ fontWeight: 700, color: 'var(--wa-text)' }}>No unmatched learners</div>
-              <div style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
-                Every Coursera identity with activity is bound to a WorkforceAP member — or no
-                Coursera activity has arrived yet.
-              </div>
-            </div>
+            <EmptyState
+              title="No unmatched learners"
+              description="Every Coursera identity with activity is bound to a WorkforceAP member — or no Coursera activity has arrived yet."
+              isCompact
+            />
           ) : (
             <div style={{ display: 'grid', gap: 8 }}>
               {unmatched.map((row) => (
-                <div
+                <Card
                   key={row.email}
-                  className="wa-kit-card wa-kit-card--sm"
+                  padding={3}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -348,27 +334,10 @@ export function CourseraSyncKit({
                       {row.caption}
                     </div>
                   </div>
-                  <a
-                    href={row.href}
-                    className="wa-kit-focus"
-                    style={{
-                      flexShrink: 0,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      padding: '7px 13px',
-                      borderRadius: 999,
-                      background: 'var(--wa-info)',
-                      color: 'var(--wa-on-accent)',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <Link2 size={12} />
-                    Link
-                  </a>
-                </div>
+                  <AstryxLink href={row.href} as={NextLink as never} isStandalone style={{ flexShrink: 0 }}>
+                    <Button label="Link" variant="secondary" size="sm" icon={<Link2 size={12} />} />
+                  </AstryxLink>
+                </Card>
               ))}
             </div>
           )}
@@ -378,7 +347,7 @@ export function CourseraSyncKit({
               Showing {unmatched.length} of {unmatchedTotal}
             </p>
           ) : null}
-        </div>
+        </Card>
       </div>
     </DesignSurface>
   );

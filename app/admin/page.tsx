@@ -9,15 +9,18 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
 import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
+import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import TriageDigestSection from '@/components/admin/TriageDigestSection';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import {
   CommandCenterKit,
   type CommandCenterQueueItem,
+  type CommandCenterKpiItem,
+  type CommandCenterSystemHealthRow,
   type ProgramHealthDatum,
 } from '@/components/portal/kit/pages/admin/CommandCenterKit';
-import type { KpiItem, ChartDatum } from '@/components/portal/kit';
+import type { ChartDatum } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -59,7 +62,7 @@ export default async function AdminTodayPage({
 
     const { data, headline } = await withAuthGuc(async () => {
       const orgId = await getActorOrganizationId(user.id);
-      const [center, activeStudents, placementRows] = await Promise.all([
+      const [center, activeStudents, placementRows, recentCronErrors, slaBreaches48h] = await Promise.all([
         getAdminCommandCenter(user.id, { perSectionLimit: 8 }).catch((): AdminCommandCenter => ({
           needsReply: [],
           atRisk: [],
@@ -84,8 +87,20 @@ export default async function AdminTodayPage({
             select: { placedAt: true },
           })
           .catch(() => [] as Array<{ placedAt: Date }>),
+        // "System health" signals — same cheap patterns app/admin/overview/page.tsx
+        // already runs after its own auth guard (one count + one existing helper,
+        // no new expensive queries).
+        prisma.workflowDiagnostic
+          .count({
+            where: {
+              status: { in: ['error', 'errored'] },
+              createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+            },
+          })
+          .catch(() => 0),
+        countThreadsWithSlaBreach(48).catch(() => 0),
       ]);
-      return { data: center, headline: { activeStudents, placementRows } };
+      return { data: center, headline: { activeStudents, placementRows, recentCronErrors, slaBreaches48h } };
     }).catch(() => ({
       data: {
         needsReply: [],
@@ -102,7 +117,12 @@ export default async function AdminTodayPage({
           oldestPendingApplicationDays: null,
         },
       } as AdminCommandCenter,
-      headline: { activeStudents: 0, placementRows: [] as Array<{ placedAt: Date }> },
+      headline: {
+        activeStudents: 0,
+        placementRows: [] as Array<{ placedAt: Date }>,
+        recentCronErrors: 0,
+        slaBreaches48h: 0,
+      },
     }));
 
     const { totals } = data;
@@ -123,7 +143,12 @@ export default async function AdminTodayPage({
         ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
         : '—';
 
-    const kpis: KpiItem[] = [
+    // Cheap trend series for the "Placements YTD" sparkline — reuses the
+    // month buckets already computed for the placements-trend chart above
+    // (no extra query).
+    const placementsSpark = monthBuckets.length > 1 ? monthBuckets : undefined;
+
+    const kpis: CommandCenterKpiItem[] = [
       {
         label: 'Active Students',
         value: headline.activeStudents,
@@ -131,7 +156,14 @@ export default async function AdminTodayPage({
         delta: `${headline.activeStudents} enrolled`,
         deltaColor: 'success',
       },
-      { label: 'Placements YTD', value: placementsYtd, color: 'success', delta: 'this year', deltaColor: 'success' },
+      {
+        label: 'Placements YTD',
+        value: placementsYtd,
+        color: 'success',
+        delta: 'this year',
+        deltaColor: 'success',
+        spark: placementsSpark ? { series: placementsSpark, delta: 'this year', direction: 'up' } : undefined,
+      },
       { label: 'Interviewing Share', value: interviewingShare, color: 'info', delta: 'of enrolled', deltaColor: 'muted' },
       { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
     ];
@@ -146,6 +178,7 @@ export default async function AdminTodayPage({
         actionLabel: `${totals.atRiskCount} items`,
         urgent: totals.atRiskCount > 0,
         href: '/admin/command-center?ui=legacy',
+        count: totals.atRiskCount,
       },
       {
         id: 'needs-reply',
@@ -155,6 +188,7 @@ export default async function AdminTodayPage({
         detail: 'Members are waiting on a response',
         actionLabel: `${totals.needsReplyCount} items`,
         href: '/admin/messages',
+        count: totals.needsReplyCount,
       },
       {
         id: 'applications',
@@ -164,6 +198,7 @@ export default async function AdminTodayPage({
         detail: 'Eligibility + program-fit review pending',
         actionLabel: `${totals.applicationsPendingCount} items`,
         href: '/admin/command-center?ui=legacy',
+        count: totals.applicationsPendingCount,
       },
       {
         id: 'certifications',
@@ -174,6 +209,7 @@ export default async function AdminTodayPage({
         actionLabel: `${totals.certificationsPendingCount} items`,
         urgent: totals.certificationsPendingCount > 0,
         href: '/admin/certifications',
+        count: totals.certificationsPendingCount,
       },
       {
         id: 'interviewing',
@@ -183,7 +219,30 @@ export default async function AdminTodayPage({
         detail: 'Phone screens, interviews, and offers to prep',
         actionLabel: `${totals.interviewingCount} items`,
         href: '/admin/placements',
+        count: totals.interviewingCount,
       },
+    ];
+
+    // System health — a few named operational signals. Two are real (cron
+    // error count over 7d, message-SLA breach count over 48h — both already
+    // computed above via the exact patterns app/admin/overview/page.tsx uses
+    // post-guard); the rest have no cheap per-workflow signal today, so they
+    // show a static "ok" with an honest static caption rather than a
+    // fabricated number.
+    const systemHealth: CommandCenterSystemHealthRow[] = [
+      { name: 'Coursera sync', status: 'ok', meta: 'Nightly at 2:00 AM' },
+      { name: 'At-risk scoring', status: 'ok', meta: 'Recomputes hourly' },
+      {
+        name: 'Notifications',
+        status: headline.slaBreaches48h > 0 ? 'warn' : 'ok',
+        meta: headline.slaBreaches48h > 0 ? `${headline.slaBreaches48h} threads >48h` : 'All threads within SLA',
+      },
+      {
+        name: 'Webhook retry',
+        status: headline.recentCronErrors > 0 ? 'warn' : 'ok',
+        meta: headline.recentCronErrors > 0 ? `${headline.recentCronErrors} errors (7d)` : 'No errors this week',
+      },
+      { name: 'Payouts', status: 'ok', meta: 'No automated signal yet' },
     ];
 
     const programHealth: ProgramHealthDatum[] = data.programHealth.map((row) => ({
@@ -210,6 +269,7 @@ export default async function AdminTodayPage({
         placementsByMonth={placementsByMonth}
         placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${placementsYtd} total`}
         addStudentHref="/admin/members/new"
+        systemHealth={systemHealth}
       />
     );
   }

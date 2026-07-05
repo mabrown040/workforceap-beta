@@ -3,58 +3,129 @@
  *
  * These compose existing kit primitives + the .wa-kit-* token CSS to render the
  * mockup sections that have no standalone primitive yet:
- *   - <PartnerKpiGrid>      KPI stat tiles with subtitle/meta lines + accent bars
- *   - <PartnerAttentionCard> "Review member progress" accent CTA card
+ *   - <PartnerKpiGrid>          KPI tiles — StatSparkTile (icon + delta chip +
+ *     optional sparkline) with an optional muted subtitle line underneath.
+ *   - <PartnerReferralFunnel>   Referred → Enrolled → Placed funnel (RankBars).
+ *   - <PartnerPayoutLedger>     Payout history as a period/amount/status table.
+ *   - <PartnerAttentionCard>    "Review member progress" accent CTA card
  *   - <PartnerAssistantAccordion> collapsible Partner-assistant disclosure
- *   - <PartnerQuickActions> 3-up Quick Actions grid (Export / Refer / Milestones)
+ *   - <PartnerQuickActions>     3-up Quick Actions grid (Export / Refer / Milestones)
  *
- * Target mockup: docs/mockups/wa-v2-partner.html
- * No shared kit primitive is modified; StatTile is used as-is (delta = subtitle).
+ * Target mockup: docs/mockups/wa-v2-partner.html — elevated to the "Command
+ * Center" visual language shipped in MemberHomeKit (StatSparkTile, RankBars,
+ * DataTable). No shared kit primitive is modified; everything here composes
+ * `@/components/portal/kit` exports as-is.
  */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Lightbulb } from 'lucide-react';
-import { StatTile } from '@/components/portal/kit';
-import { colorVar, type KitColor } from '@/components/portal/kit/tokens';
+import type { LucideIcon } from 'lucide-react';
+import { ChevronRight, Lightbulb, Users } from 'lucide-react';
+import {
+  CardHead,
+  DataTable,
+  RankBars,
+  StatSparkTile,
+  StatusTag,
+  type KitColor,
+  type KitTone,
+  type SparkStat,
+} from '@/components/portal/kit';
 
-// ── KPI grid: StatTile (label/value/subtitle) + bottom accent bar ─────────────
+// ── KPI grid: StatSparkTile (icon + delta chip + optional sparkline) ──────────
 
 export interface PartnerKpiTile {
   label: string;
   value: string | number;
-  /** Subtitle/meta line under the value (rendered via StatTile delta slot). */
+  /** Muted meta line rendered under the tile card. Degrades gracefully when omitted. */
   subtitle?: string;
-  /** Value + accent-bar color. */
+  /** Icon chip + sparkline/value color. */
   color?: KitColor;
+  /** Icon chip glyph. Defaults to `Users` when omitted (keeps older callers rendering). */
+  icon?: LucideIcon;
+  /** Optional trend sparkline + delta chip. Omit to render the tile without either. */
+  spark?: SparkStat;
 }
 
 export function PartnerKpiGrid({ items }: { items: PartnerKpiTile[] }) {
   return (
     <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
       {items.map((it) => (
-        <div key={it.label} style={{ position: 'relative' }}>
-          <StatTile
+        <div key={it.label} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <StatSparkTile
+            icon={it.icon ?? Users}
             label={it.label}
             value={it.value}
             color={it.color ?? 'text'}
-            delta={it.subtitle}
-            deltaColor="muted"
+            spark={it.spark}
           />
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 4,
-              borderRadius: '0 0 var(--wa-radius-sm) var(--wa-radius-sm)',
-              background: it.color ? colorVar(it.color) : 'var(--wa-border)',
-            }}
-          />
+          {it.subtitle ? (
+            <div style={{ fontSize: 11, color: 'var(--wa-muted)', padding: '0 2px' }}>{it.subtitle}</div>
+          ) : null}
         </div>
       ))}
     </div>
+  );
+}
+
+// ── Referral funnel: Referred → Enrolled → Placed (RankBars) ──────────────────
+
+export interface PartnerFunnelStage {
+  label: string;
+  value: number | string;
+  /** 0–100 bar width, relative to the top of the funnel. */
+  pct: number;
+  color?: KitColor;
+}
+
+export function PartnerReferralFunnel({ stages }: { stages: PartnerFunnelStage[] }) {
+  return (
+    <div className="wa-kit-card">
+      <CardHead title="Referral funnel" />
+      <RankBars
+        data={stages.map((s) => ({ label: s.label, value: s.value, pct: s.pct, color: s.color ?? 'accent' }))}
+      />
+    </div>
+  );
+}
+
+// ── Payout ledger: period / amount / status table ─────────────────────────────
+
+export interface PartnerPayoutLedgerRow {
+  id: string;
+  /** Date or pay-period label, e.g. "6/2/2026". */
+  period: string;
+  /** Pre-formatted currency label, e.g. "$500". */
+  amount: string;
+  status: string;
+  /** StatusTag tone for the status pill. Defaults to 'ok' (paid/settled). */
+  statusTone?: KitTone;
+}
+
+export function PartnerPayoutLedger({ rows }: { rows: PartnerPayoutLedgerRow[] }) {
+  return (
+    <DataTable<PartnerPayoutLedgerRow>
+      columns={[
+        { key: 'period', header: 'Period' },
+        {
+          key: 'amount',
+          header: 'Amount',
+          align: 'right',
+          render: (r) => (
+            <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{r.amount}</span>
+          ),
+        },
+        {
+          key: 'status',
+          header: 'Status',
+          render: (r) => <StatusTag tone={r.statusTone ?? 'ok'}>{r.status}</StatusTag>,
+        },
+      ]}
+      rows={rows}
+      rowKey={(r) => r.id}
+      mobile="scroll"
+      emptyTitle="No payouts yet"
+      emptyDescription="Verified placements that generate a payout will appear here."
+    />
   );
 }
 

@@ -76,6 +76,11 @@ const TARGETS = [
   { name: 'member-program', path: '/dev/member/program' },
   { name: 'member-progress', path: '/dev/member/progress' },
   { name: 'member-toolkit', path: '/dev/member/toolkit' },
+  // Portal Command Centers (app/dev/staff/*-command showcase routes, mock data)
+  { name: 'admin-command', path: '/dev/staff/admin-command' },
+  { name: 'counselor-command', path: '/dev/staff/counselor-command' },
+  { name: 'employer-command', path: '/dev/staff/employer-command' },
+  { name: 'partner-command', path: '/dev/staff/partner-command' },
   // Staff kits (app/dev/staff/** showcase routes, mock data)
   { name: 'staff-partner', path: '/dev/staff/partner' },
   { name: 'staff-placements', path: '/dev/staff/placements' },

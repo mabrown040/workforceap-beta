@@ -19,7 +19,15 @@ export { FeatureTile } from './FeatureTile';
 export { QueueRow, type QueueTone } from './QueueRow';
 export { WorkQueueItem } from './WorkQueueItem';
 export { KanbanBoard, KanbanColumnHeader, type KanbanColumnData, type KanbanCardData } from './Kanban';
-export { BarChartMini, RankBars, type ChartDatum, type RankDatum } from './Charts';
+export { BarChartMini, RankBars, Sparkline, AreaChartMini, type ChartDatum, type RankDatum } from './Charts';
+export {
+  CardHead,
+  DeltaChip,
+  StatSparkTile,
+  StageTrack,
+  SegmentedProgress,
+  type SparkStat,
+} from './CommandCenter';
 export { FormField, Toggle } from './FormField';
 export { ChatThread, type ChatMessage } from './ChatThread';
 export { AppShellSidebar, type NavItem, type NavGroup } from './AppShellSidebar';

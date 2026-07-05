@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Info, Landmark, TrendingUp, TrendingDown, Minus, AlertTriangle, Headset } from 'lucide-react';
 import {
   ALL_CLIFF_SOURCES,
   BENEFITS_CLIFF_RULES_VERSION,
@@ -10,6 +11,7 @@ import {
   type CliffProgramId,
   type CliffResult,
 } from '@/lib/content/benefitsCliff';
+import { StatusTag, colorVar, type KitColor } from '@/components/portal/kit';
 
 const PROGRAM_OPTIONS: { id: CliffProgramId; labelKey: string }[] = [
   { id: 'snap', labelKey: 'programSnap' },
@@ -22,10 +24,10 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   minHeight: 48,
   padding: '0.55rem 0.75rem',
-  borderRadius: 10,
-  border: '1px solid var(--surface-container-high)',
-  background: 'var(--surface-container-lowest)',
-  color: 'var(--color-on-surface)',
+  borderRadius: 'var(--wa-radius-sm)',
+  border: '1px solid var(--wa-border)',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
   fontSize: '0.9rem',
   fontWeight: 600,
 };
@@ -35,8 +37,11 @@ const labelStyle: React.CSSProperties = {
   marginBottom: '0.35rem',
   fontSize: '0.85rem',
   fontWeight: 700,
-  color: 'var(--color-on-surface)',
+  color: 'var(--wa-text)',
 };
+
+const btnFocusClass =
+  'wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
 
 function money(n: number): string {
   const sign = n < 0 ? '-' : '';
@@ -79,39 +84,34 @@ export default function BenefitsCliffClient() {
   const verdictMeta =
     result &&
     {
-      better_off: { icon: 'trending_up', color: 'var(--color-green)', bg: 'color-mix(in srgb, var(--color-green) 10%, transparent)', title: t('verdictBetter') },
-      worse_off: { icon: 'trending_down', color: 'var(--color-accent)', bg: 'rgba(173,44,77,0.10)', title: t('verdictWorse') },
-      about_the_same: { icon: 'remove', color: 'var(--color-on-surface-variant)', bg: 'var(--surface-container-high)', title: t('verdictSame') },
+      better_off: { icon: TrendingUp, color: 'success' as KitColor, title: t('verdictBetter') },
+      worse_off: { icon: TrendingDown, color: 'accent' as KitColor, title: t('verdictWorse') },
+      about_the_same: { icon: Minus, color: 'muted' as KitColor, title: t('verdictSame') },
     }[result.verdict];
 
   return (
     <div style={{ display: 'grid', gap: '1rem' }}>
       {/* ── Disclaimer — always visible, before any inputs ── */}
       <div
-        className="portal-card portal-card--flat"
+        className="wa-kit-card wa-kit-card--sm"
         role="note"
-        style={{
-          padding: '0.9rem 1.1rem',
-          borderRadius: 14,
-          background: 'rgba(173,44,77,0.06)',
-          borderLeft: '4px solid var(--color-accent)',
-        }}
+        style={{ borderLeft: '4px solid var(--wa-accent)', display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}
       >
-        <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'flex', gap: '0.45rem', alignItems: 'flex-start' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: 'var(--color-accent)' }} aria-hidden>
-            info
-          </span>
-          {t('disclaimerTitle')}
-        </p>
-        <p style={{ margin: '0.35rem 0 0', fontSize: '0.82rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
-          {t('disclaimerBody')}
-        </p>
+        <Info size={18} color="var(--wa-accent)" aria-hidden style={{ flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-text)' }}>
+            {t('disclaimerTitle')}
+          </p>
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.82rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
+            {t('disclaimerBody')}
+          </p>
+        </div>
       </div>
 
       {/* ── Inputs ── */}
       <form
-        className="portal-card portal-card--flat"
-        style={{ padding: '1.1rem 1.25rem', borderRadius: 14, display: 'grid', gap: '0.9rem' }}
+        className="wa-kit-card"
+        style={{ display: 'grid', gap: '0.9rem' }}
         onSubmit={(e) => {
           e.preventDefault();
           setSubmitted(true);
@@ -128,6 +128,7 @@ export default function BenefitsCliffClient() {
               setHouseholdSize(e.target.value);
               setSubmitted(false);
             }}
+            className="wa-kit-focus"
             style={inputStyle}
           >
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
@@ -144,18 +145,19 @@ export default function BenefitsCliffClient() {
             {PROGRAM_OPTIONS.map((p) => (
               <label
                 key={p.id}
+                className="wa-kit-focus"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.6rem',
                   minHeight: 44,
                   padding: '0.35rem 0.6rem',
-                  borderRadius: 10,
-                  border: '1px solid var(--surface-container-high)',
-                  background: receives.includes(p.id) ? 'var(--surface-container-low)' : 'var(--surface-container-lowest)',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  border: '1px solid var(--wa-border)',
+                  background: receives.includes(p.id) ? 'color-mix(in srgb, var(--wa-accent) 6%, transparent)' : 'var(--wa-surface)',
                   fontSize: '0.88rem',
                   fontWeight: 600,
-                  color: 'var(--color-on-surface)',
+                  color: 'var(--wa-text)',
                   cursor: 'pointer',
                 }}
               >
@@ -187,9 +189,10 @@ export default function BenefitsCliffClient() {
               setCurrentEarnings(e.target.value);
               setSubmitted(false);
             }}
+            className="wa-kit-focus"
             style={inputStyle}
           />
-          <p style={{ margin: '0.3rem 0 0', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0.3rem 0 0', fontSize: '0.75rem', color: 'var(--wa-muted)' }}>
             {t('currentEarningsHint')}
           </p>
         </div>
@@ -211,6 +214,7 @@ export default function BenefitsCliffClient() {
                 setCurrentSnap(e.target.value);
                 setSubmitted(false);
               }}
+              className="wa-kit-focus"
               style={inputStyle}
             />
           </div>
@@ -233,6 +237,7 @@ export default function BenefitsCliffClient() {
                 setOfferWage(e.target.value);
                 setSubmitted(false);
               }}
+              className="wa-kit-focus"
               style={inputStyle}
               required
             />
@@ -253,6 +258,7 @@ export default function BenefitsCliffClient() {
                 setOfferHours(e.target.value);
                 setSubmitted(false);
               }}
+              className="wa-kit-focus"
               style={inputStyle}
               required
             />
@@ -261,47 +267,57 @@ export default function BenefitsCliffClient() {
 
         <button
           type="submit"
-          className="btn btn-primary"
           disabled={!canCompute}
-          style={{ minHeight: 48, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+          className={btnFocusClass}
+          style={{
+            minHeight: 48,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.4rem',
+            background: 'var(--wa-accent)',
+            color: 'var(--wa-on-accent)',
+            fontWeight: 700,
+            fontSize: 14,
+            borderRadius: 999,
+            border: 'none',
+            cursor: canCompute ? 'pointer' : 'not-allowed',
+            opacity: canCompute ? 1 : 0.6,
+          }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
-            account_balance
-          </span>
+          <Landmark size={17} aria-hidden />
           {t('computeCta')}
         </button>
         {receives.length === 0 && (
-          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-accent)' }}>{t('pickOneProgram')}</p>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--wa-accent)', fontWeight: 600 }}>{t('pickOneProgram')}</p>
         )}
       </form>
 
       {/* ── Result ── */}
       {result && verdictMeta && (
-        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16 }} aria-live="polite">
+        <div className="wa-kit-card" aria-live="polite">
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.6rem',
               padding: '0.85rem 1rem',
-              borderRadius: 12,
-              background: verdictMeta.bg,
+              borderRadius: 'var(--wa-radius-sm)',
+              background: `color-mix(in srgb, ${colorVar(verdictMeta.color)} 10%, transparent)`,
               marginBottom: '0.9rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.6rem', color: verdictMeta.color }} aria-hidden>
-              {verdictMeta.icon}
-            </span>
+            <verdictMeta.icon size={26} color={colorVar(verdictMeta.color)} aria-hidden />
             <div>
-              <p style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>{verdictMeta.title}</p>
-              <p style={{ margin: '0.15rem 0 0', fontSize: '0.85rem', fontWeight: 700, color: verdictMeta.color }}>
+              <p style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--wa-text)' }}>{verdictMeta.title}</p>
+              <p style={{ margin: '0.15rem 0 0', fontSize: '0.85rem', fontWeight: 700, color: colorVar(verdictMeta.color) }}>
                 {t('netChangeLine', { amount: money(result.netChangeMonthly) })}
               </p>
             </div>
           </div>
 
           {/* Plain-language explanation (deterministic, no AI) */}
-          <p style={{ margin: '0 0 0.9rem', fontSize: '0.88rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0 0 0.9rem', fontSize: '0.88rem', lineHeight: 1.55, color: 'var(--wa-muted)' }}>
             {t('explainLine', {
               earnings: money(result.earningsChangeMonthly),
               benefits: money(result.benefitsChangeMonthly),
@@ -321,35 +337,43 @@ export default function BenefitsCliffClient() {
                     alignItems: 'center',
                     gap: '0.75rem',
                     padding: '0.6rem 0.8rem',
-                    borderRadius: 10,
-                    border: '1px solid var(--surface-container-high)',
+                    borderRadius: 'var(--wa-radius-sm)',
+                    border: '1px solid var(--wa-border)',
                   }}
                 >
                   <div style={{ minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{label}</p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--wa-text)' }}>{label}</p>
                     {p.losesEligibility && (
-                      <p style={{ margin: '0.15rem 0 0', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }} aria-hidden>
-                          warning
-                        </span>
+                      <p style={{ margin: '0.15rem 0 0', fontSize: '0.75rem', fontWeight: 700, color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <AlertTriangle size={13} aria-hidden />
                         {p.kind === 'coverage' ? t('mayLoseCoverage') : t('mayLoseBenefit')}
                       </p>
                     )}
                   </div>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', color: p.kind === 'coverage' ? 'var(--color-on-surface-variant)' : p.changeMonthly < 0 ? 'var(--color-accent)' : 'var(--color-green)' }}>
-                    {p.kind === 'coverage'
-                      ? p.losesEligibility
-                        ? t('coverageAtRisk')
-                        : t('coverageKept')
-                      : t('perMonth', { amount: money(p.changeMonthly) })}
-                  </span>
+                  {p.kind === 'coverage' ? (
+                    <StatusTag tone={p.losesEligibility ? 'alert' : 'ok'}>
+                      {p.losesEligibility ? t('coverageAtRisk') : t('coverageKept')}
+                    </StatusTag>
+                  ) : (
+                    <span
+                      style={{
+                        fontSize: '0.88rem',
+                        fontWeight: 800,
+                        whiteSpace: 'nowrap',
+                        fontVariantNumeric: 'tabular-nums',
+                        color: p.changeMonthly < 0 ? 'var(--wa-accent)' : 'var(--wa-success)',
+                      }}
+                    >
+                      {t('perMonth', { amount: money(p.changeMonthly) })}
+                    </span>
+                  )}
                 </li>
               );
             })}
           </ul>
 
           {result.losesHealthCoverage && (
-            <p style={{ margin: '0.9rem 0 0', fontSize: '0.82rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+            <p style={{ margin: '0.9rem 0 0', fontSize: '0.82rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
               {t('coverageNote')}
             </p>
           )}
@@ -358,29 +382,40 @@ export default function BenefitsCliffClient() {
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
             <Link
               href="/dashboard/messages"
-              className="btn btn-primary"
-              style={{ minHeight: 48, flex: '1 1 220px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+              className={btnFocusClass}
+              style={{
+                minHeight: 48,
+                flex: '1 1 220px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                background: 'var(--wa-accent)',
+                color: 'var(--wa-on-accent)',
+                fontWeight: 700,
+                fontSize: 14,
+                borderRadius: 999,
+                textDecoration: 'none',
+              }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
-                support_agent
-              </span>
+              <Headset size={17} aria-hidden />
               {t('counselorCta')}
             </Link>
           </div>
-          <p style={{ margin: '0.75rem 0 0', fontSize: '0.78rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0.75rem 0 0', fontSize: '0.78rem', lineHeight: 1.5, color: 'var(--wa-muted)' }}>
             {t('counselorNote')}
           </p>
         </div>
       )}
 
       {/* ── Sources ── */}
-      <details className="portal-card portal-card--flat" style={{ padding: '0.9rem 1.1rem', borderRadius: 14 }}>
-        <summary style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-on-surface)', cursor: 'pointer' }}>
+      <details className="wa-kit-card wa-kit-card--sm">
+        <summary style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--wa-text)', cursor: 'pointer' }}>
           {t('sourcesTitle', { version: BENEFITS_CLIFF_RULES_VERSION })}
         </summary>
         <ul style={{ margin: '0.6rem 0 0', paddingLeft: '1.1rem', display: 'grid', gap: '0.35rem' }}>
           {ALL_CLIFF_SOURCES.map((s) => (
-            <li key={s.url + s.program} style={{ fontSize: '0.78rem', lineHeight: 1.45, color: 'var(--color-on-surface-variant)' }}>
+            <li key={s.url + s.program} style={{ fontSize: '0.78rem', lineHeight: 1.45, color: 'var(--wa-muted)' }}>
               <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
                 {s.program}
               </a>{' '}

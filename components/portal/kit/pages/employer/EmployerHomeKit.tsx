@@ -312,7 +312,7 @@ export function EmployerHomeKit({
         {/* 2. KPI row — icon chip + optional delta chip + sparkline. */}
         <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
           {kpiTiles.map((t) => (
-            <StatSparkTile key={t.key} icon={t.icon} label={t.label} value={t.value} color={t.color} spark={t.spark} />
+            <StatSparkTile key={t.key} icon={<t.icon size={16} />} label={t.label} value={t.value} color={t.color} spark={t.spark} />
           ))}
         </div>
 

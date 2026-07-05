@@ -181,15 +181,18 @@ function TriageSummary({ queue }: { queue: TriageQueue }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-3">
-        {priorityStats.map((p) => (
-          <StatSparkTile
-            key={p.key}
-            icon={PRIORITY_ICON[p.key]}
-            label={p.label}
-            value={p.value}
-            color={PRIORITY_STAT_COLOR[p.key]}
-          />
-        ))}
+        {priorityStats.map((p) => {
+          const Icon = PRIORITY_ICON[p.key];
+          return (
+            <StatSparkTile
+              key={p.key}
+              icon={<Icon size={16} />}
+              label={p.label}
+              value={p.value}
+              color={PRIORITY_STAT_COLOR[p.key]}
+            />
+          );
+        })}
       </div>
       <KpiStrip items={flagItems} cols={6} />
     </div>

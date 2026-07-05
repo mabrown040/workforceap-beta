@@ -313,7 +313,7 @@ export function CounselorHomeKit({
         {/* 2. KPI row */}
         <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
           {kpis.map((k) => (
-            <StatSparkTile key={k.key} icon={k.icon} label={k.label} value={k.value} color={k.color} spark={k.spark} />
+            <StatSparkTile key={k.key} icon={<k.icon size={16} />} label={k.label} value={k.value} color={k.color} spark={k.spark} />
           ))}
         </div>
 

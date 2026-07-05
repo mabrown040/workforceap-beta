@@ -460,16 +460,19 @@ export function CommandCenterKit({
         className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-5 wa-gap-3"
         style={{ marginBottom: 20 }}
       >
-        {kpis.map((it) => (
-          <StatSparkTile
-            key={it.label}
-            icon={resolveKpiIcon(it)}
-            label={it.label}
-            value={it.value}
-            color={it.color ?? 'accent'}
-            spark={kpiSpark(it)}
-          />
-        ))}
+        {kpis.map((it) => {
+          const Icon = resolveKpiIcon(it);
+          return (
+            <StatSparkTile
+              key={it.label}
+              icon={<Icon size={16} />}
+              label={it.label}
+              value={it.value}
+              color={it.color ?? 'accent'}
+              spark={kpiSpark(it)}
+            />
+          );
+        })}
       </div>
 
       {/* Two-column workspace: work queue (2/3) + program health (1/3). */}

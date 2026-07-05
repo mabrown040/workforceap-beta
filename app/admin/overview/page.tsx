@@ -410,7 +410,7 @@ export default async function AdminOverviewPage() {
           {metricCards.map((card) => (
             <Link key={card.label} href={card.href} className="wa-kit-focus" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
               <div style={{ position: 'relative' }}>
-                <StatSparkTile icon={card.icon} label={card.label} value={card.value} color={card.color} />
+                <StatSparkTile icon={<card.icon size={16} />} label={card.label} value={card.value} color={card.color} />
                 <ArrowUpRight
                   size={14}
                   aria-hidden

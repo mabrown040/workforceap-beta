@@ -18,7 +18,6 @@
  */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import type { LucideIcon } from 'lucide-react';
 import { ChevronRight, Lightbulb, Users } from 'lucide-react';
 import { Card } from '@astryxdesign/core/Card';
 import {
@@ -41,8 +40,12 @@ export interface PartnerKpiTile {
   subtitle?: string;
   /** Icon chip + sparkline/value color. */
   color?: KitColor;
-  /** Icon chip glyph. Defaults to `Users` when omitted (keeps older callers rendering). */
-  icon?: LucideIcon;
+  /**
+   * Rendered icon element, e.g. `<Users size={16} />` — not the bare component
+   * reference (StatSparkTile is a Client Component; a raw component ref can't
+   * cross a Server → Client boundary). Defaults to a `Users` icon when omitted.
+   */
+  icon?: ReactNode;
   /** Optional trend sparkline + delta chip. Omit to render the tile without either. */
   spark?: SparkStat;
 }
@@ -53,7 +56,7 @@ export function PartnerKpiGrid({ items }: { items: PartnerKpiTile[] }) {
       {items.map((it) => (
         <div key={it.label} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <StatSparkTile
-            icon={it.icon ?? Users}
+            icon={it.icon ?? <Users size={16} />}
             label={it.label}
             value={it.value}
             color={it.color ?? 'text'}

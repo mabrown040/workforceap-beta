@@ -23,6 +23,8 @@ import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { Breadcrumbs, BreadcrumbItem } from '@astryxdesign/core/Breadcrumbs';
 import { Pagination } from '@astryxdesign/core/Pagination';
 import { Avatar } from '@astryxdesign/core/Avatar';
+import ThemeSelector from '@/components/theme/ThemeSelector';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 
 const MD_SAMPLE = `**Interview prep plan**
 
@@ -48,6 +50,19 @@ export default function AstryxComponentsSampler() {
           <BreadcrumbItem href="/dev/astryx" as={Link as never}>Astryx Lab</BreadcrumbItem>
           <BreadcrumbItem isCurrent>Components</BreadcrumbItem>
         </Breadcrumbs>
+      </VStack>
+      <Divider />
+
+      <VStack gap={3}>
+        <Heading level={3}>Production components (as shipped)</Heading>
+        <Text type="supporting">
+          The real ThemeSelector (SegmentedControl — switching Dark here flips the whole app) and
+          the real PortalBreadcrumb (Astryx Breadcrumbs) used by PageHeader across 140 portal pages.
+        </Text>
+        <ThemeSelector />
+        <PortalBreadcrumb
+          items={[{ href: '/dev/astryx', label: 'Career Toolkit' }, { href: '/dev/astryx', label: 'Resume Studio' }, { label: 'Score' }]}
+        />
       </VStack>
       <Divider />
 

@@ -10,8 +10,6 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import * as stylex from '@stylexjs/stylex';
-
 import {
   Layout,
   LayoutHeader,
@@ -229,8 +227,12 @@ const DRAG_THRESHOLD = 5;
 const COLUMN_WIDTH = 300;
 
 // ============= STYLES =============
+// Converted from the template's stylex.create block to plain style objects:
+// this app doesn't run the StyleX compiler (@stylexjs/babel-plugin), and raw
+// stylex.create throws at runtime. The one lost nicety is the card :hover
+// shadow, reinstated via the small <style> tag in the page root.
 
-const styles = stylex.create({
+const styles = {
   boardColumns: {
     overflowX: 'auto',
     overflowY: 'hidden',
@@ -247,9 +249,6 @@ const styles = stylex.create({
     userSelect: 'none',
     touchAction: 'none',
     transition: 'box-shadow 120ms ease',
-    ':hover': {
-      boxShadow: 'var(--shadow-med)',
-    },
   },
   // The dragged card is lifted out of flow and follows the pointer. It ignores
   // pointer events so hit-testing reads the columns underneath it.
@@ -262,16 +261,6 @@ const styles = stylex.create({
     boxShadow: 'var(--shadow-high)',
     zIndex: 1000,
   },
-  floatingAt: (x: number, y: number, width: number) => ({
-    width,
-    transform: `translate(${x}px, ${y}px)`,
-  }),
-  // Placeholder marking the landing slot; matches the dragged card's height.
-  ghost: (height: number) => ({
-    height,
-    borderRadius: 'var(--radius-container)',
-    backgroundColor: 'var(--color-background-muted)',
-  }),
   toolbarDivider: {
     height: 'auto',
     marginBlock: 'var(--spacing-1)',
@@ -280,6 +269,19 @@ const styles = stylex.create({
   columnEmptyState: {
     paddingBlock: 'var(--spacing-10)',
   },
+} satisfies Record<string, React.CSSProperties>;
+
+const floatingAt = (x: number, y: number, width: number): React.CSSProperties => ({
+  ...styles.floating,
+  width,
+  transform: `translate(${x}px, ${y}px)`,
+});
+
+// Placeholder marking the landing slot; matches the dragged card's height.
+const ghostStyle = (height: number): React.CSSProperties => ({
+  height,
+  borderRadius: 'var(--radius-container)',
+  backgroundColor: 'var(--color-background-muted)',
 });
 
 // ============= CARD BODY =============
@@ -349,7 +351,7 @@ function BoardCard({
     <Card
       ref={cardRef}
       padding={3}
-      xstyle={styles.card}
+      style={styles.card} className="astryx-kanban-card"
       onPointerDown={e => onPointerDown(e, item.id)}>
       <BoardCardBody item={item} onMove={onMove} />
     </Card>
@@ -370,7 +372,7 @@ function BoardColumn({
   children: ReactNode;
 }) {
   return (
-    <Card variant="muted" padding={0} xstyle={styles.columnShell}>
+    <Card variant="muted" padding={0} style={styles.columnShell}>
       <Layout
         height="fill"
         header={
@@ -401,7 +403,7 @@ function BoardColumn({
             {children ?? (
               <EmptyState
                 isCompact
-                xstyle={styles.columnEmptyState}
+                style={styles.columnEmptyState}
                 icon={
                   <Icon icon={meta.emptyIcon} size="lg" color="secondary" />
                 }
@@ -629,7 +631,7 @@ export default function KanbanBoardTemplate() {
       nodes.splice(
         index,
         0,
-        <VStack key="drag-ghost" xstyle={styles.ghost(ghostTarget.height)} />,
+        <VStack key="drag-ghost" style={ghostStyle(ghostTarget.height)} />,
       );
     }
 
@@ -638,6 +640,8 @@ export default function KanbanBoardTemplate() {
 
   return (
     <Section height="100dvh">
+      {/* Hover shadow lost in the stylex → plain-style conversion */}
+      <style>{`.astryx-kanban-card:hover { box-shadow: var(--shadow-med); }`}</style>
       <Layout
         height="fill"
         header={
@@ -668,7 +672,7 @@ export default function KanbanBoardTemplate() {
                   <Divider
                     variant="strong"
                     orientation="vertical"
-                    xstyle={styles.toolbarDivider}
+                    style={styles.toolbarDivider}
                   />
                   <HStack gap={1} vAlign="center">
                     <IconButton
@@ -696,7 +700,7 @@ export default function KanbanBoardTemplate() {
         }
         content={
           <LayoutContent padding={0}>
-            <HStack gap={4} xstyle={styles.boardColumns}>
+            <HStack gap={4} style={styles.boardColumns}>
               {COLUMNS.map(meta => (
                 <BoardColumn
                   key={meta.id}
@@ -713,14 +717,11 @@ export default function KanbanBoardTemplate() {
       {drag && draggedItem ? (
         <Card
           padding={3}
-          xstyle={[
-            styles.floating,
-            styles.floatingAt(
-              drag.pointerX - drag.offsetX,
-              drag.pointerY - drag.offsetY,
-              drag.width,
-            ),
-          ]}>
+          style={floatingAt(
+            drag.pointerX - drag.offsetX,
+            drag.pointerY - drag.offsetY,
+            drag.width,
+          )}>
           <BoardCardBody item={draggedItem} onMove={() => {}} />
         </Card>
       ) : null}

@@ -1,14 +1,16 @@
 import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   DataTable,
   Avatar,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -22,7 +24,7 @@ import {
  * stacks on phones instead of squishing.
  */
 
-/** Determination drives the StatusTag tone + label in the table. */
+/** Determination drives the Token color + label in the table. */
 export type WioaDetermination = 'Eligible' | 'Pending' | 'Needs docs' | 'Not eligible' | 'Unreviewed';
 
 export interface WioaScreeningRow {
@@ -36,7 +38,7 @@ export interface WioaScreeningRow {
   docs: string;
   /** Whether docs are outstanding (drives the docs cell color). */
   docsComplete: boolean;
-  /** Staff determination → StatusTag. */
+  /** Staff determination → Token color. */
   determination: WioaDetermination;
   /** Reviewing staff name or "—". */
   reviewer: string;
@@ -56,12 +58,12 @@ export interface WioaScreeningKitProps {
   notEligible: number;
 }
 
-const DETERMINATION_TONE: Record<WioaDetermination, KitTone> = {
-  Eligible: 'ok',
-  Pending: 'warn',
-  'Needs docs': 'alert',
-  'Not eligible': 'muted',
-  Unreviewed: 'info',
+const DETERMINATION_COLOR: Record<WioaDetermination, TokenColor> = {
+  Eligible: 'green',
+  Pending: 'yellow',
+  'Needs docs': 'pink',
+  'Not eligible': 'gray',
+  Unreviewed: 'blue',
 };
 
 export function WioaScreeningKit({
@@ -121,7 +123,7 @@ export function WioaScreeningKit({
       key: 'determination',
       header: 'Determination',
       render: (row) => (
-        <StatusTag tone={DETERMINATION_TONE[row.determination]}>{row.determination}</StatusTag>
+        <Token label={row.determination} size="sm" color={DETERMINATION_COLOR[row.determination]} />
       ),
     },
     {
@@ -134,24 +136,9 @@ export function WioaScreeningKit({
       header: '',
       align: 'right',
       render: (row) => (
-        <Link
-          href={`/admin/members/${row.id}`}
-          className="wa-kit-focus"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '6px 14px',
-            borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 700,
-            textDecoration: 'none',
-            color: 'var(--wa-text)',
-            border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Open
-        </Link>
+        <AstryxLink href={`/admin/members/${row.id}`} as={Link as never} isStandalone>
+          <Button label="Open" variant="secondary" size="sm" />
+        </AstryxLink>
       ),
     },
   ];
@@ -163,24 +150,9 @@ export function WioaScreeningKit({
         kicker="Compliance"
         goal="WIOA screening & compliance"
         action={
-          <a
-            href="/admin/wioa-screening?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Review queue
-          </a>
+          <AstryxLink href="/admin/wioa-screening?ui=legacy" as={Link as never} isStandalone>
+            <Button label="Review queue" variant="secondary" size="sm" />
+          </AstryxLink>
         }
       />
 
@@ -195,7 +167,7 @@ export function WioaScreeningKit({
         minWidth={680}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -208,27 +180,10 @@ export function WioaScreeningKit({
                 <StudentCell row={row} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                <StatusTag tone={DETERMINATION_TONE[row.determination]}>
-                  {row.determination}
-                </StatusTag>
-                <Link
-                  href={`/admin/members/${row.id}`}
-                  className="wa-kit-focus"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '6px 12px',
-                    borderRadius: 999,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                    color: 'var(--wa-text)',
-                    border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Open
-                </Link>
+                <Token label={row.determination} size="sm" color={DETERMINATION_COLOR[row.determination]} />
+                <AstryxLink href={`/admin/members/${row.id}`} as={Link as never} isStandalone>
+                  <Button label="Open" variant="secondary" size="sm" />
+                </AstryxLink>
               </div>
             </div>
             <div
@@ -256,7 +211,7 @@ export function WioaScreeningKit({
                 Reviewer <b style={{ color: 'var(--wa-text)' }}>{row.reviewer}</b>
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No screenings yet"
         emptyDescription="Members who complete the WIOA self-screening will appear here for review."

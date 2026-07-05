@@ -49,7 +49,7 @@ export default function CourseraAccountLinkCard({ portalEmail, initialCourseraEm
     <section className="portal-card portal-card--flat" style={{ borderLeft: '4px solid var(--color-green)' }}>
       <div className="portal-card__body" style={{ display: 'grid', gap: '0.875rem' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', '--ms-fill': 1, fontSize: '1.35rem' } as object}>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ color: 'var(--color-green)', '--ms-fill': 1, fontSize: '1.35rem' } as object}>
             account_circle
           </span>
           <div>
@@ -83,8 +83,10 @@ export default function CourseraAccountLinkCard({ portalEmail, initialCourseraEm
           </label>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem', alignItems: 'center' }}>
-            <button type="submit" className="btn btn-outline btn-sm" disabled={saving || !normalizedEmail}>
-              {saving ? 'Saving…' : savedEmail ? 'Update Coursera email' : 'Save Coursera email'}
+            <button type="submit" className="btn btn-outline btn-sm" disabled={saving || !normalizedEmail} aria-busy={saving}>
+              <span aria-live="polite">
+                {saving ? 'Saving…' : savedEmail ? 'Update Coursera email' : 'Save Coursera email'}
+              </span>
             </button>
             <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.825rem' }}>
               Portal email: {portalEmail}

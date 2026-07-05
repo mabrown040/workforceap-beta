@@ -27,3 +27,7 @@
 ## 2024-06-20 - Redundant aria-label on aria-live copy buttons
 **Learning:** Found instances where custom copy buttons had a visually hidden `aria-label` attribute alongside an inner `aria-live` region containing dynamic state text (e.g., changing from "📋 Copy" to "✓ Copied!"). The outer `aria-label` can overshadow the inner live region, preventing screen readers from announcing the dynamic status update.
 **Action:** When implementing custom copy buttons that utilize an inner `<span aria-live="polite">` element to announce a "Copied!" state, remove any static or conditionally rendered `aria-label` from the parent `<button>` element.
+
+## 2026-06-26 - Accessible states for account linking cards
+**Learning:** Found that the Coursera Account Link card's save button did not announce its saving state to screen readers because it lacked an `aria-live` region around its dynamic text. In addition, its static decorative icon lacked `aria-hidden=\"true\"`, which could lead to screen readers announcing the raw ligature text (like `account_circle`).
+**Action:** Followed the established pattern to wrap dynamically changing button text (`Saving...`) in an `<span aria-live=\"polite\">`, append `aria-busy` to the wrapping button, and apply `aria-hidden=\"true\"` to decorative material icons.

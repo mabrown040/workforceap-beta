@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import CounselorNotificationCenter from '@/components/portal/counselor/CounselorNotificationCenter';
 
 export default async function CounselorNotificationsPage() {
@@ -34,8 +34,16 @@ export default async function CounselorNotificationsPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title={t('notificationCenter')} subtitle={t('notificationCenterSubtitle')} />
-      <CounselorNotificationCenter members={members} />
+      <DesignSurface surface="dense">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <SectionHeader
+            kicker="Counselor"
+            title={t('notificationCenter')}
+            goal={t('notificationCenterSubtitle')}
+          />
+          <CounselorNotificationCenter members={members} />
+        </div>
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

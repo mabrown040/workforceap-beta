@@ -3,6 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import {
+  TriangleAlert,
+  FileWarning,
+  Clock,
+  MailWarning,
+  CheckCheck,
+  CheckCircle2,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 import type { InboxZeroFlagType, InboxZeroQueue, InboxZeroRow } from '@/lib/counselor/inboxZero';
@@ -12,6 +21,7 @@ import {
   type FollowUpTemplateId,
 } from '@/lib/counselor/templates';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { SectionHeader, QueueRow, StatusTag, FormField, type QueueTone } from '@/components/portal/kit';
 
 type Props = { initialQueue: InboxZeroQueue };
 type CounselorOption = { userId: string; fullName: string };
@@ -22,6 +32,26 @@ const INBOX_FLAG_LABELS: Record<InboxZeroFlagType, string> = {
   application_stalled: 'Application stalled 5+ days',
   at_risk: 'At-risk alert open',
   last_contact: 'No counselor contact 7+ days',
+};
+
+/** priorityRank (0 = highest) -> triage tone, same red/yellow/blue vocabulary as CounselorHomeKit's queue. */
+const RANK_TONE: QueueTone[] = ['red', 'yellow', 'blue'];
+const RANK_FLAG: Array<string | undefined> = ['Urgent', 'Watch', undefined];
+
+const FLAG_ICON: Record<InboxZeroFlagType, LucideIcon> = {
+  at_risk: TriangleAlert,
+  doc_missing: FileWarning,
+  application_stalled: Clock,
+  last_contact: MailWarning,
+};
+
+const inputStyle: React.CSSProperties = {
+  fontSize: 13,
+  padding: '0.45rem 0.6rem',
+  borderRadius: 'var(--wa-radius-sm)',
+  border: '1px solid var(--wa-border)',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
 };
 
 export default function InboxZeroClient({ initialQueue }: Props) {
@@ -177,11 +207,7 @@ export default function InboxZeroClient({ initialQueue }: Props) {
       <PortalEmptyState
         title={t('inboxZeroClearTitle')}
         description={t('inboxZeroClearDesc')}
-        icon={
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-green)' }} aria-hidden="true">
-            done_all
-          </span>
-        }
+        icon={<CheckCheck size={28} aria-hidden style={{ color: 'var(--wa-success)' }} />}
         primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
         secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
       />
@@ -192,21 +218,20 @@ export default function InboxZeroClient({ initialQueue }: Props) {
     <>
       {selectedIds.size > 0 ? (
         <div
-          className="content-card"
+          className="wa-kit-card"
           style={{
             position: 'sticky',
             top: 0,
             zIndex: 20,
-            padding: '0.75rem 1rem',
-            marginBottom: '1rem',
             display: 'flex',
             flexWrap: 'wrap',
             gap: '0.75rem',
             alignItems: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            marginBottom: '1rem',
+            boxShadow: 'var(--wa-shadow-lg)',
           }}
         >
-          <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+          <span style={{ fontWeight: 700, fontSize: 13, fontVariantNumeric: 'tabular-nums' }}>
             {t('inboxZeroBulkSelected', { count: selectedIds.size })}
           </span>
           <select
@@ -214,7 +239,8 @@ export default function InboxZeroClient({ initialQueue }: Props) {
             onChange={(e) => setTemplateId(e.target.value as FollowUpTemplateId | '')}
             disabled={busy}
             aria-label={t('inboxZeroBulkTemplateLabel')}
-            style={{ fontSize: '0.85rem', padding: '0.35rem 0.5rem', maxWidth: 220 }}
+            className="wa-kit-focus"
+            style={{ ...inputStyle, maxWidth: 220 }}
           >
             <option value="">{t('inboxZeroBulkTemplatePlaceholder')}</option>
             {applicableTemplates.map((tpl) => (
@@ -232,7 +258,8 @@ export default function InboxZeroClient({ initialQueue }: Props) {
             onChange={(e) => setReassignCounselorId(e.target.value)}
             disabled={busy}
             aria-label={t('inboxZeroBulkReassignLabel')}
-            style={{ fontSize: '0.85rem', padding: '0.35rem 0.5rem', maxWidth: 200 }}
+            className="wa-kit-focus"
+            style={{ ...inputStyle, maxWidth: 200 }}
           >
             <option value="">{t('inboxZeroBulkReassignPlaceholder')}</option>
             {counselors.map((c) => (
@@ -252,37 +279,41 @@ export default function InboxZeroClient({ initialQueue }: Props) {
       ) : null}
 
       {resultMsg ? (
-        <p style={{ margin: '0 0 1rem', padding: '0.6rem 0.75rem', background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', borderRadius: 6, fontSize: '0.85rem' }}>
-          {resultMsg}
-        </p>
+        <div
+          className="wa-kit-card wa-kit-card--sm"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1rem', background: 'var(--wa-success-soft, color-mix(in srgb, var(--wa-success) 12%, transparent))' }}
+        >
+          <CheckCircle2 size={16} aria-hidden style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-text)' }}>{resultMsg}</p>
+        </div>
       ) : null}
-      {error ? <p style={{ margin: '0 0 1rem', color: 'var(--color-accent)', fontSize: '0.85rem' }}>{error}</p> : null}
+      {error ? (
+        <p style={{ margin: '0 0 1rem', color: 'var(--wa-danger)', fontSize: '0.85rem', fontWeight: 600 }}>{error}</p>
+      ) : null}
 
-      <div className="content-card" style={{ padding: '1rem 1.25rem', marginBottom: '1rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={selectedIds.size === queue.rows.length}
-            ref={(el) => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < queue.rows.length; }}
-            onChange={toggleSelectAll}
-            aria-label={t('inboxZeroSelectAll')}
-          />
-          {t('inboxZeroSelectAll')}
-        </label>
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
-          {t('inboxZeroCount', { count: queue.rows.length })}
-        </p>
-        {queue.totals.dismissedToday > 0 ? (
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            {t('inboxZeroDismissedToday', { count: queue.totals.dismissedToday })}
-          </p>
-        ) : null}
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-          {t('inboxZeroSortHint')}
-        </p>
-      </div>
+      <SectionHeader
+        title={t('inboxZero')}
+        goal={`${t('inboxZeroCount', { count: queue.rows.length })}${queue.totals.dismissedToday > 0 ? ` · ${t('inboxZeroDismissedToday', { count: queue.totals.dismissedToday })}` : ''}`}
+        action={
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: 13, fontWeight: 700, cursor: 'pointer', color: 'var(--wa-text)' }}>
+            <input
+              type="checkbox"
+              checked={selectedIds.size === queue.rows.length}
+              ref={(el) => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < queue.rows.length; }}
+              onChange={toggleSelectAll}
+              aria-label={t('inboxZeroSelectAll')}
+              className="wa-kit-focus"
+              style={{ width: 16, height: 16, accentColor: 'var(--wa-accent)', cursor: 'pointer' }}
+            />
+            {t('inboxZeroSelectAll')}
+          </label>
+        }
+      />
+      <p style={{ margin: '-0.75rem 0 1rem', fontSize: 12, color: 'var(--wa-muted)' }}>
+        {t('inboxZeroSortHint')}
+      </p>
 
-      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.75rem' }}>
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.6rem' }}>
         {queue.rows.map((row) => (
           <InboxZeroRowCard
             key={row.memberId}
@@ -347,22 +378,30 @@ function DismissModal({
       style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.45)', padding: '1rem' }}
       onClick={onClose}
     >
-      <div className="content-card" style={{ maxWidth: 480, width: '100%', padding: '1.25rem' }} onClick={(e) => e.stopPropagation()}>
-        <h2 id="inbox-dismiss-title" style={{ margin: '0 0 0.5rem', fontSize: '1.1rem' }}>{title}</h2>
-        <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('inboxZeroDismissDesc')}</p>
-        <label htmlFor="inbox-dismiss-note" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-          {t('inboxZeroDismissNoteLabel')}
-        </label>
-        <textarea
-          id="inbox-dismiss-note"
-          value={note}
-          onChange={(e) => onNoteChange(e.target.value)}
-          rows={4}
-          maxLength={1000}
-          placeholder={t('inboxZeroDismissNotePlaceholder')}
-          style={{ width: '100%', padding: '0.6rem', borderRadius: 6, border: '1px solid var(--color-outline-variant)', fontSize: '0.9rem', resize: 'vertical' }}
-        />
-        {error ? <p style={{ margin: '0.5rem 0 0', color: 'var(--color-accent)', fontSize: '0.85rem' }}>{error}</p> : null}
+      <div className="wa-kit-card" style={{ maxWidth: 480, width: '100%' }} onClick={(e) => e.stopPropagation()}>
+        <h2 id="inbox-dismiss-title" style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', color: 'var(--wa-text)' }}>{title}</h2>
+        <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--wa-muted)' }}>{t('inboxZeroDismissDesc')}</p>
+        <FormField label={t('inboxZeroDismissNoteLabel')} full>
+          <textarea
+            value={note}
+            onChange={(e) => onNoteChange(e.target.value)}
+            rows={4}
+            maxLength={1000}
+            placeholder={t('inboxZeroDismissNotePlaceholder')}
+            style={{
+              marginTop: 4,
+              width: '100%',
+              padding: '0.6rem',
+              borderRadius: 'var(--wa-radius-sm)',
+              border: '1px solid var(--wa-border)',
+              background: 'var(--wa-surface)',
+              color: 'var(--wa-text)',
+              fontSize: '0.9rem',
+              resize: 'vertical',
+            }}
+          />
+        </FormField>
+        {error ? <p style={{ margin: '0.5rem 0 0', color: 'var(--wa-danger)', fontSize: '0.85rem' }}>{error}</p> : null}
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', justifyContent: 'flex-end' }}>
           <button type="button" className="btn btn-muted" disabled={busy} onClick={onClose}>{t('cancel')}</button>
           <button type="button" className="btn btn-primary" disabled={busy || !note.trim()} onClick={onConfirm}>
@@ -391,56 +430,59 @@ function InboxZeroRowCard({
   const programLabel = row.enrolledProgram
     ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram
     : t('notEnrolled');
-  const priorityColor =
-    row.priorityRank === 0 ? 'var(--color-accent, #b00020)'
-      : row.priorityRank === 1 ? 'var(--color-gold, #b07d2c)'
-        : 'var(--color-blue, #1f6feb)';
+  const rankIndex = Math.min(row.priorityRank, RANK_TONE.length - 1);
+  const tone = RANK_TONE[rankIndex];
+  const flag = RANK_FLAG[rankIndex];
+  const Icon = FLAG_ICON[row.primaryFlag];
   const metadata = formatRowMetadata(row);
+  const meta = [row.memberEmail, programLabel, INBOX_FLAG_LABELS[row.primaryFlag], metadata]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <li
-      className="content-card"
       style={{
-        padding: '0.75rem 1rem',
-        borderLeft: `4px solid ${priorityColor}`,
-        background: selected ? 'color-mix(in srgb, var(--color-accent) 6%, var(--color-surface))' : undefined,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 10,
+        borderRadius: 'var(--wa-radius-sm)',
+        background: selected ? 'color-mix(in srgb, var(--wa-accent) 6%, transparent)' : undefined,
       }}
     >
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', gap: '0.65rem', minWidth: 0, flex: 1 }}>
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={onToggleSelect}
-            aria-label={t('inboxZeroSelectMember', { name: row.memberName })}
-            style={{ width: 44, height: 44, margin: '-10px 0', flexShrink: 0, cursor: 'pointer' }}
-          />
-          <div style={{ minWidth: 0 }}>
-            <Link href={`/counselor/students/${row.memberId}`} style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}>
-              {row.memberName}
-            </Link>
-            <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-              {row.memberEmail} · {programLabel}
-            </p>
-            <p style={{ margin: '0.4rem 0 0', fontSize: '0.85rem' }}>
-              <strong>{INBOX_FLAG_LABELS[row.primaryFlag]}</strong>
-              {metadata ? <span style={{ color: 'var(--color-on-surface-variant)' }}> · {metadata}</span> : null}
-            </p>
-            {row.additionalFlags.length > 0 ? (
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                {t('inboxZeroAlso')}: {row.additionalFlags.map((f) => INBOX_FLAG_LABELS[f]).join(' · ')}
-              </p>
-            ) : null}
+      <input
+        type="checkbox"
+        checked={selected}
+        onChange={onToggleSelect}
+        aria-label={t('inboxZeroSelectMember', { name: row.memberName })}
+        className="wa-kit-focus"
+        style={{ width: 18, height: 18, marginTop: 12, flexShrink: 0, cursor: 'pointer', accentColor: 'var(--wa-accent)' }}
+      />
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <QueueRow
+          tone={tone}
+          icon={<Icon size={16} aria-hidden />}
+          title={row.memberName}
+          meta={meta}
+          flag={flag}
+          action={
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+              <Link href={`/counselor/students/${row.memberId}`} className="btn btn-sm btn-secondary" style={{ textDecoration: 'none' }}>
+                {t('openMember')}
+              </Link>
+              <button type="button" className="btn btn-sm btn-muted" disabled={dismissing} onClick={onDismiss}>
+                {dismissing ? t('saving') : t('inboxZeroDismiss')}
+              </button>
+            </div>
+          }
+        />
+        {row.additionalFlags.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, paddingLeft: 50, fontSize: 11, color: 'var(--wa-muted)' }}>
+            <span>{t('inboxZeroAlso')}:</span>
+            {row.additionalFlags.map((f) => (
+              <StatusTag key={f} tone="muted">{INBOX_FLAG_LABELS[f]}</StatusTag>
+            ))}
           </div>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Link href={`/counselor/students/${row.memberId}`} className="btn btn-muted" style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}>
-            {t('openMember')}
-          </Link>
-          <button type="button" className="btn btn-muted" style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }} disabled={dismissing} onClick={onDismiss}>
-            {dismissing ? t('saving') : t('inboxZeroDismiss')}
-          </button>
-        </div>
+        ) : null}
       </div>
     </li>
   );

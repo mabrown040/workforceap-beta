@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { TriangleAlert, Clock, CheckCircle2, RotateCcw } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -11,29 +13,59 @@ import {
   FLAG_LABELS,
   type TriageRow,
   type TriageQueue,
-  type TriageFlagType,
 } from '@/lib/counselor/triageFlags';
 import { listTemplates, NUDGE_TEMPLATES, renderNudge } from '@/lib/counselor/nudgeTemplates';
 import TriageNudgePanel from '@/components/portal/counselor/TriageNudgePanel';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { statusColor } from '@/lib/ui/statusColors';
+import {
+  DesignSurface,
+  SectionHeader,
+  QueueRow,
+  StatusTag,
+  StatSparkTile,
+  KpiStrip,
+  type KitColor,
+  type KitTone,
+  type KpiItem,
+} from '@/components/portal/kit';
 
 export const dynamic = 'force-dynamic';
 
-const PRIORITY_DESCRIPTIONS = {
-  red: 'Urgent - requires action today.',
-  yellow: 'Watch - touch base this week.',
-  blue: 'Celebrate - reinforce a recent win.',
-} as const;
+type Priority = 'red' | 'yellow' | 'blue';
 
-// Priority dots/chips map onto lib/ui/statusColors.ts tones (red = danger,
-// yellow = warning, blue = info) so they agree with StatusBadge and
-// AtRiskDashboard's RISK_CONFIG elsewhere in the counselor lane.
-const PRIORITY_COLORS = {
-  red: statusColor('danger').fg,
-  yellow: statusColor('warning').fg,
-  blue: statusColor('info').fg,
-} as const;
+// Priority visuals follow the same red=urgent / yellow=watch / blue=celebrate
+// language as the counselor "Needs attention" queue on the caseload home
+// (components/portal/kit/pages/counselor/CounselorHomeKit.tsx), so this page
+// reads as the same surface instead of a one-off.
+const PRIORITY_DESCRIPTIONS: Record<Priority, string> = {
+  red: 'Urgent — requires action today.',
+  yellow: 'Watch — touch base this week.',
+  blue: 'Celebrate — reinforce a recent win.',
+};
+
+const PRIORITY_ICON: Record<Priority, LucideIcon> = {
+  red: TriangleAlert,
+  yellow: Clock,
+  blue: CheckCircle2,
+};
+
+const PRIORITY_TAG_LABEL: Record<Priority, string> = {
+  red: 'Urgent',
+  yellow: 'Watch',
+  blue: 'Celebrate',
+};
+
+const PRIORITY_TAG_TONE: Record<Priority, KitTone> = {
+  red: 'alert',
+  yellow: 'warn',
+  blue: 'info',
+};
+
+const PRIORITY_STAT_COLOR: Record<Priority, KitColor> = {
+  red: 'accent',
+  yellow: 'gold',
+  blue: 'info',
+};
 
 export default async function CounselorTriagePage() {
   const user = await getUser();
@@ -84,178 +116,98 @@ export default async function CounselorTriagePage() {
         ]}
       />
 
-      <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem', display: 'grid', gap: '1.5rem' }}>
-        <SummaryCard queue={queue} />
-        <PriorityBucket priority="red" rows={queue.red} />
-        <PriorityBucket priority="yellow" rows={queue.yellow} />
-        <PriorityBucket priority="blue" rows={queue.blue} />
-
-        {loadError ? (
-          <div
-            className="content-card"
-            style={{
-              padding: '1rem 1.25rem',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--outline-variant)',
-              borderLeft: `4px solid ${statusColor('danger').fg}`,
-              background: 'var(--surface-container-low)',
-            }}
-          >
-            <p style={{ margin: 0, fontWeight: 600, color: statusColor('danger').fg }}>
-              {t('couldntLoadTriageQueue')}
-            </p>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-              {t('triageQueueLoadErrorDesc')}
-            </p>
-          </div>
-        ) : queue.totals.total === 0 ? (
-          <PortalEmptyState
-            title={t('queueIsClear')}
-            description={t('queueIsClearDesc')}
-            icon={
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '2rem', color: 'var(--color-green)' }}
-                aria-hidden="true"
-              >
-                done_all
-              </span>
-            }
-            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
-            secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
-          />
-        ) : null}
+      <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
+        <DesignSurface surface="dense">
+          {loadError ? (
+            <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+              <TriangleAlert
+                size={28}
+                aria-hidden
+                style={{ color: 'var(--wa-accent)', display: 'block', margin: '0 auto 1rem' }}
+              />
+              <h3 style={{ fontWeight: 700, fontSize: 18, marginBottom: 8, color: 'var(--wa-text)' }}>
+                {t('couldntLoadTriageQueue')}
+              </h3>
+              <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginBottom: 20 }}>
+                {t('triageQueueLoadErrorDesc')}
+              </p>
+              <Link href="/counselor/triage" className="btn btn-primary">
+                <RotateCcw size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                {t('retry')}
+              </Link>
+            </div>
+          ) : queue.totals.total === 0 ? (
+            <PortalEmptyState
+              title={t('queueIsClear')}
+              description={t('queueIsClearDesc')}
+              icon={<CheckCircle2 size={28} aria-hidden style={{ color: 'var(--wa-success)' }} />}
+              primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+              secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
+            />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <SectionHeader
+                title={t('triageQueueTitle')}
+                goal={`${queue.totals.total} member${queue.totals.total === 1 ? '' : 's'} in the queue right now — each shown once, at their highest-priority flag.`}
+              />
+              <TriageSummary queue={queue} />
+              <PriorityBucket priority="red" rows={queue.red} />
+              <PriorityBucket priority="yellow" rows={queue.yellow} />
+              <PriorityBucket priority="blue" rows={queue.blue} />
+            </div>
+          )}
+        </DesignSurface>
       </section>
     </PortalPageFrame>
   );
 }
 
-function SummaryCard({ queue }: { queue: TriageQueue }) {
-  const counts: Array<{ label: string; value: number; key: TriageFlagType }> = [
-    { label: 'No activity 10+ days', value: queue.totals.byFlag.no_activity_10d, key: 'no_activity_10d' },
-    { label: 'SLA breach (48h+)', value: queue.totals.byFlag.sla_breach_48h, key: 'sla_breach_48h' },
-    { label: 'SLA warning (24h+)', value: queue.totals.byFlag.sla_warning_24h, key: 'sla_warning_24h' },
-    { label: 'Stale training', value: queue.totals.byFlag.stale_training, key: 'stale_training' },
-    { label: 'Computer support follow-up', value: queue.totals.byFlag.computer_support_followup, key: 'computer_support_followup' },
-    { label: 'Milestone celebrate', value: queue.totals.byFlag.milestone_reached, key: 'milestone_reached' },
+function TriageSummary({ queue }: { queue: TriageQueue }) {
+  const priorityStats: Array<{ key: Priority; label: string; value: number }> = [
+    { key: 'red', label: PRIORITY_TAG_LABEL.red, value: queue.totals.red },
+    { key: 'yellow', label: PRIORITY_TAG_LABEL.yellow, value: queue.totals.yellow },
+    { key: 'blue', label: PRIORITY_TAG_LABEL.blue, value: queue.totals.blue },
+  ];
+
+  const flagItems: KpiItem[] = [
+    { label: 'No activity 10+ days', value: queue.totals.byFlag.no_activity_10d },
+    { label: 'SLA breach (48h+)', value: queue.totals.byFlag.sla_breach_48h },
+    { label: 'SLA warning (24h+)', value: queue.totals.byFlag.sla_warning_24h },
+    { label: 'Stale training', value: queue.totals.byFlag.stale_training },
+    { label: 'Computer support follow-up', value: queue.totals.byFlag.computer_support_followup },
+    { label: 'Milestone celebrate', value: queue.totals.byFlag.milestone_reached },
   ];
 
   return (
-    <div
-      className="content-card"
-      style={{
-        padding: '1rem 1.25rem',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--outline-variant)',
-        background: 'var(--surface-container-low)',
-      }}
-    >
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <div>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
-            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{queue.totals.total}</span> member{queue.totals.total === 1 ? '' : 's'} in the queue right now
-          </p>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            Each member appears once at their highest-priority flag. Multi-flag members show their other flags inline.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <PriorityChip color={PRIORITY_COLORS.red} label="Red" count={queue.totals.red} />
-          <PriorityChip color={PRIORITY_COLORS.yellow} label="Yellow" count={queue.totals.yellow} />
-          <PriorityChip color={PRIORITY_COLORS.blue} label="Blue" count={queue.totals.blue} />
-        </div>
-      </div>
-
-      <div
-        style={{
-          marginTop: '0.75rem',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '0.5rem',
-        }}
-      >
-        {counts.map((c) => (
-          <div
-            key={c.key}
-            style={{
-              padding: '0.5rem 0.75rem',
-              borderRadius: 6,
-              background: 'var(--surface-container-high)',
-              fontSize: '0.8rem',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <span style={{ color: 'var(--color-on-surface-variant)' }}>{c.label}</span>
-            <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{c.value}</strong>
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-3">
+        {priorityStats.map((p) => (
+          <StatSparkTile
+            key={p.key}
+            icon={PRIORITY_ICON[p.key]}
+            label={p.label}
+            value={p.value}
+            color={PRIORITY_STAT_COLOR[p.key]}
+          />
         ))}
       </div>
+      <KpiStrip items={flagItems} cols={6} />
     </div>
   );
 }
 
-function PriorityChip({ color, label, count }: { color: string; label: string; count: number }) {
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.25rem 0.6rem',
-        borderRadius: 999,
-        background: `color-mix(in srgb, ${color} 15%, transparent)`,
-        color,
-        fontSize: '0.8rem',
-        fontWeight: 600,
-      }}
-    >
-      <span
-        aria-hidden
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          background: color,
-          display: 'inline-block',
-        }}
-      />
-      {label} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{count}</span>
-    </span>
-  );
-}
-
-function PriorityBucket({ priority, rows }: { priority: 'red' | 'yellow' | 'blue'; rows: TriageRow[] }) {
+function PriorityBucket({ priority, rows }: { priority: Priority; rows: TriageRow[] }) {
   if (rows.length === 0) return null;
 
   return (
-    <div
-      className="content-card"
-      style={{
-        padding: '1rem 1.25rem',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--outline-variant)',
-        background: 'var(--surface-container-low)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-        <span
-          aria-hidden
-          style={{
-            width: 10,
-            height: 10,
-            borderRadius: '50%',
-            background: PRIORITY_COLORS[priority],
-            display: 'inline-block',
-          }}
-        />
-        <h2 style={{ margin: 0, fontSize: '1.05rem', textTransform: 'capitalize' }}>{priority} · {rows.length}</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+        <StatusTag tone={PRIORITY_TAG_TONE[priority]}>{PRIORITY_TAG_LABEL[priority]}</StatusTag>
+        <span className="wa-kit-stat-label">
+          {rows.length} member{rows.length === 1 ? '' : 's'}
+        </span>
       </div>
-      <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-        {PRIORITY_DESCRIPTIONS[priority]}
-      </p>
+      <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-muted)' }}>{PRIORITY_DESCRIPTIONS[priority]}</p>
       <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.75rem' }}>
         {rows.map((row) => (
           <TriageRowCard key={row.memberId} row={row} priority={priority} />
@@ -265,7 +217,7 @@ function PriorityBucket({ priority, rows }: { priority: 'red' | 'yellow' | 'blue
   );
 }
 
-function TriageRowCard({ row, priority }: { row: TriageRow; priority: 'red' | 'yellow' | 'blue' }) {
+function TriageRowCard({ row, priority }: { row: TriageRow; priority: Priority }) {
   const programLabelText = row.enrolledProgram
     ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram
     : 'Not enrolled';
@@ -295,60 +247,60 @@ function TriageRowCard({ row, priority }: { row: TriageRow; priority: 'red' | 'y
       }),
     }));
 
-  return (
-    <li
-      style={{
-        padding: '0.75rem',
-        borderRadius: 8,
-        background: 'var(--surface-container)',
-        border: '1px solid var(--outline-variant)',
-      }}
-    >
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ minWidth: 0 }}>
-          <Link
-            href={`/counselor/students/${row.memberId}`}
-            style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}
-          >
-            {row.memberName}
-          </Link>
-          <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            {row.memberEmail} · {programLabelText}
-          </p>
-          <p style={{ margin: '0.4rem 0 0', fontSize: '0.85rem' }}>
-            <strong>{FLAG_LABELS[row.primaryFlag]}</strong>
-            <RowMetadataInline row={row} />
-          </p>
-          {row.additionalFlags.length > 0 ? (
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-              Also: {row.additionalFlags.map((f) => FLAG_LABELS[f]).join(' · ')}
-            </p>
-          ) : null}
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {row.context.threadId ? (
-            <Link
-              href={`/counselor/messages?thread=${row.context.threadId}`}
-              className="btn btn-muted"
-              style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
-            >
-              Open thread
-            </Link>
-          ) : null}
-        </div>
-      </div>
+  const Icon = PRIORITY_ICON[priority];
+  const metaDetail = rowMetadataText(row);
+  const meta = metaDetail ? `${FLAG_LABELS[row.primaryFlag]} · ${metaDetail}` : FLAG_LABELS[row.primaryFlag];
 
-      <TriageNudgePanel
-        memberId={row.memberId}
-        memberName={row.memberName}
-        templates={templates}
-        milestone={row.context.milestoneEventName ? milestoneText : null}
+  return (
+    <li style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+      <QueueRow
+        tone={priority}
+        icon={<Icon size={16} aria-hidden />}
+        title={row.memberName}
+        meta={meta}
+        flag={PRIORITY_TAG_LABEL[priority]}
+        action={
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {row.context.threadId ? (
+              <Link
+                href={`/counselor/messages?thread=${row.context.threadId}`}
+                className="btn btn-sm btn-secondary"
+                style={{ fontSize: 11, textDecoration: 'none' }}
+              >
+                Open thread
+              </Link>
+            ) : null}
+            <Link
+              href={`/counselor/students/${row.memberId}`}
+              className="btn btn-sm btn-secondary"
+              style={{ fontSize: 11, textDecoration: 'none' }}
+            >
+              View
+            </Link>
+          </div>
+        }
       />
+      <div style={{ paddingLeft: 50, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        <p style={{ margin: 0, fontSize: 12, color: 'var(--wa-muted)' }}>
+          {row.memberEmail} · {programLabelText}
+        </p>
+        {row.additionalFlags.length > 0 ? (
+          <p style={{ margin: 0, fontSize: 11, color: 'var(--wa-muted)' }}>
+            Also: {row.additionalFlags.map((f) => FLAG_LABELS[f]).join(' · ')}
+          </p>
+        ) : null}
+        <TriageNudgePanel
+          memberId={row.memberId}
+          memberName={row.memberName}
+          templates={templates}
+          milestone={row.context.milestoneEventName ? milestoneText : null}
+        />
+      </div>
     </li>
   );
 }
 
-function RowMetadataInline({ row }: { row: TriageRow }) {
+function rowMetadataText(row: TriageRow): string | undefined {
   const parts: string[] = [];
   if (row.context.daysInactive !== undefined) parts.push(`${row.context.daysInactive}d inactive`);
   if (row.context.hoursWaiting !== undefined) parts.push(`${row.context.hoursWaiting}h waiting`);
@@ -360,8 +312,7 @@ function RowMetadataInline({ row }: { row: TriageRow }) {
     parts.push(`stale ${days}d`);
   }
   if (row.context.lastMessagePreview) parts.push(`"${row.context.lastMessagePreview}"`);
-  if (parts.length === 0) return null;
-  return <span style={{ color: 'var(--color-on-surface-variant)' }}> · {parts.join(' · ')}</span>;
+  return parts.length > 0 ? parts.join(' · ') : undefined;
 }
 
 // Suppress unused warnings; templates referenced for type completeness.

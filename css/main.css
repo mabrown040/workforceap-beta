@@ -536,8 +536,17 @@ textarea.portal-input,
     text-overflow: ellipsis;
 }
 
-/* Reset & Base */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Reset & Base.
+   The universal reset lives in the `reset` cascade layer (shared with
+   @astryxdesign/core/reset.css) so it stays below the Astryx component layer
+   (`astryx-base`): unlayered `* { margin: 0 }` would otherwise override every
+   layered Astryx declaration (e.g. dialog `margin: auto` centering), because
+   unlayered author styles always beat layered ones regardless of specificity.
+   App styles with any real selector already out-competed this zero-specificity
+   rule, so moving it into the layer changes nothing else. */
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
 button, input, select, textarea { font-family: inherit; }
 html {
     scroll-behavior: smooth;

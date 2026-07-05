@@ -4,7 +4,9 @@
  * VoiceStudioKit — Voice AI + Career Studio (HIGHEST-PRIORITY page).
  *
  * Faithful port of docs/mockups/workforceap-voice-studio.html onto the portal
- * design kit (warm surface + tokens + wa-kit-* + wa- utilities + lucide icons).
+ * design kit (warm surface + tokens + wa-kit-* + wa- utilities + lucide icons),
+ * with shared primitives from @astryxdesign/core (SegmentedControl, Card,
+ * Button, Token, StatusDot) for tabs, badges, and actions.
  *
  * Four tabs, switched in local state:
  *   coaches  → Voice Coaches hub        (default)
@@ -24,6 +26,13 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token } from '@astryxdesign/core/Token';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
+import { HStack } from '@astryxdesign/core/Layout';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   Mic,
   MicOff,
@@ -50,7 +59,6 @@ import {
   ArrowRight,
   Upload,
   Play,
-  Circle,
   FlaskConical,
   AlertTriangle,
   type LucideIcon,
@@ -176,7 +184,6 @@ export function VoiceStudioKit({
   initialAgent,
 }: VoiceStudioKitProps) {
   const [tab, setTab] = useState<StudioTab>(initialTab);
-  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const fallbackAgent: SessionAgentConfig = {
     label: 'Mock Interview',
@@ -192,32 +199,6 @@ export function VoiceStudioKit({
   const pickAgent = (next: SessionAgentConfig) => {
     setAgent(next);
     setTab('session');
-  };
-
-  // Roving-tabindex keyboard nav for the custom tablist (WAI-ARIA tabs
-  // pattern): arrow keys move focus AND activate the tab; Home/End jump to
-  // the ends. Mirrors the existing click-to-activate behavior.
-  const focusTabAt = (index: number) => {
-    const count = TABS.length;
-    const next = ((index % count) + count) % count;
-    setTab(TABS[next].id);
-    tabRefs.current[next]?.focus();
-  };
-
-  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      focusTabAt(index + 1);
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      focusTabAt(index - 1);
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      focusTabAt(0);
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      focusTabAt(TABS.length - 1);
-    }
   };
 
   return (
@@ -270,63 +251,17 @@ export function VoiceStudioKit({
               </div>
             </div>
 
-            <div
-              role="tablist"
-              aria-label="Voice studio sections"
-              style={{
-                display: 'flex',
-                flexWrap: 'nowrap',
-                alignItems: 'center',
-                gap: 6,
-                overflowX: 'auto',
-                scrollbarWidth: 'none',
-                scrollSnapType: 'x proximity',
-                overscrollBehaviorX: 'contain',
-                touchAction: 'pan-x',
-                background: '#262626',
-                borderRadius: 12,
-                padding: 4,
-                border: '1px solid #404040',
-                maxWidth: '100%',
-              }}
+            <SegmentedControl
+              value={tab}
+              onChange={(v) => setTab(v as StudioTab)}
+              label="Voice studio sections"
+              size="sm"
+              layout="hug"
             >
-              {TABS.map((t, i) => {
-                const on = tab === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    ref={(el) => {
-                      tabRefs.current[i] = el;
-                    }}
-                    id={`vs-tab-${t.id}`}
-                    role="tab"
-                    aria-selected={on}
-                    aria-controls={`vs-panel-${t.id}`}
-                    tabIndex={on ? 0 : -1}
-                    onClick={() => setTab(t.id)}
-                    onKeyDown={(e) => handleTabKeyDown(e, i)}
-                    className={`wa-kit-focus${on ? '' : ' vs-tab-btn'}`}
-                    style={{
-                      minHeight: 44,
-                      padding: '8px 12px',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      borderRadius: 8,
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: on ? 'var(--wa-accent)' : 'transparent',
-                      color: on ? 'var(--wa-on-accent)' : '#a3a3a3',
-                      whiteSpace: 'nowrap',
-                      flex: '0 0 auto',
-                      scrollSnapAlign: 'start',
-                      transition: 'background-color 150ms ease',
-                    }}
-                  >
-                    {t.label}
-                  </button>
-                );
-              })}
-            </div>
+              {TABS.map((t) => (
+                <SegmentedControlItem key={t.id} value={t.id} label={t.label} />
+              ))}
+            </SegmentedControl>
           </div>
         </header>
 
@@ -486,37 +421,25 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
             Real-time spoken coaching. Your program context is included automatically.
           </p>
         </div>
-        <div
+        <HStack
+          gap={2}
+          align="center"
           style={{
             padding: '6px 12px',
             background: 'var(--wa-surface)',
             border: '1px solid var(--wa-border)',
             borderRadius: 999,
-            fontSize: 11,
-            fontWeight: 700,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
           }}
         >
-          <Circle size={7} fill="var(--wa-success)" color="var(--wa-success)" aria-hidden="true" />
-          Live voice · ~5 min
-        </div>
+          <StatusDot variant="success" label="Live voice session available" isPulsing />
+          <Token label="Live voice · ~5 min" size="sm" color="green" />
+        </HStack>
       </div>
 
-      <div
-        style={{
-          background: 'var(--wa-surface)',
-          border: '1px solid var(--wa-border)',
-          borderRadius: 16,
-          padding: '12px 16px',
-          fontSize: 12,
-          color: 'var(--wa-muted)',
-        }}
-      >
+      <Card>
         <strong style={{ color: 'var(--wa-text)' }}>Pick a coach for what you need right now.</strong>{' '}
         Each live session uses your program context automatically, so you can talk through next steps without setup.
-      </div>
+      </Card>
 
       <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-5">
         {COACH_CARDS.map((c) => (
@@ -534,7 +457,6 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
   const isLightBody = variant === 'counselor' || variant === 'gold-light';
   let cardStyle: React.CSSProperties;
   let iconChip: React.CSSProperties;
-  let badgeStyle: React.CSSProperties;
   let bodyColor: string;
   let ctaColor: string | undefined;
 
@@ -542,33 +464,28 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
     case 'gold':
       cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-gold), var(--wa-gold-dark))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.28)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       ctaColor = undefined;
       break;
     case 'crimson':
       cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.28)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       break;
     case 'crimson-deep':
       cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent-dark), color-mix(in srgb, var(--wa-accent-dark) 70%, black))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.28)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       break;
     case 'counselor':
       cardStyle = { background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
       iconChip = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)', border: '1px solid var(--wa-border)' };
-      badgeStyle = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)' };
       bodyColor = 'var(--wa-muted)';
       ctaColor = 'var(--wa-info)';
       break;
     case 'dark':
       cardStyle = { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)' };
       iconChip = { background: 'var(--wa-accent)' };
-      badgeStyle = { background: 'rgba(255,255,255,0.18)' };
       bodyColor = 'rgba(255,255,255,0.9)';
       break;
     case 'gold-light':
@@ -579,7 +496,6 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
       // the gold identity carries through the icon chip + badge.
       cardStyle = { background: 'var(--wa-gold-soft)', border: '1px solid var(--wa-border)', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
       iconChip = { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)', border: '1px solid var(--wa-border)' };
-      badgeStyle = { background: 'var(--wa-surface)', color: 'var(--wa-gold)' };
       bodyColor = 'var(--wa-muted)';
       ctaColor = 'var(--wa-text)';
       break;
@@ -604,18 +520,7 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
         <div style={{ padding: 12, borderRadius: 16, display: 'inline-flex', ...iconChip }}>
           <Icon size={20} aria-hidden="true" />
         </div>
-        <span
-          style={{
-            padding: '3px 11px',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            borderRadius: 999,
-            ...badgeStyle,
-          }}
-        >
-          {badge}
-        </span>
+        <Token label={badge} size="sm" color="gray" />
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>
@@ -1364,7 +1269,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
           >
             <FlaskConical size={13} aria-hidden="true" />
             Career Studio
-            <span style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 4, fontSize: 8 }}>BETA</span>
+            <Token label="BETA" size="sm" color="gray" />
           </div>
           <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
             Resume Studio
@@ -1375,28 +1280,14 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               : 'Add your resume to get an instant structural read, full AI scoring, and rewrites.'}
           </p>
         </div>
-        <Link
-          href={hasResume ? TOOL_HREF['resume-studio'] + '?view=score' : TOOL_HREF['resume-studio']}
-          className="vs-focus-dark vs-btn-solid"
-          style={{
-            padding: '12px 20px',
-            background: '#fff',
-            color: 'var(--wa-accent)',
-            fontWeight: 700,
-            fontSize: 14,
-            borderRadius: 999,
-            border: 'none',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            textDecoration: 'none',
-          }}
-        >
-          <Upload size={14} aria-hidden="true" />
-          {hasResume ? 'Open full analysis' : 'Add résumé'}
-        </Link>
+        <AstryxLink href={hasResume ? TOOL_HREF['resume-studio'] + '?view=score' : TOOL_HREF['resume-studio']} as={Link as never} isStandalone>
+          <Button
+            label={hasResume ? 'Open full analysis' : 'Add résumé'}
+            variant="primary"
+            size="sm"
+            icon={<Upload size={14} aria-hidden="true" />}
+          />
+        </AstryxLink>
       </div>
 
       {hasResume && score !== null ? (
@@ -1404,10 +1295,8 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
           {/* score + fixes */}
           <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
             {/* real structural score ring */}
-            <div
-              className="wa-kit-card"
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-            >
+            <Card>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <h3 style={{ fontWeight: 800, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
                 Structure Score
               </h3>
@@ -1435,16 +1324,16 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>
                 {band?.label}. This is the instant structural read — run the full AI analysis for market &amp; skills-match scoring.
               </p>
-            </div>
+              </div>
+            </Card>
 
             {/* real top fixes */}
-            <div className="wa-kit-card lg:wa-col-span-2">
+            <div className="lg:wa-col-span-2">
+            <Card>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>Top Fixes</h3>
                 {issues.length > 0 ? (
-                  <span style={{ padding: '2px 10px', borderRadius: 999, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', fontSize: 10, fontWeight: 700 }}>
-                    {issues.length} found
-                  </span>
+                  <Token label={`${issues.length} found`} size="sm" color="pink" />
                 ) : null}
               </div>
               {issues.length > 0 ? (
@@ -1466,59 +1355,30 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                   </div>
                 </div>
               )}
+            </Card>
             </div>
           </div>
 
           {/* go-deeper CTA + voice card */}
           <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
-            <div className="wa-kit-card lg:wa-col-span-2" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="lg:wa-col-span-2">
+            <Card>
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Take it further</h3>
               <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
                 The full AI analysis scores your resume against live job-market keywords and O*NET skills coverage, then
                 rewrites weak bullets to lead with measurable impact.
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
-                <Link
-                  href={TOOL_HREF['resume-studio'] + '?view=score'}
-                  className="wa-kit-focus vs-btn-solid"
-                  style={{
-                    padding: '10px 18px',
-                    background: 'var(--wa-accent)',
-                    color: '#fff',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    borderRadius: 999,
-                    border: 'none',
-                    cursor: 'pointer',
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <Sparkles size={14} aria-hidden="true" />
-                  Run full analysis
-                </Link>
-                <Link
-                  href={TOOL_HREF['resume-rewriter']}
-                  className="wa-kit-focus vs-btn-solid"
-                  style={{
-                    padding: '10px 18px',
-                    background: 'transparent',
-                    border: '1px solid var(--wa-border)',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    borderRadius: 999,
-                    cursor: 'pointer',
-                    color: 'var(--wa-text)',
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  Rewrite a bullet
-                </Link>
+                <AstryxLink href={TOOL_HREF['resume-studio'] + '?view=score'} as={Link as never} isStandalone>
+                  <Button label="Run full analysis" variant="primary" size="sm" icon={<Sparkles size={14} aria-hidden="true" />} />
+                </AstryxLink>
+                <AstryxLink href={TOOL_HREF['resume-rewriter']} as={Link as never} isStandalone>
+                  <Button label="Rewrite a bullet" variant="secondary" size="sm" />
+                </AstryxLink>
               </div>
+              </div>
+            </Card>
             </div>
 
             {/* Crimson "Talk it through" voice card → unified Resume Coach session */}
@@ -1599,58 +1459,32 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
 function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
   const { title, detail } = issue;
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 12,
-        padding: 14,
-        background: 'var(--wa-bg)',
-        border: '1px solid var(--wa-border)',
-        borderRadius: 16,
-      }}
-    >
-      <div
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: 999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          background: 'var(--wa-accent-soft)',
-          color: 'var(--wa-accent)',
-        }}
-      >
-        <Sparkles size={13} aria-hidden="true" />
+    <Card>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            background: 'var(--wa-accent-soft)',
+            color: 'var(--wa-accent)',
+          }}
+        >
+          <Sparkles size={13} aria-hidden="true" />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
+          <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{detail}</div>
+        </div>
+        <AstryxLink href={TOOL_HREF['resume-rewriter']} as={Link as never} isStandalone>
+          <Button label="Fix with AI" variant="primary" size="sm" />
+        </AstryxLink>
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
-        <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{detail}</div>
-      </div>
-      <Link
-        href={TOOL_HREF['resume-rewriter']}
-        className="wa-kit-focus vs-btn-solid"
-        style={{
-          padding: '6px 12px',
-          background: 'var(--wa-accent)',
-          color: '#fff',
-          fontWeight: 600,
-          fontSize: 10,
-          borderRadius: 999,
-          border: 'none',
-          cursor: 'pointer',
-          flexShrink: 0,
-          textDecoration: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        Fix with AI
-      </Link>
-    </div>
+    </Card>
   );
 }
 

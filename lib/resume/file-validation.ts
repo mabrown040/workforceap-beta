@@ -95,18 +95,21 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
 
   try {
     const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
-    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
-    const eocdOffset = findEocd(buf, view);
+    const isArrayBuffer = buf.buffer instanceof ArrayBuffer || (typeof SharedArrayBuffer !== 'undefined' && buf.buffer instanceof SharedArrayBuffer);
+    const arr = isArrayBuffer ? buf : new Uint8Array(buf);
+
+    const view = new DataView(arr.buffer, arr.byteOffset, arr.byteLength);
+    const eocdOffset = findEocd(arr, view);
     if (eocdOffset < 0) return false;
 
     // EOCD must have at least 22 bytes available
-    if (eocdOffset + 22 > buf.length) return false;
+    if (eocdOffset + 22 > arr.length) return false;
 
     const cdOffset = view.getUint32(eocdOffset + 16, true);
     const cdSize = view.getUint32(eocdOffset + 12, true);
     const totalEntries = view.getUint16(eocdOffset + 10, true);
 
-    if (cdOffset >= buf.length || cdOffset + cdSize > buf.length) {
+    if (cdOffset >= arr.length || cdOffset + cdSize > arr.length) {
       return false;
     }
 
@@ -130,7 +133,7 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
       const nameEnd = nameStart + nameLen;
       if (nameEnd > cdEnd) break;
 
-      const nameBytes = new Uint8Array(buf.buffer, buf.byteOffset + nameStart, nameLen);
+      const nameBytes = new Uint8Array(arr.buffer, arr.byteOffset + nameStart, nameLen);
       let name = '';
       if (typeof TextDecoder !== 'undefined') {
         name = new TextDecoder('utf-8').decode(nameBytes);

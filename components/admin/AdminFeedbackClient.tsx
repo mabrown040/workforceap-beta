@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { Pagination } from '@astryxdesign/core/Pagination';
 
 const FEEDBACK_TYPES = [
   { value: '', label: 'All types' },
@@ -252,20 +253,18 @@ export default function AdminFeedbackClient() {
             })}
           </div>
 
-          {/* Pagination */}
-          {total > take && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-              <button onClick={() => setSkip((s) => Math.max(0, s - take))} disabled={skip === 0} className="btn btn-ghost btn-sm">
-                Previous
-              </button>
-              <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', alignSelf: 'center' }}>
-                {skip + 1}–{Math.min(skip + take, total)} of {total}
-              </span>
-              <button onClick={() => setSkip((s) => s + take)} disabled={skip + take >= total} className="btn btn-ghost btn-sm">
-                Next
-              </button>
-            </div>
-          )}
+          {total > take ? (
+            <nav style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }} aria-label="Feedback pagination">
+              <Pagination
+                variant="count"
+                page={Math.floor(skip / take) + 1}
+                totalItems={total}
+                pageSize={take}
+                onChange={(page) => setSkip((page - 1) * take)}
+                label="Feedback pagination"
+              />
+            </nav>
+          ) : null}
         </>
       )}
     </div>

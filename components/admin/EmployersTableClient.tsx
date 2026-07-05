@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AdminEmployerTierSelect from '@/app/admin/employers/AdminEmployerTierSelect';
@@ -8,6 +8,7 @@ import EmployerStatusButton from '@/app/admin/employers/EmployerStatusButton';
 import OpenEmployerPortalButton from '@/app/admin/employers/OpenEmployerPortalButton';
 import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 import DataTable from '@/components/portal/ui/DataTable';
+import PortalPagination from '@/components/portal/PortalPagination';
 import { statusColor } from '@/lib/ui/statusColors';
 
 export type EmployerTableRow = {
@@ -381,42 +382,12 @@ export default function EmployersTableClient({
         />
       </div>
 
-      {/* Pagination — outside the desktop-only wrapper so it also pages the mobile cards. */}
-      {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage <= 1}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
-            .map((page, i, pages) => (
-              <Fragment key={page}>
-                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
-                <button
-                  type="button"
-                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
-                  onClick={() => goToPage(page)}
-                  aria-current={page === currentPage ? 'page' : undefined}
-                >
-                  {page}
-                </button>
-              </Fragment>
-            ))}
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <PortalPagination
+        page={currentPage}
+        totalPages={totalPages}
+        onChange={goToPage}
+        label="Employers pagination"
+      />
     </>
   );
 }

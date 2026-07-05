@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle } from 'lucide-react';
@@ -12,6 +12,7 @@ import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
 import ConfirmDialog from './ConfirmDialog';
+import PortalPagination from '@/components/portal/PortalPagination';
 
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
@@ -1118,42 +1119,12 @@ export default function MembersTable({
         </div>
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="admin-members-pagination" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage <= 1}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2)
-            .map((page, i, pages) => (
-              <Fragment key={page}>
-                {i > 0 && page - pages[i - 1] > 1 ? <span aria-hidden="true" style={{ alignSelf: 'center', color: 'var(--color-on-surface-variant)' }}>…</span> : null}
-                <button
-                  type="button"
-                  className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
-                  onClick={() => goToPage(page)}
-                  aria-current={page === currentPage ? 'page' : undefined}
-                >
-                  {page}
-                </button>
-              </Fragment>
-            ))}
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <PortalPagination
+        page={currentPage}
+        totalPages={totalPages}
+        onChange={goToPage}
+        label="Members pagination"
+      />
 
       <BulkEmailModal
         open={showEmailModal}

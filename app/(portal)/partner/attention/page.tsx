@@ -4,11 +4,11 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
-import PageHeader from '@/components/portal/PageHeader';
 import PartnerAttentionClient from '@/components/partner/PartnerAttentionClient';
 import PartnerWorkflowTimeline from '@/components/partner/PartnerWorkflowTimeline';
 import { listPartnerWorkflowEvents } from '@/lib/portal/workflowEvents';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -47,15 +47,15 @@ export default async function PartnerAttentionPage({
 
   return (
     <PortalPageFrame>
-      <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
-        <PageHeader
+      <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6 wa-pb-24 md:wa-pb-8">
+        <SectionHeader
+          kicker="Partner Portal"
           title="Attention Queue"
-          subtitle="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
-          breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Attention Queue' }]}
+          goal="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
         />
         <PartnerWorkflowTimeline events={events} />
         <PartnerAttentionClient initialTier={initialTier} />
-      </div>
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

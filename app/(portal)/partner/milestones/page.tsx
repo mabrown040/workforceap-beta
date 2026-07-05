@@ -4,10 +4,10 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
-import PageHeader from '@/components/portal/PageHeader';
 import PartnerMilestonesView from '@/components/partner/PartnerMilestonesView';
 import PartnerMilestonesMobile from '@/components/partner/PartnerMilestonesMobile';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -26,25 +26,22 @@ export default async function PartnerMilestonesPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader
-        title="Milestones"
-        subtitle={
-          <>
-            <span className="wa-block md:wa-hidden">Review member certificates, placements, and progress events.</span>
-            <span className="wa-hidden md:wa-block">Recent certificates, placements, and milestone events across your referrals.</span>
-          </>
-        }
-        breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Milestones' }]}
-      />
-      {/* ── MOBILE SECTION ── */}
-      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PartnerMilestonesMobile />
-      </div>
+      <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6 wa-pb-24 md:wa-pb-8">
+        <SectionHeader
+          kicker="Partner Portal"
+          title="Milestones"
+          goal="Recent certificates, placements, and milestone events across your referrals."
+        />
+        {/* ── MOBILE SECTION ── */}
+        <div className="wa-block md:wa-hidden">
+          <PartnerMilestonesMobile />
+        </div>
 
-      {/* ── DESKTOP SECTION ── */}
-      <div className="wa-hidden md:wa-block">
-        <PartnerMilestonesView />
-      </div>
+        {/* ── DESKTOP SECTION ── */}
+        <div className="wa-hidden md:wa-block">
+          <PartnerMilestonesView />
+        </div>
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

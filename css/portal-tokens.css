@@ -5,8 +5,12 @@
  * `wa-brand-*` Tailwind tokens; here they live as CSS custom properties so
  * the per-surface MODE can swap density/pop/radius WITHOUT a Tailwind rebuild.
  *
- * Brand colors are CONSTANT across modes — only radius / padding / pop / shadow
- * change per surface. `data-surface="warm"` (member: Bold + Calm) vs
+ * Brand hues are constant in spirit, but the accent/gold/info/success/danger
+ * tones lighten in dark mode for contrast/vibrance against the dark canvas
+ * (exact values ported from the "WorkforceAP — Command Center" design
+ * artifact's `[data-theme="dark"]` block — an artist-vetted dark palette,
+ * not an invented one). Radius / padding / pop / shadow also change per
+ * surface. `data-surface="warm"` (member: Bold + Calm) vs
  * `data-surface="dense"` (admin / data / staff). Set on the route-group layout
  * via <DesignSurface> (components/portal/kit/DesignSurface.tsx).
  *
@@ -25,35 +29,40 @@
    */
   color-scheme: light;
 
-  /* — brand (constant; mirrors DESIGN.md + tailwind.config.ts wa-brand-*) — */
-  --wa-accent: #ad2c4d;
-  --wa-accent-dark: #8c0f37;
+  /* — brand (mirrors DESIGN.md + tailwind.config.ts wa-brand-*; dark values
+     ported from the Command Center artifact's [data-theme="dark"] block) — */
+  --wa-accent: light-dark(#ad2c4d, #e0658a);
+  --wa-accent-dark: light-dark(#8c0f37, #c94e75);
   --wa-on-accent: #ffffff;
-  --wa-gold: #a47f38;
-  --wa-gold-dark: #7d5f26;
-  --wa-info: #2b7bb9;
-  --wa-success: #4a9b4f;
-  --wa-danger: #dc2626;
+  --wa-gold: light-dark(#a47f38, #d4ad5a);
+  /* Text-on-gold-tint (e.g. yellow status pills). Artifact has no separate
+     gold-dark, so the dark value borrows its `--warn` (#e0b062) — the closest
+     analog for "readable text over a gold tint on a dark surface." */
+  --wa-gold-dark: light-dark(#7d5f26, #e0b062);
+  --wa-info: light-dark(#2b7bb9, #77ade6);
+  --wa-success: light-dark(#4a9b4f, #6fc99a);
+  --wa-danger: light-dark(#dc2626, #f0708a);
   --wa-danger-soft: rgba(220, 38, 38, 0.12); /* alpha tint — reads fine on both modes */
   --wa-violet: #7c3aed;
 
   /* brand soft-tints: opaque pastels in light; translucent overlays in dark
-     (opaque pastels "glow" on dark bodies) */
-  --wa-accent-soft: light-dark(#fdf2f4, rgba(173, 44, 77, 0.18));
-  --wa-gold-soft: light-dark(#fef3c7, rgba(164, 127, 56, 0.2));
-  --wa-info-soft: light-dark(#eef5fb, rgba(43, 123, 185, 0.18));
+     (opaque pastels "glow" on dark bodies) — dark rgba derived from the
+     dark-mode hex above so the tint and its solid counterpart stay in family */
+  --wa-accent-soft: light-dark(#fdf2f4, rgba(224, 101, 138, 0.18));
+  --wa-gold-soft: light-dark(#fef3c7, rgba(212, 173, 90, 0.2));
+  --wa-info-soft: light-dark(#eef5fb, rgba(119, 173, 230, 0.18));
 
-  /* — neutrals (flip per mode) — */
-  --wa-bg: light-dark(#f7f8fa, #0f1115);
-  --wa-surface: light-dark(#ffffff, #1a1b1f);
-  --wa-surface-2: light-dark(#f4f4f5, #26272c); /* subtle raised fill (icon tiles, chips) */
-  --wa-text: light-dark(#1a1a1a, #f4f4f5);
-  --wa-muted: light-dark(#737373, #a1a1aa);
-  --wa-border: light-dark(#e8e8e8, #2c2d33);
-  --wa-track: light-dark(#f0eef0, #2c2d33);
+  /* — neutrals (flip per mode; dark values ported from the same artifact) — */
+  --wa-bg: light-dark(#f7f8fa, #130d0f);
+  --wa-surface: light-dark(#ffffff, #1e1417);
+  --wa-surface-2: light-dark(#f4f4f5, #25181c); /* subtle raised fill (icon tiles, chips) */
+  --wa-text: light-dark(#1a1a1a, #f2e8ea);
+  --wa-muted: light-dark(#737373, #b39ea4);
+  --wa-border: light-dark(#e8e8e8, #372830);
+  --wa-track: light-dark(#f0eef0, #2c1c21);
   --wa-shell-header-bg: light-dark(
     color-mix(in srgb, #ffffff 92%, transparent),
-    color-mix(in srgb, #1a1b1f 88%, transparent)
+    color-mix(in srgb, #1e1417 88%, transparent)
   );
   /* sidebar is dark chrome in both modes */
   --wa-sidebar-bg: #161616;

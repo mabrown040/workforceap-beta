@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import {
   DesignSurface,
   KpiStrip,
@@ -137,7 +138,7 @@ export function GrowthKit({
       <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-2 wa-gap-5 wa-mt-6">
         {/* Signups by UTM source (last 7 days). `minWidth: 0` lets this grid
             column shrink to the viewport on phones; RankBars are %-width. */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 2 }}>
             Signups by source
           </h3>
@@ -149,10 +150,10 @@ export function GrowthKit({
           ) : (
             EMPTY_HINT
           )}
-        </div>
+        </Card>
 
         {/* apply_* MemberEvents (last 24h). */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 2 }}>
             Apply events
           </h3>
@@ -168,11 +169,11 @@ export function GrowthKit({
             emptyTitle="No apply_* events"
             emptyDescription="Nothing recorded in the last 24 hours."
           />
-        </div>
+        </Card>
       </div>
 
       {/* Signups by UTM source / medium / campaign (last 7 days). */}
-      <div className="wa-kit-card wa-mt-6" style={{ minWidth: 0 }}>
+      <Card className="wa-mt-6" style={{ minWidth: 0 }}>
         <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 2 }}>
           Signups by UTM breakdown
         </h3>
@@ -188,10 +189,10 @@ export function GrowthKit({
           emptyTitle="No signups in the last 7 days"
           emptyDescription="No apply_signup_completed events recorded for this period."
         />
-      </div>
+      </Card>
 
       {/* Conversion values forwarded to Google Ads. */}
-      <div className="wa-kit-card wa-mt-6" style={{ minWidth: 0 }}>
+      <Card className="wa-mt-6" style={{ minWidth: 0 }}>
         <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 2 }}>
           Conversion values
         </h3>
@@ -206,7 +207,7 @@ export function GrowthKit({
           minWidth={360}
           emptyTitle="No conversion values configured"
         />
-      </div>
+      </Card>
     </DesignSurface>
   );
 }

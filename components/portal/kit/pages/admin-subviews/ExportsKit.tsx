@@ -79,7 +79,7 @@ const TONE_TINT: Record<ExportTone, { bg: string; fg: string }> = {
   info: { bg: 'rgba(43,123,185,0.12)', fg: colorVar('info') },
   accent: { bg: 'rgba(173,44,77,0.10)', fg: colorVar('accent') },
   gold: { bg: 'rgba(164,127,56,0.14)', fg: colorVar('gold') },
-  muted: { bg: 'var(--wa-surface-2, #f4f4f5)', fg: 'var(--wa-text)' },
+  muted: { bg: 'var(--wa-surface-2)', fg: 'var(--wa-text)' },
 };
 
 function exportIcon(kind: ExportOption['iconKey']): ReactNode {

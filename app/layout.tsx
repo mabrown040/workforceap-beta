@@ -31,6 +31,15 @@ import '@/css/marketing.css';
 import '@/css/marketing-depth.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
+// Astryx design system (site-wide, coexistence-safe): both files ship inside
+// CSS cascade layers (`reset` / `astryx-base`), and LAYERED styles always lose
+// to the app's unlayered CSS above — so the 11 shared token names (e.g.
+// --color-accent, --color-error) keep the app's values everywhere, which also
+// brand-aligns Astryx components to WorkforceAP crimson automatically. Astryx
+// dark mode follows the existing theme system via `color-scheme`.
+// Policy: AGENTS.md "Astryx design system" + docs/KIT_GUIDE.md §9.
+import '@astryxdesign/core/reset.css';
+import '@astryxdesign/core/astryx.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';
 import SentrySetUser from '@/components/observability/SentrySetUser';
 

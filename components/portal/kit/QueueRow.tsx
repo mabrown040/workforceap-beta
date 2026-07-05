@@ -49,7 +49,7 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
       className={`wa-kit-card wa-kit-card--sm wa-kit-card--hover${onClick ? ' wa-kit-focus' : ''}`}
       style={{ background: t.bg, borderColor: 'transparent', display: 'flex', alignItems: 'center', gap: 12, minHeight: 44, cursor: onClick ? 'pointer' : undefined }}
     >
-      <div style={{ width: 38, height: 38, borderRadius: 12, background: t.c, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ width: 38, height: 38, borderRadius: 12, background: t.c, color: 'var(--wa-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>

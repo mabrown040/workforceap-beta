@@ -13,6 +13,9 @@ const nextVitals = compat.extends("next/core-web-vitals");
 const NO_BARE_TABLE_MESSAGE =
   "Do not render bare <table> in product code. Use the shared <DataTable> from components/portal/ui/DataTable instead so we get consistent column hiding (hideOnMobile), horizontal scroll, density, and admin-table styling. The only exception is the DataTable implementation itself in components/portal/ui/.";
 
+const NO_RAW_HEX_MESSAGE =
+  "No raw hex colors in kit components. Use a semantic token — var(--wa-*) or colorVar() from components/portal/kit/tokens.ts — so dark mode and surface modes stay automatic (docs/KIT_GUIDE.md §1). For tinted backgrounds use color-mix(in srgb, var(--wa-x) 15%, transparent).";
+
 const config = [
   {
     ignores: [".next/**", "node_modules/**"],
@@ -67,6 +70,59 @@ const config = [
         {
           selector: "JSXOpeningElement[name.name='table']",
           message: NO_BARE_TABLE_MESSAGE,
+        },
+      ],
+    },
+  },
+  {
+    // Token discipline inside the design kit (docs/KIT_GUIDE.md §7,
+    // docs/ASTRYX_LESSONS.md Lesson 8): raw hex colors are banned across the
+    // whole kit (primitives, hooks, AND pages/**) — use var(--wa-*) /
+    // colorVar() so dark mode and surface modes stay automatic. Two-tier
+    // severity: warnings for humans locally, hard errors in CI (and under
+    // WAP_STRICT_LINT=1) so agents get the stricter gate.
+    files: ["components/portal/kit/**/*.{ts,tsx}"],
+    ignores: [
+      "components/portal/kit/DataTable.tsx",
+      // The Voice Studio session theater is intentionally fixed dark chrome
+      // (same in light and dark — see the file's header comment); its ~30
+      // dark-panel literals are by design, not token debt.
+      "components/portal/kit/pages/VoiceStudioKit.tsx",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        process.env.CI || process.env.WAP_STRICT_LINT ? "error" : "warn",
+        {
+          // Flat config replaces (not merges) rule entries, so the repo-wide
+          // bare-<table> ban must be restated for these files.
+          selector: "JSXOpeningElement[name.name='table']",
+          message: NO_BARE_TABLE_MESSAGE,
+        },
+        {
+          selector: "Literal[value=/#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b/]",
+          message: NO_RAW_HEX_MESSAGE,
+        },
+        {
+          selector: "TemplateElement[value.raw=/#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b/]",
+          message: NO_RAW_HEX_MESSAGE,
+        },
+      ],
+    },
+  },
+  {
+    // kit/DataTable.tsx legitimately renders <table>, but the hex ban still
+    // applies to it.
+    files: ["components/portal/kit/DataTable.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        process.env.CI || process.env.WAP_STRICT_LINT ? "error" : "warn",
+        {
+          selector: "Literal[value=/#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b/]",
+          message: NO_RAW_HEX_MESSAGE,
+        },
+        {
+          selector: "TemplateElement[value.raw=/#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b/]",
+          message: NO_RAW_HEX_MESSAGE,
         },
       ],
     },

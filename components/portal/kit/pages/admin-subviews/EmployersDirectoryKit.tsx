@@ -74,7 +74,7 @@ const DEFAULT_EMPLOYERS: EmployerCard[] = [
 
 /** Rotate the icon-tile tint across cards so the grid reads like the mockup. */
 const TILE_TINTS: Array<{ bg: string; fg: string }> = [
-  { bg: 'var(--wa-surface-2, #f4f4f5)', fg: 'var(--wa-text)' },
+  { bg: 'var(--wa-surface-2)', fg: 'var(--wa-text)' },
   { bg: 'rgba(43,123,185,0.12)', fg: colorVar('info') },
   { bg: 'rgba(164,127,56,0.14)', fg: colorVar('gold') },
 ];
@@ -203,7 +203,7 @@ export function EmployersDirectoryKit({
               fontWeight: 700,
               textDecoration: 'none',
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
             }}
           >
             <Plus className="h-4 w-4" aria-hidden /> Add Employer

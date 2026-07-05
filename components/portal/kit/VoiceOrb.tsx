@@ -46,8 +46,8 @@ export function VoiceOrb({
   muted = false,
   connecting = false,
   size = 168,
-  accent = '#ad2c4d',
-  accentDark = '#8b1f38',
+  accent = 'var(--wa-accent)',
+  accentDark = 'var(--wa-accent-dark)',
   showIcon = true,
 }: VoiceOrbProps) {
   const coreRef = useRef<HTMLDivElement | null>(null);
@@ -154,13 +154,15 @@ export function VoiceOrb({
           height: size,
           borderRadius: 999,
           background: muted
-            ? 'linear-gradient(135deg, #4b4b4b, #2a2a2a)'
+            ? // eslint-disable-next-line no-restricted-syntax -- intentional fixed greys: the muted orb stays dark chrome in both themes (like the sidebar), not a themed surface
+              'linear-gradient(135deg, #4b4b4b, #2a2a2a)'
             : `radial-gradient(circle at 35% 32%, ${accent}, ${accentDark})`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#fff',
-          boxShadow: `0 25px 50px -12px ${accent}66`,
+          color: 'var(--wa-on-accent)',
+          /* 40% alpha glow of the accent; color-mix so `accent` may be a var() */
+          boxShadow: `0 25px 50px -12px color-mix(in srgb, ${accent} 40%, transparent)`,
           opacity: dimmed ? 0.7 : 1,
           transition: 'background 0.25s, opacity 0.25s',
           animation: connecting && !prefersReducedMotion() ? 'voiceorb-breathe 1.6s ease-in-out infinite' : undefined,

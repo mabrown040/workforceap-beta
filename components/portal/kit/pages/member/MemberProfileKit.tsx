@@ -91,7 +91,7 @@ export interface MemberProfileKitProps {
 }
 
 const DEFAULT_BADGES: ProfileBadge[] = [
-  { label: '2 Certs', bg: 'var(--wa-gold-soft, #FEF3C7)', color: 'var(--wa-gold)' },
+  { label: '2 Certs', bg: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' },
   { label: '84 Readiness', bg: 'var(--wa-success-soft, rgba(74,155,79,0.12))', color: 'var(--wa-success)' },
   { label: '12-day streak', bg: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' },
 ];

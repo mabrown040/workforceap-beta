@@ -157,7 +157,7 @@ export function EmailTemplatesKit({ templates = DEFAULT_TEMPLATES }: EmailTempla
               fontWeight: 700,
               textDecoration: 'none',
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
             }}
           >
             <Mail className="h-4 w-4" /> Preview &amp; Edit

@@ -1,3 +1,4 @@
+import { cx, type KitBaseProps, type KitDataAttrs } from './base';
 import { StatTile } from './StatTile';
 import type { KitColor } from './tokens';
 
@@ -9,7 +10,7 @@ export interface KpiItem {
   deltaColor?: KitColor;
 }
 
-interface KpiStripProps {
+interface KpiStripProps extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   items: KpiItem[];
   /** Desktop column count (mobile is always 2). Default 4. */
   cols?: 4 | 5 | 6;
@@ -26,9 +27,9 @@ const COLS: Record<number, string> = {
  * cockpit and the member/admin homes all open with one of these.
  * Mockup: every "kpis(...)" strip in the concept + admin mockups.
  */
-export function KpiStrip({ items, cols = 4 }: KpiStripProps) {
+export function KpiStrip({ items, cols = 4, className, style, ref, ...rest }: KpiStripProps) {
   return (
-    <div className={`wa-grid wa-grid-cols-2 ${COLS[cols]} wa-gap-3`}>
+    <div ref={ref} className={cx(`wa-grid wa-grid-cols-2 ${COLS[cols]} wa-gap-3`, className)} style={style} {...rest}>
       {items.map((it) => (
         <StatTile key={it.label} {...it} />
       ))}

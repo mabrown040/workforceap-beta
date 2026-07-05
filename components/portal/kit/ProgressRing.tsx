@@ -1,6 +1,7 @@
+import { cx, type KitBaseProps, type KitDataAttrs } from './base';
 import { colorVar, type KitColor } from './tokens';
 
-interface ProgressRingProps {
+interface ProgressRingProps extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   /** 0–100. */
   pct: number;
   size?: number;
@@ -20,19 +21,22 @@ const CIRC = 2 * Math.PI * R; // 326.7
  * SVG progress ring. Member program/readiness + the Bold concept hero.
  * Pure SVG, no deps. Pass onDark for the gradient-hero variant.
  */
-export function ProgressRing({ pct, size = 120, color = 'accent', onDark = false, showLabel = true, label }: ProgressRingProps) {
+export function ProgressRing({ pct, size = 120, color = 'accent', onDark = false, showLabel = true, label, className, style, ref, ...rest }: ProgressRingProps) {
   const clamped = Math.max(0, Math.min(100, pct));
   const offset = CIRC * (1 - clamped / 100);
   const stroke = onDark ? 'var(--wa-on-accent)' : colorVar(color);
   const track = onDark ? 'rgba(255,255,255,0.2)' : 'var(--wa-track)';
   return (
     <div
+      ref={ref}
+      className={className}
       role="progressbar"
       aria-label={label ?? 'Progress'}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={clamped}
-      style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}
+      style={{ position: 'relative', width: size, height: size, flexShrink: 0, ...style }}
+      {...rest}
     >
       <svg width={size} height={size} viewBox="0 0 120 120">
         <circle cx="60" cy="60" r={R} fill="none" stroke={track} strokeWidth="12" />

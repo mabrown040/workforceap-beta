@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { Menu } from 'lucide-react';
+import { useFocusTrap } from './hooks/useFocusTrap';
 
 export interface NavItem {
   id: string;
@@ -32,6 +33,9 @@ interface AppShellSidebarProps {
  */
 export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, topbar, children }: AppShellSidebarProps) {
   const [open, setOpen] = useState(false);
+  // Mobile drawer only: trap Tab inside the open drawer, Escape closes it,
+  // focus returns to the hamburger. `open` is always false on desktop.
+  const drawerRef = useFocusTrap<HTMLElement>(open, { onEscape: () => setOpen(false) });
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {open ? (
@@ -39,6 +43,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
       ) : null}
 
       <aside
+        ref={drawerRef}
         className={`${open ? 'wa-translate-x-0' : '-wa-translate-x-full'} lg:wa-translate-x-0 wa-transition-transform wa-duration-200`}
         style={{
           width: 256,

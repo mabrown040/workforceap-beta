@@ -53,7 +53,7 @@ export function MemberDashboardKit({
               {nextMilestone ? ` Next up: ${nextMilestone}.` : ''}
             </p>
             {programTitle ? (
-              <a href="/dashboard/program" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: '#fff', color: 'var(--wa-accent)', fontWeight: 700, fontSize: 13, borderRadius: 999, textDecoration: 'none' }}>
+              <a href="/dashboard/program" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'var(--wa-on-accent)', color: 'var(--wa-accent)', fontWeight: 700, fontSize: 13, borderRadius: 999, textDecoration: 'none' }}>
                 <Play size={13} /> Resume program
               </a>
             ) : null}

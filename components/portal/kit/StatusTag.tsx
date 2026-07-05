@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
+import { cx, type KitBaseProps, type KitDataAttrs } from './base';
 import type { KitTone } from './tokens';
 
-interface StatusTagProps {
+interface StatusTagProps extends KitBaseProps<HTMLSpanElement>, KitDataAttrs {
   children: ReactNode;
   tone?: KitTone;
 }
@@ -13,6 +14,10 @@ interface StatusTagProps {
  * the KitTone doc in ./tokens for why they're kept distinct.
  * Mockup: every table status column + risk tier.
  */
-export function StatusTag({ children, tone = 'muted' }: StatusTagProps) {
-  return <span className={`wa-kit-tag wa-kit-tag--${tone}`}>{children}</span>;
+export function StatusTag({ children, tone = 'muted', className, style, ref, ...rest }: StatusTagProps) {
+  return (
+    <span ref={ref} className={cx(`wa-kit-tag wa-kit-tag--${tone}`, className)} style={style} {...rest}>
+      {children}
+    </span>
+  );
 }

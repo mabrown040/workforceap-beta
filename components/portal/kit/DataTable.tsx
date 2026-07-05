@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { cx, type KitBaseProps, type KitDataAttrs } from './base';
 
 export interface Column<T> {
   /** Stable key for React. */
@@ -9,7 +10,7 @@ export interface Column<T> {
   align?: 'left' | 'right';
 }
 
-interface DataTableProps<T> {
+interface DataTableProps<T> extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   columns: Column<T>[];
   rows: T[];
   rowKey: (row: T) => string;
@@ -42,12 +43,25 @@ export function DataTable<T>({
   onRowClick,
   emptyTitle = 'No rows yet',
   emptyDescription,
+  className,
+  style,
+  ref,
+  ...rest
 }: DataTableProps<T>) {
   const cell = (col: Column<T>, row: T): ReactNode =>
     col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '');
 
+  // In 'cards' mode the base props land on a neutral outer wrapper instead so
+  // there is exactly one root carrying className/style/ref/data-*.
+  const single = mobile === 'scroll' || !cardRender;
+
   const tableEl = (
-    <div className="wa-kit-table-wrap">
+    <div
+      ref={single ? ref : undefined}
+      className={cx('wa-kit-table-wrap', single ? className : undefined)}
+      style={single ? style : undefined}
+      {...(single ? rest : {})}
+    >
       <div className="wa-overflow-x-auto">
         <table className="wa-kit-table" style={{ minWidth }}>
           <thead>
@@ -107,13 +121,13 @@ export function DataTable<T>({
     </div>
   );
 
-  if (mobile === 'scroll' || !cardRender) {
+  if (single || !cardRender) {
     return tableEl;
   }
 
   // 'cards': table on desktop, stacked cards on mobile.
   return (
-    <>
+    <div ref={ref} className={className} style={style} {...rest}>
       <div className="wa-hidden lg:wa-block">{tableEl}</div>
       <div className="lg:wa-hidden wa-space-y-2">
         {rows.length === 0 ? (
@@ -150,6 +164,6 @@ export function DataTable<T>({
           ))
         )}
       </div>
-    </>
+    </div>
   );
 }

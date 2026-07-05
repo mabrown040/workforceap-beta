@@ -83,7 +83,7 @@ const addPartnerStyle: CSSProperties = {
   padding: '8px 16px',
   borderRadius: 8,
   background: 'var(--wa-accent)',
-  color: '#fff',
+  color: 'var(--wa-on-accent)',
   fontWeight: 700,
   fontSize: 13,
   textDecoration: 'none',

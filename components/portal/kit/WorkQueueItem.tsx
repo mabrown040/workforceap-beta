@@ -34,7 +34,7 @@ export function WorkQueueItem({ icon, title, detail, action, urgent = false }: W
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#fff',
+          color: 'var(--wa-on-accent)',
           background: urgent ? 'var(--wa-accent)' : 'var(--wa-info)',
         }}
       >

@@ -155,7 +155,7 @@ function toNavGroups(): NavGroup[] {
       id: it.id,
       label: it.label,
       icon: (
-        <it.Icon size={ICON_SIZE} style={{ color: '#888', flexShrink: 0 }} aria-hidden />
+        <it.Icon size={ICON_SIZE} style={{ color: 'var(--wa-sidebar-label)', flexShrink: 0 }} aria-hidden />
       ),
       badge: it.badge,
     })),
@@ -174,7 +174,7 @@ function Brand() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#fff',
+          color: 'var(--wa-sidebar-text)',
           flexShrink: 0,
         }}
       >
@@ -182,7 +182,7 @@ function Brand() {
       </div>
       <div style={{ minWidth: 0 }}>
         <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1 }}>WorkforceAP</div>
-        <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 2 }}>Admin · Austin</div>
+        <div style={{ fontSize: 10, color: 'color-mix(in srgb, var(--wa-sidebar-text) 64%, transparent)', marginTop: 2 }}>Admin · Austin</div>
       </div>
     </div>
   );
@@ -196,7 +196,7 @@ function SidebarFooter() {
           width: 32,
           height: 32,
           borderRadius: 999,
-          background: 'linear-gradient(135deg, #a47f38, #7d5f26)',
+          background: 'linear-gradient(135deg, var(--wa-gold), var(--wa-gold-dark))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -219,13 +219,13 @@ function SidebarFooter() {
         >
           Dad (Owner)
         </div>
-        <div style={{ fontSize: 10, color: '#a3a3a3' }}>Super Admin</div>
+        <div style={{ fontSize: 10, color: 'color-mix(in srgb, var(--wa-sidebar-text) 64%, transparent)' }}>Super Admin</div>
       </div>
       <a
         href="/"
         title="Design Lab"
         className="wa-kit-focus"
-        style={{ marginLeft: 'auto', color: '#a3a3a3', borderRadius: 4, display: 'inline-flex' }}
+        style={{ marginLeft: 'auto', color: 'color-mix(in srgb, var(--wa-sidebar-text) 64%, transparent)', borderRadius: 4, display: 'inline-flex' }}
       >
         <SquareArrowOutUpRight size={14} aria-hidden />
       </a>

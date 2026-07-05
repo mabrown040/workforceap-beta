@@ -85,9 +85,9 @@ export type SessionAgentConfig = {
 };
 
 const AGENT_ACCENT = {
-  crimson: { accent: '#ad2c4d', accentDark: '#8b1f38' },
-  gold: { accent: '#a47f38', accentDark: '#7d5f26' },
-  blue: { accent: '#2b7bb9', accentDark: '#1f5a87' },
+  crimson: { accent: 'var(--wa-accent)', accentDark: 'var(--wa-accent-dark)' },
+  gold: { accent: 'var(--wa-gold)', accentDark: 'var(--wa-gold-dark)' },
+  blue: { accent: 'var(--wa-info)', accentDark: 'color-mix(in srgb, var(--wa-info) 75%, black)' },
 } as const;
 
 const SESSION_AGENTS: Record<VoiceStudioAgentKey, SessionAgentConfig> = {
@@ -540,20 +540,20 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
 
   switch (variant) {
     case 'gold':
-      cardStyle = { background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
+      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-gold), var(--wa-gold-dark))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
       badgeStyle = { background: 'rgba(255,255,255,0.28)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       ctaColor = undefined;
       break;
     case 'crimson':
-      cardStyle = { background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
+      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
       badgeStyle = { background: 'rgba(255,255,255,0.28)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       break;
     case 'crimson-deep':
-      cardStyle = { background: 'linear-gradient(to bottom right, #8b1f38, #5e1426)', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
+      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent-dark), color-mix(in srgb, var(--wa-accent-dark) 70%, black))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
       badgeStyle = { background: 'rgba(255,255,255,0.28)' };
       bodyColor = 'rgba(255,255,255,0.92)';
@@ -1337,7 +1337,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
       <div
         className="wa-flex-col md:wa-flex-row"
         style={{
-          background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
+          background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))',
           borderRadius: 24,
           padding: 'clamp(20px, 5vw, 28px)',
           color: '#fff',
@@ -1527,7 +1527,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               className="wa-kit-focus vs-hero-card"
               style={{
                 textAlign: 'left',
-                background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
+                background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))',
                 color: '#fff',
                 borderRadius: 24,
                 padding: 'clamp(20px, 5vw, 28px)',

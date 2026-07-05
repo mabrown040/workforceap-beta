@@ -5,7 +5,6 @@ import type { ReactNode } from 'react';
 // kits render essentially unstyled.
 import '@/css/portal.css';
 import '@/css/portal-a11y.css';
-import '@/css/dark-mode.css';
 import '@/css/counselor.css';
 import '@/css/language-toggle.css';
 import '@/css/mobile-dashboard-fixes.css';

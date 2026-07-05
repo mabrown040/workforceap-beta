@@ -159,7 +159,7 @@ export function JobsBoardKit({
               fontWeight: 700,
               textDecoration: 'none',
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
             }}
           >
             <Plus className="h-4 w-4" aria-hidden /> Post Job

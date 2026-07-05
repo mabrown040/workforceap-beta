@@ -5,10 +5,12 @@ import {
   DesignSurface,
   SectionHeader,
   DataTable,
-  StatusTag,
   type Column,
-  type KitTone,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 
 /**
  * Duplicate students — likely-duplicate member accounts rendered as a dense
@@ -62,11 +64,11 @@ const DEFAULT_ROWS: DuplicateRow[] = [
   },
 ];
 
-/** Higher confidence → calmer tone; lower → flag for review. */
-function confidenceTone(confidence: number): KitTone {
-  if (confidence >= 90) return 'alert';
-  if (confidence >= 75) return 'warn';
-  return 'info';
+/** Higher confidence → stronger emphasis; lower → calmer, informational color. */
+function confidenceColor(confidence: number): TokenColor {
+  if (confidence >= 90) return 'pink';
+  if (confidence >= 75) return 'orange';
+  return 'blue';
 }
 
 export function DuplicatesKit({ rows = DEFAULT_ROWS, groupCount }: DuplicatesKitProps) {
@@ -104,7 +106,7 @@ export function DuplicatesKit({ rows = DEFAULT_ROWS, groupCount }: DuplicatesKit
       key: 'confidence',
       header: 'Confidence',
       render: (row) => (
-        <StatusTag tone={confidenceTone(row.confidence)}>{row.confidence}%</StatusTag>
+        <Token label={`${row.confidence}%`} size="sm" color={confidenceColor(row.confidence)} />
       ),
     },
     {
@@ -112,24 +114,9 @@ export function DuplicatesKit({ rows = DEFAULT_ROWS, groupCount }: DuplicatesKit
       header: 'Action',
       align: 'right',
       render: (row) => (
-        <Link
-          href={row.mergeHref}
-          className="wa-kit-focus"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '6px 14px',
-            borderRadius: 999,
-            fontSize: 11,
-            fontWeight: 700,
-            textDecoration: 'none',
-            border: '1px solid var(--wa-border)',
-            color: 'var(--wa-text)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Review &amp; merge
-        </Link>
+        <AstryxLink href={row.mergeHref} as={Link as never} isStandalone>
+          <Button label="Review & merge" variant="secondary" size="sm" />
+        </AstryxLink>
       ),
     },
   ];
@@ -145,7 +132,7 @@ export function DuplicatesKit({ rows = DEFAULT_ROWS, groupCount }: DuplicatesKit
         minWidth={720}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div
               style={{
                 display: 'flex',
@@ -178,29 +165,15 @@ export function DuplicatesKit({ rows = DEFAULT_ROWS, groupCount }: DuplicatesKit
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={confidenceTone(row.confidence)}>{row.confidence}%</StatusTag>
+                <Token label={`${row.confidence}%`} size="sm" color={confidenceColor(row.confidence)} />
               </div>
             </div>
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
-              <Link
-                href={row.mergeHref}
-                className="wa-kit-focus"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '6px 14px',
-                  borderRadius: 999,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  border: '1px solid var(--wa-border)',
-                  color: 'var(--wa-text)',
-                }}
-              >
-                Review &amp; merge
-              </Link>
+              <AstryxLink href={row.mergeHref} as={Link as never} isStandalone>
+                <Button label="Review & merge" variant="secondary" size="sm" />
+              </AstryxLink>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No likely duplicates"
         emptyDescription="Every active member email is unique. Flagged duplicate pairs will appear here when detected."

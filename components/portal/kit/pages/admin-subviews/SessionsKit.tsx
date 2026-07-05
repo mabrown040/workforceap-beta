@@ -1,13 +1,13 @@
 'use client';
 
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
-  StatusTag,
   Avatar,
   type Column,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -16,7 +16,7 @@ import {
  * Target route: /admin/sessions
  *
  * Columns: Member · Counselor · Type · When · Status.
- * Status is a StatusTag derived from the session's recency:
+ * Status is a Token derived from the session's recency:
  *   - "In session" (ok)   → activity within the live window
  *   - "Completed" (muted) → past sessions
  * The wide table collapses to stacked cards on mobile via DataTable mobile="cards".
@@ -76,10 +76,10 @@ const DEFAULT_SESSIONS: SessionKitRow[] = [
   },
 ];
 
-const STATUS_TONE: Record<SessionDisplayStatus, KitTone> = {
-  Scheduled: 'info',
-  'In session': 'ok',
-  Completed: 'muted',
+const STATUS_TONE: Record<SessionDisplayStatus, TokenColor> = {
+  Scheduled: 'blue',
+  'In session': 'green',
+  Completed: 'gray',
 };
 
 export function SessionsKit({ sessions = DEFAULT_SESSIONS, total }: SessionsKitProps) {
@@ -143,7 +143,7 @@ export function SessionsKit({ sessions = DEFAULT_SESSIONS, total }: SessionsKitP
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />,
     },
   ];
 
@@ -169,7 +169,7 @@ export function SessionsKit({ sessions = DEFAULT_SESSIONS, total }: SessionsKitP
               }
         }
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div
               style={{
                 display: 'flex',
@@ -205,7 +205,7 @@ export function SessionsKit({ sessions = DEFAULT_SESSIONS, total }: SessionsKitP
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />
               </div>
             </div>
             <div
@@ -218,7 +218,7 @@ export function SessionsKit({ sessions = DEFAULT_SESSIONS, total }: SessionsKitP
             >
               {row.when}
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No sessions yet"
         emptyDescription="Once any counselor or admin runs a session, it lands here."

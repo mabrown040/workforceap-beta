@@ -3,9 +3,10 @@ import { FileSpreadsheet, FileText, Users, SlidersHorizontal, Download } from 'l
 import {
   DesignSurface,
   SectionHeader,
-  StatusTag,
   colorVar,
 } from '@/components/portal/kit';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 
 /**
  * Exports — board / funder / compliance data downloads as a responsive card grid.
@@ -82,6 +83,15 @@ const TONE_TINT: Record<ExportTone, { bg: string; fg: string }> = {
   muted: { bg: 'var(--wa-surface-2)', fg: 'var(--wa-text)' },
 };
 
+/** Maps the kit's semantic badge-tone vocabulary to a real Token color. */
+const BADGE_TOKEN_COLOR: Record<NonNullable<ExportOption['badgeTone']>, TokenColor> = {
+  ok: 'green',
+  warn: 'orange',
+  alert: 'pink',
+  info: 'blue',
+  muted: 'gray',
+};
+
 function exportIcon(kind: ExportOption['iconKey']): ReactNode {
   switch (kind) {
     case 'csv':
@@ -129,7 +139,9 @@ function ExportTile({ option }: { option: ExportOption }) {
         >
           {exportIcon(option.iconKey)}
         </div>
-        {option.badge ? <StatusTag tone={option.badgeTone ?? 'muted'}>{option.badge}</StatusTag> : null}
+        {option.badge ? (
+          <Token label={option.badge} size="sm" color={BADGE_TOKEN_COLOR[option.badgeTone ?? 'muted']} />
+        ) : null}
       </div>
 
       <div style={{ minWidth: 0 }}>
@@ -172,16 +184,11 @@ export function ExportsKit({ exports = DEFAULT_EXPORTS }: ExportsKitProps) {
           ))}
         </div>
       ) : (
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
-        >
-          <Download className="h-6 w-6" style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No exports available</p>
-          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
-            Export options will appear here once reporting is configured.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Download className="h-6 w-6" aria-hidden />}
+          title="No exports available"
+          description="Export options will appear here once reporting is configured."
+        />
       )}
     </DesignSurface>
   );

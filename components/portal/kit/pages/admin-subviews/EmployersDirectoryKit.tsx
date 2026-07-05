@@ -1,14 +1,19 @@
 'use client';
 
+import Link from 'next/link';
 import { Building2, Plus } from 'lucide-react';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
-  StatusTag,
   colorVar,
   type KpiItem,
 } from '@/components/portal/kit';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 
 /**
  * Employers directory — partner card grid (dense).
@@ -54,6 +59,14 @@ function lastActiveBadge(lastLoginAt: string | null): { label: string; tone: 'ok
   return { label: `Inactive ${days}d`, tone: 'alert' };
 }
 
+/** Maps the kit's semantic tone vocabulary to a real Token color. */
+const TONE_TOKEN_COLOR: Record<'ok' | 'warn' | 'alert' | 'muted', TokenColor> = {
+  ok: 'green',
+  warn: 'orange',
+  alert: 'pink',
+  muted: 'gray',
+};
+
 export interface EmployersDirectoryKitProps {
   employers?: EmployerCard[];
   /** Total partner count (full directory, not just the loaded page). */
@@ -90,75 +103,67 @@ function EmployerTile({ card, index }: { card: EmployerCard; index: number }) {
   const tag = STATUS_TAG[card.status];
   const lastActive = lastActiveBadge(card.lastLoginAt);
   return (
-    <a
-      href={`/admin/employers/${card.id}`}
-      className="wa-kit-card wa-kit-card--hover wa-kit-focus"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+    <ClickableCard label={card.name} href={`/admin/employers/${card.id}`}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: tint.bg,
+              color: tint.fg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Building2 className="h-5 w-5" aria-hidden />
+          </div>
+          <Token label={tag.label} size="sm" color={TONE_TOKEN_COLOR[tag.tone]} />
+        </div>
+
+        <div style={{ minWidth: 0 }}>
+          <h3
+            style={{
+              fontWeight: 800,
+              fontSize: 16,
+              letterSpacing: '-0.02em',
+              margin: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {card.name}
+          </h3>
+          <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>{card.industry}</p>
+          <div style={{ marginTop: 6 }}>
+            <Token label={lastActive.label} size="sm" color={TONE_TOKEN_COLOR[lastActive.tone]} />
+          </div>
+        </div>
+
         <div
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            background: tint.bg,
-            color: tint.fg,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            gap: 10,
+            fontSize: 12,
+            paddingTop: 12,
+            borderTop: '1px solid var(--wa-border)',
           }}
         >
-          <Building2 className="h-5 w-5" aria-hidden />
-        </div>
-        <StatusTag tone={tag.tone}>{tag.label}</StatusTag>
-      </div>
-
-      <div style={{ minWidth: 0 }}>
-        <h3
-          style={{
-            fontWeight: 800,
-            fontSize: 16,
-            letterSpacing: '-0.02em',
-            margin: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {card.name}
-        </h3>
-        <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>{card.industry}</p>
-        <div style={{ marginTop: 6 }}>
-          <StatusTag tone={lastActive.tone}>{lastActive.label}</StatusTag>
+          <span style={{ color: 'var(--wa-muted)' }}>
+            {card.openRoles} open {card.openRoles === 1 ? 'role' : 'roles'}
+          </span>
+          <span style={{ fontWeight: 700, color: colorVar('success') }}>
+            {card.hires} {card.hires === 1 ? 'hire' : 'hires'}
+          </span>
         </div>
       </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-          gap: 10,
-          fontSize: 12,
-          paddingTop: 12,
-          borderTop: '1px solid var(--wa-border)',
-        }}
-      >
-        <span style={{ color: 'var(--wa-muted)' }}>
-          {card.openRoles} open {card.openRoles === 1 ? 'role' : 'roles'}
-        </span>
-        <span style={{ fontWeight: 700, color: colorVar('success') }}>
-          {card.hires} {card.hires === 1 ? 'hire' : 'hires'}
-        </span>
-      </div>
-    </a>
+    </ClickableCard>
   );
 }
 
@@ -190,24 +195,9 @@ export function EmployersDirectoryKit({
         kicker="Partners"
         goal={subtitle}
         action={
-          <a
-            href="/admin/employers?ui=legacy#create"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            <Plus className="h-4 w-4" aria-hidden /> Add Employer
-          </a>
+          <AstryxLink href="/admin/employers?ui=legacy#create" as={Link as never} isStandalone>
+            <Button label="Add Employer" variant="primary" size="sm" icon={<Plus className="h-4 w-4" aria-hidden />} />
+          </AstryxLink>
         }
       />
 
@@ -222,16 +212,11 @@ export function EmployersDirectoryKit({
           ))}
         </div>
       ) : (
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
-        >
-          <Building2 className="h-6 w-6" aria-hidden style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No employers yet</p>
-          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
-            Add your first hiring partner to start tracking open roles and hires.
-          </p>
-        </div>
+        <EmptyState
+          icon={<Building2 className="h-6 w-6" aria-hidden />}
+          title="No employers yet"
+          description="Add your first hiring partner to start tracking open roles and hires."
+        />
       )}
     </DesignSurface>
   );

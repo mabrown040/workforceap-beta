@@ -40,6 +40,7 @@ import '@/css/marketing-a11y.css';
 // Policy: AGENTS.md "Astryx design system" + docs/KIT_GUIDE.md §9.
 import '@astryxdesign/core/reset.css';
 import '@astryxdesign/core/astryx.css';
+import '@/css/astryx-brand-bridge.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';
 import SentrySetUser from '@/components/observability/SentrySetUser';
 

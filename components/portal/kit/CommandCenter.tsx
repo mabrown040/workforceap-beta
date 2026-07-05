@@ -111,7 +111,7 @@ export function StatSparkTile({
             fontWeight: 800,
             letterSpacing: '-0.02em',
             lineHeight: 1,
-            color: 'var(--wa-text)',
+            color: color === 'text' || color === 'muted' ? 'var(--wa-text)' : c,
             fontVariantNumeric: 'tabular-nums',
           }}
         >

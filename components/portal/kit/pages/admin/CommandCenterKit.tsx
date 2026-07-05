@@ -14,6 +14,13 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Token } from '@astryxdesign/core/Token';
+import { StatusDot } from '@astryxdesign/core/StatusDot';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
@@ -24,13 +31,11 @@ import {
   QueueRow,
   CardHead,
   DataTable,
-  colorVar,
   type KpiItem,
   type RankDatum,
   type ChartDatum,
   type QueueTone,
   type Column,
-  type KitColor,
   type KitTone,
   type SparkStat,
 } from '@/components/portal/kit';
@@ -303,22 +308,6 @@ interface HeaderProps {
   addStudentHref?: string;
 }
 
-const ADD_STUDENT_STYLE: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  minHeight: 44,
-  padding: '8px 14px',
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  fontSize: 12,
-  fontWeight: 600,
-  borderRadius: 999,
-  border: 'none',
-  cursor: 'pointer',
-  textDecoration: 'none',
-};
-
 function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: HeaderProps) {
   return (
     <div
@@ -348,33 +337,21 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
           {dateLabel}
         </span>
         {addStudentHref ? (
-          <a href={addStudentHref} className="wa-kit-focus" style={ADD_STUDENT_STYLE}>
-            <Plus size={14} aria-hidden /> Add Student
-          </a>
+          <AstryxLink href={addStudentHref} as={NextLink as never} isStandalone>
+            <Button label="Add Student" variant="primary" size="md" icon={<Plus size={14} aria-hidden />} />
+          </AstryxLink>
         ) : (
-          <button type="button" onClick={onAddStudent} className="wa-kit-focus" style={ADD_STUDENT_STYLE}>
-            <Plus size={14} aria-hidden /> Add Student
-          </button>
+          <Button
+            label="Add Student"
+            variant="primary"
+            size="md"
+            icon={<Plus size={14} aria-hidden />}
+            onClick={onAddStudent}
+          />
         )}
-        <a
-          href="/admin/messages"
-          aria-label="Notifications"
-          className="wa-kit-focus"
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 999,
-            border: '1px solid var(--wa-border)',
-            background: 'var(--wa-surface)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: 'var(--wa-muted)',
-          }}
-        >
-          <Bell size={16} aria-hidden />
-        </a>
+        <AstryxLink href="/admin/messages" as={NextLink as never} isStandalone>
+          <IconButton label="Notifications" icon={<Bell size={16} aria-hidden />} variant="secondary" size="md" />
+        </AstryxLink>
       </div>
     </div>
   );
@@ -383,44 +360,26 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
 /* ---- Work-queue row --------------------------------------------------------
  * Thin wrapper around the shared `QueueRow` primitive: derives a red/yellow/
  * blue severity tone (so every admin queue reads the same as the counselor/
- * partner triage queues) and keeps this component's own action-button
- * treatment (filled pill for `urgent`, outline otherwise) plus the
- * href-vs-callback affordance from the original implementation.
+ * partner triage queues) and renders the action as an Astryx `Button`
+ * (`primary` for `urgent`, `secondary` otherwise) plus the href-vs-callback
+ * affordance from the original implementation.
  */
-
-function queueActionStyle(urgent: boolean | undefined): React.CSSProperties {
-  return {
-    flexShrink: 0,
-    minHeight: 44,
-    padding: '8px 12px',
-    fontSize: 11,
-    fontWeight: 600,
-    borderRadius: 999,
-    cursor: 'pointer',
-    textDecoration: 'none',
-    border: urgent ? 'none' : '1px solid var(--wa-border)',
-    background: urgent ? 'var(--wa-accent)' : 'var(--wa-surface)',
-    color: urgent ? 'var(--wa-on-accent)' : 'var(--wa-text)',
-  };
-}
 
 function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
   const tone = inferQueueTone(item);
-  const actionStyle = queueActionStyle(item.urgent);
   const leadingIcon =
     typeof item.count === 'number' ? (
       <span style={{ fontWeight: 800, fontSize: 16, fontVariantNumeric: 'tabular-nums' }}>{item.count}</span>
     ) : (
       item.icon
     );
+  const actionVariant = item.urgent ? 'primary' : 'secondary';
   const action = item.href ? (
-    <a href={item.href} className="wa-kit-focus" style={actionStyle}>
-      {item.actionLabel}
-    </a>
+    <AstryxLink href={item.href} as={NextLink as never} isStandalone>
+      <Button label={item.actionLabel} variant={actionVariant} size="sm" />
+    </AstryxLink>
   ) : (
-    <button type="button" onClick={onAction} className="wa-kit-focus" style={actionStyle}>
-      {item.actionLabel}
-    </button>
+    <Button label={item.actionLabel} variant={actionVariant} size="sm" onClick={onAction} />
   );
 
   return <QueueRow tone={tone} icon={leadingIcon} title={item.title} meta={item.detail} action={action} />;
@@ -517,7 +476,7 @@ export function CommandCenterKit({
       <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
         {/* `minWidth: 0` lets these grid columns shrink to the viewport on
             phones (grid items default to `min-width: auto`); desktop unchanged. */}
-        <section className="wa-kit-card lg:wa-col-span-2" style={{ minWidth: 0 }}>
+        <Card className="lg:wa-col-span-2" style={{ minWidth: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -530,7 +489,7 @@ export function CommandCenterKit({
             <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>
               What needs you today
             </h3>
-            <StatusTag tone="alert">{queueItems.length} items</StatusTag>
+            <Token label={`${queueItems.length} items`} size="sm" color="pink" />
           </div>
 
           <div className="wa-space-y-2">
@@ -542,18 +501,18 @@ export function CommandCenterKit({
               />
             ))}
           </div>
-        </section>
+        </Card>
 
-        <section className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <SectionHeader title="Program Health" />
           <RankBars data={programHealth} />
-        </section>
+        </Card>
       </div>
 
       {/* Placements trend — area chart (mockup `board`), surfaced on the
           command center so the operator sees the trend in context. */}
       {placementsByMonth.length > 1 ? (
-        <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+        <Card className="wa-mt-5" style={{ minWidth: 0 }}>
           <CardHead title="Placements trend" />
           <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '-8px 0 12px' }}>{placementsSubtitle}</p>
           <AreaChartMini
@@ -563,47 +522,44 @@ export function CommandCenterKit({
             height={176}
             ariaLabel={`Placements trend, ${placementsSubtitle}`}
           />
-        </section>
+        </Card>
       ) : null}
 
       {/* System health — optional; renders nothing when the caller hasn't
           wired any cron/system signals. */}
       {systemHealth && systemHealth.length > 0 ? (
-        <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+        <Card className="wa-mt-5" style={{ minWidth: 0 }}>
           <CardHead title="System health" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {systemHealth.map((row) => {
-              const dotColor: KitColor = row.status === 'ok' ? 'success' : 'gold';
-              return (
-                <div key={row.name} className="wa-flex wa-items-center wa-justify-between" style={{ gap: 12 }}>
-                  <span className="wa-flex wa-items-center wa-gap-2" style={{ minWidth: 0 }}>
-                    <span
-                      aria-hidden
-                      style={{ width: 8, height: 8, borderRadius: 999, background: colorVar(dotColor), flexShrink: 0 }}
-                    />
-                    <span style={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {row.name}
+            {systemHealth.map((row) => (
+              <div key={row.name} className="wa-flex wa-items-center wa-justify-between" style={{ gap: 12 }}>
+                <span className="wa-flex wa-items-center wa-gap-2" style={{ minWidth: 0 }}>
+                  <StatusDot
+                    variant={row.status === 'ok' ? 'success' : 'warning'}
+                    label={row.status === 'ok' ? `${row.name} operating normally` : `${row.name} needs attention`}
+                  />
+                  <span style={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {row.name}
+                  </span>
+                </span>
+                <span className="wa-flex wa-items-center wa-gap-2" style={{ flexShrink: 0 }}>
+                  {row.meta ? (
+                    <span style={{ fontSize: 11, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>
+                      {row.meta}
                     </span>
-                  </span>
-                  <span className="wa-flex wa-items-center wa-gap-2" style={{ flexShrink: 0 }}>
-                    {row.meta ? (
-                      <span style={{ fontSize: 11, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>
-                        {row.meta}
-                      </span>
-                    ) : null}
-                    <StatusTag tone={row.status === 'ok' ? 'ok' : 'warn'}>{row.status === 'ok' ? 'OK' : 'Warn'}</StatusTag>
-                  </span>
-                </div>
-              );
-            })}
+                  ) : null}
+                  <StatusTag tone={row.status === 'ok' ? 'ok' : 'warn'}>{row.status === 'ok' ? 'OK' : 'Warn'}</StatusTag>
+                </span>
+              </div>
+            ))}
           </div>
-        </section>
+        </Card>
       ) : null}
 
       {/* Members — optional roster table; renders nothing when the caller
           hasn't wired any rows. */}
       {members && members.length > 0 ? (
-        <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+        <Card className="wa-mt-5" style={{ minWidth: 0 }}>
           <CardHead title="Members" linkLabel="View all" linkHref={membersHref} />
           <DataTable<CommandCenterMemberRow>
             columns={memberColumns}
@@ -612,7 +568,7 @@ export function CommandCenterKit({
             minWidth={560}
             emptyTitle="No members yet"
           />
-        </section>
+        </Card>
       ) : null}
     </DesignSurface>
   );

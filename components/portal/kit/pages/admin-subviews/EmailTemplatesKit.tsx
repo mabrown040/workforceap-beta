@@ -1,12 +1,16 @@
 'use client';
 
 import { Mail } from 'lucide-react';
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import { Token } from '@astryxdesign/core/Token';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type KpiItem,
   type Column,
 } from '@/components/portal/kit';
@@ -17,9 +21,9 @@ import {
  * Target route: /admin/email-templates
  *
  * Columns: Template · Subject · Variables · Updated · Status.
- * Status is a StatusTag (Active=ok, Inactive=muted). A KpiStrip surfaces real
- * total / active / inactive counts. Editing, preview, and test-send live in the
- * richer legacy view, reachable via the header action (?ui=legacy).
+ * Status is an Astryx Token (Active=green, Inactive=gray). A KpiStrip surfaces
+ * real total / active / inactive counts. Editing, preview, and test-send live
+ * in the richer legacy view, reachable via the header action (?ui=legacy).
  */
 
 export interface EmailTemplateRow {
@@ -130,9 +134,7 @@ export function EmailTemplatesKit({ templates = DEFAULT_TEMPLATES }: EmailTempla
       key: 'active',
       header: 'Status',
       render: (row) => (
-        <StatusTag tone={row.active ? 'ok' : 'muted'}>
-          {row.active ? 'Active' : 'Inactive'}
-        </StatusTag>
+        <Token label={row.active ? 'Active' : 'Inactive'} size="sm" color={row.active ? 'green' : 'gray'} />
       ),
     },
   ];
@@ -144,24 +146,14 @@ export function EmailTemplatesKit({ templates = DEFAULT_TEMPLATES }: EmailTempla
         kicker="Messaging"
         goal="Transactional emails sent to members and staff"
         action={
-          <a
-            href="/admin/email-templates?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            <Mail className="h-4 w-4" /> Preview &amp; Edit
-          </a>
+          <AstryxLink href="/admin/email-templates?ui=legacy" as={NextLink as never} isStandalone>
+            <Button
+              label="Preview & Edit"
+              variant="primary"
+              size="sm"
+              icon={<Mail size={14} aria-hidden="true" />}
+            />
+          </AstryxLink>
         }
       />
 
@@ -176,7 +168,7 @@ export function EmailTemplatesKit({ templates = DEFAULT_TEMPLATES }: EmailTempla
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div
               style={{
                 display: 'flex',
@@ -209,9 +201,7 @@ export function EmailTemplatesKit({ templates = DEFAULT_TEMPLATES }: EmailTempla
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={row.active ? 'ok' : 'muted'}>
-                  {row.active ? 'Active' : 'Inactive'}
-                </StatusTag>
+                <Token label={row.active ? 'Active' : 'Inactive'} size="sm" color={row.active ? 'green' : 'gray'} />
               </div>
             </div>
             <div
@@ -237,7 +227,7 @@ export function EmailTemplatesKit({ templates = DEFAULT_TEMPLATES }: EmailTempla
               </span>
               <span style={{ whiteSpace: 'nowrap' }}>Updated {row.updated}</span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No email templates yet"
         emptyDescription="Transactional templates will appear here once seeded."

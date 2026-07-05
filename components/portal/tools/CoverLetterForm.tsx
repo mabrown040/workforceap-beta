@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Sparkles, Copy, Check } from 'lucide-react';
+import { Sparkles, Copy, Check } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
@@ -21,8 +22,7 @@ const fieldStyle: React.CSSProperties = {
   outline: 'none',
   background: 'var(--wa-surface)',
   color: 'var(--wa-text)',
-  fontFamily: 'inherit',
-};
+  fontFamily: 'inherit'};
 
 export default function CoverLetterForm() {
   const [resume, setResume] = useState('');
@@ -55,9 +55,7 @@ export default function CoverLetterForm() {
           resume,
           jobDescription,
           companyName: companyName || 'the company',
-          tone,
-        }),
-      });
+          tone})});
 
       const data = await res.json();
       if (!res.ok) {
@@ -157,12 +155,11 @@ export default function CoverLetterForm() {
           border: 'none',
           cursor: loading ? 'not-allowed' : 'pointer',
           opacity: loading ? 0.75 : 1,
-          alignSelf: 'flex-start',
-        }}
+          alignSelf: 'flex-start'}}
       >
         {loading ? (
           <>
-            <Loader2 size={17} className="wa-animate-spin" aria-hidden />
+            <PortalInlineSpinner size={17} />
             Generating cover letter…
           </>
         ) : (
@@ -196,8 +193,7 @@ export default function CoverLetterForm() {
                   border: '1px solid var(--wa-border)',
                   background: 'var(--wa-surface)',
                   color: 'var(--wa-text)',
-                  cursor: 'pointer',
-                }}
+                  cursor: 'pointer'}}
               >
                 <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
@@ -219,8 +215,7 @@ export default function CoverLetterForm() {
               fontSize: '0.875rem',
               lineHeight: 1.65,
               whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
+              wordBreak: 'break-word'}}
           >
             {output}
           </pre>

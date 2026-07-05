@@ -2,7 +2,8 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
-import { Loader2, Search, Copy, Check, UploadCloud } from 'lucide-react';
+import { Search, Copy, Check, UploadCloud } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
@@ -22,8 +23,7 @@ const textareaStyle: React.CSSProperties = {
   color: 'var(--wa-text)',
   fontFamily: 'inherit',
   resize: 'vertical',
-  minHeight: 220,
-};
+  minHeight: 220};
 
 export default function GapAnalyzerForm() {
   const [resume, setResume] = useState('');
@@ -47,8 +47,7 @@ export default function GapAnalyzerForm() {
       const res = await fetch('/api/ai/gap-analyzer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume }),
-      });
+        body: JSON.stringify({ resume })});
 
       const data = await res.json();
       if (!res.ok) {
@@ -77,8 +76,7 @@ export default function GapAnalyzerForm() {
       formData.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', {
         method: 'POST',
-        body: formData,
-      });
+        body: formData});
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
@@ -113,8 +111,7 @@ export default function GapAnalyzerForm() {
               background: 'var(--wa-surface-2)',
               color: 'var(--wa-text)',
               cursor: extracting || loading ? 'not-allowed' : 'pointer',
-              opacity: extracting || loading ? 0.6 : 1,
-            }}
+              opacity: extracting || loading ? 0.6 : 1}}
           >
             <UploadCloud size={14} aria-hidden />
             Upload resume file
@@ -130,7 +127,7 @@ export default function GapAnalyzerForm() {
           />
           {extracting && (
             <span style={{ fontSize: '0.8rem', color: 'var(--wa-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Loader2 size={13} className="wa-animate-spin" aria-hidden />
+              <PortalInlineSpinner size={13} />
               Extracting text…
             </span>
           )}
@@ -174,12 +171,11 @@ export default function GapAnalyzerForm() {
           border: 'none',
           cursor: loading ? 'not-allowed' : 'pointer',
           opacity: loading ? 0.75 : 1,
-          alignSelf: 'flex-start',
-        }}
+          alignSelf: 'flex-start'}}
       >
         {loading ? (
           <>
-            <Loader2 size={17} className="wa-animate-spin" aria-hidden />
+            <PortalInlineSpinner size={17} />
             Analyzing gaps…
           </>
         ) : (
@@ -212,8 +208,7 @@ export default function GapAnalyzerForm() {
                 border: '1px solid var(--wa-border)',
                 background: 'var(--wa-surface)',
                 color: 'var(--wa-text)',
-                cursor: 'pointer',
-              }}
+                cursor: 'pointer'}}
             >
               <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
@@ -233,8 +228,7 @@ export default function GapAnalyzerForm() {
               fontSize: '0.875rem',
               lineHeight: 1.65,
               whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
+              wordBreak: 'break-word'}}
           >
             {output}
           </pre>

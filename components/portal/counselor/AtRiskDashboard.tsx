@@ -6,14 +6,13 @@ import {
   BookOpen,
   Check,
   Filter,
-  Loader2,
   MessageSquare,
   RotateCcw,
   ShieldAlert,
   ShieldCheck,
   ShieldHalf,
-  TriangleAlert,
-} from 'lucide-react';
+  TriangleAlert} from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import type { LucideIcon } from 'lucide-react';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import {
@@ -23,8 +22,7 @@ import {
   StatusTag,
   colorVar,
   type KitColor,
-  type KitTone,
-} from '@/components/portal/kit';
+  type KitTone} from '@/components/portal/kit';
 import AtRiskDetailModal from './AtRiskDetailModal';
 
 /**
@@ -90,8 +88,7 @@ const RISK_SORT_INDEX: Record<AtRiskMember['riskLevel'], number> = {
   CRITICAL: 0,
   HIGH: 1,
   MEDIUM: 2,
-  LOW: 3,
-};
+  LOW: 3};
 
 type SortMode = 'risk' | 'last_activity';
 
@@ -110,37 +107,32 @@ const RISK_CONFIG: Record<
   CRITICAL: { label: 'Critical', color: 'accent', icon: ShieldAlert },
   HIGH: { label: 'High', color: 'gold', icon: ShieldHalf },
   MEDIUM: { label: 'Medium', color: 'info', icon: ShieldCheck },
-  LOW: { label: 'Low', color: 'success', icon: ShieldCheck },
-};
+  LOW: { label: 'Low', color: 'success', icon: ShieldCheck }};
 
 const STATUS_LABEL: Record<AtRiskMember['status'], string> = {
   open: 'Open',
   acknowledged: 'Acknowledged',
   resolved: 'Resolved',
-  escalated: 'Escalated',
-};
+  escalated: 'Escalated'};
 
 const STATUS_TONE: Record<AtRiskMember['status'], KitTone> = {
   open: 'alert',
   acknowledged: 'info',
   resolved: 'ok',
-  escalated: 'danger',
-};
+  escalated: 'danger'};
 
 /** Hover tooltips for severity chips (matches THRESHOLDS in lib/member/atRiskScoring.ts). */
 const SEVERITY_TOOLTIP: Record<AtRiskMember['riskLevel'], string> = {
   CRITICAL: 'Score ≥70. Highest urgency—call or message within 24–48 hours.',
   HIGH: 'Score 50–69. Strong risk signals—contact this week.',
   MEDIUM: 'Score 30–49. Watch and nudge if the score climbs.',
-  LOW: 'Score under 30. Normal support cadence unless it worsens.',
-};
+  LOW: 'Score under 30. Normal support cadence unless it worsens.'};
 
 const STATUS_TOOLTIP: Record<AtRiskMember['status'], string> = {
   open: 'Not yet acknowledged in the dashboard—triage these first in your weekly pass.',
   acknowledged: 'You or your team started outreach or took ownership; still working the case.',
   resolved: 'Risk mitigated, member exited, or situation documented—use when the case is truly closed.',
-  escalated: 'Escalated to admin for additional support—admin team should review.',
-};
+  escalated: 'Escalated to admin for additional support—admin team should review.'};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -175,8 +167,7 @@ function ScoreBadge({ score }: { score: number }) {
         background: `color-mix(in srgb, ${c} 14%, transparent)`,
         border: `2px solid color-mix(in srgb, ${c} 40%, transparent)`,
         flexShrink: 0,
-        fontVariantNumeric: 'tabular-nums',
-      }}
+        fontVariantNumeric: 'tabular-nums'}}
     >
       {score}
     </span>
@@ -206,8 +197,7 @@ export function AtRiskDashboardView({
   error = null,
   onRetry,
   onUpdateStatus,
-  onBulkAcknowledge,
-}: AtRiskDashboardViewProps) {
+  onBulkAcknowledge}: AtRiskDashboardViewProps) {
   // Local mirror of `members` so the detail modal's status-change callback
   // (which — matching the legacy behavior — only syncs local UI state, it
   // does not itself call the PATCH endpoint) can update the list instantly.
@@ -401,7 +391,7 @@ export function AtRiskDashboardView({
     return (
       <DesignSurface surface="dense">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '3rem 1rem', color: 'var(--wa-muted)' }}>
-          <Loader2 size={20} className="wa-animate-spin" />
+          <PortalInlineSpinner size={20} />
           <span>Loading at-risk members…</span>
         </div>
       </DesignSurface>
@@ -449,8 +439,7 @@ export function AtRiskDashboardView({
               alignItems: 'center',
               justifyContent: 'center',
               background: 'var(--wa-info-soft)',
-              color: 'var(--wa-info)',
-            }}
+              color: 'var(--wa-info)'}}
           >
             <BookOpen size={15} />
           </div>
@@ -522,8 +511,7 @@ export function AtRiskDashboardView({
                 border: '1px solid var(--wa-border)',
                 background: 'var(--wa-bg)',
                 color: 'var(--wa-text)',
-                fontSize: 13,
-              }}
+                fontSize: 13}}
             />
             {programOptions.length > 0 && (
               <select
@@ -537,8 +525,7 @@ export function AtRiskDashboardView({
                   background: 'var(--wa-bg)',
                   color: 'var(--wa-text)',
                   fontSize: 13,
-                  cursor: 'pointer',
-                }}
+                  cursor: 'pointer'}}
               >
                 <option value="all">All programs</option>
                 {programOptions.map((p) => (
@@ -575,8 +562,7 @@ export function AtRiskDashboardView({
                 userSelect: 'none',
                 color: 'var(--wa-text)',
                 whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}
+                flexShrink: 0}}
               title="Limits the list to alerts still in Open status—fastest way to see who still needs a first touch."
             >
               <input
@@ -623,8 +609,7 @@ export function AtRiskDashboardView({
               justifyContent: 'space-between',
               gap: 16,
               background: 'var(--wa-accent-soft)',
-              borderColor: 'transparent',
-            }}
+              borderColor: 'transparent'}}
           >
             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)' }}>
               {selectedIds.size} selected
@@ -646,7 +631,7 @@ export function AtRiskDashboardView({
               >
                 {bulkActionLoading ? (
                   <>
-                    <Loader2 size={14} className="wa-animate-spin" style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                    <PortalInlineSpinner size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
                     Working…
                   </>
                 ) : (
@@ -765,8 +750,7 @@ export default function AtRiskDashboard() {
     const res = await fetch('/api/admin/members/at-risk', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ alertId, status }),
-    });
+      body: JSON.stringify({ alertId, status })});
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || 'Update failed');
@@ -781,8 +765,7 @@ export default function AtRiskDashboard() {
           fetch('/api/admin/members/at-risk', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ alertId, status: 'acknowledged' }),
-          }),
+            body: JSON.stringify({ alertId, status: 'acknowledged' })}),
         ),
       );
       const failed = results.filter((r) => !r.ok).length;
@@ -810,8 +793,7 @@ function SortModeButton({
   active,
   onClick,
   title: tooltip,
-  children,
-}: {
+  children}: {
   active: boolean;
   onClick: () => void;
   title?: string;
@@ -837,8 +819,7 @@ function FilterChip({
   icon: Icon,
   label,
   title,
-  onClick,
-}: {
+  onClick}: {
   active: boolean;
   color?: KitColor;
   tone?: KitTone;
@@ -855,8 +836,7 @@ function FilterChip({
     alert: 'var(--wa-accent)',
     danger: '#b91c1c',
     info: 'var(--wa-info)',
-    muted: 'var(--wa-muted)',
-  };
+    muted: 'var(--wa-muted)'};
   const c = color ? colorVar(color) : tone ? TONE_COLOR[tone] : 'var(--wa-text)';
   return (
     <button
@@ -876,8 +856,7 @@ function FilterChip({
         cursor: 'pointer',
         border: `1.5px solid ${active ? c : 'transparent'}`,
         background: active ? `color-mix(in srgb, ${c} 14%, transparent)` : 'var(--wa-bg)',
-        color: c,
-      }}
+        color: c}}
     >
       {Icon ? <Icon size={13} /> : null}
       {label}
@@ -897,8 +876,7 @@ function FilterTag({ label, onRemove }: { label: string; onRemove: () => void })
         fontSize: 11,
         fontWeight: 600,
         background: 'var(--wa-border)',
-        color: 'var(--wa-text)',
-      }}
+        color: 'var(--wa-text)'}}
     >
       {label}
       <button
@@ -927,8 +905,7 @@ function FactorChips({ factors }: { factors: AtRiskFactor[] }) {
             borderRadius: 999,
             background: 'var(--wa-border)',
             color: 'var(--wa-muted)',
-            fontWeight: 600,
-          }}
+            fontWeight: 600}}
         >
           {f.description}
         </span>
@@ -944,8 +921,7 @@ function RiskRow({
   onOpenDetail,
   onAcknowledge,
   onResolve,
-  acting,
-}: {
+  acting}: {
   row: AtRiskMember;
   selected: boolean;
   onToggleSelect: () => void;
@@ -966,8 +942,7 @@ function RiskRow({
         flexDirection: 'column',
         gap: 10,
         borderLeft: `3px solid ${c}`,
-        background: selected ? `color-mix(in srgb, ${c} 6%, var(--wa-surface))` : 'var(--wa-surface)',
-      }}
+        background: selected ? `color-mix(in srgb, ${c} 6%, var(--wa-surface))` : 'var(--wa-surface)'}}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <input
@@ -988,8 +963,7 @@ function RiskRow({
             alignItems: 'center',
             justifyContent: 'center',
             background: `color-mix(in srgb, ${c} 14%, transparent)`,
-            color: c,
-          }}
+            color: c}}
         >
           <Icon size={18} />
         </div>
@@ -1029,7 +1003,7 @@ function RiskRow({
             style={{ fontSize: 12, padding: '5px 10px' }}
             title="Mark that you have started outreach or taken ownership"
           >
-            {acting ? <Loader2 size={12} className="wa-animate-spin" /> : 'Ack'}
+            {acting ? <PortalInlineSpinner size={12} /> : 'Ack'}
           </button>
         )}
         {row.status !== 'resolved' && (
@@ -1041,7 +1015,7 @@ function RiskRow({
             style={{ fontSize: 12, padding: '5px 10px' }}
             title="Close this alert when risk is cleared, member is placed/exited, or outcome documented"
           >
-            {acting ? <Loader2 size={12} className="wa-animate-spin" /> : 'Resolve'}
+            {acting ? <PortalInlineSpinner size={12} /> : 'Resolve'}
           </button>
         )}
         <Link

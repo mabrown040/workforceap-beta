@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
@@ -17,27 +17,22 @@ const SECTION_AUDIT_STYLE = {
     title: 'Sections & structure',
     description: 'See strengths and improvements in the analysis text.',
     accent: '#1565c0',
-    accentSoft: 'rgba(21, 101, 192, 0.12)',
-  },
+    accentSoft: 'rgba(21, 101, 192, 0.12)'},
   quantification: {
     title: 'Quantified achievements',
     description: 'Check bullets for metrics, scope, and strong action verbs.',
     accent: '#ed8b00',
-    accentSoft: 'rgba(237, 139, 0, 0.14)',
-  },
+    accentSoft: 'rgba(237, 139, 0, 0.14)'},
   actionVerbs: {
     title: 'Action-verb openers',
     description: 'Lead bullets with strong action verbs aligned to your target roles.',
     accent: '#2e7d32',
-    accentSoft: 'rgba(46, 125, 50, 0.12)',
-  },
+    accentSoft: 'rgba(46, 125, 50, 0.12)'},
   contact: {
     title: 'Contact essentials',
     description: 'Ensure email, phone, and location are present and ATS-parsable.',
     accent: '#6a1b9a',
-    accentSoft: 'rgba(106, 27, 154, 0.12)',
-  },
-} as const;
+    accentSoft: 'rgba(106, 27, 154, 0.12)'}} as const;
 
 // Order in which audit cards appear when the corresponding subscore exists.
 const SECTION_AUDIT_ORDER = ['structure', 'quantification', 'actionVerbs', 'contact'] as const;
@@ -63,8 +58,7 @@ function deriveSectionAuditCards(payload: ResumeScorePayload | null): ResumeSect
       description: style.description,
       accent: isPass ? PASS_STYLE.accent : style.accent,
       accentSoft: isPass ? PASS_STYLE.accentSoft : style.accentSoft,
-      statusColor: isPass ? PASS_STYLE.statusColor : '#b26a00',
-    }];
+      statusColor: isPass ? PASS_STYLE.statusColor : '#b26a00'}];
   });
 }
 
@@ -151,8 +145,7 @@ export default function ResumeStrengthForm() {
       const res = await fetch('/api/ai/resume-strength', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume }),
-      });
+        body: JSON.stringify({ resume })});
 
       const data = await res.json();
 
@@ -170,8 +163,7 @@ export default function ResumeStrengthForm() {
         structural: data.structural,
         occupations: data.occupations,
         onetCoverage: data.onetCoverage,
-        marketCoverage: data.marketCoverage,
-      });
+        marketCoverage: data.marketCoverage});
     } catch {
       trackAIToolRun('errored', 'resume-analysis', { reason: 'network_error' });
       setError('Network error. Please try again.');
@@ -190,8 +182,7 @@ export default function ResumeStrengthForm() {
       formData.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', {
         method: 'POST',
-        body: formData,
-      });
+        body: formData});
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
@@ -282,8 +273,7 @@ export default function ResumeStrengthForm() {
             bottom: '5rem',
             left: '1rem',
             right: '1rem',
-            zIndex: 50,
-          }}
+            zIndex: 50}}
         >
           <button
             type="submit"

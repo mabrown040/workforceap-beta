@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FileText, Loader2, Mail, Copy, Check, ChevronRight } from 'lucide-react';
+import { FileText, Mail, Copy, Check, ChevronRight } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 export type PrepBundleItem = {
@@ -68,8 +68,7 @@ export default function InterviewPrepBundle() {
       const res = await fetch('/api/member/prep-bundle/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ selectedToolTypes: Array.from(selected) }),
-      });
+        body: JSON.stringify({ selectedToolTypes: Array.from(selected) })});
       const data = await res.json();
       if (res.ok) setSentTo(data.sentTo);
       else setErrorMessage(data.error || 'Email failed');
@@ -130,8 +129,7 @@ export default function InterviewPrepBundle() {
             padding: '1.25rem 1rem 1rem',
             borderRadius: '0.75rem',
             background: 'var(--surface-container)',
-            marginBottom: '1.25rem',
-          }}
+            marginBottom: '1.25rem'}}
         >
           <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem' }}>
             No prep materials yet
@@ -153,8 +151,7 @@ export default function InterviewPrepBundle() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
-                    transition: 'background-color 0.15s',
-                  }}
+                    transition: 'background-color 0.15s'}}
                 >
                   <FileText size={18} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -180,8 +177,7 @@ export default function InterviewPrepBundle() {
           alignItems: 'center',
           gap: '0.75rem',
           marginBottom: '1rem',
-          flexWrap: 'wrap',
-        }}
+          flexWrap: 'wrap'}}
       >
         <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
           {selectedItems.length} of {bundle.items.length} selected
@@ -196,8 +192,7 @@ export default function InterviewPrepBundle() {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: 0,
-          }}
+            padding: 0}}
         >
           Select all
         </button>
@@ -212,8 +207,7 @@ export default function InterviewPrepBundle() {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: 0,
-          }}
+            padding: 0}}
         >
           Deselect all
         </button>
@@ -275,8 +269,7 @@ export default function InterviewPrepBundle() {
               background: 'var(--surface-container)',
               overflow: 'hidden',
               opacity: isSelected ? 1 : 0.6,
-              transition: 'opacity 0.15s',
-            }}
+              transition: 'opacity 0.15s'}}
           >
             <div
               style={{
@@ -284,8 +277,7 @@ export default function InterviewPrepBundle() {
                 borderBottom: '1px solid var(--outline-variant)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-              }}
+                gap: '0.75rem'}}
             >
               <input
                 type="checkbox"
@@ -307,8 +299,7 @@ export default function InterviewPrepBundle() {
                 lineHeight: 1.6,
                 whiteSpace: 'pre-wrap',
                 maxHeight: '240px',
-                overflowY: 'auto',
-              }}
+                overflowY: 'auto'}}
             >
               {item.content}
             </div>

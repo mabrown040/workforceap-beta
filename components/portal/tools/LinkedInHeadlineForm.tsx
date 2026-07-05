@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
@@ -32,8 +32,7 @@ export default function LinkedInHeadlineForm() {
       const res = await fetch('/api/ai/linkedin-headline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, keySkills, yearsExperience: yearsExperience || undefined }),
-      });
+        body: JSON.stringify({ role, keySkills, yearsExperience: yearsExperience || undefined })});
 
       const data = await res.json();
       if (!res.ok) {

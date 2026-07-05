@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Loader2, ShieldAlert, ShieldHalf, ShieldCheck, ChevronRight } from 'lucide-react';
+import { ShieldAlert, ShieldHalf, ShieldCheck, ChevronRight } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 interface AtRiskSummary {
   critical: number;
@@ -43,8 +44,7 @@ export default function AtRiskSummaryWidget() {
             name: r.name,
             score: r.score,
             riskLevel: r.riskLevel,
-            status: r.status,
-          }));
+            status: r.status}));
         if (!cancelled) {
           setSummary({ critical, high, medium, total: results.length, recentAlerts });
         }
@@ -70,7 +70,7 @@ export default function AtRiskSummaryWidget() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem', color: 'var(--color-on-surface-variant)' }}>
-        <Loader2 size={16} className="wa-animate-spin" />
+        <PortalInlineSpinner size={16} />
         Loading at-risk summary…
       </div>
     );
@@ -83,8 +83,7 @@ export default function AtRiskSummaryWidget() {
           padding: '1rem 1.25rem',
           borderRadius: '0.75rem',
           background: 'var(--surface-container-low)',
-          border: '1px solid var(--outline-variant)',
-        }}
+          border: '1px solid var(--outline-variant)'}}
       >
         <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
           No at-risk alerts right now. Great work!
@@ -100,8 +99,7 @@ export default function AtRiskSummaryWidget() {
         borderRadius: '0.75rem',
         background: 'var(--surface-container-low)',
         border: '1px solid var(--outline-variant)',
-        marginBottom: '1.5rem',
-      }}
+        marginBottom: '1.5rem'}}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>At-Risk Alerts</h3>
@@ -114,8 +112,7 @@ export default function AtRiskSummaryWidget() {
             textDecoration: 'none',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.25rem',
-          }}
+            gap: '0.25rem'}}
         >
           View all <ChevronRight size={14} />
         </Link>
@@ -130,8 +127,7 @@ export default function AtRiskSummaryWidget() {
               padding: '0.75rem 0.5rem',
               borderRadius: '0.625rem',
               background: `color-mix(in srgb, ${lvl.color} 8%, transparent)`,
-              border: `1px solid color-mix(in srgb, ${lvl.color} 20%, var(--outline-variant))`,
-            }}
+              border: `1px solid color-mix(in srgb, ${lvl.color} 20%, var(--outline-variant))`}}
           >
             <lvl.icon size={18} style={{ color: lvl.color, marginBottom: '0.35rem' }} />
             <p style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: lvl.color, fontVariantNumeric: 'tabular-nums' }}>
@@ -162,8 +158,7 @@ export default function AtRiskSummaryWidget() {
                     borderRadius: '0.5rem',
                     background: 'var(--surface-container-high)',
                     textDecoration: 'none',
-                    color: 'inherit',
-                  }}
+                    color: 'inherit'}}
                 >
                   <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{alert.name}</span>
                   <span
@@ -175,8 +170,7 @@ export default function AtRiskSummaryWidget() {
                           ? 'var(--color-accent)'
                           : alert.riskLevel === 'HIGH'
                             ? 'var(--color-gold)'
-                            : 'var(--color-blue)',
-                    }}
+                            : 'var(--color-blue)'}}
                   >
                     {alert.riskLevel} · {alert.score}
                   </span>

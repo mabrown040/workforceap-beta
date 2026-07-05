@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Check, Copy, PhoneCall, Mail } from 'lucide-react';
+import { Check, Copy, PhoneCall, Mail } from 'lucide-react';
+import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
@@ -23,8 +24,7 @@ const primaryButtonStyle = {
   fontSize: 13,
   borderRadius: 999,
   border: 'none',
-  cursor: 'pointer',
-} as const;
+  cursor: 'pointer'} as const;
 
 const outlineButtonStyle = {
   display: 'inline-flex',
@@ -38,8 +38,7 @@ const outlineButtonStyle = {
   fontSize: 12,
   borderRadius: 999,
   border: '1px solid var(--wa-border)',
-  cursor: 'pointer',
-} as const;
+  cursor: 'pointer'} as const;
 
 export default function SalaryNegotiationForm() {
   const [currentOffer, setCurrentOffer] = useState('');
@@ -76,9 +75,7 @@ export default function SalaryNegotiationForm() {
           targetSalary: targetNum,
           jobTitle,
           companyName,
-          deliveryMethod,
-        }),
-      });
+          deliveryMethod})});
 
       const data = await res.json();
       if (!res.ok) {
@@ -157,8 +154,7 @@ export default function SalaryNegotiationForm() {
             padding: '10px 12px',
             outline: 'none',
             background: 'var(--wa-surface)',
-            color: 'var(--wa-text)',
-          }}
+            color: 'var(--wa-text)'}}
         >
           <option value="phone">Phone call</option>
           <option value="email">Email</option>
@@ -173,8 +169,7 @@ export default function SalaryNegotiationForm() {
             background: 'var(--wa-danger-soft)',
             color: 'var(--wa-danger)',
             fontSize: 13,
-            fontWeight: 600,
-          }}
+            fontWeight: 600}}
         >
           {error}
         </div>
@@ -182,7 +177,7 @@ export default function SalaryNegotiationForm() {
       <button type="submit" className="wa-kit-focus" style={primaryButtonStyle} disabled={loading} aria-busy={loading}>
         {loading ? (
           <>
-            <Loader2 size={16} className="wa-animate-spin" aria-hidden />
+            <PortalInlineSpinner size={16} />
             Generating script…
           </>
         ) : (
@@ -217,8 +212,7 @@ export default function SalaryNegotiationForm() {
               margin: 0,
               maxHeight: 400,
               overflowY: 'auto',
-              color: 'var(--wa-text)',
-            }}
+              color: 'var(--wa-text)'}}
           >
             {output}
           </pre>

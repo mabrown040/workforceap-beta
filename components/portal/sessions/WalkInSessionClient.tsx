@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 /**
@@ -17,8 +17,7 @@ import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
  */
 export default function WalkInSessionClient({
   counselorName,
-  runRedirectBase = '/counselor/sessions',
-}: {
+  runRedirectBase = '/counselor/sessions'}: {
   counselorName: string;
   /** Base path for the run-page redirect after account creation. Defaults to counselor; admin passes '/admin/sessions'. */
   runRedirectBase?: string;
@@ -49,9 +48,7 @@ export default function WalkInSessionClient({
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
-          targetRole: targetRole.trim(),
-        }),
-      });
+          targetRole: targetRole.trim()})});
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 409 && data.existingMemberId) {

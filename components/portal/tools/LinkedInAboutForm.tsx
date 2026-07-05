@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
@@ -70,8 +70,7 @@ export default function LinkedInAboutForm() {
       const res = await fetch('/api/ai/linkedin-about', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, bullets }),
-      });
+        body: JSON.stringify({ role, bullets })});
 
       const data = await res.json();
       if (!res.ok) {
@@ -106,8 +105,7 @@ export default function LinkedInAboutForm() {
             background: 'var(--surface-container-low)',
             border: '1px solid var(--outline-variant)',
             fontSize: '0.88rem',
-            lineHeight: 1.45,
-          }}
+            lineHeight: 1.45}}
         >
           <strong style={{ color: 'var(--color-on-surface)' }}>Resume on file</strong>
           <span style={{ color: 'var(--color-on-surface-variant)' }}>

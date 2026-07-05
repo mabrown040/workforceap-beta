@@ -1,4 +1,5 @@
 import { FlaskConical, ShieldCheck, Info, GitCompareArrows as CompareIcon } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface, SectionHeader, CardHead } from '@/components/portal/kit';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -41,20 +42,20 @@ export function JobMatchScorerKit({ userId }: { userId: string }) {
           goal="Paste a job description and your resume. Get a match score and specific gaps to address."
         />
 
-        <div className="wa-kit-card">
+        <Card>
           <CardHead title="Analysis" />
           <div className="wa-flex wa-items-center wa-gap-2" style={{ marginTop: -6, marginBottom: 14 }}>
             <CompareIcon size={13} aria-hidden="true" style={{ color: 'var(--wa-muted)' }} />
             <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>Resume vs. job description</span>
           </div>
           <JobMatchScorerForm />
-        </div>
+        </Card>
 
         <ToolHistoryPanel userId={userId} toolType="job_match_scorer" />
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
           {INFO_TILES.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="wa-kit-card wa-kit-card--sm">
+            <Card key={title}>
               <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: 8 }}>
                 <div
                   aria-hidden="true"
@@ -75,7 +76,7 @@ export function JobMatchScorerKit({ userId }: { userId: string }) {
                 <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>{title}</h3>
               </div>
               <p style={{ fontSize: 12, lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>{body}</p>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

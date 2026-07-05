@@ -1,6 +1,12 @@
 'use client';
 
 import { CheckCircle2, Download, Award, Hourglass } from 'lucide-react';
+import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import { DesignSurface, KpiStrip } from '@/components/portal/kit';
 import ShareButton from '@/components/ui/ShareButton';
 import { buildCertificateShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
@@ -122,29 +128,26 @@ export function MemberCertificatesKit({
           <div>
             <h2 className="sr-only">Earned certificates</h2>
             {earned.length === 0 ? (
-              <div className="wa-kit-card wa-kit-card--sm wa-flex wa-items-start wa-gap-3">
-                <div
-                  aria-hidden="true"
-                  style={{ width: 40, height: 40, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-                >
-                  <Award size={18} aria-hidden="true" />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)' }}>No certificates yet</p>
-                  <p style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>
-                    Completed credentials will appear here after they are logged and verified.
-                  </p>
-                  <a
-                    href="/dashboard/messages"
-                    className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                    style={{ display: 'inline-flex', alignItems: 'center', minHeight: 36, marginTop: 12, padding: '8px 14px', background: 'var(--wa-gold)', color: 'var(--wa-on-accent)', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none' }}
-                  >
-                    Message your counselor
-                  </a>
-                </div>
-              </div>
+              <Card>
+                <EmptyState
+                  icon={
+                    <div
+                      style={{ width: 40, height: 40, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <Award size={18} aria-hidden="true" />
+                    </div>
+                  }
+                  title="No certificates yet"
+                  description="Completed credentials will appear here after they are logged and verified."
+                  actions={
+                    <AstryxLink href="/dashboard/messages" as={Link as never} isStandalone>
+                      <Button label="Message your counselor" variant="primary" size="sm" />
+                    </AstryxLink>
+                  }
+                />
+              </Card>
             ) : (
-              <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <Card padding={0} style={{ overflow: 'hidden' }}>
                 {earned.map((cert, i) => (
                   <div
                     key={cert.id}
@@ -199,7 +202,7 @@ export function MemberCertificatesKit({
                     </div>
                   </div>
                 ))}
-              </div>
+              </Card>
             )}
           </div>
 
@@ -211,9 +214,9 @@ export function MemberCertificatesKit({
               {inProgress.map((cert) => {
                 const pct = Math.max(0, Math.min(100, Math.round(cert.percent)));
                 return (
-                  <div
+                  <Card
                     key={cert.id}
-                    className="wa-kit-card wa-flex wa-gap-4 sm:wa-gap-5"
+                    className="wa-flex wa-gap-4 sm:wa-gap-5"
                     style={{ background: 'var(--wa-accent-soft)', borderColor: 'var(--wa-accent-soft)' }}
                   >
                     <div
@@ -240,20 +243,12 @@ export function MemberCertificatesKit({
                           In Progress · {pct}%
                         </span>
                       </div>
-                      <div
-                        className="wa-kit-bar-track"
-                        role="progressbar"
-                        aria-valuenow={pct}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`${cert.title} progress`}
-                        style={{ marginTop: 12, background: 'var(--wa-surface)' }}
-                      >
-                        <div className="wa-kit-bar-fill" style={{ width: `${pct}%`, background: 'var(--wa-accent)' }} />
+                      <div style={{ marginTop: 12 }}>
+                        <ProgressBar value={pct} label={`${cert.title} progress`} isLabelHidden />
                       </div>
                       <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 8 }}>{cert.note}</p>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>

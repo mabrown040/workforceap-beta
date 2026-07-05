@@ -1,15 +1,17 @@
 import Link from 'next/link';
-import type { CSSProperties } from 'react';
 import { Handshake, Building2, HeartHandshake, Users, Plus } from 'lucide-react';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
-  StatusTag,
   colorVar,
   type KpiItem,
   type KitColor,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -20,8 +22,8 @@ import {
  * green "{X}% placement". Topped with a KPI strip of real aggregates.
  * Target route: /admin/partners (DEFAULT render).
  *
- * Pure presentational + a couple of <Link> CTAs — no client state, so this
- * stays a server component (no 'use client').
+ * Pure presentational + a couple of Astryx <Button> CTAs — no client state, so
+ * this stays a server component (no 'use client').
  */
 export interface PartnerCard {
   id: string;
@@ -55,12 +57,12 @@ function placementPct(p: { referrals: number; placed: number }): number {
   return Math.round((p.placed / p.referrals) * 100);
 }
 
-/** Status → tag tone + label. */
-function statusTag(p: PartnerCard): { tone: KitTone; label: string } {
-  if (p.status === 'pending_approval') return { tone: 'warn', label: 'Pending' };
-  if (p.status === 'rejected') return { tone: 'alert', label: 'Rejected' };
-  if (p.active) return { tone: 'muted', label: 'Active' };
-  return { tone: 'muted', label: 'Inactive' };
+/** Status → Token color + label (mirrors StatusTag's tone→color mapping: warn=gold, alert=crimson, muted=gray). */
+function statusToken(p: PartnerCard): { color: TokenColor; label: string } {
+  if (p.status === 'pending_approval') return { color: 'yellow', label: 'Pending' };
+  if (p.status === 'rejected') return { color: 'pink', label: 'Rejected' };
+  if (p.active) return { color: 'gray', label: 'Active' };
+  return { color: 'gray', label: 'Inactive' };
 }
 
 /**
@@ -75,19 +77,6 @@ const TILE_PALETTE: { color: KitColor; bg: string }[] = [
 ];
 
 const TILE_ICONS = [Building2, HeartHandshake, Users, Handshake];
-
-const addPartnerStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '8px 16px',
-  borderRadius: 8,
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  fontWeight: 700,
-  fontSize: 13,
-  textDecoration: 'none',
-};
 
 export function PartnersDirectoryKit({
   partners = DEFAULT_PARTNERS,
@@ -111,9 +100,9 @@ export function PartnersDirectoryKit({
         title="Partners"
         goal="Workforce centers, nonprofits, referral orgs"
         action={
-          <Link href="/admin/partners/new" style={addPartnerStyle} className="wa-kit-focus">
-            <Plus className="h-4 w-4" aria-hidden /> Add Partner
-          </Link>
+          <AstryxLink as={Link as never} href="/admin/partners/new" isStandalone>
+            <Button label="Add Partner" variant="primary" size="sm" icon={<Plus size={14} aria-hidden="true" />} />
+          </AstryxLink>
         }
       />
 
@@ -122,67 +111,68 @@ export function PartnersDirectoryKit({
       </div>
 
       {partners.length === 0 ? (
-        <div className="wa-kit-card" style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <h3 style={{ fontWeight: 800, fontSize: 16 }}>No partner organizations yet</h3>
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '8px auto 16px', maxWidth: 460 }}>
-            Partner organizations refer candidates to WorkforceAP. Each partner gets their own portal
-            login, referral tracking, and milestone notifications for their members.
-          </p>
-          <Link href="/admin/partners/new" style={addPartnerStyle} className="wa-kit-focus">
-            <Plus className="h-4 w-4" aria-hidden /> Add Partner
-          </Link>
-        </div>
+        <EmptyState
+          title="No partner organizations yet"
+          description="Partner organizations refer candidates to WorkforceAP. Each partner gets their own portal login, referral tracking, and milestone notifications for their members."
+          actions={
+            <AstryxLink as={Link as never} href="/admin/partners/new" isStandalone>
+              <Button label="Add Partner" variant="primary" size="sm" icon={<Plus size={14} aria-hidden="true" />} />
+            </AstryxLink>
+          }
+        />
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
           {partners.map((p, i) => {
             const tile = TILE_PALETTE[i % TILE_PALETTE.length];
             const Icon = TILE_ICONS[i % TILE_ICONS.length];
-            const tag = statusTag(p);
+            const tag = statusToken(p);
             const pct = placementPct(p);
             return (
               <Link
                 key={p.id}
                 href={`/admin/partners/${p.id}`}
-                className="wa-kit-card wa-kit-card--hover wa-kit-focus"
+                className="wa-kit-card--hover wa-kit-focus"
                 style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Card>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: tile.bg,
+                        color: colorVar(tile.color),
+                      }}
+                    >
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </div>
+                    <Token label={tag.label} size="sm" color={tag.color} />
+                  </div>
+
+                  <h4 style={{ fontWeight: 800, fontSize: 15, marginTop: 12 }}>{p.name}</h4>
+                  <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
+                    {p.referrals.toLocaleString()} referrals · {p.placed.toLocaleString()} placed
+                  </p>
+
                   <div
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
                       display: 'flex',
+                      justifyContent: 'space-between',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      background: tile.bg,
-                      color: colorVar(tile.color),
+                      fontSize: 12,
+                      marginTop: 12,
+                      paddingTop: 12,
+                      borderTop: '1px solid var(--wa-border)',
                     }}
                   >
-                    <Icon className="h-5 w-5" aria-hidden />
+                    <span style={{ color: 'var(--wa-muted)' }}>{tag.label}</span>
+                    <span style={{ fontWeight: 700, color: 'var(--wa-success)' }}>{pct}% placement</span>
                   </div>
-                  <StatusTag tone={tag.tone}>{tag.label}</StatusTag>
-                </div>
-
-                <h4 style={{ fontWeight: 800, fontSize: 15, marginTop: 12 }}>{p.name}</h4>
-                <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
-                  {p.referrals.toLocaleString()} referrals · {p.placed.toLocaleString()} placed
-                </p>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: 12,
-                    marginTop: 12,
-                    paddingTop: 12,
-                    borderTop: '1px solid var(--wa-border)',
-                  }}
-                >
-                  <span style={{ color: 'var(--wa-muted)' }}>{tag.label}</span>
-                  <span style={{ fontWeight: 700, color: 'var(--wa-success)' }}>{pct}% placement</span>
-                </div>
+                </Card>
               </Link>
             );
           })}

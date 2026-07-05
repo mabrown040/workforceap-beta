@@ -1,12 +1,15 @@
 'use client';
 
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import { Token } from '@astryxdesign/core/Token';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
-  StatusTag,
   type Column,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -16,7 +19,7 @@ import {
  * Target route: /admin/employer-screening-packs
  *
  * Columns: Employer · Role family · Checks · Used · Status.
- * Used renders as a muted StatusTag ("18×"), Status as an ok/muted StatusTag
+ * Used renders as a gray Astryx Token ("18×"), Status as a green/gray Token
  * (Active / Inactive). Wide table collapses to stacked cards on mobile via
  * DataTable mobile="cards".
  */
@@ -91,15 +94,13 @@ export function ScreeningPacksKit({
     {
       key: 'used',
       header: 'Used',
-      render: (row) => <StatusTag tone="muted">{row.used}</StatusTag>,
+      render: (row) => <Token label={row.used} size="sm" color="gray" />,
     },
     {
       key: 'status',
       header: 'Status',
       render: (row) => (
-        <StatusTag tone={(row.active ? 'ok' : 'muted') as KitTone}>
-          {row.active ? 'Active' : 'Inactive'}
-        </StatusTag>
+        <Token label={row.active ? 'Active' : 'Inactive'} size="sm" color={row.active ? 'green' : 'gray'} />
       ),
     },
   ];
@@ -111,24 +112,9 @@ export function ScreeningPacksKit({
         kicker="Employers"
         goal={subtitle}
         action={
-          <a
-            href="/admin/employer-screening-packs?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Manage packs
-          </a>
+          <AstryxLink href="/admin/employer-screening-packs?ui=legacy" as={NextLink as never} isStandalone>
+            <Button label="Manage packs" variant="secondary" size="sm" />
+          </AstryxLink>
         }
       />
 
@@ -139,7 +125,7 @@ export function ScreeningPacksKit({
         minWidth={720}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -172,9 +158,7 @@ export function ScreeningPacksKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={(row.active ? 'ok' : 'muted') as KitTone}>
-                  {row.active ? 'Active' : 'Inactive'}
-                </StatusTag>
+                <Token label={row.active ? 'Active' : 'Inactive'} size="sm" color={row.active ? 'green' : 'gray'} />
               </div>
             </div>
             <div
@@ -189,9 +173,9 @@ export function ScreeningPacksKit({
               }}
             >
               <span>Used</span>
-              <StatusTag tone="muted">{row.used}</StatusTag>
+              <Token label={row.used} size="sm" color="gray" />
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No screening packs"
         emptyDescription="Employer-designed screening packs will appear here once they are created."

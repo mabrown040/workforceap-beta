@@ -5,10 +5,11 @@ import {
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type KpiItem,
   type Column,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Token } from '@astryxdesign/core/Token';
 
 /**
  * Audit logs — the immutable privileged-action trail rendered as a dense table.
@@ -18,7 +19,7 @@ import {
  * Columns: When · Actor · Action · Target · IP.
  *  - When   → relative/short timestamp (e.g. "9:41 AM", "Yesterday").
  *  - Actor  → user full name (email as the muted sub-line on mobile cards).
- *  - Action → eventName, shown as a muted StatusTag (info tone).
+ *  - Action → eventName, shown as an Astryx Token (blue).
  *  - Target → entityType / entityId (or sourcePage fallback).
  *  - IP     → masked source IP from metadata, else "—" (system events).
  *
@@ -120,7 +121,7 @@ export function AuditLogsKit({
     {
       key: 'action',
       header: 'Action',
-      render: (row) => <StatusTag tone="info">{row.action}</StatusTag>,
+      render: (row) => <Token label={row.action} size="sm" color="blue" />,
     },
     {
       key: 'target',
@@ -156,7 +157,7 @@ export function AuditLogsKit({
         minWidth={720}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -189,7 +190,7 @@ export function AuditLogsKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone="info">{row.action}</StatusTag>
+                <Token label={row.action} size="sm" color="blue" />
               </div>
             </div>
             <div
@@ -211,7 +212,7 @@ export function AuditLogsKit({
                 {row.when} · {row.ip}
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No audit events"
         emptyDescription="Privileged actions across the portal will appear here as they happen."

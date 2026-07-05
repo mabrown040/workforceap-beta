@@ -1,12 +1,12 @@
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -17,9 +17,10 @@ import {
  *
  * One row per registered cron. Columns: Email job · Schedule · Last run ·
  * Status. Status folds the registry `enabled` flag and the latest run status
- * onto a StatusTag (Success=ok, Failed=danger, Disabled=muted). All
- * aggregation happens in the page loader and lands here as plain data.
- * DataTable mobile="cards" so the wide table stacks instead of squishing.
+ * onto an Astryx Token (Success=green, Failed=red, Disabled=gray,
+ * Pending=blue). All aggregation happens in the page loader and lands here
+ * as plain data. DataTable mobile="cards" so the wide table stacks instead
+ * of squishing.
  */
 
 /**
@@ -56,12 +57,11 @@ export interface EmailCronsKitProps {
   lastRun: string;
 }
 
-const STATUS_TONE: Record<EmailCronDisplayStatus, KitTone> = {
-  Success: 'ok',
-  // 'danger' (not 'alert') per the KitTone doc: reserved for failed/destructive states.
-  Failed: 'danger',
-  Disabled: 'muted',
-  Pending: 'info',
+const STATUS_TOKEN_COLOR: Record<EmailCronDisplayStatus, TokenColor> = {
+  Success: 'green',
+  Failed: 'red',
+  Disabled: 'gray',
+  Pending: 'blue',
 };
 
 export function EmailCronsKit({
@@ -99,7 +99,7 @@ export function EmailCronsKit({
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />,
     },
   ];
 
@@ -122,7 +122,7 @@ export function EmailCronsKit({
         minWidth={640}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -156,7 +156,7 @@ export function EmailCronsKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />
               </div>
             </div>
             <div
@@ -174,7 +174,7 @@ export function EmailCronsKit({
                 Last run <b style={{ color: 'var(--wa-text)' }}>{row.lastRun}</b>
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No email crons registered"
         emptyDescription="Registered email and workflow jobs will appear here."

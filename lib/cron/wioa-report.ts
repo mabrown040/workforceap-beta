@@ -53,12 +53,16 @@ export async function generateWioaReport(
   });
   const totalCompleters = completers.length;
 
+  // Only staff-verified placements count toward the reported totals — an
+  // employer marking someone "hired" auto-creates an unverified record.
+  const verifiedInRange = { placedAt: dateRange, startDateVerified: true } as const;
+
   const totalPlacements = await prisma.placementRecord.count({
-    where: { placedAt: dateRange },
+    where: verifiedInRange,
   });
 
   const overallAvgWageAgg = await prisma.placementRecord.aggregate({
-    where: { placedAt: dateRange },
+    where: verifiedInRange,
     _avg: { salaryOffered: true },
   });
   const overallAvgWage = overallAvgWageAgg._avg.salaryOffered ?? null;
@@ -80,14 +84,14 @@ export async function generateWioaReport(
   // Placements by program in the period
   const placementsByProgram = await prisma.placementRecord.groupBy({
     by: ['programSlug'],
-    where: { placedAt: dateRange },
+    where: verifiedInRange,
     _count: { programSlug: true },
   });
 
   // Avg wage by program in the period
   const wageByProgram = await prisma.placementRecord.groupBy({
     by: ['programSlug'],
-    where: { placedAt: dateRange },
+    where: verifiedInRange,
     _avg: { salaryOffered: true },
   });
 

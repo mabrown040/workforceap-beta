@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Award, Check, FileText } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
 /**
@@ -134,8 +137,8 @@ export function CertificationsQueueKit({
 
       {/* Gold "achievement" banner. wa-kit-card--gradient-gold falls back to a
           calm gold tint in the dense surface (per the kit). */}
-      <div
-        className="wa-kit-card wa-kit-card--gradient-gold"
+      <Card
+        className="wa-kit-card--gradient-gold"
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -184,26 +187,15 @@ export function CertificationsQueueKit({
             Review actions are read-only — no approve/reject workflow is wired yet.
           </p>
         )}
-      </div>
+      </Card>
 
       <div className="wa-space-y-3">
-        {rows.length === 0 && (
-          <div
-            className="wa-kit-card wa-kit-card--sm"
-            style={{ textAlign: 'center', color: 'var(--wa-muted)', fontSize: 13 }}
-          >
-            Nothing to review right now.
-          </div>
-        )}
+        {rows.length === 0 && <EmptyState title="Nothing to review right now." />}
         {rows.map((sub) => {
           const isBusy = pendingId === sub.id;
           const rowError = errors[sub.id];
           return (
-            <div
-              key={sub.id}
-              className="wa-kit-card wa-kit-card--sm"
-              style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-            >
+            <Card key={sub.id} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div
                 style={{
                   display: 'flex',
@@ -309,51 +301,24 @@ export function CertificationsQueueKit({
                 )}
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, flexShrink: 0, marginLeft: 'auto' }}>
-                  <button
-                    type="button"
-                    className="wa-kit-focus"
-                    disabled={!actionsEnabled || isBusy}
+                  <Button
+                    label={isBusy ? 'Saving…' : 'Approve'}
+                    variant="primary"
+                    size="sm"
+                    icon={<Check size={13} />}
+                    isDisabled={!actionsEnabled || isBusy}
+                    isLoading={isBusy}
+                    tooltip={actionsEnabled ? undefined : 'Credential review is not yet available'}
                     onClick={() => handleReview(sub.id, 'approve')}
-                    title={actionsEnabled ? undefined : 'Credential review is not yet available'}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      minHeight: 44,
-                      padding: '8px 14px',
-                      borderRadius: 999,
-                      border: 'none',
-                      background: 'var(--wa-success)',
-                      color: 'var(--wa-on-accent)',
-                      fontWeight: 700,
-                      fontSize: 12,
-                      cursor: actionsEnabled && !isBusy ? 'pointer' : 'not-allowed',
-                      opacity: actionsEnabled && !isBusy ? 1 : 0.5,
-                    }}
-                  >
-                    <Check size={13} /> {isBusy ? 'Saving…' : 'Approve'}
-                  </button>
-                  <button
-                    type="button"
-                    className="wa-kit-focus"
-                    disabled={!actionsEnabled || isBusy}
+                  />
+                  <Button
+                    label="Reject"
+                    variant="secondary"
+                    size="sm"
+                    isDisabled={!actionsEnabled || isBusy}
+                    tooltip={actionsEnabled ? undefined : 'Credential review is not yet available'}
                     onClick={() => handleReview(sub.id, 'reject')}
-                    title={actionsEnabled ? undefined : 'Credential review is not yet available'}
-                    style={{
-                      minHeight: 44,
-                      padding: '8px 14px',
-                      borderRadius: 999,
-                      border: '1px solid var(--wa-border)',
-                      background: 'var(--wa-surface)',
-                      color: 'var(--wa-text)',
-                      fontWeight: 700,
-                      fontSize: 12,
-                      cursor: actionsEnabled && !isBusy ? 'pointer' : 'not-allowed',
-                      opacity: actionsEnabled && !isBusy ? 1 : 0.5,
-                    }}
-                  >
-                    Reject
-                  </button>
+                  />
                 </div>
               </div>
 
@@ -370,7 +335,7 @@ export function CertificationsQueueKit({
                   {rowError}
                 </p>
               )}
-            </div>
+            </Card>
           );
         })}
       </div>

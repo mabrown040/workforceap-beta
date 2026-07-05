@@ -40,7 +40,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
           memberProgramProgress: {
             select: { programSlug: true, averagePercent: true, coursesCompleted: true },
           },
-          placementRecord: { select: { id: true } },
+          placementRecord: { select: { id: true, startDateVerified: true } },
         },
       }),
     ),
@@ -97,7 +97,8 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
       (progress.pct >= 100 || progress.completedCount >= progress.totalCourses);
     if (isCompleted) agg.completed += 1;
 
-    if (u.placementRecord) agg.placed += 1;
+    // Only staff-verified placements count toward funder-reported placement totals.
+    if (u.placementRecord?.startDateVerified) agg.placed += 1;
   }
 
   const rows: FunderProgramSummaryRow[] = [];

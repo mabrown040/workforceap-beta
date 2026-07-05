@@ -1,12 +1,11 @@
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -44,9 +43,9 @@ export interface PlacementSurveysKitProps {
   stillEmployedRate: string;
 }
 
-const STATUS_TONE: Record<PlacementSurveyRow['status'], KitTone> = {
-  Complete: 'ok',
-  Sent: 'info',
+const STATUS_TONE: Record<PlacementSurveyRow['status'], TokenColor> = {
+  Complete: 'green',
+  Sent: 'blue',
 };
 
 export function PlacementSurveysKit({
@@ -87,7 +86,7 @@ export function PlacementSurveysKit({
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />,
     },
     {
       key: 'stillEmployed',
@@ -143,7 +142,7 @@ export function PlacementSurveysKit({
                 <div style={{ fontSize: 10, color: 'var(--wa-muted)' }}>{row.stage}</div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />
               </div>
             </div>
             <div

@@ -4,11 +4,11 @@ import {
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 
 /**
  * Invites — bulk member & partner invitations (dense).
@@ -44,11 +44,11 @@ export interface InvitesKitProps {
   action?: ReactNode;
 }
 
-const STATUS_TONE: Record<InviteRow['status'], KitTone> = {
-  pending: 'warn',
-  accepted: 'ok',
-  expired: 'muted',
-  revoked: 'alert',
+const STATUS_COLOR: Record<InviteRow['status'], TokenColor> = {
+  pending: 'yellow',
+  accepted: 'green',
+  expired: 'gray',
+  revoked: 'pink',
 };
 
 const STATUS_LABEL: Record<InviteRow['status'], string> = {
@@ -110,7 +110,7 @@ export function InvitesKit({
       key: 'status',
       header: 'Status',
       render: (row) => (
-        <StatusTag tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</StatusTag>
+        <Token label={STATUS_LABEL[row.status]} size="sm" color={STATUS_COLOR[row.status]} />
       ),
     },
   ];
@@ -135,7 +135,7 @@ export function InvitesKit({
         minWidth={520}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card className="wa-kit-card--sm">
             <div
               style={{
                 display: 'flex',
@@ -157,9 +157,7 @@ export function InvitesKit({
                 {row.email}
               </span>
               <span style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>
-                  {STATUS_LABEL[row.status]}
-                </StatusTag>
+                <Token label={STATUS_LABEL[row.status]} size="sm" color={STATUS_COLOR[row.status]} />
               </span>
             </div>
             <div
@@ -179,7 +177,7 @@ export function InvitesKit({
               </span>
               <span>Sent {row.sent}</span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No invitations yet"
         emptyDescription="Send invites to add members, partners, or counselors to the platform."

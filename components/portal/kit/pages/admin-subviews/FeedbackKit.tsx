@@ -4,11 +4,11 @@ import {
   KpiStrip,
   DataTable,
   Avatar,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 
 /**
  * Member feedback — submissions rendered as a dense read table.
@@ -52,18 +52,18 @@ export interface FeedbackKitProps {
   avgRating: string;
 }
 
-const SENTIMENT_TONE: Record<FeedbackSentiment, KitTone> = {
-  Positive: 'ok',
-  Neutral: 'warn',
-  Critical: 'alert',
+const SENTIMENT_COLOR: Record<FeedbackSentiment, TokenColor> = {
+  Positive: 'green',
+  Neutral: 'yellow',
+  Critical: 'pink',
 };
 
-const TYPE_TONE: Record<string, KitTone> = {
-  training: 'info',
-  counselor: 'info',
-  platform: 'muted',
-  program: 'info',
-  general: 'muted',
+const TYPE_COLOR: Record<string, TokenColor> = {
+  training: 'blue',
+  counselor: 'blue',
+  platform: 'gray',
+  program: 'blue',
+  general: 'gray',
 };
 
 function titleCase(s: string): string {
@@ -139,7 +139,7 @@ export function FeedbackKit({
       key: 'type',
       header: 'Type',
       render: (row) => (
-        <StatusTag tone={TYPE_TONE[row.type] ?? 'muted'}>{titleCase(row.type)}</StatusTag>
+        <Token label={titleCase(row.type)} size="sm" color={TYPE_COLOR[row.type] ?? 'gray'} />
       ),
     },
     {
@@ -154,7 +154,7 @@ export function FeedbackKit({
       key: 'sentiment',
       header: 'Status',
       render: (row) => (
-        <StatusTag tone={SENTIMENT_TONE[row.sentiment]}>{row.sentiment}</StatusTag>
+        <Token label={row.sentiment} size="sm" color={SENTIMENT_COLOR[row.sentiment]} />
       ),
     },
     {
@@ -186,7 +186,7 @@ export function FeedbackKit({
         minWidth={820}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div
               style={{
                 display: 'flex',
@@ -199,7 +199,7 @@ export function FeedbackKit({
                 <MemberCell row={row} />
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={SENTIMENT_TONE[row.sentiment]}>{row.sentiment}</StatusTag>
+                <Token label={row.sentiment} size="sm" color={SENTIMENT_COLOR[row.sentiment]} />
               </div>
             </div>
             <p
@@ -225,13 +225,13 @@ export function FeedbackKit({
               }}
             >
               <span>
-                <StatusTag tone={TYPE_TONE[row.type] ?? 'muted'}>{titleCase(row.type)}</StatusTag>
+                <Token label={titleCase(row.type)} size="sm" color={TYPE_COLOR[row.type] ?? 'gray'} />
               </span>
               <span style={numStyle}>
                 <b style={{ color: 'var(--wa-text)' }}>{row.rating}/5</b> · {row.submitted}
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No feedback yet"
         emptyDescription="Member feedback on training, counselors, and the platform will appear here."

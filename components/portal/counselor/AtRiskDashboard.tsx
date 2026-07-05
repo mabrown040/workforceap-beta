@@ -453,15 +453,18 @@ export function AtRiskDashboardView({
 
         {/* Severity KPI row */}
         <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
-          {RISK_LEVEL_ORDER.map((level) => (
-            <StatSparkTile
-              key={level}
-              icon={RISK_CONFIG[level].icon}
-              label={`${RISK_CONFIG[level].label} risk`}
-              value={severityCounts[level]}
-              color={RISK_CONFIG[level].color}
-            />
-          ))}
+          {RISK_LEVEL_ORDER.map((level) => {
+            const Icon = RISK_CONFIG[level].icon;
+            return (
+              <StatSparkTile
+                key={level}
+                icon={<Icon size={16} />}
+                label={`${RISK_CONFIG[level].label} risk`}
+                value={severityCounts[level]}
+                color={RISK_CONFIG[level].color}
+              />
+            );
+          })}
         </div>
 
         {/* Filter bar */}

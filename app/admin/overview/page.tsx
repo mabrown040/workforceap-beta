@@ -169,7 +169,20 @@ export default async function AdminOverviewPage() {
         select: placementRecordBaseSelect,
       }),
       prisma.application.count({ where: { status: 'PENDING' } }),
-      Promise.resolve([] as PendingPlacementWithUser[]),
+      prisma.placementRecord.findMany({
+        where: { startDateVerified: false },
+        orderBy: { placedAt: 'asc' },
+        take: 10,
+        select: {
+          id: true,
+          employerName: true,
+          jobTitle: true,
+          placedAt: true,
+          user: {
+            select: { id: true, fullName: true, email: true, enrolledProgram: true },
+          },
+        },
+      }),
     ]);
 
     if (totalMembersResult.status === 'rejected') {
@@ -397,7 +410,7 @@ export default async function AdminOverviewPage() {
           {metricCards.map((card) => (
             <Link key={card.label} href={card.href} className="wa-kit-focus" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
               <div style={{ position: 'relative' }}>
-                <StatSparkTile icon={card.icon} label={card.label} value={card.value} color={card.color} />
+                <StatSparkTile icon={<card.icon size={16} />} label={card.label} value={card.value} color={card.color} />
                 <ArrowUpRight
                   size={14}
                   aria-hidden

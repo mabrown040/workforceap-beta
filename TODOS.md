@@ -44,6 +44,109 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## Mission Instrumentation (Wave A, R20) — 2026-07-05
+
+Findings from a CEO-level review of "make mission instrumentation real": engagement
+tracking, at-risk detection, and placement verification. Shipped this round: grant/
+funder reporting (`quarterlyOutcomes`, `funderProgramMetrics`, `wioa-report`, partner
+outcomes/demographics export) now only counts `startDateVerified: true` placements;
+the dead "Pending Placements" admin-overview card (`Promise.resolve([])`) now queries
+real unverified records; at-risk scoring's binary, cron-lagged `STALE_TRAINING` flag
+is replaced with a graduated severity tier keyed on `CourseProgress.lastActivityAt`
+(the real xAPI-driven signal, already fetched in `calculateAtRiskScore` but previously
+unused there). Deferred items below, not silently dropped.
+
+### TODO-005: Verify the unverified-placement backlog before the next funder report cycle
+
+**What:** This sandbox has no live DB access, so the actual count of pre-existing
+placements with `startDateVerified: false` that predate this fix is unknown. Once
+deployed, check `/admin/placements` (the "To Confirm" count) or query
+`SELECT count(*) FROM placement_records WHERE start_date_verified = false` before the
+next WIOA monthly report cron run or quarterly outcomes export.
+
+**Why it matters:** Reported placement/wage numbers may drop from what was previously
+reported (if that backlog is non-trivial) now that unverified records are excluded.
+That's the intended, defensible behavior — but funders/board should hear about a
+number change from staff, not notice it themselves.
+
+**Owner:** Admin/counselor staff, before the next report cycle.
+
+---
+
+### TODO-006: Consolidate the five independent "at-risk" implementations
+
+**What:** The codebase has at least five separate, disagreeing notions of member risk:
+1. `lib/member/atRiskScoring.ts` `calculateAtRiskScore` — the real 0–100 scorer, persisted to `AtRiskAlert`, drives the counselor dashboard + digest emails.
+2. Same file's `classifyMember` (G5 retention loop, green/yellow/red tiers) — different thresholds, drives nudge emails only.
+3. `lib/admin/commandCenter.ts` `loadAtRisk` — ad-hoc SQL, 14-day inactivity cutoff, feeds the admin command-center widget.
+4. `lib/counselor/commandCenter.ts` `AtRiskRow` — ad-hoc, 7-day-no-`MemberEvent` cutoff, feeds the counselor command-center widget.
+5. `lib/partner/attentionQueue.ts` `computeRiskTier` — 3/7/14-day pipeline-staleness risk, a different concept (referral staleness, not engagement).
+
+**Why it matters:** Different dashboards can show a different risk picture for the
+same member on the same day. Counselors lose trust in "at risk" as a signal if the
+admin command center, the counselor command center, and the at-risk dashboard
+disagree about who needs outreach.
+
+**Recommended:** Make #3 and #4 read from the persisted `AtRiskAlert` table (already
+computed nightly) instead of re-deriving their own threshold in raw SQL. Leave #2 (G5
+nudge cadence) and #5 (partner pipeline staleness) as-is — they answer genuinely
+different questions ("when to send a nudge email" and "is this referral going cold")
+rather than "is this member at risk," so collapsing them would lose signal, not gain it.
+
+**Deferred because:** Touches four dashboards staff use daily; wanted the higher-value,
+lower-risk fixes (verification integrity, xAPI signal) shipped and reviewed first.
+
+---
+
+### TODO-007: `MemberEvent.eventName` taxonomy cleanup
+
+**What:** ~60 distinct event names exist across two write paths — a typed 45-value
+union (`lib/events/track.ts`) and ~15 files calling `prisma.memberEvent.create()`
+directly with untyped literals in inconsistent casing (`snake_case`,
+`career_os.dot.namespaced`, `SCREAMING_SNAKE`). `app/api/events/route.ts` also accepts
+any string 1–100 chars from the client, force-cast past the typed union.
+
+**Why it matters:** Any future analytics/rollup work on top of `MemberEvent` inherits
+this inconsistency — `GROUP BY event_name` will undercount events that are
+semantically the same but spelled differently.
+
+**Deferred because:** A naming migration touches historical data interpretation (do
+old rows get renamed or does the analysis need to know both names existed); wanted
+this scoped as its own pass rather than folded into the verification/scoring fixes.
+
+---
+
+### TODO-008: `lib/**/*.test.ts` vitest lane doesn't run in CI (pre-existing, discovered this round)
+
+**What:** `vitest.config.ts`'s `include` lists `lib/**/*.test.ts`, but the `exclude`
+array lists the identical glob — so despite ~18 files (`quarterlyOutcomes.test.ts`,
+`metrics.test.ts`, `memberMerge.test.ts`, etc.) being explicitly allowlisted in
+`scripts/test-unit.mjs`'s `KNOWN_VITEST_SPECS` as "these are vitest specs, skip them
+in the node:test runner," nothing actually runs them under vitest either — the
+identical exclude entry wins. These specs currently execute in neither test runner.
+
+**Confirmed real:** manually running vitest with the conflicting exclude line removed
+surfaces 2 genuine pre-existing failures in `quarterlyOutcomes.test.ts` ("computes
+basic metrics correctly", "counts certifications as completions" — both expect
+`completions` to be 1, get 0; unrelated to this round's changes) plus otherwise-passing
+coverage across the other 17 files.
+
+**Why it matters:** ~18 Prisma-mocked specs covering admin analytics, member merge,
+quarterly outcomes, and xAPI verb progress currently provide zero CI signal. A
+regression in any of them would ship unnoticed.
+
+**Deferred because:** Fixing the config exclude turns on the whole lane at once,
+which would immediately surface the 2 pre-existing failures above (and possibly
+more) as new CI red — a broader fix than this round's scope, and one that needs
+someone to actually debug the completion-counting logic, not just flip a switch.
+
+**Recommended:** Fix the two pre-existing `quarterlyOutcomes` failures first, then
+remove the `lib/**/*.test.ts` line from `vitest.config.ts`'s `exclude` array and add a
+`test:vitest` step to CI (the script already exists at `package.json`'s
+`test:vitest`, it's just never invoked).
+
+---
+
 ## Unresolved Design Decision #1: Training vs Coursera Hub Architecture
 
 **Decision needed:** Is `/dashboard/training` the single source of truth for course progress, or are Training and Coursera two intentionally distinct pages with different jobs?

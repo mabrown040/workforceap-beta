@@ -8,6 +8,7 @@ import {
   type KpiItem,
   type KitTone,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
 
 /**
  * Data retention — policies, storage usage & cleanup history (dense).
@@ -213,7 +214,7 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
           minWidth={640}
           mobile="cards"
           cardRender={(row) => (
-            <div className="wa-kit-card wa-kit-card--sm">
+            <Card>
               <div
                 style={{
                   display: 'flex',
@@ -251,7 +252,7 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
                   </b>
                 </span>
               </div>
-            </div>
+            </Card>
           )}
           emptyTitle="No policies configured"
           emptyDescription="Retention policies are defined in lib/retention/config.ts."
@@ -269,7 +270,7 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
           minWidth={420}
           mobile="cards"
           cardRender={(row) => (
-            <div className="wa-kit-card wa-kit-card--sm">
+            <Card>
               <div
                 style={{
                   display: 'flex',
@@ -286,7 +287,7 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
                   Rows <b style={{ color: 'var(--wa-text)' }}>{row.rowCount.toLocaleString()}</b>
                 </span>
               </div>
-            </div>
+            </Card>
           )}
           emptyTitle="No storage data"
           emptyDescription="Table statistics are unavailable for the monitored tables."
@@ -304,7 +305,7 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
           minWidth={620}
           mobile="cards"
           cardRender={(row) => (
-            <div className="wa-kit-card wa-kit-card--sm">
+            <Card>
               <div
                 style={{
                   display: 'flex',
@@ -329,7 +330,7 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
                   <p style={{ color: 'var(--wa-accent)', margin: '6px 0 0' }}>{row.errorMessage}</p>
                 ) : null}
               </div>
-            </div>
+            </Card>
           )}
           emptyTitle="No cleanup runs yet"
           emptyDescription="The data_cleanup job has not run, or its history has been pruned."

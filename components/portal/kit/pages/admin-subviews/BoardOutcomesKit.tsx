@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { FileSpreadsheet, Users, ArrowRight } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
 import {
   DesignSurface,
   KpiStrip,
@@ -100,7 +102,7 @@ export function BoardOutcomesKit({
             which can otherwise let the flex bar row force horizontal overflow.
             The chart itself is fluid (flex:1 bars + height only), so it stays
             in width and desktop is unchanged. */}
-        <div className="wa-kit-card lg:wa-col-span-2" style={{ minWidth: 0 }}>
+        <Card className="lg:wa-col-span-2" style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>
             Placements by month
           </h3>
@@ -114,11 +116,11 @@ export function BoardOutcomesKit({
               No placements recorded for this period yet.
             </p>
           )}
-        </div>
+        </Card>
 
         {/* By program — same `minWidth: 0` guard; RankBars are %-width, so
             they stay within the column at any phone width. */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 16 }}>
             By program
           </h3>
@@ -129,12 +131,12 @@ export function BoardOutcomesKit({
               No placements by program yet.
             </p>
           )}
-        </div>
+        </Card>
       </div>
 
       {/* Funder exports */}
       {showExports && (
-      <div className="wa-kit-card wa-mt-6">
+      <Card className="wa-mt-6">
         <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 4 }}>
           Funder exports
         </h3>
@@ -143,46 +145,43 @@ export function BoardOutcomesKit({
         </p>
         <div className="wa-space-y-2">
           {exports.map((exp) => (
-            <a
-              key={exp.label}
-              href={exp.href}
-              className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
+            <ClickableCard key={exp.label} label={exp.label} href={exp.href} padding={3}>
               <div
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 12,
-                  background: 'var(--wa-accent-soft)',
-                  color: 'var(--wa-accent)',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
+                  gap: 12,
                 }}
               >
-                {exp.label === 'Demographics report' ? (
-                  <Users size={18} aria-hidden />
-                ) : (
-                  <FileSpreadsheet size={18} aria-hidden />
-                )}
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 12,
+                    background: 'var(--wa-accent-soft)',
+                    color: 'var(--wa-accent)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {exp.label === 'Demographics report' ? (
+                    <Users size={18} aria-hidden />
+                  ) : (
+                    <FileSpreadsheet size={18} aria-hidden />
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{exp.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{exp.description}</div>
+                </div>
+                <ArrowRight size={16} aria-hidden style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
               </div>
-              <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>{exp.label}</div>
-                <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{exp.description}</div>
-              </div>
-              <ArrowRight size={16} aria-hidden style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
-            </a>
+            </ClickableCard>
           ))}
         </div>
-      </div>
+      </Card>
       )}
     </DesignSurface>
   );

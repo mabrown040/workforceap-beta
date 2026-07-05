@@ -172,15 +172,18 @@ export default function CounselorPriorityQueue({ rows, totals }: CounselorPriori
 
         {/* Bucket totals */}
         <div className="wa-grid wa-grid-cols-3 wa-gap-3">
-          {(['critical', 'warning', 'ontrack'] as const).map((bucket) => (
-            <StatSparkTile
-              key={bucket}
-              icon={BUCKET_STYLE[bucket].icon}
-              label={bucketLabel(bucket, t)}
-              value={totals[bucket]}
-              color={BUCKET_STYLE[bucket].color}
-            />
-          ))}
+          {(['critical', 'warning', 'ontrack'] as const).map((bucket) => {
+            const Icon = BUCKET_STYLE[bucket].icon;
+            return (
+              <StatSparkTile
+                key={bucket}
+                icon={<Icon size={16} />}
+                label={bucketLabel(bucket, t)}
+                value={totals[bucket]}
+                color={BUCKET_STYLE[bucket].color}
+              />
+            );
+          })}
         </div>
 
         {/* Sort control */}

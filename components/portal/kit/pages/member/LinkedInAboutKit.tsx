@@ -1,3 +1,4 @@
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -21,9 +22,9 @@ export function LinkedInAboutKit({ userId }: { userId: string }) {
           title="LinkedIn About"
           goal="Add your target role and highlights. If you have a resume on file, we prefill from it and use the full text when generating your 3-paragraph About section."
         />
-        <div className="wa-kit-card">
+        <Card>
           <LinkedInAboutForm />
-        </div>
+        </Card>
         <ToolHistoryPanel userId={userId} toolType="linkedin_about" />
       </div>
     </DesignSurface>

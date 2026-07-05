@@ -6,6 +6,8 @@ import {
   type KpiItem,
   type RankDatum,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 
 /**
  * Analytics — engagement & funnel analytics workspace.
@@ -41,9 +43,7 @@ const DEFAULT_KPIS: KpiItem[] = [
   { label: 'Voice Sessions', value: 0, color: 'gold' },
 ];
 
-const EMPTY_HINT = (
-  <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0 }}>No data for this period yet.</p>
-);
+const EMPTY_HINT = <EmptyState title="No data for this period yet." isCompact />;
 
 export function AnalyticsKit({
   kpis = DEFAULT_KPIS,
@@ -63,7 +63,7 @@ export function AnalyticsKit({
         {/* Most-used tools (last 30 days). `minWidth: 0` lets this grid column
             shrink to the viewport on phones; RankBars are %-width so they stay
             within the column at any width. */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 2 }}>
             Most-used tools
           </h3>
@@ -71,10 +71,10 @@ export function AnalyticsKit({
             last 30 days
           </p>
           {topTools && topTools.length > 0 ? <RankBars data={topTools} /> : EMPTY_HINT}
-        </div>
+        </Card>
 
         {/* Weekly active by program. */}
-        <div className="wa-kit-card" style={{ minWidth: 0 }}>
+        <Card style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 16 }}>
             Weekly active by program
           </h3>
@@ -83,7 +83,7 @@ export function AnalyticsKit({
           ) : (
             EMPTY_HINT
           )}
-        </div>
+        </Card>
       </div>
     </DesignSurface>
   );

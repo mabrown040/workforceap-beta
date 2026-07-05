@@ -2,17 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Card } from '@astryxdesign/core/Card';
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
   Avatar,
-  StatusTag,
-  ProgressBar,
   colorVar,
   type Column,
   type KitColor,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -104,12 +105,13 @@ const DEFAULT_STUDENTS: StudentRow[] = [
 
 const FILTERS: StudentFilter[] = ['All', 'Job-Ready', 'At Risk', 'In Training'];
 
-const STATUS_TONE: Record<StudentStatus, KitTone> = {
-  'Job-Ready': 'warn',
-  Placed: 'ok',
-  'At Risk': 'alert',
-  Interviewing: 'info',
-  'In Training': 'muted',
+/** Maps the kit's semantic tone vocabulary to a real Token color. */
+const STATUS_TOKEN_COLOR: Record<StudentStatus, TokenColor> = {
+  'Job-Ready': 'orange',
+  Placed: 'green',
+  'At Risk': 'pink',
+  Interviewing: 'blue',
+  'In Training': 'gray',
 };
 
 function matchesFilter(student: StudentRow, filter: StudentFilter): boolean {
@@ -170,9 +172,10 @@ export function StudentsRosterKit({
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <div style={{ width: 72 }}>
         <ProgressBar
-          pct={row.progress}
-          color={row.status === 'At Risk' ? 'accent' : 'success'}
-          aria-label={`${row.name} progress ${row.progress}%`}
+          value={row.progress}
+          label={`${row.name} progress`}
+          isLabelHidden
+          variant={row.status === 'At Risk' ? 'accent' : 'success'}
         />
       </div>
       <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--wa-muted)' }}>
@@ -208,7 +211,7 @@ export function StudentsRosterKit({
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />,
     },
     {
       key: 'lastActive',
@@ -227,46 +230,18 @@ export function StudentsRosterKit({
       <SectionHeader title="Students" kicker="People" goal="Find and act on any student." />
 
       {/* Saved-view filter chips */}
-      <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2 wa-mb-5" role="group" aria-label="Roster filters">
-        {FILTERS.map((f) => {
-          const on = active === f;
-          const isRisk = f === 'At Risk';
-          return (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setActive(f)}
-              aria-pressed={on}
-              className="wa-kit-focus"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                minHeight: 44,
-                padding: '8px 14px',
-                borderRadius: 999,
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: 'pointer',
-                border: '1px solid',
-                borderColor: on ? 'transparent' : isRisk ? 'var(--wa-accent-soft)' : 'var(--wa-border)',
-                background: on ? 'var(--wa-accent)' : 'var(--wa-surface)',
-                color: on ? 'var(--wa-on-accent)' : isRisk ? 'var(--wa-accent)' : 'var(--wa-text)',
-              }}
-            >
-              {f}
-              <span
-                style={{
-                  fontVariantNumeric: 'tabular-nums',
-                  opacity: on ? 0.85 : 0.6,
-                  color: on ? 'var(--wa-on-accent)' : isRisk ? 'var(--wa-accent)' : 'var(--wa-muted)',
-                }}
-              >
-                {counts[f]}
-              </span>
-            </button>
-          );
-        })}
+      <div className="wa-mb-5">
+        <SegmentedControl
+          value={active}
+          onChange={(v) => setActive(v as StudentFilter)}
+          label="Roster filters"
+          size="sm"
+          layout="hug"
+        >
+          {FILTERS.map((f) => (
+            <SegmentedControlItem key={f} value={f} label={`${f} · ${counts[f]}`} />
+          ))}
+        </SegmentedControl>
       </div>
 
       <DataTable<StudentRow>
@@ -277,13 +252,13 @@ export function StudentsRosterKit({
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <StudentCell row={row} />
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />
               </div>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, fontSize: 11, color: 'var(--wa-muted)', margin: '12px 0 4px' }}>
@@ -301,14 +276,15 @@ export function StudentsRosterKit({
               </span>
             </div>
             <ProgressBar
-              pct={row.progress}
-              color={row.status === 'At Risk' ? 'accent' : 'success'}
-              aria-label={`${row.name} progress ${row.progress}%`}
+              value={row.progress}
+              label={`${row.name} progress`}
+              isLabelHidden
+              variant={row.status === 'At Risk' ? 'accent' : 'success'}
             />
             <div style={{ fontSize: 10, color: 'var(--wa-muted)', marginTop: 6 }}>
               {row.progress}% complete · last active {row.lastActive}
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No students match this view"
         emptyDescription="Try a different filter."

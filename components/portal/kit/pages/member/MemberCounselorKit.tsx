@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { MessagesSquare, ArrowRight } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface } from '@/components/portal/kit';
 
 /**
@@ -67,20 +68,22 @@ export function MemberCounselorKit({ title, subtitle, voiceSurface, pastSessions
                 <Link
                   key={session.id}
                   href={`/dashboard/counselor/${session.id}`}
-                  className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
+                  className="wa-kit-focus"
                   style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
                 >
-                  <div className="wa-flex wa-items-center wa-justify-between wa-gap-3">
-                    <p style={{ fontSize: 12, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{session.dateLabel}</p>
-                    <ArrowRight size={13} aria-hidden="true" style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
-                  </div>
-                  {session.steps.length > 0 ? (
-                    <ul style={{ margin: '6px 0 0', padding: '0 0 0 1.1rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      {session.steps.map((step, i) => (
-                        <li key={i} style={{ fontSize: 13, color: 'var(--wa-text)' }}>{step}</li>
-                      ))}
-                    </ul>
-                  ) : null}
+                  <Card>
+                    <div className="wa-flex wa-items-center wa-justify-between wa-gap-3">
+                      <p style={{ fontSize: 12, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{session.dateLabel}</p>
+                      <ArrowRight size={13} aria-hidden="true" style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
+                    </div>
+                    {session.steps.length > 0 ? (
+                      <ul style={{ margin: '6px 0 0', padding: '0 0 0 1.1rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {session.steps.map((step, i) => (
+                          <li key={i} style={{ fontSize: 13, color: 'var(--wa-text)' }}>{step}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </Card>
                 </Link>
               ))}
             </div>

@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Linkedin, Building2 } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Token } from '@astryxdesign/core/Token';
 import { DesignSurface, Avatar } from '@/components/portal/kit';
 
 /**
@@ -47,7 +49,7 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
           <ArrowLeft size={13} aria-hidden="true" /> Back to mentors
         </Link>
 
-        <div className="wa-kit-card">
+        <Card>
           <div className="wa-flex wa-items-center wa-gap-4" style={{ flexWrap: 'wrap' }}>
             <Avatar initials={initialsOf(mentor.fullName)} size={56} />
             <div style={{ minWidth: 0, flex: 1 }}>
@@ -61,7 +63,7 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
                 <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2 }}>{metaLine}</p>
               ) : null}
             </div>
-            {mentor.industry ? <span className="wa-kit-tag wa-kit-tag--info">{mentor.industry}</span> : null}
+            {mentor.industry ? <Token label={mentor.industry} size="sm" color="blue" /> : null}
           </div>
 
           {mentor.bio ? (
@@ -86,14 +88,14 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
               </a>
             ) : null}
           </div>
-        </div>
+        </Card>
 
-        <div className="wa-kit-card">
+        <Card>
           <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
             Pick a time and share what you&rsquo;d like to cover — {mentor.fullName.split(' ')[0]} will confirm by email.
           </p>
           {sessionForm}
-        </div>
+        </Card>
       </div>
     </DesignSurface>
   );

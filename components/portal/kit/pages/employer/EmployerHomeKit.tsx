@@ -2,6 +2,10 @@
 
 import type { LucideIcon } from 'lucide-react';
 import { Briefcase, Users, CalendarClock, Award, ChevronRight, HeartHandshake, SquarePen } from 'lucide-react';
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DataTable,
   DesignSurface,
@@ -220,7 +224,7 @@ const candidateColumns: Column<EmployerCandidateRow>[] = [
 function candidateCard(row: EmployerCandidateRow) {
   const stage = stageForStatus(row.status);
   const content = (
-    <div className="wa-kit-card wa-kit-card--sm">
+    <Card padding={3}>
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-3">
         <div className="wa-flex wa-items-center wa-gap-3" style={{ minWidth: 0 }}>
           <Avatar initials={kitInitials(row.name)} size={32} />
@@ -241,7 +245,7 @@ function candidateCard(row: EmployerCandidateRow) {
           <span style={{ fontSize: 11, color: 'var(--wa-muted)', fontWeight: 600 }}>{row.appliedLabel}</span>
         ) : null}
       </div>
-    </div>
+    </Card>
   );
   return row.href ? (
     <a href={row.href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
@@ -294,32 +298,21 @@ export function EmployerHomeKit({
           title="Hiring"
           goal="Open roles, pipeline, and where every candidate stands right now."
           action={
-            <a
-              href={postRoleHref}
-              className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '10px 18px',
-                minHeight: 44,
-                background: 'var(--wa-accent)',
-                color: 'var(--wa-on-accent)',
-                fontWeight: 700,
-                fontSize: 13,
-                borderRadius: 999,
-                textDecoration: 'none',
-              }}
-            >
-              <SquarePen size={14} aria-hidden /> Post a role
-            </a>
+            <AstryxLink href={postRoleHref} as={NextLink as never} isStandalone>
+              <Button
+                label="Post a role"
+                variant="primary"
+                size="sm"
+                icon={<SquarePen size={14} aria-hidden />}
+              />
+            </AstryxLink>
           }
         />
 
         {/* 2. KPI row — icon chip + optional delta chip + sparkline. */}
         <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
           {kpiTiles.map((t) => (
-            <StatSparkTile key={t.key} icon={t.icon} label={t.label} value={t.value} color={t.color} spark={t.spark} />
+            <StatSparkTile key={t.key} icon={<t.icon size={16} />} label={t.label} value={t.value} color={t.color} spark={t.spark} />
           ))}
         </div>
 
@@ -349,7 +342,7 @@ export function EmployerHomeKit({
           </div>
 
           <div className="lg:wa-col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="wa-kit-card">
+            <Card>
               <CardHead title="Open roles" linkLabel="Manage" linkHref={jobsHref} />
               {openRolesList.length === 0 ? (
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0 }}>
@@ -374,7 +367,7 @@ export function EmployerHomeKit({
                   ))}
                 </div>
               )}
-            </div>
+            </Card>
 
             <FeatureTile
               icon={<HeartHandshake size={22} aria-hidden />}

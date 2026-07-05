@@ -4,11 +4,11 @@ import {
   KpiStrip,
   DataTable,
   Avatar,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
 
 /**
  * Counselors roster — staff caseload & performance (dense).
@@ -50,10 +50,10 @@ export interface CounselorsRosterKitProps {
   avgResponse: string;
 }
 
-const LOAD_TONE: Record<CounselorRow['load'], KitTone> = {
-  Over: 'alert',
-  Balanced: 'ok',
-  Light: 'info',
+const LOAD_TOKEN_COLOR: Record<CounselorRow['load'], TokenColor> = {
+  Over: 'pink',
+  Balanced: 'green',
+  Light: 'blue',
 };
 
 export function CounselorsRosterKit({
@@ -148,7 +148,7 @@ export function CounselorsRosterKit({
     {
       key: 'load',
       header: 'Load',
-      render: (row) => <StatusTag tone={LOAD_TONE[row.load]}>{row.load}</StatusTag>,
+      render: (row) => <Token label={row.load} size="sm" color={LOAD_TOKEN_COLOR[row.load]} />,
     },
   ];
 
@@ -171,7 +171,7 @@ export function CounselorsRosterKit({
         minWidth={680}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -184,7 +184,7 @@ export function CounselorsRosterKit({
                 <CounselorCell row={row} />
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={LOAD_TONE[row.load]}>{row.load}</StatusTag>
+                <Token label={row.load} size="sm" color={LOAD_TOKEN_COLOR[row.load]} />
               </div>
             </div>
             <div
@@ -213,7 +213,7 @@ export function CounselorsRosterKit({
               </span>
               <span style={numStyle}>Resp {row.avgResponse}</span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No counselors yet"
         emptyDescription="Add a counselor to start tracking caseload and performance."

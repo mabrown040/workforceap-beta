@@ -1,3 +1,6 @@
+import NextLink from 'next/link';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
@@ -141,24 +144,9 @@ export function AgentInboxKit({
         kicker="Agentforce"
         goal={goal}
         action={
-          <a
-            href="/admin/agent-inbox?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            Review &amp; Send
-          </a>
+          <AstryxLink href="/admin/agent-inbox?ui=legacy" as={NextLink as never} isStandalone>
+            <Button label="Review & Send" variant="primary" size="sm" />
+          </AstryxLink>
         }
       />
 

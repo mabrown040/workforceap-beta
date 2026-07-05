@@ -8,8 +8,8 @@
  */
 'use client';
 
+import type { ReactNode } from 'react';
 import { ArrowUp, ArrowDown } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { Card } from '@astryxdesign/core/Card';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Link as AstryxLink } from '@astryxdesign/core/Link';
@@ -63,13 +63,19 @@ export function DeltaChip({ delta, direction = 'up' }: { delta: string; directio
  * crimson accent). This is the richer counterpart to the text-only StatTile.
  */
 export function StatSparkTile({
-  icon: Icon,
+  icon,
   label,
   value,
   color = 'accent',
   spark,
 }: {
-  icon: LucideIcon;
+  /**
+   * A rendered icon element, e.g. `<Users size={16} />` — not the bare
+   * component reference. This file is a Client Component, so Server
+   * Component callers must render the icon themselves before passing it in;
+   * a raw `LucideIcon` component reference cannot cross that boundary.
+   */
+  icon: ReactNode;
   label: string;
   value: string | number;
   color?: KitColor;
@@ -94,7 +100,7 @@ export function StatSparkTile({
             color: c,
           }}
         >
-          <Icon size={16} />
+          {icon}
         </div>
         {spark?.delta ? <DeltaChip delta={spark.delta} direction={spark.direction} /> : null}
       </div>

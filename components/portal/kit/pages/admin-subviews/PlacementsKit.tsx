@@ -1,15 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -66,14 +69,14 @@ export interface PlacementsKitProps {
   total: number;
 }
 
-const SURVEY_TONE: Record<SurveyStatus, KitTone> = {
-  Pending: 'muted',
-  Done: 'ok',
+const SURVEY_TONE: Record<SurveyStatus, TokenColor> = {
+  Pending: 'gray',
+  Done: 'green',
 };
 
-const STATUS_TONE: Record<ConfirmStatus, KitTone> = {
-  Pending: 'muted',
-  Confirmed: 'ok',
+const STATUS_TONE: Record<ConfirmStatus, TokenColor> = {
+  Pending: 'gray',
+  Confirmed: 'green',
 };
 
 export function PlacementsKit({
@@ -134,12 +137,12 @@ export function PlacementsKit({
     {
       key: 'survey',
       header: 'Survey',
-      render: (row) => <StatusTag tone={SURVEY_TONE[row.survey]}>{row.survey}</StatusTag>,
+      render: (row) => <Token label={row.survey} size="sm" color={SURVEY_TONE[row.survey]} />,
     },
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />,
     },
   ];
 
@@ -151,42 +154,12 @@ export function PlacementsKit({
         goal="Confirmed hires & wage data"
         action={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <a
-              href="/admin/placements/retention"
-              className="wa-kit-focus"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'none',
-                color: 'var(--wa-text)',
-                border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-              }}
-            >
-              Retention decisions due
-            </a>
-            <a
-              href="/admin/placements?ui=legacy"
-              className="wa-kit-focus"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'none',
-                color: 'var(--wa-text)',
-                border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-              }}
-            >
-              Open table view
-            </a>
+            <AstryxLink href="/admin/placements/retention" as={NextLink as never} isStandalone>
+              <Button label="Retention decisions due" variant="secondary" size="sm" />
+            </AstryxLink>
+            <AstryxLink href="/admin/placements?ui=legacy" as={NextLink as never} isStandalone>
+              <Button label="Open table view" variant="secondary" size="sm" />
+            </AstryxLink>
           </div>
         }
       />
@@ -205,7 +178,7 @@ export function PlacementsKit({
         }}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card padding={3}>
             <div
               style={{
                 display: 'flex',
@@ -238,7 +211,7 @@ export function PlacementsKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TONE[row.status]} />
               </div>
             </div>
             <div
@@ -257,10 +230,10 @@ export function PlacementsKit({
                 {row.wage}
               </span>
               <span>
-                Survey <StatusTag tone={SURVEY_TONE[row.survey]}>{row.survey}</StatusTag>
+                Survey <Token label={row.survey} size="sm" color={SURVEY_TONE[row.survey]} />
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No placements yet"
         emptyDescription="When a member lands a job, record it here so outcomes reporting stays accurate."

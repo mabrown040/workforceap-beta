@@ -1,6 +1,8 @@
 import { Activity, Database, Mail, RefreshCw } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { DesignSurface, SectionHeader, StatusTag, type KitTone } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
+import { Token } from '@astryxdesign/core/Token';
+import { DesignSurface, SectionHeader, type KitTone } from '@/components/portal/kit';
 
 /**
  * Live system diagnostics — at-a-glance status tiles.
@@ -67,11 +69,7 @@ export function DiagnosticsKit({ tiles, note, noteCaption }: DiagnosticsKitProps
         {tiles.map((tile) => {
           const swatch = TONE_SWATCH[tile.tone];
           return (
-            <div
-              key={tile.name}
-              className="wa-kit-card wa-kit-card--sm"
-              style={{ display: 'flex', alignItems: 'center', gap: 12 }}
-            >
+            <Card key={tile.name} padding={3} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div
                 aria-hidden
                 style={{
@@ -113,12 +111,12 @@ export function DiagnosticsKit({ tiles, note, noteCaption }: DiagnosticsKitProps
                   {tile.status}
                 </div>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
 
-      <div className="wa-kit-card">
+      <Card>
         <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--wa-text)', margin: 0 }}>{note}</p>
         {noteCaption ? (
           <p
@@ -132,11 +130,11 @@ export function DiagnosticsKit({ tiles, note, noteCaption }: DiagnosticsKitProps
               flexWrap: 'wrap',
             }}
           >
-            <StatusTag tone="muted">Live</StatusTag>
+            <Token label="Live" size="sm" color="gray" />
             {noteCaption}
           </p>
         ) : null}
-      </div>
+      </Card>
     </DesignSurface>
   );
 }

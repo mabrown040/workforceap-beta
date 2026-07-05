@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -14,11 +15,11 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 const InterviewCoach = dynamic(() => import('@/components/portal/tools/InterviewCoach'), {
   loading: () => (
-    <div className="wa-kit-card" role="status" aria-live="polite">
+    <Card role="status" aria-live="polite">
       <p style={{ margin: 0, color: 'var(--wa-muted)', fontWeight: 600, fontSize: 14 }}>
         Loading interview coach…
       </p>
-    </div>
+    </Card>
   ),
 });
 
@@ -31,9 +32,9 @@ export function InterviewCoachKit({ userId }: { userId: string }) {
           title="AI Interview Coach"
           goal="Run a text-based mock interview and get instant AI feedback."
         />
-        <div className="wa-kit-card">
+        <Card>
           <InterviewCoach />
-        </div>
+        </Card>
         <ToolHistoryPanel
           userId={userId}
           toolType="interview_coach"

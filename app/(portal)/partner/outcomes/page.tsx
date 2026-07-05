@@ -111,12 +111,12 @@ export default async function PartnerOutcomesPage() {
 
         <PartnerKpiGrid
           items={[
-            { label: t('totalReferrals'), value: members.length, color: 'accent', icon: Users },
-            { label: t('placed'), value: placements, color: 'success', icon: CheckCircle2 },
-            { label: t('pendingReview'), value: pendingPlacementCount, color: 'gold', icon: Clock },
-            { label: t('withCertificate'), value: certified, color: 'info', icon: Award },
-            { label: t('inTrainingCertifiedStage'), value: inTraining, color: 'text', icon: GraduationCap },
-            { label: t('programCompletions'), value: completions, color: 'accentDark', icon: Trophy },
+            { label: t('totalReferrals'), value: members.length, color: 'accent', icon: <Users size={16} /> },
+            { label: t('placed'), value: placements, color: 'success', icon: <CheckCircle2 size={16} /> },
+            { label: t('pendingReview'), value: pendingPlacementCount, color: 'gold', icon: <Clock size={16} /> },
+            { label: t('withCertificate'), value: certified, color: 'info', icon: <Award size={16} /> },
+            { label: t('inTrainingCertifiedStage'), value: inTraining, color: 'text', icon: <GraduationCap size={16} /> },
+            { label: t('programCompletions'), value: completions, color: 'accentDark', icon: <Trophy size={16} /> },
           ]}
         />
 

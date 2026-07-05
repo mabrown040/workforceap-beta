@@ -1,7 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import NextLink from 'next/link';
 import { Plus, Sparkles } from 'lucide-react';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
@@ -103,42 +106,22 @@ export function BlogKit({ posts = DEFAULT_POSTS }: BlogKitProps) {
         goal="Marketing & resource posts"
         action={
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <a
-              href="/admin/blog/ai"
-              className="wa-kit-focus"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'none',
-                color: 'var(--wa-text)',
-                border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-              }}
-            >
-              <Sparkles className="h-4 w-4" /> AI Assistant
-            </a>
-            <a
-              href="/admin/blog/new"
-              className="wa-kit-focus"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'none',
-                background: 'var(--wa-accent)',
-                color: 'var(--wa-on-accent)',
-              }}
-            >
-              <Plus className="h-4 w-4" /> New Post
-            </a>
+            <AstryxLink href="/admin/blog/ai" as={NextLink as never} isStandalone>
+              <Button
+                label="AI Assistant"
+                variant="secondary"
+                size="sm"
+                icon={<Sparkles size={14} aria-hidden="true" />}
+              />
+            </AstryxLink>
+            <AstryxLink href="/admin/blog/new" as={NextLink as never} isStandalone>
+              <Button
+                label="New Post"
+                variant="primary"
+                size="sm"
+                icon={<Plus size={14} aria-hidden="true" />}
+              />
+            </AstryxLink>
           </div>
         }
       />

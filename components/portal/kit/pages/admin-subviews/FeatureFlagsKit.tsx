@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
+import { Button } from '@astryxdesign/core/Button';
 import {
   DesignSurface,
   SectionHeader,
@@ -135,24 +138,9 @@ export function FeatureFlagsKit({
         kicker="Platform"
         goal="Gradual rollout & role-gating of platform features"
         action={
-          <a
-            href="/admin/feature-flags?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-            }}
-          >
-            Manage
-          </a>
+          <AstryxLink href="/admin/feature-flags?ui=legacy" as={Link as never} isStandalone>
+            <Button label="Manage" variant="primary" size="sm" />
+          </AstryxLink>
         }
       />
 

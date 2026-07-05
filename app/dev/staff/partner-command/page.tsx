@@ -81,7 +81,7 @@ export default function DevStaffPartnerCommandPage() {
             value: 86,
             subtitle: 'in your portal',
             color: 'accent',
-            icon: Users,
+            icon: <Users size={16} />,
             spark: { series: [60, 64, 68, 72, 76, 80, 86], delta: '+8%', direction: 'up' },
           },
           {
@@ -89,7 +89,7 @@ export default function DevStaffPartnerCommandPage() {
             value: 54,
             subtitle: 'started a program',
             color: 'info',
-            icon: GraduationCap,
+            icon: <GraduationCap size={16} />,
             spark: { series: [38, 40, 44, 46, 49, 51, 54], delta: '+6', direction: 'up' },
           },
           {
@@ -97,7 +97,7 @@ export default function DevStaffPartnerCommandPage() {
             value: '63%',
             subtitle: 'enrolled / referred',
             color: 'gold',
-            icon: Percent,
+            icon: <Percent size={16} />,
             spark: { series: [58, 59, 60, 61, 62, 63], delta: '+2%', direction: 'up' },
           },
           {
@@ -105,7 +105,7 @@ export default function DevStaffPartnerCommandPage() {
             value: '$1,900',
             subtitle: 'verified placements, unpaid',
             color: 'success',
-            icon: Wallet,
+            icon: <Wallet size={16} />,
             spark: { series: [1200, 1300, 1450, 1600, 1750, 1900], delta: '+$300', direction: 'up' },
           },
         ]}

@@ -1,3 +1,4 @@
+import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
 import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
@@ -40,15 +41,15 @@ export function InterviewPracticeKit({ memberId, initialData, savedResults }: In
           title="Interview Practice"
           goal="Role-specific questions with STAR-style answer frameworks."
         />
-        <div className="wa-kit-card wa-kit-card--sm">
+        <Card>
           <p style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>
             Generate tailored interview questions for any role. Choose behavioral, technical, or situational focus and
             get structured prompts you can practice out loud or in writing.
           </p>
-        </div>
-        <div className="wa-kit-card">
+        </Card>
+        <Card>
           <InterviewPracticeForm memberId={memberId} initialData={initialData} />
-        </div>
+        </Card>
         <InterviewPracticeSaved results={savedResults} />
       </div>
     </DesignSurface>

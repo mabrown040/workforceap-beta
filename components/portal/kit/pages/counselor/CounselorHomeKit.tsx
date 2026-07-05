@@ -11,6 +11,9 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
@@ -174,15 +177,17 @@ function SideCardHead({ title }: { title: string }) {
 
 function EmptyQueueState({ rosterHref }: { rosterHref: string }) {
   return (
-    <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <CheckCircle2 size={18} aria-hidden style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Nice work — no one&rsquo;s waiting on you right now.</p>
-        <Link href={rosterHref} style={{ fontSize: 12, fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}>
-          Browse your full roster
-        </Link>
+    <Card>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <CheckCircle2 size={18} aria-hidden style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Nice work — no one&rsquo;s waiting on you right now.</p>
+          <Link href={rosterHref} style={{ fontSize: 12, fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}>
+            Browse your full roster
+          </Link>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -330,13 +335,9 @@ export function CounselorHomeKit({
                     meta={queueRowMeta(row)}
                     flag={BUCKET_FLAG[row.bucket]}
                     action={
-                      <Link
-                        href={row.href ?? `${memberHrefBase}/${row.memberId}`}
-                        className="btn btn-sm btn-secondary"
-                        style={{ fontSize: 11, textDecoration: 'none' }}
-                      >
-                        View
-                      </Link>
+                      <AstryxLink href={row.href ?? `${memberHrefBase}/${row.memberId}`} as={Link as never} isStandalone>
+                        <Button label="View" variant="secondary" size="sm" />
+                      </AstryxLink>
                     }
                   />
                 );
@@ -346,7 +347,7 @@ export function CounselorHomeKit({
 
           <aside className="lg:wa-col-span-4" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
             {/* Today / this week */}
-            <div className="wa-kit-card">
+            <Card>
               <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 4 }}>
                 <SideCardHead title="Today / this week" />
                 <Link
@@ -368,10 +369,10 @@ export function CounselorHomeKit({
                   ))}
                 </div>
               )}
-            </div>
+            </Card>
 
             {/* Activity: real daily series when available, otherwise the caseload-by-bucket breakdown. */}
-            <div className="wa-kit-card">
+            <Card>
               {hasActivitySeries ? (
                 <>
                   <SideCardHead title="Caseload activity" />
@@ -401,7 +402,7 @@ export function CounselorHomeKit({
                   </p>
                 </>
               )}
-            </div>
+            </Card>
           </aside>
         </div>
       </div>

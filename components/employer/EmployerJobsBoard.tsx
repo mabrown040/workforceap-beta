@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { flushSync } from 'react-dom';
 import { useState, useMemo, useEffect, useId, useCallback, type RefObject } from 'react';
+import { Briefcase, ListFilter, Users, TriangleAlert, Info, CheckCircle2 } from 'lucide-react';
 import { trackEmployerJobAction, trackEmployerBulkDelete } from '@/lib/analytics/events';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { readinessLabel, type JobReadinessIssue, type JobReadinessLevel } from '@/lib/employer/jobReadiness';
@@ -14,7 +15,14 @@ import {
   type EmployerJobLocationType,
 } from '@/lib/employer/employerJobsListQuery';
 import { EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH } from '@/lib/employer/employerJobFormFlash';
-import { employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
+import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
+import { DesignSurface, StatusTag, StatSparkTile, type KitTone } from '@/components/portal/kit';
+
+/**
+ * Employer "My Jobs" board — Command Center visual language.
+ * Reskin only: every handler, request shape, sessionStorage flash key, modal
+ * flow and prop contract below is unchanged from the legacy CSS-class version.
+ */
 
 function chunkIds<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -53,6 +61,19 @@ const FILTERS: { value: EmployerJobListFilter; label: string }[] = [
   { value: 'expired', label: 'Expired' },
 ];
 
+/** Badge-variant → KitTone bridge, sharing the one source of truth in jobStatusDisplay.ts. */
+const BADGE_VARIANT_TONE: Record<string, KitTone> = {
+  success: 'ok',
+  warning: 'warn',
+  neutral: 'muted',
+  error: 'alert',
+  info: 'info',
+};
+
+function statusTone(status: string): KitTone {
+  return BADGE_VARIANT_TONE[employerJobPortalBadgeVariant(status)] ?? 'muted';
+}
+
 function formatCompensation(min: number | null, max: number | null): string {
   if (min != null && max != null) {
     return `$${Math.round(min / 1000)}K–$${Math.round(max / 1000)}K`;
@@ -68,15 +89,6 @@ function formatWorkStyle(locationType: string, jobType: string): string {
   const jt =
     jobType === 'fulltime' ? 'Full-time' : jobType === 'parttime' ? 'Part-time' : 'Contract';
   return `${jt} · ${loc}`;
-}
-
-function statusModifier(status: string): string {
-  if (status === 'live') return 'employer-job-card__status--live';
-  if (status === 'pending') return 'employer-job-card__status--pending';
-  if (status === 'approved') return 'employer-job-card__status--approved';
-  if (status === 'draft') return 'employer-job-card__status--draft';
-  if (status === 'expired') return 'employer-job-card__status--expired';
-  return 'employer-job-card__status--neutral';
 }
 
 function nextStepHint(j: EmployerJobBoardItem): string {
@@ -105,6 +117,104 @@ const BULK_DELETE_FLASH_KEY = 'wfap_employer_bulk_delete_ok';
 const BULK_CLOSE_FLASH_KEY = 'wfap_employer_bulk_close_ok';
 
 type BulkRow = { id: string; title: string; status: string };
+
+/* ---------------------------------------------------------------------- */
+/* Small presentational helpers (local — not shared kit)                   */
+/* ---------------------------------------------------------------------- */
+
+function Banner({
+  tone,
+  icon,
+  children,
+  onDismiss,
+  dismissLabel = 'Dismiss',
+  role = 'status',
+}: {
+  tone: 'success' | 'danger' | 'info' | 'gold';
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  onDismiss?: () => void;
+  dismissLabel?: string;
+  role?: 'status' | 'alert';
+}) {
+  const color =
+    tone === 'success'
+      ? 'var(--wa-success)'
+      : tone === 'danger'
+        ? 'var(--wa-danger)'
+        : tone === 'gold'
+          ? 'var(--wa-gold)'
+          : 'var(--wa-info)';
+  return (
+    <div
+      role={role}
+      className="wa-flex wa-items-start wa-gap-3"
+      style={{
+        padding: '12px 14px',
+        borderRadius: 'var(--wa-radius-sm)',
+        background: `color-mix(in srgb, ${color} 10%, var(--wa-surface))`,
+        border: `1px solid color-mix(in srgb, ${color} 30%, transparent)`,
+      }}
+    >
+      <span aria-hidden style={{ color, flexShrink: 0, marginTop: 1 }}>
+        {icon}
+      </span>
+      <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: 'var(--wa-text)', lineHeight: 1.5 }}>{children}</div>
+      {onDismiss ? (
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label={dismissLabel}
+          className="wa-kit-focus"
+          style={{
+            flexShrink: 0,
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--wa-muted)',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '2px 6px',
+          }}
+        >
+          {dismissLabel}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+const pillBase: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '7px 14px',
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: 700,
+  textDecoration: 'none',
+  border: '1px solid var(--wa-border)',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  whiteSpace: 'nowrap',
+};
+
+function FilterPill({ active, href, children }: { active: boolean; href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'true' : undefined}
+      style={{
+        ...pillBase,
+        background: active ? 'var(--wa-accent)' : 'var(--wa-surface)',
+        borderColor: active ? 'var(--wa-accent)' : 'var(--wa-border)',
+        color: active ? 'var(--wa-on-accent)' : 'var(--wa-muted)',
+      }}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function EmployerJobsBoard({
   jobs,
@@ -182,6 +292,10 @@ export default function EmployerJobsBoard({
   );
 
   const totalPages = Math.max(1, Math.ceil(totalInFilter / pageSize));
+
+  // Sum applicants across the CURRENT page only (kept as a "this page" KPI —
+  // no new query was added to derive a true cross-page total).
+  const applicantsOnPage = useMemo(() => jobs.reduce((sum, j) => sum + j.applicationsCount, 0), [jobs]);
 
   useEffect(() => {
     setSelected(new Set());
@@ -545,106 +659,100 @@ export default function EmployerJobsBoard({
 
   if (totalInDb === 0) {
     return (
-      <div className="employer-jobs-board">
-        <div className="employer-jobs-board__empty-state" role="status">
-          <h2 className="employer-jobs-board__empty-title">No postings yet</h2>
-          <p className="employer-jobs-board__empty-desc">
+      <DesignSurface surface="dense">
+        <div
+          className="wa-kit-card"
+          role="status"
+          style={{ textAlign: 'center', padding: '3rem 1.5rem' }}
+        >
+          <div
+            aria-hidden
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 999,
+              margin: '0 auto 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--wa-accent-soft)',
+              color: 'var(--wa-accent)',
+            }}
+          >
+            <Briefcase size={26} />
+          </div>
+          <h2 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: '0 0 6px' }}>No postings yet</h2>
+          <p style={{ color: 'var(--wa-muted)', fontSize: 13, maxWidth: 440, margin: '0 auto 1.25rem' }}>
             Create a posting to start hiring. Everything stays private until you submit for WorkforceAP review — nothing
             goes live by surprise.
           </p>
-          <div className="employer-jobs-board__empty-actions">
-            <Link href="/employer/jobs/new" className="btn btn-primary">
-              Create your first posting
-            </Link>
-          </div>
+          <Link href="/employer/jobs/new" className="btn btn-primary">
+            Create your first posting
+          </Link>
         </div>
-      </div>
+      </DesignSurface>
     );
   }
 
   return (
-    <div className="employer-jobs-board">
+    <DesignSurface surface="dense" className="wa-space-y-5">
       {reviewActionError && (
-        <div className="employer-jobs-board__action-error" role="alert">
-          <p>{reviewActionError}</p>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => setReviewActionError(null)}>
-            Dismiss
-          </button>
-        </div>
+        <Banner tone="danger" icon={<TriangleAlert size={16} aria-hidden />} role="alert" onDismiss={() => setReviewActionError(null)}>
+          {reviewActionError}
+        </Banner>
       )}
       {bulkOutcomeError && (
-        <div className="employer-jobs-board__action-error" role="alert">
-          <p>{bulkOutcomeError}</p>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => setBulkOutcomeError(null)}>
-            Dismiss
-          </button>
-        </div>
+        <Banner tone="danger" icon={<TriangleAlert size={16} aria-hidden />} role="alert" onDismiss={() => setBulkOutcomeError(null)}>
+          {bulkOutcomeError}
+        </Banner>
       )}
       {flashBanner && (
-        <div className="employer-jobs-flash-banner" role="status">
-          <p className="employer-jobs-flash-banner__text">
-            {flashBanner.type === 'delete' ? (
-              <>
-                <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} removed.
-              </>
-            ) : (
-              <>
-                <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} marked as filled.
-              </>
-            )}
-          </p>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm employer-jobs-flash-banner__dismiss"
-            onClick={() => setFlashBanner(null)}
-            aria-label="Dismiss confirmation"
-          >
-            Dismiss
-          </button>
-        </div>
+        <Banner tone="success" icon={<CheckCircle2 size={16} aria-hidden />} onDismiss={() => setFlashBanner(null)} dismissLabel="Dismiss confirmation">
+          {flashBanner.type === 'delete' ? (
+            <>
+              <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} removed.
+            </>
+          ) : (
+            <>
+              <strong>{flashBanner.count}</strong> posting{flashBanner.count === 1 ? '' : 's'} marked as filled.
+            </>
+          )}
+        </Banner>
       )}
       {submitReviewDraftNotice && (
-        <div className="employer-jobs-flash-banner employer-jobs-flash-banner--info" role="status">
-          <p className="employer-jobs-flash-banner__text">
-            <strong>{submitReviewDraftNotice.title}</strong> was saved as a <strong>draft</strong> instead of being sent for
-            review. Complete the following, then use &quot;Send for review&quot; from My Jobs:{' '}
-            {submitReviewDraftNotice.reasons.join('; ')}.
-          </p>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm employer-jobs-flash-banner__dismiss"
-            onClick={() => setSubmitReviewDraftNotice(null)}
-            aria-label="Dismiss notice"
-          >
-            Dismiss
-          </button>
-        </div>
+        <Banner tone="gold" icon={<Info size={16} aria-hidden />} onDismiss={() => setSubmitReviewDraftNotice(null)} dismissLabel="Dismiss notice">
+          <strong>{submitReviewDraftNotice.title}</strong> was saved as a <strong>draft</strong> instead of being sent for
+          review. Complete the following, then use &quot;Send for review&quot; from My Jobs:{' '}
+          {submitReviewDraftNotice.reasons.join('; ')}.
+        </Banner>
       )}
 
-      <div className="employer-jobs-board__filters" role="toolbar" aria-label="Filter by hiring stage">
+      {/* KPI strip — accurate, prop-derived counts only (no new queries). */}
+      <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-3">
+        <StatSparkTile icon={Briefcase} label="All postings" value={totalInDb} color="accent" />
+        <StatSparkTile icon={ListFilter} label="In this view" value={totalInFilter} color="info" />
+        <StatSparkTile icon={Users} label="Applicants (this page)" value={applicantsOnPage} color="gold" />
+      </div>
+
+      <div className="wa-flex wa-flex-wrap wa-gap-2" role="toolbar" aria-label="Filter by hiring stage">
         {FILTERS.map((f) => (
-          <Link
-            key={f.value}
-            href={employerJobsListHref(f.value, 1, locationType)}
-            className={`employer-jobs-board__filter${filter === f.value ? ' is-active' : ''}`}
-            aria-current={filter === f.value ? 'true' : undefined}
-          >
+          <FilterPill key={f.value} active={filter === f.value} href={employerJobsListHref(f.value, 1, locationType)}>
             {f.label}
-          </Link>
+          </FilterPill>
         ))}
       </div>
 
       {showBulkDelete && (
-        <div className="employer-jobs-board__mass-delete-row">
+        <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-3">
           <button
             type="button"
-            className="btn btn-outline btn-sm employer-jobs-board__mass-delete"
+            className="btn btn-outline btn-sm"
             onClick={handleMassDelete}
             disabled={bulkBusy}
           >
             Mass delete…
           </button>
-          <span className="employer-jobs-board__mass-delete-hint">
+          <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
             Selects every removable posting in this view ({deletableIdsInFilter.length}) and asks for confirmation.
             Live jobs cannot be removed here.
           </span>
@@ -653,20 +761,20 @@ export default function EmployerJobsBoard({
 
       {(showBulkDelete || showBulkClose) && (
         <div
-          className="employer-jobs-board__bulk-bar"
+          className="wa-kit-card wa-kit-card--sm wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-3"
           role="region"
           aria-label="Bulk actions for selected postings"
         >
-          <p className="employer-jobs-board__bulk-count" aria-live="polite">
+          <p style={{ margin: 0, fontSize: 12.5 }} aria-live="polite">
             {selected.size === 0 ? (
-              <>Select postings below for bulk actions.</>
+              <span style={{ color: 'var(--wa-muted)' }}>Select postings below for bulk actions.</span>
             ) : (
               <>
                 <strong>{selected.size}</strong> selected
               </>
             )}
           </p>
-          <div className="employer-jobs-board__bulk-actions">
+          <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
             {showBulkDelete && (
               <>
                 <button
@@ -687,7 +795,7 @@ export default function EmployerJobsBoard({
                 </button>
                 <button
                   type="button"
-                  className="btn btn-outline btn-sm employer-jobs-board__bulk-delete"
+                  className="btn btn-outline btn-sm"
                   disabled={selectedDeletable.length === 0 || bulkBusy}
                   onClick={() => openConfirm('delete')}
                 >
@@ -733,15 +841,15 @@ export default function EmployerJobsBoard({
       )}
 
       {totalInFilter === 0 ? (
-        <div className="employer-jobs-board__filtered-empty">
-          <p className="employer-jobs-board__empty">Nothing in this stage right now.</p>
+        <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+          <p style={{ color: 'var(--wa-muted)', margin: '0 0 12px' }}>Nothing in this stage right now.</p>
           <Link href={employerJobsListHref('all', 1, locationType)} className="btn btn-muted btn-sm">
             Show all postings
           </Link>
         </div>
       ) : (
         <>
-          <ul className="employer-jobs-board__grid">
+          <ul className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 xl:wa-grid-cols-3 wa-gap-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {jobs.map((j) => {
               const deletable = canBulkDelete(j.status);
               const closable = canBulkClose(j.status);
@@ -755,74 +863,86 @@ export default function EmployerJobsBoard({
 
               return (
                 <li key={j.id}>
-                  <article className="employer-job-card">
-                    {selectable && (
-                      <label className="employer-job-card__select">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={(e) => toggleOne(j.id, e.target.checked)}
-                          aria-label={`Select ${j.title}`}
-                        />
-                      </label>
-                    )}
-                    <div className="employer-job-card__lane">
-                      <span className={`employer-job-card__status ${statusModifier(j.status)}`}>
-                        {employerJobPortalStatusLabel(j.status)}
-                      </span>
-                      {next && <span className="employer-job-card__next">{next}</span>}
+                  <article
+                    className="wa-kit-card wa-kit-card--hover"
+                    style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative' }}
+                  >
+                    <div className="wa-flex wa-items-start wa-justify-between wa-gap-2">
+                      <div className="wa-flex wa-items-center wa-gap-2" style={{ minWidth: 0 }}>
+                        {selectable && (
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => toggleOne(j.id, e.target.checked)}
+                            aria-label={`Select ${j.title}`}
+                            style={{ width: 16, height: 16, accentColor: 'var(--wa-accent)', flexShrink: 0 }}
+                          />
+                        )}
+                        <StatusTag tone={statusTone(j.status)}>{employerJobPortalStatusLabel(j.status)}</StatusTag>
+                      </div>
+                      <time
+                        dateTime={j.updatedAt}
+                        style={{ fontSize: 10.5, color: 'var(--wa-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}
+                      >
+                        Updated {new Date(j.updatedAt).toLocaleDateString()}
+                      </time>
                     </div>
-                    <time className="employer-job-card__time" dateTime={j.updatedAt}>
-                      Updated {new Date(j.updatedAt).toLocaleDateString()}
-                    </time>
+
+                    {next && <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--wa-muted)' }}>{next}</div>}
 
                     {showPendingNote && (
-                      <p className="employer-job-card__safety">
+                      <Banner tone="info" icon={<Info size={14} aria-hidden />}>
                         With WorkforceAP for review — candidates do not see this posting yet.
-                      </p>
+                      </Banner>
                     )}
 
                     {showReadiness && (
-                      <div
-                        className={`employer-job-card__readiness employer-job-card__readiness--${j.readinessLevel}`}
-                        role="note"
+                      <Banner
+                        tone={j.readinessLevel === 'thin' ? 'danger' : 'gold'}
+                        icon={<TriangleAlert size={14} aria-hidden />}
                       >
-                        <span className="employer-job-card__readiness-label">{readinessLabel(j.readinessLevel)}</span>
-                        <ul className="employer-job-card__readiness-list">
+                        <div style={{ fontWeight: 700, marginBottom: 4 }}>{readinessLabel(j.readinessLevel)}</div>
+                        <ul style={{ margin: 0, paddingLeft: 16 }}>
                           {j.readinessIssues.map((issue) => (
                             <li key={issue.key}>{issue.message}</li>
                           ))}
                         </ul>
-                      </div>
+                      </Banner>
                     )}
 
-                    <h2 className="employer-job-card__title">{j.title}</h2>
+                    <h2 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em', margin: 0, textWrap: 'balance' }}>
+                      {j.title}
+                    </h2>
 
-                    <dl className="employer-job-card__facts">
-                      <div className="employer-job-card__fact">
-                        <dt>Where</dt>
-                        <dd>{j.location}</dd>
+                    <dl className="wa-grid wa-grid-cols-3 wa-gap-2" style={{ margin: 0 }}>
+                      <div>
+                        <dt className="wa-kit-stat-label" style={{ fontSize: 9 }}>Where</dt>
+                        <dd style={{ margin: '2px 0 0', fontSize: 12, fontWeight: 600 }}>{j.location}</dd>
                       </div>
-                      <div className="employer-job-card__fact">
-                        <dt>Pay</dt>
-                        <dd>{pay}</dd>
+                      <div>
+                        <dt className="wa-kit-stat-label" style={{ fontSize: 9 }}>Pay</dt>
+                        <dd style={{ margin: '2px 0 0', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{pay}</dd>
                       </div>
-                      <div className="employer-job-card__fact">
-                        <dt>How</dt>
-                        <dd>{workStyle}</dd>
+                      <div>
+                        <dt className="wa-kit-stat-label" style={{ fontSize: 9 }}>How</dt>
+                        <dd style={{ margin: '2px 0 0', fontSize: 12, fontWeight: 600 }}>{workStyle}</dd>
                       </div>
                     </dl>
 
-                    <p className="employer-job-card__preview">{j.descriptionPreview}</p>
-
-                    <p className="employer-job-card__apps">
-                      <strong>{j.applicationsCount}</strong> application{j.applicationsCount === 1 ? '' : 's'}
+                    <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0, lineHeight: 1.5, flex: 1 }}>
+                      {j.descriptionPreview}
                     </p>
 
-                    <div className="employer-job-card__actions">
+                    <p className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 12, margin: 0, color: 'var(--wa-text)' }}>
+                      <Users size={13} aria-hidden style={{ color: 'var(--wa-muted)' }} />
+                      <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{j.applicationsCount}</strong> application
+                      {j.applicationsCount === 1 ? '' : 's'}
+                    </p>
+
+                    <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ borderTop: '1px solid var(--wa-border)', paddingTop: 12 }}>
                       <Link
                         href={`/employer/jobs/${j.id}`}
-                        className="btn btn-primary btn-sm employer-job-card__action-primary"
+                        className="btn btn-primary btn-sm"
                         onClick={() => trackEmployerJobAction('edit', j.id, { status: j.status })}
                       >
                         {j.status === 'draft' ? 'Edit draft' : 'View & edit'}
@@ -884,38 +1004,30 @@ export default function EmployerJobsBoard({
           </ul>
 
           {totalPages > 1 && (
-            <nav className="employer-jobs-board__pagination" aria-label="Job list pages">
+            <nav
+              className="wa-flex wa-items-center wa-justify-between wa-flex-wrap wa-gap-3"
+              aria-label="Job list pages"
+            >
               {page <= 1 ? (
-                <span
-                  className="btn btn-outline btn-sm employer-jobs-board__pagination-disabled"
-                  aria-disabled="true"
-                >
+                <span className="btn btn-outline btn-sm" aria-disabled="true" style={{ opacity: 0.5, pointerEvents: 'none' }}>
                   Previous
                 </span>
               ) : (
-                <Link
-                  href={employerJobsListHref(filter, page - 1, locationType)}
-                  className="btn btn-outline btn-sm employer-jobs-board__pagination-link"
-                >
+                <Link href={employerJobsListHref(filter, page - 1, locationType)} className="btn btn-outline btn-sm">
                   Previous
                 </Link>
               )}
-              <span className="employer-jobs-board__pagination-meta">
-                Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-                <span className="employer-jobs-board__pagination-count"> ({totalInFilter} in this view)</span>
+              <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
+                Page <strong style={{ color: 'var(--wa-text)' }}>{page}</strong> of{' '}
+                <strong style={{ color: 'var(--wa-text)' }}>{totalPages}</strong>
+                <span> ({totalInFilter} in this view)</span>
               </span>
               {page >= totalPages ? (
-                <span
-                  className="btn btn-outline btn-sm employer-jobs-board__pagination-disabled"
-                  aria-disabled="true"
-                >
+                <span className="btn btn-outline btn-sm" aria-disabled="true" style={{ opacity: 0.5, pointerEvents: 'none' }}>
                   Next
                 </span>
               ) : (
-                <Link
-                  href={employerJobsListHref(filter, page + 1, locationType)}
-                  className="btn btn-outline btn-sm employer-jobs-board__pagination-link"
-                >
+                <Link href={employerJobsListHref(filter, page + 1, locationType)} className="btn btn-outline btn-sm">
                   Next
                 </Link>
               )}
@@ -926,36 +1038,41 @@ export default function EmployerJobsBoard({
 
       {closeModal && (
         <div
-          className="employer-bulk-modal-overlay"
           role="presentation"
           onClick={() => !closingId && setCloseModal(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: 16,
+          }}
         >
           <div
             ref={closeModalTrapRef as RefObject<HTMLDivElement>}
-            className="employer-bulk-modal employer-close-job-modal"
+            className="wa-kit-card"
             role="dialog"
             aria-modal="true"
             aria-labelledby={closeModalTitleId}
             aria-describedby={closeModalDescId}
             onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 460, width: '100%', boxShadow: 'var(--wa-shadow-lg)' }}
           >
-            <h2 id={closeModalTitleId} className="employer-bulk-modal__title">
+            <h2 id={closeModalTitleId} style={{ fontWeight: 800, fontSize: 17, margin: '0 0 10px' }}>
               Close posting?
             </h2>
-            <p id={closeModalDescId} className="employer-bulk-modal__desc">
-              This closes <strong>{closeModal.title}</strong>. Candidates will no longer see it. You can still view past
-              applicants from the applicants list.
+            <p id={closeModalDescId} style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 20px', lineHeight: 1.5 }}>
+              This closes <strong style={{ color: 'var(--wa-text)' }}>{closeModal.title}</strong>. Candidates will no
+              longer see it. You can still view past applicants from the applicants list.
             </p>
-            <div className="employer-bulk-modal__actions">
+            <div className="wa-flex wa-justify-end wa-gap-2">
               <button type="button" className="btn btn-ghost" disabled={!!closingId} onClick={() => setCloseModal(null)}>
                 Cancel
               </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={!!closingId}
-                onClick={() => void confirmCloseJob()}
-              >
+              <button type="button" className="btn btn-primary" disabled={!!closingId} onClick={() => void confirmCloseJob()}>
                 {closingId ? 'Updating…' : 'Yes, close posting'}
               </button>
             </div>
@@ -965,13 +1082,22 @@ export default function EmployerJobsBoard({
 
       {confirmOpen && (
         <div
-          className="employer-bulk-modal-overlay"
           role="presentation"
           onClick={() => !bulkBusy && setConfirmOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: 16,
+          }}
         >
           <div
             ref={modalTrapRef as RefObject<HTMLDivElement>}
-            className="employer-bulk-modal"
+            className="wa-kit-card"
             role="dialog"
             aria-modal="true"
             aria-labelledby={modalTitleId}
@@ -981,8 +1107,9 @@ export default function EmployerJobsBoard({
                 : modalDescId
             }
             onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 520, width: '100%', boxShadow: 'var(--wa-shadow-lg)', maxHeight: '85vh', overflowY: 'auto' }}
           >
-            <h2 id={modalTitleId} className="employer-bulk-modal__title">
+            <h2 id={modalTitleId} style={{ fontWeight: 800, fontSize: 17, margin: '0 0 10px' }}>
               {confirmMode === 'delete' ? (
                 <>
                   Remove {selectedDeletable.length} posting{selectedDeletable.length === 1 ? '' : 's'}?
@@ -994,51 +1121,52 @@ export default function EmployerJobsBoard({
               )}
             </h2>
             {confirmMode === 'delete' && (
-              <p className="employer-bulk-modal__warning-lead" role="alert">
-                <strong>This cannot be undone.</strong> Postings are permanently removed from WorkforceAP and linked
-                applicant records in your portal are deleted.
+              <p role="alert" style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-danger)', margin: '0 0 8px' }}>
+                This cannot be undone. Postings are permanently removed from WorkforceAP and linked applicant records
+                in your portal are deleted.
               </p>
             )}
-            <p id={modalDescId} className="employer-bulk-modal__desc">
+            <p id={modalDescId} style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
               {confirmMode === 'delete' ? (
                 <>
-                  These postings leave WorkforceAP. Applicant records tied to them are removed too. Live and board-approved
-                  roles cannot be bulk-removed — mark filled first.
+                  These postings leave WorkforceAP. Applicant records tied to them are removed too. Live and
+                  board-approved roles cannot be bulk-removed — mark filled first.
                 </>
               ) : (
                 <>
-                  These postings will move out of active hiring and into your filled/closed list. You can still view past
-                  applicants from the applicants list.
+                  These postings will move out of active hiring and into your filled/closed list. You can still view
+                  past applicants from the applicants list.
                 </>
               )}
             </p>
-            <ul className="employer-bulk-modal__list">
+            <ul style={{ margin: '0 0 12px', paddingLeft: 18, fontSize: 12.5, color: 'var(--wa-text)' }}>
               {(confirmMode === 'delete' ? selectedDeletable : selectedClosable).slice(0, 6).map((id) => (
                 <li key={id}>{resolveTitle(id)}</li>
               ))}
               {(confirmMode === 'delete' ? selectedDeletable : selectedClosable).length > 6 && (
-                <li className="employer-bulk-modal__list-more">
+                <li style={{ color: 'var(--wa-muted)' }}>
                   +{(confirmMode === 'delete' ? selectedDeletable : selectedClosable).length - 6} more
                 </li>
               )}
             </ul>
             {confirmMode === 'delete' && bulkDeleteIncludesPendingReview && (
-              <p id={modalPendingNoteId} className="employer-bulk-modal__pending-callout" role="note">
-                <strong>In review:</strong> at least one selected posting is waiting on WorkforceAP. Removing it pulls it
-                from our review queue. You can still continue.
+              <p id={modalPendingNoteId} role="note" style={{ margin: '0 0 12px' }}>
+                <Banner tone="gold" icon={<Info size={14} aria-hidden />}>
+                  <strong>In review:</strong> at least one selected posting is waiting on WorkforceAP. Removing it
+                  pulls it from our review queue. You can still continue.
+                </Banner>
               </p>
             )}
-            {bulkError && <p className="employer-bulk-modal__error">{bulkError}</p>}
-            <div className="employer-bulk-modal__actions">
+            {bulkError && (
+              <p role="alert" style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--wa-danger)', margin: '0 0 12px' }}>
+                {bulkError}
+              </p>
+            )}
+            <div className="wa-flex wa-justify-end wa-gap-2">
               <button type="button" className="btn btn-ghost" disabled={bulkBusy} onClick={() => setConfirmOpen(false)}>
                 Cancel
               </button>
-              <button
-                type="button"
-                className="btn btn-primary employer-bulk-modal__confirm"
-                disabled={bulkBusy}
-                onClick={runBulkAction}
-              >
+              <button type="button" className="btn btn-primary" disabled={bulkBusy} onClick={runBulkAction}>
                 {bulkBusy
                   ? confirmMode === 'delete'
                     ? 'Removing…'
@@ -1051,6 +1179,6 @@ export default function EmployerJobsBoard({
           </div>
         </div>
       )}
-    </div>
+    </DesignSurface>
   );
 }

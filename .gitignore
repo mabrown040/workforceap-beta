@@ -109,3 +109,6 @@ marketing/.vercel/
 
 # Local screenshot output (scripts/portal-screenshots.mjs)
 .artifacts/
+
+# Python cache (ui-ux-pro-max skill scripts)
+__pycache__/

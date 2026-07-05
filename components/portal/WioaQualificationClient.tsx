@@ -6,6 +6,7 @@ import { Mic } from 'lucide-react';
 import type { WioaBarrier, WioaEligibilitySignal, WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import { PortalInput } from '@/components/portal/ui/PortalInput';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
@@ -140,11 +141,14 @@ export default function WioaQualificationClient({
   return (
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem 1rem 3rem' }}>
       {!isPublic ? (
-        <nav className="portal-breadcrumb" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
-          <Link href="/dashboard/learning">Learning Hub</Link>
-          <span style={{ margin: '0 0.35rem' }}>/</span>
-          <span>WIOA Qualification Assessment</span>
-        </nav>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <PortalBreadcrumb
+            items={[
+              { label: 'Learning Hub', href: '/dashboard/learning' },
+              { label: 'WIOA Qualification Assessment' },
+            ]}
+          />
+        </div>
       ) : null}
 
       <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>

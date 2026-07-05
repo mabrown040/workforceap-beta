@@ -31,6 +31,41 @@ const PROOFS = [
     title: 'Production overlays',
     body: 'The real ConfirmDialog (Astryx Dialog) and GlobalSearch (CommandPalette) now shipped in admin.',
   },
+  {
+    href: '/dev/astryx/components',
+    title: 'Components sampler',
+    body: 'Calendar, CheckboxInput, Thumbnail, chat suite, Markdown + the production-adopted primitives.',
+  },
+  {
+    href: '/dev/astryx/table-page',
+    title: 'Searchable Table',
+    body: 'PowerSearch filtering and action toolbar — the `table-page` template.',
+  },
+  {
+    href: '/dev/astryx/kanban-board',
+    title: 'Kanban Board',
+    body: 'Color-coded status columns with draggable cards — the `kanban-board` template.',
+  },
+  {
+    href: '/dev/astryx/file-explorer',
+    title: 'File Explorer',
+    body: 'Column-based browser — the `file-explorer` template.',
+  },
+  {
+    href: '/dev/astryx/ai-chat-landing',
+    title: 'AI Chat Landing',
+    body: 'Chat composer with dictation and triggers — the `ai-chat-landing` template.',
+  },
+  {
+    href: '/dev/astryx/side-gallery',
+    title: 'Side Gallery',
+    body: 'Split hero gallery — the `side-gallery` template.',
+  },
+  {
+    href: '/dev/astryx/login-sso',
+    title: 'Login SSO',
+    body: 'Email-based provider detection — the `login-sso` template.',
+  },
 ];
 
 export default function AstryxLabIndex() {

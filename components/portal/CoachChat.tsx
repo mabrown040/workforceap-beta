@@ -1,22 +1,24 @@
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type FormEvent,
-  type KeyboardEvent,
-} from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import {
+  ChatMessageList,
+  ChatMessage,
+  ChatMessageBubble,
+  ChatComposer,
+} from '@astryxdesign/core/Chat';
+import { Avatar } from '@astryxdesign/core/Avatar';
+import { Markdown } from '@astryxdesign/core/Markdown';
+import { Spinner } from '@astryxdesign/core/Spinner';
+import { Token } from '@astryxdesign/core/Token';
+import { Button } from '@astryxdesign/core/Button';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
 import styles from './CoachChat.module.css';
 
 type ChatRole = 'user' | 'assistant';
 
-type ChatMessage = {
+type CoachMessage = {
   id: string;
   role: ChatRole;
   content: string;
@@ -132,16 +134,23 @@ function buildGreetingText(
   };
 }
 
+/**
+ * AI career coach chat — presentation runs on the Astryx Chat suite
+ * (ChatMessageList/ChatMessage/ChatMessageBubble + ChatComposer) with
+ * Markdown-rendered coach replies, an Avatar on assistant messages, Token
+ * chips for suggested prompts, and a Spinner typing state. All logic (state,
+ * i18n, suggested-prompt personalization, and the POST /coach/chat contract)
+ * is unchanged. We keep the page's own scroll container instead of ChatLayout
+ * so the coach card's greeting header keeps its existing frame.
+ */
 export default function CoachChat({ greeting }: { greeting: CoachChatGreeting }) {
   const t = useTranslations('coach');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<CoachMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const inputId = useId();
   const { title, body, resumePrompt } = buildGreetingText(greeting, t);
@@ -155,17 +164,6 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
     scrollToBottom();
   }, [messages, sending, scrollToBottom]);
 
-  const autosize = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 144)}px`;
-  }, []);
-
-  useEffect(() => {
-    autosize();
-  }, [draft, autosize]);
-
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
@@ -174,7 +172,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
       setError(null);
 
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
-      const userMessage: ChatMessage = { id: makeId(), role: 'user', content: trimmed };
+      const userMessage: CoachMessage = { id: makeId(), role: 'user', content: trimmed };
 
       setMessages((prev) => [...prev, userMessage]);
       setDraft('');
@@ -191,11 +189,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
         const data = (await res.json().catch(() => ({}))) as ApiResponse;
 
         if (!res.ok) {
-          setError(
-            typeof data.error === 'string'
-              ? data.error
-              : t('error.generic')
-          );
+          setError(typeof data.error === 'string' ? data.error : t('error.generic'));
           return;
         }
 
@@ -204,36 +198,14 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
             ? data.reply.trim()
             : t('error.noReply');
 
-        setMessages((prev) => [
-          ...prev,
-          { id: makeId(), role: 'assistant', content: reply },
-        ]);
+        setMessages((prev) => [...prev, { id: makeId(), role: 'assistant', content: reply }]);
       } catch {
         setError(t('error.network'));
       } finally {
         setSending(false);
-        textareaRef.current?.focus();
       }
     },
     [messages, sending, t]
-  );
-
-  const handleSubmit = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
-      void sendMessage(draft);
-    },
-    [draft, sendMessage]
-  );
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        void sendMessage(draft);
-      }
-    },
-    [draft, sendMessage]
   );
 
   const handleResume = useCallback(() => {
@@ -250,8 +222,6 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
 
   const showChips = messages.length === 0 && suggestedPrompts.length > 0;
 
-  const canSend = draft.trim().length > 0 && !sending;
-
   return (
     <div className={styles.shell}>
       <div className={styles.greeting}>
@@ -262,14 +232,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
           <h2 className={styles.greetingTitle}>{title}</h2>
           <p className={styles.greetingText}>{body}</p>
           {resumePrompt ? (
-            <button
-              type="button"
-              className={styles.resumeBtn}
-              onClick={handleResume}
-              disabled={sending}
-            >
-              {t('chat.resumeButton')}
-            </button>
+            <Button label={t('chat.resumeButton')} variant="secondary" size="sm" onClick={handleResume} isDisabled={sending} />
           ) : null}
         </div>
       </div>
@@ -281,43 +244,45 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
       ) : null}
 
       <div
-        ref={scrollRef}
         className={styles.scroll}
         role="log"
         aria-live="polite"
         aria-relevant="additions"
         aria-label={t('chat.conversationAria')}
       >
-        {messages.length === 0 && !sending ? (
-          <p className={styles.empty}>
-            {t('chat.empty')}
-          </p>
-        ) : (
-          messages.map((m) => {
-            const mine = m.role === 'user';
-            return (
-              <div
+        <ChatMessageList
+          density="balanced"
+          isStreaming={sending}
+          emptyState={!sending ? <p className={styles.empty}>{t('chat.empty')}</p> : undefined}
+        >
+          {messages.map((m) =>
+            m.role === 'user' ? (
+              <ChatMessage key={m.id} sender="user">
+                <ChatMessageBubble>{m.content}</ChatMessageBubble>
+              </ChatMessage>
+            ) : (
+              <ChatMessage
                 key={m.id}
-                className={`${styles.bubble} ${mine ? styles.bubbleMine : ''}`}
+                sender="assistant"
+                avatar={<Avatar name={t('chat.coach')} size="small" />}
+                name={t('chat.coach')}
               >
-                <div className={styles.bubbleMeta}>{mine ? t('chat.you') : t('chat.coach')}</div>
-                <div className={styles.bubbleBody}>{m.content}</div>
-              </div>
-            );
-          })
-        )}
-
-        {sending ? (
-          <div className={styles.bubble} aria-label={t('chat.typingAria')}>
-            <div className={styles.bubbleMeta}>{t('chat.coach')}</div>
-            <div className={styles.typing} aria-hidden>
-              <span />
-              <span />
-              <span />
-            </div>
-          </div>
-        ) : null}
-
+                <Markdown density="compact" headingLevelStart={3}>
+                  {m.content}
+                </Markdown>
+              </ChatMessage>
+            )
+          )}
+          {sending ? (
+            <ChatMessage
+              sender="assistant"
+              avatar={<Avatar name={t('chat.coach')} size="small" />}
+              name={t('chat.coach')}
+            >
+              <Spinner size="sm" aria-label={t('chat.typingAria')} />
+            </ChatMessage>
+          ) : null}
+        </ChatMessageList>
         <div ref={bottomRef} />
       </div>
 
@@ -326,63 +291,35 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
           <p className={styles.chipsLabel} id={`${inputId}-chips`}>
             {t('chat.chipsLabel')}
           </p>
-          <div
-            className={styles.chipRow}
-            role="group"
-            aria-labelledby={`${inputId}-chips`}
-          >
+          <div className={styles.chipRow} role="group" aria-labelledby={`${inputId}-chips`}>
             {suggestedPrompts.map((p) => (
-              <button
+              <Token
                 key={p.label}
-                type="button"
-                className={styles.chip}
+                label={p.label}
+                size="lg"
+                isDisabled={sending}
                 onClick={() => handleChip(p.prompt)}
-                disabled={sending}
-                title={p.prompt}
-              >
-                <span className="material-symbols-outlined" aria-hidden>
-                  {p.icon}
-                </span>
-                {p.label}
-              </button>
+                description={p.prompt}
+                icon={
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
+                    {p.icon}
+                  </span>
+                }
+              />
             ))}
           </div>
         </div>
       ) : null}
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <label htmlFor={inputId} className="wa-sr-only">
-          {t('chat.inputLabel')}
-        </label>
-        <div className={styles.inputRow}>
-          <textarea
-            ref={textareaRef}
-            id={inputId}
-            className={styles.input}
-            rows={1}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={t('chat.placeholder')}
-            maxLength={4000}
-            disabled={sending}
-            aria-describedby={`${inputId}-hint`}
-          />
-          <button
-            type="submit"
-            className={styles.sendBtn}
-            disabled={!canSend}
-            aria-label={t('chat.sendAria')}
-          >
-            <span className="material-symbols-outlined" aria-hidden>
-              send
-            </span>
-          </button>
-        </div>
-        <p id={`${inputId}-hint`} className={styles.hint}>
-          {t('chat.hint')}
-        </p>
-      </form>
+      <ChatComposer
+        value={draft}
+        onChange={setDraft}
+        onSubmit={(value) => void sendMessage(value)}
+        isDisabled={sending}
+        placeholder={t('chat.placeholder')}
+        density="compact"
+      />
+      <p className={styles.hint}>{t('chat.hint')}</p>
     </div>
   );
 }

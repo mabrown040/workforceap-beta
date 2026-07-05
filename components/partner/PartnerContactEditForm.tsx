@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FormField } from '@/components/portal/kit';
 
 export default function PartnerContactEditForm({
   partnerId,
@@ -46,54 +47,47 @@ export default function PartnerContactEditForm({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-        <label htmlFor="partnercontacteditform-contact-name-field" style={{ display: 'block', fontWeight: 500, marginBottom: '0.25rem', fontSize: '0.875rem' }}>
-          Contact name
-        </label>
-        <input id="partnercontacteditform-contact-name-field"
-          type="text"
-          value={contactName}
-          onChange={(e) => setContactName(e.target.value)}
-          maxLength={200}
-          disabled={saving}
-          style={{
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: '6px',
-            fontSize: '0.9375rem',
-          }}
-        />
-      </div>
-      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-        <label htmlFor="partnercontacteditform-contact-phone-field" style={{ display: 'block', fontWeight: 500, marginBottom: '0.25rem', fontSize: '0.875rem' }}>
-          Contact phone
-        </label>
-        <input id="partnercontacteditform-contact-phone-field"
-          type="tel"
-          value={contactPhone}
-          onChange={(e) => setContactPhone(e.target.value)}
-          maxLength={50}
-          disabled={saving}
-          style={{
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: '6px',
-            fontSize: '0.9375rem',
-          }}
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="wa-flex wa-flex-col wa-gap-3">
+      <FormField
+        label="Contact name"
+        type="text"
+        value={contactName}
+        onChange={(e) => setContactName(e.target.value)}
+        maxLength={200}
+        disabled={saving}
+      />
+      <FormField
+        label="Contact phone"
+        type="tel"
+        value={contactPhone}
+        onChange={(e) => setContactPhone(e.target.value)}
+        maxLength={50}
+        disabled={saving}
+      />
       {error && (
-        <div style={{ padding: '0.5rem', marginBottom: '0.75rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', borderRadius: '6px', color: 'var(--color-accent)', fontSize: '0.85rem' }} role="alert">
+        <div
+          role="alert"
+          style={{
+            padding: '8px 10px',
+            background: 'color-mix(in srgb, var(--wa-accent) 10%, transparent)',
+            borderRadius: 'var(--wa-radius-sm)',
+            color: 'var(--wa-accent)',
+            fontSize: 13,
+          }}
+        >
           {error}
         </div>
       )}
       {saved && (
         <div
           role="status"
-          style={{ padding: '0.5rem', marginBottom: '0.75rem', background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', borderRadius: '6px', color: 'var(--color-green)', fontSize: '0.85rem' }}
+          style={{
+            padding: '8px 10px',
+            background: 'color-mix(in srgb, var(--wa-success) 12%, transparent)',
+            borderRadius: 'var(--wa-radius-sm)',
+            color: 'var(--wa-success)',
+            fontSize: 13,
+          }}
         >
           Saved successfully.
         </div>
@@ -101,8 +95,22 @@ export default function PartnerContactEditForm({
       <button
         type="submit"
         disabled={saving}
-        className="btn btn-primary btn-sm"
-        style={{ minWidth: 100 }}
+        className="wa-kit-focus"
+        style={{
+          alignSelf: 'flex-start',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '8px 16px',
+          borderRadius: 'var(--wa-radius-sm)',
+          background: 'var(--wa-accent)',
+          color: 'var(--wa-on-accent)',
+          fontWeight: 700,
+          fontSize: 13,
+          border: 'none',
+          cursor: saving ? 'default' : 'pointer',
+          opacity: saving ? 0.7 : 1,
+        }}
       >
         {saving ? 'Saving…' : 'Save changes'}
       </button>

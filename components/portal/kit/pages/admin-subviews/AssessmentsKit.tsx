@@ -1,12 +1,15 @@
 'use client';
 
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   DataTable,
-  StatusTag,
   type Column,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -15,8 +18,8 @@ import {
  * Target route: /admin/assessments
  *
  * Columns: Assessment · Type · Completions · Avg Score · Status.
- * Status is a StatusTag (Live=ok). Wide table collapses to stacked cards on
- * mobile via DataTable mobile="cards".
+ * Status is an Astryx Token (Live=green). Wide table collapses to stacked
+ * cards on mobile via DataTable mobile="cards".
  *
  * NOTE on data: the platform tracks a single combined skills + readiness
  * assessment per member (User.assessmentCompleted / assessmentScorePct), not a
@@ -75,10 +78,10 @@ const DEFAULT_ASSESSMENTS: AssessmentRow[] = [
   },
 ];
 
-const STATUS_TONE: Record<AssessmentDisplayStatus, KitTone> = {
-  Live: 'ok',
-  Draft: 'muted',
-  Retired: 'muted',
+const STATUS_TOKEN_COLOR: Record<AssessmentDisplayStatus, TokenColor> = {
+  Live: 'green',
+  Draft: 'gray',
+  Retired: 'gray',
 };
 
 export function AssessmentsKit({
@@ -125,7 +128,7 @@ export function AssessmentsKit({
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+      render: (row) => <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />,
     },
   ];
 
@@ -136,24 +139,9 @@ export function AssessmentsKit({
         kicker="Members"
         goal={subtitle}
         action={
-          <a
-            href="/admin/assessments?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Results &amp; export
-          </a>
+          <AstryxLink href="/admin/assessments?ui=legacy" as={NextLink as never} isStandalone>
+            <Button label="Results & export" variant="secondary" size="sm" />
+          </AstryxLink>
         }
       />
 
@@ -164,7 +152,7 @@ export function AssessmentsKit({
         minWidth={720}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -197,7 +185,7 @@ export function AssessmentsKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+                <Token label={row.status} size="sm" color={STATUS_TOKEN_COLOR[row.status]} />
               </div>
             </div>
             <div
@@ -225,7 +213,7 @@ export function AssessmentsKit({
                 </b>
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No assessments yet"
         emptyDescription="Assessment completions will appear here once members finish the skills + readiness quiz."

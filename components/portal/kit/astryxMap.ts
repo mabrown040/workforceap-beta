@@ -2,18 +2,19 @@ import type { ReactNode } from 'react';
 import type { KitTone } from './tokens';
 
 /** Map kit status tones → Astryx Badge variants. */
-export function toneToBadgeVariant(tone: KitTone): 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'pink' | 'yellow' {
+export function toneToBadgeVariant(tone: KitTone): 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'pink' | 'yellow' | 'blue' | 'red' {
   switch (tone) {
     case 'ok':
       return 'success';
     case 'warn':
       return 'warning';
     case 'alert':
-      return 'pink';
+      /* Astryx `info` badge uses --color-accent (WAP crimson), not blue. */
+      return 'info';
     case 'danger':
       return 'error';
     case 'info':
-      return 'info';
+      return 'blue';
     case 'muted':
     default:
       return 'neutral';
@@ -28,7 +29,7 @@ export function toneToTokenColor(tone: KitTone): 'green' | 'yellow' | 'pink' | '
     case 'warn':
       return 'yellow';
     case 'alert':
-      return 'pink';
+      return 'red';
     case 'danger':
       return 'red';
     case 'info':

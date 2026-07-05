@@ -24,7 +24,7 @@ export function FeatureTile({ icon, title, body, badge, tone = 'crimson', href, 
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         {icon ? <div style={{ fontSize: 22, lineHeight: 1 }}>{icon}</div> : <span />}
-        {badge ? <Token label={badge} size="sm" color={tone === 'gold' ? 'yellow' : 'pink'} /> : null}
+        {badge ? <Token label={badge} size="sm" color={tone === 'gold' ? 'yellow' : 'red'} /> : null}
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>

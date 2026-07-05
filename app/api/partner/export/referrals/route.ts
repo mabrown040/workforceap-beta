@@ -78,11 +78,14 @@ function csvEscape(value: string): string {
           csvEscape(r.story),
           csvEscape(r.referredAtLabel),
         ];
+        // Only staff-verified placements are reported as outcomes — an
+        // employer-side "hired" status alone hasn't been confirmed yet.
+        const verifiedPlacement = pr?.startDateVerified ? pr : null;
         if (preset === 'outcomes') {
           base.push(
-            csvEscape(pr?.employerName ?? ''),
-            csvEscape(pr?.jobTitle ?? ''),
-            pr?.placedAt ? csvEscape(pr.placedAt.toISOString()) : ''
+            csvEscape(verifiedPlacement?.employerName ?? ''),
+            csvEscape(verifiedPlacement?.jobTitle ?? ''),
+            verifiedPlacement?.placedAt ? csvEscape(verifiedPlacement.placedAt.toISOString()) : ''
           );
         }
         if (preset === 'demographics') {
@@ -95,11 +98,11 @@ function csvEscape(value: string): string {
             csvEscape(prof?.veteranStatus ?? ''),
             csvEscape(prof?.employmentStatus ?? ''),
             csvEscape(prof?.educationLevel ?? ''),
-            csvEscape(pr?.employerName ?? ''),
-            csvEscape(pr?.jobTitle ?? ''),
-            pr?.placedAt ? csvEscape(pr.placedAt.toISOString()) : '',
-            pr?.onboardingWindowEnd ? csvEscape(pr.onboardingWindowEnd.toISOString()) : '',
-            csvEscape(pr?.retentionDecision ?? '')
+            csvEscape(verifiedPlacement?.employerName ?? ''),
+            csvEscape(verifiedPlacement?.jobTitle ?? ''),
+            verifiedPlacement?.placedAt ? csvEscape(verifiedPlacement.placedAt.toISOString()) : '',
+            verifiedPlacement?.onboardingWindowEnd ? csvEscape(verifiedPlacement.onboardingWindowEnd.toISOString()) : '',
+            csvEscape(verifiedPlacement?.retentionDecision ?? '')
           );
         }
         return base.join(',');

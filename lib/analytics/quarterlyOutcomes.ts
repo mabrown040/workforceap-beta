@@ -196,6 +196,7 @@ async function fetchPlacements(orgId: string, start: Date, end: Date) {
     take: 5000,
     where: {
       placedAt: { gte: start, lte: end },
+      startDateVerified: true,
       user: { organizationId: orgId },
     },
     select: {
@@ -228,6 +229,7 @@ async function fetchRetentionRowsAsOf(orgId: string, windowEnd: Date, windowDays
     where: {
       user: { organizationId: orgId },
       placedAt: { lte: cutoff },
+      startDateVerified: true,
     },
     select: { retentionStatus: true, retentionDecision: true },
   });

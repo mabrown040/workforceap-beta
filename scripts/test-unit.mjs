@@ -52,6 +52,7 @@ const SKIP_REASONS = {
  * and add the file here so this gate doesn't silently swallow it.
  */
 const KNOWN_VITEST_SPECS = new Set([
+  'lib/admin/funderProgramMetrics.test.ts',
   'lib/admin/memberMerge.test.ts',
   'lib/admin/metrics.test.ts',
   'lib/analytics/aiToolEfficacy.test.ts',
@@ -61,8 +62,10 @@ const KNOWN_VITEST_SPECS = new Set([
   'lib/content/programs.test.ts',
   'lib/counselor/templates.test.ts',
   'lib/coursera/learnerProgress.test.ts',
+  'lib/cron/wioa-report.test.ts',
   'lib/marketing/trustStripMetrics.test.ts',
   'lib/marketing/googleItSupportLanding.test.ts',
+  'lib/member/atRiskScoring.test.ts',
   'lib/member/nextBestActions.test.ts',
   'lib/member/dashboardTabs.test.ts',
   'lib/member/getMemberState.test.ts',

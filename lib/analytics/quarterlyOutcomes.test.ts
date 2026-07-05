@@ -302,6 +302,27 @@ describe('generateQuarterlyOutcomes', () => {
     expect(report.metrics.activeMembers).toBe(0);
   });
 
+  it('only counts staff-verified placements toward funder-reported totals', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      mockMember({ id: 'u1', courseProgress: [{ percentComplete: 50 }] }),
+    ]);
+    vi.mocked(prisma.courseProgress.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.userCertification.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.placementRecord.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([]);
+
+    await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));
+
+    // First placementRecord.findMany call is fetchPlacements — an
+    // employer-side "hired" status alone auto-creates an unverified record,
+    // so funder-facing counts must only include startDateVerified: true.
+    const placementsCallArgs = vi.mocked(prisma.placementRecord.findMany).mock.calls[0][0];
+    expect(placementsCallArgs?.where).toMatchObject({ startDateVerified: true });
+
+    const retentionCallArgs = vi.mocked(prisma.placementRecord.findMany).mock.calls[1][0];
+    expect(retentionCallArgs?.where).toMatchObject({ startDateVerified: true });
+  });
+
   it('computes a 90-day and 180-day retention block from retentionStatus/retentionDecision, keeping pending visible', async () => {
     vi.mocked(prisma.user.findMany).mockResolvedValue([]);
     vi.mocked(prisma.courseProgress.findMany).mockResolvedValue([]);

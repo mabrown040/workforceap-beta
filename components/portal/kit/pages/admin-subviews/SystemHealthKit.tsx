@@ -14,6 +14,7 @@ import {
   type RankDatum,
   type KitColor,
 } from '@/components/portal/kit';
+import { Card } from '@astryxdesign/core/Card';
 
 /**
  * System Health — services & integrations status workspace (dense).
@@ -128,64 +129,66 @@ export function SystemHealthKit({
           const Icon = t.icon ?? defaultIcon(t.label, t.status);
           const color = tileColorVar(t.status);
           return (
-            <div
-              key={t.label}
-              className="wa-kit-card wa-kit-card--sm"
-              style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}
-            >
-              <div
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 12,
-                  background: tileChipBg(t.status),
-                  color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                <Icon size={18} />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div
-                  className="wa-kit-stat-label"
-                  style={{ textTransform: 'uppercase', letterSpacing: '0.06em' }}
-                >
-                  {t.label}
-                </div>
+            <Card key={t.label} className="wa-kit-card--sm">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                 <div
                   style={{
-                    fontWeight: 700,
-                    fontSize: 14,
+                    width: 38,
+                    height: 38,
+                    borderRadius: 12,
+                    background: tileChipBg(t.status),
                     color,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}
-                  title={t.statusText}
                 >
-                  {t.statusText}
+                  <Icon size={18} />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    className="wa-kit-stat-label"
+                    style={{ textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                  >
+                    {t.label}
+                  </div>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title={t.statusText}
+                  >
+                    {t.statusText}
+                  </div>
                 </div>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
 
       {/* Integration uptime (30d) — real status-derived bars, not fabricated %. */}
       {uptime && uptime.length > 0 ? (
-        <div className="wa-kit-card wa-mt-6" style={{ minWidth: 0 }}>
-          <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 4 }}>
-            Integration uptime (30d)
-          </h3>
-          {uptimeCaption ? (
-            <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginBottom: 16 }}>{uptimeCaption}</p>
-          ) : (
-            <div style={{ marginBottom: 16 }} />
-          )}
-          <RankBars data={uptime} />
+        <div className="wa-mt-6">
+          <Card>
+            <div style={{ minWidth: 0 }}>
+              <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 4 }}>
+                Integration uptime (30d)
+              </h3>
+              {uptimeCaption ? (
+                <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginBottom: 16 }}>{uptimeCaption}</p>
+              ) : (
+                <div style={{ marginBottom: 16 }} />
+              )}
+              <RankBars data={uptime} />
+            </div>
+          </Card>
         </div>
       ) : null}
     </DesignSurface>

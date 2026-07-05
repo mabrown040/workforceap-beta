@@ -1,12 +1,15 @@
+import NextLink from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token, type TokenColor } from '@astryxdesign/core/Token';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DesignSurface,
   SectionHeader,
   KpiStrip,
   DataTable,
-  StatusTag,
   type Column,
   type KpiItem,
-  type KitTone,
 } from '@/components/portal/kit';
 
 /**
@@ -50,11 +53,11 @@ export interface TrainingProgressKitProps {
   avgPercent: number;
 }
 
-const PACE_TONE: Record<Pace, KitTone> = {
-  'On track': 'ok',
-  Ahead: 'ok',
-  Stalled: 'alert',
-  Behind: 'warn',
+const PACE_TOKEN_COLOR: Record<Pace, TokenColor> = {
+  'On track': 'green',
+  Ahead: 'green',
+  Stalled: 'pink',
+  Behind: 'yellow',
 };
 
 export function TrainingProgressKit({
@@ -129,7 +132,7 @@ export function TrainingProgressKit({
     {
       key: 'pace',
       header: 'Pace',
-      render: (row) => <StatusTag tone={PACE_TONE[row.pace]}>{row.pace}</StatusTag>,
+      render: (row) => <Token label={row.pace} size="sm" color={PACE_TOKEN_COLOR[row.pace]} />,
     },
   ];
 
@@ -140,24 +143,9 @@ export function TrainingProgressKit({
         kicker="Programs"
         goal="Live B4B + LMS progress across all members"
         action={
-          <a
-            href="/admin/training-progress?ui=legacy"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              color: 'var(--wa-text)',
-              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Detailed view
-          </a>
+          <AstryxLink href="/admin/training-progress?ui=legacy" as={NextLink as never} isStandalone>
+            <Button label="Detailed view" variant="secondary" size="sm" />
+          </AstryxLink>
         }
       />
 
@@ -172,7 +160,7 @@ export function TrainingProgressKit({
         minWidth={680}
         mobile="cards"
         cardRender={(row) => (
-          <div className="wa-kit-card wa-kit-card--sm">
+          <Card>
             <div
               style={{
                 display: 'flex',
@@ -205,7 +193,7 @@ export function TrainingProgressKit({
                 </div>
               </div>
               <div style={{ flexShrink: 0 }}>
-                <StatusTag tone={PACE_TONE[row.pace]}>{row.pace}</StatusTag>
+                <Token label={row.pace} size="sm" color={PACE_TOKEN_COLOR[row.pace]} />
               </div>
             </div>
             <div
@@ -230,7 +218,7 @@ export function TrainingProgressKit({
                 Complete <b style={{ color: 'var(--wa-text)' }}>{row.percentComplete}%</b>
               </span>
             </div>
-          </div>
+          </Card>
         )}
         emptyTitle="No training progress yet"
         emptyDescription="Once members enroll and start coursework, their pace shows up here."

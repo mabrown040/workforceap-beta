@@ -328,7 +328,7 @@ export function MemberMessagesKit({
             </div>
             <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column' }}>
               {error ? (
-                <p role="alert" style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--wa-danger, #dc2626)' }}>
+                <p role="alert" style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--wa-danger)' }}>
                   {error}
                 </p>
               ) : null}

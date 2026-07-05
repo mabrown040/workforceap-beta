@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useFocusTrap } from '@/components/portal/kit/hooks/useFocusTrap';
 
 type SearchResult = {
   id: string;
@@ -20,6 +21,9 @@ export default function GlobalSearch() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  // Kit focus trap owns Tab containment + Escape (shared escape stack) and
+  // restores focus to the trigger button on close. The input focuses itself.
+  const dialogRef = useFocusTrap<HTMLDivElement>(open, { onEscape: () => setOpen(false), skipInitialFocus: true });
 
   // Cmd+K / Ctrl+K to open
   useEffect(() => {
@@ -28,7 +32,6 @@ export default function GlobalSearch() {
         e.preventDefault();
         setOpen(o => !o);
       }
-      if (e.key === 'Escape') setOpen(false);
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
@@ -95,6 +98,7 @@ export default function GlobalSearch() {
       onClick={() => setOpen(false)}
     >
       <div
+        ref={dialogRef}
         style={{ width: '100%', maxWidth: '560px', margin: '0 1rem', borderRadius: '1rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', boxShadow: '0 24px 64px rgba(0,0,0,0.4)', overflow: 'hidden' }}
         onClick={e => e.stopPropagation()}
         role="dialog"

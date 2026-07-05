@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useFocusTrap } from '@/components/portal/kit/hooks/useFocusTrap';
 
 const FEEDBACK_TYPES = [
   { value: 'training', label: 'Training / Courses' },
@@ -26,6 +27,9 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  // Kit trap: Tab containment + Escape (shared stack) + focus restore. Initial
+  // focus stays on the title (below) so screen readers hear the dialog name.
+  const dialogRef = useFocusTrap<HTMLDivElement>(open, { onEscape: handleClose, skipInitialFocus: true });
 
   // Move focus into the dialog when it opens so keyboard/screen-reader users
   // land on it instead of staying on the (now-obscured) trigger button.
@@ -76,14 +80,12 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="feedback-title"
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') handleClose();
       }}
       style={{
         position: 'fixed',

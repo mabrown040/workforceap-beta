@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useFocusTrap } from '@/components/portal/kit/hooks/useFocusTrap';
 
 type Template = {
   id: string;
@@ -41,6 +42,8 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [customVars, setCustomVars] = useState<Record<string, string>>({});
+  // Kit trap for the edit modal: Tab containment + Escape + focus restore.
+  const editDialogRef = useFocusTrap<HTMLDivElement>(!!editingId, { onEscape: () => setEditingId(null) });
   const [search, setSearch] = useState('');
 
   const selected = templates.find((t) => t.id === selectedId);
@@ -591,6 +594,10 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
       {/* Edit modal */}
       {editingId && (
         <div
+          ref={editDialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit email template"
           style={{
             position: 'fixed',
             inset: 0,

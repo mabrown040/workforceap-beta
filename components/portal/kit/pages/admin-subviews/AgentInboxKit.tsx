@@ -154,7 +154,7 @@ export function AgentInboxKit({
               fontWeight: 700,
               textDecoration: 'none',
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
             }}
           >
             Review &amp; Send

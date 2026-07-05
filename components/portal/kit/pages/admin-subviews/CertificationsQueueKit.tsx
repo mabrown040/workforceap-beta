@@ -364,7 +364,7 @@ export function CertificationsQueueKit({
                     margin: 0,
                     fontSize: 12,
                     fontWeight: 600,
-                    color: 'var(--wa-danger, #dc2626)',
+                    color: 'var(--wa-danger)',
                   }}
                 >
                   {rowError}

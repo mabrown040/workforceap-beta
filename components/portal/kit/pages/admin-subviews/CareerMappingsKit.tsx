@@ -71,11 +71,11 @@ const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; fg: string }
   'cloud-data': { Icon: Cloud, bg: 'rgba(43,123,185,0.12)', fg: colorVar('info') },
   'it-cyber': { Icon: Laptop, bg: 'rgba(173,44,77,0.10)', fg: colorVar('accent') },
   'it-cyber-entry': { Icon: Laptop, bg: 'rgba(173,44,77,0.10)', fg: colorVar('accent') },
-  'ai-software': { Icon: Bot, bg: 'rgba(124,58,237,0.12)', fg: 'var(--wa-violet, #7c3aed)' },
+  'ai-software': { Icon: Bot, bg: 'rgba(124,58,237,0.12)', fg: 'var(--wa-violet)' },
   healthcare: { Icon: HeartPulse, bg: 'rgba(74,155,79,0.14)', fg: colorVar('success') },
   manufacturing: { Icon: Factory, bg: 'rgba(43,123,185,0.12)', fg: colorVar('info') },
   business: { Icon: Briefcase, bg: 'rgba(164,127,56,0.14)', fg: colorVar('gold') },
-  'digital-literacy': { Icon: BookOpen, bg: 'var(--wa-surface-2, #f4f4f5)', fg: 'var(--wa-text)' },
+  'digital-literacy': { Icon: BookOpen, bg: 'var(--wa-surface-2)', fg: 'var(--wa-text)' },
   trades: { Icon: HardHat, bg: 'rgba(164,127,56,0.14)', fg: colorVar('gold') },
   data: { Icon: BarChart3, bg: 'rgba(43,123,185,0.12)', fg: colorVar('info') },
 };

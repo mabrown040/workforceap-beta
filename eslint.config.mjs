@@ -76,14 +76,19 @@ const config = [
   },
   {
     // Token discipline inside the design kit (docs/KIT_GUIDE.md §7,
-    // docs/ASTRYX_LESSONS.md Lesson 8): raw hex colors are banned in kit
-    // primitives — use var(--wa-*) / colorVar() so dark mode and surface
-    // modes stay automatic. Two-tier severity: warnings for humans locally,
-    // hard errors in CI (and under WAP_STRICT_LINT=1) so agents get the
-    // stricter gate. Scope is the kit primitives + hooks; expand to
-    // kit/pages/** after its ~80 existing literals are burned down.
-    files: ["components/portal/kit/*.{ts,tsx}", "components/portal/kit/hooks/**/*.{ts,tsx}"],
-    ignores: ["components/portal/kit/DataTable.tsx"],
+    // docs/ASTRYX_LESSONS.md Lesson 8): raw hex colors are banned across the
+    // whole kit (primitives, hooks, AND pages/**) — use var(--wa-*) /
+    // colorVar() so dark mode and surface modes stay automatic. Two-tier
+    // severity: warnings for humans locally, hard errors in CI (and under
+    // WAP_STRICT_LINT=1) so agents get the stricter gate.
+    files: ["components/portal/kit/**/*.{ts,tsx}"],
+    ignores: [
+      "components/portal/kit/DataTable.tsx",
+      // The Voice Studio session theater is intentionally fixed dark chrome
+      // (same in light and dark — see the file's header comment); its ~30
+      // dark-panel literals are by design, not token debt.
+      "components/portal/kit/pages/VoiceStudioKit.tsx",
+    ],
     rules: {
       "no-restricted-syntax": [
         process.env.CI || process.env.WAP_STRICT_LINT ? "error" : "warn",

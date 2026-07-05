@@ -134,7 +134,7 @@ export function BlogKit({ posts = DEFAULT_POSTS }: BlogKitProps) {
                 fontWeight: 700,
                 textDecoration: 'none',
                 background: 'var(--wa-accent)',
-                color: '#fff',
+                color: 'var(--wa-on-accent)',
               }}
             >
               <Plus className="h-4 w-4" /> New Post

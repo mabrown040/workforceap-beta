@@ -439,7 +439,7 @@ const pipelineColumns: Column<PipelineRow>[] = [
               justifyContent: 'center',
               fontWeight: 800,
               fontSize: 12,
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
               background: logoColorFor(row.company),
             }}
           >
@@ -493,7 +493,7 @@ const pipelineCard = (row: PipelineRow) => {
               justifyContent: 'center',
               fontWeight: 800,
               fontSize: 12,
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
               background: logoColorFor(row.company),
             }}
           >

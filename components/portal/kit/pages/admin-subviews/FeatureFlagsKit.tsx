@@ -148,7 +148,7 @@ export function FeatureFlagsKit({
               fontWeight: 700,
               textDecoration: 'none',
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
             }}
           >
             Manage

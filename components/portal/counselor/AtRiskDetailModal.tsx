@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useFocusTrap } from '@/components/portal/kit/hooks/useFocusTrap';
 import {
   X,
   ShieldAlert,
@@ -76,6 +77,9 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
   const [savingNote, setSavingNote] = useState(false);
   const [acting, setActing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Kit trap: Tab containment + Escape (shared stack) + focus restore to the
+  // triggering roster row when the modal closes.
+  const dialogRef = useFocusTrap<HTMLDivElement>(!!member, { onEscape: onClose });
 
   const fetchTimeline = useCallback(async (userId: string) => {
     setLoadingTimeline(true);
@@ -159,7 +163,11 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
 
   return (
     <div
+      ref={dialogRef}
       className="at-risk-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`At-risk detail: ${member.name}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

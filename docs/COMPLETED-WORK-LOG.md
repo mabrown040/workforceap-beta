@@ -19,6 +19,7 @@ Append-only record of shipped work that was previously tracked in backlogs or sp
 | 2026-04 | Partner onboarding | Auto-advance slide duration **7500ms** (~30s across 4 slides) | `PartnerOnboardingTour.tsx`. |
 | 2026-04 | Career Brief ↔ Weekly Recap | Cross-links: recap → brief (existing); brief → recap (new) | Light “consolidation” without merging pages. |
 | 2026-04 | Homepage journey a11y | `.home-milestone-card` body/heading font tweaks for readability | `css/main.css`, `app/page.tsx`. |
+| 2026-07 | Kit meta-layer (Astryx lessons) | `--wa-*` tokens migrated to `light-dark()` + `color-scheme` (dark = one line); dead `--dm-*`/`css/dark-mode.css` deleted; `KitBaseProps` (className/style/ref/data-*) on kit primitives; a11y hooks `useFocusTrap` (Escape stack) / `useListFocus` / `useAnnounce`; kit ESLint hex ban (warn local, error CI); motion tokens `--wa-dur-*`/`--wa-ease`; dark inset-bezel elevation; `docs/KIT_GUIDE.md` landed | Study: `docs/ASTRYX_LESSONS.md`. Guide linked from `AGENTS.md` + kit barrel. |
 
 ## Live site comparison (workforceap.org)
 

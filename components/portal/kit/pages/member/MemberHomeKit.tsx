@@ -14,6 +14,12 @@ import {
   Star,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Token } from '@astryxdesign/core/Token';
+import { ProgressBar } from '@astryxdesign/core/ProgressBar';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DataTable,
   DesignSurface,
@@ -259,7 +265,8 @@ function StatSparkTile({
   spark?: StatSpark;
 }) {
   return (
-    <div className="wa-kit-card wa-kit-card--sm" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <Card>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div className="wa-flex wa-items-start wa-justify-between">
         <div
           aria-hidden
@@ -308,7 +315,8 @@ function StatSparkTile({
           />
         </svg>
       ) : null}
-    </div>
+      </div>
+    </Card>
   );
 }
 
@@ -622,59 +630,33 @@ export function MemberHomeKit({
 
         {/* 4. Mixed row — certification ring, weekly activity, points ledger. */}
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-12 wa-gap-4">
-          <div className="wa-kit-card lg:wa-col-span-4" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="lg:wa-col-span-4">
+          <Card>
             <KitCardHead title="Certification path" linkLabel="View plan" linkHref={resumeHref} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
               <div style={{ minWidth: 0, flex: 1 }}>
-                <StatusTag tone="ok">{programStatus}</StatusTag>
+                <Token label={programStatus} size="sm" color="green" />
                 <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8, textWrap: 'balance' }}>{programTitle}</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
                   Next: {nextLesson} · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
                 </p>
                 {hasModuleRow ? (
-                  <div aria-hidden className="wa-flex wa-items-center wa-gap-1" style={{ marginTop: 10, flexWrap: 'wrap' }}>
-                    {Array.from({ length: certModulesTotal as number }).map((_, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          width: 20,
-                          height: 8,
-                          borderRadius: 4,
-                          flexShrink: 0,
-                          background:
-                            i < (certModulesDone as number)
-                              ? 'var(--wa-accent)'
-                              : i === certModulesDone
-                                ? 'var(--wa-gold)'
-                                : 'var(--wa-track)',
-                        }}
-                      />
-                    ))}
+                  <div style={{ marginTop: 10 }}>
+                    <ProgressBar
+                      value={Math.round(((certModulesDone as number) / (certModulesTotal as number)) * 100)}
+                      label="Certification module progress"
+                    />
                   </div>
                 ) : null}
-                <a
-                  href={resumeHref}
-                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                  style={{
-                    marginTop: 12,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 16px',
-                    minHeight: 44,
-                    background: 'var(--wa-accent)',
-                    color: 'var(--wa-on-accent)',
-                    fontWeight: 600,
-                    fontSize: 12,
-                    borderRadius: 999,
-                    textDecoration: 'none',
-                  }}
-                >
-                  Resume <Play size={11} />
-                </a>
+                <div style={{ marginTop: 12 }}>
+                  <AstryxLink href={resumeHref ?? '#'} as={Link as never} isStandalone>
+                    <Button label="Resume" variant="primary" size="sm" endContent={<Play size={11} aria-hidden />} />
+                  </AstryxLink>
+                </div>
               </div>
             </div>
+          </Card>
           </div>
 
           <div className="wa-kit-card lg:wa-col-span-5" style={{ display: 'flex', flexDirection: 'column' }}>

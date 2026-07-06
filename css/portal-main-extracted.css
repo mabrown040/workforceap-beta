@@ -3708,9 +3708,19 @@ body:has(.dashboard-drawer-overlay.open) {
     z-index: 45;
 }
 .portal-header-actions-dropdown {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: 0;
+    /*
+     * `.workspace-shell-header__meta` sets `overflow-y: hidden` on mobile
+     * (single-row header, avoid wrapping) — an `absolute` dropdown anchored
+     * inside it got clipped to zero visible height the moment it opened, so
+     * only the full-viewport `.portal-header-actions-overlay` was visible
+     * (dim backdrop, no menu). `fixed` escapes that ancestor's clipping the
+     * same way the overlay already does; anchor off the header's own
+     * measured height (WorkspaceShell.tsx sets --workspace-header-h) so it
+     * still lands just under the hamburger button.
+     */
+    position: fixed;
+    top: calc(var(--workspace-header-h, 3.25rem) + 0.5rem);
+    right: 0.5rem;
     z-index: 50;
     min-width: 220px;
     background: #fff;

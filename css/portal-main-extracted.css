@@ -1179,8 +1179,10 @@ html.dark .portal-nav {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--surface-container-lowest);
+    background: var(--wa-bg-wave, var(--surface-container-lowest));
     color: var(--color-on-surface);
+    position: relative;
+    isolation: isolate;
     /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
     --workspace-tab-bar-h: 0px;
     --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
@@ -1321,9 +1323,9 @@ html.dark .portal-nav {
     }
 }
 html:not(.dark) .workspace-shell-header {
-    background: rgba(255, 255, 255, 0.92);
-    border-bottom-color: rgba(0, 0, 0, 0.07);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+    background: var(--wa-surface-glass, rgba(255, 255, 255, 0.92));
+    border-bottom-color: rgba(173, 44, 77, 0.12);
+    box-shadow: 0 1px 0 rgba(124, 13, 48, 0.06), 0 16px 40px rgba(173, 44, 77, 0.06);
 }
 .workspace-shell-header__brand {
     display: flex;
@@ -1649,8 +1651,8 @@ html.dark .workspace-sidebar {
     border-right-color: rgba(255, 255, 255, 0.07);
 }
 html:not(.dark) .workspace-sidebar {
-    background: rgba(255, 255, 255, 0.96);
-    border-right-color: rgba(0, 0, 0, 0.08);
+    background: var(--wa-surface-glass, rgba(255, 255, 255, 0.96));
+    border-right-color: rgba(173, 44, 77, 0.13);
 }
 .workspace-sidebar.open {
     transform: translateX(0);
@@ -1677,8 +1679,8 @@ html.dark .workspace-sidebar.open::before {
     border-bottom-color: rgba(255, 255, 255, 0.07);
 }
 html:not(.dark) .workspace-sidebar.open::before {
-    background: rgba(255, 255, 255, 0.96);
-    border-bottom-color: rgba(0, 0, 0, 0.07);
+    background: var(--wa-surface-glass, rgba(255, 255, 255, 0.96));
+    border-bottom-color: rgba(173, 44, 77, 0.12);
 }
 .workspace-sidebar-inner {
     display: flex;
@@ -2006,6 +2008,9 @@ html.dark .workspace-sidebar-signout:hover {
     min-width: 0;
     padding: 1.25rem 1rem;
     width: 100%;
+    background:
+        radial-gradient(740px 360px at 50% -120px, rgba(217, 77, 115, 0.09), transparent 70%),
+        transparent;
 }
 /* Mobile bottom nav: `main#main-content` + WorkspaceShell `.workspace-shell-main` (marketing.css). */
 @media (max-width: 767px) {
@@ -2059,8 +2064,8 @@ html.dark .workspace-sidebar-signout:hover {
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.25rem 0.25rem 0.5rem;
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: rgba(173, 44, 77, 0.1);
+    border: 1px solid rgba(173, 44, 77, 0.2);
     border-radius: 0.5rem;
 }
 .super-admin-view-switcher__badge {
@@ -2068,9 +2073,9 @@ html.dark .workspace-sidebar-signout:hover {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #8b5cf6;
+    color: #ad2c4d;
     padding: 0.2rem 0.4rem;
-    background: rgba(139, 92, 246, 0.12);
+    background: rgba(173, 44, 77, 0.12);
     border-radius: 0.25rem;
     cursor: help;
 }
@@ -5557,8 +5562,8 @@ html.dark .training-status-chip--pending {
 }
 .partner-member-stage.stage-in_training,
 .partner-member-stage.stage-certified {
-    background: rgba(124, 58, 237, 0.12);
-    color: #7c3aed;
+    background: var(--wa-gold-soft, rgba(164, 127, 56, 0.14));
+    color: var(--wa-gold, #a47f38);
 }
 .partner-member-stage.stage-enrolled {
     background: rgba(37, 99, 235, 0.12);
@@ -9442,21 +9447,21 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
  *  is handled by the existing responsive rules.)
  * ═══════════════════════════════════════════════════════════════════════════ */
 html[data-portal-role] .workspace-sidebar {
-  background: #161616 !important;
-  border-right: 1px solid #2a2a2a !important;
+  background: var(--wa-sidebar-bg, #1b1115) !important;
+  border-right: 1px solid var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
   border-left: none !important;
-  color: #e5e5e5 !important;
+  color: var(--wa-sidebar-text, #fff7f8) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 html[data-portal-role] .workspace-sidebar-link,
 html[data-portal-role] .workspace-sidebar-home-link,
 html[data-portal-role] .workspace-sidebar-signout {
-  color: #d4d4d4 !important;
+  color: var(--wa-sidebar-muted, #e8cbd2) !important;
 }
 html[data-portal-role] .workspace-sidebar-link:hover {
-  background: #242424 !important;
-  color: #ffffff !important;
+  background: var(--wa-sidebar-bg-hover, #2b1820) !important;
+  color: var(--wa-sidebar-text, #fff7f8) !important;
 }
 /* Active = solid crimson fill + white (matches admin-full mockup) */
 html[data-portal-role] .workspace-sidebar-link.active {
@@ -9469,9 +9474,7 @@ html[data-portal-role] .workspace-sidebar-link.active svg {
 }
 html[data-portal-role] .workspace-sidebar-group-label,
 html[data-portal-role] .workspace-sidebar-label {
-  /* Contrast fix: #6b6b6b on #161616 was ~3.4:1 (fails WCAG AA). #9a9a9a on
-     #161616 is ~5.7:1 — passes 4.5:1 while keeping the muted "label" feel. */
-  color: #9a9a9a !important;
+  color: var(--wa-sidebar-label, #b58c98) !important;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 700;
@@ -9516,14 +9519,14 @@ html[data-portal-role] .workspace-sidebar-inner {
 }
 html[data-portal-role] .workspace-sidebar-collapse-btn,
 html[data-portal-role] .workspace-menu-btn {
-  color: #d4d4d4 !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--wa-sidebar-muted, #e8cbd2) !important;
+  border-color: var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* ── Admin command rail: branded header + in-rail search (admin-full mockup) ── */
 html[data-portal-role='admin'] .workspace-sidebar-toolbar {
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--wa-sidebar-border, rgba(201, 168, 76, 0.16));
   padding-bottom: 0.6rem;
   margin-bottom: 0.1rem;
 }
@@ -9554,12 +9557,12 @@ html[data-portal-role='admin'] .workspace-sidebar-brand-text {
 html[data-portal-role='admin'] .workspace-sidebar-brand-name {
   font-weight: 800;
   font-size: 0.875rem;
-  color: #ffffff;
+  color: var(--wa-sidebar-text, #fff7f8);
   letter-spacing: -0.01em;
 }
 html[data-portal-role='admin'] .workspace-sidebar-brand-sub {
   font-size: 0.625rem;
-  color: #a3a3a3;
+  color: var(--wa-sidebar-label, #b58c98);
   margin-top: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9569,33 +9572,31 @@ html[data-portal-role='admin'] .workspace-sidebar-brand-sub {
 html[data-portal-role='admin'] .workspace-sidebar-search {
   padding: 0.1rem 0 0.6rem;
   margin-bottom: 0.35rem;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--wa-sidebar-border, rgba(201, 168, 76, 0.16));
 }
 /* Footer divider matching the mockup's border-top. */
 html[data-portal-role] .workspace-sidebar-footer {
-  border-top: 1px solid #2a2a2a !important;
+  border-top: 1px solid var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
 }
 html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn {
   width: 100%;
   justify-content: flex-start;
   gap: 0.5rem;
-  background: #222 !important;
-  border: 1px solid #333 !important;
-  color: #9a9a9a !important;
+  background: var(--wa-sidebar-bg-hover, #2b1820) !important;
+  border: 1px solid var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
+  color: var(--wa-sidebar-label, #b58c98) !important;
   border-radius: 8px;
   padding: 0.4rem 0.6rem;
   font-size: 0.78rem;
 }
 html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn:hover {
-  border-color: #444 !important;
-  background: #262626 !important;
+  border-color: color-mix(in srgb, var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) 70%, white 30%) !important;
+  background: color-mix(in srgb, var(--wa-sidebar-bg-hover, #2b1820) 82%, white 18%) !important;
 }
 html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn .material-symbols-outlined {
-  /* Contrast fix: #6b6b6b on #222 was ~3.0:1; #9a9a9a is ~5.7:1 (passes AA). */
-  color: #9a9a9a;
+  color: var(--wa-sidebar-label, #b58c98);
 }
-/* Focus ring for the in-rail search trigger on the dark command rail. The
-   accent-mix ring reads clearly on #161616/#222. */
+/* Focus ring for the in-rail search trigger on the dark command rail. */
 html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--wa-accent, #ad2c4d) 60%, white 40%);
   outline-offset: 2px;

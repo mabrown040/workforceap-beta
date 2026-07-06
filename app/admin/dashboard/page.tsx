@@ -227,7 +227,7 @@ export default function ExecutiveDashboardPage() {
             label="Stale Training (7d+)"
             value={summary.staleTraining ?? 0}
             href="/admin/members?status=stale"
-            color="#8b5cf6"
+            color="#a47f38"
             subtitle="No progress in 7 days"
           />
           <WorkQueueCard

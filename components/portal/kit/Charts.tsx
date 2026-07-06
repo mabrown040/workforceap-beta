@@ -22,17 +22,21 @@ export function BarChartMini({ data, highlightLast = false, height = 160 }: BarC
     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8, height }}>
       {data.map((d, i) => {
         const last = highlightLast && i === data.length - 1;
+        const barHeight = d.value > 0 ? `${Math.max((d.value / max) * 100, 4)}%` : 0;
         return (
-          <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-            <div
-              style={{
-                width: '100%',
-                height: `${(d.value / max) * 100}%`,
-                borderRadius: '8px 8px 0 0',
-                background: last ? 'var(--wa-accent)' : 'var(--wa-accent-soft)',
-              }}
-              title={`${d.label}: ${d.value}`}
-            />
+          <div key={d.label} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 0 }}>
+            <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
+              <div
+                style={{
+                  width: '100%',
+                  height: barHeight,
+                  borderRadius: '8px 8px 0 0',
+                  background: last ? 'linear-gradient(to top, var(--wa-accent), var(--wa-accent-bright))' : 'var(--wa-accent)',
+                  opacity: last ? 1 : 0.42,
+                }}
+                title={`${d.label}: ${d.value}`}
+              />
+            </div>
             <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)' }}>{d.label}</span>
           </div>
         );

@@ -25,18 +25,18 @@ function RoleBadge({ role }: { role: string }) {
     admin: 'rgba(74,155,79,0.12)',
     super_admin: 'rgba(173,44,77,0.12)',
     case_manager: 'rgba(217,119,6,0.12)',
-    counselor: 'rgba(124,58,237,0.12)',
+    counselor: 'rgba(164,127,56,0.14)',
     partner: 'rgba(15,118,110,0.12)',
-    employer: 'rgba(79,70,229,0.12)',
+    employer: 'rgba(173,44,77,0.12)',
   };
   const textMap: Record<string, string> = {
     member: '#2563eb',
     admin: '#4a9b4f',
     super_admin: '#ad2c4d',
     case_manager: '#d97706',
-    counselor: '#7c3aed',
+    counselor: 'var(--wa-gold)',
     partner: '#0f766e',
-    employer: '#4f46e5',
+    employer: 'var(--wa-accent)',
   };
   return (
     <span

@@ -30,7 +30,7 @@ function statusFor(row: TrainingDashboardRow): { label: string; color: string; b
     return { label: 'Stale', color: '#991b1b', bg: 'rgba(220,38,38,0.12)' };
   }
   if (row.progressPercent > 0 || row.activeCourseCount > 0) {
-    return { label: 'In progress', color: '#7c3aed', bg: 'rgba(124,58,237,0.12)' };
+    return { label: 'In progress', color: 'var(--wa-gold)', bg: 'rgba(164,127,56,0.14)' };
   }
   return { label: 'Not started', color: '#92400e', bg: 'rgba(245,158,11,0.12)' };
 }

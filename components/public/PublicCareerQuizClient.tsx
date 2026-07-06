@@ -248,7 +248,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
           Save my free career plan
         </Link>
         <button type="button" onClick={shareResult} style={{ marginTop: 12, width: '100%', background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, border: 'none', cursor: 'pointer' }}>
-          {shared ? 'Commitment copied! ✅' : '📤 Share my commitment'}
+          <span aria-live="polite">{shared ? 'Commitment copied! ✅' : '📤 Share my commitment'}</span>
         </button>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 13, opacity: 0.85 }}>
           <button type="button" onClick={restart} style={{ background: 'none', border: 'none', color: '#fff', textDecoration: 'underline', cursor: 'pointer', fontSize: 13 }}>Retake</button>

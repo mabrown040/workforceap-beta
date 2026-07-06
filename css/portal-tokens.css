@@ -156,6 +156,36 @@
   --z-toast: 9999;
 }
 
+/*
+ * [data-surface] (set by <DesignSurface>) is the one consistent wrapper
+ * around every portal page's content — but it's a bare, backgroundless div.
+ * Its parent chain (AppShellSidebar/AppShellMember's <main>, the flex column
+ * around it) is ALSO backgroundless, so the visible page canvas has always
+ * fallen through to <body>. In dark mode <body>'s background is set by the
+ * marketing site's `html.dark body { background: var(--color-background-dark) }`
+ * (css/main.css) — a cool dark gray that has nothing to do with --wa-bg — so
+ * no --wa-bg change here ever reached the actual rendered background. Paint
+ * it explicitly so the portal's own dark palette actually shows.
+ */
+[data-surface] {
+  background: var(--wa-bg);
+  color: var(--wa-text);
+}
+
+/*
+ * css/main.css's marketing dark-mode CSS sets `html.dark { --color-primary: #e2e2e5 }`.
+ * Because `:root` and `html.dark` target the literal same <html> element,
+ * that rule's higher specificity (0,1,1 vs 0,1,0) always beats this file's
+ * `:root { --color-primary: var(--wa-accent) }` bridge alias — so every
+ * Astryx "primary" surface (buttons, etc.) rendered light gray in dark mode
+ * instead of crimson, portal-wide, regardless of load order. Re-assert it
+ * scoped to the portal surface, at higher specificity than `html.dark` alone.
+ */
+html.dark [data-surface],
+[data-theme='dark'] [data-surface] {
+  --color-primary: var(--wa-accent);
+}
+
 /* WARM — member surfaces: Bold + Calm. Soft corners, generous space, pop on. */
 [data-surface='warm'] {
   --wa-radius: 26px;

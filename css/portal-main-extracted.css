@@ -3651,12 +3651,15 @@ body:has(.dashboard-drawer-overlay.open) {
         display: flex;
     }
 }
-/* Workspace shell: sidebar menu already includes public site + sign out — hide duplicate header hamburger */
-@media (max-width: 639px) {
-    .workspace-shell-header .portal-header-actions-mobile {
-        display: none !important;
-    }
-}
+/*
+ * Workspace shell mobile: the drawer sidebar already renders its own
+ * public-site link and sign-out button (WorkspaceShell.tsx), so this
+ * hamburger's dropdown skips those two (PortalHeaderActions.tsx's
+ * `hideSidebarDuplicates`) instead of the previous `display: none !important`
+ * here — that blanket rule also hid NotificationBell and ThemeToggle, which
+ * are NOT available anywhere else on mobile, so mobile users had no way to
+ * see notifications or toggle dark mode at all.
+ */
 /* Mobile header: hamburger menu for actions */
 @media (max-width: 640px) {
     .portal-shell-header {

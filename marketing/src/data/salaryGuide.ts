@@ -35,7 +35,7 @@ export interface SalaryGuideRow {
 export const salaryGuideRows: SalaryGuideRow[] = [
   {
     slug: 'aws-cloud-technology-amazon',
-    program: 'AWS Cloud Technology Certificate',
+    program: 'AWS Cloud Technology',
     duration: '3-5 months',
     salary: '$95K–$145K',
     level: 'High',
@@ -45,7 +45,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'ai-professional-developer-certificate-ibm',
-    program: 'AI Practitioner Professional Certificate',
+    program: 'AI and Software Developer',
     duration: '3-5 months',
     salary: '$85K–$135K',
     level: 'High',
@@ -125,7 +125,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'it-support-and-entry-level-cyber-security-certificate',
-    program: 'IT Support and Entry-level Cyber Security Certificate',
+    program: 'Entry-level Cybersecurity',
     duration: '3-5 months',
     salary: '$60K–$88K',
     level: 'Mid',
@@ -145,7 +145,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'digital-marketing-e-commerce-google',
-    program: 'Digital Marketing & E-Commerce (Google)',
+    program: 'Digital Marketing & E-Commerce',
     duration: '3-5 months',
     salary: '$62K–$78K',
     level: 'Mid',
@@ -155,7 +155,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'comptia-a-professional-certificate',
-    program: 'CompTIA A+ Professional Certificate',
+    program: 'CompTIA A+',
     duration: '3-5 months',
     salary: '$55K–$78K',
     level: 'Mid',
@@ -175,7 +175,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'it-support-professional-certificate-ibm',
-    program: 'IT Support Professional Certificate (IBM)',
+    program: 'IT Support Professional Certificate',
     duration: '3-5 months',
     salary: '$55K–$72K',
     level: 'Entry',
@@ -215,7 +215,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'medical-billing-and-coding-certificate',
-    program: 'Medical Billing and Coding Professional Certificate',
+    program: 'Medical Billing and Coding',
     duration: '4-6 months',
     salary: '$45K–$62K',
     level: 'Entry',
@@ -245,7 +245,7 @@ export interface SalaryGuideSummaryStats {
 /** Verbatim output of salaryGuideSummaryStats(salaryGuideRows). */
 export const salaryGuideSummaryStats: SalaryGuideSummaryStats = {
   highestSalary: '$95K–$145K',
-  highestProgram: 'AWS Cloud Technology Certificate',
+  highestProgram: 'AWS Cloud Technology',
   avgMidpointLabel: '$80K',
   over100Count: 8,
 };

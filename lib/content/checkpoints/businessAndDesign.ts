@@ -422,7 +422,7 @@ export const BUSINESS_AND_DESIGN_PACKS: ProgramCheckpointPack[] = [
   // ==========================================================================
   {
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     whyItMatters:
       'Employers want marketers who can attract customers and prove results with data — these checkpoints show you can do both.',
     courses: [

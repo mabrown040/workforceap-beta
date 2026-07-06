@@ -10,7 +10,7 @@ import { User, BookOpen, FileText, CheckCircle, Handshake, Wallet } from 'lucide
 
 const FUNDING_SOURCE_OPTIONS = [
   { value: '', label: '— Not set —' },
-  { value: 'GRANT', label: 'WIOA / Grant' },
+  { value: 'GRANT', label: 'Grant-Funded' },
   { value: 'EMPLOYER', label: 'Employer-Paid' },
   { value: 'PARTNER_ORG', label: 'Partner Organization Sponsored' },
   { value: 'SELF', label: 'Self-Pay' },

@@ -620,7 +620,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-1',
     courseName: 'Introduction to Software Engineering',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -635,7 +635,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-2',
     courseName: 'Introduction to Artificial Intelligence (AI)',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -650,7 +650,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-3',
     courseName: 'Generative AI: Introduction and Applications',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -665,7 +665,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-4',
     courseName: 'Generative AI: Prompt Engineering Basics',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -680,7 +680,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-5',
     courseName: 'Python for Data Science, AI & Development',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -695,7 +695,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-6',
     courseName: 'Developing AI Applications with Python and Flask',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -710,7 +710,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-7',
     courseName: 'Building Generative AI-Powered Applications with Python',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -725,7 +725,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-8',
     courseName: 'Generative AI: Elevate your Software Development Career',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -1147,7 +1147,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-1',
     courseName: 'Foundations of Digital Marketing and E-commerce',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1162,7 +1162,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-2',
     courseName: 'Attract and Engage Customers with Digital Marketing',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1177,7 +1177,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-3',
     courseName: 'From Likes to Leads: Interact with Customers Online',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1192,7 +1192,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-4',
     courseName: 'Think Outside the Inbox: Email Marketing',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1207,7 +1207,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-5',
     courseName: 'Assess for Success: Marketing Analytics and Measurement',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1222,7 +1222,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-6',
     courseName: 'Make the Sale: Build, Launch, and Manage E-commerce Stores',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1237,7 +1237,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     courseSlug: 'marketing-course-7',
     courseName: 'Satisfaction Guaranteed: Develop Customer Loyalty Online',
     programSlug: 'digital-marketing-e-commerce-google',
-    programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
+    programTitle: 'Digital Marketing & E-Commerce',
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
@@ -1387,7 +1387,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-1',
     courseName: 'IT Fundamentals and Hardware Essentials',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [
@@ -1402,7 +1402,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-2',
     courseName: 'Networking, Peripherals, and Wireless Technologies',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [
@@ -1417,7 +1417,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-3',
     courseName: 'Advanced Networking, Virtualization, and IT Security',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [
@@ -1432,7 +1432,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-4',
     courseName: 'Foundations of Computer Hardware and Storage',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [
@@ -1447,7 +1447,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-5',
     courseName: 'Operating Systems and Networking Fundamentals',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [
@@ -1462,7 +1462,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-6',
     courseName: 'Advanced Networking, Security, and IT Operations',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [
@@ -1477,7 +1477,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     courseSlug: 'comptia-a-course-7',
     courseName: 'Practice Exams for CompTIA A+ Core 1 & Core 2',
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     partner: 'CompTIA',
     estimatedHours: 10,
     contributions: [

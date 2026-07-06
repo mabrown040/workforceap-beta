@@ -101,7 +101,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'it-support-professional-certificate-ibm',
-    title: 'IT Support Professional Certificate (IBM)',
+    title: 'IT Support Professional Certificate',
     category: 'it-cyber',
     categoryLabel: 'IT & Cybersecurity',
     categoryColor: '#ad2c4d',
@@ -121,7 +121,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'it-support-and-entry-level-cyber-security-certificate',
-    title: 'IT Support and Entry-level Cyber Security Certificate',
+    title: 'Entry-level Cybersecurity',
     category: 'it-cyber-entry',
     categoryLabel: 'IT & Cybersecurity',
     categoryColor: '#ad2c4d',
@@ -137,7 +137,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'ai-professional-developer-certificate-ibm',
-    title: 'AI Practitioner Professional Certificate',
+    title: 'AI and Software Developer',
     category: 'ai-software',
     categoryLabel: 'AI & Software Dev',
     categoryColor: '#8b4a9b',
@@ -225,7 +225,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'aws-cloud-technology-amazon',
-    title: 'AWS Cloud Technology Certificate',
+    title: 'AWS Cloud Technology',
     category: 'cloud-data',
     categoryLabel: 'Cloud & Data',
     categoryColor: '#2b7bb9',
@@ -247,7 +247,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'medical-billing-and-coding-certificate',
-    title: 'Medical Billing and Coding Professional Certificate',
+    title: 'Medical Billing and Coding',
     category: 'healthcare',
     categoryLabel: 'Healthcare',
     categoryColor: '#4a9b4f',
@@ -285,7 +285,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'comptia-a-professional-certificate',
-    title: 'CompTIA A+ Professional Certificate',
+    title: 'CompTIA A+',
     category: 'it-cyber',
     categoryLabel: 'IT & Cybersecurity',
     categoryColor: '#ad2c4d',
@@ -391,7 +391,7 @@ export const PROGRAMS: Program[] = [
   },
   {
     slug: 'digital-marketing-e-commerce-google',
-    title: 'Digital Marketing & E-Commerce (Google)',
+    title: 'Digital Marketing & E-Commerce',
     category: 'business',
     categoryLabel: 'Business',
     categoryColor: '#a47f38',

@@ -66,7 +66,7 @@ const STEPS_BY_SLUG: Record<string, ProgramEnrollmentStep[]> = {
     DEFAULT_STEPS[0],
     {
       id: 'staff_assign',
-      title: 'Staff assigns AWS Cloud Technology Professional Certificate',
+      title: 'Staff assigns AWS Cloud Technology',
       description:
         'You will receive access to the Amazon Web Services Coursera collection. Use the Coursera login or workspace email WorkforceAP assigns so progress syncs correctly.',
     },
@@ -109,7 +109,7 @@ const STEPS_BY_SLUG: Record<string, ProgramEnrollmentStep[]> = {
     DEFAULT_STEPS[0],
     {
       id: 'staff_assign',
-      title: 'Staff assigns IBM IT Support Professional Certificate',
+      title: 'Staff assigns IT Support Professional Certificate',
       description: 'Coursera access is provisioned by staff after your program is confirmed.',
     },
     DEFAULT_STEPS[2],

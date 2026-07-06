@@ -20,9 +20,14 @@ function row(slug: string, category: string, cat: string, icon: string) {
     duration: p.duration,
     salary: salaryRangeDisplay(p),
     partner: p.partner,
-    funding: p.fundingSource ?? 'WIOA',
+    funding: formatFundingLabel(p.fundingSource),
     skills: p.skills.slice(0, 3),
   };
+}
+
+function formatFundingLabel(source?: string) {
+  if (!source || source === 'WIOA') return 'Grant-Funded';
+  return source;
 }
 
 
@@ -113,15 +118,6 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     ],
   },
   {
-    id: 'programming',
-    label: 'Programming & Software',
-    description: 'Software development, automation, and engineering tracks.',
-    programs: [
-      row('ai-professional-developer-certificate-ibm', 'AI & Software Dev', 'g', 'sparkle'),
-      row('it-automation-with-python-google', 'IT & Cybersecurity', 'c', 'laptop'),
-    ],
-  },
-  {
     id: 'web-programming',
     label: 'Web & Front End',
     description: 'Web technologies, UX, and product-facing builds.',
@@ -136,6 +132,15 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     programs: [
       row('project-management-professional-certificate-microsoft', 'Business', 'g', 'briefcase'),
       row('digital-marketing-e-commerce-google', 'Business', 'g', 'briefcase'),
+    ],
+  },
+  {
+    id: 'programming',
+    label: 'AI and Software Developer',
+    description: 'Software development, automation, and engineering tracks.',
+    programs: [
+      row('ai-professional-developer-certificate-ibm', 'AI & Software Dev', 'g', 'sparkle'),
+      row('it-automation-with-python-google', 'IT & Cybersecurity', 'c', 'laptop'),
     ],
   },
   {

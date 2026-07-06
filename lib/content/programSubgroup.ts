@@ -41,8 +41,8 @@ export const PROGRAM_SUBGROUPS: ProgramSubgroup[] = [
   },
   {
     id: 'programming',
-    label: 'Programming & Software',
-    shortLabel: 'Programming',
+    label: 'AI and Software Developer',
+    shortLabel: 'AI & Software',
     description: 'Software development, automation, and engineering tracks.',
   },
   {

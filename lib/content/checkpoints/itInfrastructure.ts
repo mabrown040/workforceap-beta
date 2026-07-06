@@ -12,11 +12,11 @@ import { ProgramCheckpointPack } from './types';
 
 export const IT_INFRASTRUCTURE_PACKS: ProgramCheckpointPack[] = [
   // ==========================================================================
-  // CompTIA A+ Professional Certificate
+  // CompTIA A+
   // ==========================================================================
   {
     programSlug: 'comptia-a-professional-certificate',
-    programTitle: 'CompTIA A+ Professional Certificate',
+    programTitle: 'CompTIA A+',
     whyItMatters:
       'These checkpoints show employers you can fix real computer problems, not just pass a test.',
     courses: [
@@ -998,7 +998,7 @@ export const IT_INFRASTRUCTURE_PACKS: ProgramCheckpointPack[] = [
   },
 
   // ==========================================================================
-  // IT Support Professional Certificate (IBM)
+  // IT Support Professional Certificate
   // ==========================================================================
   {
     programSlug: 'it-support-professional-certificate-ibm',

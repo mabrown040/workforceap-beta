@@ -2,7 +2,7 @@
  * Skill checkpoints for the data and software programs:
  * - Data Analytics Professional Certificate (Google)
  * - Data Science Professional Certificate (IBM)
- * - AI Professional Practitioner Certificate (IBM)
+ * - AI and Software Developer (IBM)
  * - Software Developer Professional Certificate (IBM)
  * - Cybersecurity Professional Certificate (Google)
  *
@@ -861,7 +861,7 @@ export const DATA_AND_SOFTWARE_PACKS: ProgramCheckpointPack[] = [
   // ==========================================================================
   {
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Practitioner Certificate',
+    programTitle: 'AI and Software Developer',
     whyItMatters:
       'These checkpoints prove you can build and ship real AI-powered applications, not just chat about AI.',
     courses: [

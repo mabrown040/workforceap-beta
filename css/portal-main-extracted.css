@@ -3684,6 +3684,15 @@ body:has(.dashboard-drawer-overlay.open) {
 .portal-header-actions-mobile {
     position: relative;
     align-items: center;
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+.portal-header-actions-mobile__primary {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
 }
 .portal-header-actions-hamburger {
     display: flex;
@@ -3747,6 +3756,20 @@ body:has(.dashboard-drawer-overlay.open) {
     width: 100%;
     justify-content: center;
     text-align: center;
+}
+
+.workspace-sidebar-appearance {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.35rem 0.5rem 0.65rem;
+}
+.workspace-sidebar-appearance__label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface-variant);
 }
 .dev-view-toggle {
     display: flex;

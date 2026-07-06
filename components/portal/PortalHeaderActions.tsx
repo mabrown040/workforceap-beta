@@ -60,8 +60,12 @@ export default function PortalHeaderActions({ badges }: { badges?: Partial<Recor
       <div className="portal-shell-header__actions portal-header-actions-desktop">
         <ActionItems badges={badges} />
       </div>
-      {/* Mobile: hamburger + dropdown (hidden on desktop via CSS) */}
+      {/* Mobile: theme + notifications always visible; overflow menu for dev tools only */}
       <div className="portal-header-actions-mobile">
+        <div className="portal-header-actions-mobile__primary">
+          <NotificationBell badges={badges} />
+          <ThemeToggle variant="portal" />
+        </div>
         <button
           type="button"
           className="portal-header-actions-hamburger"
@@ -83,7 +87,7 @@ export default function PortalHeaderActions({ badges }: { badges?: Partial<Recor
             />
             <div className="portal-header-actions-dropdown" role="menu">
               <div className="portal-header-actions-dropdown__items" onClick={closeMenu} role="menu" tabIndex={-1}>
-                <ActionItems onItemClick={closeMenu} badges={badges} hideSidebarDuplicates />
+                <DevViewToggle />
               </div>
             </div>
           </>

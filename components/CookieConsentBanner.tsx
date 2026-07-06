@@ -10,7 +10,18 @@ import {
 } from '@/lib/consent/state';
 
 /** Authenticated workspaces — staff/member chrome, not a consent surface. */
-const PORTAL_PREFIXES = ['/admin', '/dashboard', '/counselor', '/employer', '/partner', '/group'];
+const PORTAL_PREFIXES = [
+  '/admin',
+  '/dashboard',
+  '/counselor',
+  '/employer',
+  '/partner',
+  '/group',
+  // Internal portal preview surfaces used for QA screenshots should behave like
+  // app chrome, not the public marketing site.
+  '/dev/staff',
+  '/dev/member',
+];
 
 function isPortalPath(pathname: string | null): boolean {
   if (!pathname) return false;

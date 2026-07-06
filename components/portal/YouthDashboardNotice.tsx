@@ -33,7 +33,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
           <div style={{ 
             padding: '0.5rem', 
-            background: 'rgba(173, 44, 77, 0.1)', 
+            background: 'rgba(173, 44, 77, 0.1)',
             borderRadius: '8px',
             flexShrink: 0
           }}>
@@ -67,11 +67,11 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
           <div style={{ 
             padding: '0.5rem', 
-            background: 'rgba(139, 92, 246, 0.1)', 
+            background: 'rgba(173, 44, 77, 0.1)',
             borderRadius: '8px',
             flexShrink: 0
           }}>
-            <Sparkles size={20} style={{ color: '#8b5cf6' }} aria-hidden />
+            <Sparkles size={20} style={{ color: 'var(--color-accent)' }} aria-hidden />
           </div>
           <div>
             <strong style={{ fontSize: '0.95rem' }}>AI Career Tools</strong>

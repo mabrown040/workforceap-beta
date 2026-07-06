@@ -10,11 +10,13 @@
  */
 
 .wa-kit-card {
-  background: var(--wa-surface);
-  border: 1px solid var(--wa-border);
+  background: var(--wa-surface-glass, var(--wa-surface));
+  border: 1px solid color-mix(in srgb, var(--wa-border) 72%, var(--wa-accent) 28%);
   border-radius: var(--wa-radius);
   padding: var(--wa-pad);
   box-shadow: var(--wa-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   transition: box-shadow 0.2s, border-color 0.2s, background-color 0.15s,
     border-radius 0.25s, padding 0.25s;
 }
@@ -23,6 +25,7 @@
   padding: var(--wa-pad-sm);
 }
 .wa-kit-card--hover:hover {
+  border-color: color-mix(in srgb, var(--wa-accent) 38%, var(--wa-border) 62%);
   box-shadow: var(--wa-shadow-lg);
 }
 .wa-kit-card--hover:active {
@@ -34,7 +37,9 @@
   border-color: transparent;
 }
 .wa-kit-card--gradient-crimson {
-  background: linear-gradient(135deg, var(--wa-accent), var(--wa-accent-dark));
+  background:
+    radial-gradient(120% 120% at 12% 8%, rgba(255, 255, 255, 0.22), transparent 42%),
+    linear-gradient(135deg, var(--wa-accent-bright), var(--wa-accent) 46%, var(--wa-accent-dark));
   border-color: transparent;
   color: var(--wa-on-accent);
 }

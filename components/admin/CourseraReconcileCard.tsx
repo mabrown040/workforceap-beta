@@ -95,7 +95,7 @@ const filterPillStyle = (active: boolean): React.CSSProperties => ({
 function statusBadge(status: RowStatus) {
   if (status === 'matched') return { text: 'matched', color: 'rgb(22, 163, 74)', bg: 'rgba(34, 197, 94, 0.15)' };
   if (status === 'coursera-only') return { text: 'coursera only', color: 'rgb(180, 83, 9)', bg: 'rgba(251, 191, 36, 0.18)' };
-  if (status === 'wap-only') return { text: 'wap only', color: 'rgb(67, 56, 202)', bg: 'rgba(99, 102, 241, 0.15)' };
+  if (status === 'wap-only') return { text: 'wap only', color: 'rgb(173, 44, 77)', bg: 'rgba(173, 44, 77, 0.15)' };
   return { text: 'wrong course', color: 'rgb(190, 18, 60)', bg: 'rgba(244, 63, 94, 0.15)' };
 }
 
@@ -283,7 +283,7 @@ export default function CourseraReconcileCard({ defaultProgramId }: Props) {
             </div>
             <div style={tileStyle}>
               <span style={tileLabelStyle}>WAP only</span>
-              <span style={{ ...tileValueStyle, color: 'rgb(67, 56, 202)' }}>{data.summary.wapOnly}</span>
+              <span style={{ ...tileValueStyle, color: 'rgb(173, 44, 77)' }}>{data.summary.wapOnly}</span>
             </div>
             <div style={tileStyle}>
               <span style={tileLabelStyle}>Wrong course</span>

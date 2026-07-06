@@ -655,17 +655,21 @@ export default function WorkspaceShell({
                 >
                   {contextLabel}
                 </span>
-                <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
+                {!wide ? <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} /> : null}
               </div>
-              <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>
-                {translateLabel(PRODUCT_COPY.publicSiteLabel)}
-              </Link>
+              {!wide ? (
+                <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>
+                  {translateLabel(PRODUCT_COPY.publicSiteLabel)}
+                </Link>
+              ) : null}
               <div style={{ padding: '0.5rem 0', display: 'flex', justifyContent: 'center' }}>
                 <LanguageToggle />
               </div>
-              <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
-                {translateLabel('Sign out')}
-              </SignOutButton>
+              {!wide ? (
+                <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
+                  {translateLabel('Sign out')}
+                </SignOutButton>
+              ) : null}
             </div>
           </div>
         </aside>

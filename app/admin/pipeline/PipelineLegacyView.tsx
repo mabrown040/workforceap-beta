@@ -9,7 +9,7 @@ const STAGES = [
   { key: 'funding', label: 'Funding Evaluated', color: '#f59e0b', desc: 'WIOA/qualification complete' },
   { key: 'coursera', label: 'Coursera Enrolled', color: '#3b82f6', desc: 'In training' },
   { key: 'paid', label: 'Payment Received', color: '#10b981', desc: 'Funding secured' },
-  { key: 'complete', label: 'Training Complete', color: '#8b5cf6', desc: 'Certificates earned' },
+  { key: 'complete', label: 'Training Complete', color: '#a47f38', desc: 'Certificates earned' },
   { key: 'ready', label: 'Workforce Ready', color: '#06b6d4', desc: 'Resume, interview, job match' },
   { key: 'placed', label: 'Placed', color: '#f59e0b', desc: 'Employed' },
 ];

@@ -41,7 +41,7 @@ export default async function AdminTrainingProgressPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
         <MetricCard label="Enrolled" value={metrics.enrolledMembers} accent="var(--color-accent)" />
-        <MetricCard label="In progress" value={metrics.activeInTraining} accent="#7c3aed" />
+        <MetricCard label="In progress" value={metrics.activeInTraining} accent="var(--wa-gold)" />
         <MetricCard label="Not started" value={metrics.notStarted} accent="#d97706" />
         <MetricCard label="Complete" value={metrics.completed} accent="#16a34a" />
         <MetricCard label="Stale" value={metrics.stale} accent="#dc2626" />

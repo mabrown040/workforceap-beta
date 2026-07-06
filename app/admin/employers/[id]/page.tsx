@@ -27,10 +27,10 @@ function getPartnershipTier(
   hiringPipelineActive: boolean,
 ): { label: string; color: string; bg: string } {
   if (placementAgreementSigned && hiringPipelineActive) {
-    return { label: 'Strategic Hiring Partner', color: '#7b1fa2', bg: 'rgba(123,31,162,0.10)' };
+    return { label: 'Strategic Hiring Partner', color: '#ad2c4d', bg: 'rgba(173,44,77,0.10)' };
   }
   if (placementAgreementSigned) {
-    return { label: 'Hiring Partner', color: '#1565c0', bg: 'rgba(21,101,192,0.10)' };
+    return { label: 'Hiring Partner', color: '#a47f38', bg: 'rgba(164,127,56,0.14)' };
   }
   if (hiringPipelineActive) {
     return { label: 'Active Pipeline', color: '#2e7d32', bg: 'rgba(46,125,50,0.10)' };

@@ -26,7 +26,7 @@ const GOLD = '#FFBB00';
 const GREEN = '#4a9b4f';
 const MUTED = '#584144';
 
-const PROGRAM_COLORS = [ACCENT, BLUE, GOLD, GREEN, '#7c3aed', '#0d9488', '#ea580c', MUTED];
+const PROGRAM_COLORS = [ACCENT, BLUE, GOLD, GREEN, '#c4456a', '#0d9488', '#ea580c', MUTED];
 
 function SectionLabel({ title, sub }: { title: string; sub?: string }) {
   return (

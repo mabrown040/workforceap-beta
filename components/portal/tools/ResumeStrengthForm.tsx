@@ -33,8 +33,8 @@ const SECTION_AUDIT_STYLE = {
   contact: {
     title: 'Contact essentials',
     description: 'Ensure email, phone, and location are present and ATS-parsable.',
-    accent: '#6a1b9a',
-    accentSoft: 'rgba(106, 27, 154, 0.12)',
+    accent: 'var(--color-accent)',
+    accentSoft: 'rgba(173, 44, 77, 0.12)',
   },
 } as const;
 

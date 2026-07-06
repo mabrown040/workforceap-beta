@@ -17,8 +17,10 @@
 :root {
   /* — brand (constant; mirrors DESIGN.md + tailwind.config.ts wa-brand-*) — */
   --wa-accent: #ad2c4d;
-  --wa-accent-dark: #8c0f37;
+  --wa-accent-dark: #7c0d30;
+  --wa-accent-bright: #d94d73;
   --wa-accent-soft: #fdf2f4;
+  --wa-accent-wash: #fff7f8;
   --wa-on-accent: #ffffff;
   --wa-gold: #a47f38;
   --wa-gold-dark: #7d5f26;
@@ -28,22 +30,29 @@
   --wa-success: #4a9b4f;
   --wa-danger: #dc2626;
   --wa-danger-soft: rgba(220, 38, 38, 0.12);
-  --wa-violet: #7c3aed;
+  /* Deprecated bridge for older Astryx/purple accents: keep it on-brand. */
+  --wa-violet: var(--wa-gold);
 
   /* — neutrals — */
-  --wa-bg: #f7f8fa;
+  --wa-bg: #fff7f8;
+  --wa-bg-wave:
+    radial-gradient(1150px 620px at -12% -18%, rgba(217, 77, 115, 0.28), transparent 58%),
+    radial-gradient(900px 540px at 105% -8%, rgba(124, 13, 48, 0.18), transparent 56%),
+    linear-gradient(180deg, #fff7f8 0%, #ffffff 44%, #f9fafb 100%);
   --wa-surface: #ffffff;
-  --wa-surface-2: #f4f4f5; /* subtle raised fill (icon tiles, chips) */
+  --wa-surface-2: #fff2f4; /* subtle raised fill (icon tiles, chips) */
+  --wa-surface-glass: rgba(255, 255, 255, 0.84);
   --wa-text: #1a1a1a;
   --wa-muted: #737373;
   --wa-border: #e8e8e8;
   --wa-track: #f0eef0;
   --wa-shell-header-bg: color-mix(in srgb, var(--wa-surface) 92%, transparent);
-  --wa-sidebar-bg: #161616;
-  --wa-sidebar-border: #2a2a2a;
-  --wa-sidebar-text: #ffffff;
-  --wa-sidebar-muted: #cfcfcf;
-  --wa-sidebar-label: #8a8a8a;
+  --wa-sidebar-bg: #1b1115;
+  --wa-sidebar-bg-hover: #2b1820;
+  --wa-sidebar-border: rgba(201, 168, 76, 0.16);
+  --wa-sidebar-text: #fff7f8;
+  --wa-sidebar-muted: #e8cbd2;
+  --wa-sidebar-label: #b58c98;
 
   /* Bridge aliases so legacy portal selectors and kit components share a palette. */
   --color-accent: var(--wa-accent);
@@ -94,8 +103,13 @@
 html.dark,
 [data-theme='dark'] {
   --wa-bg: #0f1115;
+  --wa-bg-wave:
+    radial-gradient(900px 520px at -12% -12%, rgba(217, 77, 115, 0.22), transparent 56%),
+    radial-gradient(760px 460px at 106% -4%, rgba(124, 13, 48, 0.24), transparent 58%),
+    linear-gradient(180deg, #141116 0%, #0f1115 48%, #0b0c10 100%);
   --wa-surface: #1a1b1f;
   --wa-surface-2: #26272c; /* raised fill on dark (icon tiles, chips) */
+  --wa-surface-glass: rgba(26, 27, 31, 0.84);
   --wa-text: #f4f4f5;
   --wa-muted: #a1a1aa;
   --wa-border: #2c2d33;

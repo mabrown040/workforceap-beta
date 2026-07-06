@@ -168,9 +168,13 @@
  * it explicitly so the portal's own dark palette actually shows.
  */
 [data-surface] {
-  background: var(--wa-bg);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--wa-accent) 7%, transparent) 0, transparent 34rem),
+    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--wa-gold) 6%, transparent) 0, transparent 26rem),
+    var(--wa-bg);
   color: var(--wa-text);
 }
+
 
 /*
  * css/main.css's marketing dark-mode CSS sets `html.dark { --color-primary: #e2e2e5 }`.

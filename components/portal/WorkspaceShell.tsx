@@ -30,6 +30,7 @@ import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 import LanguageToggle from '@/components/portal/LanguageToggle';
+import ThemeSelector from '@/components/theme/ThemeSelector';
 import UnreviewedLocaleBanner from '@/components/portal/UnreviewedLocaleBanner';
 import { useTranslations, useLocale } from 'next-intl';
 import { useWorkspaceMobileScrollChrome } from '@/hooks/useWorkspaceMobileScrollChrome';
@@ -660,6 +661,10 @@ export default function WorkspaceShell({
               </Link>
               <div style={{ padding: '0.5rem 0', display: 'flex', justifyContent: 'center' }}>
                 <LanguageToggle />
+              </div>
+              <div className={`workspace-sidebar-appearance${isCollapsedDesktop ? ' sr-only' : ''}`}>
+                <span className="workspace-sidebar-appearance__label">Appearance</span>
+                <ThemeSelector />
               </div>
               <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
                 {translateLabel('Sign out')}

@@ -128,7 +128,7 @@ export default function InterviewCoachingPanel({ targetRole, lastUserText, class
         Heuristic scores from your latest answers (clarity, hedging, role keywords). Not a grade — use it to notice patterns.
       </p>
       {bar('Speech clarity', metrics.clarity, '#2563eb')}
-      {bar('Confidence', metrics.confidence, '#7c3aed')}
+      {bar('Confidence', metrics.confidence, 'var(--wa-gold)')}
       {bar('Role keyword use', metrics.keywordCoverage, '#059669')}
       <div
         style={{

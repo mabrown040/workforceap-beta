@@ -1,3 +1,4 @@
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { prisma } from '@/lib/db/prisma';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 
@@ -499,6 +500,12 @@ export type CohortMonth = {
   placed: number;
 };
 
+export type PlacementActivityMonth = {
+  month: string; // "2026-01"
+  monthLabel: string; // "Jan 2026"
+  placementsRecorded: number;
+};
+
 export type BoardSnapshotKpis = {
   totalMembers: number;
   activeThisWeek: number;
@@ -534,9 +541,36 @@ export type BoardSnapshot = {
   applicationQueueHealth: ApplicationQueueHealth;
   /** Monthly cohort breakdown */
   cohorts: CohortMonth[];
+  /** Monthly placement activity from member_events. */
+  placementActivity: PlacementActivityMonth[];
   /** Top-line KPIs for the /admin/outcomes hero row */
   kpis: BoardSnapshotKpis;
 };
+
+function monthKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthLabel(date: Date): string {
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+export function buildPlacementActivitySeries(
+  rows: ReadonlyArray<{ createdAt: Date }>,
+): PlacementActivityMonth[] {
+  const months = new Map<string, PlacementActivityMonth>();
+  for (const row of rows) {
+    const key = monthKey(row.createdAt);
+    const current = months.get(key) ?? {
+      month: key,
+      monthLabel: monthLabel(row.createdAt),
+      placementsRecorded: 0,
+    };
+    current.placementsRecorded += 1;
+    months.set(key, current);
+  }
+  return [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
+}
 
 /**
  * Single source of truth for any external pitch (TWC/EdVera, employers,
@@ -556,6 +590,8 @@ export async function getBoardSnapshot(
   organizationId?: string,
 ): Promise<BoardSnapshot> {
   const now = new Date();
+  const periodStart = startOfPeriod(period);
+  const periodEnd = endOfPeriod(period);
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -575,6 +611,7 @@ export async function getBoardSnapshot(
     placementsMissingRetention,
     placementsMissingSalary,
     enrolledWithoutEnrolledAt,
+    placementEventRows,
   ] = await Promise.all([
     getBoardOutcomes(period, organizationId),
     prisma.application.groupBy({
@@ -658,6 +695,15 @@ export async function getBoardSnapshot(
         enrolledAt: null,
         ...(organizationId ? { organizationId } : {}),
       },
+    }),
+    prisma.memberEvent.findMany({
+      where: {
+        eventName: 'placement_recorded',
+        ...(periodStart ? { createdAt: { gte: periodStart, lte: periodEnd } } : {}),
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'asc' },
     }),
   ]);
 
@@ -747,12 +793,9 @@ export async function getBoardSnapshot(
   ];
 
   // Cohort table by month (application month)
-  const monthFmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  const monthLabel = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-
   const cohortMap = new Map<string, CohortMonth>();
   for (const app of allApplicationsForCohorts) {
-    const m = monthFmt(app.createdAt);
+    const m = monthKey(app.createdAt);
     const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(app.createdAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
     cur.applications += 1;
     if (app.status === 'APPROVED') cur.approved += 1;
@@ -760,13 +803,13 @@ export async function getBoardSnapshot(
   }
   for (const u of allEnrolledForCohorts) {
     if (!u.enrolledAt) continue;
-    const m = monthFmt(u.enrolledAt);
+    const m = monthKey(u.enrolledAt);
     const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(u.enrolledAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
     cur.enrolled += 1;
     cohortMap.set(m, cur);
   }
   for (const p of allPlacedForCohorts) {
-    const m = monthFmt(p.placedAt);
+    const m = monthKey(p.placedAt);
     const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(p.placedAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
     cur.placed += 1;
     cohortMap.set(m, cur);
@@ -776,13 +819,14 @@ export async function getBoardSnapshot(
     // Determine if certified: same logic as getBoardOutcomes
     const isCert = memberProgramCompleted(u.enrolledProgram, null, u.memberProgramProgress);
     if (!isCert) continue;
-    const m = monthFmt(u.enrolledAt);
+    const m = monthKey(u.enrolledAt);
     const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(u.enrolledAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
     cur.certified += 1;
     cohortMap.set(m, cur);
   }
 
   const cohorts = [...cohortMap.values()].sort((a, b) => a.month.localeCompare(b.month));
+  const placementActivity = buildPlacementActivitySeries(placementEventRows);
 
   // ── NEW: Top-line KPIs for /admin/outcomes hero row ──
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -901,6 +945,7 @@ export async function getBoardSnapshot(
       oldestAgeDays: oldestPendingAge,
     },
     cohorts,
+    placementActivity,
     kpis: {
       totalMembers: kpiTotalMembers,
       activeThisWeek: kpiActiveThisWeek,
@@ -1048,4 +1093,118 @@ export function formatBoardSnapshotMarkdown(snapshot: BoardSnapshot): string {
   lines.push('');
 
   return lines.join('\n');
+}
+
+const PDF_ACCENT = rgb(173 / 255, 44 / 255, 77 / 255);
+const PDF_DARK = rgb(0.13, 0.13, 0.13);
+const PDF_MUTED = rgb(0.45, 0.45, 0.45);
+const PDF_RULE = rgb(0.87, 0.87, 0.87);
+const PDF_PAGE_W = 612;
+const PDF_PAGE_H = 792;
+const PDF_MARGIN = 48;
+const PDF_HEADER_H = 54;
+const PDF_FOOTER_H = 24;
+
+export async function formatBoardSnapshotPdf(snapshot: BoardSnapshot): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  const maxWidth = PDF_PAGE_W - PDF_MARGIN * 2;
+  const bodySize = 10;
+  const bodyLineHeight = 14;
+  const topY = PDF_PAGE_H - PDF_HEADER_H - 20;
+  const bottomY = PDF_FOOTER_H + 18;
+
+  const wrapText = (text: string, size: number): string[] => {
+    const wrapped: string[] = [];
+    for (const paragraph of text.split('\n')) {
+      if (!paragraph.trim()) {
+        wrapped.push('');
+        continue;
+      }
+      const words = paragraph.split(/\s+/);
+      let current = '';
+      for (const word of words) {
+        const next = current ? `${current} ${word}` : word;
+        if (font.widthOfTextAtSize(next, size) > maxWidth && current) {
+          wrapped.push(current);
+          current = word;
+        } else {
+          current = next;
+        }
+      }
+      if (current) wrapped.push(current);
+    }
+    return wrapped;
+  };
+
+  const lines = wrapText(formatBoardSnapshotMarkdown(snapshot).replace(/\*\*/g, ''), bodySize);
+
+  const drawHeader = (page: ReturnType<PDFDocument['getPage']>) => {
+    page.drawRectangle({ x: 0, y: PDF_PAGE_H - PDF_HEADER_H, width: PDF_PAGE_W, height: PDF_HEADER_H, color: PDF_ACCENT });
+    page.drawText('WorkforceAP Outcomes Snapshot', {
+      x: PDF_MARGIN,
+      y: PDF_PAGE_H - PDF_HEADER_H / 2 - 6,
+      font: boldFont,
+      size: 15,
+      color: rgb(1, 1, 1),
+    });
+  };
+
+  const drawFooter = (page: ReturnType<PDFDocument['getPage']>, index: number, count: number) => {
+    page.drawLine({ start: { x: PDF_MARGIN, y: PDF_FOOTER_H + 8 }, end: { x: PDF_PAGE_W - PDF_MARGIN, y: PDF_FOOTER_H + 8 }, thickness: 0.5, color: PDF_RULE });
+    page.drawText(`Generated ${snapshot.generatedAt.toISOString()} · Page ${index} of ${count}`, {
+      x: PDF_MARGIN,
+      y: PDF_FOOTER_H - 1,
+      font,
+      size: 7,
+      color: PDF_MUTED,
+    });
+  };
+
+  let page = pdfDoc.addPage([PDF_PAGE_W, PDF_PAGE_H]);
+  drawHeader(page);
+  let y = topY;
+
+  for (const line of lines) {
+    if (y < bottomY) {
+      page = pdfDoc.addPage([PDF_PAGE_W, PDF_PAGE_H]);
+      drawHeader(page);
+      y = topY;
+    }
+    if (!line.trim()) {
+      y -= bodyLineHeight * 0.65;
+      continue;
+    }
+    const isH1 = /^#\s/.test(line);
+    const isH2 = /^##\s/.test(line);
+    const clean = line.replace(/^#{1,3}\s+/, '');
+    if (isH1 || isH2) {
+      page.drawText(clean, {
+        x: PDF_MARGIN,
+        y,
+        font: boldFont,
+        size: isH1 ? 14 : 11,
+        color: PDF_ACCENT,
+      });
+      y -= isH1 ? 20 : 16;
+      continue;
+    }
+    page.drawText(clean, {
+      x: PDF_MARGIN,
+      y,
+      font,
+      size: bodySize,
+      color: PDF_DARK,
+    });
+    y -= bodyLineHeight;
+  }
+
+  const pageCount = pdfDoc.getPageCount();
+  for (let i = 0; i < pageCount; i += 1) {
+    drawFooter(pdfDoc.getPage(i), i + 1, pageCount);
+  }
+
+  return Buffer.from(await pdfDoc.save());
 }

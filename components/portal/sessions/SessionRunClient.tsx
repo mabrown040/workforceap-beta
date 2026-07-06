@@ -252,10 +252,10 @@ export default function SessionRunClient({
 
   // Tool grid: all runnable tools (excludes voice walkthrough + profile which aren't AI outputs)
   const TOOL_GRID: Array<{ key: string; label: string; state: ToolState; accent: string }> = [
-    { key: 'pitch', label: 'Elevator Pitch', state: pitchState, accent: '#7c3aed' },
+    { key: 'pitch', label: 'Elevator Pitch', state: pitchState, accent: 'var(--wa-gold)' },
     { key: 'resume', label: 'Resume Rewriter', state: resumeState, accent: 'var(--color-accent)' },
     { key: 'gapAnalyzer', label: 'Gap Analysis', state: gapState, accent: '#0891b2' },
-    { key: 'resumeAnalysis', label: 'Resume Analysis', state: resumeAnalysisState, accent: '#7c3aed' },
+    { key: 'resumeAnalysis', label: 'Resume Analysis', state: resumeAnalysisState, accent: 'var(--wa-gold)' },
     { key: 'jobMatch', label: 'Job Match Score', state: jobMatchState, accent: '#059669' },
     { key: 'headline', label: 'LinkedIn Headline', state: headlineState, accent: '#0077b5' },
     { key: 'about', label: 'LinkedIn About', state: aboutState, accent: '#0077b5' },
@@ -864,8 +864,8 @@ export default function SessionRunClient({
                 title="Mock interview"
                 titleAs="h3"
                 description={`Practice ${jobTarget || 'role-fit'} questions out loud. Coach references the resume + cover letter.`}
-                accent="#7c3aed"
-                accentDark="#5b21b6"
+                accent="var(--wa-gold)"
+                accentDark="var(--wa-gold-dark)"
                 speakingLabel="Interviewer is asking…"
                 listeningLabel="Listening — answer out loud"
                 onTranscriptChunk={makeTranscriptHandler('interview')}
@@ -914,7 +914,7 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 5: Resume strength analysis */}
-      <SectionCard id="session-card-resumeAnalysis" title="Resume Analysis" Icon={FileText} accent="#7c3aed"
+      <SectionCard id="session-card-resumeAnalysis" title="Resume Analysis" Icon={FileText} accent="var(--wa-gold)"
         isOpen={openCards.has('resumeAnalysis')} onToggle={() => toggleCard('resumeAnalysis')}
         statusBadge={resumeAnalysisState.status === 'running' ? 'Running' : resumeAnalysisState.output ? 'Done' : resumeAnalysisState.error ? 'Failed' : 'Ready'}
         contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
@@ -1068,7 +1068,7 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 11: Elevator pitch */}
-      <SectionCard id="session-card-pitch" title="Elevator Pitch" Icon={Sparkles} accent="#7c3aed"
+      <SectionCard id="session-card-pitch" title="Elevator Pitch" Icon={Sparkles} accent="var(--wa-gold)"
         isOpen={openCards.has('pitch')} onToggle={() => toggleCard('pitch')}
         statusBadge={pitchState.status === 'running' ? 'Running' : pitchState.output ? 'Done' : pitchState.error ? 'Failed' : 'Ready'}
       >

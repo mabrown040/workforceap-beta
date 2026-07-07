@@ -97,7 +97,7 @@ export const TRAINING_BRIDGE_OCCUPATIONS: BridgeOccupation[] = [
       skill('AI tools', ['ai', 'machine learning', 'artificial intelligence', 'generative']),
       skill('Problem solving', ['problem solving', 'critical thinking', 'logic', 'debugging']),
     ],
-    programSlug: 'ai-professional-developer-certificate-ibm',
+    programSlug: 'ai-practitioner-professional-certificate-aws',
     pathwayCovers: ['Python', 'Programming basics', 'Web app basics', 'AI tools', 'Problem solving'],
   },
   {

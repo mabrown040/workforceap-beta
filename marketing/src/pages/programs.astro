@@ -8,6 +8,9 @@ import Icon from '../components/Icon.astro';
 // again (it did: three programs were renamed for TWC/EdVera alignment).
 // Grouping, category labels, and icons stay page-local, keyed by slug.
 const CATALOG_BY_SLUG = new Map(CATALOG.map((p) => [p.slug, p]));
+function fundingLabel(source: string) {
+  return source === 'WIOA' ? 'WIOA/Grant' : source;
+}
 function row(slug: string, category: string, cat: string, icon: string) {
   const p = CATALOG_BY_SLUG.get(slug);
   if (!p) throw new Error(`programs.astro: slug not in data/programs.ts: ${slug}`);
@@ -20,7 +23,7 @@ function row(slug: string, category: string, cat: string, icon: string) {
     duration: p.duration,
     salary: salaryRangeDisplay(p),
     partner: p.partner,
-    funding: p.fundingSource ?? 'WIOA',
+    funding: fundingLabel(p.fundingSource ?? 'WIOA'),
     skills: p.skills.slice(0, 3),
   };
 }
@@ -96,6 +99,7 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     description: 'Help desk, hardware, and core IT pathways.',
     programs: [
       row('it-support-professional-certificate-ibm', 'IT & Cybersecurity', 'c', 'laptop'),
+      row('it-support-and-entry-level-cyber-security-certificate', 'IT & Cybersecurity', 'c', 'shield'),
       row('comptia-a-professional-certificate', 'IT & Cybersecurity', 'c', 'shield'),
       row('comptia-network-professional-certificate', 'IT & Cybersecurity', 'c', 'shield'),
       row('comptia-security-professional-certificate', 'IT & Cybersecurity', 'c', 'shield'),
@@ -117,7 +121,8 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
     label: 'Programming & Software',
     description: 'Software development, automation, and engineering tracks.',
     programs: [
-      row('ai-professional-developer-certificate-ibm', 'AI & Software Dev', 'g', 'sparkle'),
+      row('ai-practitioner-professional-certificate-aws', 'AI & Software Dev', 'g', 'sparkle'),
+      row('software-developer-professional-certificate-ibm', 'AI & Software Dev', 'g', 'sparkle'),
       row('it-automation-with-python-google', 'IT & Cybersecurity', 'c', 'laptop'),
     ],
   },
@@ -164,17 +169,11 @@ const subgroups: { id: string; label: string; description: string; programs: P[]
       row('core-construction-training-certificate', 'Construction & Trades', 'm', 'building'),
     ],
   },
-  {
-    id: 'other',
-    label: 'Other',
-    description: 'Additional tracks.',
-    programs: [
-      row('it-support-and-entry-level-cyber-security-certificate', 'IT & Cybersecurity', 'c', 'shield'),
-    ],
-  },
 ];
 
-const catalogSize = subgroups.reduce((n, s) => n + s.programs.length, 0); // 20
+const subgroupsWithPrograms = subgroups.filter((s) => s.programs.length > 0);
+
+const catalogSize = subgroupsWithPrograms.reduce((n, s) => n + s.programs.length, 0);
 
 // Starter "Start here" trio (real STARTER_PROGRAM_SLUGS from ProgramsContent.tsx)
 const starterSlugs = [
@@ -182,7 +181,7 @@ const starterSlugs = [
   'it-support-professional-certificate-ibm',
   'project-management-professional-certificate-microsoft',
 ];
-const allPrograms = subgroups.flatMap((s) => s.programs);
+const allPrograms = subgroupsWithPrograms.flatMap((s) => s.programs);
 const starterPrograms = starterSlugs
   .map((slug) => allPrograms.find((p) => p.slug === slug))
   .filter((p): p is P => Boolean(p));
@@ -190,7 +189,7 @@ const starterPrograms = starterSlugs
 // Filter chips (real labels + counts from ProgramsContent.tsx)
 const filterChips = [
   { label: `All programs (${catalogSize})`, cat: 'all', active: true },
-  ...subgroups
+  ...subgroupsWithPrograms
     .filter((s) => s.programs.length > 0)
     .map((s) => ({ label: `${s.id === 'digital-literacy' ? 'Digital Literacy' : s.id === 'it-support' ? 'IT Support' : s.id === 'database' ? 'Database' : s.id === 'programming' ? 'Programming' : s.id === 'web-programming' ? 'Web' : s.id === 'leadership' ? 'Leadership' : s.id === 'medical' ? 'Medical' : s.id === 'manufacturing-logistics' ? 'Mfg & Logistics' : s.id === 'construction' ? 'Construction' : 'Other'} (${s.programs.length})`, cat: s.id, active: false })),
 ];
@@ -346,7 +345,7 @@ const filterChips = [
 
   <!-- All programs, grouped by real subgroup (fully expanded) -->
   <div id="all-programs"></div>
-  {subgroups.map((sg) => (
+  {subgroupsWithPrograms.map((sg) => (
     <section class="subgroup" id={`subgroup-${sg.id}`} data-cat={sg.id}>
       <div class="subgroup-head">
         <h3>{sg.label}</h3>
@@ -487,7 +486,9 @@ const filterChips = [
   /* ---------------- DEPTH HERO STAGE (shorter band) ---------------- */
   .stage{
     position:relative;overflow:hidden;isolation:isolate;
-    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    background:
+      linear-gradient(180deg,rgba(187,0,0,.88) 0%,rgba(173,44,77,.78) 45%,rgba(140,15,55,.9) 100%),
+      url('/images/AdobeStock_78118914.webp') center 30%/cover no-repeat;
     color:#fff;padding:84px 0 92px;
   }
   .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
@@ -499,10 +500,10 @@ const filterChips = [
   .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
 
   /* luminosity-masked real photo bleeding in from the right */
-  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
-    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:soft-light;pointer-events:none;
+    background-image:url('/images/AdobeStock_78118914.webp');background-size:cover;background-position:center 35%;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 28%,#000 72%);
+    mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 28%,#000 72%);opacity:.42}
 
   /* gold PILL — fully visible, never clipped */
   .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
@@ -653,9 +654,9 @@ const filterChips = [
     position:relative;overflow:hidden;
     width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
   }
-  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__media{position:absolute;inset:0;background:url('/images/AdobeStock_78118914.webp') center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
-    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+    background:linear-gradient(120deg,rgba(200,16,46,.94) 0%,rgba(187,0,0,.9) 50%,rgba(140,15,55,.94) 100%)}
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
   .pill--solid{margin-bottom:24px}
   .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,64px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}

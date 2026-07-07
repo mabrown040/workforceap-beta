@@ -80,10 +80,33 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "uDMpp-fMEe-mrRK-FPQYAw", slug: "introduction-to-certified-professional-biller", name: "Introduction to Certified Professional Biller", partner: "Coursera" },
     ],
   },
+  "ai-practitioner-professional-certificate-aws": {
+    courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "vjCRy6uOReCwkcurjsXg3Q",
+    title: "AI Practitioner Professional Certificate (AWS)",
+    courses: [
+      { courseId: "mR7MlUaTEemuHQ4HpHozrA", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
+      { courseId: "h5dcezicEeyZlQoNyXy15Q", slug: "artificial-intelligence-an-overview", name: "Artificial Intelligence: An Overview", partner: "Politecnico di Milano" },
+      { courseId: "GCTyHE2LEeyLIRLL9niz0w", slug: "introduction-to-digital-transformation-part-1", name: "Introduction to Digital Transformation Part 1", partner: "University of Virginia Darden School Foundation" },
+      { courseId: "hVwck3epEfC1jRJm2R_Okw", slug: "ai-foundations-for-all", name: "AI For All", partner: "AI CERTs" },
+      { courseId: "954g6F1WEe6iARI3FlRl8w", slug: "ai-strategy", name: "AI Concepts and Strategy", partner: "Rutgers the State University of New Jersey" },
+      { courseId: "z-d7VBReEe-r_Ar_6dbL9Q", slug: "ai-for-professional-communication", name: "AI for Professional Communication", partner: "Coursera" },
+      { courseId: "SOTCddsLEfC1UxIkq1JqIw", slug: "understand-apply-artificial-intelligence-fundamentals", name: "Understand and Apply Artificial Intelligence Fundamentals", partner: "Coursera" },
+      { courseId: "CQXkoGIKEe6yuQ41HILERQ", slug: "ai-for-business-generation-and-prediction", name: "AI for Business: Generation & Prediction", partner: "Coursera" },
+      { courseId: "YUfX_FFcEemHkRLmf0JQJA", slug: "ai-ethics", name: "Artificial Intelligence: Ethics & Societal Challenges", partner: "Coursera" },
+      { courseId: "w1jkc9spEfCQRRIzUgLPlQ", slug: "packt-chatgpt-foundations-amzvj", name: "ChatGPT - Foundations", partner: "Packt" },
+      { courseId: "SaiktYS1Ee66wg5jL1EOqw", slug: "chatgpt-for-beginners-market-research-ai", name: "ChatGPT for Beginners: Using AI for Market Research", partner: "Coursera" },
+      { courseId: "ZruIud55Ee-L_Q47HwVgtw", slug: "ai-for-everyone-ai-fundamentals-with-claude", name: "AI Fundamentals with Claude", partner: "Coursera" },
+      { courseId: "oc80ZNm-EfCZihIC4LWgUw", slug: "sales-with-ai", name: "Sales with AI", partner: "Coursera" },
+      { courseId: "tQhqTtzuEfC6bA4wlNz8zQ", slug: "ai-for-marketing", name: "AI for Marketing", partner: "Coursera" },
+      { courseId: "Ci-CgAWfEfCd-gr_6GMchQ", slug: "packt-salesforce-certified-ai-associate-certification-a3r1f", name: "Salesforce Certified AI Associate Certification", partner: "Packt" },
+      { courseId: "MvVSdbBHEfCsnQ73ldDVQw", slug: "aws-artificial-intelligence-practitioner", name: "AWS Artificial Intelligence Practitioner", partner: "Coursera" },
+    ],
+  },
   "ai-professional-developer-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "vjCRy6uOReCwkcurjsXg3Q",
-    title: "AI Practitioner Professional Certificate",
+    title: "AI Practitioner Professional Certificate (AWS)",
     courses: [
       { courseId: "mR7MlUaTEemuHQ4HpHozrA", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
       { courseId: "h5dcezicEeyZlQoNyXy15Q", slug: "artificial-intelligence-an-overview", name: "Artificial Intelligence: An Overview", partner: "Politecnico di Milano" },
@@ -192,7 +215,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "software-developer-professional-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "fT-1P-CkT6q_tT_gpM-qJw",
-    title: "Software Developer Professional Certificate (IBM)",
+    title: "AI and Software Developer Professional Certificate (IBM)",
     courses: [
       { courseId: "FkAMrrwEEey8ogoy0lwspQ", slug: "introduction-to-software-engineering", name: "Introduction to Software Engineering", partner: "IBM" },
       { courseId: "yI8fAUhFEe6cKg41IVwGGw", slug: "introduction-html-css-javascript", name: "Introduction to HTML, CSS, & JavaScript", partner: "IBM" },

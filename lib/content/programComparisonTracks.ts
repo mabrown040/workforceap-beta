@@ -110,10 +110,18 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
   },
   // AI & Software Dev
   {
-    slug: 'ai-professional-developer-certificate-ibm',
-    shortName: 'AI Practitioner',
+    slug: 'ai-practitioner-professional-certificate-aws',
+    shortName: 'AI Practitioner (AWS)',
     demand: 'Very High',
-    certs: 'IBM AI Professional Practitioner',
+    certs: 'AWS AI Practitioner',
+    categoryLabel: 'AI & Software Dev',
+    categoryOrder: 3,
+  },
+  {
+    slug: 'software-developer-professional-certificate-ibm',
+    shortName: 'AI & Software Dev (IBM)',
+    demand: 'Very High',
+    certs: 'IBM Software Developer',
     categoryLabel: 'AI & Software Dev',
     categoryOrder: 3,
   },

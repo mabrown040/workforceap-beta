@@ -101,6 +101,7 @@ export function subgroupForProgram(p: Program): ProgramSubgroupId {
   const title = p.title.toLowerCase();
 
   if (p.category === 'digital-literacy') return 'digital-literacy';
+  if (p.category === 'it-cyber-entry') return 'it-support';
   if (p.category === 'healthcare' || title.includes('medical') || title.includes('health information')) {
     return 'medical';
   }
@@ -119,8 +120,8 @@ export function subgroupForProgram(p: Program): ProgramSubgroupId {
   }
   if (slug.includes('ux-design')) return 'web-programming';
   if (p.category === 'ai-software') {
-    if (title.includes('developer') && title.includes('certificate')) return 'programming';
-    if (title.includes('ai') || title.includes('ibm')) return 'programming';
+    if (title.includes('software developer') || slug.includes('software-developer')) return 'programming';
+    if (title.includes('ai practitioner') || title.includes('ai and')) return 'programming';
     return 'programming';
   }
   if (p.category === 'cloud-data') {

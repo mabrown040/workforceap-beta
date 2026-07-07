@@ -37,7 +37,9 @@ import FindYourPathQuiz from '../components/FindYourPathQuiz.tsx';
   /* ---------------- DEPTH HERO STAGE ---------------- */
   .fyp-hero.stage{
     position:relative;overflow:hidden;isolation:isolate;
-    background:radial-gradient(140% 130% at 82% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+    background:
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:56px 0 60px;text-align:left;
   }
   .fyp-hero__inner{position:relative;z-index:2;max-width:760px}
@@ -47,10 +49,10 @@ import FindYourPathQuiz from '../components/FindYourPathQuiz.tsx';
   .aura--2{width:420px;height:420px;bottom:-190px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
   .aura--3{width:340px;height:340px;top:24%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)}
 
-  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
-    mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.17}
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:soft-light;pointer-events:none;
+    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center 35%;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 28%,#000 72%);
+    mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 28%,#000 72%);opacity:.42}
 
   .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;
     background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;

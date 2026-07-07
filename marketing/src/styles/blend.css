@@ -124,7 +124,7 @@
 
   /* hero journey panel (reframed from the mock's fake "87%" widget → truthful steps) */
   .panel{position:relative;background:var(--grad);border-radius:var(--radius);padding:52px 28px 28px;color:#fff;box-shadow:var(--shadow-lg);overflow:hidden}
-  .panel::after{content:"";position:absolute;inset:0;background:url('/images/hero-people.webp') center/cover;opacity:.14;mix-blend-mode:luminosity}
+  .panel::after{content:"";position:absolute;inset:0;background:var(--wap-hero-photo-url) center/cover;opacity:.14;mix-blend-mode:luminosity}
   .panel .phead{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
   .panel .phead small{color:rgba(255,255,255,.78);font-size:13px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
   .panel .phead .big{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px}
@@ -206,7 +206,7 @@
 
   /* cta */
   .cta{background:var(--grad);border-radius:28px;padding:60px 32px;text-align:center;color:#fff;position:relative;overflow:hidden}
-  .cta::after{content:"";position:absolute;inset:0;background:url('/images/hero-people.webp') center/cover;opacity:.12;mix-blend-mode:luminosity}
+  .cta::after{content:"";position:absolute;inset:0;background:var(--wap-hero-photo-url) center/cover;opacity:.12;mix-blend-mode:luminosity}
   .cta>*{position:relative}
   .cta h2{font-size:clamp(30px,4.5vw,52px);font-weight:800;margin-bottom:14px}
   .cta p{font-size:19px;color:rgba(255,255,255,.9);max-width:34em;margin:0 auto 26px}

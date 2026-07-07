@@ -38,10 +38,15 @@ function sectionsToRun() {
   process.exit(1);
 }
 
+async function dismissCookieBanner(page) {
+  await page.getByRole('button', { name: /decline/i }).click().catch(() => {});
+}
+
 async function login(page, redirectPath) {
   await page.goto(`${baseURL}/login?redirectTo=${encodeURIComponent(redirectPath)}`, {
     waitUntil: 'domcontentloaded',
   });
+  await dismissCookieBanner(page);
   await page.locator('#email').click();
   await page.locator('#email').fill(email);
   await page.locator('#password').click();

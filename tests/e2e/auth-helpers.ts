@@ -41,6 +41,10 @@ async function bootstrapVercelShareCookie(page: Page): Promise<void> {
   await page.waitForTimeout(750);
 }
 
+async function dismissCookieBanner(page: Page): Promise<void> {
+  await page.getByRole("button", { name: /decline/i }).click().catch(() => {});
+}
+
 /** Real login against deployed site (prod/staging). Never commit values — set in shell or CI secrets. */
 export function hasProdE2ECredentials(): boolean {
   const { email, password } = resolveMemberPortalCredentials(process.env);
@@ -69,6 +73,7 @@ export async function loginMemberPortal(page: Page): Promise<void> {
   }
   await bootstrapVercelShareCookie(page);
   await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await dismissCookieBanner(page);
   await page.locator("#email").click();
   await page.locator("#email").fill(email);
   await page.locator("#password").click();
@@ -94,6 +99,7 @@ export async function loginAdminPortal(page: Page): Promise<void> {
   }
   await bootstrapVercelShareCookie(page);
   await page.goto("/login?redirectTo=/admin", { waitUntil: "domcontentloaded" });
+  await dismissCookieBanner(page);
   await page.locator("#email").click();
   await page.locator("#email").fill(email);
   await page.locator("#password").click();

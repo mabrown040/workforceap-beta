@@ -94,11 +94,12 @@ async function auditSection(page, section) {
         message.includes('net::ERR_ABORTED') || message.includes('interrupted by another navigation');
       if (!isRecoverableNavigationInterruption) throw error;
       await page.waitForLoadState('domcontentloaded').catch(() => {});
-    } finally {
-      page.off('console', handleConsole);
-      page.off('pageerror', handlePageError);
-      page.off('response', handleResponse);
     }
+
+    await page.waitForLoadState('networkidle').catch(() => {});
+    page.off('console', handleConsole);
+    page.off('pageerror', handlePageError);
+    page.off('response', handleResponse);
 
     const finalUrl = page.url();
     const title = await page.title();

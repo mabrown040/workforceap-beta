@@ -42,7 +42,6 @@ const MEMBER_PATHS = [
   '/dashboard/learning/find-your-career',
   '/dashboard/learning/interest-profiler',
   '/dashboard/learning/wioa-qualification',
-  '/dashboard/mentor',
   '/dashboard/mentors',
   '/dashboard/messages',
   '/dashboard/profile',
@@ -50,7 +49,6 @@ const MEMBER_PATHS = [
   '/dashboard/readiness',
   '/dashboard/resources',
   '/dashboard/resume',
-  '/dashboard/skills-assessment',
   '/dashboard/weekly-recap',
 ] as const;
 

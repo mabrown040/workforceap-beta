@@ -31,3 +31,7 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+
+## 2024-06-26 - Accessibility on Dynamic Copy States in General Flows
+**Learning:** Found instances outside of AI tools, specifically in referral and application result flows (`ReferralShareCard.tsx` and `ApplyResultsClient.tsx`), where copy-to-clipboard buttons were lacking `aria-live="polite"`. The dynamic text changed upon copying, but screen readers were not notified.
+**Action:** When implementing any copy-to-clipboard button that temporarily changes state (e.g., from "Copy" to "Copied!"), always ensure the dynamic text is enclosed within an `<span aria-live="polite">` region.

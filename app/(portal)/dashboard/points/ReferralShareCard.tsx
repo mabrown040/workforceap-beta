@@ -129,7 +129,7 @@ export default function ReferralShareCard() {
           }}
         >
           {copied ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
-          {copied ? 'Copied!' : 'Copy link'}
+          <span aria-live="polite">{copied ? 'Copied!' : 'Copy link'}</span>
         </button>
       </div>
 

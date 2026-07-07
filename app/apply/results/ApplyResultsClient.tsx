@@ -447,7 +447,7 @@ export default function ApplyResultsClient() {
           onClick={handleShareLink}
           disabled={selectedSlugs.length === 0}
         >
-          {shareCopied ? t('shareLinkCopied') : t('shareLink')}
+          <span aria-live="polite">{shareCopied ? t('shareLinkCopied') : t('shareLink')}</span>
         </button>
       </div>
     </div>

@@ -203,7 +203,7 @@ export default async function DashboardResourcesPage() {
                 (512) 777-1808
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: 0, lineHeight: 1.55 }}>
-                <strong style={{ color: 'var(--wa-text)' }}>Loaner Laptop:</strong> Earned upon program completion. <Link href="/how-it-works" style={{ color: 'var(--wa-accent)', textDecoration: 'none' }}>Learn more</Link>
+                <strong style={{ color: 'var(--wa-text)' }}>Loaner Laptop:</strong> Earned upon program completion. <Link href="/how-it-works" prefetch={false} style={{ color: 'var(--wa-accent)', textDecoration: 'none' }}>Learn more</Link>
               </p>
             </div>
           </div>

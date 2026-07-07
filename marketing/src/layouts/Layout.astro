@@ -1,6 +1,7 @@
 ---
 import '../styles/blend.css';
 import '../styles/hero-media.css';
+import { heroPhotoForKey } from '../../../lib/marketing/heroPhotos';
 export interface Props {
   title?: string;
   description?: string;
@@ -63,6 +64,7 @@ const mobileNav = [
   { href: '/contact', label: 'Contact' },
 ];
 const path = Astro.url.pathname;
+const heroPhotoPath = heroPhotoForKey(path);
 ---
 <!DOCTYPE html>
 <html lang={lang}>
@@ -76,6 +78,9 @@ const path = Astro.url.pathname;
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
   <slot name="head" />
   <style is:global>
+    :root {
+      --wap-hero-photo-url: url('{heroPhotoPath}');
+    }
     /* token modifiers for chrome elements that live only in Layout.astro
        (kept here so blend.css is untouched; mirrors .btn / .fbottom rules) */
     .btn--nav{padding:12px 20px;font-size:15px;min-height:44px}

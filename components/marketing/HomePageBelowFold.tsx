@@ -3,6 +3,7 @@ import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { heroPhotoForKey } from '@/lib/marketing/heroPhotos';
 import {
   buttonPresets,
   primaryButtonClasses,
@@ -19,12 +20,7 @@ export type HomeProgramShowcaseCard = {
 };
 
 function getHomepageProgramCardImage(program: HomeProgramShowcaseCard, index: number) {
-  const images = [
-    '/images/AdobeStock_78118914.webp',
-    '/images/hero-people.webp',
-    '/images/AdobeStock_78118914.webp',
-  ];
-  return images[index % images.length];
+  return heroPhotoForKey(program.slug || String(index));
 }
 
 /** One-line chooser hint from existing catalog extras — no new claims. */

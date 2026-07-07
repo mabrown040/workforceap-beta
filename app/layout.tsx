@@ -31,6 +31,7 @@ import '@/css/marketing.css';
 import '@/css/marketing-depth.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
+import { DEFAULT_MARKETING_HERO_PHOTO } from '@/lib/marketing/heroPhotos';
 // Astryx design system (site-wide, coexistence-safe): both files ship inside
 // CSS cascade layers (`reset` / `astryx-base`), and LAYERED styles always lose
 // to the app's unlayered CSS above — so the 11 shared token names (e.g.
@@ -120,7 +121,7 @@ export const metadata: Metadata = {
     siteName: 'Workforce Advancement Project',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/images/AdobeStock_78118914.webp', width: 1200, height: 630, alt: 'Workforce Advancement Project members in career training' }],
+    images: [{ url: DEFAULT_MARKETING_HERO_PHOTO, width: 1200, height: 630, alt: 'Workforce Advancement Project members in career training' }],
   },
 };
 

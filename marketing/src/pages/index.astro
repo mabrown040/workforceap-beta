@@ -1,11 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
+import { heroPhotoForKey } from '../../../lib/marketing/heroPhotos';
+const homeHeroPhoto = heroPhotoForKey('/');
 ---
 <Layout title="WorkforceAP — Empowering People. Advancing Futures.">
 <Fragment slot="head">
   <!-- LCP: the hero stage paints this photo as its background — preload it. -->
-  <link rel="preload" as="image" href="/images/AdobeStock_78118914.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href={homeHeroPhoto} fetchpriority="high" />
 </Fragment>
 <div class="mix3">
 
@@ -204,7 +206,8 @@ import Icon from '../components/Icon.astro';
     position:relative;overflow:hidden;isolation:isolate;
     background:
       linear-gradient(180deg,rgba(187,0,0,.9) 0%,rgba(173,44,77,.82) 42%,rgba(140,15,55,.92) 100%),
-      url('/images/AdobeStock_78118914.webp') center 30%/cover no-repeat;
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:96px 0 84px;
   }
   /* text-led hero: single column. The glass cards now live in their own
@@ -324,7 +327,7 @@ import Icon from '../components/Icon.astro';
   }
   .imm-band__media{
     position:absolute;inset:0;
-    background:url('/images/AdobeStock_78118914.webp') center 35%/cover no-repeat;
+    background:var(--wap-hero-photo-url) center 35%/cover no-repeat;
     transform:scale(1.04);
   }
   .imm-band__veil{
@@ -399,7 +402,7 @@ import Icon from '../components/Icon.astro';
     position:relative;overflow:hidden;
     width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
   }
-  .close__media{position:absolute;inset:0;background:url('/images/AdobeStock_78118914.webp') center 40%/cover no-repeat}
+  .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url) center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
     background:linear-gradient(120deg,rgba(200,16,46,.94) 0%,rgba(187,0,0,.9) 50%,rgba(140,15,55,.94) 100%)}
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:92px 24px 100px;max-width:var(--max)}

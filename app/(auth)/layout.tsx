@@ -1,4 +1,5 @@
 import '@/css/auth-depth.css';
+import { heroPhotoForKey } from '@/lib/marketing/heroPhotos';
 
 /**
  * (auth) route-group layout — VISUAL ONLY.
@@ -14,5 +15,13 @@ import '@/css/auth-depth.css';
  * redirects, Supabase calls, or handlers are touched here.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <div className="auth-depth mdx">{children}</div>;
+  const loginHero = heroPhotoForKey('/login');
+  return (
+    <div
+      className="auth-depth mdx"
+      style={{ ['--wap-hero-photo-url' as string]: `url('${loginHero}')` }}
+    >
+      {children}
+    </div>
+  );
 }

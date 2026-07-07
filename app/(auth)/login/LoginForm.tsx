@@ -8,6 +8,7 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 import { trackFunnelEvent, trackMemberLoggedIn } from '@/lib/analytics/events';
+import { heroPhotoForKey } from '@/lib/marketing/heroPhotos';
 
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
@@ -447,7 +448,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
       {/* ── Left branding panel (hidden on mobile via CSS media query below) ── */}
       <div className="login-brand-panel" style={s.brandPanel}>
         <Image
-          src="/images/AdobeStock_78118914.webp"
+          src={heroPhotoForKey('/login')}
           alt=""
           fill
           priority

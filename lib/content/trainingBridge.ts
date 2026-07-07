@@ -142,7 +142,7 @@ export const TRAINING_BRIDGE_OCCUPATIONS: BridgeOccupation[] = [
       skill('Patient records', ['records', 'ehr', 'documentation']),
       skill('Privacy rules (HIPAA)', ['hipaa', 'privacy', 'compliance']),
     ],
-    programSlug: 'medical-billing-and-coding-certificate',
+    programSlug: 'health-information-technology-mchit',
     pathwayCovers: ['Medical billing', 'Medical coding', 'Medical terms', 'Patient records', 'Privacy rules (HIPAA)'],
   },
   {

@@ -264,7 +264,6 @@ const PROGRAMS: Program[] = [
   mk('ux-design-professional-certificate-google', 'UX Design Professional Certificate (Google)', 'business', '3-5 months, 10 hrs/week', '$88K–$120K', 'Google'),
   mk('project-management-professional-certificate-microsoft', 'Project Management Professional Certificate (Microsoft)', 'business', '3-5 months, 10 hrs/week', '$82K–$112K', 'Microsoft'),
   mk('digital-marketing-e-commerce-google', 'Digital Marketing & E-Commerce Professional Certificate (Google)', 'business', '3-5 months, 10 hrs/week', '$62K–$78K', 'Google'),
-  mk('medical-billing-and-coding-certificate', 'Medical Billing and Coding Professional Certificate', 'healthcare', '4-6 months, 10 hrs/week', '$45K–$62K', 'Coursera'),
   mk('health-information-technology-mchit', 'Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)', 'healthcare', '3-5 months, 10 hrs/week', '$52K–$72K', 'Healthcare Career Pathway'),
   mk('certified-production-technician-cpt', 'Certified Production Technician (CPT)', 'manufacturing', '3-5 months, 10 hrs/week', '$48K–$70K', 'MSSC / NAM'),
   mk('certified-logistics-technician-clt', 'Certified Logistics Technician (CLT)', 'manufacturing', '3-5 months, 10 hrs/week', '$55K–$78K', 'MSSC / NAM'),

@@ -214,16 +214,6 @@ export const salaryGuideRows: SalaryGuideRow[] = [
     midpointK: 58,
   },
   {
-    slug: 'medical-billing-and-coding-certificate',
-    program: 'Medical Billing and Coding Professional Certificate',
-    duration: '4-6 months',
-    salary: '$45K–$62K',
-    level: 'Entry',
-    ramp: 'Steeper',
-    color: '#888',
-    midpointK: 53.5,
-  },
-  {
     slug: 'digital-literacy-empowerment-class',
     program: 'Digital Literacy Empowerment Class',
     duration: '6 weeks, 5 hrs/week (30 hours total)',

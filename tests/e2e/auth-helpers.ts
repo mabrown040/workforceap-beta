@@ -1,4 +1,5 @@
 import { expect, type BrowserContext, type Page } from "@playwright/test";
+import { resolveMemberPortalCredentials } from "../../scripts/lib/portal-audit-auth.mjs";
 
 /**
  * Cookie-based session hint for local/staging E2E. Requires a valid Supabase session
@@ -42,10 +43,11 @@ async function bootstrapVercelShareCookie(page: Page): Promise<void> {
 
 /** Real login against deployed site (prod/staging). Never commit values — set in shell or CI secrets. */
 export function hasProdE2ECredentials(): boolean {
-  const email = process.env.E2E_MEMBER_EMAIL?.trim();
-  const password = process.env.E2E_MEMBER_PASSWORD?.replace(/\r$/, "")?.trim();
+  const { email, password } = resolveMemberPortalCredentials(process.env);
   return Boolean(email && password);
 }
+
+export const hasMemberPortalCredentials = hasProdE2ECredentials;
 
 /** Admin credentials check */
 export function hasAdminE2ECredentials(): boolean {
@@ -59,10 +61,11 @@ export function hasAdminE2ECredentials(): boolean {
  * Requires E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD.
  */
 export async function loginMemberPortal(page: Page): Promise<void> {
-  const email = process.env.E2E_MEMBER_EMAIL?.trim();
-  const password = process.env.E2E_MEMBER_PASSWORD?.replace(/\r$/, "")?.trim();
+  const { email, password } = resolveMemberPortalCredentials(process.env);
   if (!email || !password) {
-    throw new Error("Set E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD");
+    throw new Error(
+      "Set E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD (legacy aliases PLAYWRIGHT_MEMBER_EMAIL / PLAYWRIGHT_PORTAL_PASSWORD still work)"
+    );
   }
   await bootstrapVercelShareCookie(page);
   await page.goto("/login", { waitUntil: "domcontentloaded" });

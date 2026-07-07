@@ -1,0 +1,62 @@
+name: Authenticated Portal Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Target URL (preview or production)"
+        required: true
+        type: string
+      portal_audit_section:
+        description: "Optional section filter"
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - member
+          - admin
+          - employer
+          - partner
+          - counselor
+
+jobs:
+  smoke:
+    name: Run authenticated portal smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
+      PORTAL_AUDIT_SECTION: ${{ inputs.portal_audit_section }}
+      E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
+      E2E_MEMBER_PASSWORD: ${{ secrets.E2E_MEMBER_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run authenticated portal audit
+        run: pnpm audit:portal
+
+      - name: Upload audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-audit-results
+          path: docs/portal-audit-results.json
+          if-no-files-found: warn

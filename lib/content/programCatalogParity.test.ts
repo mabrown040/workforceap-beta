@@ -40,7 +40,6 @@ const KNOWN_HOUR_DRIFT = new Set([
   'project-management-professional-certificate-microsoft',
   'data-analytics-professional-certificate-google',
   'data-science-professional-certificate-ibm',
-  'medical-billing-and-coding-certificate',
   'comptia-a-professional-certificate',
   'comptia-security-professional-certificate',
   'cybersecurity-professional-certificate-google',

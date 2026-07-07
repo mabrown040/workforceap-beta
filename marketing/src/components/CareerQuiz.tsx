@@ -83,7 +83,7 @@ const AREA_PROGRAM_SLUG: Record<RiasecArea, string> = {
   Artistic: 'ux-design-professional-certificate-google',
   Social: 'it-support-professional-certificate-ibm',
   Enterprising: 'project-management-professional-certificate-microsoft',
-  Conventional: 'medical-billing-and-coding-certificate',
+  Conventional: 'health-information-technology-mchit',
 };
 
 // Mirrors areasToTypeSlug() — top areas → "investigative-social"

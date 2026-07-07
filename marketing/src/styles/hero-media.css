@@ -1,0 +1,21 @@
+/**
+ * Sitewide marketing hero photo + scarlet overlay tokens.
+ * July 2026 stakeholder pass: diverse classroom photo, stronger scarlet veil.
+ * Pages with depth-stage heroes import via Layout.astro; use these vars in
+ * scoped page CSS for .stage, .grain, .close__media, .close__veil.
+ */
+:root {
+  --wap-hero-photo-url: url('/images/AdobeStock_78118914.webp');
+  --wap-hero-stage-gradient: linear-gradient(
+    180deg,
+    rgba(187, 0, 0, 0.88) 0%,
+    rgba(173, 44, 77, 0.78) 45%,
+    rgba(140, 15, 55, 0.9) 100%
+  );
+  --wap-hero-close-veil: linear-gradient(
+    120deg,
+    rgba(200, 16, 46, 0.94) 0%,
+    rgba(187, 0, 0, 0.9) 50%,
+    rgba(140, 15, 55, 0.94) 100%
+  );
+}

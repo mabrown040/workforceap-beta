@@ -4,7 +4,7 @@ import { getRequestLocale } from '@/lib/i18n/server';
 import { buildOgImageUrl, getSiteUrl } from '@/lib/seo/siteEnvironment';
 
 export const SITE_URL = getSiteUrl();
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/hero-people.webp`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/AdobeStock_78118914.webp`;
 
 type PageSeoInput = {
   title: string;

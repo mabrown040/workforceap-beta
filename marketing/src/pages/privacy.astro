@@ -484,7 +484,9 @@ const SUB_PROCESSORS: SubProcessor[] = [
       position: relative;
       overflow: hidden;
       isolation: isolate;
-      background: radial-gradient(140% 130% at 80% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+      background:
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
       color: #fff;
       padding: 80px 0 88px;
     }
@@ -500,7 +502,7 @@ const SUB_PROCESSORS: SubProcessor[] = [
     .leg-photo {
       position: absolute; inset: 0; z-index: 1;
       mix-blend-mode: overlay; pointer-events: none;
-      background-image: url('/images/hero-people.webp');
+      background-image: var(--wap-hero-photo-url);
       background-size: cover; background-position: center;
       -webkit-mask-image: linear-gradient(90deg, transparent 0%, transparent 42%, #000 100%);
       mask-image: linear-gradient(90deg, transparent 0%, transparent 42%, #000 100%);

@@ -273,14 +273,16 @@ const metaDescription = `Training in ${display} offered at no cost for members w
 
   /* ---------------- compact crimson DEPTH hero ---------------- */
   .stage{position:relative;overflow:hidden;isolation:isolate;
-    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    background:
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:54px 0 60px}
   .stage-inner{position:relative;z-index:2;max-width:880px}
   .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
   .aura--1{width:460px;height:460px;top:-160px;right:-110px;background:radial-gradient(circle,rgba(196,154,72,.5),transparent 68%)}
   .aura--2{width:420px;height:420px;bottom:-200px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
   .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center;
     -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
     mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.16}
 
@@ -387,8 +389,8 @@ const metaDescription = `Training in ${display} offered at no cost for members w
 
   /* ---------------- closing crimson CTA (full-bleed) ---------------- */
   .close{position:relative;overflow:hidden;width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
-  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
-  .close__veil{position:absolute;inset:0;background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url) center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;background:var(--wap-hero-close-veil)}
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:72px 24px 80px;max-width:var(--max)}
   .pill{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;padding:9px 17px;border-radius:999px;margin-bottom:22px}
   .pill__star{font-size:11px}

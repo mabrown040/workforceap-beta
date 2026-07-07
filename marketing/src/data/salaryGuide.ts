@@ -44,8 +44,8 @@ export const salaryGuideRows: SalaryGuideRow[] = [
     midpointK: 120,
   },
   {
-    slug: 'ai-professional-developer-certificate-ibm',
-    program: 'AI Practitioner Professional Certificate',
+    slug: 'ai-practitioner-professional-certificate-aws',
+    program: 'AI Practitioner Professional Certificate (AWS)',
     duration: '3-5 months',
     salary: '$85K–$135K',
     level: 'High',
@@ -85,7 +85,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'cybersecurity-professional-certificate-google',
-    program: 'Cyber Security and Networking Professional Certificate (Network+, Sec+)',
+    program: 'Cybersecurity and Networking Professional Certificate (CompTIA Net+, Sec+)',
     duration: '3-5 months',
     salary: '$75K–$112K',
     level: 'Mid-High',
@@ -115,7 +115,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'data-analytics-professional-certificate-google',
-    program: 'Data Analytics Professional Certificate (Google)',
+    program: 'Data Analyst Professional Certificate (Google)',
     duration: '3-5 months',
     salary: '$72K–$102K',
     level: 'Mid-High',
@@ -125,7 +125,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'it-support-and-entry-level-cyber-security-certificate',
-    program: 'IT Support and Entry-level Cyber Security Certificate',
+    program: 'IT Support and Entry-level Cybersecurity Certificate (IBM)',
     duration: '3-5 months',
     salary: '$60K–$88K',
     level: 'Mid',

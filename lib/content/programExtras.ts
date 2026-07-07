@@ -19,6 +19,12 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     difficulty: 1,
     rampNote: 'No tech background required. Six weeks, beginner pace. Start here if technology feels unfamiliar.',
   },
+  'ai-practitioner-professional-certificate-aws': {
+    bestFor: 'Career changers with some coding interest. Best if you can invest 3–5 months consistently.',
+    jobOutcomes: ['AI / ML Engineer', 'Software Developer', 'Applications Engineer'],
+    difficulty: 3,
+    rampNote: 'Intermediate track. Best if you enjoy problem-solving, structured learning, and tech.',
+  },
   'ai-professional-developer-certificate-ibm': {
     bestFor: 'Career changers with some coding interest. Best if you can invest 3–5 months consistently.',
     jobOutcomes: ['AI / ML Engineer', 'Software Developer', 'Applications Engineer'],
@@ -120,10 +126,10 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     rampNote: 'Shorter construction-readiness track focused on safety, tools, and jobsite basics.',
   },
   'software-developer-professional-certificate-ibm': {
-    bestFor: 'Full-stack development. HTML, JavaScript, Python, React, Docker.',
+    bestFor: 'Full-stack and AI software development. HTML, JavaScript, Python, React, cloud.',
     jobOutcomes: ['Software Developer', 'Full-Stack Developer', 'Web Developer'],
     difficulty: 3,
-    rampNote: 'Longer build-focused path. Best if you have patience for step-by-step coding work over 4–6 months.',
+    rampNote: 'Build-focused path for members ready to code consistently over 3–5 months.',
   },
 };
 

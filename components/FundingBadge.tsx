@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import type { FundingSource } from '@/lib/content/programs';
-import { FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
+import { FUNDING_SOURCES, FUNDING_COLORS, formatFundingSourceLabel } from '@/lib/content/programs';
 
 export default function FundingBadge({ source, showTooltip = true }: { source?: FundingSource | string; showTooltip?: boolean }) {
   const [open, setOpen] = useState(false);
   const color = source && FUNDING_COLORS[source as FundingSource] ? FUNDING_COLORS[source as FundingSource] : FUNDING_COLORS.WIOA;
+  const displayLabel = formatFundingSourceLabel(source);
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -31,10 +32,10 @@ export default function FundingBadge({ source, showTooltip = true }: { source?: 
           cursor: 'pointer',
           lineHeight: 1,
         }}
-        aria-label={`Funding source: ${source ?? 'WIOA'}`}
+        aria-label={`Funding source: ${displayLabel}`}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '0.8rem' }} aria-hidden="true">account_balance</span>
-        {source ?? 'WIOA'}
+        {displayLabel}
       </button>
       {open && (
         <div style={{

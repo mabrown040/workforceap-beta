@@ -3,8 +3,10 @@ import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale, withLocalePrefix } from '@
 import { getRequestLocale } from '@/lib/i18n/server';
 import { buildOgImageUrl, getSiteUrl } from '@/lib/seo/siteEnvironment';
 
+import { DEFAULT_MARKETING_HERO_PHOTO } from '@/lib/marketing/heroPhotos';
+
 export const SITE_URL = getSiteUrl();
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/AdobeStock_78118914.webp`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}${DEFAULT_MARKETING_HERO_PHOTO}`;
 
 type PageSeoInput = {
   title: string;

@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/app/seo';
+import { getDefaultImage } from '@/lib/blog/defaultImages';
 
 function safeJsonLdStringify(data: unknown): string {
   return JSON.stringify(data).replace(/</g, '\\u003c');
@@ -17,7 +18,7 @@ interface BlogPost {
 
 export default function JsonLdArticle({ post }: { post: BlogPost }) {
   const url = `${SITE_URL}/blog/${post.slug}`;
-  const image = post.coverImage?.trim() || `${SITE_URL}/images/AdobeStock_78118914.webp`;
+  const image = post.coverImage?.trim() || getDefaultImage(post.category, post.slug).url;
   const datePublished = post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined;
   const dateModified = post.updatedAt ? new Date(post.updatedAt).toISOString() : datePublished;
 

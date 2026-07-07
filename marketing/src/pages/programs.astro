@@ -487,7 +487,8 @@ const filterChips = [
     position:relative;overflow:hidden;isolation:isolate;
     background:
       linear-gradient(180deg,rgba(187,0,0,.88) 0%,rgba(173,44,77,.78) 45%,rgba(140,15,55,.9) 100%),
-      url('/images/AdobeStock_78118914.webp') center 30%/cover no-repeat;
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:84px 0 92px;
   }
   .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
@@ -500,7 +501,7 @@ const filterChips = [
 
   /* luminosity-masked real photo bleeding in from the right */
   .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:soft-light;pointer-events:none;
-    background-image:url('/images/AdobeStock_78118914.webp');background-size:cover;background-position:center 35%;
+    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center 35%;
     -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 28%,#000 72%);
     mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 28%,#000 72%);opacity:.42}
 
@@ -653,7 +654,7 @@ const filterChips = [
     position:relative;overflow:hidden;
     width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
   }
-  .close__media{position:absolute;inset:0;background:url('/images/AdobeStock_78118914.webp') center 40%/cover no-repeat}
+  .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url) center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
     background:linear-gradient(120deg,rgba(200,16,46,.94) 0%,rgba(187,0,0,.9) 50%,rgba(140,15,55,.94) 100%)}
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}

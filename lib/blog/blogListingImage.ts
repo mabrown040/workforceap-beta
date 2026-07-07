@@ -1,7 +1,8 @@
 import { getDefaultImage } from '@/lib/blog/defaultImages';
+import { heroPhotoForKey } from '@/lib/marketing/heroPhotos';
 
 /** Public path when no DB image is set (legacy fallback). Prefer {@link blogListingCardImage}. */
-export const BLOG_LISTING_FALLBACK_IMAGE = '/images/AdobeStock_78118914.webp';
+export const BLOG_LISTING_FALLBACK_IMAGE = heroPhotoForKey('/blog');
 
 /**
  * Card image URL for blog listing. Uses category+slug default pool (20+ curated Unsplash URLs) when no hero/cover.

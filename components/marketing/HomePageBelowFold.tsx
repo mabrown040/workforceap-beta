@@ -21,9 +21,8 @@ export type HomeProgramShowcaseCard = {
 function getHomepageProgramCardImage(program: HomeProgramShowcaseCard, index: number) {
   const images = [
     '/images/AdobeStock_78118914.webp',
-    '/images/austin-skyline.webp',
     '/images/hero-people.webp',
-    '/images/image-asset.webp',
+    '/images/AdobeStock_78118914.webp',
   ];
   return images[index % images.length];
 }

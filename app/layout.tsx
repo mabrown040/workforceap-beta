@@ -120,7 +120,7 @@ export const metadata: Metadata = {
     siteName: 'Workforce Advancement Project',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/images/hero-people.webp', width: 1200, height: 630, alt: 'Workforce Advancement Project' }],
+    images: [{ url: '/images/AdobeStock_78118914.webp', width: 1200, height: 630, alt: 'Workforce Advancement Project members in career training' }],
   },
 };
 

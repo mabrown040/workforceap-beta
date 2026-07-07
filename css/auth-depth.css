@@ -143,7 +143,7 @@ html.dark .auth-depth,
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/images/hero-people.webp') center / cover;
+  background: url('/images/AdobeStock_78118914.webp') center / cover;
   opacity: 0.12;
   mix-blend-mode: luminosity;
   pointer-events: none;

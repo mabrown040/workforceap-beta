@@ -447,7 +447,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
       {/* ── Left branding panel (hidden on mobile via CSS media query below) ── */}
       <div className="login-brand-panel" style={s.brandPanel}>
         <Image
-          src="/images/hero-people.webp"
+          src="/images/AdobeStock_78118914.webp"
           alt=""
           fill
           priority

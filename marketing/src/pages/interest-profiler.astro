@@ -65,7 +65,9 @@ import Icon from '../components/Icon.astro';
   /* ---------------- DEPTH HERO STAGE ---------------- */
   .ip-hero.stage{
     position:relative;overflow:hidden;isolation:isolate;
-    background:radial-gradient(140% 130% at 82% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+    background:
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:64px 0 72px;text-align:left;
   }
   .stage-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:52px;align-items:center;position:relative;z-index:2}
@@ -76,7 +78,7 @@ import Icon from '../components/Icon.astro';
   .aura--3{width:340px;height:340px;top:24%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)}
 
   .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center;
     -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
     mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.17}
 

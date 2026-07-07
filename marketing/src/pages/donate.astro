@@ -221,7 +221,9 @@ const givingOptions = [
   /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
   .stage{
     position:relative;overflow:hidden;isolation:isolate;
-    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    background:
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:84px 0 96px;
   }
   .stage-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center;position:relative;z-index:2}
@@ -234,7 +236,7 @@ const givingOptions = [
 
   /* luminosity-masked real photo bleeding in from the right */
   .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center;
     -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
     mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
 
@@ -338,7 +340,7 @@ const givingOptions = [
     position:relative;overflow:hidden;
     width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
   }
-  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url) center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
     background:linear-gradient(120deg,rgba(173,44,77,.93) 0%,rgba(140,15,55,.91) 50%,rgba(109,20,55,.93) 100%)}
   .close__inner{position:relative;z-index:2;color:#fff;padding:84px 24px 88px;max-width:var(--max);text-align:center}

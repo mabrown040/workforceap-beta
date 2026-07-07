@@ -17,7 +17,7 @@ interface BlogPost {
 
 export default function JsonLdArticle({ post }: { post: BlogPost }) {
   const url = `${SITE_URL}/blog/${post.slug}`;
-  const image = post.coverImage?.trim() || `${SITE_URL}/images/hero-people.webp`;
+  const image = post.coverImage?.trim() || `${SITE_URL}/images/AdobeStock_78118914.webp`;
   const datePublished = post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined;
   const dateModified = post.updatedAt ? new Date(post.updatedAt).toISOString() : datePublished;
 

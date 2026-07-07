@@ -1,14 +1,12 @@
 /**
  * Cross-portal smoke: static routes load without staying on /login.
- * Requires: PLAYWRIGHT_MEMBER_EMAIL, PLAYWRIGHT_PORTAL_PASSWORD
+ * Requires: E2E_MEMBER_EMAIL, E2E_MEMBER_PASSWORD
+ * Legacy aliases still accepted: PLAYWRIGHT_MEMBER_EMAIL, PLAYWRIGHT_PORTAL_PASSWORD
  * Optional: PLAYWRIGHT_BASE_URL, PORTAL_AUDIT_SECTION=all|member|admin|employer|partner|counselor
  */
 import { test, expect, type Page } from '@playwright/test';
 import { STATIC_PATHS } from '../../scripts/lib/portal-audit-paths.mjs';
-import { loginMemberPortal } from './auth-helpers';
-
-const EMAIL = process.env.PLAYWRIGHT_MEMBER_EMAIL ?? '';
-const PASSWORD = process.env.PLAYWRIGHT_PORTAL_PASSWORD ?? '';
+import { hasMemberPortalCredentials, loginMemberPortal } from './auth-helpers';
 const sectionArg = (process.env.PORTAL_AUDIT_SECTION ?? 'all').toLowerCase();
 
 type Section = keyof typeof STATIC_PATHS;
@@ -31,7 +29,10 @@ async function goAllowingAbort(page: Page, url: string): Promise<void> {
 }
 
 test.describe('cross-portal static routes', () => {
-  test.skip(!EMAIL || !PASSWORD, 'Set PLAYWRIGHT_MEMBER_EMAIL and PLAYWRIGHT_PORTAL_PASSWORD');
+  test.skip(
+    !hasMemberPortalCredentials(),
+    'Set E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD (legacy PLAYWRIGHT_* aliases still work)'
+  );
 
   test('no section stuck on login', async ({ page, baseURL }) => {
     const sections = sectionsToRun();

@@ -44,6 +44,8 @@
     "analyze": "ANALYZE=true npm run build",
     "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh",
     "smoke:prod": "node scripts/prod-paid-funnel-smoke.mjs",
+    "audit:portal": "node scripts/audit-portal-routes.mjs",
+    "audit:member-pages": "node scripts/audit-member-pages.mjs",
     "screenshots:portal": "node scripts/portal-screenshots.mjs"
   },
   "prisma": {

@@ -3,7 +3,7 @@
  *
  * Usage:
  *   PLAYWRIGHT_BASE_URL=https://workforceap-beta.vercel.app \
- *   PLAYWRIGHT_MEMBER_EMAIL=... PLAYWRIGHT_PORTAL_PASSWORD=... \
+ *   E2E_MEMBER_EMAIL=... E2E_MEMBER_PASSWORD=... \
  *   node scripts/audit-portal-routes.mjs
  *
  * Optional:
@@ -11,7 +11,7 @@
  *
  * Writes: docs/portal-audit-results.json
  */
-import { chromium } from 'playwright';
+import { chromium, expect } from '@playwright/test';
 import { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -20,13 +20,14 @@ import {
   DYNAMIC_PATHS,
   SECTION_LOGIN_REDIRECT,
 } from './lib/portal-audit-paths.mjs';
+import { resolveMemberPortalCredentials } from './lib/portal-audit-auth.mjs';
+import { classifyPortalAuditRow } from './lib/portal-audit-classify.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
 const baseURL = (process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
-const email = process.env.PLAYWRIGHT_MEMBER_EMAIL ?? '';
-const password = process.env.PLAYWRIGHT_PORTAL_PASSWORD ?? '';
+const { email, password, source: credentialSource } = resolveMemberPortalCredentials(process.env);
 const sectionArg = (process.env.PORTAL_AUDIT_SECTION ?? 'all').toLowerCase();
 
 function sectionsToRun() {
@@ -45,34 +46,87 @@ async function login(page, redirectPath) {
   await page.locator('#email').fill(email);
   await page.locator('#password').click();
   await page.locator('#password').fill(password);
-  await Promise.all([
-    page.waitForURL((u) => !u.pathname.includes('/login'), { timeout: 25000 }),
-    page.getByRole('button', { name: /sign in/i }).click(),
-  ]);
+  await page.getByRole('button', { name: /sign in/i }).click();
+  await expect(page).not.toHaveURL(/\/login([?#]|$)/, { timeout: 60_000 });
+  const path = new URL(page.url()).pathname;
+  if (!path.startsWith(redirectPath)) {
+    await page.goto(`${baseURL}${redirectPath}`, { waitUntil: 'domcontentloaded' });
+  }
+  await expect(page).not.toHaveURL(/\/login([?#]|$)/, { timeout: 20_000 });
 }
 
 async function auditSection(page, section) {
   const paths = STATIC_PATHS[section];
   const rows = [];
   for (const path of paths) {
+    const consoleErrors = [];
+    const pageErrors = [];
+    const documentResponses = [];
+    const handleConsole = (message) => {
+      if (message.type() !== 'error') return;
+      consoleErrors.push(message.text());
+    };
+    const handlePageError = (error) => {
+      pageErrors.push(error?.message ?? String(error));
+    };
+    const handleResponse = (response) => {
+      if (response.request().resourceType() !== 'document') return;
+      documentResponses.push({
+        status: response.status(),
+        url: response.url(),
+      });
+    };
+
+    page.on('console', handleConsole);
+    page.on('pageerror', handlePageError);
+    page.on('response', handleResponse);
+
     try {
       await page.goto(`${baseURL}${path}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
     } catch (error) {
       const message = error?.message ?? String(error);
-      if (!message.includes('net::ERR_ABORTED')) throw error;
+      const isRecoverableNavigationInterruption =
+        message.includes('net::ERR_ABORTED') || message.includes('interrupted by another navigation');
+      if (!isRecoverableNavigationInterruption) throw error;
       await page.waitForLoadState('domcontentloaded').catch(() => {});
+    } finally {
+      page.off('console', handleConsole);
+      page.off('pageerror', handlePageError);
+      page.off('response', handleResponse);
     }
+
     const finalUrl = page.url();
     const title = await page.title();
-    const stuckLogin = finalUrl.includes('/login');
-    rows.push({ path, finalUrl, title, stuckLogin });
+    const bodyText = normalizeBodyText(
+      await page.evaluate(() => document.body?.innerText ?? '').catch(() => '')
+    );
+    const documentResponse =
+      documentResponses.find((response) => response.url === finalUrl) ?? documentResponses.at(-1) ?? null;
+
+    rows.push(
+      classifyPortalAuditRow({
+        path,
+        finalUrl,
+        title,
+        bodyText,
+        documentStatus: documentResponse?.status ?? null,
+        consoleErrors,
+        pageErrors,
+      })
+    );
   }
   return rows;
 }
 
+function normalizeBodyText(value) {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
 async function main() {
   if (!email || !password) {
-    console.error('Set PLAYWRIGHT_MEMBER_EMAIL and PLAYWRIGHT_PORTAL_PASSWORD');
+    console.error(
+      'Set E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD (legacy PLAYWRIGHT_MEMBER_EMAIL / PLAYWRIGHT_PORTAL_PASSWORD still work)'
+    );
     process.exit(1);
   }
 
@@ -86,6 +140,7 @@ async function main() {
 
   const result = {
     baseURL,
+    credentialSource,
     portalAuditSection: sectionArg,
     generatedAt: new Date().toISOString(),
     dynamicPathsNote: DYNAMIC_PATHS,
@@ -108,11 +163,11 @@ async function main() {
 
   for (const section of sections) {
     const rows = result.sections[section].rows;
-    const problems = rows.filter((r) => r.stuckLogin);
+    const problems = rows.filter((r) => !r.ok);
     console.log(`\n## ${section} (${rows.length} static paths)`);
-    console.log(`OK: ${rows.length - problems.length}  stuck on /login: ${problems.length}`);
+    console.log(`OK: ${rows.length - problems.length}  failed: ${problems.length}`);
     for (const r of problems) {
-      console.log(`  ! ${r.path} -> LOGIN | ${r.title}`);
+      console.log(`  ! ${r.path} -> ${r.failureReasons.join(', ')} | ${r.title}`);
     }
   }
 }

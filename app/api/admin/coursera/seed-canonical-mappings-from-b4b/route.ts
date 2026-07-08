@@ -8,6 +8,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/admin/coursera/seed-canonical-mappings-from-b4b
@@ -23,7 +24,7 @@ import { logAuditEvent } from '@/lib/audit/log';
  * Returns a per-program breakdown so the UI can show which catalog programs
  * still need attention (manual `courseraB4BProgramId` binding).
  */
-export async function POST(_request: NextRequest) {
+async function _POST(_request: NextRequest) {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -66,3 +67,5 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

@@ -595,7 +595,7 @@
     "heroLabel": "Member Application",
     "heroHeading": "Start Your Application",
     "heroDesc": "Share how we can reach you and answer three quick eligibility questions — work situation, household income, and work authorization. Then you'll pick programs and create your account. A member advisor follows up within 1–2 business days.",
-    "heroDescHighlight": "Programs are offered no cost for members who qualify through scholarship/grant funded membership.",
+    "heroDescHighlight": "Programs are offered through Workforce Funded Training for qualified members.",
     "heroDescSuffix": "No prior experience required. We'll help you confirm fit and eligibility for next steps.",
     "helpTitle": "Need help getting started?",
     "helpBody": "You can still reach us directly. Call an advisor or send a message, and we'll help you start the application manually and explain the funding path, eligibility, and next step before you commit.",
@@ -1391,13 +1391,13 @@
   "marketing": {
     "home": {
       "title": "Career Training & Industry Certificates",
-      "description": "Occupational and career training no cost to members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.",
+      "description": "Occupational and career training through Workforce Funded Training for qualified members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.",
       "heroTagline": "Empowering People.",
       "heroTaglineAccent": "Advancing Futures.",
       "heroBrandLine": "Our mission",
       "memberPromiseEyebrow": "No-cost career training",
       "memberPromiseTitle": "Career training and certificates",
-      "memberPromiseTitleAccent": "no cost to members.",
+      "memberPromiseTitleAccent": "Workforce Funded Training.",
       "memberPromiseBody1": "Apply in about five minutes. Explore programs that fit your goals, earn credentials from IBM, Google, Microsoft, and more — with advisor follow-up when you qualify through our funded pathways.",
       "memberPromiseBody2": "Not sure where to start? Take the 5-minute pathfinder — a real team follows up within 1 to 2 business days.",
       "heroCopy": "Career training no cost for members who qualify through scholarship/grant funded membership. Earn industry-recognized credentials — IBM, Google, Microsoft, AWS, CompTIA, plus manufacturing and logistics certs (CPT, CLT). Start with Find Your Path, see programs that fit, and get advisor guidance, resume help, and job-search support.",
@@ -1591,7 +1591,7 @@
       "heroSubtitleAccent": "for your goals.",
       "headlineMain": "Find the right program",
       "headlineAccent": "for your goals",
-      "heroDesc": "Explore career training programs offered no cost for members who qualify through scholarship/grant funded membership, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.",
+      "heroDesc": "Explore career training programs offered through Workforce Funded Training for qualified members, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.",
       "heroCta1": "Quick start",
       "heroCta2": "Find your path",
       "catalogTitle": "Browse all {count} programs",
@@ -1678,7 +1678,7 @@
       "heroCopy": "Answers that address your concerns, whether you're applying, supporting someone who is, or deciding if WorkforceAP is right for you.",
       "quickAnswersTitle": "Start with the questions people ask most.",
       "faq1q": "How much do WorkforceAP programs cost?",
-      "faq1a": "Programs are offered no cost for members who qualify through scholarship/grant funded membership. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.",
+      "faq1a": "Programs are offered through Workforce Funded Training for qualified members. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.",
       "faq1cta": "Browse programs",
       "faq2q": "Do I need prior tech experience?",
       "faq2a": "No. Many members start from zero. If computers still feel new, there are beginner-safe options designed to help you build confidence first.",
@@ -1694,8 +1694,8 @@
       "blog": "Blog",
       "careerResources": "Career Resources",
       "careerToolkit": "Career Toolkit",
-      "includedForMembers": "Included for members",
-      "betaAccess": "Beta Access"
+      "includedForMembers": "Included through Workforce Funded Training for qualified members",
+      "betaAccess": "Early access"
     },
     "contact": {
       "getInTouch": "Get in Touch",

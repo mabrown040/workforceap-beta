@@ -989,6 +989,23 @@ a.home-program-card:active {
   transform: scale(0.99);
 }
 
+.home-program-card__media {
+  isolation: isolate;
+}
+
+.home-program-card__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    155deg,
+    rgba(173, 44, 77, 0.72) 0%,
+    rgba(140, 15, 55, 0.66) 48%,
+    rgba(109, 20, 55, 0.74) 100%
+  );
+}
+
 @media (max-width: 767px) {
   .home-program-showcase__header {
     margin-bottom: 2rem;

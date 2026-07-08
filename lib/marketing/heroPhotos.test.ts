@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   MARKETING_HERO_PHOTO_POOL,
+  MARKETING_TILE_PHOTOS,
   heroPhotoForKey,
 } from './heroPhotos';
 
@@ -35,4 +36,9 @@ test('hero photo pool excludes Austin skyline assets', () => {
     assert.ok(!path.includes('austin-skyline'), path);
     assert.ok(!path.includes('image-asset'), path);
   }
+});
+
+test('MARKETING_TILE_PHOTOS uses curated workforce imagery', () => {
+  assert.equal(MARKETING_TILE_PHOTOS.digitalLiteracy, '/images/blog/1523240795612-9a054b0db644.jpg');
+  assert.equal(MARKETING_TILE_PHOTOS.itSupport, '/images/blog/1516321497487-e288fb19713f.jpg');
 });

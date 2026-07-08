@@ -3,7 +3,7 @@ import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
-import { heroPhotoForKey } from '@/lib/marketing/heroPhotos';
+import { heroPhotoForKey, MARKETING_TILE_PHOTOS } from '@/lib/marketing/heroPhotos';
 import {
   buttonPresets,
   primaryButtonClasses,
@@ -20,6 +20,12 @@ export type HomeProgramShowcaseCard = {
 };
 
 function getHomepageProgramCardImage(program: HomeProgramShowcaseCard, index: number) {
+  if (program.slug === 'digital-literacy-empowerment-class') {
+    return MARKETING_TILE_PHOTOS.digitalLiteracy;
+  }
+  if (program.slug === 'it-support-professional-certificate-ibm') {
+    return MARKETING_TILE_PHOTOS.itSupport;
+  }
   return heroPhotoForKey(program.slug || String(index));
 }
 
@@ -141,13 +147,18 @@ export default async function HomePageBelowFold({
                   fill
                   loading="lazy"
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{ objectFit: 'cover', opacity: 0.7 }}
+                  style={{ objectFit: 'cover' }}
+                />
+                <span
+                  className="home-program-card__veil"
+                  aria-hidden="true"
                 />
                 <span
                   style={{
                     position: 'absolute',
                     top: '0.75rem',
                     left: '0.75rem',
+                    zIndex: 2,
                     padding: '0.25rem 0.75rem',
                     borderRadius: 'var(--radius-full, 50px)',
                     background: 'rgba(0,0,0,0.6)',

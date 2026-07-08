@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { heroPhotoForKey } from '../../../lib/marketing/heroPhotos';
+import { heroPhotoForKey, MARKETING_TILE_PHOTOS } from '../../../lib/marketing/heroPhotos';
 const homeHeroPhoto = heroPhotoForKey('/');
 ---
 <Layout title="WorkforceAP — Empowering People. Advancing Futures.">
@@ -48,23 +48,31 @@ const homeHeroPhoto = heroPhotoForKey('/');
     <div class="wrap">
       <p class="vd-eyebrow">What you get</p>
       <div class="vd-grid">
-        <div class="card card--back">
-          <div class="card-tag">Recognized credentials</div>
-          <div class="logos">
-            <span>IBM</span><span>Google</span><span>Microsoft</span><span>AWS</span><span>CompTIA</span>
+        <div class="card card--back card--photo" style={`--tile-photo: url('${MARKETING_TILE_PHOTOS.credentials}')`}>
+          <span class="card__media" aria-hidden="true"></span>
+          <span class="card__veil" aria-hidden="true"></span>
+          <div class="card__inner">
+            <div class="card-tag">Recognized credentials</div>
+            <div class="logos">
+              <span>IBM</span><span>Google</span><span>Microsoft</span><span>AWS</span><span>CompTIA</span>
+            </div>
           </div>
         </div>
 
-        <div class="card card--mid">
-          <div class="mid-row">
-            <small>Your pathway</small>
-            <span class="dot-live">Live</span>
+        <div class="card card--mid card--photo" style={`--tile-photo: url('${MARKETING_TILE_PHOTOS.pathway}')`}>
+          <span class="card__media" aria-hidden="true"></span>
+          <span class="card__veil" aria-hidden="true"></span>
+          <div class="card__inner">
+            <div class="mid-row">
+              <small>Your pathway</small>
+              <span class="dot-live">Live</span>
+            </div>
+            <div class="mid-big">From apply to hired</div>
+            <div class="track">
+              <i class="t-done"></i><i class="t-done"></i><i class="t-now"></i><i></i>
+            </div>
+            <div class="track-labels"><span>Apply</span><span>Match</span><span>Certify</span><span>Launch</span></div>
           </div>
-          <div class="mid-big">From apply to hired</div>
-          <div class="track">
-            <i class="t-done"></i><i class="t-done"></i><i class="t-now"></i><i></i>
-          </div>
-          <div class="track-labels"><span>Apply</span><span>Match</span><span>Certify</span><span>Launch</span></div>
         </div>
 
         <div class="card card--front">
@@ -205,7 +213,6 @@ const homeHeroPhoto = heroPhotoForKey('/');
   .stage{
     position:relative;overflow:hidden;isolation:isolate;
     background:
-      linear-gradient(180deg,rgba(187,0,0,.9) 0%,rgba(173,44,77,.82) 42%,rgba(140,15,55,.92) 100%),
       var(--wap-hero-stage-gradient),
       var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:96px 0 84px;
@@ -273,6 +280,20 @@ const homeHeroPhoto = heroPhotoForKey('/');
   .card--back{border-top-color:var(--gold)}
   .card--mid{border-top-color:var(--blue)}
   .card--front{border-top-color:var(--green)}
+  /* Photo-backed value tiles (cards 1–2): thematic image visible through brand scarlet veil */
+  .card--photo{overflow:hidden;color:#fff;padding:0;min-height:260px;border-color:rgba(255,255,255,.2)}
+  .card--photo .card__media{position:absolute;inset:0;background:var(--tile-photo) center 35%/cover no-repeat;transform:scale(1.03)}
+  .card--photo .card__veil{position:absolute;inset:0;background:var(--wap-tile-veil)}
+  .card--photo .card__inner{position:relative;z-index:1;padding:26px 24px}
+  .card--photo .card-tag{color:#f3d28f}
+  .card--photo .logos span{color:#fff;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
+  .card--photo .mid-row small{color:rgba(255,255,255,.78)}
+  .card--photo .mid-big{color:#fff}
+  .card--photo .track i{background:rgba(255,255,255,.22)}
+  .card--photo .track i.t-done{background:linear-gradient(90deg,#caa148,#e3bd6a)}
+  .card--photo .track i.t-now{background:var(--crimson);box-shadow:0 0 0 3px rgba(173,44,77,.35)}
+  .card--photo .track-labels span{color:rgba(255,255,255,.82)}
+  .card--photo .dot-live{color:#b8f0c8;background:rgba(74,155,79,.22);border-color:rgba(74,155,79,.45)}
 
   /* Scroll-pop: the value cards get a stronger overshoot (rise + scale) than
      the shared site-wide reveal — they're the hero moment. Rides the shared
@@ -332,9 +353,7 @@ const homeHeroPhoto = heroPhotoForKey('/');
   }
   .imm-band__veil{
     position:absolute;inset:0;
-    background:
-      linear-gradient(180deg,rgba(187,0,0,.84) 0%,rgba(140,15,55,.72) 40%,rgba(173,44,77,.78) 100%),
-      linear-gradient(115deg,rgba(200,16,46,.78) 0%,rgba(109,20,55,.58) 100%);
+    background:var(--wap-imm-band-veil);
   }
   .imm-band__inner{position:relative;z-index:2;color:#fff;padding:var(--sec-pad) 24px;max-width:var(--max)}
   .imm-head{text-align:center;max-width:720px;margin:0 auto 52px}
@@ -404,7 +423,7 @@ const homeHeroPhoto = heroPhotoForKey('/');
   }
   .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url) center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
-    background:linear-gradient(120deg,rgba(200,16,46,.94) 0%,rgba(187,0,0,.9) 50%,rgba(140,15,55,.94) 100%)}
+    background:var(--wap-hero-close-veil)}
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:92px 24px 100px;max-width:var(--max)}
   .pill--solid{margin-bottom:24px}
   .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,66px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}

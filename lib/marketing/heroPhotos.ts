@@ -39,3 +39,15 @@ export function heroPhotoForKey(key: string): MarketingHeroPhotoPath {
 export function heroPhotoCssUrl(key: string): string {
   return `url('${heroPhotoForKey(key)}')`;
 }
+
+/** Themed backgrounds for marketing tiles (quick-start lanes, value deck, etc.). */
+export const MARKETING_TILE_PHOTOS = {
+  /** Beginner-friendly / digital literacy — diverse learners at laptops */
+  digitalLiteracy: '/images/blog/1523240795612-9a054b0db644.jpg',
+  /** IT support / in-demand tech — hands-on workshop */
+  itSupport: '/images/blog/1516321497487-e288fb19713f.jpg',
+  /** Employer-recognized credentials — classroom training */
+  credentials: '/images/blog/1522202176988-66273c2fd55f.jpg',
+  /** Career pathway / apply-to-hired journey */
+  pathway: '/images/hero-people.webp',
+} as const;

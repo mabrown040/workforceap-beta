@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { PROGRAMS as CATALOG, salaryRangeDisplay } from '../data/programs';
 import Icon from '../components/Icon.astro';
+import { MARKETING_TILE_PHOTOS } from '../../../lib/marketing/heroPhotos';
+import { PROGRAMS as CATALOG, salaryRangeDisplay } from '../data/programs';
 
 // Card rows derive title/duration/salary/partner/funding/skills from the
 // canonical data file so the listing can never drift from the detail pages
@@ -37,6 +38,7 @@ const lanes = [
     desc: 'Build confidence with computers, email, and online tools.',
     href: '/programs/digital-literacy-empowerment-class',
     cta: 'Start here',
+    photo: MARKETING_TILE_PHOTOS.digitalLiteracy,
   },
   {
     eyebrow: 'In-demand',
@@ -44,6 +46,7 @@ const lanes = [
     desc: 'Learn troubleshooting, networking, and security basics.',
     href: '/programs/it-support-professional-certificate-ibm',
     cta: 'View program',
+    photo: MARKETING_TILE_PHOTOS.itSupport,
   },
   {
     eyebrow: 'Business-friendly',
@@ -51,6 +54,7 @@ const lanes = [
     desc: 'No tech background required. Agile and Scrum skills that transfer across industries.',
     href: '/programs/project-management-professional-certificate-microsoft',
     cta: 'View program',
+    photo: null,
   },
 ];
 
@@ -246,11 +250,23 @@ const filterChips = [
   </div>
   <div class="tri">
     {lanes.map((l) => (
-      <a class="acard" href={l.href}>
-        <span class="eyebrow" style="margin-bottom:14px">{l.eyebrow}</span>
-        <h3>{l.title}</h3>
-        <p>{l.desc}</p>
-        <span style="font-weight:700;color:var(--crimson)">{l.cta} →</span>
+      <a
+        class:list={['acard', l.photo && 'acard--photo']}
+        href={l.href}
+        style={l.photo ? `--lane-photo: url('${l.photo}')` : undefined}
+      >
+        {l.photo && (
+          <>
+            <span class="acard__media" aria-hidden="true"></span>
+            <span class="acard__veil" aria-hidden="true"></span>
+          </>
+        )}
+        <span class="acard__body">
+          <span class="eyebrow" style="margin-bottom:14px">{l.eyebrow}</span>
+          <h3>{l.title}</h3>
+          <p>{l.desc}</p>
+          <span class="acard__cta">{l.cta} →</span>
+        </span>
       </a>
     ))}
   </div>
@@ -486,7 +502,6 @@ const filterChips = [
   .stage{
     position:relative;overflow:hidden;isolation:isolate;
     background:
-      linear-gradient(180deg,rgba(187,0,0,.88) 0%,rgba(173,44,77,.78) 45%,rgba(140,15,55,.9) 100%),
       var(--wap-hero-stage-gradient),
       var(--wap-hero-photo-url) center 30%/cover no-repeat;
     color:#fff;padding:84px 0 92px;
@@ -559,6 +574,15 @@ const filterChips = [
   .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
   .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
   .acard p{color:var(--muted);font-size:16px;line-height:1.55;margin-bottom:20px}
+  .acard__cta{font-weight:700;color:var(--crimson);margin-top:auto}
+  /* Photo-backed quick-start tiles (lanes 1–2): thematic image + translucent brand scarlet */
+  .acard--photo{position:relative;overflow:hidden;color:#fff;border-color:rgba(255,255,255,.22);background:transparent;min-height:300px;padding:0}
+  .acard--photo .acard__media{position:absolute;inset:0;background:var(--lane-photo) center 35%/cover no-repeat;transform:scale(1.03)}
+  .acard--photo .acard__veil{position:absolute;inset:0;background:var(--wap-tile-veil)}
+  .acard--photo .acard__body{position:relative;z-index:1;display:flex;flex-direction:column;flex:1;padding:30px 28px}
+  .acard--photo .eyebrow{color:#f3d28f;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22)}
+  .acard--photo p{color:rgba(255,255,255,.88)}
+  .acard--photo .acard__cta{color:#ffd98a}
   @media(max-width:880px){.tri{grid-template-columns:1fr}}
 
   /* tool routing */
@@ -656,7 +680,7 @@ const filterChips = [
   }
   .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url) center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
-    background:linear-gradient(120deg,rgba(200,16,46,.94) 0%,rgba(187,0,0,.9) 50%,rgba(140,15,55,.94) 100%)}
+    background:var(--wap-hero-close-veil)}
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
   .pill--solid{margin-bottom:24px}
   .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,64px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}

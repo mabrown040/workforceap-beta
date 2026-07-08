@@ -11,7 +11,6 @@ import {
   type B4BUser,
 } from '@/lib/coursera/b4bClient';
 import { prisma } from '@/lib/db/prisma';
-import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -242,7 +241,6 @@ function epochToIso(value: number | null | undefined): string | null {
     // If no WAP user exists in this org, local mapping/xAPI data is empty
     // (super-admins bypass and see all data).
     const isSuper = await isSuperAdmin(user.id);
-    await ensureCourseraMappingTables();
     let mappingRows: IdentityMappingRow[] = [];
     if (wapUser || isSuper) {
       if (isSuper) {

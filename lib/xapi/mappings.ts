@@ -41,8 +41,6 @@ type TenantScopeOptions = {
 
 type CourseraMappingDb = typeof prisma | Prisma.TransactionClient;
 
-let ensureTablesPromise: Promise<void> | null = null;
-
 function normalizeEmail(value: string | null | undefined) {
   const email = value?.trim().toLowerCase() || '';
   return email || null;
@@ -68,117 +66,14 @@ function orgScopeSql(columnSql: Prisma.Sql, organizationId: string | null | unde
     : Prisma.empty;
 }
 
+/**
+ * Legacy no-op — xAPI ingest tables are created by Prisma migrations
+ * (`20260510000000_add_coursera_identity_mapping_model`,
+ * `20260708120000_codify_coursera_xapi_prisma_models`). Call sites are kept
+ * so this schema unification PR does not require a sweeping refactor.
+ */
 export async function ensureCourseraMappingTables() {
-  if (!ensureTablesPromise) {
-    ensureTablesPromise = (async () => {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS coursera_identity_mappings (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          organization_id TEXT,
-          coursera_email TEXT,
-          actor_identifier TEXT,
-          actor_home_page TEXT,
-          source TEXT NOT NULL DEFAULT 'manual',
-          notes TEXT,
-          created_by_user_id TEXT,
-          last_seen_at TIMESTAMPTZ,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-          CONSTRAINT coursera_identity_mappings_identity_check CHECK (
-            coursera_email IS NOT NULL OR actor_identifier IS NOT NULL
-          )
-        )
-      `);
-
-      // Idempotent column add for environments where the table pre-existed
-      // without organization_id (Sprint P1 / AUDIT §C-S5). See migration
-      // 20260519050000_xapi_organization_id.
-      await prisma.$executeRawUnsafe(`
-        ALTER TABLE coursera_identity_mappings
-        ADD COLUMN IF NOT EXISTS organization_id TEXT
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS coursera_identity_mappings_email_key
-        ON coursera_identity_mappings (LOWER(coursera_email))
-        WHERE coursera_email IS NOT NULL
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS coursera_identity_mappings_actor_key
-        ON coursera_identity_mappings (actor_identifier, COALESCE(actor_home_page, ''))
-        WHERE actor_identifier IS NOT NULL
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS coursera_identity_mappings_user_id_idx
-        ON coursera_identity_mappings (user_id)
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS coursera_xapi_events (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          statement_id TEXT UNIQUE,
-          actor_email TEXT,
-          actor_identifier TEXT,
-          actor_home_page TEXT,
-          course_slug TEXT,
-          course_name TEXT,
-          verb_id TEXT,
-          matched_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
-          organization_id TEXT,
-          mapping_method TEXT,
-          completion_status TEXT NOT NULL DEFAULT 'received',
-          error TEXT,
-          raw_payload JSONB NOT NULL,
-          received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-        )
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        ALTER TABLE coursera_xapi_events
-        ADD COLUMN IF NOT EXISTS organization_id TEXT
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS coursera_xapi_events_actor_email_idx
-        ON coursera_xapi_events (LOWER(actor_email))
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS coursera_xapi_events_status_idx
-        ON coursera_xapi_events (completion_status, received_at DESC)
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS coursera_unmatched_actor_alerts (
-          actor_email_lower TEXT PRIMARY KEY,
-          organization_id TEXT,
-          first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-          first_statement_id TEXT,
-          last_event_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-          email_notified_at TIMESTAMPTZ
-        )
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        ALTER TABLE coursera_unmatched_actor_alerts
-        ADD COLUMN IF NOT EXISTS organization_id TEXT
-      `);
-
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS coursera_unmatched_actor_alerts_seen_idx
-        ON coursera_unmatched_actor_alerts (first_seen_at DESC)
-      `);
-    })().catch((error) => {
-      ensureTablesPromise = null;
-      throw error;
-    });
-  }
-
-  await ensureTablesPromise;
+  // no-op
 }
 
 async function notifyIfNewUnmatchedActorEmail(args: {

@@ -46,6 +46,9 @@ model Organization {
   courses           Course[]
   auditEvents       AuditEvent[]
   chapters          Chapter[]
+  courseraIdentityMappings     CourseraIdentityMapping[]
+  courseraXapiEvents           CourseraXapiEvent[]
+  courseraUnmatchedActorAlerts CourseraUnmatchedActorAlert[]
 
   @@map("organizations")
 }
@@ -274,6 +277,7 @@ model User {
   courseraCourseProgress   CourseraCourseProgress[]
   courseraBadgeProgress    CourseraBadgeProgress[]
   courseraSkillsetProgress CourseraSkillsetProgress[]
+  courseraXapiEventsMatched CourseraXapiEvent[] @relation("CourseraXapiEventMatchedUser")
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
   memberNudgeLogs          MemberNudgeLog[]
@@ -2362,19 +2366,17 @@ model CourseraCanonicalCourseMapping {
 }
 
 /// Identity bridge from a Coursera learner (by Coursera email or xAPI actor)
-/// to a WorkforceAP user. Originally created on demand by
-/// `lib/xapi/mappings.ts` via raw SQL — now modeled in Prisma so reads can use
-/// the typed client. The on-demand `CREATE TABLE IF NOT EXISTS` in
-/// `lib/xapi/mappings.ts` is preserved for back-compat / fresh DBs that
-/// haven't run migrations yet.
+/// to a WorkforceAP user. Schema is owned by Prisma migrations (see
+/// `20260510000000_add_coursera_identity_mapping_model` and
+/// `20260519050000_xapi_organization_id`).
 ///
 /// Note: `userId` is `text` (not a relation) because existing prod rows are
 /// not guaranteed to be valid UUIDs that round-trip through Prisma's UUID
-/// validator. The on-demand SQL also writes it as text. Switching to a
-/// relation would require a data migration; see #coursera-canonical-mappings.
+/// validator. Switching to a relation would require a data migration.
 model CourseraIdentityMapping {
   id               String    @id @default(uuid())
   userId           String    @map("user_id")
+  organizationId   String    @map("organization_id")
   courseraEmail    String?   @map("coursera_email")
   actorIdentifier  String?   @map("actor_identifier")
   actorHomePage    String?   @map("actor_home_page")
@@ -2385,9 +2387,61 @@ model CourseraIdentityMapping {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
   @@index([userId])
+  @@index([organizationId])
+  @@index([organizationId, actorIdentifier, actorHomePage])
   @@index([actorIdentifier, actorHomePage])
   @@map("coursera_identity_mappings")
+}
+
+/// Legacy Coursera xAPI ingest ledger (`coursera_xapi_events`). Distinct from
+/// `XapiStatement` (the normalized LRS webhook table). Rows record how each
+/// statement was routed (matched / unmatched / error) plus the raw payload for
+/// admin replay. Schema codified in migration
+/// `20260708120000_codify_coursera_xapi_prisma_models`.
+model CourseraXapiEvent {
+  id               String   @id @default(uuid())
+  statementId      String?  @unique @map("statement_id")
+  actorEmail       String?  @map("actor_email")
+  actorIdentifier  String?  @map("actor_identifier")
+  actorHomePage    String?  @map("actor_home_page")
+  courseSlug       String?  @map("course_slug")
+  courseName       String?  @map("course_name")
+  verbId           String?  @map("verb_id")
+  matchedUserId    String?  @map("matched_user_id")
+  organizationId   String   @map("organization_id")
+  mappingMethod    String?  @map("mapping_method")
+  completionStatus String   @default("received") @map("completion_status")
+  error            String?
+  rawPayload       Json     @map("raw_payload")
+  receivedAt       DateTime @default(now()) @map("received_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  matchedUser  User?        @relation("CourseraXapiEventMatchedUser", fields: [matchedUserId], references: [id], onDelete: SetNull)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, receivedAt(sort: Desc)])
+  @@index([completionStatus, receivedAt(sort: Desc)])
+  @@map("coursera_xapi_events")
+}
+
+/// Deduped first-seen tracking for unmatched Coursera actor emails. Drives the
+/// admin alert email (`sendCourseraUnmatchedActorAlertEmail`). `organizationId`
+/// stays nullable — unmatched actors may not resolve to a tenant.
+model CourseraUnmatchedActorAlert {
+  actorEmailLower  String    @id @map("actor_email_lower")
+  organizationId   String?   @map("organization_id")
+  firstSeenAt      DateTime  @default(now()) @map("first_seen_at")
+  firstStatementId String?   @map("first_statement_id")
+  lastEventAt      DateTime  @default(now()) @map("last_event_at")
+  emailNotifiedAt  DateTime? @map("email_notified_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([firstSeenAt(sort: Desc)])
+  @@map("coursera_unmatched_actor_alerts")
 }
 
 /// Per-learner-per-badge (specialization) progress imported from the Coursera

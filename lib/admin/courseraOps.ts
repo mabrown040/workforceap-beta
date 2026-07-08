@@ -5,7 +5,6 @@ import { CourseProgressStatus } from '@prisma/client';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
-import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 
 export type XapiStatementAttentionRow = {
   id: string;
@@ -37,7 +36,6 @@ export async function listXapiStatementsNeedingAttention(
   limit = 100,
   options: TenantScopeOptions = {},
 ): Promise<XapiStatementAttentionRow[]> {
-  await ensureCourseraMappingTables();
   const organizationId = normalizeOrganizationId(options.organizationId);
 
   return prisma.$queryRaw<XapiStatementAttentionRow[]>`
@@ -86,7 +84,6 @@ export async function listXapiStatementsNeedingAttention(
 export async function countXapiStatementsNeedingAttention(
   options: TenantScopeOptions = {},
 ): Promise<number> {
-  await ensureCourseraMappingTables();
   const organizationId = normalizeOrganizationId(options.organizationId);
 
   const rows = await prisma.$queryRaw<Array<{ count: bigint }>>`

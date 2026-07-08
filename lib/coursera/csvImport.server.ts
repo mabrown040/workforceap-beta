@@ -2,7 +2,6 @@ import 'server-only';
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 
 import type {
   BadgeIngestResult,
@@ -30,35 +29,12 @@ async function resolveUserIdByEmail(email: string): Promise<string | null> {
   return mappingRows[0]?.id ?? null;
 }
 
-/**
- * Idempotency: ensures the unique expression index on (lower(external_email),
- * coursera_course_id) exists. The CREATE INDEX in the migration already covers this,
- * but in the same spirit as ensureCourseraMappingTables (runtime DDL fallback) we
- * keep this defensive create here so the upsert ON CONFLICT target always resolves.
- */
-let ensureProgressIndexPromise: Promise<void> | null = null;
-
 const CSV_UPSERT_CHUNK = 100;
 
 function chunkCsvRows<T>(arr: T[], size = CSV_UPSERT_CHUNK): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
   return chunks;
-}
-
-async function ensureProgressIndex() {
-  if (!ensureProgressIndexPromise) {
-    ensureProgressIndexPromise = (async () => {
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS coursera_course_progress_email_course_key
-        ON coursera_course_progress (LOWER(external_email), coursera_course_id)
-      `);
-    })().catch((error) => {
-      ensureProgressIndexPromise = null;
-      throw error;
-    });
-  }
-  await ensureProgressIndexPromise;
 }
 
 async function bulkUpsertCourseProgressChunk(
@@ -181,10 +157,6 @@ export async function ingestCourseActivityRows(
   rows: ParsedCourseActivityRow[],
   options: { source?: string } = {}
 ): Promise<IngestResult> {
-  // Ensure the identity mapping tables exist (xAPI module manages those at runtime).
-  await ensureCourseraMappingTables();
-  await ensureProgressIndex();
-
   const source = options.source?.trim() || 'csv_import';
 
   let inserted = 0;
@@ -278,27 +250,6 @@ export async function ingestCourseActivityRows(
     promoted: promotion.upserted,
     promotionErrors: promotion.errors,
   };
-}
-
-/**
- * Idempotency: ensures the unique expression index on (lower(external_email),
- * badge_slug) exists. Mirrors ensureProgressIndex above for the badge table.
- */
-let ensureBadgeProgressIndexPromise: Promise<void> | null = null;
-
-async function ensureBadgeProgressIndex() {
-  if (!ensureBadgeProgressIndexPromise) {
-    ensureBadgeProgressIndexPromise = (async () => {
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS coursera_badge_progress_email_badge_key
-        ON coursera_badge_progress (LOWER(external_email), badge_slug)
-      `);
-    })().catch((error) => {
-      ensureBadgeProgressIndexPromise = null;
-      throw error;
-    });
-  }
-  await ensureBadgeProgressIndexPromise;
 }
 
 type BadgeAggregate = {
@@ -497,9 +448,6 @@ export async function ingestLearningPathActivityRows(
   rows: ParsedBadgeRow[],
   options: { source?: string } = {}
 ): Promise<BadgeIngestResult> {
-  await ensureCourseraMappingTables();
-  await ensureBadgeProgressIndex();
-
   const source = options.source?.trim() || 'csv_import';
 
   let inserted = 0;

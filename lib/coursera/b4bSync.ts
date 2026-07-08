@@ -18,6 +18,7 @@ import {
 } from '@/lib/coursera/canonicalMapping';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
+import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 import { fetchCourseraWithTransientRetry } from '@/lib/coursera/b4bClient';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
@@ -670,52 +671,24 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           lastActivityAt: report.lastActivityAt,
         });
 
-        newlyCompletedThisRow =
-          merged.status === CourseProgressStatus.COMPLETED &&
-          existing?.status !== CourseProgressStatus.COMPLETED;
-
-        // `completedAt` is set the first time we see COMPLETED. If we've
-        // already recorded one we keep it — re-syncs shouldn't re-stamp the
-        // timestamp. Use Coursera's `updatedAt` if available, otherwise now.
         const completedAt =
           merged.status === CourseProgressStatus.COMPLETED
             ? new Date(report.updatedAt || Date.now())
             : null;
 
-        await tx.courseProgress.upsert({
-          where: {
-            userId_programSlug_courseSlug: {
-              userId,
-              programSlug,
-              courseSlug,
-            },
-          },
-          create: {
-            userId,
-            programSlug,
-            courseSlug,
-            courseId: report.contentId,
-            status: merged.status,
-            percentComplete: merged.percentComplete,
-            startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
-            completedAt,
-            lastActivityAt: merged.lastActivityAt,
-          },
-          update: {
-            courseId: report.contentId,
-            status: merged.status,
-            percentComplete: merged.percentComplete,
-            // Don't overwrite an existing startedAt with null on later syncs;
-            // only stamp it the first time we see an enrolledAt.
-            ...(report.enrolledAt ? { startedAt: new Date(report.enrolledAt) } : {}),
-            // Set completedAt on the transition into COMPLETED; never clear it.
-            ...(merged.status === CourseProgressStatus.COMPLETED &&
-            existing?.status !== CourseProgressStatus.COMPLETED
-              ? { completedAt }
-              : {}),
-            lastActivityAt: merged.lastActivityAt,
-          },
+        const { newlyCompleted } = await upsertMergedCourseProgress(tx, {
+          userId,
+          programSlug,
+          courseSlug,
+          courseId: report.contentId,
+          merged,
+          existing,
+          completedAt,
+          startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
+          updateStartedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
         });
+
+        newlyCompletedThisRow = newlyCompleted;
       });
 
       result.upserted += 1;

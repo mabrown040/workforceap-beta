@@ -14,6 +14,7 @@ import {
   decideEnrolledProgramSync,
   mergeB4BProgressSignals,
 } from './b4bSync';
+import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
 import {
@@ -613,37 +614,15 @@ export async function syncUserFromB4B(args: {
         : null;
 
     try {
-      await prisma.courseProgress.upsert({
-        where: {
-          userId_programSlug_courseSlug: {
-            userId: args.wapUserId,
-            programSlug: signal.wapProgramSlug,
-            courseSlug: signal.wapCourseSlug,
-          },
-        },
-        create: {
-          userId: args.wapUserId,
-          programSlug: signal.wapProgramSlug,
-          courseSlug: signal.wapCourseSlug,
-          courseId: signal.contentId,
-          status: update.status,
-          percentComplete: update.percentComplete,
-          ...(gbGradeScaled != null ? { scoreScaled: gbGradeScaled } : {}),
-          completedAt,
-          lastActivityAt: update.lastActivityAt,
-        },
-        update: {
-          courseId: signal.contentId,
-          status: update.status,
-          percentComplete: update.percentComplete,
-          ...(gbGradeScaled != null ? { scoreScaled: gbGradeScaled } : {}),
-          // Set completedAt on the transition into COMPLETED; never clear it.
-          ...(update.status === CourseProgressStatus.COMPLETED &&
-          existing?.status !== CourseProgressStatus.COMPLETED
-            ? { completedAt: completedAt ?? new Date() }
-            : {}),
-          lastActivityAt: update.lastActivityAt,
-        },
+      await upsertMergedCourseProgress(prisma, {
+        userId: args.wapUserId,
+        programSlug: signal.wapProgramSlug,
+        courseSlug: signal.wapCourseSlug,
+        courseId: signal.contentId,
+        merged: update,
+        existing,
+        completedAt,
+        scoreScaled: gbGradeScaled,
       });
       courseProgressUpserted += 1;
     } catch (err) {

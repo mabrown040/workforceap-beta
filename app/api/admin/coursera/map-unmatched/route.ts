@@ -7,6 +7,7 @@ import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replay
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Inline "Map to WAP user" action used from the Coursera-only learners list.
@@ -18,21 +19,21 @@ import { logAuditEvent } from '@/lib/audit/log';
  *      coursera_badge_progress rows for that email so the new mapping is
  *      reflected immediately on the admin page without needing a re-import.
  */
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const organizationId = await getActorOrganizationId(user.id);
-  
+
     let body: { userId?: string; courseraEmail?: string; actorIdentifier?: string; actorHomePage?: string };
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-  
+
     const userId = body.userId?.trim();
     const courseraEmail = body.courseraEmail?.trim();
     const actorIdentifier = body.actorIdentifier?.trim();
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     if (!courseraEmail && !actorIdentifier) {
       return NextResponse.json({ error: 'courseraEmail or actorIdentifier is required' }, { status: 400 });
     }
-  
+
     try {
       const mapping = await upsertCourseraIdentityMapping({
         userId,
@@ -55,15 +56,13 @@ export async function POST(request: Request) {
         notes: 'Mapped from Coursera-only learners list',
         expectedOrganizationId: organizationId,
       });
-  
+
       const backfill = courseraEmail
         ? await backfillUserIdForCourseraEmail(courseraEmail, userId)
         : { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
-  
-      // Immediately replay unresolved xAPI statements — including rows already marked processed
-      // as unmatched/error before this mapping existed.
+
       const xapiReplay = await replayUnresolvedXapiStatementsForIdentity({ courseraEmail, actorIdentifier });
-  
+
       void auditLog({ actorUserId: user.id, action: 'admin_coursera_learner_mapped', targetType: 'User', targetId: userId, metadata: {} }).catch(() => {});
       logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: userId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
@@ -81,3 +80,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

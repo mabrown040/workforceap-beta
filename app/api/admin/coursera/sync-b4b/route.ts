@@ -6,10 +6,13 @@ import { isAdmin } from '@/lib/auth/roles';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 async function requireAdminUser() {
   const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) return null;
+  if (!user || !(await isAdmin(user.id))) {
+    return null;
+  }
   return user;
 }
 
@@ -21,13 +24,13 @@ async function requireAdminUser() {
  *
  * Auth: requires an active admin session (same as /admin/coursera).
  */
-export async function POST() {
+async function _POST() {
   try {
     const user = await requireAdminUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  
+
     try {
       const result = await syncCourseraB4BEnrollmentReports();
       void auditLog({ actorUserId: user.id, action: 'admin_coursera_sync_b4b_triggered', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
@@ -45,3 +48,5 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

@@ -408,12 +408,19 @@ export default function GoalsModule() {
                       className="btn btn-primary btn-sm"
                       onClick={() => handleGenerateSteps(goal.id)}
                       disabled={isGenerating}
+                      aria-busy={isGenerating}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                     >
-                      <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
-                        auto_awesome
+                      <span
+                        className="material-symbols-outlined"
+                        aria-hidden="true"
+                        style={{ fontSize: '1rem', animation: isGenerating ? 'spin 1s linear infinite' : undefined }}
+                      >
+                        {isGenerating ? 'progress_activity' : 'auto_awesome'}
                       </span>
-                      {isGenerating ? t('generate.building') : t('generate.cta')}
+                      <span aria-live="polite">
+                        {isGenerating ? t('generate.building') : t('generate.cta')}
+                      </span>
                     </button>
                     <p style={{ margin: '0.4rem 0 0', fontSize: '0.75rem', color: SURFACE_VAR }}>
                       {t('generate.hint')}
@@ -450,6 +457,7 @@ export default function GoalsModule() {
               type="button"
               onClick={() => handleAddSuggestion(s)}
               disabled={addingKey === s.key}
+              aria-busy={addingKey === s.key}
               style={{
                 textAlign: 'left',
                 border: `1px solid color-mix(in srgb, ${ACCENT} 30%, transparent)`,
@@ -465,12 +473,17 @@ export default function GoalsModule() {
               <span
                 className="material-symbols-outlined"
                 aria-hidden="true"
-                style={{ fontSize: '1.25rem', color: ACCENT, flexShrink: 0 }}
+                style={{
+                  fontSize: '1.25rem',
+                  color: ACCENT,
+                  flexShrink: 0,
+                  animation: addingKey === s.key ? 'spin 1s linear infinite' : undefined
+                }}
               >
-                add_circle
+                {addingKey === s.key ? 'progress_activity' : 'add_circle'}
               </span>
               <span style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
-                <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: SURFACE }}>
+                <span aria-live="polite" style={{ fontWeight: 700, fontSize: '0.8125rem', color: SURFACE }}>
                   {addingKey === s.key ? t('suggestions.adding') : s.title}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: SURFACE_VAR, lineHeight: 1.35 }}>{s.reason}</span>
@@ -506,8 +519,10 @@ export default function GoalsModule() {
                 className="form-input"
               />
               <div className="goals-form-actions" style={{ display: 'flex', gap: '0.5rem' }}>
-                <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-                  {saving ? t('form.adding') : t('form.addGoal')}
+                <button type="submit" className="btn btn-primary btn-sm" disabled={saving} aria-busy={saving}>
+                  <span aria-live="polite">
+                    {saving ? t('form.adding') : t('form.addGoal')}
+                  </span>
                 </button>
                 <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowForm(false)}>
                   {t('form.cancel')}

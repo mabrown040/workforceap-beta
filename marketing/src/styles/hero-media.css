@@ -7,6 +7,10 @@
  */
 :root {
   --wap-hero-photo-url: url('/images/hero-people.webp');
+  /* per-section photos (set per page by Layout.astro): -2 = mid-band, -3 =
+     closing CTA. Fall back to the hero photo if a page never sets them. */
+  --wap-hero-photo-url-2: var(--wap-hero-photo-url, url('/images/hero-people.webp'));
+  --wap-hero-photo-url-3: var(--wap-hero-photo-url, url('/images/hero-people.webp'));
   --wap-hero-stage-gradient: linear-gradient(
     180deg,
     rgba(187, 0, 0, 0.74) 0%,

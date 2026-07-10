@@ -5,7 +5,7 @@
 
 ### What We Are
 
-Workforce Advancement Project (WorkforceAP) is a **501(c)(3) nonprofit** (EIN 41-2612389) that equips individuals, counselors, and community advisors with workforce readiness tools, occupational training, professional certificates, and AI-powered resume, interview, and job placement assistance — **at no cost to qualifying members**.
+Workforce Advancement Project (WorkforceAP) is a **501(c)(3) nonprofit** (EIN 41-2612389) that equips individuals, counselors, and community ambassadors with workforce readiness tools, occupational training, professional certificates, and AI-powered resume, interview, and job placement assistance — **at no cost to qualifying members**.
 
 Founded in Austin on 25+ years of workforce development experience.
 

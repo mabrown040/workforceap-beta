@@ -45,6 +45,12 @@ export default function CourseraEnrollmentPipelineTable({
   const [rowMessages, setRowMessages] = useState<Record<string, EnrollResult>>({});
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
 
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmBulkApprove, setConfirmBulkApprove] = useState(false);
+  const [bulkPending, setBulkPending] = useState(false);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkResult, setBulkResult] = useState<string | null>(null);
+
   async function refresh() {
     setLoading(true);
     setLoadError(null);
@@ -151,6 +157,65 @@ export default function CourseraEnrollmentPipelineTable({
     return list;
   }, [rows, programFilter, signalFilter, search]);
 
+  const filteredIds = useMemo(() => filteredRows.map((r) => r.memberId), [filteredRows]);
+  const allFilteredSelected = filteredIds.length > 0 && filteredIds.every((id) => selected.has(id));
+
+  function toggleOne(memberId: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(memberId)) next.delete(memberId);
+      else next.add(memberId);
+      return next;
+    });
+  }
+
+  function toggleAllFiltered() {
+    setSelected((prev) => {
+      if (allFilteredSelected) {
+        const next = new Set(prev);
+        for (const id of filteredIds) next.delete(id);
+        return next;
+      }
+      return new Set([...prev, ...filteredIds]);
+    });
+  }
+
+  async function submitBulkApprove() {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setBulkPending(true);
+    setBulkError(null);
+    setBulkResult(null);
+    try {
+      const res = await fetch('/api/admin/coursera/members/bulk-approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberIds: ids, approved: true }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        processedCount?: number;
+        failedCount?: number;
+        error?: string;
+      };
+      if (!res.ok) {
+        setBulkError(payload.error ?? 'Bulk approval failed. Please try again.');
+        return;
+      }
+      setBulkResult(
+        `Approved ${payload.processedCount ?? ids.length} member${(payload.processedCount ?? ids.length) === 1 ? '' : 's'}${
+          payload.failedCount ? `, ${payload.failedCount} failed` : ''
+        }.`,
+      );
+      setSelected(new Set());
+      await refresh();
+    } catch {
+      setBulkError('Could not reach the server.');
+    } finally {
+      setBulkPending(false);
+      setConfirmBulkApprove(false);
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div
@@ -225,6 +290,31 @@ export default function CourseraEnrollmentPipelineTable({
         </p>
       ) : null}
 
+      <div
+        className="content-card"
+        style={{ padding: '0.6rem 0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.6rem', flexWrap: 'wrap' }}
+      >
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}>
+          <input type="checkbox" checked={allFilteredSelected} onChange={toggleAllFiltered} disabled={filteredIds.length === 0} />
+          {selected.size > 0 ? `${selected.size} selected` : 'Select all shown'}
+        </label>
+        {selected.size > 0 ? (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => setConfirmBulkApprove(true)}
+            style={{ fontSize: '0.75rem', padding: '0.3rem 0.7rem' }}
+          >
+            Approve {selected.size} selected
+          </button>
+        ) : null}
+      </div>
+      {bulkResult ? (
+        <p role="status" style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-success, #166534)' }}>
+          {bulkResult}
+        </p>
+      ) : null}
+
       <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
         Showing {filteredRows.length} of {rows.length} member{rows.length === 1 ? '' : 's'}
       </p>
@@ -256,12 +346,21 @@ export default function CourseraEnrollmentPipelineTable({
             key: 'member',
             header: 'Member',
             cell: (row) => (
-              <>
-                <Link href={`/admin/members/${row.memberId}`} style={{ fontWeight: 600 }}>
-                  {row.memberName}
-                </Link>
-                <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.memberEmail}</div>
-              </>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                <input
+                  type="checkbox"
+                  checked={selected.has(row.memberId)}
+                  onChange={() => toggleOne(row.memberId)}
+                  aria-label={`Select ${row.memberName}`}
+                  style={{ marginTop: '0.2rem', flexShrink: 0 }}
+                />
+                <div style={{ minWidth: 0 }}>
+                  <Link href={`/admin/members/${row.memberId}`} style={{ fontWeight: 600 }}>
+                    {row.memberName}
+                  </Link>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.memberEmail}</div>
+                </div>
+              </div>
             ),
           },
           {
@@ -381,6 +480,29 @@ export default function CourseraEnrollmentPipelineTable({
           if (confirmEnrollRow) void enrollNow(confirmEnrollRow);
         }}
         onCancel={() => setConfirmEnrollRow(null)}
+      />
+      <ConfirmDialog
+        open={confirmBulkApprove}
+        title={`Approve ${selected.size} member${selected.size === 1 ? '' : 's'} for Coursera enrollment?`}
+        body={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+              This lets each selected member self-enroll in their assigned program&apos;s courses. Each enrollment uses a
+              paid Coursera seat. Only approve once funding is confirmed and a counselor has assigned a program.
+            </p>
+            {bulkError ? (
+              <p role="alert" style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-error, #c83232)' }}>
+                {bulkError}
+              </p>
+            ) : null}
+          </div>
+        }
+        confirmLabel="Approve"
+        busy={bulkPending}
+        onConfirm={() => void submitBulkApprove()}
+        onCancel={() => {
+          if (!bulkPending) setConfirmBulkApprove(false);
+        }}
       />
     </div>
   );

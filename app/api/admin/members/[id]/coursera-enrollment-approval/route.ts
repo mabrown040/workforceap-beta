@@ -2,13 +2,11 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
-import { auditLog } from '@/lib/audit';
-import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { auditRequestMeta } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { createNotification } from '@/lib/notifications/create';
+import { setCourseraEnrollmentApproval } from '@/lib/admin/courseraEnrollmentApproval';
 
 /**
  * PATCH /api/admin/members/[id]/coursera-enrollment-approval
@@ -55,65 +53,26 @@ async function _PATCH(
   // actor's. A super_admin viewing a partner-org member must mutate the
   // partner-org row, not their own.
   const subjectOrgId = await getSubjectOrganizationId(memberId);
-  // Belt-and-suspenders: assert the actor is allowed in this org. For
-  // super_admins this returns the same id; for org-scoped admins this
-  // would throw if they tried to flip a flag in a foreign org.
   const actorOrgId = await getActorOrganizationId(user.id);
   if (actorOrgId !== subjectOrgId) {
-    // Block cross-tenant flips. super_admins bypass requireAdmin's
-    // org-bind, so this final check matters for them specifically.
     return NextResponse.json({ error: 'Forbidden — cross-tenant' }, { status: 403 });
   }
 
-  const now = new Date();
-  await withTenantScope(subjectOrgId, async (db) => {
-    await db.user.update({
-      where: { id: memberId },
-      data: {
-        courseraEnrollmentApproved: approved,
-        // Stamp who/when on every flip — including revocations — so the
-        // audit trail in the DB column matches what audit_logs records.
-        courseraEnrollmentApprovedAt: now,
-        courseraEnrollmentApprovedById: user.id,
-      },
-    });
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  const result = await setCourseraEnrollmentApproval({
+    memberId,
+    approved,
+    orgId: subjectOrgId,
+    actorUserId: user.id,
+    actorRole,
+    requestMeta: auditRequestMeta(request),
   });
 
-  // Member-facing notification: only on approval — a revocation doesn't
-  // unenroll the member from anything already started (see file header
-  // above), so there's no actionable "you can now..." message for that path.
-  if (approved) {
-    void createNotification({
-      userId: memberId,
-      type: 'task_assigned',
-      title: 'Your training enrollment is approved',
-      body: 'You can now enroll in your program courses from your dashboard.',
-      data: { link: '/dashboard/program' },
-    });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 404 });
   }
 
-  await auditLog({
-    actorUserId: user.id,
-    action: approved
-      ? 'coursera_enrollment_approved'
-      : 'coursera_enrollment_revoked',
-    targetType: 'User',
-    targetId: memberId,
-    metadata: {
-      source: 'admin_toggle',
-      approved,
-    },
-  });
-  logAuditEvent({
-    user: { id: user.id, role: 'admin' },
-    verb: approved ? 'approved' : 'revoked',
-    object: { type: 'CourseraEnrollment', id: memberId },
-    result: { success: true, extensions: { approved } },
-    request: auditRequestMeta(request as Request),
-    orgId: actorOrgId,
-  }).catch(() => {});
-
-  return NextResponse.json({ ok: true, approved });
+  return NextResponse.json({ ok: true, approved: result.approved });
 
   } catch (error) {
     console.error('/admin/members/[id]/coursera-enrollment-approval error:', error);

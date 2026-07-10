@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import type {
   AdminApplicationPendingRow,
   AdminAtRiskRow,
@@ -19,13 +20,85 @@ const REVIEW_ACTIONS: Array<{ status: ReviewStatus; label: string; tone: 'primar
   { status: 'DENIED', label: 'Not a fit', tone: 'danger' },
 ];
 
+const BULK_LABEL: Record<ReviewStatus, string> = {
+  APPROVED: 'Approve',
+  NEEDS_INFO: 'Ask for info',
+  DENIED: 'Not a fit',
+};
+
 export default function AdminCommandCenterClient({ data }: { data: AdminCommandCenter }) {
+  const router = useRouter();
   const total =
     data.totals.needsReplyCount +
     data.totals.atRiskCount +
     data.totals.interviewingCount +
     data.totals.applicationsPendingCount;
   const oldest = data.totals.oldestPendingApplicationDays;
+
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<ReviewStatus | null>(null);
+  const [attested, setAttested] = useState(false);
+  const [bulkPending, startBulkTransition] = useTransition();
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkResult, setBulkResult] = useState<string | null>(null);
+
+  const pendingIds = useMemo(() => data.applicationsPending.map((r) => r.applicationId), [data.applicationsPending]);
+  const allSelected = pendingIds.length > 0 && pendingIds.every((id) => selected.has(id));
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelected((prev) => {
+      if (allSelected) return new Set();
+      return new Set(pendingIds);
+    });
+  }
+
+  function openBulk(status: ReviewStatus) {
+    setBulkError(null);
+    setBulkResult(null);
+    setAttested(false);
+    setBulkAction(status);
+  }
+
+  function submitBulk() {
+    if (!bulkAction) return;
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setBulkError(null);
+    startBulkTransition(async () => {
+      const response = await fetch('/api/admin/applications/bulk-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicationIds: ids,
+          status: bulkAction,
+          notes: `Bulk-reviewed from Command Center (${ids.length} application${ids.length === 1 ? '' : 's'}).`,
+          verified: bulkAction === 'APPROVED' ? attested : undefined,
+        }),
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setBulkError(typeof json.error === 'string' ? json.error : 'Bulk review failed. Try again.');
+        return;
+      }
+      setBulkResult(
+        `${BULK_LABEL[bulkAction]}: ${json.processedCount ?? ids.length} done${
+          json.failedCount ? `, ${json.failedCount} failed` : ''
+        }.`,
+      );
+      setSelected(new Set());
+      setBulkAction(null);
+      router.refresh();
+    });
+  }
 
   return (
     <div style={{ padding: '0 1.5rem 2rem' }}>
@@ -78,9 +151,101 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
         </Bucket>
 
         <Bucket title="Applications Pending" count={data.totals.applicationsPendingCount} icon="assignment_ind" empty="No applications are waiting for review.">
-          {data.applicationsPending.map((row) => <ApplicationCard key={row.applicationId} row={row} />)}
+          {data.applicationsPending.length > 0 ? (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.6rem',
+                flexWrap: 'wrap',
+                padding: '0.5rem 0.6rem',
+                marginBottom: '0.25rem',
+                background: 'var(--surface-container-low)',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: '0.6rem',
+              }}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+                {selected.size > 0 ? `${selected.size} selected` : 'Select all'}
+              </label>
+              {selected.size > 0 ? (
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  {REVIEW_ACTIONS.map((action) => (
+                    <button
+                      key={action.status}
+                      type="button"
+                      className={`btn btn-sm ${action.tone === 'primary' ? 'btn-primary' : 'btn-outline'}`}
+                      onClick={() => openBulk(action.status)}
+                      style={action.tone === 'danger' ? { borderColor: '#fecaca', color: '#b91c1c' } : undefined}
+                    >
+                      {action.label} ({selected.size})
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+          {bulkResult ? <p role="status" style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', color: '#166534' }}>{bulkResult}</p> : null}
+          {data.applicationsPending.map((row) => (
+            <ApplicationCard
+              key={row.applicationId}
+              row={row}
+              selected={selected.has(row.applicationId)}
+              onToggleSelect={() => toggleOne(row.applicationId)}
+            />
+          ))}
         </Bucket>
       </div>
+
+      <ConfirmDialog
+        open={bulkAction != null}
+        title={
+          bulkAction
+            ? `${BULK_LABEL[bulkAction]} ${selected.size} application${selected.size === 1 ? '' : 's'}?`
+            : 'Bulk review'
+        }
+        danger={bulkAction === 'DENIED'}
+        busy={bulkPending}
+        body={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+              {bulkAction === 'APPROVED'
+                ? `This approves ${selected.size} member${selected.size === 1 ? '' : 's'} at once and sends each their enrollment confirmation email.`
+                : bulkAction === 'DENIED'
+                  ? `This marks ${selected.size} application${selected.size === 1 ? '' : 's'} as not a fit and emails each applicant.`
+                  : `This asks ${selected.size} applicant${selected.size === 1 ? '' : 's'} for more information.`}
+            </p>
+            {bulkAction === 'APPROVED' ? (
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={attested}
+                  onChange={(e) => {
+                    setAttested(e.target.checked);
+                    if (e.target.checked) setBulkError(null);
+                  }}
+                  style={{ marginTop: '0.2rem' }}
+                />
+                <span>I reviewed eligibility for these applicants before approving.</span>
+              </label>
+            ) : null}
+            {bulkError ? <p role="alert" style={{ margin: 0, fontSize: '0.8rem', color: '#b91c1c' }}>{bulkError}</p> : null}
+          </div>
+        }
+        confirmLabel={bulkAction ? BULK_LABEL[bulkAction] : 'Confirm'}
+        onConfirm={() => {
+          if (bulkAction === 'APPROVED' && !attested) {
+            setBulkError('Check the box confirming you reviewed eligibility before approving.');
+            return;
+          }
+          submitBulk();
+        }}
+        onCancel={() => {
+          if (!bulkPending) setBulkAction(null);
+        }}
+      />
     </div>
   );
 }
@@ -151,20 +316,37 @@ function InterviewingCard({ row }: { row: AdminInterviewingRow }) {
   );
 }
 
-function ApplicationCard({ row }: { row: AdminApplicationPendingRow }) {
+function ApplicationCard({
+  row,
+  selected,
+  onToggleSelect,
+}: {
+  row: AdminApplicationPendingRow;
+  selected: boolean;
+  onToggleSelect: () => void;
+}) {
   return (
     <article style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '0.85rem', background: 'var(--surface-container-low)' }}>
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ minWidth: 0 }}>
-          <Link href={`/admin/members/${row.memberId}`} style={{ color: 'var(--color-on-surface)', textDecoration: 'none', fontWeight: 800 }}>
-            {row.memberName}
-          </Link>
-          <p style={{ margin: '0.2rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.82rem' }}>
-            {row.programLabel} · {row.statusLabel}
-          </p>
-          <p style={{ margin: '0.2rem 0 0', color: row.submittedDaysAgo != null && row.submittedDaysAgo >= 7 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', fontSize: '0.82rem', fontWeight: row.submittedDaysAgo != null && row.submittedDaysAgo >= 7 ? 700 : 500 }}>
-            {row.submittedDaysAgo == null ? 'Submitted recently' : row.submittedDaysAgo === 0 ? 'Submitted today' : `Submitted ${row.submittedDaysAgo}d ago`}
-          </p>
+      <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', minWidth: 0 }}>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggleSelect}
+            aria-label={`Select ${row.memberName}`}
+            style={{ marginTop: '0.3rem', flexShrink: 0 }}
+          />
+          <div style={{ minWidth: 0 }}>
+            <Link href={`/admin/members/${row.memberId}`} style={{ color: 'var(--color-on-surface)', textDecoration: 'none', fontWeight: 800 }}>
+              {row.memberName}
+            </Link>
+            <p style={{ margin: '0.2rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.82rem' }}>
+              {row.programLabel} · {row.statusLabel}
+            </p>
+            <p style={{ margin: '0.2rem 0 0', color: row.submittedDaysAgo != null && row.submittedDaysAgo >= 7 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', fontSize: '0.82rem', fontWeight: row.submittedDaysAgo != null && row.submittedDaysAgo >= 7 ? 700 : 500 }}>
+              {row.submittedDaysAgo == null ? 'Submitted recently' : row.submittedDaysAgo === 0 ? 'Submitted today' : `Submitted ${row.submittedDaysAgo}d ago`}
+            </p>
+          </div>
         </div>
         <a className="btn btn-outline btn-sm" href={row.emailPacket.mailto} style={{ whiteSpace: 'nowrap' }}>
           Email packet

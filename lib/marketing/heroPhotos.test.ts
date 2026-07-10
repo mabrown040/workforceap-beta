@@ -43,14 +43,16 @@ test('heroPhotoSequenceForKey gives each section a distinct photo', () => {
   }
 });
 
-test('homepage uses the stakeholder-approved photo set', () => {
-  const seq = heroPhotoSequenceForKey('/', 3);
-  // hero: diverse joyful group (not the manufacturing lab)
-  assert.equal(seq[0], '/images/blog/1531545514256-b1400bc00f31.jpg');
-  assert.ok(!seq[0]!.includes('1581091226825'), 'homepage hero must not be the manufacturing photo');
-  // closing CTA: the photo the stakeholder called ideal ("tile 4")
-  assert.equal(seq[2], '/images/blog/1531482615713-2afd69097998.jpg');
-  assert.equal(new Set(seq).size, 3);
+test('home pages use the stakeholder-approved photo set', () => {
+  for (const path of ['/', '/es', '/fr', '/pt']) {
+    const seq = heroPhotoSequenceForKey(path, 3);
+    // hero: African American diverse representation (2026-07-10 follow-up)
+    assert.equal(seq[0], '/images/image-asset.webp', path);
+    // closing CTA: the photo the stakeholder called ideal ("tile 4")
+    assert.equal(seq[2], '/images/blog/1531482615713-2afd69097998.jpg', path);
+    assert.equal(new Set(seq).size, 3, path);
+    assert.equal(heroPhotoForKey(path), seq[0], `${path} hero pick must match sequence`);
+  }
 });
 
 test('hero photo pool excludes skyline and near-duplicate assets', () => {

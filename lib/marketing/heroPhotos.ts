@@ -25,16 +25,28 @@ export const DEFAULT_MARKETING_HERO_PHOTO: MarketingHeroPhotoPath = MARKETING_HE
 
 /**
  * Hand-picked photo sets for pages the stakeholder reviews individually.
- * Homepage (2026-07-10 review): hero must be a diverse joyful group — not
- * the manufacturing lab; the closing CTA photo was called out as ideal and
- * must stay. Order = [hero, mid-band, closing CTA].
+ * Order = [hero, mid-band, closing CTA].
+ *
+ * Homepage (2026-07-10 review, two passes):
+ *  - closing CTA photo (Black woman + man at a computer) was called out as
+ *    ideal and must stay;
+ *  - hero/mid must lead with African American diverse representation. The
+ *    hero uses image-asset.webp (team meeting with a prominent Black
+ *    colleague) — override-only, deliberately NOT in the rotation pool,
+ *    which still bans it as a legacy pre-July asset for hash-picked pages.
+ * The same set applies to the localized home pages (/es, /fr, /pt).
  */
-const HERO_PHOTO_OVERRIDES: Record<string, readonly MarketingHeroPhotoPath[]> = {
-  '/': [
-    '/images/blog/1531545514256-b1400bc00f31.jpg',
-    '/images/blog/1552664730-d307ca884978.jpg',
-    '/images/blog/1531482615713-2afd69097998.jpg',
-  ],
+const HOMEPAGE_HERO_PHOTO_SET: readonly string[] = [
+  '/images/image-asset.webp',
+  '/images/blog/1560439514-4e9645039924.jpg',
+  '/images/blog/1531482615713-2afd69097998.jpg',
+];
+
+const HERO_PHOTO_OVERRIDES: Record<string, readonly string[]> = {
+  '/': HOMEPAGE_HERO_PHOTO_SET,
+  '/es': HOMEPAGE_HERO_PHOTO_SET,
+  '/fr': HOMEPAGE_HERO_PHOTO_SET,
+  '/pt': HOMEPAGE_HERO_PHOTO_SET,
 };
 
 function hashKey(key: string): number {
@@ -50,7 +62,7 @@ function normalizeKey(key: string): string {
 }
 
 /** Pick a stable hero photo for a page path, slug, or other string key. */
-export function heroPhotoForKey(key: string): MarketingHeroPhotoPath {
+export function heroPhotoForKey(key: string): string {
   const normalized = normalizeKey(key);
   const override = HERO_PHOTO_OVERRIDES[normalized];
   if (override?.length) return override[0]!;
@@ -65,10 +77,10 @@ export function heroPhotoForKey(key: string): MarketingHeroPhotoPath {
  * from the page's stable index. The first entry always matches
  * `heroPhotoForKey`, so hero picks stay stable.
  */
-export function heroPhotoSequenceForKey(key: string, count: number): MarketingHeroPhotoPath[] {
+export function heroPhotoSequenceForKey(key: string, count: number): string[] {
   const normalized = normalizeKey(key);
   const override = HERO_PHOTO_OVERRIDES[normalized];
-  if (override && override.length >= count) return override.slice(0, count);
+  if (override && override.length >= count) return [...override.slice(0, count)];
   const len = MARKETING_HERO_PHOTO_POOL.length;
   const start = hashKey(normalized) % len;
   // stride must be coprime with the pool size so strided picks never collide

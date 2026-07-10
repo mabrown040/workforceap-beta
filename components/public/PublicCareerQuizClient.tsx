@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { MouseEvent as ReactMouseEvent, KeyboardEvent as ReactKeyboardEvent, TouchEvent as ReactTouchEvent } from 'react';
 import Link from 'next/link';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
   QUIZ_QUESTIONS,
@@ -46,6 +47,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
   async function submit(finalAnswers: (string | null)[]) {
     setLoading(true);
     setError(null);
+    trackFunnelEvent('career_quiz', 'submitted', { surface: 'portal_public' });
     try {
       const res = await fetch('/api/public/career-quiz/score', {
         method: 'POST',
@@ -55,12 +57,23 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
       const parsed = await safeParseResponseJson<ScoreResponse | { error: string }>(res);
       if (!res.ok || !parsed.ok || !parsed.data || 'error' in parsed.data) {
         const msg = parsed.data && 'error' in parsed.data ? parsed.data.error : 'Something went wrong.';
+        trackFunnelEvent('career_quiz', 'errored', { surface: 'portal_public' });
         setError(msg);
       } else {
+        const riasec = parsed.data.riasec ?? {};
+        const topAreas = Object.entries(riasec)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 2)
+          .map(([area]) => area);
+        trackFunnelEvent('career_quiz', 'completed', {
+          surface: 'portal_public',
+          quiz_result: areasToTypeSlug(topAreas),
+        });
         setScore(parsed.data);
         setSlide(0);
       }
     } catch {
+      trackFunnelEvent('career_quiz', 'errored', { surface: 'portal_public' });
       setError('Network error — please try again.');
     } finally {
       setLoading(false);
@@ -68,6 +81,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
   }
 
   function answer(value: number) {
+    if (step === 0) trackFunnelEvent('career_quiz', 'started', { surface: 'portal_public' });
     const next = [...answers];
     next[step] = String(value);
     setAnswers(next);

@@ -10,6 +10,7 @@ import { sendEnrollmentConfirmationEmail, sendApplicationRejectedEmail } from '@
 import { getProgramByInterestValue } from '@/lib/content/programs';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { trackEvent } from '@/lib/events/track';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -121,6 +122,19 @@ export const PATCH = withApiGuc(async (
       to: application.user.email,
       fullName: application.user.fullName,
     }).catch((err) => console.error('Application rejected email failed:', err));
+  }
+
+  // Funnel telemetry: the accepted/denied transition was previously only a
+  // status-column read — emit a member event so the acquisition funnel can
+  // measure application → decision → enrollment as events.
+  if ((status === 'APPROVED' || status === 'DENIED') && previousStatus !== status) {
+    await trackEvent({
+      userId: application.userId,
+      eventName: status === 'APPROVED' ? 'application_approved' : 'application_denied',
+      entityType: 'application',
+      entityId: id,
+      metadata: { previousStatus, decidedByUserId: user.id },
+    });
   }
 
   await auditLog({

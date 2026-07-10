@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { trackQuizFunnel } from '../lib/marketingDataLayer';
 
 /**
  * O*NET Interest Profiler (Mini-IP, 30 questions) — Astro React island.
@@ -57,6 +58,7 @@ export default function InterestProfilerQuiz() {
     if (answerString.length !== 30) return;
     setSubmitting(true);
     setScoreError(null);
+    trackQuizFunnel('interest_profiler', 'submitted');
     try {
       const res = await fetch('/api/public/interest-profiler/score', {
         method: 'POST',
@@ -68,8 +70,12 @@ export default function InterestProfilerQuiz() {
       if (!res.ok) throw new Error(data.error ?? 'We could not score your answers right now. Please try again.');
       if (!Array.isArray(data.result) || data.result.length === 0)
         throw new Error('We could not score your answers right now. Please try again.');
+      trackQuizFunnel('interest_profiler', 'completed', {
+        quiz_result: data.result[0]?.code ?? 'unknown',
+      });
       setScore(data);
     } catch (e) {
+      trackQuizFunnel('interest_profiler', 'errored');
       setScoreError(e instanceof Error ? e.message : 'We could not score your answers right now. Please try again.');
     } finally {
       setSubmitting(false);
@@ -310,7 +316,14 @@ export default function InterestProfilerQuiz() {
           Back
         </button>
         {step < total - 1 ? (
-          <button type="button" className="btn btn--primary" onClick={() => setStep((s) => s + 1)}>
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={() => {
+              if (step === 0) trackQuizFunnel('interest_profiler', 'started');
+              setStep((s) => s + 1);
+            }}
+          >
             Next
           </button>
         ) : (

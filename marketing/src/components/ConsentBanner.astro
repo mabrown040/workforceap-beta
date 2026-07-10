@@ -1,0 +1,92 @@
+---
+/**
+ * Cookie-consent banner for the static marketing pages. Interoperates with
+ * the portal's banner (components/CookieConsentBanner.tsx): same
+ * localStorage record (`wap-cookie-consent`, lib/consent/state.ts shape),
+ * same `wap:consent-change` broadcast, same GPC auto-decline, and the same
+ * Consent Mode v2 update pushed to gtag — a decision made on either side
+ * of the site is honored by both.
+ */
+---
+<div id="wap-consent" class="consent" role="dialog" aria-label="Cookie consent" hidden>
+  <p class="consent__copy">
+    We use cookies and similar technologies to improve your experience and measure
+    how our site is used. See our <a href="/privacy">Privacy</a> and <a href="/terms">Terms</a>.
+  </p>
+  <div class="consent__acts">
+    <button type="button" class="consent__btn consent__btn--decline" data-consent="declined">Decline</button>
+    <button type="button" class="consent__btn consent__btn--accept" data-consent="accepted">Accept</button>
+  </div>
+</div>
+
+<style>
+  .consent[hidden]{display:none}
+  .consent{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9999;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 18px;
+    box-shadow:0 -10px 30px rgba(28,20,20,.18)}
+  .consent__copy{margin:0;flex:1;min-width:220px;font-size:13.5px;line-height:1.5;color:var(--text)}
+  .consent__copy a{color:var(--crimson);font-weight:700}
+  .consent__acts{display:flex;gap:10px;flex-shrink:0}
+  .consent__btn{min-height:44px;padding:8px 18px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer}
+  .consent__btn--decline{background:transparent;color:var(--muted);border:1px solid var(--border)}
+  .consent__btn--accept{background:var(--crimson);color:#fff;border:none}
+  @media(min-width:880px){.consent{left:0;right:0;bottom:0;border-radius:0;padding:16px 24px}}
+</style>
+
+<script is:inline>
+  (function () {
+    var KEY = 'wap-cookie-consent';
+    var EVENT = 'wap:consent-change';
+    var el = document.getElementById('wap-consent');
+    if (!el) return;
+
+    function pushToGtag(decision) {
+      window.dataLayer = window.dataLayer || [];
+      if (typeof window.gtag !== 'function') {
+        window.gtag = function () { window.dataLayer.push(arguments); };
+      }
+      var v = decision === 'accepted' ? 'granted' : 'denied';
+      window.gtag('consent', 'update', {
+        ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v,
+      });
+    }
+
+    function write(decision, fromGpc) {
+      var record = { decision: decision, date: new Date().toISOString() };
+      if (fromGpc) record.fromGpc = true;
+      try { localStorage.setItem(KEY, JSON.stringify(record)); } catch (_e) {}
+      try { window.dispatchEvent(new CustomEvent(EVENT, { detail: record })); } catch (_e) {}
+      pushToGtag(decision);
+    }
+
+    function read() {
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+        if (!raw) return 'unset';
+        if (typeof raw.decision === 'string') return raw.decision;
+        if (typeof raw.accepted === 'boolean') return raw.accepted ? 'accepted' : 'declined';
+      } catch (_e) {}
+      return 'unset';
+    }
+
+    if (read() !== 'unset') return;
+    if (navigator.globalPrivacyControl === true) {
+      /* Honor GPC automatically; the privacy policy commits to treating it
+         as a valid opt-out. No banner in that case. */
+      write('declined', true);
+      return;
+    }
+
+    el.hidden = false;
+    var prevPad = document.body.style.paddingBottom;
+    document.body.style.paddingBottom = '8rem';
+    el.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('[data-consent]') : null;
+      if (!btn) return;
+      write(btn.getAttribute('data-consent'));
+      el.hidden = true;
+      document.body.style.paddingBottom = prevPad;
+    });
+  })();
+</script>

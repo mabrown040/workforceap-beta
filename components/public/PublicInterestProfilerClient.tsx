@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
   INTEREST_PROFILER_STORAGE_KEY,
@@ -61,6 +62,7 @@ export default function PublicInterestProfilerClient() {
     if (answerString.length !== 30) return;
     setSubmitting(true);
     setScoreError(null);
+    trackFunnelEvent('interest_profiler', 'submitted', { surface: 'portal_public' });
     try {
       const res = await fetch('/api/public/interest-profiler/score', {
         method: 'POST',
@@ -69,9 +71,14 @@ export default function PublicInterestProfilerClient() {
       });
       const data = (await res.json()) as ScoreResponse & { error?: string };
       if (!res.ok) throw new Error(data.error ?? 'Could not score answers');
+      trackFunnelEvent('interest_profiler', 'completed', {
+        surface: 'portal_public',
+        quiz_result: data.result?.[0]?.code ?? 'unknown',
+      });
       setScore(data);
       persistRiasec(data, answerString);
     } catch (e) {
+      trackFunnelEvent('interest_profiler', 'errored', { surface: 'portal_public' });
       setScoreError(e instanceof Error ? e.message : 'Scoring failed');
     } finally {
       setSubmitting(false);

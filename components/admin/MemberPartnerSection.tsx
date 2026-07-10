@@ -70,8 +70,17 @@ export default function MemberPartnerSection({
             </option>
           ))}
         </select>
-        <button type="button" className="btn btn-primary" onClick={() => void save()} disabled={loading}>
-          {loading ? 'Saving…' : 'Save'}
+        <button type="button" className="btn btn-primary" onClick={() => void save()} disabled={loading} aria-busy={loading}>
+          <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {loading ? (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                Saving…
+              </>
+            ) : (
+              'Save'
+            )}
+          </span>
         </button>
       </div>
       {message && (

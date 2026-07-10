@@ -31,3 +31,7 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+
+## 2026-07-10 - Accessible async button states using utility classes instead of inline styles
+**Learning:** The code review highlighted that while adding accessibility and loading states (like `aria-busy`, `aria-live`, and spinners) is functionally correct, using inline styles (e.g., `style={{ animation: 'spin 1s linear infinite' }}`) violates the project's styling conventions when utility classes are available and widely used. Inline styles create technical debt and can cause animations to fail if the underlying keyframes are purged by Tailwind because the class (e.g., `animate-spin`) isn't explicitly used elsewhere.
+**Action:** When adding micro-UX loading animations or flexbox layouts to buttons, always use Tailwind utility classes (e.g., `className="material-symbols-outlined animate-spin"` or `className="inline-flex items-center gap-1"`) instead of inline styles. This aligns with the codebase's existing styling approach and avoids potential CSS purging issues.

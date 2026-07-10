@@ -216,9 +216,19 @@ function ReviewButtons({ applicationId, applicantName }: { applicationId: string
             className={`btn btn-sm ${action.tone === 'primary' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => review(action.status)}
             disabled={isPending}
+            aria-busy={isPending}
             style={action.tone === 'danger' ? { borderColor: '#fecaca', color: '#b91c1c' } : undefined}
           >
-            {isPending ? 'Saving…' : action.label}
+            <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              {isPending ? (
+                <>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                  Saving…
+                </>
+              ) : (
+                action.label
+              )}
+            </span>
           </button>
         ))}
       </div>

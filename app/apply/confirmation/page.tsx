@@ -6,6 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
+import ThankYouViewTracker from '@/components/marketing/ThankYouViewTracker';
 import ShareButtons from '@/components/apply/ShareButtons';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import { getUser } from '@/lib/auth/server';
@@ -80,6 +81,7 @@ export default async function ApplyConfirmationPage() {
 
   return (
     <div className="inner-page mdx afd-page">
+      <ThankYouViewTracker funnel="apply" />
       <section className="content-section" style={{ paddingTop: 'calc(var(--nav-height-default, 80px) + 1.5rem)', paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 980 }}>
           <div className="apply-confirmation-shell" style={{ maxWidth: '720px', margin: '0 auto' }}>

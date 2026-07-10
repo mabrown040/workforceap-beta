@@ -36,6 +36,8 @@ export type EventName =
   | 'application_added'
   | 'application_updated'
   | 'application_status_changed'
+  | 'application_approved'
+  | 'application_denied'
   | 'apply_step_completed'
   | 'apply_signup_started'
   | 'apply_signup_completed'

@@ -1,6 +1,8 @@
 ---
 import '../styles/blend.css';
 import '../styles/hero-media.css';
+import AnalyticsHead from '../components/AnalyticsHead.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import { heroPhotoCssUrl, heroPhotoForKey, heroPhotoSequenceForKey } from '../../../lib/marketing/heroPhotos';
 export interface Props {
   title?: string;
@@ -82,6 +84,7 @@ const heroPhotoUrl3 = `url('${heroPhoto3}')`;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <AnalyticsHead />
   <slot name="head" />
   <style is:global>
     /* token modifiers for chrome elements that live only in Layout.astro
@@ -93,6 +96,7 @@ const heroPhotoUrl3 = `url('${heroPhoto3}')`;
   </style>
 </head>
 <body>
+  <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${(import.meta.env.PUBLIC_GTM_ID ?? process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-53JCT6WN').trim()}`} height="0" width="0" style="display:none;visibility:hidden" title="gtm"></iframe></noscript>
   <a class="skiplink" href="#main-content">Skip to content</a>
   <input class="navtoggle" type="checkbox" id="navtoggle" />
   <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
@@ -217,5 +221,6 @@ const heroPhotoUrl3 = `url('${heroPhoto3}')`;
       }
     })();
   </script>
+  <ConsentBanner />
 </body>
 </html>

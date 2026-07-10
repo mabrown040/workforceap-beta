@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { trackQuizFunnel } from '../lib/marketingDataLayer';
 
 /**
  * Public "Quick career quiz" — Astro React island, depth-styled.
@@ -106,12 +107,19 @@ export default function CareerQuiz() {
   const total = QUIZ_QUESTIONS.length;
 
   function answer(value: number) {
+    if (step === 0) trackQuizFunnel('career_quiz', 'started');
     const next = [...answers];
     next[step] = value;
     setAnswers(next);
     if (step + 1 < total) {
       setStep(step + 1);
     } else {
+      const ranked = QUIZ_QUESTIONS
+        .map((q, i) => ({ area: q.id, score: next[i] ?? 0 }))
+        .sort((a, b) => b.score - a.score);
+      trackQuizFunnel('career_quiz', 'completed', {
+        quiz_result: areasToTypeSlug(ranked.slice(0, 2).map((r) => r.area)),
+      });
       setDone(true);
     }
   }
@@ -163,7 +171,11 @@ export default function CareerQuiz() {
         </p>
 
         <div className="cq-actions">
-          <a className="btn btn--primary" href={applyHref}>
+          <a
+            className="btn btn--primary"
+            href={applyHref}
+            onClick={() => trackQuizFunnel('career_quiz', 'apply_click', { quiz_result: typeSlug })}
+          >
             Save my free career plan →
           </a>
           <a className="btn btn--ghost" href="/programs">

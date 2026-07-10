@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { trackQuizFunnel } from '../lib/marketingDataLayer';
 
 /**
  * Find Your Path — career-match quiz, ported to the Astro marketing site as a
@@ -491,6 +492,7 @@ export default function FindYourPathQuiz() {
 
   function advanceFromAnswer(value: AnswerValue) {
     if (!currentQ) return;
+    if (step === 0) trackQuizFunnel('find_your_path', 'started');
     const newAnswers = { ...answers, [currentQ.id]: value };
     setAnswers(newAnswers);
 
@@ -501,6 +503,7 @@ export default function FindYourPathQuiz() {
       const fullAnswers = mergeQuizShortAnswers(newAnswers as Pick<QuizAnswers, 'q1' | 'q2' | 'q3'>);
       const weights = scoreQuiz(fullAnswers);
       const programs = getTopProgramsFromQuiz(weights, fullAnswers);
+      trackQuizFunnel('find_your_path', 'completed', { quiz_result: programs[0]?.slug ?? 'none' });
       setResults(programs);
       setResultAnswers(fullAnswers);
     }
@@ -570,7 +573,11 @@ export default function FindYourPathQuiz() {
                   Starting range: {program.salary} <span>(national framing)</span>
                 </div>
                 <div className="fyp-card__partner">Partner: {program.partner}</div>
-                <a className="btn btn--primary fyp-card__cta" href={getApplyHref(program.slug)}>
+                <a
+                  className="btn btn--primary fyp-card__cta"
+                  href={getApplyHref(program.slug)}
+                  onClick={() => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: program.slug })}
+                >
                   Apply for this path →
                 </a>
                 <a className="fyp-card__detail" href={`/programs/${program.slug}`}>
@@ -591,7 +598,11 @@ export default function FindYourPathQuiz() {
               Choose the track that fits you best, then we’ll follow up within 1–2 business days.
             </p>
             <div className="fyp-cta__actions">
-              <a className="btn btn--primary" href={topApplyHref}>
+              <a
+                className="btn btn--primary"
+                href={topApplyHref}
+                onClick={() => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: topProgram.slug })}
+              >
                 Start {topProgram.title} Application →
               </a>
               <a className="btn btn--ghost" href="/contact">

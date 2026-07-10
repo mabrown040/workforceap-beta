@@ -1,0 +1,84 @@
+---
+/**
+ * Marketing-site analytics head block: Google Consent Mode v2 defaults,
+ * the GTM loader, and UTM/referrer capture.
+ *
+ * Parity contract with the Next.js portal (do not drift):
+ *  - consent defaults mirror app/layout.tsx `gtm-consent-default` and read
+ *    the same localStorage key as lib/consent/state.ts (`wap-cookie-consent`)
+ *  - UTM capture writes the same sessionStorage keys as
+ *    lib/marketing/utmCapture.ts (`wa_utm_*`, `wa_referrer`) so the /apply
+ *    signup POST attributes conversions that landed on a static page
+ *  - the paid `utm_source` cookie mirrors lib/apply/paidApplyUtm.ts
+ *    (30 days, lax) so /apply serves the paid variant for ad clicks that
+ *    landed here first
+ */
+const GTM_ID = (
+  import.meta.env.PUBLIC_GTM_ID ??
+  process.env.NEXT_PUBLIC_GTM_ID ??
+  'GTM-53JCT6WN'
+).trim();
+---
+{GTM_ID && (
+  <script is:inline define:vars={{ GTM_ID }}>
+    (function () {
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      window.gtag = window.gtag || gtag;
+
+      /* Consent Mode v2: deny by default, honor a stored decision. */
+      var stored = null;
+      try { stored = JSON.parse(localStorage.getItem('wap-cookie-consent') || 'null'); } catch (_e) {}
+      var decision = stored && (stored.decision || (stored.accepted === true ? 'accepted' : stored.accepted === false ? 'declined' : null));
+      var v = decision === 'accepted' ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        ad_storage: v,
+        ad_user_data: v,
+        ad_personalization: v,
+        analytics_storage: v,
+        wait_for_update: 500,
+      });
+
+      /* GTM loader (standard snippet). */
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', GTM_ID);
+
+      /* UTM + referrer capture (same keys/rules as lib/marketing/utmCapture.ts:
+         only write params that are present; referrer once, off-origin only). */
+      try {
+        var qs = new URLSearchParams(location.search);
+        var keys = {
+          utm_source: 'wa_utm_source',
+          utm_medium: 'wa_utm_medium',
+          utm_campaign: 'wa_utm_campaign',
+          utm_content: 'wa_utm_content',
+          utm_term: 'wa_utm_term',
+        };
+        Object.keys(keys).forEach(function (p) {
+          var val = (qs.get(p) || '').trim();
+          if (val) sessionStorage.setItem(keys[p], val.slice(0, 200));
+        });
+        if (!sessionStorage.getItem('wa_referrer') && document.referrer) {
+          try {
+            var ref = new URL(document.referrer);
+            if (ref.origin !== location.origin) {
+              sessionStorage.setItem('wa_referrer', document.referrer.slice(0, 500));
+            }
+          } catch (_e) {}
+        }
+        /* Paid-source cookie so /apply renders the paid variant later
+           (names + 30-day TTL from lib/apply/paidApplyUtm.ts). */
+        var src = (qs.get('utm_source') || '').trim().toLowerCase();
+        if (['google', 'google_ads', 'facebook_ads', 'tiktok_ads'].indexOf(src) > -1) {
+          document.cookie = 'utm_source=' + encodeURIComponent(src) + '; path=/; max-age=2592000; samesite=lax';
+        }
+      } catch (_e) { /* storage unavailable (private mode) — no-op */ }
+    })();
+  </script>
+)}

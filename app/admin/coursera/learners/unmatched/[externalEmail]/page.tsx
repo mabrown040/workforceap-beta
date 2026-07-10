@@ -10,6 +10,7 @@ import SectionHeader from '@/components/portal/ui/SectionHeader';
 import MapToUserActions from '@/components/admin/coursera/MapToUserActions';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   countUnmatchedXapiEventsByExternalEmail,
   loadLearnerProgressByExternalEmail,
@@ -49,6 +50,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
   const viewer = await getUser();
   if (!viewer) redirect('/login?redirectTo=/admin/coursera');
   if (!(await isAdmin(viewer.id))) redirect('/dashboard');
+  const organizationId = await getActorOrganizationId(viewer.id);
 
   const { externalEmail } = await params;
   const decoded = decodeURIComponent(externalEmail);
@@ -59,10 +61,10 @@ export default async function AdminCourseraUnmatchedLearnerPage({
   // capped at PARENT_EVENTS_PREVIEW_LIMIT here — overflow is rendered on the
   // dedicated `/events` page so this detail page stays scannable.
   const [csvDetail, xapiEvents, suggestions, totalUnmatchedEvents] = await Promise.all([
-    loadLearnerProgressByExternalEmail(decoded),
-    loadUnmatchedXapiEventsByExternalEmail(decoded, PARENT_EVENTS_PREVIEW_LIMIT),
-    suggestUserMatchesForExternalEmail(decoded, null, 5),
-    countUnmatchedXapiEventsByExternalEmail(decoded),
+    loadLearnerProgressByExternalEmail(decoded, organizationId),
+    loadUnmatchedXapiEventsByExternalEmail(decoded, organizationId, PARENT_EVENTS_PREVIEW_LIMIT),
+    suggestUserMatchesForExternalEmail(decoded, null, organizationId, 5),
+    countUnmatchedXapiEventsByExternalEmail(decoded, organizationId),
   ]);
 
   // Classify the key from actual data, NOT from the string shape.
@@ -104,7 +106,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
 
   // Re-run suggestions with the name once we have it (cheap; same query plan).
   const suggestionsWithName = externalName
-    ? await suggestUserMatchesForExternalEmail(decoded, externalName, 5)
+    ? await suggestUserMatchesForExternalEmail(decoded, externalName, organizationId, 5)
     : suggestions;
 
   const hasAnyData = csvDetail !== null || totalUnmatchedEvents > 0;

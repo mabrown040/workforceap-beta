@@ -2297,6 +2297,10 @@ model ReferralConversion {
 model CourseraCourseProgress {
   id                   String    @id @default(uuid())
   userId               String?   @map("user_id")
+  // Nullable: unmatched rows (userId null) have no resolvable tenant yet.
+  // Backfilled from the matched user's org; new writes stamp it directly.
+  // See migration 20260710120000_coursera_progress_organization_id.
+  organizationId       String?   @map("organization_id")
   externalEmail        String    @map("external_email")
   externalName         String?   @map("external_name")
   courseraCourseId     String    @map("coursera_course_id")
@@ -2329,6 +2333,7 @@ model CourseraCourseProgress {
   @@index([userId])
   @@index([programSlug])
   @@index([courseraCourseId])
+  @@index([organizationId, lastActivityTime])
   @@map("coursera_course_progress")
 }
 
@@ -2397,6 +2402,10 @@ model CourseraIdentityMapping {
 model CourseraBadgeProgress {
   id                  String    @id @default(uuid())
   userId              String?   @map("user_id")
+  // Nullable: unmatched rows (userId null) have no resolvable tenant yet.
+  // Backfilled from the matched user's org; new writes stamp it directly.
+  // See migration 20260710120000_coursera_progress_organization_id.
+  organizationId      String?   @map("organization_id")
   externalEmail       String    @map("external_email")
   externalName        String?   @map("external_name")
   badgeSlug           String    @map("badge_slug")
@@ -2420,6 +2429,7 @@ model CourseraBadgeProgress {
   @@unique([externalEmail, badgeSlug])
   @@index([userId])
   @@index([badgeSlug])
+  @@index([organizationId, lastActivityTime])
   @@map("coursera_badge_progress")
 }
 

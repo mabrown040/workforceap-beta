@@ -6,19 +6,22 @@
  * Picks per-page via Layout.astro (`heroPhotoForKey`). Gradients are global.
  */
 :root {
-  --wap-hero-photo-url: url('/images/hero-people.webp');
+  --wap-hero-photo-url: url('/images/blog/1531545514256-b1400bc00f31.jpg');
   /* per-section photos (set per page by Layout.astro): -2 = mid-band, -3 =
      closing CTA. Fall back to the hero photo if a page never sets them. */
-  --wap-hero-photo-url-2: var(--wap-hero-photo-url, url('/images/hero-people.webp'));
-  --wap-hero-photo-url-3: var(--wap-hero-photo-url, url('/images/hero-people.webp'));
+  --wap-hero-photo-url-2: var(--wap-hero-photo-url, url('/images/blog/1531545514256-b1400bc00f31.jpg'));
+  --wap-hero-photo-url-3: var(--wap-hero-photo-url, url('/images/blog/1531545514256-b1400bc00f31.jpg'));
+  /* Stage veil uses the same scarlet family as the close veil (200,16,46 /
+     187,0,0) — stakeholder 2026-07-10: the rose mid-stop read as "rust", and
+     the closing CTA's scarlet is the reference color. */
   --wap-hero-stage-gradient: linear-gradient(
     180deg,
-    rgba(187, 0, 0, 0.74) 0%,
-    rgba(173, 44, 77, 0.58) 45%,
-    rgba(140, 15, 55, 0.78) 100%
+    rgba(200, 16, 46, 0.78) 0%,
+    rgba(187, 0, 0, 0.64) 45%,
+    rgba(140, 15, 55, 0.8) 100%
   );
   /* Split stacks so a bad photo token cannot drop the scarlet veil (background shorthand is all-or-nothing). */
-  --wap-hero-stage-photo: var(--wap-hero-photo-url, url('/images/hero-people.webp'));
+  --wap-hero-stage-photo: var(--wap-hero-photo-url, url('/images/blog/1531545514256-b1400bc00f31.jpg'));
   --wap-hero-close-veil: linear-gradient(
     120deg,
     rgba(200, 16, 46, 0.76) 0%,

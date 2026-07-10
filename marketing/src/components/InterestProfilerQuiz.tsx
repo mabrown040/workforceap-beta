@@ -63,11 +63,14 @@ export default function InterestProfilerQuiz() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: answerString }),
       });
-      const data = (await res.json()) as ScoreResponse & { error?: string };
-      if (!res.ok) throw new Error(data.error ?? 'Could not score answers');
+      // guard the parse: an HTML error page must not leak a raw SyntaxError
+      const data = (await res.json().catch(() => ({}))) as ScoreResponse & { error?: string };
+      if (!res.ok) throw new Error(data.error ?? 'We could not score your answers right now. Please try again.');
+      if (!Array.isArray(data.result) || data.result.length === 0)
+        throw new Error('We could not score your answers right now. Please try again.');
       setScore(data);
     } catch (e) {
-      setScoreError(e instanceof Error ? e.message : 'Scoring failed');
+      setScoreError(e instanceof Error ? e.message : 'We could not score your answers right now. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -78,9 +81,10 @@ export default function InterestProfilerQuiz() {
     void (async () => {
       try {
         const res = await fetch('/api/public/interest-profiler/questions');
-        const data = (await res.json()) as { questions?: QuestionRow[]; error?: string };
-        if (!res.ok) throw new Error(data.error ?? 'Failed to load');
-        if (!data.questions?.length) throw new Error('No questions available');
+        // guard the parse: an HTML error page must not leak a raw SyntaxError
+        const data = (await res.json().catch(() => ({}))) as { questions?: QuestionRow[]; error?: string };
+        if (!res.ok) throw new Error(data.error ?? 'We could not load the quiz right now. Please try again in a few minutes.');
+        if (!data.questions?.length) throw new Error('We could not load the quiz right now. Please try again in a few minutes.');
         if (!cancelled) {
           setQuestions(data.questions);
           setDigits((d) => {
@@ -128,8 +132,8 @@ export default function InterestProfilerQuiz() {
         <h2 className="ipq-h">O*NET Interest Profiler</h2>
         <p className="ipq-err" role="alert">{loadError}</p>
         <p className="ipq-fine" style={{ marginTop: '1rem' }}>
-          The Interest Profiler is provided by the U.S. Department of Labor through O*NET Web Services. Your site needs a
-          valid <code>ONET_API_KEY</code> to load questions.
+          The Interest Profiler is provided by the U.S. Department of Labor through O*NET Web Services. If this keeps
+          happening, <a href="/contact">contact us</a> and we&apos;ll help you find your path.
         </p>
       </div>
     );

@@ -43,13 +43,24 @@ test('heroPhotoSequenceForKey gives each section a distinct photo', () => {
   }
 });
 
+test('homepage uses the stakeholder-approved photo set', () => {
+  const seq = heroPhotoSequenceForKey('/', 3);
+  // hero: diverse joyful group (not the manufacturing lab)
+  assert.equal(seq[0], '/images/blog/1531545514256-b1400bc00f31.jpg');
+  assert.ok(!seq[0]!.includes('1581091226825'), 'homepage hero must not be the manufacturing photo');
+  // closing CTA: the photo the stakeholder called ideal ("tile 4")
+  assert.equal(seq[2], '/images/blog/1531482615713-2afd69097998.jpg');
+  assert.equal(new Set(seq).size, 3);
+});
+
 test('hero photo pool excludes skyline and near-duplicate assets', () => {
   const banned = [
     'austin-skyline',
     'image-asset',
     // Austin skyline behind a stock filename (stakeholder: people photos only)
     'AdobeStock_78118914',
-    // wood-cabin shoot near-duplicates of hero-people.webp
+    // wood-cabin shoot: homogeneous group, no joy (stakeholder 2026-07-10)
+    'hero-people',
     '1521737604893',
     '1521737711867',
     '1522071820081',

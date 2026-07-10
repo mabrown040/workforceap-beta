@@ -378,10 +378,11 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     position:relative;overflow:hidden;isolation:isolate;
     background:
       var(--wap-hero-stage-gradient),
-      var(--wap-hero-photo-url) center 30%/cover no-repeat;
+      var(--wap-hero-photo-url-3) center 30%/cover no-repeat;
     color:#fff;padding:88px 0;
   }
   .grain--close{
+    background-image:var(--wap-hero-photo-url-3);
     -webkit-mask-image:linear-gradient(270deg,transparent 0%,transparent 44%,#000 100%);
     mask-image:linear-gradient(270deg,transparent 0%,transparent 44%,#000 100%);opacity:.14}
   .close-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}

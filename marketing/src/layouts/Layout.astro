@@ -1,7 +1,7 @@
 ---
 import '../styles/blend.css';
 import '../styles/hero-media.css';
-import { heroPhotoCssUrl, heroPhotoForKey } from '../../../lib/marketing/heroPhotos';
+import { heroPhotoCssUrl, heroPhotoForKey, heroPhotoSequenceForKey } from '../../../lib/marketing/heroPhotos';
 export interface Props {
   title?: string;
   description?: string;
@@ -66,9 +66,14 @@ const mobileNav = [
 const path = Astro.url.pathname;
 const heroPhotoPath = heroPhotoForKey(path);
 const heroPhotoUrl = heroPhotoCssUrl(path);
+// distinct photos for the page's mid-band and closing CTA so no section
+// repeats the hero frame (stakeholder ask: diverse pics, don't reuse one)
+const [, heroPhoto2, heroPhoto3] = heroPhotoSequenceForKey(path, 3);
+const heroPhotoUrl2 = `url('${heroPhoto2}')`;
+const heroPhotoUrl3 = `url('${heroPhoto3}')`;
 ---
 <!DOCTYPE html>
-<html lang={lang} style={`--wap-hero-photo-url: ${heroPhotoUrl}`}>
+<html lang={lang} style={`--wap-hero-photo-url: ${heroPhotoUrl}; --wap-hero-photo-url-2: ${heroPhotoUrl2}; --wap-hero-photo-url-3: ${heroPhotoUrl3}`}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />

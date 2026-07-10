@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import {
   MARKETING_HERO_PHOTO_POOL,
   heroPhotoForKey,
+  heroPhotoSequenceForKey,
 } from './heroPhotos';
 
 const layoutAstro = readFileSync(
@@ -13,7 +14,10 @@ const layoutAstro = readFileSync(
 );
 
 test('marketing Layout sets per-page hero photo on <html> (not is:global placeholder)', () => {
-  assert.match(layoutAstro, /style=\{`--wap-hero-photo-url: \$\{heroPhotoUrl\}`\}/);
+  assert.match(
+    layoutAstro,
+    /style=\{`--wap-hero-photo-url: \$\{heroPhotoUrl\}; --wap-hero-photo-url-2: \$\{heroPhotoUrl2\}; --wap-hero-photo-url-3: \$\{heroPhotoUrl3\}`\}/,
+  );
   assert.doesNotMatch(layoutAstro, /url\('\{heroPhotoPath\}'\)/);
 });
 
@@ -30,9 +34,30 @@ test('heroPhotoForKey varies across different routes', () => {
   assert.ok(photos.size >= 3, 'expected multiple distinct hero photos across routes');
 });
 
-test('hero photo pool excludes Austin skyline assets', () => {
-  for (const path of MARKETING_HERO_PHOTO_POOL) {
-    assert.ok(!path.includes('austin-skyline'), path);
-    assert.ok(!path.includes('image-asset'), path);
+test('heroPhotoSequenceForKey gives each section a distinct photo', () => {
+  for (const key of ['/', '/programs', '/employers', '/faq', '/contact', '/how-it-works']) {
+    const seq = heroPhotoSequenceForKey(key, 3);
+    assert.equal(seq.length, 3);
+    assert.equal(new Set(seq).size, 3, `expected 3 distinct photos for ${key}`);
+    assert.equal(seq[0], heroPhotoForKey(key), 'first entry must stay the stable hero pick');
   }
+});
+
+test('hero photo pool excludes skyline and near-duplicate assets', () => {
+  const banned = [
+    'austin-skyline',
+    'image-asset',
+    // Austin skyline behind a stock filename (stakeholder: people photos only)
+    'AdobeStock_78118914',
+    // wood-cabin shoot near-duplicates of hero-people.webp
+    '1521737604893',
+    '1521737711867',
+    '1522071820081',
+  ];
+  for (const path of MARKETING_HERO_PHOTO_POOL) {
+    for (const fragment of banned) {
+      assert.ok(!path.includes(fragment), `${path} should not be in the hero pool`);
+    }
+  }
+  assert.equal(new Set(MARKETING_HERO_PHOTO_POOL).size, MARKETING_HERO_PHOTO_POOL.length);
 });

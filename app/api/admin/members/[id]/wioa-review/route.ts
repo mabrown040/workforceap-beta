@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
+import { recordWioaReviewSnapshot } from '@/lib/wioa/reviewSnapshot';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -71,6 +72,15 @@ async function _PATCH(request: NextRequest, { params }: Props) {
       },
     }),
   );
+
+  await recordWioaReviewSnapshot({
+    organizationId: orgId,
+    userId: memberId,
+    source: 'wioa_review',
+    decision: parsed.data.status,
+    notes: parsed.data.notes?.trim() || null,
+    actorUserId: actor.id,
+  });
 
   void auditLog({ actorUserId: actor.id, action: 'member_wioa_review', targetType: 'user', targetId: memberId, metadata: { status: parsed.data.status } }).catch(() => {});
   logAuditEvent({

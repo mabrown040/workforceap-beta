@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
 import { WIOA_REVIEW_LABELS, WIOA_REVIEW_STATUSES, type WioaReviewStatus } from '@/lib/wioa/wioaReview';
+import type { WioaReviewSnapshotRow } from '@/lib/wioa/reviewSnapshot';
 
 type Props = {
   memberId: string;
@@ -12,6 +13,15 @@ type Props = {
   reviewedAt: string | null;
   reviewerName: string | null;
   reviewNotes: string | null;
+  /** Immutable decision history — one row per WIOA review or application
+   *  approve/deny, newest first. Read-only: this is the audit trail, not
+   *  something the panel can edit. */
+  decisionHistory: WioaReviewSnapshotRow[];
+};
+
+const SOURCE_LABEL: Record<string, string> = {
+  wioa_review: 'WIOA staff review',
+  application_decision: 'Application decision',
 };
 
 const AGE_LABEL: Record<string, string> = {
@@ -28,6 +38,7 @@ export default function AdminMemberWioaReviewPanel({
   reviewedAt,
   reviewerName,
   reviewNotes,
+  decisionHistory,
 }: Props) {
   const [status, setStatus] = useState<WioaReviewStatus>(reviewStatus ?? 'pending');
   const [notes, setNotes] = useState(reviewNotes ?? '');
@@ -170,6 +181,41 @@ export default function AdminMemberWioaReviewPanel({
           </p>
         )}
       </div>
+
+      {decisionHistory.length > 0 && (
+        <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '1rem', marginTop: '1rem' }}>
+          <h3 style={{ fontSize: '0.95rem', marginBottom: '0.25rem' }}>Decision history</h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+            Immutable record — one row per WIOA review or application decision, oldest change never overwritten.
+          </p>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.5rem' }}>
+            {decisionHistory.map((row) => (
+              <li
+                key={row.id}
+                style={{
+                  padding: '0.5rem 0.65rem',
+                  borderRadius: '6px',
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--outline-variant)',
+                  fontSize: '0.82rem',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <strong>{SOURCE_LABEL[row.source] ?? row.source}: {row.decision}</strong>
+                  <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                    {new Date(row.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                  {row.actorEmailSnapshot ?? 'unknown actor'}
+                  {row.actorRoleSnapshot ? ` (${row.actorRoleSnapshot})` : ''}
+                </div>
+                {row.notes && <p style={{ margin: '0.35rem 0 0' }}>{row.notes}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }

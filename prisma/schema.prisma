@@ -46,6 +46,7 @@ model Organization {
   courses           Course[]
   auditEvents       AuditEvent[]
   chapters          Chapter[]
+  wioaReviewSnapshots WioaReviewSnapshot[]
 
   @@map("organizations")
 }
@@ -261,6 +262,7 @@ model User {
   mentorProfile       Mentor?
   mentorSessions      MentorSession[] @relation("MentorSessionMember")
   membersWioaReviewed User[]          @relation("WioaReviewStaff")
+  wioaReviewSnapshotsActedOn WioaReviewSnapshot[] @relation("WioaReviewSnapshotActor")
 
   memberPoints       MemberPoints?
   pointsTransactions PointsTransaction[]
@@ -1355,6 +1357,50 @@ model AuditEvent {
   @@index([verb])
   @@index([createdAt])
   @@map("audit_events")
+}
+
+/// Immutable point-in-time record of a WIOA-relevant eligibility decision —
+/// either a staff WIOA-review status change or an Application approve/deny.
+/// AUDIT-2026-05-16 / roadmap Phase 0: wioaReviewStatus on `users` and
+/// Application.status are both mutable columns that get overwritten; there
+/// was no way to answer "what data justified this decision, and who made
+/// it, at the time it was made." Rows here are create-only — never update
+/// or delete a row; a correction is a new row.
+///
+/// `userId`/`applicationId` are plain columns, NOT foreign keys, on purpose:
+/// GDPR right-to-erasure (`/api/admin/members/[id]/erase`) hard-deletes the
+/// `users` row and cascades to `applications`. A federal WIOA audit record
+/// must survive that erasure, so the subject is identified by id + snapshot
+/// columns (email/name), same rationale as `AuditLog.actorEmailSnapshot`.
+model WioaReviewSnapshot {
+  id                  String   @id @default(uuid())
+  organizationId      String   @map("organization_id")
+  userId               String   @map("user_id")
+  memberEmailSnapshot  String   @map("member_email_snapshot")
+  memberNameSnapshot   String   @map("member_name_snapshot")
+  applicationId        String?  @map("application_id")
+  /// 'wioa_review' | 'application_decision'
+  source                String   @map("source")
+  /// WioaReviewStatus value or ApplicationStatus value, stored as plain text
+  /// since the two decision vocabularies differ and may evolve independently.
+  decision              String
+  notes                 String?  @db.Text
+  actorUserId           String?  @map("actor_user_id")
+  actorEmailSnapshot    String?  @map("actor_email_snapshot")
+  actorRoleSnapshot     String?  @map("actor_role_snapshot")
+  /// Frozen copy of the member's eligibility-relevant fields (WIOA
+  /// self-screening + profile barrier/income/veteran/disability data) as
+  /// they stood at the moment of this decision.
+  eligibilitySnapshot   Json     @map("eligibility_snapshot")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  actor        User?        @relation("WioaReviewSnapshotActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([organizationId, createdAt])
+  @@index([applicationId])
+  @@map("wioa_review_snapshots")
 }
 
 // --- Admin Invitations ---

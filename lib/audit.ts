@@ -30,7 +30,7 @@ type AuditParams = {
  * Returns `{ email: null, role: null }` if the user can't be resolved —
  * the audit row is still written; logging never blocks the caller.
  */
-async function resolveActorSnapshot(
+export async function resolveActorSnapshot(
   actorUserId: string | null,
   db: AuditDb = prisma,
 ): Promise<{ email: string | null; role: string | null }> {

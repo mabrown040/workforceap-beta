@@ -34,6 +34,7 @@ import { AlertTriangle, ClipboardList, CheckCircle } from 'lucide-react';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
+import { loadWioaReviewSnapshots } from '@/lib/wioa/reviewSnapshot';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
@@ -416,6 +417,7 @@ export default async function AdminMemberDetailPage({
   const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
 
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
+  const wioaDecisionHistory = await loadWioaReviewSnapshots(member.id, organizationId);
 
   // Coursera B4B / xAPI learner detail — surfaces CSV-imported course
   // progress, specialization badges, and last activity timestamps on the
@@ -600,6 +602,7 @@ export default async function AdminMemberDetailPage({
             reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
             reviewerName={wioaReviewerName}
             reviewNotes={member.wioaReviewNotes}
+            decisionHistory={wioaDecisionHistory}
           />
         )}
 

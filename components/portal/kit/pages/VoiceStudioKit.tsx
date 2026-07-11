@@ -192,7 +192,7 @@ export function VoiceStudioKit({
   const selectTab = useCallback(
     (nextTab: StudioTab) => {
       setTab(nextTab);
-      const next = new URLSearchParams(searchParams.toString());
+      const next = new URLSearchParams(searchParams?.toString() ?? '');
       if (nextTab === 'coaches') next.delete('tab');
       else next.set('tab', nextTab);
       if (nextTab !== 'session') next.delete('agent');

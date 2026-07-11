@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" role="img" aria-label="Workforce Advancement Project — Empowering People. Advancing Futures.">
+  <defs>
+    <clipPath id="globeClip"><circle cx="112" cy="132" r="92"/></clipPath>
+  </defs>
+
+  <!-- globe -->
+  <g>
+    <circle cx="112" cy="132" r="92" fill="none" stroke="#e3bd6a" stroke-width="6"/>
+    <g clip-path="url(#globeClip)" fill="none" stroke="#e3bd6a" stroke-width="4">
+      <line x1="20" y1="132" x2="204" y2="132"/>
+      <path d="M28 96 Q112 66 196 96"/>
+      <path d="M28 168 Q112 198 196 168"/>
+      <ellipse cx="112" cy="132" rx="38" ry="92"/>
+    </g>
+  </g>
+
+  <!-- ascending arrow -->
+  <path d="M42 196 L182 66" fill="none" stroke="#ffffff" stroke-width="15" stroke-linecap="round"/>
+  <polygon points="150,52 202,58 176,104" fill="#ffffff"/>
+
+  <!-- three figures -->
+  <g fill="#ffffff">
+    <!-- left figure -->
+    <g transform="translate(46 168)">
+      <circle cx="0" cy="0" r="11"/>
+      <path d="M-15 16 Q0 4 15 16 L18 62 Q0 70 -18 62 Z"/>
+      <path d="M-14 22 L-34 4" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+    </g>
+    <!-- center figure (tallest) -->
+    <g transform="translate(90 150)">
+      <circle cx="0" cy="0" r="13"/>
+      <path d="M-17 18 Q0 5 17 18 L20 80 Q0 90 -20 80 Z"/>
+      <path d="M15 24 L34 -2" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+      <path d="M-15 24 L-34 4" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+    </g>
+    <!-- right figure -->
+    <g transform="translate(136 168)">
+      <circle cx="0" cy="0" r="11"/>
+      <path d="M-15 16 Q0 4 15 16 L18 62 Q0 70 -18 62 Z"/>
+      <path d="M14 22 L34 4" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <g font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="800" fill="#ffffff">
+    <text x="232" y="72" font-size="40" letter-spacing="0.3">WORKFORCE</text>
+    <text x="232" y="118" font-size="40" letter-spacing="0.3">ADVANCEMENT</text>
+    <text x="232" y="164" font-size="40" letter-spacing="0.3">PROJECT</text>
+  </g>
+  <text x="232" y="200" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="600" fill="#f3d28f" letter-spacing="0.3">Empowering People. Advancing Futures.</text>
+</svg>

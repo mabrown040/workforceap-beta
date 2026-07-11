@@ -3,6 +3,7 @@ import 'server-only';
 import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { ensurePortalEmailIdentityLink } from './ensurePortalEmailIdentity.server';
 import {
   markUserAutoSynced,
   syncUserFromB4B,
@@ -21,10 +22,11 @@ import {
  * Dedupe rules (must ALL pass for a sync to fire):
  *   1. User has an email on file (`users.email`).
  *   2. `users.last_coursera_auto_sync_at` is NULL or > AUTO_SYNC_BACKOFF_MS old.
- *   3. The user has zero local `CourseProgress` rows. Once any row exists,
- *      the xAPI / cron pipeline keeps things current — no need to re-sync.
- *   4. A Coursera identity mapping is on file (or the portal email matches
- *      the Coursera externalId we'll query against).
+ *   3. Within each backoff window we always run `ensurePortalEmailIdentityLink`
+ *      (upsert portal-email mapping + orphan backfill + xAPI replay) so
+ *      members with partial local progress still attach historical Coursera rows.
+ *   4. The heavy B4B enrollment sync only runs when local `CourseProgress`
+ *      is empty — once any row exists, xAPI / cron owns updates.
  *
  * On success the helper stamps `users.last_coursera_auto_sync_at = now()` so
  * future renders skip without re-checking. On failure (B4B outage, etc.) the
@@ -111,19 +113,40 @@ async function runAutoSyncCore(args: {
     return { didSync: false, reason: 'within backoff window' };
   }
 
-  // Gate #2: any local CourseProgress row → already synced previously, the
-  // xAPI/cron pipeline owns updates from here on. Stamp the dedupe timestamp
-  // so we don't re-check this on every render.
+  // Always (within backoff): bind portal email → Coursera identity, attach
+  // orphaned CSV/xAPI progress rows, and replay unresolved statements. This
+  // runs even when local CourseProgress already exists — otherwise members
+  // with partial progress never pick up historical orphan rows.
+  const identityLink = await ensurePortalEmailIdentityLink({
+    userId: dbUser.id,
+    email: dbUser.email,
+    orgId,
+  }).catch((err) => {
+    console.warn('[dashboardAutoSync] identity link failed:', err);
+    return null;
+  });
+
+  // Gate #2: any local CourseProgress row → heavy B4B sync already happened;
+  // xAPI/cron owns updates from here on. Stamp the dedupe timestamp so we
+  // don't re-check this on every render.
   if (dbUser._count.courseProgress > 0) {
     await markUserAutoSynced({ userId: dbUser.id, orgId }).catch((err) => {
       console.warn('[dashboardAutoSync] stamp after skip failed:', err);
     });
-    return { didSync: false, reason: 'local CourseProgress rows exist' };
+    const linked =
+      identityLink &&
+      (identityLink.mappingCreatedOrUpdated ||
+        identityLink.backfill.courseRowsUpdated > 0 ||
+        identityLink.xapiReplayed > 0);
+    return {
+      didSync: Boolean(linked),
+      reason: linked
+        ? `identity refreshed (${identityLink?.reason ?? 'ok'})`
+        : 'local CourseProgress rows exist',
+    };
   }
 
-  // Gate #3: must have a Coursera identity mapping (or rely on the portal
-  // email as a direct externalId match). Without ANY identity, B4B can't
-  // resolve the learner.
+  // Gate #3: resolve Coursera externalId (mapping email or portal email).
   const mappings = await listCourseraIdentityMappingsForUser(dbUser.id).catch(
     (err) => {
       console.warn('[dashboardAutoSync] mapping lookup failed:', err);

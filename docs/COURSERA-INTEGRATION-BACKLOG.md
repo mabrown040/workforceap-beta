@@ -6,9 +6,13 @@ Captures the cool things we can now do with the B4B + xAPI data flow that landed
 
 1. **Landing URL audit + swap** — replace generic `coursera.org/learn/...` links across member views with the org-scoped program URL B4B returns (e.g. `https://www.coursera.org/programs/workforce-advancement-project-8a3f0`). Logged-in learners bounce straight into the right context; logged-out ones see the right org sign-in page.
 
-2. **Real-time progress from B4B** — replace xAPI-derived `%` on `/dashboard/training` and the program rollups with authoritative `enrollmentReports[].overallProgress` from Coursera. xAPI stays as the event stream; B4B becomes the source of truth for "where am I?".
+2. **Real-time progress from B4B** — ~~replace xAPI-derived `%` on `/dashboard/training` and the program rollups with authoritative `enrollmentReports[].overallProgress` from Coursera.~~ **Landed on default kit `/dashboard` (2026-07):** kit home pulls B4B (4s fail-soft) into `getMemberState` → `progressPercentDisplay`; legacy path already had this. xAPI stays the event stream; B4B is SOT for "where am I?".
 
 3. **Multi-course schema migration** — drop the unique constraint on `CourseEnrollment.userId`, add `isPrimary: boolean`. UI on `/dashboard/training` becomes a tabbed switcher across all enrolled programs. Removes the "dominant program picking" hack from #1076.
+
+### Also landed (identity truth, 2026-07)
+
+- **Portal-email auto identity link** — `lib/coursera/ensurePortalEmailIdentity.ts` (+ `.server.ts` wiring) + `dashboardAutoSync`: on dashboard visit (within backoff), upsert `coursera_identity_mappings` from portal email when missing, backfill orphaned `coursera_*_progress.user_id`, replay unresolved xAPI. Runs even when local `CourseProgress` already exists so partial progress still attaches historical rows.
 
 ---
 

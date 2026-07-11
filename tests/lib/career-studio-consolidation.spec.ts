@@ -20,6 +20,7 @@ describe('Career Studio consolidation', () => {
 
     expect(page).toContain("initialTab === 'studio'");
     expect(page).toContain("{ hasResume: false }");
+    expect(studio).toContain("new URLSearchParams(searchParams?.toString() ?? '')");
     expect(studio).toContain("router.replace(`${pathname}${query ? `?${query}` : ''}`, { scroll: false })");
     expect(studio).toContain("selectTab(v as StudioTab)");
   });

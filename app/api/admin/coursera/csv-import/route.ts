@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   detectCourseraCsvKind,
   parseCourseActivityCsv,
@@ -63,7 +64,8 @@ async function _POST(request: NextRequest) {
   try {
     const user = await requireAdminUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+    const organizationId = await getActorOrganizationId(user.id);
+
     const read = await readCsvFromRequest(request);
     if ('error' in read) {
       return NextResponse.json({ error: read.error }, { status: read.status });
@@ -103,7 +105,7 @@ async function _POST(request: NextRequest) {
       }
   
       try {
-        const result = await ingestCourseActivityRows(parsedRows, { source: 'csv_import' });
+        const result = await ingestCourseActivityRows(parsedRows, { source: 'csv_import', organizationId });
         return NextResponse.json({
           ok: true,
           kind,
@@ -137,7 +139,7 @@ async function _POST(request: NextRequest) {
     }
   
     try {
-      const result = await ingestLearningPathActivityRows(parsedBadgeRows, { source: 'csv_import' });
+      const result = await ingestLearningPathActivityRows(parsedBadgeRows, { source: 'csv_import', organizationId });
       return NextResponse.json({
         ok: true,
         kind,

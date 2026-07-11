@@ -7,6 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   countUnmatchedXapiEventsByExternalEmail,
   loadUnmatchedXapiEventsByExternalEmailPaginated,
@@ -52,17 +53,18 @@ export default async function AdminCourseraUnmatchedEventsPage({
   const viewer = await getUser();
   if (!viewer) redirect('/login?redirectTo=/admin/coursera');
   if (!(await isAdmin(viewer.id))) redirect('/dashboard');
+  const organizationId = await getActorOrganizationId(viewer.id);
 
   const { externalEmail } = await params;
   const decoded = decodeURIComponent(externalEmail);
   const sp = (await searchParams) ?? {};
 
   // Get the total first so we can clamp the page param.
-  const total = await countUnmatchedXapiEventsByExternalEmail(decoded);
+  const total = await countUnmatchedXapiEventsByExternalEmail(decoded, organizationId);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = clampPage(sp.page, totalPages);
 
-  const events = await loadUnmatchedXapiEventsByExternalEmailPaginated(decoded, page, PAGE_SIZE);
+  const events = await loadUnmatchedXapiEventsByExternalEmailPaginated(decoded, organizationId, page, PAGE_SIZE);
 
   const startIdx = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const endIdx = Math.min(page * PAGE_SIZE, total);

@@ -68,6 +68,7 @@ async function bulkUpsertCourseProgressChunk(
     userId: string | null;
     source: string;
   }>,
+  organizationId: string,
 ): Promise<{ inserted: number; updated: number }> {
   if (items.length === 0) return { inserted: 0, updated: 0 };
 
@@ -75,6 +76,7 @@ async function bulkUpsertCourseProgressChunk(
     Prisma.sql`(
       gen_random_uuid(),
       ${userId},
+      ${organizationId},
       ${lowerEmail},
       ${row.name || null},
       ${row.courseId},
@@ -107,6 +109,7 @@ async function bulkUpsertCourseProgressChunk(
     INSERT INTO coursera_course_progress (
       id,
       user_id,
+      organization_id,
       external_email,
       external_name,
       coursera_course_id,
@@ -135,6 +138,7 @@ async function bulkUpsertCourseProgressChunk(
     ) VALUES ${Prisma.join(tuples, ', ')}
     ON CONFLICT (LOWER(external_email), coursera_course_id) DO UPDATE SET
       user_id = COALESCE(EXCLUDED.user_id, coursera_course_progress.user_id),
+      organization_id = COALESCE(coursera_course_progress.organization_id, EXCLUDED.organization_id),
       external_name = EXCLUDED.external_name,
       coursera_course_slug = EXCLUDED.coursera_course_slug,
       course_name = EXCLUDED.course_name,
@@ -179,13 +183,14 @@ async function bulkUpsertCourseProgressChunk(
  */
 export async function ingestCourseActivityRows(
   rows: ParsedCourseActivityRow[],
-  options: { source?: string } = {}
+  options: { source?: string; organizationId: string }
 ): Promise<IngestResult> {
   // Ensure the identity mapping tables exist (xAPI module manages those at runtime).
   await ensureCourseraMappingTables();
   await ensureProgressIndex();
 
   const source = options.source?.trim() || 'csv_import';
+  const organizationId = options.organizationId;
 
   let inserted = 0;
   let updated = 0;
@@ -242,13 +247,13 @@ export async function ingestCourseActivityRows(
 
   const upsertPreparedChunk = async (chunk: PreparedCourseRow[]) => {
     try {
-      const sums = await bulkUpsertCourseProgressChunk(chunk);
+      const sums = await bulkUpsertCourseProgressChunk(chunk, organizationId);
       inserted += sums.inserted;
       updated += sums.updated;
     } catch {
       for (const item of chunk) {
         try {
-          const sums = await bulkUpsertCourseProgressChunk([item]);
+          const sums = await bulkUpsertCourseProgressChunk([item], organizationId);
           inserted += sums.inserted;
           updated += sums.updated;
         } catch (error) {
@@ -326,6 +331,7 @@ async function bulkUpsertBadgeProgressChunk(
     userId: string | null;
     source: string;
   }>,
+  organizationId: string,
 ): Promise<{ inserted: number; updated: number }> {
   if (items.length === 0) return { inserted: 0, updated: 0 };
 
@@ -333,6 +339,7 @@ async function bulkUpsertBadgeProgressChunk(
     Prisma.sql`(
       gen_random_uuid(),
       ${userId},
+      ${organizationId},
       ${lowerEmail},
       ${row.name || null},
       ${row.badgeSlug},
@@ -357,6 +364,7 @@ async function bulkUpsertBadgeProgressChunk(
     INSERT INTO coursera_badge_progress (
       id,
       user_id,
+      organization_id,
       external_email,
       external_name,
       badge_slug,
@@ -377,6 +385,7 @@ async function bulkUpsertBadgeProgressChunk(
     ) VALUES ${Prisma.join(tuples, ', ')}
     ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET
       user_id = COALESCE(EXCLUDED.user_id, coursera_badge_progress.user_id),
+      organization_id = COALESCE(coursera_badge_progress.organization_id, EXCLUDED.organization_id),
       external_name = EXCLUDED.external_name,
       badge_title = EXCLUDED.badge_title,
       badge_link = EXCLUDED.badge_link,
@@ -495,12 +504,13 @@ function aggregateBadgeRows(rows: ParsedBadgeRow[]): BadgeAggregate[] {
  */
 export async function ingestLearningPathActivityRows(
   rows: ParsedBadgeRow[],
-  options: { source?: string } = {}
+  options: { source?: string; organizationId: string }
 ): Promise<BadgeIngestResult> {
   await ensureCourseraMappingTables();
   await ensureBadgeProgressIndex();
 
   const source = options.source?.trim() || 'csv_import';
+  const organizationId = options.organizationId;
 
   let inserted = 0;
   let updated = 0;
@@ -557,13 +567,13 @@ export async function ingestLearningPathActivityRows(
 
   const upsertPreparedChunk = async (chunk: PreparedBadgeRow[]) => {
     try {
-      const sums = await bulkUpsertBadgeProgressChunk(chunk);
+      const sums = await bulkUpsertBadgeProgressChunk(chunk, organizationId);
       inserted += sums.inserted;
       updated += sums.updated;
     } catch {
       for (const item of chunk) {
         try {
-          const sums = await bulkUpsertBadgeProgressChunk([item]);
+          const sums = await bulkUpsertBadgeProgressChunk([item], organizationId);
           inserted += sums.inserted;
           updated += sums.updated;
         } catch (error) {

@@ -363,7 +363,7 @@ export function parseCourseActivityCsv(content: string): ParsedCourseActivityRow
 // pull in from non-server contexts (e.g. unit tests, future client utilities).
 export async function ingestCourseActivityRows(
   rows: ParsedCourseActivityRow[],
-  options?: { source?: string }
+  options: { source?: string; organizationId: string }
 ): Promise<IngestResult> {
   const mod = await import('./csvImport.server');
   return mod.ingestCourseActivityRows(rows, options);
@@ -458,7 +458,7 @@ export function parseLearningPathActivityCsv(content: string): ParsedBadgeRow[] 
 
 export async function ingestLearningPathActivityRows(
   rows: ParsedBadgeRow[],
-  options?: { source?: string }
+  options: { source?: string; organizationId: string }
 ): Promise<BadgeIngestResult> {
   const mod = await import('./csvImport.server');
   return mod.ingestLearningPathActivityRows(rows, options);

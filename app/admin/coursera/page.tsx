@@ -374,8 +374,8 @@ export default async function AdminCourseraPage({
       console.error('[admin/coursera] kit sync status failed:', error);
     }
 
-    const kitUnmatched = await loadUnmatchedLearners(50, { includeTestAccounts: false });
-    const kitHiddenTest = await countHiddenTestAccountUnmatchedLearners().catch(() => 0);
+    const kitUnmatched = await loadUnmatchedLearners(organizationId, 50, { includeTestAccounts: false });
+    const kitHiddenTest = await countHiddenTestAccountUnmatchedLearners(organizationId).catch(() => 0);
 
     // Enrollment seats-vs-budget: how many members are approved to enroll, and
     // how many are actually generating Coursera activity. "Approved" is honest
@@ -565,13 +565,13 @@ export default async function AdminCourseraPage({
 
   const courseProgress = await loadCourseProgressSummary(organizationId);
   const xapiCourseProgress = await loadXapiCourseProgressSummary(organizationId, members);
-  const badgeProgress = await loadBadgeProgressSummary();
-  const unmatchedLearners = await loadUnmatchedLearners(100, {
+  const badgeProgress = await loadBadgeProgressSummary(organizationId);
+  const unmatchedLearners = await loadUnmatchedLearners(organizationId, 100, {
     includeTestAccounts: showTestAccounts,
   });
   const hiddenTestAccountCount = showTestAccounts
     ? 0
-    : await countHiddenTestAccountUnmatchedLearners();
+    : await countHiddenTestAccountUnmatchedLearners(organizationId);
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10, { organizationId });
 
   if (auditEmailRaw.trim().length > 0) {

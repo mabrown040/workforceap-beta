@@ -28,10 +28,19 @@ export type BadgeProgressSummary = {
   }>;
 };
 
-export async function loadBadgeProgressSummary(): Promise<BadgeProgressSummary | null> {
+/**
+ * Scoped by `organizationId` — `coursera_badge_progress.organization_id` is
+ * stamped at CSV-import time (see `lib/coursera/csvImport.server.ts`).
+ * Rows imported before that column existed have `organization_id IS NULL`
+ * and are excluded from every tenant's view rather than shown to all of
+ * them (same posture as the `coursera_xapi_events` org-scoping fix).
+ */
+export async function loadBadgeProgressSummary(organizationId: string): Promise<BadgeProgressSummary | null> {
   try {
     const summaryRows = await prisma.$queryRaw<Array<{ total: bigint | number; latest: Date | null }>>`
-      SELECT COUNT(*)::bigint AS total, MAX(last_synced_at) AS latest FROM coursera_badge_progress
+      SELECT COUNT(*)::bigint AS total, MAX(last_synced_at) AS latest
+      FROM coursera_badge_progress
+      WHERE organization_id = ${organizationId}
     `;
     const top = await prisma.$queryRaw<Array<{
       id: string;
@@ -66,6 +75,7 @@ export async function loadBadgeProgressSummary(): Promise<BadgeProgressSummary |
         u.email AS "userEmail"
       FROM coursera_badge_progress cbp
       LEFT JOIN users u ON u.id = cbp.user_id
+      WHERE cbp.organization_id = ${organizationId}
       ORDER BY cbp.progress_percent DESC, cbp.last_activity_time DESC NULLS LAST
       LIMIT 10
     `;
@@ -149,8 +159,15 @@ const TEST_ACCOUNT_EXCLUSION_WHERE = Prisma.sql`AND email NOT LIKE '%test%'
  * the SQL level (HAVING clause) so it applies BEFORE LIMIT — without this, a
  * load-test producing 100+ test rows would push real backlog off the first
  * page of the default view.
+ *
+ * Scoped by `organizationId` across all three UNION sources
+ * (`coursera_course_progress`, `coursera_badge_progress`, `coursera_xapi_events`).
+ * Rows with no known organization (imported before the org-scoping fix, or —
+ * for xAPI — never resolved to a user) are excluded rather than shown to
+ * every tenant.
  */
 export async function loadUnmatchedLearners(
+  organizationId: string,
   limit = 100,
   options: LoadUnmatchedLearnersOptions = {},
 ): Promise<UnmatchedLearner[]> {
@@ -181,6 +198,7 @@ export async function loadUnmatchedLearners(
           NULL::text AS actor_home_page
         FROM coursera_course_progress
         WHERE user_id IS NULL
+          AND organization_id = ${organizationId}
         GROUP BY LOWER(external_email)
         UNION ALL
         SELECT
@@ -194,6 +212,7 @@ export async function loadUnmatchedLearners(
           NULL::text AS actor_home_page
         FROM coursera_badge_progress
         WHERE user_id IS NULL
+          AND organization_id = ${organizationId}
         GROUP BY LOWER(external_email)
         UNION ALL
         SELECT
@@ -208,6 +227,7 @@ export async function loadUnmatchedLearners(
         FROM coursera_xapi_events
         WHERE completion_status IN ('unmatched', 'error')
           AND COALESCE(actor_email, actor_identifier) IS NOT NULL
+          AND organization_id = ${organizationId}
         GROUP BY LOWER(COALESCE(actor_email, actor_identifier))
       )
       SELECT
@@ -241,6 +261,7 @@ export async function loadUnmatchedLearners(
       FROM coursera_badge_progress
       WHERE LOWER(external_email) = ANY(${emails}::text[])
         AND user_id IS NULL
+        AND organization_id = ${organizationId}
     `;
 
     const badgesByEmail = new Map<string, UnmatchedLearner['badges']>();
@@ -279,25 +300,30 @@ export async function loadUnmatchedLearners(
  * Counts ALL matching rows, not a LIMIT-capped slice — earlier versions
  * fetched the capped list and counted JS-side, so a backlog of >100 test
  * rows undercounted. SQL count fixes that.
+ *
+ * Scoped by `organizationId`, same posture as `loadUnmatchedLearners`.
  */
-export async function countHiddenTestAccountUnmatchedLearners(): Promise<number> {
+export async function countHiddenTestAccountUnmatchedLearners(organizationId: string): Promise<number> {
   try {
     const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
       WITH unioned AS (
         SELECT LOWER(external_email) AS email
         FROM coursera_course_progress
         WHERE user_id IS NULL
+          AND organization_id = ${organizationId}
         GROUP BY LOWER(external_email)
         UNION
         SELECT LOWER(external_email) AS email
         FROM coursera_badge_progress
         WHERE user_id IS NULL
+          AND organization_id = ${organizationId}
         GROUP BY LOWER(external_email)
         UNION
         SELECT LOWER(COALESCE(actor_email, actor_identifier)) AS email
         FROM coursera_xapi_events
         WHERE completion_status IN ('unmatched', 'error')
           AND COALESCE(actor_email, actor_identifier) IS NOT NULL
+          AND organization_id = ${organizationId}
         GROUP BY LOWER(COALESCE(actor_email, actor_identifier))
       )
       SELECT COUNT(DISTINCT email)::bigint AS count
@@ -502,9 +528,14 @@ async function loadBadgesForUserId(userId: string): Promise<LearnerBadgeRow[]> {
  * Coursera email rather than a WAP user id. Used by the drill-down at
  * /admin/coursera/learners/unmatched/[externalEmailHash] for learners that have
  * not been bound yet.
+ *
+ * Scoped by `organizationId` — without this, an admin who knows or guesses
+ * another org's Coursera-only learner email could read that org's raw
+ * course/badge progress by URL alone.
  */
 export async function loadLearnerProgressByExternalEmail(
-  externalEmail: string
+  externalEmail: string,
+  organizationId: string,
 ): Promise<LearnerProgressDetail | null> {
   try {
     const lower = externalEmail.toLowerCase();
@@ -516,6 +547,7 @@ export async function loadLearnerProgressByExternalEmail(
         ${COURSE_PROGRESS_SELECT_COLUMNS}
       FROM coursera_course_progress
       WHERE LOWER(external_email) = ${lower}
+        AND organization_id = ${organizationId}
       ORDER BY last_activity_time DESC NULLS LAST, enrollment_time DESC NULLS LAST
     `;
 
@@ -550,6 +582,7 @@ export async function loadLearnerProgressByExternalEmail(
         total_learning_hours AS "totalLearningHours"
       FROM coursera_badge_progress
       WHERE LOWER(external_email) = ${lower}
+        AND organization_id = ${organizationId}
       ORDER BY progress_percent DESC, last_activity_time DESC NULLS LAST
     `;
 
@@ -622,9 +655,14 @@ export type UnmatchedXapiEventRow = {
  * Without the second clause, opening the detail page for an actor-only
  * learner returned zero xAPI rows even though the list showed an unresolved
  * count for that actor (Codex P2 review on #1033).
+ *
+ * Scoped by `organizationId` — `coursera_xapi_events.organization_id` is
+ * NOT NULL (see migration `20260615040400_xapi_ingest_tables_org_not_null`),
+ * so this is a straight equality filter.
  */
 export async function loadUnmatchedXapiEventsByExternalEmail(
   externalKey: string,
+  organizationId: string,
   limit = 100,
 ): Promise<UnmatchedXapiEventRow[]> {
   const trimmed = externalKey.trim();
@@ -648,6 +686,7 @@ export async function loadUnmatchedXapiEventsByExternalEmail(
         received_at AS "receivedAt"
       FROM coursera_xapi_events
       WHERE completion_status IN ('unmatched', 'error')
+        AND organization_id = ${organizationId}
         AND (
           (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
           OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
@@ -671,6 +710,7 @@ export async function loadUnmatchedXapiEventsByExternalEmail(
  */
 export async function countUnmatchedXapiEventsByExternalEmail(
   externalKey: string,
+  organizationId: string,
 ): Promise<number> {
   const trimmed = externalKey.trim();
   if (!trimmed) return 0;
@@ -682,6 +722,7 @@ export async function countUnmatchedXapiEventsByExternalEmail(
       SELECT COUNT(*)::bigint AS count
       FROM coursera_xapi_events
       WHERE completion_status IN ('unmatched', 'error')
+        AND organization_id = ${organizationId}
         AND (
           (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
           OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
@@ -704,6 +745,7 @@ export async function countUnmatchedXapiEventsByExternalEmail(
  */
 export async function loadUnmatchedXapiEventsByExternalEmailPaginated(
   externalKey: string,
+  organizationId: string,
   page = 1,
   pageSize = 50,
 ): Promise<UnmatchedXapiEventRow[]> {
@@ -731,6 +773,7 @@ export async function loadUnmatchedXapiEventsByExternalEmailPaginated(
         received_at AS "receivedAt"
       FROM coursera_xapi_events
       WHERE completion_status IN ('unmatched', 'error')
+        AND organization_id = ${organizationId}
         AND (
           (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
           OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
@@ -775,10 +818,15 @@ export type SuggestedUserMatch = {
  *
  * The page can render these as "Looks like this might be: <Name> <(reason)>
  * — Map" and let the admin one-click bind.
+ *
+ * Scoped by `organizationId` — candidates are drawn only from users in the
+ * actor's org, so this can't suggest (and the mapping action can't bind)
+ * another tenant's user to this Coursera-only learner.
  */
 export async function suggestUserMatchesForExternalEmail(
   externalEmail: string,
   externalName: string | null,
+  organizationId: string,
   limit = 5,
 ): Promise<SuggestedUserMatch[]> {
   const lower = externalEmail.trim().toLowerCase();
@@ -800,7 +848,7 @@ export async function suggestUserMatchesForExternalEmail(
     const [exactMatch, localPartMatches, nameMatches] = await Promise.all([
       isEmailKey
         ? prisma.user.findFirst({
-            where: { deletedAt: null, email: { equals: lower, mode: 'insensitive' } },
+            where: { deletedAt: null, organizationId, email: { equals: lower, mode: 'insensitive' } },
             select: { id: true, email: true, fullName: true, enrolledProgram: true },
           })
         : Promise.resolve(null),
@@ -808,6 +856,7 @@ export async function suggestUserMatchesForExternalEmail(
         ? prisma.user.findMany({
             where: {
               deletedAt: null,
+              organizationId,
               email: { startsWith: `${cleanLocal}@`, mode: 'insensitive' },
               NOT: { email: { equals: lower, mode: 'insensitive' } },
             },
@@ -819,6 +868,7 @@ export async function suggestUserMatchesForExternalEmail(
         ? prisma.user.findMany({
             where: {
               deletedAt: null,
+              organizationId,
               AND: nameTokens.slice(0, 3).map((token) => ({
                 fullName: { contains: token, mode: Prisma.QueryMode.insensitive },
               })),

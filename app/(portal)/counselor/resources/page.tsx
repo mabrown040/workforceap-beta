@@ -22,7 +22,7 @@ const REFERENCE_LINKS = [
 
 function ResourceCard({ href, icon, label, desc }: { href: string; icon: string; label: string; desc: string }) {
   return (
-    <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Link href={href} prefetch={false} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className={`portal-card portal-card--flat portal-card--padded-sm ${styles.row}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <span
           className="material-symbols-outlined"

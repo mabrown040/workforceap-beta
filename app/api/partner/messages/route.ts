@@ -4,7 +4,7 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import {
   getOrCreatePartnerMessageThread,
-  assertPartnerUserCanAccessThread,
+  assertPartnerCanAccessThread,
 } from '@/lib/messages/portalThreads';
 import { normalizeMessageBody, serializeMessage } from '@/lib/messages/counselorThread';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
@@ -74,7 +74,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   }
 
   const thread = await getOrCreatePartnerMessageThread(ctx.partnerId);
-  const ok = await assertPartnerUserCanAccessThread(user.id, thread.id);
+  const ok = await assertPartnerCanAccessThread(ctx.partnerId, thread.id);
   if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const msg = await prisma.$transaction(async (tx) => {
@@ -122,7 +122,7 @@ export const POST = withApiGuc(_POST);async function _PATCH() {
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const thread = await getOrCreatePartnerMessageThread(ctx.partnerId);
-  const ok = await assertPartnerUserCanAccessThread(user.id, thread.id);
+  const ok = await assertPartnerCanAccessThread(ctx.partnerId, thread.id);
   if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const now = new Date();

@@ -26,6 +26,7 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Card } from '@astryxdesign/core/Card';
 import { Button } from '@astryxdesign/core/Button';
@@ -141,9 +142,9 @@ const TOOL_HREF = {
 
 const TABS: Array<{ id: StudioTab; label: string }> = [
   { id: 'coaches', label: 'Coaches' },
-  { id: 'session', label: 'Live' },
+  { id: 'session', label: 'Practice' },
   { id: 'studio', label: 'Resume' },
-  { id: 'toolkit', label: 'Toolkit' },
+  { id: 'toolkit', label: 'All Tools' },
 ];
 
 /** Real, instant structural-read data for the Resume Studio tab. */
@@ -184,6 +185,22 @@ export function VoiceStudioKit({
   initialAgent,
 }: VoiceStudioKitProps) {
   const [tab, setTab] = useState<StudioTab>(initialTab);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const selectTab = useCallback(
+    (nextTab: StudioTab) => {
+      setTab(nextTab);
+      const next = new URLSearchParams(searchParams.toString());
+      if (nextTab === 'coaches') next.delete('tab');
+      else next.set('tab', nextTab);
+      if (nextTab !== 'session') next.delete('agent');
+      const query = next.toString();
+      router.replace(`${pathname}${query ? `?${query}` : ''}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const fallbackAgent: SessionAgentConfig = {
     label: 'Mock Interview',
@@ -198,7 +215,7 @@ export function VoiceStudioKit({
 
   const pickAgent = (next: SessionAgentConfig) => {
     setAgent(next);
-    setTab('session');
+    selectTab('session');
   };
 
   return (
@@ -244,7 +261,7 @@ export function VoiceStudioKit({
                 <AudioLines size={16} aria-hidden="true" />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Voice + Career Studio</div>
+                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Career Studio</div>
                 <div style={{ fontSize: 10, color: '#a3a3a3' }}>
                   Voice coaching, resume tools, and interview prep in one place.
                 </div>
@@ -253,7 +270,7 @@ export function VoiceStudioKit({
 
             <SegmentedControl
               value={tab}
-              onChange={(v) => setTab(v as StudioTab)}
+              onChange={(v) => selectTab(v as StudioTab)}
               label="Voice studio sections"
               size="sm"
               layout="hug"

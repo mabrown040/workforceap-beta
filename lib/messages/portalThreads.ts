@@ -26,26 +26,16 @@ export async function getOrCreatePartnerMessageThread(partnerId: string) {
   });
 }
 
-export async function assertEmployerUserCanAccessThread(userId: string, threadId: string) {
-  const row = await prisma.employer.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!row) return null;
+export async function assertEmployerCanAccessThread(employerId: string, threadId: string) {
   const thread = await prisma.messageThread.findFirst({
-    where: { id: threadId, employerId: row.id, kind: 'employer' },
+    where: { id: threadId, employerId, kind: 'employer' },
   });
   return thread;
 }
 
-export async function assertPartnerUserCanAccessThread(userId: string, threadId: string) {
-  const pu = await prisma.partnerUser.findUnique({
-    where: { userId },
-    select: { partnerId: true },
-  });
-  if (!pu) return null;
+export async function assertPartnerCanAccessThread(partnerId: string, threadId: string) {
   const thread = await prisma.messageThread.findFirst({
-    where: { id: threadId, partnerId: pu.partnerId, kind: 'partner' },
+    where: { id: threadId, partnerId, kind: 'partner' },
   });
   return thread;
 }

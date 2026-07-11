@@ -408,9 +408,9 @@ export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
  * the new one. The map is checked AFTER direct + slugified-title matches so
  * canonical lookups stay zero-cost.
  *
- * Discovered tonight (2026-05-10) on mabrown040@gmail.com: an enrollment row
- * with `ai-practitioner-professional-certificate` had no catalog match,
- * causing /dashboard/training to redirect to the picker.
+ * Legacy production enrollments can contain slugs that predate the current
+ * static catalog. Keep them resolvable until the data backfill has shipped and
+ * compatibility has been retained for at least one release.
  */
 const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
   'ai-practitioner-professional-certificate': 'ai-practitioner-professional-certificate-aws',
@@ -418,6 +418,9 @@ const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
   // Pre-2026-07 combined AI track slug (split into AWS Practitioner + IBM Software Dev).
   'ai-professional-developer-certificate-ibm': 'ai-practitioner-professional-certificate-aws',
   'ai-and-software-development-professional-certificate-ibm': 'software-developer-professional-certificate-ibm',
+  'construction-readiness-certificate-osha-10': 'core-construction-training-certificate',
+  'logistics-and-supply-chain-certificate-clt': 'certified-logistics-technician-clt',
+  'production-technology-certificate-cpt': 'certified-production-technician-cpt',
   'medical-billing-coding-and-health-information-technology': 'health-information-technology-mchit',
   // Retired duplicate catalog entry (Coursera-only); keep slug resolving for legacy enrollments.
   'medical-billing-and-coding-certificate': 'health-information-technology-mchit',

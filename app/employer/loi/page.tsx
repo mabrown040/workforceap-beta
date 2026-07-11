@@ -14,13 +14,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function EmployerLoiPage() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900">
+    <div className="wa-min-h-screen wa-bg-slate-50">
+      <div className="wa-mx-auto wa-max-w-4xl wa-px-4 wa-py-16 sm:wa-px-6 lg:wa-px-8">
+        <div className="wa-text-center wa-mb-12">
+          <h1 className="wa-text-4xl wa-font-bold wa-text-slate-900">
             Employer Partnership
           </h1>
-          <p className="mt-4 text-lg text-slate-600">
+          <p className="wa-mt-4 wa-text-lg wa-text-slate-600">
             Join our employer network and hire pre-trained, certified talent at no cost.
           </p>
         </div>

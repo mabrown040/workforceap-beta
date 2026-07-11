@@ -102,70 +102,70 @@ export default function EmployerSignupPage() {
   }
 
   return (
-    <div className="mdx signup-depth min-h-screen">
+    <div className="mdx signup-depth wa-min-h-screen">
       {/* Nav */}
       <nav>
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="sd-logo-mark w-8 h-8 rounded-lg flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-white" />
+        <div className="wa-max-w-5xl wa-mx-auto wa-px-4 wa-py-4 wa-flex wa-items-center wa-justify-between">
+          <Link href="/" className="wa-flex wa-items-center wa-gap-2">
+            <div className="sd-logo-mark wa-w-8 wa-h-8 wa-rounded-lg wa-flex wa-items-center wa-justify-center">
+              <Building2 className="wa-w-4 wa-h-4 wa-text-white" />
             </div>
-            <span className="sd-brand font-semibold text-lg">WorkforceAP</span>
+            <span className="sd-brand wa-font-semibold wa-text-lg">WorkforceAP</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/employers" className="sd-navlink text-sm">
+          <div className="wa-flex wa-items-center wa-gap-4">
+            <Link href="/employers" className="sd-navlink wa-text-sm">
               For Employers
             </Link>
-            <Link href="/login" className="sd-navlink sd-navlink--accent text-sm hover:underline">
+            <Link href="/login" className="sd-navlink sd-navlink--accent wa-text-sm hover:wa-underline">
               Log in
             </Link>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-2xl mx-auto px-4 py-12">
+      <main className="wa-max-w-2xl wa-mx-auto wa-px-4 wa-py-12">
         {success && !loading ? (
-          <div className="mdx-card p-8 text-center">
-            <div className="sd-success-ring w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8" />
+          <div className="mdx-card wa-p-8 wa-text-center">
+            <div className="sd-success-ring wa-w-16 wa-h-16 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-mx-auto wa-mb-4">
+              <CheckCircle className="wa-w-8 wa-h-8" />
             </div>
-            <h1 className="sd-title text-2xl font-bold mb-2">Account Created</h1>
-            <p className="sd-lede mb-6">
+            <h1 className="sd-title wa-text-2xl wa-font-bold wa-mb-2">Account Created</h1>
+            <p className="sd-lede wa-mb-6">
               {successMessage ||
                 'Account created. Please check your email to verify your account before logging in.'}
             </p>
             <Link
               href="/login"
-              className="mdx-btn mdx-btn--primary inline-flex items-center gap-2"
+              className="mdx-btn mdx-btn--primary wa-inline-flex wa-items-center wa-gap-2"
             >
               Go to Log In
             </Link>
           </div>
         ) : (
           <>
-            <section className="mdx-stage text-center mb-8 p-8 sm:p-10">
+            <section className="mdx-stage wa-text-center wa-mb-8 wa-p-8 sm:wa-p-10">
               <span className="mdx-pill">For Employers</span>
-              <h1 className="text-3xl font-bold mb-2 mt-4">
+              <h1 className="wa-text-3xl wa-font-bold wa-mb-2 wa-mt-4">
                 Create Your <span className="mdx-grad-accent">Employer</span> Account
               </h1>
-              <p className="mx-auto">
+              <p className="wa-mx-auto">
                 Create a free employer account to access training-aligned candidates. Hiring tools and partnership options are discussed with our team.
               </p>
             </section>
 
-            <form onSubmit={handleSubmit} className="mdx-card p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="mdx-card wa-p-8 wa-space-y-6">
               {error && (
-                <div className="sd-error flex items-start gap-3 p-4 text-sm">
-                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div className="sd-error wa-flex wa-items-start wa-gap-3 wa-p-4 wa-text-sm">
+                  <AlertCircle className="wa-w-5 wa-h-5 wa-shrink-0 wa-mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
 
               {/* Company Info */}
-              <div className="space-y-4">
+              <div className="wa-space-y-4">
                 <h2 className="mdx-eyebrow">Company Information</h2>
                 <div>
-                  <label htmlFor="companyName" className="sd-label block text-sm mb-1">
+                  <label htmlFor="companyName" className="sd-label wa-block wa-text-sm wa-mb-1">
                     Company Name <span className="sd-req">*</span>
                   </label>
                   <input
@@ -178,9 +178,9 @@ export default function EmployerSignupPage() {
                     placeholder="Acme Corp"
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
                   <div>
-                    <label htmlFor="industry" className="sd-label block text-sm mb-1">
+                    <label htmlFor="industry" className="sd-label wa-block wa-text-sm wa-mb-1">
                       Industry
                     </label>
                     <input
@@ -193,7 +193,7 @@ export default function EmployerSignupPage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="companySize" className="sd-label block text-sm mb-1">
+                    <label htmlFor="companySize" className="sd-label wa-block wa-text-sm wa-mb-1">
                       Company Size
                     </label>
                     <select
@@ -214,10 +214,10 @@ export default function EmployerSignupPage() {
               </div>
 
               {/* Contact Info */}
-              <div className="space-y-4">
+              <div className="wa-space-y-4">
                 <h2 className="mdx-eyebrow">Contact Information</h2>
                 <div>
-                  <label htmlFor="contactName" className="sd-label block text-sm mb-1">
+                  <label htmlFor="contactName" className="sd-label wa-block wa-text-sm wa-mb-1">
                     Your Name <span className="sd-req">*</span>
                   </label>
                   <input
@@ -230,9 +230,9 @@ export default function EmployerSignupPage() {
                     placeholder="Jane Smith"
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
                   <div>
-                    <label htmlFor="email" className="sd-label block text-sm mb-1">
+                    <label htmlFor="email" className="sd-label wa-block wa-text-sm wa-mb-1">
                       Work Email <span className="sd-req">*</span>
                     </label>
                     <input
@@ -246,7 +246,7 @@ export default function EmployerSignupPage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="sd-label block text-sm mb-1">
+                    <label htmlFor="phone" className="sd-label wa-block wa-text-sm wa-mb-1">
                       Phone
                     </label>
                     <input
@@ -262,13 +262,13 @@ export default function EmployerSignupPage() {
               </div>
 
               {/* Password */}
-              <div className="space-y-4">
+              <div className="wa-space-y-4">
                 <h2 className="mdx-eyebrow">Account Security</h2>
                 <div>
-                  <label htmlFor="password" className="sd-label block text-sm mb-1">
+                  <label htmlFor="password" className="sd-label wa-block wa-text-sm wa-mb-1">
                     Password <span className="sd-req">*</span>
                   </label>
-                  <div className="relative">
+                  <div className="wa-relative">
                     <input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
@@ -278,7 +278,7 @@ export default function EmployerSignupPage() {
                         setPassword(e.target.value);
                         setPasswordErrors(validatePassword(e.target.value));
                       }}
-                      className="sd-field pr-12"
+                      className="sd-field wa-pr-12"
                       placeholder="Create a strong password"
                     />
                     <button
@@ -287,13 +287,13 @@ export default function EmployerSignupPage() {
                       className="sd-pw-toggle"
                       tabIndex={-1}
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showPassword ? <EyeOff className="wa-w-5 wa-h-5" /> : <Eye className="wa-w-5 wa-h-5" />}
                     </button>
                   </div>
                   {passwordErrors.length > 0 && (
-                    <ul className="mt-2 space-y-1">
+                    <ul className="wa-mt-2 wa-space-y-1">
                       {passwordErrors.map((err) => (
-                        <li key={err} className="text-xs flex items-center gap-1" style={{ color: '#8c0f37' }}>
+                        <li key={err} className="wa-text-xs wa-flex wa-items-center wa-gap-1" style={{ color: '#8c0f37' }}>
                           <span className="sd-pw-dot" />
                           {err}
                         </li>
@@ -305,7 +305,7 @@ export default function EmployerSignupPage() {
 
               {/* How they heard */}
               <div>
-                <label htmlFor="hearAbout" className="sd-label block text-sm mb-1">
+                <label htmlFor="hearAbout" className="sd-label wa-block wa-text-sm wa-mb-1">
                   How did you hear about WorkforceAP?
                 </label>
                 <input
@@ -319,15 +319,15 @@ export default function EmployerSignupPage() {
               </div>
 
               {/* Terms */}
-              <div className="flex items-start gap-3">
+              <div className="wa-flex wa-items-start wa-gap-3">
                 <input
                   id="consentTerms"
                   type="checkbox"
                   checked={consentTerms}
                   onChange={(e) => setConsentTerms(e.target.checked)}
-                  className="sd-checkbox mt-1 w-4 h-4 rounded"
+                  className="sd-checkbox wa-mt-1 wa-w-4 wa-h-4 wa-rounded"
                 />
-                <label htmlFor="consentTerms" className="text-sm" style={{ color: '#6e6a66' }}>
+                <label htmlFor="consentTerms" className="wa-text-sm" style={{ color: '#6e6a66' }}>
                   I agree to the{' '}
                   <Link href="/terms" className="sd-inline-link">
                     Terms of Service
@@ -341,7 +341,7 @@ export default function EmployerSignupPage() {
               </div>
 
               {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
-                <div className="flex justify-center">
+                <div className="wa-flex wa-justify-center">
                   <Turnstile
                     siteKey={TURNSTILE_SITE_KEY}
                     onSuccess={(t) => setTurnstileToken(t)}
@@ -355,11 +355,11 @@ export default function EmployerSignupPage() {
               <button
                 type="submit"
                 disabled={loading || (CAPTCHA_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken)}
-                className="mdx-btn mdx-btn--primary w-full flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="mdx-btn mdx-btn--primary wa-w-full wa-flex wa-items-center wa-justify-center wa-gap-2 disabled:wa-opacity-60 disabled:wa-cursor-not-allowed"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="wa-w-5 wa-h-5 wa-animate-spin" />
                     Creating account...
                   </>
                 ) : (
@@ -367,7 +367,7 @@ export default function EmployerSignupPage() {
                 )}
               </button>
 
-              <p className="text-center text-sm" style={{ color: '#6e6a66' }}>
+              <p className="wa-text-center wa-text-sm" style={{ color: '#6e6a66' }}>
                 Already have an account?{' '}
                 <Link href="/login" className="sd-inline-link">
                   Log in

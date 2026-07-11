@@ -27,8 +27,8 @@ export default async function EmployerOutcomesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="wa-min-h-screen wa-bg-slate-50">
+      <div className="wa-max-w-7xl wa-mx-auto wa-px-4 sm:wa-px-6 lg:wa-px-8 wa-py-8">
         <EmployerOutcomesDashboard />
       </div>
     </div>

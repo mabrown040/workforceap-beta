@@ -261,7 +261,7 @@ export default function PublicInterestProfilerClient() {
         </section>
 
         <div style={{ padding: '1rem 1.125rem', background: 'rgba(173,44,77,0.07)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.875rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
-          <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.375rem', flexShrink: 0, marginTop: '0.125rem', fontVariationSettings: "'FILL' 1" }}>radar</span>
+          <span aria-hidden="true" className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '1.375rem', flexShrink: 0, marginTop: '0.125rem', fontVariationSettings: "'FILL' 1" }}>radar</span>
           <div>
             <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
               Save your results
@@ -424,9 +424,12 @@ export default function PublicInterestProfilerClient() {
             type="button"
             className="btn btn-primary"
             disabled={submitting}
+            aria-busy={submitting}
             onClick={() => void handleSubmit()}
           >
-            {submitting ? 'Scoring…' : 'See results'}
+            <span aria-live="polite">
+              {submitting ? 'Scoring…' : 'See results'}
+            </span>
           </button>
         )}
         <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>

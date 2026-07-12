@@ -31,3 +31,6 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+## 2024-07-12 - Accessible loading state for Interest Profiler
+**Learning:** Found a public-facing Interest Profiler tool that lacked accessibility attributes during its async submission process. The "See results" button changed to "Scoring…" without an `aria-live` region or `aria-busy` attribute, leaving screen reader users unaware of the loading state. Additionally, a decorative icon alongside promotional text was missing `aria-hidden="true"`.
+**Action:** When working on public-facing or embedded tools with async processes, always wrap dynamic text changes (e.g., "Scoring…") in a `<span aria-live="polite">` tag and apply `aria-busy` to the trigger button. Always ensure decorative Material Symbols have `aria-hidden="true"` applied to prevent literal text readout.

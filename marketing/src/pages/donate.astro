@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 
 const DONATION_EMAIL = 'info@workforceap.org';
 const DONATION_PHONE = '(512) 777-1808';
+const DONATION_URL = 'https://www.zeffy.com/en-US/donation-form/donate-for-classes-on-workforceaporg';
 const MAILTO = `mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`;
 
 const fundsCards = [
@@ -64,8 +65,8 @@ const givingOptions = [
     icon: 'building',
   },
   {
-    title: 'Alternative payment methods',
-    description: 'Credit card, Cash App, and additional payment rails are being finalized. For now, email us and we will route your donation manually.',
+    title: 'Secure online giving',
+    description: 'Make a one-time or recurring donation through WorkforceAP’s official Zeffy campaign and receive a tax receipt.',
     ic: 'ic--g',
     icon: 'credit-card',
   },
@@ -94,7 +95,7 @@ const givingOptions = [
         <h1>Fund real training, real support,<br><span class="shimmer">and real job outcomes</span></h1>
         <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
         <div class="acts">
-          <a class="dbtn dbtn--solid" href={MAILTO}>Start a donation by email <span aria-hidden="true">→</span></a>
+          <a class="dbtn dbtn--solid" href={DONATION_URL} target="_blank" rel="noopener noreferrer">Donate securely online <span aria-hidden="true">→</span></a>
           <a class="dbtn dbtn--glass" href="/contact?topic=partnership">Talk about corporate giving</a>
         </div>
         <div class="trustline">
@@ -117,7 +118,7 @@ const givingOptions = [
           <div class="step"><div class="n">1</div><div class="t"><b>Training access</b><span>Start and stay in career training</span></div></div>
           <div class="step"><div class="n">2</div><div class="t"><b>Career readiness</b><span>Resume, interview prep, follow-through</span></div></div>
           <div class="step active"><div class="n">3</div><div class="t"><b>Employer outcomes</b><span>Turning training into hiring</span></div><span class="goalpill">Goal</span></div>
-          <p class="note">Public payment rails are being finalized — for now, email us and we coordinate your gift manually.</p>
+          <p class="note">Give securely through Zeffy with one-time or recurring donation options.</p>
         </div>
       </div>
     </div>
@@ -146,7 +147,7 @@ const givingOptions = [
     <div class="sec-head">
       <span class="kick kick--crimson">Suggested amounts</span>
       <h2>Simple giving suggestions</h2>
-      <p>These are guidance points to make giving easier. If you want to give at another level, email us and we will make it work.</p>
+      <p>These are guidance points to make giving easier. You can also choose another amount on the secure donation form.</p>
     </div>
     <div class="amtgrid">
       {suggestedAmounts.map((item) => (
@@ -163,8 +164,8 @@ const givingOptions = [
   <section class="band band--cream"><div class="wrap">
     <div class="sec-head">
       <span class="kick kick--crimson">How to give right now</span>
-      <h2>Email us to start the donation</h2>
-      <p>Public payment rails are being finalized. Until card, Cash App, and other donation methods are live, email us and we will coordinate the donation manually.</p>
+      <h2>Donate securely through Zeffy</h2>
+      <p>Choose a one-time, monthly, quarterly, or yearly gift through WorkforceAP’s official Zeffy campaign. For corporate sponsorships or larger commitments, contact our team directly.</p>
     </div>
     <div class="tri">
       {givingOptions.map((item) => (
@@ -177,15 +178,15 @@ const givingOptions = [
     </div>
 
     <div class="contactcard">
-      <h3>Donation contact</h3>
+      <h3>Donate now or talk with our team</h3>
       <p>
-        Email <a class="clink" href={MAILTO}>{DONATION_EMAIL}</a> and tell us whether you are giving as an individual, company, foundation, or other organization.
+        Make a secure online donation now, or email <a class="clink" href={MAILTO}>{DONATION_EMAIL}</a> for corporate, foundation, matching-gift, or sponsorship questions.
       </p>
       <p>
         If you want to talk first, call <a class="clink" href="tel:+15127771808">{DONATION_PHONE}</a>.
       </p>
       <div class="acts acts--light">
-        <a class="btn btn--primary" href={MAILTO}>Email about donating</a>
+        <a class="btn btn--primary" href={DONATION_URL} target="_blank" rel="noopener noreferrer">Donate securely online</a>
         <a class="btn btn--ghost" href="/contact?topic=partnership">Contact the team</a>
       </div>
     </div>
@@ -198,7 +199,7 @@ const givingOptions = [
     <div class="close__inner wrap">
       <h2 class="close__h2">Ready to move a member forward?</h2>
       <div class="acts acts--center">
-        <a class="bbtn bbtn--gold" href={MAILTO}>Start a donation by email</a>
+        <a class="bbtn bbtn--gold" href={DONATION_URL} target="_blank" rel="noopener noreferrer">Donate securely online</a>
         <a class="bbtn bbtn--outline" href="/contact?topic=partnership">Talk about corporate giving</a>
       </div>
       <div class="quote">

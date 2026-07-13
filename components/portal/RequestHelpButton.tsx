@@ -50,7 +50,7 @@ export default function RequestHelpButton() {
       >
         {icon}
       </span>
-      {label}
+      <span aria-live="polite">{label}</span>
     </button>
   );
 }

@@ -67,7 +67,9 @@ export default function RefreshCourseraProgressButton() {
         >
           refresh
         </span>
-        {busy || isPending ? 'Refreshing…' : 'Refresh from Coursera'}
+        <span aria-live="polite">
+          {busy || isPending ? 'Refreshing…' : 'Refresh from Coursera'}
+        </span>
       </button>
     </span>
   );

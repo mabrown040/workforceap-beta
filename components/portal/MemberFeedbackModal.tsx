@@ -158,6 +158,7 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
               <select id="memberfeedbackmodal-what-is-this-about-field"
                 value={type}
                 onChange={(e) => setType(e.target.value as FeedbackType)}
+                autoFocus
                 style={{
                   width: '100%',
                   padding: '0.5rem 0.75rem',

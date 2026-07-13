@@ -71,8 +71,9 @@ export default function MobileProfileSkillsResume({
               style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' }}
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
+              aria-busy={uploading}
             >
-              {uploading ? 'Uploading…' : 'Replace'}
+              <span aria-live="polite">{uploading ? 'Uploading…' : 'Replace'}</span>
             </button>
             <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ display: 'none' }} />
           </div>
@@ -99,11 +100,12 @@ export default function MobileProfileSkillsResume({
                 gap: '0.375rem',
                 cursor: loadingPreview ? 'wait' : 'pointer',
               }}
+              aria-busy={loadingPreview}
             >
               <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem' }}>
                 visibility
               </span>
-              {loadingPreview ? 'Loading preview…' : 'View Resume'}
+              <span aria-live="polite">{loadingPreview ? 'Loading preview…' : 'View Resume'}</span>
             </button>
           )}
 
@@ -124,7 +126,7 @@ export default function MobileProfileSkillsResume({
           <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.875rem' }} aria-hidden="true">
             {uploading ? 'hourglass_top' : 'upload_file'}
           </span>
-          <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)' }}>
+          <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)' }} aria-live="polite">
             {uploading ? 'Uploading…' : 'Upload Resume'}
           </p>
           <p className="wa-text-[10px]" style={{ color: 'var(--color-on-surface-variant)' }}>PDF, DOC, or DOCX · Max 5MB</p>

@@ -79,6 +79,7 @@ export default function AwardPointsButton({
               min={1}
               max={1000}
               value={points}
+              autoFocus
               onChange={(e) => setPoints(parseInt(e.target.value, 10) || 0)}
               style={{
                 width: '70px',

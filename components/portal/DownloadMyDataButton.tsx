@@ -48,10 +48,11 @@ export default function DownloadMyDataButton() {
             <span
               className="material-symbols-outlined"
               style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }}
+              aria-hidden="true"
             >
               progress_activity
             </span>
-            Preparing download…
+            <span aria-live="polite">Preparing download…</span>
           </span>
         ) : (
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

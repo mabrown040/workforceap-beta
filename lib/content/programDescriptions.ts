@@ -1,3 +1,5 @@
+import { getProgramSyllabus } from '../../shared/programSyllabi';
+
 /**
  * 2–3 sentence program description per category for program detail pages.
  * Slug-specific overrides take priority over category-level descriptions.
@@ -64,6 +66,10 @@ export const PROGRAM_SLUG_DESCRIPTIONS: Record<string, string> = {
 };
 
 export function getProgramDescription(category: string, slug?: string): string {
+  if (slug) {
+    const syllabus = getProgramSyllabus(slug);
+    if (syllabus) return syllabus.description;
+  }
   if (slug && PROGRAM_SLUG_DESCRIPTIONS[slug]) {
     return PROGRAM_SLUG_DESCRIPTIONS[slug];
   }

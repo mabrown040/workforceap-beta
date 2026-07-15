@@ -9,6 +9,10 @@ import {
   type CourseraDiscoveredCourse,
 } from '@/lib/content/courseraDiscoveredCatalog';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
+import {
+  getProgramSyllabus,
+  type ProgramSyllabus,
+} from '../../shared/programSyllabi';
 
 export const FUNDING_SOURCES = [
   'WIOA',
@@ -52,6 +56,7 @@ export interface ProgramCourse {
   slug: string;
   name: string;
   estimatedHours: number;
+  description?: string;
   courseraCourseId?: string;
 }
 
@@ -83,6 +88,10 @@ export interface Program {
    */
   courseraB4BProgramId?: string;
   languagesSupported?: LanguageSupport;
+  /** Exact TWC syllabus transcription when one has been supplied. */
+  syllabus?: ProgramSyllabus;
+  /** Exact syllabus description for regulated programs. */
+  description?: string;
 }
 
 function normalizeDiscoveredProgramTitle(title: string): string {
@@ -117,6 +126,8 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
 }
 
 export function getProgramDisplayTitle(program: Program | string): string {
+  const syllabus = getProgramSyllabus(typeof program === 'string' ? program : program.slug);
+  if (syllabus) return syllabus.title;
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return typeof program === 'string' ? program : program.title;
   return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
@@ -159,26 +170,50 @@ function mkProgram(
   const slug = slugOverride ?? slugify(title);
   const canonicalCategoryColor = PROGRAM_CATEGORY_COLORS[category] ?? categoryColor;
   const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
-  const courses: ProgramCourse[] = discoveredCourses?.length
+  const catalogCourses: ProgramCourse[] = discoveredCourses?.length
     ? discoveredCourses.map((course: CourseraDiscoveredCourse) => ({
         slug: course.slug,
         name: course.name,
         estimatedHours: course.estimatedHours ?? defaultHours,
+        courseraCourseId: course.courseId,
       }))
     : courseNames.map((name, i) => ({
         slug: `${slug}-course-${i + 1}`,
         name,
         estimatedHours: defaultHours,
       }));
+
+  const syllabus = getProgramSyllabus(slug);
+  const normalizeCourseName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/\bw\//g, 'with ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  const courses: ProgramCourse[] = syllabus
+    ? syllabus.courses.map((course, index) => {
+        const discovered = catalogCourses.find(
+          (candidate) => normalizeCourseName(candidate.name) === normalizeCourseName(course.name),
+        );
+        return {
+          slug: discovered?.slug ?? `${slug}-course-${index + 1}`,
+          name: course.name,
+          estimatedHours: course.hours,
+          description: course.description,
+          courseraCourseId: discovered?.courseraCourseId,
+        };
+      })
+    : catalogCourses;
   return {
     slug,
-    title,
+    title: syllabus?.title ?? title,
     category,
     categoryLabel,
     categoryColor: canonicalCategoryColor,
     borderColor: canonicalCategoryColor,
     icon,
-    duration,
+    duration: syllabus ? `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}` : duration,
     salary,
     skills,
     courses,
@@ -186,6 +221,8 @@ function mkProgram(
     fundingSource,
     courseraB4BProgramId: 'TpIlAogTQ8-SJQKIE8PP9w',
     languagesSupported,
+    syllabus,
+    description: syllabus?.description,
   };
 }
 

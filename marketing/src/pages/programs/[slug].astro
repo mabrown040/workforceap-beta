@@ -98,6 +98,35 @@ const metaDescription = `Training in ${display} offered at no cost for members w
     <div class="main">
       <p class="lead">{program.description}</p>
 
+      {program.syllabus && (
+        <div class="card">
+          <p class="eyebrow">Official program syllabus</p>
+          <h2 class="card-h">Training details</h2>
+          <div class="quad">
+            <div>
+              <h3>Delivery format</h3>
+              <p>{program.syllabus.deliveryFormat}</p>
+            </div>
+            <div>
+              <h3>Total hours</h3>
+              <p>{program.syllabus.totalHoursLabel}</p>
+            </div>
+            <div>
+              <h3>Training providers</h3>
+              <p>{program.syllabus.providers}</p>
+            </div>
+            <div>
+              <h3>Published tuition and fees</h3>
+              <p>${program.syllabus.tuitionAndFees.toLocaleString('en-US')}</p>
+              <p>Qualifying WorkforceAP members are not billed for covered training.</p>
+            </div>
+          </div>
+          {program.syllabus.recommendedPrerequisite && (
+            <p class="muted"><strong>Recommended prerequisite:</strong> {program.syllabus.recommendedPrerequisite}</p>
+          )}
+        </div>
+      )}
+
       <!-- Program snapshot -->
       <div class="card">
         <p class="eyebrow">Program snapshot</p>
@@ -158,7 +187,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
                 <span class="chrs">~{c.estimatedHours} hrs</span>
                 <span class="cmark" aria-hidden="true">+</span>
               </summary>
-              <div class="cbody">Part of the {display} program.</div>
+              {c.description && <div class="cbody">{c.description}</div>}
             </details>
           ))}
         </div>

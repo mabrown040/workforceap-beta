@@ -18,7 +18,7 @@ const NO_RAW_HEX_MESSAGE =
 
 const config = [
   {
-    ignores: [".next/**", "node_modules/**"],
+    ignores: [".next/**", "marketing/dist/**", "node_modules/**"],
   },
   ...nextVitals,
   tseslint.configs.base,

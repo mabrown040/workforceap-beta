@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PROGRAMS as PROGRAM_CATALOG, salaryRangeDisplay } from '../data/programs';
 import { trackQuizFunnel } from '../lib/marketingDataLayer';
 
 /**
@@ -229,47 +230,43 @@ const CAT_LABEL: Record<CategoryKey, string> = {
   'digital-literacy': 'Digital Literacy',
 };
 
-function mk(
-  slug: string,
-  title: string,
-  category: CategoryKey,
-  duration: string,
-  salary: string,
-  partner: string,
-): Program {
+function mk(slug: string, categoryOverride?: CategoryKey): Program {
+  const source = PROGRAM_CATALOG.find((program) => program.slug === slug);
+  if (!source) throw new Error(`Missing marketing program: ${slug}`);
+  const category = categoryOverride ?? source.category as CategoryKey;
   return {
-    slug,
-    title,
+    slug: source.slug,
+    title: source.title,
     category,
     categoryLabel: CAT_LABEL[category],
     categoryColor: CAT_COLOR[category],
-    duration,
-    salary,
-    partner,
+    duration: source.duration,
+    salary: salaryRangeDisplay(source),
+    partner: source.partner,
   };
 }
 
 const PROGRAMS: Program[] = [
-  mk('digital-literacy-empowerment-class', 'Digital Literacy Empowerment Class', 'digital-literacy', '6 weeks, 5 hrs/week (30 hours total)', '$38K–$52K', 'Grant'),
-  mk('it-support-professional-certificate-ibm', 'IT Support Professional Certificate (IBM)', 'it-cyber', '3-5 months, 10 hrs/week', '$55K–$72K', 'IBM'),
-  mk('comptia-a-professional-certificate', 'CompTIA A+ Professional Certificate (CompTIA A+)', 'it-cyber', '3-5 months, 10 hrs/week', '$55K–$78K', 'CompTIA'),
-  mk('comptia-network-professional-certificate', 'CompTIA Net+ Professional Certificate (CompTIA Net+)', 'it-cyber', '3-5 months, 10 hrs/week', '$60K–$88K', 'CompTIA'),
-  mk('comptia-security-professional-certificate', 'CompTIA Sec+ Professional Certificate (CompTIA Sec+)', 'it-cyber', '3-5 months, 10 hrs/week', '$72K–$108K', 'CompTIA'),
-  mk('cybersecurity-professional-certificate-google', 'Cybersecurity and Networking Professional Certificate (CompTIA Net+, Sec+)', 'it-cyber', '3-5 months, 10 hrs/week (164 contact hours total)', '$75K–$112K', 'Google'),
-  mk('data-analytics-professional-certificate-google', 'Data Analyst Professional Certificate (Google)', 'cloud-data', '3-5 months, 10 hrs/week', '$72K–$102K', 'Google'),
-  mk('data-science-professional-certificate-ibm', 'Data Science Professional Certificate (IBM)', 'cloud-data', '3-5 months, 10 hrs/week', '$88K–$130K', 'IBM'),
-  mk('aws-cloud-technology-amazon', 'AWS Cloud Technology Certificate (AWS)', 'cloud-data', '3-5 months, 10 hrs/week', '$95K–$145K', 'Amazon Web Services'),
-  mk('ai-practitioner-professional-certificate-aws', 'AI Practitioner Professional Certificate (AWS)', 'ai-software', '3-5 months, 10 hrs/week', '$85K–$135K', 'Amazon Web Services'),
-  mk('software-developer-professional-certificate-ibm', 'AI and Software Developer Professional Certificate (IBM)', 'ai-software', '3-5 months, 10 hrs/week', '$85K–$135K', 'IBM'),
-  mk('it-automation-with-python-google', 'IT Automation with Python Certificate (Google)', 'it-cyber', '3-5 months, 10 hrs/week', '$78K–$98K', 'Google'),
-  mk('ux-design-professional-certificate-google', 'UX Design Professional Certificate (Google)', 'business', '3-5 months, 10 hrs/week', '$88K–$120K', 'Google'),
-  mk('project-management-professional-certificate-microsoft', 'Project Management Professional Certificate (Microsoft)', 'business', '3-5 months, 10 hrs/week', '$82K–$112K', 'Microsoft'),
-  mk('digital-marketing-e-commerce-google', 'Digital Marketing & E-Commerce Professional Certificate (Google)', 'business', '3-5 months, 10 hrs/week', '$62K–$78K', 'Google'),
-  mk('health-information-technology-mchit', 'Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)', 'healthcare', '3-5 months, 10 hrs/week', '$52K–$72K', 'Healthcare Career Pathway'),
-  mk('certified-production-technician-cpt', 'Certified Production Technician (CPT)', 'manufacturing', '3-5 months, 10 hrs/week', '$48K–$70K', 'MSSC / NAM'),
-  mk('certified-logistics-technician-clt', 'Certified Logistics Technician (CLT)', 'manufacturing', '3-5 months, 10 hrs/week', '$55K–$78K', 'MSSC / NAM'),
-  mk('core-construction-training-certificate', 'Core Construction', 'manufacturing', '5 hours per section', '$48K–$68K', 'OSHA-10 / Grant'),
-  mk('it-support-and-entry-level-cyber-security-certificate', 'IT Support and Entry-level Cybersecurity Certificate (IBM)', 'it-cyber', '3-5 months, 10 hrs/week', '$60K–$88K', 'IBM'),
+  mk('digital-literacy-empowerment-class'),
+  mk('it-support-professional-certificate-ibm'),
+  mk('comptia-a-professional-certificate'),
+  mk('comptia-network-professional-certificate'),
+  mk('comptia-security-professional-certificate'),
+  mk('cybersecurity-professional-certificate-google'),
+  mk('data-analytics-professional-certificate-google'),
+  mk('data-science-professional-certificate-ibm'),
+  mk('aws-cloud-technology-amazon'),
+  mk('ai-practitioner-professional-certificate-aws'),
+  mk('software-developer-professional-certificate-ibm'),
+  mk('it-automation-with-python-google'),
+  mk('ux-design-professional-certificate-google'),
+  mk('project-management-professional-certificate-microsoft'),
+  mk('digital-marketing-e-commerce-google'),
+  mk('health-information-technology-mchit'),
+  mk('certified-production-technician-cpt'),
+  mk('certified-logistics-technician-clt'),
+  mk('core-construction-training-certificate'),
+  mk('it-support-and-entry-level-cyber-security-certificate', 'it-cyber'),
 ];
 
 function getProgramBySlug(slug: string): Program | undefined {

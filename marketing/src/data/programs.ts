@@ -11,6 +11,11 @@
  * so the plain data is mirrored here rather than imported.
  */
 
+import {
+  getProgramSyllabus,
+  type ProgramSyllabus,
+} from '../../../shared/programSyllabi';
+
 export type LanguageSupportLevel = 'full' | 'subtitles' | 'ai-subtitles' | 'none';
 export interface LanguageSupport {
   es: LanguageSupportLevel;
@@ -22,6 +27,7 @@ export interface ProgramCourse {
   slug: string;
   name: string;
   estimatedHours: number;
+  description?: string;
 }
 
 export interface ProgramExtra {
@@ -49,6 +55,8 @@ export interface Program {
   description: string;
   /** Decision-quality extras (best-for, job outcomes, difficulty, ramp). */
   extra?: ProgramExtra;
+  /** Exact TWC syllabus transcription when one has been supplied. */
+  syllabus?: ProgramSyllabus;
 }
 
 // ── External partners whose credential gets a "<Partner> certified" badge ──
@@ -56,6 +64,7 @@ export interface Program {
 const EXTERNAL_PARTNERS = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA'];
 
 export function partnerBadge(program: Program): string {
+  if (program.syllabus) return program.syllabus.providers;
   return EXTERNAL_PARTNERS.includes(program.partner)
     ? `${program.partner} certified`
     : program.partner;
@@ -76,7 +85,7 @@ function courses(slug: string, names: string[], hours = 10): ProgramCourse[] {
   return names.map((name, i) => ({ slug: `${slug}-course-${i + 1}`, name, estimatedHours: hours }));
 }
 
-export const PROGRAMS: Program[] = [
+const BASE_PROGRAMS: Program[] = [
   {
     slug: 'digital-literacy-empowerment-class',
     title: 'Digital Literacy Empowerment Class',
@@ -528,6 +537,41 @@ export const PROGRAMS: Program[] = [
     },
   },
 ];
+
+function applySyllabus(program: Program): Program {
+  const syllabus = getProgramSyllabus(program.slug);
+  if (!syllabus) return program;
+
+  const normalizeCourseName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/\bw\//g, 'with ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  const syllabusCourses = syllabus.courses.map((course, index) => {
+    const existing = program.courses.find(
+      (candidate) => normalizeCourseName(candidate.name) === normalizeCourseName(course.name),
+    );
+    return {
+      slug: existing?.slug ?? `${program.slug}-course-${index + 1}`,
+      name: course.name,
+      estimatedHours: course.hours,
+      description: course.description,
+    };
+  });
+
+  return {
+    ...program,
+    title: syllabus.title,
+    duration: `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}`,
+    description: syllabus.description,
+    courses: syllabusCourses,
+    syllabus,
+  };
+}
+
+export const PROGRAMS: Program[] = BASE_PROGRAMS.map(applySyllabus);
 
 export function getProgramBySlug(slug: string): Program | undefined {
   return PROGRAMS.find((p) => p.slug === slug);

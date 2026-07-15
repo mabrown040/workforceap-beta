@@ -26,6 +26,7 @@ The SHA-256 values below identify the exact `.docx` files supplied by the progra
 1. **IBM IT Support:** The course title says “CompTIA Tech+ Certification”; its description says “CompTIA ITF+ Certification exam.”
 2. **AWS AI Practitioner:** The description calls it a 16-course pathway; the source contains 16 topical courses plus one 15-hour lab/project/test-preparation module. The source phrase “practical use cacross knowledge work” is preserved verbatim.
 3. **IBM Data Science:** The provider line says “IBM & Google” although the title identifies IBM.
-4. **IBM AI and Software Developer:** The document states 200 total hours and its course rows total 200 hours, but its header says 197 clock hours plus 4 lab hours, which equals 201.
+4. **IBM AI and Software Developer:** The description calls it a 16-course pathway; the source contains 16 topical courses plus one 4-hour lab/project/test-preparation module. The document states 200 total hours and its course rows total 200 hours, but its header says 197 clock hours plus 4 lab hours, which equals 201.
+5. **MBCHIT:** The description calls it a 15-course program; the source contains 15 topical courses plus one 35-hour lab/project/test-preparation module.
 
 No assumptions or silent corrections were made for these conflicts.

@@ -80,7 +80,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
     )}
     <div class="hero-acts">
       <a class="dbtn dbtn--solid" href={`/apply?program=${program.slug}`}>Apply Now <span>→</span></a>
-      <a class="dbtn dbtn--glass" href="/find-your-path">Not sure? Take the pathfinder quiz</a>
+      <a class="dbtn dbtn--hero-secondary" href="/find-your-path">Not sure? Take the pathfinder quiz</a>
     </div>
   </div>
 </section>
@@ -324,11 +324,13 @@ const metaDescription = `Training in ${display} offered at no cost for members w
   .stage h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.6vw,50px);line-height:1.05;letter-spacing:-.02em;margin:0 0 12px}
   .meta{font-size:18px;color:rgba(255,255,255,.9);margin-bottom:4px}
   .partner{font-size:14px;color:rgba(255,255,255,.72);margin-bottom:18px}
-  .fit{background:rgba(255,255,255,.12);border:1px solid var(--glass-line);border-radius:16px;padding:18px 20px;backdrop-filter:blur(10px);margin-bottom:22px}
+  .fit{background:var(--accent-dark);border:1px solid var(--glass-line);border-radius:16px;padding:18px 20px;margin-bottom:22px;box-shadow:var(--shadow-glass)}
   .fit p{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.92)}
   .fit p + p{margin-top:8px}
   .fit strong{color:#f3d28f}
   .hero-acts{display:flex;gap:14px;flex-wrap:wrap}
+  .dbtn--hero-secondary{background:var(--accent-dark);color:#fff;border-color:rgba(255,255,255,.72);box-shadow:0 12px 30px -10px rgba(58,10,30,.45)}
+  .dbtn--hero-secondary:hover{background:var(--crimson)}
 
   /* ---------------- body bands ---------------- */
   .band{padding:var(--sec-pad) 0}

@@ -520,8 +520,10 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
                       </button>
                     </>
                   ) : (
-                    <button type="button" className="btn btn-primary" onClick={handleEnhance} disabled={!!loading || !form.programSlug}>
-                      {loading === 'enhance' ? 'Generating…' : 'Generate Enhanced Resume'}
+                    <button type="button" className="btn btn-primary" onClick={handleEnhance} disabled={!!loading || !form.programSlug} aria-busy={loading === 'enhance'}>
+                      <span aria-live="polite">
+                        {loading === 'enhance' ? 'Generating…' : 'Generate Enhanced Resume'}
+                      </span>
                     </button>
                   )}
                 </div>
@@ -617,8 +619,10 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
           </div>
           <div className="wizard-actions wizard-actions-between">
             <button type="button" className="btn btn-outline" onClick={() => setStep(5)}>Back</button>
-            <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!!loading}>
-              {loading === 'create' ? 'Creating…' : 'Create Member Account'}
+            <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!!loading} aria-busy={loading === 'create'}>
+              <span aria-live="polite">
+                {loading === 'create' ? 'Creating…' : 'Create Member Account'}
+              </span>
             </button>
           </div>
         </section>

@@ -31,3 +31,7 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+
+## 2024-07-28 - Accessible async buttons in wizards
+**Learning:** Found two asynchronous submission buttons inside the new `AddMemberWizard` ("Generate Enhanced Resume" and "Create Member Account") that updated their text dynamically ("Generating…", "Creating…") but lacked `aria-live` and `aria-busy` attributes. Screen readers would not announce the state transition.
+**Action:** When a button triggers an async process, wrap the dynamic text label inside a `<span aria-live="polite">` and append `aria-busy={isLoading}` to the `<button>` element. This ensures the loading state change is consistently announced.

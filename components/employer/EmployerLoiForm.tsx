@@ -59,14 +59,14 @@ export default function EmployerLoiForm() {
 
   if (success) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200 text-center">
-        <span className="material-symbols-outlined text-rose-600 mb-4 block" style={{ fontSize: '3.5rem' }} aria-hidden>
+      <div className="wa-rounded-2xl wa-bg-white wa-p-8 wa-shadow-sm wa-border wa-border-slate-200 wa-text-center">
+        <span className="material-symbols-outlined wa-text-rose-600 wa-mb-4 wa-block" style={{ fontSize: '3.5rem' }} aria-hidden>
           check_circle
         </span>
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">
+        <h2 className="wa-text-2xl wa-font-bold wa-text-slate-900 wa-mb-4">
           Letter of Intent Submitted!
         </h2>
-        <p className="text-slate-600 mb-6">
+        <p className="wa-text-slate-600 wa-mb-6">
           Thank you for your interest in partnering with WorkforceAP. Your employer
           account is free to use — our team will follow up soon to discuss hiring
           tools and partnership options.
@@ -76,19 +76,19 @@ export default function EmployerLoiForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="wa-space-y-8">
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-700">
+        <div className="wa-rounded-lg wa-bg-red-50 wa-border wa-border-red-200 wa-p-4 wa-text-red-700">
           {error}
         </div>
       )}
 
-      <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200 space-y-6">
-        <h2 className="text-xl font-bold text-slate-900">Company Information</h2>
+      <div className="wa-rounded-2xl wa-bg-white wa-p-8 wa-shadow-sm wa-border wa-border-slate-200 wa-space-y-6">
+        <h2 className="wa-text-xl wa-font-bold wa-text-slate-900">Company Information</h2>
         
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="companyName" className="block text-sm font-medium text-slate-700">
+        <div className="wa-grid wa-gap-4 md:wa-grid-cols-2">
+          <div className="wa-space-y-2">
+            <label htmlFor="companyName" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
               Company Name *
             </label>
             <input
@@ -97,11 +97,11 @@ export default function EmployerLoiForm() {
               value={formData.companyName}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, companyName: e.target.value })}
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className="wa-w-full wa-rounded-lg wa-border wa-border-slate-300 wa-px-3 wa-py-2 wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-rose-500"
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="contactName" className="block text-sm font-medium text-slate-700">
+          <div className="wa-space-y-2">
+            <label htmlFor="contactName" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
               Contact Name *
             </label>
             <input
@@ -110,14 +110,14 @@ export default function EmployerLoiForm() {
               value={formData.contactName}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactName: e.target.value })}
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className="wa-w-full wa-rounded-lg wa-border wa-border-slate-300 wa-px-3 wa-py-2 wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-rose-500"
             />
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-slate-700">
+        <div className="wa-grid wa-gap-4 md:wa-grid-cols-2">
+          <div className="wa-space-y-2">
+            <label htmlFor="contactEmail" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
               Contact Email *
             </label>
             <input
@@ -126,11 +126,11 @@ export default function EmployerLoiForm() {
               value={formData.contactEmail}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactEmail: e.target.value })}
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className="wa-w-full wa-rounded-lg wa-border wa-border-slate-300 wa-px-3 wa-py-2 wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-rose-500"
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="contactPhone" className="block text-sm font-medium text-slate-700">
+          <div className="wa-space-y-2">
+            <label htmlFor="contactPhone" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
               Contact Phone *
             </label>
             <input
@@ -139,17 +139,17 @@ export default function EmployerLoiForm() {
               value={formData.contactPhone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactPhone: e.target.value })}
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className="wa-w-full wa-rounded-lg wa-border wa-border-slate-300 wa-px-3 wa-py-2 wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-rose-500"
             />
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200 space-y-6">
-        <h2 className="text-xl font-bold text-slate-900">Hiring Commitment</h2>
+      <div className="wa-rounded-2xl wa-bg-white wa-p-8 wa-shadow-sm wa-border wa-border-slate-200 wa-space-y-6">
+        <h2 className="wa-text-xl wa-font-bold wa-text-slate-900">Hiring Commitment</h2>
         
-        <div className="space-y-2">
-          <label htmlFor="hiringCommitment" className="block text-sm font-medium text-slate-700">
+        <div className="wa-space-y-2">
+          <label htmlFor="hiringCommitment" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
             How many roles do you plan to fill per year? *
           </label>
           <select
@@ -157,7 +157,7 @@ export default function EmployerLoiForm() {
             value={formData.hiringCommitment}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, hiringCommitment: e.target.value })}
             required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="wa-w-full wa-rounded-lg wa-border wa-border-slate-300 wa-px-3 wa-py-2 wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-rose-500"
           >
             <option value="">Select commitment level</option>
             <option value="1-5">1-5 roles</option>
@@ -167,22 +167,22 @@ export default function EmployerLoiForm() {
           </select>
         </div>
 
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-slate-700">
+        <div className="wa-space-y-3">
+          <label className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
             Preferred Programs *
           </label>
-          <p className="text-sm text-slate-500">Select the programs you&apos;re most interested in hiring from</p>
-          <div className="grid gap-3 md:grid-cols-2">
+          <p className="wa-text-sm wa-text-slate-500">Select the programs you&apos;re most interested in hiring from</p>
+          <div className="wa-grid wa-gap-3 md:wa-grid-cols-2">
             {PROGRAMS.map((program) => (
-              <div key={program.slug} className="flex items-start gap-3">
+              <div key={program.slug} className="wa-flex wa-items-start wa-gap-3">
                 <input
                   type="checkbox"
                   id={program.slug}
                   checked={formData.preferredPrograms.includes(program.slug)}
                   onChange={() => handleProgramToggle(program.slug)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                  className="wa-mt-1 wa-h-4 wa-w-4 wa-rounded wa-border-slate-300 wa-text-rose-600 focus:wa-ring-rose-500"
                 />
-                <label htmlFor={program.slug} className="text-sm text-slate-700 cursor-pointer">
+                <label htmlFor={program.slug} className="wa-text-sm wa-text-slate-700 wa-cursor-pointer">
                   {getProgramDisplayTitle(program)}
                 </label>
               </div>
@@ -191,11 +191,11 @@ export default function EmployerLoiForm() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200 space-y-6">
-        <h2 className="text-xl font-bold text-slate-900">Additional Information</h2>
+      <div className="wa-rounded-2xl wa-bg-white wa-p-8 wa-shadow-sm wa-border wa-border-slate-200 wa-space-y-6">
+        <h2 className="wa-text-xl wa-font-bold wa-text-slate-900">Additional Information</h2>
         
-        <div className="space-y-2">
-          <label htmlFor="message" className="block text-sm font-medium text-slate-700">
+        <div className="wa-space-y-2">
+          <label htmlFor="message" className="wa-block wa-text-sm wa-font-medium wa-text-slate-700">
             Message (optional)
           </label>
           <textarea
@@ -204,7 +204,7 @@ export default function EmployerLoiForm() {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
             placeholder="Tell us about your hiring needs, timeline, or any questions..."
             rows={4}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="wa-w-full wa-rounded-lg wa-border wa-border-slate-300 wa-px-3 wa-py-2 wa-text-sm focus:wa-outline-none focus:wa-ring-2 focus:wa-ring-rose-500"
           />
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function EmployerLoiForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-4 text-lg font-semibold"
+        className="wa-w-full wa-bg-gradient-to-r wa-from-rose-600 wa-to-rose-700 hover:wa-from-rose-700 hover:wa-to-rose-800 wa-text-white wa-py-4 wa-text-lg wa-font-semibold"
       >
         {loading ? 'Submitting...' : 'Submit Letter of Intent'}
       </Button>

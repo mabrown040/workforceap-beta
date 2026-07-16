@@ -66,15 +66,15 @@ export default function EmployerOutcomesDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-slate-500">Loading hiring outcomes...</div>
+      <div className="wa-flex wa-items-center wa-justify-center wa-h-64">
+        <div className="wa-text-slate-500">Loading hiring outcomes...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-700">
+      <div className="wa-rounded-lg wa-bg-red-50 wa-border wa-border-red-200 wa-p-4 wa-text-red-700">
         {error}
       </div>
     );
@@ -85,13 +85,13 @@ export default function EmployerOutcomesDashboard() {
   const { employer, metrics, jobs, programStats } = data;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="wa-space-y-8">
+      <div className="wa-flex wa-items-center wa-justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="wa-text-2xl wa-font-bold wa-text-slate-900">
             {employer.companyName} — Hiring Outcomes
           </h1>
-          <p className="text-slate-500 mt-1">
+          <p className="wa-text-slate-500 wa-mt-1">
             Pipeline effectiveness and conversion metrics
           </p>
         </div>
@@ -102,113 +102,113 @@ export default function EmployerOutcomesDashboard() {
 
       {/* Pipeline Status */}
       {!employer.hiringPipelineActive && (
-        <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-amber-800">
+        <div className="wa-rounded-lg wa-bg-amber-50 wa-border wa-border-amber-200 wa-p-4 wa-text-amber-800">
           Your hiring pipeline is currently inactive. 
-          <a href="/employer/loi" className="underline font-medium ml-1">
+          <a href="/employer/loi" className="wa-underline wa-font-medium wa-ml-1">
             Submit a Letter of Intent
           </a> to activate partnerships.
         </div>
       )}
 
       {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Total Jobs</div>
-          <div className="text-3xl font-bold text-slate-900 mt-1">
+      <div className="wa-grid wa-gap-4 md:wa-grid-cols-2 lg:wa-grid-cols-4">
+        <Card className="wa-p-6">
+          <div className="wa-text-sm wa-text-slate-500">Total Jobs</div>
+          <div className="wa-text-3xl wa-font-bold wa-text-slate-900 wa-mt-1">
             {metrics.totalJobs}
           </div>
         </Card>
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Active Jobs</div>
-          <div className="text-3xl font-bold text-blue-600 mt-1">
+        <Card className="wa-p-6">
+          <div className="wa-text-sm wa-text-slate-500">Active Jobs</div>
+          <div className="wa-text-3xl wa-font-bold wa-text-blue-600 wa-mt-1">
             {metrics.activeJobs}
           </div>
         </Card>
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Total Applications</div>
-          <div className="text-3xl font-bold text-slate-900 mt-1">
+        <Card className="wa-p-6">
+          <div className="wa-text-sm wa-text-slate-500">Total Applications</div>
+          <div className="wa-text-3xl wa-font-bold wa-text-slate-900 wa-mt-1">
             {metrics.totalApplications}
           </div>
         </Card>
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Conversion Rate</div>
-          <div className="text-3xl font-bold text-emerald-600 mt-1">
+        <Card className="wa-p-6">
+          <div className="wa-text-sm wa-text-slate-500">Conversion Rate</div>
+          <div className="wa-text-3xl wa-font-bold wa-text-emerald-600 wa-mt-1">
             {metrics.conversionRate}%
           </div>
-          <div className="text-xs text-slate-400 mt-1">
+          <div className="wa-text-xs wa-text-slate-400 wa-mt-1">
             {metrics.hiredApplications} hired / {metrics.totalApplications} applied
           </div>
         </Card>
       </div>
 
       {/* Application Funnel */}
-      <Card className="p-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">Application Funnel</h2>
-        <div className="grid gap-4 md:grid-cols-5">
+      <Card className="wa-p-6">
+        <h2 className="wa-text-lg wa-font-bold wa-text-slate-900 wa-mb-4">Application Funnel</h2>
+        <div className="wa-grid wa-gap-4 md:wa-grid-cols-5">
           {[
-            { label: 'New', value: metrics.newApplications, color: 'bg-slate-100 text-slate-700' },
-            { label: 'Reviewed', value: metrics.reviewedApplications, color: 'bg-blue-100 text-blue-700' },
-            { label: 'Hired', value: metrics.hiredApplications, color: 'bg-emerald-100 text-emerald-700' },
-            { label: 'Rejected', value: metrics.rejectedApplications, color: 'bg-red-100 text-red-700' },
+            { label: 'New', value: metrics.newApplications, color: 'wa-bg-slate-100 wa-text-slate-700' },
+            { label: 'Reviewed', value: metrics.reviewedApplications, color: 'wa-bg-blue-100 wa-text-blue-700' },
+            { label: 'Hired', value: metrics.hiredApplications, color: 'wa-bg-emerald-100 wa-text-emerald-700' },
+            { label: 'Rejected', value: metrics.rejectedApplications, color: 'wa-bg-red-100 wa-text-red-700' },
           ].map((stage) => (
-            <div key={stage.label} className={`rounded-lg p-4 text-center ${stage.color}`}>
-              <div className="text-2xl font-bold">{stage.value}</div>
-              <div className="text-sm">{stage.label}</div>
+            <div key={stage.label} className={`wa-rounded-lg wa-p-4 wa-text-center ${stage.color}`}>
+              <div className="wa-text-2xl wa-font-bold">{stage.value}</div>
+              <div className="wa-text-sm">{stage.label}</div>
             </div>
           ))}
         </div>
       </Card>
 
       {/* Jobs Table */}
-      <Card className="p-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">Job Postings</h2>
+      <Card className="wa-p-6">
+        <h2 className="wa-text-lg wa-font-bold wa-text-slate-900 wa-mb-4">Job Postings</h2>
         <DataTable
           columns={[
-            { key: 'title', header: 'Title', cell: (job) => <span className="font-medium text-slate-900">{job.title}</span> },
+            { key: 'title', header: 'Title', cell: (job) => <span className="wa-font-medium wa-text-slate-900">{job.title}</span> },
             {
               key: 'status',
               header: 'Status',
               align: 'right',
               cell: (job) => (
-                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                  job.status === 'live' ? 'bg-emerald-100 text-emerald-700' :
-                  job.status === 'filled' ? 'bg-blue-100 text-blue-700' :
-                  'bg-slate-100 text-slate-700'
+                <span className={`wa-inline-flex wa-px-2 wa-py-1 wa-rounded-full wa-text-xs wa-font-medium ${
+                  job.status === 'live' ? 'wa-bg-emerald-100 wa-text-emerald-700' :
+                  job.status === 'filled' ? 'wa-bg-blue-100 wa-text-blue-700' :
+                  'wa-bg-slate-100 wa-text-slate-700'
                 }`}>
                   {job.status}
                 </span>
               ),
             },
-            { key: 'applications', header: 'Applications', align: 'right', cell: (job) => <span className="text-slate-600">{job.applications}</span> },
+            { key: 'applications', header: 'Applications', align: 'right', cell: (job) => <span className="wa-text-slate-600">{job.applications}</span> },
           ]}
           rows={jobs}
           rowKey={(job) => job.id}
           density="compact"
           variant="portal"
-          emptyState={<p className="text-sm text-slate-500 py-4">No job postings yet.</p>}
+          emptyState={<p className="wa-text-sm wa-text-slate-500 wa-py-4">No job postings yet.</p>}
         />
       </Card>
 
       {/* Program Stats */}
-      <Card className="p-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">Program Effectiveness</h2>
-        <p className="text-sm text-slate-500 mb-4">
+      <Card className="wa-p-6">
+        <h2 className="wa-text-lg wa-font-bold wa-text-slate-900 wa-mb-4">Program Effectiveness</h2>
+        <p className="wa-text-sm wa-text-slate-500 wa-mb-4">
           Which training programs produce the best candidates for your roles
         </p>
         <DataTable
           columns={[
-            { key: 'name', header: 'Program', cell: (p) => <span className="font-medium text-slate-900">{p.name}</span> },
-            { key: 'applications', header: 'Applications', align: 'right', cell: (p) => <span className="text-slate-600">{p.applications}</span> },
-            { key: 'hired', header: 'Hired', align: 'right', cell: (p) => <span className="text-slate-600">{p.hired}</span> },
+            { key: 'name', header: 'Program', cell: (p) => <span className="wa-font-medium wa-text-slate-900">{p.name}</span> },
+            { key: 'applications', header: 'Applications', align: 'right', cell: (p) => <span className="wa-text-slate-600">{p.applications}</span> },
+            { key: 'hired', header: 'Hired', align: 'right', cell: (p) => <span className="wa-text-slate-600">{p.hired}</span> },
             {
               key: 'conversionRate',
               header: 'Conversion %',
               align: 'right',
               cell: (p) => (
-                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                  p.conversionRate >= 50 ? 'bg-emerald-100 text-emerald-700' :
-                  p.conversionRate >= 25 ? 'bg-amber-100 text-amber-700' :
-                  'bg-red-100 text-red-700'
+                <span className={`wa-inline-flex wa-px-2 wa-py-1 wa-rounded-full wa-text-xs wa-font-medium ${
+                  p.conversionRate >= 50 ? 'wa-bg-emerald-100 wa-text-emerald-700' :
+                  p.conversionRate >= 25 ? 'wa-bg-amber-100 wa-text-amber-700' :
+                  'wa-bg-red-100 wa-text-red-700'
                 }`}>
                   {p.conversionRate}%
                 </span>
@@ -219,7 +219,7 @@ export default function EmployerOutcomesDashboard() {
           rowKey={(p) => p.name}
           density="compact"
           variant="portal"
-          emptyState={<p className="text-sm text-slate-500 py-4">No program data yet.</p>}
+          emptyState={<p className="wa-text-sm wa-text-slate-500 wa-py-4">No program data yet.</p>}
         />
       </Card>
     </div>

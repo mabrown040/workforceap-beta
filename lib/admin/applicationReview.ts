@@ -6,6 +6,7 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { sendEnrollmentConfirmationEmail, sendApplicationRejectedEmail } from '@/lib/email';
 import { getProgramByInterestValue } from '@/lib/content/programs';
 import { trackEvent } from '@/lib/events/track';
+import { recordWioaReviewSnapshot } from '@/lib/wioa/reviewSnapshot';
 import type { ApplicationStatus } from '@prisma/client';
 
 /**
@@ -98,6 +99,16 @@ export async function changeApplicationStatus(args: {
       entityType: 'application',
       entityId: id,
       metadata: { previousStatus, decidedByUserId: actorUserId },
+    });
+
+    await recordWioaReviewSnapshot({
+      organizationId: orgId,
+      userId: application.userId,
+      applicationId: id,
+      source: 'application_decision',
+      decision: status,
+      notes: notes ?? null,
+      actorUserId,
     });
   }
 

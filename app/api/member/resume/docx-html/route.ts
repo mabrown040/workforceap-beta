@@ -45,7 +45,8 @@ function storageErrorMessage(error: { message?: string } | null): string {
     return NextResponse.json({ error: storageErrorMessage(error) }, { status: 502 });
   }
 
-  const buf = Buffer.from(await data.arrayBuffer());
+  const arrayBuffer = await data.arrayBuffer();
+  const buf = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   try {
     const { value: html } = await mammoth.convertToHtml({ buffer: buf });
     return NextResponse.json({

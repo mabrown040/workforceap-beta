@@ -45,7 +45,8 @@ type Props = { params: Promise<{ memberId: string }> };export const POST = withA
     return NextResponse.json({ error: 'Could not load file' }, { status: 502 });
   }
 
-  const buf = Buffer.from(await data.arrayBuffer());
+  const arrayBuffer = await data.arrayBuffer();
+  const buf = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   try {
     const { value: html } = await mammoth.convertToHtml({ buffer: buf });
     return NextResponse.json({

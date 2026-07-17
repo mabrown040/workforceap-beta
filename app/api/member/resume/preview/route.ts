@@ -39,7 +39,8 @@ function storageErrorMessage(error: { message?: string } | null): string {
     return NextResponse.json({ error: storageErrorMessage(error) }, { status: 502 });
   }
 
-  const buf = Buffer.from(await data.arrayBuffer());
+  const arrayBuffer = await data.arrayBuffer();
+  const buf = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   const name = path.split('/').pop() ?? 'resume';
   const lower = name.toLowerCase();
   let contentType = 'application/octet-stream';

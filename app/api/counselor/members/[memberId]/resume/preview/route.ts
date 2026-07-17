@@ -39,7 +39,8 @@ type Props = { params: Promise<{ memberId: string }> };export const GET = withAp
     return NextResponse.json({ error: 'Could not load file' }, { status: 502 });
   }
 
-  const buf = Buffer.from(await data.arrayBuffer());
+  const arrayBuffer = await data.arrayBuffer();
+  const buf = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   const name = path.split('/').pop() ?? 'resume';
   const lower = name.toLowerCase();
   let contentType = 'application/octet-stream';

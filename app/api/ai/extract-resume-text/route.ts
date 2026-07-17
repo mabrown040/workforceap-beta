@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
   
     try {
-      const buffer = Buffer.from(await file.arrayBuffer());
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   
       if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
         return NextResponse.json(

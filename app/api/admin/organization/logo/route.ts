@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { Buffer } from 'node:buffer';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -40,8 +41,9 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     const supabase = getSupabaseAdmin();
     const path = `${organizationId}/logo.${ext}`;
     const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
 
-    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
+    const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
       upsert: true,
       contentType,
     });

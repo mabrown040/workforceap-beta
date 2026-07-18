@@ -5,7 +5,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import EmployerMessagesInboxClient from '@/components/portal/EmployerMessagesInboxClient';
 import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
@@ -38,14 +39,20 @@ export default async function EmployerMessagesPage() {
   const serializedMessages = messages.map(serializeMessage);
   const { team: teamRow, candidates: candidateRows } = await buildEmployerInbox(ctx.employerId, user.id);
 
+  const t = await getTranslations('employer');
+
   return (
-    <DesignSurface surface="dense" className="wa-p-6">
-      <div className="wa-space-y-6" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
-        <SectionHeader
-          kicker="Employer messages"
-          title="Inbox"
-          goal="WorkforceAP support and every candidate conversation, in one place."
-        />
+    <PortalPageFrame>
+      <PageHeader
+        title="Inbox"
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">Employer messages</span>
+            <span className="wa-hidden md:wa-block">WorkforceAP support and every candidate conversation, in one place.</span>
+          </>
+        }
+      />
+      <div className="wa-space-y-6 wa-p-4 md:wa-p-0" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
         <div style={{ paddingBottom: '4rem' }}>
           <EmployerMessagesInboxClient
             portalUserId={user.id}
@@ -61,6 +68,6 @@ export default async function EmployerMessagesPage() {
           />
         </div>
       </div>
-    </DesignSurface>
+    </PortalPageFrame>
   );
 }

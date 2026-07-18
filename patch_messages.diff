@@ -1,0 +1,69 @@
+<<<<<<< SEARCH
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import EmployerMessagesInboxClient from '@/components/portal/EmployerMessagesInboxClient';
+import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
+=======
+import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import EmployerMessagesInboxClient from '@/components/portal/EmployerMessagesInboxClient';
+import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  return (
+    <DesignSurface surface="dense" className="wa-p-6">
+      <div className="wa-space-y-6" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+        <SectionHeader
+          kicker="Employer messages"
+          title="Inbox"
+          goal="WorkforceAP support and every candidate conversation, in one place."
+        />
+        <div style={{ paddingBottom: '4rem' }}>
+          <EmployerMessagesInboxClient
+            portalUserId={user.id}
+            teamRow={teamRow}
+            candidateRows={candidateRows}
+            teamInitial={{
+              thread: {
+                id: thread.id,
+                portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
+              },
+              messages: serializedMessages,
+            }}
+          />
+        </div>
+      </div>
+    </DesignSurface>
+  );
+=======
+  const t = await getTranslations('employer');
+
+  return (
+    <PortalPageFrame>
+      <PageHeader
+        title="Inbox"
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">Employer messages</span>
+            <span className="wa-hidden md:wa-block">WorkforceAP support and every candidate conversation, in one place.</span>
+          </>
+        }
+      />
+      <div className="wa-space-y-6 wa-p-4 md:wa-p-0" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+        <div style={{ paddingBottom: '4rem' }}>
+          <EmployerMessagesInboxClient
+            portalUserId={user.id}
+            teamRow={teamRow}
+            candidateRows={candidateRows}
+            teamInitial={{
+              thread: {
+                id: thread.id,
+                portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
+              },
+              messages: serializedMessages,
+            }}
+          />
+        </div>
+      </div>
+    </PortalPageFrame>
+  );
+>>>>>>> REPLACE

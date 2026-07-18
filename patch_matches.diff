@@ -1,0 +1,45 @@
+<<<<<<< SEARCH
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
+import { getTranslations } from 'next-intl/server';
+=======
+import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
+import { getTranslations } from 'next-intl/server';
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  return (
+    <DesignSurface surface="dense" className="wa-p-6">
+      <div className="wa-space-y-6">
+        <SectionHeader
+          kicker="AI matching"
+          title="Match history"
+          goal="Every candidate WorkforceAP has suggested for your live roles, with fit score and pipeline status."
+        />
+        <EmployerMatchHistoryClient initialRows={initialRows} />
+      </div>
+    </DesignSurface>
+  );
+=======
+  const t = await getTranslations('employer');
+
+  return (
+    <PortalPageFrame>
+      <PageHeader
+        title={t('matchHistoryMetaTitle')}
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">AI matching</span>
+            <span className="wa-hidden md:wa-block">
+              Every candidate WorkforceAP has suggested for your live roles, with fit score and pipeline status.
+            </span>
+          </>
+        }
+      />
+      <div className="wa-p-4 md:wa-p-0">
+        <EmployerMatchHistoryClient initialRows={initialRows} />
+      </div>
+    </PortalPageFrame>
+  );
+>>>>>>> REPLACE

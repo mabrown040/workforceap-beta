@@ -31,3 +31,6 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+## 2026-06-25 - Unified Responsive Page Headers
+**Learning:** Found several portal pages (e.g. Employer matches and messages) using legacy `<DesignSurface>` and `<SectionHeader>` patterns instead of the unified `<PortalPageFrame>` + `<PageHeader>` layout. This resulted in duplicate or misaligned headers across mobile and desktop breakpoints, hurting screen reader accessibility.
+**Action:** When auditing portal routes, replace `<DesignSurface>` and `<SectionHeader>` with `<PortalPageFrame>` and `<PageHeader>`. Use responsive wrappers (`wa-block md:wa-hidden` and `wa-hidden md:wa-block`) for subtitle content if mobile text needs to be condensed.

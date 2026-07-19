@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -40,8 +41,9 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     const supabase = getSupabaseAdmin();
     const path = `${organizationId}/logo.${ext}`;
     const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
 
-    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
+    const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
       upsert: true,
       contentType,
     });

@@ -34,7 +34,7 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
 
     if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
       return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
@@ -45,7 +45,7 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     const path = `${user.id}/resume-original.${ext}`;
     const supabase = getSupabaseAdmin();
 
-    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
+    const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
       upsert: true,
       contentType: RESUME_MIME[ext] ?? 'application/octet-stream',
     });

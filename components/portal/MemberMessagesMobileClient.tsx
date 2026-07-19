@@ -194,7 +194,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         <header className="portal-messages-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Link href="/dashboard" className="portal-messages-header-btn" aria-label="Back to dashboard">
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }} aria-hidden="true">
                 arrow_back
               </span>
             </Link>
@@ -206,7 +206,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
             aria-label="Focus search"
             onClick={() => searchInputRef.current?.focus()}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }} aria-hidden="true">
               edit_square
             </span>
           </button>
@@ -215,7 +215,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         {/* Search */}
         <div className="portal-messages-search">
           <div className="portal-messages-search-wrap">
-            <span className="material-symbols-outlined portal-messages-search-icon">search</span>
+            <span className="material-symbols-outlined portal-messages-search-icon" aria-hidden="true">search</span>
             <label htmlFor="portal-messages-search-input" className="sr-only">
               Search conversations
             </label>
@@ -286,7 +286,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           className="portal-messages-header-btn hover:wa-bg-[var(--surface-container)] active:wa-scale-95 wa-transition-transform"
           aria-label="Back to messages"
         >
-          <span className="material-symbols-outlined">arrow_back</span>
+          <span className="material-symbols-outlined" aria-hidden="true">arrow_back</span>
         </button>
         <div className="portal-messages-avatar wa-w-9 wa-h-9 wa-text-xs">{counselorInitials}</div>
         <div className="wa-flex-1 wa-min-w-0">
@@ -314,7 +314,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
               className="wa-w-16 wa-h-16 wa-rounded-full wa-flex wa-items-center wa-justify-center"
               style={{ background: 'var(--surface-container-high)' }}
             >
-              <span className="material-symbols-outlined wa-text-2xl" style={{ color: 'var(--color-accent)' }}>
+              <span className="material-symbols-outlined wa-text-2xl" style={{ color: 'var(--color-accent)' }} aria-hidden="true">
                 chat_bubble_outline
               </span>
             </div>
@@ -396,7 +396,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           }}
           aria-label="Send message"
         >
-          <span className="material-symbols-outlined wa-text-[20px]">send</span>
+          <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">send</span>
         </button>
       </form>
     </div>

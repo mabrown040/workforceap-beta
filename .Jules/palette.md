@@ -31,3 +31,6 @@
 ## 2024-06-25 - Expandable Action Button Accessibility in Admin Panel
 **Learning:** Found an "Override" action button in `AdminMemberSkillCheckpointPanel` that triggered a drop-down panel but lacked `aria-haspopup`, `aria-expanded` and `aria-controls`. Screen readers were not informed of the popup relationship. Also noted the need to use `aria-haspopup="menu"` for menus instead of `"true"`.
 **Action:** Always add `aria-haspopup="menu"`, `aria-expanded={isOpen}`, and an `aria-controls` referencing the dropdown panel ID for buttons that toggle contextual menus or overrides.
+## 2026-07-19 - Added aria-hidden to material-symbols-outlined
+**Learning:** Found that material-symbols-outlined icons were missing `aria-hidden="true"` in the mobile messages component, causing screen readers to incorrectly read out the raw ligature text (e.g., 'arrow_back', 'edit_square') rather than using the parent elements' `aria-label`s or visually hidden `sr-only` text.
+**Action:** Always add `aria-hidden="true"` to `<span className="material-symbols-outlined">` elements to prevent screen readers from reading the internal ligature text, unless they are specifically designed as semantic images with proper alternatives (which is rare).

@@ -1,373 +1,521 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Icon from '../components/Icon.astro';
-
-const DONATION_EMAIL = 'info@workforceap.org';
-const DONATION_PHONE = '(512) 777-1808';
-const DONATION_URL = 'https://www.zeffy.com/en-US/donation-form/donate-for-classes-on-workforceaporg';
-const MAILTO = `mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`;
-
-const fundsCards = [
-  {
-    title: 'Training access',
-    description: 'Support the systems, guidance, and coordination that help qualified members start and stay in career training.',
-    ic: 'ic--c',
-    icon: 'graduation-cap',
-  },
-  {
-    title: 'Career readiness',
-    description: 'Help fund resume support, interview prep, accountability, and the human follow-through that keeps members moving.',
-    ic: 'ic--b',
-    icon: 'clipboard',
-  },
-  {
-    title: 'Employer-connected outcomes',
-    description: 'Support the employer outreach, operations, and placement work that turn training into hiring opportunities.',
-    ic: 'ic--g',
-    icon: 'briefcase',
-  },
-];
-
-const suggestedAmounts = [
-  {
-    amount: '$25',
-    title: 'Member basics',
-    description: 'Helps cover job-search materials, communications, and small support costs that keep a member moving.',
-  },
-  {
-    amount: '$100',
-    title: 'Career readiness support',
-    description: 'Helps fund resume help, interview preparation, and advisor time for a member working toward placement.',
-  },
-  {
-    amount: '$250',
-    title: 'Training momentum',
-    description: 'Supports the operational work around training access, accountability, and member follow-through.',
-  },
-  {
-    amount: '$1,000+',
-    title: 'Cohort and employer pipeline support',
-    description: 'Helps WorkforceAP expand member support, employer engagement, and the systems that turn training into job outcomes.',
-  },
-];
-
-const givingOptions = [
-  {
-    title: 'Individual giving',
-    description: 'If you want to help one member keep moving toward a better job, this is the fastest way to support the mission.',
-    ic: 'ic--c',
-    icon: 'user',
-  },
-  {
-    title: 'Corporate or organizational giving',
-    description: 'For sponsorships, matching gifts, workforce partnerships, or larger commitments, email us and we will coordinate the right path.',
-    ic: 'ic--b',
-    icon: 'building',
-  },
-  {
-    title: 'Secure online giving',
-    description: 'Make a one-time or recurring donation through WorkforceAP’s official Zeffy campaign and receive a tax receipt.',
-    ic: 'ic--g',
-    icon: 'credit-card',
-  },
-];
 ---
 <Layout
-  title="Donate to WorkforceAP"
-  description="Support Workforce Advancement Project with individual, corporate, or foundation giving. See what donations fund, suggested amounts, and how to start a contribution."
+  title="Partner & Employer Giving | Sponsor a Cohort — WorkforceAP"
+  description="Fund a full year of employer-aligned training, AI career coaching, and job placement. Partner and employer giving plus Bronze–Platinum Community Champion sponsorship tiers for Workforce Advancement Project, a 501(c)(3) nonprofit (EIN 41-2612389)."
 >
-<div class="donate-depth">
+<section class="wap-give" id="partner-sponsorship">
 
-  <!-- ============================================================
-       HERO — SHORTER DEPTH STAGE: crimson→plum depth band, glow
-       auras, luminosity-masked photo, gold pill, white text +
-       a translucent glass "where it goes" card.
-       ============================================================ -->
-  <section class="stage">
-    <div class="aura aura--1"></div>
-    <div class="aura aura--2"></div>
-    <div class="aura aura--3"></div>
-    <div class="grain"></div>
-
-    <div class="wrap stage-grid">
-      <div class="lede">
-        <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>Support WorkforceAP</span>
-        <h1>Fund real training, real support,<br><span class="shimmer">and real job outcomes</span></h1>
-        <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
-        <div class="acts">
-          <a class="dbtn dbtn--solid" href={DONATION_URL} target="_blank" rel="noopener noreferrer">Donate securely online <span aria-hidden="true">→</span></a>
-          <a class="dbtn dbtn--glass" href="/contact?topic=partnership">Talk about corporate giving</a>
-        </div>
-        <div class="trustline">
-          <span><b>501(c)(3)</b> nonprofit</span><span class="sep"></span>
-          <span>EIN <b>41-2612389</b></span><span class="sep"></span>
-          <span>Donations may be <b>tax-deductible</b></span>
-        </div>
+  <!-- HERO -->
+  <div class="wg-hero">
+    <div class="wg-wrap">
+      <img class="wg-hero-logo" src="/images/wap_logo.png" alt="Workforce Advancement Project" width="126" height="64" />
+      <span class="wg-eyebrow">Partner &amp; Employer Giving</span>
+      <h1>Sponsor a cohort. Fund real futures.</h1>
+      <p class="wg-lead">Your organization can fund a full year of employer-aligned training, AI career coaching, and job placement for people who couldn&rsquo;t otherwise afford it &mdash; at no cost to them. Every seat is a life moved toward work.</p>
+      <div class="wg-cta-row">
+        <a class="wg-btn wg-btn-gold" href="https://www.zeffy.com/en-US/donation-form/donate-for-classes-on-workforceaporg" target="_blank" rel="noopener">Donate securely online →</a>
+        <a class="wg-btn wg-btn-ghost" href="#inquiry">Talk about corporate giving</a>
       </div>
+      <div class="wg-trust">
+        <span class="wg-chip"><b>501(c)(3)</b> nonprofit</span>
+        <span class="wg-chip">EIN <b>41-2612389</b></span>
+        <span class="wg-chip">Gifts may be <b>tax-deductible</b></span>
+      </div>
+    </div>
+  </div>
 
-      <!-- translucent glass "where it goes" card -->
-      <div class="deck">
-        <div class="gcard">
-          <div class="floatbadge">Every gift moves a member forward</div>
-          <div class="phead">
-            <div><small>Where it goes</small><div class="big">Access · readiness · outcomes</div></div>
-            <div class="ring">
-              <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/></svg>
-            </div>
+  <!-- PROGRAMS (slide 1) -->
+  <div class="wg-band">
+    <div class="wg-wrap">
+      <div class="wg-head">
+        <span class="wg-eyebrow">Ways organizations give</span>
+        <h2>Flexible programs for sponsoring or training your people</h2>
+        <p>Whether you&rsquo;re upskilling your own workforce, supporting laid-off workers, or funding seats for the community, there&rsquo;s a path that fits. Seats are sold in groups of 5, with volume discounts as you scale.</p>
+      </div>
+      <div class="wg-programs">
+
+        <div class="wg-prog">
+          <div class="wg-prog-top">
+            <h3>Partnership<span class="wg-prog-sub">Student Management &amp; Training</span></h3>
+            <div class="wg-price"><span class="amt">$200</span> <span class="per">/ seat / month</span></div>
           </div>
-          <div class="step"><div class="n">1</div><div class="t"><b>Training access</b><span>Start and stay in career training</span></div></div>
-          <div class="step"><div class="n">2</div><div class="t"><b>Career readiness</b><span>Resume, interview prep, follow-through</span></div></div>
-          <div class="step active"><div class="n">3</div><div class="t"><b>Employer outcomes</b><span>Turning training into hiring</span></div><span class="goalpill">Goal</span></div>
-          <p class="note">Give securely through Zeffy with one-time or recurring donation options.</p>
+          <ul>
+            <li>Seats sold in groups of 5</li>
+            <li>12-month minimum term</li>
+            <li>Interchangeable seats, no penalty</li>
+            <li>All career paths + AI coaching + 150-day post-hire</li>
+            <li>Loaner laptop included</li>
+          </ul>
+          <div class="wg-prog-foot">
+            <a class="wg-btn wg-btn-outline wg-btn-sm" href="#inquiry" data-tier="Partnership">Start a partnership</a>
+          </div>
+        </div>
+
+        <div class="wg-prog">
+          <div class="wg-prog-top">
+            <h3>Employment / Benefit<span class="wg-prog-sub">Reemployment &amp; Layoff Assistance</span></h3>
+            <div class="wg-price"><span class="amt">$2,400</span> <span class="per">/ worker / year</span></div>
+          </div>
+          <ul>
+            <li>Flat 12-month rate, no monthly billing</li>
+            <li>Seats sold in groups of 5</li>
+            <li>Unlimited training &amp; certificates</li>
+            <li>Resume, interview &amp; job placement</li>
+            <li>Loaner laptop + 150-day post-hire</li>
+          </ul>
+          <div class="wg-prog-foot">
+            <a class="wg-btn wg-btn-outline wg-btn-sm" href="#inquiry" data-tier="Employment">Set up a benefit</a>
+          </div>
+        </div>
+
+        <div class="wg-prog">
+          <div class="wg-prog-top">
+            <h3>Community Champion<span class="wg-prog-sub">Cohort Sponsorship</span></h3>
+            <div class="wg-price"><span class="amt">$2,400</span> <span class="per">/ seat / year</span></div>
+          </div>
+          <ul>
+            <li>Tax-deductible 501(c)(3) giving</li>
+            <li>Funds a full year for one member</li>
+            <li>Co-branded recognition</li>
+            <li>Quarterly impact reports</li>
+          </ul>
+          <div class="wg-prog-foot">
+            <a class="wg-btn wg-btn-maroon wg-btn-sm" href="#tiers">See sponsorship tiers ↓</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TIERS (slide 2) -->
+  <div class="wg-band wg-band-cream" id="tiers">
+    <div class="wg-wrap">
+      <div class="wg-head center">
+        <span class="wg-eyebrow">Tax-deductible giving</span>
+        <h2>Become a Community Champion &mdash; sponsor a cohort</h2>
+        <p>Choose a sponsorship tier and fund a group of members for a full year. Larger commitments unlock volume discounts, so every dollar stretches further into the community.</p>
+      </div>
+      <div class="wg-tiers">
+
+        <div class="wg-tier">
+          <div class="wg-tier-top wg-t-bronze">
+            <div class="wg-tier-name">Bronze</div>
+            <div class="wg-seats">5 Seats</div>
+            <div class="wg-term">1-Year Sponsorship</div>
+          </div>
+          <div class="wg-tier-body">
+            <div class="wg-tier-price">$12,000</div>
+            <div class="wg-seat-rate">$2,400 / seat / year</div>
+            <div class="wg-rate-label">Standard rate</div>
+            <div class="wg-lives">5 lives transformed</div>
+            <ul class="wg-incl">
+              <li>Unlimited training &amp; certs</li>
+              <li>All 19 learning paths</li>
+              <li>AI coaching &amp; readiness</li>
+              <li>Job placement support</li>
+              <li>Quarterly impact report</li>
+            </ul>
+          </div>
+          <div class="wg-tier-foot">
+            <a class="wg-btn wg-btn-outline wg-btn-sm" href="#inquiry" data-tier="Bronze">Sponsor Bronze</a>
+          </div>
+        </div>
+
+        <div class="wg-tier">
+          <div class="wg-tier-top wg-t-silver">
+            <div class="wg-tier-name">Silver</div>
+            <div class="wg-seats">10 Seats</div>
+            <div class="wg-term">1-Year Sponsorship</div>
+          </div>
+          <div class="wg-tier-body">
+            <div class="wg-tier-price">$24,000</div>
+            <div class="wg-seat-rate">$2,400 / seat / year</div>
+            <div class="wg-rate-label">Standard rate</div>
+            <div class="wg-lives">10 lives transformed</div>
+            <ul class="wg-incl">
+              <li>Unlimited training &amp; certs</li>
+              <li>All 19 learning paths</li>
+              <li>AI coaching &amp; readiness</li>
+              <li>Job placement support</li>
+              <li>Quarterly impact report</li>
+            </ul>
+          </div>
+          <div class="wg-tier-foot">
+            <a class="wg-btn wg-btn-outline wg-btn-sm" href="#inquiry" data-tier="Silver">Sponsor Silver</a>
+          </div>
+        </div>
+
+        <div class="wg-tier feat">
+          <div class="wg-badge">Best value</div>
+          <div class="wg-tier-top wg-t-gold">
+            <div class="wg-tier-name">Gold</div>
+            <div class="wg-seats">25 Seats</div>
+            <div class="wg-term">1-Year Sponsorship</div>
+          </div>
+          <div class="wg-tier-body">
+            <div class="wg-tier-price">$54,000</div>
+            <div class="wg-seat-rate">$2,160 / seat / year</div>
+            <div class="wg-rate-label">10% group discount</div>
+            <div class="wg-save">Save $6,000</div>
+            <div class="wg-lives">25 lives transformed</div>
+            <ul class="wg-incl">
+              <li>Unlimited training &amp; certs</li>
+              <li>All 19 learning paths</li>
+              <li>AI coaching &amp; readiness</li>
+              <li>Job placement support</li>
+              <li>Quarterly impact report</li>
+            </ul>
+          </div>
+          <div class="wg-tier-foot">
+            <a class="wg-btn wg-btn-gold wg-btn-sm" href="#inquiry" data-tier="Gold">Sponsor Gold</a>
+          </div>
+        </div>
+
+        <div class="wg-tier">
+          <div class="wg-tier-top wg-t-platinum">
+            <div class="wg-tier-name">Platinum</div>
+            <div class="wg-seats">50 Seats</div>
+            <div class="wg-term">1-Year Sponsorship</div>
+          </div>
+          <div class="wg-tier-body">
+            <div class="wg-tier-price">$97,200</div>
+            <div class="wg-seat-rate">$1,944 / seat / year</div>
+            <div class="wg-rate-label">Additional 10% off</div>
+            <div class="wg-save">Save $22,800</div>
+            <div class="wg-lives">50 lives transformed</div>
+            <ul class="wg-incl">
+              <li>Unlimited training &amp; certs</li>
+              <li>All 19 learning paths</li>
+              <li>AI coaching &amp; readiness</li>
+              <li>Job placement support</li>
+              <li>Quarterly impact report</li>
+            </ul>
+          </div>
+          <div class="wg-tier-foot">
+            <a class="wg-btn wg-btn-maroon wg-btn-sm" href="#inquiry" data-tier="Platinum">Sponsor Platinum</a>
+          </div>
+        </div>
+
+      </div>
+      <p class="wg-foot-note">Volume discounts: Gold receives 10% off &bull; Platinum an additional 10% off. Custom and multi-cohort commitments are welcome &mdash; <a href="#inquiry" style="color:var(--maroon);font-weight:700;">talk with our team</a>.</p>
+    </div>
+  </div>
+
+  <!-- WHY / IMPACT -->
+  <div class="wg-band">
+    <div class="wg-wrap">
+      <div class="wg-head center">
+        <span class="wg-eyebrow">Your impact</span>
+        <h2>Why champion a cohort?</h2>
+        <p>Every sponsored seat funds a full year of workforce readiness for someone who couldn&rsquo;t otherwise afford it &mdash; and you see exactly where your gift goes.</p>
+      </div>
+      <div class="wg-value">
+        <div class="wg-vcard">
+          <div class="wg-vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></div>
+          <h3>What each seat funds</h3>
+          <p>12 months of unlimited training, all 19 learning paths, AI career coaching, resume &amp; interview prep, job placement, and 150-day post-hire support.</p>
+        </div>
+        <div class="wg-vcard">
+          <div class="wg-vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><line x1="8.5" y1="15.5" x2="15.5" y2="8.5"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/></svg></div>
+          <h3>Volume discounts</h3>
+          <p>Gold: 10% off &bull; Platinum: an additional 10% off. Scale your commitment and every dollar stretches further into the community.</p>
+        </div>
+        <div class="wg-vcard">
+          <div class="wg-vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.3 7 21l5-2.7L17 21l-1.5-8.7"/></svg></div>
+          <h3>Co-branded recognition</h3>
+          <p>Your name on dashboards, impact reports, and graduate certificates &mdash; meaningful visibility across the WorkforceAP network.</p>
+        </div>
+        <div class="wg-vcard">
+          <div class="wg-vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l3 3v16l-2.3-1.4L13 21l-2.5-1.4L8 21l-2-1.4z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg></div>
+          <h3>501(c)(3) tax-deductible</h3>
+          <p>Registered nonprofit, EIN 41-2612389. A receipt is provided for every gift &mdash; the deduction your CFO will love.</p>
+        </div>
+        <div class="wg-vcard">
+          <div class="wg-vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="4" y2="13"/><line x1="10" y1="20" x2="10" y2="7"/><line x1="16" y1="20" x2="16" y2="11"/><line x1="20" y1="20" x2="20" y2="4"/></svg></div>
+          <h3>Stories you can share</h3>
+          <p>Real members. Real placements. Real results. Outcomes data and member stories are shared back to you each quarter.</p>
+        </div>
+        <div class="wg-vcard">
+          <div class="wg-vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/><line x1="3" y1="12.5" x2="21" y2="12.5"/></svg></div>
+          <h3>Employer-connected</h3>
+          <p>Training is aligned to hiring, so your investment turns directly into job outcomes &mdash; not just certificates.</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- WHAT YOUR DONATION FUNDS — light band -->
-  <section class="band band--cream"><div class="wrap">
-    <div class="sec-head">
-      <span class="kick kick--crimson">What your donation funds</span>
-      <h2>Donations support the work around <span class="grad-text">access, training, and placement</span></h2>
-      <p>WorkforceAP is building a workforce engine for people who need a real shot at a better job. Donations help fund the member support and operational work that makes that possible.</p>
+  <!-- INQUIRY FORM -->
+  <div class="wg-band" id="inquiry">
+    <div class="wg-wrap">
+      <div class="wg-head center">
+        <span class="wg-eyebrow">Start your sponsorship</span>
+        <h2>Tell us how you&rsquo;d like to give</h2>
+        <p>Share a few details and our team will follow up with next steps, an invoice or receipt, and a sponsorship built around your goals.</p>
+      </div>
+      <div class="wg-form-wrap">
+        <form id="wgInquiry" novalidate>
+          <div class="wg-form-grid">
+            <div class="wg-field"><label for="wgName">Full name *</label><input id="wgName" name="name" type="text" autocomplete="name" required></div>
+            <div class="wg-field"><label for="wgOrg">Organization *</label><input id="wgOrg" name="org" type="text" autocomplete="organization" required></div>
+            <div class="wg-field"><label for="wgEmail">Work email *</label><input id="wgEmail" name="email" type="email" autocomplete="email" required></div>
+            <div class="wg-field"><label for="wgPhone">Phone</label><input id="wgPhone" name="phone" type="tel" autocomplete="tel"></div>
+            <div class="wg-field"><label for="wgInterest">I&rsquo;m interested in *</label>
+              <select id="wgInterest" name="interest" required>
+                <option value="" selected disabled>Select an option&hellip;</option>
+                <option>Partnership &mdash; $200 / seat / month</option>
+                <option>Employment / Benefit &mdash; $2,400 / worker / year</option>
+                <option>Bronze &mdash; 5 seats ($12,000)</option>
+                <option>Silver &mdash; 10 seats ($24,000)</option>
+                <option>Gold &mdash; 25 seats ($54,000)</option>
+                <option>Platinum &mdash; 50 seats ($97,200)</option>
+                <option>Custom / not sure yet</option>
+              </select>
+            </div>
+            <div class="wg-field"><label for="wgSeats">Approx. seats</label><input id="wgSeats" name="seats" type="number" min="1" placeholder="Optional"></div>
+            <div class="wg-field full"><label for="wgMsg">Anything else?</label><textarea id="wgMsg" name="message" placeholder="Tell us about your goals, timeline, or any questions."></textarea></div>
+          </div>
+          <div class="wg-form-actions">
+            <button type="submit" class="wg-btn wg-btn-gold">Send inquiry →</button>
+            <span class="wg-form-note">Submitting opens your email app with the details ready to send to our team. Prefer to write directly? <a href="mailto:info@workforceap.org">info@workforceap.org</a></span>
+          </div>
+          <p class="wg-form-ok" id="wgOk"><b>Thanks!</b> Your email should have opened &mdash; just hit send and we&rsquo;ll be in touch.</p>
+        </form>
+      </div>
     </div>
-    <div class="tri">
-      {fundsCards.map((card) => (
-        <div class="acard">
-          <div class={`ic ${card.ic}`}><Icon name={card.icon} /></div>
-          <h3>{card.title}</h3>
-          <p>{card.description}</p>
+  </div>
+
+  <!-- FINAL CTA -->
+  <div class="wg-band wg-band-cream">
+    <div class="wg-wrap">
+      <div class="wg-final">
+        <h2>Ready to fund futures?</h2>
+        <p>Become a Community Champion today. Make a secure gift online, or reach out to build a sponsorship that fits your organization.</p>
+        <div class="wg-cta-row">
+          <a class="wg-btn wg-btn-gold" href="https://www.zeffy.com/en-US/donation-form/donate-for-classes-on-workforceaporg" target="_blank" rel="noopener">Donate securely online →</a>
+          <a class="wg-btn wg-btn-ghost" href="#inquiry">Talk about corporate giving</a>
         </div>
-      ))}
-    </div>
-  </div></section>
-
-  <!-- SUGGESTED AMOUNTS — surface band -->
-  <section class="band band--surface"><div class="wrap">
-    <div class="sec-head">
-      <span class="kick kick--crimson">Suggested amounts</span>
-      <h2>Simple giving suggestions</h2>
-      <p>These are guidance points to make giving easier. You can also choose another amount on the secure donation form.</p>
-    </div>
-    <div class="amtgrid">
-      {suggestedAmounts.map((item) => (
-        <article class="amtcard">
-          <div class="amt grad-text">{item.amount}</div>
-          <h3>{item.title}</h3>
-          <p>{item.description}</p>
-        </article>
-      ))}
-    </div>
-  </div></section>
-
-  <!-- HOW TO GIVE RIGHT NOW — light band -->
-  <section class="band band--cream"><div class="wrap">
-    <div class="sec-head">
-      <span class="kick kick--crimson">How to give right now</span>
-      <h2>Donate securely through Zeffy</h2>
-      <p>Choose a one-time, monthly, quarterly, or yearly gift through WorkforceAP’s official Zeffy campaign. For corporate sponsorships or larger commitments, contact our team directly.</p>
-    </div>
-    <div class="tri">
-      {givingOptions.map((item) => (
-        <div class="acard">
-          <div class={`ic ${item.ic}`}><Icon name={item.icon} /></div>
-          <h3>{item.title}</h3>
-          <p>{item.description}</p>
-        </div>
-      ))}
-    </div>
-
-    <div class="contactcard">
-      <h3>Donate now or talk with our team</h3>
-      <p>
-        Make a secure online donation now, or email <a class="clink" href={MAILTO}>{DONATION_EMAIL}</a> for corporate, foundation, matching-gift, or sponsorship questions.
-      </p>
-      <p>
-        If you want to talk first, call <a class="clink" href="tel:+15127771808">{DONATION_PHONE}</a>.
-      </p>
-      <div class="acts acts--light">
-        <a class="btn btn--primary" href={DONATION_URL} target="_blank" rel="noopener noreferrer">Donate securely online</a>
-        <a class="btn btn--ghost" href="/contact?topic=partnership">Contact the team</a>
+        <p class="wg-final-alt">Prefer to talk it through? Email <a href="mailto:info@workforceap.org?subject=Community%20Champion%20cohort%20sponsorship">info@workforceap.org</a> or call <a href="tel:+15127771808">(512) 777-1808</a>.</p>
       </div>
+      <p class="wg-foot-note">Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP&rsquo;s mission and may be tax-deductible to the extent allowed by law. <b>Empowering People. Advancing Futures.</b></p>
     </div>
-  </div></section>
+  </div>
 
-  <!-- 501(c)(3) — CLOSING CRIMSON CTA -->
-  <section class="close">
-    <div class="close__media" aria-hidden="true"></div>
-    <div class="close__veil" aria-hidden="true"></div>
-    <div class="close__inner wrap">
-      <h2 class="close__h2">Ready to move a member forward?</h2>
-      <div class="acts acts--center">
-        <a class="bbtn bbtn--gold" href={DONATION_URL} target="_blank" rel="noopener noreferrer">Donate securely online</a>
-        <a class="bbtn bbtn--outline" href="/contact?topic=partnership">Talk about corporate giving</a>
-      </div>
-      <div class="quote">
-        <div class="lab">Workforce Advancement Project</div>
-        <p>Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP&apos;s mission and may be tax-deductible to the extent allowed by law.</p>
-      </div>
-    </div>
-  </section>
-
-</div>
+</section>
+</Layout>
 
 <style>
-  /* ===================================================================
-     DONATE — DEPTH aesthetic to match the home.
-     Shorter depth stage hero → alternating light bands with elevated
-     cards → closing crimson CTA band.
-     =================================================================== */
-  .donate-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18);overflow-x:hidden}
-
-  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
-  .stage{
-    position:relative;overflow:hidden;isolation:isolate;
-    background:
-      var(--wap-hero-stage-gradient),
-      var(--wap-hero-photo-url) center 30%/cover no-repeat;
-    color:#fff;padding:84px 0 96px;
+  .wap-give{
+    --maroon:#7A1530; --maroon-dark:#5E0F24; --maroon-deep:#4A0E0E;
+    --gold:#D4A017; --gold-dark:#B8860B; --gold-soft:#F5E6C8;
+    --cream:#FAF5E8; --cream-2:#F3ECDD; --ink:#2B2B2B; --muted:#6B6B6B;
+    --line:#E6DECF; --green:#1F7A3A; --white:#ffffff;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --wrap:1180px; --radius:16px;
+    --shadow:0 10px 30px rgba(74,14,14,.10);
+    --shadow-lg:0 22px 55px rgba(74,14,14,.18);
+    font-family:var(--sans); color:var(--ink); line-height:1.6;
+    -webkit-font-smoothing:antialiased; text-align:left;
   }
-  .stage-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center;position:relative;z-index:2}
+  .wap-give *{box-sizing:border-box;}
+  .wap-give img{max-width:100%;display:block;}
+  .wap-give h1,.wap-give h2,.wap-give h3,.wap-give h4{font-family:var(--serif);line-height:1.15;margin:0;color:var(--maroon-dark);font-weight:700;}
+  .wap-give p{margin:0;}
+  .wap-give a{text-decoration:none;}
+  .wg-wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px;}
+  .wg-eyebrow{display:inline-block;font-family:var(--sans);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.74rem;}
 
-  /* glow auras — gold + crimson + white */
-  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
-  .aura--1{width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
-  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
-  .aura--3{width:380px;height:380px;top:30%;left:42%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+  /* Buttons */
+  .wg-btn{display:inline-flex;align-items:center;gap:.5em;font-family:var(--sans);font-weight:700;
+    font-size:1rem;padding:.85em 1.5em;border-radius:999px;text-decoration:none;border:2px solid transparent;
+    cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;white-space:nowrap;}
+  .wg-btn:hover{transform:translateY(-2px);}
+  .wg-btn-gold{background:var(--gold);color:var(--maroon-deep);box-shadow:0 8px 20px rgba(212,160,23,.35);}
+  .wg-btn-gold:hover{background:#e2b02a;}
+  .wg-btn-ghost{background:transparent;color:var(--white);border-color:rgba(255,255,255,.6);}
+  .wg-btn-ghost:hover{background:rgba(255,255,255,.12);}
+  .wg-btn-maroon{background:var(--maroon);color:var(--white);box-shadow:0 8px 20px rgba(122,21,48,.28);}
+  .wg-btn-maroon:hover{background:var(--maroon-dark);}
+  .wg-btn-outline{background:transparent;color:var(--maroon);border-color:var(--maroon);}
+  .wg-btn-outline:hover{background:var(--maroon);color:#fff;}
+  .wg-btn-sm{font-size:.92rem;padding:.7em 1.25em;}
 
-  /* luminosity-masked real photo bleeding in from the right */
-  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
-    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
-    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+  /* HERO */
+  .wg-hero{background:radial-gradient(120% 140% at 80% -10%,#8d1c39 0%,var(--maroon) 42%,var(--maroon-dark) 100%);
+    color:var(--white);position:relative;overflow:hidden;border-radius:0;}
+  .wg-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-soft),var(--gold));}
+  .wg-hero .wg-wrap{padding-top:56px;padding-bottom:60px;position:relative;z-index:1;}
+  .wg-hero-logo{height:64px;width:auto;margin-bottom:26px;}
+  .wg-hero .wg-eyebrow{color:var(--gold-soft);}
+  .wg-hero h1{color:#fff;font-size:clamp(2rem,4.6vw,3.2rem);margin:.35em 0 .45em;max-width:16ch;}
+  .wg-hero .wg-lead{font-size:clamp(1.05rem,1.7vw,1.28rem);max-width:60ch;color:#f4e7ea;}
+  .wg-cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px;}
+  .wg-trust{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:26px;font-size:.9rem;color:#f0dfe3;}
+  .wg-trust b{color:#fff;}
+  .wg-chip{display:inline-flex;align-items:center;gap:.5em;background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);padding:.4em .9em;border-radius:999px;}
 
-  /* gold PILL — fully visible, never clipped */
-  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
-    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
-    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
-    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
-  .pill__star{font-size:11px;opacity:.95}
-  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+  /* Section shells */
+  .wg-band{padding:66px 0;}
+  .wg-band-cream{background:var(--cream);}
+  .wg-head{max-width:760px;margin-bottom:40px;}
+  .wg-head.center{margin-left:auto;margin-right:auto;text-align:center;}
+  .wg-head .wg-eyebrow{color:var(--gold-dark);}
+  .wg-head h2{font-size:clamp(1.7rem,3.2vw,2.4rem);margin:.3em 0 .5em;}
+  .wg-head p{color:var(--muted);font-size:1.08rem;}
 
-  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.2vw,64px);
-    line-height:1.04;letter-spacing:-.03em;margin:22px 0 0}
-  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:32em;margin:22px 0 30px}
+  /* Program cards (slide 1) */
+  .wg-programs{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .wg-prog{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;}
+  .wg-prog-top{background:linear-gradient(160deg,var(--maroon) 0%,var(--maroon-dark) 100%);color:#fff;padding:26px 24px 22px;text-align:center;}
+  .wg-prog-top h3{color:#fff;font-size:1.3rem;}
+  .wg-prog-sub{display:block;font-family:var(--sans);font-weight:600;color:var(--gold-soft);font-size:.9rem;margin-top:4px;}
+  .wg-price{margin-top:16px;font-family:var(--serif);font-weight:700;line-height:1;}
+  .wg-price .amt{font-size:2.5rem;}
+  .wg-price .per{font-size:.95rem;font-family:var(--sans);font-weight:600;color:#f0dfe3;}
+  .wg-prog ul{list-style:none;margin:0;padding:24px 24px 8px;display:flex;flex-direction:column;gap:12px;flex:1;}
+  .wg-prog li{position:relative;padding-left:30px;font-weight:600;font-size:.98rem;color:var(--ink);}
+  .wg-prog li::before{content:"✓";position:absolute;left:0;top:-1px;color:var(--gold-dark);font-weight:900;}
+  .wg-prog .wg-prog-foot{padding:8px 24px 26px;}
+  .wg-prog .wg-btn{width:100%;justify-content:center;}
 
-  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  /* Tier cards (slide 2) */
+  .wg-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:stretch;}
+  .wg-tier{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;overflow:hidden;position:relative;}
+  .wg-tier.feat{border:2px solid var(--gold);box-shadow:var(--shadow-lg);}
+  .wg-badge{position:absolute;top:0;right:0;background:var(--gold);color:var(--maroon-deep);font-family:var(--sans);
+    font-weight:800;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.4em .8em;border-bottom-left-radius:12px;}
+  .wg-tier-top{padding:22px 20px 18px;text-align:center;color:#fff;}
+  .wg-t-bronze{background:linear-gradient(160deg,#9c6b3f,#7c5230);}
+  .wg-t-silver{background:linear-gradient(160deg,#8a9098,#6c7178);}
+  .wg-t-gold{background:linear-gradient(160deg,var(--gold),var(--gold-dark));}
+  .wg-t-platinum{background:linear-gradient(160deg,#3d4855,#26303a);}
+  .wg-tier-name{font-family:var(--sans);font-weight:800;letter-spacing:.18em;text-transform:uppercase;font-size:.82rem;opacity:.95;}
+  .wg-seats{font-family:var(--serif);font-weight:700;font-size:1.95rem;margin:2px 0 2px;line-height:1;color:#fff;}
+  .wg-term{font-size:.82rem;font-weight:600;opacity:.9;font-family:var(--sans);}
+  .wg-tier-body{padding:22px 20px;display:flex;flex-direction:column;gap:2px;flex:1;text-align:center;}
+  .wg-tier-price{font-family:var(--serif);font-weight:700;font-size:2rem;color:var(--maroon-dark);line-height:1;}
+  .wg-seat-rate{color:var(--muted);font-size:.9rem;margin-top:6px;padding-bottom:12px;border-bottom:1px solid var(--line);}
+  .wg-rate-label{font-weight:700;color:var(--maroon);font-size:.95rem;margin-top:12px;}
+  .wg-save{color:var(--green);font-weight:700;font-size:.9rem;margin-top:2px;}
+  .wg-lives{font-style:italic;color:var(--muted);font-size:.88rem;margin-top:10px;}
+  .wg-incl{list-style:none;margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--line);
+    display:flex;flex-direction:column;gap:9px;text-align:left;}
+  .wg-incl li{position:relative;padding-left:26px;font-size:.9rem;font-weight:600;}
+  .wg-incl li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:900;}
+  .wg-tier-foot{padding:0 20px 22px;}
+  .wg-tier-foot .wg-btn{width:100%;justify-content:center;}
 
-  .trustline{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:32px;
-    font-size:14px;color:rgba(255,255,255,.78)}
-  .trustline b{color:#fff;font-weight:800}
-  .trustline .sep{width:1px;height:16px;background:rgba(255,255,255,.28)}
+  /* Impact / value grid */
+  .wg-value{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .wg-vcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px 24px;box-shadow:var(--shadow);}
+  .wg-vicon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:var(--gold-soft);color:var(--maroon);margin-bottom:14px;}
+  .wg-vicon svg{width:26px;height:26px;}
+  .wg-vcard h3{font-size:1.18rem;margin-bottom:8px;}
+  .wg-vcard p{color:var(--muted);font-size:.98rem;}
 
-  /* ---------------- GLASS "where it goes" CARD ---------------- */
-  .deck{position:relative}
-  .gcard{position:relative;border-radius:22px;padding:62px 28px 26px;
-    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
-    box-shadow:var(--shadow-glass);color:#fff;overflow:hidden}
-  .floatbadge{position:absolute;top:16px;left:50%;transform:translateX(-50%);white-space:nowrap;
-    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12px;
-    padding:7px 16px;border-radius:999px;box-shadow:0 10px 24px -8px rgba(164,127,56,.6)}
-  .phead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
-  .phead small{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.72);font-weight:700}
-  .phead .big{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:21px;margin-top:6px}
-  .ring{flex-shrink:0;width:62px;height:62px}
-  .ring svg{width:100%;height:100%}
-  .step{display:flex;align-items:center;gap:13px;padding:12px 0;border-top:1px solid rgba(255,255,255,.12)}
-  .step .n{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
-    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-weight:800;font-size:14px}
-  .step .t{flex:1}
-  .step .t b{display:block;font-weight:700;font-size:15px}
-  .step .t span{font-size:13px;color:rgba(255,255,255,.74)}
-  .step.active .n{background:rgba(243,210,143,.24);border-color:rgba(243,210,143,.4);color:#f3d28f}
-  .goalpill{font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;
-    background:rgba(243,210,143,.2);color:#f3d28f;border:1px solid rgba(243,210,143,.3)}
-  .gcard .note{font-size:13px;color:rgba(255,255,255,.7);margin-top:16px;line-height:1.5}
+  /* Final CTA */
+  .wg-final{background:radial-gradient(120% 140% at 85% 0%,#8d1c39,var(--maroon-dark));color:#fff;border-radius:22px;
+    padding:52px clamp(24px,5vw,64px);text-align:center;position:relative;overflow:hidden;}
+  .wg-final::before{content:"";position:absolute;inset:0;border-radius:22px;border:1px solid rgba(255,255,255,.12);pointer-events:none;}
+  .wg-final h2{color:#fff;font-size:clamp(1.7rem,3.4vw,2.5rem);max-width:20ch;margin:0 auto .5em;}
+  .wg-final p{color:#f4e7ea;max-width:60ch;margin:0 auto;font-size:1.08rem;}
+  .wg-final .wg-cta-row{justify-content:center;}
+  .wg-final-alt{margin-top:22px;font-size:.96rem;color:#f0dfe3;}
+  .wg-final-alt a{color:var(--gold-soft);font-weight:700;text-decoration:none;border-bottom:1px solid rgba(245,230,200,.4);}
 
-  @media (prefers-reduced-motion: no-preference){
-    .deck{animation:donate-float 8s ease-in-out infinite}
-    @keyframes donate-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .wg-foot-note{text-align:center;color:var(--muted);font-size:.9rem;max-width:70ch;margin:34px auto 0;}
+
+  /* Inquiry form */
+  .wg-form-wrap{max-width:740px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:20px;
+    padding:clamp(24px,4vw,44px);box-shadow:var(--shadow-lg);}
+  .wg-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .wg-field{display:flex;flex-direction:column;gap:6px;}
+  .wg-field.full{grid-column:1 / -1;}
+  .wg-field label{font-weight:700;font-size:.9rem;color:var(--maroon-dark);font-family:var(--sans);}
+  .wg-field input,.wg-field select,.wg-field textarea{font-family:var(--sans);font-size:1rem;padding:.7em .85em;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%;}
+  .wg-field input:focus,.wg-field select:focus,.wg-field textarea:focus{outline:none;border-color:var(--maroon);
+    box-shadow:0 0 0 3px rgba(122,21,48,.14);}
+  .wg-field textarea{min-height:110px;resize:vertical;}
+  .wg-form-actions{margin-top:22px;display:flex;flex-wrap:wrap;align-items:center;gap:16px;}
+  .wg-form-note{font-size:.86rem;color:var(--muted);max-width:44ch;}
+  .wg-form-note a{color:var(--maroon);font-weight:700;}
+  .wg-form-ok{display:none;text-align:center;padding:10px 0;}
+  .wg-form-ok.show{display:block;}
+  .wg-form-ok b{color:var(--green);}
+  @media(max-width:620px){.wg-form-grid{grid-template-columns:1fr;} .wg-form-actions .wg-btn{width:100%;justify-content:center;}}
+
+  /* Responsive */
+  @media(max-width:960px){
+    .wg-programs{grid-template-columns:1fr;max-width:520px;margin:0 auto;}
+    .wg-tiers{grid-template-columns:repeat(2,1fr);}
+    .wg-value{grid-template-columns:1fr 1fr;}
   }
-
-  /* ---------------- ALTERNATING LIGHT BANDS ---------------- */
-  .band{padding:var(--sec-pad) 0}
-  .band--cream{background:var(--bg);color:var(--text)}
-  .band--surface{background:var(--surface);color:var(--text);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-
-  .sec-head{max-width:760px;margin:0 auto 52px;text-align:center}
-  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}
-  .kick--crimson{color:var(--crimson)}
-  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,52px);line-height:1.04;letter-spacing:-.02em}
-  .sec-head p{margin-top:18px;color:var(--muted);font-size:18px;line-height:1.6}
-
-  /* bold tri-cards (elevated) */
-  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px 30px;box-shadow:var(--shadow);
-    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
-  .band--surface .acard{background:var(--bg)}
-  .acard:nth-child(2){border-top-color:var(--blue)}
-  .acard:nth-child(3){border-top-color:var(--gold)}
-  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
-  .acard .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
-  .ic--c{background:rgba(173,44,77,.12);color:var(--crimson)}
-  .ic--b{background:rgba(43,123,185,.12);color:var(--blue)}
-  .ic--g{background:rgba(164,127,56,.14);color:var(--gold-dark)}
-  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;margin-bottom:10px}
-  .acard p{color:var(--muted);font-size:16px;line-height:1.55}
-
-  /* suggested amount cards */
-  .amtgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
-  .amtcard{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);
-    border-top:6px solid var(--gold);transition:transform .18s,box-shadow .2s}
-  .amtcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-  .amtcard .amt{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;line-height:1.1;margin-bottom:6px}
-  .amtcard h3{font-size:18px;font-weight:700;margin-bottom:8px}
-  .amtcard p{color:var(--muted);font-size:15px;line-height:1.5}
-  @media(max-width:880px){.amtgrid{grid-template-columns:1fr 1fr}}
-  @media(max-width:560px){.amtgrid{grid-template-columns:1fr}}
-
-  /* donation contact card — elevated glass-on-light */
-  .contactcard{margin:40px auto 0;max-width:760px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px 34px;box-shadow:var(--shadow-lg);text-align:center;border-top:6px solid var(--crimson)}
-  .contactcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:16px}
-  .contactcard p{color:var(--muted);font-size:16px;margin-bottom:12px;line-height:1.6}
-  .contactcard .clink{color:var(--crimson);font-weight:700}
-  .contactcard .clink:hover{text-decoration:underline}
-  .acts--light{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:24px}
-
-  /* ---------------- CLOSING CRIMSON CTA BAND ---------------- */
-  .close{
-    position:relative;overflow:hidden;
-    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
-  }
-  .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url-3) center 40%/cover no-repeat}
-  .close__veil{position:absolute;inset:0;
-    background:linear-gradient(120deg,rgba(173,44,77,.74) 0%,rgba(140,15,55,.64) 50%,rgba(109,20,55,.76) 100%)}
-  .close__inner{position:relative;z-index:2;color:#fff;padding:84px 24px 88px;max-width:var(--max);text-align:center}
-  .close__h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5vw,58px);line-height:1;letter-spacing:-.03em;margin-bottom:22px}
-  .acts--center{justify-content:center;margin-bottom:32px}
-  .close .bbtn:focus-visible{outline:2px solid #fff;outline-offset:3px}
-
-  .quote{max-width:840px;margin:0 auto;text-align:center;
-    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius);
-    backdrop-filter:blur(16px);box-shadow:0 30px 70px -34px rgba(35,6,18,.6),0 1px 0 rgba(255,255,255,.18) inset;
-    padding:40px 36px}
-  .quote .lab{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#f3d28f;margin-bottom:14px}
-  .quote p{color:rgba(255,255,255,.9);font-size:17px;line-height:1.6}
-
-  /* ---------------- RESPONSIVE ---------------- */
-  @media(max-width:880px){
-    .stage{padding:64px 0 76px}
-    .stage-grid{grid-template-columns:1fr;gap:56px}
-    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
-    .tri{grid-template-columns:1fr}
-  }
-  @media(max-width:560px){
-    .acts .dbtn{width:100%;justify-content:center}
-    .acts .bbtn{width:100%;justify-content:center}
+  @media(max-width:620px){
+    .wg-tiers{grid-template-columns:1fr;max-width:420px;margin:0 auto;}
+    .wg-value{grid-template-columns:1fr;}
+    .wg-band{padding:48px 0;}
+    .wg-cta-row .wg-btn{width:100%;justify-content:center;}
   }
 </style>
-</Layout>
-</content>
-</invoke>
+
+<script is:inline>
+(function(){
+  var RECIPIENT = "info@workforceap.org";
+  var scope = document.getElementById("partner-sponsorship") || document;
+  var form  = scope.querySelector("#wgInquiry");
+  var select = scope.querySelector("#wgInterest");
+
+  // Preselect the interest dropdown when a program/tier button is clicked
+  scope.querySelectorAll("[data-tier]").forEach(function(link){
+    link.addEventListener("click", function(){
+      if(!select) return;
+      var tier = link.getAttribute("data-tier");
+      for(var i=0;i<select.options.length;i++){
+        if(select.options[i].text.indexOf(tier) === 0){ select.selectedIndex = i; break; }
+      }
+    });
+  });
+
+  if(form){
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var val = function(id){ var el = scope.querySelector("#"+id); return el ? el.value.trim() : ""; };
+      // Basic required-field check
+      if(!val("wgName") || !val("wgOrg") || !val("wgEmail") || !val("wgInterest")){
+        form.reportValidity ? form.reportValidity() : alert("Please complete the required fields.");
+        return;
+      }
+      var interest = val("wgInterest") || "Not specified";
+      var subject  = "Sponsorship / donation inquiry — " + interest;
+      var body = [
+        "New donation / sponsorship inquiry from the WorkforceAP donate page:",
+        "",
+        "Name: "         + val("wgName"),
+        "Organization: " + val("wgOrg"),
+        "Email: "        + val("wgEmail"),
+        "Phone: "        + (val("wgPhone") || "—"),
+        "Interested in: "+ interest,
+        "Approx. seats: "+ (val("wgSeats") || "—"),
+        "",
+        "Message:",
+        (val("wgMsg") || "—")
+      ].join("\n");
+      var href = "mailto:" + RECIPIENT +
+                 "?subject=" + encodeURIComponent(subject) +
+                 "&body="    + encodeURIComponent(body);
+      window.location.href = href;
+      var ok = scope.querySelector("#wgOk");
+      if(ok) ok.classList.add("show");
+    });
+  }
+})();
+</script>

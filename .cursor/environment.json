@@ -1,0 +1,23 @@
+{
+  "name": "WorkforceAP Home Lab",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "bash .cursor/cloud-install.sh",
+  "start": "sudo pg_ctlcluster 16 main start 2>/dev/null || true",
+  "ports": [
+    {
+      "name": "next",
+      "port": 3000
+    }
+  ],
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npm run dev",
+      "description": "Next.js dev server at http://localhost:3000"
+    }
+  ],
+  "agentCanUpdateSnapshot": true
+}

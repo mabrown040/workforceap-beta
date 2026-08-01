@@ -19,6 +19,7 @@ const require = createRequire(import.meta.url);
 require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
+  ...(process.env.NEXT_STANDALONE === '1' ? { output: 'standalone' as const } : {}),
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'react-markdown', 'remark-gfm', '@elevenlabs/client'],
     /** Lightning CSS pipeline for smaller critical/global CSS chunks. */

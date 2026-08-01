@@ -1,0 +1,56 @@
+# WorkforceAP homelab stack — run from repo root:
+#   docker compose -f homelab/docker-compose.yml --env-file homelab/.env up -d --build
+name: workforceap-homelab
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-wap}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in homelab/.env}
+      POSTGRES_DB: ${POSTGRES_DB:-workforceap}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-wap} -d ${POSTGRES_DB:-workforceap}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    volumes:
+      - ..:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-wap}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-workforceap}
+      POSTGRES_PRISMA_URL: postgresql://${POSTGRES_USER:-wap}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-workforceap}
+      POSTGRES_URL_NON_POOLING: postgresql://${POSTGRES_USER:-wap}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-workforceap}
+      HOMELAB_DEPLOY: '1'
+    entrypoint: ['bash', 'homelab/scripts/db-init.sh']
+    restart: 'no'
+
+  web:
+    build:
+      context: ..
+      dockerfile: homelab/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-wap}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-workforceap}
+      POSTGRES_PRISMA_URL: postgresql://${POSTGRES_USER:-wap}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-workforceap}
+      POSTGRES_URL_NON_POOLING: postgresql://${POSTGRES_USER:-wap}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-workforceap}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://workforceap.mikeslabs.com}
+
+volumes:
+  pgdata:

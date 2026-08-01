@@ -1,0 +1,14 @@
+# Caddy reverse proxy — add to your existing Caddy container.
+# Replace APP_HOST with the WorkforceAP LXC IP (e.g. 192.168.1.153).
+
+workforceap.mikeslabs.com {
+	reverse_proxy APP_HOST:3000
+}
+
+# Cloudflare DNS TLS (optional — hides origin IP):
+# workforceap.mikeslabs.com {
+# 	reverse_proxy APP_HOST:3000
+# 	tls {
+# 		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+# 	}
+# }

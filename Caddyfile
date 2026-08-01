@@ -1,18 +1,2 @@
-# Caddy Reverse Proxy Config
-# Add this to your Caddyfile on the Caddy container
-
-workforceap.mikeslabs.com {
-    # Proxy to Next.js production server on port 3000
-    reverse_proxy localhost:3000
-
-    # Auto HTTPS with Let's Encrypt
-    # Caddy handles SSL automatically
-}
-
-# If using Cloudflare for DNS (recommended to hide your IP):
-# workforceap.mikeslabs.com {
-#     reverse_proxy localhost:3000
-#     tls {
-#         dns cloudflare YOUR_CLOUDFLARE_API_TOKEN
-#     }
-# }
+# WorkforceAP Reverse Proxy Config
+# Homelab snippet lives in homelab/Caddyfile — copy that block to your Caddy container.

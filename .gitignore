@@ -14,6 +14,7 @@ tmp-smoke/
 .tmp-smoke/
 .gstack/
 .env*.local
+homelab/.env
 .claude/
 .venv-fonttools/
 coverage/

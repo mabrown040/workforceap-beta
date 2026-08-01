@@ -21,6 +21,11 @@ if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
   process.exit(0);
 }
 
+if (process.env.HOMELAB_DEPLOY === '1' || process.env.HOMELAB_DEPLOY === 'true') {
+  console.log('[supabase-env-guard] Homelab deploy — skipping project ref check');
+  process.exit(0);
+}
+
 const env = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
 
 const urls = {

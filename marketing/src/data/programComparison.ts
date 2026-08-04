@@ -137,7 +137,7 @@ export const PROGRAM_COMPARISON_TRACKS: ComparisonTrack[] = [
     difficulty: '★★',
     salary: '$72K–$102K',
     demand: 'Very High',
-    certs: 'Google Data Analytics',
+    certs: 'Google/IBM Data Analytics',
     bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',
     roles: ['Data Analyst', 'Business Analyst', 'Marketing Analyst'],
     categoryLabel: 'Cloud & Data',

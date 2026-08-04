@@ -14,7 +14,7 @@ const EXPECTED_SYLLABI = {
   'cybersecurity-professional-certificate-google': ['Cybersecurity and Networking Professional Certificate (Net+, Sec+)', 160, 14],
   'project-management-professional-certificate-microsoft': ['Project Management Professional Certificate (Microsoft)', 160, 10],
   'ai-practitioner-professional-certificate-aws': ['AI Practitioner Professional Certificate (AWS)', 160, 17],
-  'data-analytics-professional-certificate-google': ['Data Analytics Professional Certificate (Google)', 160, 9],
+  'data-analytics-professional-certificate-google': ['Management and Data Analyst Professional Certificate (Google/IBM)', 160, 13],
   'data-science-professional-certificate-ibm': ['Data Science Professional Certificate (IBM)', 160, 13],
   'aws-cloud-technology-amazon': ['AWS Cloud Technology Professional Certificate (AWS)', 160, 10],
   'ux-design-professional-certificate-google': ['UX Design Professional Certificate (Google)', 160, 8],

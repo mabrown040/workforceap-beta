@@ -438,36 +438,56 @@ export const PROGRAM_SYLLABI = {
   },
   "data-analytics-professional-certificate-google": {
     "slug": "data-analytics-professional-certificate-google",
-    "title": "Data Analytics Professional Certificate (Google)",
-    "providers": "Google via Coursera",
-    "providerLine": "Powered by Google via Coursera   |   Delivery Format: Hybrid, Self-Paced",
+    "title": "Management and Data Analyst Professional Certificate (Google/IBM)",
+    "providers": "Google and IBM via Coursera",
+    "providerLine": "Powered by Google and IBM via Coursera   |   Delivery Format: Hybrid, Self-Paced",
     "deliveryFormat": "Hybrid, Self-Paced",
     "totalHours": 160,
-    "totalHoursLabel": "160 Hours= 138 Clock Hours + 22 Lab Hours",
-    "clockHours": 138,
-    "labHours": 22,
+    "totalHoursLabel": "160 Hours= 147 Clock Hours + 13 Lab Hours",
+    "clockHours": 147,
+    "labHours": 13,
     "costLabel": "$7500 = $7500 tuition and fees",
     "tuitionAndFees": 7500,
     "description": "Data analytics is the collection, transformation, and organization of data to draw conclusions, make predictions, and drive informed decision making. You'll learn from Google employees whose foundations in data analytics served as launchpads for their own careers.",
     "courses": [
       {
-        "name": "Foundations: Data, Data, Everywhere",
+        "name": "Introduction to Management Consulting",
+        "hours": 5,
+        "description": "What management consultants do and how to implement these skills in an organizational setting."
+      },
+      {
+        "name": "Introduction to Business Analysis",
+        "hours": 13,
+        "description": "Learn the fundamentals of business analysis and its significance within organizations."
+      },
+      {
+        "name": "Introduction to Data Analytics",
         "hours": 11,
+        "description": "Understand the fundamentals of the management and data process, including gathering, cleaning, analyzing, and sharing data."
+      },
+      {
+        "name": "Foundations: Data, Data, Everywhere",
+        "hours": 12,
         "description": "Introduction to the world of data analytics through hands-on curriculum developed by Google."
       },
       {
         "name": "Ask Questions to Make Data-Driven Decisions",
-        "hours": 14,
+        "hours": 15,
         "description": "Build on your understanding of data analytics — ask effective questions, make data-driven decisions, and meet stakeholders' needs."
       },
       {
         "name": "Prepare Data for Exploration",
-        "hours": 17,
+        "hours": 18,
         "description": "Use tools like spreadsheets and SQL to extract and use the right data, and learn how to organize and protect data."
       },
       {
+        "name": "Retrieve and prep data",
+        "hours": 1,
+        "description": "Retrieve and prepare data for analysis using structured tools and workflows."
+      },
+      {
         "name": "Process Data from Dirty to Clean",
-        "hours": 17,
+        "hours": 16,
         "description": "Check and clean your data using spreadsheets and SQL, and verify and report your data cleaning results."
       },
       {
@@ -477,27 +497,27 @@ export const PROGRAM_SYLLABI = {
       },
       {
         "name": "Share Data through the Art of Visualization",
-        "hours": 16,
+        "hours": 18,
         "description": "Visualize and present your data findings — including how visual dashboards bring data to life."
       },
       {
-        "name": "Data Analysis with R Programming",
-        "hours": 29,
-        "description": "Learn the R programming language. Use RStudio and the unique tools and packages of R."
-      },
-      {
         "name": "Google Data Analytics Capstone: Complete a Case Study",
-        "hours": 9,
+        "hours": 10,
         "description": "Complete a case study to prepare for your data analytics job hunt — commonly used by employers to assess analytical skills."
       },
       {
-        "name": "Lab, Project, and Test Preparation",
-        "hours": 22,
-        "description": "Hands-on labs, project work, and test preparation supporting all program competencies."
+        "name": "Business Analysis: Preparation Exam for ECBA Certification",
+        "hours": 3,
+        "description": "Prepare for the Entry Certificate in Business Analysis (ECBA) exam offered by the IIBA."
+      },
+      {
+        "name": "Management and Data Analytics Lab and workforce readiness",
+        "hours": 13,
+        "description": "Applied lab, project work, and workforce-readiness preparation to consolidate management and data analytics skills."
       }
     ],
-    "sourceDocument": "6-Data_Analytics_Professional_Certificate_Google.docx",
-    "sourceSha256": "07c28debfbec0c9a8717ffb6f359c8df4900812915d8691c288dc813b68caf4e"
+    "sourceDocument": "6-Management_and_Data_Analyst_Professional_Certificate_Google_IBM.pdf",
+    "sourceSha256": "66c22d099dba8e33d8d3fe2e7292a3a1314905beb65386e1e54213993da058c3"
   },
   "data-science-professional-certificate-ibm": {
     "slug": "data-science-professional-certificate-ibm",

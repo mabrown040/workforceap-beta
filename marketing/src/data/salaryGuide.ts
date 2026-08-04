@@ -115,7 +115,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'data-analytics-professional-certificate-google',
-    program: 'Data Analyst Professional Certificate (Google)',
+    program: 'Management and Data Analyst Professional Certificate (Google/IBM)',
     duration: '3-5 months',
     salary: '$72K–$102K',
     level: 'Mid-High',

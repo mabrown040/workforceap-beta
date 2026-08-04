@@ -96,7 +96,7 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
     slug: 'data-analytics-professional-certificate-google',
     shortName: 'Data Analytics',
     demand: 'Very High',
-    certs: 'Google Data Analytics',
+    certs: 'Google/IBM Data Analytics',
     categoryLabel: 'Cloud & Data',
     categoryOrder: 2,
   },

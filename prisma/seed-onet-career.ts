@@ -79,6 +79,11 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       title: 'Project Management Specialists',
       description: 'Analyze and coordinate the schedule, timeline, and budget of a project. Lead teams to deliver projects on time.',
     },
+    {
+      code: '13-1111.00',
+      title: 'Management Analysts',
+      description: 'Advise organizations on how to operate more efficiently — studying processes, data, and costs to recommend improvements and implement change.',
+    },
     // Marketing
     {
       code: '13-1161.00',
@@ -290,6 +295,22 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       experienceBand: 'some_experience',
       recommendationType: 'bridge',
       whyRecommended: 'Provides data analysis and visualization foundation for data science growth.',
+    },
+    {
+      onetCode: '13-1111.00',
+      programSlug: 'data-analytics-professional-certificate-google',
+      priority: 1,
+      experienceBand: 'beginner',
+      recommendationType: 'primary',
+      whyRecommended: 'Management consulting and business analysis coursework maps directly to entry-level management analyst roles.',
+    },
+    {
+      onetCode: '13-1161.00',
+      programSlug: 'data-analytics-professional-certificate-google',
+      priority: 2,
+      experienceBand: 'some_experience',
+      recommendationType: 'bridge',
+      whyRecommended: 'Data collection, cleaning, analysis, and visualization skills transfer directly to market research analysis.',
     },
 
     // ── Data Science (IBM) ──

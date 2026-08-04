@@ -212,7 +212,7 @@ const BASE_PROGRAMS: Program[] = [
   },
   {
     slug: 'data-analytics-professional-certificate-google',
-    title: 'Data Analyst Professional Certificate (Google)',
+    title: 'Management and Data Analyst Professional Certificate (Google/IBM)',
     category: 'cloud-data',
     categoryLabel: 'Cloud & Data',
     categoryColor: '#2b7bb9',

@@ -234,7 +234,7 @@ const BASE_PROGRAMS: Program[] = [
   },
   {
     slug: 'data-science-professional-certificate-ibm',
-    title: 'Data Science Professional Certificate (IBM)',
+    title: 'Data Science and Database Administrator (DBA) Professional Certificate (IBM)',
     category: 'cloud-data',
     categoryLabel: 'Cloud & Data',
     categoryColor: '#2b7bb9',

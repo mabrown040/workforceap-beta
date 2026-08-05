@@ -521,88 +521,68 @@ export const PROGRAM_SYLLABI = {
   },
   "data-science-professional-certificate-ibm": {
     "slug": "data-science-professional-certificate-ibm",
-    "title": "Data Science Professional Certificate (IBM)",
-    "providers": "IBM & Google via Coursera",
-    "providerLine": "Powered by IBM & Google via Coursera   |   Delivery Format: Hybrid, Self-Paced",
-    "deliveryFormat": "Hybrid, Self-Paced",
+    "title": "Data Science and Database Administrator (DBA) Professional Certificate (IBM)",
+    "providers": "IBM via Coursera",
+    "providerLine": "Powered by IBM via Coursera   |   Delivery Format: Online, Self-Paced",
+    "deliveryFormat": "Online, Self-Paced",
     "totalHours": 160,
-    "totalHoursLabel": "160 Hours =152 Clock Hours + 8 Lab Hours",
-    "clockHours": 152,
-    "labHours": 8,
+    "totalHoursLabel": "160 Hours",
+    "clockHours": 160,
+    "labHours": 0,
     "costLabel": "$7500 = $7500 tuition and fees",
     "tuitionAndFees": 7500,
-    "description": "You'll learn in-demand skills used by professional data scientists including databases, data visualization, statistical analysis, and predictive modeling.",
+    "description": "This 160-hour professional certificate combines core data science competencies with practical relational database administration. Learners progress from data and data-engineering foundations into Python, SQL, data analysis, visualization, and machine learning, then apply database operations skills in security, backup and recovery, performance optimization, automation, and a portfolio-ready DBA capstone.",
     "courses": [
       {
         "name": "What is Data Science?",
-        "hours": 10,
+        "hours": 12,
         "description": "Introduces the field of data science, explaining its significance in today's data-driven world."
       },
       {
-        "name": "Tools for Data Science",
-        "hours": 17,
-        "description": "Introduces the essential tools used in Data Science — the Data Scientist's toolkit."
-      },
-      {
-        "name": "Data Science Methodology",
-        "hours": 4,
-        "description": "Teaches you how to think and work like a successful Data Scientist."
+        "name": "Introduction to Data Engineering",
+        "hours": 14,
+        "description": "Foundations of data engineering — the data-engineering lifecycle, data platforms and pipelines, and choosing the right data store for the job."
       },
       {
         "name": "Python for Data Science, AI & Development",
-        "hours": 22,
+        "hours": 24,
         "description": "Develop core Python skills used by data scientists, AI engineers, and developers."
       },
       {
-        "name": "Python Project for Data Science",
-        "hours": 8,
-        "description": "A mini course designed for learners to demonstrate foundational Python skills in data science."
-      },
-      {
         "name": "Databases and SQL for Data Science with Python",
-        "hours": 16,
+        "hours": 18,
         "description": "Comprehensive intro to SQL (Structured Query Language) and its application in data science."
       },
       {
         "name": "Data Analysis with Python",
-        "hours": 12,
+        "hours": 16,
         "description": "Essential skills for analyzing data using Python, aimed at aspiring Data Scientists and Analysts."
       },
       {
         "name": "Data Visualization with Python",
-        "hours": 17,
+        "hours": 19,
         "description": "Focuses on the essential skill of visualizing data to tell compelling stories."
       },
       {
         "name": "Machine Learning with Python",
-        "hours": 17,
+        "hours": 20,
         "description": "Equips learners with essential skills in machine learning using Python."
       },
       {
-        "name": "Applied Data Science Capstone",
-        "hours": 10,
-        "description": "Apply the knowledge acquired throughout the IBM Data Science Professional Certificate."
+        "name": "Relational Database Administration (DBA)",
+        "hours": 21,
+        "description": "Administer relational databases — access control and security, backup and recovery, monitoring, automation, and performance tuning across MySQL, PostgreSQL, and IBM Db2."
       },
       {
-        "name": "Generative AI: Elevate Your Data Science Career",
-        "hours": 12,
-        "description": "Use generative AI tools and techniques to elevate work in the data science field."
-      },
-      {
-        "name": "Data Scientist Career Guide and Interview Preparation",
-        "hours": 7,
-        "description": "Career guidance and interview preparation tailored for data science roles."
-      },
-      {
-        "name": "Lab, Project, and Test Preparation",
-        "hours": 8,
-        "description": "Hands-on labs, project work, and test preparation supporting all program competencies."
+        "name": "Relational Database Administration Capstone Project",
+        "hours": 16,
+        "description": "Apply database administration skills end to end in a portfolio-ready capstone — design, ETL, security, optimization, and day-to-day database operations."
       }
     ],
-    "sourceDocument": "7-Data_Science_Professional_Certificate_IBM.docx",
-    "sourceSha256": "a291fd3af7910160d27ff00491e9380cbc41d3c4ef54eb56c21594e44c4d865c",
+    "sourceDocument": "7-Data_Science_and_Database_Administrator_Professional_Certificate.pdf",
+    "sourceSha256": "1ea9bdc781ffeb261879b46e1f22504eea624bc4fd5e4bf35ade2f7f516d3994",
     "sourceNotes": [
-      "The provider line names IBM & Google although the program title names IBM; both are preserved verbatim."
+      "WorkforceAP-curated 160-hour pathway using selected IBM courses delivered through Coursera; it does not by itself confer the full IBM Data Science Professional Certificate or the IBM Relational Database Administrator certificate. Course hours are Coursera estimates reviewed August 4, 2026."
     ]
   },
   "aws-cloud-technology-amazon": {

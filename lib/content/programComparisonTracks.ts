@@ -104,7 +104,7 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
     slug: 'data-science-professional-certificate-ibm',
     shortName: 'Data Science',
     demand: 'Very High',
-    certs: 'IBM Data Science',
+    certs: 'IBM Data Science & DBA',
     categoryLabel: 'Cloud & Data',
     categoryOrder: 2,
   },

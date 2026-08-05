@@ -55,7 +55,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'data-science-professional-certificate-ibm',
-    program: 'Data Science Professional Certificate (IBM)',
+    program: 'Data Science and Database Administrator (DBA) Professional Certificate (IBM)',
     duration: '3-5 months',
     salary: '$88K–$130K',
     level: 'High',

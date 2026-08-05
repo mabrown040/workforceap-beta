@@ -69,7 +69,7 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   },
   'data-science-professional-certificate-ibm': {
     bestFor: 'Strong interest in data + programming. Python, ML, Jupyter.',
-    jobOutcomes: ['Data Scientist', 'ML Engineer', 'Analytics Engineer'],
+    jobOutcomes: ['Data Scientist', 'ML Engineer', 'Analytics Engineer', 'Database Administrator'],
     difficulty: 3,
     rampNote: 'Involves Python and machine learning — best with some coding comfort.',
   },

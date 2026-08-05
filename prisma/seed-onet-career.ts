@@ -56,6 +56,16 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       title: 'Computer and Information Analysts',
       description: 'Analyze data processing problems and develop solutions using computer systems and procedures.',
     },
+    {
+      code: '15-1242.00',
+      title: 'Database Administrators',
+      description: 'Administer, secure, back up, and tune relational databases so organizational data stays available, reliable, and performant.',
+    },
+    {
+      code: '15-1243.00',
+      title: 'Database Architects',
+      description: 'Design and build data structures and database systems, planning how data is stored, integrated, and accessed across an organization.',
+    },
     // Cloud & Network
     {
       code: '15-1244.00',
@@ -329,6 +339,22 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       experienceBand: 'experienced',
       recommendationType: 'bridge',
       whyRecommended: 'Data analysis and machine learning skills applicable to analyst roles.',
+    },
+    {
+      onetCode: '15-1242.00',
+      programSlug: 'data-science-professional-certificate-ibm',
+      priority: 1,
+      experienceBand: 'some_experience',
+      recommendationType: 'primary',
+      whyRecommended: 'The DBA track covers access control, backup and recovery, monitoring, and performance tuning across MySQL, PostgreSQL, and IBM Db2 — core database administrator skills.',
+    },
+    {
+      onetCode: '15-1243.00',
+      programSlug: 'data-science-professional-certificate-ibm',
+      priority: 2,
+      experienceBand: 'experienced',
+      recommendationType: 'stretch',
+      whyRecommended: 'Relational database design and data-engineering foundations provide a pathway toward database architecture roles.',
     },
 
     // ── CompTIA A+ ──

@@ -11,7 +11,7 @@ import {
 const EXPECTED_SYLLABI = {
   'it-support-professional-certificate-ibm': ['IT Support Professional Certificate (IBM)', 160, 10],
   'comptia-a-professional-certificate': ['CompTIA A+ Professional Certificate (CompTIA A+)', 160, 10],
-  'cybersecurity-professional-certificate-google': ['Cybersecurity and Networking Professional Certificate (Net+, Sec+)', 160, 14],
+  'cybersecurity-professional-certificate-google': ['Networking and Cybersecurity Professional Certificate (Net+, Sec+)', 160, 14],
   'project-management-professional-certificate-microsoft': ['Project Management Professional Certificate (Microsoft)', 160, 10],
   'ai-practitioner-professional-certificate-aws': ['AI Practitioner Professional Certificate (AWS)', 160, 17],
   'data-analytics-professional-certificate-google': ['Management and Data Analyst Professional Certificate (Google/IBM)', 160, 13],

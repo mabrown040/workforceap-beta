@@ -366,7 +366,7 @@ const BASE_PROGRAMS: Program[] = [
   },
   {
     slug: 'cybersecurity-professional-certificate-google',
-    title: 'Cybersecurity and Networking Professional Certificate (CompTIA Net+, Sec+)',
+    title: 'Networking and Cybersecurity Professional Certificate (CompTIA Net+, Sec+)',
     category: 'it-cyber',
     categoryLabel: 'IT & Cybersecurity',
     categoryColor: '#ad2c4d',

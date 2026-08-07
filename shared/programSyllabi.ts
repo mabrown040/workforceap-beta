@@ -174,7 +174,7 @@ export const PROGRAM_SYLLABI = {
   },
   "cybersecurity-professional-certificate-google": {
     "slug": "cybersecurity-professional-certificate-google",
-    "title": "Cybersecurity and Networking Professional Certificate (Net+, Sec+)",
+    "title": "Networking and Cybersecurity Professional Certificate (Net+, Sec+)",
     "providers": "Microsoft, Google & Google Cloud via Coursera",
     "providerLine": "Powered by Microsoft, Google & Google Cloud via Coursera   |   Delivery Format: Hybrid, Self-Paced",
     "deliveryFormat": "Hybrid, Self-Paced",

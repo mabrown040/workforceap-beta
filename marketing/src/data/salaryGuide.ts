@@ -85,7 +85,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'cybersecurity-professional-certificate-google',
-    program: 'Cybersecurity and Networking Professional Certificate (CompTIA Net+, Sec+)',
+    program: 'Networking and Cybersecurity Professional Certificate (CompTIA Net+, Sec+)',
     duration: '3-5 months',
     salary: '$75K–$112K',
     level: 'Mid-High',

@@ -23,7 +23,7 @@ const STUDIO_AGENTS: VoiceStudioAgentKey[] = ['readiness', 'resume', 'mock', 'co
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-    title: 'Career Studio',
+    title: 'AI Career Tools',
     description:
       'Voice coaching, live mock interviews, the Resume Studio, and the full AI career toolkit — all in one place.',
     path: '/dashboard/ai-tools',

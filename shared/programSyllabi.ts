@@ -258,8 +258,8 @@ export const PROGRAM_SYLLABI = {
         "description": "Phase 3: Targeted exam preparation for both CompTIA Network+ (N10-009) and CompTIA Security+ (SY0-701). Includes objective-mapped review, practice exams, hands-on labs, and test-taking strategy to maximize first-attempt pass rates."
       }
     ],
-    "sourceDocument": "3-Cybersecurity_and_Networking_Professional_Certificate_Net_Sec.docx",
-    "sourceSha256": "90cf7911a4e909f5fc13e6d60c634ebf743bce10251b22aaf00894bb41e48960"
+    "sourceDocument": "3-Networking_and_Cybersecurity_Professional_Certificate_Net_Sec.pdf",
+    "sourceSha256": "22f28a7d1e174054d5d7226b559b7ccaeddd885d8f77cfcf78f7a05289af6da2"
   },
   "project-management-professional-certificate-microsoft": {
     "slug": "project-management-professional-certificate-microsoft",

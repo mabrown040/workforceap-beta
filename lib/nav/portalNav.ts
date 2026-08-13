@@ -100,7 +100,7 @@ export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   journey: { label: 'Home', icon: 'home' },
   program: { label: 'My Program', icon: 'school' },
   jobs: { label: 'Jobs', icon: 'work' },
-  me: { label: 'Career Studio', icon: 'auto_awesome' },
+  me: { label: 'AI Career Tools', icon: 'auto_awesome' },
 };
 
 export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'me'];
@@ -190,7 +190,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'Career Studio', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
   {
     href: '/dashboard/learning',

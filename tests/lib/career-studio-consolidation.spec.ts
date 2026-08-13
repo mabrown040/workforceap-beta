@@ -36,7 +36,7 @@ describe('Career Studio consolidation', () => {
   it('exposes one Career Studio entry in member navigation', () => {
     const nav = source('lib/nav/portalNav.ts');
 
-    expect(nav).toContain("href: '/dashboard/ai-tools', label: 'Career Studio'");
+    expect(nav).toContain("href: '/dashboard/ai-tools', label: 'AI Career Tools'");
     expect(nav).not.toContain("label: 'Voice + Career Studio'");
     expect(nav).not.toContain("href: '/dashboard/toolkit', label: 'Career Toolkit'");
   });

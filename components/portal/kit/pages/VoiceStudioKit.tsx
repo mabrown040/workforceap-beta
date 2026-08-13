@@ -261,7 +261,7 @@ export function VoiceStudioKit({
                 <AudioLines size={16} aria-hidden="true" />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Career Studio</div>
+                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>AI Career Tools</div>
                 <div style={{ fontSize: 10, color: '#a3a3a3' }}>
                   Voice coaching, resume tools, and interview prep in one place.
                 </div>
@@ -294,7 +294,7 @@ export function VoiceStudioKit({
             flexDirection: 'column',
           }}
         >
-          <h1 className="sr-only">Voice and Career Studio</h1>
+          <h1 className="sr-only">Voice and AI Career Tools</h1>
           <div
             role="tabpanel"
             id={`vs-panel-${tab}`}
@@ -1285,7 +1285,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             }}
           >
             <FlaskConical size={13} aria-hidden="true" />
-            Career Studio
+            AI Career Tools
             <Token label="BETA" size="sm" color="gray" />
           </div>
           <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>

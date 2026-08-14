@@ -29,6 +29,26 @@ const CONTACT_EMAIL = 'marianne.rader@chsaustin.org';
 const NOTES =
   '2026 CHS pilot — no cost to CHS students in 2026; funding: PARTNER_ORG; ' +
   'under-18 consent collected by school; see docs/runbooks/CONCORDIA-LAUNCH.md';
+const TERM_LABEL = '2026';
+const HEADLINE = 'Start your career training with Concordia High School';
+const BLURB =
+  'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.';
+const DISTRICT = 'Concordia';
+const PROGRAM_SLUGS = [
+  'it-support-professional-certificate-ibm',
+  'cybersecurity-professional-certificate-google',
+  'data-analytics-professional-certificate-google',
+  'project-management-professional-certificate-microsoft',
+  'ux-design-professional-certificate-google',
+] as const;
+
+function sponsorshipWindow(termLabel: string): { startsAt: Date; endsAt: Date } {
+  const year = Number(/^(\d{4})/.exec(termLabel)?.[1]) || new Date().getFullYear();
+  return {
+    startsAt: new Date(Date.UTC(year, 0, 1, 0, 0, 0)),
+    endsAt: new Date(Date.UTC(year, 11, 31, 23, 59, 59)),
+  };
+}
 
 function isEmpty(value: string | null | undefined): boolean {
   return value == null || value.trim() === '';
@@ -69,6 +89,7 @@ async function main() {
     }
 
     const organizationId = await getDefaultOrganizationId();
+    const { startsAt, endsAt } = sponsorshipWindow(TERM_LABEL);
     try {
       const created = await prisma.partner.create({
         data: {
@@ -82,8 +103,19 @@ async function main() {
           contactName: CONTACT_NAME,
           contactEmail: CONTACT_EMAIL,
           notes: NOTES,
+          sponsoredEnrollment: true,
+          sponsorshipFundingSource: 'PARTNER_ORG',
+          sponsorshipTermLabel: TERM_LABEL,
+          sponsorshipStartsAt: startsAt,
+          sponsorshipEndsAt: endsAt,
+          sponsorshipNotes: 'Sponsored by Concordia High School (2026)',
+          enrollmentPageEnabled: true,
+          enrollmentHeadline: HEADLINE,
+          enrollmentBlurb: BLURB,
+          schoolDistrict: DISTRICT,
         },
       });
+      await syncCatalog(created.id);
       console.log(
         `CREATED partner "${created.name}" — id=${created.id}, referralCode=${created.referralCode}, status=${created.status}`
       );
@@ -114,6 +146,21 @@ async function main() {
   if (isEmpty(existing.contactName)) data.contactName = CONTACT_NAME;
   if (isEmpty(existing.contactEmail)) data.contactEmail = CONTACT_EMAIL;
   if (isEmpty(existing.notes)) data.notes = NOTES;
+  if (!existing.sponsoredEnrollment) data.sponsoredEnrollment = true;
+  if (!existing.sponsorshipFundingSource) data.sponsorshipFundingSource = 'PARTNER_ORG';
+  if (isEmpty(existing.sponsorshipTermLabel)) data.sponsorshipTermLabel = TERM_LABEL;
+  if (!existing.sponsorshipStartsAt || !existing.sponsorshipEndsAt) {
+    const window = sponsorshipWindow(existing.sponsorshipTermLabel || TERM_LABEL);
+    if (!existing.sponsorshipStartsAt) data.sponsorshipStartsAt = window.startsAt;
+    if (!existing.sponsorshipEndsAt) data.sponsorshipEndsAt = window.endsAt;
+  }
+  if (isEmpty(existing.sponsorshipNotes)) data.sponsorshipNotes = 'Sponsored by Concordia High School (2026)';
+  if (!existing.enrollmentPageEnabled) data.enrollmentPageEnabled = true;
+  if (isEmpty(existing.enrollmentHeadline)) data.enrollmentHeadline = HEADLINE;
+  if (isEmpty(existing.enrollmentBlurb)) data.enrollmentBlurb = BLURB;
+  if (isEmpty(existing.schoolDistrict)) data.schoolDistrict = DISTRICT;
+
+  await syncCatalog(existing.id);
 
   if (Object.keys(data).length === 0) {
     console.log(
@@ -148,6 +195,19 @@ async function main() {
     }
     throw e;
   }
+}
+
+async function syncCatalog(partnerId: string): Promise<void> {
+  for (const [index, programSlug] of PROGRAM_SLUGS.entries()) {
+    await prisma.partnerProgramCatalog.upsert({
+      where: { partnerId_programSlug: { partnerId, programSlug } },
+      create: { partnerId, programSlug, displayOrder: index, featured: index === 0 },
+      update: { displayOrder: index, featured: index === 0 },
+    });
+  }
+  await prisma.partnerProgramCatalog.deleteMany({
+    where: { partnerId, programSlug: { notIn: [...PROGRAM_SLUGS] } },
+  });
 }
 
 main()

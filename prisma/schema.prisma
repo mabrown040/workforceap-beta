@@ -974,6 +974,29 @@ model Partner {
   stripeConnectId       String?   @map("stripe_connect_id")
   stripeConnectStatus   String?   @map("stripe_connect_status")
 
+  // --- Sponsored enrollment + partner enrollment page ---
+  // These drive sponsored (no-cost to the member) partner enrollment: when
+  // `sponsoredEnrollment` is true the partner — typically a school or agency —
+  // covers tuition for members who sign up under it, and the sponsorship
+  // fields describe who pays, for which term, and how many seats are funded
+  // (`sponsorshipSeatCap` null = uncapped). The `enrollment*` fields drive the
+  // partner's /enroll page: `enrollmentPageEnabled` gates whether the page is
+  // served at all, and the headline/blurb supply its partner-specific copy.
+  // Adding a school should be data entry against these columns plus
+  // `programCatalog` rows — no new code.
+  sponsoredEnrollment      Boolean        @default(false) @map("sponsored_enrollment")
+  sponsorshipFundingSource FundingSource? @map("sponsorship_funding_source")
+  sponsorshipTermLabel     String?        @map("sponsorship_term_label")
+  sponsorshipStartsAt      DateTime?      @map("sponsorship_starts_at")
+  sponsorshipEndsAt        DateTime?      @map("sponsorship_ends_at")
+  /// Number of sponsored seats funded for the term; null means uncapped.
+  sponsorshipSeatCap       Int?           @map("sponsorship_seat_cap")
+  sponsorshipNotes         String?        @map("sponsorship_notes") @db.Text
+  enrollmentPageEnabled    Boolean        @default(false) @map("enrollment_page_enabled")
+  enrollmentHeadline       String?        @map("enrollment_headline")
+  enrollmentBlurb          String?        @map("enrollment_blurb") @db.Text
+  schoolDistrict           String?        @map("school_district")
+
   counselors           Counselor[]
   referrals            PartnerReferral[]
   partnerUsers         PartnerUser[]
@@ -983,12 +1006,34 @@ model Partner {
   referredApplications Application[]
   messageThread        MessageThread?
   invitations          Invitation[]
+  programCatalog       PartnerProgramCatalog[]
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
   @@index([organizationId])
   @@index([partnerType])
   @@map("partners")
+}
+
+/// Per-partner curated program list shown on the partner enrollment page.
+/// `programSlug` references the canonical static catalog in
+/// lib/content/programs.ts (no FK — programs are code-defined, not rows), so a
+/// slug that no longer exists there is simply skipped when the page renders.
+/// `displayOrder` controls page order and `featured` highlights a program.
+model PartnerProgramCatalog {
+  id           String   @id @default(uuid())
+  partnerId    String   @map("partner_id")
+  programSlug  String   @map("program_slug")
+  displayOrder Int      @default(0) @map("display_order")
+  featured     Boolean  @default(false)
+  note         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  partner Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerId, programSlug])
+  @@index([partnerId, displayOrder])
+  @@map("partner_program_catalog")
 }
 
 model PartnerUser {
@@ -1721,12 +1766,19 @@ model CourseEnrollment {
   fundingNotes              String?        @map("funding_notes") @db.Text
   workspaceEmailProvisioned Boolean        @default(false) @map("workspace_email_provisioned")
   workspaceEmail            String?        @map("workspace_email")
+  /// Records which partner sponsored this enrollment at signup time. A plain
+  /// column with no foreign key — this mirrors how referral provenance is
+  /// stored loosely elsewhere, so the historical record of "who sponsored this
+  /// seat" survives the partner row being edited or removed. Resolve it
+  /// against `Partner.id` at read time and tolerate misses.
+  sponsoredByPartnerId      String?        @map("sponsored_by_partner_id")
 
   @@unique([userId, programSlug])
   @@index([organizationId])
   @@index([programSlug])
   @@index([userId, isPrimary])
   @@index([enrolledByAdminId])
+  @@index([sponsoredByPartnerId])
   @@map("course_enrollments")
 }
 
@@ -2862,6 +2914,7 @@ model WapJob {
 enum TokenLinkType {
   interview_prep
   eligibility_questionnaire
+  guardian_consent
 }
 
 model TokenizedLink {

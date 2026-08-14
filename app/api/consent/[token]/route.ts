@@ -94,13 +94,15 @@ export const POST = withApiGuc(
         update: profileData,
       });
 
-      await auditLog({
-        actorUserId: subjectId,
-        action: 'guardian_consent_submitted',
-        targetType: 'User',
-        targetId: subjectId,
-        metadata: { linkId: link.id, orgId: link.orgId },
-      }).catch(() => {});
+      await Promise.resolve(
+        auditLog({
+          actorUserId: subjectId,
+          action: 'guardian_consent_submitted',
+          targetType: 'User',
+          targetId: subjectId,
+          metadata: { linkId: link.id, orgId: link.orgId },
+        }),
+      ).catch(() => {});
       logAuditEvent({
         user: { id: subjectId, role: 'member' },
         verb: 'submitted',

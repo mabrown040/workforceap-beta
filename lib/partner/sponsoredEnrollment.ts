@@ -107,7 +107,7 @@ export function writeReferralCookieOnDocument(ref: string): void {
   document.cookie = `${APPLY_REFERRAL_COOKIE}=${encodeURIComponent(normalized)}; Path=/; Max-Age=${APPLY_REFERRAL_COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
 }
 
-export function referralCookieSetOptions(ref: string): {
+export function referralCookieSetOptions(ref: string | null | undefined): {
   name: string;
   value: string;
   path: '/';

@@ -20,7 +20,7 @@ vi.mock('@/lib/tokenizedLink', () => ({
 vi.mock('@/lib/rate-limit', () => ({
   checkPublicQuestionnaireSubmitRateLimit: vi.fn(),
 }));
-vi.mock('@/lib/audit', () => ({ auditLog: vi.fn() }));
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn(async () => undefined) }));
 vi.mock('@/lib/audit/log', () => ({
   auditRequestMeta: vi.fn(() => ({})),
   logAuditEvent: vi.fn(async () => undefined),

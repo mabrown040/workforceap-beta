@@ -1,0 +1,368 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { PROGRAMS, salaryRangeDisplay } from '../../data/programs';
+
+// ════════════════════════════════════════════════════════════════════
+// Concordia High School enrollment page (Phase A launch).
+// Co-branded, referral-coded static page for Concordia students, families,
+// and school leadership. Unlisted (noindex) — reached via the school link.
+// All titles / durations / salary ranges / skills / partners come straight
+// from the canonical data file so cards can never drift from detail pages.
+// Every Apply CTA carries ref=chs2026 so enrollments attribute correctly.
+// ════════════════════════════════════════════════════════════════════
+const REF = 'chs2026';
+const CHS_SLUGS = [
+  'it-support-professional-certificate-ibm',
+  'cybersecurity-professional-certificate-google',
+  'data-analytics-professional-certificate-google',
+  'project-management-professional-certificate-microsoft',
+  'ux-design-professional-certificate-google',
+] as const;
+
+const applyBase = `/apply?ref=${REF}`;
+const applyUrl = (slug: string) => `/apply?ref=${REF}&program=${slug}`;
+
+// Locked cost copy (product stake): sponsored "no cost" phrasing only.
+const COST_SENTENCE =
+  'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.';
+
+// Page-local presentation (accent class + Icon component name), keyed by
+// slug to match programs.astro's card treatment exactly. Category labels come
+// from the data file (p.categoryLabel); only what data can't provide lives here.
+const CARD_META: Record<(typeof CHS_SLUGS)[number], { cat: string; icon: string }> = {
+  'it-support-professional-certificate-ibm': { cat: 'c', icon: 'laptop' },
+  'cybersecurity-professional-certificate-google': { cat: 'c', icon: 'shield' },
+  'data-analytics-professional-certificate-google': { cat: 'g', icon: 'bar-chart' },
+  'project-management-professional-certificate-microsoft': { cat: 'g', icon: 'briefcase' },
+  'ux-design-professional-certificate-google': { cat: 'g', icon: 'briefcase' },
+};
+
+const BY_SLUG = new Map(PROGRAMS.map((p) => [p.slug, p]));
+const cards = CHS_SLUGS.map((slug) => {
+  const p = BY_SLUG.get(slug);
+  if (!p) throw new Error(`enroll/concordia.astro: slug not in data/programs.ts: ${slug}`);
+  const meta = CARD_META[slug];
+  return {
+    slug,
+    category: p.categoryLabel,
+    cat: meta.cat,
+    icon: meta.icon,
+    title: p.title,
+    duration: p.duration,
+    salary: salaryRangeDisplay(p),
+    partner: p.partner,
+    skills: p.skills.slice(0, 3),
+  };
+});
+
+// How it works — four steps from browsing to training.
+const steps = [
+  { num: '1', icon: 'search', title: 'Review the programs', desc: 'Browse the five certificate tracks below and pick the one that fits your interests.' },
+  { num: '2', icon: 'file-text', title: 'Apply in about 10 minutes', desc: 'One short online application. No payment information is ever requested.' },
+  { num: '3', icon: 'check-circle', title: 'Your spot is confirmed', desc: 'Concordia and WorkforceAP confirm your spot and set up your training account.' },
+  { num: '4', icon: 'rocket', title: 'Start training', desc: 'Self-paced and flexible — built to fit around your class schedule and activities.' },
+];
+
+// FAQ — the five questions students and families ask first.
+const faqs: { q: string; a: string; link?: { href: string; label: string } }[] = [
+  {
+    q: 'What does it cost?',
+    a: `${COST_SENTENCE} Students and families are never asked for payment information.`,
+  },
+  {
+    q: "I'm under 18 — can I apply?",
+    a: 'Yes — apply now. Concordia collects a parent/guardian consent form before your training is activated.',
+  },
+  {
+    q: 'The application asks about income and employment — why?',
+    a: 'Those questions support other funding programs and do not affect Concordia students — answer honestly and continue.',
+  },
+  {
+    q: 'How long does a program take?',
+    a: 'Every program is self-paced and flexible — built to fit around your school schedule. Typical durations are shown on each program card above.',
+  },
+  {
+    q: 'Questions?',
+    a: 'Talk to your Concordia counselor, or reach the WorkforceAP team any time through our contact page.',
+    link: { href: '/contact', label: 'Visit /contact' },
+  },
+];
+---
+<Layout
+  title="Concordia High School Partnership — Career Certifications for Students | WorkforceAP"
+  description="Concordia High School students: earn an industry certification at no cost for 2026 — sponsored through the WorkforceAP–Concordia partnership. Five self-paced, flexible programs. Apply in about 10 minutes."
+>
+<meta name="robots" content="noindex" slot="head" />
+<div class="chsdepth">
+
+<!-- ══════════════════════════════════════════════ HERO — DEPTH STAGE ══════════════════════════════════════════════ -->
+<section class="stage">
+  <div class="aura aura--1" aria-hidden="true"></div>
+  <div class="aura aura--2" aria-hidden="true"></div>
+  <div class="aura aura--3" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="wrap stage-grid">
+    <div class="lede">
+      <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>Concordia High School Partnership</span>
+      <h1>Concordia students: launch your career with an <span class="shimmer">industry certification</span></h1>
+      <p class="sub">{COST_SENTENCE}</p>
+      <div class="acts">
+        <a class="dbtn dbtn--solid" href={applyBase}>Start your application <span>→</span></a>
+        <a class="dbtn dbtn--glass" href="#chs-programs">See the programs</a>
+      </div>
+      <p class="meta-note">About 10 minutes to apply • No payment information requested</p>
+    </div>
+
+    <!-- co-brand glass card -->
+    <div class="hero-glass">
+      <div class="hg-tag">WorkforceAP × Concordia High School</div>
+      <div class="hg-meter">
+        <span>Certificate programs for Concordia students</span>
+        <strong>{cards.length}</strong>
+      </div>
+      <div class="hg-rows">
+        <div class="hg-row"><Icon name="graduation-cap" size={16} /> Industry-recognized certifications</div>
+        <div class="hg-row"><Icon name="laptop" size={16} /> Self-paced and flexible</div>
+        <div class="hg-row"><Icon name="shield" size={16} /> No cost to Concordia students for 2026</div>
+      </div>
+      <div class="hg-chips">
+        <span>Sponsored partnership</span>
+        <span>2026 program year</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ HOW IT WORKS ══════════════════════════════════════════════ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">How it works</span>
+    <h2>Four steps from here <span class="grad-text">to certified</span></h2>
+    <p>Your school and WorkforceAP handle the paperwork — you focus on the training.</p>
+  </div>
+  <div class="steps">
+    {steps.map((s) => (
+      <div class="stepcard">
+        <div class="num">{s.num}</div>
+        <span class="step-ic"><Icon name={s.icon} size={20} /></span>
+        <h3>{s.title}</h3>
+        <p>{s.desc}</p>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ PROGRAM GRID ══════════════════════════════════════════════ -->
+<section class="band band--surface" id="chs-programs"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Your programs</span>
+    <h2>Five certificate tracks, <span class="grad-text">picked for Concordia</span></h2>
+    <p>Every track is self-paced and flexible — built to fit around your school schedule — ends in an industry-recognized certificate, and is sponsored for Concordia High School students in 2026.</p>
+  </div>
+  <div class="pgrid">
+    {cards.map((p) => (
+      <div class="pcard">
+        <div class="pcard-top">
+          <div class="ptags">
+            <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
+            <span class="fund-pill">Sponsored for 2026</span>
+          </div>
+          <span class="picon"><Icon name={p.icon} size={26} /></span>
+        </div>
+        <h3>{p.title}</h3>
+        <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
+        <p class="pdisc">Salary range is a national early-career estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience, employer, and location.</p>
+        <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
+        <div class="pcard-foot">
+          <span class="ppartner">Partner: {p.partner}</span>
+          <div class="pacts">
+            <a class="btn btn--ghost btn--sm" href={`/programs/${p.slug}`}>View Program</a>
+            <a class="btn btn--primary btn--sm" href={applyUrl(p.slug)}>Get Started →</a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ FAQ ══════════════════════════════════════════════ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Good to know</span>
+    <h2>Questions students <span class="grad-text">and families ask</span></h2>
+  </div>
+  <div class="faq">
+    {faqs.map((f) => (
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q"><span class="faq-ic"><Icon name="help-circle" size={16} /></span>{f.q}</span>
+          <span class="faq-chev"><Icon name="chevron-down" size={18} /></span>
+        </summary>
+        <p class="faq-a">
+          {f.a}
+          {f.link && <> <a href={f.link.href}>{f.link.label}</a></>}
+        </p>
+      </details>
+    ))}
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ CLOSING CTA — DEPTH crimson band ══════════════════════════════════════════════ -->
+<section class="close">
+  <div class="close__media" aria-hidden="true"></div>
+  <div class="close__veil" aria-hidden="true"></div>
+  <div class="close__inner wrap">
+    <span class="pill pill--solid"><span class="pill__star"><Icon name="star" size={11} /></span>WorkforceAP × Concordia High School</span>
+    <h2>Your certification starts here</h2>
+    <p>{COST_SENTENCE} Apply in about 10 minutes.</p>
+    <div class="acts acts--center">
+      <a class="bbtn bbtn--gold" href={applyBase}>Start your application →</a>
+      <a class="bbtn bbtn--outline" href="#chs-programs">See the programs</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     CONCORDIA HS ENROLLMENT — DEPTH aesthetic (matches lp pages /
+     programs.astro). depth stage hero + co-brand glass card → light
+     alternating bands (steps, pcards, FAQ) → depth crimson closing CTA.
+     =================================================================== */
+  .chsdepth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:
+      var(--wap-hero-stage-gradient),
+      var(--wap-hero-photo-url) center 30%/cover no-repeat;
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-170px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:var(--wap-hero-photo-url);background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95;display:inline-flex}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,4.8vw,54px);
+    line-height:1.06;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:18px;line-height:1.55;color:rgba(255,255,255,.86);max-width:38em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .acts--center{justify-content:center}
+  .meta-note{font-size:13px;color:rgba(255,255,255,.7);margin-top:16px}
+
+  /* hero co-brand glass card */
+  .hero-glass{position:relative;border-radius:22px;padding:28px;
+    background:rgba(255,255,255,.13);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:var(--shadow-glass);color:#fff}
+  .hg-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:16px}
+  .hg-meter{display:flex;align-items:center;gap:14px;justify-content:space-between;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:16px}
+  .hg-meter span{font-size:13px;color:rgba(255,255,255,.8);line-height:1.4}
+  .hg-meter strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;color:#f3d28f;line-height:1}
+  .hg-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .hg-row{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.9)}
+  .hg-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .hg-chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  /* ---------------- LIGHT BODY BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--surface{background:var(--surface)}
+  #chs-programs{scroll-margin-top:6rem}
+
+  .sec-head{max-width:760px;margin:0 auto 44px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin-bottom:12px}
+  .sec-head p{color:var(--muted);font-size:18px;line-height:1.55}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .grad-text{background:linear-gradient(100deg,var(--crimson),var(--gold-dark));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* how-it-works steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1060px;margin:0 auto}
+  .stepcard{position:relative;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 22px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .stepcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .stepcard .num{width:48px;height:48px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;margin:0 auto 12px;box-shadow:0 12px 30px -10px rgba(173,44,77,.5)}
+  .step-ic{display:inline-grid;place-items:center;color:var(--crimson);margin-bottom:10px}
+  .stepcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;margin-bottom:6px}
+  .stepcard p{color:var(--muted);font-size:14px;line-height:1.5}
+  @media(max-width:880px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.steps{grid-template-columns:1fr}}
+
+  /* ---------------- PROGRAM CARDS (pcard pattern from programs.astro) ---------------- */
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:980px){.pgrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:680px){.pgrid{grid-template-columns:1fr}}
+  .pcard{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .18s,box-shadow .2s}
+  .pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .ptags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .cat-pill{color:#fff;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700}
+  .cat--c{background:var(--crimson)}.cat--g{background:var(--gold-dark)}
+  .fund-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(74,155,79,.12);color:#2f6b34}
+  .picon{color:var(--crimson)}
+  .pcard h3{font-size:18px;font-weight:700;margin-bottom:10px;min-height:3.6em}
+  .pmeta{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin-bottom:8px}
+  .pmeta span{display:inline-flex;align-items:center;gap:6px}
+  .prange-inline b{color:var(--crimson)}
+  .pdisc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}
+  .pskills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+  .stag{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;font-size:13px}
+  .pcard-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px}
+  .ppartner{font-size:13px;color:var(--muted)}
+  .pacts{display:flex;flex-wrap:wrap;gap:8px}
+  .btn--sm{padding:12px 16px;font-size:14px;min-height:44px;justify-content:center}
+
+  /* ---------------- FAQ ---------------- */
+  .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+  .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .2s}
+  .faq-item[open]{box-shadow:var(--shadow-lg);border-color:var(--crimson)}
+  .faq-item summary{display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;list-style:none;padding:18px 22px}
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-q{display:flex;align-items:center;gap:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16px;line-height:1.35}
+  .faq-ic{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:rgba(173,44,77,.1);color:var(--crimson);flex-shrink:0}
+  .faq-chev{display:inline-grid;place-items:center;color:var(--muted);transition:transform .2s;flex-shrink:0}
+  .faq-item[open] .faq-chev{transform:rotate(180deg)}
+  .faq-a{padding:0 22px 20px 64px;color:var(--muted);font-size:15px;line-height:1.6}
+  .faq-a a{color:var(--crimson);font-weight:800}
+  @media(max-width:560px){.faq-a{padding-left:22px}}
+
+  /* ---------------- DEPTH CLOSING CTA (full-bleed crimson) ---------------- */
+  .close{position:relative;overflow:hidden;width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
+  .close__media{position:absolute;inset:0;background:var(--wap-hero-photo-url-3) center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;background:var(--wap-hero-close-veil)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max);margin:0 auto}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,60px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(16px,2.1vw,20px);color:rgba(255,255,255,.92);max-width:46em;margin:0 auto 30px;line-height:1.5}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .acts .dbtn,.acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

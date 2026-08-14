@@ -23,6 +23,7 @@ const ELIGIBILITY_KEYS = [
 ] as const;
 
 const AGE_GROUPS = [
+  { value: 'under_18', label: 'Under 18' },
   { value: '18_24', label: '18–24' },
   { value: '25_50', label: '25–50' },
   { value: '50_plus', label: '50+' },

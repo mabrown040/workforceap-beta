@@ -7,7 +7,18 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts', 'tests/**/*.spec.tsx', 'tests/**/*.test.tsx', 'lib/**/*.test.ts', 'components/**/*.test.tsx'],
+    include: [
+      'tests/**/*.spec.ts',
+      'tests/**/*.test.ts',
+      'tests/**/*.spec.tsx',
+      'tests/**/*.test.tsx',
+      'lib/**/*.test.ts',
+      'components/**/*.test.tsx',
+      // Colocated vitest route specs. Listed individually (not app/**) so the
+      // node:test-runner files under app/ (e.g. app/api/employer/signup/route.test.ts)
+      // are not collected by vitest.
+      'app/api/apply/signup/route.test.ts',
+    ],
     exclude: [
       '**/node_modules/**',
       // Playwright suites — they need a running app and the Playwright

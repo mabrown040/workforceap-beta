@@ -49,7 +49,7 @@ const applySignupSchema = z.object({
   recommendedCareerTitle: z.string().max(200).optional().nullable(),
   careerRecommendationJson: z.any().optional().nullable(),
   needsComputerSupportFollowUp: z.boolean().optional(),
-  ageGroup: z.enum(['18_24', '25_50', '50_plus']).optional().nullable(),
+  ageGroup: z.enum(['under_18', '18_24', '25_50', '50_plus']).optional().nullable(),
   county: z.string().trim().max(100).optional().nullable(),
   primaryBarrier: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),

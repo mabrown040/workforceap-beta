@@ -4,6 +4,10 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { createNotification } from '@/lib/notifications/create';
+import {
+  courseraApprovalBlockedByConsent,
+  MINOR_CONSENT_REQUIRED_MESSAGE,
+} from '@/lib/admin/courseraConsentGate';
 
 /**
  * Shared core of "flip a member's Coursera enrollment-approval flag," used
@@ -15,7 +19,7 @@ import { createNotification } from '@/lib/notifications/create';
  */
 export type CourseraApprovalResult =
   | { ok: true; memberId: string; approved: boolean }
-  | { ok: false; memberId: string; error: string };
+  | { ok: false; memberId: string; error: string; status: 404 | 409 };
 
 export async function setCourseraEnrollmentApproval(args: {
   memberId: string;
@@ -28,10 +32,25 @@ export async function setCourseraEnrollmentApproval(args: {
   const { memberId, approved, orgId, actorUserId, actorRole, requestMeta } = args;
 
   const member = await withTenantScope(orgId, (db) =>
-    db.user.findUnique({ where: { id: memberId }, select: { id: true } }),
+    db.user.findUnique({
+      where: { id: memberId },
+      select: {
+        id: true,
+        profile: { select: { isMinor: true, parentalConsentGiven: true } },
+      },
+    }),
   );
   if (!member) {
-    return { ok: false, memberId, error: 'Member not found' };
+    return { ok: false, memberId, error: 'Member not found', status: 404 };
+  }
+
+  if (approved && courseraApprovalBlockedByConsent(member.profile)) {
+    return {
+      ok: false,
+      memberId,
+      error: MINOR_CONSENT_REQUIRED_MESSAGE,
+      status: 409,
+    };
   }
 
   const now = new Date();

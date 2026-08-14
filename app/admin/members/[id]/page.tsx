@@ -16,6 +16,7 @@ import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSectio
 import { ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS } from '@/lib/assessment/questions';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberCourseraEnrollmentApproval from '@/components/admin/MemberCourseraEnrollmentApproval';
+import AdminMemberConsentPanel from '@/components/admin/AdminMemberConsentPanel';
 import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';
 import AdminMemberQuickSummary from '@/components/admin/AdminMemberQuickSummary';
 import AdminMemberSendLinks from '@/components/admin/AdminMemberSendLinks';
@@ -739,6 +740,22 @@ export default async function AdminMemberDetailPage({
             programOptions={programOptions ?? []}
           />
 
+          <AdminMemberConsentPanel
+            memberId={member.id}
+            profile={{
+              isMinor: Boolean(member.profile?.isMinor),
+              parentGuardianName: member.profile?.parentGuardianName ?? null,
+              parentGuardianEmail: member.profile?.parentGuardianEmail ?? null,
+              parentGuardianPhone: member.profile?.parentGuardianPhone ?? null,
+              parentalConsentGiven: Boolean(member.profile?.parentalConsentGiven),
+              parentalConsentDate: member.profile?.parentalConsentDate
+                ? member.profile.parentalConsentDate.toISOString()
+                : null,
+              schoolName: member.profile?.schoolName ?? null,
+              gradeLevel: member.profile?.gradeLevel ?? null,
+            }}
+          />
+
           {/* Coursera enrollment approval — gates the "Enroll in this course"
               button on the member's training page. Each approval can lead to
               a paid Coursera seat being consumed. See
@@ -753,6 +770,7 @@ export default async function AdminMemberDetailPage({
                 : null
             }
             approvedByName={null}
+            consentBlocked={Boolean(member.profile?.isMinor && !member.profile?.parentalConsentGiven)}
           />
         </section>
 

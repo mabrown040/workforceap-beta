@@ -9,6 +9,7 @@ import PartnerDeactivateDialog from './PartnerDeactivateDialog';
 type Partner = {
   id: string;
   name: string;
+  slug: string;
   contactName: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
@@ -16,6 +17,16 @@ type Partner = {
   notes: string | null;
   logoUrl: string | null;
   brandColor: string | null;
+  partnerType: string;
+  referralCode: string | null;
+  sponsoredEnrollment: boolean;
+  sponsorshipFundingSource: string | null;
+  sponsorshipTermLabel: string | null;
+  enrollmentPageEnabled: boolean;
+  enrollmentHeadline: string | null;
+  enrollmentBlurb: string | null;
+  schoolDistrict: string | null;
+  programCatalog: { programSlug: string }[];
   _count: { counselors: number; referrals: number };
 };
 
@@ -30,9 +41,10 @@ type Props = {
   partner: Partner;
   subgroups: Subgroup[];
   allPartners: { id: string; name: string; active: boolean }[];
+  programs: { slug: string; title: string }[];
 };
 
-export default function PartnerDetailActions({ partner, subgroups, allPartners }: Props) {
+export default function PartnerDetailActions({ partner, subgroups, allPartners, programs }: Props) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
@@ -86,6 +98,7 @@ export default function PartnerDetailActions({ partner, subgroups, allPartners }
         <PartnerEditModal
           partner={partner}
           subgroups={subgroups}
+          programs={programs}
           onClose={() => setEditOpen(false)}
         />
       )}

@@ -16,21 +16,24 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
 /**
  * POST /api/admin/token-links
  *
- * Admin-only. Mints a single-use, expiring tokenized link to the PUBLIC
- * (no-account) eligibility questionnaire at /q/<token>. The link type is
- * fixed to 'eligibility_questionnaire' for this route.
+ * Admin-only. Mints a single-use, expiring tokenized link.
+ * Default type is `eligibility_questionnaire` → `/q/<token>`.
+ * Pass `type: 'guardian_consent'` (requires `subjectUserId`) → `/consent/<token>`.
  *
  * If `subjectUserId` is provided, the public form is pre-filled from — and
  * writes back to — that member's profile only. If only `email` is provided
- * (or nothing), the link captures a no-account lead.
+ * (or nothing) on an eligibility link, the link captures a no-account lead.
  *
  * Security: isAdmin gate + withApiGuc; the token is the only thing that
  * unlocks the public page, so it is long, random, single-use, and expiring
  * (enforced server-side in lib/tokenizedLink + the public submit route).
  */
+const MINTABLE_TYPES = ['eligibility_questionnaire', 'guardian_consent'] as const;
+
 const bodySchema = z.object({
   email: z.string().trim().email('Please enter a valid email address.').optional(),
   subjectUserId: z.string().trim().min(1).optional(),
+  type: z.enum(MINTABLE_TYPES).optional().default('eligibility_questionnaire'),
 });
 
 export const POST = withApiGuc(async (request: Request) => {
@@ -64,7 +67,13 @@ export const POST = withApiGuc(async (request: Request) => {
         { status: 400 },
       );
     }
-    const { email, subjectUserId } = parsed.data;
+    const { email, subjectUserId, type } = parsed.data;
+    if (type === 'guardian_consent' && !subjectUserId) {
+      return NextResponse.json(
+        { error: 'Guardian consent links must be bound to a member.' },
+        { status: 400 },
+      );
+    }
 
     // When binding the link to a member, the actor must have authority over
     // that member (org admin in the member's org, or super_admin). Without
@@ -88,7 +97,7 @@ export const POST = withApiGuc(async (request: Request) => {
       : await getActorOrganizationId(user.id);
 
     const { token } = await createTokenizedLink({
-      type: 'eligibility_questionnaire',
+      type,
       createdById: user.id,
       email: email ?? null,
       subjectUserId: subjectUserId ?? null,
@@ -101,7 +110,7 @@ export const POST = withApiGuc(async (request: Request) => {
       targetType: 'tokenized_link',
       targetId: token,
       metadata: {
-        type: 'eligibility_questionnaire',
+        type,
         subjectUserId: subjectUserId ?? null,
         email: email ?? null,
         token,
@@ -116,9 +125,10 @@ export const POST = withApiGuc(async (request: Request) => {
       orgId,
     }).catch(() => {});
 
-    const url = `${SITE_URL}/q/${token}`;
+    const path = type === 'guardian_consent' ? `/consent/${token}` : `/q/${token}`;
+    const url = `${SITE_URL}${path}`;
 
-    if (email) {
+    if (email && type === 'eligibility_questionnaire') {
       // Reuse the eligibility-link email helper, pointed at the public /q URL.
       let name: string | null = null;
       if (subjectUserId) {

@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+import { syncPartnerProgramCatalog } from '@/lib/partner/syncProgramCatalog';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -58,7 +59,18 @@ const patchSchema = z.object({
     .optional()
     .nullable(),
   subgroupIds: z.array(z.string().uuid()).optional(),
-});export const PATCH = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  partnerType: z.enum(['community', 'referral', 'high_school']).optional(),
+  sponsoredEnrollment: z.boolean().optional(),
+  sponsorshipFundingSource: z.enum(['GRANT', 'EMPLOYER', 'PARTNER_ORG', 'SELF', 'OTHER']).optional().nullable(),
+  sponsorshipTermLabel: z.string().max(40).optional().nullable(),
+  enrollmentPageEnabled: z.boolean().optional(),
+  enrollmentHeadline: z.string().max(200).optional().nullable(),
+  enrollmentBlurb: z.string().max(2000).optional().nullable(),
+  schoolDistrict: z.string().max(200).optional().nullable(),
+  programSlugs: z.array(z.string().min(1).max(120)).max(20).optional(),
+});
+
+export const PATCH = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -133,6 +145,14 @@ const patchSchema = z.object({
     if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
     if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl?.trim() || null;
     if (data.brandColor !== undefined) updateData.brandColor = data.brandColor?.trim() || null;
+    if (data.partnerType !== undefined) updateData.partnerType = data.partnerType;
+    if (data.sponsoredEnrollment !== undefined) updateData.sponsoredEnrollment = data.sponsoredEnrollment;
+    if (data.sponsorshipFundingSource !== undefined) updateData.sponsorshipFundingSource = data.sponsorshipFundingSource;
+    if (data.sponsorshipTermLabel !== undefined) updateData.sponsorshipTermLabel = data.sponsorshipTermLabel?.trim() || null;
+    if (data.enrollmentPageEnabled !== undefined) updateData.enrollmentPageEnabled = data.enrollmentPageEnabled;
+    if (data.enrollmentHeadline !== undefined) updateData.enrollmentHeadline = data.enrollmentHeadline?.trim() || null;
+    if (data.enrollmentBlurb !== undefined) updateData.enrollmentBlurb = data.enrollmentBlurb?.trim() || null;
+    if (data.schoolDistrict !== undefined) updateData.schoolDistrict = data.schoolDistrict?.trim() || null;
   
     try {
       if (Object.keys(updateData).length > 0) {
@@ -144,6 +164,10 @@ const patchSchema = z.object({
         );
       }
   
+      if (data.programSlugs !== undefined) {
+        await withTenantScope(orgId, (db) => syncPartnerProgramCatalog(db, partnerId, data.programSlugs ?? []));
+      }
+
       if (data.subgroupIds !== undefined) {
         // Subgroup is NOT tenant-scoped (inherits via FK to Partner).
         // Run the clear+assign inside its own transaction.

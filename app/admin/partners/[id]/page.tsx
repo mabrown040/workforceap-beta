@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Users, Activity, GraduationCap, Trophy } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import PartnerEnrollmentFunnelStrip from '@/components/admin/PartnerEnrollmentFunnelStrip';
+import { enrollmentPathForSlug } from '@/lib/enroll/enrollmentPath';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
@@ -69,6 +71,8 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
               },
               userCertifications: { select: { certName: true, earnedAt: true } },
               applications: { select: { status: true, submittedAt: true } },
+              courseraEnrollmentApproved: true,
+              profile: { select: { parentalConsentGiven: true, isMinor: true } },
               memberProgramProgress: {
                 select: { programSlug: true, averagePercent: true, coursesCompleted: true },
               },
@@ -77,6 +81,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         },
         orderBy: { referredAt: 'desc' },
       },
+      programCatalog: { select: { programSlug: true } },
       _count: { select: { counselors: true, referrals: true } },
     },
   }),
@@ -150,6 +155,14 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
     }
   }
 
+  const funnel = {
+    referred: members.length,
+    pending: members.filter((m) => m.applications.some((a) => a.status === 'PENDING')).length,
+    approved: members.filter((m) => m.applications.some((a) => a.status === 'APPROVED')).length,
+    consented: members.filter((m) => m.profile?.parentalConsentGiven || m.profile?.isMinor === false).length,
+    activated: members.filter((m) => m.courseraEnrollmentApproved).length,
+  };
+
   type Referral = (typeof partner.referrals)[number];
 
   const referralColumns: Column<Referral>[] = [
@@ -218,9 +231,21 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         action={
           <div className="wa-flex wa-items-center" style={{ gap: 12 }}>
             <StatusTag tone={partner.active ? 'ok' : 'muted'}>{partner.active ? 'Active' : 'Inactive'}</StatusTag>
-            <PartnerDetailActions partner={partner} subgroups={subgroups} allPartners={allPartners} />
+            <PartnerDetailActions
+              partner={partner}
+              subgroups={subgroups}
+              allPartners={allPartners}
+              programs={PROGRAMS.map((p) => ({ slug: p.slug, title: p.title }))}
+            />
           </div>
         }
+      />
+
+      <PartnerEnrollmentFunnelStrip
+        partnerName={partner.name}
+        slug={partner.slug}
+        enrollmentPageEnabled={partner.enrollmentPageEnabled}
+        counts={funnel}
       />
 
       <div className="wa-kit-card" style={{ marginBottom: 24 }}>

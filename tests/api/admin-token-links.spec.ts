@@ -82,7 +82,11 @@ describe('POST /api/admin/token-links', () => {
     expect(res.status).toBe(200);
     expect((await res.json()).url).toContain('/q/tok-123');
     expect(createTokenizedLink).toHaveBeenCalledWith(
-      expect.objectContaining({ orgId: 'org-1', subjectUserId: null }),
+      expect.objectContaining({
+        type: 'eligibility_questionnaire',
+        orgId: 'org-1',
+        subjectUserId: null,
+      }),
     );
     expect(resolveActOnBehalf).not.toHaveBeenCalled();
   });
@@ -197,6 +201,45 @@ describe('POST /api/admin/token-links', () => {
     const res = await POST(postReq({}));
     expect(res.status).toBe(429);
     expect(await res.json()).toEqual({ error: 'Rate limit exceeded. Try again later.' });
+    expect(createTokenizedLink).not.toHaveBeenCalled();
+  });
+
+  it('mints a guardian_consent link at /consent/<token> when bound to a member', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(resolveActOnBehalf).mockResolvedValue({
+      ok: true,
+      subjectUserId: 'member-1',
+      isOnBehalf: true,
+      actorUserId: 'admin-1',
+      actorName: 'Admin One',
+    });
+    vi.mocked(getSubjectOrganizationId).mockResolvedValue('org-1');
+
+    const res = await POST(postReq({ subjectUserId: 'member-1', type: 'guardian_consent' }));
+    expect(res.status).toBe(200);
+    expect((await res.json()).url).toContain('/consent/tok-123');
+    expect(createTokenizedLink).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'guardian_consent', subjectUserId: 'member-1' }),
+    );
+    expect(sendEligibilityLink).not.toHaveBeenCalled();
+  });
+
+  it('rejects guardian_consent without a bound member', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+
+    const res = await POST(postReq({ type: 'guardian_consent' }));
+    expect(res.status).toBe(400);
+    expect(createTokenizedLink).not.toHaveBeenCalled();
+  });
+
+  it('rejects an unsupported token link type', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+
+    const res = await POST(postReq({ type: 'interview_prep' }));
+    expect(res.status).toBe(400);
     expect(createTokenizedLink).not.toHaveBeenCalled();
   });
 

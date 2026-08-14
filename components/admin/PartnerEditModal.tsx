@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import PartnerSchoolEnrollmentFields, {
+  type SchoolEnrollmentValues,
+} from '@/components/admin/PartnerSchoolEnrollmentFields';
 
 export type PartnerForEdit = {
   id: string;
   name: string;
+  slug?: string;
   contactName: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
@@ -15,6 +19,16 @@ export type PartnerForEdit = {
   notes: string | null;
   logoUrl: string | null;
   brandColor: string | null;
+  partnerType?: string;
+  referralCode?: string | null;
+  sponsoredEnrollment?: boolean;
+  sponsorshipFundingSource?: string | null;
+  sponsorshipTermLabel?: string | null;
+  enrollmentPageEnabled?: boolean;
+  enrollmentHeadline?: string | null;
+  enrollmentBlurb?: string | null;
+  schoolDistrict?: string | null;
+  programCatalog?: { programSlug: string }[];
   subgroups?: { id: string; name: string }[];
 };
 
@@ -25,10 +39,11 @@ type SubgroupOpt = { id: string; name: string; type: string; partnerId: string |
 type Props = {
   partner: PartnerForEdit;
   subgroups: SubgroupOpt[];
+  programs?: { slug: string; title: string }[];
   onClose: () => void;
 };
 
-export default function PartnerEditModal({ partner, subgroups, onClose }: Props) {
+export default function PartnerEditModal({ partner, subgroups, programs = [], onClose }: Props) {
   const router = useRouter();
   const [name, setName] = useState(partner.name);
   const [contactName, setContactName] = useState(partner.contactName ?? '');
@@ -43,6 +58,18 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [school, setSchool] = useState<SchoolEnrollmentValues>({
+    partnerType: partner.partnerType ?? 'community',
+    referralCode: partner.referralCode ?? '',
+    sponsoredEnrollment: partner.sponsoredEnrollment ?? false,
+    sponsorshipFundingSource: partner.sponsorshipFundingSource ?? 'PARTNER_ORG',
+    sponsorshipTermLabel: partner.sponsorshipTermLabel ?? '2026',
+    enrollmentPageEnabled: partner.enrollmentPageEnabled ?? false,
+    enrollmentHeadline: partner.enrollmentHeadline ?? '',
+    enrollmentBlurb: partner.enrollmentBlurb ?? '',
+    schoolDistrict: partner.schoolDistrict ?? '',
+    programSlugs: partner.programCatalog?.map((r) => r.programSlug) ?? [],
+  });
   const trapRef = useFocusTrap(true, onClose);
 
   useEffect(() => {
@@ -75,6 +102,16 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           logoUrl: logoUrl.trim() || null,
           brandColor: trimmedColor || null,
           subgroupIds,
+          partnerType: school.partnerType,
+          referralCode: school.referralCode.trim() || undefined,
+          sponsoredEnrollment: school.sponsoredEnrollment,
+          sponsorshipFundingSource: school.sponsoredEnrollment ? school.sponsorshipFundingSource : null,
+          sponsorshipTermLabel: school.sponsorshipTermLabel.trim() || null,
+          enrollmentPageEnabled: school.enrollmentPageEnabled,
+          enrollmentHeadline: school.enrollmentHeadline.trim() || null,
+          enrollmentBlurb: school.enrollmentBlurb.trim() || null,
+          schoolDistrict: school.schoolDistrict.trim() || null,
+          programSlugs: school.programSlugs,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -267,6 +304,14 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               Active (partner can access portal)
             </label>
           </div>
+
+          <PartnerSchoolEnrollmentFields
+            values={school}
+            onChange={setSchool}
+            programs={programs}
+            slug={partner.slug}
+            disabled={saving}
+          />
 
           <div style={{ marginBottom: '1.25rem' }}>
             <label htmlFor="partnereditmodal-internal-notes-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>

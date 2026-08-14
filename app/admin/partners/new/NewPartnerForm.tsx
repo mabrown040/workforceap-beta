@@ -2,12 +2,28 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PartnerSchoolEnrollmentFields, {
+  type SchoolEnrollmentValues,
+} from '@/components/admin/PartnerSchoolEnrollmentFields';
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-export default function NewPartnerForm() {
+const EMPTY_SCHOOL: SchoolEnrollmentValues = {
+  partnerType: 'community',
+  referralCode: '',
+  sponsoredEnrollment: false,
+  sponsorshipFundingSource: 'PARTNER_ORG',
+  sponsorshipTermLabel: '2026',
+  enrollmentPageEnabled: false,
+  enrollmentHeadline: '',
+  enrollmentBlurb: '',
+  schoolDistrict: '',
+  programSlugs: [],
+};
+
+export default function NewPartnerForm({ programs }: { programs: { slug: string; title: string }[] }) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -17,6 +33,7 @@ export default function NewPartnerForm() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [school, setSchool] = useState<SchoolEnrollmentValues>(EMPTY_SCHOOL);
 
   const handleNameChange = (v: string) => {
     setName(v);
@@ -38,6 +55,16 @@ export default function NewPartnerForm() {
           contactEmail: contactEmail.trim() || null,
           contactPhone: contactPhone.trim() || null,
           active: true,
+          partnerType: school.partnerType,
+          referralCode: school.referralCode.trim() || undefined,
+          sponsoredEnrollment: school.sponsoredEnrollment,
+          sponsorshipFundingSource: school.sponsoredEnrollment ? school.sponsorshipFundingSource : undefined,
+          sponsorshipTermLabel: school.sponsorshipTermLabel.trim() || null,
+          enrollmentPageEnabled: school.enrollmentPageEnabled,
+          enrollmentHeadline: school.enrollmentHeadline.trim() || null,
+          enrollmentBlurb: school.enrollmentBlurb.trim() || null,
+          schoolDistrict: school.schoolDistrict.trim() || null,
+          programSlugs: school.programSlugs,
         }),
       });
       const data = await res.json();
@@ -145,6 +172,14 @@ export default function NewPartnerForm() {
           </div>
         </div>
       </fieldset>
+
+      <PartnerSchoolEnrollmentFields
+        values={{ ...school, referralCode: school.referralCode || slug }}
+        onChange={setSchool}
+        programs={programs}
+        slug={slug}
+        disabled={saving}
+      />
 
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <button type="submit" disabled={saving} style={{ padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>

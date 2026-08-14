@@ -44,9 +44,21 @@ const state = vi.hoisted(() => ({
     where: Record<string, unknown>;
     data: Record<string, unknown>;
   }[],
+  /** `where` args passed to `courseEnrollment.count` (seat-cap denominator). */
+  enrollmentCounts: [] as Record<string, unknown>[],
   profileUpserts: [] as UpsertArgs[],
   /** Request cookies visible to the route via `next/headers`. */
   cookies: {} as Record<string, string>,
+  /** Cookies the route wrote back via `cookieStore.set`. */
+  cookieSets: [] as { name: string; value: string; options: Record<string, unknown> }[],
+  /** Args passed to `partnerReferral.upsert`. */
+  partnerReferralUpserts: [] as {
+    where: Record<string, unknown>;
+    create: Record<string, unknown>;
+    update: Record<string, unknown>;
+  }[],
+  /** Args passed to the admin new-application alert email. */
+  adminEmails: [] as { applicationNotes?: string }[],
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -69,7 +81,10 @@ vi.mock('@/lib/db/prisma', () => {
         state.enrollmentUpserts.push(args);
         return {};
       }),
-      count: vi.fn(async () => state.sponsoredSeatCount),
+      count: vi.fn(async (args: { where: Record<string, unknown> }) => {
+        state.enrollmentCounts.push(args.where);
+        return state.sponsoredSeatCount;
+      }),
       updateMany: vi.fn(
         async (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
           state.enrollmentUpdateManys.push(args);
@@ -90,7 +105,29 @@ vi.mock('@/lib/db/prisma', () => {
       }),
     },
     applyEligibilityScreening: { upsert: vi.fn(async () => ({})) },
-    partnerReferral: { create: vi.fn(async () => ({})) },
+    partnerReferral: {
+      // A bare `create` against `@@unique([partnerId, memberId])` throws
+      // P2002 the second time a returning applicant re-submits — which the
+      // durable ref cookie makes routine — rolling the whole transaction back
+      // into a generic 500. Throwing here makes any regression to `create`
+      // fail loudly instead of only under a real database.
+      create: vi.fn(async () => {
+        throw new Error(
+          'partnerReferral.create must not be used: a re-submit would violate ' +
+            '@@unique([partnerId, memberId]) and 500 the whole signup'
+        );
+      }),
+      upsert: vi.fn(
+        async (args: {
+          where: Record<string, unknown>;
+          create: Record<string, unknown>;
+          update: Record<string, unknown>;
+        }) => {
+          state.partnerReferralUpserts.push(args);
+          return {};
+        }
+      ),
+    },
     partner: {
       findFirst: vi.fn(async (args: { where: { OR?: { referralCode?: string; slug?: string }[] } }) => {
         state.partnerLookups.push(args);
@@ -154,7 +191,10 @@ vi.mock('@/lib/supabase-admin', () => ({
 
 vi.mock('@/lib/email', () => ({
   sendApplicationConfirmationEmail: vi.fn(async () => undefined),
-  sendNewApplicationAdminEmail: vi.fn(async () => undefined),
+  sendNewApplicationAdminEmail: vi.fn(async (args: { applicationNotes?: string }) => {
+    state.adminEmails.push(args);
+    return undefined;
+  }),
 }));
 
 vi.mock('next/headers', () => ({
@@ -162,7 +202,9 @@ vi.mock('next/headers', () => ({
     getAll: () => Object.entries(state.cookies).map(([name, value]) => ({ name, value })),
     get: (name: string) =>
       name in state.cookies ? { name, value: state.cookies[name] } : undefined,
-    set: () => undefined,
+    set: (name: string, value: string, options: Record<string, unknown> = {}) => {
+      state.cookieSets.push({ name, value, options });
+    },
   })),
 }));
 
@@ -216,7 +258,11 @@ function resetState() {
   state.partnerLookups.length = 0;
   state.enrollmentUpserts.length = 0;
   state.enrollmentUpdateManys.length = 0;
+  state.enrollmentCounts.length = 0;
   state.profileUpserts.length = 0;
+  state.cookieSets.length = 0;
+  state.partnerReferralUpserts.length = 0;
+  state.adminEmails.length = 0;
   state.partner = null;
   state.sponsoredSeatCount = 0;
   state.cookies = {};
@@ -301,10 +347,6 @@ describe('POST /api/apply/signup sponsored enrollment', () => {
       fundingNotes: 'Sponsored by Concordia High School (Fall 2026)',
       sponsoredByPartnerId: 'partner-concordia',
     });
-    // Provenance is also carried on the update branch for a returning applicant.
-    expect(state.enrollmentUpserts[0].update).toMatchObject({
-      sponsoredByPartnerId: 'partner-concordia',
-    });
   });
 
   it('never clobbers an admin-set funding source on an existing enrollment', async () => {
@@ -320,6 +362,41 @@ describe('POST /api/apply/signup sponsored enrollment', () => {
     expect(state.enrollmentUpdateManys[0].data).toMatchObject({
       fundingSource: 'PARTNER_ORG',
       fundingNotes: 'Sponsored by Concordia High School (Fall 2026)',
+    });
+  });
+
+  it('moves all three provenance fields together, never the sponsor id alone', async () => {
+    // A returning applicant whose enrollment already has funding must keep
+    // school A's fundingNotes AND school A's sponsor id. Stamping
+    // sponsoredByPartnerId on the upsert's update branch (as this used to)
+    // was unguarded: it produced mismatched provenance, and because the
+    // seat-cap denominator counts sponsoredByPartnerId, a self-funded student
+    // silently consumed a school's seat.
+    state.partner = sponsoringPartner();
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.enrollmentUpserts[0].update).not.toHaveProperty('sponsoredByPartnerId');
+    expect(state.enrollmentUpserts[0].update).not.toHaveProperty('fundingNotes');
+    // All three ride the same fundingSource-null-guarded write.
+    expect(state.enrollmentUpdateManys[0].data).toEqual({
+      fundingSource: 'PARTNER_ORG',
+      fundingNotes: 'Sponsored by Concordia High School (Fall 2026)',
+      sponsoredByPartnerId: 'partner-concordia',
+    });
+  });
+
+  it('also guards the stamp on fundingNotes being empty', async () => {
+    // Admins can record fundingNotes with a null fundingSource via
+    // /api/admin/members/[id]/enrollment-funding; those notes are a
+    // deliberate human record and must not be overwritten.
+    state.partner = sponsoringPartner();
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.enrollmentUpdateManys[0].where).toMatchObject({
+      fundingSource: null,
+      fundingNotes: null,
     });
   });
 
@@ -368,10 +445,77 @@ describe('POST /api/apply/signup sponsored enrollment', () => {
     expect(create).not.toHaveProperty('fundingSource');
     expect(create).not.toHaveProperty('sponsoredByPartnerId');
     expect(state.enrollmentUpdateManys).toHaveLength(0);
+  });
 
-    expect(state.applicationCreates[0].data.notes).toContain(
+  it('keeps the seat-cap note out of Application.notes and in the admin alert', async () => {
+    // PRIVACY: Application.notes is returned verbatim to the member by the
+    // self-serve GDPR export (lib/member/exportData.ts). "Your school ran out
+    // of funded seats, funding pending admin review" is a staff signal, not
+    // something to hand a student.
+    state.partner = sponsoringPartner({ sponsorshipSeatCap: 25 });
+    state.sponsoredSeatCount = 25;
+
+    await POST(makeRequest({ referralRef: 'concordia-hs', ageGroup: 'under_18' }));
+
+    const notes = state.applicationCreates[0].data.notes ?? '';
+    expect(notes).not.toContain('Seat cap');
+    expect(notes).not.toContain('funding pending admin review');
+    // The rest of the notes are unaffected.
+    expect(notes).toContain('Age group: under_18');
+
+    // Staff still get the signal, on the admin alert email.
+    expect(state.adminEmails).toHaveLength(1);
+    expect(state.adminEmails[0].applicationNotes).toContain(
       'Seat cap reached for Concordia High School sponsorship — funding pending admin review'
     );
+    expect(state.adminEmails[0].applicationNotes).toContain('Age group: under_18');
+  });
+
+  it('does not add a seat-cap line to the admin alert when seats remain', async () => {
+    state.partner = sponsoringPartner({ sponsorshipSeatCap: 25 });
+    state.sponsoredSeatCount = 24;
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.adminEmails[0].applicationNotes ?? '').not.toContain('Seat cap');
+  });
+
+  it('counts seats only inside the sponsorship window', async () => {
+    // Nothing ever clears sponsoredByPartnerId, so an unscoped count keeps
+    // reading last term's total after a rollover — at which point every new
+    // student silently lands unfunded.
+    // A window around "now" so the sponsorship is active without mocking the
+    // clock; the assertion is on the filter, which is the actual mechanism.
+    const startsAt = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const endsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    state.partner = sponsoringPartner({
+      sponsorshipSeatCap: 25,
+      sponsorshipStartsAt: startsAt,
+      sponsorshipEndsAt: endsAt,
+    });
+    // Prior-term enrollments are excluded by the filter, so the count the
+    // route sees is this term's only.
+    state.sponsoredSeatCount = 3;
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.enrollmentCounts).toHaveLength(1);
+    expect(state.enrollmentCounts[0]).toEqual({
+      sponsoredByPartnerId: 'partner-concordia',
+      enrolledAt: { gte: startsAt, lte: endsAt },
+    });
+    // Under this term's cap, so it still stamps.
+    expect(enrollmentCreate()).toMatchObject({ sponsoredByPartnerId: 'partner-concordia' });
+  });
+
+  it('counts every sponsored seat when the partner has no window configured', async () => {
+    state.partner = sponsoringPartner({ sponsorshipSeatCap: 25 });
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.enrollmentCounts[0]).toEqual({
+      sponsoredByPartnerId: 'partner-concordia',
+    });
   });
 
   it('still stamps while seats remain under the cap', async () => {
@@ -445,5 +589,153 @@ describe('POST /api/apply/signup sponsored enrollment', () => {
 
     expect(state.profileUpserts[0].create).not.toHaveProperty('schoolName');
     expect(state.profileUpserts[0].update).not.toHaveProperty('schoolDistrict');
+  });
+
+  it('omits schoolDistrict entirely when the partner has none', async () => {
+    // The key used to be written unconditionally, so a partner with a null
+    // district nulled out a district an admin had already recorded.
+    state.partner = sponsoringPartner({ partnerType: 'high_school', schoolDistrict: null });
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.profileUpserts[0].create).toMatchObject({ schoolName: 'Concordia High School' });
+    expect(state.profileUpserts[0].create).not.toHaveProperty('schoolDistrict');
+    expect(state.profileUpserts[0].update).not.toHaveProperty('schoolDistrict');
+  });
+
+  it('omits schoolDistrict when the partner has only whitespace', async () => {
+    state.partner = sponsoringPartner({ partnerType: 'high_school', schoolDistrict: '   ' });
+
+    await POST(makeRequest({ referralRef: 'concordia-hs' }));
+
+    expect(state.profileUpserts[0].update).not.toHaveProperty('schoolDistrict');
+  });
+});
+
+/**
+ * Phase B2 hardening: the durable partner-ref cookie is client-held state on
+ * a funnel that runs on school lab and library machines. It has to be
+ * re-validated on read, consumed exactly once, and it must never turn a
+ * returning applicant's re-submit into a 500.
+ */
+describe('POST /api/apply/signup partner ref cookie handling', () => {
+  beforeEach(resetState);
+
+  function sponsoringPartner(): Record<string, unknown> {
+    return {
+      id: 'partner-concordia',
+      name: 'Concordia High School',
+      partnerType: 'high_school',
+      sponsoredEnrollment: true,
+      sponsorshipFundingSource: null,
+      sponsorshipTermLabel: '2026',
+      sponsorshipStartsAt: null,
+      sponsorshipEndsAt: null,
+      sponsorshipSeatCap: null,
+      schoolDistrict: 'Austin ISD',
+    };
+  }
+
+  function clearedRefCookies() {
+    return state.cookieSets.filter((c) => c.name === PARTNER_REF_COOKIE);
+  }
+
+  it('expires the ref cookie once it has been consumed', async () => {
+    // Shared-device safety: without this, applicants #2..N for the next 30
+    // days inherit the first student's school — attribution, funding stamp,
+    // and the schoolName/schoolDistrict that drive minor/consent handling.
+    state.partner = sponsoringPartner();
+    state.cookies[PARTNER_REF_COOKIE] = 'concordia';
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    expect(clearedRefCookies()).toHaveLength(1);
+    expect(clearedRefCookies()[0]).toMatchObject({
+      value: '',
+      options: { maxAge: 0, path: '/' },
+    });
+  });
+
+  it('expires a malformed ref cookie too', async () => {
+    state.cookies[PARTNER_REF_COOKIE] = '../admin';
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Never looked up, but still cleared so it cannot linger for 30 days.
+    expect(state.partnerLookups).toHaveLength(0);
+    expect(clearedRefCookies()).toHaveLength(1);
+  });
+
+  it('writes no ref cookie at all for a signup that never had one', async () => {
+    // The no-partner path must stay byte-identical to pre-Phase-B2 behavior,
+    // including emitting no Set-Cookie header.
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(clearedRefCookies()).toHaveLength(0);
+  });
+
+  it('re-validates the cookie value instead of trusting it', async () => {
+    // The body field is bounded by zod (.max(100)); the cookie path skipped
+    // every one of those checks.
+    for (const bad of [
+      '../admin',
+      '%2Fetc%2Fpasswd',
+      'a\r\nSet-Cookie: evil=1',
+      'partner ref',
+      'a'.repeat(65),
+      '   ',
+    ]) {
+      resetState();
+      state.partner = sponsoringPartner();
+      state.cookies[PARTNER_REF_COOKIE] = bad;
+
+      const res = await POST(makeRequest());
+      expect(res.status).toBe(200);
+      expect(state.partnerLookups, `cookie value should be rejected: ${bad}`).toHaveLength(0);
+      expect(state.enrollmentUpserts[0].create).not.toHaveProperty('sponsoredByPartnerId');
+    }
+  });
+
+  it('normalizes a valid but uppercase cookie value', async () => {
+    state.partner = sponsoringPartner();
+    state.cookies[PARTNER_REF_COOKIE] = 'CONCORDIA';
+
+    await POST(makeRequest());
+
+    expect(state.partnerLookups[0].where.OR).toEqual([
+      { referralCode: 'concordia' },
+      { slug: 'concordia' },
+    ]);
+  });
+
+  it('upserts the partner referral so a re-submit cannot 500', async () => {
+    // The mocked `partnerReferral.create` throws, standing in for the P2002 a
+    // returning applicant hits under `@@unique([partnerId, memberId])` — a
+    // path the durable cookie makes routine (e.g. someone who applied but
+    // never confirmed their email, where Supabase returns the real user).
+    state.partner = sponsoringPartner();
+    state.cookies[PARTNER_REF_COOKIE] = 'concordia';
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    expect(state.partnerReferralUpserts).toHaveLength(1);
+    expect(state.partnerReferralUpserts[0]).toEqual({
+      where: {
+        partnerId_memberId: { partnerId: 'partner-concordia', memberId: 'user-test-1' },
+      },
+      create: { partnerId: 'partner-concordia', memberId: 'user-test-1' },
+      // Empty so a re-submit preserves the original referredAt and any
+      // admin-assigned partner user.
+      update: {},
+    });
+  });
+
+  it('records no partner referral when there is no ref at all', async () => {
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(state.partnerReferralUpserts).toHaveLength(0);
   });
 });

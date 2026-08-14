@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildFundingNotes,
+  buildSponsoredSeatWhere,
   buildSponsorshipMessage,
   isSeatCapReached,
   isSponsorshipActive,
@@ -139,17 +140,71 @@ test('buildSponsorshipMessage: scopes the copy to the term when one is set', () 
   );
 });
 
+test('buildSponsorshipMessage: bounds the promise by end year when there is no label', () => {
+  // A partner with a real end date but no term label used to get open-ended
+  // copy ("there is no cost to X students", full stop) — a promise we cannot
+  // keep past the window. Fall back to the end year instead.
+  assert.equal(
+    buildSponsorshipMessage(partner({ sponsorshipEndsAt: END })),
+    'There is no cost to Concordia High School students for 2026 — enrollment is ' +
+      'sponsored through our partnership with Concordia High School.'
+  );
+  // An explicit label still wins over the derived year.
+  assert.equal(
+    buildSponsorshipMessage(partner({ sponsorshipTermLabel: 'Fall 2026', sponsorshipEndsAt: END })),
+    'There is no cost to Concordia High School students for Fall 2026 — enrollment is ' +
+      'sponsored through our partnership with Concordia High School.'
+  );
+});
+
+test('buildSponsorshipMessage: stays open-ended only when the sponsorship really is', () => {
+  assert.match(
+    buildSponsorshipMessage(partner({ sponsorshipStartsAt: START })),
+    /^There is no cost to Concordia High School students —/
+  );
+});
+
 test('buildSponsorshipMessage: never uses the barred no-cost adjective', () => {
   // Guardrail, not a style nit: a sponsored seat was paid for by somebody, so
   // the shorthand adjective barred by the regex below both misrepresents the
   // partnership and reads as a catch to prospective students. This message is
-  // the single choke point for public cost copy.
+  // the intended choke point for public cost copy.
   const variants: SponsorshipPartner[] = [
     partner(),
     partner({ sponsorshipTermLabel: 'Fall 2026' }),
     partner({ name: 'Austin ISD', sponsorshipTermLabel: 'Spring 2027' }),
+    partner({ sponsorshipEndsAt: END }),
   ];
   for (const p of variants) {
     assert.doesNotMatch(buildSponsorshipMessage(p), /\bfree\b/i);
   }
+});
+
+/**
+ * Seat caps are per TERM, not lifetime. `sponsoredByPartnerId` is never
+ * cleared, so an unscoped count keeps reading the previous term's total after
+ * a rollover — at which point every new student silently lands unfunded.
+ */
+test('buildSponsoredSeatWhere: no date scope when the partner has no window', () => {
+  assert.deepEqual(buildSponsoredSeatWhere(partner()), {
+    sponsoredByPartnerId: 'partner-1',
+  });
+});
+
+test('buildSponsoredSeatWhere: scopes the count to the sponsorship window', () => {
+  assert.deepEqual(
+    buildSponsoredSeatWhere(partner({ sponsorshipStartsAt: START, sponsorshipEndsAt: END })),
+    { sponsoredByPartnerId: 'partner-1', enrolledAt: { gte: START, lte: END } }
+  );
+});
+
+test('buildSponsoredSeatWhere: handles a half-open window', () => {
+  assert.deepEqual(buildSponsoredSeatWhere(partner({ sponsorshipStartsAt: START })), {
+    sponsoredByPartnerId: 'partner-1',
+    enrolledAt: { gte: START },
+  });
+  assert.deepEqual(buildSponsoredSeatWhere(partner({ sponsorshipEndsAt: END })), {
+    sponsoredByPartnerId: 'partner-1',
+    enrolledAt: { lte: END },
+  });
 });

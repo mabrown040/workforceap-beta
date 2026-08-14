@@ -16,9 +16,10 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
+import { normalizePartnerRef, PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
 import {
   buildFundingNotes,
+  buildSponsoredSeatWhere,
   isSeatCapReached,
   isSponsorshipActive,
   resolveSponsorshipFundingSource,
@@ -31,9 +32,17 @@ import {
 } from '@/lib/email';
 
 /**
- * Appended to the application notes when a sponsoring partner is out of
- * funded seats. The student is never blocked — this is the signal an admin
- * uses to decide who covers the seat.
+ * Seat-cap signal for the ADMIN alert email only.
+ *
+ * PRIVACY: this must never reach `Application.notes`. That column is returned
+ * verbatim to the member by the self-serve GDPR export
+ * (`lib/member/exportData.ts` via `/api/member/export-data`), and telling a
+ * student "your school ran out of funded seats, funding pending review" is
+ * both alarming and none of their business. The signal reaches staff two
+ * other ways: the `logger.warn` below and this line in the admin alert.
+ *
+ * The student is never blocked — this is the signal an admin uses to decide
+ * who covers the seat.
  */
 function seatCapNote(partnerName: string): string {
   return `Seat cap reached for ${partnerName} sponsorship — funding pending admin review`;
@@ -235,8 +244,21 @@ const applySignupSchema = z.object({
     // shared bare /apply link). Middleware drops a 30-day httpOnly cookie on
     // those pages; fall back to it. The body still wins so an explicit
     // `?ref=` can override a stale cookie.
+    //
+    // The cookie is re-validated with `normalizePartnerRef` rather than
+    // trusted: middleware wrote it, but cookies are client-held state and the
+    // body field has an explicit `.max(100)` bound that the cookie path
+    // otherwise skipped. Anything that is not a plausible slug is dropped.
     const refFromBody = referralRef?.trim();
-    const refFromCookie = cookieStore.get(PARTNER_REF_COOKIE)?.value?.trim();
+    const rawRefCookie = cookieStore.get(PARTNER_REF_COOKIE)?.value;
+    const refFromCookie = normalizePartnerRef(rawRefCookie);
+    /**
+     * Whether to expire the cookie on the response. Tracked separately from
+     * `refFromCookie` so a malformed/rejected cookie is cleared too, and so a
+     * signup with no cookie at all sets no `Set-Cookie` header — traffic with
+     * no partner ref must stay byte-identical to pre-Phase-B2 behavior.
+     */
+    const hasPartnerRefCookie = rawRefCookie !== undefined;
     const refRaw = (refFromBody || refFromCookie || '').toLowerCase() || undefined;
     if (refRaw) {
       const partner = await withDbRetry(() => prisma.$transaction((tx) => tx.partner.findFirst({
@@ -325,7 +347,6 @@ const applySignupSchema = z.object({
      * Assigned (never appended to) so a transaction retry stays idempotent.
      */
     let sponsorshipSeatCapReached = false;
-    let finalApplicationNotes = applicationNotes;
     try {
       // Retry only on connection-acquisition failures (nothing committed yet):
       // this transaction creates non-idempotent rows (application, screening,
@@ -337,14 +358,14 @@ const applySignupSchema = z.object({
         // this signup does not count itself against the cap.
         let stampSponsorship = false;
         if (sponsorPartner) {
+          // Scoped to the sponsorship WINDOW, not lifetime: `sponsoredByPartnerId`
+          // is never cleared, so an unscoped count would still read last term's
+          // total after a rollover and leave every new student unfunded.
           const usedSeats = await tx.courseEnrollment.count({
-            where: { sponsoredByPartnerId: sponsorPartner.id },
+            where: buildSponsoredSeatWhere(sponsorPartner),
           });
           sponsorshipSeatCapReached = isSeatCapReached(sponsorPartner, usedSeats);
           stampSponsorship = !sponsorshipSeatCapReached;
-          finalApplicationNotes = sponsorshipSeatCapReached
-            ? [applicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
-            : applicationNotes;
         }
 
         await tx.user.upsert({
@@ -398,9 +419,6 @@ const applySignupSchema = z.object({
             update: {
               isPrimary: true,
               enrolledAt: new Date(),
-              ...(stampSponsorship && sponsorPartner
-                ? { sponsoredByPartnerId: sponsorPartner.id }
-                : {}),
             },
           });
 
@@ -409,12 +427,31 @@ const applySignupSchema = z.object({
           // employer as the payer must win over this automatic stamp. Done as
           // a scoped updateMany (same transaction) because an upsert's update
           // branch cannot express "only if currently null".
+          //
+          // All THREE provenance fields move together here, including
+          // `sponsoredByPartnerId`. Stamping the sponsor id on the upsert's
+          // update branch (where it used to live) was unguarded, so a
+          // returning applicant coming back under a second school ended up
+          // with school A's fundingNotes and school B's sponsor id — and
+          // because the seat-cap denominator counts `sponsoredByPartnerId`, a
+          // self-funded student silently consumed a school's seat.
+          //
+          // `fundingNotes: null` is part of the guard, not just `fundingSource`:
+          // an admin can set notes with a null source via
+          // /api/admin/members/[id]/enrollment-funding, and those notes are a
+          // deliberate human record we must not overwrite.
           if (stampSponsorship && sponsorPartner) {
             await tx.courseEnrollment.updateMany({
-              where: { userId: user.id, programSlug, fundingSource: null },
+              where: {
+                userId: user.id,
+                programSlug,
+                fundingSource: null,
+                fundingNotes: null,
+              },
               data: {
                 fundingSource: resolveSponsorshipFundingSource(sponsorPartner),
                 fundingNotes: buildFundingNotes(sponsorPartner),
+                sponsoredByPartnerId: sponsorPartner.id,
               },
             });
           }
@@ -425,9 +462,19 @@ const applySignupSchema = z.object({
         // minor/consent handling and school-level reporting. Independent of
         // the seat cap: which school they attend does not change when the
         // partner runs out of funded seats.
+        //
+        // Each key is conditional on actually having a value: the spread used
+        // to always include `schoolDistrict`, so a partner with no district
+        // configured nulled out whatever an admin had already recorded on the
+        // member's profile.
         const schoolFields =
           sponsorPartner && sponsorPartner.partnerType === 'high_school'
-            ? { schoolName: sponsorPartner.name, schoolDistrict: sponsorPartner.schoolDistrict }
+            ? {
+                ...(sponsorPartner.name.trim() ? { schoolName: sponsorPartner.name.trim() } : {}),
+                ...(sponsorPartner.schoolDistrict?.trim()
+                  ? { schoolDistrict: sponsorPartner.schoolDistrict.trim() }
+                  : {}),
+              }
             : {};
 
         await tx.profile.upsert({
@@ -467,7 +514,7 @@ const applySignupSchema = z.object({
             programRankedSlugs,
             recommendedOnetCode: recommendedOnetCode ?? null,
             recommendedCareerTitle: recommendedCareerTitle ?? null,
-            notes: finalApplicationNotes || null,
+            notes: applicationNotes || null,
             submittedAt: new Date(),
             referralSource,
             referralPartnerId,
@@ -496,10 +543,21 @@ const applySignupSchema = z.object({
           });
         }
   
-        // Create partner referral record so the member shows in partner's referred members list
+        // Create partner referral record so the member shows in partner's
+        // referred members list. UPSERT, not create: `@@unique([partnerId,
+        // memberId])` means a re-submit by a returning applicant — notably one
+        // who applied but never confirmed their email, where Supabase hands
+        // back the real user — would raise P2002, roll the whole transaction
+        // back, and return a generic 500. The durable ref cookie makes that
+        // re-submit path the norm, not an edge case. `update: {}` keeps the
+        // original `referredAt` and any admin-assigned partner user intact.
         if (referralPartnerId) {
-          await tx.partnerReferral.create({
-            data: { partnerId: referralPartnerId, memberId: user.id },
+          await tx.partnerReferral.upsert({
+            where: {
+              partnerId_memberId: { partnerId: referralPartnerId, memberId: user.id },
+            },
+            create: { partnerId: referralPartnerId, memberId: user.id },
+            update: {},
           });
         }
       }), { shouldRetry: isConnectionAcquisitionError });
@@ -542,9 +600,10 @@ const applySignupSchema = z.object({
       });
   
       // Soft seat cap: the student is already through, but an admin has to
-      // decide who funds this seat. Surfaced two ways — logged/captured for
-      // observability, and carried in the admin alert below via the note that
-      // was appended to `finalApplicationNotes`.
+      // decide who funds this seat. Surfaced two STAFF-ONLY ways — this
+      // logger.warn, and the extra line appended to the admin alert email
+      // below. Deliberately NOT persisted to `Application.notes`, which the
+      // member self-serve GDPR export returns verbatim (see `seatCapNote`).
       if (sponsorshipSeatCapReached && sponsorPartner) {
         logger.warn('Sponsored enrollment seat cap reached; enrollment left unfunded', {
           partnerId: sponsorPartner.id,
@@ -556,13 +615,20 @@ const applySignupSchema = z.object({
       }
 
       if (createdApplicationId) {
+        // Staff-facing copy of the notes: the persisted `Application.notes`
+        // plus the seat-cap line, which exists only here and in the warn above.
+        const adminAlertNotes =
+          sponsorshipSeatCapReached && sponsorPartner
+            ? [applicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
+            : applicationNotes;
+
         sendNewApplicationAdminEmail({
           applicantName: fullName,
           applicantEmail: user.email!,
           applicantPhone: phone,
           programInterest: programInterestSummary,
           applicationId: createdApplicationId,
-          applicationNotes: finalApplicationNotes || undefined,
+          applicationNotes: adminAlertNotes || undefined,
         }).catch((err) => {
           logger.error('Admin new-application alert email failed', { err });
           captureApiError(err, {
@@ -592,7 +658,28 @@ const applySignupSchema = z.object({
       }
       return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
     }
-  
+
+    // Consume the partner ref cookie exactly once. School computer labs,
+    // library machines, and family devices are the normal case for this
+    // funnel: without this, applicants #2..N for the next 30 days silently
+    // inherit the first student's school — partner attribution, funding
+    // stamp, and the `schoolName`/`schoolDistrict` that drive minor/consent
+    // handling. Mirrors how ApplyCreateAccountForm clears its sessionStorage
+    // key on success. Only runs when a cookie was actually present, so a
+    // signup with no partner ref emits no `Set-Cookie` at all.
+    if (hasPartnerRefCookie) {
+      try {
+        cookieStore.set(PARTNER_REF_COOKIE, '', { maxAge: 0, path: '/' });
+      } catch (cookieErr) {
+        // The account is already committed; never turn a cookie write into a
+        // failed signup.
+        logger.warn('apply/signup: failed to clear partner ref cookie', {
+          userId: user.id,
+          err: cookieErr,
+        });
+      }
+    }
+
     if (authData.session) {
       return NextResponse.json({ success: true, redirectTo: '/apply/confirmation' });
     }

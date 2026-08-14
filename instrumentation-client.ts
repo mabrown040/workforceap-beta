@@ -75,6 +75,20 @@ async function initSentry() {
     tracesSampleRate: 0.1,
     replaysSessionSampleRate: Number(process.env.NEXT_PUBLIC_SENTRY_REPLAY_SAMPLE_RATE ?? '0.01'),
     replaysOnErrorSampleRate: 1.0,
+    // Browser translation extensions (e.g. Google Translate) and other DOM-mutating
+    // extensions rewrite/remove text nodes and race React's streaming SSR reconciler
+    // ($RS/completeSegment, $RC/completeBoundary), producing non-actionable errors on
+    // hydrating routes (observed on /admin). These are triggered by the visitor's
+    // browser, not our code, so we drop them to keep Sentry actionable.
+    ignoreErrors: [
+      "Cannot read properties of null (reading 'parentNode')",
+      "Cannot read properties of null (reading 'removeChild')",
+      "Cannot read properties of null (reading 'insertBefore')",
+      "Failed to execute 'removeChild' on 'Node'",
+      "Failed to execute 'insertBefore' on 'Node'",
+      "The node to be removed is not a child of this node",
+      "The node before which the new node is to be inserted is not a child of this node",
+    ],
     integrations: [
       // Replay default is to render the DOM verbatim. For a portal that
       // shows member names, emails, phone numbers, resume content, WIOA

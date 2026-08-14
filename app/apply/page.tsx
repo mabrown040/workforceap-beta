@@ -11,8 +11,10 @@ import {
   resolvePaidApplyUtmSource,
   UTM_SOURCE_COOKIE,
 } from '@/lib/apply/paidApplyUtm';
+import { APPLY_REFERRAL_COOKIE } from '@/lib/partner/sponsoredEnrollment';
+import { resolveSchoolApply } from '@/lib/apply/resolveSchoolApply';
 
-type PageProps = { searchParams?: Promise<{ program?: string; utm_source?: string }> };
+type PageProps = { searchParams?: Promise<{ program?: string; utm_source?: string; ref?: string }> };
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const sp = searchParams ? await searchParams : {};
@@ -23,10 +25,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   const cookieStore = await cookies();
   const cookieUtm = cookieStore.get(UTM_SOURCE_COOKIE)?.value ?? null;
+  const schoolApply = await resolveSchoolApply(sp.ref ?? cookieStore.get(APPLY_REFERRAL_COOKIE)?.value ?? null);
 
   const paidUtmSource = resolvePaidApplyUtmSource(sp, cookieUtm);
 
-  if (paidUtmSource) {
+  if (paidUtmSource && !schoolApply) {
     return (
       <PaidApplyVariant
         utmSource={paidUtmSource}
@@ -39,5 +42,5 @@ export default async function ApplyPage({ searchParams }: PageProps) {
     );
   }
 
-  return <OrganicApplyPage program={sp.program} />;
+  return <OrganicApplyPage program={sp.program} schoolApply={schoolApply} />;
 }

@@ -13,8 +13,9 @@ import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import ApplyOrganicStickyCta from '@/components/apply/ApplyOrganicStickyCta';
 import TrustStrip from '@/components/marketing/TrustStrip';
 import PreLaunchTag from '@/components/portal/PreLaunchTag';
+import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
 
-type OrganicApplyPageProps = { program?: string };
+type OrganicApplyPageProps = { program?: string; schoolApply?: SchoolApplyContext | null };
 
 /* ─── styles ─── */
 const sPage = {
@@ -181,7 +182,7 @@ const APPLY_PROGRESS_STEPS = [
   { labelKey: 'stepProgramSelection', icon: 'school' },
 ] as const;
 
-export default async function OrganicApplyPage({ program: programParam }: OrganicApplyPageProps) {
+export default async function OrganicApplyPage({ program: programParam, schoolApply = null }: OrganicApplyPageProps) {
   const programSlug = resolveApplyProgramSlug(programParam);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
   const t = await getTranslations('apply');
@@ -310,7 +311,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>
-              <ApplyEligibilityClient />
+              <ApplyEligibilityClient schoolApply={schoolApply} />
             </Suspense>
           </div>
           <details className="apply-docs-checklist apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">

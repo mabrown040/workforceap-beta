@@ -14,6 +14,15 @@ import {
   normalizePrimaryBarriers,
   PRIMARY_BARRIER_OPTIONS,
 } from '@/lib/apply/primaryBarrierOptions';
+import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
+
+const GRADE_LEVELS = [
+  { value: '9', label: '9th grade' },
+  { value: '10', label: '10th grade' },
+  { value: '11', label: '11th grade' },
+  { value: '12', label: '12th grade' },
+  { value: 'other', label: 'Other / recent graduate' },
+] as const;
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
@@ -69,6 +78,11 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       primaryBarriers: payload.primaryBarriers,
       q1: payload.q1,
       q2: payload.q2,
+      gradeLevel: payload.gradeLevel,
+      parentGuardianName: payload.parentGuardianName,
+      parentGuardianEmail: payload.parentGuardianEmail,
+      parentGuardianPhone: payload.parentGuardianPhone,
+      schoolName: payload.schoolName,
     };
     localStorage.setItem(APPLY_FLOW_DRAFT_KEY, JSON.stringify(next));
   } catch {
@@ -76,7 +90,13 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
   }
 }
 
-export default function ApplyEligibilityClient({ variant = 'organic' }: { variant?: 'organic' | 'paid' }) {
+export default function ApplyEligibilityClient({
+  variant = 'organic',
+  schoolApply = null,
+}: {
+  variant?: 'organic' | 'paid';
+  schoolApply?: SchoolApplyContext | null;
+}) {
   const isPaid = variant === 'paid';
   const t = useTranslations('apply');
   const tForm = useTranslations('form');
@@ -108,6 +128,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     );
 
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
+  const [gradeLevel, setGradeLevel] = useState('');
+  const [parentGuardianName, setParentGuardianName] = useState('');
+  const [parentGuardianEmail, setParentGuardianEmail] = useState('');
+  const [parentGuardianPhone, setParentGuardianPhone] = useState('');
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
@@ -132,6 +156,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
+    setGradeLevel(draft.gradeLevel ?? '');
+    setParentGuardianName(draft.parentGuardianName ?? '');
+    setParentGuardianEmail(draft.parentGuardianEmail ?? '');
+    setParentGuardianPhone(draft.parentGuardianPhone ?? '');
   }, []);
 
   const emailLooksValid = (value: string) => {
@@ -161,7 +189,18 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     county.trim().length > 0 &&
     primaryBarriers.length > 0;
 
-  const canContinue = contactOk && screeningDetailsOk && q1 !== null && q2 !== null;
+  const isSchool = Boolean(schoolApply);
+  const guardianRequired = isSchool && ageGroup === 'under_18';
+  const guardianOk =
+    !guardianRequired ||
+    (parentGuardianName.trim().length > 0 &&
+      emailLooksValid(parentGuardianEmail.trim()));
+  const schoolFieldsOk = !isSchool || (gradeLevel.trim().length > 0 && guardianOk);
+  const canContinue =
+    contactOk &&
+    screeningDetailsOk &&
+    schoolFieldsOk &&
+    (isSchool || (q1 !== null && q2 !== null));
   const missingEligibilityAnswers = [q1, q2].filter((answer) => answer === null).length;
   const yesCount = [q1, q2].filter((answer) => answer === 'yes').length;
   const qualifies = yesCount >= 1;
@@ -189,7 +228,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   }, []);
 
   const persistDraft = () => {
-    writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2 });
+    writeDraft({
+      firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2,
+      gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone,
+      schoolName: schoolApply?.schoolName,
+    });
   };
 
   const [autoSaved, setAutoSaved] = useState(false);
@@ -201,11 +244,15 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     }
     if (!firstName && !lastName && !email && !phone) return;
     const handle = setTimeout(() => {
-      writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2 });
+      writeDraft({
+        firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2,
+        gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone,
+        schoolName: schoolApply?.schoolName,
+      });
       setAutoSaved(true);
     }, 1500);
     return () => clearTimeout(handle);
-  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2]);
+  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone, schoolApply?.schoolName]);
 
   const handleSaveLater = () => {
     persistDraft();
@@ -241,10 +288,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         /* ignore */
       }
       const eligibilityJson = JSON.stringify({
-        q1,
-        q2,
-        qualifies,
-        yesCount,
+        q1: isSchool ? null : q1,
+        q2: isSchool ? null : q2,
+        qualifies: isSchool ? true : qualifies,
+        yesCount: isSchool ? 0 : yesCount,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim().toLowerCase(),
@@ -255,6 +302,12 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         zip: zip.trim(),
         county: county.trim(),
         primaryBarriers,
+        gradeLevel: gradeLevel.trim() || undefined,
+        parentGuardianName: parentGuardianName.trim() || undefined,
+        parentGuardianEmail: parentGuardianEmail.trim() || undefined,
+        parentGuardianPhone: parentGuardianPhone.replace(/\D/g, '') || undefined,
+        schoolName: schoolApply?.schoolName,
+        schoolApply: Boolean(schoolApply),
       });
       sessionStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
       try {
@@ -386,6 +439,14 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           </>
         )}
 
+        {isSchool ? (
+          <div className="apply-transition-card" role="note" style={{ marginBottom: '1.25rem' }}>
+            <strong>Applying through {schoolApply?.partnerName}.</strong>
+            <span> Income and employment questions are skipped for this partnership. Training is sponsored — students are never asked for payment information.</span>
+          </div>
+        ) : null}
+
+        {!isSchool ? (
         <div className="funding-questions">
           <fieldset className="form-group apply-eligibility-fieldset">
             <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[0].legendKey)}</legend>
@@ -440,7 +501,8 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
             )}
           </fieldset>
         </div>
-        {canContinue && (
+        ) : null}
+        {!isSchool && canContinue && (
           <div className={`funding-banner ${qualifies ? 'funding-banner-qualify' : 'funding-banner-neutral'}`}>
             {qualifies ? (
               <p>
@@ -581,6 +643,65 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 ))}
               </select>
             </div>
+            {isSchool ? (
+              <div className="form-group apply-form-group--full">
+                <label htmlFor="apply-grade-level">Grade level *</label>
+                <select
+                  id="apply-grade-level"
+                  name="gradeLevel"
+                  value={gradeLevel}
+                  onChange={(e) => setGradeLevel(e.target.value)}
+                  required
+                  aria-invalid={attemptedContinue && !gradeLevel}
+                >
+                  <option value="">Select grade</option>
+                  {GRADE_LEVELS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            {guardianRequired ? (
+              <>
+                <div className="form-group apply-form-group--full">
+                  <label htmlFor="apply-guardian-name">Parent / guardian name *</label>
+                  <input
+                    id="apply-guardian-name"
+                    type="text"
+                    name="parentGuardianName"
+                    autoComplete="name"
+                    value={parentGuardianName}
+                    onChange={(e) => setParentGuardianName(e.target.value)}
+                    required
+                    aria-invalid={attemptedContinue && !parentGuardianName.trim()}
+                  />
+                </div>
+                <div className="form-group apply-form-group--full">
+                  <label htmlFor="apply-guardian-email">Parent / guardian email *</label>
+                  <input
+                    id="apply-guardian-email"
+                    type="email"
+                    name="parentGuardianEmail"
+                    autoComplete="email"
+                    value={parentGuardianEmail}
+                    onChange={(e) => setParentGuardianEmail(e.target.value)}
+                    required
+                    aria-invalid={attemptedContinue && !emailLooksValid(parentGuardianEmail.trim())}
+                  />
+                </div>
+                <div className="form-group apply-form-group--full">
+                  <label htmlFor="apply-guardian-phone">Parent / guardian phone</label>
+                  <input
+                    id="apply-guardian-phone"
+                    type="tel"
+                    name="parentGuardianPhone"
+                    autoComplete="tel"
+                    value={parentGuardianPhone}
+                    onChange={(e) => setParentGuardianPhone(formatPhoneInput(e.target.value))}
+                  />
+                </div>
+              </>
+            ) : null}
             <div className="form-group apply-form-group--full">
               <label htmlFor="apply-city">{tForm('city')} *</label>
               <input

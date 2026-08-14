@@ -26,6 +26,11 @@ export type ApplyFlowDraftV1 = {
   primaryBarriers?: string[];
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
+  gradeLevel?: string;
+  parentGuardianName?: string;
+  parentGuardianEmail?: string;
+  parentGuardianPhone?: string;
+  schoolName?: string;
 };
 
 export type CareerQuizSignupPayload = {

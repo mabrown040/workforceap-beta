@@ -7,7 +7,7 @@
  * "may receive payouts" need to be added to PAYOUT_ELIGIBLE_TYPES.
  */
 
-export const PARTNER_TYPES = ['community', 'referral'] as const;
+export const PARTNER_TYPES = ['community', 'referral', 'high_school'] as const;
 export type PartnerType = (typeof PARTNER_TYPES)[number];
 
 export const DEFAULT_PARTNER_TYPE: PartnerType = 'community';

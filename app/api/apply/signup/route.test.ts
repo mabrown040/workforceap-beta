@@ -14,7 +14,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const state = vi.hoisted(() => ({
-  applicationCreates: [] as { data: { notes?: string | null } }[],
+  applicationCreates: [] as { data: { notes?: string | null; referralSource?: string | null; referralPartnerId?: string | null } }[],
+  enrollmentUpserts: [] as { create: Record<string, unknown>; update: Record<string, unknown> }[],
+  partner: null as null | {
+    id: string;
+    name: string;
+    sponsoredEnrollment: boolean;
+    sponsorshipFundingSource: 'PARTNER_ORG' | null;
+    sponsorshipTermLabel: string | null;
+    sponsorshipStartsAt: Date | null;
+    sponsorshipEndsAt: Date | null;
+    sponsorshipNotes: string | null;
+  },
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -32,17 +43,22 @@ vi.mock('@/lib/db/prisma', () => {
       upsert: vi.fn(async () => ({})),
       findUnique: vi.fn(async () => null),
     },
-    courseEnrollment: { upsert: vi.fn(async () => ({})) },
+    courseEnrollment: {
+      upsert: vi.fn(async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        state.enrollmentUpserts.push(args);
+        return {};
+      }),
+    },
     profile: { upsert: vi.fn(async () => ({})) },
     application: {
-      create: vi.fn(async (args: { data: { notes?: string | null } }) => {
+      create: vi.fn(async (args: { data: { notes?: string | null; referralSource?: string | null; referralPartnerId?: string | null } }) => {
         state.applicationCreates.push(args);
         return { id: 'app-test-1' };
       }),
     },
     applyEligibilityScreening: { upsert: vi.fn(async () => ({})) },
     partnerReferral: { create: vi.fn(async () => ({})) },
-    partner: { findFirst: vi.fn(async () => null) },
+    partner: { findFirst: vi.fn(async () => state.partner) },
   };
   return {
     prisma: {
@@ -155,6 +171,8 @@ function makeRequest(overrides: Record<string, unknown> = {}) {
 describe('POST /api/apply/signup ageGroup validation', () => {
   beforeEach(() => {
     state.applicationCreates.length = 0;
+    state.enrollmentUpserts.length = 0;
+    state.partner = null;
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
     delete process.env.NEXT_PUBLIC_CAPTCHA_ENABLED;
@@ -189,5 +207,50 @@ describe('POST /api/apply/signup ageGroup validation', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
     expect(state.applicationCreates[0].data.notes ?? '').not.toContain('Age group:');
+  });
+});
+
+describe('POST /api/apply/signup sponsored-partner auto-stamp', () => {
+  beforeEach(() => {
+    state.applicationCreates.length = 0;
+    state.enrollmentUpserts.length = 0;
+    state.partner = {
+      id: 'partner-chs',
+      name: 'Concordia High School',
+      sponsoredEnrollment: true,
+      sponsorshipFundingSource: 'PARTNER_ORG',
+      sponsorshipTermLabel: '2026',
+      sponsorshipStartsAt: new Date('2026-01-01T00:00:00.000Z'),
+      sponsorshipEndsAt: new Date('2026-12-31T23:59:59.000Z'),
+      sponsorshipNotes: 'Sponsored by Concordia High School (2026)',
+    };
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
+    delete process.env.NEXT_PUBLIC_CAPTCHA_ENABLED;
+  });
+
+  it('stamps PARTNER_ORG funding and partner provenance on the first enrollment', async () => {
+    const res = await POST(makeRequest({ referralRef: 'chs2026' }));
+    expect(res.status).toBe(200);
+    expect(state.applicationCreates[0].data.referralSource).toBe('partner_ref:chs2026');
+    expect(state.applicationCreates[0].data.referralPartnerId).toBe('partner-chs');
+    expect(state.enrollmentUpserts).toHaveLength(1);
+    expect(state.enrollmentUpserts[0].create).toMatchObject({
+      fundingSource: 'PARTNER_ORG',
+      fundingNotes: 'Sponsored by Concordia High School (2026)',
+      sponsoredByPartnerId: 'partner-chs',
+    });
+    expect(state.enrollmentUpserts[0].update).not.toHaveProperty('fundingSource');
+  });
+
+  it('does not stamp when the partner is not in an active sponsorship window', async () => {
+    state.partner = {
+      ...state.partner!,
+      sponsorshipEndsAt: new Date('2025-12-31T23:59:59.000Z'),
+    };
+    const res = await POST(makeRequest({ referralRef: 'chs2026' }));
+    expect(res.status).toBe(200);
+    expect(state.applicationCreates[0].data.referralPartnerId).toBe('partner-chs');
+    expect(state.enrollmentUpserts[0].create).not.toHaveProperty('fundingSource');
   });
 });

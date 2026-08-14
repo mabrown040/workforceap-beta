@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { trackConversionWithValue } from '@/lib/analytics/conversionValue';
-import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { clearPersistedPartnerRef, readPersistedPartnerRef } from '@/lib/apply/applyReferralCapture';
 import { isPaidUtmSource } from '@/lib/apply/paidApplyUtm';
 import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import {
@@ -403,14 +403,7 @@ export default function ApplyCreateAccountForm() {
     trackApplyFunnel(3, 'account_create_submit', { program_slugs: programRankedSlugs, sms_opt_in: smsOptIn });
 
     try {
-      let referralRef: string | null = null;
-      if (typeof window !== 'undefined') {
-        try {
-          referralRef = sessionStorage.getItem(APPLY_REFERRAL_SESSION_KEY);
-        } catch {
-          /* ignore */
-        }
-      }
+      const referralRef = typeof window !== 'undefined' ? readPersistedPartnerRef() : null;
 
       const careerPayload = typeof window !== 'undefined' ? getCareerQuizPayloadFromStorage() : null;
       const attribution = readMarketingAttribution();
@@ -427,6 +420,11 @@ export default function ApplyCreateAccountForm() {
         q3?: 'yes' | 'no';
         qualifies?: boolean;
         yesCount?: number;
+        gradeLevel?: string;
+        parentGuardianName?: string;
+        parentGuardianEmail?: string;
+        parentGuardianPhone?: string;
+        schoolName?: string;
       } | null = null;
       if (typeof window !== 'undefined') {
         try {
@@ -462,6 +460,11 @@ export default function ApplyCreateAccountForm() {
           careerRecommendationJson: careerPayload?.careerRecommendationJson ?? undefined,
           needsComputerSupportFollowUp: careerPayload?.needsComputerSupportFollowUp ?? undefined,
           ageGroup: eligibilityPayload?.ageGroup,
+          gradeLevel: eligibilityPayload?.gradeLevel,
+          parentGuardianName: eligibilityPayload?.parentGuardianName,
+          parentGuardianEmail: eligibilityPayload?.parentGuardianEmail,
+          parentGuardianPhone: eligibilityPayload?.parentGuardianPhone,
+          schoolName: eligibilityPayload?.schoolName,
           county: eligibilityPayload?.county,
           primaryBarrier: eligibilityPayload?.primaryBarrier,
           primaryBarriers: eligibilityPayload?.primaryBarriers,
@@ -538,7 +541,7 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       try {
-        sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+        clearPersistedPartnerRef();
         clearMarketingAttribution();
       } catch {
         /* ignore */

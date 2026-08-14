@@ -16,6 +16,13 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import {
+  APPLY_REFERRAL_COOKIE,
+  buildSponsorshipStamp,
+  isActiveSponsorship,
+  normalizePartnerRef,
+  type SponsorshipStamp,
+} from '@/lib/partner/sponsoredEnrollment';
 
 import {
   sendApplicationConfirmationEmail,
@@ -50,6 +57,14 @@ const applySignupSchema = z.object({
   careerRecommendationJson: z.any().optional().nullable(),
   needsComputerSupportFollowUp: z.boolean().optional(),
   ageGroup: z.enum(['under_18', '18_24', '25_50', '50_plus']).optional().nullable(),
+  gradeLevel: z.string().trim().max(20).optional().nullable(),
+  parentGuardianName: z.string().trim().max(200).optional().nullable(),
+  parentGuardianEmail: z
+    .union([z.string().trim().email(), z.literal(''), z.null()])
+    .optional()
+    .transform((v) => (v ? v : null)),
+  parentGuardianPhone: z.string().trim().max(50).optional().nullable(),
+  schoolName: z.string().trim().max(200).optional().nullable(),
   county: z.string().trim().max(100).optional().nullable(),
   primaryBarrier: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
@@ -112,6 +127,11 @@ const applySignupSchema = z.object({
       careerRecommendationJson,
       needsComputerSupportFollowUp,
       ageGroup,
+      gradeLevel,
+      parentGuardianName,
+      parentGuardianEmail,
+      parentGuardianPhone,
+      schoolName,
       county,
       primaryBarrier,
       primaryBarriers,
@@ -202,18 +222,32 @@ const applySignupSchema = z.object({
   
     let referralPartnerId: string | null = null;
     let referralSource: string | null = null;
-    const refRaw = referralRef?.trim().toLowerCase();
+    let sponsorshipStamp: SponsorshipStamp | null = null;
+    const cookieRef = normalizePartnerRef(request.cookies.get(APPLY_REFERRAL_COOKIE)?.value);
+    const refRaw = normalizePartnerRef(referralRef) ?? cookieRef;
     if (refRaw) {
       const partner = await withDbRetry(() => prisma.$transaction((tx) => tx.partner.findFirst({
         where: {
           active: true,
           OR: [{ referralCode: refRaw }, { slug: refRaw }],
         },
-        select: { id: true },
+        select: {
+          id: true,
+          name: true,
+          sponsoredEnrollment: true,
+          sponsorshipFundingSource: true,
+          sponsorshipTermLabel: true,
+          sponsorshipStartsAt: true,
+          sponsorshipEndsAt: true,
+          sponsorshipNotes: true,
+        },
       })));
       if (partner) {
         referralPartnerId = partner.id;
         referralSource = `partner_ref:${refRaw}`;
+        if (isActiveSponsorship(partner)) {
+          sponsorshipStamp = buildSponsorshipStamp(partner);
+        }
       }
     }
   
@@ -315,6 +349,13 @@ const applySignupSchema = z.object({
               programSlug,
               isPrimary: true,
               enrolledAt: new Date(),
+              ...(sponsorshipStamp
+                ? {
+                    fundingSource: sponsorshipStamp.fundingSource,
+                    fundingNotes: sponsorshipStamp.fundingNotes,
+                    sponsoredByPartnerId: sponsorshipStamp.sponsoredByPartnerId,
+                  }
+                : {}),
             },
             update: {
               isPrimary: true,
@@ -336,6 +377,12 @@ const applySignupSchema = z.object({
             hasEmploymentBarrier: profileBarrierTypes.length > 0,
             barrierTypes: profileBarrierTypes,
             role: 'member',
+            isMinor: ageGroup === 'under_18',
+            gradeLevel: gradeLevel?.trim() || null,
+            parentGuardianName: parentGuardianName?.trim() || null,
+            parentGuardianEmail: parentGuardianEmail?.trim() || null,
+            parentGuardianPhone: parentGuardianPhone?.trim() || null,
+            schoolName: schoolName?.trim() || null,
           },
           update: {
             profilePhone: phone,
@@ -347,6 +394,12 @@ const applySignupSchema = z.object({
             hasEmploymentBarrier: profileBarrierTypes.length > 0,
             barrierTypes: profileBarrierTypes,
             role: 'member',
+            ...(ageGroup === 'under_18' ? { isMinor: true } : {}),
+            ...(gradeLevel?.trim() ? { gradeLevel: gradeLevel.trim() } : {}),
+            ...(parentGuardianName?.trim() ? { parentGuardianName: parentGuardianName.trim() } : {}),
+            ...(parentGuardianEmail?.trim() ? { parentGuardianEmail: parentGuardianEmail.trim() } : {}),
+            ...(parentGuardianPhone?.trim() ? { parentGuardianPhone: parentGuardianPhone.trim() } : {}),
+            ...(schoolName?.trim() ? { schoolName: schoolName.trim() } : {}),
           },
         });
   

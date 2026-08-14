@@ -27,6 +27,7 @@ import {
   UTM_SOURCE_COOKIE_MAX_AGE,
   WAP_PAID_APPLY_HEADER,
 } from '@/lib/apply/paidApplyUtm';
+import { referralCookieSetOptions } from '@/lib/partner/sponsoredEnrollment';
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
@@ -222,6 +223,16 @@ export async function middleware(request: NextRequest) {
         sameSite: 'lax',
       });
     }
+  }
+
+  const refFromQuery = request.nextUrl.searchParams.get('ref');
+  const refCookie = referralCookieSetOptions(refFromQuery);
+  if (refCookie) {
+    response.cookies.set(refCookie.name, refCookie.value, {
+      path: refCookie.path,
+      maxAge: refCookie.maxAge,
+      sameSite: refCookie.sameSite,
+    });
   }
 
   // Echo the request ID on the response so the client and intermediate

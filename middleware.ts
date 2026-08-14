@@ -27,6 +27,11 @@ import {
   UTM_SOURCE_COOKIE_MAX_AGE,
   WAP_PAID_APPLY_HEADER,
 } from '@/lib/apply/paidApplyUtm';
+import {
+  normalizePartnerRef,
+  PARTNER_REF_COOKIE,
+  PARTNER_REF_COOKIE_MAX_AGE,
+} from '@/lib/apply/applyReferralCapture';
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
@@ -83,6 +88,16 @@ const PUBLIC_THANK_YOU_PATHS = new Set(['/employer/thank-you']);
 
 function isPublicThankYouPath(pathname: string) {
   return PUBLIC_THANK_YOU_PATHS.has(pathname);
+}
+
+/**
+ * Partner enrollment pages live at `/enroll/<partner-slug>`. Returns the slug
+ * segment when the path is one of those pages, else null.
+ */
+function partnerRefFromEnrollPath(pathname: string): string | null {
+  if (!pathname.startsWith('/enroll/')) return null;
+  const slug = pathname.slice('/enroll/'.length).split('/')[0];
+  return normalizePartnerRef(slug);
 }
 
 function isPortalPath(pathname: string) {
@@ -222,6 +237,25 @@ export async function middleware(request: NextRequest) {
         sameSite: 'lax',
       });
     }
+  }
+
+  // Partner attribution durability (Phase B2): a student who lands on
+  // `/enroll/<partner-slug>` gets a 30-day httpOnly cookie so their partner
+  // survives closing the tab, sharing the bare `/apply` link, or finishing
+  // the application days later. `/api/apply/signup` reads it only when the
+  // submitted body has no `referralRef`, so this never overrides an explicit
+  // `?ref=`. Purely additive: nothing else in this function reads the cookie,
+  // and non-`/enroll` traffic is untouched. Uses `effectivePath` so a
+  // locale-prefixed URL (`/es/enroll/<slug>`) is captured too.
+  const partnerRef = partnerRefFromEnrollPath(effectivePath);
+  if (partnerRef) {
+    response.cookies.set(PARTNER_REF_COOKIE, partnerRef, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: PARTNER_REF_COOKIE_MAX_AGE,
+    });
   }
 
   // Echo the request ID on the response so the client and intermediate

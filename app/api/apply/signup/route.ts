@@ -16,11 +16,28 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
+import {
+  buildFundingNotes,
+  isSeatCapReached,
+  isSponsorshipActive,
+  resolveSponsorshipFundingSource,
+  type SponsorshipPartner,
+} from '@/lib/partners/sponsorship';
 
 import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
 } from '@/lib/email';
+
+/**
+ * Appended to the application notes when a sponsoring partner is out of
+ * funded seats. The student is never blocked — this is the signal an admin
+ * uses to decide who covers the seat.
+ */
+function seatCapNote(partnerName: string): string {
+  return `Seat cap reached for ${partnerName} sponsorship — funding pending admin review`;
+}
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -200,30 +217,61 @@ const applySignupSchema = z.object({
       typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
     ].filter(Boolean).join('\n');
   
+    const cookieStore = await cookies();
+
     let referralPartnerId: string | null = null;
     let referralSource: string | null = null;
-    const refRaw = referralRef?.trim().toLowerCase();
+    /**
+     * Set only when the resolved partner sponsors enrollment AND today falls
+     * inside its sponsorship window. Everything sponsorship-related below is
+     * gated on this being non-null, so traffic with no ref — or a ref to a
+     * partner that does not sponsor — behaves exactly as it did before.
+     */
+    let sponsorPartner:
+      | (SponsorshipPartner & { partnerType: string; schoolDistrict: string | null })
+      | null = null;
+    // The apply form posts `referralRef`, but a student who arrived via
+    // `/enroll/<slug>` may no longer have it (new tab, restored session,
+    // shared bare /apply link). Middleware drops a 30-day httpOnly cookie on
+    // those pages; fall back to it. The body still wins so an explicit
+    // `?ref=` can override a stale cookie.
+    const refFromBody = referralRef?.trim();
+    const refFromCookie = cookieStore.get(PARTNER_REF_COOKIE)?.value?.trim();
+    const refRaw = (refFromBody || refFromCookie || '').toLowerCase() || undefined;
     if (refRaw) {
       const partner = await withDbRetry(() => prisma.$transaction((tx) => tx.partner.findFirst({
         where: {
           active: true,
           OR: [{ referralCode: refRaw }, { slug: refRaw }],
         },
-        select: { id: true },
+        select: {
+          id: true,
+          name: true,
+          partnerType: true,
+          sponsoredEnrollment: true,
+          sponsorshipFundingSource: true,
+          sponsorshipTermLabel: true,
+          sponsorshipStartsAt: true,
+          sponsorshipEndsAt: true,
+          sponsorshipSeatCap: true,
+          schoolDistrict: true,
+        },
       })));
       if (partner) {
         referralPartnerId = partner.id;
         referralSource = `partner_ref:${refRaw}`;
+        if (isSponsorshipActive(partner, new Date())) {
+          sponsorPartner = partner;
+        }
       }
     }
-  
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseAnonKey) {
       return NextResponse.json({ error: 'Our signup service is temporarily unavailable. Please try again shortly.' }, { status: 500 });
     }
-  
-    const cookieStore = await cookies();
+
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookieOptions: getSupabaseCookieOptions(),
       cookies: {
@@ -270,11 +318,35 @@ const applySignupSchema = z.object({
     })));
 
     let createdApplicationId: string | null = null;
+    /**
+     * Set inside the transaction when the sponsoring partner has no funded
+     * seats left. Soft cap: the student still enrolls, we just skip the
+     * funding stamp and flag the application so an admin can sort funding out.
+     * Assigned (never appended to) so a transaction retry stays idempotent.
+     */
+    let sponsorshipSeatCapReached = false;
+    let finalApplicationNotes = applicationNotes;
     try {
       // Retry only on connection-acquisition failures (nothing committed yet):
       // this transaction creates non-idempotent rows (application, screening,
       // referral), so we must not re-run it after an ambiguous mid-commit drop.
       await withDbRetry(() => prisma.$transaction(async (tx) => {
+        // Sponsored enrollment (Phase B2). `sponsorPartner` is non-null only
+        // for an active sponsorship, so this whole block is inert for every
+        // other signup. Count funded seats BEFORE the enrollment upsert so
+        // this signup does not count itself against the cap.
+        let stampSponsorship = false;
+        if (sponsorPartner) {
+          const usedSeats = await tx.courseEnrollment.count({
+            where: { sponsoredByPartnerId: sponsorPartner.id },
+          });
+          sponsorshipSeatCapReached = isSeatCapReached(sponsorPartner, usedSeats);
+          stampSponsorship = !sponsorshipSeatCapReached;
+          finalApplicationNotes = sponsorshipSeatCapReached
+            ? [applicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
+            : applicationNotes;
+        }
+
         await tx.user.upsert({
           where: { id: user.id },
           create: {
@@ -315,14 +387,49 @@ const applySignupSchema = z.object({
               programSlug,
               isPrimary: true,
               enrolledAt: new Date(),
+              ...(stampSponsorship && sponsorPartner
+                ? {
+                    fundingSource: resolveSponsorshipFundingSource(sponsorPartner),
+                    fundingNotes: buildFundingNotes(sponsorPartner),
+                    sponsoredByPartnerId: sponsorPartner.id,
+                  }
+                : {}),
             },
             update: {
               isPrimary: true,
               enrolledAt: new Date(),
+              ...(stampSponsorship && sponsorPartner
+                ? { sponsoredByPartnerId: sponsorPartner.id }
+                : {}),
             },
           });
+
+          // Funding provenance on an EXISTING enrollment is stamped only when
+          // the row still has none — an admin who already recorded a grant or
+          // employer as the payer must win over this automatic stamp. Done as
+          // a scoped updateMany (same transaction) because an upsert's update
+          // branch cannot express "only if currently null".
+          if (stampSponsorship && sponsorPartner) {
+            await tx.courseEnrollment.updateMany({
+              where: { userId: user.id, programSlug, fundingSource: null },
+              data: {
+                fundingSource: resolveSponsorshipFundingSource(sponsorPartner),
+                fundingNotes: buildFundingNotes(sponsorPartner),
+              },
+            });
+          }
         }
   
+        // A student enrolling under a sponsoring high school attends that
+        // school by definition, so record it on the profile — this drives the
+        // minor/consent handling and school-level reporting. Independent of
+        // the seat cap: which school they attend does not change when the
+        // partner runs out of funded seats.
+        const schoolFields =
+          sponsorPartner && sponsorPartner.partnerType === 'high_school'
+            ? { schoolName: sponsorPartner.name, schoolDistrict: sponsorPartner.schoolDistrict }
+            : {};
+
         await tx.profile.upsert({
           where: { userId: user.id },
           create: {
@@ -336,6 +443,7 @@ const applySignupSchema = z.object({
             hasEmploymentBarrier: profileBarrierTypes.length > 0,
             barrierTypes: profileBarrierTypes,
             role: 'member',
+            ...schoolFields,
           },
           update: {
             profilePhone: phone,
@@ -347,6 +455,7 @@ const applySignupSchema = z.object({
             hasEmploymentBarrier: profileBarrierTypes.length > 0,
             barrierTypes: profileBarrierTypes,
             role: 'member',
+            ...schoolFields,
           },
         });
   
@@ -358,7 +467,7 @@ const applySignupSchema = z.object({
             programRankedSlugs,
             recommendedOnetCode: recommendedOnetCode ?? null,
             recommendedCareerTitle: recommendedCareerTitle ?? null,
-            notes: applicationNotes || null,
+            notes: finalApplicationNotes || null,
             submittedAt: new Date(),
             referralSource,
             referralPartnerId,
@@ -432,6 +541,20 @@ const applySignupSchema = z.object({
         });
       });
   
+      // Soft seat cap: the student is already through, but an admin has to
+      // decide who funds this seat. Surfaced two ways — logged/captured for
+      // observability, and carried in the admin alert below via the note that
+      // was appended to `finalApplicationNotes`.
+      if (sponsorshipSeatCapReached && sponsorPartner) {
+        logger.warn('Sponsored enrollment seat cap reached; enrollment left unfunded', {
+          partnerId: sponsorPartner.id,
+          partnerName: sponsorPartner.name,
+          seatCap: sponsorPartner.sponsorshipSeatCap,
+          userId: user.id,
+          applicationId: createdApplicationId,
+        });
+      }
+
       if (createdApplicationId) {
         sendNewApplicationAdminEmail({
           applicantName: fullName,
@@ -439,7 +562,7 @@ const applySignupSchema = z.object({
           applicantPhone: phone,
           programInterest: programInterestSummary,
           applicationId: createdApplicationId,
-          applicationNotes: applicationNotes || undefined,
+          applicationNotes: finalApplicationNotes || undefined,
         }).catch((err) => {
           logger.error('Admin new-application alert email failed', { err });
           captureApiError(err, {

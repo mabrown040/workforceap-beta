@@ -33,6 +33,7 @@ vi.mock('@/lib/db/prisma', () => ({
     },
     partnerReferral: {
       groupBy: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -79,6 +80,7 @@ describe('AdminPartnersPage authorization', () => {
     vi.mocked(prisma.partner.findMany).mockResolvedValue([]);
     vi.mocked(prisma.partner.count).mockResolvedValue(0);
     vi.mocked(prisma.partnerReferral.groupBy).mockResolvedValue([] as any);
+    vi.mocked(prisma.partnerReferral.count).mockResolvedValue(0);
 
     await expect(AdminPartnersPage({})).resolves.toBeTruthy();
 

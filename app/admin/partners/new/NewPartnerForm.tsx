@@ -42,6 +42,10 @@ export default function NewPartnerForm({ programs }: { programs: { slug: string;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (school.enrollmentPageEnabled && school.programSlugs.length === 0) {
+      setError('Pick at least one program before publishing the enrollment page');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -104,7 +108,7 @@ export default function NewPartnerForm({ programs }: { programs: { slug: string;
           required
           className="admin-form-input"
           style={inputStyle}
-          placeholder="e.g. Workforce Solutions Capital Area"
+          placeholder="e.g. Concordia High School"
           disabled={saving}
         />
       </div>

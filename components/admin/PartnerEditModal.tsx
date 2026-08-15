@@ -86,6 +86,10 @@ export default function PartnerEditModal({ partner, subgroups, programs = [], on
       setError('Brand color must be a 6-digit hex (e.g. #1E3A8A)');
       return;
     }
+    if (school.enrollmentPageEnabled && school.programSlugs.length === 0) {
+      setError('Pick at least one program before publishing the enrollment page');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {

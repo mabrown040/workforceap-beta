@@ -4,7 +4,8 @@ import { Users, Activity, GraduationCap, Trophy } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import PartnerEnrollmentFunnelStrip from '@/components/admin/PartnerEnrollmentFunnelStrip';
-import { enrollmentPathForSlug } from '@/lib/enroll/enrollmentPath';
+import PartnerSchoolConfigCard from '@/components/admin/PartnerSchoolConfigCard';
+import { isSchoolManagedPartner } from '@/lib/partner/adminSchoolPartner';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
@@ -241,12 +242,30 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         }
       />
 
-      <PartnerEnrollmentFunnelStrip
-        partnerName={partner.name}
-        slug={partner.slug}
-        enrollmentPageEnabled={partner.enrollmentPageEnabled}
-        counts={funnel}
-      />
+      {isSchoolManagedPartner(partner) ? (
+        <>
+          <PartnerEnrollmentFunnelStrip
+            partnerName={partner.name}
+            slug={partner.slug}
+            enrollmentPageEnabled={partner.enrollmentPageEnabled}
+            counts={funnel}
+          />
+          <PartnerSchoolConfigCard
+            config={{
+              partnerType: partner.partnerType,
+              referralCode: partner.referralCode,
+              slug: partner.slug,
+              sponsoredEnrollment: partner.sponsoredEnrollment,
+              sponsorshipFundingSource: partner.sponsorshipFundingSource,
+              sponsorshipTermLabel: partner.sponsorshipTermLabel,
+              enrollmentPageEnabled: partner.enrollmentPageEnabled,
+              schoolDistrict: partner.schoolDistrict,
+              enrollmentHeadline: partner.enrollmentHeadline,
+              programSlugs: partner.programCatalog.map((row) => row.programSlug),
+            }}
+          />
+        </>
+      ) : null}
 
       <div className="wa-kit-card" style={{ marginBottom: 24 }}>
         <CardHead title="Invite partner user" />

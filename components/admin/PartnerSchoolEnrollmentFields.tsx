@@ -86,7 +86,14 @@ export default function PartnerSchoolEnrollmentFields({
         <input
           type="checkbox"
           checked={values.sponsoredEnrollment}
-          onChange={(e) => set('sponsoredEnrollment', e.target.checked)}
+          onChange={(e) => {
+            const checked = e.target.checked;
+            onChange({
+              ...values,
+              sponsoredEnrollment: checked,
+              partnerType: checked && values.partnerType === 'community' ? 'high_school' : values.partnerType,
+            });
+          }}
           disabled={disabled}
         />
         Sponsored enrollment (auto-stamp funding at signup)
@@ -95,7 +102,14 @@ export default function PartnerSchoolEnrollmentFields({
         <input
           type="checkbox"
           checked={values.enrollmentPageEnabled}
-          onChange={(e) => set('enrollmentPageEnabled', e.target.checked)}
+          onChange={(e) => {
+            const checked = e.target.checked;
+            onChange({
+              ...values,
+              enrollmentPageEnabled: checked,
+              partnerType: checked && values.partnerType === 'community' ? 'high_school' : values.partnerType,
+            });
+          }}
           disabled={disabled}
         />
         Publish enrollment page

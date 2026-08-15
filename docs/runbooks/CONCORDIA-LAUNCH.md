@@ -5,7 +5,10 @@ Operations runbook for the 2026 Concordia High School (CHS) enrollment pilot.
 ## Overview
 
 - **Student link:** https://www.workforceap.org/enroll/concordia
+- **Partner slug:** `concordia` — **must** match the `/enroll/<segment>` above. That URL segment IS the partner slug: middleware derives the partner ref from it, drops a 30-day attribution cookie, and `/api/apply/signup` resolves it against `Partner.slug`. If the two ever drift, students who use the link get no attribution and no funding stamp. The constant lives in `lib/partners/chsPartner.ts` (`CHS_PARTNER_SLUG`) and is pinned by `lib/partners/chsPartner.test.ts`.
 - **Referral code:** `chs2026` — the link carries it automatically; it also works directly at `/apply?ref=chs2026` (per-program: `/apply?ref=chs2026&program=<slug>`).
+- **Sponsorship window:** 2026-01-01 → 2026-12-31 UTC, term label `2026`, funding source `PARTNER_ORG`. Outside that window nothing is stamped automatically — extend `sponsorshipEndsAt` in `/admin/partners` before the pilot rolls into a new term.
+- **Seat cap: intentionally unset (uncapped).** Spend is controlled by the manual Coursera activation gate below (`courseraEnrollmentApproved` per consented student), which is the real limiter. A seat cap here would only add a second limiter that silently leaves students unfunded with a staff-only alert. Set one in `/admin/partners` only if you deliberately want that behavior.
 - **The partnership:** Concordia High School students enroll in WorkforceAP programs at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership. Partner contact: Dr. Marianne Rader (marianne.rader@chsaustin.org).
 - **Where attribution lands:**
   - `Application.referralSource = 'partner_ref:chs2026'`
@@ -19,7 +22,7 @@ Operations runbook for the 2026 Concordia High School (CHS) enrollment pilot.
    ```bash
    node scripts/prisma-env.js npx tsx scripts/create-chs-partner.ts
    ```
-   Expect a one-line `CREATED`/`UPDATED` summary with the partner id and `referralCode=chs2026`.
+   Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
 3. **Prod smoke-test checklist:**
    - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, programs listed, CTAs work.
    - [ ] Complete a throwaway signup via a program card CTA, using the **Under 18** age band.

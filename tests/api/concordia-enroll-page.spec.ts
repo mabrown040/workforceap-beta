@@ -1,13 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { PROGRAMS } from '../../marketing/src/data/programs';
+import { CHS_PARTNER_SLUG } from '@/lib/partners/chsPartner';
 
 describe('Concordia HS enrollment page — chs2026 referral', () => {
   const source = readFileSync(
     path.resolve(__dirname, '../../marketing/src/pages/enroll/concordia.astro'),
     'utf-8',
   );
+
+  it('is served at the URL segment that IS the partner slug', () => {
+    // The page path, the printed student link, and Partner.slug are one
+    // value. If they drift, middleware captures a ref that resolves to no
+    // partner and every student who uses the official link loses attribution
+    // and their funding stamp, silently.
+    expect(
+      existsSync(
+        path.resolve(__dirname, `../../marketing/src/pages/enroll/${CHS_PARTNER_SLUG}.astro`),
+      ),
+    ).toBe(true);
+  });
 
   it('pins the chs2026 referral code and routes every apply CTA through it', () => {
     expect(source).toContain("const REF = 'chs2026'");

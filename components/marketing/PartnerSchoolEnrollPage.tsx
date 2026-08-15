@@ -26,7 +26,7 @@ const ICONS = {
   'graduation-cap': GraduationCap,
   'help-circle': HelpCircle,
   laptop: Laptop,
-  rocket: Rocket,
+  rocket_launch: Rocket,
   search: Search,
   shield: Shield,
   star: Star,
@@ -51,7 +51,7 @@ export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPa
     { num: '1', icon: 'search', title: 'Review the programs', desc: `Browse the certificate tracks below and pick the one that fits your interests.` },
     { num: '2', icon: 'file-text', title: 'Apply in about 10 minutes', desc: 'One short online application. No payment information is ever requested.' },
     { num: '3', icon: 'check-circle', title: 'Your spot is confirmed', desc: `${shortName} and WorkforceAP confirm your spot and set up your training account.` },
-    { num: '4', icon: 'rocket', title: 'Start training', desc: 'Self-paced and flexible — built to fit around your class schedule and activities.' },
+    { num: '4', icon: 'rocket_launch', title: 'Start training', desc: 'Self-paced and flexible — built to fit around your class schedule and activities.' },
   ];
 
   const faqs: { q: string; a: string; href?: string; hrefLabel?: string }[] = [

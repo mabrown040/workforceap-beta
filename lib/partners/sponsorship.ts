@@ -79,13 +79,13 @@ function sponsorshipTermClause(partner: SponsorshipPartner): string | null {
 /**
  * Public-facing cost copy for sponsored enrollment.
  *
- * INTENDED choke point: the upcoming dynamic `/enroll/[partnerSlug]` page
- * (Phase B3) must render this string rather than writing its own. It is not
- * yet the only one — `marketing/src/pages/enroll/concordia.astro` still
- * hardcodes its own `COST_SENTENCE` (the Astro marketing build does not
- * import from `lib/`). Collapsing that duplication is a follow-up, tracked
- * with the B3 dynamic page; until then the Astro page's copy is pinned
- * separately by `tests/api/concordia-enroll-page.spec.ts`.
+ * THE choke point for public cost copy. As of Phase B3 this is the only place
+ * that sentence is written: the dynamic `/enroll/[partnerSlug]` page renders
+ * this string (hero, program band, FAQ, closing CTA, and the page description)
+ * and the static `marketing/src/pages/enroll/concordia.astro` that used to
+ * hardcode its own `COST_SENTENCE` was deleted with it. Any new surface must
+ * call this rather than restate it — `tests/api/concordia-enroll-page.spec.ts`
+ * asserts the enrollment page carries no cost sentence of its own.
  *
  * Somebody paid for that seat: copy implying otherwise misrepresents the
  * partnership and reads to students as "what's the catch?". Keep the phrasing

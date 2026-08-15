@@ -1,0 +1,495 @@
+/* ============================================================
+   partner-enroll.css — SCOPED styles for the dynamic partner
+   enrollment page (/enroll/[partnerSlug], Phase B3). Mobile-first;
+   builds on the .mdx-* depth atoms in css/marketing-depth.css so
+   the page matches the Astro marketing front it replaces.
+
+   Class names are prefixed .pen-* (partner-enrollment) so they can
+   never collide with legacy main.css / marketing.css selectors.
+
+   `--pen-accent` is set inline by the page from `Partner.brandColor`
+   ONLY after hex validation (never raw DB text in a style), and
+   falls back to the WorkforceAP crimson here so an unset or invalid
+   partner color simply renders the house accent.
+   ============================================================ */
+
+.pen {
+  --pen-accent: var(--mdx-crimson, #ad2c4d);
+  background: var(--mdx-bg, #f7f4f1);
+  color: var(--mdx-text, #1a1414);
+}
+
+.pen-wrap {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ---------------- HERO ---------------- */
+.pen-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background: var(--mdx-grad, linear-gradient(135deg, #ad2c4d 0%, #8c0f37 52%, #6d1437 100%));
+  padding: calc(var(--nav-height-default, 80px) + 2.5rem) 0 3rem;
+}
+.pen-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--wap-hero-photo-url, url('/images/hero-people.webp')) center/cover;
+  opacity: 0.12;
+  mix-blend-mode: luminosity;
+}
+.pen-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.pen-brandbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.pen-logo {
+  height: 46px;
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+
+.pen-h1 {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 6vw, 3.2rem);
+  line-height: 1.07;
+  letter-spacing: -0.02em;
+  margin: 0.75rem 0 0;
+}
+.pen-shimmer {
+  background: linear-gradient(100deg, #fff 10%, #f3d28f 50%, #fff 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.pen-sub {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 38em;
+  margin: 1rem 0 0;
+}
+.pen-cost {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #fff;
+  max-width: 40em;
+}
+.pen-seats {
+  display: block;
+  margin-top: 0.35rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+.pen-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.pen-acts .mdx-btn {
+  justify-content: center;
+}
+.pen-meta-note {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* hero co-brand glass card */
+.pen-glass {
+  border-radius: 20px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  color: #fff;
+}
+.pen-glass-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 1rem;
+}
+.pen-glass-meter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  border-radius: 13px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 1rem;
+}
+.pen-glass-meter span {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.4;
+}
+.pen-glass-meter strong {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  color: #f3d28f;
+}
+.pen-glass-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.pen-glass-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+}
+.pen-glass-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pen-glass-chips span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ---------------- BODY BANDS ---------------- */
+.pen-band {
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+}
+.pen-band--surface {
+  background: var(--mdx-surface, #fff);
+}
+#pen-programs {
+  scroll-margin-top: 6rem;
+}
+
+.pen-sechead {
+  max-width: 760px;
+  margin: 0 auto 2.25rem;
+  text-align: center;
+}
+.pen-sechead h2 {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 4.6vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0.75rem 0 0.5rem;
+}
+.pen-sechead p {
+  color: var(--mdx-muted, #6e6a66);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* how it works */
+.pen-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+.pen-step {
+  text-align: center;
+}
+.pen-step-num {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--pen-accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin: 0 auto 0.75rem;
+}
+.pen-step h3 {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+}
+.pen-step p {
+  color: var(--mdx-muted, #6e6a66);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------------- PROGRAM CARDS ---------------- */
+.pen-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+.pen-card {
+  display: flex;
+  flex-direction: column;
+}
+.pen-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.pen-cat-pill {
+  color: #fff;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.pen-fund-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(74, 155, 79, 0.12);
+  color: #2f6b34;
+}
+.pen-featured-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(164, 127, 56, 0.14);
+  color: #7d5f26;
+}
+.pen-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 0.6rem;
+}
+.pen-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  font-size: 0.875rem;
+  color: var(--mdx-muted, #6e6a66);
+  margin-bottom: 0.5rem;
+}
+.pen-card-meta b {
+  color: var(--pen-accent);
+}
+.pen-disclaimer {
+  font-size: 0.75rem;
+  color: var(--mdx-muted, #6e6a66);
+  line-height: 1.45;
+  margin: 0 0 0.85rem;
+}
+.pen-note {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--mdx-text, #1a1414);
+  background: var(--mdx-bg, #f7f4f1);
+  border-left: 3px solid var(--pen-accent);
+  border-radius: 0 8px 8px 0;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0 0.85rem;
+}
+.pen-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.pen-skill {
+  background: var(--mdx-bg, #f7f4f1);
+  border: 1px solid var(--mdx-border, #ece5e0);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+.pen-card-foot {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--mdx-border, #ece5e0);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.pen-card-partner {
+  font-size: 0.8rem;
+  color: var(--mdx-muted, #6e6a66);
+}
+.pen-card-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pen-card-acts .mdx-btn {
+  flex: 1 1 auto;
+  justify-content: center;
+  font-size: 0.9rem;
+  padding: 0.8rem 1rem;
+  min-height: 44px;
+}
+
+/* ---------------- FAQ ---------------- */
+.pen-faq {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.pen-faq-item {
+  background: var(--mdx-surface, #fff);
+  border: 1px solid var(--mdx-border, #ece5e0);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.pen-faq-item[open] {
+  border-color: var(--pen-accent);
+}
+.pen-faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 1rem 1.15rem;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.4;
+  min-height: 44px;
+}
+.pen-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.pen-faq-answer {
+  padding: 0 1.15rem 1.1rem;
+  color: var(--mdx-muted, #6e6a66);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+.pen-faq-answer a {
+  color: var(--pen-accent);
+  font-weight: 700;
+}
+
+/* ---------------- CLOSING CTA ---------------- */
+.pen-close {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  background: var(--mdx-grad, linear-gradient(135deg, #ad2c4d 0%, #8c0f37 52%, #6d1437 100%));
+  padding: clamp(3rem, 8vw, 5.5rem) 0;
+}
+.pen-close h2 {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 1rem 0 0.75rem;
+}
+.pen-close p {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 46em;
+  margin: 0 auto;
+}
+.pen-close .pen-acts {
+  justify-content: center;
+}
+
+/* ---------------- PAUSED / EXPLAINER ---------------- */
+.pen-explainer {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: calc(var(--nav-height-default, 80px) + 2.5rem) 1.25rem 4rem;
+  text-align: center;
+}
+.pen-explainer h1 {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  line-height: 1.15;
+  margin: 1rem 0 0.75rem;
+}
+.pen-explainer p {
+  color: var(--mdx-muted, #6e6a66);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (min-width: 640px) {
+  .pen-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pen-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pen-acts .mdx-btn {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 900px) {
+  .pen-hero {
+    padding: calc(var(--nav-height-default, 80px) + 3.5rem) 0 4.5rem;
+  }
+  .pen-hero-grid {
+    grid-template-columns: 1.06fr 0.94fr;
+    gap: 3rem;
+  }
+  .pen-sub {
+    font-size: 1.15rem;
+  }
+  .pen-steps {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .pen-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .pen-sechead p {
+    font-size: 1.1rem;
+  }
+}

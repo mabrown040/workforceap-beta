@@ -427,6 +427,16 @@ export default function ApplyCreateAccountForm() {
         q3?: 'yes' | 'no';
         qualifies?: boolean;
         yesCount?: number;
+        // School-partner variant (Phase B4). Absent for organic/paid, where
+        // step 1 never renders these inputs — every one is forwarded as
+        // `undefined` there, which `JSON.stringify` drops from the body.
+        gradeLevel?: string;
+        expectedGraduationYear?: string;
+        schoolAttestation?: boolean;
+        studentId?: string;
+        guardianName?: string;
+        guardianEmail?: string;
+        guardianPhone?: string;
       } | null = null;
       if (typeof window !== 'undefined') {
         try {
@@ -470,6 +480,13 @@ export default function ApplyCreateAccountForm() {
           eligibilityQ3: eligibilityPayload?.q3,
           eligibilityQualifies: eligibilityPayload?.qualifies,
           eligibilityYesCount: eligibilityPayload?.yesCount,
+          gradeLevel: eligibilityPayload?.gradeLevel,
+          expectedGraduationYear: eligibilityPayload?.expectedGraduationYear,
+          schoolAttestation: eligibilityPayload?.schoolAttestation,
+          studentId: eligibilityPayload?.studentId,
+          guardianName: eligibilityPayload?.guardianName,
+          guardianEmail: eligibilityPayload?.guardianEmail,
+          guardianPhone: eligibilityPayload?.guardianPhone,
           utmSource: attribution.utmSource,
           utmMedium: attribution.utmMedium,
           utmCampaign: attribution.utmCampaign,

@@ -26,6 +26,24 @@ export type ApplyFlowDraftV1 = {
   primaryBarriers?: string[];
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
+  /**
+   * School-partner variant fields (Phase B4). Every one of these is OPTIONAL
+   * and must stay that way: a draft written before B4 — or by the organic /
+   * paid variants, which never render these inputs — has to keep
+   * deserializing unchanged. `readDraft` in ApplyEligibilityClient parses the
+   * stored JSON straight into this type, so a required field here would
+   * silently mistype every pre-existing draft on disk.
+   */
+  /** '9' | '10' | '11' | '12' — matches components/forms/ParentalConsentForm. */
+  gradeLevel?: string;
+  /** Four-digit year, e.g. '2027'. */
+  expectedGraduationYear?: string;
+  /** "I am enrolled at <school> and my school is sponsoring me." */
+  schoolAttestation?: boolean;
+  studentId?: string;
+  guardianName?: string;
+  guardianEmail?: string;
+  guardianPhone?: string;
 };
 
 export type CareerQuizSignupPayload = {

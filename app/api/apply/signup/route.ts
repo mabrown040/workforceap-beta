@@ -17,6 +17,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { normalizePartnerRef, PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
+// Same constant `/apply` uses to pick the school variant, so the page and this
+// route can never disagree about which partners count as schools.
+import { SCHOOL_PARTNER_TYPE } from '@/lib/apply/schoolApplyPartner';
 import {
   buildFundingNotes,
   buildSponsoredSeatWhere,
@@ -47,6 +50,21 @@ import {
 function seatCapNote(partnerName: string): string {
   return `Seat cap reached for ${partnerName} sponsorship — funding pending admin review`;
 }
+
+/**
+ * Written into `Application.notes` for every high-school-partner applicant.
+ *
+ * These students are never asked the WIOA-style employment/income questions
+ * (see `ApplyEligibilityClient`'s school variant), so their application has no
+ * screening answers to show. Saying so explicitly is what stops a reviewer
+ * reading the gap as an unfinished screening.
+ *
+ * Member-visible: `Application.notes` is returned verbatim by the self-serve
+ * GDPR export (`lib/member/exportData.ts`), so this is worded as a neutral
+ * fact about their funding route, not as a judgement about them.
+ */
+const SCHOOL_PARTNER_SCREENING_NOTE =
+  'School partner applicant — WIOA screening n/a (partner-sponsored)';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -84,6 +102,29 @@ const applySignupSchema = z.object({
   eligibilityQ1: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ2: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ3: z.enum(['yes', 'no']).optional().nullable(),
+  /**
+   * School-partner variant (Phase B4). All optional: organic and paid signups
+   * never send them, and every write below is additionally gated on the
+   * RESOLVED partner being a high school — a body that carries these fields
+   * with no school ref changes nothing.
+   */
+  gradeLevel: z.string().trim().max(20).optional().nullable(),
+  /** A four-digit year, accepted as either a string (the select) or a number. */
+  expectedGraduationYear: z
+    .union([z.string().trim().regex(/^\d{4}$/, 'Please choose a graduation year.'), z.number().int().min(1900).max(2999)])
+    .optional()
+    .nullable(),
+  schoolAttestation: z.boolean().optional().nullable(),
+  studentId: z.string().trim().max(64).optional().nullable(),
+  guardianName: z.string().trim().max(200).optional().nullable(),
+  guardianEmail: z
+    .string()
+    .trim()
+    .max(200)
+    .email('Please enter a valid parent or guardian email address.')
+    .optional()
+    .nullable(),
+  guardianPhone: z.string().trim().max(50).optional().nullable(),
   // Marketing attribution captured at first ad-landing visit. Stored on
   // the apply_signup_completed MemberEvent metadata so downstream analytics
   // (GA4, BigQuery, internal cohort queries) can attribute conversion to
@@ -146,6 +187,13 @@ const applySignupSchema = z.object({
       eligibilityQ1,
       eligibilityQ2,
       eligibilityQ3,
+      gradeLevel,
+      expectedGraduationYear,
+      schoolAttestation,
+      studentId,
+      guardianName,
+      guardianEmail,
+      guardianPhone,
       utmSource,
       utmMedium,
       utmCampaign,
@@ -154,6 +202,28 @@ const applySignupSchema = z.object({
       referrer,
       turnstileToken,
     } = parsed.data;
+
+    /**
+     * Server-side re-check of the client's guardian-email rule (Phase B4).
+     *
+     * A minor's guardian contact is the channel the parental consent form and
+     * every guardian notification travel down. A student who types their own
+     * address there — by mistake or on purpose — makes the whole consent
+     * mechanism self-signed, and the client-side check is trivially skipped by
+     * posting straight to this route.
+     *
+     * Returned as the standard 400 validation response rather than thrown, and
+     * placed BEFORE the per-email rate limit, the captcha check, and every
+     * write: a rejected signup must leave nothing behind, not even a consumed
+     * rate-limit token.
+     */
+    const guardianEmailNormalized = guardianEmail?.trim().toLowerCase() ?? '';
+    if (guardianEmailNormalized && guardianEmailNormalized === email.trim().toLowerCase()) {
+      return NextResponse.json(
+        { error: "Please enter a parent or guardian's own email address." },
+        { status: 400 }
+      );
+    }
 
     // Per-email rate limit (3/hr). The per-IP limit above lets an
     // attacker rotating IPs spam verification mail to the same target.
@@ -239,6 +309,20 @@ const applySignupSchema = z.object({
     let sponsorPartner:
       | (SponsorshipPartner & { partnerType: string; schoolDistrict: string | null })
       | null = null;
+    /**
+     * Set when the resolved partner is a HIGH SCHOOL, whether or not its
+     * sponsorship window is currently open (Phase B4). This is what gates
+     * every school-specific write below.
+     *
+     * Deliberately separate from `sponsorPartner`: sponsorship decides who
+     * PAYS for the seat, `partnerType` decides which QUESTIONS the applicant
+     * was asked. `/apply` renders the school variant for any active
+     * high-school partner, so an applicant whose school's funding window has
+     * lapsed still answered grade / graduation / guardian questions and that
+     * data must still be recorded. The B2 sponsorship stamping below is
+     * untouched by this.
+     */
+    let schoolPartner: { id: string; name: string } | null = null;
     // The apply form posts `referralRef`, but a student who arrived via
     // `/enroll/<slug>` may no longer have it (new tab, restored session,
     // shared bare /apply link). Middleware drops a 30-day httpOnly cookie on
@@ -285,8 +369,39 @@ const applySignupSchema = z.object({
         if (isSponsorshipActive(partner, new Date())) {
           sponsorPartner = partner;
         }
+        // The partner ROW is the authority for the school variant — never a
+        // query param or anything else the client can set.
+        if (partner.partnerType === SCHOOL_PARTNER_TYPE) {
+          schoolPartner = { id: partner.id, name: partner.name };
+        }
       }
     }
+
+    /**
+     * School answers appended to the application notes. Built as a fresh
+     * const from the base notes (never `applicationNotes += ...`) so a
+     * transaction retry cannot append the same lines twice.
+     *
+     * The WIOA marker is the important line: without it, a reviewer opening a
+     * school application sees no income/employment answers and no explanation,
+     * and reads it as an incomplete screening rather than one that does not
+     * apply to a partner-sponsored seat.
+     */
+    const expectedGraduationYearText =
+      expectedGraduationYear === null || expectedGraduationYear === undefined
+        ? null
+        : String(expectedGraduationYear).trim();
+    const schoolNoteLines = schoolPartner
+      ? [
+          gradeLevel?.trim() ? `Grade level: ${gradeLevel.trim()}` : null,
+          expectedGraduationYearText ? `Expected graduation: ${expectedGraduationYearText}` : null,
+          schoolAttestation === true
+            ? `School enrollment attested by applicant: ${schoolPartner.name}`
+            : null,
+          SCHOOL_PARTNER_SCREENING_NOTE,
+        ]
+      : [];
+    const finalApplicationNotes = [applicationNotes, ...schoolNoteLines].filter(Boolean).join('\n');
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -477,6 +592,43 @@ const applySignupSchema = z.object({
               }
             : {};
 
+        /**
+         * School-partner applicant fields (Phase B4). Same per-key non-empty
+         * conditional spread B2 established: an absent answer must leave
+         * whatever a counselor already recorded on the profile alone rather
+         * than nulling it out.
+         *
+         * `isMinor` is derived from the age band the applicant just chose, so
+         * it is safe on the update branch — unlike `parentalConsentGiven`,
+         * which is deliberately create-only below.
+         */
+        const schoolApplicantFields = schoolPartner
+          ? {
+              ...(gradeLevel?.trim() ? { gradeLevel: gradeLevel.trim() } : {}),
+              ...(studentId?.trim() ? { studentId: studentId.trim() } : {}),
+              ...(ageGroup === 'under_18'
+                ? {
+                    isMinor: true,
+                    ...(guardianName?.trim() ? { parentGuardianName: guardianName.trim() } : {}),
+                    ...(guardianEmailNormalized
+                      ? { parentGuardianEmail: guardianEmailNormalized }
+                      : {}),
+                    ...(guardianPhone?.trim() ? { parentGuardianPhone: guardianPhone.trim() } : {}),
+                  }
+                : {}),
+            }
+          : {};
+
+        /**
+         * CREATE ONLY. A new minor's profile starts with consent not yet
+         * given; a returning applicant may already have a signed consent on
+         * file, and re-submitting the apply form must never revoke it.
+         * `Profile.parentalConsentGiven` already defaults to false, so this is
+         * an explicit statement of the same thing on the create path.
+         */
+        const minorConsentCreateOnly =
+          schoolPartner && ageGroup === 'under_18' ? { parentalConsentGiven: false } : {};
+
         await tx.profile.upsert({
           where: { userId: user.id },
           create: {
@@ -491,6 +643,8 @@ const applySignupSchema = z.object({
             barrierTypes: profileBarrierTypes,
             role: 'member',
             ...schoolFields,
+            ...schoolApplicantFields,
+            ...minorConsentCreateOnly,
           },
           update: {
             profilePhone: phone,
@@ -503,6 +657,7 @@ const applySignupSchema = z.object({
             barrierTypes: profileBarrierTypes,
             role: 'member',
             ...schoolFields,
+            ...schoolApplicantFields,
           },
         });
   
@@ -514,7 +669,7 @@ const applySignupSchema = z.object({
             programRankedSlugs,
             recommendedOnetCode: recommendedOnetCode ?? null,
             recommendedCareerTitle: recommendedCareerTitle ?? null,
-            notes: applicationNotes || null,
+            notes: finalApplicationNotes || null,
             submittedAt: new Date(),
             referralSource,
             referralPartnerId,
@@ -527,7 +682,22 @@ const applySignupSchema = z.object({
         // Upsert keyed on the unique user_id so a returning applicant who
         // re-runs the screener updates their row instead of violating the
         // unique constraint (which would roll back the whole signup).
-        if (eligibilityQ1 && eligibilityQ2) {
+        //
+        // SKIPPED for high-school-partner applicants (Phase B4): they are
+        // never shown the two funding questions, so there is nothing to
+        // record and a row here would be fabricated data feeding the
+        // qualification rate in lib/admin/analyticsOverview.ts. The `!schoolPartner`
+        // guard is belt-and-braces on top of the client omitting q1/q2 —
+        // a stale `apply_eligibility` payload left in localStorage by an
+        // earlier organic visit on a shared school machine would otherwise
+        // slip old answers in under a school ref.
+        //
+        // Verified safe to omit: `ApplyEligibilityScreening` is read in
+        // exactly one place, the two 30-day counts in
+        // lib/admin/analyticsOverview.ts, which are standalone aggregates.
+        // Nothing joins it to Application or assumes one row per application,
+        // so no placeholder row is needed.
+        if (eligibilityQ1 && eligibilityQ2 && !schoolPartner) {
           const screening = {
             organizationId,
             q1: eligibilityQ1,
@@ -619,8 +789,8 @@ const applySignupSchema = z.object({
         // plus the seat-cap line, which exists only here and in the warn above.
         const adminAlertNotes =
           sponsorshipSeatCapReached && sponsorPartner
-            ? [applicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
-            : applicationNotes;
+            ? [finalApplicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
+            : finalApplicationNotes;
 
         sendNewApplicationAdminEmail({
           applicantName: fullName,

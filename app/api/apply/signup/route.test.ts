@@ -59,6 +59,8 @@ const state = vi.hoisted(() => ({
   }[],
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
+  /** Args passed to `applyEligibilityScreening.upsert` (Phase B4 asserts none). */
+  screeningUpserts: [] as { create: Record<string, unknown> }[],
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -104,7 +106,12 @@ vi.mock('@/lib/db/prisma', () => {
         return { id: 'app-test-1' };
       }),
     },
-    applyEligibilityScreening: { upsert: vi.fn(async () => ({})) },
+    applyEligibilityScreening: {
+      upsert: vi.fn(async (args: { create: Record<string, unknown> }) => {
+        state.screeningUpserts.push(args);
+        return {};
+      }),
+    },
     partnerReferral: {
       // A bare `create` against `@@unique([partnerId, memberId])` throws
       // P2002 the second time a returning applicant re-submits — which the
@@ -263,6 +270,7 @@ function resetState() {
   state.cookieSets.length = 0;
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
+  state.screeningUpserts.length = 0;
   state.partner = null;
   state.sponsoredSeatCount = 0;
   state.cookies = {};
@@ -737,5 +745,291 @@ describe('POST /api/apply/signup partner ref cookie handling', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
     expect(state.partnerReferralUpserts).toHaveLength(0);
+  });
+});
+
+/**
+ * Phase B4: the school-partner variant of the apply wizard asks
+ * school-appropriate questions instead of the adult workforce-funding
+ * screener, so a school signup carries different data and must produce
+ * different writes. Every test here has a counterpart pinning that a
+ * non-school partner — or no partner at all — is byte-identical to before.
+ */
+describe('POST /api/apply/signup school-partner applicants', () => {
+  beforeEach(resetState);
+
+  function schoolPartner(overrides: Partial<PartnerRow> = {}): PartnerRow {
+    return {
+      id: 'partner-concordia',
+      name: 'Concordia High School',
+      partnerType: 'high_school',
+      sponsoredEnrollment: true,
+      sponsorshipFundingSource: null,
+      sponsorshipTermLabel: 'Fall 2026',
+      sponsorshipStartsAt: null,
+      sponsorshipEndsAt: null,
+      sponsorshipSeatCap: null,
+      schoolDistrict: 'Austin ISD',
+      ...overrides,
+    };
+  }
+
+  /** A school applicant's body: no q1/q2, plus the school answers. */
+  function schoolBody(overrides: Record<string, unknown> = {}) {
+    return {
+      referralRef: 'concordia-hs',
+      // The school variant never renders the funding questions, so nothing
+      // is stored for them and nothing is posted.
+      eligibilityQ1: undefined,
+      eligibilityQ2: undefined,
+      eligibilityQualifies: undefined,
+      eligibilityYesCount: undefined,
+      gradeLevel: '11',
+      expectedGraduationYear: '2028',
+      schoolAttestation: true,
+      studentId: 'CHS-90210',
+      ...overrides,
+    };
+  }
+
+  function minorBody(overrides: Record<string, unknown> = {}) {
+    return schoolBody({
+      ageGroup: 'under_18',
+      guardianName: 'Dana Guardian',
+      guardianEmail: 'dana.guardian@example.com',
+      guardianPhone: '5125550123',
+      ...overrides,
+    });
+  }
+
+  it('writes minor + guardian + grade fields to the profile for an under-18 school applicant', async () => {
+    state.partner = schoolPartner();
+
+    const res = await POST(makeRequest(minorBody()));
+    expect(res.status).toBe(200);
+
+    expect(state.profileUpserts).toHaveLength(1);
+    expect(state.profileUpserts[0].create).toMatchObject({
+      schoolName: 'Concordia High School',
+      schoolDistrict: 'Austin ISD',
+      gradeLevel: '11',
+      studentId: 'CHS-90210',
+      isMinor: true,
+      parentGuardianName: 'Dana Guardian',
+      parentGuardianEmail: 'dana.guardian@example.com',
+      parentGuardianPhone: '5125550123',
+      parentalConsentGiven: false,
+    });
+    expect(state.profileUpserts[0].update).toMatchObject({
+      gradeLevel: '11',
+      studentId: 'CHS-90210',
+      isMinor: true,
+      parentGuardianName: 'Dana Guardian',
+      parentGuardianEmail: 'dana.guardian@example.com',
+    });
+  });
+
+  it('never re-writes parentalConsentGiven on the update branch', async () => {
+    // A returning applicant may already have a signed consent on file.
+    // Re-submitting the apply form must not revoke it.
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody()));
+
+    expect(state.profileUpserts[0].update).not.toHaveProperty('parentalConsentGiven');
+  });
+
+  it('normalizes the guardian email to lowercase', async () => {
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody({ guardianEmail: '  Dana.Guardian@Example.COM ' })));
+
+    expect(state.profileUpserts[0].create).toMatchObject({
+      parentGuardianEmail: 'dana.guardian@example.com',
+    });
+  });
+
+  it('records grade, graduation, attestation and the WIOA-n/a marker in the notes', async () => {
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody()));
+
+    const notes = state.applicationCreates[0].data.notes ?? '';
+    expect(notes).toContain('Grade level: 11');
+    expect(notes).toContain('Expected graduation: 2028');
+    expect(notes).toContain('School enrollment attested by applicant: Concordia High School');
+    expect(notes).toContain('School partner applicant — WIOA screening n/a (partner-sponsored)');
+    // The pre-existing lines are still there and still first.
+    expect(notes).toContain('Age group: under_18');
+    expect(notes.indexOf('Age group: under_18')).toBeLessThan(notes.indexOf('Grade level: 11'));
+    // No screening answers were collected, so no fit line is invented.
+    expect(notes).not.toContain('Quick eligibility fit');
+  });
+
+  it('writes no ApplyEligibilityScreening row for a school applicant', async () => {
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody()));
+
+    expect(state.screeningUpserts).toHaveLength(0);
+  });
+
+  it('writes no screening row even if a stale q1/q2 payload rides along', async () => {
+    // Shared school lab machine: an earlier organic applicant's
+    // `apply_eligibility` payload can still be in localStorage. Those answers
+    // are not this student's and must not become their screening record.
+    state.partner = schoolPartner();
+
+    await POST(
+      makeRequest(minorBody({ eligibilityQ1: 'yes', eligibilityQ2: 'yes', eligibilityYesCount: 2 }))
+    );
+
+    expect(state.screeningUpserts).toHaveLength(0);
+  });
+
+  it('requires no guardian for an 18–24 school applicant but still records school fields', async () => {
+    state.partner = schoolPartner();
+
+    const res = await POST(makeRequest(schoolBody({ ageGroup: '18_24' })));
+    expect(res.status).toBe(200);
+
+    expect(state.profileUpserts[0].create).toMatchObject({
+      schoolName: 'Concordia High School',
+      gradeLevel: '11',
+      studentId: 'CHS-90210',
+    });
+    // Not a minor, so no minor/guardian keys at all — including no
+    // `isMinor: false`, which would clobber an existing profile.
+    expect(state.profileUpserts[0].create).not.toHaveProperty('isMinor');
+    expect(state.profileUpserts[0].create).not.toHaveProperty('parentGuardianName');
+    expect(state.profileUpserts[0].create).not.toHaveProperty('parentalConsentGiven');
+    expect(state.profileUpserts[0].update).not.toHaveProperty('isMinor');
+  });
+
+  it('drops guardian details posted for a non-minor school applicant', async () => {
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody({ ageGroup: '25_50' })));
+
+    expect(state.profileUpserts[0].create).not.toHaveProperty('parentGuardianEmail');
+    expect(state.profileUpserts[0].create).not.toHaveProperty('isMinor');
+  });
+
+  it('rejects a guardian email that matches the applicant email, writing nothing', async () => {
+    // Self-signed parental consent is the failure this blocks.
+    state.partner = schoolPartner();
+
+    const res = await POST(makeRequest(minorBody({ guardianEmail: 'Applicant@Example.com ' })));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe(
+      "Please enter a parent or guardian's own email address."
+    );
+
+    expect(state.applicationCreates).toHaveLength(0);
+    expect(state.profileUpserts).toHaveLength(0);
+    expect(state.enrollmentUpserts).toHaveLength(0);
+    // Rejected before the partner is even looked up.
+    expect(state.partnerLookups).toHaveLength(0);
+  });
+
+  it('rejects a same-address guardian email with no partner ref at all', async () => {
+    const res = await POST(
+      makeRequest({ guardianEmail: 'applicant@example.com', ageGroup: 'under_18' })
+    );
+    expect(res.status).toBe(400);
+    expect(state.applicationCreates).toHaveLength(0);
+  });
+
+  it('rejects a malformed guardian email with a 400', async () => {
+    state.partner = schoolPartner();
+
+    const res = await POST(makeRequest(minorBody({ guardianEmail: 'not-an-email' })));
+    expect(res.status).toBe(400);
+    expect(state.applicationCreates).toHaveLength(0);
+  });
+
+  it('rejects a non-four-digit graduation year with a 400', async () => {
+    state.partner = schoolPartner();
+
+    const res = await POST(makeRequest(schoolBody({ expectedGraduationYear: '28' })));
+    expect(res.status).toBe(400);
+    expect(state.applicationCreates).toHaveLength(0);
+  });
+
+  it('accepts a numeric graduation year', async () => {
+    state.partner = schoolPartner();
+
+    const res = await POST(makeRequest(schoolBody({ expectedGraduationYear: 2028 })));
+    expect(res.status).toBe(200);
+    expect(state.applicationCreates[0].data.notes ?? '').toContain('Expected graduation: 2028');
+  });
+
+  it('records school data even when the sponsorship window has lapsed', async () => {
+    // partnerType decides which QUESTIONS were asked; sponsorship decides who
+    // PAYS. A school whose funding window closed still shows the school
+    // wizard, so its answers still have to be stored.
+    state.partner = schoolPartner({
+      sponsorshipStartsAt: new Date('2020-01-01T00:00:00Z'),
+      sponsorshipEndsAt: new Date('2020-12-31T00:00:00Z'),
+    });
+
+    const res = await POST(makeRequest(minorBody()));
+    expect(res.status).toBe(200);
+
+    expect(state.profileUpserts[0].create).toMatchObject({ gradeLevel: '11', isMinor: true });
+    expect(state.applicationCreates[0].data.notes ?? '').toContain('WIOA screening n/a');
+    // B2 sponsorship stamping is untouched by B4 and stays off.
+    expect(state.enrollmentUpserts[0].create).not.toHaveProperty('sponsoredByPartnerId');
+  });
+
+  it('leaves a NON-SCHOOL partner signup byte-identical to before Phase B4', async () => {
+    state.partner = schoolPartner({ partnerType: 'community' });
+
+    // Same body a school applicant would send — the partner row, not the
+    // body, is what decides whether any of it is used.
+    const res = await POST(makeRequest(minorBody()));
+    expect(res.status).toBe(200);
+
+    for (const branch of [state.profileUpserts[0].create, state.profileUpserts[0].update]) {
+      for (const key of [
+        'gradeLevel',
+        'studentId',
+        'isMinor',
+        'parentGuardianName',
+        'parentGuardianEmail',
+        'parentGuardianPhone',
+        'parentalConsentGiven',
+        'schoolName',
+        'schoolDistrict',
+      ]) {
+        expect(branch, `non-school partner must not write ${key}`).not.toHaveProperty(key);
+      }
+    }
+
+    const notes = state.applicationCreates[0].data.notes ?? '';
+    expect(notes).toBe('Age group: under_18\nCity: Austin\nState: TX\nZIP: 78701\nCounty: Travis');
+    expect(state.adminEmails[0].applicationNotes).toBe(notes);
+  });
+
+  it('leaves a signup with NO ref byte-identical to before Phase B4', async () => {
+    const res = await POST(makeRequest(minorBody({ referralRef: undefined })));
+    expect(res.status).toBe(200);
+
+    expect(state.partnerLookups).toHaveLength(0);
+    for (const key of ['gradeLevel', 'studentId', 'isMinor', 'parentGuardianEmail']) {
+      expect(state.profileUpserts[0].create).not.toHaveProperty(key);
+    }
+    expect(state.applicationCreates[0].data.notes).toBe(
+      'Age group: under_18\nCity: Austin\nState: TX\nZIP: 78701\nCounty: Travis'
+    );
+  });
+
+  it('still records the standard screening row for a non-school signup', async () => {
+    // The B4 skip must be scoped to school partners only.
+    const res = await POST(makeRequest({ ageGroup: '25_50' }));
+    expect(res.status).toBe(200);
+
+    expect(state.screeningUpserts).toHaveLength(1);
+    expect(state.screeningUpserts[0].create).toMatchObject({ q1: 'yes', q2: 'yes', yesCount: 2 });
   });
 });

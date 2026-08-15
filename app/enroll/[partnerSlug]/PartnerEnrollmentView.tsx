@@ -41,28 +41,142 @@ const ENROLL_UTM = {
 /** `#rgb` / `#rrggbb` only. */
 const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
+/** WCAG AA for normal-size text. */
+const MIN_CONTRAST_ON_WHITE = 4.5;
+
+/** Expands `#abc` to `[0xaa, 0xbb, 0xcc]`. Assumes `HEX_COLOR` already matched. */
+function hexChannels(hex: string): [number, number, number] {
+  const body = hex.slice(1);
+  const full =
+    body.length === 3
+      ? body
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : body;
+  return [
+    parseInt(full.slice(0, 2), 16),
+    parseInt(full.slice(2, 4), 16),
+    parseInt(full.slice(4, 6), 16),
+  ];
+}
+
+/** WCAG 2.x relative luminance. */
+export function relativeLuminance(hex: string): number {
+  const [r, g, b] = hexChannels(hex).map((channel) => {
+    const c = channel / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** Contrast ratio of `hex` against pure white — every use below is white-on-color. */
+export function contrastWithWhite(hex: string): number {
+  return 1.05 / (relativeLuminance(hex) + 0.05);
+}
+
 /**
- * Partner brand colors are admin-entered text. Never interpolate that into a
- * style — validate it is a hex literal first and drop it otherwise, so the
- * page falls back to the house accent instead of accepting arbitrary CSS.
+ * Partner brand colors are admin-entered text. Two independent checks:
+ *
+ *  1. SYNTAX — never interpolate raw DB text into a style. Must be a hex
+ *     literal or it is dropped.
+ *  2. LUMINANCE — the accent is used as a white-on-accent background (the
+ *     step numbers) and as text on the light surface (the salary figure, the
+ *     FAQ links, the note border). A bright brand color passes the hex check
+ *     and then renders white on yellow. Reject anything that cannot clear
+ *     WCAG AA against white and fall back to the house crimson, which the
+ *     stylesheet supplies as the `--pen-accent` default.
  */
 export function resolveAccentColor(brandColor: string | null | undefined): string | null {
   if (!brandColor) return null;
   const candidate = brandColor.trim();
-  return HEX_COLOR.test(candidate) ? candidate : null;
+  if (!HEX_COLOR.test(candidate)) return null;
+  return contrastWithWhite(candidate) >= MIN_CONTRAST_ON_WHITE ? candidate : null;
 }
 
 /**
- * Same reasoning for the logo: allow a site-relative path or an absolute
- * https URL, drop anything else (`javascript:`, `data:`, protocol-relative).
+ * Category pill background, darkened until white 12px text on it clears WCAG AA.
+ *
+ * The canonical `PROGRAM_CATEGORY_COLORS` are chosen for icons and rules, not
+ * for reversed-out pill text: `business` (#a47f38) is 3.70:1 and `healthcare`
+ * (#4a9b4f) is 3.45:1 against white. The static page this replaced used the
+ * darker gold deliberately. Scaling the channels keeps the hue — the pill still
+ * reads as that category's color — while clearing the threshold, and colors
+ * that already pass are returned untouched.
+ */
+export function resolveCategoryPillColor(categoryColor: string): string {
+  if (!HEX_COLOR.test(categoryColor)) return 'var(--pen-accent)';
+  let channels = hexChannels(categoryColor);
+  let hex = categoryColor;
+  // Bounded: each step removes ~18% of each channel, so black is reached long
+  // before the limit and the loop cannot spin.
+  for (let step = 0; step < 12 && contrastWithWhite(hex) < MIN_CONTRAST_ON_WHITE; step += 1) {
+    channels = channels.map((c) => Math.round(c * 0.82)) as [number, number, number];
+    hex = `#${channels.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+  }
+  return hex;
+}
+
+/**
+ * Image hosts the app's Content-Security-Policy `img-src` actually permits.
+ * MUST mirror the `img-src` directive in `next.config.ts`.
+ */
+const CSP_IMG_HOSTS: readonly (string | RegExp)[] = [
+  /^[a-z0-9-]+\.supabase\.co$/i,
+  /^[a-z0-9-]+\.public\.blob\.vercel-storage\.com$/i,
+  'images.unsplash.com',
+  'api.dicebear.com',
+  'www.google-analytics.com',
+  'www.googletagmanager.com',
+];
+
+function isCspAllowedImageHost(hostname: string): boolean {
+  return CSP_IMG_HOSTS.some((h) =>
+    typeof h === 'string' ? h === hostname.toLowerCase() : h.test(hostname)
+  );
+}
+
+/** Origin used only to resolve site-relative candidates; never emitted. */
+const RELATIVE_BASE = 'https://partner-logo.invalid';
+
+/**
+ * Validates a partner logo URL, or returns null so the page renders NO logo.
+ *
+ * Two reasons this is narrower than "any https URL":
+ *
+ *  - CSP. `img-src` in `next.config.ts` is an explicit allowlist, so an
+ *    external school logo does not render — it renders as a BROKEN image on a
+ *    page a school is about to email to every family. No logo looks
+ *    intentional; a broken one looks like the site is broken. Degrade to none.
+ *  - `startsWith('//')` was not enough. The URL parser treats `\` as `/`, so
+ *    `/\evil.example/logo.png` is protocol-relative to a browser while passing
+ *    a leading-`/` check. Resolve and compare origins instead of pattern
+ *    matching on the first characters.
  */
 export function resolveLogoUrl(logoUrl: string | null | undefined): string | null {
   if (!logoUrl) return null;
   const candidate = logoUrl.trim();
-  if (candidate.startsWith('//')) return null;
-  if (candidate.startsWith('/')) return candidate;
-  if (/^https:\/\/\S+$/i.test(candidate)) return candidate;
-  return null;
+  if (!candidate) return null;
+
+  if (candidate.startsWith('/')) {
+    let resolved: URL;
+    try {
+      resolved = new URL(candidate, RELATIVE_BASE);
+    } catch {
+      return null;
+    }
+    // `//evil.example/x` and `/\evil.example/x` both leave our origin here.
+    return resolved.origin === RELATIVE_BASE ? candidate : null;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(candidate);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'https:') return null;
+  return isCspAllowedImageHost(url.hostname) ? url.toString() : null;
 }
 
 /**
@@ -199,14 +313,11 @@ export default function PartnerEnrollmentView({
               {partner.enrollmentBlurb?.trim() || fallbackBlurb(partner.name)}
             </p>
 
-            <p className="pen-cost">
-              {costLine}
-              {sponsorship?.seatsRemaining !== null && sponsorship?.seatsRemaining !== undefined ? (
-                <span className="pen-seats">
-                  {sponsorship.seatsRemaining} sponsored seats remaining this term.
-                </span>
-              ) : null}
-            </p>
+            {/* No remaining-seat counter here. It is a live scarcity claim on
+                a page aimed at minors and their families, it was never on the
+                page this replaced, and the loader deliberately no longer
+                returns the number. */}
+            <p className="pen-cost">{costLine}</p>
 
             <div className="pen-acts">
               <a className="mdx-btn mdx-btn--solid" href={genericApplyHref}>
@@ -285,13 +396,18 @@ export default function PartnerEnrollmentView({
                 <div className="pen-card-top">
                   <span
                     className="pen-cat-pill"
-                    style={{ background: card.categoryColor }}
+                    style={{ background: resolveCategoryPillColor(card.categoryColor) }}
                   >
                     {card.categoryLabel}
                   </span>
-                  <span className="pen-fund-pill">
-                    {sponsorship ? `Sponsored${termSuffix}` : card.fundingLabel}
-                  </span>
+                  {/* Only a sponsorship badge, never the program's generic
+                      "WIOA/Grant" funding pill. High-school students are
+                      generally not WIOA-eligible, so on a school page that pill
+                      reads as a funding claim about THEM. With no sponsorship
+                      in force we show no funding badge at all. */}
+                  {sponsorship ? (
+                    <span className="pen-fund-pill">{`Sponsored${termSuffix}`}</span>
+                  ) : null}
                   {card.featured ? <span className="pen-featured-pill">Recommended</span> : null}
                 </div>
 

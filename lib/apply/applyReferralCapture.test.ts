@@ -6,6 +6,8 @@ import test, { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   APPLY_REFERRAL_SESSION_KEY,
+  PARTNER_REF_MAX_LENGTH,
+  normalizeDecodedPartnerRef,
   normalizePartnerRef,
   partnerRefFromEnrollPath,
   shouldCaptureEnrollRef,
@@ -85,8 +87,51 @@ test('normalizePartnerRef: rejects anything outside [a-z0-9-]', () => {
 });
 
 test('normalizePartnerRef: enforces the 64-character bound', () => {
-  assert.equal(normalizePartnerRef('a'.repeat(64)), 'a'.repeat(64));
-  assert.equal(normalizePartnerRef('a'.repeat(65)), null);
+  assert.equal(normalizePartnerRef('a'.repeat(PARTNER_REF_MAX_LENGTH)), 'a'.repeat(64));
+  assert.equal(normalizePartnerRef('a'.repeat(PARTNER_REF_MAX_LENGTH + 1)), null);
+  // The bound is exported so `app/api/admin/partners` can validate new slugs
+  // against the same number. A partner created with a longer slug gets an
+  // enrollment page that hard-404s and students who silently lose attribution.
+  assert.equal(PARTNER_REF_MAX_LENGTH, 64);
+});
+
+// --- normalizeDecodedPartnerRef ---------------------------------------------
+
+/**
+ * DECODE AT EXACTLY ONE LAYER.
+ *
+ * Next.js decodes route params before a page sees them, so the page must use
+ * the non-decoding validator. Running `normalizePartnerRef` on an already
+ * decoded param decodes twice, and the two layers then disagree with
+ * middleware — which reads the raw pathname and decodes once. A URL that
+ * middleware rejects (planting no attribution cookie) would render the real
+ * page: a student on a link that silently attributes to nobody.
+ */
+test('normalizeDecodedPartnerRef: accepts a plain, already-decoded slug', () => {
+  assert.equal(normalizeDecodedPartnerRef('concordia'), 'concordia');
+  assert.equal(normalizeDecodedPartnerRef('  Concordia-HS '), 'concordia-hs');
+  assert.equal(normalizeDecodedPartnerRef(''), null);
+  assert.equal(normalizeDecodedPartnerRef(null), null);
+  assert.equal(normalizeDecodedPartnerRef(undefined), null);
+});
+
+test('normalizeDecodedPartnerRef: does NOT decode — a double-encoded slug stays rejected', () => {
+  // `/enroll/%2563oncordia`: Next hands the page `%63oncordia`. A second
+  // decode would turn that into `concordia` and render the real page.
+  assert.equal(normalizeDecodedPartnerRef('%63oncordia'), null);
+  // Middleware sees the RAW segment and decodes exactly once — also rejected,
+  // which is the behavior the page now matches.
+  assert.equal(normalizePartnerRef('%2563oncordia'), null);
+  assert.equal(partnerRefFromEnrollPath('/enroll/%2563oncordia'), null);
+  // The old page behavior, spelled out: two decodes resolve the partner.
+  assert.equal(normalizePartnerRef('%63oncordia'), 'concordia');
+});
+
+test('normalizeDecodedPartnerRef: applies the same character + length rules', () => {
+  assert.equal(normalizeDecodedPartnerRef('../admin'), null);
+  assert.equal(normalizeDecodedPartnerRef('a\r\nSet-Cookie: evil=1'), null);
+  assert.equal(normalizeDecodedPartnerRef('partner_ref'), null);
+  assert.equal(normalizeDecodedPartnerRef('a'.repeat(PARTNER_REF_MAX_LENGTH + 1)), null);
 });
 
 // --- partnerRefFromEnrollPath ------------------------------------------------

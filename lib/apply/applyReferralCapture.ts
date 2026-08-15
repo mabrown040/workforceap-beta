@@ -15,18 +15,48 @@ export const PARTNER_REF_COOKIE = 'wap_partner_ref';
 /** 30 days — matches the member referral cookie in `app/r/[code]/route.ts`. */
 export const PARTNER_REF_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
+/**
+ * Longest partner slug / referral code that can survive a round trip through
+ * `/enroll/<slug>` and the attribution cookie.
+ *
+ * This is the URL contract, so it is the binding one: `app/api/admin/partners`
+ * validates new slugs against it (a longer slug would create a partner whose
+ * enrollment page hard-404s and whose cookie is never planted, with no error
+ * anywhere).
+ */
+export const PARTNER_REF_MAX_LENGTH = 64;
+
 /** Partner slugs/referral codes are lowercase alphanumeric with dashes. */
-const PARTNER_REF_PATTERN = /^[a-z0-9-]{1,64}$/;
+const PARTNER_REF_PATTERN = new RegExp(`^[a-z0-9-]{1,${PARTNER_REF_MAX_LENGTH}}$`);
 
 /**
- * Lowercases and validates a partner slug taken from a URL path segment.
+ * Validates a partner slug that has ALREADY been percent-decoded by the caller
+ * — e.g. a Next.js route param, which the router decodes before the page sees
+ * it.
+ *
+ * DECODE AT EXACTLY ONE LAYER. `normalizePartnerRef` decodes, so calling it on
+ * an already-decoded route param decodes twice: `/enroll/%2563oncordia`
+ * arrives at the page as `%63oncordia` and a second decode turns it into
+ * `concordia`. Middleware reads the RAW pathname and decodes once, so it
+ * correctly rejects that URL — the page would render for a student whose
+ * attribution cookie was never set, which is the exact silent-attribution-loss
+ * failure the slug contract exists to prevent.
+ */
+export function normalizeDecodedPartnerRef(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const candidate = raw.trim().toLowerCase();
+  return PARTNER_REF_PATTERN.test(candidate) ? candidate : null;
+}
+
+/**
+ * Lowercases, decodes and validates a partner slug taken from a RAW URL path
+ * segment (middleware reads `nextUrl.pathname`, which is not decoded).
  * Returns null for anything that is not a plausible slug so we never write
  * attacker-controlled text into a cookie.
  */
 export function normalizePartnerRef(raw: string | null | undefined): string | null {
   if (!raw) return null;
-  const candidate = decodeSegment(raw).trim().toLowerCase();
-  return PARTNER_REF_PATTERN.test(candidate) ? candidate : null;
+  return normalizeDecodedPartnerRef(decodeSegment(raw));
 }
 
 function decodeSegment(raw: string): string {

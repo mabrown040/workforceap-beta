@@ -15,7 +15,11 @@ type ApplyRefCaptureProps = {
    * route gets no cookie. Every CTA on the page already carries `?ref=` — this
    * is the belt-and-braces second path, mounted on the page itself.
    *
-   * The URL always wins: an explicit `?ref=` is the student's actual link.
+   * The URL always wins: a NON-EMPTY `?ref=` is the student's actual link.
+   * `?ref=` present but empty is not a choice, it is a stripped query string
+   * (a link shortener, a copy/paste, a redirect), so it falls through to this
+   * fallback — `??` would have treated the empty string as an explicit value
+   * and silently dropped the partner.
    */
   fallbackRef?: string | null;
 };
@@ -24,7 +28,8 @@ type ApplyRefCaptureProps = {
 export default function ApplyRefCapture({ fallbackRef }: ApplyRefCaptureProps = {}) {
   const searchParams = useSearchParams();
   useEffect(() => {
-    const ref = (searchParams?.get('ref') ?? fallbackRef ?? '').trim().toLowerCase();
+    const fromUrl = searchParams?.get('ref')?.trim();
+    const ref = (fromUrl || fallbackRef || '').trim().toLowerCase();
     if (!ref || typeof window === 'undefined') return;
     try {
       sessionStorage.setItem(APPLY_REFERRAL_SESSION_KEY, ref);

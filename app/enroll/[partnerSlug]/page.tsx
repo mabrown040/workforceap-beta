@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import Footer from '@/components/Footer';
 import { buildPageMetadataAsync } from '@/app/seo';
-import { normalizePartnerRef } from '@/lib/apply/applyReferralCapture';
+import { normalizeDecodedPartnerRef } from '@/lib/apply/applyReferralCapture';
 import { getEnrollmentPageData, type EnrollmentPageData } from '@/lib/partners/enrollmentPage';
 import PartnerEnrollmentView from './PartnerEnrollmentView';
 import './partner-enroll.css';
@@ -34,10 +34,18 @@ const loadEnrollmentPage = cache(
   async (slug: string): Promise<EnrollmentPageData> => getEnrollmentPageData(slug)
 );
 
-/** Rejects segments that can't be a partner slug before they reach the database. */
+/**
+ * Rejects segments that can't be a partner slug before they reach the database.
+ *
+ * `normalizeDecodedPartnerRef`, NOT `normalizePartnerRef`: Next has already
+ * percent-decoded the route param, and decoding a second time would resolve
+ * `/enroll/%2563oncordia` to the real page while middleware — which decodes the
+ * raw pathname exactly once — correctly rejects it and plants no attribution
+ * cookie. Decode at one layer only.
+ */
 async function load(params: PageProps['params']): Promise<EnrollmentPageData> {
   const { partnerSlug } = await params;
-  const slug = normalizePartnerRef(partnerSlug);
+  const slug = normalizeDecodedPartnerRef(partnerSlug);
   if (!slug) return { kind: 'not-found' };
   return loadEnrollmentPage(slug);
 }
@@ -46,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { partnerSlug } = await params;
   const data = await load(params);
   // Canonical is built from the normalized slug, never the raw URL segment.
-  const path = `/enroll/${normalizePartnerRef(partnerSlug) ?? ''}`;
+  const path = `/enroll/${normalizeDecodedPartnerRef(partnerSlug) ?? ''}`;
   // Never indexed: these are unlisted links handed out by a school, and the
   // sponsored-cost copy is only true for that school's students.
   const robots = { index: false, follow: false };

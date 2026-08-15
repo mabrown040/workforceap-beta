@@ -80,6 +80,9 @@ marketing/.vercel/
 /public/interest-profiler/
 /public/apply/
 /public/m/
+# /enroll/* is a Next dynamic route now (Phase B3), but a locally built stale
+# Astro artifact committed here would be served as a static file and shadow it.
+/public/enroll/
 
 # one-off debug/scratch artifacts accidentally committed; keep out for good
 /cursor-api-payload.json

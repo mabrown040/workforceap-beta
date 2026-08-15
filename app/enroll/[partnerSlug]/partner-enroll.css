@@ -8,9 +8,11 @@
    never collide with legacy main.css / marketing.css selectors.
 
    `--pen-accent` is set inline by the page from `Partner.brandColor`
-   ONLY after hex validation (never raw DB text in a style), and
-   falls back to the WorkforceAP crimson here so an unset or invalid
-   partner color simply renders the house accent.
+   ONLY after hex AND luminance validation (never raw DB text in a
+   style; never a brand color too light for white-on-accent or
+   accent-on-white text), and falls back to the WorkforceAP crimson
+   here so an unset, invalid, or unreadable partner color simply
+   renders the house accent.
    ============================================================ */
 
 .pen {
@@ -27,13 +29,21 @@
 }
 
 /* ---------------- HERO ---------------- */
+/*
+ * NO nav height in the top padding. `/enroll/*` is a marketing route, so the
+ * root layout renders `ConditionalMarketingNav`, which already emits an
+ * in-flow `.main-nav-layout-spacer` exactly the height of the fixed nav.
+ * Adding the nav-height token here counted that height a second time and put
+ * ~80px of dead space above the H1. `tests/api/concordia-enroll-page.spec.ts`
+ * asserts the token appears nowhere in this file.
+ */
 .pen-hero {
   position: relative;
   overflow: hidden;
   isolation: isolate;
   color: #fff;
   background: var(--mdx-grad, linear-gradient(135deg, #ad2c4d 0%, #8c0f37 52%, #6d1437 100%));
-  padding: calc(var(--nav-height-default, 80px) + 2.5rem) 0 3rem;
+  padding: 2.5rem 0 3rem;
 }
 .pen-hero::after {
   content: '';
@@ -101,20 +111,20 @@
   color: #fff;
   max-width: 40em;
 }
-.pen-seats {
-  display: block;
-  margin-top: 0.35rem;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.78);
-}
 .pen-acts {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.5rem;
 }
+/*
+ * Full-width CTAs on phones — the base `flex` value is what makes the
+ * `min-width: 640px` override below (`flex: 0 0 auto`) mean anything. Without
+ * it the buttons shrink-wrapped at every width and the media query was dead
+ * code.
+ */
 .pen-acts .mdx-btn {
+  flex: 1 1 100%;
   justify-content: center;
 }
 .pen-meta-note {
@@ -297,10 +307,16 @@
   background: rgba(164, 127, 56, 0.14);
   color: #7d5f26;
 }
+/*
+ * `min-height` on the title keeps the duration / salary rows on the same
+ * baseline across a grid row when titles wrap to different line counts. The
+ * static page this replaced did the same (`.pcard h3 { min-height: 3.6em }`).
+ */
 .pen-card h3 {
   font-size: 1.1rem;
   font-weight: 700;
   line-height: 1.35;
+  min-height: 3.6em;
   margin: 0 0 0.6rem;
 }
 .pen-card-meta {
@@ -385,10 +401,17 @@
 .pen-faq-item[open] {
   border-color: var(--pen-accent);
 }
+/*
+ * The default disclosure triangle is hidden, so the summary MUST carry its own
+ * affordance — without one, five bold rows read as static headings and the
+ * cost, under-18 consent, and income-question answers stay hidden behind them.
+ * Same `+` → `×` rotation as the site's `.faq-item` pattern in css/main.css.
+ */
 .pen-faq-item summary {
   cursor: pointer;
   list-style: none;
-  padding: 1rem 1.15rem;
+  position: relative;
+  padding: 1rem 3rem 1rem 1.15rem;
   font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   font-weight: 800;
   font-size: 1rem;
@@ -397,6 +420,30 @@
 }
 .pen-faq-item summary::-webkit-details-marker {
   display: none;
+}
+.pen-faq-item summary::after {
+  content: '+';
+  position: absolute;
+  right: 1.15rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--pen-accent);
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pen-faq-item[open] summary::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+.pen-faq-item summary:hover::after,
+.pen-faq-item summary:focus-visible::after {
+  color: var(--mdx-text, #1a1414);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pen-faq-item summary::after {
+    transition: none;
+  }
 }
 .pen-faq-answer {
   padding: 0 1.15rem 1.1rem;
@@ -439,10 +486,11 @@
 }
 
 /* ---------------- PAUSED / EXPLAINER ---------------- */
+/* Same nav-spacer reasoning as `.pen-hero` — no nav-height in the padding. */
 .pen-explainer {
   max-width: 640px;
   margin: 0 auto;
-  padding: calc(var(--nav-height-default, 80px) + 2.5rem) 1.25rem 4rem;
+  padding: 2.5rem 1.25rem 4rem;
   text-align: center;
 }
 .pen-explainer h1 {
@@ -474,7 +522,7 @@
 
 @media (min-width: 900px) {
   .pen-hero {
-    padding: calc(var(--nav-height-default, 80px) + 3.5rem) 0 4.5rem;
+    padding: 3.5rem 0 4.5rem;
   }
   .pen-hero-grid {
     grid-template-columns: 1.06fr 0.94fr;

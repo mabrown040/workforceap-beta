@@ -16,7 +16,7 @@
  * never touch a database.
  */
 
-import { formatFundingSourceLabel, getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { logger } from '@/lib/observability/logger';
 import {
@@ -36,6 +36,12 @@ import {
  * instruction to show nothing — and a blank page in front of students days
  * before a rollout is the worst possible failure. Falling back keeps the page
  * useful while an admin fills the catalog in.
+ *
+ * ALL OR NOTHING: the fallback applies when the partner hydrates to zero
+ * cards. Adding ONE `PartnerProgramCatalog` row therefore replaces all five
+ * defaults with that one program — it does not append. Documented in
+ * `docs/runbooks/CONCORDIA-LAUNCH.md` because it is a live foot-gun for
+ * whoever curates a school's catalog.
  */
 export const SCHOOL_DEFAULT_SLUGS: readonly string[] = [
   'it-support-professional-certificate-ibm',
@@ -73,6 +79,43 @@ export type EnrollmentPartnerRecord = EnrollmentPagePartner & {
 };
 
 /**
+ * Explicit column list for the partner query.
+ *
+ * `Partner` carries columns this page must never see: internal `notes`,
+ * `sponsorshipNotes`, `approvalNotes`, `rejectionNotes`, the school's
+ * `contactName`/`contactEmail`/`contactPhone`, `stripeConnectId`,
+ * `organizationId`. A bare `findUnique` hands every one of them to the view.
+ * Nothing serializes them today (the view is a Server Component), but this
+ * page is one `'use client'` away from shipping a named school administrator's
+ * direct email address to every student who opens the link. Select only what
+ * renders.
+ */
+export const ENROLLMENT_PARTNER_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  referralCode: true,
+  active: true,
+  status: true,
+  logoUrl: true,
+  brandColor: true,
+  schoolDistrict: true,
+  enrollmentPageEnabled: true,
+  enrollmentHeadline: true,
+  enrollmentBlurb: true,
+  sponsoredEnrollment: true,
+  sponsorshipFundingSource: true,
+  sponsorshipTermLabel: true,
+  sponsorshipStartsAt: true,
+  sponsorshipEndsAt: true,
+  sponsorshipSeatCap: true,
+  programCatalog: {
+    select: { programSlug: true, displayOrder: true, featured: true, note: true },
+    orderBy: [{ displayOrder: 'asc' }, { programSlug: 'asc' }],
+  },
+} as const;
+
+/**
  * The slice of the Prisma client this loader uses. Narrowing it to two calls
  * keeps the unit tests honest (a hand-written stub is a few lines) without
  * pretending to model Prisma's generics.
@@ -81,11 +124,7 @@ export type EnrollmentPageDb = {
   partner: {
     findUnique(args: {
       where: { slug: string };
-      include: {
-        programCatalog: {
-          orderBy: [{ displayOrder: 'asc' }, { programSlug: 'asc' }];
-        };
-      };
+      select: typeof ENROLLMENT_PARTNER_SELECT;
     }): Promise<EnrollmentPartnerRecord | null>;
   };
   courseEnrollment: {
@@ -106,8 +145,6 @@ export type EnrollmentProgramCard = {
   skills: string[];
   /** Credential partner (IBM, Google, …). */
   partner: string;
-  /** Program funding badge ("WIOA/Grant"), independent of any sponsorship. */
-  fundingLabel: string;
   featured: boolean;
   note: string | null;
 };
@@ -117,8 +154,6 @@ export type EnrollmentSponsorship = {
   /** From `buildSponsorshipMessage()` — the single source of public cost copy. */
   message: string;
   termLabel: string | null;
-  /** Remaining funded seats when a cap is configured; null when uncapped. */
-  seatsRemaining: number | null;
 };
 
 /**
@@ -157,25 +192,37 @@ export function formatSalaryRange(salary: string): string {
   return salary.replace(/^Starting salary:\s*/i, '').trim();
 }
 
+/** A hydration pass: the cards that resolved, plus the slugs that did not. */
+type CardBuild = { cards: EnrollmentProgramCard[]; unknownSlugs: string[] };
+
 /**
- * Hydrates catalog slugs into cards, skipping (and logging) anything that is
- * not in the canonical program list. A typo in one admin-entered catalog row
- * must cost that one card, not the whole page.
+ * Hydrates catalog slugs into cards, skipping anything that is not in the
+ * canonical program list. A typo in one admin-entered catalog row must cost
+ * that one card, not the whole page.
+ *
+ * Two subtleties:
+ *  - DEDUPE ON THE RESOLVED SLUG, not the row's. `getProgramBySlug` also
+ *    matches on title and alias, so two different catalog rows can hydrate to
+ *    the same program — which would render the card twice and hand React two
+ *    children with the same `key`.
+ *  - Bad slugs are RETURNED, not logged here, so the caller can emit one line
+ *    per request. This route is uncached and public: a per-row warn is a log
+ *    amplifier pointed at us by anyone refreshing the page.
  */
 function buildCards(
-  partnerSlug: string,
   rows: readonly { programSlug: string; featured: boolean; note: string | null }[]
-): EnrollmentProgramCard[] {
+): CardBuild {
   const cards: EnrollmentProgramCard[] = [];
+  const unknownSlugs: string[] = [];
+  const seen = new Set<string>();
   for (const row of rows) {
     const program = getProgramBySlug(row.programSlug);
     if (!program) {
-      logger.warn('enrollmentPage: catalog row references an unknown program slug', {
-        partnerSlug,
-        programSlug: row.programSlug,
-      });
+      unknownSlugs.push(row.programSlug);
       continue;
     }
+    if (seen.has(program.slug)) continue;
+    seen.add(program.slug);
     cards.push({
       slug: program.slug,
       title: program.title,
@@ -185,12 +232,11 @@ function buildCards(
       salaryRange: formatSalaryRange(program.salary),
       skills: program.skills.slice(0, 3),
       partner: program.partner,
-      fundingLabel: formatFundingSourceLabel(program.fundingSource),
       featured: row.featured,
       note: row.note,
     });
   }
-  return cards;
+  return { cards, unknownSlugs };
 }
 
 /**
@@ -209,20 +255,26 @@ async function resolveSponsorship(
 ): Promise<EnrollmentSponsorship | null> {
   if (!isSponsorshipActive(partner, now)) return null;
 
-  let seatsRemaining: number | null = null;
   const cap = partner.sponsorshipSeatCap;
   if (cap !== null && cap !== undefined) {
+    // Cross-tenant by design — the equivalent of wrapping this in
+    // `crossTenantOK()`, for the same reason as the partner lookup below: an
+    // unauthenticated page has no actor org. The count is already narrowed to
+    // this one partner's id, which the caller resolved from the URL slug.
     const usedSeats = await db.courseEnrollment.count({
       where: buildSponsoredSeatWhere(partner),
     });
     if (isSeatCapReached(partner, usedSeats)) return null;
-    seatsRemaining = Math.max(0, cap - usedSeats);
   }
 
+  // The remaining-seat NUMBER is deliberately not returned. It is live scarcity
+  // copy ("3 sponsored seats remaining") on a page aimed at minors and their
+  // families, it was never on the page this replaced, and the cap already does
+  // the only job it needs to do here: suppress the cost claim once the funding
+  // is gone.
   return {
     message: buildSponsorshipMessage(partner),
     termLabel: partner.sponsorshipTermLabel?.trim() || null,
-    seatsRemaining,
   };
 }
 
@@ -241,11 +293,17 @@ export async function getEnrollmentPageData(
   const db = deps.db ?? (prisma as unknown as EnrollmentPageDb);
   const now = deps.now ?? new Date();
 
+  // Cross-tenant by design — the equivalent of wrapping this in
+  // `crossTenantOK()` (lib/tenant/withTenantScope.ts), which marks an
+  // intentional bypass for scripts/audit-tenant-scoping.cjs. This is an
+  // unauthenticated public page: there is no actor and therefore no org to
+  // scope to, the URL slug IS the tenant selector, and `Partner.slug` is
+  // globally unique so the lookup is unambiguous. Documented here rather than
+  // called because that helper imports `server-only`, which this module
+  // deliberately does not (see the header) so it stays unit-testable.
   const partner = await db.partner.findUnique({
     where: { slug },
-    include: {
-      programCatalog: { orderBy: [{ displayOrder: 'asc' }, { programSlug: 'asc' }] },
-    },
+    select: ENROLLMENT_PARTNER_SELECT,
   });
 
   // No partner, or the partner has no enrollment page: genuinely nothing here.
@@ -259,16 +317,31 @@ export async function getEnrollmentPageData(
     return { kind: 'paused', partner: partnerFields };
   }
 
-  const rows =
-    programCatalog.length > 0
-      ? programCatalog
-      : SCHOOL_DEFAULT_SLUGS.map((programSlug) => ({
-          programSlug,
-          featured: false,
-          note: null,
-        }));
+  // Fall back on the HYDRATED result, not on the row count. A catalog whose
+  // rows all reference unknown slugs is functionally the same data-entry
+  // omission as an empty catalog, and gating the fallback on `length > 0` sent
+  // students a page reading "0 Certificate programs" with nothing to apply to.
+  const primary = buildCards(programCatalog);
+  let cards = primary.cards;
+  let usedFallback = false;
+  if (cards.length === 0) {
+    usedFallback = true;
+    cards = buildCards(
+      SCHOOL_DEFAULT_SLUGS.map((programSlug) => ({ programSlug, featured: false, note: null }))
+    ).cards;
+  }
 
-  const cards = buildCards(partnerFields.slug, rows);
+  // One line per request, listing every bad slug — not one line per bad row on
+  // an uncached public route.
+  if (primary.unknownSlugs.length > 0) {
+    logger.warn('enrollmentPage: catalog rows reference unknown program slugs', {
+      partnerSlug: partnerFields.slug,
+      programSlugs: primary.unknownSlugs,
+      unknownCount: primary.unknownSlugs.length,
+      usedFallback,
+    });
+  }
+
   const sponsorship = await resolveSponsorship(partnerFields, db, now);
 
   return { kind: 'ok', partner: partnerFields, cards, sponsorship };

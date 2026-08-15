@@ -19,6 +19,19 @@
 /** Partner slug. Must equal the `/enroll/<segment>` in the student link. */
 export const CHS_PARTNER_SLUG = 'concordia';
 
+/**
+ * The slug Phase A's runbook told operators to create in production, before
+ * Phase B2 shortened it to `concordia` to match the printed student link.
+ *
+ * Kept ONLY so `scripts/create-chs-partner.ts` can find that pre-existing
+ * production row and rename it in place. Without it the script sees no
+ * `concordia` partner, tries to create one, and dies on the `chs2026`
+ * referral-code unique constraint — leaving prod with a partner at the wrong
+ * slug, an enrollment URL that 404s, and no way forward but manual admin
+ * surgery. Nothing else may key off this value.
+ */
+export const LEGACY_CHS_PARTNER_SLUG = 'concordia-high-school';
+
 /** Student-facing enrollment path printed in the school email + runbook. */
 export const CHS_ENROLL_PATH = `/enroll/${CHS_PARTNER_SLUG}`;
 

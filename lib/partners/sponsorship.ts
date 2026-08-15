@@ -88,17 +88,30 @@ function sponsorshipTermClause(partner: SponsorshipPartner): string | null {
  * asserts the enrollment page carries no cost sentence of its own.
  *
  * Somebody paid for that seat: copy implying otherwise misrepresents the
- * partnership and reads to students as "what's the catch?". Keep the phrasing
- * "no cost to <school> students … sponsored through our partnership", and
- * keep it time-bounded whenever the sponsorship is. `sponsorship.test.ts`
+ * partnership and reads to students as "what's the catch?". `sponsorship.test.ts`
  * pins the wording, including a regex barring the no-cost adjective this copy
  * deliberately avoids.
+ *
+ * Two properties the wording must keep:
+ *
+ *  - NAME BOTH PARTIES. "sponsored through our partnership with <school>"
+ *    reads circular on the school's own enrollment page, where "our" has no
+ *    referent — the reader is already on a page branded for that school. Say
+ *    "the WorkforceAP–<school> partnership" (en dash, matching the original
+ *    static Concordia page) so a student and a parent can both tell who is
+ *    paying.
+ *  - SCOPE THE CLAIM. An unqualified "there is no cost to X students" is a
+ *    promise about everything the student might buy from us. The sponsorship
+ *    covers enrollment in the certificate programs on the page and nothing
+ *    else, so the sentence says exactly that, bounded by the term whenever the
+ *    sponsorship is bounded.
  */
 export function buildSponsorshipMessage(partner: SponsorshipPartner): string {
   const term = sponsorshipTermClause(partner);
   return (
     `There is no cost to ${partner.name} students${term ? ` for ${term}` : ''}` +
-    ` — enrollment is sponsored through our partnership with ${partner.name}.`
+    ` to enroll in these certificate programs` +
+    ` — enrollment is sponsored through the WorkforceAP–${partner.name} partnership.`
   );
 }
 

@@ -15,7 +15,9 @@ import PartnerEnrollmentView, {
   NO_SPONSORSHIP_GUIDANCE,
   SALARY_RANGE_DISCLAIMER,
   buildApplyHref,
+  contrastWithWhite,
   resolveAccentColor,
+  resolveCategoryPillColor,
   resolveLogoUrl,
 } from '@/app/enroll/[partnerSlug]/PartnerEnrollmentView';
 import {
@@ -24,6 +26,10 @@ import {
   type EnrollmentPartnerRecord,
 } from '@/lib/partners/enrollmentPage';
 import { buildSponsorshipMessage } from '@/lib/partners/sponsorship';
+import {
+  normalizeDecodedPartnerRef,
+  partnerRefFromEnrollPath,
+} from '@/lib/apply/applyReferralCapture';
 import {
   CHS_PARTNER_NAME,
   CHS_PARTNER_REFERRAL_CODE,
@@ -36,6 +42,7 @@ import {
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const PAGE_PATH = path.join(REPO_ROOT, 'app/enroll/[partnerSlug]/page.tsx');
 const VIEW_PATH = path.join(REPO_ROOT, 'app/enroll/[partnerSlug]/PartnerEnrollmentView.tsx');
+const CSS_PATH = path.join(REPO_ROOT, 'app/enroll/[partnerSlug]/partner-enroll.css');
 const IN_TERM = new Date('2026-08-15T12:00:00Z');
 
 /** Rendered markup escapes `&` in href query strings. */
@@ -167,6 +174,14 @@ describe('Partner enrollment page — /enroll/[partnerSlug] (replaces the static
     expect(html).toMatch(/no cost to Concordia High School students/i);
     expect(html).toContain(CHS_SPONSORSHIP_TERM_LABEL);
 
+    // Names BOTH parties. "our partnership with Concordia High School" is
+    // circular on Concordia's own page — "our" has no referent there.
+    expect(html).toContain('WorkforceAP–Concordia High School partnership');
+    expect(html).not.toMatch(/our partnership/i);
+    // And the claim is scoped to enrolling in the programs on this page, not
+    // to everything a student might ever buy from us.
+    expect(html).toContain('to enroll in these certificate programs');
+
     // The page must not carry its own copy of the sentence (the duplication
     // that the static Astro page forced, closed in Phase B3).
     for (const source of [readFileSync(PAGE_PATH, 'utf-8'), readFileSync(VIEW_PATH, 'utf-8')]) {
@@ -177,11 +192,42 @@ describe('Partner enrollment page — /enroll/[partnerSlug] (replaces the static
   it('never uses the banned no-cost adjective — somebody paid for these seats', async () => {
     const { html } = await renderEnrollPage();
     expect(html).not.toMatch(/\bfree\b/i);
-    expect(readFileSync(PAGE_PATH, 'utf-8')).not.toMatch(/\bfree\b/i);
-    expect(readFileSync(VIEW_PATH, 'utf-8')).not.toMatch(/\bfree\b/i);
-    expect(
-      readFileSync(path.join(REPO_ROOT, 'lib/partners/enrollmentPage.ts'), 'utf-8')
-    ).not.toMatch(/\bfree\b/i);
+    for (const file of [
+      PAGE_PATH,
+      VIEW_PATH,
+      CSS_PATH,
+      path.join(REPO_ROOT, 'lib/partners/enrollmentPage.ts'),
+      path.join(REPO_ROOT, 'lib/partners/sponsorship.ts'),
+      path.join(REPO_ROOT, 'lib/partners/chsPartnerProvisioning.ts'),
+      path.join(REPO_ROOT, 'docs/runbooks/CONCORDIA-LAUNCH.md'),
+    ]) {
+      expect(readFileSync(file, 'utf-8'), `${file} uses the banned adjective`).not.toMatch(
+        /\bfree\b/i
+      );
+    }
+  });
+
+  it('decodes the route param at exactly one layer', async () => {
+    // Next decodes route params before the page sees them, so the page must
+    // use the non-decoding validator. Decoding twice resolved
+    // `/enroll/%2563oncordia` — which arrives as `%63oncordia` — to the real
+    // page, while middleware (one decode of the raw path) rejected it and
+    // planted no attribution cookie. The student would have seen a working
+    // page that attributed to nobody.
+    const source = readFileSync(PAGE_PATH, 'utf-8');
+    // Every call site uses the non-decoding validator; the decoding one is not
+    // even imported here.
+    expect(source).toMatch(
+      /import \{ normalizeDecodedPartnerRef \} from '@\/lib\/apply\/applyReferralCapture'/
+    );
+    expect(source).not.toMatch(/[^a-zA-Z]normalizePartnerRef\(/);
+    expect(source.match(/normalizeDecodedPartnerRef\(/g)?.length).toBe(2);
+
+    expect(normalizeDecodedPartnerRef('%63oncordia')).toBeNull();
+    expect(normalizeDecodedPartnerRef(CHS_PARTNER_SLUG)).toBe(CHS_PARTNER_SLUG);
+    // Middleware's view of the same URL — unchanged, and still a rejection.
+    expect(partnerRefFromEnrollPath('/enroll/%2563oncordia')).toBeNull();
+    expect(partnerRefFromEnrollPath(`/enroll/${CHS_PARTNER_SLUG}`)).toBe(CHS_PARTNER_SLUG);
   });
 
   it('makes NO cost claim when the sponsorship is not in force', async () => {
@@ -192,6 +238,43 @@ describe('Partner enrollment page — /enroll/[partnerSlug] (replaces the static
     expect(html).toContain(NO_SPONSORSHIP_GUIDANCE);
     // The programs still render — only the cost claim goes away.
     expect(html).toContain('Get Started');
+  });
+
+  it('shows no funding pill at all when the sponsorship is not in force', async () => {
+    // High-school students are generally not WIOA-eligible, so the program's
+    // generic "WIOA/Grant" badge on a school page reads as a funding claim
+    // about them. With no sponsorship there is no funding badge.
+    const { html } = await renderEnrollPage({}, new Date('2027-06-01T00:00:00Z'));
+    expect(html).not.toContain('pen-fund-pill');
+    expect(html).not.toMatch(/WIOA/i);
+    expect(html).not.toMatch(/\bgrant\b/i);
+
+    // In force, the pill says only that the enrollment is sponsored.
+    const { html: sponsored } = await renderEnrollPage();
+    expect(sponsored).toContain('pen-fund-pill');
+    expect(sponsored).toMatch(/Sponsored for 2026/);
+    expect(sponsored).not.toMatch(/WIOA/i);
+  });
+
+  it('makes no public scarcity claim about remaining sponsored seats', async () => {
+    // "1 sponsored seats remaining this term" — wrong plural, never on the page
+    // this replaced, and live scarcity pressure aimed at minors and families.
+    const data = await getEnrollmentPageData(CHS_PARTNER_SLUG, {
+      db: stubDb(chsPartnerRecord({ sponsorshipSeatCap: 30 }), 29),
+      now: IN_TERM,
+    });
+    if (data.kind !== 'ok') throw new Error('expected ok');
+    const html = renderToStaticMarkup(
+      createElement(PartnerEnrollmentView, {
+        partner: data.partner,
+        cards: data.cards,
+        sponsorship: data.sponsorship,
+      })
+    );
+    expect(html).not.toMatch(/seats? remaining/i);
+    expect(html).not.toMatch(/\bseats\b/i);
+    // The cap still does its real job: it suppresses the cost claim when full.
+    expect(data.sponsorship).not.toBeNull();
   });
 
   it('suppresses the cost claim once the funded seats for the term are gone', async () => {
@@ -227,18 +310,41 @@ describe('Partner enrollment page — /enroll/[partnerSlug] (replaces the static
     expect(html.split('<details').length - 1).toBe(5);
   });
 
+  it('gives the FAQ disclosures a visible open/close affordance', async () => {
+    // The stylesheet hides the native marker on both engines, so it MUST
+    // supply a replacement — otherwise five bold rows read as static headings
+    // and the cost, under-18 consent and income-question answers stay hidden.
+    const css = readFileSync(CSS_PATH, 'utf-8');
+    expect(css).toContain('.pen-faq-item summary::-webkit-details-marker');
+    expect(css).toMatch(/\.pen-faq-item summary\s*\{[^}]*list-style:\s*none/);
+    // Replacement marker, mirroring the site's `.faq-item` pattern in main.css.
+    expect(css).toMatch(/\.pen-faq-item summary::after\s*\{[^}]*content:\s*'\+'/);
+    expect(css).toMatch(/\.pen-faq-item\[open\] summary::after\s*\{[^}]*rotate\(45deg\)/);
+    // Room for it, so it never overlaps the question text.
+    expect(css).toMatch(/\.pen-faq-item summary\s*\{[^}]*padding:\s*1rem 3rem 1rem 1\.15rem/);
+  });
+
+  it('keeps CTAs full-width on phones', async () => {
+    // The `min-width: 640px` override (`flex: 0 0 auto`) is only meaningful if
+    // the base rule sets a flex basis. Without it the buttons shrink-wrapped at
+    // every width and the media query was dead code.
+    const css = readFileSync(CSS_PATH, 'utf-8');
+    expect(css).toMatch(/\.pen-acts \.mdx-btn\s*\{[^}]*flex:\s*1 1 100%/);
+    expect(css).toMatch(/\.pen-acts \.mdx-btn\s*\{[^}]*flex:\s*0 0 auto/);
+  });
+
+  it('does not double-count the marketing nav height above the H1', async () => {
+    // `/enroll/*` is a marketing route, so the root layout already renders an
+    // in-flow `.main-nav-layout-spacer` the height of the fixed nav. Adding
+    // `var(--nav-height-default)` to the hero padding counted it twice.
+    const css = readFileSync(CSS_PATH, 'utf-8');
+    expect(css).not.toContain('--nav-height-default');
+  });
+
   it('uses partner branding only after validating it, never raw DB text in CSS', async () => {
     expect(resolveAccentColor('#1E3A8A')).toBe('#1E3A8A');
-    expect(resolveAccentColor('#fff')).toBe('#fff');
     expect(resolveAccentColor('red; background:url(javascript:alert(1))')).toBeNull();
     expect(resolveAccentColor(null)).toBeNull();
-
-    expect(resolveLogoUrl('/images/logo.png')).toBe('/images/logo.png');
-    expect(resolveLogoUrl('https://cdn.example.org/logo.png')).toBe(
-      'https://cdn.example.org/logo.png'
-    );
-    expect(resolveLogoUrl('javascript:alert(1)')).toBeNull();
-    expect(resolveLogoUrl('//evil.example/logo.png')).toBeNull();
 
     const { html } = await renderEnrollPage({
       brandColor: '#1E3A8A',
@@ -253,6 +359,83 @@ describe('Partner enrollment page — /enroll/[partnerSlug] (replaces the static
     });
     expect(rejected).not.toContain('--pen-accent');
     expect(rejected).not.toContain('javascript:');
+  });
+
+  it('rejects a brand color too light to read, rather than rendering white on yellow', async () => {
+    // The accent is a white-on-accent background (step numbers) AND text on the
+    // light surface (salary figure, FAQ links). A hex-valid but bright brand
+    // color passed the old syntax-only check and made all three unreadable.
+    for (const tooLight of ['#fff', '#ffd400', '#7fffd4', '#eeeeee']) {
+      expect(resolveAccentColor(tooLight), `${tooLight} should be rejected`).toBeNull();
+      expect(contrastWithWhite(tooLight)).toBeLessThan(4.5);
+    }
+    // Dark brand colors still come through.
+    for (const ok of ['#1E3A8A', '#ad2c4d', '#004d40', '#000']) {
+      expect(resolveAccentColor(ok), `${ok} should be accepted`).toBe(ok);
+      expect(contrastWithWhite(ok)).toBeGreaterThanOrEqual(4.5);
+    }
+
+    const { html } = await renderEnrollPage({ brandColor: '#ffd400' });
+    // Falls back to the house crimson supplied by partner-enroll.css.
+    expect(html).not.toContain('--pen-accent');
+  });
+
+  it('accepts a logo only where the CSP img-src allowlist can actually load it', async () => {
+    // Site-relative always works.
+    expect(resolveLogoUrl('/images/logo.png')).toBe('/images/logo.png');
+    // Hosts on the next.config.ts img-src allowlist render.
+    expect(resolveLogoUrl('https://abcdef.supabase.co/storage/logo.png')).toBe(
+      'https://abcdef.supabase.co/storage/logo.png'
+    );
+    expect(resolveLogoUrl('https://xyz.public.blob.vercel-storage.com/logo.png')).toBe(
+      'https://xyz.public.blob.vercel-storage.com/logo.png'
+    );
+
+    // An arbitrary https host is BLOCKED by CSP, so it would render as a broken
+    // image on a page a school is about to email to every family. No logo looks
+    // intentional; a broken one looks like the site is broken.
+    expect(resolveLogoUrl('https://cdn.example.org/logo.png')).toBeNull();
+    expect(resolveLogoUrl('https://chsaustin.org/logo.png')).toBeNull();
+    // …and near-misses on the allowlist patterns don't sneak through.
+    expect(resolveLogoUrl('https://evil.com/supabase.co/logo.png')).toBeNull();
+    expect(resolveLogoUrl('https://supabase.co.evil.com/logo.png')).toBeNull();
+
+    expect(resolveLogoUrl('javascript:alert(1)')).toBeNull();
+    expect(resolveLogoUrl('data:image/svg+xml;base64,AAAA')).toBeNull();
+    expect(resolveLogoUrl('http://images.unsplash.com/logo.png')).toBeNull();
+    expect(resolveLogoUrl(null)).toBeNull();
+    expect(resolveLogoUrl('   ')).toBeNull();
+  });
+
+  it('rejects protocol-relative logos written with a backslash', async () => {
+    // The URL parser reads `\` as `/`, so `/\evil.example/x` is protocol-
+    // relative to a browser while passing a naive `startsWith('//')` check.
+    expect(resolveLogoUrl('//evil.example/logo.png')).toBeNull();
+    expect(resolveLogoUrl('/\\evil.example/logo.png')).toBeNull();
+    expect(resolveLogoUrl('/\\\\evil.example/logo.png')).toBeNull();
+    expect(resolveLogoUrl('\\/evil.example/logo.png')).toBeNull();
+
+    const { html } = await renderEnrollPage({ logoUrl: '/\\evil.example/logo.png' });
+    expect(html).not.toContain('evil.example');
+  });
+
+  it('darkens category pills until white pill text clears WCAG AA', async () => {
+    // `business` (#a47f38, 3.70:1) and `healthcare` (#4a9b4f, 3.45:1) fail
+    // against white at the pill's 12px bold. The static page used the darker
+    // gold on purpose.
+    for (const raw of ['#a47f38', '#4a9b4f', '#666666', '#2b7bb9', '#8b4a9b', '#ad2c4d']) {
+      expect(contrastWithWhite(resolveCategoryPillColor(raw))).toBeGreaterThanOrEqual(4.5);
+    }
+    // Colors that already pass are returned untouched — no gratuitous redesign.
+    expect(resolveCategoryPillColor('#ad2c4d')).toBe('#ad2c4d');
+    // Failing ones are darkened, not replaced with some other hue.
+    expect(resolveCategoryPillColor('#a47f38')).not.toBe('#a47f38');
+    expect(resolveCategoryPillColor('#a47f38')).toMatch(/^#[0-9a-f]{6}$/);
+
+    const { data, html } = await renderEnrollPage();
+    for (const card of data.cards) {
+      expect(html).toContain(`background:${resolveCategoryPillColor(card.categoryColor)}`);
+    }
   });
 
   it('honors the partner headline and blurb when they are set', async () => {

@@ -124,19 +124,36 @@ test('resolveSponsorshipFundingSource: honors an explicit funding source', () =>
   );
 });
 
-test('buildSponsorshipMessage: names the school and the partnership', () => {
+test('buildSponsorshipMessage: names BOTH parties, not a circular "our partnership"', () => {
+  // This sentence renders on the school's own enrollment page, where "our
+  // partnership with Concordia High School" has no referent — the reader is
+  // already on a Concordia-branded page. Name WorkforceAP and the school.
   assert.equal(
     buildSponsorshipMessage(partner()),
-    'There is no cost to Concordia High School students — enrollment is sponsored ' +
-      'through our partnership with Concordia High School.'
+    'There is no cost to Concordia High School students to enroll in these certificate ' +
+      'programs — enrollment is sponsored through the WorkforceAP–Concordia High School ' +
+      'partnership.'
   );
+  assert.doesNotMatch(buildSponsorshipMessage(partner()), /our partnership/i);
+  // En dash between the partner names, matching the original static page.
+  assert.match(buildSponsorshipMessage(partner()), /WorkforceAP–Concordia High School/);
+});
+
+test('buildSponsorshipMessage: scopes the claim to enrolling in the programs on the page', () => {
+  // An unqualified "there is no cost to X students" is a promise about
+  // everything the student might ever buy from us. The sponsorship covers
+  // enrollment in these certificate programs — say only that.
+  for (const p of [partner(), partner({ sponsorshipTermLabel: 'Fall 2026' })]) {
+    assert.match(buildSponsorshipMessage(p), /to enroll in these certificate programs/);
+  }
 });
 
 test('buildSponsorshipMessage: scopes the copy to the term when one is set', () => {
   assert.equal(
     buildSponsorshipMessage(partner({ sponsorshipTermLabel: 'Fall 2026' })),
-    'There is no cost to Concordia High School students for Fall 2026 — enrollment is ' +
-      'sponsored through our partnership with Concordia High School.'
+    'There is no cost to Concordia High School students for Fall 2026 to enroll in these ' +
+      'certificate programs — enrollment is sponsored through the WorkforceAP–Concordia ' +
+      'High School partnership.'
   );
 });
 
@@ -146,21 +163,23 @@ test('buildSponsorshipMessage: bounds the promise by end year when there is no l
   // keep past the window. Fall back to the end year instead.
   assert.equal(
     buildSponsorshipMessage(partner({ sponsorshipEndsAt: END })),
-    'There is no cost to Concordia High School students for 2026 — enrollment is ' +
-      'sponsored through our partnership with Concordia High School.'
+    'There is no cost to Concordia High School students for 2026 to enroll in these ' +
+      'certificate programs — enrollment is sponsored through the WorkforceAP–Concordia ' +
+      'High School partnership.'
   );
   // An explicit label still wins over the derived year.
   assert.equal(
     buildSponsorshipMessage(partner({ sponsorshipTermLabel: 'Fall 2026', sponsorshipEndsAt: END })),
-    'There is no cost to Concordia High School students for Fall 2026 — enrollment is ' +
-      'sponsored through our partnership with Concordia High School.'
+    'There is no cost to Concordia High School students for Fall 2026 to enroll in these ' +
+      'certificate programs — enrollment is sponsored through the WorkforceAP–Concordia ' +
+      'High School partnership.'
   );
 });
 
 test('buildSponsorshipMessage: stays open-ended only when the sponsorship really is', () => {
   assert.match(
     buildSponsorshipMessage(partner({ sponsorshipStartsAt: START })),
-    /^There is no cost to Concordia High School students —/
+    /^There is no cost to Concordia High School students to enroll in these certificate programs —/
   );
 });
 

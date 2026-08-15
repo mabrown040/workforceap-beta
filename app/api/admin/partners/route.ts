@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
+import { PARTNER_REF_MAX_LENGTH } from '@/lib/apply/applyReferralCapture';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
@@ -30,9 +31,27 @@ import { logAuditEvent } from '@/lib/audit/log';
  * slips past the pre-check.
  */
 
+/**
+ * `slug` is capped at `PARTNER_REF_MAX_LENGTH` (64), not 100.
+ *
+ * The slug is the `/enroll/<slug>` URL segment, and `normalizePartnerRef` —
+ * which gates both the enrollment route and the 30-day attribution cookie —
+ * rejects anything longer. A 65–100 character slug used to create a partner
+ * whose enrollment page hard-404s and whose students silently lose attribution,
+ * with no error surfaced anywhere. Rejecting at the door is the only place an
+ * admin ever sees the problem.
+ *
+ * Tightening is safe for existing rows: this schema runs on create only, and
+ * the PATCH schema in `[id]/route.ts` does not accept `slug` at all, so no
+ * already-persisted partner can be blocked from being edited by it.
+ */
 const partnerSchema = z.object({
   name: z.string().min(1).max(200),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens only'),
+  slug: z
+    .string()
+    .min(1)
+    .max(PARTNER_REF_MAX_LENGTH)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens only'),
   referralCode: z
     .string()
     .min(1)

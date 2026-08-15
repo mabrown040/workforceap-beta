@@ -243,6 +243,18 @@ describe('POST /api/apply/signup sponsored-partner auto-stamp', () => {
     expect(state.enrollmentUpserts[0].update).not.toHaveProperty('fundingSource');
   });
 
+  it('stamps from the wap_partner_ref cookie when the body omits referralRef', async () => {
+    const req = makeRequest();
+    req.cookies.set('wap_partner_ref', 'chs2026');
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(state.applicationCreates[0].data.referralSource).toBe('partner_ref:chs2026');
+    expect(state.enrollmentUpserts[0].create).toMatchObject({
+      fundingSource: 'PARTNER_ORG',
+      sponsoredByPartnerId: 'partner-chs',
+    });
+  });
+
   it('does not stamp when the partner is not in an active sponsorship window', async () => {
     state.partner = {
       ...state.partner!,

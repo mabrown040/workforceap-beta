@@ -53,6 +53,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           slug: schoolPartner.slug,
           schoolDistrict: schoolPartner.schoolDistrict,
         }}
+        // Whether the page may claim the seat is sponsored. Resolved from the
+        // partner's sponsorship window and seat cap, never from `partnerType`
+        // alone: a school outside its funded term still gets the school
+        // QUESTIONS, and must not get the sponsored-seat COPY.
+        sponsorshipInForce={schoolPartner.sponsorshipInForce}
         program={sp.program}
         stepNav={<ApplyMobileStepNav activeStep={0} showTimeHint />}
         trustStrip={<TrustStrip variant="apply" />}

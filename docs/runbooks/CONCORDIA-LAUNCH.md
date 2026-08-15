@@ -90,7 +90,9 @@ already-correct no-op, third-party conflict).
    - [ ] Verify in admin: Application is **PENDING** with `referralSource = 'partner_ref:chs2026'` and a `PartnerReferral` row exists under the CHS partner.
    - [ ] Verify both Resend emails (verification + confirmation) and the admin alert fired.
    - [ ] Verify the test member is **ABSENT** from `/admin/wioa-screening` (CHS students are not WIOA-screened).
-   - [ ] Bulk-approve the test application with the attestation checkbox.
+   - [ ] Confirm the application notes start with `MINOR — parental consent required before activation`, and that the enrollment line reads `Student self-reported enrollment (NOT parental consent): …`.
+   - [ ] On the school page, click **"This isn't my school"** and confirm you land on the standard apply wizard with the two funding questions back.
+   - [ ] Bulk-approve the test application with the **reviewer** attestation checkbox (see the warning under "Ongoing Cadence" — it is not the same attestation as the student's).
    - [ ] Run the funding stamp script:
      ```bash
      node scripts/prisma-env.js npx tsx scripts/stamp-chs-funding.ts
@@ -167,12 +169,29 @@ Review daily during launch week, then settle into a Tue/Fri cadence. Each review
 
 1. Review pending CHS applications (filter by the CHS partner / `partner_ref:chs2026`).
 2. Cross-check **each** applicant against the school's consent roster.
-3. Bulk-approve **ONLY** consented students. For this cohort, the attestation checkbox means **"consent verified."**
+3. Bulk-approve **ONLY** consented students. For this cohort, the **reviewer** attestation checkbox in admin means **"consent verified."** See the warning directly below before you tick it.
 4. Run the stamp script after each approval batch (until Phase B automates it):
    ```bash
    node scripts/prisma-env.js npx tsx scripts/stamp-chs-funding.ts
    ```
 5. Flip `courseraEnrollmentApproved` **ONLY** for students who are both approved **and** consented.
+
+### ⚠️ "Attestation" means two different things — do not confuse them
+
+| | Who makes it | Where you see it | What it proves |
+| --- | --- | --- | --- |
+| **Applicant attestation** | The **student**, on the apply form | `Application.notes`, as `Student self-reported enrollment (NOT parental consent): <school>` | Only that the student says they attend that school. **Nothing about a parent.** |
+| **Reviewer attestation** | **You**, in admin at approval time | The bulk-approve checkbox | That *you* have checked this student against the school's returned consent forms/roster. |
+
+A student cannot consent on their own behalf. **The presence of the applicant
+line in the notes is not permission to tick the reviewer checkbox.** The only
+thing that authorises that tick is a signed form or a roster entry from the
+school.
+
+Every application from a minor now carries **`MINOR — parental consent
+required before activation`** as the FIRST line of `Application.notes` and of
+the admin alert email. If you see that line, the reviewer attestation stays
+un-ticked until you have the school's paperwork in hand.
 
 ## Consent Rules
 

@@ -36,10 +36,21 @@ export type ApplyFlowDraftV1 = {
    */
   /** '9' | '10' | '11' | '12' — matches components/forms/ParentalConsentForm. */
   gradeLevel?: string;
-  /** Four-digit year, e.g. '2027'. */
-  expectedGraduationYear?: string;
-  /** "I am enrolled at <school> and my school is sponsoring me." */
-  schoolAttestation?: boolean;
+  /**
+   * NO `schoolAttestation`, and no expected-graduation year.
+   *
+   * The attestation ("I am currently enrolled at <school>") is an AFFIRMATION:
+   * it must be made in the session that submits it, so it is never written to
+   * or restored from this draft. Restoring it meant the next student on a
+   * shared machine could arrive at a pre-ticked statement about a school they
+   * do not attend and submit it without ever reading it.
+   *
+   * The expected-graduation year had no column and no reader, and is derivable
+   * from `gradeLevel`; the question was removed rather than kept as free text.
+   *
+   * Both are simply absent from drafts written by newer builds; older drafts
+   * that still carry the keys deserialize fine and the extra keys are ignored.
+   */
   studentId?: string;
   guardianName?: string;
   guardianEmail?: string;

@@ -49,8 +49,6 @@ test('a pre-B4 draft still parses, with the new fields simply absent', () => {
 
   // Undefined, not a crash and not a default that would render as an answer.
   assert.equal(parsed.gradeLevel, undefined);
-  assert.equal(parsed.expectedGraduationYear, undefined);
-  assert.equal(parsed.schoolAttestation, undefined);
   assert.equal(parsed.studentId, undefined);
   assert.equal(parsed.guardianName, undefined);
   assert.equal(parsed.guardianEmail, undefined);
@@ -74,8 +72,6 @@ test('a school-variant draft round-trips every new field', () => {
     q1: null,
     q2: null,
     gradeLevel: '11',
-    expectedGraduationYear: '2028',
-    schoolAttestation: true,
     studentId: 'CHS-90210',
     guardianName: 'Dana Guardian',
     guardianEmail: 'dana.guardian@example.com',
@@ -86,8 +82,6 @@ test('a school-variant draft round-trips every new field', () => {
 
   assert.deepEqual(restored, draft);
   assert.equal(restored.gradeLevel, '11');
-  assert.equal(restored.expectedGraduationYear, '2028');
-  assert.equal(restored.schoolAttestation, true);
   assert.equal(restored.guardianEmail, 'dana.guardian@example.com');
   // The school variant asks neither funding question, so both stay null.
   assert.equal(restored.q1, null);
@@ -108,8 +102,6 @@ test('organic/paid drafts serialize without any school keys', () => {
     q1: 'yes',
     q2: 'no',
     gradeLevel: undefined,
-    expectedGraduationYear: undefined,
-    schoolAttestation: undefined,
     studentId: undefined,
     guardianName: undefined,
     guardianEmail: undefined,
@@ -120,8 +112,6 @@ test('organic/paid drafts serialize without any school keys', () => {
 
   for (const key of [
     'gradeLevel',
-    'expectedGraduationYear',
-    'schoolAttestation',
     'studentId',
     'guardianName',
     'guardianEmail',
@@ -129,4 +119,36 @@ test('organic/paid drafts serialize without any school keys', () => {
   ]) {
     assert.equal(key in serialized, false, `${key} must not be serialized`);
   }
+});
+
+test('the draft type has no field for the enrollment attestation', () => {
+  // BL2: an affirmation must be made in the session that submits it. Adding
+  // `schoolAttestation` back to `ApplyFlowDraftV1` is what would let a draft
+  // re-tick "I am currently enrolled at <school>" for the NEXT student on a
+  // shared lab machine, so the type is the guard and this asserts it.
+  //
+  // `expectedGraduationYear` is gone for a different reason: no column, no
+  // reader, derivable from `gradeLevel`.
+  const draft: ApplyFlowDraftV1 = {
+    version: 1,
+    updatedAt: '2026-08-15T12:00:00.000Z',
+    firstName: 'Sam',
+    lastName: 'Student',
+    email: 'sam@example.com',
+    phone: '(512) 555-0100',
+    q1: null,
+    q2: null,
+  };
+
+  // @ts-expect-error — `schoolAttestation` must not exist on the draft type.
+  draft.schoolAttestation = true;
+  // @ts-expect-error — `expectedGraduationYear` was removed with the question.
+  draft.expectedGraduationYear = '2028';
+
+  // A stale draft that still carries the keys deserializes fine; they are
+  // simply never read back into the form.
+  const legacy = JSON.parse(
+    JSON.stringify({ ...draft, schoolAttestation: true, expectedGraduationYear: '2028' })
+  ) as Record<string, unknown>;
+  assert.equal(legacy.firstName, 'Sam');
 });

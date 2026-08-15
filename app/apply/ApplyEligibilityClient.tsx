@@ -10,12 +10,19 @@ import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
 import {
+  clearApplyEligibility,
+  writeApplyEligibility,
+} from '@/lib/apply/applyEligibilityStorage';
+import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import {
   DEFAULT_PRIMARY_BARRIER,
   normalizePrimaryBarriers,
   PRIMARY_BARRIER_OPTIONS,
+  SCHOOL_PRIMARY_BARRIER_OPTIONS,
 } from '@/lib/apply/primaryBarrierOptions';
 
-const APPLY_STORAGE_KEY = 'apply_eligibility';
+/** Server route that clears the httpOnly partner-ref cookie (see its docblock). */
+const NOT_MY_SCHOOL_PATH = '/api/apply/not-my-school';
 
 const ELIGIBILITY_KEYS = [
   { legendKey: 'eligibilityQ1Legend', promptKey: 'eligibilityQ1Prompt' as const },
@@ -26,12 +33,17 @@ const ELIGIBILITY_KEYS = [
  * `under_18` is deliberately first (Phase A). In the school variant that is
  * the answer most applicants need, so it stays at the top of the list rather
  * than buried under three adult bands.
+ *
+ * Labels go through `t()`. They were hard-coded English, which left the
+ * translated hint below naming an option ("Menor de 18") that did not exist in
+ * the select — on the one field that decides whether the applicant is treated
+ * as a minor.
  */
 const AGE_GROUPS = [
-  { value: 'under_18', label: 'Under 18' },
-  { value: '18_24', label: '18–24' },
-  { value: '25_50', label: '25–50' },
-  { value: '50_plus', label: '50+' },
+  { value: 'under_18', labelKey: 'ageGroupUnder18' },
+  { value: '18_24', labelKey: 'ageGroup18To24' },
+  { value: '25_50', labelKey: 'ageGroup25To50' },
+  { value: '50_plus', labelKey: 'ageGroup50Plus' },
 ] as const;
 
 /**
@@ -49,15 +61,16 @@ const SCHOOL_GRADE_OPTIONS = [
 ] as const;
 
 /**
- * Expected-graduation choices: this year through this year + 4, which covers
- * a 9th grader on a normal track. Computed at RENDER, never at module scope —
- * a module-level constant freezes at build time and would offer a student in
- * January 2028 the 2026 list.
+ * There is deliberately no expected-graduation-year question.
+ *
+ * It had no column, no reader (it reached free text in `Application.notes` and
+ * stopped there), and is derivable from `gradeLevel` plus the school's own
+ * records. The version that shipped also offered the CURRENT year first, which
+ * is wrong for everyone applying after May, and computed its option list
+ * during render — a hydration mismatch waiting for a year boundary. Removed
+ * rather than patched: the cheapest correct version of a field nobody reads is
+ * no field.
  */
-function graduationYearOptions(now: Date): string[] {
-  const startYear = now.getFullYear();
-  return Array.from({ length: 5 }, (_, offset) => String(startYear + offset));
-}
 
 /** The three partner columns the school variant renders. No ids, no internals. */
 export type SchoolPartnerSummary = {
@@ -109,9 +122,13 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       // School variant (Phase B4). These are `undefined` for organic/paid,
       // and `JSON.stringify` drops undefined keys — so the serialized draft
       // for those variants is byte-identical to what it was before B4.
+      //
+      // `schoolAttestation` is NOT here, and must never be: an affirmation
+      // has to be made in the session that submits it. Persisting it meant a
+      // draft could re-tick "I am currently enrolled at <school>" for the
+      // NEXT student on a shared machine, who then submitted a statement they
+      // never made.
       gradeLevel: payload.gradeLevel,
-      expectedGraduationYear: payload.expectedGraduationYear,
-      schoolAttestation: payload.schoolAttestation,
       studentId: payload.studentId,
       guardianName: payload.guardianName,
       guardianEmail: payload.guardianEmail,
@@ -126,9 +143,16 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
 export default function ApplyEligibilityClient({
   variant = 'organic',
   schoolPartner,
+  sponsorshipInForce = false,
 }: {
   variant?: 'organic' | 'paid' | 'school';
   schoolPartner?: SchoolPartnerSummary | null;
+  /**
+   * Whether the school's sponsorship is in force right now. Defaults to
+   * FALSE — the neutral copy — so a caller that forgets to pass it can only
+   * ever under-claim. See `SchoolApplyVariant`.
+   */
+  sponsorshipInForce?: boolean;
 }) {
   const isPaid = variant === 'paid';
   /**
@@ -176,7 +200,6 @@ export default function ApplyEligibilityClient({
   // ── School variant state (Phase B4) ──
   // Declared unconditionally (hooks rules); only read/rendered when isSchool.
   const [gradeLevel, setGradeLevel] = useState('');
-  const [expectedGraduationYear, setExpectedGraduationYear] = useState('');
   const [schoolAttestation, setSchoolAttestation] = useState(false);
   const [studentId, setStudentId] = useState('');
   const [guardianName, setGuardianName] = useState('');
@@ -208,8 +231,10 @@ export default function ApplyEligibilityClient({
     setQ2(draft.q2 ?? null);
     // Optional on the draft type, so a pre-B4 draft restores exactly as before.
     setGradeLevel(draft.gradeLevel ?? '');
-    setExpectedGraduationYear(draft.expectedGraduationYear ?? '');
-    setSchoolAttestation(draft.schoolAttestation === true);
+    // `schoolAttestation` is deliberately NOT restored. An affirmation must be
+    // made in the session that submits it — a restored tick is a statement the
+    // person at the keyboard never made, and on a shared school machine it may
+    // not even be true of them.
     setStudentId(draft.studentId ?? '');
     setGuardianName(draft.guardianName ?? '');
     setGuardianEmail(draft.guardianEmail ?? '');
@@ -247,9 +272,23 @@ export default function ApplyEligibilityClient({
   // Each of these is unconditionally `true` outside the school variant, so
   // `canContinue` below is arithmetically identical to what it was for
   // organic and paid traffic.
-  const graduationYears = graduationYearOptions(new Date());
-  const schoolAnswersOk =
-    !isSchool || (gradeLevel !== '' && expectedGraduationYear !== '' && schoolAttestation);
+  const schoolAnswersOk = !isSchool || (gradeLevel !== '' && schoolAttestation);
+
+  /**
+   * The barriers checklist a school applicant sees.
+   *
+   * B4 removed the two INCOME questions as inappropriate for a minor but kept
+   * a checklist asking the same minor to disclose SNAP/TANF receipt, justice
+   * involvement, disability and housing instability — materially more
+   * sensitive, and it lands in `Profile.barrierTypes`, in
+   * `Application.notes` (which the member's own GDPR export returns verbatim),
+   * and in the admin alert email. Reduced rather than removed so the block
+   * keeps doing its job: `hasEmploymentBarrier` / `barrierTypes` stay
+   * populated, the supportive-services signal ("other barrier") survives, and
+   * step 1 keeps the same shape for every variant. A counselor collects the
+   * rest in person, with a guardian present, where it belongs.
+   */
+  const barrierOptions = isSchool ? SCHOOL_PRIMARY_BARRIER_OPTIONS : PRIMARY_BARRIER_OPTIONS;
 
   /** A minor on a partner-sponsored seat needs a reachable adult on file. */
   const guardianRequired = isSchool && ageGroup === 'under_18';
@@ -311,11 +350,56 @@ export default function ApplyEligibilityClient({
    * JSON for organic/paid keeps exactly the keys it had before Phase B4.
    */
   const schoolDraftFields = isSchool
-    ? { gradeLevel, expectedGraduationYear, schoolAttestation, studentId, guardianName, guardianEmail, guardianPhone }
+    ? { gradeLevel, studentId, guardianName, guardianEmail, guardianPhone }
     : {};
 
   const persistDraft = () => {
     writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, ...schoolDraftFields });
+  };
+
+  /**
+   * "This isn't my school" (see `app/api/apply/not-my-school/route.ts`).
+   *
+   * The 30-day partner-ref cookie survives an abandoned application, so on a
+   * shared lab machine the NEXT student can land on a bare `/apply`, see a
+   * read-only school they do not attend, and find a REQUIRED attestation
+   * saying they are enrolled there with no way past it. This is the way out.
+   *
+   * Clears everything the browser owns first — the session referral key, the
+   * school answers in the step-1 draft, and any `apply_eligibility` payload —
+   * then navigates to the route handler, which is the only thing that can
+   * clear the httpOnly cookie. Their typed contact details survive in the
+   * draft, so the standard wizard comes back pre-filled rather than blank.
+   */
+  const notMySchoolHref = programParam
+    ? `${NOT_MY_SCHOOL_PATH}?program=${encodeURIComponent(programParam)}`
+    : NOT_MY_SCHOOL_PATH;
+  const handleNotMySchool = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+    clearApplyEligibility();
+    // Re-write the draft with every school/guardian key absent, so a switched
+    // student's guardian details do not sit in localStorage for the next one.
+    writeDraft({
+      firstName,
+      lastName,
+      email,
+      phone,
+      ageGroup,
+      city,
+      state: stateVal,
+      zip,
+      county,
+      primaryBarriers,
+      q1,
+      q2,
+    });
+    // The navigation itself is the anchor's own — this handler only clears the
+    // browser-side state, synchronously, before the browser follows the link.
   };
 
   const [autoSaved, setAutoSaved] = useState(false);
@@ -334,7 +418,7 @@ export default function ApplyEligibilityClient({
     // The school fields are constant ('' / false) outside the school variant,
     // so adding them here cannot change when organic/paid traffic autosaves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, gradeLevel, expectedGraduationYear, schoolAttestation, studentId, guardianName, guardianEmail, guardianPhone]);
+  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, gradeLevel, studentId, guardianName, guardianEmail, guardianPhone]);
 
   const handleSaveLater = () => {
     persistDraft();
@@ -376,13 +460,15 @@ export default function ApplyEligibilityClient({
       } catch {
         /* ignore */
       }
-      const eligibilityJson = JSON.stringify({
+      // `writeApplyEligibility` stamps `savedAt` and mirrors to localStorage
+      // under a 7-day TTL, so an abandoned payload cannot sit on a shared
+      // school machine indefinitely waiting for the next student.
+      writeApplyEligibility({
         // Omitted entirely in the school variant: the questions were never
         // asked, so posting `qualifies: false, yesCount: 0` would write a
         // "Quick eligibility fit: review (0/3)" line into the application
-        // notes of a student who was never screened, and would record an
-        // ApplyEligibilityScreening row with invented answers.
-        ...(isSchool ? {} : { q1, q2, qualifies, yesCount }),
+        // notes of a student who was never screened.
+        ...(isSchool ? {} : { q1: q1 ?? undefined, q2: q2 ?? undefined, qualifies, yesCount }),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim().toLowerCase(),
@@ -396,9 +482,15 @@ export default function ApplyEligibilityClient({
         ...(isSchool
           ? {
               variant: 'school' as const,
+              // Read back at step 3 as the referralRef fallback, so a new-tab
+              // resume still attributes the application to the school.
               schoolSlug: schoolPartner?.slug,
               gradeLevel,
-              expectedGraduationYear,
+              // Carried to step 3 because a reviewer needs to know the student
+              // affirmed enrollment. Safe here and not in the DRAFT: this is
+              // written at the instant of submit, by the session that made the
+              // affirmation, and the payload is gated at step 3 on the stored
+              // email matching the person then typing.
               schoolAttestation,
               studentId: studentId.trim() || undefined,
               // Guardian details are only meaningful for a minor; an
@@ -414,12 +506,6 @@ export default function ApplyEligibilityClient({
             }
           : {}),
       });
-      sessionStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
-      try {
-        localStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
-      } catch {
-        /* storage full / disabled */
-      }
     }
     const resultsPath = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
     router.push(localizeHref(resultsPath, locale));
@@ -494,6 +580,11 @@ export default function ApplyEligibilityClient({
           flex-shrink: 0;
           margin-top: 0.15rem;
         }
+        .apply-flow--school .apply-not-my-school {
+          color: var(--color-accent);
+          font-weight: 600;
+          text-decoration: underline;
+        }
         @media (max-width: 768px) {
           .apply-flow--step1 .form-radio-card { align-items: center; }
           .apply-flow--step1 .apply-barrier-option { align-items: center; }
@@ -542,7 +633,15 @@ export default function ApplyEligibilityClient({
              partner-sponsored school seat and that no student was asked. */
           <>
             <h2 className="apply-step-title">{t('schoolStep1Title')}</h2>
-            <p className="apply-step-desc">{t('schoolStep1Lead', { schoolName })}</p>
+            {/* Only the sponsored wording claims the seat is paid for. A
+                school outside its funding window, or one at its seat cap,
+                gets the neutral lead — the same rule `/enroll/<slug>` was
+                hardened to in Phase B3. */}
+            <p className="apply-step-desc">
+              {sponsorshipInForce
+                ? t('schoolStep1Lead', { schoolName })
+                : t('schoolStep1LeadNeutral', { schoolName })}
+            </p>
             <div className="apply-transition-card" role="note" aria-label={t('transitionCardAriaWhatNext')}>
               <strong>{t('step1WhatNextStrong')}</strong>
               <span> {t('step1WhatNextBody')}</span>
@@ -605,30 +704,6 @@ export default function ApplyEligibilityClient({
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="apply-graduation-year">{t('schoolGraduationLabel')}</label>
-              <select
-                id="apply-graduation-year"
-                name="expectedGraduationYear"
-                value={expectedGraduationYear}
-                onChange={(e) => setExpectedGraduationYear(e.target.value)}
-                required
-                aria-invalid={attemptedContinue && !expectedGraduationYear}
-                aria-describedby={
-                  attemptedContinue && !expectedGraduationYear ? 'apply-graduation-year-error' : undefined
-                }
-              >
-                <option value="">{t('schoolGraduationPlaceholder')}</option>
-                {graduationYears.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-              {attemptedContinue && !expectedGraduationYear && (
-                <p id="apply-graduation-year-error" className="apply-eligibility-field-error" role="alert">
-                  {t('errSchoolGraduation')}
-                </p>
-              )}
-            </div>
-            <div className="form-group">
               <label className="apply-school-attestation" htmlFor="apply-school-attestation">
                 <input
                   id="apply-school-attestation"
@@ -636,12 +711,19 @@ export default function ApplyEligibilityClient({
                   name="schoolAttestation"
                   checked={schoolAttestation}
                   onChange={(e) => setSchoolAttestation(e.target.checked)}
+                  required
+                  aria-required="true"
                   aria-invalid={attemptedContinue && !schoolAttestation}
                   aria-describedby={
                     attemptedContinue && !schoolAttestation ? 'apply-school-attestation-error' : undefined
                   }
                 />
-                <span>{t('schoolAttestationLabel', { schoolName })}</span>
+                {/* Enrollment ONLY. The version that shipped also asked the
+                    student to attest that "my school is sponsoring my
+                    participation" — a funding arrangement between two
+                    organisations that no student can know, and which is not
+                    even true when the sponsorship has lapsed. */}
+                <span>{t('schoolAttestationLabel', { schoolName })} *</span>
               </label>
               {attemptedContinue && !schoolAttestation && (
                 <p id="apply-school-attestation-error" className="apply-eligibility-field-error" role="alert">
@@ -848,12 +930,16 @@ export default function ApplyEligibilityClient({
               >
                 <option value="">{t('ageGroupPlaceholder')}</option>
                 {AGE_GROUPS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value}>{t(option.labelKey)}</option>
                 ))}
               </select>
               {isSchool && (
+                /* Neutral by design. The hint used to read "Most students
+                   applying through <school> choose 'Under 18'", which nudges
+                   the answer on the one field that decides whether the
+                   applicant is handled as a minor. */
                 <p id="apply-age-group-hint" className="apply-field-hint">
-                  {t('schoolAgeGroupHint', { schoolName })}
+                  {t('schoolAgeGroupHint')}
                 </p>
               )}
             </div>
@@ -913,7 +999,7 @@ export default function ApplyEligibilityClient({
             <div className="form-group apply-form-group--full">
               <label>{t('primaryBarriersLabel')}</label>
               <div className="apply-barrier-options" role="group" aria-label={t('primaryBarriersAria')}>
-                {PRIMARY_BARRIER_OPTIONS.map((option) => (
+                {barrierOptions.map((option) => (
                   <label key={option.value} className="apply-barrier-option">
                     <input
                       type="checkbox"
@@ -954,7 +1040,23 @@ export default function ApplyEligibilityClient({
                   aria-describedby="apply-school-name-hint"
                 />
                 <p id="apply-school-name-hint" className="apply-field-hint">
-                  {t('schoolPrefilledHint')}
+                  {t('schoolPrefilledHint')}{' '}
+                  {/* The partner-ref cookie lasts 30 days and is consumed only
+                      by a successful signup, so on a shared school machine the
+                      NEXT student can arrive here looking at a school they do
+                      not attend — with an attestation they cannot truthfully
+                      tick and cannot skip. This is the way out. */}
+                  {/* A real anchor, not a button: it IS a navigation, and the
+                      cookie can only be cleared by the server response at the
+                      other end. The click handler clears the browser-side
+                      state synchronously first. */}
+                  <a
+                    className="apply-not-my-school"
+                    href={notMySchoolHref}
+                    onClick={handleNotMySchool}
+                  >
+                    {t('schoolNotMineCta')}
+                  </a>
                 </p>
               </div>
               {/* Hidden entirely when the partner has no district on file —
@@ -1111,8 +1213,11 @@ export default function ApplyEligibilityClient({
                   : t('eligibilityRadioError')}
           </p>
         ) : null}
+        {/* A self-identified minor cannot accept terms on their own behalf, so
+            the line attributes acceptance to the guardian whose details they
+            just gave us. */}
         <p className="apply-consent-line" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0', lineHeight: 1.5 }}>
-          {t('applyConsentLine')}{' '}
+          {guardianRequired ? t('applyConsentLineGuardian') : t('applyConsentLine')}{' '}
           <LocalizedLink href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>
             {t('applyConsentPrivacy')}
           </LocalizedLink>{' '}
@@ -1145,5 +1250,3 @@ export default function ApplyEligibilityClient({
     </div>
   );
 }
-
-export { APPLY_STORAGE_KEY };

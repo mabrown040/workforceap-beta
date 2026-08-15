@@ -27,6 +27,18 @@ export type SchoolApplyPartnerSummary = {
 
 type SchoolApplyVariantProps = {
   schoolPartner: SchoolApplyPartnerSummary;
+  /**
+   * Whether the partner's sponsorship is in force RIGHT NOW (switched on,
+   * inside its window, seats not exhausted). `partnerType` decides which
+   * questions the applicant is asked; this decides whether a single word of
+   * this page is allowed to say who is paying for the seat.
+   *
+   * When false the hero, the lead and the attestation all drop to
+   * enrollment-only wording. Phase B3 hardened `/enroll/<slug>` against
+   * exactly this — a school outside its funded term was still being shown a
+   * cost claim — and the apply variant shipped with the same gap.
+   */
+  sponsorshipInForce: boolean;
   program?: string;
   stepNav?: ReactNode;
   trustStrip?: ReactNode;
@@ -36,6 +48,7 @@ const SCHOOL_APPLY_ELIGIBILITY_ID = 'school-apply-eligibility';
 
 export default async function SchoolApplyVariant({
   schoolPartner,
+  sponsorshipInForce,
   stepNav,
   trustStrip,
 }: SchoolApplyVariantProps) {
@@ -45,26 +58,43 @@ export default async function SchoolApplyVariant({
   return (
     <div className="school-apply-landing">
       <section className="school-apply-hero" aria-labelledby="school-apply-hero-heading">
-        <p className="school-apply-hero__kicker">{t('schoolHeroKicker')}</p>
+        <p className="school-apply-hero__kicker">
+          {sponsorshipInForce ? t('schoolHeroKicker') : t('schoolHeroKickerNeutral')}
+        </p>
         <h1 id="school-apply-hero-heading" className="school-apply-hero__heading">
           {t('schoolHeroHeading', { schoolName })}
         </h1>
-        <p className="school-apply-hero__subhead">{t('schoolHeroSubhead', { schoolName })}</p>
+        <p className="school-apply-hero__subhead">
+          {sponsorshipInForce
+            ? t('schoolHeroSubhead', { schoolName })
+            : t('schoolHeroSubheadNeutral', { schoolName })}
+        </p>
       </section>
 
       <section
         id={SCHOOL_APPLY_ELIGIBILITY_ID}
         className="school-apply-form-section"
-        aria-label={t('ariaEligibilityForm')}
+        // Not "Eligibility application form": the premise of this variant is
+        // that there IS no eligibility screening here.
+        aria-label={t('ariaSchoolApplyForm')}
       >
         <Suspense fallback={<ApplyPageSkeleton />}>
-          <ApplyRefCapture />
+          {/* `fallbackRef` mirrors PartnerEnrollmentView: a student who lands
+              on `/apply?ref=<slug>` and finishes in a NEW TAB has no
+              sessionStorage and (if they never visited `/enroll/<slug>`) no
+              cookie, so without this their school, guardian and attribution
+              are silently dropped at step 3. */}
+          <ApplyRefCapture fallbackRef={schoolPartner.slug} />
           <UtmCapture />
         </Suspense>
         {stepNav}
         {trustStrip}
         <Suspense fallback={<ApplyPageSkeleton />}>
-          <ApplyEligibilityClient variant="school" schoolPartner={schoolPartner} />
+          <ApplyEligibilityClient
+            variant="school"
+            schoolPartner={schoolPartner}
+            sponsorshipInForce={sponsorshipInForce}
+          />
         </Suspense>
       </section>
 

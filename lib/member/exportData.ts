@@ -213,6 +213,25 @@ export async function buildMemberExport(userId: string) {
           parentGuardianName: user.profile.parentGuardianName,
           parentGuardianEmail: user.profile.parentGuardianEmail,
           parentGuardianPhone: user.profile.parentGuardianPhone,
+          /**
+           * Consent is exported as a STATUS, not a bare boolean.
+           *
+           * `parentalConsentGiven` is written `false` at signup for a minor
+           * applying through a school partner and has no code path that ever
+           * flips it: the signed form is paper, the school returns it, and an
+           * admin records it (the structured admin write path is Phase B5 —
+           * until then the DB column deliberately stays as it is, which is why
+           * this is a presentation change only).
+           *
+           * Exported raw, that reads to the student and their parent as
+           * consent REFUSED — `parentalConsentGiven: false` with a null date —
+           * when what it actually means is "we have not collected it yet".
+           * `false` is not a decision. The boolean is kept alongside so the
+           * export stays a faithful dump of the row.
+           */
+          parentalConsentStatus: user.profile.parentalConsentGiven
+            ? ('on_file' as const)
+            : ('not_yet_collected' as const),
           parentalConsentGiven: user.profile.parentalConsentGiven,
           parentalConsentDate: user.profile.parentalConsentDate?.toISOString() ?? null,
           schoolName: user.profile.schoolName,

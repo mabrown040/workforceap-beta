@@ -9,6 +9,12 @@ import { trackApplyFunnel } from '@/lib/analytics/events';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { trackConversionWithValue } from '@/lib/analytics/conversionValue';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import {
+  clearApplyEligibility,
+  readApplyEligibility,
+  readApplyEligibilityForEmail,
+  type ApplyEligibilityPayload,
+} from '@/lib/apply/applyEligibilityStorage';
 import { isPaidUtmSource } from '@/lib/apply/paidApplyUtm';
 import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import {
@@ -155,29 +161,16 @@ export default function ApplyCreateAccountForm() {
     if (typeof window === 'undefined') return;
     try {
       const raw = sessionStorage.getItem(APPLY_ACCOUNT_DRAFT_KEY);
-      type EligStored = {
-        firstName?: string;
-        lastName?: string;
-        email?: string;
-        phone?: string;
-        ageGroup?: string;
-        city?: string;
-        state?: string;
-        zip?: string;
-        county?: string;
-        primaryBarrier?: string;
-        primaryBarriers?: string[];
-      };
-      let elig: EligStored | null = null;
-      try {
-        // sessionStorage is per-tab; fall back to the localStorage mirror so
-        // "finish later" resumes in a new tab keep the eligibility answers.
-        const er =
-          sessionStorage.getItem('apply_eligibility') ?? localStorage.getItem('apply_eligibility');
-        if (er) elig = JSON.parse(er) as EligStored;
-      } catch {
-        elig = null;
-      }
+      // sessionStorage is per-tab; `readApplyEligibility` falls back to the
+      // localStorage mirror so "finish later" resumes in a new tab keep the
+      // eligibility answers, and drops it once it is older than 7 days.
+      //
+      // Only the fields the applicant can SEE and correct on this form are
+      // pre-filled from it. The invisible ones (age band, county, barriers,
+      // school, guardian) are re-read at submit time behind the ownership
+      // check in `handleSubmit` — they are the ones a wrong payload would
+      // silently attach to the wrong person.
+      const elig: ApplyEligibilityPayload | null = readApplyEligibility();
 
       if (raw) {
         const draft = JSON.parse(raw) as AccountDraft;
@@ -414,40 +407,32 @@ export default function ApplyCreateAccountForm() {
 
       const careerPayload = typeof window !== 'undefined' ? getCareerQuizPayloadFromStorage() : null;
       const attribution = readMarketingAttribution();
-      let eligibilityPayload: {
-        ageGroup?: string;
-        city?: string;
-        state?: string;
-        zip?: string;
-        county?: string;
-        primaryBarrier?: string;
-        primaryBarriers?: string[];
-        q1?: 'yes' | 'no';
-        q2?: 'yes' | 'no';
-        q3?: 'yes' | 'no';
-        qualifies?: boolean;
-        yesCount?: number;
-        // School-partner variant (Phase B4). Absent for organic/paid, where
-        // step 1 never renders these inputs — every one is forwarded as
-        // `undefined` there, which `JSON.stringify` drops from the body.
-        gradeLevel?: string;
-        expectedGraduationYear?: string;
-        schoolAttestation?: boolean;
-        studentId?: string;
-        guardianName?: string;
-        guardianEmail?: string;
-        guardianPhone?: string;
-      } | null = null;
-      if (typeof window !== 'undefined') {
-        try {
-          const rawEligibility =
-            sessionStorage.getItem('apply_eligibility') ??
-            localStorage.getItem('apply_eligibility');
-          eligibilityPayload = rawEligibility ? JSON.parse(rawEligibility) : null;
-        } catch {
-          eligibilityPayload = null;
-        }
-      }
+
+      /**
+       * THE STEP-1 PAYLOAD IS ONLY USED WHEN IT BELONGS TO THIS APPLICANT.
+       *
+       * `readApplyEligibilityForEmail` returns null — and wipes the stored
+       * payload — unless the email inside it matches the address typed into
+       * THIS form, compared case-insensitively.
+       *
+       * The failure it closes: shared school-lab computers are the normal
+       * device for this funnel. Student A (16) fills in step 1, including
+       * their parent's name, email and phone, and abandons at step 2. Student
+       * B sits down, goes to `/apply/create-account`, and every one of those
+       * invisible fields rides along on B's signup — B's profile gets
+       * `isMinor: true`, `parentalConsentGiven: false`, and A's PARENT's
+       * contact details, which B can then read back out of their own GDPR
+       * export. Nothing on the page ever showed B any of it.
+       *
+       * Discarding the WHOLE payload rather than only the school/guardian keys
+       * is deliberate: the age band, county and barrier answers are just as
+       * much student A's, and an age band in particular is what decides minor
+       * handling. The cost is a legitimate applicant who deliberately types a
+       * different email at step 3 than at step 1 — they lose their screener
+       * answers and are recorded as unscreened, which is a recoverable
+       * reporting gap rather than a wrong record about a named third party.
+       */
+      const eligibilityPayload = readApplyEligibilityForEmail(email);
 
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
@@ -466,7 +451,14 @@ export default function ApplyCreateAccountForm() {
           smsOptIn,
           password,
           programRankedSlugs,
-          referralRef: referralRef?.trim() || undefined,
+          // `schoolSlug` is the new-tab fallback: a student who arrived at
+          // `/apply?ref=<slug>` without ever visiting `/enroll/<slug>` has no
+          // cookie, and finishing in a new tab loses the sessionStorage key —
+          // which silently cost them their school, guardian capture and
+          // partner attribution, at 200 OK. It is read from the payload ONLY
+          // after the ownership check above, so a stale payload can no more
+          // supply somebody else's school than their guardian.
+          referralRef: referralRef?.trim() || eligibilityPayload?.schoolSlug || undefined,
           recommendedOnetCode: careerPayload?.recommendedOnetCode ?? undefined,
           recommendedCareerTitle: careerPayload?.recommendedCareerTitle ?? undefined,
           careerRecommendationJson: careerPayload?.careerRecommendationJson ?? undefined,
@@ -481,7 +473,6 @@ export default function ApplyCreateAccountForm() {
           eligibilityQualifies: eligibilityPayload?.qualifies,
           eligibilityYesCount: eligibilityPayload?.yesCount,
           gradeLevel: eligibilityPayload?.gradeLevel,
-          expectedGraduationYear: eligibilityPayload?.expectedGraduationYear,
           schoolAttestation: eligibilityPayload?.schoolAttestation,
           studentId: eligibilityPayload?.studentId,
           guardianName: eligibilityPayload?.guardianName,
@@ -542,12 +533,7 @@ export default function ApplyCreateAccountForm() {
 
       sessionStorage.removeItem(APPLY_PROGRAM_SLUG_KEY);
       sessionStorage.removeItem(APPLY_PROGRAM_RANKED_KEY);
-      sessionStorage.removeItem('apply_eligibility');
-      try {
-        localStorage.removeItem('apply_eligibility');
-      } catch {
-        /* ignore */
-      }
+      clearApplyEligibility();
       sessionStorage.removeItem(APPLY_ACCOUNT_DRAFT_KEY);
       try {
         localStorage.removeItem(APPLY_FLOW_DRAFT_KEY);

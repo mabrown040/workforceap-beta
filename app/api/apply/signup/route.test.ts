@@ -785,7 +785,6 @@ describe('POST /api/apply/signup school-partner applicants', () => {
       eligibilityQualifies: undefined,
       eligibilityYesCount: undefined,
       gradeLevel: '11',
-      expectedGraduationYear: '2028',
       schoolAttestation: true,
       studentId: 'CHS-90210',
       ...overrides,
@@ -849,24 +848,62 @@ describe('POST /api/apply/signup school-partner applicants', () => {
     });
   });
 
-  it('records grade, graduation, attestation and the WIOA-n/a marker in the notes', async () => {
+  it('records grade, the self-reported enrollment line and the WIOA-n/a marker in the notes', async () => {
     state.partner = schoolPartner();
 
     await POST(makeRequest(minorBody()));
 
     const notes = state.applicationCreates[0].data.notes ?? '';
     expect(notes).toContain('Grade level: 11');
-    expect(notes).toContain('Expected graduation: 2028');
-    expect(notes).toContain('School enrollment attested by applicant: Concordia High School');
     expect(notes).toContain('School partner applicant — WIOA screening n/a (partner-sponsored)');
-    // The pre-existing lines are still there and still first.
     expect(notes).toContain('Age group: under_18');
     expect(notes.indexOf('Age group: under_18')).toBeLessThan(notes.indexOf('Grade level: 11'));
     // No screening answers were collected, so no fit line is invented.
     expect(notes).not.toContain('Quick eligibility fit');
   });
 
+  it('words the enrollment line so it cannot be read as parental consent', async () => {
+    // M4: the launch runbook tells reviewers the (admin) attestation checkbox
+    // means "consent verified". A note reading "School enrollment attested by
+    // applicant" is one word away from that and describes a student ticking a
+    // box about their own school — which says nothing about a parent.
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody()));
+
+    const notes = state.applicationCreates[0].data.notes ?? '';
+    expect(notes).toContain(
+      'Student self-reported enrollment (NOT parental consent): Concordia High School'
+    );
+    expect(notes).not.toContain('attested by applicant');
+  });
+
+  it('flags a MINOR on the first line of the notes AND the admin alert', async () => {
+    // A reviewer works the top of the note. Consent status must not be
+    // something they infer from `Age group: under_18` four lines down.
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(minorBody()));
+
+    const notes = state.applicationCreates[0].data.notes ?? '';
+    expect(notes.split('\n')[0]).toBe('MINOR — parental consent required before activation');
+    expect(state.adminEmails).toHaveLength(1);
+    expect((state.adminEmails[0].applicationNotes ?? '').split('\n')[0]).toBe(
+      'MINOR — parental consent required before activation'
+    );
+  });
+
+  it('does NOT flag a minor for an 18+ school applicant', async () => {
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(schoolBody({ ageGroup: '18_24' })));
+
+    expect(state.applicationCreates[0].data.notes ?? '').not.toContain('MINOR —');
+  });
+
   it('writes no ApplyEligibilityScreening row for a school applicant', async () => {
+    // Not because a partner is set, but because the school variant never
+    // renders the two funding questions, so no answers are posted.
     state.partner = schoolPartner();
 
     await POST(makeRequest(minorBody()));
@@ -874,17 +911,58 @@ describe('POST /api/apply/signup school-partner applicants', () => {
     expect(state.screeningUpserts).toHaveLength(0);
   });
 
-  it('writes no screening row even if a stale q1/q2 payload rides along', async () => {
-    // Shared school lab machine: an earlier organic applicant's
-    // `apply_eligibility` payload can still be in localStorage. Those answers
-    // are not this student's and must not become their screening record.
+  it('DOES write the screening row when q1/q2 are actually present, school or not', async () => {
+    // M10: the guard is the absence of answers, not the presence of a school
+    // partner. If the PAGE's partner lookup failed the applicant was shown the
+    // adult screener and answered it; discarding those answers here left an
+    // application whose notes carry a fit line the screening table has no row
+    // for. Whether the payload belongs to this applicant at all is judged
+    // client-side, where the typed email can be compared against it.
     state.partner = schoolPartner();
 
-    await POST(
-      makeRequest(minorBody({ eligibilityQ1: 'yes', eligibilityQ2: 'yes', eligibilityYesCount: 2 }))
+    const res = await POST(
+      makeRequest(minorBody({ eligibilityQ1: 'yes', eligibilityQ2: 'no', eligibilityYesCount: 1 }))
     );
+    expect(res.status).toBe(200);
 
-    expect(state.screeningUpserts).toHaveLength(0);
+    expect(state.screeningUpserts).toHaveLength(1);
+    expect(state.screeningUpserts[0].create).toMatchObject({ q1: 'yes', q2: 'no', yesCount: 1 });
+  });
+
+  it('requires a guardian server-side for an under-18 school applicant', async () => {
+    // M5: the client hides the continue button, but a direct POST wrote
+    // `isMinor: true` + `parentalConsentGiven: false` with NO guardian — a
+    // record indistinguishable from a real one, for a student nobody can reach
+    // an adult for.
+    state.partner = schoolPartner();
+
+    for (const missing of [
+      { guardianName: '   ' },
+      { guardianEmail: undefined },
+      { guardianPhone: '' },
+    ]) {
+      resetState();
+      state.partner = schoolPartner();
+
+      const res = await POST(makeRequest(minorBody(missing)));
+      expect(res.status, JSON.stringify(missing)).toBe(400);
+      expect((await res.json()).error).toContain('parent or guardian');
+      // Rejected before anything is written — no profile, no application, no
+      // enrollment, no auth user left behind.
+      expect(state.profileUpserts).toHaveLength(0);
+      expect(state.applicationCreates).toHaveLength(0);
+      expect(state.enrollmentUpserts).toHaveLength(0);
+    }
+  });
+
+  it('does not demand a guardian when the partner is not a school', async () => {
+    // The requirement is scoped to the variant that asks the question.
+    state.partner = schoolPartner({ partnerType: 'community' });
+
+    const res = await POST(
+      makeRequest(minorBody({ guardianName: undefined, guardianEmail: undefined, guardianPhone: undefined }))
+    );
+    expect(res.status).toBe(200);
   });
 
   it('requires no guardian for an 18–24 school applicant but still records school fields', async () => {
@@ -897,22 +975,42 @@ describe('POST /api/apply/signup school-partner applicants', () => {
       schoolName: 'Concordia High School',
       gradeLevel: '11',
       studentId: 'CHS-90210',
+      isMinor: false,
     });
-    // Not a minor, so no minor/guardian keys at all — including no
-    // `isMinor: false`, which would clobber an existing profile.
-    expect(state.profileUpserts[0].create).not.toHaveProperty('isMinor');
-    expect(state.profileUpserts[0].create).not.toHaveProperty('parentGuardianName');
     expect(state.profileUpserts[0].create).not.toHaveProperty('parentalConsentGiven');
-    expect(state.profileUpserts[0].update).not.toHaveProperty('isMinor');
   });
 
-  it('drops guardian details posted for a non-minor school applicant', async () => {
+  it('flips isMinor back to false and NULLS the guardian columns when the applicant is now 18+', async () => {
+    // M5: the conditional spread wrote `isMinor: true` under under_18 and
+    // nothing otherwise, so a returning applicant who had turned 18 kept
+    // `isMinor: true` forever — with their parent's name, email and phone
+    // retained on an adult's profile and no path to clearing them.
     state.partner = schoolPartner();
 
     await POST(makeRequest(minorBody({ ageGroup: '25_50' })));
 
-    expect(state.profileUpserts[0].create).not.toHaveProperty('parentGuardianEmail');
-    expect(state.profileUpserts[0].create).not.toHaveProperty('isMinor');
+    for (const branch of [state.profileUpserts[0].create, state.profileUpserts[0].update]) {
+      expect(branch).toMatchObject({
+        isMinor: false,
+        parentGuardianName: null,
+        parentGuardianEmail: null,
+        parentGuardianPhone: null,
+      });
+    }
+  });
+
+  it('writes neither isMinor nor guardian keys when no age band was given', async () => {
+    // An unanswered age band is not a statement in either direction, so it
+    // must not clobber whatever a counselor already recorded.
+    state.partner = schoolPartner();
+
+    await POST(makeRequest(schoolBody({ ageGroup: undefined })));
+
+    for (const branch of [state.profileUpserts[0].create, state.profileUpserts[0].update]) {
+      expect(branch).not.toHaveProperty('isMinor');
+      expect(branch).not.toHaveProperty('parentGuardianName');
+      expect(branch).not.toHaveProperty('parentGuardianEmail');
+    }
   });
 
   it('rejects a guardian email that matches the applicant email, writing nothing', async () => {
@@ -948,26 +1046,24 @@ describe('POST /api/apply/signup school-partner applicants', () => {
     expect(state.applicationCreates).toHaveLength(0);
   });
 
-  it('rejects a non-four-digit graduation year with a 400', async () => {
+  it('ignores an expectedGraduationYear a stale client still posts', async () => {
+    // The question was removed (no column, no reader, derivable from grade).
+    // Zod strips unknown keys, so a browser running the previous bundle is not
+    // rejected — the value is simply dropped.
     state.partner = schoolPartner();
 
-    const res = await POST(makeRequest(schoolBody({ expectedGraduationYear: '28' })));
-    expect(res.status).toBe(400);
-    expect(state.applicationCreates).toHaveLength(0);
-  });
-
-  it('accepts a numeric graduation year', async () => {
-    state.partner = schoolPartner();
-
-    const res = await POST(makeRequest(schoolBody({ expectedGraduationYear: 2028 })));
+    const res = await POST(makeRequest(schoolBody({ expectedGraduationYear: '2028' })));
     expect(res.status).toBe(200);
-    expect(state.applicationCreates[0].data.notes ?? '').toContain('Expected graduation: 2028');
+    expect(state.applicationCreates[0].data.notes ?? '').not.toContain('Expected graduation');
   });
 
-  it('records school data even when the sponsorship window has lapsed', async () => {
-    // partnerType decides which QUESTIONS were asked; sponsorship decides who
-    // PAYS. A school whose funding window closed still shows the school
-    // wizard, so its answers still have to be stored.
+  it('records school data — INCLUDING schoolName — when the sponsorship has lapsed', async () => {
+    // M6: `schoolFields` was gated on the SPONSORSHIP while the minor/guardian
+    // fields were gated on `partnerType`, so a school outside its funding
+    // window wrote isMinor + a guardian's name, email and phone + a grade
+    // level and NO schoolName. A minor's record carrying guardian PII with no
+    // school on it is the hardest kind to reconcile against the roster the
+    // consent forms come back on.
     state.partner = schoolPartner({
       sponsorshipStartsAt: new Date('2020-01-01T00:00:00Z'),
       sponsorshipEndsAt: new Date('2020-12-31T00:00:00Z'),
@@ -976,10 +1072,33 @@ describe('POST /api/apply/signup school-partner applicants', () => {
     const res = await POST(makeRequest(minorBody()));
     expect(res.status).toBe(200);
 
-    expect(state.profileUpserts[0].create).toMatchObject({ gradeLevel: '11', isMinor: true });
+    expect(state.profileUpserts[0].create).toMatchObject({
+      schoolName: 'Concordia High School',
+      schoolDistrict: 'Austin ISD',
+      gradeLevel: '11',
+      isMinor: true,
+      parentGuardianEmail: 'dana.guardian@example.com',
+    });
+    expect(state.profileUpserts[0].update).toMatchObject({
+      schoolName: 'Concordia High School',
+      schoolDistrict: 'Austin ISD',
+    });
     expect(state.applicationCreates[0].data.notes ?? '').toContain('WIOA screening n/a');
-    // B2 sponsorship stamping is untouched by B4 and stays off.
+    // B2 sponsorship stamping is untouched and stays off — who PAYS is still a
+    // separate question from which school they attend.
     expect(state.enrollmentUpserts[0].create).not.toHaveProperty('sponsoredByPartnerId');
+  });
+
+  it('records schoolName for a high school that never sponsored at all', async () => {
+    state.partner = schoolPartner({ sponsoredEnrollment: false });
+
+    const res = await POST(makeRequest(minorBody()));
+    expect(res.status).toBe(200);
+
+    expect(state.profileUpserts[0].create).toMatchObject({
+      schoolName: 'Concordia High School',
+      isMinor: true,
+    });
   });
 
   it('leaves a NON-SCHOOL partner signup byte-identical to before Phase B4', async () => {

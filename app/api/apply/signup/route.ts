@@ -66,6 +66,24 @@ function seatCapNote(partnerName: string): string {
 const SCHOOL_PARTNER_SCREENING_NOTE =
   'School partner applicant — WIOA screening n/a (partner-sponsored)';
 
+/**
+ * Leading line on a minor's application notes AND the admin alert email.
+ *
+ * "Attestation" means two different things in this funnel, and the collision
+ * had a path straight to activating a minor with no parental consent:
+ *
+ *  - the APPLICANT's attestation is a student ticking "I am currently enrolled
+ *    at <school>" — it says nothing about a parent;
+ *  - the REVIEWER's attestation is the admin checkbox that
+ *    `docs/runbooks/CONCORDIA-LAUNCH.md` tells staff means "consent verified".
+ *
+ * A reviewer working the queue saw "School enrollment attested by applicant"
+ * in the notes and nothing at all saying the applicant was 15. This line is
+ * what makes the age impossible to miss, and the note below is worded so it
+ * cannot be mistaken for the other kind of attestation.
+ */
+const MINOR_CONSENT_REQUIRED_NOTE = 'MINOR — parental consent required before activation';
+
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -109,11 +127,9 @@ const applySignupSchema = z.object({
    * with no school ref changes nothing.
    */
   gradeLevel: z.string().trim().max(20).optional().nullable(),
-  /** A four-digit year, accepted as either a string (the select) or a number. */
-  expectedGraduationYear: z
-    .union([z.string().trim().regex(/^\d{4}$/, 'Please choose a graduation year.'), z.number().int().min(1900).max(2999)])
-    .optional()
-    .nullable(),
+  // No `expectedGraduationYear`: the question was removed from step 1 (no
+  // column, no reader, derivable from `gradeLevel`). Zod strips unknown keys,
+  // so a browser still running the previous bundle simply has it ignored.
   schoolAttestation: z.boolean().optional().nullable(),
   studentId: z.string().trim().max(64).optional().nullable(),
   guardianName: z.string().trim().max(200).optional().nullable(),
@@ -188,7 +204,6 @@ const applySignupSchema = z.object({
       eligibilityQ2,
       eligibilityQ3,
       gradeLevel,
-      expectedGraduationYear,
       schoolAttestation,
       studentId,
       guardianName,
@@ -322,7 +337,7 @@ const applySignupSchema = z.object({
      * data must still be recorded. The B2 sponsorship stamping below is
      * untouched by this.
      */
-    let schoolPartner: { id: string; name: string } | null = null;
+    let schoolPartner: { id: string; name: string; schoolDistrict: string | null } | null = null;
     // The apply form posts `referralRef`, but a student who arrived via
     // `/enroll/<slug>` may no longer have it (new tab, restored session,
     // shared bare /apply link). Middleware drops a 30-day httpOnly cookie on
@@ -372,8 +387,47 @@ const applySignupSchema = z.object({
         // The partner ROW is the authority for the school variant — never a
         // query param or anything else the client can set.
         if (partner.partnerType === SCHOOL_PARTNER_TYPE) {
-          schoolPartner = { id: partner.id, name: partner.name };
+          // `schoolDistrict` rides on the SCHOOL object, not the sponsorship
+          // one: which district a student attends does not depend on whether
+          // anyone is currently paying for their seat.
+          schoolPartner = {
+            id: partner.id,
+            name: partner.name,
+            schoolDistrict: partner.schoolDistrict,
+          };
         }
+      }
+    }
+
+    /**
+     * GUARDIAN CAPTURE IS ENFORCED HERE, NOT ONLY IN THE BROWSER (Phase B4
+     * hardening).
+     *
+     * The client hides the continue button until a minor has given a guardian,
+     * but a direct POST carrying `ageGroup: 'under_18'` and a school ref
+     * skipped all of it and wrote `isMinor: true` with
+     * `parentalConsentGiven: false` and NO guardian — a record that is
+     * indistinguishable from a real one, on a student nobody can reach an
+     * adult for. There is no consent channel without these three fields, so
+     * the signup does not proceed without them.
+     *
+     * Returned as the standard 400 (never thrown), and placed BEFORE the
+     * Supabase account creation and every database write, so a rejected
+     * signup leaves nothing behind.
+     */
+    if (schoolPartner && ageGroup === 'under_18') {
+      const missingGuardianField =
+        !guardianName?.trim() ||
+        !guardianEmailNormalized ||
+        !guardianPhone?.trim();
+      if (missingGuardianField) {
+        return NextResponse.json(
+          {
+            error:
+              "Please add a parent or guardian's name, email address and phone number so we can send the consent form.",
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -387,21 +441,36 @@ const applySignupSchema = z.object({
      * and reads it as an incomplete screening rather than one that does not
      * apply to a partner-sponsored seat.
      */
-    const expectedGraduationYearText =
-      expectedGraduationYear === null || expectedGraduationYear === undefined
-        ? null
-        : String(expectedGraduationYear).trim();
     const schoolNoteLines = schoolPartner
       ? [
           gradeLevel?.trim() ? `Grade level: ${gradeLevel.trim()}` : null,
-          expectedGraduationYearText ? `Expected graduation: ${expectedGraduationYearText}` : null,
+          // Says what it is AND what it is not. "School enrollment attested by
+          // applicant" collided with the reviewer-facing attestation checkbox
+          // that the launch runbook defines as "consent verified", so a
+          // reviewer could read a student's own enrollment tick as a parent's
+          // consent and approve a minor on the strength of it.
           schoolAttestation === true
-            ? `School enrollment attested by applicant: ${schoolPartner.name}`
+            ? `Student self-reported enrollment (NOT parental consent): ${schoolPartner.name}`
             : null,
           SCHOOL_PARTNER_SCREENING_NOTE,
         ]
       : [];
-    const finalApplicationNotes = [applicationNotes, ...schoolNoteLines].filter(Boolean).join('\n');
+    /**
+     * The minor flag goes FIRST, above the age band and everything else, on
+     * both the persisted notes and the admin alert. A reviewer working a queue
+     * reads the top of the note; consent status must not be something they
+     * have to infer from `Age group: under_18` four lines down.
+     *
+     * Member-visible (`Application.notes` is returned verbatim by the self-
+     * serve GDPR export), and worded to be safe there: it states the process,
+     * not a judgement, and matches what the student was already told at
+     * step 1.
+     */
+    const minorNoteLines =
+      schoolPartner && ageGroup === 'under_18' ? [MINOR_CONSENT_REQUIRED_NOTE] : [];
+    const finalApplicationNotes = [...minorNoteLines, applicationNotes, ...schoolNoteLines]
+      .filter(Boolean)
+      .join('\n');
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -572,25 +641,31 @@ const applySignupSchema = z.object({
           }
         }
   
-        // A student enrolling under a sponsoring high school attends that
-        // school by definition, so record it on the profile — this drives the
-        // minor/consent handling and school-level reporting. Independent of
-        // the seat cap: which school they attend does not change when the
-        // partner runs out of funded seats.
+        // A student enrolling under a high school attends that school by
+        // definition, so record it on the profile — this drives the
+        // minor/consent handling and school-level reporting.
+        //
+        // GATED ON `schoolPartner`, NOT `sponsorPartner`. Which school someone
+        // attends does not depend on who is paying: gating this on the
+        // sponsorship while the minor/guardian fields below were gated on
+        // `partnerType` meant a school outside its funding window wrote
+        // `isMinor`, a guardian's name, email and phone, and a grade level —
+        // but no `schoolName`. A minor's record with guardian PII and no
+        // school on it is the single hardest kind to reconcile against the
+        // roster the consent forms come back on.
         //
         // Each key is conditional on actually having a value: the spread used
         // to always include `schoolDistrict`, so a partner with no district
         // configured nulled out whatever an admin had already recorded on the
         // member's profile.
-        const schoolFields =
-          sponsorPartner && sponsorPartner.partnerType === 'high_school'
-            ? {
-                ...(sponsorPartner.name.trim() ? { schoolName: sponsorPartner.name.trim() } : {}),
-                ...(sponsorPartner.schoolDistrict?.trim()
-                  ? { schoolDistrict: sponsorPartner.schoolDistrict.trim() }
-                  : {}),
-              }
-            : {};
+        const schoolFields = schoolPartner
+          ? {
+              ...(schoolPartner.name.trim() ? { schoolName: schoolPartner.name.trim() } : {}),
+              ...(schoolPartner.schoolDistrict?.trim()
+                ? { schoolDistrict: schoolPartner.schoolDistrict.trim() }
+                : {}),
+            }
+          : {};
 
         /**
          * School-partner applicant fields (Phase B4). Same per-key non-empty
@@ -601,20 +676,39 @@ const applySignupSchema = z.object({
          * `isMinor` is derived from the age band the applicant just chose, so
          * it is safe on the update branch — unlike `parentalConsentGiven`,
          * which is deliberately create-only below.
+         *
+         * `isMinor` IS TWO-WAY. The conditional spread it replaced wrote
+         * `isMinor: true` under `under_18` and nothing at all otherwise, so a
+         * returning applicant who had turned 18 kept `isMinor: true` forever —
+         * along with their parent's name, email and phone, retained on an
+         * adult's profile with no path to clearing them. When the applicant
+         * states an age band, that band is authoritative in both directions,
+         * and the guardian columns are NULLED on the true→false transition
+         * because guardian contact for an adult is data we have no basis to
+         * hold. `ageGroup` absent (never asked) still changes nothing.
+         *
+         * The three guardian values are non-empty by construction here: the
+         * 400 above rejects an under-18 school signup that is missing any of
+         * them before this transaction runs.
          */
         const schoolApplicantFields = schoolPartner
           ? {
               ...(gradeLevel?.trim() ? { gradeLevel: gradeLevel.trim() } : {}),
               ...(studentId?.trim() ? { studentId: studentId.trim() } : {}),
-              ...(ageGroup === 'under_18'
-                ? {
-                    isMinor: true,
-                    ...(guardianName?.trim() ? { parentGuardianName: guardianName.trim() } : {}),
-                    ...(guardianEmailNormalized
-                      ? { parentGuardianEmail: guardianEmailNormalized }
-                      : {}),
-                    ...(guardianPhone?.trim() ? { parentGuardianPhone: guardianPhone.trim() } : {}),
-                  }
+              ...(ageGroup
+                ? ageGroup === 'under_18'
+                  ? {
+                      isMinor: true,
+                      parentGuardianName: guardianName!.trim(),
+                      parentGuardianEmail: guardianEmailNormalized,
+                      parentGuardianPhone: guardianPhone!.trim(),
+                    }
+                  : {
+                      isMinor: false,
+                      parentGuardianName: null,
+                      parentGuardianEmail: null,
+                      parentGuardianPhone: null,
+                    }
                 : {}),
             }
           : {};
@@ -683,21 +777,28 @@ const applySignupSchema = z.object({
         // re-runs the screener updates their row instead of violating the
         // unique constraint (which would roll back the whole signup).
         //
-        // SKIPPED for high-school-partner applicants (Phase B4): they are
-        // never shown the two funding questions, so there is nothing to
-        // record and a row here would be fabricated data feeding the
-        // qualification rate in lib/admin/analyticsOverview.ts. The `!schoolPartner`
-        // guard is belt-and-braces on top of the client omitting q1/q2 —
-        // a stale `apply_eligibility` payload left in localStorage by an
-        // earlier organic visit on a shared school machine would otherwise
-        // slip old answers in under a school ref.
+        // NOT WRITTEN for a genuine school applicant — but the guard is the
+        // ABSENCE OF ANSWERS, not the presence of a school partner. The school
+        // variant never renders the two funding questions, so a real school
+        // session posts no q1/q2 and no row is written.
+        //
+        // The `!schoolPartner` guard this replaces threw away answers a
+        // student had actually given: if the PAGE's partner lookup failed (see
+        // `resolveSchoolApplyPartner`) the applicant got the adult screener
+        // and answered it, and if the lookup then succeeded on THIS route
+        // their answers were silently discarded — leaving an application whose
+        // notes carry a fit line the screening table has no row for.
+        //
+        // Cross-student contamination on a shared machine is handled where it
+        // can actually be judged: `ApplyCreateAccountForm` discards a stored
+        // payload whose email is not the one being typed.
         //
         // Verified safe to omit: `ApplyEligibilityScreening` is read in
         // exactly one place, the two 30-day counts in
         // lib/admin/analyticsOverview.ts, which are standalone aggregates.
         // Nothing joins it to Application or assumes one row per application,
         // so no placeholder row is needed.
-        if (eligibilityQ1 && eligibilityQ2 && !schoolPartner) {
+        if (eligibilityQ1 && eligibilityQ2) {
           const screening = {
             organizationId,
             q1: eligibilityQ1,

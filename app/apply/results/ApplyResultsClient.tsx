@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LocalizedLink from '@/components/LocalizedLink';
 import { PROGRAMS, getProgramBySlug, type Program } from '@/lib/content/programs';
-import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
+import { readApplyEligibility } from '@/lib/apply/applyEligibilityStorage';
 import {
   APPLY_PROGRAM_SLUG_KEY,
   APPLY_PROGRAM_RANKED_KEY,
@@ -57,6 +57,15 @@ export default function ApplyResultsClient() {
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
   const [qualifies, setQualifies] = useState<boolean | null>(null);
+  /**
+   * School-partner applicants (Phase B4) were never asked the two
+   * workforce-funding questions, so their payload carries no `qualifies` —
+   * which this page read as `false` for 100% of them and answered with "Your
+   * answers don't match our standard funding profile right now", one screen
+   * after their school's page told them their seat was sponsored. They are a
+   * separate branch, not a failed screen.
+   */
+  const [isSchoolVariant, setIsSchoolVariant] = useState(false);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   /** From Find Your Path v1 localStorage — used to label + order cards. */
   const [quizRecommendedSlugs, setQuizRecommendedSlugs] = useState<string[]>([]);
@@ -68,16 +77,15 @@ export default function ApplyResultsClient() {
     if (typeof window === 'undefined') return;
     try {
       // sessionStorage is per-tab; the localStorage mirror covers "finish
-      // later" resumes in a new tab.
-      const stored =
-        sessionStorage.getItem(APPLY_STORAGE_KEY) ?? localStorage.getItem(APPLY_STORAGE_KEY);
-      if (!stored) {
+      // later" resumes in a new tab, bounded by a 7-day TTL.
+      const data = readApplyEligibility();
+      if (!data) {
         trackApplyFunnel(2, 'results_missing_prereq');
         setHasSavedDraft(hasSavedApplyDraft());
         setPageState('missing');
         return;
       }
-      const data = JSON.parse(stored) as { qualifies?: boolean };
+      setIsSchoolVariant(data.variant === 'school');
       setQualifies(data.qualifies === true);
 
       const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
@@ -132,8 +140,15 @@ export default function ApplyResultsClient() {
 
   useEffect(() => {
     if (pageState !== 'ready' || qualifies === null) return;
-    trackApplyFunnel(2, 'results_view', { qualifies });
-  }, [qualifies, pageState]);
+    // A school applicant answered no funding questions, so reporting
+    // `qualifies: false` for them poisons the WIOA-fit rate this event feeds —
+    // the same metric step 1 already tags with `variant` for that reason.
+    trackApplyFunnel(
+      2,
+      'results_view',
+      isSchoolVariant ? { variant: 'school' } : { qualifies }
+    );
+  }, [qualifies, pageState, isSchoolVariant]);
 
   useEffect(() => {
     qualifiesRef.current = qualifies;
@@ -287,7 +302,15 @@ export default function ApplyResultsClient() {
           </div>
         </details>
         <div className="apply-results-preface">
-        {qualifies ? (
+        {isSchoolVariant ? (
+          /* No funding verdict of any kind: this applicant was never screened
+             for funding, so there is nothing to report either way. Straight to
+             program selection. */
+          <>
+            <h2 className="apply-step-title">{t('resultsTitleSchool')}</h2>
+            <p className="apply-results-program-hint">{t('resultsHintSchool')}</p>
+          </>
+        ) : qualifies ? (
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>

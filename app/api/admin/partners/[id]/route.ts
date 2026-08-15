@@ -7,6 +7,10 @@ import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 import { syncPartnerProgramCatalog } from '@/lib/partner/syncProgramCatalog';
+import {
+  sponsorshipStampFields,
+  validateAdminProgramSlugs,
+} from '@/lib/partner/adminSchoolPartner';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -95,7 +99,24 @@ export const PATCH = withApiGuc(async (request: NextRequest, { params }: { param
     }
   
     const data = parsed.data;
-  
+    const publishing = data.enrollmentPageEnabled ?? partner.enrollmentPageEnabled;
+    if (data.programSlugs !== undefined) {
+      const catalog = validateAdminProgramSlugs(data.programSlugs, { publishing });
+      if (!catalog.ok) {
+        return NextResponse.json({ error: catalog.error }, { status: 400 });
+      }
+    } else if (publishing) {
+      const existingCatalog = await withTenantScope(orgId, (db) =>
+        db.partnerProgramCatalog.count({ where: { partnerId } }),
+      );
+      if (existingCatalog === 0) {
+        return NextResponse.json(
+          { error: 'Pick at least one program before publishing the enrollment page' },
+          { status: 400 },
+        );
+      }
+    }
+
     if (data.referralCode !== undefined) {
       const code = data.referralCode.trim().toLowerCase();
       // Global uniqueness pre-check — `slug` and `referralCode` are
@@ -153,6 +174,20 @@ export const PATCH = withApiGuc(async (request: NextRequest, { params }: { param
     if (data.enrollmentHeadline !== undefined) updateData.enrollmentHeadline = data.enrollmentHeadline?.trim() || null;
     if (data.enrollmentBlurb !== undefined) updateData.enrollmentBlurb = data.enrollmentBlurb?.trim() || null;
     if (data.schoolDistrict !== undefined) updateData.schoolDistrict = data.schoolDistrict?.trim() || null;
+    const sponsored = data.sponsoredEnrollment ?? partner.sponsoredEnrollment;
+    if (sponsored) {
+      Object.assign(
+        updateData,
+        sponsorshipStampFields({
+          name: typeof updateData.name === 'string' ? updateData.name : partner.name,
+          sponsoredEnrollment: true,
+          sponsorshipTermLabel:
+            data.sponsorshipTermLabel !== undefined
+              ? data.sponsorshipTermLabel
+              : partner.sponsorshipTermLabel,
+        }),
+      );
+    }
   
     try {
       if (Object.keys(updateData).length > 0) {

@@ -7,6 +7,10 @@ import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 import { syncPartnerProgramCatalog } from '@/lib/partner/syncProgramCatalog';
+import {
+  sponsorshipStampFields,
+  validateAdminProgramSlugs,
+} from '@/lib/partner/adminSchoolPartner';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -115,13 +119,31 @@ async function _POST(request: NextRequest) {
     }
   
     const { referralCode: _rc, programSlugs, ...rest } = parsed.data;
-  
+    const catalog = validateAdminProgramSlugs(programSlugs, {
+      publishing: rest.enrollmentPageEnabled === true,
+    });
+    if (!catalog.ok) {
+      return NextResponse.json({ error: catalog.error }, { status: 400 });
+    }
+
     try {
       const partner = await withTenantScope(orgId, (db) =>
-        db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
+        db.partner.create({
+          data: {
+            ...rest,
+            referralCode,
+            organizationId: orgId,
+            status: 'active',
+            ...sponsorshipStampFields({
+              name: rest.name,
+              sponsoredEnrollment: rest.sponsoredEnrollment,
+              sponsorshipTermLabel: rest.sponsorshipTermLabel,
+            }),
+          },
+        }),
       );
-      if (programSlugs && programSlugs.length > 0) {
-        await withTenantScope(orgId, (db) => syncPartnerProgramCatalog(db, partner.id, programSlugs));
+      if (catalog.slugs.length > 0) {
+        await withTenantScope(orgId, (db) => syncPartnerProgramCatalog(db, partner.id, catalog.slugs));
       }
       void auditLog({ actorUserId: user.id, action: 'admin_partner_created', targetType: 'User', targetId: user.id, metadata: { partnerId: partner.id, name: partner.name } }).catch(() => {});
       logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Partner', id: partner.id }, result: { success: true, extensions: { name: partner.name } } }).catch(() => {});

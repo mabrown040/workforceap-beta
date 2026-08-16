@@ -13,7 +13,7 @@ import {
   PROGRAM_INTEREST_OPTIONS,
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
-import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { clearPersistedPartnerRef, readPersistedPartnerRef } from '@/lib/apply/applyReferralCapture';
 import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { splitLocalePrefix } from '@/lib/i18n/config';
@@ -287,12 +287,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
     });
 
     try {
-      let referralRef: string | undefined;
-      try {
-        referralRef = sessionStorage.getItem(APPLY_REFERRAL_SESSION_KEY)?.trim() || undefined;
-      } catch {
-        /* ignore */
-      }
+      const referralRef = readPersistedPartnerRef() ?? undefined;
       const attribution = readMarketingAttribution();
 
       const res = await fetchAuth('/api/member/signup', {
@@ -322,7 +317,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
       trackFunnelEvent('member_signup', 'signup_completed', { program_interest: data.programInterest });
       try {
-        sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+        clearPersistedPartnerRef();
         clearMarketingAttribution();
       } catch {
         /* ignore */

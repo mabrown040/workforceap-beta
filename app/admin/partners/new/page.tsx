@@ -1,5 +1,6 @@
 import NewPartnerForm from './NewPartnerForm';
 import PageHeader from '@/components/portal/PageHeader';
+import { PROGRAMS } from '@/lib/content/programs';
 
 export default function NewPartnerPage() {
   return (
@@ -8,7 +9,7 @@ export default function NewPartnerPage() {
         breadcrumbs={[{ label: 'Partners', href: '/admin/partners' }, { label: 'New Partner' }]}
         title="Add Partner Organization"
       />
-      <NewPartnerForm />
+      <NewPartnerForm programs={PROGRAMS.map((p) => ({ slug: p.slug, title: p.title }))} />
     </div>
   );
 }

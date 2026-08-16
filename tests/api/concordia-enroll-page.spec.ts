@@ -1,55 +1,68 @@
 import { describe, expect, it } from 'vitest';
-import { existsSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import path from 'path';
-import { PROGRAMS } from '../../marketing/src/data/programs';
+import { PROGRAMS } from '../../lib/content/programs';
 import { CHS_PARTNER_SLUG } from '@/lib/partners/chsPartner';
+import {
+  enrollmentPathForSlug,
+  enrollPageCopyIsStakeSafe,
+} from '../../lib/enroll/resolveEnrollmentPartner';
 
 describe('Concordia HS enrollment page — chs2026 referral', () => {
-  const source = readFileSync(
-    path.resolve(__dirname, '../../marketing/src/pages/enroll/concordia.astro'),
+  const pageSource = readFileSync(
+    path.resolve(__dirname, '../../app/enroll/[school]/page.tsx'),
+    'utf-8',
+  );
+  const viewSource = readFileSync(
+    path.resolve(__dirname, '../../components/marketing/PartnerSchoolEnrollPage.tsx'),
+    'utf-8',
+  );
+  const scriptSource = readFileSync(
+    path.resolve(__dirname, '../../scripts/create-chs-partner.ts'),
     'utf-8',
   );
 
-  it('is served at the URL segment that IS the partner slug', () => {
-    // The page path, the printed student link, and Partner.slug are one
-    // value. If they drift, middleware captures a ref that resolves to no
-    // partner and every student who uses the official link loses attribution
-    // and their funding stamp, silently.
-    expect(
-      existsSync(
-        path.resolve(__dirname, `../../marketing/src/pages/enroll/${CHS_PARTNER_SLUG}.astro`),
-      ),
-    ).toBe(true);
+  it('keeps the public URL /enroll/concordia', () => {
+    expect(CHS_PARTNER_SLUG).toBe('concordia');
+    expect(enrollmentPathForSlug(CHS_PARTNER_SLUG)).toBe('/enroll/concordia');
+    expect(enrollmentPathForSlug('concordia-high-school')).toBe('/enroll/concordia');
   });
 
   it('pins the chs2026 referral code and routes every apply CTA through it', () => {
-    expect(source).toContain("const REF = 'chs2026'");
-    // Per-program CTAs carry ref + program via the applyUrl helper…
-    expect(source).toContain('const applyUrl = (slug: string) => `/apply?ref=${REF}&program=${slug}`');
-    expect(source.match(/href=\{applyUrl\(/g)?.length).toBeGreaterThanOrEqual(1);
-    // …and the hero + footer CTAs carry the bare referral link.
-    expect(source).toContain('const applyBase = `/apply?ref=${REF}`');
-    expect(source.match(/href=\{applyBase\}/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(scriptSource).toContain('const REFERRAL_CODE = CHS_PARTNER_REFERRAL_CODE');
+    expect(readFileSync(path.resolve(__dirname, '../../lib/partners/chsPartner.ts'), 'utf-8')).toContain(
+      "export const CHS_PARTNER_REFERRAL_CODE = 'chs2026'",
+    );
+    expect(viewSource).toContain('partnerApplyHref(model.referralCode)');
+    expect(viewSource).toContain('partnerApplyHref(model.referralCode, slug)');
+    expect(viewSource).toContain('partnerProgramHref(model.referralCode, slug)');
+    expect(viewSource).toContain('href={applyBase}');
+    expect(viewSource).toContain('href={applyUrl(p.slug)}');
+    expect(viewSource).toContain('href={programUrl(p.slug)}');
+    expect(viewSource).toContain('Sponsored by {shortName}');
   });
 
   it('lists only slugs that exist in the canonical PROGRAMS data', () => {
-    const block = source.match(/const CHS_SLUGS = \[([\s\S]*?)\] as const/);
+    const block = scriptSource.match(/const PROGRAM_SLUGS = \[([\s\S]*?)\] as const/);
     expect(block).not.toBeNull();
     const slugs = [...block![1].matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]);
     expect(slugs).toHaveLength(5);
     const known = new Set(PROGRAMS.map((p) => p.slug));
     for (const slug of slugs) {
-      expect(known.has(slug), `unknown program slug on Concordia page: ${slug}`).toBe(true);
+      expect(known.has(slug), `unknown program slug on Concordia catalog: ${slug}`).toBe(true);
     }
   });
 
   it('uses the locked sponsorship cost copy and never the banned word', () => {
-    expect(source).toMatch(/no cost to Concordia High School students/i);
-    expect(source).toContain('2026');
-    expect(source).not.toMatch(/\bfree\b/i);
+    expect(scriptSource).toMatch(/no cost to Concordia High School students/i);
+    expect(scriptSource).toContain('2026');
+    expect(scriptSource).not.toMatch(/\bfree\b/i);
+    expect(enrollPageCopyIsStakeSafe(
+      'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.',
+    )).toBe(true);
   });
 
   it('is excluded from search indexing', () => {
-    expect(source).toContain('noindex');
+    expect(pageSource).toContain('index: false');
   });
 });

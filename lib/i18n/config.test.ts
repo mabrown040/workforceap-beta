@@ -49,6 +49,14 @@ test('isLocaleableMarketingPath: /apply returns true', () => {
   assert.equal(isLocaleableMarketingPath('/apply'), true);
 });
 
+test('isLocaleableMarketingPath: /enroll/concordia stays unprefixed', () => {
+  assert.equal(isLocaleableMarketingPath('/enroll/concordia'), false);
+});
+
+test('isLocaleableMarketingPath: /consent token links stay unprefixed', () => {
+  assert.equal(isLocaleableMarketingPath('/consent/abc'), false);
+});
+
 test('isLocaleableMarketingPath: /dashboard returns false', () => {
   assert.equal(isLocaleableMarketingPath('/dashboard'), false);
 });

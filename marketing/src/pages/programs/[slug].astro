@@ -51,6 +51,13 @@ const skills = program.skills.filter((s) => s.trim().length > 0);
 const coursePreview = program.courses.slice(0, 4);
 const extraCourses = program.courses.length - 4;
 
+const rawRef = Astro.url.searchParams.get('ref') ?? '';
+const partnerRef = /^[a-z0-9-]{1,64}$/i.test(rawRef.trim()) ? rawRef.trim().toLowerCase() : '';
+const applyHref = partnerRef
+  ? `/apply?ref=${encodeURIComponent(partnerRef)}&program=${encodeURIComponent(program.slug)}`
+  : `/apply?program=${program.slug}`;
+const applyHomeHref = partnerRef ? `/apply?ref=${encodeURIComponent(partnerRef)}` : '/apply';
+
 const pageTitle = `${display} Training & Certification`;
 const metaDescription = `Training in ${display} offered at no cost for members who qualify through scholarship/grant funded membership. ${program.duration}. Starting salary ${range}. Funded pathways available. Apply today.`;
 ---
@@ -79,7 +86,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
       </div>
     )}
     <div class="hero-acts">
-      <a class="dbtn dbtn--solid" href={`/apply?program=${program.slug}`}>Apply Now <span>→</span></a>
+      <a class="dbtn dbtn--solid" href={applyHref}>Apply Now <span>→</span></a>
       <a class="dbtn dbtn--hero-secondary" href="/find-your-path">Not sure? Take the pathfinder quiz</a>
     </div>
   </div>
@@ -244,8 +251,8 @@ const metaDescription = `Training in ${display} offered at no cost for members w
       <!-- Bottom CTA -->
       <div class="bottomcta">
         <h3>Ready to start your career in {program.categoryLabel}?</h3>
-        <p>Applications take about 5 minutes. No cost for <a href="/apply">qualifying members</a>. We respond within 1–2 business days.</p>
-        <a class="btn btn--primary btn--lg" href={`/apply?program=${program.slug}`}>Apply Now</a>
+        <p>Applications take about 5 minutes. No cost for <a href={applyHomeHref}>qualifying members</a>. We respond within 1–2 business days.</p>
+        <a class="btn btn--primary btn--lg" href={applyHref}>Apply Now</a>
         <div class="cta-links">
           <a href="/find-your-path">Not sure this is right? Take the pathfinder quiz</a>
           <a href="/program-comparison">Compare programs side-by-side</a>
@@ -271,7 +278,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
           <span class="ssalary">Starting {range}</span>
         </div>
         <span class="spartner">{badge}</span>
-        <a class="btn btn--primary sapply" href={`/apply?program=${program.slug}`}>Apply Now</a>
+        <a class="btn btn--primary sapply" href={applyHref}>Apply Now</a>
         <p class="snote">No cost to members who qualify through scholarship/grant funded membership.</p>
         <a class="squiz" href="/find-your-path">Not sure? Take the pathfinder quiz →</a>
         <a class="scompare" href="/program-comparison">Open comparison tool (featured tracks)</a>
@@ -289,7 +296,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
     <h2>Ready to start?</h2>
     <p>Apply in minutes. A member advisor will follow up within 1–2 business days.</p>
     <div class="acts acts--center">
-      <a class="bbtn bbtn--gold" href={`/apply?program=${program.slug}`}>Apply Now →</a>
+      <a class="bbtn bbtn--gold" href={applyHref}>Apply Now →</a>
       <a class="bbtn bbtn--outline" href="/programs">Browse all programs</a>
     </div>
   </div>

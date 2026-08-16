@@ -3,7 +3,15 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { buildApplyProgramBlockCopy } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
 
-export default async function ApplyProgramIntro({ programSlug }: { programSlug: string }) {
+export default async function ApplyProgramIntro({
+  programSlug,
+  schoolName = null,
+  schoolRef = null,
+}: {
+  programSlug: string;
+  schoolName?: string | null;
+  schoolRef?: string | null;
+}) {
   const program = getProgramBySlug(programSlug);
   if (!program) return null;
 
@@ -26,6 +34,11 @@ export default async function ApplyProgramIntro({ programSlug }: { programSlug: 
         <span className="apply-program-intro__summary-hint">{t('programIntroExpandHint')}</span>
       </label>
       <div id={`${toggleId}-panel`} className="apply-program-intro__panel">
+        {schoolName ? (
+          <p className="apply-program-intro__cert">
+            {t('schoolProgramIntroSponsor', { school: schoolName })}
+          </p>
+        ) : null}
         <p className="apply-program-intro__cert">
           {t('programIntroCertPartner')}: <strong>{program.partner}</strong>
         </p>
@@ -38,7 +51,7 @@ export default async function ApplyProgramIntro({ programSlug }: { programSlug: 
           <strong>{t('programIntroSalaryLabel')}</strong> {salaryLine} {t('programIntroSalaryDisclaimer')}
         </p>
         <p className="apply-program-intro__more">
-          <LocalizedLink href={`/programs/${program.slug}`}>{t('programIntroReadOverview')}</LocalizedLink>{' '}
+          <LocalizedLink href={schoolRef ? `/programs/${program.slug}?ref=${encodeURIComponent(schoolRef)}` : `/programs/${program.slug}`}>{t('programIntroReadOverview')}</LocalizedLink>{' '}
           {t('programIntroOr')}{' '}
           <LocalizedLink href="/programs">{t('programIntroCompareAll')}</LocalizedLink>.
         </p>

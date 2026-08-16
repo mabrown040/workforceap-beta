@@ -50,13 +50,23 @@ function toggleSlug(list: string[], slug: string, max: number): string[] {
   return list;
 }
 
-export default function ApplyResultsClient() {
+export default function ApplyResultsClient({
+  schoolApply: schoolApplyFromServer = false,
+  schoolName = null,
+  schoolProgramSlugs = [],
+}: {
+  schoolApply?: boolean;
+  schoolName?: string | null;
+  schoolProgramSlugs?: string[];
+}) {
   const t = useTranslations('apply');
   const searchParams = useSearchParams();
   const programParam = searchParams?.get('program');
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
   const [qualifies, setQualifies] = useState<boolean | null>(null);
+  const [isSchool, setIsSchool] = useState(schoolApplyFromServer);
+  const [schoolLabel, setSchoolLabel] = useState(schoolName ?? '');
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   /** From Find Your Path v1 localStorage — used to label + order cards. */
   const [quizRecommendedSlugs, setQuizRecommendedSlugs] = useState<string[]>([]);
@@ -77,10 +87,23 @@ export default function ApplyResultsClient() {
         setPageState('missing');
         return;
       }
-      const data = JSON.parse(stored) as { qualifies?: boolean };
-      setQualifies(data.qualifies === true);
+      const data = JSON.parse(stored) as {
+        qualifies?: boolean;
+        schoolApply?: boolean;
+        schoolName?: string;
+      };
+      const schoolFlow = schoolApplyFromServer || data.schoolApply === true;
+      setIsSchool(schoolFlow);
+      if (data.schoolName) setSchoolLabel(data.schoolName);
+      setQualifies(schoolFlow ? true : data.qualifies === true);
 
-      const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
+      const catalog = new Set(schoolProgramSlugs);
+      const allowSlug = (slug: string) =>
+        !schoolFlow || catalog.size === 0 || catalog.has(slug);
+      const explicitSlug =
+        programParam && getProgramBySlug(programParam) && allowSlug(programParam)
+          ? programParam
+          : null;
       let initial: string[] = explicitSlug ? [explicitSlug] : [];
       try {
         const fyp = localStorage.getItem(FYP_RESULTS_KEY);
@@ -97,13 +120,13 @@ export default function ApplyResultsClient() {
             const v1 = parsed as CareerMatchPayload;
             fromQuiz = v1.programSlugs!
               .map((s) => (typeof s === 'string' ? s : null))
-              .filter((s): s is string => !!s && !!getProgramBySlug(s))
+              .filter((s): s is string => !!s && !!getProgramBySlug(s) && allowSlug(s))
               .slice(0, 3);
             if (fromQuiz.length) setQuizRecommendedSlugs(fromQuiz);
           } else if (Array.isArray(parsed)) {
             fromQuiz = parsed
               .map((s) => (typeof s === 'string' ? s : null))
-              .filter((s): s is string => !!s && !!getProgramBySlug(s))
+              .filter((s): s is string => !!s && !!getProgramBySlug(s) && allowSlug(s))
               .slice(0, 3);
           }
           if (fromQuiz.length) {
@@ -128,7 +151,7 @@ export default function ApplyResultsClient() {
       setHasSavedDraft(hasSavedApplyDraft());
       setPageState('missing');
     }
-  }, [programParam]);
+  }, [programParam, schoolApplyFromServer, schoolProgramSlugs]);
 
   useEffect(() => {
     if (pageState !== 'ready' || qualifies === null) return;
@@ -179,10 +202,16 @@ export default function ApplyResultsClient() {
   };
 
   const programsOrdered = useMemo(() => {
-    const base = [...PROGRAMS];
+    const catalog = schoolProgramSlugs
+      .map((slug) => getProgramBySlug(slug))
+      .filter((program): program is Program => Boolean(program));
+    const base = isSchool && catalog.length > 0 ? catalog : [...PROGRAMS];
     // Priority: explicit ?program= first, then quiz recs (deduped). Mirrors
     // selection precedence so the card user clicked from is ranked first.
-    const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
+    const explicitSlug =
+      programParam && getProgramBySlug(programParam) && base.some((p) => p.slug === programParam)
+        ? programParam
+        : null;
     const priority: string[] = [];
     if (explicitSlug) priority.push(explicitSlug);
     for (const s of quizRecommendedSlugs) {
@@ -197,7 +226,7 @@ export default function ApplyResultsClient() {
       if (bi >= 0) return 1;
       return 0;
     });
-  }, [quizRecommendedSlugs, programParam]);
+  }, [quizRecommendedSlugs, programParam, isSchool, schoolProgramSlugs]);
 
   const rankLabel = (slug: string) => {
     const i = selectedSlugs.indexOf(slug);
@@ -224,7 +253,7 @@ export default function ApplyResultsClient() {
       <div className="apply-flow">
         <div className="apply-progress-bar">
           <div className="apply-progress-fill" style={{ width: '66%' }} />
-          <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
+          <p className="apply-progress-label">{t(isSchool ? 'schoolResultsProgressLabel' : 'resultsProgressLabel')}</p>
         </div>
         <div className="apply-step-content apply-missing-session">
           {hasSavedDraft ? (
@@ -241,9 +270,9 @@ export default function ApplyResultsClient() {
             </>
           ) : (
             <>
-              <h2 className="apply-step-title">{t('resultsMissingTitle')}</h2>
+              <h2 className="apply-step-title">{t(isSchool ? 'schoolResultsMissingTitle' : 'resultsMissingTitle')}</h2>
               <p className="apply-step-desc">
-                {t('resultsMissingDesc')}
+                {t(isSchool ? 'schoolResultsMissingDesc' : 'resultsMissingDesc')}
               </p>
               <p style={{ marginBottom: '1.25rem' }}>
                 <LocalizedLink href="/apply" className="btn btn-primary">
@@ -264,14 +293,14 @@ export default function ApplyResultsClient() {
     <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '66%' }} />
-        <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
+        <p className="apply-progress-label">{t(isSchool ? 'schoolResultsProgressLabel' : 'resultsProgressLabel')}</p>
       </div>
 
       <div className="apply-step-content">
         <p className="apply-step-back-nav">
-          <LocalizedLink href="/apply">{t('resultsBackStep1')}</LocalizedLink>
+          <LocalizedLink href="/apply">{t(isSchool ? 'schoolResultsBackStep1' : 'resultsBackStep1')}</LocalizedLink>
         </p>
-        <p className="apply-step-kicker">{t('resultsKicker')}</p>
+        <p className="apply-step-kicker">{t(isSchool ? 'schoolResultsKicker' : 'resultsKicker')}</p>
         <details className="apply-transition-details">
           <summary className="apply-transition-details__summary">{t('resultsTransitionSummary')}</summary>
           <div className="apply-transition-details__body">
@@ -291,7 +320,16 @@ export default function ApplyResultsClient() {
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>{t('resultsFundingFitStrong')}</strong> {t('resultsFundingFitRest')}
+                {isSchool ? (
+                  <>
+                    <strong>{t('schoolResultsSponsoredStrong')}</strong>{' '}
+                    {t('schoolResultsSponsoredRest', { school: schoolLabel || 'your school' })}
+                  </>
+                ) : (
+                  <>
+                    <strong>{t('resultsFundingFitStrong')}</strong> {t('resultsFundingFitRest')}
+                  </>
+                )}
               </p>
             </div>
             <div className="apply-undecided-reassurance" style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>
@@ -358,7 +396,7 @@ export default function ApplyResultsClient() {
                 }}
                 aria-pressed={selected}
                 style={{
-                  padding: '1.25rem',
+                  padding: isSchool ? '2rem 1.25rem 1.25rem' : '1.25rem',
                   border: selected ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant)',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
@@ -366,7 +404,25 @@ export default function ApplyResultsClient() {
                   position: 'relative',
                 }}
               >
-                {quizRecommendedSlugs.includes(p.slug) && (
+                {isSchool ? (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      left: '0.5rem',
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      color: 'var(--color-on-primary)',
+                      background: 'var(--color-primary)',
+                      padding: '0.2rem 0.45rem',
+                      borderRadius: 4,
+                    }}
+                  >
+                    {t('schoolResultsCatalogBadge')}
+                  </span>
+                ) : quizRecommendedSlugs.includes(p.slug) ? (
                   <span
                     style={{
                       position: 'absolute',
@@ -384,7 +440,7 @@ export default function ApplyResultsClient() {
                   >
                     {t('resultsFromQuizBadge')}
                   </span>
-                )}
+                ) : null}
                 {rank && (
                   <span
                     style={{

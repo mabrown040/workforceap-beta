@@ -7,6 +7,12 @@ const APPLY_PROGRESS_STEPS = [
   { labelKey: 'stepProgramSelectionMobile', icon: 'school' },
 ] as const;
 
+const SCHOOL_PROGRESS_STEPS = [
+  { labelKey: 'schoolStepPersonalInfoMobile', icon: 'person' },
+  { labelKey: 'stepBackgroundMobile', icon: 'school' },
+  { labelKey: 'stepProgramSelectionMobile', icon: 'key' },
+] as const;
+
 const STEP_TIME_HINT_KEYS = {
   0: 'step1TimeHintMobile',
   1: 'step2TimeHintMobile',
@@ -17,14 +23,18 @@ type ApplyMobileStepNavProps = {
   activeStep?: 0 | 1 | 2;
   /** When true, appends a step-specific time hint to the mobile summary line. */
   showTimeHint?: boolean;
+  /** High-school collection: step 1 is "You" not "Eligibility". */
+  school?: boolean;
 };
 
 export default async function ApplyMobileStepNav({
   activeStep = 0,
   showTimeHint = false,
+  school = false,
 }: ApplyMobileStepNavProps) {
   const t = await getTranslations('apply');
-  const totalSteps = APPLY_PROGRESS_STEPS.length;
+  const steps = school ? SCHOOL_PROGRESS_STEPS : APPLY_PROGRESS_STEPS;
+  const totalSteps = steps.length;
   const timeHintKey = showTimeHint ? STEP_TIME_HINT_KEYS[activeStep] : null;
 
   return (
@@ -39,7 +49,7 @@ export default async function ApplyMobileStepNav({
           : t('mobileStepSummary', { current: activeStep + 1, total: totalSteps })}
       </p>
       <ol className="apply-mobile-step-nav__list">
-        {APPLY_PROGRESS_STEPS.map((step, i) => (
+        {steps.map((step, i) => (
           <li
             key={step.labelKey}
             className={`apply-mobile-step-nav__item${i === activeStep ? ' apply-mobile-step-nav__item--active' : ''}`}

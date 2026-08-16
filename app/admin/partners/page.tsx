@@ -3,12 +3,15 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 import {
   PartnersDirectoryKit,
   type PartnerCard,
 } from '@/components/portal/kit/pages/admin-subviews/PartnersDirectoryKit';
+import { PROGRAMS } from '@/lib/content/programs';
 
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -42,6 +45,16 @@ async function loadAdminPartnersData() {
         notes: true,
         logoUrl: true,
         brandColor: true,
+        partnerType: true,
+        referralCode: true,
+        sponsoredEnrollment: true,
+        sponsorshipFundingSource: true,
+        sponsorshipTermLabel: true,
+        enrollmentPageEnabled: true,
+        enrollmentHeadline: true,
+        enrollmentBlurb: true,
+        schoolDistrict: true,
+        programCatalog: { select: { programSlug: true } },
         _count: {
           select: {
             counselors: true,
@@ -127,7 +140,12 @@ async function LegacyPartnersTable({ userId }: { userId: string }) {
           </Link>
         </div>
       ) : !loadError ? (
-        <PartnersTableClient partners={partners} subgroups={subgroups} superAdmin={superAdmin} />
+        <PartnersTableClient
+          partners={partners}
+          subgroups={subgroups}
+          superAdmin={superAdmin}
+          programs={PROGRAMS.map((p) => ({ slug: p.slug, title: p.title }))}
+        />
       ) : null}
     </div>
   );
@@ -141,6 +159,7 @@ export default async function AdminPartnersPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/partners');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const orgId = await getActorOrganizationId(user.id);
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -155,26 +174,34 @@ export default async function AdminPartnersPage({
   // Lean directory (name + referral count) + full count + placed-per-partner,
   // all in parallel. Aggregate failures degrade gracefully (the grid still
   // renders; placed counts just fall back to 0).
-  const [partnersResult, totalResult, placedResult] = await Promise.allSettled([
-    prisma.partner.findMany({
-      take: PARTNER_LIMIT,
-      orderBy: { name: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        active: true,
-        status: true,
-        _count: { select: { referrals: true } },
-      },
-    }),
-    prisma.partner.count(),
+  const [partnersResult, totalResult, placedResult, referralTotalResult, placedTotalResult] = await Promise.allSettled([
+    withTenantScope(orgId, (db) =>
+      db.partner.findMany({
+        take: PARTNER_LIMIT,
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          active: true,
+          status: true,
+          partnerType: true,
+          referralCode: true,
+          enrollmentPageEnabled: true,
+          sponsoredEnrollment: true,
+          _count: { select: { referrals: true } },
+        },
+      }),
+    ),
+    withTenantScope(orgId, (db) => db.partner.count()),
     // "Placed" per partner = referred members whose memberStatus is 'placed'.
     prisma.partnerReferral.groupBy({
       by: ['partnerId'],
       where: { member: { memberStatus: 'placed' } },
       _count: { _all: true },
     }),
+    prisma.partnerReferral.count(),
+    prisma.partnerReferral.count({ where: { member: { memberStatus: 'placed' } } }),
   ]);
 
   // If the core directory query fails, fall back to the legacy management table
@@ -200,7 +227,18 @@ export default async function AdminPartnersPage({
     placed: placedMap.get(p.id) ?? 0,
     active: p.active && p.status === 'active',
     status: p.status,
+    partnerType: p.partnerType,
+    referralCode: p.referralCode,
+    enrollmentPageEnabled: p.enrollmentPageEnabled,
+    sponsoredEnrollment: p.sponsoredEnrollment,
   }));
 
-  return <PartnersDirectoryKit partners={partners} total={total} />;
+  return (
+    <PartnersDirectoryKit
+      partners={partners}
+      total={total}
+      totalReferrals={referralTotalResult.status === 'fulfilled' ? referralTotalResult.value : undefined}
+      totalPlaced={placedTotalResult.status === 'fulfilled' ? placedTotalResult.value : undefined}
+    />
+  );
 }

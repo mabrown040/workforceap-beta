@@ -69,7 +69,7 @@ async function _PATCH(
   });
 
   if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: 404 });
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
   return NextResponse.json({ ok: true, approved: result.approved });

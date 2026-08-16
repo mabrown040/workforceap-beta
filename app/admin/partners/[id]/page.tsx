@@ -1,8 +1,14 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Users, Activity, GraduationCap, Trophy } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getUser } from '@/lib/auth/server';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import PartnerEnrollmentFunnelStrip from '@/components/admin/PartnerEnrollmentFunnelStrip';
+import PartnerSchoolConfigCard from '@/components/admin/PartnerSchoolConfigCard';
+import { isSchoolManagedPartner } from '@/lib/partner/adminSchoolPartner';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
@@ -44,8 +50,11 @@ function pipelineStageTone(stage: PipelineStage): KitTone {
 
 export default async function AdminPartnerDetailPage({ params }: Props) {
   const { id } = await params;
-  const [partner, subgroups, allPartners] = await Promise.all([
-    prisma.partner.findUnique({
+  const user = await getUser();
+  if (!user) redirect(`/login?redirectTo=/admin/partners/${id}`);
+  const orgId = await getActorOrganizationId(user.id);
+  const [partner, subgroups, allPartners] = await withTenantScope(orgId, (db) => Promise.all([
+    db.partner.findUnique({
       where: { id },
       include: {
       counselors: {
@@ -69,6 +78,8 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
               },
               userCertifications: { select: { certName: true, earnedAt: true } },
               applications: { select: { status: true, submittedAt: true } },
+              courseraEnrollmentApproved: true,
+              profile: { select: { parentalConsentGiven: true, isMinor: true } },
               memberProgramProgress: {
                 select: { programSlug: true, averagePercent: true, coursesCompleted: true },
               },
@@ -77,20 +88,21 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         },
         orderBy: { referredAt: 'desc' },
       },
+      programCatalog: { select: { programSlug: true } },
       _count: { select: { counselors: true, referrals: true } },
     },
   }),
-    prisma.subgroup.findMany({
+    db.subgroup.findMany({
       take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),
-    prisma.partner.findMany({
+    db.partner.findMany({
       take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, active: true },
     }),
-  ]);
+  ]));
 
   if (!partner) notFound();
 
@@ -149,6 +161,14 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       completions++;
     }
   }
+
+  const funnel = {
+    referred: members.length,
+    pending: members.filter((m) => m.applications.some((a) => a.status === 'PENDING')).length,
+    approved: members.filter((m) => m.applications.some((a) => a.status === 'APPROVED')).length,
+    consented: members.filter((m) => m.profile?.parentalConsentGiven || m.profile?.isMinor === false).length,
+    activated: members.filter((m) => m.courseraEnrollmentApproved).length,
+  };
 
   type Referral = (typeof partner.referrals)[number];
 
@@ -218,10 +238,40 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         action={
           <div className="wa-flex wa-items-center" style={{ gap: 12 }}>
             <StatusTag tone={partner.active ? 'ok' : 'muted'}>{partner.active ? 'Active' : 'Inactive'}</StatusTag>
-            <PartnerDetailActions partner={partner} subgroups={subgroups} allPartners={allPartners} />
+            <PartnerDetailActions
+              partner={partner}
+              subgroups={subgroups}
+              allPartners={allPartners}
+              programs={PROGRAMS.map((p) => ({ slug: p.slug, title: p.title }))}
+            />
           </div>
         }
       />
+
+      {isSchoolManagedPartner(partner) ? (
+        <>
+          <PartnerEnrollmentFunnelStrip
+            partnerName={partner.name}
+            slug={partner.slug}
+            enrollmentPageEnabled={partner.enrollmentPageEnabled}
+            counts={funnel}
+          />
+          <PartnerSchoolConfigCard
+            config={{
+              partnerType: partner.partnerType,
+              referralCode: partner.referralCode,
+              slug: partner.slug,
+              sponsoredEnrollment: partner.sponsoredEnrollment,
+              sponsorshipFundingSource: partner.sponsorshipFundingSource,
+              sponsorshipTermLabel: partner.sponsorshipTermLabel,
+              enrollmentPageEnabled: partner.enrollmentPageEnabled,
+              schoolDistrict: partner.schoolDistrict,
+              enrollmentHeadline: partner.enrollmentHeadline,
+              programSlugs: partner.programCatalog.map((row) => row.programSlug),
+            }}
+          />
+        </>
+      ) : null}
 
       <div className="wa-kit-card" style={{ marginBottom: 24 }}>
         <CardHead title="Invite partner user" />

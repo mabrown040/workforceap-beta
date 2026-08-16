@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { trackConversionWithValue } from '@/lib/analytics/conversionValue';
-import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { clearPersistedPartnerRef, readPersistedPartnerRef } from '@/lib/apply/applyReferralCapture';
 import { isPaidUtmSource } from '@/lib/apply/paidApplyUtm';
 import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import {
@@ -20,6 +20,7 @@ import {
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
+import { isSchoolCollectionSignup, schoolPrimaryBarriers } from '@/lib/apply/schoolCollection';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
@@ -403,14 +404,7 @@ export default function ApplyCreateAccountForm() {
     trackApplyFunnel(3, 'account_create_submit', { program_slugs: programRankedSlugs, sms_opt_in: smsOptIn });
 
     try {
-      let referralRef: string | null = null;
-      if (typeof window !== 'undefined') {
-        try {
-          referralRef = sessionStorage.getItem(APPLY_REFERRAL_SESSION_KEY);
-        } catch {
-          /* ignore */
-        }
-      }
+      const referralRef = typeof window !== 'undefined' ? readPersistedPartnerRef() : null;
 
       const careerPayload = typeof window !== 'undefined' ? getCareerQuizPayloadFromStorage() : null;
       const attribution = readMarketingAttribution();
@@ -427,6 +421,12 @@ export default function ApplyCreateAccountForm() {
         q3?: 'yes' | 'no';
         qualifies?: boolean;
         yesCount?: number;
+        gradeLevel?: string;
+        parentGuardianName?: string;
+        parentGuardianEmail?: string;
+        parentGuardianPhone?: string;
+        schoolName?: string;
+        schoolApply?: boolean;
       } | null = null;
       if (typeof window !== 'undefined') {
         try {
@@ -439,6 +439,11 @@ export default function ApplyCreateAccountForm() {
         }
       }
 
+      const schoolSignup = isSchoolCollectionSignup({
+        schoolApply: eligibilityPayload?.schoolApply,
+        gradeLevel: eligibilityPayload?.gradeLevel,
+        primaryBarriers: eligibilityPayload?.primaryBarriers,
+      });
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -462,14 +467,19 @@ export default function ApplyCreateAccountForm() {
           careerRecommendationJson: careerPayload?.careerRecommendationJson ?? undefined,
           needsComputerSupportFollowUp: careerPayload?.needsComputerSupportFollowUp ?? undefined,
           ageGroup: eligibilityPayload?.ageGroup,
-          county: eligibilityPayload?.county,
-          primaryBarrier: eligibilityPayload?.primaryBarrier,
-          primaryBarriers: eligibilityPayload?.primaryBarriers,
-          eligibilityQ1: eligibilityPayload?.q1,
-          eligibilityQ2: eligibilityPayload?.q2,
-          eligibilityQ3: eligibilityPayload?.q3,
-          eligibilityQualifies: eligibilityPayload?.qualifies,
-          eligibilityYesCount: eligibilityPayload?.yesCount,
+          gradeLevel: eligibilityPayload?.gradeLevel,
+          parentGuardianName: eligibilityPayload?.parentGuardianName,
+          parentGuardianEmail: eligibilityPayload?.parentGuardianEmail,
+          parentGuardianPhone: eligibilityPayload?.parentGuardianPhone,
+          schoolName: eligibilityPayload?.schoolName,
+          county: schoolSignup ? undefined : eligibilityPayload?.county,
+          primaryBarrier: schoolSignup ? undefined : eligibilityPayload?.primaryBarrier,
+          primaryBarriers: schoolSignup ? schoolPrimaryBarriers() : eligibilityPayload?.primaryBarriers,
+          eligibilityQ1: schoolSignup ? undefined : eligibilityPayload?.q1,
+          eligibilityQ2: schoolSignup ? undefined : eligibilityPayload?.q2,
+          eligibilityQ3: schoolSignup ? undefined : eligibilityPayload?.q3,
+          eligibilityQualifies: schoolSignup ? true : eligibilityPayload?.qualifies,
+          eligibilityYesCount: schoolSignup ? 0 : eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,
           utmMedium: attribution.utmMedium,
           utmCampaign: attribution.utmCampaign,
@@ -538,7 +548,7 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       try {
-        sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+        clearPersistedPartnerRef();
         clearMarketingAttribution();
       } catch {
         /* ignore */

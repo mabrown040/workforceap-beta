@@ -230,21 +230,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Partner attribution durability (Phase B2): a student who lands on
-  // `/enroll/<partner-slug>` gets a 30-day httpOnly cookie so their partner
-  // survives closing the tab, sharing the bare `/apply` link, or finishing
-  // the application days later. `/api/apply/signup` reads it only when the
-  // submitted body has no `referralRef`, so this never overrides an explicit
-  // `?ref=`. Purely additive: nothing else in this function reads the cookie,
-  // and non-`/enroll` traffic is untouched. Uses `effectivePath` so a
-  // locale-prefixed URL (`/es/enroll/<slug>`) is captured too.
-  //
-  // Gated on `shouldCaptureEnrollRef` so only a real top-level navigation can
-  // plant it — a cross-site `<img>`, hidden iframe, prefetch, or one-hop
-  // redirect pointed at `/enroll/<slug>` must not silently force 30 days of
-  // partner attribution. The cheap `startsWith` inside
-  // `partnerRefFromEnrollPath` runs first, so non-`/enroll` requests never
-  // touch the headers.
+  // Partner attribution: a student who lands on `/enroll/<partner-slug>`
+  // gets a 30-day httpOnly cookie. Signup reads it only when the body has
+  // no `referralRef`. Gated on `shouldCaptureEnrollRef` so embeds cannot plant it.
   const partnerRef = partnerRefFromEnrollPath(effectivePath);
   if (partnerRef && shouldCaptureEnrollRef(request.method, request.headers)) {
     response.cookies.set(PARTNER_REF_COOKIE, partnerRef, {

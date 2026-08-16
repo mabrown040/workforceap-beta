@@ -1,64 +1,82 @@
-# Concordia High School Launch Runbook (Phase A)
+# Concordia High School Launch Runbook
 
 Operations runbook for the 2026 Concordia High School (CHS) enrollment pilot.
+Phase A (static page + partner script) and Phase B (dynamic page, auto-stamp,
+school apply, admin form, guardian consent) are both in product.
 
 ## Overview
 
-- **Student link:** https://www.workforceap.org/enroll/concordia
-- **Partner slug:** `concordia` — **must** match the `/enroll/<segment>` above. That URL segment IS the partner slug: middleware derives the partner ref from it, drops a 30-day attribution cookie, and `/api/apply/signup` resolves it against `Partner.slug`. If the two ever drift, students who use the link get no attribution and no funding stamp. The constant lives in `lib/partners/chsPartner.ts` (`CHS_PARTNER_SLUG`) and is pinned by `lib/partners/chsPartner.test.ts`.
-- **Referral code:** `chs2026` — the link carries it automatically; it also works directly at `/apply?ref=chs2026` (per-program: `/apply?ref=chs2026&program=<slug>`).
+- **Student link:** https://www.workforceap.org/enroll/concordia — no code to type. Final from day 1.
+- **Partner slug:** `concordia` — **must** match the `/enroll/<segment>` above (`lib/partners/chsPartner.ts`). Middleware plants a 30-day `wap_partner_ref` cookie; CTAs also carry `?ref=chs2026`.
+- **Referral code:** `chs2026` — also works at `/apply?ref=chs2026` (per-program: `/apply?ref=chs2026&program=<slug>`).
 - **Sponsorship window:** 2026-01-01 → 2026-12-31 UTC, term label `2026`, funding source `PARTNER_ORG`. Outside that window nothing is stamped automatically — extend `sponsorshipEndsAt` in `/admin/partners` before the pilot rolls into a new term.
-- **Seat cap: intentionally unset (uncapped).** Spend is controlled by the manual Coursera activation gate below (`courseraEnrollmentApproved` per consented student), which is the real limiter. A seat cap here would only add a second limiter that silently leaves students unfunded with a staff-only alert. Set one in `/admin/partners` only if you deliberately want that behavior.
+- **Seat cap: intentionally unset (uncapped).** Spend is controlled by the manual Coursera activation gate (`courseraEnrollmentApproved` per consented student).
 - **The partnership:** Concordia High School students enroll in WorkforceAP programs at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership. Partner contact: Dr. Marianne Rader (marianne.rader@chsaustin.org).
 - **Where attribution lands:**
   - `Application.referralSource = 'partner_ref:chs2026'`
   - A `PartnerReferral` roster row under the CHS partner
-  - Visible on the partner detail page at `/admin/partners` (CHS partner detail)
+  - Primary `CourseEnrollment` stamped `fundingSource = PARTNER_ORG` + `sponsoredByPartnerId` on **create** (signup auto-stamp). Existing enrollments are never overwritten.
+  - Funnel strip on the partner detail page: Referred / Pending / Approved / Consented / Activated
 
 ## One-Time Launch Steps
 
 1. Deploy the merged branch to production.
-2. Create the partner record against prod:
+2. Create or backfill the partner record (sponsorship flags + 5-program catalog). Required or `/enroll/concordia` 404s:
    ```bash
    node scripts/prisma-env.js npx tsx scripts/create-chs-partner.ts
    ```
    Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
 3. **Prod smoke-test checklist:**
-   - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, programs listed, CTAs work.
+   - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, five programs listed, CTAs work. URL is `/enroll/concordia`, not `/en/enroll/concordia`.
+   - [ ] Click a program CTA → `/apply?ref=chs2026&program=…`. Income/employment questions are **hidden**. Grade level is required. Under 18 requires guardian name + email.
    - [ ] Complete a throwaway signup via a program card CTA, using the **Under 18** age band.
    - [ ] Verify in admin: Application is **PENDING** with `referralSource = 'partner_ref:chs2026'` and a `PartnerReferral` row exists under the CHS partner.
+   - [ ] Verify the primary enrollment shows `fundingSource = PARTNER_ORG` **without** running `stamp-chs-funding.ts`.
    - [ ] Verify both Resend emails (verification + confirmation) and the admin alert fired.
    - [ ] Verify the test member is **ABSENT** from `/admin/wioa-screening` (CHS students are not WIOA-screened).
+   - [ ] On the member detail page, record consent (or copy the guardian consent link and submit `/consent/<token>`).
+   - [ ] Confirm Coursera approval is blocked until consent is on file, then approve after consent.
    - [ ] Bulk-approve the test application with the attestation checkbox.
-   - [ ] Run the funding stamp script:
-     ```bash
-     node scripts/prisma-env.js npx tsx scripts/stamp-chs-funding.ts
-     ```
-   - [ ] Verify the test member's primary enrollment shows `fundingSource = PARTNER_ORG`.
    - [ ] Erase the test member.
+
+`scripts/stamp-chs-funding.ts` remains for **legacy** Phase A signups that predate auto-stamp. Do not run it as the default launch path.
 
 ## GATE — Before Sending the School Email
 
 Confirm the available Coursera B4B seat count is **≥ the expected CHS cohort size**. Every activation consumes a paid seat — see `docs/COURSERA-ENROLLMENT-FLOW.md`. Do not send the email below until seats are confirmed.
 
+Also still needed from Mike (not inventable in code):
+
+1. Confirm the 5-program list (IBM IT Support, Google Cybersecurity, Google Data Analytics, Microsoft Project Management, Google UX Design).
+2. Confirm Dr. Rader's email for the partner record (`marianne.rader@chsaustin.org` is what the script and draft use).
+3. Sign off the consent one-pager the school will collect.
+4. Confirm Coursera B4B seats before the email goes out.
+
 ## Ongoing Cadence (Daily During Launch Week, Then Tue/Fri)
 
 Review daily during launch week, then settle into a Tue/Fri cadence. Each review:
 
-1. Review pending CHS applications (filter by the CHS partner / `partner_ref:chs2026`).
-2. Cross-check **each** applicant against the school's consent roster.
+1. Review pending CHS applications (filter by the CHS partner / `partner_ref:chs2026`). The partner detail funnel strip is the at-a-glance view.
+2. Cross-check **each** applicant against the school's consent roster, or send a tokenized guardian link from the member consent panel.
 3. Bulk-approve **ONLY** consented students. For this cohort, the attestation checkbox means **"consent verified."**
-4. Run the stamp script after each approval batch (until Phase B automates it):
-   ```bash
-   node scripts/prisma-env.js npx tsx scripts/stamp-chs-funding.ts
-   ```
-5. Flip `courseraEnrollmentApproved` **ONLY** for students who are both approved **and** consented.
+4. Flip `courseraEnrollmentApproved` **ONLY** for students who are both approved **and** consented. The admin toggle refuses a minor without `parentalConsentGiven`.
 
 ## Consent Rules
 
 - Consent gates **SEAT ACTIVATION**, never signup. Students may apply immediately; nothing is activated until consent is on file.
-- Minors' Profile consent fields (`isMinor`, guardian fields, `parentalConsentGiven`, `schoolName`) are **backfilled by admin** from the school's returned forms/roster. A structured admin write path ships in Phase B — until then, the school's signed forms plus a roster spreadsheet ARE the record.
-- **Guardian revocation:** un-flip `courseraEnrollmentApproved`, pause the enrollment, and notify the school.
+- v1: the school collects signed guardian packets (or a consented roster). Admin records that on the member **Minor / guardian consent** panel, or the guardian submits `/consent/<token>`.
+- **Guardian revocation:** un-flip `courseraEnrollmentApproved`, clear `parentalConsentGiven` if needed, pause the enrollment, and notify the school.
+
+## School #2 (no new code)
+
+On `/admin/partners/new` (or Edit on an existing partner):
+
+1. Set partner type `high_school`, a unique referral code, and contact email.
+2. Turn on **Sponsored enrollment** and **Publish enrollment page**.
+3. Set term label + curated program list.
+4. Student link becomes `/enroll/<short-slug>` automatically (`riverside-high-school` → `/enroll/riverside`).
+
+`scripts/seed-partner-school.ts` is for fixtures. It refuses the production Concordia slug unless `--force`. Production Concordia stays owned by `create-chs-partner.ts`.
 
 ## Week 2 — Partner Portal
 
@@ -68,9 +86,11 @@ Invite Dr. Rader (or a designated counselor) to the partner portal via the **Inv
 
 | Failure | What happens | Fix |
 | --- | --- | --- |
-| Student bypasses the link (uses the standard Apply page) | **NO partner attribution** | Reconcile the pending queue against the school roster by name/email. An admin linking affordance ships in Phase B; until then track manually. |
+| Student bypasses the link (uses the standard Apply page) | **NO partner attribution** unless the `wap_partner_ref` cookie is still set from an earlier visit | Reconcile the pending queue against the school roster by name/email. Link the member to the partner on the member detail page. |
+| `/enroll/concordia` 404s | Partner missing, inactive, `enrollmentPageEnabled` off, or catalog empty | Re-run `create-chs-partner.ts`. |
 | Duplicate email (student already has an account) | Signup blocked on existing email | Student logs in, or resets their password. |
 | Verification email filtered by school mail | Student never verifies | Personal-email fallback for the student; ask CHS IT to allowlist workforceap.org sending domains. |
+| Admin tries to approve Coursera for a minor without consent | API returns 409; toggle stays off | Record the school packet or send the guardian consent link first. |
 
 ## The Email — Ready-to-Send Draft
 
@@ -89,11 +109,9 @@ Here is what a student does, start to finish:
 
 1. Open the link and review the programs on the page.
 2. Pick one and click **Get Started**.
-3. Complete the application — about 10 minutes. A school email address is recommended, but a personal email is perfectly fine.
+3. Complete the application — about 10 minutes. A school email address is recommended, but a personal email is perfectly fine. Income and employment questions are skipped for Concordia students.
 4. Click the link in the verification email that arrives right after.
 5. Watch for the welcome email once our team reviews the application.
-
-One note so nobody is confused: two of the application questions ask about income and employment. Those exist for other funding programs and **do not affect Concordia students** in any way.
 
 **For students under 18:** they can apply now — nothing is activated until consent is in place. WorkforceAP provides a one-page parent/guardian consent form; the school returns the signed forms (or a consented roster with guardian names and contact information), and we activate each student as their consent arrives.
 
@@ -113,9 +131,7 @@ Workforce Advancement Project
 www.WorkforceAP.org
 (512) 825-2896
 
-## Follow-ups (Phase B)
+## Later follow-ups
 
 - Extend `under_18` to the dashboard eligibility form (`app/(portal)/dashboard/eligibility/page.tsx`), `/api/member/eligibility`, and the `/api/q/[token]/submit` value lists.
-- Admin "link member to partner" affordance (for students who bypass the referral link).
-- Structured admin write path for minor/consent Profile fields (`isMinor`, guardian fields, `parentalConsentGiven`, `schoolName`).
-- Sponsorship auto-stamping replaces `scripts/stamp-chs-funding.ts`.
+- Dedicated guardian-consent email template (today the admin copies the link).

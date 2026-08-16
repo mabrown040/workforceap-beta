@@ -47,6 +47,26 @@ const CONTACT_EMAIL = 'marianne.rader@chsaustin.org';
 const NOTES =
   '2026 CHS pilot — no cost to CHS students in 2026; funding: PARTNER_ORG; ' +
   'under-18 consent collected by school; see docs/runbooks/CONCORDIA-LAUNCH.md';
+const TERM_LABEL = '2026';
+const HEADLINE = 'Start your career training with Concordia High School';
+const BLURB =
+  'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.';
+const DISTRICT = 'Concordia';
+const PROGRAM_SLUGS = [
+  'it-support-professional-certificate-ibm',
+  'cybersecurity-professional-certificate-google',
+  'data-analytics-professional-certificate-google',
+  'project-management-professional-certificate-microsoft',
+  'ux-design-professional-certificate-google',
+] as const;
+
+function sponsorshipWindow(termLabel: string): { startsAt: Date; endsAt: Date } {
+  const year = Number(/^(\d{4})/.exec(termLabel)?.[1]) || new Date().getFullYear();
+  return {
+    startsAt: new Date(Date.UTC(year, 0, 1, 0, 0, 0)),
+    endsAt: new Date(Date.UTC(year, 11, 31, 23, 59, 59)),
+  };
+}
 
 /**
  * Sponsorship block. `isSponsorshipActive()` returns false unless
@@ -96,7 +116,9 @@ function referralCodeConflictMessage(owner: { id: string; name: string; slug: st
 }
 
 async function main() {
-  const existing = await prisma.partner.findUnique({ where: { slug: SLUG } });
+  const existing =
+    (await prisma.partner.findUnique({ where: { slug: SLUG } })) ??
+    (await prisma.partner.findUnique({ where: { referralCode: REFERRAL_CODE } }));
 
   if (!existing) {
     // Pre-check the referral code so we can fail with a clear message.
@@ -122,8 +144,13 @@ async function main() {
           contactEmail: CONTACT_EMAIL,
           notes: NOTES,
           ...SPONSORSHIP,
+          sponsorshipNotes: 'Sponsored by Concordia High School (2026)',
+          enrollmentHeadline: HEADLINE,
+          enrollmentBlurb: BLURB,
+          schoolDistrict: DISTRICT,
         },
       });
+      await syncCatalog(created.id);
       console.log(
         `CREATED partner "${created.name}" — id=${created.id}, slug=${created.slug}, ` +
           `referralCode=${created.referralCode}, status=${created.status}, ` +
@@ -151,12 +178,28 @@ async function main() {
 
   if (existing.status !== 'active') data.status = 'active';
   if (!existing.active) data.active = true;
+  if (existing.slug !== SLUG) data.slug = SLUG;
   if (existing.referralCode !== REFERRAL_CODE) data.referralCode = REFERRAL_CODE;
   if (existing.partnerType !== PARTNER_TYPE) data.partnerType = PARTNER_TYPE;
   if (isEmpty(existing.name)) data.name = NAME;
   if (isEmpty(existing.contactName)) data.contactName = CONTACT_NAME;
   if (isEmpty(existing.contactEmail)) data.contactEmail = CONTACT_EMAIL;
   if (isEmpty(existing.notes)) data.notes = NOTES;
+  if (!existing.sponsoredEnrollment) data.sponsoredEnrollment = true;
+  if (!existing.sponsorshipFundingSource) data.sponsorshipFundingSource = 'PARTNER_ORG';
+  if (isEmpty(existing.sponsorshipTermLabel)) data.sponsorshipTermLabel = TERM_LABEL;
+  if (!existing.sponsorshipStartsAt || !existing.sponsorshipEndsAt) {
+    const window = sponsorshipWindow(existing.sponsorshipTermLabel || TERM_LABEL);
+    if (!existing.sponsorshipStartsAt) data.sponsorshipStartsAt = window.startsAt;
+    if (!existing.sponsorshipEndsAt) data.sponsorshipEndsAt = window.endsAt;
+  }
+  if (isEmpty(existing.sponsorshipNotes)) data.sponsorshipNotes = 'Sponsored by Concordia High School (2026)';
+  if (!existing.enrollmentPageEnabled) data.enrollmentPageEnabled = true;
+  if (isEmpty(existing.enrollmentHeadline)) data.enrollmentHeadline = HEADLINE;
+  if (isEmpty(existing.enrollmentBlurb)) data.enrollmentBlurb = BLURB;
+  if (isEmpty(existing.schoolDistrict)) data.schoolDistrict = DISTRICT;
+
+  await syncCatalog(existing.id);
 
   // Sponsorship block: fill-if-empty, same non-clobbering rule as above. An
   // admin who narrowed the window or set a seat cap in /admin/partners keeps
@@ -215,6 +258,19 @@ async function main() {
     }
     throw e;
   }
+}
+
+async function syncCatalog(partnerId: string): Promise<void> {
+  for (const [index, programSlug] of PROGRAM_SLUGS.entries()) {
+    await prisma.partnerProgramCatalog.upsert({
+      where: { partnerId_programSlug: { partnerId, programSlug } },
+      create: { partnerId, programSlug, displayOrder: index, featured: index === 0 },
+      update: { displayOrder: index, featured: index === 0 },
+    });
+  }
+  await prisma.partnerProgramCatalog.deleteMany({
+    where: { partnerId, programSlug: { notIn: [...PROGRAM_SLUGS] } },
+  });
 }
 
 main()

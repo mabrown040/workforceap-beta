@@ -27,6 +27,11 @@ import {
 } from '@/lib/partners/sponsorship';
 
 import {
+  isSchoolCollectionSignup,
+  schoolApplicationNotes,
+  schoolProfileBarriers,
+} from '@/lib/apply/schoolCollection';
+import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
 } from '@/lib/email';
@@ -76,6 +81,14 @@ const applySignupSchema = z.object({
   careerRecommendationJson: z.any().optional().nullable(),
   needsComputerSupportFollowUp: z.boolean().optional(),
   ageGroup: z.enum(['under_18', '18_24', '25_50', '50_plus']).optional().nullable(),
+  gradeLevel: z.string().trim().max(20).optional().nullable(),
+  parentGuardianName: z.string().trim().max(200).optional().nullable(),
+  parentGuardianEmail: z
+    .union([z.string().trim().email(), z.literal(''), z.null()])
+    .optional()
+    .transform((v) => (v ? v : null)),
+  parentGuardianPhone: z.string().trim().max(50).optional().nullable(),
+  schoolName: z.string().trim().max(200).optional().nullable(),
   county: z.string().trim().max(100).optional().nullable(),
   primaryBarrier: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
@@ -96,7 +109,9 @@ const applySignupSchema = z.object({
   referrer: z.string().max(500).optional().nullable(),
   /** Cloudflare Turnstile token, verified server-side when NEXT_PUBLIC_CAPTCHA_ENABLED=true. */
   turnstileToken: z.string().optional().nullable(),
-});export const POST = withApiGuc(async (request: NextRequest) => {
+});
+
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkApplySignupRateLimit(ip);
@@ -138,6 +153,11 @@ const applySignupSchema = z.object({
       careerRecommendationJson,
       needsComputerSupportFollowUp,
       ageGroup,
+      gradeLevel,
+      parentGuardianName,
+      parentGuardianEmail,
+      parentGuardianPhone,
+      schoolName,
       county,
       primaryBarrier,
       primaryBarriers,
@@ -215,8 +235,8 @@ const applySignupSchema = z.object({
         : primaryBarrier
           ? [primaryBarrier]
           : [];
-    const profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
-    const applicationNotes = [
+    let profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
+    let applicationNotes = [
       ageGroup ? `Age group: ${ageGroup}` : null,
       city?.trim() ? `City: ${city.trim()}` : null,
       state?.trim() ? `State: ${state.trim()}` : null,
@@ -225,6 +245,7 @@ const applySignupSchema = z.object({
       profileBarrierTypes.length > 0 ? `Primary barrier(s): ${profileBarrierTypes.join(', ')}` : null,
       typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
     ].filter(Boolean).join('\n');
+    let hasEmploymentBarrier = profileBarrierTypes.length > 0;
   
     const cookieStore = await cookies();
 
@@ -239,25 +260,11 @@ const applySignupSchema = z.object({
     let sponsorPartner:
       | (SponsorshipPartner & { partnerType: string; schoolDistrict: string | null })
       | null = null;
-    // The apply form posts `referralRef`, but a student who arrived via
-    // `/enroll/<slug>` may no longer have it (new tab, restored session,
-    // shared bare /apply link). Middleware drops a 30-day httpOnly cookie on
-    // those pages; fall back to it. The body still wins so an explicit
-    // `?ref=` can override a stale cookie.
-    //
-    // The cookie is re-validated with `normalizePartnerRef` rather than
-    // trusted: middleware wrote it, but cookies are client-held state and the
-    // body field has an explicit `.max(100)` bound that the cookie path
-    // otherwise skipped. Anything that is not a plausible slug is dropped.
+    let referralPartnerType: string | null = null;
+    let referralPartnerName: string | null = null;
     const refFromBody = referralRef?.trim();
     const rawRefCookie = cookieStore.get(PARTNER_REF_COOKIE)?.value;
     const refFromCookie = normalizePartnerRef(rawRefCookie);
-    /**
-     * Whether to expire the cookie on the response. Tracked separately from
-     * `refFromCookie` so a malformed/rejected cookie is cleared too, and so a
-     * signup with no cookie at all sets no `Set-Cookie` header — traffic with
-     * no partner ref must stay byte-identical to pre-Phase-B2 behavior.
-     */
     const hasPartnerRefCookie = rawRefCookie !== undefined;
     const refRaw = (refFromBody || refFromCookie || '').toLowerCase() || undefined;
     if (refRaw) {
@@ -275,17 +282,41 @@ const applySignupSchema = z.object({
           sponsorshipTermLabel: true,
           sponsorshipStartsAt: true,
           sponsorshipEndsAt: true,
+          sponsorshipNotes: true,
           sponsorshipSeatCap: true,
           schoolDistrict: true,
         },
       })));
       if (partner) {
         referralPartnerId = partner.id;
+        referralPartnerType = partner.partnerType;
+        referralPartnerName = partner.name;
         referralSource = `partner_ref:${refRaw}`;
         if (isSponsorshipActive(partner, new Date())) {
           sponsorPartner = partner;
         }
       }
+    }
+
+    const isSchoolSignup = isSchoolCollectionSignup({
+      partnerType: referralPartnerType,
+      gradeLevel,
+      primaryBarriers: rawBarriers,
+    });
+    if (isSchoolSignup) {
+      const schoolBarriers = schoolProfileBarriers();
+      profileBarrierTypes = schoolBarriers.barrierTypes;
+      hasEmploymentBarrier = schoolBarriers.hasEmploymentBarrier;
+      applicationNotes = schoolApplicationNotes({
+        ageGroup,
+        gradeLevel,
+        schoolName: schoolName?.trim() || referralPartnerName,
+        city,
+        state,
+        zip,
+        parentGuardianName,
+        parentGuardianEmail,
+      });
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -487,9 +518,15 @@ const applySignupSchema = z.object({
             state: state?.trim() || null,
             zip: zip?.trim() || null,
             smsOptIn: smsOptIn ?? false,
-            hasEmploymentBarrier: profileBarrierTypes.length > 0,
+            hasEmploymentBarrier,
             barrierTypes: profileBarrierTypes,
             role: 'member',
+            isMinor: ageGroup === 'under_18',
+            gradeLevel: gradeLevel?.trim() || null,
+            parentGuardianName: parentGuardianName?.trim() || null,
+            parentGuardianEmail: parentGuardianEmail?.trim() || null,
+            parentGuardianPhone: parentGuardianPhone?.trim() || null,
+            ...(schoolName?.trim() ? { schoolName: schoolName.trim() } : {}),
             ...schoolFields,
           },
           update: {
@@ -499,9 +536,15 @@ const applySignupSchema = z.object({
             state: state?.trim() || null,
             zip: zip?.trim() || null,
             smsOptIn: smsOptIn ?? false,
-            hasEmploymentBarrier: profileBarrierTypes.length > 0,
+            hasEmploymentBarrier,
             barrierTypes: profileBarrierTypes,
             role: 'member',
+            ...(ageGroup === 'under_18' ? { isMinor: true } : {}),
+            ...(gradeLevel?.trim() ? { gradeLevel: gradeLevel.trim() } : {}),
+            ...(parentGuardianName?.trim() ? { parentGuardianName: parentGuardianName.trim() } : {}),
+            ...(parentGuardianEmail?.trim() ? { parentGuardianEmail: parentGuardianEmail.trim() } : {}),
+            ...(parentGuardianPhone?.trim() ? { parentGuardianPhone: parentGuardianPhone.trim() } : {}),
+            ...(schoolName?.trim() ? { schoolName: schoolName.trim() } : {}),
             ...schoolFields,
           },
         });
@@ -527,7 +570,7 @@ const applySignupSchema = z.object({
         // Upsert keyed on the unique user_id so a returning applicant who
         // re-runs the screener updates their row instead of violating the
         // unique constraint (which would roll back the whole signup).
-        if (eligibilityQ1 && eligibilityQ2) {
+        if (!isSchoolSignup && eligibilityQ1 && eligibilityQ2) {
           const screening = {
             organizationId,
             q1: eligibilityQ1,
@@ -669,7 +712,13 @@ const applySignupSchema = z.object({
     // signup with no partner ref emits no `Set-Cookie` at all.
     if (hasPartnerRefCookie) {
       try {
-        cookieStore.set(PARTNER_REF_COOKIE, '', { maxAge: 0, path: '/' });
+        cookieStore.set(PARTNER_REF_COOKIE, '', {
+          maxAge: 0,
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
       } catch (cookieErr) {
         // The account is already committed; never turn a cookie write into a
         // failed signup.

@@ -10,7 +10,7 @@ import {
   PROGRAM_INTEREST_OPTIONS,
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
-import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { clearPersistedPartnerRef, readPersistedPartnerRef } from '@/lib/apply/applyReferralCapture';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 const EMPLOYMENT_OPTIONS = [
@@ -50,12 +50,7 @@ export default function MemberSignupForm() {
     });
 
     try {
-      let referralRef: string | undefined;
-      try {
-        referralRef = sessionStorage.getItem(APPLY_REFERRAL_SESSION_KEY)?.trim() || undefined;
-      } catch {
-        /* ignore */
-      }
+      const referralRef = readPersistedPartnerRef() ?? undefined;
 
       const res = await fetch('/api/member/signup', {
         method: 'POST',
@@ -74,7 +69,7 @@ export default function MemberSignupForm() {
 
       trackFunnelEvent('member_signup', 'signup_completed', { program_interest: data.programInterest });
       try {
-        sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+        clearPersistedPartnerRef();
       } catch {
         /* ignore */
       }

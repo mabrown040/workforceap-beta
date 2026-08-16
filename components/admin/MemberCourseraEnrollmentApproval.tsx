@@ -19,6 +19,7 @@ export default function MemberCourseraEnrollmentApproval({
   initialApproved,
   approvedAt,
   approvedByName,
+  consentBlocked = false,
 }: {
   memberId: string;
   memberName: string;
@@ -26,6 +27,8 @@ export default function MemberCourseraEnrollmentApproval({
   approvedAt: string | null;
   /** Pretty-printed admin name for the "Last set by …" label. */
   approvedByName: string | null;
+  /** Minors without guardian consent cannot have a seat activated. */
+  consentBlocked?: boolean;
 }) {
   const router = useRouter();
   const [approved, setApproved] = useState(initialApproved);
@@ -130,7 +133,20 @@ export default function MemberCourseraEnrollmentApproval({
       >
         Approving lets this member self-enroll in their Coursera courses. Don&apos;t
         approve unless funding is confirmed and counselor has assigned a program.
+        Consent gates seat activation for minors — never signup.
       </p>
+      {consentBlocked ? (
+        <p
+          role="status"
+          style={{
+            margin: '0 0 0.75rem',
+            fontSize: '0.875rem',
+            color: 'var(--color-error, #c83232)',
+          }}
+        >
+          Guardian consent is required before activating a Coursera seat for this minor.
+        </p>
+      ) : null}
       <label
         style={{
           display: 'inline-flex',
@@ -144,7 +160,7 @@ export default function MemberCourseraEnrollmentApproval({
           type="checkbox"
           checked={approved}
           onChange={handleToggle}
-          disabled={pending}
+          disabled={pending || (consentBlocked && !approved)}
           aria-describedby="coursera-approval-hint"
         />
         <span>{approved ? 'Approved' : 'Not approved'}</span>

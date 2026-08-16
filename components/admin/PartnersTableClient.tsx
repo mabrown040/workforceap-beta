@@ -21,10 +21,25 @@ type Partner = {
   notes: string | null;
   logoUrl: string | null;
   brandColor: string | null;
+  partnerType?: string;
+  referralCode?: string | null;
+  sponsoredEnrollment?: boolean;
+  sponsorshipFundingSource?: string | null;
+  sponsorshipTermLabel?: string | null;
+  enrollmentPageEnabled?: boolean;
+  enrollmentHeadline?: string | null;
+  enrollmentBlurb?: string | null;
+  schoolDistrict?: string | null;
+  programCatalog?: { programSlug: string }[];
   _count: { counselors: number; referrals: number };
 };
 type Subgroup = { id: string; name: string; type: string; partnerId: string | null };
-type Props = { partners: Partner[]; subgroups: Subgroup[]; superAdmin?: boolean };
+type Props = {
+  partners: Partner[];
+  subgroups: Subgroup[];
+  superAdmin?: boolean;
+  programs?: { slug: string; title: string }[];
+};
 
 function ApproveRejectButtons({ partnerId, onDone }: { partnerId: string; onDone: () => void }) {
   const [loading, setLoading] = useState<'approve' | 'reject' | null>(null);
@@ -140,7 +155,7 @@ function ApproveRejectButtons({ partnerId, onDone }: { partnerId: string; onDone
   );
 }
 
-export default function PartnersTableClient({ partners, subgroups, superAdmin }: Props) {
+export default function PartnersTableClient({ partners, subgroups, superAdmin, programs = [] }: Props) {
   const router = useRouter();
   const [editPartner, setEditPartner] = useState<Partner | null>(null);
   const [deactivatePartner, setDeactivatePartner] = useState<Partner | null>(null);
@@ -182,6 +197,9 @@ export default function PartnersTableClient({ partners, subgroups, superAdmin }:
           <>
             <div style={{ fontWeight: 600 }}>{partner.name}</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{partner.slug}</div>
+            {partner.partnerType === 'high_school' || partner.enrollmentPageEnabled || partner.sponsoredEnrollment ? (
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', marginTop: 2 }}>School partner</div>
+            ) : null}
           </>
         ),
       },
@@ -490,7 +508,14 @@ export default function PartnersTableClient({ partners, subgroups, superAdmin }:
         })}
       </ul>
 
-      {editPartner && <PartnerEditModal partner={editPartner} subgroups={subgroups} onClose={() => setEditPartner(null)} />}
+      {editPartner && (
+        <PartnerEditModal
+          partner={editPartner}
+          subgroups={subgroups}
+          programs={programs}
+          onClose={() => setEditPartner(null)}
+        />
+      )}
       {deactivatePartner && (
         <PartnerDeactivateDialog partner={deactivatePartner} partners={partners} onClose={() => setDeactivatePartner(null)} />
       )}

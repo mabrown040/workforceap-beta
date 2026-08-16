@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Handshake, Building2, HeartHandshake, Users, Plus } from 'lucide-react';
+import { Handshake, Building2, HeartHandshake, Users, Plus, GraduationCap } from 'lucide-react';
+import { partnerDirectoryMeta } from '@/lib/partner/adminSchoolPartner';
 import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
@@ -36,12 +37,20 @@ export interface PartnerCard {
   active: boolean;
   /** Raw partner.status (active, pending_approval, inactive, rejected). */
   status: string;
+  partnerType?: string | null;
+  referralCode?: string | null;
+  enrollmentPageEnabled?: boolean;
+  sponsoredEnrollment?: boolean;
 }
 
 export interface PartnersDirectoryKitProps {
   partners?: PartnerCard[];
   /** Total partner count (may exceed the rendered page). */
   total?: number;
+  /** Org-wide referral count. Falls back to the rendered page sum. */
+  totalReferrals?: number;
+  /** Org-wide placed count. Falls back to the rendered page sum. */
+  totalPlaced?: number;
 }
 
 /** Demo data so the kit renders standalone (matches the mockup numbers). */
@@ -81,10 +90,14 @@ const TILE_ICONS = [Building2, HeartHandshake, Users, Handshake];
 export function PartnersDirectoryKit({
   partners = DEFAULT_PARTNERS,
   total,
+  totalReferrals: totalReferralsProp,
+  totalPlaced: totalPlacedProp,
 }: PartnersDirectoryKitProps) {
   const count = total ?? partners.length;
-  const totalReferrals = partners.reduce((sum, p) => sum + p.referrals, 0);
-  const totalPlaced = partners.reduce((sum, p) => sum + p.placed, 0);
+  const pageReferrals = partners.reduce((sum, p) => sum + p.referrals, 0);
+  const pagePlaced = partners.reduce((sum, p) => sum + p.placed, 0);
+  const totalReferrals = totalReferralsProp ?? pageReferrals;
+  const totalPlaced = totalPlacedProp ?? pagePlaced;
   const avgPlacement = totalReferrals > 0 ? Math.round((totalPlaced / totalReferrals) * 100) : 0;
 
   const kpis: KpiItem[] = [
@@ -98,7 +111,7 @@ export function PartnersDirectoryKit({
     <DesignSurface surface="dense" className="wa-p-6">
       <SectionHeader
         title="Partners"
-        goal="Workforce centers, nonprofits, referral orgs"
+        goal="Workforce centers, nonprofits, referral orgs, and partner schools"
         action={
           <AstryxLink as={Link as never} href="/admin/partners/new" isStandalone>
             <Button label="Add Partner" variant="primary" size="sm" icon={<Plus size={14} aria-hidden="true" />} />
@@ -122,9 +135,16 @@ export function PartnersDirectoryKit({
         />
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
-          {partners.map((p, i) => {
+          {[...partners]
+            .sort((a, b) => {
+              const schoolDelta = Number(partnerDirectoryMeta(b).isSchool) - Number(partnerDirectoryMeta(a).isSchool);
+              if (schoolDelta !== 0) return schoolDelta;
+              return a.name.localeCompare(b.name);
+            })
+            .map((p, i) => {
             const tile = TILE_PALETTE[i % TILE_PALETTE.length];
-            const Icon = TILE_ICONS[i % TILE_ICONS.length];
+            const meta = partnerDirectoryMeta(p);
+            const Icon = meta.isSchool ? GraduationCap : TILE_ICONS[i % TILE_ICONS.length];
             const tag = statusToken(p);
             const pct = placementPct(p);
             return (
@@ -150,13 +170,24 @@ export function PartnersDirectoryKit({
                     >
                       <Icon className="h-5 w-5" aria-hidden />
                     </div>
-                    <Token label={tag.label} size="sm" color={tag.color} />
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                      {meta.isSchool ? <Token label="School" size="sm" color="blue" /> : null}
+                      <Token label={tag.label} size="sm" color={tag.color} />
+                    </div>
                   </div>
 
                   <h4 style={{ fontWeight: 800, fontSize: 15, marginTop: 12 }}>{p.name}</h4>
                   <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
                     {p.referrals.toLocaleString()} referrals · {p.placed.toLocaleString()} placed
                   </p>
+                  {meta.isSchool || meta.enrollPath || meta.referralCode ? (
+                    <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 4 }}>
+                      {[
+                        meta.referralCode ? `ref ${meta.referralCode}` : null,
+                        meta.enrollPath,
+                      ].filter(Boolean).join(' · ') || 'School partner'}
+                    </p>
+                  ) : null}
 
                   <div
                     style={{

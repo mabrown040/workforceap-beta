@@ -24,6 +24,7 @@ test('PAYOUT_ELIGIBLE_TYPES is a strict subset of PARTNER_TYPES', () => {
 test('isKnownPartnerType accepts only declared values', () => {
   assert.equal(isKnownPartnerType('community'), true);
   assert.equal(isKnownPartnerType('referral'), true);
+  assert.equal(isKnownPartnerType('high_school'), true);
   assert.equal(isKnownPartnerType('referral_partner'), false);
   assert.equal(isKnownPartnerType(''), false);
   assert.equal(isKnownPartnerType(null), false);
@@ -34,6 +35,7 @@ test('isKnownPartnerType accepts only declared values', () => {
 test('normalizePartnerType falls back to community for malformed / legacy values', () => {
   assert.equal(normalizePartnerType('community'), 'community');
   assert.equal(normalizePartnerType('referral'), 'referral');
+  assert.equal(normalizePartnerType('high_school'), 'high_school');
   assert.equal(normalizePartnerType('REFERRAL'), 'community');
   assert.equal(normalizePartnerType(null), 'community');
   assert.equal(normalizePartnerType(undefined), 'community');

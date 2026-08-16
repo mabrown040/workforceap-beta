@@ -6,6 +6,11 @@ import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+import { syncPartnerProgramCatalog } from '@/lib/partner/syncProgramCatalog';
+import {
+  sponsorshipStampFields,
+  validateAdminProgramSlugs,
+} from '@/lib/partner/adminSchoolPartner';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -44,7 +49,18 @@ const partnerSchema = z.object({
   contactEmail: z.string().email().optional().nullable(),
   contactPhone: z.string().max(50).optional().nullable(),
   active: z.boolean().optional().default(true),
-});async function _GET() {
+  partnerType: z.enum(['community', 'referral', 'high_school']).optional(),
+  sponsoredEnrollment: z.boolean().optional(),
+  sponsorshipFundingSource: z.enum(['GRANT', 'EMPLOYER', 'PARTNER_ORG', 'SELF', 'OTHER']).optional().nullable(),
+  sponsorshipTermLabel: z.string().max(40).optional().nullable(),
+  enrollmentPageEnabled: z.boolean().optional(),
+  enrollmentHeadline: z.string().max(200).optional().nullable(),
+  enrollmentBlurb: z.string().max(2000).optional().nullable(),
+  schoolDistrict: z.string().max(200).optional().nullable(),
+  programSlugs: z.array(z.string().min(1).max(120)).max(20).optional(),
+});
+
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,7 +80,9 @@ const partnerSchema = z.object({
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
+export const GET = withApiGuc(_GET);
+
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -100,12 +118,33 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       );
     }
   
-    const { referralCode: _rc, ...rest } = parsed.data;
-  
+    const { referralCode: _rc, programSlugs, ...rest } = parsed.data;
+    const catalog = validateAdminProgramSlugs(programSlugs, {
+      publishing: rest.enrollmentPageEnabled === true,
+    });
+    if (!catalog.ok) {
+      return NextResponse.json({ error: catalog.error }, { status: 400 });
+    }
+
     try {
       const partner = await withTenantScope(orgId, (db) =>
-        db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
+        db.partner.create({
+          data: {
+            ...rest,
+            referralCode,
+            organizationId: orgId,
+            status: 'active',
+            ...sponsorshipStampFields({
+              name: rest.name,
+              sponsoredEnrollment: rest.sponsoredEnrollment,
+              sponsorshipTermLabel: rest.sponsorshipTermLabel,
+            }),
+          },
+        }),
       );
+      if (catalog.slugs.length > 0) {
+        await withTenantScope(orgId, (db) => syncPartnerProgramCatalog(db, partner.id, catalog.slugs));
+      }
       void auditLog({ actorUserId: user.id, action: 'admin_partner_created', targetType: 'User', targetId: user.id, metadata: { partnerId: partner.id, name: partner.name } }).catch(() => {});
       logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Partner', id: partner.id }, result: { success: true, extensions: { name: partner.name } } }).catch(() => {});
       return NextResponse.json(partner, { status: 201 });

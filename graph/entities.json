@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ent_cluster_partner_school",
+    "kind": "cluster",
+    "label": "Partner-school enrollment (Concordia pattern)",
+    "path": "lib/partners,lib/partner,marketing/src/pages/enroll,scripts/create-chs-partner.ts"
+  },
+  {
+    "id": "ent_cluster_apply_signup",
+    "kind": "cluster",
+    "label": "Apply / signup stamp",
+    "path": "app/api/apply/signup,lib/apply/applyReferralCapture.ts"
+  },
+  {
+    "id": "ent_cluster_admin_partners",
+    "kind": "cluster",
+    "label": "Admin partners write path",
+    "path": "app/admin/partners,app/api/admin/partners"
+  },
+  {
+    "id": "ent_cluster_tenant_auth",
+    "kind": "cluster",
+    "label": "Tenant + session",
+    "path": "lib/tenant,lib/auth,lib/i18n/config.ts,middleware.ts"
+  },
+  {
+    "id": "ent_cluster_coursera_consent",
+    "kind": "cluster",
+    "label": "Coursera activation gated by guardian consent",
+    "path": "components/forms/ParentalConsentForm.tsx,lib/nav/ageBasedNav.ts"
+  }
+]

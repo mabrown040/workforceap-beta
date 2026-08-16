@@ -1,0 +1,37 @@
+[
+  {
+    "id": "rul_enroll_no_locale_prefix",
+    "fromClaimId": null,
+    "status": "accepted",
+    "text": "Do not add /enroll to LOCALEABLE_PATH_PREFIXES. Canonical school URL is /enroll/<slug> (Dr. Rader: workforceap.org/enroll/concordia).",
+    "check": "lib/i18n/config.ts:LOCALEABLE_PATH_PREFIXES must not include 'enroll'"
+  },
+  {
+    "id": "rul_enroll_copy_stake",
+    "fromClaimId": null,
+    "status": "accepted",
+    "text": "Public enroll/apply copy: 'no cost to you / sponsored by WorkforceAP', never casual 'free'.",
+    "check": "lib/enroll/copyStake.ts:enrollPageCopyIsStakeSafe"
+  },
+  {
+    "id": "rul_consent_gates_coursera_not_signup",
+    "fromClaimId": null,
+    "status": "accepted",
+    "text": "Guardian consent gates Coursera activation, not account creation.",
+    "check": "lib/admin/courseraConsentGate.ts:courseraApprovalBlockedByConsent"
+  },
+  {
+    "id": "rul_concordia_seed_owner",
+    "fromClaimId": null,
+    "status": "accepted",
+    "text": "create-chs-partner.ts owns production Concordia. Student URL segment IS Partner.slug (CHS_PARTNER_SLUG === 'concordia' → /enroll/concordia). seed-partner-school.ts must not silently overwrite that row.",
+    "check": "lib/partners/chsPartner.ts:CHS_PARTNER_SLUG === 'concordia'"
+  },
+  {
+    "id": "rul_publish_needs_catalog",
+    "fromClaimId": null,
+    "status": "accepted",
+    "text": "A school enroll page with sponsoredEnrollment=true and zero catalog rows 404s. Admin publish must require ≥1 program slug.",
+    "check": "lib/partner/adminSchoolPartner.ts:validateAdminProgramSlugs"
+  }
+]

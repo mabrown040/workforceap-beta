@@ -1,0 +1,16 @@
+[
+  {
+    "id": "run_20260816_0345",
+    "startedAt": "2026-08-16T03:45:00.000Z",
+    "mapFile": "graph/map.json",
+    "claimFiles": [
+      "graph/claims/deps-run_20260816_0345.json",
+      "graph/claims/secrets-run_20260816_0345.json",
+      "graph/claims/dead-code-run_20260816_0345.json",
+      "graph/claims/hot-paths-run_20260816_0345.json"
+    ],
+    "rankFile": "graph/rank.json",
+    "reportFile": "graph/reports/run_20260816_0345.md",
+    "humanGate": "pending"
+  }
+]

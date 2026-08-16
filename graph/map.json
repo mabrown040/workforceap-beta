@@ -1,0 +1,241 @@
+{
+  "generatedBy": "scripts/audit-map.mjs",
+  "generatedAt": "2026-08-16T03:42:40.629Z",
+  "cut": "blast-radius",
+  "rulesLoaded": [
+    "rul_enroll_no_locale_prefix",
+    "rul_enroll_copy_stake",
+    "rul_consent_gates_coursera_not_signup",
+    "rul_concordia_seed_owner",
+    "rul_publish_needs_catalog"
+  ],
+  "clusters": [
+    {
+      "id": "ent_cluster_partner_school",
+      "label": "Partner-school enrollment",
+      "files": [
+        "lib/partner/attentionQueue.ts",
+        "lib/partner/memberProgress.test.ts",
+        "lib/partner/memberProgress.ts",
+        "lib/partner/partnerPayout.ts",
+        "lib/partner/partnerType.test.ts",
+        "lib/partner/partnerType.ts",
+        "lib/partner/payoutEligibility.test.ts",
+        "lib/partner/payoutEligibility.ts",
+        "lib/partner/referralBundle.ts",
+        "lib/partners/chsPartner.test.ts",
+        "lib/partners/chsPartner.ts",
+        "lib/partners/sponsorship.test.ts",
+        "lib/partners/sponsorship.ts",
+        "marketing/src/pages/enroll/concordia.astro",
+        "scripts/create-chs-partner.ts",
+        "scripts/seed-partner-school.ts",
+        "scripts/stamp-chs-funding.ts"
+      ],
+      "fileCount": 17,
+      "hotspotCommits": 0,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_apply_signup",
+      "label": "Apply / signup stamp",
+      "files": [
+        "app/api/apply/signup/route.test.ts",
+        "app/api/apply/signup/route.ts",
+        "lib/apply/applyReferralCapture.test.ts",
+        "lib/apply/applyReferralCapture.ts"
+      ],
+      "fileCount": 4,
+      "hotspotCommits": 16,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_admin_partners",
+      "label": "Admin partners write path",
+      "files": [
+        "app/admin/partners/OpenPartnerPortalButton.tsx",
+        "app/admin/partners/[id]/PartnerInviteButton.tsx",
+        "app/admin/partners/[id]/page.tsx",
+        "app/admin/partners/[id]/quarterly-outcomes/PartnerQuarterlyOutcomesClient.tsx",
+        "app/admin/partners/[id]/quarterly-outcomes/page.tsx",
+        "app/admin/partners/loading.tsx",
+        "app/admin/partners/new/NewPartnerForm.tsx",
+        "app/admin/partners/new/loading.tsx",
+        "app/admin/partners/new/page.tsx",
+        "app/admin/partners/page.tsx",
+        "app/api/admin/partners/[id]/approve/route.ts",
+        "app/api/admin/partners/[id]/deactivate/route.ts",
+        "app/api/admin/partners/[id]/invite/route.ts",
+        "app/api/admin/partners/[id]/quarterly-outcomes/route.ts",
+        "app/api/admin/partners/[id]/reactivate/route.ts",
+        "app/api/admin/partners/[id]/reject/route.ts",
+        "app/api/admin/partners/[id]/route.ts",
+        "app/api/admin/partners/export/route.ts",
+        "app/api/admin/partners/invite/route.ts",
+        "app/api/admin/partners/route.ts"
+      ],
+      "fileCount": 20,
+      "hotspotCommits": 0,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_tenant_auth",
+      "label": "Tenant + session + enroll cookie",
+      "files": [
+        "lib/auth/actAsSubject.ts",
+        "lib/auth/client.ts",
+        "lib/auth/ensureUser.test.ts",
+        "lib/auth/ensureUser.ts",
+        "lib/auth/mfaConfig.test.ts",
+        "lib/auth/mfaConfig.ts",
+        "lib/auth/mfaTrust.ts",
+        "lib/auth/passwordReset.ts",
+        "lib/auth/portalGuards.ts",
+        "lib/auth/portalRoleSwitcher.test.ts",
+        "lib/auth/portalRoleSwitcher.ts",
+        "lib/auth/postLoginRedirect.test.ts",
+        "lib/auth/postLoginRedirect.ts",
+        "lib/auth/roles.test.ts",
+        "lib/auth/roles.ts",
+        "lib/auth/safeRedirectPath.test.ts",
+        "lib/auth/safeRedirectPath.ts",
+        "lib/auth/server.ts",
+        "lib/auth/supabaseAdminUsers.ts",
+        "lib/i18n/config.ts",
+        "lib/tenant/customDomainCache.ts",
+        "lib/tenant/hostMatch.test.ts",
+        "lib/tenant/hostMatch.ts",
+        "lib/tenant/organization.ts",
+        "lib/tenant/organizationBranding.test.ts",
+        "lib/tenant/organizationBranding.ts",
+        "lib/tenant/resolveOrgFromRequest.test.ts",
+        "lib/tenant/resolveOrgFromRequest.ts",
+        "lib/tenant/scopeProxy.test.ts",
+        "lib/tenant/scopeProxy.ts",
+        "lib/tenant/withTenantScope.ts",
+        "middleware.ts"
+      ],
+      "fileCount": 32,
+      "hotspotCommits": 0,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_coursera_consent",
+      "label": "Coursera × guardian consent",
+      "files": [
+        "components/forms/ParentalConsentForm.tsx",
+        "lib/nav/ageBasedNav.ts"
+      ],
+      "fileCount": 2,
+      "hotspotCommits": 11,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    }
+  ],
+  "hotspots": [
+    {
+      "commits": 32,
+      "path": "app/employers/page.tsx"
+    },
+    {
+      "commits": 26,
+      "path": "app/impact/page.tsx"
+    },
+    {
+      "commits": 24,
+      "path": "app/apply/ApplyEligibilityClient.tsx"
+    },
+    {
+      "commits": 23,
+      "path": "app/(portal)/dashboard/page.tsx"
+    },
+    {
+      "commits": 22,
+      "path": "app/layout.tsx"
+    },
+    {
+      "commits": 21,
+      "path": "components/marketing/HomePageBelowFold.tsx"
+    },
+    {
+      "commits": 21,
+      "path": "app/apply/PaidApplyVariant.tsx"
+    },
+    {
+      "commits": 20,
+      "path": "app/apply/OrganicApplyPage.tsx"
+    },
+    {
+      "commits": 16,
+      "path": "components/MainNav.tsx"
+    },
+    {
+      "commits": 16,
+      "path": "app/api/apply/signup/route.ts"
+    },
+    {
+      "commits": 15,
+      "path": "tests/api/impact-page.spec.ts"
+    },
+    {
+      "commits": 15,
+      "path": "app/page.tsx"
+    },
+    {
+      "commits": 15,
+      "path": "app/apply/create-account/ApplyCreateAccountForm.tsx"
+    },
+    {
+      "commits": 14,
+      "path": "app/admin/members/[id]/page.tsx"
+    },
+    {
+      "commits": 12,
+      "path": "lib/content/programs.ts"
+    },
+    {
+      "commits": 12,
+      "path": "app/(decision-journey)/programs/[slug]/page.tsx"
+    },
+    {
+      "commits": 12,
+      "path": "app/api/auth/login/route.ts"
+    },
+    {
+      "commits": 11,
+      "path": "tests/e2e/smoke/apply.spec.ts"
+    },
+    {
+      "commits": 11,
+      "path": "tests/api/employers-page.spec.ts"
+    },
+    {
+      "commits": 11,
+      "path": "next.config.ts"
+    }
+  ]
+}

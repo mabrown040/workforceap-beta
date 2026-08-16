@@ -1,0 +1,10 @@
+$ ls app/enroll
+ls: cannot access 'app/enroll': No such file or directory
+
+$ ls marketing/src/pages/enroll/
+concordia.astro
+
+$ rg -n "LOCALEABLE_PATH_PREFIXES" -A12 lib/i18n/config.ts
+(prefixes include /apply /login /signup … — not /enroll)
+
+CHS_ENROLL_PATH = /enroll/concordia (lib/partners/chsPartner.ts)

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "clm_dead_enroll_route",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_partner_school", "ent_cluster_tenant_auth"],
+    "title": "Official /enroll/<slug> student URL has no Next route; only hardcoded Astro CHS page exists",
+    "severity": "ship-break",
+    "blast": "School #2 seeded with any slug other than concordia has no page source. Self-host/default npm run build never copies marketing/dist into public/, so even /enroll/concordia 404s. Middleware still plants wap_partner_ref on that path, but students never reach Apply from the printed school link.",
+    "evidence": "ls /workspace/app/enroll and /workspace/public/enroll → No such file or directory. marketing/src/pages/enroll/ contains only concordia.astro. find app -name page.tsx -path '*enroll*' → only app/admin/coursera/enrollment/page.tsx. package.json:7 build is next build only; vercel.json:2 is the sole path that copies marketing/dist/* into public/. lib/partners/chsPartner.ts:23 CHS_ENROLL_PATH = `/enroll/${CHS_PARTNER_SLUG}`. lib/i18n/config.ts:44-54 LOCALEABLE_PATH_PREFIXES omits /enroll (correct) but there is still no App Router page to serve it.",
+    "verify": "test -d /workspace/app/enroll",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_enroll_flag",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_partner_school"],
+    "title": "enrollmentPageEnabled and PartnerProgramCatalog are write-only; the publish gate cannot fire",
+    "severity": "prod-break",
+    "blast": "seed-partner-school.ts and create-chs-partner.ts set enrollmentPageEnabled=true and (seed only) upsert catalog rows, but no runtime reader exists. Flipping the flag or adding programs in the DB cannot publish a page. create-chs-partner.ts (the production CHS owner) never writes PartnerProgramCatalog at all. lib/partners/sponsorship.ts:97 buildSponsorshipMessage is the documented enroll-page choke point and is imported only by its unit test.",
+    "evidence": "rg enrollmentPageEnabled -g '*.ts' -g '*.tsx' -g '!scripts/**' -g '!*.test.ts' -g '!*.spec.ts' → exit 1 (no runtime hits). Remaining writers: scripts/seed-partner-school.ts:130, scripts/create-chs-partner.ts:68,179. prisma.partnerProgramCatalog appears only in scripts/seed-partner-school.ts:162,174. prisma/schema.prisma:983-995 claims enrollmentPageEnabled gates whether the page is served; prisma/schema.prisma:1018-1021 claims catalog is shown on that page. lib/partners/sponsorship.ts:82-88 says the dynamic /enroll/[partnerSlug] page is still upcoming.",
+    "verify": "rg -l 'enrollmentPageEnabled' -g '*.ts' -g '*.tsx' -g '!scripts/**' -g '!*.test.ts' -g '!*.spec.ts' /workspace",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_admin_unpublish",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_admin_partners", "ent_cluster_partner_school"],
+    "title": "Admin partner create/PATCH cannot set sponsorship, enroll publish, partnerType, or catalog",
+    "severity": "ship-break",
+    "blast": "Next school created in /admin/partners/new lands as partnerType=community, sponsoredEnrollment=false, enrollmentPageEnabled=false, status=pending_approval (schema defaults). Signup high_school school-field stamp (app/api/apply/signup/route.ts:471) and isSponsorshipActive never fire. Approve (app/api/admin/partners/[id]/approve/route.ts:50-58) only sets status/active — still no publish/sponsor/catalog. There is no adminSchoolPartner validator (graph/rules.json rul_publish_needs_catalog check file is missing).",
+    "evidence": "app/api/admin/partners/route.ts:33-47 partnerSchema fields are name/slug/referralCode/logo/contact/active only. app/admin/partners/new/NewPartnerForm.tsx:34-41 POST body matches that. app/api/admin/partners/[id]/route.ts:41-61 patchSchema has no sponsoredEnrollment, enrollmentPageEnabled, partnerType, or catalog. rg sponsoredEnrollment|enrollmentPageEnabled app/api/admin/partners app/admin/partners → exit 1. prisma/schema.prisma:952 status default pending_approval; :973 partnerType default community; :987/:995 sponsoredEnrollment and enrollmentPageEnabled default false. ls lib/partner/adminSchoolPartner.ts → No such file.",
+    "verify": "rg -n 'sponsoredEnrollment|enrollmentPageEnabled' /workspace/app/api/admin/partners /workspace/app/admin/partners",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_consent_orphan",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_coursera_consent"],
+    "title": "ParentalConsentForm and ageBasedNav are unmounted; consent/age flags cannot fire",
+    "severity": "latent",
+    "blast": "No page imports ParentalConsentForm. filterNavItemsByAge / getJobBoardAccessMessage / getAgeRestrictedFeatures have no callers, so under-14 job-board hiding and requiresParentalConsent never apply. parentalConsentGiven is only read in export (never written). TokenLinkType.guardian_consent exists in schema but no issuer uses it. setCourseraEnrollmentApproval does not read consent. lib/admin/courseraConsentGate.ts (rul_consent_gates_coursera_not_signup) does not exist.",
+    "evidence": "rg ParentalConsentForm -g '*.ts' -g '*.tsx' → only components/forms/ParentalConsentForm.tsx:21 (the export). rg filterNavItemsByAge|getJobBoardAccessMessage|getAgeRestrictedFeatures|ageBasedNav → only lib/nav/ageBasedNav.ts:8,37,68. rg parentalConsentGiven → only lib/member/exportData.ts:216 (read). rg guardian_consent -g '*.ts' -g '*.tsx' → only tests/lib/partner-school-schema.spec.ts:29-30. ls lib/admin/courseraConsentGate.ts → No such file. lib/admin/courseraEnrollmentApproval.ts:39-46 updates courseraEnrollmentApproved with no consent check.",
+    "verify": "rg -l \"from ['\\\"][^'\\\"]*ParentalConsentForm\" -g '*.ts' -g '*.tsx' /workspace",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_seeds_unwired",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_partner_school"],
+    "title": "create-chs-partner and seed-partner-school never run from db:seed or package.json",
+    "severity": "latent",
+    "blast": "npm run db:seed (prisma/seed.ts:384-396) upserts five community partners with no sponsorship block and no concordia row. A fresh deploy/dev DB that only runs the documented seed has no CHS partner, so /apply?ref=chs2026 and enroll-cookie attribution resolve to no partner and stamp nothing. School #2 helper is likewise unreachable unless someone knows the raw tsx invocation.",
+    "evidence": "rg create-chs-partner|seed-partner-school package.json prisma/seed.ts → exit 1. package.json:28 db:seed = prisma/seed.ts only. node listing of package.json scripts matching seed|partner|chs|enroll → db:seed, db:seed:blog, db:seed:demo. prisma/seed.ts:384-396 partnerSeeds are workforce-solutions-austin, twc, austin-urban-league, aayh-foundation, 211-texas — no slug concordia, no sponsoredEnrollment. scripts/create-chs-partner.ts:25 and scripts/seed-partner-school.ts:25 document manual tsx only.",
+    "verify": "rg -n 'create-chs-partner|seed-partner-school' /workspace/package.json /workspace/prisma/seed.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_chs_catalog_gap",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_partner_school"],
+    "title": "Production CHS script writes no catalog; school-#2 script writes catalog nothing reads",
+    "severity": "latent",
+    "blast": "The two seed scripts do not overlap on the CHS slug (seed-partner-school.ts:39-40,88-95 protect it), but they diverge on the unread catalog contract. create-chs-partner.ts never touches PartnerProgramCatalog. seed-partner-school.ts:161-176 is the only writer. If a later enroll page starts reading catalog (schema + rul_publish_needs_catalog), CHS would render zero programs while a school seeded by the helper would look published in data only.",
+    "evidence": "rg partnerProgramCatalog -g '*.ts' -g '*.tsx' → only scripts/seed-partner-school.ts:162,174. scripts/create-chs-partner.ts has no partnerProgramCatalog / programCatalog writes (file ends at partner.update of sponsorship scalars). scripts/seed-partner-school.ts:5-9 states create-chs-partner owns the CHS row and this helper is the school-#2 path. graph/rules.json:31-35 rul_publish_needs_catalog check is lib/partner/adminSchoolPartner.ts:validateAdminProgramSlugs — ls of that file → No such file.",
+    "verify": "rg -n 'partnerProgramCatalog\\.(find|findMany|findFirst)' -g '*.ts' -g '*.tsx' /workspace",
+    "supersedes": null,
+    "status": "open"
+  }
+]

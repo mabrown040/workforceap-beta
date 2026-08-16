@@ -33,6 +33,11 @@ Open `http://localhost:3000` in a browser.
 - `docs/COMPLETED-WORK-LOG.md` — shipped tasks (backlog hygiene: `docs/BACKLOG-MAINTENANCE.md`)
 - `docs/KIT_GUIDE.md` — **read before touching portal UI**: canonical `--wa-*` tokens (`light-dark()` based), warm/dense surfaces, `KitTone`/`StatusTone` semantics, the `KitBaseProps` contract, kit a11y hooks, and the anti-pattern list
 
+### Blast-radius audit (graph, not a chat)
+
+Playbook: `repo → map → 4 auditors → rank → fix → verify → report → back into the map`.
+Skill: `.agents/skills/blast-radius-audit/SKILL.md`. On-disk graph: `graph/`. Rank is `node scripts/audit-rank.mjs` (not an agent). One human step: which fixes ship.
+
 ### Lint / Test / Build
 
 ```bash
@@ -130,7 +135,8 @@ Two skill packs are wired into this repo — pair them with the kit guide, Astry
 
 - **UI/UX Pro Max** (`.cursor/skills/ui-ux-pro-max/`, from [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), installed via `npx -y ui-ux-pro-max-cli init --ai cursor`): searchable design database (67 styles, 161 palettes, 57 font pairings, 99 UX guidelines, 25 chart types). Query it BEFORE building new surfaces, e.g.
   `python3 .cursor/skills/ui-ux-pro-max/scripts/search.py "<what you're building>" --design-system -s nextjs` (domain searches: `-d style|ux|chart|typography`). **Guardrail:** its palette/font output is advisory inspiration only — production colors/typography still come from the `--wa-*` tokens (`docs/KIT_GUIDE.md`) and the Astryx token layer; never paste its hex palettes into components. Its UX guidelines and chart-type/a11y recommendations apply directly.
-- **Design review** (`.agents/skills/design-review/SKILL.md`, adapted from [garrytan/gstack](https://github.com/garrytan/gstack), MIT): designer's-eye audit → fix → verify loop — UX laws, an 80-item checklist, landing vs app-UI hard rules, and the AI-slop blacklist. Run it before shipping significant UI and whenever asked to "polish"/"audit" design. The full gstack suite (23 skills: /review, /qa, /ship, …) targets Claude Code and is NOT vendored; clone `https://github.com/garrytan/gstack` to /tmp if you need its other playbooks for reference.
+- **Design review** (`.agents/skills/design-review/SKILL.md`, adapted from [garrytan/gstack](https://github.com/garrytan/gstack), MIT): designer's-eye QA → fix → verify loop — UX laws, an 80-item checklist, landing vs app-UI hard rules, and the AI-slop blacklist. Run it before shipping significant UI and whenever asked to "polish"/"audit" design. The full gstack suite (23 skills: /review, /qa, /ship, …) targets Claude Code and is NOT vendored; clone `https://github.com/garrytan/gstack` to /tmp if you need its other playbooks for reference.
+- **Blast-radius audit** (`.agents/skills/blast-radius-audit/SKILL.md`): repo → map → 4 isolated auditors → rank-as-code → fix top slice → verify per patch → report → accepted findings become `graph/rules.json`. Cut by blast radius, not folders. Human gate: which fixes ship. Schema/ranker/check are frozen nodes (`graph/SCHEMA.md`).
 
 ## Astryx design system (site-wide, coexistence rules)
 

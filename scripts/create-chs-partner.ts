@@ -116,7 +116,9 @@ function referralCodeConflictMessage(owner: { id: string; name: string; slug: st
 }
 
 async function main() {
-  const existing = await prisma.partner.findUnique({ where: { slug: SLUG } });
+  const existing =
+    (await prisma.partner.findUnique({ where: { slug: SLUG } })) ??
+    (await prisma.partner.findUnique({ where: { referralCode: REFERRAL_CODE } }));
 
   if (!existing) {
     // Pre-check the referral code so we can fail with a clear message.
@@ -176,6 +178,7 @@ async function main() {
 
   if (existing.status !== 'active') data.status = 'active';
   if (!existing.active) data.active = true;
+  if (existing.slug !== SLUG) data.slug = SLUG;
   if (existing.referralCode !== REFERRAL_CODE) data.referralCode = REFERRAL_CODE;
   if (existing.partnerType !== PARTNER_TYPE) data.partnerType = PARTNER_TYPE;
   if (isEmpty(existing.name)) data.name = NAME;

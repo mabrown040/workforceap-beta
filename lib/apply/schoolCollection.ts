@@ -37,7 +37,7 @@ export function schoolPrimaryBarriers(): string[] {
   return [SCHOOL_STUDENT_BARRIER];
 }
 
-export function schoolGuardianRequired(ageGroup: string): boolean {
+export function schoolGuardianRequired(ageGroup: string | null | undefined): boolean {
   return ageGroup === 'under_18';
 }
 

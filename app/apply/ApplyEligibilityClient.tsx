@@ -185,7 +185,7 @@ export default function ApplyEligibilityClient({
   const screeningDetailsOk = isSchool
     ? schoolDetailsComplete(
         {
-          ageGroup,
+          ageGroup: ageGroup ?? '',
           gradeLevel,
           city,
           state: stateVal,

@@ -582,6 +582,42 @@ describe('POST /api/apply/signup sponsored enrollment', () => {
     });
   });
 
+  it('does not treat high-school applicants as employed job-seekers', async () => {
+    state.partner = sponsoringPartner({
+      partnerType: 'high_school',
+      schoolDistrict: 'Austin ISD',
+    });
+
+    const res = await POST(
+      makeRequest({
+        referralRef: 'concordia-hs',
+        ageGroup: 'under_18',
+        gradeLevel: '11',
+        schoolName: 'Concordia High School',
+        parentGuardianName: 'Alex Rader',
+        parentGuardianEmail: 'parent@example.com',
+        eligibilityQ1: null,
+        eligibilityQ2: null,
+        county: null,
+        primaryBarriers: ['high_school_student'],
+      }),
+    );
+    expect(res.status).toBe(200);
+
+    expect(state.profileUpserts[0].create).toMatchObject({
+      hasEmploymentBarrier: false,
+      barrierTypes: ['high_school_student'],
+      gradeLevel: '11',
+      parentGuardianName: 'Alex Rader',
+    });
+    const notes = state.applicationCreates[0].data.notes ?? '';
+    expect(notes).toContain('high-school student');
+    expect(notes).toContain('Age group: under_18');
+    expect(notes).toContain('Grade: 11');
+    expect(notes).not.toContain('Quick eligibility');
+    expect(notes).not.toContain('County:');
+  });
+
   it('leaves the profile school fields untouched for a non-school partner', async () => {
     state.partner = sponsoringPartner({ partnerType: 'community' });
 

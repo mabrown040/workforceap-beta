@@ -64,8 +64,8 @@ export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPa
       a: `Yes — apply now. ${shortName} collects a parent/guardian consent form before your training is activated.`,
     },
     {
-      q: 'The application asks about income and employment — why?',
-      a: `Those questions support other funding programs and do not affect ${shortName} students — answer honestly and continue. School applicants who use this page skip those questions.`,
+      q: 'What do I need to apply?',
+      a: `Your name, grade, and how we can reach you. If you are under 18, a parent or guardian name and email. We do not ask about jobs or household income — high school students are not employed, and this seat is already sponsored.`,
     },
     {
       q: 'How long does a program take?',

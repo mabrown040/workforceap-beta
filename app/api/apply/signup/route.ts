@@ -27,6 +27,11 @@ import {
 } from '@/lib/partners/sponsorship';
 
 import {
+  isSchoolCollectionSignup,
+  schoolApplicationNotes,
+  schoolProfileBarriers,
+} from '@/lib/apply/schoolCollection';
+import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
 } from '@/lib/email';
@@ -230,8 +235,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         : primaryBarrier
           ? [primaryBarrier]
           : [];
-    const profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
-    const applicationNotes = [
+    let profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
+    let applicationNotes = [
       ageGroup ? `Age group: ${ageGroup}` : null,
       city?.trim() ? `City: ${city.trim()}` : null,
       state?.trim() ? `State: ${state.trim()}` : null,
@@ -240,6 +245,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       profileBarrierTypes.length > 0 ? `Primary barrier(s): ${profileBarrierTypes.join(', ')}` : null,
       typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
     ].filter(Boolean).join('\n');
+    let hasEmploymentBarrier = profileBarrierTypes.length > 0;
   
     const cookieStore = await cookies();
 
@@ -254,6 +260,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     let sponsorPartner:
       | (SponsorshipPartner & { partnerType: string; schoolDistrict: string | null })
       | null = null;
+    let referralPartnerType: string | null = null;
+    let referralPartnerName: string | null = null;
     const refFromBody = referralRef?.trim();
     const rawRefCookie = cookieStore.get(PARTNER_REF_COOKIE)?.value;
     const refFromCookie = normalizePartnerRef(rawRefCookie);
@@ -281,11 +289,34 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       })));
       if (partner) {
         referralPartnerId = partner.id;
+        referralPartnerType = partner.partnerType;
+        referralPartnerName = partner.name;
         referralSource = `partner_ref:${refRaw}`;
         if (isSponsorshipActive(partner, new Date())) {
           sponsorPartner = partner;
         }
       }
+    }
+
+    const isSchoolSignup = isSchoolCollectionSignup({
+      partnerType: referralPartnerType,
+      gradeLevel,
+      primaryBarriers: rawBarriers,
+    });
+    if (isSchoolSignup) {
+      const schoolBarriers = schoolProfileBarriers();
+      profileBarrierTypes = schoolBarriers.barrierTypes;
+      hasEmploymentBarrier = schoolBarriers.hasEmploymentBarrier;
+      applicationNotes = schoolApplicationNotes({
+        ageGroup,
+        gradeLevel,
+        schoolName: schoolName?.trim() || referralPartnerName,
+        city,
+        state,
+        zip,
+        parentGuardianName,
+        parentGuardianEmail,
+      });
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -487,7 +518,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             state: state?.trim() || null,
             zip: zip?.trim() || null,
             smsOptIn: smsOptIn ?? false,
-            hasEmploymentBarrier: profileBarrierTypes.length > 0,
+            hasEmploymentBarrier,
             barrierTypes: profileBarrierTypes,
             role: 'member',
             isMinor: ageGroup === 'under_18',
@@ -505,7 +536,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             state: state?.trim() || null,
             zip: zip?.trim() || null,
             smsOptIn: smsOptIn ?? false,
-            hasEmploymentBarrier: profileBarrierTypes.length > 0,
+            hasEmploymentBarrier,
             barrierTypes: profileBarrierTypes,
             role: 'member',
             ...(ageGroup === 'under_18' ? { isMinor: true } : {}),
@@ -539,7 +570,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         // Upsert keyed on the unique user_id so a returning applicant who
         // re-runs the screener updates their row instead of violating the
         // unique constraint (which would roll back the whole signup).
-        if (eligibilityQ1 && eligibilityQ2) {
+        if (!isSchoolSignup && eligibilityQ1 && eligibilityQ2) {
           const screening = {
             organizationId,
             q1: eligibilityQ1,

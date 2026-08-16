@@ -20,6 +20,7 @@ import {
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
+import { isSchoolCollectionSignup, schoolPrimaryBarriers } from '@/lib/apply/schoolCollection';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
@@ -425,6 +426,7 @@ export default function ApplyCreateAccountForm() {
         parentGuardianEmail?: string;
         parentGuardianPhone?: string;
         schoolName?: string;
+        schoolApply?: boolean;
       } | null = null;
       if (typeof window !== 'undefined') {
         try {
@@ -437,6 +439,11 @@ export default function ApplyCreateAccountForm() {
         }
       }
 
+      const schoolSignup = isSchoolCollectionSignup({
+        schoolApply: eligibilityPayload?.schoolApply,
+        gradeLevel: eligibilityPayload?.gradeLevel,
+        primaryBarriers: eligibilityPayload?.primaryBarriers,
+      });
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -465,14 +472,14 @@ export default function ApplyCreateAccountForm() {
           parentGuardianEmail: eligibilityPayload?.parentGuardianEmail,
           parentGuardianPhone: eligibilityPayload?.parentGuardianPhone,
           schoolName: eligibilityPayload?.schoolName,
-          county: eligibilityPayload?.county,
-          primaryBarrier: eligibilityPayload?.primaryBarrier,
-          primaryBarriers: eligibilityPayload?.primaryBarriers,
-          eligibilityQ1: eligibilityPayload?.q1,
-          eligibilityQ2: eligibilityPayload?.q2,
-          eligibilityQ3: eligibilityPayload?.q3,
-          eligibilityQualifies: eligibilityPayload?.qualifies,
-          eligibilityYesCount: eligibilityPayload?.yesCount,
+          county: schoolSignup ? undefined : eligibilityPayload?.county,
+          primaryBarrier: schoolSignup ? undefined : eligibilityPayload?.primaryBarrier,
+          primaryBarriers: schoolSignup ? schoolPrimaryBarriers() : eligibilityPayload?.primaryBarriers,
+          eligibilityQ1: schoolSignup ? undefined : eligibilityPayload?.q1,
+          eligibilityQ2: schoolSignup ? undefined : eligibilityPayload?.q2,
+          eligibilityQ3: schoolSignup ? undefined : eligibilityPayload?.q3,
+          eligibilityQualifies: schoolSignup ? true : eligibilityPayload?.qualifies,
+          eligibilityYesCount: schoolSignup ? 0 : eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,
           utmMedium: attribution.utmMedium,
           utmCampaign: attribution.utmCampaign,

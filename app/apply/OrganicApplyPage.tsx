@@ -182,15 +182,23 @@ const APPLY_PROGRESS_STEPS = [
   { labelKey: 'stepProgramSelection', icon: 'school' },
 ] as const;
 
+const SCHOOL_PROGRESS_STEPS = [
+  { labelKey: 'schoolStepPersonalInfo', icon: 'person' },
+  { labelKey: 'stepBackground', icon: 'school' },
+  { labelKey: 'stepProgramSelection', icon: 'key' },
+] as const;
+
 export default async function OrganicApplyPage({ program: programParam, schoolApply = null }: OrganicApplyPageProps) {
   const programSlug = resolveApplyProgramSlug(programParam);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
   const t = await getTranslations('apply');
+  const isSchool = Boolean(schoolApply);
+  const progressSteps = isSchool ? SCHOOL_PROGRESS_STEPS : APPLY_PROGRESS_STEPS;
 
   const helpCard = (
     <div className="apply-hero-help-card" style={sPage.heroFallback}>
       <p style={sPage.heroFallbackTitle}>{t('helpTitle')}</p>
-      <p style={sPage.heroFallbackText}>{t('helpBody')}</p>
+      <p style={sPage.heroFallbackText}>{isSchool ? t('schoolHelpBody', { school: schoolApply?.partnerName ?? '' }) : t('helpBody')}</p>
       <div style={sPage.heroFallbackActions}>
         <LocalizedLink href="/contact" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
           {t('helpCta1')}
@@ -208,18 +216,18 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
       <section className="apply-hero mdx-stage" style={sPage.hero}>
         <span className="mdx-pill" style={sPage.heroLabel}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">assured_workload</span>
-          {t('heroLabel')}
+          {isSchool ? t('schoolHeroLabel') : t('heroLabel')}
         </span>
-        <h1 style={sPage.heroHeading}><span className="mdx-grad-accent">{t('heroHeading')}</span></h1>
-        <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
+        <h1 style={sPage.heroHeading}><span className="mdx-grad-accent">{isSchool ? t('schoolHeroHeading') : t('heroHeading')}</span></h1>
+        <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{isSchool ? t('schoolApplySocialProof', { school: schoolApply?.partnerName ?? '' }) : t('applySocialProof')}</p>
         {/* Pilot status — honest about limited availability */}
         <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
           <PreLaunchTag compact />
         </div>
         <p className="apply-hero-desc-full" style={sPage.heroDesc}>
-          {t('heroDesc')}
-          <strong> {t('heroDescHighlight')}</strong>
-          <span> {t('heroDescSuffix')}</span>
+          {isSchool ? t('schoolHeroDesc') : t('heroDesc')}
+          <strong> {isSchool ? t('schoolHeroDescHighlight') : t('heroDescHighlight')}</strong>
+          <span> {isSchool ? t('schoolHeroDescSuffix') : t('heroDescSuffix')}</span>
         </p>
         <p className="apply-hero-help-compact">
           {t('questionsCall')}{' '}
@@ -241,7 +249,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
               {t('applicationProgress')}
             </h2>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {APPLY_PROGRESS_STEPS.map((step, i) => (
+              {progressSteps.map((step, i) => (
                 <li key={step.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) 0', borderBottom: i < 2 ? '1px solid var(--outline-variant)' : 'none' }}>
                   <span style={{
                     display: 'inline-flex',
@@ -273,11 +281,11 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
             <div className="apply-sidebar-next-steps__body">
               <h3 className="apply-sidebar-next-steps__heading">{t('whatHappensNext')}</h3>
               <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
-                <li>{t('nextStep1')}</li>
-                <li>{t('nextStep2')}</li>
-                <li>{t('nextStep3')}</li>
-                <li>{t('nextStep4')}</li>
-                <li>{t('nextStep5')}</li>
+                <li>{t(isSchool ? 'schoolNextStep1' : 'nextStep1')}</li>
+                <li>{t(isSchool ? 'schoolNextStep2' : 'nextStep2')}</li>
+                <li>{isSchool ? t('schoolNextStep3', { school: schoolApply?.partnerName ?? '' }) : t('nextStep3')}</li>
+                <li>{t(isSchool ? 'schoolNextStep4' : 'nextStep4')}</li>
+                {isSchool ? null : <li>{t('nextStep5')}</li>}
               </ol>
               <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
                 {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
@@ -304,30 +312,40 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
 
           <div id="apply-form-start" className="apply-main-form__primary">
             <ApplyMobileTrustBar />
-            <ApplyMobileStepNav activeStep={0} showTimeHint />
+            <ApplyMobileStepNav activeStep={0} showTimeHint school={isSchool} />
             <p className="apply-organic-form-kicker" role="note">
               {t('step1Kicker')}
             </p>
-            <TrustStrip variant="apply" />
+            {isSchool ? null : <TrustStrip variant="apply" />}
 
             <Suspense fallback={<ApplyPageSkeleton />}>
               <ApplyEligibilityClient schoolApply={schoolApply} />
             </Suspense>
           </div>
           <details className="apply-docs-checklist apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
-            <summary className="apply-docs-checklist__summary">{t('docsChecklistSummary')}</summary>
+            <summary className="apply-docs-checklist__summary">{t(isSchool ? 'schoolDocsSummary' : 'docsChecklistSummary')}</summary>
             <div className="apply-docs-checklist__body">
               <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title apply-docs-checklist__heading">
-                {t('docsChecklistTitle')}
+                {isSchool ? t('schoolDocsTitle', { school: schoolApply?.partnerName ?? '' }) : t('docsChecklistTitle')}
               </h2>
-              <p className="apply-docs-checklist__lead">{t('docsChecklistLead')}</p>
+              <p className="apply-docs-checklist__lead">{t(isSchool ? 'schoolDocsLead' : 'docsChecklistLead')}</p>
               <ul className="apply-foundational-support__list">
-                <li>{t('docsChecklistItem1')}</li>
-                <li>{t('docsChecklistItem2')}</li>
-                <li>{t('docsChecklistItem3')}</li>
-                <li>{t('docsChecklistItem4')}</li>
+                {isSchool ? (
+                  <>
+                    <li>{t('schoolDocsItem1')}</li>
+                    <li>{t('schoolDocsItem2')}</li>
+                    <li>{t('schoolDocsItem3')}</li>
+                  </>
+                ) : (
+                  <>
+                    <li>{t('docsChecklistItem1')}</li>
+                    <li>{t('docsChecklistItem2')}</li>
+                    <li>{t('docsChecklistItem3')}</li>
+                    <li>{t('docsChecklistItem4')}</li>
+                  </>
+                )}
               </ul>
-              <p className="apply-docs-checklist__note">{t('docsChecklistNote')}</p>
+              <p className="apply-docs-checklist__note">{t(isSchool ? 'schoolDocsNote' : 'docsChecklistNote')}</p>
             </div>
           </details>
         </div>

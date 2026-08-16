@@ -50,13 +50,21 @@ function toggleSlug(list: string[], slug: string, max: number): string[] {
   return list;
 }
 
-export default function ApplyResultsClient() {
+export default function ApplyResultsClient({
+  schoolApply: schoolApplyFromServer = false,
+  schoolName = null,
+}: {
+  schoolApply?: boolean;
+  schoolName?: string | null;
+}) {
   const t = useTranslations('apply');
   const searchParams = useSearchParams();
   const programParam = searchParams?.get('program');
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
   const [qualifies, setQualifies] = useState<boolean | null>(null);
+  const [isSchool, setIsSchool] = useState(schoolApplyFromServer);
+  const [schoolLabel, setSchoolLabel] = useState(schoolName ?? '');
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   /** From Find Your Path v1 localStorage — used to label + order cards. */
   const [quizRecommendedSlugs, setQuizRecommendedSlugs] = useState<string[]>([]);
@@ -77,8 +85,15 @@ export default function ApplyResultsClient() {
         setPageState('missing');
         return;
       }
-      const data = JSON.parse(stored) as { qualifies?: boolean };
-      setQualifies(data.qualifies === true);
+      const data = JSON.parse(stored) as {
+        qualifies?: boolean;
+        schoolApply?: boolean;
+        schoolName?: string;
+      };
+      const schoolFlow = schoolApplyFromServer || data.schoolApply === true;
+      setIsSchool(schoolFlow);
+      if (data.schoolName) setSchoolLabel(data.schoolName);
+      setQualifies(schoolFlow ? true : data.qualifies === true);
 
       const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
       let initial: string[] = explicitSlug ? [explicitSlug] : [];
@@ -224,7 +239,7 @@ export default function ApplyResultsClient() {
       <div className="apply-flow">
         <div className="apply-progress-bar">
           <div className="apply-progress-fill" style={{ width: '66%' }} />
-          <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
+          <p className="apply-progress-label">{t(isSchool ? 'schoolResultsProgressLabel' : 'resultsProgressLabel')}</p>
         </div>
         <div className="apply-step-content apply-missing-session">
           {hasSavedDraft ? (
@@ -241,9 +256,9 @@ export default function ApplyResultsClient() {
             </>
           ) : (
             <>
-              <h2 className="apply-step-title">{t('resultsMissingTitle')}</h2>
+              <h2 className="apply-step-title">{t(isSchool ? 'schoolResultsMissingTitle' : 'resultsMissingTitle')}</h2>
               <p className="apply-step-desc">
-                {t('resultsMissingDesc')}
+                {t(isSchool ? 'schoolResultsMissingDesc' : 'resultsMissingDesc')}
               </p>
               <p style={{ marginBottom: '1.25rem' }}>
                 <LocalizedLink href="/apply" className="btn btn-primary">
@@ -264,14 +279,14 @@ export default function ApplyResultsClient() {
     <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '66%' }} />
-        <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
+        <p className="apply-progress-label">{t(isSchool ? 'schoolResultsProgressLabel' : 'resultsProgressLabel')}</p>
       </div>
 
       <div className="apply-step-content">
         <p className="apply-step-back-nav">
-          <LocalizedLink href="/apply">{t('resultsBackStep1')}</LocalizedLink>
+          <LocalizedLink href="/apply">{t(isSchool ? 'schoolResultsBackStep1' : 'resultsBackStep1')}</LocalizedLink>
         </p>
-        <p className="apply-step-kicker">{t('resultsKicker')}</p>
+        <p className="apply-step-kicker">{t(isSchool ? 'schoolResultsKicker' : 'resultsKicker')}</p>
         <details className="apply-transition-details">
           <summary className="apply-transition-details__summary">{t('resultsTransitionSummary')}</summary>
           <div className="apply-transition-details__body">
@@ -291,7 +306,16 @@ export default function ApplyResultsClient() {
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>{t('resultsFundingFitStrong')}</strong> {t('resultsFundingFitRest')}
+                {isSchool ? (
+                  <>
+                    <strong>{t('schoolResultsSponsoredStrong')}</strong>{' '}
+                    {t('schoolResultsSponsoredRest', { school: schoolLabel || 'your school' })}
+                  </>
+                ) : (
+                  <>
+                    <strong>{t('resultsFundingFitStrong')}</strong> {t('resultsFundingFitRest')}
+                  </>
+                )}
               </p>
             </div>
             <div className="apply-undecided-reassurance" style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>

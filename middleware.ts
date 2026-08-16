@@ -27,7 +27,12 @@ import {
   UTM_SOURCE_COOKIE_MAX_AGE,
   WAP_PAID_APPLY_HEADER,
 } from '@/lib/apply/paidApplyUtm';
-import { referralCookieSetOptions } from '@/lib/partner/sponsoredEnrollment';
+import {
+  partnerRefFromEnrollPath,
+  shouldCaptureEnrollRef,
+  PARTNER_REF_COOKIE,
+  PARTNER_REF_COOKIE_MAX_AGE,
+} from '@/lib/apply/applyReferralCapture';
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
@@ -225,13 +230,17 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const refFromQuery = request.nextUrl.searchParams.get('ref');
-  const refCookie = referralCookieSetOptions(refFromQuery);
-  if (refCookie) {
-    response.cookies.set(refCookie.name, refCookie.value, {
-      path: refCookie.path,
-      maxAge: refCookie.maxAge,
-      sameSite: refCookie.sameSite,
+  // Partner attribution: a student who lands on `/enroll/<partner-slug>`
+  // gets a 30-day httpOnly cookie. Signup reads it only when the body has
+  // no `referralRef`. Gated on `shouldCaptureEnrollRef` so embeds cannot plant it.
+  const partnerRef = partnerRefFromEnrollPath(effectivePath);
+  if (partnerRef && shouldCaptureEnrollRef(request.method, request.headers)) {
+    response.cookies.set(PARTNER_REF_COOKIE, partnerRef, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: PARTNER_REF_COOKIE_MAX_AGE,
     });
   }
 

@@ -1,7 +1,10 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Users, Activity, GraduationCap, Trophy } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
+import { getUser } from '@/lib/auth/server';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import PartnerEnrollmentFunnelStrip from '@/components/admin/PartnerEnrollmentFunnelStrip';
 import PartnerSchoolConfigCard from '@/components/admin/PartnerSchoolConfigCard';
@@ -47,8 +50,11 @@ function pipelineStageTone(stage: PipelineStage): KitTone {
 
 export default async function AdminPartnerDetailPage({ params }: Props) {
   const { id } = await params;
-  const [partner, subgroups, allPartners] = await Promise.all([
-    prisma.partner.findUnique({
+  const user = await getUser();
+  if (!user) redirect(`/login?redirectTo=/admin/partners/${id}`);
+  const orgId = await getActorOrganizationId(user.id);
+  const [partner, subgroups, allPartners] = await withTenantScope(orgId, (db) => Promise.all([
+    db.partner.findUnique({
       where: { id },
       include: {
       counselors: {
@@ -86,17 +92,17 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       _count: { select: { counselors: true, referrals: true } },
     },
   }),
-    prisma.subgroup.findMany({
+    db.subgroup.findMany({
       take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),
-    prisma.partner.findMany({
+    db.partner.findMany({
       take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, active: true },
     }),
-  ]);
+  ]));
 
   if (!partner) notFound();
 

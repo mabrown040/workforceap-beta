@@ -8,6 +8,10 @@
  * schools — it is the "adding school #2 is data entry" path that Phase B
  * unlocks. It refuses to touch the CHS slug unless you pass --force.
  *
+ * SLUG CONVENTION: the slug you pass IS the `/enroll/<segment>` a student
+ * visits, and is what the signup route resolves partner attribution against.
+ * Pick the slug you want in the printed link.
+ *
  * What it does, idempotently (safe to re-run):
  * - Upserts a Partner keyed on --slug, populating the sponsorship block:
  *   sponsoredEnrollment = true, sponsorshipFundingSource = PARTNER_ORG,
@@ -27,11 +31,12 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { PROGRAMS } from '../lib/content/programs';
 import { getDefaultOrganizationId } from '../lib/tenant/organization';
+import { CHS_PARTNER_SLUG } from '../lib/partners/chsPartner';
 
 const prisma = new PrismaClient();
 
 /** Owned by scripts/create-chs-partner.ts — refuse to clobber it by accident. */
-const PROTECTED_SLUGS = new Set(['concordia-high-school']);
+const PROTECTED_SLUGS = new Set<string>([CHS_PARTNER_SLUG]);
 
 /** The CHS launch five, reused as the default catalog for new schools. */
 const DEFAULT_PROGRAM_SLUGS = [

@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 import {
@@ -157,6 +159,7 @@ export default async function AdminPartnersPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/partners');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const orgId = await getActorOrganizationId(user.id);
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -172,22 +175,24 @@ export default async function AdminPartnersPage({
   // all in parallel. Aggregate failures degrade gracefully (the grid still
   // renders; placed counts just fall back to 0).
   const [partnersResult, totalResult, placedResult, referralTotalResult, placedTotalResult] = await Promise.allSettled([
-    prisma.partner.findMany({
-      take: PARTNER_LIMIT,
-      orderBy: { name: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        active: true,
-        status: true,
-        partnerType: true,
-        referralCode: true,
-        enrollmentPageEnabled: true,
-        _count: { select: { referrals: true } },
-      },
-    }),
-    prisma.partner.count(),
+    withTenantScope(orgId, (db) =>
+      db.partner.findMany({
+        take: PARTNER_LIMIT,
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          active: true,
+          status: true,
+          partnerType: true,
+          referralCode: true,
+          enrollmentPageEnabled: true,
+          _count: { select: { referrals: true } },
+        },
+      }),
+    ),
+    withTenantScope(orgId, (db) => db.partner.count()),
     // "Placed" per partner = referred members whose memberStatus is 'placed'.
     prisma.partnerReferral.groupBy({
       by: ['partnerId'],

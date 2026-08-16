@@ -3,7 +3,7 @@
  * Stamp PARTNER_ORG funding onto Concordia High School members' primary enrollments.
  *
  * Idempotent bridge script (until Phase B automates funding attribution):
- * - Finds the CHS partner by slug 'concordia-high-school'.
+ * - Finds the CHS partner by slug 'concordia' (CHS_PARTNER_SLUG).
  * - For every user with an Application whose referralPartnerId is that partner,
  *   sets their PRIMARY CourseEnrollment (isPrimary = true):
  *     fundingSource = PARTNER_ORG
@@ -15,11 +15,16 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import {
+  CHS_PARTNER_NAME,
+  CHS_PARTNER_SLUG,
+  CHS_SPONSORSHIP_TERM_LABEL,
+} from '../lib/partners/chsPartner';
 
 const prisma = new PrismaClient();
 
-const SLUG = 'concordia-high-school';
-const FUNDING_NOTES = 'Sponsored by Concordia High School (2026)';
+const SLUG = CHS_PARTNER_SLUG;
+const FUNDING_NOTES = `Sponsored by ${CHS_PARTNER_NAME} (${CHS_SPONSORSHIP_TERM_LABEL})`;
 
 async function main() {
   const partner = await prisma.partner.findUnique({

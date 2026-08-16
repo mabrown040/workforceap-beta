@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { PROGRAMS } from '../../lib/content/programs';
+import { CHS_PARTNER_SLUG } from '@/lib/partners/chsPartner';
 import {
   enrollmentPathForSlug,
   enrollPageCopyIsStakeSafe,
@@ -22,6 +23,8 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
   );
 
   it('keeps the public URL /enroll/concordia', () => {
+    expect(CHS_PARTNER_SLUG).toBe('concordia');
+    expect(enrollmentPathForSlug(CHS_PARTNER_SLUG)).toBe('/enroll/concordia');
     expect(enrollmentPathForSlug('concordia-high-school')).toBe('/enroll/concordia');
   });
 

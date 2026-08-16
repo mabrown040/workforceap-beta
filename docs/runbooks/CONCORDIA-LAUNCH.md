@@ -7,7 +7,10 @@ school apply, admin form, guardian consent) are both in product.
 ## Overview
 
 - **Student link:** https://www.workforceap.org/enroll/concordia — no code to type. Final from day 1.
-- **Referral code:** `chs2026` — the page and middleware stamp a `wap_partner_ref` cookie; CTAs also carry `?ref=chs2026&program=`.
+- **Partner slug:** `concordia` — **must** match the `/enroll/<segment>` above (`lib/partners/chsPartner.ts`). Middleware plants a 30-day `wap_partner_ref` cookie; CTAs also carry `?ref=chs2026`.
+- **Referral code:** `chs2026` — also works at `/apply?ref=chs2026` (per-program: `/apply?ref=chs2026&program=<slug>`).
+- **Sponsorship window:** 2026-01-01 → 2026-12-31 UTC, term label `2026`, funding source `PARTNER_ORG`. Outside that window nothing is stamped automatically — extend `sponsorshipEndsAt` in `/admin/partners` before the pilot rolls into a new term.
+- **Seat cap: intentionally unset (uncapped).** Spend is controlled by the manual Coursera activation gate (`courseraEnrollmentApproved` per consented student).
 - **The partnership:** Concordia High School students enroll in WorkforceAP programs at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership. Partner contact: Dr. Marianne Rader (marianne.rader@chsaustin.org).
 - **Where attribution lands:**
   - `Application.referralSource = 'partner_ref:chs2026'`
@@ -22,7 +25,7 @@ school apply, admin form, guardian consent) are both in product.
    ```bash
    node scripts/prisma-env.js npx tsx scripts/create-chs-partner.ts
    ```
-   Expect a one-line `CREATED`/`UPDATED` summary with the partner id and `referralCode=chs2026`.
+   Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
 3. **Prod smoke-test checklist:**
    - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, five programs listed, CTAs work. URL is `/enroll/concordia`, not `/en/enroll/concordia`.
    - [ ] Click a program CTA → `/apply?ref=chs2026&program=…`. Income/employment questions are **hidden**. Grade level is required. Under 18 requires guardian name + email.

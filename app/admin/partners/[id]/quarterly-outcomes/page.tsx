@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PartnerQuarterlyOutcomesClient from './PartnerQuarterlyOutcomesClient';
 
@@ -27,10 +29,13 @@ export default async function PartnerQuarterlyOutcomesPage({ params }: Props) {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const { id } = await params;
-  const partner = await prisma.partner.findUnique({
-    where: { id },
-    select: { id: true, name: true, slug: true },
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const partner = await withTenantScope(orgId, (db) =>
+    db.partner.findUnique({
+      where: { id },
+      select: { id: true, name: true, slug: true },
+    }),
+  );
   if (!partner) notFound();
 
   return <PartnerQuarterlyOutcomesClient partnerId={partner.id} partnerName={partner.name} partnerSlug={partner.slug} />;

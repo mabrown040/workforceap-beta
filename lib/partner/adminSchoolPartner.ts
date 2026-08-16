@@ -53,8 +53,9 @@ export function partnerDirectoryMeta(partner: {
   partnerType?: string | null;
   referralCode?: string | null;
   enrollmentPageEnabled?: boolean;
+  sponsoredEnrollment?: boolean;
 }): { isSchool: boolean; enrollPath: string | null; referralCode: string | null } {
-  const isSchool = partner.partnerType === 'high_school';
+  const isSchool = isSchoolManagedPartner(partner);
   return {
     isSchool,
     enrollPath: partner.enrollmentPageEnabled ? enrollmentPathForSlug(partner.slug) : null,

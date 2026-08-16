@@ -188,6 +188,7 @@ export default async function AdminPartnersPage({
           partnerType: true,
           referralCode: true,
           enrollmentPageEnabled: true,
+          sponsoredEnrollment: true,
           _count: { select: { referrals: true } },
         },
       }),
@@ -229,6 +230,7 @@ export default async function AdminPartnersPage({
     partnerType: p.partnerType,
     referralCode: p.referralCode,
     enrollmentPageEnabled: p.enrollmentPageEnabled,
+    sponsoredEnrollment: p.sponsoredEnrollment,
   }));
 
   return (

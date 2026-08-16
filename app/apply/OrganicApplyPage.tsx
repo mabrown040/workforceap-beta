@@ -296,7 +296,13 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
 
         {/* Main form area (8-col) */}
         <div className="apply-main-form" role="region" aria-label={t('ariaApplicationForm')} style={sPage.mainCard}>
-          {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
+          {program ? (
+            <ApplyProgramIntro
+              programSlug={program.slug}
+              schoolName={schoolApply?.partnerName ?? null}
+              schoolRef={schoolApply?.referralCode ?? null}
+            />
+          ) : null}
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyRefCapture />

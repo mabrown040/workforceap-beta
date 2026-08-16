@@ -53,9 +53,11 @@ function toggleSlug(list: string[], slug: string, max: number): string[] {
 export default function ApplyResultsClient({
   schoolApply: schoolApplyFromServer = false,
   schoolName = null,
+  schoolProgramSlugs = [],
 }: {
   schoolApply?: boolean;
   schoolName?: string | null;
+  schoolProgramSlugs?: string[];
 }) {
   const t = useTranslations('apply');
   const searchParams = useSearchParams();
@@ -95,7 +97,13 @@ export default function ApplyResultsClient({
       if (data.schoolName) setSchoolLabel(data.schoolName);
       setQualifies(schoolFlow ? true : data.qualifies === true);
 
-      const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
+      const catalog = new Set(schoolProgramSlugs);
+      const allowSlug = (slug: string) =>
+        !schoolFlow || catalog.size === 0 || catalog.has(slug);
+      const explicitSlug =
+        programParam && getProgramBySlug(programParam) && allowSlug(programParam)
+          ? programParam
+          : null;
       let initial: string[] = explicitSlug ? [explicitSlug] : [];
       try {
         const fyp = localStorage.getItem(FYP_RESULTS_KEY);
@@ -112,13 +120,13 @@ export default function ApplyResultsClient({
             const v1 = parsed as CareerMatchPayload;
             fromQuiz = v1.programSlugs!
               .map((s) => (typeof s === 'string' ? s : null))
-              .filter((s): s is string => !!s && !!getProgramBySlug(s))
+              .filter((s): s is string => !!s && !!getProgramBySlug(s) && allowSlug(s))
               .slice(0, 3);
             if (fromQuiz.length) setQuizRecommendedSlugs(fromQuiz);
           } else if (Array.isArray(parsed)) {
             fromQuiz = parsed
               .map((s) => (typeof s === 'string' ? s : null))
-              .filter((s): s is string => !!s && !!getProgramBySlug(s))
+              .filter((s): s is string => !!s && !!getProgramBySlug(s) && allowSlug(s))
               .slice(0, 3);
           }
           if (fromQuiz.length) {
@@ -143,7 +151,7 @@ export default function ApplyResultsClient({
       setHasSavedDraft(hasSavedApplyDraft());
       setPageState('missing');
     }
-  }, [programParam]);
+  }, [programParam, schoolApplyFromServer, schoolProgramSlugs]);
 
   useEffect(() => {
     if (pageState !== 'ready' || qualifies === null) return;
@@ -194,10 +202,16 @@ export default function ApplyResultsClient({
   };
 
   const programsOrdered = useMemo(() => {
-    const base = [...PROGRAMS];
+    const catalog = schoolProgramSlugs
+      .map((slug) => getProgramBySlug(slug))
+      .filter((program): program is Program => Boolean(program));
+    const base = isSchool && catalog.length > 0 ? catalog : [...PROGRAMS];
     // Priority: explicit ?program= first, then quiz recs (deduped). Mirrors
     // selection precedence so the card user clicked from is ranked first.
-    const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
+    const explicitSlug =
+      programParam && getProgramBySlug(programParam) && base.some((p) => p.slug === programParam)
+        ? programParam
+        : null;
     const priority: string[] = [];
     if (explicitSlug) priority.push(explicitSlug);
     for (const s of quizRecommendedSlugs) {
@@ -212,7 +226,7 @@ export default function ApplyResultsClient({
       if (bi >= 0) return 1;
       return 0;
     });
-  }, [quizRecommendedSlugs, programParam]);
+  }, [quizRecommendedSlugs, programParam, isSchool, schoolProgramSlugs]);
 
   const rankLabel = (slug: string) => {
     const i = selectedSlugs.indexOf(slug);
@@ -382,7 +396,7 @@ export default function ApplyResultsClient({
                 }}
                 aria-pressed={selected}
                 style={{
-                  padding: '1.25rem',
+                  padding: isSchool ? '2rem 1.25rem 1.25rem' : '1.25rem',
                   border: selected ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant)',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
@@ -390,7 +404,25 @@ export default function ApplyResultsClient({
                   position: 'relative',
                 }}
               >
-                {quizRecommendedSlugs.includes(p.slug) && (
+                {isSchool ? (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      left: '0.5rem',
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      color: 'var(--color-on-primary)',
+                      background: 'var(--color-primary)',
+                      padding: '0.2rem 0.45rem',
+                      borderRadius: 4,
+                    }}
+                  >
+                    {t('schoolResultsCatalogBadge')}
+                  </span>
+                ) : quizRecommendedSlugs.includes(p.slug) ? (
                   <span
                     style={{
                       position: 'absolute',
@@ -408,7 +440,7 @@ export default function ApplyResultsClient({
                   >
                     {t('resultsFromQuizBadge')}
                   </span>
-                )}
+                ) : null}
                 {rank && (
                   <span
                     style={{

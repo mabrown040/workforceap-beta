@@ -49,8 +49,16 @@ describe('school apply variant', () => {
     expect(enroll).not.toContain('The application asks about income and employment');
   });
 
+  it('keeps the school ref on program-card apply and view-program links', () => {
+    expect(enroll).toContain('partnerApplyHref(model.referralCode, slug)');
+    expect(enroll).toContain('partnerProgramHref(model.referralCode, slug)');
+    expect(enroll).toContain('Sponsored by {shortName}');
+  });
+
   it('replaces the funding-fit banner on program ranking for school applicants', () => {
     expect(results).toContain('schoolResultsSponsoredStrong');
     expect(results).toContain('schoolFlow ? true : data.qualifies === true');
+    expect(results).toContain('schoolProgramSlugs');
+    expect(results).toContain('schoolResultsCatalogBadge');
   });
 });

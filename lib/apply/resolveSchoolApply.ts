@@ -10,6 +10,7 @@ export type SchoolApplyContext = {
   partnerName: string;
   schoolName: string;
   referralCode: string;
+  programSlugs: string[];
 };
 
 const SELECT = {
@@ -24,6 +25,10 @@ const SELECT = {
   sponsorshipStartsAt: true,
   sponsorshipEndsAt: true,
   sponsorshipNotes: true,
+  programCatalog: {
+    orderBy: { displayOrder: 'asc' as const },
+    select: { programSlug: true },
+  },
 } as const;
 
 export async function resolveSchoolApply(
@@ -44,5 +49,6 @@ export async function resolveSchoolApply(
     partnerName: partner.name,
     schoolName: partner.name,
     referralCode: partner.referralCode ?? ref,
+    programSlugs: partner.programCatalog.map((row) => row.programSlug),
   };
 }

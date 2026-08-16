@@ -15,6 +15,7 @@ import {
   Star,
 } from 'lucide-react';
 import type { EnrollmentPageModel } from '@/lib/enroll/resolveEnrollmentPartner';
+import { partnerApplyHref, partnerProgramHref } from '@/lib/apply/partnerApplyHref';
 import EnrollRefCookie from './EnrollRefCookie';
 
 const ICONS = {
@@ -42,8 +43,9 @@ function categoryTone(color: string): 'c' | 'g' {
 }
 
 export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPageModel }) {
-  const applyBase = `/apply?ref=${model.referralCode}`;
-  const applyUrl = (slug: string) => `${applyBase}&program=${encodeURIComponent(slug)}`;
+  const applyBase = partnerApplyHref(model.referralCode);
+  const applyUrl = (slug: string) => partnerApplyHref(model.referralCode, slug);
+  const programUrl = (slug: string) => partnerProgramHref(model.referralCode, slug);
   const shortName = model.name.replace(/ High School$/i, '');
   const programCountLabel = model.programs.length === 1 ? 'program' : 'programs';
 
@@ -168,7 +170,7 @@ export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPa
                   </div>
                   <span className="picon"><Icon name={p.icon} size={26} /></span>
                 </div>
-                <h3>{p.title}</h3>
+                <h3><Link href={applyUrl(p.slug)}>{p.title}</Link></h3>
                 <div className="pmeta">
                   <span><Icon name="clock" size={16} /> {p.duration}</span>
                   <span className="prange-inline">Starting range: <b>{p.salary}</b></span>
@@ -179,9 +181,10 @@ export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPa
                 </p>
                 <div className="pskills">{p.skills.map((s) => <span className="stag" key={s}>{s}</span>)}</div>
                 <div className="pcard-foot">
-                  <span className="ppartner">Partner: {p.partner}</span>
+                  <span className="ppartner">Sponsored by {shortName}</span>
+                  <span className="pcert">Certificate: {p.partner}</span>
                   <div className="pacts">
-                    <Link className="btn btn--ghost btn--sm" href={`/programs/${p.slug}`}>View Program</Link>
+                    <Link className="btn btn--ghost btn--sm" href={programUrl(p.slug)}>View Program</Link>
                     <Link className="btn btn--primary btn--sm" href={applyUrl(p.slug)}>Get Started →</Link>
                   </div>
                 </div>

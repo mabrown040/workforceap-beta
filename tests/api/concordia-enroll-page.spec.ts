@@ -33,9 +33,13 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
     expect(readFileSync(path.resolve(__dirname, '../../lib/partners/chsPartner.ts'), 'utf-8')).toContain(
       "export const CHS_PARTNER_REFERRAL_CODE = 'chs2026'",
     );
-    expect(viewSource).toContain('const applyBase = `/apply?ref=${model.referralCode}`');
+    expect(viewSource).toContain('partnerApplyHref(model.referralCode)');
+    expect(viewSource).toContain('partnerApplyHref(model.referralCode, slug)');
+    expect(viewSource).toContain('partnerProgramHref(model.referralCode, slug)');
     expect(viewSource).toContain('href={applyBase}');
     expect(viewSource).toContain('href={applyUrl(p.slug)}');
+    expect(viewSource).toContain('href={programUrl(p.slug)}');
+    expect(viewSource).toContain('Sponsored by {shortName}');
   });
 
   it('lists only slugs that exist in the canonical PROGRAMS data', () => {

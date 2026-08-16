@@ -44,7 +44,11 @@ export default async function ApplyResultsPage() {
             {t(isSchool ? 'schoolResultsKicker' : 'resultsKicker')}
           </p>
           <Suspense fallback={<ApplyPageSkeleton />}>
-            <ApplyResultsClient schoolName={schoolApply?.partnerName ?? null} schoolApply={isSchool} />
+            <ApplyResultsClient
+              schoolName={schoolApply?.partnerName ?? null}
+              schoolApply={isSchool}
+              schoolProgramSlugs={schoolApply?.programSlugs ?? []}
+            />
           </Suspense>
         </div>
       </section>

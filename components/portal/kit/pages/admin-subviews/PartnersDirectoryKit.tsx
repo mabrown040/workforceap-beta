@@ -40,6 +40,7 @@ export interface PartnerCard {
   partnerType?: string | null;
   referralCode?: string | null;
   enrollmentPageEnabled?: boolean;
+  sponsoredEnrollment?: boolean;
 }
 
 export interface PartnersDirectoryKitProps {
@@ -134,7 +135,13 @@ export function PartnersDirectoryKit({
         />
       ) : (
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
-          {partners.map((p, i) => {
+          {[...partners]
+            .sort((a, b) => {
+              const schoolDelta = Number(partnerDirectoryMeta(b).isSchool) - Number(partnerDirectoryMeta(a).isSchool);
+              if (schoolDelta !== 0) return schoolDelta;
+              return a.name.localeCompare(b.name);
+            })
+            .map((p, i) => {
             const tile = TILE_PALETTE[i % TILE_PALETTE.length];
             const meta = partnerDirectoryMeta(p);
             const Icon = meta.isSchool ? GraduationCap : TILE_ICONS[i % TILE_ICONS.length];

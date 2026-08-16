@@ -197,6 +197,9 @@ export default function PartnersTableClient({ partners, subgroups, superAdmin, p
           <>
             <div style={{ fontWeight: 600 }}>{partner.name}</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{partner.slug}</div>
+            {partner.partnerType === 'high_school' || partner.enrollmentPageEnabled || partner.sponsoredEnrollment ? (
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', marginTop: 2 }}>School partner</div>
+            ) : null}
           </>
         ),
       },

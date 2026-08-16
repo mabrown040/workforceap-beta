@@ -80,6 +80,25 @@ describe('partnerDirectoryMeta', () => {
     assert.equal(meta.enrollPath, '/enroll/concordia');
     assert.equal(meta.referralCode, 'chs2026');
   });
+
+  it('treats a sponsored or published row as a school even if type was left community', () => {
+    const sponsored = partnerDirectoryMeta({
+      slug: 'concordia',
+      partnerType: 'community',
+      referralCode: 'chs2026',
+      sponsoredEnrollment: true,
+    });
+    assert.equal(sponsored.isSchool, true);
+    assert.equal(sponsored.enrollPath, null);
+
+    const published = partnerDirectoryMeta({
+      slug: 'concordia',
+      partnerType: 'community',
+      enrollmentPageEnabled: true,
+    });
+    assert.equal(published.isSchool, true);
+    assert.equal(published.enrollPath, '/enroll/concordia');
+  });
 });
 
 describe('isSchoolManagedPartner', () => {

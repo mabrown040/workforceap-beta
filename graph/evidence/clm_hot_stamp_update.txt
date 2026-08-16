@@ -1,0 +1,13 @@
+ground-check: claim overstated — updateMany is null-guarded.
+
+app/api/apply/signup/route.ts:443-456
+  where: { userId, programSlug, fundingSource: null, fundingNotes: null }
+  data:  { fundingSource, fundingNotes, sponsoredByPartnerId }
+
+upsert update branch (419-422) omits sponsoredByPartnerId (intentional).
+
+app/api/apply/signup/route.test.ts
+  "moves all three provenance fields together, never the sponsor id alone"
+  "also guards the stamp on fundingNotes being empty"
+
+recommend: wontfix

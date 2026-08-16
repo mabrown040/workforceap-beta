@@ -1,6 +1,96 @@
 {
-  "runId": null,
+  "runId": "run_20260816_0345",
   "generatedBy": "scripts/audit-rank.mjs",
-  "topSlice": [],
-  "dropped": []
+  "generatedAt": "2026-08-16T03:49:48.334Z",
+  "topSlice": [
+    {
+      "id": "clm_dead_enroll_flag",
+      "severity": "prod-break",
+      "auditor": "dead-code",
+      "title": "enrollmentPageEnabled and PartnerProgramCatalog are write-only; the publish gate cannot fire",
+      "blast": "seed-partner-school.ts and create-chs-partner.ts set enrollmentPageEnabled=true and (seed only) upsert catalog rows, but no runtime reader exists. Flipping the flag or adding programs in the DB cannot publish a page. create-chs-partner.ts (the production CHS owner) never writes PartnerProgramCatalog at all. lib/partners/sponsorship.ts:97 buildSponsorshipMessage is the documented enroll-page choke point and is imported only by its unit test.",
+      "evidence": "rg enrollmentPageEnabled -g '*.ts' -g '*.tsx' -g '!scripts/**' -g '!*.test.ts' -g '!*.spec.ts' → exit 1 (no runtime hits). Remaining writers: scripts/seed-partner-school.ts:130, scripts/create-chs-partner.ts:68,179. prisma.partnerProgramCatalog appears only in scripts/seed-partner-school.ts:162,174. prisma/schema.prisma:983-995 claims enrollmentPageEnabled gates whether the page is served; prisma/schema.prisma:1018-1021 claims catalog is shown on that page. lib/partners/sponsorship.ts:82-88 says the dynamic /enroll/[partnerSlug] page is still upcoming.",
+      "verify": "rg -l 'enrollmentPageEnabled' -g '*.ts' -g '*.tsx' -g '!scripts/**' -g '!*.test.ts' -g '!*.spec.ts' /workspace"
+    },
+    {
+      "id": "clm_hot_consent_ungated",
+      "severity": "prod-break",
+      "auditor": "hot-paths",
+      "title": "Guardian consent never mounts and does not gate Coursera activation",
+      "blast": "rul_consent_gates_coursera_not_signup is unenforced. Minors complete /apply/signup with no consent write. Admins can flip courseraEnrollmentApproved and POST /api/admin/coursera/enroll-member / member self-enroll with no parentalConsentGiven check, consuming a paid B4B seat. ageBasedNav.requiresParentalConsent is never read.",
+      "evidence": "rg \"from .*ParentalConsentForm\" -g '*.ts' -g '*.tsx' → no importers (only components/forms/ParentalConsentForm.tsx:21 export). rg getAgeRestrictedFeatures|filterNavItemsByAge -g '*.ts' -g '*.tsx' → only lib/nav/ageBasedNav.ts:8,68. ls lib/admin/courseraConsentGate.ts → No such file. rg parentalConsentGiven lib/admin/courseraEnrollmentApproval.ts app/api/admin/coursera/enroll-member/route.ts app/api/member/coursera/enroll-in-course/route.ts → no matches. Approval write is lib/admin/courseraEnrollmentApproval.ts:39-46 (courseraEnrollmentApproved only).",
+      "verify": "test -f lib/admin/courseraConsentGate.ts && rg -q 'courseraApprovalBlockedByConsent' lib/admin/courseraConsentGate.ts && rg -q 'ParentalConsentForm' -g '*.tsx' --glob '!components/forms/ParentalConsentForm.tsx' && rg -q 'parentalConsentGiven' lib/admin/courseraEnrollmentApproval.ts"
+    },
+    {
+      "id": "clm_hot_stamp_update",
+      "severity": "prod-break",
+      "auditor": "hot-paths",
+      "title": "Signup updateMany stamps sponsoredByPartnerId on existing enrollments",
+      "blast": "A returning / unconfirmed re-submit under a partner cookie writes sponsoredByPartnerId onto a row that already exists. Seat-cap counts that id, so a previously self-funded enrollment consumes a school seat; fundingNotes/source can be filled after the fact instead of only on create.",
+      "evidence": "app/api/apply/signup/route.ts:443-456 — after upsert update omits the field (419-422), updateMany still sets sponsoredByPartnerId on matching existing rows. rg -n sponsoredByPartnerId app/api/apply/signup/route.ts → 415 (create) and 454 (updateMany data).",
+      "verify": "rg -U --multiline -q 'courseEnrollment\\.updateMany\\([\\s\\S]{0,400}sponsoredByPartnerId' app/api/apply/signup/route.ts && exit 1 || exit 0"
+    },
+    {
+      "id": "clm_secrets_admin_partners_unscoped_pii",
+      "severity": "prod-break",
+      "auditor": "secrets",
+      "title": "Admin partner pages load member emails and salaries with no tenant scope",
+      "blast": "Any isAdmin() user (not isAdminInOrg) who opens /admin/partners/<uuid> reads that partner’s referred-member emails, placement salaries, and counselor emails even when the partner belongs to another org. The list page also dumps contactEmail/contactPhone/notes for every partner row. API routes under /api/admin/partners were scoped; the pages bypass that gate.",
+      "evidence": "rg -n \"withTenantScope|getActorOrganizationId\" app/admin/partners --glob '*.tsx' → no matches. rg -n \"getUser|isAdmin|withTenantScope|organizationId\" app/admin/partners/[id]/page.tsx → no matches. app/admin/partners/[id]/page.tsx:46-93 prisma.partner.findUnique({ where: { id } }) includes member.email, salaryOffered, counselor user.email. app/admin/partners/page.tsx:30-51 prisma.partner.findMany select contactEmail, contactPhone, notes with no org filter. app/admin/partners/[id]/quarterly-outcomes/page.tsx:30-32 unscoped findUnique. lib/auth/roles.ts:40-52 isAdmin() is global; comment states it does not verify org. app/admin/layout.tsx:35 gates on isAdmin, not isAdminInOrg.",
+      "verify": "rg -n \"withTenantScope|getActorOrganizationId\" app/admin/partners/[id]/page.tsx app/admin/partners/page.tsx app/admin/partners/[id]/quarterly-outcomes/page.tsx"
+    },
+    {
+      "id": "clm_dead_admin_unpublish",
+      "severity": "ship-break",
+      "auditor": "dead-code",
+      "title": "Admin partner create/PATCH cannot set sponsorship, enroll publish, partnerType, or catalog",
+      "blast": "Next school created in /admin/partners/new lands as partnerType=community, sponsoredEnrollment=false, enrollmentPageEnabled=false, status=pending_approval (schema defaults). Signup high_school school-field stamp (app/api/apply/signup/route.ts:471) and isSponsorshipActive never fire. Approve (app/api/admin/partners/[id]/approve/route.ts:50-58) only sets status/active — still no publish/sponsor/catalog. There is no adminSchoolPartner validator (graph/rules.json rul_publish_needs_catalog check file is missing).",
+      "evidence": "app/api/admin/partners/route.ts:33-47 partnerSchema fields are name/slug/referralCode/logo/contact/active only. app/admin/partners/new/NewPartnerForm.tsx:34-41 POST body matches that. app/api/admin/partners/[id]/route.ts:41-61 patchSchema has no sponsoredEnrollment, enrollmentPageEnabled, partnerType, or catalog. rg sponsoredEnrollment|enrollmentPageEnabled app/api/admin/partners app/admin/partners → exit 1. prisma/schema.prisma:952 status default pending_approval; :973 partnerType default community; :987/:995 sponsoredEnrollment and enrollmentPageEnabled default false. ls lib/partner/adminSchoolPartner.ts → No such file.",
+      "verify": "rg -n 'sponsoredEnrollment|enrollmentPageEnabled' /workspace/app/api/admin/partners /workspace/app/admin/partners"
+    },
+    {
+      "id": "clm_dead_enroll_route",
+      "severity": "ship-break",
+      "auditor": "dead-code",
+      "title": "Official /enroll/<slug> student URL has no Next route; only hardcoded Astro CHS page exists",
+      "blast": "School #2 seeded with any slug other than concordia has no page source. Self-host/default npm run build never copies marketing/dist into public/, so even /enroll/concordia 404s. Middleware still plants wap_partner_ref on that path, but students never reach Apply from the printed school link.",
+      "evidence": "ls /workspace/app/enroll and /workspace/public/enroll → No such file or directory. marketing/src/pages/enroll/ contains only concordia.astro. find app -name page.tsx -path '*enroll*' → only app/admin/coursera/enrollment/page.tsx. package.json:7 build is next build only; vercel.json:2 is the sole path that copies marketing/dist/* into public/. lib/partners/chsPartner.ts:23 CHS_ENROLL_PATH = `/enroll/${CHS_PARTNER_SLUG}`. lib/i18n/config.ts:44-54 LOCALEABLE_PATH_PREFIXES omits /enroll (correct) but there is still no App Router page to serve it.",
+      "verify": "test -d /workspace/app/enroll"
+    },
+    {
+      "id": "clm_hot_school2_no_page",
+      "severity": "ship-break",
+      "auditor": "hot-paths",
+      "title": "Admin cannot stand up school #2: no enroll page and no school write fields",
+      "blast": "A second school created in /admin/partners/new never gets partnerType=high_school, sponsoredEnrollment, enrollmentPageEnabled, or catalog rows. Students hitting /enroll/<new-slug> 404 (only marketing/src/pages/enroll/concordia.astro exists; no app/enroll). Signup will not stamp funding. Schema comment at prisma/schema.prisma:985-986 says adding a school is data entry with no new code — that path is not wired.",
+      "evidence": "ls app/enroll → No such file or directory. rg sponsoredEnrollment|enrollmentPageEnabled|programCatalog|partnerType app/api/admin/partners/route.ts app/api/admin/partners/[id]/route.ts app/admin/partners/new/NewPartnerForm.tsx → no matches. partnerSchema (app/api/admin/partners/route.ts:33-47) is name/slug/referral/contact/active only. NewPartnerForm.tsx:34-41 POSTs those fields with active:true. prisma/schema.prisma:973,987,995 default partnerType=community, sponsoredEnrollment=false, enrollmentPageEnabled=false.",
+      "verify": "test -e 'app/enroll/[school]/page.tsx' && rg -q 'sponsoredEnrollment' app/api/admin/partners/route.ts && rg -q 'enrollmentPageEnabled' app/api/admin/partners/route.ts"
+    }
+  ],
+  "dropped": [
+    {
+      "id": "clm_dead_chs_catalog_gap",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_consent_orphan",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_seeds_unwired",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_empty_catalog",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_consent_gate_missing",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_ref_cookie_clear_attrs",
+      "reason": "below-slice"
+    }
+  ]
 }

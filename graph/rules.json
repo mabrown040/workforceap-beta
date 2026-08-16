@@ -33,5 +33,33 @@
     "status": "accepted",
     "text": "A school enroll page with sponsoredEnrollment=true and zero catalog rows 404s. Admin publish must require ≥1 program slug.",
     "check": "lib/partner/adminSchoolPartner.ts:validateAdminProgramSlugs"
+  },
+  {
+    "id": "rul_enroll_flag_must_serve",
+    "fromClaimId": "clm_dead_enroll_flag",
+    "status": "proposed",
+    "text": "enrollmentPageEnabled and PartnerProgramCatalog must have a runtime reader. A write-only publish flag is not a publish gate.",
+    "check": "runtime (not scripts/, not tests) must read enrollmentPageEnabled"
+  },
+  {
+    "id": "rul_admin_school_is_data_entry",
+    "fromClaimId": "clm_dead_admin_unpublish",
+    "status": "proposed",
+    "text": "School #2 is admin data entry: POST/PATCH /api/admin/partners must accept partnerType, sponsoredEnrollment, enrollmentPageEnabled, and ≥1 catalog slug.",
+    "check": "app/api/admin/partners/route.ts accepts sponsoredEnrollment"
+  },
+  {
+    "id": "rul_partner_ref_clear_matches_plant",
+    "fromClaimId": "clm_secrets_ref_cookie_clear_attrs",
+    "status": "proposed",
+    "text": "Clearing wap_partner_ref must send the same httpOnly / sameSite / secure / path used when planting, or shared-device applicants inherit the first student's school.",
+    "check": "app/api/apply/signup/route.ts cookie clear includes httpOnly and sameSite"
+  },
+  {
+    "id": "rul_admin_partner_pages_tenant_scoped",
+    "fromClaimId": "clm_secrets_admin_partners_unscoped_pii",
+    "status": "proposed",
+    "text": "Admin partner pages that load member email or salary must use isAdminInOrg + tenant scope, same as /api/admin/partners.",
+    "check": "app/admin/partners/[id]/page.tsx calls withTenantScope or getActorOrganizationId"
   }
 ]

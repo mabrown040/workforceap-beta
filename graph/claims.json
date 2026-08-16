@@ -1,1 +1,106 @@
-[]
+[
+  {
+    "id": "clm_dead_enroll_flag",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "title": "enrollmentPageEnabled and PartnerProgramCatalog are write-only; the publish gate cannot fire",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_consent_ungated",
+    "runId": "run_20260816_0345",
+    "auditor": "hot-paths",
+    "title": "Guardian consent never mounts and does not gate Coursera activation",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_stamp_update",
+    "runId": "run_20260816_0345",
+    "auditor": "hot-paths",
+    "title": "Signup updateMany stamps sponsoredByPartnerId on existing enrollments",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_admin_partners_unscoped_pii",
+    "runId": "run_20260816_0345",
+    "auditor": "secrets",
+    "title": "Admin partner pages load member emails and salaries with no tenant scope",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_admin_unpublish",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "title": "Admin partner create/PATCH cannot set sponsorship, enroll publish, partnerType, or catalog",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_enroll_route",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "title": "Official /enroll/<slug> student URL has no Next route; only hardcoded Astro CHS page exists",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_school2_no_page",
+    "runId": "run_20260816_0345",
+    "auditor": "hot-paths",
+    "title": "Admin cannot stand up school #2: no enroll page and no school write fields",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_chs_catalog_gap",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "title": "Production CHS script writes no catalog; school-#2 script writes catalog nothing reads",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_consent_orphan",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "title": "ParentalConsentForm and ageBasedNav are unmounted; consent/age flags cannot fire",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_seeds_unwired",
+    "runId": "run_20260816_0345",
+    "auditor": "dead-code",
+    "title": "create-chs-partner and seed-partner-school never run from db:seed or package.json",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_empty_catalog",
+    "runId": "run_20260816_0345",
+    "auditor": "hot-paths",
+    "title": "Publish path allows enrollmentPageEnabled with zero catalog rows",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_consent_gate_missing",
+    "runId": "run_20260816_0345",
+    "auditor": "secrets",
+    "title": "Guardian consent never gates Coursera activation; courseraConsentGate.ts is absent",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_ref_cookie_clear_attrs",
+    "runId": "run_20260816_0345",
+    "auditor": "secrets",
+    "title": "wap_partner_ref clear omits httpOnly/SameSite/Secure used when planting",
+    "severity": "latent",
+    "status": "open"
+  }
+]

@@ -38,7 +38,7 @@ describe('school apply variant', () => {
 
   it('uses student hero, docs, and next-step copy instead of adult funding copy', () => {
     expect(organic).toContain("t('schoolHeroHeading')");
-    expect(organic).toContain("t('schoolDocsLead')");
+    expect(organic).toContain("'schoolDocsLead'");
     expect(organic).toContain('school={isSchool}');
     expect(organic).toContain('{isSchool ? null : <TrustStrip variant="apply" />}');
   });

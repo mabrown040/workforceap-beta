@@ -6,7 +6,7 @@ export const APPLY_REFERRAL_COOKIE = 'wap_partner_ref';
 /** 30 days — same window as the paid-apply UTM cookie. */
 export const APPLY_REFERRAL_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
-const REF_PATTERN = /^[a-z0-9][a-z0-9-]{0,99}$/;
+const REF_PATTERN = /^[a-z0-9-]{1,64}$/;
 
 export type SponsorshipPartner = {
   id: string;
@@ -30,7 +30,14 @@ export type SponsorshipStamp = {
 
 /** Normalize a `?ref=` / cookie / body value. Returns null if empty or malformed. */
 export function normalizePartnerRef(raw: string | null | undefined): string | null {
-  const value = raw?.trim().toLowerCase() ?? '';
+  if (!raw) return null;
+  let decoded = raw;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
+  const value = decoded.trim().toLowerCase();
   if (!value || !REF_PATTERN.test(value)) return null;
   return value;
 }

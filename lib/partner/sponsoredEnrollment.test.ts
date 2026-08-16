@@ -33,7 +33,7 @@ describe('normalizePartnerRef', () => {
     assert.equal(normalizePartnerRef(''), null);
     assert.equal(normalizePartnerRef(null), null);
     assert.equal(normalizePartnerRef('chs 2026'), null);
-    assert.equal(normalizePartnerRef('x'.repeat(101)), null);
+    assert.equal(normalizePartnerRef('x'.repeat(65)), null);
     assert.equal(normalizePartnerRef('../admin'), null);
   });
 });

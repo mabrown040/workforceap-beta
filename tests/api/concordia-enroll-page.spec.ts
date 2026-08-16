@@ -29,7 +29,10 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
   });
 
   it('pins the chs2026 referral code and routes every apply CTA through it', () => {
-    expect(scriptSource).toContain("const REFERRAL_CODE = 'chs2026'");
+    expect(scriptSource).toContain('const REFERRAL_CODE = CHS_PARTNER_REFERRAL_CODE');
+    expect(readFileSync(path.resolve(__dirname, '../../lib/partners/chsPartner.ts'), 'utf-8')).toContain(
+      "export const CHS_PARTNER_REFERRAL_CODE = 'chs2026'",
+    );
     expect(viewSource).toContain('const applyBase = `/apply?ref=${model.referralCode}`');
     expect(viewSource).toContain('href={applyBase}');
     expect(viewSource).toContain('href={applyUrl(p.slug)}');

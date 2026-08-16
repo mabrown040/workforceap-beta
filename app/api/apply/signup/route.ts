@@ -495,7 +495,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             parentGuardianName: parentGuardianName?.trim() || null,
             parentGuardianEmail: parentGuardianEmail?.trim() || null,
             parentGuardianPhone: parentGuardianPhone?.trim() || null,
-            schoolName: schoolName?.trim() || null,
+            ...(schoolName?.trim() ? { schoolName: schoolName.trim() } : {}),
             ...schoolFields,
           },
           update: {

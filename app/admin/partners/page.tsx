@@ -24,8 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-/** Cap the lean directory so first paint stays cheap. */
-const PARTNER_LIMIT = 60;
+/**
+ * Directory page size. Keep this high enough that a newly published school
+ * cannot fall off an A–Z first page (the kit then re-sorts schools to the top).
+ */
+const PARTNER_LIMIT = 500;
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /** Legacy management table data (unchanged from the prior default render). */
 async function loadAdminPartnersData() {
@@ -178,7 +184,11 @@ export default async function AdminPartnersPage({
     withTenantScope(orgId, (db) =>
       db.partner.findMany({
         take: PARTNER_LIMIT,
-        orderBy: { name: 'asc' },
+        orderBy: [
+          { enrollmentPageEnabled: 'desc' },
+          { sponsoredEnrollment: 'desc' },
+          { name: 'asc' },
+        ],
         select: {
           id: true,
           name: true,

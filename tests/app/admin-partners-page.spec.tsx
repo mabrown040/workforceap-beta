@@ -24,6 +24,17 @@ vi.mock('@/lib/auth/roles', () => ({
   isSuperAdmin: vi.fn(),
 }));
 
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn().mockResolvedValue('org-test'),
+}));
+
+vi.mock('@/lib/tenant/withTenantScope', () => ({
+  withTenantScope: vi.fn(async (_orgId: string, fn: (db: unknown) => Promise<unknown>) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return fn(prisma);
+  }),
+}));
+
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
@@ -85,5 +96,15 @@ describe('AdminPartnersPage authorization', () => {
     await expect(AdminPartnersPage({})).resolves.toBeTruthy();
 
     expect(prisma.partner.findMany).toHaveBeenCalledTimes(1);
+    expect(prisma.partner.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        take: 500,
+        orderBy: [
+          { enrollmentPageEnabled: 'desc' },
+          { sponsoredEnrollment: 'desc' },
+          { name: 'asc' },
+        ],
+      }),
+    );
   });
 });

@@ -35,6 +35,9 @@ describe('admin partners school manageability', () => {
     expect(directory).toContain('School');
     expect(listPage).toContain('enrollmentPageEnabled');
     expect(listPage).toContain('partnerType');
+    expect(listPage).toContain("enrollmentPageEnabled: 'desc'");
+    expect(listPage).toContain("export const dynamic = 'force-dynamic'");
+    expect(listPage).toContain('const PARTNER_LIMIT = 500');
   });
 
   it('exposes school config and funnel on the partner detail page', () => {

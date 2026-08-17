@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { PROGRAMS } from '../../lib/content/programs';
-import { CHS_PARTNER_SLUG } from '@/lib/partners/chsPartner';
+import { CHS_PARTNER_SLUG, CHS_PROGRAM_SLUGS } from '@/lib/partners/chsPartner';
 import {
   enrollmentPathForSlug,
   enrollPageCopyIsStakeSafe,
@@ -43,12 +43,10 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
   });
 
   it('lists only slugs that exist in the canonical PROGRAMS data', () => {
-    const block = scriptSource.match(/const PROGRAM_SLUGS = \[([\s\S]*?)\] as const/);
-    expect(block).not.toBeNull();
-    const slugs = [...block![1].matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]);
-    expect(slugs).toHaveLength(5);
+    expect(scriptSource).toContain('const PROGRAM_SLUGS = CHS_PROGRAM_SLUGS');
+    expect(CHS_PROGRAM_SLUGS).toHaveLength(5);
     const known = new Set(PROGRAMS.map((p) => p.slug));
-    for (const slug of slugs) {
+    for (const slug of CHS_PROGRAM_SLUGS) {
       expect(known.has(slug), `unknown program slug on Concordia catalog: ${slug}`).toBe(true);
     }
   });

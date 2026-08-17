@@ -32,6 +32,7 @@ import {
   CHS_PARTNER_REFERRAL_CODE,
   CHS_PARTNER_SLUG,
   CHS_SPONSORSHIP_ENDS_AT,
+  CHS_PROGRAM_SLUGS,
   CHS_SPONSORSHIP_STARTS_AT,
   CHS_SPONSORSHIP_TERM_LABEL,
 } from '../lib/partners/chsPartner';
@@ -52,13 +53,7 @@ const HEADLINE = 'Start your career training with Concordia High School';
 const BLURB =
   'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.';
 const DISTRICT = 'Concordia';
-const PROGRAM_SLUGS = [
-  'it-support-professional-certificate-ibm',
-  'cybersecurity-professional-certificate-google',
-  'data-analytics-professional-certificate-google',
-  'project-management-professional-certificate-microsoft',
-  'ux-design-professional-certificate-google',
-] as const;
+const PROGRAM_SLUGS = CHS_PROGRAM_SLUGS;
 
 function sponsorshipWindow(termLabel: string): { startsAt: Date; endsAt: Date } {
   const year = Number(/^(\d{4})/.exec(termLabel)?.[1]) || new Date().getFullYear();

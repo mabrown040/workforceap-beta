@@ -4,6 +4,15 @@ import { seedBlogPosts } from './seed-blog';
 import { seedOnetCareerData } from './seed-onet-career';
 import { seedOrganizationProgramCatalog } from '../lib/platform/seedProgramCatalog';
 import { DEFAULT_BRAND_ACCENT } from '../lib/platform/brandColors';
+import {
+  CHS_PARTNER_NAME,
+  CHS_PARTNER_REFERRAL_CODE,
+  CHS_PARTNER_SLUG,
+  CHS_PROGRAM_SLUGS,
+  CHS_SPONSORSHIP_ENDS_AT,
+  CHS_SPONSORSHIP_STARTS_AT,
+  CHS_SPONSORSHIP_TERM_LABEL,
+} from '../lib/partners/chsPartner';
 
 const prisma = new PrismaClient();
 
@@ -25,6 +34,63 @@ async function ensureDefaultOrgId(): Promise<string> {
     select: { id: true },
   });
   return row.id;
+}
+
+/**
+ * Launch partner for `/enroll/concordia`. Idempotent create — never clobbers
+ * an existing row. The ops script `scripts/create-chs-partner.ts` still owns
+ * repair of missing sponsorship fields; seed only guarantees the row exists
+ * so a fresh environment does not 404 the student link.
+ */
+async function ensureConcordiaPartner(organizationId: string): Promise<void> {
+  const existing = await prisma.partner.findUnique({
+    where: { slug: CHS_PARTNER_SLUG },
+    select: { id: true, name: true },
+  });
+  if (existing) {
+    console.log(`Concordia partner already present (${existing.id})`);
+    return;
+  }
+
+  const created = await prisma.partner.create({
+    data: {
+      organizationId,
+      name: CHS_PARTNER_NAME,
+      slug: CHS_PARTNER_SLUG,
+      referralCode: CHS_PARTNER_REFERRAL_CODE,
+      partnerType: 'high_school',
+      status: 'active',
+      active: true,
+      contactName: 'Dr. Marianne Rader',
+      contactEmail: 'marianne.rader@chsaustin.org',
+      notes:
+        '2026 CHS pilot — no cost to CHS students in 2026; funding: PARTNER_ORG; ' +
+        'under-18 consent collected by school; see docs/runbooks/CONCORDIA-LAUNCH.md',
+      sponsoredEnrollment: true,
+      sponsorshipFundingSource: 'PARTNER_ORG',
+      sponsorshipTermLabel: CHS_SPONSORSHIP_TERM_LABEL,
+      sponsorshipStartsAt: CHS_SPONSORSHIP_STARTS_AT,
+      sponsorshipEndsAt: CHS_SPONSORSHIP_ENDS_AT,
+      sponsorshipNotes: 'Sponsored by Concordia High School (2026)',
+      enrollmentPageEnabled: true,
+      enrollmentHeadline: 'Start your career training with Concordia High School',
+      enrollmentBlurb:
+        'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.',
+      schoolDistrict: 'Concordia',
+    },
+  });
+
+  for (const [index, programSlug] of CHS_PROGRAM_SLUGS.entries()) {
+    await prisma.partnerProgramCatalog.upsert({
+      where: { partnerId_programSlug: { partnerId: created.id, programSlug } },
+      create: { partnerId: created.id, programSlug, displayOrder: index, featured: index === 0 },
+      update: { displayOrder: index, featured: index === 0 },
+    });
+  }
+
+  console.log(
+    `CREATED partner "${created.name}" — id=${created.id}, slug=${created.slug}, referralCode=${created.referralCode}`,
+  );
 }
 
 /** Dev/staging QA only — set SEED_TEST_ACCOUNTS=true. Supabase passwords (create users in Dashboard): TestWfAP2026! */
@@ -338,6 +404,8 @@ async function main() {
 
   await seedOrganizationProgramCatalog(defaultOrgId);
   console.log('Seeded organization program catalog from static PROGRAMS list');
+
+  await ensureConcordiaPartner(defaultOrgId);
 
   await seedOnetCareerData(prisma);
 

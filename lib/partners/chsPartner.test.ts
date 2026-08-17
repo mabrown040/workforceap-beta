@@ -7,6 +7,7 @@ import {
   CHS_SPONSORSHIP_ENDS_AT,
   CHS_SPONSORSHIP_STARTS_AT,
   CHS_SPONSORSHIP_TERM_LABEL,
+  CHS_PROGRAM_SLUGS,
 } from '@/lib/partners/chsPartner';
 import {
   normalizePartnerRef,
@@ -75,4 +76,14 @@ test('a partner provisioned from these constants sponsors for the whole term', (
   assert.equal(isSponsorshipActive(partner, new Date('2026-12-31T23:59:59Z')), true);
   assert.equal(isSponsorshipActive(partner, new Date('2025-12-31T23:59:59Z')), false);
   assert.equal(isSponsorshipActive(partner, new Date('2027-01-01T00:00:00Z')), false);
+});
+
+test('CHS catalog is the five launch programs', () => {
+  assert.deepEqual([...CHS_PROGRAM_SLUGS], [
+    'it-support-professional-certificate-ibm',
+    'cybersecurity-professional-certificate-google',
+    'data-analytics-professional-certificate-google',
+    'project-management-professional-certificate-microsoft',
+    'ux-design-professional-certificate-google',
+  ]);
 });

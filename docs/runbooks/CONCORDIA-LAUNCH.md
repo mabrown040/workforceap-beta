@@ -25,6 +25,7 @@ school apply, admin form, guardian consent) are both in product.
    ```bash
    node scripts/prisma-env.js npx tsx scripts/create-chs-partner.ts
    ```
+   `npm run db:seed` also creates the row if it is missing (it will not clobber an existing one).
    Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
 3. **Prod smoke-test checklist:**
    - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, five programs listed, CTAs work. URL is `/enroll/concordia`, not `/en/enroll/concordia`.

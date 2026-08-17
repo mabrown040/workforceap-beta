@@ -39,3 +39,12 @@ export const CHS_SPONSORSHIP_STARTS_AT = new Date('2026-01-01T00:00:00Z');
 
 /** Inclusive sponsorship window end (UTC). */
 export const CHS_SPONSORSHIP_ENDS_AT = new Date('2026-12-31T23:59:59Z');
+
+/** Curated 2026 Concordia catalog. Same order as `/enroll/concordia`. */
+export const CHS_PROGRAM_SLUGS = [
+  'it-support-professional-certificate-ibm',
+  'cybersecurity-professional-certificate-google',
+  'data-analytics-professional-certificate-google',
+  'project-management-professional-certificate-microsoft',
+  'ux-design-professional-certificate-google',
+] as const;

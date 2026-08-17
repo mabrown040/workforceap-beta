@@ -59,6 +59,8 @@ const state = vi.hoisted(() => ({
   }[],
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
+  /** Args passed to `supabase.auth.signUp`. */
+  signUpCalls: [] as { options?: { emailRedirectTo?: string } }[],
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -215,13 +217,16 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 vi.mock('@supabase/ssr', () => ({
   createServerClient: vi.fn(() => ({
     auth: {
-      signUp: vi.fn(async () => ({
-        data: {
-          user: { id: 'user-test-1', email: 'applicant@example.com' },
-          session: null,
-        },
-        error: null,
-      })),
+      signUp: vi.fn(async (args: { options?: { emailRedirectTo?: string } }) => {
+        state.signUpCalls.push(args);
+        return {
+          data: {
+            user: { id: 'user-test-1', email: 'applicant@example.com' },
+            session: null,
+          },
+          error: null,
+        };
+      }),
     },
   })),
 }));
@@ -263,6 +268,7 @@ function resetState() {
   state.cookieSets.length = 0;
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
+  state.signUpCalls.length = 0;
   state.partner = null;
   state.sponsoredSeatCount = 0;
   state.cookies = {};
@@ -779,5 +785,38 @@ describe('POST /api/apply/signup partner ref cookie handling', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
     expect(state.partnerReferralUpserts).toHaveLength(0);
+  });
+});
+
+describe('POST /api/apply/signup confirmation redirect', () => {
+  beforeEach(resetState);
+
+  it('omits emailRedirectTo on localhost so hosted Auth allow-lists do not block signup', async () => {
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(state.signUpCalls).toHaveLength(1);
+    expect(state.signUpCalls[0].options?.emailRedirectTo).toBeUndefined();
+  });
+
+  it('sends the public origin callback when the request is hosted', async () => {
+    const body = {
+      firstName: 'Concordia',
+      lastName: 'Student',
+      email: 'applicant@example.com',
+      phone: '5125550199',
+      password: 'Password123!',
+      programRankedSlugs: ['it-support-professional-certificate-ibm'],
+    };
+    const res = await POST(
+      new NextRequest('https://workforceap.org/api/apply/signup', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(state.signUpCalls[0].options?.emailRedirectTo).toBe(
+      'https://workforceap.org/auth/callback',
+    );
   });
 });

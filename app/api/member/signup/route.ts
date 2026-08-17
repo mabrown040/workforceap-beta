@@ -9,6 +9,7 @@ import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { trackEvent } from '@/lib/events/track';
 import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { signupEmailRedirectTo } from '@/lib/auth/signupEmailRedirect';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -139,6 +140,7 @@ export async function POST(request: NextRequest) {
       },
     });
   
+    const emailRedirectTo = signupEmailRedirectTo(request.nextUrl.origin);
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -147,7 +149,7 @@ export async function POST(request: NextRequest) {
           full_name: data.fullName,
           phone: data.phone,
         },
-        emailRedirectTo: `${request.nextUrl.origin}/auth/callback`,
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
       },
     });
   
@@ -159,9 +161,11 @@ export async function POST(request: NextRequest) {
         );
       }
       if (
+        authError.status === 429 ||
         authError.message.toLowerCase().includes('rate limit') ||
         authError.message.toLowerCase().includes('email rate limit') ||
-        authError.code === 'over_email_send_limit'
+        authError.code === 'over_email_send_limit' ||
+        authError.code === 'over_email_send_rate_limit'
       ) {
         return NextResponse.json(
           {

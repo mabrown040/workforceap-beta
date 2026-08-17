@@ -16,6 +16,7 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { signupEmailRedirectTo } from '@/lib/auth/signupEmailRedirect';
 import { normalizePartnerRef, PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
 import {
   buildFundingNotes,
@@ -340,20 +341,36 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     });
   
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    const emailRedirectTo = signupEmailRedirectTo(new URL(request.url).origin);
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email.toLowerCase().trim(),
       password,
       options: {
         data: { full_name: fullName, phone },
-        emailRedirectTo: `${new URL(request.url).origin}/auth/callback`,
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
       },
     });
   
     if (authError) {
+      logger.warn('apply/signup auth.signUp failed', {
+        code: authError.code,
+        message: authError.message,
+      });
       if (authError.message.includes('already registered') || authError.code === 'user_already_exists') {
         return NextResponse.json(
           { error: 'An account with this email already exists. Log in to continue, or use password reset if you are returning.' },
           { status: 400 }
+        );
+      }
+      if (
+        authError.status === 429 ||
+        authError.code === 'over_email_send_rate_limit' ||
+        authError.code === 'over_email_send_limit' ||
+        authError.message.toLowerCase().includes('rate limit')
+      ) {
+        return NextResponse.json(
+          { error: 'Too many signup emails were sent just now. Please wait a few minutes and try again.' },
+          { status: 429 }
         );
       }
       return NextResponse.json({ error: 'We could not create your account just yet. Please try again in a moment.' }, { status: 400 });

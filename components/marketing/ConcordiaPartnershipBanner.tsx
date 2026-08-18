@@ -51,14 +51,14 @@ export default function ConcordiaPartnershipBanner() {
       </div>
 
       <div className="chs-banner__wave" aria-hidden="true">
-        <svg viewBox="0 0 1440 72" preserveAspectRatio="none">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none">
           <defs>
             <linearGradient id="chs-wave" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#f39b2d" />
               <stop offset="100%" stopColor="#f6d15a" />
             </linearGradient>
           </defs>
-          <path fill="url(#chs-wave)" d="M0 72V28C240 68 480 8 720 28C960 48 1200 8 1440 36V72H0Z" />
+          <path fill="url(#chs-wave)" d="M0 40V22C480 0 960 0 1440 22V40H0Z" />
         </svg>
       </div>
 

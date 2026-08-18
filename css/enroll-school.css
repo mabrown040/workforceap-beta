@@ -227,7 +227,7 @@
   line-height:1.35;
 }
 .chs-banner__wave{display:block;line-height:0;margin-bottom:-1px}
-.chs-banner__wave svg{display:block;width:100%;height:48px}
+.chs-banner__wave svg{display:block;width:100%;height:28px}
 .chs-banner__photo{position:relative;aspect-ratio:16/7;min-height:220px;background:#1a1a1a}
 .chs-banner__photo img{object-fit:cover;object-position:center 30%}
 

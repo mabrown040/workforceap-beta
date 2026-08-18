@@ -66,8 +66,6 @@ const applySignupSchema = z.object({
   lastName: z.string().trim().min(1, 'Please enter your last name.').max(100),
   email: z.string().trim().email('Please enter a valid email address.'),
   phone: z.string().trim().min(10, 'Please enter a valid phone number with area code.').max(50),
-  addressLine1: z.string().trim().max(200).optional().nullable(),
-  addressLine2: z.string().trim().max(200).optional().nullable(),
   city: z.string().trim().max(100).optional().nullable(),
   state: z.string().trim().max(50).optional().nullable(),
   zip: z.string().trim().max(20).optional().nullable(),
@@ -139,8 +137,6 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       lastName,
       email,
       phone,
-      addressLine1,
-      addressLine2,
       city,
       state,
       zip,
@@ -215,8 +211,11 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       }
     }
 
-    const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];
-    const profileAddress = profileAddressParts.length > 0 ? profileAddressParts.join(', ') : null;
+    // Street address is deliberately not collected. Stakeholder decision
+    // 2026-08-18: a home address serves no purpose for us, while city/state/ZIP
+    // still satisfy grant geography reporting. Kept as an explicit null so the
+    // Profile write sites below stay unchanged and the column simply stays empty.
+    const profileAddress: string | null = null;
   
     const programSlug = programRankedSlugs[0];
     const program = getProgramBySlug(programSlug);

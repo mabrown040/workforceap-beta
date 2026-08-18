@@ -38,8 +38,6 @@ type AccountDraft = {
   lastName?: string;
   email?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
   city?: string;
   state?: string;
   zip?: string;
@@ -101,8 +99,6 @@ export default function ApplyCreateAccountForm() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
-  const [addressLine1, setAddressLine1] = useState('');
-  const [addressLine2, setAddressLine2] = useState('');
   const [city, setCity] = useState('');
   const [stateVal, setStateVal] = useState('');
   const [zip, setZip] = useState('');
@@ -120,7 +116,6 @@ export default function ApplyCreateAccountForm() {
     lastName?: string;
     email?: string;
     phone?: string;
-    addressLine1?: string;
     city?: string;
     state?: string;
     zip?: string;
@@ -202,11 +197,6 @@ export default function ApplyCreateAccountForm() {
         } else if (elig?.phone) {
           setPhone(elig.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3') || elig.phone);
         }
-        if (draft.addressLine1) {
-          setAddressLine1(draft.addressLine1);
-          setOptionalAddressOpen(true);
-        }
-        if (draft.addressLine2) setAddressLine2(draft.addressLine2);
         if (draft.city) {
           setCity(draft.city);
           setOptionalAddressOpen(true);
@@ -262,8 +252,6 @@ export default function ApplyCreateAccountForm() {
       lastName,
       email,
       phone,
-      addressLine1,
-      addressLine2,
       city,
       state: stateVal,
       zip,
@@ -275,7 +263,7 @@ export default function ApplyCreateAccountForm() {
     } catch {
       /* storage may be full or disabled — non-fatal */
     }
-  }, [firstName, lastName, email, phone, addressLine1, addressLine2, city, stateVal, zip, smsOptIn, contactConsent]);
+  }, [firstName, lastName, email, phone, city, stateVal, zip, smsOptIn, contactConsent]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -304,12 +292,12 @@ export default function ApplyCreateAccountForm() {
 
   useEffect(() => {
     dropoffRef.current = {
-      startedFields: [firstName, lastName, email, phone, addressLine1, city, stateVal, zip, password, confirmPassword].filter(Boolean)
+      startedFields: [firstName, lastName, email, phone, city, stateVal, zip, password, confirmPassword].filter(Boolean)
         .length,
       smsOptIn,
       program_slugs: programRankedSlugs,
     };
-  }, [addressLine1, city, confirmPassword, email, firstName, lastName, password, phone, programRankedSlugs, smsOptIn, stateVal, zip]);
+  }, [city, confirmPassword, email, firstName, lastName, password, phone, programRankedSlugs, smsOptIn, stateVal, zip]);
 
   useEffect(() => {
     return () => {
@@ -453,8 +441,6 @@ export default function ApplyCreateAccountForm() {
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phoneDigits,
-          addressLine1: addressLine1.trim() || undefined,
-          addressLine2: addressLine2.trim() || undefined,
           city: city.trim() || undefined,
           state: stateVal.trim() || undefined,
           zip: zip.trim() || undefined,
@@ -808,33 +794,6 @@ export default function ApplyCreateAccountForm() {
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0.9rem' }}>
           {t('accountOptionalAddressHint')}
         </p>
-        <div className="form-group">
-          <label htmlFor="addressLine1">{t('accountStreetOptional')}</label>
-          <input
-            id="addressLine1"
-            type="text"
-            value={addressLine1}
-            onChange={(e) => {
-              setAddressLine1(e.target.value);
-              if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
-            }}
-            autoComplete="address-line1"
-            inputMode="text"
-            aria-invalid={!!fieldErrors.addressLine1}
-          />
-          {fieldErrors.addressLine1 ? <p className="form-error" role="alert">{fieldErrors.addressLine1}</p> : null}
-        </div>
-        <div className="form-group">
-          <label htmlFor="addressLine2">{t('accountAptOptional')}</label>
-          <input
-            id="addressLine2"
-            type="text"
-            value={addressLine2}
-            onChange={(e) => setAddressLine2(e.target.value)}
-            autoComplete="address-line2"
-            inputMode="text"
-          />
-        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label htmlFor="city">{t('accountCityOptional')}</label>

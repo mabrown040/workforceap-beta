@@ -52,12 +52,36 @@ const HEADLINE = 'Start your career training with Concordia High School';
 const BLURB =
   'Career training and certifications offered at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership.';
 const DISTRICT = 'Concordia';
+/**
+ * Curated catalog for Concordia. ORDER IS THE PAGE ORDER, and index 0 is the
+ * featured card.
+ *
+ * WARNING: `syncCatalog` deletes any PartnerProgramCatalog row whose slug is
+ * absent here, so this list — not the database — is the source of truth. A
+ * program added by hand in SQL or /admin/partners will be silently removed the
+ * next time this script runs (the runbook tells operators to re-run it when
+ * /enroll/concordia 404s). Add it here as well, or lose it.
+ *
+ * Every slug must match a `Program.slug` in lib/content/programs.ts. Several
+ * differ from their display titles because `slugOverride` preserves the
+ * original URL across renames — e.g. `cybersecurity-professional-certificate-
+ * google` now renders as "Networking and Cybersecurity Professional
+ * Certificate (CompTIA Net+, Sec+)".
+ */
 const PROGRAM_SLUGS = [
   'it-support-professional-certificate-ibm',
   'cybersecurity-professional-certificate-google',
   'data-analytics-professional-certificate-google',
   'project-management-professional-certificate-microsoft',
   'ux-design-professional-certificate-google',
+  'comptia-a-professional-certificate',
+  'comptia-network-professional-certificate',
+  'data-science-professional-certificate-ibm',
+  'aws-cloud-technology-amazon',
+  'ai-practitioner-professional-certificate-aws',
+  'software-developer-professional-certificate-ibm',
+  'digital-marketing-e-commerce-google',
+  'health-information-technology-mchit',
 ] as const;
 
 function sponsorshipWindow(termLabel: string): { startsAt: Date; endsAt: Date } {

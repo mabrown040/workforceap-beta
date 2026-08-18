@@ -46,7 +46,7 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
     const block = scriptSource.match(/const PROGRAM_SLUGS = \[([\s\S]*?)\] as const/);
     expect(block).not.toBeNull();
     const slugs = [...block![1].matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]);
-    expect(slugs).toHaveLength(5);
+    expect(slugs).toHaveLength(13);
     const known = new Set(PROGRAMS.map((p) => p.slug));
     for (const slug of slugs) {
       expect(known.has(slug), `unknown program slug on Concordia catalog: ${slug}`).toBe(true);
@@ -64,5 +64,12 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
 
   it('is excluded from search indexing', () => {
     expect(pageSource).toContain('index: false');
+  });
+
+  it('renders the Concordia partnership lockup only for the CHS slug', () => {
+    expect(viewSource).toContain('import ConcordiaPartnershipBanner from \'./ConcordiaPartnershipBanner\'');
+    expect(viewSource).toContain('const showConcordiaBanner = model.slug === CHS_PARTNER_SLUG');
+    expect(viewSource).toContain('{showConcordiaBanner ? <ConcordiaPartnershipBanner /> : null}');
+    expect(viewSource).toContain('import { CHS_PARTNER_SLUG } from \'@/lib/partners/chsPartner\'');
   });
 });

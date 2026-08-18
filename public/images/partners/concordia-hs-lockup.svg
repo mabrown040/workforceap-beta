@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-label="Concordia High School">
+  <defs>
+    <clipPath id="chs-shield">
+      <path d="M110 8C110 8 186 32 198 38V118C198 168 156 204 110 214C64 204 22 168 22 118V38C34 32 110 8 110 8Z"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#chs-shield)">
+    <rect x="0" y="0" width="110" height="220" fill="#111111"/>
+    <rect x="110" y="0" width="110" height="220" fill="#C41E3A"/>
+  </g>
+  <path d="M110 8C110 8 186 32 198 38V118C198 168 156 204 110 214C64 204 22 168 22 118V38C34 32 110 8 110 8Z" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+  <path fill="#ffffff" d="M99 34h22v46h36v20H121v86l-11 18-11-18V100H63V80h36V34Z"/>
+</svg>

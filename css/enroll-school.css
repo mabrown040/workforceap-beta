@@ -163,3 +163,93 @@
 @media(max-width:560px){
   .enroll-school .acts .dbtn,.enroll-school .acts .bbtn{width:100%;justify-content:center}
 }
+
+/* Concordia partnership lockup — official collateral treatment, light in both themes. */
+.chs-banner{
+  color-scheme:light;
+  background:#fff;
+  color:#111;
+  overflow:hidden;
+}
+.chs-banner__rule{height:4px;background:var(--color-accent-dark,#8c0f37)}
+.chs-banner__lockup{
+  width:min(1120px,calc(100% - 40px));
+  margin:0 auto;
+  padding:28px 0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:28px;
+}
+.chs-banner__brand{display:flex;align-items:center;gap:14px;min-width:0}
+.chs-banner__shield,.chs-banner__wap-mark{width:72px;height:72px;flex-shrink:0;display:block}
+.chs-banner__school-name,.chs-banner__wap-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.chs-banner__school-title{
+  font-family:Georgia,'Times New Roman',serif;
+  font-weight:700;
+  font-size:clamp(22px,3vw,34px);
+  letter-spacing:.04em;
+  line-height:1;
+  text-transform:uppercase;
+}
+.chs-banner__school-sub{
+  font-weight:700;
+  font-size:clamp(11px,1.4vw,14px);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#222;
+}
+.chs-banner__wap-title{
+  font-family:'Plus Jakarta Sans',var(--font-family),sans-serif;
+  font-weight:800;
+  font-size:clamp(16px,2.1vw,22px);
+  letter-spacing:.02em;
+  line-height:1.1;
+  text-transform:uppercase;
+  max-width:16ch;
+}
+.chs-banner__wap-sub{
+  font-size:clamp(11px,1.2vw,13px);
+  font-weight:600;
+  color:#222;
+  margin-top:4px;
+}
+.chs-banner__join{display:flex;align-items:center;gap:18px;flex-shrink:0}
+.chs-banner__rule-v{width:1px;height:56px;background:#1a1a1a}
+.chs-banner__with{
+  margin:0;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#111;
+  white-space:nowrap;
+  line-height:1.35;
+}
+.chs-banner__wave{display:block;line-height:0;margin-bottom:-1px}
+.chs-banner__wave svg{display:block;width:100%;height:48px}
+.chs-banner__photo{position:relative;aspect-ratio:16/7;min-height:220px;background:#1a1a1a}
+.chs-banner__photo img{object-fit:cover;object-position:center 30%}
+
+.enroll-school--chs .stage{padding-top:64px}
+.enroll-school--chs .grain{opacity:.1}
+
+@media(max-width:880px){
+  .chs-banner__lockup{flex-wrap:wrap;gap:16px 20px;padding:22px 0 8px}
+  .chs-banner__join{width:100%;justify-content:center;order:2}
+  .chs-banner__rule-v{display:none}
+  .chs-banner__with{max-width:none;text-align:center}
+  .chs-banner__brand--school{order:1}
+  .chs-banner__brand--wap{order:3;width:100%;justify-content:center}
+  .chs-banner__wap-title{max-width:none;text-align:center}
+  .chs-banner__wap-name{align-items:center;text-align:center}
+  .chs-banner__photo{aspect-ratio:16/9}
+}
+@media(max-width:560px){
+  .chs-banner__lockup{flex-direction:column;align-items:center;text-align:center}
+  .chs-banner__brand--school{flex-direction:column}
+  .chs-banner__school-name{align-items:center}
+  .chs-banner__brand--wap{flex-direction:column}
+  .chs-banner__shield,.chs-banner__wap-mark{width:64px;height:64px}
+  .chs-banner__photo{min-height:180px}
+}

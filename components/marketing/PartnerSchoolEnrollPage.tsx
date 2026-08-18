@@ -15,7 +15,9 @@ import {
   Star,
 } from 'lucide-react';
 import type { EnrollmentPageModel } from '@/lib/enroll/resolveEnrollmentPartner';
+import { CHS_PARTNER_SLUG } from '@/lib/partners/chsPartner';
 import { partnerApplyHref, partnerProgramHref } from '@/lib/apply/partnerApplyHref';
+import ConcordiaPartnershipBanner from './ConcordiaPartnershipBanner';
 import EnrollRefCookie from './EnrollRefCookie';
 
 const ICONS = {
@@ -48,6 +50,7 @@ export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPa
   const programUrl = (slug: string) => partnerProgramHref(model.referralCode, slug);
   const shortName = model.name.replace(/ High School$/i, '');
   const programCountLabel = model.programs.length === 1 ? 'program' : 'programs';
+  const showConcordiaBanner = model.slug === CHS_PARTNER_SLUG;
 
   const steps = [
     { num: '1', icon: 'search', title: 'Review the programs', desc: `Browse the certificate tracks below and pick the one that fits your interests.` },
@@ -82,8 +85,9 @@ export default function PartnerSchoolEnrollPage({ model }: { model: EnrollmentPa
   ];
 
   return (
-    <div className="enroll-school">
+    <div className={showConcordiaBanner ? 'enroll-school enroll-school--chs' : 'enroll-school'}>
       <EnrollRefCookie referralCode={model.referralCode} />
+      {showConcordiaBanner ? <ConcordiaPartnershipBanner /> : null}
 
       <section className="stage">
         <div className="aura aura--1" aria-hidden="true" />

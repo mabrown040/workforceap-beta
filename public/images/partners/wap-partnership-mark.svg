@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Workforce Advancement Project">
+  <defs>
+    <clipPath id="wap-globe">
+      <circle cx="80" cy="62" r="46"/>
+    </clipPath>
+  </defs>
+  <circle cx="80" cy="62" r="46" fill="none" stroke="#E39B2E" stroke-width="2.4"/>
+  <g clip-path="url(#wap-globe)" fill="none" stroke="#E39B2E" stroke-width="1.6">
+    <ellipse cx="80" cy="62" rx="22" ry="46"/>
+    <ellipse cx="80" cy="62" rx="38" ry="46"/>
+    <line x1="34" y1="62" x2="126" y2="62"/>
+    <line x1="38" y1="42" x2="122" y2="42"/>
+    <line x1="38" y1="82" x2="122" y2="82"/>
+    <line x1="50" y1="26" x2="110" y2="26"/>
+    <line x1="50" y1="98" x2="110" y2="98"/>
+  </g>
+  <path d="M28 118C48 96 78 78 118 48" fill="none" stroke="#C41E3A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M104 28l28 12-22 22z" fill="#C41E3A"/>
+  <g fill="#111111">
+    <circle cx="54" cy="118" r="9.5"/>
+    <path d="M40 146c0-10 6-18 14-18s14 8 14 18v4H40z"/>
+    <circle cx="80" cy="112" r="10.5"/>
+    <path d="M64 146c0-12 7-20 16-20s16 8 16 20v4H64z"/>
+    <circle cx="106" cy="116" r="9.5"/>
+    <path d="M92 146c0-11 6-18 14-18s14 7 14 18v4H92z"/>
+  </g>
+</svg>

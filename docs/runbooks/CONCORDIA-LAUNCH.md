@@ -27,7 +27,7 @@ school apply, admin form, guardian consent) are both in product.
    ```
    Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
 3. **Prod smoke-test checklist:**
-   - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, five programs listed, CTAs work. URL is `/enroll/concordia`, not `/en/enroll/concordia`.
+   - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, all 13 programs listed, CTAs work. URL is `/enroll/concordia`, not `/en/enroll/concordia`.
    - [ ] Click a program CTA → `/apply?ref=chs2026&program=…`. Income/employment questions are **hidden**. Grade level is required. Under 18 requires guardian name + email.
    - [ ] Complete a throwaway signup via a program card CTA, using the **Under 18** age band.
    - [ ] Verify in admin: Application is **PENDING** with `referralSource = 'partner_ref:chs2026'` and a `PartnerReferral` row exists under the CHS partner.
@@ -47,7 +47,7 @@ Confirm the available Coursera B4B seat count is **≥ the expected CHS cohort s
 
 Also still needed from Mike (not inventable in code):
 
-1. Confirm the 5-program list (IBM IT Support, Google Cybersecurity, Google Data Analytics, Microsoft Project Management, Google UX Design).
+1. Confirm the 13-program list. The curated catalog lives in `PROGRAM_SLUGS` in `scripts/create-chs-partner.ts`, which is the source of truth — `syncCatalog` deletes any catalog row whose slug is missing from it, so a program added only in SQL or `/admin/partners` is lost on the next run. Note several display titles differ from their slugs after renames: `cybersecurity-professional-certificate-google` renders as "Networking and Cybersecurity Professional Certificate (CompTIA Net+, Sec+)", and `data-analytics-professional-certificate-google` as "Management and Data Analyst Professional Certificate (Google/IBM)".
 2. Confirm Dr. Rader's email for the partner record (`marianne.rader@chsaustin.org` is what the script and draft use).
 3. Sign off the consent one-pager the school will collect.
 4. Confirm Coursera B4B seats before the email goes out.

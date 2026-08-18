@@ -11,6 +11,10 @@
      light), so mapping onto them fixes both themes at once and keeps this
      page following the site theme instead of fighting it. */
   --surface:var(--surface-container-lowest,#ffffff);
+  /* Raised chip fill (skill tags). Missed in the first pass, which left
+     the tags white-on-white in dark mode once --text resolved to a light
+     value. Must stay a *raised* step above --surface, not equal to it. */
+  --surface-2:var(--surface-container,#f0f1f3);
   --bg:var(--surface-container-low,#f7f4f1);
   --text:var(--color-on-surface,#1c1b1b);
   --muted:var(--color-on-surface-variant,#584144);

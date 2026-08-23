@@ -32,7 +32,8 @@
 
 | Route | Methods | Auth | Description |
 |-------|---------|------|-------------|
-| `/api/health` | GET, OPTIONS | public | GET /api/health Public health endpoint. Reports the reachability and configuration status of every external dependency the platform relies o |
+| `/api/health` | GET, OPTIONS | public | Liveness only (no Prisma). `probe: live`. See `docs/HEALTH-PROBES.md`. |
+| `/api/health/ready` | GET, OPTIONS | public | Readiness: Prisma + default org. 503 if unreachable. Use for 504-adjacent dependency alerts. |
 | `/api/health/slo` | GET | admin | GET /api/health/slo Internal SLO snapshot endpoint. Returns the current value, target, and within/breaching status for each committed SLO ov |
 
 ## Contact (1)

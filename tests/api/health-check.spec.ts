@@ -17,8 +17,13 @@ vi.mock('next/server', () => ({
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
-    $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
-    $queryRaw: vi.fn(),
+    $transaction: vi.fn(async (arg: unknown) => {
+      const { prisma } = await import('@/lib/db/prisma');
+      return typeof arg === 'function' ? arg(prisma) : Promise.all(arg as never);
+    }),
+    organization: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -43,7 +48,7 @@ vi.mock('@/lib/db/withRequestGuc', () => ({
 
 // ─── Imports after mocks ───
 import { GET as healthGET, OPTIONS as healthOPTIONS } from '@/app/api/health/route';
-import { __resetHealthCache } from '@/app/api/health/_healthCache';
+import { GET as readyGET, OPTIONS as readyOPTIONS, __resetReadyCache } from '@/app/api/health/ready/route';
 import { prisma } from '@/lib/db/prisma';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
 
@@ -52,9 +57,7 @@ describe('GET /api/health', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    __resetHealthCache();
     vi.mocked(checkPublicHealthRateLimit).mockResolvedValue({ success: true });
-    vi.mocked(prisma.$queryRaw).mockResolvedValue([{ '?column?': 1 }]);
 
     process.env = {
       ...OLD_ENV,
@@ -67,43 +70,28 @@ describe('GET /api/health', () => {
     process.env = OLD_ENV;
   });
 
-  it('returns ok when database is healthy and redis/s3 are skipped', async () => {
+  it('returns ok liveness without touching Prisma', async () => {
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.status).toBe('ok');
+    expect(body.probe).toBe('live');
     expect(body.version).toBe('abc123d');
     expect(body.timestamp).toBeDefined();
-    expect(body.checks.database.status).toBe('ok');
-    expect(body.checks.redis.status).toBe('skipped');
-    expect(body.checks.s3.status).toBe('skipped');
+    expect(body.note).toMatch(/\/api\/health\/ready/);
+    expect(prisma.organization.findUnique).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it('returns degraded when redis is configured but fails', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://test.upstash.io';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
-
-    // @upstash/redis ping will fail because module is not really loaded in test context
-    // (it will throw), so redis status becomes degraded.
-    const res = await healthGET(new Request('http://localhost:3000/api/health'));
+  it('stays liveness-only when deep=true (use /api/health/ready for deps)', async () => {
+    const res = await healthGET(new Request('http://localhost:3000/api/health?deep=true'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.status).toBe('degraded');
-    expect(body.checks.database.status).toBe('ok');
-    expect(body.checks.redis.status).toBe('degraded');
-  });
-
-  it('returns 503 when database is down', async () => {
-    vi.mocked(prisma.$queryRaw).mockRejectedValue(new Error('Connection refused'));
-
-    const res = await healthGET(new Request('http://localhost:3000/api/health'));
-
-    expect(res.status).toBe(503);
-    const body = await res.json();
-    expect(body.status).toBe('fail');
-    expect(body.checks.database.status).toBe('degraded');
+    expect(body.probe).toBe('live');
+    expect(body.checks).toBeUndefined();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('returns 429 when rate limited', async () => {
@@ -113,16 +101,6 @@ describe('GET /api/health', () => {
 
     expect(res.status).toBe(429);
     expect(await res.json()).toEqual({ error: 'Too many requests' });
-  });
-
-  it('includes responseTimeMs when deep=true', async () => {
-    const res = await healthGET(new Request('http://localhost:3000/api/health?deep=true'));
-
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.checks.database.responseTimeMs).toBeGreaterThanOrEqual(0);
-    expect(body.checks.redis.responseTimeMs).toBeUndefined();
-    expect(body.checks.s3.responseTimeMs).toBeUndefined();
   });
 
   it('returns local version when not on Vercel', async () => {
@@ -146,6 +124,83 @@ describe('GET /api/health', () => {
 describe('OPTIONS /api/health', () => {
   it('returns 204 with CORS headers', async () => {
     const res = await healthOPTIONS();
+
+    expect(res.status).toBe(204);
+  });
+});
+
+describe('GET /api/health/ready', () => {
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    __resetReadyCache();
+    vi.mocked(checkPublicHealthRateLimit).mockResolvedValue({ success: true });
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({ id: 'org-1' });
+
+    process.env = {
+      ...OLD_ENV,
+      VERCEL_GIT_COMMIT_SHA: 'abc123def',
+      VERCEL_ENV: 'production',
+    };
+  });
+
+  afterEach(() => {
+    process.env = OLD_ENV;
+  });
+
+  it('returns ok when the default org is reachable', async () => {
+    const res = await readyGET(new Request('http://localhost:3000/api/health/ready'));
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe('ok');
+    expect(body.probe).toBe('ready');
+    expect(body.checks.database.status).toBe('ok');
+    expect(body.checks.organization.status).toBe('ok');
+    expect(body.checks.organization.slug).toBe('workforceap');
+    expect(body.checks.organization.responseTimeMs).toBeGreaterThanOrEqual(0);
+    expect(prisma.$transaction).toHaveBeenCalled();
+  });
+
+  it('returns 503 when Prisma cannot reach the org', async () => {
+    vi.mocked(prisma.organization.findUnique).mockRejectedValue(new Error('Connection refused'));
+
+    const res = await readyGET(new Request('http://localhost:3000/api/health/ready'));
+
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.status).toBe('fail');
+    expect(body.probe).toBe('ready');
+    expect(body.checks.database.status).toBe('fail');
+    expect(body.checks.organization.status).toBe('fail');
+    expect(body.checks.organization.reason).toMatch(/Connection refused/);
+  });
+
+  it('returns 503 when the default org row is missing', async () => {
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue(null);
+
+    const res = await readyGET(new Request('http://localhost:3000/api/health/ready'));
+
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.status).toBe('fail');
+    expect(body.checks.organization.reason).toMatch(/Default organization missing/);
+  });
+
+  it('returns 429 when rate limited', async () => {
+    vi.mocked(checkPublicHealthRateLimit).mockResolvedValue({ success: false });
+
+    const res = await readyGET(new Request('http://localhost:3000/api/health/ready'));
+
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ error: 'Too many requests' });
+  });
+});
+
+describe('OPTIONS /api/health/ready', () => {
+  it('returns 204 with CORS headers', async () => {
+    const res = await readyOPTIONS();
 
     expect(res.status).toBe(204);
   });

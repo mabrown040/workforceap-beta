@@ -21,7 +21,6 @@ import { buildFirstValueActions } from '@/lib/member/firstValueActions';
 import { isNewMember, secondsSinceAccountCreation } from '@/lib/member/isNewMember';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
-import type { NextBestAction } from '@/lib/member/nextBestActions';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import GoalsModule from '@/components/portal/GoalsModule';
@@ -39,13 +38,12 @@ import {
   type LearnerProgressByContent,
 } from '@/lib/coursera/learnerProgress';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
-import { maybeAutoSyncCourseraOnDashboard } from '@/lib/coursera/dashboardAutoSync';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import { getMemberPoints } from '@/lib/member/points';
-import { getLevelForPoints, getNextLevel, EVENT_LABELS } from '@/lib/member/pointsConfig';
+import { loadMemberDashboardHome } from '@/lib/member/loadMemberDashboardHome';
 import First90DaysCard from '@/components/portal/First90DaysCard';
 import {
   FIRST90_CHECK_IN_EVENT,
@@ -86,10 +84,9 @@ const PWAInstallPrompt = dynamic(() => import('@/components/pwa/PWAInstallPrompt
   loading: () => null,
 });
 
-// Heavy authenticated render (member state + several DB reads + best-effort
-// Coursera). Raise the per-request limit so a slow/cold render completes
-// instead of hitting the default function timeout and 504'ing into the portal
-// error boundary.
+// Kit-default home is a 1–2 query loader (see loadMemberDashboardHome).
+// `?ui=legacy` is still the fat path (member state + B4B). The 60s ceiling
+// is a timeout bandage for that escape hatch, not the default kit render.
 export const maxDuration = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -155,228 +152,41 @@ async function renderMemberDashboard(
   },
 ) {
 
-  // v2 KIT is now the DEFAULT dashboard; the legacy dashboard stays reachable via
-  // ?ui=legacy (escape hatch / rollback). Renders MemberDashboardKit from a few
-  // simple, fast queries — skips loadMemberCareerBriefBundle / getMemberState /
-  // B4B (those stall on the demo). Real data; complete for what the kit shows.
+  // Kit-default home. Query budget lives in loadMemberDashboardHome (1–2 Prisma
+  // ops in one $transaction). Coursera/B4B + getMemberState stay off this path.
+  // `?ui=legacy` below is the fat escape hatch and may keep its 24-call fan-out.
   if (args.requestedUi !== 'legacy') {
-    let ku = await withDbRetry(() =>
-      prisma.user.findUnique({
-        where: { id: user.id },
-        select: { fullName: true, enrolledProgram: true },
-      }),
-    );
-    // Orphaned Supabase auth user (no app `users` row). The root layout
-    // normally self-heals on entry; guard here so a direct hit never crashes
-    // the member-keyed reads below — provision then re-read.
-    if (!ku) {
-      await ensureAppUserProvisioned(user);
-      ku = await withDbRetry(() =>
-        prisma.user.findUnique({
-          where: { id: user.id },
-          select: { fullName: true, enrolledProgram: true },
-        }),
-      );
-    }
-    // Cheap, count/findMany-only queries — keep the lean path fast (no
-    // loadMemberCareerBriefBundle / getMemberState / B4B). These mirror the
-    // existing Promise.all style and feed the richer MemberHomeKit.
-    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline, leanGoals, leanRecentPoints, leanWeekPoints] = await withDbRetry(() => Promise.all([
-      prisma.courseEnrollment.findFirst({
-        where: { userId: user.id, isPrimary: true },
-        select: { programSlug: true },
-      }),
-      prisma.aIToolResult.count({ where: { userId: user.id } }),
-      prisma.memberNextBestAction.findMany({
-        where: { memberId: user.id, status: 'PENDING' },
-        orderBy: { priority: 'desc' },
-        take: 3,
-        select: { id: true, title: true, description: true, ctaHref: true, ctaLabel: true, priority: true },
-      }),
-      // Earned certifications (logged via LogCertificationModal).
-      prisma.userCertification.count({ where: { userId: user.id } }),
-      // Lifetime points total + daily-habit streak (single denormalized row).
-      prisma.memberPoints.findUnique({
-        where: { userId: user.id },
-        select: { totalPoints: true, currentStreak: true, longestStreak: true },
-      }),
-      // Active pipeline = anything that isn't rejected/accepted.
-      prisma.jobApplication.count({
-        where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
-      }),
-      // A few recent active applications for the "Active Job Pipeline" card.
-      prisma.jobApplication.findMany({
-        where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
-        orderBy: { updatedAt: 'desc' },
-        take: 4,
-        select: { role: true, company: true, status: true, updatedAt: true },
-      }),
-      // Active goals for the compact goals summary card.
-      prisma.goal.findMany({
-        where: { userId: user.id, status: 'ACTIVE' },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
-        select: { title: true, description: true, targetMetricValue: true, currentMetricValue: true },
-      }),
-      // Recent point-earning events → the command-center "Points" ledger.
-      prisma.pointsTransaction.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
-        select: { event: true, points: true },
-      }),
-      // Points earned in the trailing 7 days → the "N this week" chip.
-      prisma.pointsTransaction.aggregate({
-        _sum: { points: true },
-        where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
-      }),
-    ]));
-    const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
-    const leanProgram = leanSlug ? getProgramBySlug(leanSlug) : undefined;
-    const leanTotal = leanProgram?.courses?.length ?? 0;
-    const leanCompleted = leanSlug
-      ? await withDbRetry(() =>
-          prisma.courseProgress.count({
-            where: { userId: user.id, programSlug: leanSlug, status: 'COMPLETED' },
-          }),
-        )
-      : 0;
-    const leanPct = leanTotal ? Math.round((leanCompleted / leanTotal) * 100) : 0;
-    const firstNameLean = (ku?.fullName ?? user.email ?? 'there').split(' ')[0] || 'there';
-
-    // Map the top pending next-best-action to the "Next lesson" hint + the
-    // program resume link. Defaults preserve the kit's built-in copy.
-    const topLeanAction = leanActions[0] ?? null;
-    const programHref = leanSlug
-      ? `/dashboard?program=${encodeURIComponent(leanSlug)}`
-      : '/dashboard/program';
-
-    // Same top pending action, shaped for `MemberDoThisNextCard` (dominant
-    // banner above the kit home's bento grid). `variant: 'urgent'` /
-    // `weight` mirror how the legacy dashboard treats counselor/system
-    // authored `MemberNextBestAction` rows (see dynamicNextActions below).
-    // `null` when there's no pending action — the card renders nothing.
-    const leanDominantAction: NextBestAction | null = topLeanAction
-      ? {
-          id: topLeanAction.id,
-          title: topLeanAction.title,
-          body: topLeanAction.description,
-          href: topLeanAction.ctaHref,
-          cta: topLeanAction.ctaLabel,
-          variant: 'urgent',
-          weight: topLeanAction.priority + 100,
-        }
-      : null;
-
-    // JobApplicationStatus → pipeline stage label + tone + 3-step stage index
-    // for the command-center table's segmented tracker.
-    const stageToneByStatus: Record<string, { label: string; tone: 'warn' | 'muted' | 'info'; step: number }> = {
-      SAVED: { label: 'Saved', tone: 'muted', step: 0 },
-      APPLIED: { label: 'Applied', tone: 'muted', step: 1 },
-      PHONE_SCREEN: { label: 'Screening', tone: 'info', step: 2 },
-      INTERVIEWING: { label: 'Interviewing', tone: 'warn', step: 3 },
-      OFFER: { label: 'Offer', tone: 'warn', step: 3 },
-    };
-    const leanPipelineRows = leanPipeline.map((j) => {
-      const meta = stageToneByStatus[j.status] ?? { label: 'Applied', tone: 'muted' as const, step: 1 };
-      return {
-        role: j.role,
-        company: j.company,
-        stage: meta.label,
-        tone: meta.tone,
-        stageIndex: meta.step,
-        stageTotal: 3,
-        appliedLabel: j.updatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      };
+    const home = await loadMemberDashboardHome({
+      userId: user.id,
+      fallbackDisplayName: user.email,
+      provisionIfMissing: () => ensureAppUserProvisioned(user),
     });
-
-    // Recent point events → command-center ledger. Map each event to a human
-    // label (EVENT_LABELS) + a semantic dot color distinct from the crimson
-    // accent (learning=accent, career=info, streak/enrollment=gold).
-    const pointsLedgerColor = (event: string): 'accent' | 'info' | 'gold' => {
-      if (event === 'job_application' || event === 'interview_requested' || event === 'placement_recorded') return 'info';
-      if (event === 'daily_study' || event.startsWith('referral_') || event === 'program_enrolled') return 'gold';
-      return 'accent';
-    };
-    const leanPointsLedger = leanRecentPoints.map((t) => ({
-      label: EVENT_LABELS[t.event] ?? 'Points earned',
-      amount: t.points,
-      color: pointsLedgerColor(t.event),
-    }));
-    const leanPointsThisWeek = leanWeekPoints._sum.points ?? 0;
-
-    // ── Next badge / milestone (REAL data) ──
-    // Derived from the points level ladder (lib/member/pointsConfig LEVELS:
-    // Starter→Builder→Achiever→Champion). We reuse the lean `leanPointsRow`
-    // already loaded above (no extra query): progress within the current level
-    // band toward the next level's `min` threshold. At the top level (Champion)
-    // there's no next threshold, so we fall back to a cert-count milestone.
-    const leanTotalPoints = leanPointsRow?.totalPoints ?? 0;
-    const currentLevel = getLevelForPoints(leanTotalPoints);
-    const nextLevel = getNextLevel(currentLevel.name);
-    let nextBadgeName: string | undefined;
-    let nextBadgePercent: number | undefined;
-    let nextBadgeRemaining: string | undefined;
-    if (nextLevel) {
-      const bandStart = currentLevel.min;
-      const bandEnd = nextLevel.min; // next level's entry threshold
-      const span = Math.max(1, bandEnd - bandStart);
-      const into = Math.max(0, leanTotalPoints - bandStart);
-      nextBadgePercent = Math.max(0, Math.min(100, Math.round((into / span) * 100)));
-      const remainingPts = Math.max(0, bandEnd - leanTotalPoints);
-      nextBadgeName = nextLevel.label;
-      nextBadgeRemaining = `${remainingPts} ${remainingPts === 1 ? 'point' : 'points'}`;
-    } else {
-      // Top of the ladder: no further level. Use the next certification as the
-      // milestone so the card still reflects real, forward-looking progress.
-      nextBadgeName = leanCertCount > 0 ? 'Next certification' : 'First certification';
-      nextBadgePercent = 0;
-      nextBadgeRemaining = '1 certification';
-    }
-
-    // ── Compact goals summary (REAL data) ──
-    // Progress prefers the explicit target/current metric; goals logged only
-    // with free-text steps (see lib/member/goalSteps) fall back to a
-    // done/total step ratio, same convention the full GoalsModule uses.
-    const leanGoalSummaries = leanGoals.map((g) => {
-      let percent: number;
-      if (g.targetMetricValue && g.targetMetricValue > 0) {
-        percent = Math.max(0, Math.min(100, Math.round((g.currentMetricValue / g.targetMetricValue) * 100)));
-      } else {
-        const { steps } = parseGoalDescription(g.description);
-        const total = steps.length;
-        const done = steps.filter((s) => s.done).length;
-        percent = total > 0 ? Math.round((done / total) * 100) : 0;
-      }
-      return { title: g.title, percent };
-    });
-
     return (
       <MemberHomeKit
-        firstName={firstNameLean}
-        coursePercent={leanPct}
-        programTitle={leanProgram?.title ?? undefined}
-        activeJobs={leanActiveJobs}
-        certs={leanCertCount}
-        points={leanPointsRow?.totalPoints ?? 0}
-        currentStreak={leanPointsRow?.currentStreak ?? 0}
-        longestStreak={leanPointsRow?.longestStreak ?? 0}
-        goals={leanGoalSummaries}
-        nextLesson={topLeanAction?.title ?? leanProgram?.title ?? 'Continue your training'}
-        nextLessonDue={topLeanAction ? 'Recommended next step' : 'Up next'}
-        nextBadgeName={nextBadgeName}
-        nextBadgePercent={nextBadgePercent}
-        nextBadgeRemaining={nextBadgeRemaining}
-        pipeline={leanPipelineRows.length > 0 ? leanPipelineRows : []}
-        certModulesDone={leanCompleted}
-        certModulesTotal={leanTotal}
-        pointsLedger={leanPointsLedger}
-        pointsThisWeek={leanPointsThisWeek > 0 ? leanPointsThisWeek : undefined}
-        resumeHref={topLeanAction?.ctaHref ?? programHref}
-        coursesHref={programHref}
-        toolkitHref="/dashboard/toolkit"
-        jobsHref="/dashboard/jobs"
-        doThisNext={leanDominantAction}
+        firstName={home.firstName}
+        coursePercent={home.coursePercent}
+        programTitle={home.programTitle}
+        activeJobs={home.activeJobs}
+        certs={home.certs}
+        points={home.points}
+        currentStreak={home.currentStreak}
+        longestStreak={home.longestStreak}
+        goals={home.goals}
+        nextLesson={home.nextLesson}
+        nextLessonDue={home.nextLessonDue}
+        nextBadgeName={home.nextBadgeName}
+        nextBadgePercent={home.nextBadgePercent}
+        nextBadgeRemaining={home.nextBadgeRemaining}
+        pipeline={home.pipeline}
+        certModulesDone={home.certModulesDone}
+        certModulesTotal={home.certModulesTotal}
+        pointsLedger={home.pointsLedger}
+        pointsThisWeek={home.pointsThisWeek}
+        resumeHref={home.resumeHref}
+        coursesHref={home.coursesHref}
+        toolkitHref={home.toolkitHref}
+        jobsHref={home.jobsHref}
+        doThisNext={home.doThisNext}
       />
     );
   }
@@ -397,21 +207,9 @@ async function renderMemberDashboard(
     redirect('/login');
   }
 
-  // ── Auto-sync trigger (non-blocking; fail-soft) ──
-  // First-visit members who have a Coursera identity mapping but zero local
-  // CourseProgress rows get their enrollment + xAPI seeded. This used to be
-  // `await`ed here, but it makes live Coursera + DB calls and was a major
-  // contributor to the dashboard render exceeding Vercel's function timeout
-  // ("portal hit an unexpected error" / endless skeletons). Fire it without
-  // blocking the render: the dedupe (`users.last_coursera_auto_sync_at`) and
-  // the background cron still ensure it runs, and the seeded numbers appear on
-  // the next load instead of blocking this one. See lib/coursera/dashboardAutoSync.ts.
-  void maybeAutoSyncCourseraOnDashboard({
-    userId: user.id,
-    userEmail: user.email ?? null,
-  }).catch((err) => {
-    console.warn('[dashboard] background Coursera auto-sync failed:', err);
-  });
+  // Coursera auto-sync is off the render path (SCALE Phase 2). Hourly cron
+  // `coursera-training-sync` seeds enrollment + xAPI. This `?ui=legacy` branch
+  // is still fat (career-brief + getMemberState + B4B + ~24 Prisma calls).
 
   // ── Multi-program resolution ──
   // Drive the hero name + progress + selector chip from `CourseEnrollment`

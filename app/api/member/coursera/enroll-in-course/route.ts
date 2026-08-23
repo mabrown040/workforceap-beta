@@ -232,7 +232,7 @@ async function _POST(request: Request) {
  * We don't call the auto-sync HTTP route to avoid a self-fan-out.
  *
  * Worst case (no Coursera identity mapping yet, e.g. the user just got
- * invited): we no-op silently. The cron / dashboard auto-sync trigger
+ * invited): we no-op silently. The cron / member auto-sync route
  * will pick it up after the user accepts the invite.
  */
 async function triggerAutoSyncBestEffort(args: {

@@ -1,7 +1,8 @@
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
 
 /** Route-level skeleton for the member dashboard home.
- *  Shown while the async page data (memberState, intake, B4B progress, etc.) resolves.
+ *  Default kit UI waits on `loadMemberDashboardHome` (1–2 Prisma ops).
+ *  `?ui=legacy` still resolves memberState / intake / B4B.
  */
 export default function DashboardLoading() {
   return <DashboardSkeleton />;

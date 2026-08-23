@@ -52,3 +52,22 @@ export function summarizeRetentionOutcomes(rows: ReadonlyArray<RetentionOutcomeR
   }
   return { retained, notRetainedOrSeparated: notRetained, pendingDecision: pending, total: rows.length };
 }
+
+/** Same classification as `summarizeRetentionOutcomes`, over `groupBy` buckets. */
+export function summarizeRetentionGroups(
+  groups: ReadonlyArray<RetentionOutcomeRow & { count: number }>,
+): RetentionSummary {
+  let retained = 0;
+  let notRetained = 0;
+  let pending = 0;
+  let total = 0;
+  for (const group of groups) {
+    const n = Number.isFinite(group.count) && group.count > 0 ? Math.floor(group.count) : 0;
+    total += n;
+    const outcome = classifyRetentionOutcome(group);
+    if (outcome === 'retained') retained += n;
+    else if (outcome === 'not_retained') notRetained += n;
+    else pending += n;
+  }
+  return { retained, notRetainedOrSeparated: notRetained, pendingDecision: pending, total };
+}

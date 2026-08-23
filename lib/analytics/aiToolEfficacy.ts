@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import type { Prisma } from '@prisma/client';
+import { ANALYTICS_COHORT_DETAIL_CAP } from '@/lib/db/scanCaps';
 
 /**
  * AI Tool Efficacy Analysis
@@ -113,7 +113,8 @@ async function fetchEnrolledMembers(
   dateRange: AIEfficacyDateRange
 ): Promise<EnrolledMemberRow[]> {
   return prisma.user.findMany({
-    take: 5000,
+    take: ANALYTICS_COHORT_DETAIL_CAP,
+    orderBy: { enrolledAt: 'asc' },
     where: {
       deletedAt: null,
       organizationId: orgId,
@@ -144,7 +145,7 @@ async function fetchToolUsageMap(
   dateRange: AIEfficacyDateRange
 ): Promise<Map<string, Set<string>>> {
   const usage = await prisma.aIToolResult.findMany({
-    take: 5000,
+    take: ANALYTICS_COHORT_DETAIL_CAP,
     where: {
       userId: { in: userIds },
       createdAt: { gte: dateRange.start, lte: dateRange.end },

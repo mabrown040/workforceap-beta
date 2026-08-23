@@ -8,8 +8,9 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_COHORT_DETAIL_CAP, REPORT_SAMPLE_CAP } from '@/lib/db/scanCaps';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
-import { summarizeRetentionOutcomes, type RetentionSummary } from './retentionOutcome';
+import { summarizeRetentionGroups, type RetentionSummary } from './retentionOutcome';
 
 export interface QuarterSpec {
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
@@ -126,7 +127,8 @@ interface EnrolledMemberRow {
 
 async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Promise<EnrolledMemberRow[]> {
   return prisma.user.findMany({
-    take: 5000,
+    take: ANALYTICS_COHORT_DETAIL_CAP,
+    orderBy: { enrolledAt: 'asc' },
     where: {
       organizationId: orgId,
       deletedAt: null,
@@ -193,7 +195,8 @@ function buildCompletionRows(members: ReadonlyArray<EnrolledMemberRow>): Complet
 
 async function fetchPlacements(orgId: string, start: Date, end: Date) {
   return prisma.placementRecord.findMany({
-    take: 5000,
+    take: REPORT_SAMPLE_CAP,
+    orderBy: { placedAt: 'asc' },
     where: {
       placedAt: { gte: start, lte: end },
       startDateVerified: true,
@@ -224,24 +227,23 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** Every org placement whose N-day retention window has elapsed by `windowEnd`. */
 async function fetchRetentionRowsAsOf(orgId: string, windowEnd: Date, windowDays: number) {
   const cutoff = new Date(windowEnd.getTime() - windowDays * DAY_MS);
-  return prisma.placementRecord.findMany({
-    take: 10000,
+  return prisma.placementRecord.groupBy({
+    by: ['retentionStatus', 'retentionDecision'],
     where: {
       user: { organizationId: orgId },
       placedAt: { lte: cutoff },
       startDateVerified: true,
     },
-    select: { retentionStatus: true, retentionDecision: true },
+    _count: { _all: true },
   });
 }
 
 async function fetchAiToolUserIds(userIds: string[]): Promise<Set<string>> {
   if (userIds.length === 0) return new Set();
-  const results = await prisma.aIToolResult.findMany({
-    take: 5000,
+  const results = await prisma.aIToolResult.groupBy({
+    by: ['userId'],
     where: { userId: { in: userIds } },
-    select: { userId: true },
-    distinct: ['userId'],
+    _count: { _all: true },
   });
   return new Set(results.map((r) => r.userId));
 }
@@ -283,16 +285,30 @@ export async function generateQuarterlyOutcomes(
 ): Promise<QuarterlyOutcomesReport> {
   const { start, end } = quarterToDates(spec);
 
-  const [enrolledMembers, placements, ninetyDayRetentionRows, hundredEightyDayRetentionRows] = await Promise.all([
+  const [enrolledMembers, totalEnrolled, placements, placementCount, ninetyDayRetentionRows, hundredEightyDayRetentionRows] = await Promise.all([
     fetchEnrolledMembers(orgId, start, end),
+    prisma.user.count({
+      where: {
+        organizationId: orgId,
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        enrolledAt: { gte: start, lte: end },
+      },
+    }),
     fetchPlacements(orgId, start, end),
+    prisma.placementRecord.count({
+      where: {
+        placedAt: { gte: start, lte: end },
+        startDateVerified: true,
+        user: { organizationId: orgId },
+      },
+    }),
     fetchRetentionRowsAsOf(orgId, end, 90),
     fetchRetentionRowsAsOf(orgId, end, 180),
   ]);
   const completionRows = buildCompletionRows(enrolledMembers);
 
   const completionSet = buildCompletedUserSet(completionRows);
-  const totalEnrolled = enrolledMembers.length;
 
   // Categorize enrolled members
   const placedUserIds = new Set(placements.map((p) => p.userId));
@@ -420,7 +436,7 @@ export async function generateQuarterlyOutcomes(
     metrics: {
       totalEnrolled,
       completions: completionSet.size,
-      placements: placements.length,
+      placements: placementCount,
       activeMembers: activeMembers.length,
       dropOffs: dropOffMembers.length,
       dropOffRate: totalEnrolled > 0 ? Math.round((dropOffMembers.length / totalEnrolled) * 100) : 0,
@@ -432,8 +448,20 @@ export async function generateQuarterlyOutcomes(
       salaryMax: salaries.length > 0 ? Math.max(...salaries) : null,
     },
     retention: {
-      ninetyDay: summarizeRetentionOutcomes(ninetyDayRetentionRows),
-      hundredEightyDay: summarizeRetentionOutcomes(hundredEightyDayRetentionRows),
+      ninetyDay: summarizeRetentionGroups(
+        ninetyDayRetentionRows.map((r) => ({
+          retentionStatus: r.retentionStatus,
+          retentionDecision: r.retentionDecision,
+          count: r._count._all,
+        })),
+      ),
+      hundredEightyDay: summarizeRetentionGroups(
+        hundredEightyDayRetentionRows.map((r) => ({
+          retentionStatus: r.retentionStatus,
+          retentionDecision: r.retentionDecision,
+          count: r._count._all,
+        })),
+      ),
     },
     programBreakdown,
     placementsList,

@@ -772,18 +772,18 @@ html.dark .blog-cta-buttons .btn-ghost {
 }
 html.dark .apply-location-callout,
 html.dark .apply-eligibility-note.apply-location-callout {
-    background: #161a1f;
-    border: 1px solid #2d3540;
-    color: #e2e8f0;
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    color: var(--color-on-surface);
     box-shadow: none;
 }
 html.dark .apply-location-callout strong {
-    color: #f8fafc;
+    color: var(--color-on-surface);
 }
 html.dark .apply-info-banner {
-    background: #161a1f;
-    border-color: #2d3540;
-    color: #cbd5e1;
+    background: var(--surface-container);
+    border-color: var(--outline-variant);
+    color: var(--color-on-surface-variant);
 }
 html.dark .expectations-box {
     background: #161a1f;
@@ -797,9 +797,9 @@ html.dark .expectations-box li {
     color: #cbd5e1;
 }
 html.dark .apply-hero-no-cost-callout {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.22);
-    color: #f8fafc;
+    background: color-mix(in srgb, var(--color-on-accent) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-on-accent) 22%, transparent);
+    color: var(--color-on-accent);
 }
 html.dark .apply-hero-no-cost-callout strong {
     color: var(--color-gold);
@@ -810,17 +810,17 @@ html.dark .form-radio-card {
     color: var(--color-on-surface);
 }
 html.dark .apply-results-program-card {
-    background: #161a1f !important;
-    border-color: #2d3540 !important;
-    color: #e5e7eb;
+    background: var(--surface-container) !important;
+    border-color: var(--outline-variant) !important;
+    color: var(--color-on-surface);
 }
 html.dark .apply-results-program-card .apply-results-program-card-title {
-    color: #f1f5f9;
+    color: var(--color-on-surface);
 }
 html.dark .apply-results-anyway {
-    background: #161a1f !important;
-    border-color: #2d3540 !important;
-    color: #e2e8f0 !important;
+    background: var(--surface-container) !important;
+    border-color: var(--outline-variant) !important;
+    color: var(--color-on-surface) !important;
 }
 html.dark .apply-foundational-support {
     background: rgba(74, 155, 79, 0.12);
@@ -828,10 +828,10 @@ html.dark .apply-foundational-support {
 }
 html.dark .apply-foundational-support__title,
 html.dark .apply-foundational-support__list {
-    color: #e2e8f0;
+    color: var(--color-on-surface);
 }
 html.dark .apply-results-program-hint {
-    color: #94a3b8;
+    color: var(--color-on-surface-variant);
 }
 html.dark .quiz-results-next-links a {
     color: #f472b6;
@@ -1581,17 +1581,17 @@ html.dark .partner-panel p {
 }
 html.dark .apply-location-callout,
 html.dark .apply-eligibility-note {
-    background: #161a1f;
-    border: 1px solid var(--color-border);
-    color: var(--color-gray-300);
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    color: var(--color-on-surface-variant);
     box-shadow: none;
 }
 html.dark .apply-location-callout,
 html.dark .apply-location-callout * {
-    color: var(--color-gray-300);
+    color: var(--color-on-surface-variant);
 }
 html.dark .apply-location-callout strong {
-    color: var(--color-gray-100);
+    color: var(--color-on-surface);
 }
 html.dark .inner-page .form-group label,
 html.dark .apply-flow .form-group label,

@@ -157,7 +157,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // a failure must not block the render; the GUC bootstrap below still runs.
     const supabaseUser = await getUser();
     if (supabaseUser) {
-      await ensureAppUserProvisioned(supabaseUser).catch((err) => {
+      await ensureAppUserProvisioned(supabaseUser, { headers: h }).catch((err) => {
         console.error('[layout:guc] ensureAppUserProvisioned failed; continuing', err);
       });
     }

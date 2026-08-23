@@ -59,6 +59,9 @@ const state = vi.hoisted(() => ({
   }[],
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
+  resolvedOrgId: 'org-test-1',
+  provisionCalls: [] as Array<{ headers?: unknown; programSlug?: string | null }>,
+  userUpserts: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -73,7 +76,10 @@ vi.mock('@/lib/turnstile/verifyTurnstile', () => ({
 vi.mock('@/lib/db/prisma', () => {
   const tx = {
     user: {
-      upsert: vi.fn(async () => ({})),
+      upsert: vi.fn(async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        state.userUpserts.push(args);
+        return {};
+      }),
       findUnique: vi.fn(async () => null),
     },
     courseEnrollment: {
@@ -164,6 +170,13 @@ vi.mock('@/lib/analytics/conversionValue', () => ({
 
 vi.mock('@/lib/tenant/organization', () => ({
   getDefaultOrganizationId: vi.fn(async () => 'org-test-1'),
+}));
+
+vi.mock('@/lib/tenant/resolveProvisionOrg', () => ({
+  resolveProvisionOrganizationId: vi.fn(async (input: { programSlug?: string | null }) => {
+    state.provisionCalls.push(input);
+    return state.resolvedOrgId;
+  }),
 }));
 
 vi.mock('@/lib/observability/captureApiError', () => ({
@@ -263,6 +276,9 @@ function resetState() {
   state.cookieSets.length = 0;
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
+  state.provisionCalls.length = 0;
+  state.userUpserts.length = 0;
+  state.resolvedOrgId = 'org-test-1';
   state.partner = null;
   state.sponsoredSeatCount = 0;
   state.cookies = {};
@@ -779,5 +795,46 @@ describe('POST /api/apply/signup partner ref cookie handling', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
     expect(state.partnerReferralUpserts).toHaveLength(0);
+  });
+});
+
+describe('POST /api/apply/signup tenant org resolution', () => {
+  beforeEach(resetState);
+
+  it('writes the resolved request/program org, not a hardcoded default', async () => {
+    state.resolvedOrgId = 'org-from-host';
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    expect(state.provisionCalls).toHaveLength(1);
+    expect(state.provisionCalls[0].programSlug).toBe(
+      'it-support-professional-certificate-ibm',
+    );
+    expect(state.userUpserts[0].create.organizationId).toBe('org-from-host');
+    expect(state.enrollmentUpserts[0].create.organizationId).toBe('org-from-host');
+  });
+
+  it('scopes partner lookup to the resolved org so a foreign-tenant ref is ignored', async () => {
+    state.resolvedOrgId = 'org-from-host';
+    state.partner = {
+      id: 'partner-other-org',
+      name: 'Other Org School',
+      partnerType: 'high_school',
+      sponsoredEnrollment: true,
+      sponsorshipFundingSource: null,
+      sponsorshipTermLabel: null,
+      sponsorshipStartsAt: null,
+      sponsorshipEndsAt: null,
+      sponsorshipSeatCap: null,
+      schoolDistrict: null,
+    };
+
+    await POST(makeRequest({ referralRef: 'other-school' }));
+
+    expect(state.partnerLookups[0].where).toMatchObject({
+      active: true,
+      organizationId: 'org-from-host',
+    });
   });
 });

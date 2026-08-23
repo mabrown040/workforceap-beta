@@ -66,11 +66,19 @@ export default async function AdminPlacementsPage({
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
-  const placements: PlacementRecord[] = await prisma.placementRecord.findMany({
-    orderBy: { placedAt: 'desc' },
-    take: 500,
-    select: placementListSelect,
-  });
+  let placements: PlacementRecord[] = [];
+  let listError: string | null = null;
+  try {
+    placements = await prisma.placementRecord.findMany({
+      orderBy: { placedAt: 'desc' },
+      take: 500,
+      select: placementListSelect,
+    });
+  } catch (err) {
+    console.error('[admin/placements] list load failed', err);
+    listError =
+      'Placements could not be loaded. Try again, or record a placement if you already have the hire details.';
+  }
 
   // Legacy → the original sortable/exportable admin table.
   if (requestedUi === 'legacy') {
@@ -91,6 +99,12 @@ export default async function AdminPlacementsPage({
             </div>
           }
         />
+        {listError ? (
+          <p role="alert" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
+            {listError}{' '}
+            <Link href="/admin/placements/new">Record placement</Link>
+          </p>
+        ) : null}
         <PlacementsTableClient placements={placements} />
       </PortalPageFrame>
     );
@@ -169,6 +183,7 @@ export default async function AdminPlacementsPage({
       retention90d={retention90d}
       toConfirm={toConfirm}
       total={placements.length}
+      loadError={listError}
     />
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useFocusTrap } from '@/components/portal/kit';
 import {
   detectGpc,
   pushConsentToGtag,
@@ -35,6 +36,7 @@ export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasMobileBottomNav, setHasMobileBottomNav] = useState(false);
+  const dialogRef = useFocusTrap<HTMLDivElement>(visible);
 
   useEffect(() => {
     const existing = readConsent();
@@ -95,6 +97,7 @@ export default function CookieConsentBanner() {
 
   return (
     <div
+      ref={dialogRef}
       style={{
         position: 'fixed',
         bottom: isMobileViewport
@@ -117,6 +120,7 @@ export default function CookieConsentBanner() {
         boxShadow: '0 -10px 30px rgba(0,0,0,0.18)',
       }}
       role="dialog"
+      aria-modal="true"
       aria-label="Cookie consent"
     >
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -152,7 +156,7 @@ export default function CookieConsentBanner() {
             minHeight: 44,
             padding: isMobileViewport ? '0.5rem 0.85rem' : '0.5rem 1rem',
             background: 'var(--color-accent)',
-            color: '#fff',
+            color: 'var(--color-on-accent)',
             border: 'none',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.8rem',

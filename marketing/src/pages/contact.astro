@@ -183,7 +183,11 @@ const SHOW_TURNSTILE = CAPTCHA_ENABLED && TURNSTILE_SITE_KEY.length > 0;
 
       function showError(msg) {
         if (!errEl) return;
-        errEl.textContent = msg;
+        var text = msg || 'Something went wrong. Please try again.';
+        if (text.indexOf('workforceap.org') === -1 && text.indexOf('777-1808') === -1) {
+          text += ' Or email info@workforceap.org / call (512) 777-1808.';
+        }
+        errEl.textContent = text;
         errEl.hidden = false;
       }
 
@@ -226,7 +230,7 @@ const SHOW_TURNSTILE = CAPTCHA_ENABLED && TURNSTILE_SITE_KEY.length > 0;
           .then(function (res) {
             return res.json().catch(function () { return {}; }).then(function (data) {
               if (!res.ok) {
-                throw new Error(typeof data.error === 'string' ? data.error : 'Something went wrong. Please try again.');
+                throw new Error(typeof data.error === 'string' ? data.error : 'Something went wrong. Please try again, or email info@workforceap.org / call (512) 777-1808.');
               }
               form.hidden = true;
               if (okEl) {
@@ -240,7 +244,8 @@ const SHOW_TURNSTILE = CAPTCHA_ENABLED && TURNSTILE_SITE_KEY.length > 0;
             if (window.turnstile && typeof window.turnstile.reset === 'function') {
               try { window.turnstile.reset(); } catch (_) { /* ignore */ }
             }
-            showError(err && err.message ? err.message : 'Network error. Please try again.');
+            var fallback = 'Network error. Please try again, or email info@workforceap.org / call (512) 777-1808.';
+            showError(err && err.message ? err.message : fallback);
           });
       });
     })();

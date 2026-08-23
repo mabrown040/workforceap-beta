@@ -67,6 +67,8 @@ export interface PlacementsKitProps {
   toConfirm: number;
   /** Total placements in this view (footer). */
   total: number;
+  /** Query failed — show a next-step error, do not pretend the roster is empty. */
+  loadError?: string | null;
 }
 
 const SURVEY_TONE: Record<SurveyStatus, TokenColor> = {
@@ -86,6 +88,7 @@ export function PlacementsKit({
   retention90d,
   toConfirm,
   total,
+  loadError = null,
 }: PlacementsKitProps) {
   const router = useRouter();
 
@@ -154,6 +157,9 @@ export function PlacementsKit({
         goal="Confirmed hires & wage data"
         action={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <AstryxLink href="/admin/placements/new" as={NextLink as never} isStandalone>
+              <Button label="Record placement" variant="primary" size="sm" />
+            </AstryxLink>
             <AstryxLink href="/admin/placements/retention" as={NextLink as never} isStandalone>
               <Button label="Retention decisions due" variant="secondary" size="sm" />
             </AstryxLink>
@@ -163,6 +169,31 @@ export function PlacementsKit({
           </div>
         }
       />
+
+      {loadError ? (
+        <p
+          role="alert"
+          style={{
+            margin: '0 0 16px',
+            padding: '12px 14px',
+            borderRadius: 'var(--wa-radius-sm)',
+            border: '1px solid color-mix(in srgb, var(--wa-danger) 35%, var(--wa-border))',
+            background: 'color-mix(in srgb, var(--wa-danger) 10%, var(--wa-surface))',
+            color: 'var(--wa-text)',
+            fontSize: 13,
+            lineHeight: 1.45,
+          }}
+        >
+          {loadError}{' '}
+          <AstryxLink href="/admin/placements/new" as={NextLink as never}>
+            Record a placement
+          </AstryxLink>
+          {' · '}
+          <AstryxLink href="/admin/placements?ui=legacy" as={NextLink as never}>
+            Open table view
+          </AstryxLink>
+        </p>
+      ) : null}
 
       <div className="wa-mb-5">
         <KpiStrip items={kpis} />
@@ -235,8 +266,12 @@ export function PlacementsKit({
             </div>
           </Card>
         )}
-        emptyTitle="No placements yet"
-        emptyDescription="When a member lands a job, record it here so outcomes reporting stays accurate."
+        emptyTitle={loadError ? 'Placements unavailable' : 'No placements yet'}
+        emptyDescription={
+          loadError
+            ? 'The roster did not load. Use Record placement if you already have the hire details, or retry this page.'
+            : 'When a member lands a job, use Record placement so outcomes reporting stays accurate.'
+        }
       />
 
       <p

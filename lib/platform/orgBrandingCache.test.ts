@@ -39,11 +39,11 @@ test('cachedOrgBranding misses after TTL and reloads', async () => {
 
   const t0 = 10_000;
   const first = await cachedOrgBranding('org-ttl', load, t0);
-  const expired = await cachedOrgBranding('org-ttl', load, t0 + ORG_BRANDING_CACHE_TTL_MS + 1);
   assert.equal(first.primaryColor, '#111111');
+  assert.equal(getCachedOrgBranding('org-ttl', t0 + ORG_BRANDING_CACHE_TTL_MS), null);
+  const expired = await cachedOrgBranding('org-ttl', load, t0 + ORG_BRANDING_CACHE_TTL_MS);
   assert.equal(expired.primaryColor, '#222222');
   assert.equal(loads, 2);
-  assert.equal(getCachedOrgBranding('org-ttl', t0 + ORG_BRANDING_CACHE_TTL_MS), null);
 });
 
 test('cachedOrgBranding isolates orgs', async () => {

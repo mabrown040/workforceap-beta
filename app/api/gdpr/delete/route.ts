@@ -8,6 +8,10 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { deleteSupabaseAuthUser } from '@/lib/gdpr/deleteAuthUser';
+import {
+  ACCOUNT_STORAGE_DELETE_FAILED,
+  deleteUserStorageObjects,
+} from '@/lib/gdpr/deleteUserStorage';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -70,6 +74,12 @@ export const POST = withApiGuc(async (request: Request) => {
   await supabase.auth.signOut({ scope: 'global' });
 
   const userId = user.id;
+
+  const storage = await deleteUserStorageObjects(userId);
+  if (!storage.ok) {
+    console.error('[gdpr/delete] storage object delete failed:', storage.error);
+    return NextResponse.json({ error: ACCOUNT_STORAGE_DELETE_FAILED }, { status: 502 });
+  }
 
   // Anonymize user record
   await prisma.$executeRaw`

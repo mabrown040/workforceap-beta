@@ -84,6 +84,12 @@
 | `NEXT_PUBLIC_CAPTCHA_ENABLED` | 🟡 👁️ | Enable Cloudflare Turnstile | `false` | Public forms |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | 🟡 👁️ | Turnstile site key (public) | `0x4AAAA...` | Employer contact, public forms |
 | `TURNSTILE_SECRET_KEY` | 🟡 🔒 | Turnstile secret key | `0x4AAAA...` | API validation |
+| `UPSTASH_REDIS_REST_URL` | 🟡 🔒 | Upstash Redis REST URL for rate limiters | `https://….upstash.io` | `lib/rate-limit.ts` |
+| `UPSTASH_REDIS_REST_TOKEN` | 🟡 🔒 | Upstash Redis REST token | `AXxxxx` | `lib/rate-limit.ts` |
+| `RATE_LIMIT_ALLOW_MISSING_UPSTASH` | 🟢 🔒 | Set `1` to boot production/preview without Redis. Auth/contact/partner-signup/MFA/bulk-email fail-open. Apply/signup stay open unless `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1`. | `1` | `lib/rate-limit.ts`, `lib/rate-limit-policy.ts` |
+| `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED` | 🟢 🔒 | Set `1` to 429 apply/member signup when Redis is missing, even if `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`. Off by default so pre-prod conversion is not bricked. | `1` | `lib/rate-limit-policy.ts` |
+
+Still fail-open when Redis is missing (dev, or prod with `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`): public GET caps, invite-accept, org-onboard, careers-recommend, interest-profiler, webhooks, message-send, employer job-import, admin invite / token-links, Coursera identity, voice session, AI tools.
 
 ---
 

@@ -6,12 +6,23 @@ import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import {
+  ACCOUNT_STORAGE_DELETE_FAILED,
+  deleteUserStorageObjects,
+} from '@/lib/gdpr/deleteUserStorage';
+
 export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
     try {
+      const storage = await deleteUserStorageObjects(user.id);
+      if (!storage.ok) {
+        console.error('[delete-account] storage object delete failed:', storage.error);
+        return NextResponse.json({ error: ACCOUNT_STORAGE_DELETE_FAILED }, { status: 502 });
+      }
+
       // Soft-delete in app DB AND release the email from the unique
       // constraint so the user (or anyone) can sign up again with the
       // same address. See app/api/admin/members/[id]/delete/route.ts.

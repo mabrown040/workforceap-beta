@@ -59,10 +59,17 @@ vi.mock('@/lib/gdpr/deleteAuthUser', () => ({
   deleteSupabaseAuthUser: vi.fn(),
 }));
 
+vi.mock('@/lib/gdpr/deleteUserStorage', () => ({
+  ACCOUNT_STORAGE_DELETE_FAILED:
+    'Stored files could not be deleted. Account was not erased. Please try again or contact support.',
+  deleteUserStorageObjects: vi.fn(),
+}));
+
 import { POST } from '@/app/api/gdpr/delete/route';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { deleteSupabaseAuthUser } from '@/lib/gdpr/deleteAuthUser';
+import { deleteUserStorageObjects } from '@/lib/gdpr/deleteUserStorage';
 
 describe('POST /api/gdpr/delete', () => {
   beforeEach(() => {
@@ -75,6 +82,7 @@ describe('POST /api/gdpr/delete', () => {
     signOut.mockResolvedValue({ error: null });
     vi.mocked(prisma.$executeRaw).mockResolvedValue(1);
     vi.mocked(deleteSupabaseAuthUser).mockResolvedValue({ error: null } as any);
+    vi.mocked(deleteUserStorageObjects).mockResolvedValue({ ok: true, deleted: [] } as any);
   });
 
   it('anonymizes user email and full name before deleting auth user', async () => {
@@ -94,6 +102,30 @@ describe('POST /api/gdpr/delete', () => {
 
     expect(userUpdateSql).toContain("email = 'deleted_' || id || '@workforceap.org'");
     expect(userUpdateSql).toContain("full_name = 'Deleted User'");
+    expect(deleteUserStorageObjects).toHaveBeenCalledWith('user-123');
     expect(deleteSupabaseAuthUser).toHaveBeenCalledWith('user-123');
+  });
+
+  it('does not claim erased when storage object delete fails', async () => {
+    vi.mocked(deleteUserStorageObjects).mockResolvedValue({
+      ok: false,
+      error: 'permission denied',
+      deleted: [],
+    } as any);
+
+    const res = await POST(
+      new Request('http://localhost:3000/api/gdpr/delete', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ password: 'correct-password' }),
+      })
+    );
+
+    expect(res.status).toBe(502);
+    expect(await res.json()).toMatchObject({
+      error: 'Stored files could not be deleted. Account was not erased. Please try again or contact support.',
+    });
+    expect(prisma.$executeRaw).not.toHaveBeenCalled();
+    expect(deleteSupabaseAuthUser).not.toHaveBeenCalled();
   });
 });

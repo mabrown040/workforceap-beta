@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminJobReadyTable, { type JobReadyRow } from '@/components/admin/AdminJobReadyTable';
@@ -21,9 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminJobReadyPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members/job-ready');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const candidates = await prisma.user.findMany({
+  const candidates = await withAdminPageScope(scope, (db) => db.user.findMany({
     take: 5000,
     where: {
       deletedAt: null,
@@ -42,7 +42,7 @@ export default async function AdminJobReadyPage() {
         select: { programSlug: true, averagePercent: true, coursesCompleted: true },
       },
     },
-  });
+  }));
 
   const rows: JobReadyRow[] = candidates
     .map((c) => {

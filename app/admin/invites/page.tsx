@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation';
 import { Send } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 import type { Prisma } from '@prisma/client';
 import {
   InvitesKit,
@@ -64,7 +63,8 @@ export default async function AdminInvitesPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/invites');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -76,16 +76,11 @@ export default async function AdminInvitesPage({
 
   // --- DEFAULT: real (lean) invites cockpit (design kit) ---
 
-  // Tenant scope: super-admins see all invites; tenant admins see only invites
-  // issued by users in their org (mirrors /api/admin/invites). A failed scope
-  // lookup degrades to "own org unknown" → empty list rather than leaking.
+  // Tenant scope: super-admins see all invites (platform ops); tenant admins
+  // see only invites issued by users in their org (mirrors /api/admin/invites).
   const where: Prisma.InvitationWhereInput = {};
-  if (!(await isSuperAdmin(user.id))) {
-    try {
-      where.invitedBy = { organizationId: await getActorOrganizationId(user.id) };
-    } catch {
-      where.id = '__none__'; // no org resolvable → show nothing
-    }
+  if (!scope.superAdmin) {
+    where.invitedBy = { organizationId: scope.orgId };
   }
 
   // Lean parallel reads: count by status (KPI) + recent rows (table).

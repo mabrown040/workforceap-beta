@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import PageHeader from '@/components/portal/PageHeader';
 import DeletedUsersClient, {
   type DeletedUserRow,
@@ -36,20 +35,23 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminDeletedUsersPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/users/deleted');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const rows = await prisma.user.findMany({
-    take: 5000,
-    where: { deletedAt: { not: null } },
-    orderBy: { deletedAt: 'desc' },
-    select: {
-      id: true,
-      email: true,
-      fullName: true,
-      deletedAt: true,
-      createdAt: true,
-    },
-  });
+  const rows = await withAdminPageScope(scope, (db) =>
+    db.user.findMany({
+      take: 5000,
+      where: { deletedAt: { not: null } },
+      orderBy: { deletedAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        deletedAt: true,
+        createdAt: true,
+      },
+    }),
+  );
 
   const data: DeletedUserRow[] = rows.map((r) => {
     const parsed = parseSentinelEmail(r.email);

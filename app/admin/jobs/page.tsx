@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import {
+  resolveAdminPageTenant,
+  withAdminPageScope,
+  type AdminPageTenant,
+} from '@/lib/tenant/adminPageScope';
 import type { JobStatusEnum } from '@prisma/client';
 import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import JobsTableClient from '@/components/admin/JobsTableClient';
@@ -102,45 +105,54 @@ export default async function AdminJobsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/jobs');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { filter, ui, page } = await searchParams;
 
   // --- DEFAULT: design-kit jobs board wired into real (lean) job data ---
   if (ui !== 'legacy') {
-    return renderKit({ actorUserId: user.id });
+    return renderKit({ actorUserId: user.id, scope });
   }
 
   // --- LEGACY (?ui=legacy): the proven review-queue workspace, unchanged ---
-  return renderLegacy({ filter, page, actorUserId: user.id });
+  return renderLegacy({ filter, page, actorUserId: user.id, scope });
 }
 
 /** Design-kit default: dense roster of open roles → <JobsBoardKit/>. */
-async function renderKit({ actorUserId }: { actorUserId: string }) {
+async function renderKit({
+  actorUserId,
+  scope,
+}: {
+  actorUserId: string;
+  scope: Extract<AdminPageTenant, { ok: true }>;
+}) {
   // Open roles = live + approved (publicly visible/active postings). Lean board
   // page + count + distinct-employer count, all in parallel; aggregate failures
   // degrade gracefully (the table must still render).
   const openWhere = { status: { in: ['live', 'approved'] as JobStatusEnum[] } };
 
-  const [jobsResult, openCountResult, employerGroupResult] = await Promise.allSettled([
-    prisma.job.findMany({
-      where: openWhere,
-      take: BOARD_LIMIT,
-      orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        location: true,
-        salaryMin: true,
-        salaryMax: true,
-        status: true,
-        employer: { select: { companyName: true } },
-        _count: { select: { applications: true } },
-      },
-    }),
-    prisma.job.count({ where: openWhere }),
-    prisma.job.groupBy({ by: ['employerId'], where: openWhere }),
-  ]);
+  const [jobsResult, openCountResult, employerGroupResult] = await withAdminPageScope(scope, (db) =>
+    Promise.allSettled([
+      db.job.findMany({
+        where: openWhere,
+        take: BOARD_LIMIT,
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          location: true,
+          salaryMin: true,
+          salaryMax: true,
+          status: true,
+          employer: { select: { companyName: true } },
+          _count: { select: { applications: true } },
+        },
+      }),
+      db.job.count({ where: openWhere }),
+      db.job.groupBy({ by: ['employerId'], where: openWhere }),
+    ]),
+  );
 
   // If the core query fails, fall back to the proven legacy workspace rather
   // than rendering a fabricated/empty kit.
@@ -187,10 +199,12 @@ async function renderLegacy({
   filter,
   page,
   actorUserId,
+  scope,
 }: {
   filter?: string;
   page?: string;
   actorUserId: string;
+  scope: Extract<AdminPageTenant, { ok: true }>;
 }) {
   const currentFilter = filter && ['all', 'pending', 'live', 'draft', 'filled', 'approved'].includes(filter)
     ? filter
@@ -221,24 +235,28 @@ async function renderLegacy({
   const jobsOrderBy = currentFilter === 'pending' ? { updatedAt: 'asc' as const } : { updatedAt: 'desc' as const };
 
   try {
-    [jobs, totalCount] = await Promise.all([
-      prisma.job.findMany({
-        where,
-        orderBy: jobsOrderBy,
-        skip: (currentPage - 1) * pageSize,
-        take: pageSize,
-        include: {
-          employer: { select: { companyName: true, contactEmail: true } },
-          _count: { select: { applications: true } },
-        },
-      }),
-      prisma.job.count({ where }),
-    ]);
+    [jobs, totalCount] = await withAdminPageScope(scope, (db) =>
+      Promise.all([
+        db.job.findMany({
+          where,
+          orderBy: jobsOrderBy,
+          skip: (currentPage - 1) * pageSize,
+          take: pageSize,
+          include: {
+            employer: { select: { companyName: true, contactEmail: true } },
+            _count: { select: { applications: true } },
+          },
+        }),
+        db.job.count({ where }),
+      ]),
+    );
 
-    const allCounts = await prisma.job.groupBy({
-      by: ['status'],
-      _count: { id: true },
-    });
+    const allCounts = await withAdminPageScope(scope, (db) =>
+      db.job.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+    );
 
     for (const r of allCounts) {
       if (r.status == null) continue;

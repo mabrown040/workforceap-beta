@@ -2,8 +2,12 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import {
+  inheritMemberOrg,
+  inheritUserOrg,
+  resolveAdminPageTenant,
+  withAdminPageScope,
+} from '@/lib/tenant/adminPageScope';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminCounselorsClient from '@/components/admin/AdminCounselorsClient';
 import {
@@ -51,19 +55,22 @@ export default async function AdminCounselorsPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/counselors');
 
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
   // Legacy → the original add-counselor form + flat roster list.
   if (requestedUi === 'legacy') {
-    const partners = await prisma.partner.findMany({
-      take: 5000,
-      where: { active: true },
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true },
-    });
+    const partners = await withAdminPageScope(scope, (db) =>
+      db.partner.findMany({
+        take: 5000,
+        where: { active: true },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true },
+      }),
+    );
 
     return (
       <div className="admin-main-content">
@@ -84,28 +91,30 @@ export default async function AdminCounselorsPage({
   // Active counselors + their active assignments (with the member signals we
   // aggregate). Two lean findMany calls in parallel; if either core query
   // fails we fall back to the proven legacy form rather than a fake kit.
-  const [counselorsResult, assignmentsResult] = await Promise.allSettled([
-    prisma.counselor.findMany({
-      where: { active: true },
-      take: 500,
-      orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
-      select: {
-        id: true,
-        affiliation: true,
-        title: true,
-        partner: { select: { name: true } },
-        user: { select: { fullName: true } },
-      },
-    }),
-    prisma.counselorAssignment.findMany({
-      where: { active: true },
-      take: 20000,
-      select: {
-        counselorId: true,
-        member: { select: { memberStatus: true, lastLoginAt: true } },
-      },
-    }),
-  ]);
+  const [counselorsResult, assignmentsResult] = await withAdminPageScope(scope, (db) =>
+    Promise.allSettled([
+      db.counselor.findMany({
+        where: { active: true, ...inheritUserOrg(scope) },
+        take: 500,
+        orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
+        select: {
+          id: true,
+          affiliation: true,
+          title: true,
+          partner: { select: { name: true } },
+          user: { select: { fullName: true } },
+        },
+      }),
+      db.counselorAssignment.findMany({
+        where: { active: true, ...inheritMemberOrg(scope) },
+        take: 20000,
+        select: {
+          counselorId: true,
+          member: { select: { memberStatus: true, lastLoginAt: true } },
+        },
+      }),
+    ]),
+  );
 
   if (counselorsResult.status === 'rejected') {
     console.error('[admin/counselors] counselor load failed', counselorsResult.reason);

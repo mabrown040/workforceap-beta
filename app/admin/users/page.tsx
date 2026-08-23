@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminUsersManager from '@/components/admin/AdminUsersManager';
@@ -72,7 +72,8 @@ export default async function AdminUsersPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/users');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -84,22 +85,24 @@ export default async function AdminUsersPage({
     const pageSize = 50;
 
     const [users, canManageRoles, deletedCount, totalCount] = await Promise.all([
-      prisma.user.findMany({
-        where: { deletedAt: null },
-        orderBy: { createdAt: 'desc' },
-        skip: (currentPage - 1) * pageSize,
-        take: pageSize,
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          createdAt: true,
-          profile: { select: { role: true } },
-        },
-      }),
+      withAdminPageScope(scope, (db) =>
+        db.user.findMany({
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'desc' },
+          skip: (currentPage - 1) * pageSize,
+          take: pageSize,
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            createdAt: true,
+            profile: { select: { role: true } },
+          },
+        }),
+      ),
       isSuperAdmin(user.id),
-      prisma.user.count({ where: { deletedAt: { not: null } } }),
-      prisma.user.count({ where: { deletedAt: null } }),
+      withAdminPageScope(scope, (db) => db.user.count({ where: { deletedAt: { not: null } } })),
+      withAdminPageScope(scope, (db) => db.user.count({ where: { deletedAt: null } })),
     ]);
 
     return (
@@ -140,21 +143,23 @@ export default async function AdminUsersPage({
 
   // --- DEFAULT: real (lean) staff accounts roster (design kit) ---
   // Filter to staff/admin/counselor roles only — NOT all members.
-  const staffResult = await prisma.user.findMany({
-    take: 500,
-    where: {
-      deletedAt: null,
-      profile: { role: { in: [...STAFF_ROLES] } },
-    },
-    orderBy: [{ lastLoginAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      lastLoginAt: true,
-      profile: { select: { role: true } },
-    },
-  });
+  const staffResult = await withAdminPageScope(scope, (db) =>
+    db.user.findMany({
+      take: 500,
+      where: {
+        deletedAt: null,
+        profile: { role: { in: [...STAFF_ROLES] } },
+      },
+      orderBy: [{ lastLoginAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        lastLoginAt: true,
+        profile: { select: { role: true } },
+      },
+    }),
+  );
 
   const activeCutoff = new Date();
   activeCutoff.setDate(activeCutoff.getDate() - ACTIVE_IDLE_DAYS);

@@ -505,4 +505,96 @@ assertContains(
   'onboarding reset has auth',
 );
 
-console.log('[verify-high-risk-tenant-routes] OK — 50 routes verified');
+// --- Admin SSR list/detail pages that used global isAdmin() + unscoped findMany ---
+
+assertContains(
+  'lib/tenant/adminPageScope.ts',
+  ['isAdminInOrg', 'withTenantScope', 'superAdmin', 'inheritUserOrg'],
+  'admin SSR page scope helper (org admin scoped; super-admin cross-tenant)',
+);
+
+assertContains(
+  'app/admin/users/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin users SSR list is org-scoped',
+);
+
+assertContains(
+  'app/admin/users/deleted/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin deleted-users SSR list is org-scoped',
+);
+
+assertContains(
+  'app/admin/students/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg'],
+  'admin students SSR roster is org-scoped',
+);
+
+assertContains(
+  'app/admin/jobs/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin jobs SSR board is org-scoped',
+);
+
+assertContains(
+  'app/admin/jobs/[id]/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'findFirst'],
+  'admin job detail is org-scoped (findFirst + injected organizationId)',
+);
+
+assertContains(
+  'app/admin/employers/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritJobOrg'],
+  'admin employers SSR directory is org-scoped',
+);
+
+assertContains(
+  'app/admin/employers/[id]/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'findFirst'],
+  'admin employer detail is org-scoped',
+);
+
+assertContains(
+  'app/admin/wioa-screening/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin WIOA screening queue is org-scoped',
+);
+
+assertContains(
+  'app/admin/counselors/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg', 'inheritMemberOrg'],
+  'admin counselors roster is org-scoped',
+);
+
+assertContains(
+  'app/admin/overview/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg'],
+  'admin overview member/placement lists are org-scoped',
+);
+
+assertContains(
+  'app/admin/sessions/page.tsx',
+  ['resolveAdminPageTenant', 'inheritUserOrg', 'organizationId'],
+  'admin sessions history is org-scoped',
+);
+
+assertContains(
+  'app/admin/members/job-ready/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin job-ready member list is org-scoped',
+);
+
+assertContains(
+  'app/admin/members/interview-ready/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin interview-ready member list is org-scoped',
+);
+
+assertContains(
+  'app/admin/invites/page.tsx',
+  ['resolveAdminPageTenant', 'invitedBy = { organizationId: scope.orgId }'],
+  'admin invites list uses isAdminInOrg gate + inviter org (super-admin unscoped)',
+);
+
+console.log('[verify-high-risk-tenant-routes] OK — 65 routes verified');

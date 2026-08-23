@@ -3,8 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import { Briefcase, Award, Calendar, Handshake, FileCheck2 } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { DesignSurface, CardHead, StatSparkTile, StatusTag, type KitTone } from '@/components/portal/kit';
@@ -60,10 +59,13 @@ function getPartnershipTier(
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   try {
-    const employer = await prisma.employer.findUnique({
-      where: { id },
-      select: { companyName: true },
-    });
+    const user = await getUser();
+    const scope = user ? await resolveAdminPageTenant(user.id) : { ok: false as const };
+    const employer = scope.ok
+      ? await withAdminPageScope(scope, (db) =>
+          db.employer.findFirst({ where: { id }, select: { companyName: true } }),
+        )
+      : null;
     return buildPageMetadata({
       title: employer ? `Employer: ${employer.companyName}` : 'Employer Detail',
       description: 'Employer pipeline and partnership details.',
@@ -81,17 +83,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AdminEmployerDetailPage({ params }: Props) {
   const user = await getUser();
   if (!user) redirect(`/login?redirectTo=/admin/employers`);
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { id } = await params;
 
-  const employer = await prisma.employer.findUnique({
-    where: { id },
-    include: {
-      user: { select: { email: true, fullName: true } },
-      _count: { select: { jobs: true } },
-    },
-  });
+  // findFirst (not findUnique): withTenantScope injects organizationId,
+  // which is not an Employer unique-where field.
+  const employer = await withAdminPageScope(scope, (db) =>
+    db.employer.findFirst({
+      where: { id },
+      include: {
+        user: { select: { email: true, fullName: true } },
+        _count: { select: { jobs: true } },
+      },
+    }),
+  );
 
   if (!employer) notFound();
 

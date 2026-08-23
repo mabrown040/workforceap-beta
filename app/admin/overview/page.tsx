@@ -22,8 +22,12 @@ import {
 } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import {
+  inheritUserOrg,
+  resolveAdminPageTenant,
+  withAdminPageScope,
+} from '@/lib/tenant/adminPageScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -113,9 +117,9 @@ export default async function AdminOverviewPage() {
   const user = await getUser();
   if (!user) redirect('/login');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
-  const superAdmin = await isSuperAdmin(user.id);
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
+  const superAdmin = scope.superAdmin;
 
   let totalMembers: number;
   let assessmentsCompleted: number;
@@ -136,6 +140,7 @@ export default async function AdminOverviewPage() {
   try {
     // Match /admin/members: do not fail the whole dashboard when optional slices fail
     // (e.g. RLS/role differences on applications or placement_records vs users).
+    const userOrg = inheritUserOrg(scope);
     const [
       totalMembersResult,
       assessmentsCompletedResult,
@@ -143,47 +148,50 @@ export default async function AdminOverviewPage() {
       recentPlacementsResult,
       pendingApplicationsResult,
       pendingPlacementsResult,
-    ] = await Promise.allSettled([
-      prisma.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
-      prisma.user.count({
-        where: { assessmentCompleted: true, deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-      }),
-      prisma.user.findMany({
-        where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          enrolledProgram: true,
-          enrolledAt: true,
-          assessmentScorePct: true,
-          assessmentCompleted: true,
-          createdAt: true,
-        },
-      }),
-      prisma.placementRecord.findMany({
-        orderBy: { placedAt: 'desc' },
-        take: 10,
-        select: placementRecordBaseSelect,
-      }),
-      prisma.application.count({ where: { status: 'PENDING' } }),
-      prisma.placementRecord.findMany({
-        where: { startDateVerified: false },
-        orderBy: { placedAt: 'asc' },
-        take: 10,
-        select: {
-          id: true,
-          employerName: true,
-          jobTitle: true,
-          placedAt: true,
-          user: {
-            select: { id: true, fullName: true, email: true, enrolledProgram: true },
+    ] = await withAdminPageScope(scope, (db) =>
+      Promise.allSettled([
+        db.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
+        db.user.count({
+          where: { assessmentCompleted: true, deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+        }),
+        db.user.findMany({
+          where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            enrolledProgram: true,
+            enrolledAt: true,
+            assessmentScorePct: true,
+            assessmentCompleted: true,
+            createdAt: true,
           },
-        },
-      }),
-    ]);
+        }),
+        db.placementRecord.findMany({
+          where: { ...userOrg },
+          orderBy: { placedAt: 'desc' },
+          take: 10,
+          select: placementRecordBaseSelect,
+        }),
+        db.application.count({ where: { status: 'PENDING', ...userOrg } }),
+        db.placementRecord.findMany({
+          where: { startDateVerified: false, ...userOrg },
+          orderBy: { placedAt: 'asc' },
+          take: 10,
+          select: {
+            id: true,
+            employerName: true,
+            jobTitle: true,
+            placedAt: true,
+            user: {
+              select: { id: true, fullName: true, email: true, enrolledProgram: true },
+            },
+          },
+        }),
+      ]),
+    );
 
     if (totalMembersResult.status === 'rejected') {
       logPrismaReason('totalMembers', totalMembersResult.reason);

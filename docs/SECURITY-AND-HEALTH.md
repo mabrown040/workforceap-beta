@@ -90,7 +90,7 @@ The `/api/health` endpoint will report `captcha_turnstile: ok` once enabled and 
 
 ### Forms NOT behind CAPTCHA (today)
 
-- `/apply/create-account` — the apply funnel is the highest-priority funnel. Adding CAPTCHA there is a future call balancing abuse risk vs. drop-off. Today: rate-limited via `checkApplySignupRateLimit`.
+- `/apply/create-account` — the apply funnel is the highest-priority funnel. Adding CAPTCHA there is a future call balancing abuse risk vs. drop-off. Today: rate-limited via `checkApplySignupRateLimit`. Missing Redis: stays open when `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1` (pre-prod default). Set `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1` to 429 apply/signup without Redis.
 - `/contact` — same pattern. Rate-limited.
 - Magic-link login — Supabase has its own anti-abuse; OK.
 

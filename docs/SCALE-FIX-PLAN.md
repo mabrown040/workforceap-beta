@@ -1,10 +1,14 @@
 # WorkforceAP scale fix plan
 
-**Audit beat:** `run_20260823_0215`  
+**Audit beats:** `run_20260823_0215` (scale sample) + `run_20260823_deep` (full repo)  
 **Branch:** `cursor/scale-audit-plan-942e`  
-**Ranker:** `AUDIT_RUN_ID=run_20260823_0215 node scripts/audit-rank.mjs`  
+**Ranker (current):** `AUDIT_RUN_ID=run_20260823_deep node scripts/audit-rank.mjs`  
 **Playbook:** `.agents/skills/blast-radius-audit/SKILL.md`  
+**Full audit (all domains):** `docs/FULL-REPO-AUDIT.md`  
 **Human gate:** which fixes ship. This document is the plan; it is not a license to land all phases in one PR.
+
+Phases 0–9 below are unchanged from the scale beat. Phases 10–17 were
+added by the deep pass. Do not delete prior phases.
 
 ---
 
@@ -119,23 +123,41 @@ i18n: `LOCALEABLE_PATH_PREFIXES` is apply/auth/lp only. Marketing leaves `/` `/p
 
 ## 3. Blast-radius findings (ranked by code)
 
-Do not re-rank in prose. This is `graph/rank.json` from
-`AUDIT_RUN_ID=run_20260823_0215 node scripts/audit-rank.mjs`
-(generatedAt `2026-08-23T02:07:54.465Z`).
+Do not re-rank in prose. Current `graph/rank.json` is from
+`AUDIT_RUN_ID=run_20260823_deep node scripts/audit-rank.mjs`
+(generatedAt `2026-08-23T12:45:29.456Z`). The scale beat’s
+`run_20260823_0215` slice is preserved as open claims; id-sort among
+`prod-break` changed which seven sit in the default top slice.
 
-### Top slice
+### Top slice (deep beat)
 
 | Rank | id | severity | Title |
 |---|---|---|---|
 | 1 | `clm_hot_dashboard_query_fanout` | prod-break | Member dashboard home issues 20+ Prisma reads plus Coursera sync |
 | 2 | `clm_hot_layout_auth_every_request` | prod-break | Root layout and middleware hit Supabase + Prisma on every HTML request |
-| 3 | `clm_secrets_admin_pages_unscoped` | prod-break | Admin layout is global `isAdmin()`; many admin pages query all tenants |
-| 4 | `clm_secrets_orphan_user_default_org` | prod-break | `ensureAppUserProvisioned` always writes orphans into default org |
-| 5 | `clm_hot_admin_unbounded_scans` | ship-break | Admin training-progress loads up to 20k `courseProgress` rows unscoped |
+| 3 | `clm_hot_public_voice_failopen` | prod-break | Unauthenticated WIOA voice mint, fail-open limiter |
+| 4 | `clm_hot_scope_proxy_false_safety` | prod-break | `withTenantScope` no-ops PlacementRecord / CourseProgress / Application |
+| 5 | `clm_secrets_admin_pages_unscoped` | prod-break | Admin layout is global `isAdmin()`; many admin pages query all tenants |
+| 6 | `clm_secrets_apply_always_default_org` | prod-break | Apply signup always writes into default org |
+| 7 | `clm_secrets_gdpr_delete_leaves_blobs` | prod-break | GDPR delete leaves resume blobs and messages |
+
+Scale-beat #4 (`clm_secrets_orphan_user_default_org`) and #5
+(`clm_hot_admin_unbounded_scans`) are still **open**; ranker dropped them
+below-slice because more `prod-break` claims now exist. Do not treat that
+as a close.
 
 ### Below slice (still open)
 
-`clm_dead_consent_form_unmounted`, `clm_dead_duplicate_nudge_crons`, `clm_dead_seeds_unwired_still`, `clm_deps_marketing_nested_install`, `clm_deps_prisma5_use_middleware`, `clm_hot_apply_ratelimit_failopen`, `clm_hot_custom_domain_branding_uncached`, `clm_hot_i18n_full_catalog_every_request`, `clm_secrets_qa_bypass_default_secret`, `clm_secrets_rls_guc_fail_open`. Hygiene excluded from default slice: `clm_dead_astro_enroll_shadow`, `clm_deps_heroicons_dev_only`.
+Scale-beat leftovers plus deep-beat claims not in the default 7. Notable
+prod-breaks still open: `clm_secrets_orphan_user_default_org`,
+`clm_secrets_ssr_api_scope_split`, `clm_secrets_superadmin_fallback_upsert`.
+Ship-breaks: `clm_hot_admin_unbounded_scans`, `clm_hot_admin_counselors_20k`,
+`clm_hot_employer_legacy_5000`. Full list: `graph/rank.json` `dropped`.
+
+Hygiene excluded from default slice: `clm_dead_astro_enroll_shadow`,
+`clm_deps_heroicons_dev_only`, `clm_dead_fr_pt_unreviewed_live`,
+`clm_dead_caddy_single_host`, `clm_deps_pages_router_leftover`,
+`clm_deps_messages_new_keys_sidecar`.
 
 ### Prior beat (closed this run)
 
@@ -299,6 +321,68 @@ Each phase is one blast-radius cut. One claim → one PR when possible. Do not m
 - Decide whether Vercel must `npm ci` marketing on every production build (`clm_deps_marketing_nested_install`).
 - `public/images` 6.9MB is acceptable with current Cache-Control; do not add uncompressed heroes.
 
+### Phase 10 — Public voice fail-closed (deep beat, spend)
+
+**Problem.** Unauthenticated `POST /api/public/wioa-qualification/voice-session` mints ElevenLabs URLs. `checkPublicVoiceSessionRateLimit` returns `{success:true}` when Redis is null. File prices ~$0.30/min.
+
+**Evidence.** `app/api/public/wioa-qualification/voice-session/route.ts` has no `getUser`. `lib/rate-limit.ts:525`.
+
+**Change.** Route through `failClosedLimit`. Same preview/Upstash rules as Phase 5.
+
+**Blast radius.** Public WIOA voice only.
+
+**Verify.** Limiter null + `NODE_ENV=production` → 429.
+
+**Do not.** Mix with apply limiter (Phase 5) unless the human wants one “fail-closed spend” PR.
+
+### Phase 11 — Apply signup request org (deep beat; pair with Phase 4)
+
+**Problem.** Conversion writes `organizationId = getDefaultOrganizationId()` (`app/api/apply/signup/route.ts:367`). The healer (Phase 4) only matters after this write.
+
+**Change.** Resolve org from `resolveOrgFromRequest` / trusted host. Default org only on canonical host.
+
+**Verify.** Signup test must stop mocking default org as the only source.
+
+**Do not.** Change copy or Turnstile in the same PR.
+
+### Phase 12 — Scope proxy honesty (deep beat; before second org)
+
+**Problem.** `withTenantScope` is a no-op for `PlacementRecord`, `CourseProgress`, `Application`, `MessageThread` (`lib/tenant/scopeProxy.ts:96-98`). WIOA report `take: 10000` is the exhibit.
+
+**Change.** Filter via `user.organizationId` parent FK. Do **not** add those models to `TENANT_SCOPED_MODELS` until they have an `organizationId` column (injecting a missing field 500s).
+
+**Verify.** Org-A admin WIOA/placement counts exclude org-B.
+
+### Phase 13 — Admin SSR same as API (extends Phase 3)
+
+**Problem.** Export/members API is scoped; `/admin/members` HTML is not. Counselors kit loads `take: 20000` assignments unscoped.
+
+**Change.** Scope + paginate `members/page.tsx`, `placements/page.tsx`, `counselors/page.tsx`, `students/page.tsx`, `users/page.tsx`. Extend `scripts/verify-high-risk-tenant-routes.cjs` to those pages.
+
+### Phase 14 — Super-admin fallback (deep beat)
+
+**Problem.** `getEmployerForUser` / `getPartnerForUser` upsert preview rows into the default org and can `findFirst` any active employer/partner.
+
+**Change.** Signed impersonation cookie only. Empty cookie → empty state. No upsert-on-navigate.
+
+### Phase 15 — GDPR storage delete (deep beat)
+
+**Problem.** `POST /api/gdpr/delete` nulls profile paths; `member-resumes` / `member-files` objects remain.
+
+**Change.** Delete or expire those objects; decide message/application anonymization.
+
+### Phase 16 — Employer / counselor / partner caps (deep beat scale)
+
+**Problem.** First beat missed `take: 5000` on employer jobs/pipeline/matches, counselor legacy home, partner application distinct.
+
+**Change.** Cap `take: 200` or use `count`. Delete or staff-flag `?ui=legacy`.
+
+### Phase 17 — CI + tests that pin the claims
+
+**Problem.** Lint/vitest are `continue-on-error`. No test pins dashboard Prisma count, healer org, apply org, public voice fail-closed.
+
+**Change.** Add those tests as each phase lands. Flip lint or document that only `next build` gates ESLint.
+
 ---
 
 ## 5. Quick wins vs structural work
@@ -336,8 +420,8 @@ Each phase is one blast-radius cut. One claim → one PR when possible. Do not m
 
 1. Phase 1 (anonymous auth tax) — highest leverage, smallest design risk.
 2. Phase 2 (dashboard budget) — this is the 504 path.
-3. Phase 5 (fail-closed spend limiters) if Upstash is already in prod.
-4. Digest/nudge caps.
+3. Phase 5 + Phase 10 (fail-closed spend limiters, including public voice) if Upstash is already in prod.
+4. Digest/nudge/counselors `take` caps (Phase 16 sibling).
 
 ### Ship before a second organization or custom domain goes live
 
@@ -373,7 +457,7 @@ Per `graph/SCHEMA.md` and the skill:
 5. Never edit `graph/SCHEMA.md`, `scripts/audit-rank.mjs`, or `scripts/audit-graph-check.sh` inside an audit beat.
 6. Claims are append-only. Supersede; do not rewrite evidence to look better.
 
-### Proposed rules from this beat (awaiting human)
+### Proposed rules from the scale beat (awaiting human)
 
 | id | Constraint |
 |---|---|
@@ -383,6 +467,19 @@ Per `graph/SCHEMA.md` and the skill:
 | `rul_no_rls_guc_without_force` | No GUC flag without FORCE RLS + batched GUC |
 | `rul_dashboard_query_budget` | Dashboard home stays under the recorded budget |
 | `rul_apply_ratelimit_fail_closed_prod` | Apply/voice/AI use `failClosedLimit` in prod |
+
+### Proposed rules from the deep beat (awaiting human)
+
+| id | Constraint |
+|---|---|
+| `rul_scope_proxy_covers_progress_tables` | Do not treat `withTenantScope` as isolation for progress/placement/application |
+| `rul_public_voice_fail_closed_prod` | Public ElevenLabs mint uses `failClosedLimit` |
+| `rul_apply_signup_uses_request_org` | Signup does not hardcode default org |
+| `rul_admin_ssr_same_scope_as_api` | Admin `page.tsx` lists match API scope; CI grep includes SSR |
+| `rul_no_superadmin_any_tenant_fallback` | No `findFirst` any-employer / upsert-on-navigate |
+| `rul_gdpr_delete_removes_blobs` | GDPR delete removes storage objects |
+| `rul_ci_tenant_grep_includes_ssr` | Tenant CI includes admin SSR list pages |
+| `rul_no_take_20k_admin_lists` | No `take >= 5000` on admin/portal list loaders |
 
 ### Prior proposed rules ready to accept (checks pass on master)
 

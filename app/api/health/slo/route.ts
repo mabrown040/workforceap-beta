@@ -284,7 +284,7 @@ function measureUptime(): SloReport {
     target: '99.9%',
     current: null,
     status: 'unknown',
-    source: 'External uptime monitor (Better Uptime) hitting /api/health',
+    source: 'External uptime monitor (Better Uptime) hitting /api/health (live) and /api/health/ready (Prisma/org)',
     note: 'External monitor not yet wired — measurement unavailable',
   };
 }

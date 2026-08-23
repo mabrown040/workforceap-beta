@@ -27,7 +27,7 @@ SLOs are not aspirational. They are the floor below which we treat the service a
 
 | # | SLO | Target | Window | SLI source |
 |---|---|---|---|---|
-| 1 | **Overall uptime** — `/api/health` returns `status !== "fail"` and HTTP 200 | **99.9%** | rolling 30 days | Vercel + external uptime monitor (Better Uptime / UptimeRobot) hitting `/api/health` every 1 min |
+| 1 | **Overall uptime** — process liveness: `/api/health` returns HTTP 200. **Dependency / org readiness** is `/api/health/ready` (503 if Prisma/org cannot be reached). Portal 504s can still happen while both are green — also alert on Vercel runtime timeouts. See `docs/HEALTH-PROBES.md`. | **99.9%** | rolling 30 days | Vercel + external uptime monitor (Better Uptime / UptimeRobot): liveness every 1 min; **ready** for 504-adjacent / DB-down pages |
 | 2 | **Dashboard latency** — server-side render time of `/dashboard` | **p95 < 500 ms** | rolling 7 days | Vercel Analytics + Sentry Performance (`pageload` and `navigation` transactions) |
 | 3 | **Outcomes admin latency** — server-side render time of `/admin/outcomes` | **p95 < 500 ms** | rolling 7 days | Vercel Analytics + Sentry Performance |
 | 4 | **Email delivery** — % of `Email` rows whose Resend webhook reports `delivered` within 5 min of `queuedAt` | **99% in 5 min** | rolling 7 days | Resend webhooks + `Email` table query |
@@ -58,7 +58,7 @@ We list these as gaps so a buyer understands what we *can't* tell them, not just
 ## Where each SLO is measured
 
 ```
-SLO #1  Uptime               -> Vercel uptime + external monitor (Better Uptime) on /api/health
+SLO #1  Uptime               -> Vercel uptime + external monitor on /api/health (live) and /api/health/ready (deps)
 SLO #2  /dashboard p95       -> Vercel Analytics (Web Vitals) + Sentry Performance
 SLO #3  /admin/outcomes p95  -> Vercel Analytics + Sentry Performance
 SLO #4  Email delivery       -> Resend delivery webhooks aggregated against Email table

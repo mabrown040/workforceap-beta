@@ -6,47 +6,48 @@ This document is the single answer to *"what's your security and uptime story?"*
 
 ---
 
-## Health endpoint: `GET /api/health`
+## Health endpoints
 
-Returns a structured JSON payload reporting the configuration and reachability of every external dependency the platform relies on. Always returns HTTP 200; uptime monitors should branch on the `status` field.
+Canonical operator contract: [`docs/HEALTH-PROBES.md`](HEALTH-PROBES.md).
+
+### `GET /api/health` — liveness
+
+Cheap process probe. **No Prisma.** HTTP 200 means the Next isolate is up — not that portal pages render. Do not page 504s from this staying green (2026-06-18).
 
 ```jsonc
 {
-  "status": "ok" | "degraded" | "fail",
-  "generatedAt": "2026-05-07T22:00:00.000Z",
+  "status": "ok",
+  "probe": "live",
   "version": "5147c79",
-  "environment": "production" | "preview" | "development",
-  "dependencies": [
-    { "name": "database",          "status": "ok",    "latencyMs": 42 },
-    { "name": "supabase",          "status": "ok",    "note": "configured (config-only check)" },
-    { "name": "email_resend",      "status": "ok"    },
-    { "name": "coursera_xapi",     "status": "ok"    },
-    { "name": "captcha_turnstile", "status": "skipped" },
-    { "name": "sentry",            "status": "ok"    }
-  ]
+  "timestamp": "2026-08-23T17:00:00.000Z",
+  "note": "Liveness only. Use GET /api/health/ready for Prisma/org readiness…"
 }
 ```
 
-### Status semantics
+### `GET /api/health/ready` — readiness
 
-- **`ok`** — dependency is configured and (where applicable) reachable.
-- **`fail`** — dependency was checked and the call failed. The `note` field carries a short reason.
-- **`not_configured`** — the env vars for this dependency are missing. The platform still runs but the feature backed by this dep will degrade gracefully (e.g. missing `RESEND_API_KEY` means emails skip rather than crash).
-- **`skipped`** — intentionally not checked (e.g. CAPTCHA disabled in this environment).
+One Prisma `$transaction` → default org `findUnique` (`slug=workforceap`). **503 / `status: "fail"`** if Prisma is down or the org row is missing — the same failure that 500s every page via `app/layout.tsx`.
 
-### Overall status
+```jsonc
+{
+  "status": "ok" | "fail",
+  "probe": "ready",
+  "version": "5147c79",
+  "timestamp": "2026-08-23T17:00:00.000Z",
+  "checks": {
+    "database": { "status": "ok", "responseTimeMs": 12 },
+    "organization": { "status": "ok", "slug": "workforceap", "responseTimeMs": 12 }
+  }
+}
+```
 
-- **`ok`** — every dep is `ok`, `not_configured`, or `skipped`.
-- **`degraded`** — at least one non-critical dep is in `fail`.
-- **`fail`** — the database is unreachable. This is the only single point of failure; everything else can be partially down without breaking core flows.
+### What these endpoints do NOT do
 
-### What the endpoint does NOT do
+- **Liveness makes no outbound requests** (no DB ping).
+- **No secrets.** No env values, no PII.
+- **Ready is not a portal-render smoke.** A green ready + 504 on `/dashboard` still happened in June 2026 — also alert on Vercel runtime timeouts.
 
-- **No outbound requests.** The DB ping is the only call. Supabase / Resend / Coursera / Sentry are reported by config-presence so we don't spam those services on every check.
-- **No secrets.** Only env-var *presence* is reported, never the values.
-- **No PII.** No member data crosses this endpoint.
-
-This makes the endpoint safe to expose publicly. (We may move it under auth later if we want to gate the response behind a partner-portal log-in for cleaner due-diligence framing — for now, public is fine.)
+Both probes are public. `/api/health/slo` stays admin-only.
 
 ---
 
@@ -125,7 +126,7 @@ The `/api/health` endpoint will report `captcha_turnstile: ok` once enabled and 
 | SEC-003 | CSP `report-uri` / `report-to` for violation telemetry | Low | half day |
 | SEC-004 | Apply CAPTCHA to `/apply/create-account` after measuring drop-off | Low | half day |
 
-The `not_configured` rows in `/api/health` for any of these dependencies are an OK signal during local dev; in production they should never appear.
+Missing production secrets no longer appear as `not_configured` rows on `/api/health` (that payload is liveness-only). Confirm env presence from `.env.example` / Vercel — not the public probe.
 
 ---
 
@@ -134,7 +135,8 @@ The `not_configured` rows in `/api/health` for any of these dependencies are an 
 | Date | Change |
 |---|---|
 | 2026-05-07 | Initial doc; Track C of the three-track day. CSP hardened with safe additions; `/api/health` upgraded to dependency-aware. |
+| 2026-08-23 | Split liveness (`/api/health`) from readiness (`/api/health/ready`). See `docs/HEALTH-PROBES.md`. |
 
 ---
 
-*Updated alongside any change to `next.config.ts` headers, `app/api/health/route.ts`, or the Turnstile / Resend integration paths.*
+*Updated alongside any change to `next.config.ts` headers, `app/api/health/route.ts`, `app/api/health/ready/route.ts`, or the Turnstile / Resend integration paths.*

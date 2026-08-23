@@ -83,12 +83,13 @@ Use this checklist for every production deploy. Do not skip steps.
   - Vercel Dashboard → Deployments
   - Confirm green checkmark, no build errors
 
-- [ ] **Check health endpoint**
+- [ ] **Check health endpoints** (contract: `docs/HEALTH-PROBES.md`)
   ```bash
-  curl https://www.workforceap.org/api/health
+  curl -sS https://www.workforceap.org/api/health
+  curl -sS -o /tmp/ready.json -w "%{http_code}\n" https://www.workforceap.org/api/health/ready
   ```
-  - Expected: `status: "ok"` or `"degraded"` (never `"fail"`)
-  - DB latency should be < 200ms
+  - Liveness (`/api/health`): `probe: "live"`, HTTP 200 — process up, **no** Prisma
+  - Readiness (`/api/health/ready`): HTTP 200 and `status: "ok"` — Prisma + default org. **Page 504 / dependency alerts here**, not on liveness staying green.
 
 - [ ] **Verify cron secrets are active**
   ```bash

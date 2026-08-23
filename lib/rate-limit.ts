@@ -25,15 +25,23 @@ const nextPhase = process.env.NEXT_PHASE?.trim();
 if (isProduction && !upstashConfigured && !allowMissingUpstash && nextPhase !== 'phase-production-build') {
   const msg =
     '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
-    'Rate limiters are currently disabled, which weakens auth, forgot-password, contact, ' +
+    'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +
     'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1. ' +
-    'Voice and AI spend limiters fail closed without Redis even when that opt-out is set.';
+    'Voice/AI spend stay fail-closed without Redis even with that opt-out. ' +
+    'Invite-accept, org-onboard, message-send, job-import, admin invite/token-links, and Coursera identity ' +
+    'use security fail-closed; careers-recommend / interest-profiler stay spend-closed. ' +
+    'Apply/signup stay open unless WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1.';
   logger.error(msg);
   // Throw synchronously so the server fails to boot rather than running
   // with silently-disabled security controls.
   throw new Error(msg);
 }
 
+// Apply/signup use apply-mode policy (open when RATE_LIMIT_ALLOW_MISSING_UPSTASH=1
+// unless WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1). Leftover abuse surfaces
+// (invite-accept, org-onboard, message-send, job-import, admin invite/token-links,
+// Coursera identity) use security fail-closed. Careers-recommend / interest-profiler
+// use spend fail-closed. Cheap public GET caps and webhooks stay fail-open.
 // Observable: one-time warning when running without Upstash (dev only, since
 // production throws above).  Helps catch mis-configured preview deploys.
 if (!isProduction && !upstashConfigured) {
@@ -160,7 +168,7 @@ async function runLimiter(
   identifier: string,
   mode: MissingLimiterMode,
   request?: Request
-): Promise<{ success: boolean; remaining?: number }> {
+): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
   if (isQaBypassRequest(request)) {
     logger.info(`[RATE-LIMIT] QA bypass active — allowing ${name} request for ${identifier}`);
     return { success: true };
@@ -168,7 +176,7 @@ async function runLimiter(
 
   if (limiter) {
     const result = await limiter.limit(identifier);
-    return { success: result.success, remaining: result.remaining };
+    return { success: result.success, remaining: result.remaining, resetMs: result.reset };
   }
 
   const decision = decideMissingLimiter({
@@ -200,7 +208,7 @@ async function failClosedLimit(
   name: string,
   identifier: string,
   request?: Request
-): Promise<{ success: boolean; remaining?: number }> {
+): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
   return runLimiter(limiter, name, identifier, 'security', request);
 }
 
@@ -469,10 +477,8 @@ export async function checkPartnerSignupRateLimit(identifier: string): Promise<{
   return { success: result.success };
 }
 
-export async function checkAdminInviteRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!adminInviteRateLimiter) return { success: true };
-  const result = await adminInviteRateLimiter.limit(userId);
-  return { success: result.success, remaining: result.remaining };
+export async function checkAdminInviteRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedLimit(adminInviteRateLimiter, 'admin-invite', userId, request);
 }
 
 /**
@@ -487,11 +493,9 @@ export async function checkBulkEmailRateLimit(userId: string): Promise<{ success
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-open without Redis. */
-export async function checkEmployerJobImportRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!employerJobImportRateLimiter) return { success: true };
-  const result = await employerJobImportRateLimiter.limit(userId);
-  return { success: result.success, remaining: result.remaining };
+/** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-closed in production without Redis. */
+export async function checkEmployerJobImportRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedLimit(employerJobImportRateLimiter, 'employer-job-import', userId, request);
 }
 
 /** Public confirmation-email endpoint — 5 per IP per hour. Fails closed in production. */
@@ -508,18 +512,16 @@ export async function checkConfirmationEmailEmailRateLimit(email: string): Promi
   return { success: r.success };
 }
 
-/** Public career quiz recommend — fail-open without Redis (dev). */
-export async function checkCareersRecommendRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!careersRecommendRateLimiter) return { success: true };
-  const result = await careersRecommendRateLimiter.limit(ip);
-  return { success: result.success };
+/** Public career quiz recommend — spend-mode fail-closed in production (O*NET / AI-adjacent cost). */
+export async function checkCareersRecommendRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedSpendLimit(careersRecommendRateLimiter, 'careers-recommend', ip, request);
+  return { success: r.success };
 }
 
-/** Member Interest Profiler API — per-user cap; fail-open without Redis (dev). */
-export async function checkInterestProfilerRateLimit(userId: string): Promise<{ success: boolean }> {
-  if (!interestProfilerRateLimiter) return { success: true };
-  const result = await interestProfilerRateLimiter.limit(userId);
-  return { success: result.success };
+/** Member Interest Profiler API — per-user cap; spend-mode fail-closed in production (O*NET cost). */
+export async function checkInterestProfilerRateLimit(userId: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedSpendLimit(interestProfilerRateLimiter, 'interest-profiler', userId, request);
+  return { success: r.success };
 }
 
 /** Forgot-password / reset email requests — per IP; fail-closed in production. */
@@ -534,7 +536,9 @@ export async function checkForgotPasswordEmailRateLimit(email: string): Promise<
   return { success: r.success };
 }
 
-/** Public GET /api/careers/* (occupation detail, program matches) — per IP; fail-open without Redis. */
+/** Public GET /api/careers/* (occupation detail, program matches) — cheap catalog reads.
+ * Fail-open without Redis is OK: these are inexpensive GETs; Redis only adds a scrape cap.
+ */
 export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicCareersGetRateLimiter) return { success: true };
   const result = await publicCareersGetRateLimiter.limit(ip);
@@ -547,11 +551,10 @@ export async function checkPublicVoiceSessionRateLimit(ip: string, request?: Req
   return { success: r.success };
 }
 
-/** Invitation acceptance (account creation) — per IP; fail-open without Redis. */
-export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!inviteAcceptRateLimiter) return { success: true };
-  const result = await inviteAcceptRateLimiter.limit(ip);
-  return { success: result.success };
+/** Invitation acceptance (account creation) — per IP; fail-closed in production without Redis. */
+export async function checkInviteAcceptRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedLimit(inviteAcceptRateLimiter, 'invite-accept', ip, request);
+  return { success: r.success };
 }
 
 /** MFA code verification — 10 attempts per 15 min per IP; fail-open without Redis. */
@@ -561,14 +564,14 @@ export async function checkVerifyMfaRateLimit(ip: string): Promise<{ success: bo
   return { success: result.success };
 }
 
-/** GET /api/health — fail-open without Redis (same as other public GET caps). */
+/** GET /api/health — cheap liveness read. Fail-open without Redis is OK (same as other public GET caps). */
 export async function checkPublicHealthRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicHealthRateLimiter) return { success: true };
   const result = await publicHealthRateLimiter.limit(ip);
   return { success: result.success };
 }
 
-/** GET /api/xapi/config */
+/** GET /api/xapi/config — cheap read. Fail-open without Redis is OK. */
 export async function checkXapiConfigGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!xapiConfigGetRateLimiter) return { success: true };
   const result = await xapiConfigGetRateLimiter.limit(ip);
@@ -603,34 +606,36 @@ export async function checkPublicWioaQualificationRateLimit(ip: string): Promise
   return { success: result.success };
 }
 
-/** Webhook endpoints (Coursera, learning-completion, etc.) — generous for legitimate retries. */
+/**
+ * Webhook endpoints (Coursera, learning-completion). Intentionally fail-open
+ * without Redis. Signature/secret verification is the guard — a missing
+ * limiter must not 429 Stripe, Resend, or partner webhook deliveries and
+ * drop paid/retry events. Stripe + employer Stripe webhooks do not call
+ * this helper; they rely on constructEvent signature verification only.
+ */
 export async function checkWebhookRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!webhookRateLimiter) return { success: true };
   const result = await webhookRateLimiter.limit(ip);
   return { success: result.success };
 }
 
-/** POST /api/org/onboard — public organization creation; fail-open without Redis. */
-export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!orgOnboardRateLimiter) return { success: true };
-  const result = await orgOnboardRateLimiter.limit(ip);
-  return { success: result.success };
+/** POST /api/org/onboard — public organization creation; fail-closed in production without Redis. */
+export async function checkOrgOnboardRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedLimit(orgOnboardRateLimiter, 'org-onboard', ip, request);
+  return { success: r.success };
 }
 
-/** POST /api/public/interest-profiler/* — public no-account quiz; cap per-IP O*NET abuse. Fail-open without Redis. */
-export async function checkPublicInterestProfilerRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!publicInterestProfilerRateLimiter) return { success: true };
-  const result = await publicInterestProfilerRateLimiter.limit(ip);
-  return { success: result.success };
+/** POST /api/public/interest-profiler/* — public no-account quiz; spend-mode fail-closed (O*NET cost). */
+export async function checkPublicInterestProfilerRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedSpendLimit(publicInterestProfilerRateLimiter, 'public-interest-profiler', ip, request);
+  return { success: r.success };
 }
 
 /** Per-admin cap on tokenized-link minting — 10 per hour. Credential-minting
  * surface; without a cap a compromised admin token can mint unlimited links.
  */
-export async function checkAdminTokenLinksRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!adminTokenLinksRateLimiter) return { success: true };
-  const result = await adminTokenLinksRateLimiter.limit(userId);
-  return { success: result.success, remaining: result.remaining };
+export async function checkAdminTokenLinksRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedLimit(adminTokenLinksRateLimiter, 'admin-token-links', userId, request);
 }
 
 /** POST /api/q/[token]/submit — PUBLIC (no-account) tokenized eligibility
@@ -644,24 +649,21 @@ export async function checkPublicQuestionnaireSubmitRateLimit(ip: string): Promi
   return { success: result.success };
 }
 
-/** POST /api/member/coursera/identity — limit Coursera email spray. */
-export async function checkCourseraIdentityRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!courseraIdentityRateLimiter) return { success: true };
-  const result = await courseraIdentityRateLimiter.limit(ip);
-  return { success: result.success };
+/** POST /api/member/coursera/identity — limit Coursera email spray. Fail-closed in production. */
+export async function checkCourseraIdentityRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedLimit(courseraIdentityRateLimiter, 'coursera-identity', ip, request);
+  return { success: r.success };
 }
 
 /**
  * Per-user cap on portal message sends — 10 messages per minute per user.
  * Backs `checkMessageRateLimit` in lib/messages/rateLimit.ts. Redis-backed so
  * the limit holds across all serverless instances (the prior in-memory Map
- * only enforced the limit per-instance). Fail-open without Redis, matching
- * the prior in-memory behavior of always allowing when unconfigured.
+ * only enforced the limit per-instance). Fail-closed in production without Redis.
  */
 export async function checkMessageSendRateLimit(
-  userId: string
+  userId: string,
+  request?: Request
 ): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
-  if (!messageSendRateLimiter) return { success: true };
-  const result = await messageSendRateLimiter.limit(`message-send:${userId}`);
-  return { success: result.success, remaining: result.remaining, resetMs: result.reset };
+  return failClosedLimit(messageSendRateLimiter, 'message-send', `message-send:${userId}`, request);
 }

@@ -6,8 +6,9 @@
  * and `RATE_LIMIT_ALLOW_MISSING_UPSTASH` is unset).
  *
  * Modes:
- * - `security` — auth/contact/forgot-password. Production fail-closed unless
- *   `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1` (preview/staging opt-out).
+ * - `security` — auth/contact/forgot-password/partner-signup/MFA/bulk-email.
+ *   Production fail-closed unless `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`
+ *   (preview/staging opt-out).
  * - `spend` — ElevenLabs voice + LLM tools. Production always fail-closed
  *   when the limiter is missing, even if the allow-missing flag is set.
  *   Unauthenticated voice must not be free/unlimited.

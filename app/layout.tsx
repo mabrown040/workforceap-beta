@@ -21,6 +21,7 @@ import {
   runWithGucContext,
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
+import { resolveLayoutUserId, WAP_USER_ID_HEADER } from '@/lib/auth/layoutUserId';
 import { getUser } from '@/lib/auth/server';
 import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
 import { prisma } from '@/lib/db/prisma';
@@ -44,8 +45,6 @@ import '@astryxdesign/core/astryx.css';
 import '@/css/astryx-brand-bridge.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';
 import SentrySetUser from '@/components/observability/SentrySetUser';
-
-const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -128,11 +127,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
 
-  // Build GUC context from the verified user ID forwarded by middleware.
+  // Build GUC context from the user ID forwarded by middleware.
   // Middleware strips any client-supplied x-wap-user-id and only re-adds it
-  // after cryptographically verifying the Supabase session.
+  // after getUser() (protected/tenant-api) or getSession() (public HTML
+  // that already has a Supabase cookie). Do not fall back to getUser()
+  // here — anonymous marketing/apply first paint must not talk to GoTrue.
   const forwardedUserId = h.get(WAP_USER_ID_HEADER);
-  const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
+  const resolvedUserId = resolveLayoutUserId(forwardedUserId);
 
   // Resolve the real org for EVERY request path — authenticated or anonymous.
   // For authenticated users: org comes from the user row. For anonymous users:

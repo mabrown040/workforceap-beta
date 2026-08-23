@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { unstable_rethrow } from 'next/navigation';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
+import { hasSupabaseAuthCookies } from '@/lib/auth/supabaseAuthCookie';
 import { runWithGucContext, buildGucContext, ANONYMOUS_GUC_CONTEXT } from '@/lib/db/gucContext';
 import type { GucContext } from '@/lib/db/gucContext';
 import { getProfileRole } from './roles';
@@ -64,11 +65,14 @@ export async function createSupabaseServerClient() {
 }
 
 /**
- * Gets the current session from the server. Returns null if not authenticated.
+ * Gets the current session from the server. Returns null if not authenticated
+ * or if the request has no Supabase session cookie (no GoTrue client).
  */
 export async function getSession() {
   if (!hasSupabaseServerEnv()) return null;
   try {
+    const cookieStore = await cookies();
+    if (!hasSupabaseAuthCookies(cookieStore)) return null;
     const supabase = await createSupabaseServerClient();
     const {
       data: { session },
@@ -87,13 +91,17 @@ export async function getSession() {
 }
 
 /**
- * Gets the current user from the server. Returns null if not authenticated.
+ * Gets the current user from the server. Returns null if not authenticated
+ * or if the request has no Supabase session cookie (no GoTrue client).
  * Prefer getSession() when you need the full session; use this for user-only checks.
  * Request-level memoization avoids duplicate Supabase round-trips when layout + page both call getUser().
+ * Root layout must not call this as an anonymous fallback — see `resolveLayoutUserId`.
  */
 export const getUser = cache(async function getUser() {
   if (!hasSupabaseServerEnv()) return null;
   try {
+    const cookieStore = await cookies();
+    if (!hasSupabaseAuthCookies(cookieStore)) return null;
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },

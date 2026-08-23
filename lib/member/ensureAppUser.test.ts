@@ -23,13 +23,14 @@ function installProvisionMocks(t: { after: (fn: () => void) => void }) {
   };
 
   userDelegate.findUnique = async () => state.findUniqueResult;
+  type TxCallback = (tx: {
+    user: { upsert: (args: unknown) => Promise<unknown> };
+    role: { findUnique: () => Promise<{ id: string }>; create: () => Promise<{ id: string }> };
+    userRole: { createMany: () => Promise<{ count: number }> };
+    profile: { upsert: () => Promise<unknown> };
+  }) => unknown;
   (prisma as { $transaction: typeof prisma.$transaction }).$transaction = (async (
-    fn: (tx: {
-      user: { upsert: (args: unknown) => Promise<unknown> };
-      role: { findUnique: () => Promise<{ id: string }>; create: () => Promise<{ id: string }> };
-      userRole: { createMany: () => Promise<{ count: number }> };
-      profile: { upsert: () => Promise<unknown> };
-    }) => unknown,
+    fn: TxCallback,
   ) => {
     const tx = {
       user: {
@@ -53,8 +54,8 @@ function installProvisionMocks(t: { after: (fn: () => void) => void }) {
         upsert: async () => ({}),
       },
     };
-    return fn(tx);
-  }) as typeof prisma.$transaction;
+    return fn(tx as unknown as Parameters<TxCallback>[0]);
+  }) as unknown as typeof prisma.$transaction;
 
   t.after(() => {
     userDelegate.findUnique = originalFindUnique;

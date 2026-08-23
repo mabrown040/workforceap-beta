@@ -1,6 +1,12 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { logger } from '@/lib/observability/logger';
+import {
+  decideMissingLimiter,
+  isAllowMissingUpstashEnabled,
+  isApplyFailClosedEnvEnabled,
+  type MissingLimiterMode,
+} from '@/lib/rate-limit-policy';
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -14,22 +20,19 @@ const upstashConfigured = Boolean(redisUrl && redisToken);
 // tools, etc.).  Dev stays fail-open so local development works without
 // credentials.
 // ──────────────────────────────────────────────────────────────────────────
-const allowMissingUpstash = process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH?.trim() === '1';
+const allowMissingUpstash = isAllowMissingUpstashEnabled();
 const nextPhase = process.env.NEXT_PHASE?.trim();
 if (isProduction && !upstashConfigured && !allowMissingUpstash && nextPhase !== 'phase-production-build') {
   const msg =
     '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
-    'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +
-    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.';
+    'Rate limiters are currently disabled, which weakens auth, forgot-password, contact, ' +
+    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1. ' +
+    'Voice and AI spend limiters fail closed without Redis even when that opt-out is set.';
   logger.error(msg);
   // Throw synchronously so the server fails to boot rather than running
   // with silently-disabled security controls.
   throw new Error(msg);
 }
-
-// Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.
-// Contact/confirmation remain fail-closed (spam risk). Add UPSTASH_* env vars to enable Redis-backed limits.
-const FAIL_CLOSED = !upstashConfigured;
 
 // Observable: one-time warning when running without Upstash (dev only, since
 // production throws above).  Helps catch mis-configured preview deploys.
@@ -151,10 +154,11 @@ function isQaBypassRequest(request?: Request): boolean {
   return header === getQaBypassSecret();
 }
 
-async function failClosedLimit(
+async function runLimiter(
   limiter: Ratelimit | null,
   name: string,
   identifier: string,
+  mode: MissingLimiterMode,
   request?: Request
 ): Promise<{ success: boolean; remaining?: number }> {
   if (isQaBypassRequest(request)) {
@@ -167,28 +171,55 @@ async function failClosedLimit(
     return { success: result.success, remaining: result.remaining };
   }
 
-  // Limiter is null → Upstash not configured
-  if (isProduction) {
-    // Operator explicitly opted out of Upstash (e.g. preview/staging via
-    // RATE_LIMIT_ALLOW_MISSING_UPSTASH=1). The boot assertion is skipped in
-    // that case, so honor the opt-out here too and fail OPEN — otherwise every
-    // auth/login/forgot-password request is blocked with a 429 on environments
-    // that intentionally run without Redis.
-    if (allowMissingUpstash) {
-      logger.warn(
-        `[RATE-LIMIT] ${name} limiter is null but RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 — failing open for ${identifier}`
-      );
-      return { success: true };
-    }
-    // No opt-out: fail closed (defense-in-depth; the boot assertion normally
-    // prevents reaching here in real production).
-    logger.error(`[RATE-LIMIT] ${name} limiter is null in production — blocking request for ${identifier}`);
+  const decision = decideMissingLimiter({
+    isProduction,
+    allowMissingUpstash,
+    mode,
+    applyFailClosedEnv: isApplyFailClosedEnvEnabled(),
+  });
+
+  if (!decision.success) {
+    logger.error(
+      `[RATE-LIMIT] ${name} limiter is null (${decision.reason}) — blocking request for ${identifier}`
+    );
     return { success: false, remaining: 0 };
   }
 
-  // Dev: warn once per limiter name, then allow
-  logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
+  if (decision.reason === 'dev-fail-open') {
+    logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
+  } else {
+    logger.warn(
+      `[RATE-LIMIT] ${name} limiter is null (${decision.reason}) — allowing request for ${identifier}`
+    );
+  }
   return { success: true };
+}
+
+async function failClosedLimit(
+  limiter: Ratelimit | null,
+  name: string,
+  identifier: string,
+  request?: Request
+): Promise<{ success: boolean; remaining?: number }> {
+  return runLimiter(limiter, name, identifier, 'security', request);
+}
+
+async function failClosedSpendLimit(
+  limiter: Ratelimit | null,
+  name: string,
+  identifier: string,
+  request?: Request
+): Promise<{ success: boolean; remaining?: number }> {
+  return runLimiter(limiter, name, identifier, 'spend', request);
+}
+
+async function failClosedApplyLimit(
+  limiter: Ratelimit | null,
+  name: string,
+  identifier: string,
+  request?: Request
+): Promise<{ success: boolean; remaining?: number }> {
+  return runLimiter(limiter, name, identifier, 'apply', request);
 }
 
 if (redisUrl && redisToken) {
@@ -380,16 +411,12 @@ if (redisUrl && redisToken) {
   });
 }
 
-export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!signupRateLimiter) return { success: true };
-  const result = await signupRateLimiter.limit(identifier);
-  return { success: result.success, remaining: result.remaining };
+export async function checkSignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedApplyLimit(signupRateLimiter, 'signup', identifier, request);
 }
 
-export async function checkApplySignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!applySignupRateLimiter) return { success: true };
-  const result = await applySignupRateLimiter.limit(identifier);
-  return { success: result.success, remaining: result.remaining };
+export async function checkApplySignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedApplyLimit(applySignupRateLimiter, 'apply-signup', identifier, request);
 }
 
 export async function checkAuthRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
@@ -412,10 +439,8 @@ export async function checkAuthIpRateLimit(ip: string, request?: Request): Promi
  * 5-10 min, so unbounded mints are an immediate money-drain on a
  * compromised account.
  */
-export async function checkVoiceSessionRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!voiceSessionRateLimiter) return { success: true };
-  const result = await voiceSessionRateLimiter.limit(`voice-session:${userId}`);
-  return { success: result.success, remaining: result.remaining };
+export async function checkVoiceSessionRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedSpendLimit(voiceSessionRateLimiter, 'voice-session', `voice-session:${userId}`, request);
 }
 
 /**
@@ -423,18 +448,14 @@ export async function checkVoiceSessionRateLimit(userId: string): Promise<{ succ
  * (member/apply/employer/partner) to block one attacker rotating IPs to
  * spam verification mail to the same target address.
  */
-export async function checkSignupEmailRateLimit(email: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!signupEmailRateLimiter) return { success: true };
+export async function checkSignupEmailRateLimit(email: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { success: true };
-  const result = await signupEmailRateLimiter.limit(`signup-email:${normalized}`);
-  return { success: result.success, remaining: result.remaining };
+  return failClosedApplyLimit(signupEmailRateLimiter, 'signup-email', `signup-email:${normalized}`, request);
 }
 
-export async function checkAIToolRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!aiToolRateLimiter) return { success: true };
-  const result = await aiToolRateLimiter.limit(userId);
-  return { success: result.success, remaining: result.remaining };
+export async function checkAIToolRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedSpendLimit(aiToolRateLimiter, 'ai-tool', userId, request);
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
@@ -520,11 +541,10 @@ export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ succ
   return { success: result.success };
 }
 
-/** Public voice-session minting — per IP; fail-open without Redis in dev, but throttle aggressively when configured. */
-export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!publicVoiceSessionRateLimiter) return { success: true };
-  const result = await publicVoiceSessionRateLimiter.limit(ip);
-  return { success: result.success };
+/** Public voice-session minting — per IP. Fail-closed in production without Redis (ElevenLabs spend). */
+export async function checkPublicVoiceSessionRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedSpendLimit(publicVoiceSessionRateLimiter, 'public-voice-session', ip, request);
+  return { success: r.success };
 }
 
 /** Invitation acceptance (account creation) — per IP; fail-open without Redis. */

@@ -328,13 +328,13 @@ describe('generateQuarterlyOutcomes', () => {
 
     await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));
 
-    // First placementRecord.findMany call is fetchPlacements — an
-    // employer-side "hired" status alone auto-creates an unverified record,
-    // so funder-facing counts must only include startDateVerified: true.
+    // fetchPlacements still hydrates a capped list; retention is groupBy.
+    // Employer-side "hired" auto-creates unverified records, so both paths
+    // must keep startDateVerified: true for funder-facing totals.
     const placementsCallArgs = vi.mocked(prisma.placementRecord.findMany).mock.calls[0][0];
     expect(placementsCallArgs?.where).toMatchObject({ startDateVerified: true });
 
-    const retentionCallArgs = vi.mocked(prisma.placementRecord.findMany).mock.calls[1][0];
+    const retentionCallArgs = vi.mocked(prisma.placementRecord.groupBy).mock.calls[0][0];
     expect(retentionCallArgs?.where).toMatchObject({ startDateVerified: true });
   });
 
@@ -344,18 +344,15 @@ describe('generateQuarterlyOutcomes', () => {
     vi.mocked(prisma.userCertification.findMany).mockResolvedValue([]);
     vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([]);
 
-    // Call order inside generateQuarterlyOutcomes: fetchPlacements (quarter
-    // placements list), then the 90-day retention window, then the 180-day
-    // retention window.
-    vi.mocked(prisma.placementRecord.findMany)
-      .mockResolvedValueOnce([])
+    vi.mocked(prisma.placementRecord.findMany).mockResolvedValueOnce([]);
+    vi.mocked(prisma.placementRecord.groupBy)
       .mockResolvedValueOnce([
-        { retentionStatus: 'retained_90d', retentionDecision: null },
-        { retentionStatus: 'separated', retentionDecision: null },
-        { retentionStatus: null, retentionDecision: null },
+        { retentionStatus: 'retained_90d', retentionDecision: null, _count: { _all: 1 } },
+        { retentionStatus: 'separated', retentionDecision: null, _count: { _all: 1 } },
+        { retentionStatus: null, retentionDecision: null, _count: { _all: 1 } },
       ] as any)
       .mockResolvedValueOnce([
-        { retentionStatus: null, retentionDecision: 'retained' },
+        { retentionStatus: null, retentionDecision: 'retained', _count: { _all: 1 } },
       ] as any);
 
     const report = await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));

@@ -78,10 +78,11 @@ describe('admin metrics caching', () => {
       return fetcher();
     });
 
-    // The fetcher will fail because prisma is mocked to an empty object,
-    // but we just need to verify it was invoked.
-    await expect(getAdminMetrics('org-456')).rejects.toThrow();
+    // Queries settle independently; a missing Prisma surface degrades to zeros
+    // instead of throwing, so the cache miss still returns a metrics object.
+    const result = await getAdminMetrics('org-456');
     expect(fetcherCalled).toBe(true);
+    expect(result.totalMembers).toBe(0);
     expect(mockCache.getCacheOrFetch).toHaveBeenCalledWith(
       'admin:metrics:org-456',
       expect.any(Function),

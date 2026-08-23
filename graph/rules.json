@@ -61,5 +61,12 @@
     "status": "proposed",
     "text": "Admin partner pages that load member email or salary must use isAdminInOrg + tenant scope, same as /api/admin/partners.",
     "check": "app/admin/partners/[id]/page.tsx calls withTenantScope or getActorOrganizationId"
+  },
+  {
+    "id": "rul_dashboard_query_budget",
+    "fromClaimId": "clm_hot_dashboard_query_fanout",
+    "status": "proposed",
+    "text": "Kit-default /dashboard home issues at most MEMBER_DASHBOARD_HOME_PRISMA_BUDGET (2) Prisma operations via loadMemberDashboardHome. Coursera auto-sync and B4B stay off the default render path. ?ui=legacy may remain fat.",
+    "check": "lib/member/loadMemberDashboardHome.ts:MEMBER_DASHBOARD_HOME_PRISMA_BUDGET === 2; app/(portal)/dashboard/page.tsx kit branch has no prisma."
   }
 ]

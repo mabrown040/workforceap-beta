@@ -9,14 +9,17 @@ import {
 } from './syncUserFromB4B';
 
 /**
- * One-shot auto-sync helper called from the `/dashboard` server render path.
+ * One-shot auto-sync helper for Coursera B4B → local CourseProgress.
+ *
+ * SCALE Phase 2: **not** called from `/dashboard` render (kit or `?ui=legacy`).
+ * Hourly cron `coursera-training-sync` owns seeding. This helper remains for
+ * `POST /api/member/coursera/auto-sync` (manual "sync me") and any future
+ * non-render caller.
  *
  * Mirrors the gates in `POST /api/member/coursera/auto-sync` so a member who
- * hits their dashboard for the first time — never had an admin click "Sync
- * from Coursera" on them — sees real Coursera progress immediately. The
- * dashboard treats this as a background promise: the caller `await`s it but
- * with a 5s timeout (see `runWithDeadline`) so a slow B4B response never
- * blocks the page render.
+ * has never been synced gets enrollment + xAPI seeded. Callers that still
+ * invoke it should treat it as a background promise with `runWithDeadline`
+ * so a slow B4B response never blocks HTML.
  *
  * Dedupe rules (must ALL pass for a sync to fire):
  *   1. User has an email on file (`users.email`).
@@ -34,9 +37,7 @@ import {
  *
  * Rationale for living in lib (not calling the route over HTTP):
  *   - Avoids a self-fetch round-trip for what is a same-process call.
- *   - The route handler is still useful as an explicit endpoint (manual
- *     "sync me" button, future client-side trigger), but on the server
- *     render path we just call the underlying logic directly.
+ *   - The route handler remains the explicit endpoint (manual "sync me").
  */
 
 /** 1 hour. Matches AUTO_SYNC_BACKOFF_MS in the route handler. */

@@ -26,23 +26,23 @@ test('GDPR and account-delete routes delete storage objects before claiming succ
 test('storage delete runs before anonymize / auth delete on GDPR paths', () => {
   const gdpr = readRoute(GDPR_DELETE);
   assert.ok(
-    gdpr.indexOf('deleteUserStorageObjects') < gdpr.indexOf('Anonymize user record'),
+    gdpr.indexOf('await deleteUserStorageObjects') < gdpr.indexOf('Anonymize user record'),
     'gdpr/delete must remove blobs before nulling columns',
   );
   assert.ok(
-    gdpr.indexOf('deleteUserStorageObjects') < gdpr.indexOf('deleteSupabaseAuthUser'),
+    gdpr.indexOf('await deleteUserStorageObjects') < gdpr.indexOf('await deleteSupabaseAuthUser'),
     'gdpr/delete must remove blobs before auth delete',
   );
 
   const erase = readRoute(ADMIN_ERASE);
   assert.ok(
-    erase.indexOf('deleteUserStorageObjects') < erase.indexOf('shouldAnonymize'),
+    erase.indexOf('await deleteUserStorageObjects') < erase.indexOf('shouldAnonymize'),
     'admin erase must remove blobs before anonymize/hard-delete',
   );
 
   const selfDelete = readRoute(MEMBER_DELETE);
   assert.ok(
-    selfDelete.indexOf('deleteUserStorageObjects') < selfDelete.indexOf('deletedAt'),
+    selfDelete.indexOf('await deleteUserStorageObjects') < selfDelete.indexOf('deletedAt: now'),
     'delete-account must remove blobs before soft-delete',
   );
 });

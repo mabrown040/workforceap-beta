@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { tryCurrentRequestHeaders } from '@/lib/tenant/currentRequestHeaders';
+import type { HeadersLike } from '@/lib/tenant/resolveOrgFromRequest';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 
 type SupabaseUser = {
   id: string;
@@ -7,15 +9,35 @@ type SupabaseUser = {
   user_metadata?: Record<string, unknown>;
 };
 
+export type EnsureUserOptions = {
+  /** Already-resolved org from the caller. Never overwrites an existing row. */
+  organizationId?: string | null;
+  /** Request headers so host / x-wap-org-id can win over the default org. */
+  headers?: HeadersLike;
+  programSlug?: string | null;
+};
+
 /**
  * Ensures the Supabase auth user exists in the Prisma users table.
  * Call before saving AI results, job applications, etc. so foreign keys succeed.
+ *
+ * Organization is resolved via `resolveProvisionOrganizationId` (request host /
+ * x-wap-org-id / explicit / unique program / default). Existing
+ * `users.organizationId` is never overwritten.
  */
-export async function ensureUserInDb(supabaseUser: SupabaseUser) {
+export async function ensureUserInDb(
+  supabaseUser: SupabaseUser,
+  options: EnsureUserOptions = {},
+) {
   const email = supabaseUser.email ?? `${supabaseUser.id}@placeholder.local`;
   const fullName = (supabaseUser.user_metadata?.full_name as string) ?? 'Member';
 
-  const organizationId = await getDefaultOrganizationId();
+  const organizationId = await resolveProvisionOrganizationId({
+    explicitOrganizationId: options.organizationId,
+    headers: options.headers ?? (await tryCurrentRequestHeaders()),
+    metadata: supabaseUser.user_metadata,
+    programSlug: options.programSlug,
+  });
 
   try {
     await prisma.user.upsert({

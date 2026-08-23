@@ -65,6 +65,10 @@ function makeFakePrisma() {
     placementRecord: makeModel('placementRecord'),
     courseProgress: makeModel('courseProgress'),
     messageThread: makeModel('messageThread'),
+    memberEvent: makeModel('memberEvent'),
+    memberProgramProgress: makeModel('memberProgramProgress'),
+    placementSurvey: makeModel('placementSurvey'),
+    courseraCourseProgress: makeModel('courseraCourseProgress'),
     // NOT tenant-scoped and not parent-FK scoped — pass through unchanged
     blogPost: makeModel('blogPost'),
     __getCalls: () => [...calls],
@@ -330,6 +334,46 @@ test('MessageThread.findMany injects member/employer/partner org OR', async () =
         },
       ],
     },
+  });
+});
+
+test('MemberEvent.findMany injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.memberEvent.findMany({ where: { eventName: 'login' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { eventName: 'login', user: { organizationId: ORG_A } },
+  });
+});
+
+test('MemberProgramProgress.count injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.memberProgramProgress.count({ where: { programSlug: 'it-support' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { programSlug: 'it-support', user: { organizationId: ORG_A } },
+  });
+});
+
+test('PlacementSurvey.findMany injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.placementSurvey.findMany({ where: { wave: 'thirty_day' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { wave: 'thirty_day', user: { organizationId: ORG_A } },
+  });
+});
+
+test('CourseraCourseProgress.findMany injects organizationId (has org column)', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.courseraCourseProgress.findMany({ where: { programSlug: 'it' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { programSlug: 'it', organizationId: ORG_A },
   });
 });
 

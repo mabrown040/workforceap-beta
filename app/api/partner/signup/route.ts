@@ -6,7 +6,7 @@ import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/ra
 import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const ADMIN_EMAIL = 'info@workforceap.org';
@@ -195,7 +195,9 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       );
     }
 
-    const organizationId = await getDefaultOrganizationId();
+    const organizationId = await resolveProvisionOrganizationId({
+      headers: request.headers,
+    });
     const slug = await generateUniqueSlug(d.organizationName);
     const referralCode = await generateUniqueReferralCode(d.organizationName);
 

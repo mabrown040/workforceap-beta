@@ -57,6 +57,10 @@ export const TENANT_SCOPED_MODELS = new Set<string>([
   'chapterMember',
   'chapterMeeting',
   'chapterCurriculumItem',
+  // Nullable org column (unmatched Coursera rows stay org-less). Direct
+  // scoping is correct — parent-FK via user would miss unmatched rows
+  // and reject the organizationId stamp new writes need.
+  'courseraCourseProgress',
 ]);
 
 /**
@@ -77,6 +81,9 @@ export const PARENT_FK_SCOPED_MODELS: Record<string, ParentFkScope> = {
   placementRecord: { kind: 'user' },
   courseProgress: { kind: 'user' },
   messageThread: { kind: 'memberEmployerOrPartner' },
+  memberEvent: { kind: 'user' },
+  memberProgramProgress: { kind: 'user' },
+  placementSurvey: { kind: 'user' },
 };
 
 const READ_OPS = new Set([

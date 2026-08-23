@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/db/prisma';
 import { ApplicationStatus } from '@prisma/client';
 import { sendNewApplicationAdminEmail } from '@/lib/email';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { tryCurrentRequestHeaders } from '@/lib/tenant/currentRequestHeaders';
+import type { HeadersLike } from '@/lib/tenant/resolveOrgFromRequest';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 import { MemberSignupInput } from '@/lib/validation/member';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 
@@ -25,9 +27,15 @@ async function memberAlreadyCreated(userId: string): Promise<boolean> {
   }
 }
 
+export type CreateMemberOptions = {
+  organizationId?: string | null;
+  headers?: HeadersLike;
+};
+
 export async function createMember(
   userId: string,
-  data: MemberSignupInput
+  data: MemberSignupInput,
+  options: CreateMemberOptions = {},
 ): Promise<void> {
   let referralPartnerId: string | null = null;
   let referralSource: string | null = null;
@@ -49,7 +57,12 @@ export async function createMember(
     }
   }
 
-  const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+  const organizationId = await withDbRetry(async () =>
+    resolveProvisionOrganizationId({
+      explicitOrganizationId: options.organizationId,
+      headers: options.headers ?? (await tryCurrentRequestHeaders()),
+    }),
+  );
 
   await withDbRetry(async () => {
     try {

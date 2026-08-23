@@ -2,8 +2,12 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import {
+  inheritUserOrg,
+  resolveAdminPageTenant,
+  withAdminPageScope,
+  type AdminPageTenant,
+} from '@/lib/tenant/adminPageScope';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { DesignSurface } from '@/components/portal/kit';
 import SessionsIndexBody from '@/components/portal/sessions/SessionsIndexBody';
@@ -62,7 +66,8 @@ export default async function AdminSessionsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/sessions');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { ui } = await searchParams;
 
@@ -70,44 +75,53 @@ export default async function AdminSessionsPage({
   // build → session run). The rich SessionsIndexBody IS the default; the dense
   // history-only roster (SessionsKit) is an optional power view at ?ui=kit.
   if (ui === 'kit') {
-    return renderKit();
+    return renderKit(scope);
   }
 
-  return <SessionsIndexBody actor="admin" actorUserId={user.id} />;
+  return (
+    <SessionsIndexBody
+      actor="admin"
+      actorUserId={user.id}
+      organizationId={scope.superAdmin ? null : scope.orgId}
+    />
+  );
 }
 
 /** Design-kit default: dense roster of recent sessions → <SessionsKit/>. */
-async function renderKit() {
+async function renderKit(scope: Extract<AdminPageTenant, { ok: true }>) {
   // Pull recent completed-tool-run events across every counselor/admin, then
   // collapse to one row per session in JS (mirrors SessionsIndexBody). Lean:
   // single findMany with take + a parallel count; no transactions/HTTP.
   const where = {
     eventName: 'ai_tool_run_completed',
     sessionId: { not: null },
-  } as const;
+    ...inheritUserOrg(scope),
+  };
 
-  const [eventsResult, sessionCountResult] = await Promise.allSettled([
-    prisma.memberEvent.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: EVENT_TAKE,
-      select: {
-        id: true,
-        userId: true,
-        sessionId: true,
-        createdAt: true,
-        metadata: true,
-        user: { select: { id: true, fullName: true, email: true } },
-      },
-    }),
-    // Distinct sessions in scope (best-effort; degrades to shown count).
-    // groupBy pushes the dedupe down to Postgres instead of pulling every
-    // matching event row into the function just to count unique sessionIds.
-    prisma.memberEvent.groupBy({
-      by: ['sessionId'],
-      where,
-    }),
-  ]);
+  const [eventsResult, sessionCountResult] = await withAdminPageScope(scope, (db) =>
+    Promise.allSettled([
+      db.memberEvent.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: EVENT_TAKE,
+        select: {
+          id: true,
+          userId: true,
+          sessionId: true,
+          createdAt: true,
+          metadata: true,
+          user: { select: { id: true, fullName: true, email: true } },
+        },
+      }),
+      // Distinct sessions in scope (best-effort; degrades to shown count).
+      // groupBy pushes the dedupe down to Postgres instead of pulling every
+      // matching event row into the function just to count unique sessionIds.
+      db.memberEvent.groupBy({
+        by: ['sessionId'],
+        where,
+      }),
+    ]),
+  );
 
   // If the core query fails, fall back to the proven legacy workspace rather
   // than rendering a fabricated/empty kit.

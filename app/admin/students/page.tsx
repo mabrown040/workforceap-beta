@@ -2,10 +2,13 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
-import { prisma } from '@/lib/db/prisma';
-import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+import {
+  inheritMemberOrg,
+  inheritUserOrg,
+  resolveAdminPageTenant,
+  withAdminPageScope,
+} from '@/lib/tenant/adminPageScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -84,8 +87,8 @@ export default async function AdminStudentsPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/students');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -112,38 +115,46 @@ export default async function AdminStudentsPage({
 
   // Lean roster + full count + light activity/progress aggregates, all in
   // parallel. Aggregate failures degrade gracefully (members list must show).
-  const [membersResult, totalResult, lastEventsResult, recentEventsResult] =
-    await Promise.allSettled([
-      prisma.user.findMany({
-        where: whereClause,
-        orderBy: { updatedAt: 'desc' },
-        take: ROSTER_LIMIT,
-        select: {
-          id: true,
-          fullName: true,
-          enrolledProgram: true,
-          enrolledAt: true,
-          assessmentScorePct: true,
-          memberStatus: true,
-          interviewRequestedAt: true,
-          interviewCompletedAt: true,
-          lastLoginAt: true,
-          updatedAt: true,
-          profile: { select: { city: true, state: true } },
-        },
-      }),
-      prisma.user.count({ where: whereClause }),
-      prisma.memberEvent.groupBy({
-        by: ['userId'],
-        where: { createdAt: { gte: thirtyDaysAgo } },
-        _max: { createdAt: true },
-      }),
-      prisma.memberEvent.groupBy({
-        by: ['userId'],
-        where: { createdAt: { gte: thirtyDaysAgo } },
-        _count: { _all: true },
-      }),
-    ]);
+  const userOrg = inheritUserOrg(scope);
+  const [membersResult, totalResult, lastEventsResult, recentEventsResult, programProgressResult] =
+    await withAdminPageScope(scope, (db) =>
+      Promise.allSettled([
+        db.user.findMany({
+          where: whereClause,
+          orderBy: { updatedAt: 'desc' },
+          take: ROSTER_LIMIT,
+          select: {
+            id: true,
+            fullName: true,
+            enrolledProgram: true,
+            enrolledAt: true,
+            assessmentScorePct: true,
+            memberStatus: true,
+            interviewRequestedAt: true,
+            interviewCompletedAt: true,
+            lastLoginAt: true,
+            updatedAt: true,
+            profile: { select: { city: true, state: true } },
+          },
+        }),
+        db.user.count({ where: whereClause }),
+        db.memberEvent.groupBy({
+          by: ['userId'],
+          where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
+          _max: { createdAt: true },
+        }),
+        db.memberEvent.groupBy({
+          by: ['userId'],
+          where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
+          _count: { _all: true },
+        }),
+        db.memberProgramProgress.findMany({
+          take: 5000,
+          where: { ...userOrg },
+          select: { userId: true, programSlug: true, averagePercent: true },
+        }),
+      ]),
+    );
 
   // If the core roster query fails, fall back to the proven members workspace
   // rather than rendering a fabricated/empty kit.
@@ -168,37 +179,29 @@ export default async function AdminStudentsPage({
   const eventAggregatesOk =
     lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
 
-  const programProgressRows = await prisma.memberProgramProgress
-    .findMany({
-      take: ADMIN_SSR_LIST_CAP,
-      where: { userId: { in: members.map((m) => m.id) } },
-      select: { userId: true, programSlug: true, averagePercent: true },
-    })
-    .catch((reason: unknown) => {
-      console.error('[admin/students] program progress load failed', reason);
-      return [] as Array<{ userId: string; programSlug: string; averagePercent: number }>;
-    });
   const programProgressMap = new Map<string, number>();
-  for (const row of programProgressRows) {
-    programProgressMap.set(`${row.userId}:${row.programSlug}`, row.averagePercent);
+  if (programProgressResult.status === 'fulfilled') {
+    for (const row of programProgressResult.value) {
+      programProgressMap.set(`${row.userId}:${row.programSlug}`, row.averagePercent);
+    }
   }
 
   // One extra query over the already-loaded page of members: resolve each
   // member's active counselor. The counselor's display name lives on the
   // related User (Counselor has no name field of its own). A failure here just
   // leaves counselors "Unassigned" — the roster still renders.
-  const counselorAssignmentsResult = await prisma.counselorAssignment
-    .findMany({
-      where: { memberId: { in: members.map((m) => m.id) }, active: true },
+  const counselorAssignmentsResult = await withAdminPageScope(scope, (db) =>
+    db.counselorAssignment.findMany({
+      where: { memberId: { in: members.map((m) => m.id) }, active: true, ...inheritMemberOrg(scope) },
       select: {
         memberId: true,
         counselor: { select: { user: { select: { fullName: true } } } },
       },
-    })
-    .catch((reason: unknown) => {
-      console.error('[admin/students] counselor assignment load failed', reason);
-      return [] as { memberId: string; counselor: { user: { fullName: string } } }[];
-    });
+    }),
+  ).catch((reason: unknown) => {
+    console.error('[admin/students] counselor assignment load failed', reason);
+    return [] as { memberId: string; counselor: { user: { fullName: string } } }[];
+  });
 
   const counselorNameMap = new Map<string, string>();
   for (const row of counselorAssignmentsResult) {

@@ -3,11 +3,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
 import { Prisma } from '@prisma/client';
-import { prisma } from '@/lib/db/prisma';
-import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
-
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { wioaReviewLabel, WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import PageHeader from '@/components/portal/PageHeader';
@@ -91,8 +88,8 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/wioa-screening');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const sp = (await searchParams) ?? {};
   const requestedUi = Array.isArray(sp.ui) ? sp.ui[0] : sp.ui;
@@ -103,23 +100,25 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
 
     let rows: WioaQueueRow[] = [];
     try {
-      rows = await prisma.user.findMany({
-        take: ADMIN_SSR_LIST_CAP,
-        where: {
-          deletedAt: null,
-          wioaQualificationJson: { not: Prisma.DbNull },
-          ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
-        },
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          wioaQualificationJson: true,
-          wioaReviewStatus: true,
-          wioaReviewedAt: true,
-          updatedAt: true,
-        },
-      });
+      rows = await withAdminPageScope(scope, (db) =>
+        db.user.findMany({
+          take: 5000,
+          where: {
+            deletedAt: null,
+            wioaQualificationJson: { not: Prisma.DbNull },
+            ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
+          },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            wioaQualificationJson: true,
+            wioaReviewStatus: true,
+            wioaReviewedAt: true,
+            updatedAt: true,
+          },
+        }),
+      );
     } catch (error) {
       console.error('[admin/wioa-screening] failed to load queue', error);
       const message = error instanceof Error ? error.message : String(error ?? '');
@@ -156,11 +155,7 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
       <PortalPageFrame>
         <PageHeader
           title="WIOA screening queue"
-          subtitle={
-            enriched.length >= ADMIN_SSR_LIST_CAP
-              ? `Showing first ${enriched.length} screenings`
-              : 'Members who completed the portal self-screening. Review status is for internal workflow only.'
-          }
+          subtitle="Members who completed the portal self-screening. Review status is for internal workflow only."
           action={
             <Link href="/admin/members" className="btn btn-outline">
               ← All members
@@ -256,31 +251,33 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
   // KPI counts straight off the indexed review-status column (one groupBy), and
   // a capped table page (one findMany w/ the reviewer relation). Both run in
   // parallel; a failed core query degrades to the proven legacy view.
-  const [countsResult, rowsResult] = await Promise.allSettled([
-    prisma.user.groupBy({
-      by: ['wioaReviewStatus'],
-      where: {
-        deletedAt: null,
-        wioaQualificationJson: { not: Prisma.DbNull },
-      },
-      _count: { _all: true },
-    }),
-    prisma.user.findMany({
-      take: 200,
-      where: {
-        deletedAt: null,
-        wioaQualificationJson: { not: Prisma.DbNull },
-      },
-      orderBy: { wioaReviewedAt: { sort: 'desc', nulls: 'last' } },
-      select: {
-        id: true,
-        fullName: true,
-        wioaQualificationJson: true,
-        wioaReviewStatus: true,
-        wioaReviewer: { select: { fullName: true } },
-      },
-    }),
-  ]);
+  const [countsResult, rowsResult] = await withAdminPageScope(scope, (db) =>
+    Promise.allSettled([
+      db.user.groupBy({
+        by: ['wioaReviewStatus'],
+        where: {
+          deletedAt: null,
+          wioaQualificationJson: { not: Prisma.DbNull },
+        },
+        _count: { _all: true },
+      }),
+      db.user.findMany({
+        take: 200,
+        where: {
+          deletedAt: null,
+          wioaQualificationJson: { not: Prisma.DbNull },
+        },
+        orderBy: { wioaReviewedAt: { sort: 'desc', nulls: 'last' } },
+        select: {
+          id: true,
+          fullName: true,
+          wioaQualificationJson: true,
+          wioaReviewStatus: true,
+          wioaReviewer: { select: { fullName: true } },
+        },
+      }),
+    ]),
+  );
 
   if (rowsResult.status === 'rejected' || countsResult.status === 'rejected') {
     console.error(

@@ -17,9 +17,8 @@ import SessionsHistoryClient, {
  * Scope:
  *  - counselor → filtered to sessions where metadata.actorUserId is
  *    the current counselor (their own sessions)
- *  - admin → all sessions across every counselor/admin in the org
- *    (the "history view" — admins need to find any member's session
- *    quickly per user direction 2026-04-26)
+ *  - admin → sessions for members in the actor org (`organizationId`);
+ *    super-admins omit that filter and see every tenant (platform ops)
  */
 type Actor = 'counselor' | 'admin';
 
@@ -61,9 +60,12 @@ const ACTOR_PATHS: Record<Actor, {
 export default async function SessionsIndexBody({
   actor,
   actorUserId,
+  organizationId,
 }: {
   actor: Actor;
   actorUserId: string;
+  /** Admin home-org filter. `null`/omitted = unscoped (super-admin or counselor). */
+  organizationId?: string | null;
 }) {
   const paths = ACTOR_PATHS[actor];
 
@@ -75,6 +77,7 @@ export default async function SessionsIndexBody({
     where: {
       eventName: 'ai_tool_run_completed',
       sessionId: { not: null },
+      ...(organizationId ? { user: { organizationId } } : {}),
       ...(actor === 'counselor'
         ? {
             metadata: {

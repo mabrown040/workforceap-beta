@@ -4,8 +4,12 @@ import { redirect } from 'next/navigation';
 import { Download } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import {
+  inheritJobOrg,
+  resolveAdminPageTenant,
+  withAdminPageScope,
+} from '@/lib/tenant/adminPageScope';
 import CreateEmployerAccountClient from './CreateEmployerAccountClient';
 import OpenEmployerPortalButton from './OpenEmployerPortalButton';
 import ClearEmployerPortalContext from './ClearEmployerPortalContext';
@@ -96,12 +100,14 @@ export default async function AdminEmployersPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employers');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { status: statusFilter, ui: requestedUi, page } = await searchParams;
 
   // --- DEFAULT: real (lean) employer directory wired into EmployersDirectoryKit ---
   if (requestedUi !== 'legacy') {
+    const jobOrg = inheritJobOrg(scope);
     const [
       directoryResult,
       partnerCountResult,
@@ -110,37 +116,39 @@ export default async function AdminEmployersPage({
       openRolesTotalResult,
       hiresGroupResult,
       hiresTotalResult,
-    ] = await Promise.allSettled([
-      prisma.employer.findMany({
-        take: DIRECTORY_LIMIT,
-        orderBy: { companyName: 'asc' },
-        select: {
-          id: true,
-          companyName: true,
-          industry: true,
-          status: true,
-          user: { select: { lastLoginAt: true } },
-        },
-      }),
-      prisma.employer.count(),
-      prisma.employer.count({ where: { status: 'active' } }),
-      // Open roles grouped by employer (for per-card counts on the loaded page).
-      prisma.job.groupBy({
-        by: ['employerId'],
-        where: { status: { in: [...OPEN_JOB_STATUSES] } },
-        _count: { _all: true },
-      }),
-      // Open roles across ALL employers (real subtitle aggregate).
-      prisma.job.count({ where: { status: { in: [...OPEN_JOB_STATUSES] } } }),
-      // Hires grouped by employer (job → employer) for per-card counts.
-      prisma.jobPostingApplication.groupBy({
-        by: ['jobId'],
-        where: { status: 'hired' },
-        _count: { _all: true },
-      }),
-      // Total hires across all employers.
-      prisma.jobPostingApplication.count({ where: { status: 'hired' } }),
-    ]);
+    ] = await withAdminPageScope(scope, (db) =>
+      Promise.allSettled([
+        db.employer.findMany({
+          take: DIRECTORY_LIMIT,
+          orderBy: { companyName: 'asc' },
+          select: {
+            id: true,
+            companyName: true,
+            industry: true,
+            status: true,
+            user: { select: { lastLoginAt: true } },
+          },
+        }),
+        db.employer.count(),
+        db.employer.count({ where: { status: 'active' } }),
+        // Open roles grouped by employer (for per-card counts on the loaded page).
+        db.job.groupBy({
+          by: ['employerId'],
+          where: { status: { in: [...OPEN_JOB_STATUSES] } },
+          _count: { _all: true },
+        }),
+        // Open roles across ALL employers (real subtitle aggregate).
+        db.job.count({ where: { status: { in: [...OPEN_JOB_STATUSES] } } }),
+        // Hires grouped by employer (job → employer) for per-card counts.
+        db.jobPostingApplication.groupBy({
+          by: ['jobId'],
+          where: { status: 'hired', ...jobOrg },
+          _count: { _all: true },
+        }),
+        // Total hires across all employers.
+        db.jobPostingApplication.count({ where: { status: 'hired', ...jobOrg } }),
+      ]),
+    );
 
     // Core directory must load; otherwise fall back to the legacy management view.
     if (directoryResult.status === 'rejected') {
@@ -162,12 +170,12 @@ export default async function AdminEmployersPage({
     const hiresByEmployer = new Map<string, number>();
     if (hiresGroupResult.status === 'fulfilled' && hiresGroupResult.value.length > 0) {
       const jobIds = hiresGroupResult.value.map((r) => r.jobId);
-      const jobOwners = await prisma.job
-        .findMany({ where: { id: { in: jobIds } }, select: { id: true, employerId: true } })
-        .catch((reason: unknown) => {
-          console.error('[admin/employers] hire job-owner lookup failed', reason);
-          return [] as { id: string; employerId: string }[];
-        });
+      const jobOwners = await withAdminPageScope(scope, (db) =>
+        db.job.findMany({ where: { id: { in: jobIds } }, select: { id: true, employerId: true } }),
+      ).catch((reason: unknown) => {
+        console.error('[admin/employers] hire job-owner lookup failed', reason);
+        return [] as { id: string; employerId: string }[];
+      });
       const ownerByJob = new Map(jobOwners.map((j) => [j.id, j.employerId]));
       for (const row of hiresGroupResult.value) {
         const employerId = ownerByJob.get(row.jobId);
@@ -227,18 +235,20 @@ export default async function AdminEmployersPage({
 
   const [superAdmin, employers, totalCount, pendingCount] = await Promise.all([
     isSuperAdmin(user.id),
-    prisma.employer.findMany({
-      where,
-      orderBy: { companyName: 'asc' },
-      skip: (currentPage - 1) * pageSize,
-      take: pageSize,
-      include: {
-        user: { select: { email: true, fullName: true, lastLoginAt: true } },
-        _count: { select: { jobs: true } },
-      },
-    }),
-    prisma.employer.count({ where }),
-    prisma.employer.count({ where: { status: 'pending_approval' } }),
+    withAdminPageScope(scope, (db) =>
+      db.employer.findMany({
+        where,
+        orderBy: { companyName: 'asc' },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        include: {
+          user: { select: { email: true, fullName: true, lastLoginAt: true } },
+          _count: { select: { jobs: true } },
+        },
+      }),
+    ),
+    withAdminPageScope(scope, (db) => db.employer.count({ where })),
+    withAdminPageScope(scope, (db) => db.employer.count({ where: { status: 'pending_approval' } })),
   ]);
 
   const tabs = [

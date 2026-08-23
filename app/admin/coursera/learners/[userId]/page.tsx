@@ -6,6 +6,8 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
 import { getProfileRole, isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { MEMBER_HISTORY_CAP } from '@/lib/db/queryCaps';
+
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -44,7 +46,7 @@ async function loadIdentityMappingsForUser(userId: string): Promise<IdentityMapp
   // in lib/xapi/mappings.ts only fires on xAPI ingest, not on this page).
   try {
     const rows = await prisma.courseraIdentityMapping.findMany({
-      take: 5000,
+      take: MEMBER_HISTORY_CAP,
       where: { userId },
       orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
       select: {

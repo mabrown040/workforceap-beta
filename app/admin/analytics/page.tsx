@@ -5,6 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_SAMPLE_CAP } from '@/lib/db/queryCaps';
+
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getAnalyticsOverview } from '@/lib/admin/analytics';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -89,7 +91,7 @@ async function getEngagementData(orgId?: string): Promise<EngagementData> {
   ] = await Promise.allSettled([
     // WAU — distinct members with any event in the last 7 days.
     prisma.memberEvent.findMany({
-      take: 5000,
+      take: ANALYTICS_SAMPLE_CAP,
       where: { createdAt: { gte: sevenDaysAgo }, ...scope },
       select: { userId: true },
       distinct: ['userId'],
@@ -97,7 +99,7 @@ async function getEngagementData(orgId?: string): Promise<EngagementData> {
     // Avg session — capped sample of last-7-day events with a sessionId; we
     // compute (max-min) per session in memory. Lean cap keeps it bounded.
     prisma.memberEvent.findMany({
-      take: 5000,
+      take: ANALYTICS_SAMPLE_CAP,
       where: { createdAt: { gte: sevenDaysAgo }, sessionId: { not: null }, ...scope },
       select: { sessionId: true, createdAt: true },
       orderBy: { createdAt: 'asc' },
@@ -120,7 +122,7 @@ async function getEngagementData(orgId?: string): Promise<EngagementData> {
     // in the last 7 days, joined to enrolledProgram. We dedupe by user in
     // memory so each member counts once per program.
     prisma.memberEvent.findMany({
-      take: 5000,
+      take: ANALYTICS_SAMPLE_CAP,
       where: { createdAt: { gte: sevenDaysAgo }, ...scope },
       select: { userId: true, user: { select: { enrolledProgram: true } } },
     }),

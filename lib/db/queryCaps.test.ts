@@ -6,14 +6,15 @@ import { fileURLToPath } from 'node:url';
 
 import {
   ADMIN_SSR_LIST_CAP,
+  ANALYTICS_SAMPLE_CAP,
+  COUNSELOR_ROSTER_CAP,
   EMPLOYER_LIST_CAP,
-  PARTNER_DIGEST_REFERRAL_CAP,
-  TRAINING_PROGRESS_LEARNER_CAP,
-  TRAINING_PROGRESS_PROGRESS_CAP,
+  LOOKUP_LIST_CAP,
+  MEMBER_HISTORY_CAP,
   UNBOUNDED_LIST_TAKE_FLOOR,
+  WIOA_DEMOGRAPHICS_CAP,
   clampTake,
   isListTruncated,
-  partnerDigestReferralTake,
   showingFirstLabel,
 } from './queryCaps';
 
@@ -23,62 +24,84 @@ function readRepo(rel: string): string {
   return readFileSync(join(ROOT, rel), 'utf8');
 }
 
-test('caps stay below the old silent 5k/20k floor', () => {
+test('remaining-surface caps stay below the old silent 5k floor', () => {
+  assert.ok(ADMIN_SSR_LIST_CAP <= 500);
+  assert.ok(EMPLOYER_LIST_CAP <= 500);
+  assert.ok(COUNSELOR_ROSTER_CAP <= 500);
+  assert.ok(MEMBER_HISTORY_CAP <= 500);
+  assert.ok(LOOKUP_LIST_CAP <= 500);
+  assert.ok(WIOA_DEMOGRAPHICS_CAP <= 500);
+  assert.ok(ANALYTICS_SAMPLE_CAP <= 500);
   assert.ok(ADMIN_SSR_LIST_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
-  assert.ok(EMPLOYER_LIST_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
-  assert.ok(TRAINING_PROGRESS_LEARNER_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
-  assert.ok(TRAINING_PROGRESS_PROGRESS_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
-  assert.ok(PARTNER_DIGEST_REFERRAL_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
-  assert.equal(TRAINING_PROGRESS_LEARNER_CAP, 200);
-  assert.equal(EMPLOYER_LIST_CAP, 200);
-  assert.equal(PARTNER_DIGEST_REFERRAL_CAP, 2000);
-});
-
-test('partner digest take is a hard cap and does not scale with partner count', () => {
-  assert.equal(partnerDigestReferralTake(1), PARTNER_DIGEST_REFERRAL_CAP);
-  assert.equal(partnerDigestReferralTake(50), PARTNER_DIGEST_REFERRAL_CAP);
-  assert.equal(partnerDigestReferralTake(0), PARTNER_DIGEST_REFERRAL_CAP);
-  assert.ok(partnerDigestReferralTake(50) < 2000 * 50);
+  assert.ok(COUNSELOR_ROSTER_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
+  assert.ok(WIOA_DEMOGRAPHICS_CAP < UNBOUNDED_LIST_TAKE_FLOOR);
 });
 
 test('clampTake and showingFirstLabel', () => {
   assert.equal(clampTake(9999, 200), 200);
   assert.equal(clampTake(0, 200), 1);
-  assert.equal(showingFirstLabel(200, 200, 'learners'), 'Showing 200 learners');
-  assert.equal(showingFirstLabel(200, 812, 'learners'), 'Showing first 200 of 812 learners');
+  assert.equal(showingFirstLabel(200, 200, 'members'), 'Showing 200 members');
+  assert.equal(showingFirstLabel(200, 812, 'members'), 'Showing first 200 of 812 members');
   assert.equal(isListTruncated(200, 200, 812), true);
   assert.equal(isListTruncated(40, 200, 40), false);
 });
 
-test('training-progress page honors learner/progress caps and drops 20k scans', () => {
-  const src = readRepo('app/admin/training-progress/page.tsx');
-  assert.doesNotMatch(src, /take:\s*20000/);
-  assert.doesNotMatch(src, /take:\s*5000/);
-  assert.match(src, /TRAINING_PROGRESS_LEARNER_CAP/);
-  assert.match(src, /TRAINING_PROGRESS_PROGRESS_CAP/);
-});
+const PORTAL_AND_ADMIN_SSR = [
+  'app/(portal)/employer/candidates/[studentId]/page.tsx',
+  'app/(portal)/counselor/page.tsx',
+  'app/(portal)/counselor/students/[memberId]/page.tsx',
+  'app/(portal)/partner/page.tsx',
+  'app/admin/members/new/page.tsx',
+  'app/admin/members/[id]/page.tsx',
+  'app/admin/members/job-ready/page.tsx',
+  'app/admin/members/interview-ready/page.tsx',
+  'app/admin/program-change-requests/page.tsx',
+  'app/admin/students/page.tsx',
+  'app/admin/subgroups/legacy.tsx',
+  'app/admin/subgroups/new/page.tsx',
+  'app/admin/subgroups/[id]/edit/page.tsx',
+  'app/admin/wioa-screening/page.tsx',
+  'app/admin/users/deleted/page.tsx',
+  'app/admin/programs/page.tsx',
+  'app/admin/invites/new/page.tsx',
+  'app/admin/partners/page.tsx',
+  'app/admin/partners/[id]/page.tsx',
+  'app/admin/mentors/page.tsx',
+  'app/admin/blog/page.tsx',
+  'app/admin/growth/page.tsx',
+  'app/admin/analytics/page.tsx',
+  'app/admin/coursera/learners/[userId]/page.tsx',
+  'app/admin/coursera/page.tsx',
+  'app/api/admin/reports/wioa/route.ts',
+];
 
-test('counselors page no longer hydrates 20k assignment rows', () => {
-  const src = readRepo('app/admin/counselors/page.tsx');
-  assert.doesNotMatch(src, /take:\s*20000/);
-  assert.match(src, /loadCounselorAssignmentAggregates/);
-});
+const COUNSELOR_HELPERS = [
+  'lib/counselor/workQueue.ts',
+  'lib/counselor/counselorStudentsRoster.ts',
+  'lib/counselor/triageFlags.ts',
+  'lib/counselor/commandCenter.ts',
+  'lib/counselor/priorityQueue.ts',
+  'lib/counselor/inboxZero.ts',
+];
 
-test('employer list pages cap take at EMPLOYER_LIST_CAP', () => {
-  for (const rel of [
-    'app/(portal)/employer/jobs/page.tsx',
-    'app/(portal)/employer/pipeline/page.tsx',
-    'app/(portal)/employer/matches/page.tsx',
-    'app/(portal)/employer/page.tsx',
-  ]) {
+test('leftover SSR pages no longer use silent 5k/10k/20k takes', () => {
+  for (const rel of PORTAL_AND_ADMIN_SSR) {
     const src = readRepo(rel);
-    assert.doesNotMatch(src, /take:\s*5000/, rel);
-    assert.match(src, /EMPLOYER_LIST_CAP/, rel);
+    assert.doesNotMatch(src, /take:\s*(5000|10000|20000)/, rel);
   }
 });
 
-test('partner digest uses partnerDigestReferralTake instead of 2000 * n', () => {
-  const src = readRepo('app/api/cron/partner-outcome-digest/route.ts');
-  assert.doesNotMatch(src, /2000\s*\*\s*partnerIds\.length/);
-  assert.match(src, /partnerDigestReferralTake\(partnerIds\.length\)/);
+test('counselor helpers no longer use silent 5k takes', () => {
+  for (const rel of COUNSELOR_HELPERS) {
+    const src = readRepo(rel);
+    assert.doesNotMatch(src, /take:\s*5000/, rel);
+    assert.match(src, /COUNSELOR_ROSTER_CAP/, rel);
+  }
+});
+
+test('employer candidate page and WIOA report use named caps', () => {
+  const candidate = readRepo('app/(portal)/employer/candidates/[studentId]/page.tsx');
+  assert.match(candidate, /EMPLOYER_LIST_CAP/);
+  const wioa = readRepo('app/api/admin/reports/wioa/route.ts');
+  assert.match(wioa, /WIOA_DEMOGRAPHICS_CAP/);
 });

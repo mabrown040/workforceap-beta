@@ -6,6 +6,8 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
@@ -566,7 +568,7 @@ export default async function PartnerDashboardPage({
       ? 0
       : (
           await prisma.application.findMany({
-            take: 5000,
+            take: ADMIN_SSR_LIST_CAP,
             where: { referralPartnerId: ctx.partnerId, userId: { in: memberIds } },
             select: { userId: true },
             distinct: ['userId'],

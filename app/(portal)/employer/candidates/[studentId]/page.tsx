@@ -9,6 +9,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
+import { EMPLOYER_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -67,9 +68,9 @@ export default async function EmployerCandidateProfilePage({
   const sp = (await searchParams) ?? {};
   const highlightJobId = typeof sp.jobId === 'string' ? sp.jobId : null;
 
-  const [matches, applications] = await Promise.all([
+  const [matches, applications, matchTotal, applicationTotal] = await Promise.all([
     prisma.aIJobMatch.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: { studentId, job: { employerId: ctx.employerId, status: 'live' } },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -77,14 +78,24 @@ export default async function EmployerCandidateProfilePage({
       },
     }),
     prisma.jobPostingApplication.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: { studentId, job: { employerId: ctx.employerId } },
       orderBy: { appliedAt: 'desc' },
       include: {
         job: { select: { id: true, title: true } },
       },
     }),
+    prisma.aIJobMatch.count({
+      where: { studentId, job: { employerId: ctx.employerId, status: 'live' } },
+    }),
+    prisma.jobPostingApplication.count({
+      where: { studentId, job: { employerId: ctx.employerId } },
+    }),
   ]);
+  const matchesTruncated = isListTruncated(matches.length, EMPLOYER_LIST_CAP, matchTotal);
+  const applicationsTruncated = isListTruncated(applications.length, EMPLOYER_LIST_CAP, applicationTotal);
+  const matchesLabel = showingFirstLabel(matches.length, matchTotal, 'AI matches');
+  const applicationsLabel = showingFirstLabel(applications.length, applicationTotal, 'applications');
 
   if (matches.length === 0 && applications.length === 0) {
     notFound();
@@ -336,6 +347,9 @@ export default async function EmployerCandidateProfilePage({
               <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                 AI match history
               </p>
+              {matchesTruncated ? (
+                <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{matchesLabel}</p>
+              ) : null}
               <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
                 {matches.map((match) => (
                   <div key={match.id} style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
@@ -372,6 +386,9 @@ export default async function EmployerCandidateProfilePage({
               <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                 Applications
               </p>
+              {applicationsTruncated ? (
+                <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{applicationsLabel}</p>
+              ) : null}
               <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
                 {applications.map((application) => (
                   <div key={application.id} style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
@@ -569,6 +586,9 @@ export default async function EmployerCandidateProfilePage({
               {matches.length > 0 ? (
                 <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                   <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>AI match history</h2>
+                  {matchesTruncated ? (
+                    <p style={{ margin: '-0.45rem 0 0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{matchesLabel}</p>
+                  ) : null}
                   <div style={{ display: 'grid', gap: '0.75rem' }}>
                     {matches.map((match) => (
                       <div key={match.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
@@ -600,6 +620,9 @@ export default async function EmployerCandidateProfilePage({
               {applications.length > 0 ? (
                 <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                   <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Applications</h2>
+                  {applicationsTruncated ? (
+                    <p style={{ margin: '-0.45rem 0 0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{applicationsLabel}</p>
+                  ) : null}
                   <div style={{ display: 'grid', gap: '0.75rem' }}>
                     {applications.map((application) => (
                       <div key={application.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>

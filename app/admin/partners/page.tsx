@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -31,7 +33,7 @@ const PARTNER_LIMIT = 60;
 async function loadAdminPartnersData() {
   return Promise.all([
     prisma.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       orderBy: { name: 'asc' },
       select: {
         id: true,
@@ -64,7 +66,7 @@ async function loadAdminPartnersData() {
       },
     }),
     prisma.subgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),

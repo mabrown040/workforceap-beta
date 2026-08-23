@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
+import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+
 
 /**
  * Counselor Work Queue
@@ -47,7 +49,7 @@ export async function getCounselorWorkQueue(
     });
     if (counselor) {
       const assignments = await prisma.counselorAssignment.findMany({
-        take: 5000,
+        take: COUNSELOR_ROSTER_CAP,
         where: { counselorId: counselor.id, active: true },
         select: { memberId: true },
       });
@@ -67,7 +69,7 @@ export async function getCounselorWorkQueue(
     });
     if (!counselor) return [];
     const assignments = await prisma.counselorAssignment.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { counselorId: counselor.id, active: true },
       select: { memberId: true },
     });
@@ -76,7 +78,7 @@ export async function getCounselorWorkQueue(
   if (memberIds.length === 0) return [];
 
   const threads = await prisma.messageThread.findMany({
-    take: 5000,
+    take: COUNSELOR_ROSTER_CAP,
     where: { memberId: { in: memberIds }, kind: 'member' },
     select: { id: true, memberId: true },
   });
@@ -100,7 +102,7 @@ export async function getCounselorWorkQueue(
       threadIds,
     ),
     prisma.user.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { id: { in: memberIds } },
       select: { id: true, fullName: true, email: true },
     }),

@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
 import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
@@ -52,12 +53,12 @@ export default async function CounselorPortalPage({
 
   // ── ?ui=kit LEAN PATH ──────────────────────────────────────────────────
   // Runs AFTER the auth/role guard (access control preserved) but BEFORE the
-  // heavy data pipeline (counselorAssignment.findMany take:5000 + the message
+  // heavy data pipeline (counselorAssignment.findMany + the message
   // reply-scan), which stalls on the demo DB. Renders the redesigned counselor
   // overview kit from a handful of cheap queries only: a single count for the
   // assigned-members KPI, plus the already-try/catch-wrapped command center +
   // priority queue helpers (which return safe empty shapes on failure). No
-  // $transaction, no external calls, no take:5000 scans.
+  // $transaction, no external calls, no unbounded scans.
   // v2 kit is the DEFAULT counselor overview; legacy via ?ui=legacy.
   if (requestedUi !== 'legacy') {
     const kitIsAdmin = await isAdmin(user.id);
@@ -140,13 +141,17 @@ export default async function CounselorPortalPage({
 
   if (!counselor && !(await isAdmin(user.id))) redirect('/dashboard');
 
+  const assignmentWhere = {
+    counselor: { userId: user.id, active: true },
+    active: true,
+  };
+  const assignmentTotal = counselor
+    ? await prisma.counselorAssignment.count({ where: assignmentWhere })
+    : 0;
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
-      take: 5000,
-        where: {
-          counselor: { userId: user.id, active: true },
-          active: true,
-        },
+      take: COUNSELOR_ROSTER_CAP,
+        where: assignmentWhere,
         include: {
           member: {
             select: {
@@ -170,7 +175,7 @@ export default async function CounselorPortalPage({
   if (counselor && assignments.length > 0) {
     const memberIds = assignments.map((a) => a.memberId);
     const threads = await prisma.messageThread.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: { id: true, memberId: true },
     });
@@ -187,7 +192,7 @@ export default async function CounselorPortalPage({
         .filter((p): p is { threadId: string; createdAt: Date } => p.createdAt !== null);
       const latestMessages = latestPairs.length > 0
         ? await prisma.message.findMany({
-          take: 5000,
+          take: COUNSELOR_ROSTER_CAP,
             where: {
               OR: latestPairs.map((p) => ({ threadId: p.threadId, createdAt: p.createdAt })),
             },
@@ -411,7 +416,11 @@ export default async function CounselorPortalPage({
       <PageHeader
         title={t('welcomeBack', { firstName })}
         titleHeadingLevel={2}
-        subtitle={t('seeAssignedMembers')}
+        subtitle={
+          assignmentTotal > COUNSELOR_ROSTER_CAP
+            ? `Showing first ${assignments.length} of ${assignmentTotal} assigned members`
+            : t('seeAssignedMembers')
+        }
       />
 
       <section style={{ marginBottom: '2rem' }}>

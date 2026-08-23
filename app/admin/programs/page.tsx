@@ -5,6 +5,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -51,7 +53,7 @@ export default async function AdminProgramsPage({
   // gracefully: a failed aggregate still renders the catalog with empty stats.
   const enrollmentResult = await prisma.courseEnrollment
     .findMany({
-      take: 5000,
+      take: ADMIN_SSR_LIST_CAP,
       where: { user: { deletedAt: null } },
       select: {
         programSlug: true,

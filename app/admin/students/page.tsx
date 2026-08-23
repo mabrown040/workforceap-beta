@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -111,7 +112,7 @@ export default async function AdminStudentsPage({
 
   // Lean roster + full count + light activity/progress aggregates, all in
   // parallel. Aggregate failures degrade gracefully (members list must show).
-  const [membersResult, totalResult, lastEventsResult, recentEventsResult, programProgressResult] =
+  const [membersResult, totalResult, lastEventsResult, recentEventsResult] =
     await Promise.allSettled([
       prisma.user.findMany({
         where: whereClause,
@@ -142,10 +143,6 @@ export default async function AdminStudentsPage({
         where: { createdAt: { gte: thirtyDaysAgo } },
         _count: { _all: true },
       }),
-      prisma.memberProgramProgress.findMany({
-        take: 5000,
-        select: { userId: true, programSlug: true, averagePercent: true },
-      }),
     ]);
 
   // If the core roster query fails, fall back to the proven members workspace
@@ -171,11 +168,19 @@ export default async function AdminStudentsPage({
   const eventAggregatesOk =
     lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
 
+  const programProgressRows = await prisma.memberProgramProgress
+    .findMany({
+      take: ADMIN_SSR_LIST_CAP,
+      where: { userId: { in: members.map((m) => m.id) } },
+      select: { userId: true, programSlug: true, averagePercent: true },
+    })
+    .catch((reason: unknown) => {
+      console.error('[admin/students] program progress load failed', reason);
+      return [] as Array<{ userId: string; programSlug: string; averagePercent: number }>;
+    });
   const programProgressMap = new Map<string, number>();
-  if (programProgressResult.status === 'fulfilled') {
-    for (const row of programProgressResult.value) {
-      programProgressMap.set(`${row.userId}:${row.programSlug}`, row.averagePercent);
-    }
+  for (const row of programProgressRows) {
+    programProgressMap.set(`${row.userId}:${row.programSlug}`, row.averagePercent);
   }
 
   // One extra query over the already-loaded page of members: resolve each

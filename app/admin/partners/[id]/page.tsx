@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Users, Activity, GraduationCap, Trophy } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { getUser } from '@/lib/auth/server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -93,12 +95,12 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
     },
   }),
     db.subgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),
     db.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, active: true },
     }),

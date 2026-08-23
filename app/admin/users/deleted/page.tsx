@@ -4,6 +4,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
+
 import PageHeader from '@/components/portal/PageHeader';
 import DeletedUsersClient, {
   type DeletedUserRow,
@@ -39,7 +41,7 @@ export default async function AdminDeletedUsersPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const rows = await prisma.user.findMany({
-    take: 5000,
+    take: ADMIN_SSR_LIST_CAP,
     where: { deletedAt: { not: null } },
     orderBy: { deletedAt: 'desc' },
     select: {
@@ -70,7 +72,11 @@ export default async function AdminDeletedUsersPage() {
     <>
       <PageHeader
         title="Deleted users"
-        subtitle="Soft-deleted user records. Free their email to release the unique constraint so the address can be reused for a new signup, or restore the row to bring the user back."
+        subtitle={
+          isListTruncated(data.length, ADMIN_SSR_LIST_CAP)
+            ? showingFirstLabel(data.length, data.length, 'deleted users') + ' (page cap)'
+            : 'Soft-deleted user records. Free their email to release the unique constraint so the address can be reused for a new signup, or restore the row to bring the user back.'
+        }
         breadcrumbs={[
           { label: 'Admin', href: '/admin' },
           { label: 'Users', href: '/admin/users' },

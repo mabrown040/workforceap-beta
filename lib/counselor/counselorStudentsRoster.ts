@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
+import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+
 import { getRiskLevel } from '@/lib/member/atRiskScoring';
 
 export type CounselorRosterRiskRow = {
@@ -20,7 +22,7 @@ export async function loadCounselorRosterRiskAndActivity(
 
   const [alerts, lastEvents, users] = await Promise.all([
     prisma.atRiskAlert.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: {
         userId: { in: memberIds },
         status: { in: ['open', 'acknowledged'] },
@@ -36,7 +38,7 @@ export async function loadCounselorRosterRiskAndActivity(
       memberIds,
     ),
     prisma.user.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { id: { in: memberIds } },
       select: { id: true, createdAt: true },
     }),

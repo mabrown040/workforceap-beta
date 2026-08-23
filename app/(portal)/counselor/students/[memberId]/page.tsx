@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { MEMBER_HISTORY_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import Link from 'next/link';
@@ -218,7 +219,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const [applications, aiMatches, memberPts, recentTx, pitchDeployments, latestAtRiskAlert, pendingNextBestActions] = await Promise.all([
     prisma.jobPostingApplication.findMany({
-      take: 5000,
+      take: MEMBER_HISTORY_CAP,
       where: { studentId: memberId },
       orderBy: { appliedAt: 'desc' },
       include: {
@@ -226,7 +227,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       },
     }),
     prisma.aIJobMatch.findMany({
-      take: 5000,
+      take: MEMBER_HISTORY_CAP,
       where: { studentId: memberId },
       orderBy: { matchScore: 'desc' },
       include: {
@@ -290,16 +291,22 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     : [];
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
-  const messages = await prisma.message.findMany({
-    take: 5000,
-    where: { threadId: thread.id },
-    orderBy: { createdAt: 'asc' },
-  });
+  const [messagesNewestFirst, messageTotal] = await Promise.all([
+    prisma.message.findMany({
+      take: MEMBER_HISTORY_CAP,
+      where: { threadId: thread.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.message.count({ where: { threadId: thread.id } }),
+  ]);
+  const messages = messagesNewestFirst.slice().reverse();
   const authorIds = compactStringIds(messages.map((m) => m.authorId));
   const authors =
     authorIds.length > 0
-      ? await prisma.user.findMany({ take: 5000, where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
+      ? await prisma.user.findMany({ take: MEMBER_HISTORY_CAP, where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
       : [];
+  const messagesTruncated = isListTruncated(messages.length, MEMBER_HISTORY_CAP, messageTotal);
+  const messagesLabel = showingFirstLabel(messages.length, messageTotal, 'messages');
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 
   const initials = getInitials(member.fullName ?? 'U');
@@ -1048,6 +1055,11 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           </section>
 
           <section id="counselor-member-messages" style={{ marginTop: '1.5rem' }}>
+            {messagesTruncated ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+                {messagesLabel}
+              </p>
+            ) : null}
             <AdminMemberCounselorChatClient
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{

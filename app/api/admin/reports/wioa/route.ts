@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { WIOA_DEMOGRAPHICS_CAP, isListTruncated } from '@/lib/db/queryCaps';
+
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -52,7 +54,7 @@ async function _GET(req: NextRequest) {
       select: {
         profile: { select: { ethnicity: true, veteranStatus: true, educationLevel: true, state: true } },
       },
-      take: 10000,
+      take: WIOA_DEMOGRAPHICS_CAP,
     });
 
     const programs = await db.courseEnrollment.groupBy({
@@ -71,6 +73,8 @@ async function _GET(req: NextRequest) {
       placedMembers,
       avgSalary: avgSalary._avg.salaryOffered ?? 0,
       demographics: aggregateDemographics(demographics as Array<{ profile: { ethnicity: string | null; veteranStatus: string | null; educationLevel: string | null; state: string | null } | null }>),
+      demographicsSampleSize: demographics.length,
+      demographicsTruncated: isListTruncated(demographics.length, WIOA_DEMOGRAPHICS_CAP, totalMembers),
       programs,
     };
   });

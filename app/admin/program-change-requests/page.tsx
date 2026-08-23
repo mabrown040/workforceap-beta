@@ -4,6 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import { DesignSurface } from '@/components/portal/kit';
@@ -85,17 +86,27 @@ export default async function AdminProgramChangeRequestsPage({
   }
 
   // --- LEGACY (?ui=legacy): the proven review workspace, unchanged ---
-  const rows = await prisma.programChangeRequest.findMany({
-    take: 5000,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      user: { select: { id: true, email: true, fullName: true, enrolledProgram: true } },
-    },
-  });
+  const [rows, rowTotal] = await Promise.all([
+    prisma.programChangeRequest.findMany({
+      take: ADMIN_SSR_LIST_CAP,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { id: true, email: true, fullName: true, enrolledProgram: true } },
+      },
+    }),
+    prisma.programChangeRequest.count(),
+  ]);
 
   return (
     <>
-      <PageHeader title="Program change requests" subtitle="Approve or deny enrollment changes requested by members." />
+      <PageHeader
+        title="Program change requests"
+        subtitle={
+          isListTruncated(rows.length, ADMIN_SSR_LIST_CAP, rowTotal)
+            ? showingFirstLabel(rows.length, rowTotal, 'requests')
+            : 'Approve or deny enrollment changes requested by members.'
+        }
+      />
       <ProgramChangeRequestsAdminClient initialRows={JSON.parse(JSON.stringify(rows))} />
     </>
   );

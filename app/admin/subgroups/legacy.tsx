@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
 
@@ -11,7 +13,7 @@ import DataTable from '@/components/portal/ui/DataTable';
  */
 export default async function AdminSubgroupsLegacy() {
   const subgroups = await prisma.subgroup.findMany({
-    take: 5000,
+    take: ADMIN_SSR_LIST_CAP,
     orderBy: { name: 'asc' },
     include: {
       leader: { select: { id: true, fullName: true, email: true } },

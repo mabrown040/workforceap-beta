@@ -19,6 +19,8 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+
 import {
   getTriageQueue,
   FLAG_LABELS,
@@ -73,7 +75,7 @@ async function resolvePriorityQueueMemberIds(
 
   if (counselor) {
     const assignments = await prisma.counselorAssignment.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { counselorId: counselor.id, active: true },
       select: { memberId: true },
     });
@@ -152,7 +154,7 @@ export async function getCounselorPriorityQueue(
 
   if (memberIds.length > 0) {
     const members = await prisma.user.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: {
         id: { in: memberIds },
         deletedAt: null,

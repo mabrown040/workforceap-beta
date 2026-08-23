@@ -6,6 +6,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { wioaReviewLabel, WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import PageHeader from '@/components/portal/PageHeader';
@@ -102,7 +104,7 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
     let rows: WioaQueueRow[] = [];
     try {
       rows = await prisma.user.findMany({
-        take: 5000,
+        take: ADMIN_SSR_LIST_CAP,
         where: {
           deletedAt: null,
           wioaQualificationJson: { not: Prisma.DbNull },
@@ -154,7 +156,11 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
       <PortalPageFrame>
         <PageHeader
           title="WIOA screening queue"
-          subtitle="Members who completed the portal self-screening. Review status is for internal workflow only."
+          subtitle={
+            enriched.length >= ADMIN_SSR_LIST_CAP
+              ? `Showing first ${enriched.length} screenings`
+              : 'Members who completed the portal self-screening. Review status is for internal workflow only.'
+          }
           action={
             <Link href="/admin/members" className="btn btn-outline">
               ← All members

@@ -20,6 +20,8 @@ import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
 import {
@@ -147,7 +149,7 @@ async function loadXapiCourseProgressSummary(
 
     const membersWithProgress = members.filter((member) => member.enrolledProgram);
     const progressRows = await prisma.courseProgress.findMany({
-      take: 5000,
+      take: ADMIN_SSR_LIST_CAP,
       where: {
         userId: { in: membersWithProgress.map((member) => member.id) },
       },

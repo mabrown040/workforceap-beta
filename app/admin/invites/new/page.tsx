@@ -5,6 +5,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { PROGRAMS } from '@/lib/content/programs';
 import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
 import PageHeader from '@/components/portal/PageHeader';
@@ -33,12 +35,12 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
 
   const [subgroups, partners] = await Promise.all([
     prisma.subgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
     prisma.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },

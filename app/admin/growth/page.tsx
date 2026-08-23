@@ -27,6 +27,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_SAMPLE_CAP } from '@/lib/db/queryCaps';
+
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
@@ -84,7 +86,7 @@ async function loadSignupsByUtmSource(orgId: string): Promise<Utm[]> {
     },
     select: { metadata: true, createdAt: true },
     orderBy: { createdAt: 'desc' },
-    take: 5000,
+    take: ANALYTICS_SAMPLE_CAP,
   });
 
   const buckets = new Map<string, Utm>();
@@ -115,7 +117,7 @@ async function loadApplyAttemptsLast24h(orgId: string): Promise<ApplyBreakdownRo
       user: { organizationId: orgId },
     },
     select: { eventName: true },
-    take: 5000,
+    take: ANALYTICS_SAMPLE_CAP,
   });
   const counts = new Map<string, number>();
   for (const row of rows) {

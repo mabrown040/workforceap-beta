@@ -12,6 +12,8 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+
 import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
 function riskLevelFromScore(score: number): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
@@ -181,7 +183,7 @@ async function resolveMemberIds(
     });
     if (counselor) {
       const assignments = await prisma.counselorAssignment.findMany({
-        take: 5000,
+        take: COUNSELOR_ROSTER_CAP,
         where: { counselorId: counselor.id, active: true },
         select: { memberId: true },
       });
@@ -196,7 +198,7 @@ async function resolveMemberIds(
   });
   if (!counselor) return [];
   const assignments = await prisma.counselorAssignment.findMany({
-    take: 5000,
+    take: COUNSELOR_ROSTER_CAP,
     where: { counselorId: counselor.id, active: true },
     select: { memberId: true },
   });
@@ -262,7 +264,7 @@ export async function getInboxZeroQueue(
         orderBy: { assignedAt: 'desc' },
       }),
       prisma.user.findMany({
-        take: 5000,
+        take: COUNSELOR_ROSTER_CAP,
         where: { id: { in: memberIds }, deletedAt: null },
         select: {
           id: true,

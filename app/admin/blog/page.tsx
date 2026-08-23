@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -106,7 +108,7 @@ async function renderKit() {
 /** Legacy blog manager (preserved behind ?ui=legacy). */
 async function renderLegacy() {
   const posts = await prisma.blogPost.findMany({
-    take: 5000,
+    take: ADMIN_SSR_LIST_CAP,
     orderBy: { updatedAt: 'desc' },
     select: {
       id: true,
@@ -124,7 +126,11 @@ async function renderLegacy() {
     <div>
       <PageHeader
         title="Blog Posts"
-        subtitle={`${posts.length} post${posts.length !== 1 ? 's' : ''}`}
+        subtitle={
+          posts.length >= ADMIN_SSR_LIST_CAP
+            ? `Showing first ${posts.length} posts`
+            : `${posts.length} post${posts.length !== 1 ? 's' : ''}`
+        }
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/admin/blog/ai" className="btn btn-outline btn-sm">

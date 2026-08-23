@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
+import { COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
+
 import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
 /**
@@ -81,7 +83,7 @@ export async function getCounselorCommandCenter(
       return emptyCommandCenter();
     }
     const assignments = await prisma.counselorAssignment.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { counselorId: counselor.id, active: true },
       select: { memberId: true },
     });
@@ -95,7 +97,7 @@ export async function getCounselorCommandCenter(
 
   // ── 1. Needs reply: threads where the LAST message author is the member.
   const threads = await prisma.messageThread.findMany({
-    take: 5000,
+    take: COUNSELOR_ROSTER_CAP,
     where: { memberId: { in: memberIds }, kind: 'member' },
     select: { id: true, memberId: true },
   });
@@ -119,7 +121,7 @@ export async function getCounselorCommandCenter(
   const memberLookup = new Map<string, { id: string; fullName: string | null; email: string }>();
   if (memberIds.length > 0) {
     const users = await prisma.user.findMany({
-      take: 5000,
+      take: COUNSELOR_ROSTER_CAP,
       where: { id: { in: memberIds } },
       select: { id: true, fullName: true, email: true, enrolledProgram: true },
     });
@@ -151,7 +153,7 @@ export async function getCounselorCommandCenter(
 
   // ── 2. At risk: no MemberEvent in the last 7 days, enrolled member only.
   const recentActivityRows = await prisma.memberEvent.findMany({
-    take: 5000,
+    take: COUNSELOR_ROSTER_CAP,
     where: {
       userId: { in: memberIds },
       createdAt: { gte: sevenDaysAgo },
@@ -161,7 +163,7 @@ export async function getCounselorCommandCenter(
   });
   const activeIds = new Set(recentActivityRows.map((r) => r.userId));
   const enrolledRows = await prisma.user.findMany({
-    take: 5000,
+    take: COUNSELOR_ROSTER_CAP,
     where: {
       id: { in: memberIds },
       deletedAt: null,
@@ -208,7 +210,7 @@ export async function getCounselorCommandCenter(
 
   // ── 3. Interviewing this week: interview_practice AI tool runs in the last 7 days.
   const interviewRuns = await prisma.aIToolResult.findMany({
-    take: 5000,
+    take: COUNSELOR_ROSTER_CAP,
     where: {
       userId: { in: memberIds },
       toolType: 'interview_practice',

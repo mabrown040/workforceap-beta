@@ -6,6 +6,8 @@ import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+
 import {
   MentorsDirectoryKit,
   type MentorCard,
@@ -171,7 +173,7 @@ export default async function AdminMentorsPage({
 /** Original mentor admin workspace (table + approve/deactivate). Behind ?ui=legacy. */
 async function LegacyMentorsView() {
   const mentors = await prisma.mentor.findMany({
-    take: 5000,
+    take: ADMIN_SSR_LIST_CAP,
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -188,7 +190,11 @@ async function LegacyMentorsView() {
     <main style={{ padding: '1.5rem' }}>
       <PageHeader
         title="Mentors"
-        subtitle="Review mentor applications and toggle active mentor availability."
+        subtitle={
+          mentors.length >= ADMIN_SSR_LIST_CAP
+            ? `Showing first ${mentors.length} mentors`
+            : 'Review mentor applications and toggle active mentor availability.'
+        }
       />
 
       <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>

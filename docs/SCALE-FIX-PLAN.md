@@ -7,6 +7,8 @@
 **Full audit (all domains):** `docs/FULL-REPO-AUDIT.md`  
 **Human gate:** which fixes ship. This document is the plan; it is not a license to land all phases in one PR.
 
+**Go-live / UI (living checklist, not a re-audit):** `docs/GO-LIVE-AND-SCALE-LIST.md` — env/secrets, email, donate (Zeffy), observability, backups/migrate, legal, fail-open limiters, tenant gate, and surface-cited UI debt. Link phases from that list; do not paste them there.
+
 Phases 0–9 below are unchanged from the scale beat. Phases 10–17 were
 added by the deep pass. Do not delete prior phases.
 
@@ -504,3 +506,9 @@ Not runtime. Re-measure with Phase 0.
 - Phase 3: `app/admin/layout.tsx` + listed unscoped pages; not `lib/db/prisma.ts`.
 - Phase 4: `lib/member/ensureAppUser.ts` + callers.
 - Phase 8: `lib/db/prisma.ts` + migrations — dedicated PR, frozen-node rules still apply to the ranker.
+
+---
+
+## 8. Go-live / UI companion
+
+Phases 0–17 stay the scale + tenant + spend sequence. Everything that is **not** “cut this query” — Production env matrix, Resend/Zeffy/Sentry, 504≠health, `partner_users` migrate, GDPR blobs, cookie dialog, apply `PreLaunchTag`, Astro vs Next marketing split, admin 5k–20k tables as **UI**, kit-default dashboard nuance — lives in **`docs/GO-LIVE-AND-SCALE-LIST.md`**. Grow that checklist. Do not rewrite this plan’s phases to hold those rows.

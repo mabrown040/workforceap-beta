@@ -67,7 +67,7 @@ test('clampScanTake and sqlCount handle bad inputs', () => {
   assert.equal(clampScanTake(Number.NaN, 10), 1);
   assert.equal(clampScanTake(0, 10), 1);
   assert.equal(clampScanTake(99, 10), 10);
-  assert.equal(sqlCount(12n), 12);
+  assert.equal(sqlCount(BigInt(12)), 12);
   assert.equal(sqlCount(4), 4);
   assert.equal(sqlCount(null), 0);
 });
@@ -77,6 +77,20 @@ test('claimed leftover files no longer hydrate 5k/10k/20k rows', () => {
     const src = readRepo(rel);
     assert.doesNotMatch(src, /take:\s*(5000|10000|20000)\b/, rel);
   }
+});
+
+test('board and quarterly leftovers use SQL aggregates for official totals', () => {
+  const board = readRepo('lib/admin/boardOutcomes.ts');
+  assert.match(board, /prisma\.user\.count/);
+  assert.match(board, /prisma\.placementRecord\.count/);
+  assert.match(board, /PERCENTILE_CONT/);
+  assert.match(board, /COUNT\(DISTINCT/);
+  assert.doesNotMatch(board, /take:\s*10000/);
+
+  const quarterly = readRepo('lib/analytics/quarterlyOutcomes.ts');
+  assert.match(quarterly, /prisma\.user\.count/);
+  assert.match(quarterly, /prisma\.placementRecord\.count/);
+  assert.match(quarterly, /summarizeRetentionGroups/);
 });
 
 test('Coursera B4B and O*NET sync document a per-run cap plus resume cursor', () => {

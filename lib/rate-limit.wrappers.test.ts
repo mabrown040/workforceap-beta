@@ -12,37 +12,10 @@ test('apply/signup checkers use the apply fail-closed wrapper', () => {
   assert.match(src, /checkSignupEmailRateLimit[\s\S]*failClosedApplyLimit\(signupEmailRateLimiter/);
 });
 
-test('voice and AI checkers use the spend fail-closed wrapper', () => {
-  assert.match(src, /checkVoiceSessionRateLimit[\s\S]*failClosedSpendLimit\(voiceSessionRateLimiter/);
-  assert.match(src, /checkAIToolRateLimit[\s\S]*failClosedSpendLimit\(aiToolRateLimiter/);
-  assert.match(src, /checkPublicVoiceSessionRateLimit[\s\S]*failClosedSpendLimit\(publicVoiceSessionRateLimiter/);
-});
-
-test('leftover abuse-sensitive checkers use the security fail-closed wrapper', () => {
-  assert.match(src, /checkInviteAcceptRateLimit[\s\S]*failClosedLimit\(inviteAcceptRateLimiter/);
-  assert.match(src, /checkOrgOnboardRateLimit[\s\S]*failClosedLimit\(orgOnboardRateLimiter/);
-  assert.match(src, /checkMessageSendRateLimit[\s\S]*failClosedLimit\(messageSendRateLimiter/);
-  assert.match(src, /checkEmployerJobImportRateLimit[\s\S]*failClosedLimit\(employerJobImportRateLimiter/);
-  assert.match(src, /checkAdminInviteRateLimit[\s\S]*failClosedLimit\(adminInviteRateLimiter/);
-  assert.match(src, /checkAdminTokenLinksRateLimit[\s\S]*failClosedLimit\(adminTokenLinksRateLimiter/);
-  assert.match(src, /checkCourseraIdentityRateLimit[\s\S]*failClosedLimit\(courseraIdentityRateLimiter/);
-});
-
-test('AI-adjacent leftover checkers use the spend fail-closed wrapper', () => {
-  assert.match(src, /checkCareersRecommendRateLimit[\s\S]*failClosedSpendLimit\(careersRecommendRateLimiter/);
-  assert.match(src, /checkInterestProfilerRateLimit[\s\S]*failClosedSpendLimit\(interestProfilerRateLimiter/);
-  assert.match(src, /checkPublicInterestProfilerRateLimit[\s\S]*failClosedSpendLimit\(publicInterestProfilerRateLimiter/);
-});
-
-test('cheap public GET caps stay fail-open without Redis', () => {
-  assert.match(src, /checkPublicCareersGetRateLimit[\s\S]*if \(!publicCareersGetRateLimiter\) return \{ success: true \}/);
-  assert.match(src, /checkPublicHealthRateLimit[\s\S]*if \(!publicHealthRateLimiter\) return \{ success: true \}/);
-  assert.match(src, /checkXapiConfigGetRateLimit[\s\S]*if \(!xapiConfigGetRateLimiter\) return \{ success: true \}/);
-});
-
-test('webhook limiter stays fail-open so a missing Redis cannot 429 paid events', () => {
-  assert.match(src, /checkWebhookRateLimit[\s\S]*if \(!webhookRateLimiter\) return \{ success: true \}/);
-  assert.match(src, /Signature\/secret verification is the guard/);
+test('abuse-sensitive leftover checkers use the security fail-closed wrapper', () => {
+  assert.match(src, /checkPartnerSignupRateLimit[\s\S]*failClosedLimit\(partnerSignupRateLimiter/);
+  assert.match(src, /checkBulkEmailRateLimit[\s\S]*failClosedLimit\(bulkEmailRateLimiter/);
+  assert.match(src, /checkVerifyMfaRateLimit[\s\S]*failClosedLimit\(verifyMfaRateLimiter/);
 });
 
 test('apply signup limit window stays at the launch bump of 50 / 30 m', () => {

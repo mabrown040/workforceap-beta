@@ -11,6 +11,12 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import {
+  ACCOUNT_STORAGE_DELETE_FAILED,
+  MEMBER_FILES_BUCKET,
+  MEMBER_RESUME_BUCKET,
+  deleteUserStorageObjects,
+} from '@/lib/gdpr/deleteUserStorage';
 
 /**
  * POST /api/admin/members/[id]/erase
@@ -59,12 +65,31 @@ export const POST = withApiGuc(async (
           memberEvents: true,
           messagesAuthored: true,
           courseEnrollments: true,
+          userCertifications: { select: { proofUrl: true } },
         },
       }),
     );
 
     if (!existing) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
+
+    const extraPaths = [
+      existing.profile?.resumeOriginalPath
+        ? { bucket: MEMBER_RESUME_BUCKET, path: existing.profile.resumeOriginalPath }
+        : null,
+      existing.profile?.resumeEnhancedPath
+        ? { bucket: MEMBER_RESUME_BUCKET, path: existing.profile.resumeEnhancedPath }
+        : null,
+      ...existing.userCertifications.map((cert) =>
+        cert.proofUrl ? { bucket: MEMBER_FILES_BUCKET, path: cert.proofUrl } : null,
+      ),
+    ].filter((row): row is { bucket: string; path: string } => Boolean(row));
+
+    const storage = await deleteUserStorageObjects(id, { extraPaths });
+    if (!storage.ok) {
+      console.error(`[gdpr-erase] storage object delete failed for ${id}:`, storage.error);
+      return NextResponse.json({ error: ACCOUNT_STORAGE_DELETE_FAILED }, { status: 502 });
     }
 
     // Optionally anonymize instead of hard-delete for members that still

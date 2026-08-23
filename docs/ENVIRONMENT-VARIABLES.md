@@ -78,9 +78,7 @@
 | `SUPABASE_SERVICE_ROLE_KEY` | 🔴 🔒 | Supabase service role key (bypasses RLS) | `eyJ...` | Server DB admin ops |
 | `AUTH_TRUST_COOKIE_SECRET` | 🔴 🔒 | Signing secret for admin MFA trust cookies | `openssl rand -hex 32` | `lib/auth/mfaTrust.ts` |
 | `ADMIN_MFA_TRUST_DAYS` | 🟡 🔒 | How long admin MFA trust lasts (default: 7) | `7` | `lib/auth/mfaTrust.ts` |
-| `STAFF_MFA_ENFORCEMENT` | 🟡 🔒 | Staff MFA gate. Production (`VERCEL_ENV=production`) defaults **on** unless `0`/`false`/`off`. Non-production defaults **off** unless `1`. | `0` or `1` | `lib/auth/mfaConfig.ts`, middleware, auth routes |
-| `WAP_RATE_LIMIT_QA_BYPASS` | 🟡 🔒 | CI rate-limit bypass. **Never on in production** (`VERCEL_ENV=production` hard-disables). | `0` or `1` | `lib/auth/qaBypass.ts` |
-| `WAP_RATE_LIMIT_QA_SECRET` | 🟡 🔒 | Shared secret for `x-wap-qa-bypass`. Required when bypass is on; no default. | random | `lib/auth/qaBypass.ts` |
+| `STAFF_MFA_ENFORCEMENT` | 🟡 🔒 | Set `1` to force MFA for staff | `0` or `1` | Auth flows |
 | `CRON_SECRET` | 🔴 🔒 | Protects `/api/cron/*` endpoints | `openssl rand -hex 32` | All cron routes |
 | `PLACEMENT_SURVEY_TOKEN_SECRET` | 🔴 🔒 | Signs post-placement survey email links | `openssl rand -hex 32` | Placement survey cron |
 | `NEXT_PUBLIC_CAPTCHA_ENABLED` | 🟡 👁️ | Enable Cloudflare Turnstile | `false` | Public forms |
@@ -88,8 +86,10 @@
 | `TURNSTILE_SECRET_KEY` | 🟡 🔒 | Turnstile secret key | `0x4AAAA...` | API validation |
 | `UPSTASH_REDIS_REST_URL` | 🟡 🔒 | Upstash Redis REST URL for rate limiters | `https://….upstash.io` | `lib/rate-limit.ts` |
 | `UPSTASH_REDIS_REST_TOKEN` | 🟡 🔒 | Upstash Redis REST token | `AXxxxx` | `lib/rate-limit.ts` |
-| `RATE_LIMIT_ALLOW_MISSING_UPSTASH` | 🟢 🔒 | Set `1` to boot production/preview without Redis. Auth/contact fail-open; **voice + AI still fail-closed**. Apply/signup stay open unless `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1`. | `1` | `lib/rate-limit.ts`, `lib/rate-limit-policy.ts` |
+| `RATE_LIMIT_ALLOW_MISSING_UPSTASH` | 🟢 🔒 | Set `1` to boot production/preview without Redis. Auth/contact/partner-signup/MFA/bulk-email fail-open. Apply/signup stay open unless `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1`. | `1` | `lib/rate-limit.ts`, `lib/rate-limit-policy.ts` |
 | `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED` | 🟢 🔒 | Set `1` to 429 apply/member signup when Redis is missing, even if `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`. Off by default so pre-prod conversion is not bricked. | `1` | `lib/rate-limit-policy.ts` |
+
+Still fail-open when Redis is missing (dev, or prod with `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`): public GET caps, invite-accept, org-onboard, careers-recommend, interest-profiler, webhooks, message-send, employer job-import, admin invite / token-links, Coursera identity, voice session, AI tools.
 
 ---
 

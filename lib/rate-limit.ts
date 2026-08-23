@@ -1,7 +1,12 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import { isQaBypassRequest } from '@/lib/auth/qaBypass';
 import { logger } from '@/lib/observability/logger';
+import {
+  decideMissingLimiter,
+  isAllowMissingUpstashEnabled,
+  isApplyFailClosedEnvEnabled,
+  type MissingLimiterMode,
+} from '@/lib/rate-limit-policy';
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -15,21 +20,24 @@ const upstashConfigured = Boolean(redisUrl && redisToken);
 // tools, etc.).  Dev stays fail-open so local development works without
 // credentials.
 // ──────────────────────────────────────────────────────────────────────────
-const allowMissingUpstash = process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH?.trim() === '1';
+const allowMissingUpstash = isAllowMissingUpstashEnabled();
 const nextPhase = process.env.NEXT_PHASE?.trim();
 if (isProduction && !upstashConfigured && !allowMissingUpstash && nextPhase !== 'phase-production-build') {
   const msg =
     '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
     'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +
-    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.';
+    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1. ' +
+    'Partner signup, MFA verify, and bulk-email then use the security fail-open path; ' +
+    'apply/signup stay open unless WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1.';
   logger.error(msg);
   // Throw synchronously so the server fails to boot rather than running
   // with silently-disabled security controls.
   throw new Error(msg);
 }
 
-// Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.
-// Contact/confirmation remain fail-closed (spam risk). Add UPSTASH_* env vars to enable Redis-backed limits.
+// Apply/signup use apply-mode policy (open when RATE_LIMIT_ALLOW_MISSING_UPSTASH=1
+// unless WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1). Contact/confirmation/partner/MFA/
+// bulk-email use security fail-closed. Add UPSTASH_* to enable Redis-backed limits.
 const FAIL_CLOSED = !upstashConfigured;
 
 // Observable: one-time warning when running without Upstash (dev only, since
@@ -127,10 +135,36 @@ let messageSendRateLimiter: Ratelimit | null = null;
  * @param name       — human-readable limiter name for logs
  * @param identifier — the key being rate-limited (IP, email, userId)
  */
-async function failClosedLimit(
+/**
+ * QA / CI bypass for automated testing.
+ *
+ * When `WAP_RATE_LIMIT_QA_BYPASS=1` is set, any request carrying the
+ * `x-wap-qa-bypass` header with the value from `WAP_RATE_LIMIT_QA_SECRET`
+ * (or the default dev secret) is allowed through rate limiters.
+ *
+ * This is intentionally NOT a public env var — it must be set in CI
+ * secrets or local .env only. Never commit the secret.
+ */
+function isQaBypassEnabled(): boolean {
+  return process.env.WAP_RATE_LIMIT_QA_BYPASS?.trim() === '1';
+}
+
+function getQaBypassSecret(): string {
+  return process.env.WAP_RATE_LIMIT_QA_SECRET?.trim() || 'wap-qa-dev-secret-do-not-use-in-production';
+}
+
+function isQaBypassRequest(request?: Request): boolean {
+  if (!isQaBypassEnabled()) return false;
+  if (!request) return false;
+  const header = request.headers.get('x-wap-qa-bypass')?.trim();
+  return header === getQaBypassSecret();
+}
+
+async function runLimiter(
   limiter: Ratelimit | null,
   name: string,
   identifier: string,
+  mode: MissingLimiterMode,
   request?: Request
 ): Promise<{ success: boolean; remaining?: number }> {
   if (isQaBypassRequest(request)) {
@@ -143,28 +177,46 @@ async function failClosedLimit(
     return { success: result.success, remaining: result.remaining };
   }
 
-  // Limiter is null → Upstash not configured
-  if (isProduction) {
-    // Operator explicitly opted out of Upstash (e.g. preview/staging via
-    // RATE_LIMIT_ALLOW_MISSING_UPSTASH=1). The boot assertion is skipped in
-    // that case, so honor the opt-out here too and fail OPEN — otherwise every
-    // auth/login/forgot-password request is blocked with a 429 on environments
-    // that intentionally run without Redis.
-    if (allowMissingUpstash) {
-      logger.warn(
-        `[RATE-LIMIT] ${name} limiter is null but RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 — failing open for ${identifier}`
-      );
-      return { success: true };
-    }
-    // No opt-out: fail closed (defense-in-depth; the boot assertion normally
-    // prevents reaching here in real production).
-    logger.error(`[RATE-LIMIT] ${name} limiter is null in production — blocking request for ${identifier}`);
+  const decision = decideMissingLimiter({
+    isProduction,
+    allowMissingUpstash,
+    mode,
+    applyFailClosedEnv: isApplyFailClosedEnvEnabled(),
+  });
+
+  if (!decision.success) {
+    logger.error(
+      `[RATE-LIMIT] ${name} limiter is null (${decision.reason}) — blocking request for ${identifier}`
+    );
     return { success: false, remaining: 0 };
   }
 
-  // Dev: warn once per limiter name, then allow
-  logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
+  if (decision.reason === 'dev-fail-open') {
+    logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
+  } else {
+    logger.warn(
+      `[RATE-LIMIT] ${name} limiter is null (${decision.reason}) — allowing request for ${identifier}`
+    );
+  }
   return { success: true };
+}
+
+async function failClosedLimit(
+  limiter: Ratelimit | null,
+  name: string,
+  identifier: string,
+  request?: Request
+): Promise<{ success: boolean; remaining?: number }> {
+  return runLimiter(limiter, name, identifier, 'security', request);
+}
+
+async function failClosedApplyLimit(
+  limiter: Ratelimit | null,
+  name: string,
+  identifier: string,
+  request?: Request
+): Promise<{ success: boolean; remaining?: number }> {
+  return runLimiter(limiter, name, identifier, 'apply', request);
 }
 
 if (redisUrl && redisToken) {
@@ -356,16 +408,12 @@ if (redisUrl && redisToken) {
   });
 }
 
-export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!signupRateLimiter) return { success: true };
-  const result = await signupRateLimiter.limit(identifier);
-  return { success: result.success, remaining: result.remaining };
+export async function checkSignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedApplyLimit(signupRateLimiter, 'signup', identifier, request);
 }
 
-export async function checkApplySignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!applySignupRateLimiter) return { success: true };
-  const result = await applySignupRateLimiter.limit(identifier);
-  return { success: result.success, remaining: result.remaining };
+export async function checkApplySignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedApplyLimit(applySignupRateLimiter, 'apply-signup', identifier, request);
 }
 
 export async function checkAuthRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
@@ -399,12 +447,10 @@ export async function checkVoiceSessionRateLimit(userId: string): Promise<{ succ
  * (member/apply/employer/partner) to block one attacker rotating IPs to
  * spam verification mail to the same target address.
  */
-export async function checkSignupEmailRateLimit(email: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!signupEmailRateLimiter) return { success: true };
+export async function checkSignupEmailRateLimit(email: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { success: true };
-  const result = await signupEmailRateLimiter.limit(`signup-email:${normalized}`);
-  return { success: result.success, remaining: result.remaining };
+  return failClosedApplyLimit(signupEmailRateLimiter, 'signup-email', `signup-email:${normalized}`, request);
 }
 
 export async function checkAIToolRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
@@ -417,11 +463,10 @@ export async function checkContactRateLimit(ip: string): Promise<{ success: bool
   return failClosedLimit(contactRateLimiter, 'contact', ip);
 }
 
-/** Public partner self-registration — fail-open when Upstash is not configured (unlike contact). */
-export async function checkPartnerSignupRateLimit(identifier: string): Promise<{ success: boolean }> {
-  if (!partnerSignupRateLimiter) return { success: true };
-  const result = await partnerSignupRateLimiter.limit(identifier);
-  return { success: result.success };
+/** Public partner/employer self-registration — fail-closed in production when Redis is missing. */
+export async function checkPartnerSignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedLimit(partnerSignupRateLimiter, 'partner-signup', identifier, request);
+  return { success: r.success };
 }
 
 export async function checkAdminInviteRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
@@ -436,10 +481,8 @@ export async function checkAdminInviteRateLimit(userId: string): Promise<{ succe
  * admin can blast the entire member list and burn the domain's bulk-
  * sender reputation.
  */
-export async function checkBulkEmailRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!bulkEmailRateLimiter) return { success: true };
-  const result = await bulkEmailRateLimiter.limit(`bulk-email:${userId}`);
-  return { success: result.success, remaining: result.remaining };
+export async function checkBulkEmailRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedLimit(bulkEmailRateLimiter, 'bulk-email', `bulk-email:${userId}`, request);
 }
 
 /** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-open without Redis. */
@@ -510,11 +553,10 @@ export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success:
   return { success: result.success };
 }
 
-/** MFA code verification — 10 attempts per 15 min per IP; fail-open without Redis. */
-export async function checkVerifyMfaRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!verifyMfaRateLimiter) return { success: true };
-  const result = await verifyMfaRateLimiter.limit(ip);
-  return { success: result.success };
+/** MFA challenge/verify — 10 attempts per 15 min per IP; fail-closed in production without Redis. */
+export async function checkVerifyMfaRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
+  const r = await failClosedLimit(verifyMfaRateLimiter, 'verify-mfa', ip, request);
+  return { success: r.success };
 }
 
 /** GET /api/health — fail-open without Redis (same as other public GET caps). */

@@ -42,11 +42,18 @@ vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdmin: vi.fn(),
 }));
 
+vi.mock('@/lib/gdpr/deleteUserStorage', () => ({
+  ACCOUNT_STORAGE_DELETE_FAILED:
+    'Stored files could not be deleted. Account was not erased. Please try again or contact support.',
+  deleteUserStorageObjects: vi.fn(),
+}));
+
 // ─── Imports after mocks ───
 import { POST as deleteAccount } from '@/app/api/member/delete-account/route';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { deleteUserStorageObjects } from '@/lib/gdpr/deleteUserStorage';
 
 const UUIDS = {
   user: '550e8400-e29b-41d4-a716-446655440001',
@@ -55,6 +62,7 @@ const UUIDS = {
 describe('POST /api/member/delete-account', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(deleteUserStorageObjects).mockResolvedValue({ ok: true, deleted: [] } as any);
   });
 
   it('soft-deletes user account for authenticated member', async () => {
@@ -170,5 +178,23 @@ describe('POST /api/member/delete-account', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
     expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('does not claim deleted when storage object delete fails', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(deleteUserStorageObjects).mockResolvedValue({
+      ok: false,
+      error: 'permission denied',
+      deleted: [],
+    } as any);
+
+    const res = await deleteAccount(new Request('http://localhost'));
+
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({
+      error: 'Stored files could not be deleted. Account was not erased. Please try again or contact support.',
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(getSupabaseAdmin).not.toHaveBeenCalled();
   });
 });

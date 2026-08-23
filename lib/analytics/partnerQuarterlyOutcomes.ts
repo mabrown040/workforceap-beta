@@ -9,13 +9,14 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_COHORT_DETAIL_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
   memberProgramCompleted,
   memberProgramProgressPct,
 } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
-import { summarizeRetentionOutcomes, type RetentionSummary } from './retentionOutcome';
+import { summarizeRetentionGroups, type RetentionSummary } from './retentionOutcome';
 
 export interface QuarterSpec {
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
@@ -141,22 +142,18 @@ async function fetchPartnerRetentionRowsAsOf(
   windowEnd: Date,
   windowDays: number
 ) {
-  const referrals = await prisma.partnerReferral.findMany({
-    take: 5000,
-    where: { partnerId, member: { organizationId: orgId, deletedAt: null } },
-    select: { memberId: true },
-  });
-  const memberIds = referrals.map((r) => r.memberId);
-  if (memberIds.length === 0) return [];
-
   const cutoff = new Date(windowEnd.getTime() - windowDays * DAY_MS);
-  return prisma.placementRecord.findMany({
-    take: 5000,
+  return prisma.placementRecord.groupBy({
+    by: ['retentionStatus', 'retentionDecision'],
     where: {
-      userId: { in: memberIds },
       placedAt: { lte: cutoff },
+      user: {
+        organizationId: orgId,
+        deletedAt: null,
+        partnerReferrals: { some: { partnerId } },
+      },
     },
-    select: { retentionStatus: true, retentionDecision: true },
+    _count: { _all: true },
   });
 }
 
@@ -177,10 +174,10 @@ export async function generatePartnerQuarterlyOutcomes(
     throw new Error(`Partner not found: ${partnerId}`);
   }
 
-  const [referrals, ninetyDayRetentionRows, hundredEightyDayRetentionRows] = await Promise.all([
-    // Fetch all referrals for this partner in the date range
+  const [referrals, totalReferred, ninetyDayRetentionRows, hundredEightyDayRetentionRows] = await Promise.all([
+    // Hydrated member list is capped; official referred total is count().
     prisma.partnerReferral.findMany({
-      take: 5000,
+      take: ANALYTICS_COHORT_DETAIL_CAP,
       where: {
         partnerId,
         referredAt: { gte: start, lte: end },
@@ -220,12 +217,18 @@ export async function generatePartnerQuarterlyOutcomes(
       },
       orderBy: { referredAt: 'desc' },
     }),
+    prisma.partnerReferral.count({
+      where: {
+        partnerId,
+        referredAt: { gte: start, lte: end },
+        member: { deletedAt: null, organizationId: orgId },
+      },
+    }),
     fetchPartnerRetentionRowsAsOf(orgId, partnerId, end, 90),
     fetchPartnerRetentionRowsAsOf(orgId, partnerId, end, 180),
   ]);
 
   const members = referrals.map((r) => r.member);
-  const totalReferred = members.length;
 
   // Count enrolled (have an enrolledProgram)
   const enrolledMembers = members.filter((m) => m.enrolledProgram != null);
@@ -411,8 +414,20 @@ export async function generatePartnerQuarterlyOutcomes(
       salaryMax: salaries.length > 0 ? Math.max(...salaries) : null,
     },
     retention: {
-      ninetyDay: summarizeRetentionOutcomes(ninetyDayRetentionRows),
-      hundredEightyDay: summarizeRetentionOutcomes(hundredEightyDayRetentionRows),
+      ninetyDay: summarizeRetentionGroups(
+        ninetyDayRetentionRows.map((r) => ({
+          retentionStatus: r.retentionStatus,
+          retentionDecision: r.retentionDecision,
+          count: r._count._all,
+        })),
+      ),
+      hundredEightyDay: summarizeRetentionGroups(
+        hundredEightyDayRetentionRows.map((r) => ({
+          retentionStatus: r.retentionStatus,
+          retentionDecision: r.retentionDecision,
+          count: r._count._all,
+        })),
+      ),
     },
     programBreakdown,
     membersList,

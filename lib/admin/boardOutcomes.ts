@@ -1,6 +1,8 @@
+import { Prisma } from '@prisma/client';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { prisma } from '@/lib/db/prisma';
-import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { REPORT_SAMPLE_CAP, sqlCount } from '@/lib/db/scanCaps';
+import { summarizeRetentionGroups } from '@/lib/analytics/retentionOutcome';
 
 /**
  * Aggregations for the Board / Funder outcomes portal.
@@ -78,24 +80,19 @@ function endOfPeriod(period: BoardOutcomesPeriod): Date {
   return new Date(now.getFullYear(), qStartMonth, 0, 23, 59, 59);
 }
 
-function median(nums: number[]): number | null {
-  if (nums.length === 0) return null;
-  const sorted = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0 ? Math.round((sorted[mid - 1] + sorted[mid]) / 2) : sorted[mid];
-}
-
-function bucketCount<T extends string | null>(rows: Array<{ value: T }>, buckets: string[]): Array<{ label: string; count: number }> {
+function bucketFromGroupBy(
+  groups: Array<{ value: string | null; count: number }>,
+  buckets: string[],
+): Array<{ label: string; count: number }> {
   const counts = new Map<string, number>();
   for (const b of buckets) counts.set(b, 0);
   let unknown = 0;
-  for (const row of rows) {
-    const v = row.value;
-    if (!v) {
-      unknown += 1;
+  for (const row of groups) {
+    if (!row.value) {
+      unknown += row.count;
       continue;
     }
-    counts.set(v, (counts.get(v) ?? 0) + 1);
+    counts.set(row.value, (counts.get(row.value) ?? 0) + row.count);
   }
   const out = [...counts.entries()].map(([label, count]) => ({ label, count }));
   if (unknown > 0) out.push({ label: 'Not reported', count: unknown });
@@ -175,165 +172,179 @@ export async function getBoardOutcomes(
     ...(start ? { enrolledAt: { gte: start, lte: end } } : {}),
   } as const;
 
-  const [enrolledMembers, placements, profileRows] = await Promise.all([
-    prisma.user.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      where: enrolledWhere,
-      select: {
-        id: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        memberProgramProgress: {
-          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-        },
-        // Multi-program: a learner can be enrolled in several programs at
-        // once (rows in course_enrollments). The legacy `enrolledProgram`
-        // text field only tracks the primary, so for funder-facing program
-        // counts we need every program the learner is in. See audit punch
-        // list item #1.
-        courseEnrollments: {
-          select: { programSlug: true, enrolledAt: true },
-        },
-        profile: {
-          select: {
-            veteranStatus: true,
-            employmentStatus: true,
-            householdIncome: true,
-            educationLevel: true,
-            ethnicity: true,
-          },
-        },
-      },
+  const placementWhere = {
+    ...(start ? { placedAt: { gte: start, lte: end } } : {}),
+    ...(organizationId ? { user: { organizationId } } : {}),
+  } as const;
+  const profileUserWhere = start
+    ? enrolledWhere
+    : {
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        ...(organizationId ? { organizationId } : {}),
+      };
+  const orgSql = organizationId ? Prisma.sql`AND u.organization_id = ${organizationId}` : Prisma.empty;
+  const enrolledAtSql = start
+    ? Prisma.sql`AND u.enrolled_at >= ${start} AND u.enrolled_at <= ${end}`
+    : Prisma.empty;
+  const placedAtSql = start
+    ? Prisma.sql`AND pr.placed_at >= ${start} AND pr.placed_at <= ${end}`
+    : Prisma.empty;
+
+  const [
+    membersServed,
+    membersPlaced,
+    progressBuckets,
+    salaryAgg,
+    medianRow,
+    weeksRow,
+    enrollmentByCourse,
+    enrollmentLegacy,
+    certifiedByProgram,
+    placedByProgramSlug,
+    placedByLegacyProgram,
+    veteranGroups,
+    employmentGroups,
+    incomeGroups,
+    educationGroups,
+    ethnicityGroups,
+    placementSample,
+  ] = await Promise.all([
+    prisma.user.count({ where: enrolledWhere }),
+    prisma.placementRecord.count({ where: placementWhere }),
+    prisma.$queryRaw<Array<{ certified: bigint | number; in_training: bigint | number }>>`
+      SELECT
+        COUNT(*) FILTER (WHERE mpp.average_percent >= 100)::bigint AS certified,
+        COUNT(*) FILTER (WHERE mpp.average_percent > 0 AND mpp.average_percent < 100)::bigint AS in_training
+      FROM users u
+      LEFT JOIN member_program_progress mpp
+        ON mpp.user_id = u.id AND mpp.program_slug = u.enrolled_program
+      WHERE u.deleted_at IS NULL
+        AND u.enrolled_program IS NOT NULL
+        ${orgSql}
+        ${enrolledAtSql}
+    `,
+    prisma.placementRecord.aggregate({
+      where: { ...placementWhere, salaryOffered: { gt: 0 } },
+      _sum: { salaryOffered: true },
+      _count: { salaryOffered: true },
+    }),
+    prisma.$queryRaw<Array<{ median: number | null }>>`
+      SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY pr.salary_offered)::int AS median
+      FROM placement_records pr
+      INNER JOIN users u ON u.id = pr.user_id
+      WHERE pr.salary_offered > 0
+        ${orgSql}
+        ${placedAtSql}
+    `,
+    prisma.$queryRaw<Array<{ avg_weeks: number | null }>>`
+      SELECT AVG(EXTRACT(EPOCH FROM (pr.placed_at - u.enrolled_at)) / (7 * 86400)) AS avg_weeks
+      FROM placement_records pr
+      INNER JOIN users u ON u.id = pr.user_id
+      WHERE u.enrolled_at IS NOT NULL
+        AND pr.placed_at > u.enrolled_at
+        ${orgSql}
+        ${placedAtSql}
+    `,
+    prisma.courseEnrollment.groupBy({
+      by: ['programSlug'],
+      where: { user: enrolledWhere },
+      _count: { _all: true },
+    }),
+    prisma.user.groupBy({
+      by: ['enrolledProgram'],
+      where: { ...enrolledWhere, courseEnrollments: { none: {} } },
+      _count: { _all: true },
+    }),
+    prisma.memberProgramProgress.groupBy({
+      by: ['programSlug'],
+      where: { averagePercent: { gte: 100 }, user: enrolledWhere },
+      _count: { _all: true },
+    }),
+    prisma.placementRecord.groupBy({
+      by: ['programSlug'],
+      where: { ...placementWhere, programSlug: { not: null } },
+      _count: { _all: true },
+    }),
+    prisma.$queryRaw<Array<{ program_slug: string; count: bigint | number }>>`
+      SELECT u.enrolled_program AS program_slug, COUNT(*)::bigint AS count
+      FROM placement_records pr
+      INNER JOIN users u ON u.id = pr.user_id
+      WHERE pr.program_slug IS NULL
+        AND u.enrolled_program IS NOT NULL
+        ${orgSql}
+        ${placedAtSql}
+      GROUP BY u.enrolled_program
+    `,
+    prisma.profile.groupBy({
+      by: ['veteranStatus'],
+      where: { user: profileUserWhere },
+      _count: { _all: true },
+    }),
+    prisma.profile.groupBy({
+      by: ['employmentStatus'],
+      where: { user: profileUserWhere },
+      _count: { _all: true },
+    }),
+    prisma.profile.groupBy({
+      by: ['householdIncome'],
+      where: { user: profileUserWhere },
+      _count: { _all: true },
+    }),
+    prisma.profile.groupBy({
+      by: ['educationLevel'],
+      where: { user: profileUserWhere },
+      _count: { _all: true },
+    }),
+    prisma.profile.groupBy({
+      by: ['ethnicity'],
+      where: { user: profileUserWhere },
+      _count: { _all: true },
     }),
     prisma.placementRecord.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      where: {
-        ...(start ? { placedAt: { gte: start, lte: end } } : {}),
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
+      where: placementWhere,
+      take: REPORT_SAMPLE_CAP,
+      orderBy: { placedAt: 'desc' },
       select: {
-        id: true,
-        userId: true,
-        employerName: true,
         jobTitle: true,
-        startDate: true,
         salaryOffered: true,
         placedAt: true,
+        programSlug: true,
         user: {
           select: {
             enrolledProgram: true,
             enrolledAt: true,
-            // Pull all enrollments so we can pick the one active at
-            // placement time — see attributeProgramAtPlacement().
-            courseEnrollments: {
-              select: { programSlug: true, enrolledAt: true },
-            },
+            courseEnrollments: { select: { programSlug: true, enrolledAt: true } },
           },
         },
       },
     }),
-    prisma.profile.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      where: start
-        ? { user: { ...enrolledWhere } }
-        : {
-            user: {
-              deletedAt: null,
-              enrolledProgram: { not: null },
-              ...(organizationId ? { organizationId } : {}),
-            },
-          },
-      select: {
-        veteranStatus: true,
-        employmentStatus: true,
-        householdIncome: true,
-        educationLevel: true,
-        ethnicity: true,
-      },
-    }),
   ]);
 
-  // Members served = enrolled in period
-  const membersServed = enrolledMembers.length;
-  const membersInTraining = enrolledMembers.filter((m) => {
-    const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
-    return pct > 0 && pct < 100;
-  }).length;
-  const membersCertified = enrolledMembers.filter((m) =>
-    memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress),
-  ).length;
-  const membersPlaced = placements.length;
+  const membersCertified = sqlCount(progressBuckets[0]?.certified);
+  const membersInTraining = sqlCount(progressBuckets[0]?.in_training);
   const placementRate = membersServed > 0 ? Math.round((membersPlaced / membersServed) * 100) : 0;
-
-  const salaries = placements
-    .map((p) => p.salaryOffered)
-    .filter((s): s is number => typeof s === 'number' && s > 0);
-  const medianAnnualSalary = median(salaries);
-  const totalAnnualSalaryValue = salaries.reduce((a, b) => a + b, 0);
-
-  const weeksToPlacement = placements
-    .map((p) => {
-      if (!p.user.enrolledAt) return null;
-      const ms = p.placedAt.getTime() - p.user.enrolledAt.getTime();
-      return ms > 0 ? Math.round(ms / (7 * 24 * 60 * 60 * 1000)) : null;
-    })
-    .filter((w): w is number => w !== null && w >= 0);
+  const medianAnnualSalary = medianRow[0]?.median ?? null;
+  const totalAnnualSalaryValue = salaryAgg._sum.salaryOffered ?? 0;
   const averageWeeksToPlacement =
-    weeksToPlacement.length > 0
-      ? Math.round(weeksToPlacement.reduce((a, b) => a + b, 0) / weeksToPlacement.length)
-      : null;
+    weeksRow[0]?.avg_weeks != null ? Math.round(Number(weeksRow[0].avg_weeks)) : null;
 
-  // Programs breakdown
-  //
-  // Multi-program correctness: a learner can be enrolled in several programs
-  // simultaneously. The previous implementation grouped by the legacy
-  // `User.enrolledProgram` (the primary slug only), which under-counted any
-  // secondary enrollments — e.g. a learner with primary=IT-Support and
-  // secondary=AI-Practitioner only showed up under IT-Support. We now JOIN
-  // through `course_enrollments` so each (learner, program) pair is counted
-  // once. Falls back to `enrolledProgram` for unmigrated users with zero
-  // enrollment rows. See audit punch list item #1.
   const programs = new Map<
     string,
     { programSlug: string; enrolled: number; certified: number; placed: number }
   >();
-  for (const m of enrolledMembers) {
-    const slugs =
-      m.courseEnrollments.length > 0
-        ? Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug)))
-        : m.enrolledProgram
-          ? [m.enrolledProgram]
-          : [];
-    for (const slug of slugs) {
-      const cur = programs.get(slug) ?? {
-        programSlug: slug,
-        enrolled: 0,
-        certified: 0,
-        placed: 0,
-      };
-      cur.enrolled += 1;
-      if (memberProgramCompleted(slug, null, m.memberProgramProgress)) {
-        cur.certified += 1;
-      }
-      programs.set(slug, cur);
-    }
-  }
-  for (const p of placements) {
-    const programSlug = attributeProgramAtPlacement(
-      p.user.courseEnrollments,
-      p.placedAt,
-      p.user.enrolledProgram,
-    );
-    if (!programSlug) continue;
-    const cur = programs.get(programSlug) ?? {
-      programSlug,
-      enrolled: 0,
-      certified: 0,
-      placed: 0,
-    };
-    cur.placed += 1;
-    programs.set(programSlug, cur);
-  }
+  const bump = (slug: string | null | undefined, field: 'enrolled' | 'certified' | 'placed', n: number) => {
+    if (!slug || n <= 0) return;
+    const cur = programs.get(slug) ?? { programSlug: slug, enrolled: 0, certified: 0, placed: 0 };
+    cur[field] += n;
+    programs.set(slug, cur);
+  };
+  for (const row of enrollmentByCourse) bump(row.programSlug, 'enrolled', row._count._all);
+  for (const row of enrollmentLegacy) bump(row.enrolledProgram, 'enrolled', row._count._all);
+  for (const row of certifiedByProgram) bump(row.programSlug, 'certified', row._count._all);
+  for (const row of placedByProgramSlug) bump(row.programSlug, 'placed', row._count._all);
+  for (const row of placedByLegacyProgram) bump(row.program_slug, 'placed', sqlCount(row.count));
+
   const programsList = [...programs.values()]
     .map((p) => ({
       ...p,
@@ -341,19 +352,24 @@ export async function getBoardOutcomes(
     }))
     .sort((a, b) => b.enrolled - a.enrolled);
 
-  // Demographics
-  const veteranBreakdown = bucketCount(profileRows.map((p) => ({ value: p.veteranStatus })), VETERAN_BUCKETS);
-  const employmentEnteringBreakdown = bucketCount(
-    profileRows.map((p) => ({ value: p.employmentStatus })),
+  const veteranBreakdown = bucketFromGroupBy(
+    veteranGroups.map((g) => ({ value: g.veteranStatus, count: g._count._all })),
+    VETERAN_BUCKETS,
+  );
+  const employmentEnteringBreakdown = bucketFromGroupBy(
+    employmentGroups.map((g) => ({ value: g.employmentStatus, count: g._count._all })),
     EMPLOYMENT_BUCKETS,
   );
-  const incomeBreakdown = bucketCount(profileRows.map((p) => ({ value: p.householdIncome })), INCOME_BUCKETS);
-  const educationBreakdown = bucketCount(
-    profileRows.map((p) => ({ value: p.educationLevel })),
+  const incomeBreakdown = bucketFromGroupBy(
+    incomeGroups.map((g) => ({ value: g.householdIncome, count: g._count._all })),
+    INCOME_BUCKETS,
+  );
+  const educationBreakdown = bucketFromGroupBy(
+    educationGroups.map((g) => ({ value: g.educationLevel, count: g._count._all })),
     EDUCATION_BUCKETS,
   );
-  const ethnicityBreakdown = bucketCount(
-    profileRows.map((p) => ({ value: p.ethnicity })),
+  const ethnicityBreakdown = bucketFromGroupBy(
+    ethnicityGroups.map((g) => ({ value: g.ethnicity, count: g._count._all })),
     [
       'Hispanic/Latino',
       'White',
@@ -396,15 +412,17 @@ export async function getBoardOutcomes(
     // enrollments we credit the program the learner had most recently
     // entered at placement time (see attributeProgramAtPlacement); with a
     // single enrollment behavior is unchanged. Audit punch list item #2.
-    placements: placements.map((p) => ({
+    placements: placementSample.map((p) => ({
       jobTitle: p.jobTitle,
       employerIndustry: null,
       annualSalary: p.salaryOffered,
-      enrolledProgram: attributeProgramAtPlacement(
-        p.user.courseEnrollments,
-        p.placedAt,
-        p.user.enrolledProgram,
-      ),
+      enrolledProgram:
+        p.programSlug ??
+        attributeProgramAtPlacement(
+          p.user.courseEnrollments,
+          p.placedAt,
+          p.user.enrolledProgram,
+        ),
       weeksFromEnrollmentToPlacement:
         p.user.enrolledAt
           ? Math.max(0, Math.round((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (7 * 24 * 60 * 60 * 1000)))
@@ -572,6 +590,18 @@ export function buildPlacementActivitySeries(
   return [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
 }
 
+async function countDistinctEventUsers(since: Date, organizationId?: string): Promise<number> {
+  const orgSql = organizationId ? Prisma.sql`AND u.organization_id = ${organizationId}` : Prisma.empty;
+  const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+    SELECT COUNT(DISTINCT me.user_id)::bigint AS count
+    FROM member_events me
+    INNER JOIN users u ON u.id = me.user_id
+    WHERE me.created_at >= ${since}
+      ${orgSql}
+  `;
+  return sqlCount(rows[0]?.count);
+}
+
 /**
  * Single source of truth for any external pitch (TWC/EdVera, employers,
  * partners, board). Composes `getBoardOutcomes()` with the application
@@ -622,33 +652,9 @@ export async function getBoardSnapshot(
     prisma.user.count({
       where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
     }),
-    prisma.memberEvent.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      where: {
-        createdAt: { gte: sevenDaysAgo },
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
-    prisma.memberEvent.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      where: {
-        createdAt: { gte: fourteenDaysAgo },
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
-    prisma.memberEvent.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
+    countDistinctEventUsers(sevenDaysAgo, organizationId),
+    countDistinctEventUsers(fourteenDaysAgo, organizationId),
+    countDistinctEventUsers(thirtyDaysAgo, organizationId),
     prisma.userCertification.count({
       ...(organizationId ? { where: { user: { organizationId } } } : {}),
     }),
@@ -658,12 +664,13 @@ export async function getBoardSnapshot(
         ...(organizationId ? { user: { organizationId } } : {}),
       },
     }),
-    prisma.userCertification.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
-      ...(organizationId ? { where: { user: { organizationId } } } : {}),
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
+    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      SELECT COUNT(DISTINCT uc.user_id)::bigint AS count
+      FROM user_certifications uc
+      INNER JOIN users u ON u.id = uc.user_id
+      WHERE 1=1
+        ${organizationId ? Prisma.sql`AND u.organization_id = ${organizationId}` : Prisma.empty}
+    `.then((rows) => sqlCount(rows[0]?.count)),
     prisma.placementRecord.count({
       where: {
         programSlug: null,
@@ -696,15 +703,16 @@ export async function getBoardSnapshot(
         ...(organizationId ? { organizationId } : {}),
       },
     }),
-    prisma.memberEvent.findMany({
-      where: {
-        eventName: 'placement_recorded',
-        ...(periodStart ? { createdAt: { gte: periodStart, lte: periodEnd } } : {}),
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
-      select: { createdAt: true },
-      orderBy: { createdAt: 'asc' },
-    }),
+    prisma.$queryRaw<Array<{ month: string; count: bigint | number }>>`
+      SELECT to_char(date_trunc('month', me.created_at), 'YYYY-MM') AS month, COUNT(*)::bigint AS count
+      FROM member_events me
+      INNER JOIN users u ON u.id = me.user_id
+      WHERE me.event_name = 'placement_recorded'
+        ${periodStart ? Prisma.sql`AND me.created_at >= ${periodStart} AND me.created_at <= ${periodEnd}` : Prisma.empty}
+        ${organizationId ? Prisma.sql`AND u.organization_id = ${organizationId}` : Prisma.empty}
+      GROUP BY 1
+      ORDER BY 1
+    `,
   ]);
 
   const funnelMap = new Map(applicationsByStatus.map((r) => [r.status, r._count._all]));
@@ -716,66 +724,78 @@ export async function getBoardSnapshot(
     needsInfo: funnelMap.get('NEEDS_INFO') ?? 0,
   };
 
-  const active14dSet = new Set(active14dRows.map((r) => r.userId));
-  const inactive14d = Math.max(0, totalMembers - active14dSet.size);
+  const inactive14d = Math.max(0, totalMembers - active14dRows);
 
   // ── NEW: Full funnel waterfall + queue health + cohorts ──
+  const orgUserSql = organizationId ? Prisma.sql`AND u.organization_id = ${organizationId}` : Prisma.empty;
   const [
     totalAccounts,
-    pendingApplicationsWithDates,
-    allApplicationsForCohorts,
-    allEnrolledForCohorts,
-    allPlacedForCohorts,
-    allCertifiedForCohorts,
+    pendingQueueAgg,
+    applicationCohorts,
+    enrolledCohorts,
+    placedCohorts,
+    certifiedCohorts,
   ] = await Promise.all([
     prisma.user.count({
       where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
     }),
-    prisma.application.findMany({
-      where: {
-        status: 'PENDING',
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
-      select: { createdAt: true },
-    }),
-    prisma.application.findMany({
-      where: organizationId ? { user: { organizationId } } : {},
-      select: { status: true, createdAt: true, user: { select: { enrolledAt: true } } },
-    }),
-    prisma.user.findMany({
-      where: {
-        deletedAt: null,
-        enrolledProgram: { not: null },
-        ...(organizationId ? { organizationId } : {}),
-      },
-      select: { enrolledAt: true },
-    }),
-    prisma.placementRecord.findMany({
-      where: organizationId ? { user: { organizationId } } : {},
-      select: { placedAt: true },
-    }),
-    prisma.user.findMany({
-      where: {
-        deletedAt: null,
-        enrolledProgram: { not: null },
-        ...(organizationId ? { organizationId } : {}),
-      },
-      select: {
-        enrolledAt: true,
-        enrolledProgram: true,
-        memberProgramProgress: { select: { programSlug: true, averagePercent: true, coursesCompleted: true } },
-        coursesCompleted: true,
-      },
-    }),
+    prisma.$queryRaw<Array<{ median_days: number | null; oldest_days: number | null }>>`
+      SELECT
+        PERCENTILE_CONT(0.5) WITHIN GROUP (
+          ORDER BY EXTRACT(EPOCH FROM (${now} - a.created_at)) / 86400
+        ) AS median_days,
+        MAX(EXTRACT(EPOCH FROM (${now} - a.created_at)) / 86400) AS oldest_days
+      FROM applications a
+      INNER JOIN users u ON u.id = a.user_id
+      WHERE a.status = 'PENDING'
+        ${orgUserSql}
+    `,
+    prisma.$queryRaw<Array<{ month: string; applications: bigint | number; approved: bigint | number }>>`
+      SELECT
+        to_char(date_trunc('month', a.created_at), 'YYYY-MM') AS month,
+        COUNT(*)::bigint AS applications,
+        COUNT(*) FILTER (WHERE a.status = 'APPROVED')::bigint AS approved
+      FROM applications a
+      INNER JOIN users u ON u.id = a.user_id
+      WHERE 1=1
+        ${orgUserSql}
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<Array<{ month: string; count: bigint | number }>>`
+      SELECT to_char(date_trunc('month', u.enrolled_at), 'YYYY-MM') AS month, COUNT(*)::bigint AS count
+      FROM users u
+      WHERE u.deleted_at IS NULL
+        AND u.enrolled_program IS NOT NULL
+        AND u.enrolled_at IS NOT NULL
+        ${orgUserSql}
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<Array<{ month: string; count: bigint | number }>>`
+      SELECT to_char(date_trunc('month', pr.placed_at), 'YYYY-MM') AS month, COUNT(*)::bigint AS count
+      FROM placement_records pr
+      INNER JOIN users u ON u.id = pr.user_id
+      WHERE 1=1
+        ${orgUserSql}
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<Array<{ month: string; count: bigint | number }>>`
+      SELECT to_char(date_trunc('month', u.enrolled_at), 'YYYY-MM') AS month, COUNT(*)::bigint AS count
+      FROM users u
+      INNER JOIN member_program_progress mpp
+        ON mpp.user_id = u.id AND mpp.program_slug = u.enrolled_program
+      WHERE u.deleted_at IS NULL
+        AND u.enrolled_program IS NOT NULL
+        AND u.enrolled_at IS NOT NULL
+        AND mpp.average_percent >= 100
+        ${orgUserSql}
+      GROUP BY 1
+    `,
   ]);
 
-  // Application queue health
-  const pendingAgesDays = pendingApplicationsWithDates.map((a) => {
-    const ms = now.getTime() - a.createdAt.getTime();
-    return Math.floor(ms / (24 * 60 * 60 * 1000));
-  });
-  const medianPendingAge = median(pendingAgesDays);
-  const oldestPendingAge = pendingAgesDays.length > 0 ? Math.max(...pendingAgesDays) : null;
+  const medianPendingAge =
+    pendingQueueAgg[0]?.median_days != null ? Math.round(Number(pendingQueueAgg[0].median_days)) : null;
+  const oldestPendingAge =
+    pendingQueueAgg[0]?.oldest_days != null ? Math.round(Number(pendingQueueAgg[0].oldest_days)) : null;
 
   // Build funnel waterfall
   const totalApps = applicationFunnel.total;
@@ -792,41 +812,36 @@ export async function getBoardSnapshot(
     { stage: 'Placed', count: placedCount, previousCount: certifiedCount, conversionRate: certifiedCount > 0 ? Math.round((placedCount / certifiedCount) * 100) : 0 },
   ];
 
-  // Cohort table by month (application month)
+  // Cohort table by month (application month) — SQL date_trunc groups, exact counts.
   const cohortMap = new Map<string, CohortMonth>();
-  for (const app of allApplicationsForCohorts) {
-    const m = monthKey(app.createdAt);
-    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(app.createdAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
-    cur.applications += 1;
-    if (app.status === 'APPROVED') cur.approved += 1;
-    cohortMap.set(m, cur);
+  const ensureCohort = (month: string) => {
+    const cur = cohortMap.get(month) ?? {
+      month,
+      monthLabel: monthLabel(new Date(`${month}-01T00:00:00`)),
+      applications: 0,
+      approved: 0,
+      enrolled: 0,
+      certified: 0,
+      placed: 0,
+    };
+    cohortMap.set(month, cur);
+    return cur;
+  };
+  for (const row of applicationCohorts) {
+    const cur = ensureCohort(row.month);
+    cur.applications += sqlCount(row.applications);
+    cur.approved += sqlCount(row.approved);
   }
-  for (const u of allEnrolledForCohorts) {
-    if (!u.enrolledAt) continue;
-    const m = monthKey(u.enrolledAt);
-    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(u.enrolledAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
-    cur.enrolled += 1;
-    cohortMap.set(m, cur);
-  }
-  for (const p of allPlacedForCohorts) {
-    const m = monthKey(p.placedAt);
-    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(p.placedAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
-    cur.placed += 1;
-    cohortMap.set(m, cur);
-  }
-  for (const u of allCertifiedForCohorts) {
-    if (!u.enrolledAt) continue;
-    // Determine if certified: same logic as getBoardOutcomes
-    const isCert = memberProgramCompleted(u.enrolledProgram, null, u.memberProgramProgress);
-    if (!isCert) continue;
-    const m = monthKey(u.enrolledAt);
-    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(u.enrolledAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
-    cur.certified += 1;
-    cohortMap.set(m, cur);
-  }
+  for (const row of enrolledCohorts) ensureCohort(row.month).enrolled += sqlCount(row.count);
+  for (const row of placedCohorts) ensureCohort(row.month).placed += sqlCount(row.count);
+  for (const row of certifiedCohorts) ensureCohort(row.month).certified += sqlCount(row.count);
 
   const cohorts = [...cohortMap.values()].sort((a, b) => a.month.localeCompare(b.month));
-  const placementActivity = buildPlacementActivitySeries(placementEventRows);
+  const placementActivity = placementEventRows.map((row) => ({
+    month: row.month,
+    monthLabel: monthLabel(new Date(`${row.month}-01T00:00:00`)),
+    placementsRecorded: sqlCount(row.count),
+  }));
 
   // ── NEW: Top-line KPIs for /admin/outcomes hero row ──
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -845,15 +860,7 @@ export async function getBoardSnapshot(
     prisma.user.count({
       where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
     }),
-    prisma.memberEvent.findMany({
-      take: 10000,
-      where: {
-        createdAt: { gte: sevenDaysAgo },
-        ...(organizationId ? { user: { organizationId } } : {}),
-      },
-      select: { userId: true },
-      distinct: ['userId'],
-    }).then((rows) => rows.length),
+    countDistinctEventUsers(sevenDaysAgo, organizationId),
     // Qualified leads = users who completed assessment + have program interest but are not yet enrolled
     prisma.user.count({
       where: {
@@ -882,13 +889,13 @@ export async function getBoardSnapshot(
     // Retention: pull retention fields for placements in this org/period so we
     // can compute the real 90-day retention rate below. Scoped by `placedAt`
     // and org exactly like getBoardOutcomes' placement query.
-    prisma.placementRecord.findMany({
-      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
+    prisma.placementRecord.groupBy({
+      by: ['retentionStatus', 'retentionDecision'],
       where: {
         ...(retentionStart ? { placedAt: { gte: retentionStart, lte: retentionEnd } } : {}),
         ...(organizationId ? { user: { organizationId } } : {}),
       },
-      select: { retentionStatus: true, retentionDecision: true },
+      _count: { _all: true },
     }),
   ]);
 
@@ -897,22 +904,16 @@ export async function getBoardSnapshot(
   // 'retained' (covers "retained_90d", "retained_180d").
   // Not retained: retentionDecision === 'not_retained' OR retentionStatus === 'separated'.
   // Pending / null outcomes are excluded from the denominator entirely.
-  let retainedCount = 0;
-  let notRetainedCount = 0;
-  for (const r of retentionRows) {
-    const isRetained =
-      r.retentionDecision === 'retained' || (r.retentionStatus?.startsWith('retained') ?? false);
-    const isNotRetained =
-      r.retentionDecision === 'not_retained' || r.retentionStatus === 'separated';
-    if (isRetained) {
-      retainedCount += 1;
-    } else if (isNotRetained) {
-      notRetainedCount += 1;
-    }
-  }
-  const retentionDenominator = retainedCount + notRetainedCount;
+  const retentionSummary = summarizeRetentionGroups(
+    retentionRows.map((r) => ({
+      retentionStatus: r.retentionStatus,
+      retentionDecision: r.retentionDecision,
+      count: r._count._all,
+    })),
+  );
+  const retentionDenominator = retentionSummary.retained + retentionSummary.notRetainedOrSeparated;
   const retentionRate =
-    retentionDenominator > 0 ? Math.round((retainedCount / retentionDenominator) * 100) : null;
+    retentionDenominator > 0 ? Math.round((retentionSummary.retained / retentionDenominator) * 100) : null;
 
   return {
     generatedAt: now,
@@ -921,15 +922,15 @@ export async function getBoardSnapshot(
     outcomes,
     activity: {
       totalMembers,
-      active7d: active7dRows.length,
-      active14d: active14dRows.length,
-      active30d: active30dRows.length,
+      active7d: active7dRows,
+      active14d: active14dRows,
+      active30d: active30dRows,
       inactive14d,
     },
     certifications: {
       totalEarned: totalCerts,
       earnedLast30d: certsLast30d,
-      uniqueMembers: uniqueCertMembers.length,
+      uniqueMembers: uniqueCertMembers,
     },
     dataQuality: {
       placementsMissingProgram,

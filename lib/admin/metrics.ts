@@ -1,5 +1,6 @@
 import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { sqlCount } from '@/lib/db/scanCaps';
 import { CAREER_OS_WORKFLOW } from '@/lib/workflows/careerOS';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getCacheOrFetch } from '@/lib/cache';
@@ -112,14 +113,23 @@ function localCalendarDayKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-function isEventOnlyAiToolMetadata(metadata: unknown): boolean {
-  if (!metadata || typeof metadata !== 'object') return false;
-  const tool = (metadata as Record<string, unknown>).tool;
-  const s = typeof tool === 'string' ? tool : '';
-  return (EVENT_ONLY_AI_TOOLS as readonly string[]).includes(s);
+type DailyCountRow = { bucket: Date; count: bigint | number };
+
+function mergeDayCounts(
+  ranges: Array<{ dayKey: string }>,
+  rows: DailyCountRow[],
+): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const r of ranges) m.set(r.dayKey, 0);
+  for (const row of rows) {
+    const key = localCalendarDayKey(new Date(row.bucket));
+    if (!m.has(key)) continue;
+    m.set(key, (m.get(key) ?? 0) + sqlCount(row.count));
+  }
+  return m;
 }
 
-/** Generate daily activity for the last N days (batched fetches + in-memory bucketing) */
+/** Generate daily activity for the last N days via SQL day buckets (exact counts). */
 async function getDailyActivity(
   orgId: string,
   days: number,
@@ -141,83 +151,59 @@ async function getDailyActivity(
 
   const rangeStart = ranges[0].start;
   const rangeEnd = ranges[ranges.length - 1].end;
-  const dayKeySet = new Set(ranges.map((r) => r.dayKey));
-  const userScope = memberInOrg(orgId);
-
-  const initSeries = () => {
-    const m = new Map<string, number>();
-    for (const r of ranges) m.set(r.dayKey, 0);
-    return m;
-  };
-
-  const addTimestampToSeries = (series: Map<string, number>, at: Date) => {
-    const key = localCalendarDayKey(at);
-    if (!dayKeySet.has(key)) return;
-    series.set(key, (series.get(key) ?? 0) + 1);
-  };
 
   const [eventsR, aiSavedR, aiEventsR, applicationsR] = await Promise.allSettled([
-    prisma.memberEvent.findMany({
-      take: 5000, // headroom guard — daily-series and breakdowns must not silently truncate
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd }, ...userScope },
-      select: { createdAt: true },
-    }),
-    prisma.aIToolResult.findMany({
-      take: 5000, // headroom guard — daily-series and breakdowns must not silently truncate
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd }, ...userScope },
-      select: { createdAt: true },
-    }),
-    prisma.memberEvent.findMany({
-      take: 5000, // headroom guard — daily-series and breakdowns must not silently truncate
-      where: {
-        createdAt: { gte: rangeStart, lte: rangeEnd },
-        eventName: 'ai_tool_run_started',
-        entityType: 'ai_tool',
-        ...userScope,
-      },
-      select: { createdAt: true, metadata: true },
-    }),
-    prisma.jobApplication.findMany({
-      take: 5000, // headroom guard — daily-series and breakdowns must not silently truncate
-      where: {
-        createdAt: { gte: rangeStart, lte: rangeEnd },
-        status: { not: 'SAVED' },
-        ...userScope,
-      },
-      select: { createdAt: true },
-    }),
+    prisma.$queryRaw<DailyCountRow[]>`
+      SELECT date_trunc('day', me.created_at) AS bucket, COUNT(*)::bigint AS count
+      FROM member_events me
+      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
+      WHERE me.created_at >= ${rangeStart} AND me.created_at <= ${rangeEnd}
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<DailyCountRow[]>`
+      SELECT date_trunc('day', r.created_at) AS bucket, COUNT(*)::bigint AS count
+      FROM ai_tool_results r
+      INNER JOIN users u ON u.id = r.user_id AND u.organization_id = ${orgId}
+      WHERE r.created_at >= ${rangeStart} AND r.created_at <= ${rangeEnd}
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<DailyCountRow[]>`
+      SELECT date_trunc('day', me.created_at) AS bucket, COUNT(*)::bigint AS count
+      FROM member_events me
+      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
+      WHERE me.created_at >= ${rangeStart}
+        AND me.created_at <= ${rangeEnd}
+        AND me.event_name = 'ai_tool_run_started'
+        AND me.entity_type = 'ai_tool'
+        AND COALESCE(me.metadata->>'tool', '') IN (${Prisma.join(EVENT_ONLY_AI_TOOLS)})
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<DailyCountRow[]>`
+      SELECT date_trunc('day', ja.created_at) AS bucket, COUNT(*)::bigint AS count
+      FROM job_applications ja
+      INNER JOIN users u ON u.id = ja.user_id AND u.organization_id = ${orgId}
+      WHERE ja.created_at >= ${rangeStart}
+        AND ja.created_at <= ${rangeEnd}
+        AND ja.status <> 'SAVED'
+      GROUP BY 1
+    `,
   ]);
 
-  const eventsByDay = initSeries();
-  const aiByDay = initSeries();
-  const applicationsByDay = initSeries();
+  const eventsByDay = mergeDayCounts(ranges, eventsR.status === 'fulfilled' ? eventsR.value : []);
+  const aiByDay = mergeDayCounts(ranges, [
+    ...(aiSavedR.status === 'fulfilled' ? aiSavedR.value : []),
+    ...(aiEventsR.status === 'fulfilled' ? aiEventsR.value : []),
+  ]);
+  const applicationsByDay = mergeDayCounts(
+    ranges,
+    applicationsR.status === 'fulfilled' ? applicationsR.value : [],
+  );
 
-  if (eventsR.status === 'rejected') {
-    logMetricsReason('dailyActivity:events:batch', eventsR.reason);
-  } else {
-    for (const row of eventsR.value) addTimestampToSeries(eventsByDay, row.createdAt);
-  }
-
-  if (aiSavedR.status === 'rejected') {
-    logMetricsReason('dailyActivity:aiTools:saved:batch', aiSavedR.reason);
-  } else {
-    for (const row of aiSavedR.value) addTimestampToSeries(aiByDay, row.createdAt);
-  }
-
-  if (aiEventsR.status === 'rejected') {
-    logMetricsReason('dailyActivity:aiTools:events:batch', aiEventsR.reason);
-  } else {
-    for (const row of aiEventsR.value) {
-      if (isEventOnlyAiToolMetadata(row.metadata)) {
-        addTimestampToSeries(aiByDay, row.createdAt);
-      }
-    }
-  }
-
+  if (eventsR.status === 'rejected') logMetricsReason('dailyActivity:events:batch', eventsR.reason);
+  if (aiSavedR.status === 'rejected') logMetricsReason('dailyActivity:aiTools:saved:batch', aiSavedR.reason);
+  if (aiEventsR.status === 'rejected') logMetricsReason('dailyActivity:aiTools:events:batch', aiEventsR.reason);
   if (applicationsR.status === 'rejected') {
     logMetricsReason('dailyActivity:applications:batch', applicationsR.reason);
-  } else {
-    for (const row of applicationsR.value) addTimestampToSeries(applicationsByDay, row.createdAt);
   }
 
   return ranges.map(({ date, dayKey }) => ({
@@ -226,6 +212,16 @@ async function getDailyActivity(
     aiTools: aiByDay.get(dayKey) ?? 0,
     applications: applicationsByDay.get(dayKey) ?? 0,
   }));
+}
+
+async function countDistinctActiveUsers(orgId: string, since: Date): Promise<number> {
+  const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+    SELECT COUNT(DISTINCT me.user_id)::bigint AS count
+    FROM member_events me
+    INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
+    WHERE me.created_at >= ${since}
+  `;
+  return sqlCount(rows[0]?.count);
 }
 
 /** Get program enrollment breakdown */
@@ -381,18 +377,8 @@ async function _getAdminMetricsUncached(orgId: string) {
     aiToolStatsResult,
   ] = await Promise.allSettled([
     withTenantScope(orgId, (db) => db.user.count({ where: { deletedAt: null } })),
-    prisma.memberEvent.findMany({
-      take: 5000, // headroom guard — daily-series and breakdowns must not silently truncate
-      where: { createdAt: { gte: sevenDaysAgo }, ...userScope },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
-    prisma.memberEvent.findMany({
-      take: 5000, // headroom guard — daily-series and breakdowns must not silently truncate
-      where: { createdAt: { gte: fourteenDaysAgo }, ...userScope },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
+    countDistinctActiveUsers(orgId, sevenDaysAgo),
+    countDistinctActiveUsers(orgId, fourteenDaysAgo),
     prisma.goal.count({ where: { status: 'ACTIVE', ...userScope } }),
     prisma.jobApplication.count({ where: { status: { not: 'SAVED' }, ...userScope } }),
     prisma.resourceProgress.count({ where: { completedAt: { not: null }, ...userScope } }),
@@ -410,8 +396,8 @@ async function _getAdminMetricsUncached(orgId: string) {
   if (aiToolStatsResult.status === 'rejected') logMetricsReason('aiToolStats', aiToolStatsResult.reason);
 
   const totalMembers = totalMembersResult.status === 'fulfilled' ? totalMembersResult.value : 0;
-  const activeUserIds7d = activeUserIds7dResult.status === 'fulfilled' ? activeUserIds7dResult.value : [];
-  const activeUserIds14d = activeUserIds14dResult.status === 'fulfilled' ? activeUserIds14dResult.value : [];
+  const activeUserIds7d = activeUserIds7dResult.status === 'fulfilled' ? activeUserIds7dResult.value : 0;
+  const activeUserIds14d = activeUserIds14dResult.status === 'fulfilled' ? activeUserIds14dResult.value : 0;
   const goalsCount = goalsCountResult.status === 'fulfilled' ? goalsCountResult.value : 0;
   const applicationsCount = applicationsCountResult.status === 'fulfilled' ? applicationsCountResult.value : 0;
   const resourceCompletions = resourceCompletionsResult.status === 'fulfilled' ? resourceCompletionsResult.value : 0;
@@ -420,19 +406,25 @@ async function _getAdminMetricsUncached(orgId: string) {
     ? aiToolStatsResult.value
     : { runsLastNDays: 0, trend: 0, totalRuns: 0, breakdown: [] };
 
-  const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
+  const inactive14Days = Math.max(0, totalMembers - activeUserIds14d);
 
-  const allUsersResult = await withTenantScope(orgId, (db) => db.user.findMany({ take: 5000, select: { id: true } }))
+  const inactiveSampleResult = await withTenantScope(orgId, (db) =>
+    db.user.findMany({
+      where: { deletedAt: null, memberEvents: { none: { createdAt: { gte: fourteenDaysAgo } } } },
+      select: { id: true },
+      orderBy: { updatedAt: 'asc' },
+      take: 50,
+    }),
+  )
     .then((value) => ({ status: 'fulfilled' as const, value }))
     .catch((reason) => ({ status: 'rejected' as const, reason }));
 
-  if (allUsersResult.status === 'rejected') {
-    logMetricsReason('allUsers', allUsersResult.reason);
+  if (inactiveSampleResult.status === 'rejected') {
+    logMetricsReason('inactiveUserIds', inactiveSampleResult.reason);
   }
 
-  const inactiveUserIds = allUsersResult.status === 'fulfilled'
-    ? allUsersResult.value.filter((u) => !active14dSet.has(u.id)).map((u) => u.id)
-    : [];
+  const inactiveUserIds =
+    inactiveSampleResult.status === 'fulfilled' ? inactiveSampleResult.value.map((u) => u.id) : [];
 
   const [dailyActivityResult, enrollmentByProgramResult, placementStatsResult, careerOsMetricsResult] =
     await Promise.allSettled([
@@ -465,15 +457,15 @@ async function _getAdminMetricsUncached(orgId: string) {
 
   return {
     totalMembers,
-    weeklyActiveMembers: activeUserIds7d.length,
-    inactive14Days: inactiveUserIds.length,
+    weeklyActiveMembers: activeUserIds7d,
+    inactive14Days,
     activeGoals: goalsCount,
     applicationsSubmitted: applicationsCount,
     resourcesCompleted: resourceCompletions,
     aiToolRuns: aiToolStats.totalRuns,
     aiToolStats,
     pathwayStarts,
-    inactiveUserIds: inactiveUserIds.slice(0, 50),
+    inactiveUserIds,
     dailyActivity,
     enrollmentByProgram,
     placementStats,

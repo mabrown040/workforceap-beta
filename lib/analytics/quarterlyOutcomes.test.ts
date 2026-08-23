@@ -10,12 +10,27 @@ vi.mock('@/lib/db/prisma', () => {
   };
   const user = {
     findMany: vi.fn(),
+    count: vi.fn(async () => {
+      const rows = await user.findMany();
+      return Array.isArray(rows) ? rows.length : 0;
+    }),
   };
   const placementRecord = {
     findMany: vi.fn(),
+    count: vi.fn(async () => {
+      const rows = await placementRecord.findMany();
+      return Array.isArray(rows) ? rows.length : 0;
+    }),
+    groupBy: vi.fn().mockResolvedValue([]),
   };
   const aIToolResult = {
     findMany: vi.fn(),
+    groupBy: vi.fn(async () => {
+      const rows = await aIToolResult.findMany();
+      if (!Array.isArray(rows)) return [];
+      const ids = [...new Set(rows.map((r: { userId: string }) => r.userId))];
+      return ids.map((userId) => ({ userId, _count: { _all: 1 } }));
+    }),
   };
   return { prisma: { courseProgress, userCertification, user, placementRecord, aIToolResult } };
 });

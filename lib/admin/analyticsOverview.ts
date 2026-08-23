@@ -3,6 +3,7 @@ import 'server-only';
 import { FundingSource } from '@prisma/client';
 
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_SAMPLE_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { calculateHealthStatus, type HealthStatus } from '@/lib/admin/healthScore';
@@ -117,7 +118,8 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     }),
     prisma.user.findMany({
       where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, enrolledProgram: { not: null } },
-      take: 5000,
+      take: ANALYTICS_SAMPLE_CAP,
+      orderBy: { enrolledAt: 'desc' },
       select: { id: true, enrolledAt: true },
     }),
     prisma.placementRecord.count({

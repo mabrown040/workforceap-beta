@@ -1,5 +1,6 @@
 import { ApplicationStatus, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_COHORT_DETAIL_CAP, LOOKUP_CATALOG_CAP, REPORT_SAMPLE_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 
 const VOICE_TOOL_TYPES = [
@@ -228,6 +229,7 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
     portalMessagesLastWeek,
     applicationMessagesThisWeek,
     applicationMessagesLastWeek,
+    atRiskCount,
     counselors,
     sessionEvents,
     reviewAuditLogs,
@@ -237,25 +239,43 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
     prisma.application.findMany({
       where: { updatedAt: { gte: trailingFourWeekStart, lt: weekEndExclusive } },
       select: { status: true, submittedAt: true, createdAt: true, updatedAt: true },
-      take: 5000,
+      take: ANALYTICS_COHORT_DETAIL_CAP,
+      orderBy: { updatedAt: 'desc' },
     }),
     prisma.user.findMany({
       where: { deletedAt: null, enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, ...(orgId ? { organizationId: orgId } : {}) },
       select: { id: true, enrolledAt: true },
+      take: ANALYTICS_COHORT_DETAIL_CAP,
+      orderBy: { enrolledAt: 'desc' },
     }),
     prisma.courseEnrollment.findMany({
       where: { enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, user: { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) } },
       select: { userId: true, enrolledAt: true },
-      take: 5000,
+      take: ANALYTICS_COHORT_DETAIL_CAP,
+      orderBy: { enrolledAt: 'desc' },
     }),
     prisma.message.count({ where: { authorId: { not: null }, createdAt: { gte: weekStart, lt: weekEndExclusive } } }),
     prisma.message.count({ where: { authorId: { not: null }, createdAt: { gte: lastWeekStart, lt: weekStart } } }),
     prisma.applicationMessage.count({ where: { authorId: { not: null }, createdAt: { gte: weekStart, lt: weekEndExclusive } } }),
     prisma.applicationMessage.count({ where: { authorId: { not: null }, createdAt: { gte: lastWeekStart, lt: weekStart } } }),
+    prisma.user.count({
+      where: {
+        deletedAt: null,
+        ...(orgId ? { organizationId: orgId } : {}),
+        memberEvents: { none: { createdAt: { gte: staleCutoff } } },
+        OR: [
+          { courseraEnrollmentApproved: true },
+          { enrolledAt: { not: null } },
+          { courseEnrollments: { some: {} } },
+          { applications: { some: { status: ApplicationStatus.APPROVED } } },
+        ],
+      },
+    }),
     prisma.counselor.findMany({
       where: { active: true, ...(orgId ? { user: { organizationId: orgId } } : {}) },
       select: { id: true, userId: true, user: { select: { fullName: true, email: true } } },
       orderBy: { user: { fullName: 'asc' } },
+      take: LOOKUP_CATALOG_CAP,
     }),
     prisma.memberEvent.findMany({
       where: {
@@ -264,7 +284,8 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
         createdAt: { gte: weekStart, lt: weekEndExclusive },
       },
       select: { sessionId: true, metadata: true },
-      take: 5000,
+      take: ANALYTICS_COHORT_DETAIL_CAP,
+      orderBy: { createdAt: 'desc' },
     }),
     prisma.auditLog.findMany({
       where: {
@@ -273,7 +294,8 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
         createdAt: { gte: weekStart, lt: weekEndExclusive },
       },
       select: { actorUserId: true },
-      take: 5000,
+      take: ANALYTICS_COHORT_DETAIL_CAP,
+      orderBy: { createdAt: 'desc' },
     }),
     prisma.message.findMany({
       where: {
@@ -282,7 +304,8 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
         thread: { kind: 'member', memberId: { not: null } },
       },
       select: { authorId: true, thread: { select: { memberId: true } } },
-      take: 5000,
+      take: ANALYTICS_COHORT_DETAIL_CAP,
+      orderBy: { createdAt: 'desc' },
     }),
     prisma.user.findMany({
       where: {
@@ -304,7 +327,7 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
         memberEvents: { orderBy: { createdAt: 'desc' }, take: 1, select: { createdAt: true } },
       },
       orderBy: { updatedAt: 'asc' },
-      take: 5000,
+      take: REPORT_SAMPLE_CAP,
     }),
   ]);
 
@@ -402,7 +425,7 @@ export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string 
       trailingApprovedCount: trailingApproved.length,
     },
     atRisk: {
-      count: atRiskMembers.length,
+      count: atRiskCount,
       staleCutoff,
       sample: atRiskMembers.slice(0, 5).map((member) => ({
         id: member.id,
@@ -446,6 +469,8 @@ export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
       WHERE "event_name" = 'ai_tool_run_started'
         AND "entity_type" = 'ai_tool'
         AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
+      ORDER BY "created_at" DESC
+      LIMIT ${ANALYTICS_COHORT_DETAIL_CAP}
     `,
   ]);
 

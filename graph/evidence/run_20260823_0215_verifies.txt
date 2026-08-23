@@ -1,0 +1,39 @@
+# verify clm_hot_layout_auth_every_request
+135:  const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
+158:    const supabaseUser = await getUser();
+301:    await supabase.auth.getSession().catch((error) => {
+184184 messages/en.json
+
+# verify clm_hot_dashboard_query_fanout
+24
+
+# verify clm_secrets_orphan_user_default_org
+2:import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+54:  const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+25:import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
+153:    // /api/member/wioa-qualification's user.update. ensureAppUserProvisioned
+160:      await ensureAppUserProvisioned(supabaseUser).catch((err) => {
+161:        console.error('[layout:guc] ensureAppUserProvisioned failed; continuing', err);
+
+# verify clm_secrets_admin_pages_unscoped
+
+# verify clm_hot_admin_unbounded_scans
+57:      take: 5000,
+64:      take: 5000,
+69:      take: 20000,
+208:    take: 5000,
+224:      take: 5000,
+238:      take: 5000,
+264:      take: 5000,
+276:      take: 5000,
+34:    take: 2000 * partnerIds.length,
+
+# verify clm_hot_apply_ratelimit_failopen
+390:  if (!applySignupRateLimiter) return { success: true };
+
+# verify clm_dead_consent_form_unmounted
+components/forms/ParentalConsentForm.tsx
+
+# verify clm_deps_prisma5_use_middleware
+138:  client.$use(async (params, next) => {
+@prisma/client 5.22.0

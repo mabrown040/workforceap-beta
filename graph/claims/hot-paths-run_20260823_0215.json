@@ -1,0 +1,80 @@
+[
+  {
+    "id": "clm_hot_layout_auth_every_request",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "entityIds": ["ent_cluster_request_cost", "ent_cluster_tenant_auth"],
+    "title": "Root layout and middleware hit Supabase + Prisma on every HTML request",
+    "severity": "prod-break",
+    "blast": "Anonymous marketing/apply/enroll SSR: middleware always createServerClient + getSession (middleware.ts:263-304). Layout then getUser() when x-wap-user-id is absent (app/layout.tsx:135), resolveOrgFromRequest → getDefaultOrganizationId (first miss per isolate), getRequestOrgBranding, getMessages (loads 184KB messages/en.json). Authenticated portal adds getProfileRole + user.findUnique inside $transaction + ensureAppUserProvisioned. This is the 2026-06-30 / portal-504 shape: pooler saturation before page queries start. More orgs/users do not change the per-request tax; more traffic does.",
+    "evidence": "middleware.ts:300-304 getSession on non-protected paths; :290-295 getUser on portal/admin. app/layout.tsx:135 forwardedUserId ?? getUser(). app/layout.tsx:210 resolveOrgFromRequest. app/layout.tsx:214 getRequestOrgBranding. i18n/request.ts:40 import messages/en.json (184184 bytes). lib/tenant/organization.ts:9-13 process-local cachedDefaultOrgId only — each serverless isolate pays one org findUnique. customDomainCache is a process Map (lib/tenant/customDomainCache.ts:26) so Edge/Node isolates miss independently.",
+    "verify": "rg -n 'await getUser\\(\\)' app/layout.tsx && rg -n 'getSession\\(\\)' middleware.ts && wc -c messages/en.json",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_dashboard_query_fanout",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "entityIds": ["ent_cluster_portal_hot"],
+    "title": "Member dashboard home issues 20+ Prisma reads plus Coursera sync",
+    "severity": "prod-break",
+    "blast": "app/(portal)/dashboard/page.tsx is 1369 lines and calls prisma ~24 times plus getMemberState (Redis 300s), loadMemberCareerBriefBundleSafe, maybeAutoSyncCourseraOnDashboard, fetchLearnerProgressFromB4B, getPortalSwitcherRoles (up to 6 lookups when not precomputed). Same request already paid layout GUC bootstrap. Under many concurrent members this is the path that previously 504'd (lib/db/prisma.ts:88-94 ~10 queries on portal entry). getMemberState cache is no-op without Upstash.",
+    "evidence": "rg prisma. app/(portal)/dashboard/page.tsx → 24 matches (lines 164-957). Additional awaits: ensureAppUserProvisioned, getMemberState, maybeAutoSyncCourseraOnDashboard, fetchLearnerProgressFromB4B, loadSkillMissionSummary. lib/auth/portalRoleSwitcher.ts:110-132 fetchPortalSwitcherInputs Promise.all of isSuperAdmin, getUserRoles, then 4 more lookups. lib/member/getMemberState.ts:419 getCacheOrFetch 300s — lib/cache.ts:28-29 returns null without Redis.",
+    "verify": "rg -c 'prisma\\.' 'app/(portal)/dashboard/page.tsx'",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_admin_unbounded_scans",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "entityIds": ["ent_cluster_portal_hot", "ent_cluster_jobs_cron"],
+    "title": "Admin training-progress loads up to 20k courseProgress rows unscoped per request",
+    "severity": "ship-break",
+    "blast": "force-dynamic page. A staff refresh allocates 5k users + 5k enrollments + 20k progress rows in one Node isolate (memory + pooler). No org filter. Cron partner-outcome-digest uses take: 2000 * partnerIds.length (up to 1M cap). Together they will OOM or 504 when member/progress tables grow.",
+    "evidence": "app/admin/training-progress/page.tsx:30 dynamic=force-dynamic; :56-78 take 5000/5000/20000. app/api/cron/partner-outcome-digest/route.ts:32-34 take: 2000 * partnerIds.length with deep include (placement, certs, applications, progress). vercel.json lists 27 cron paths sharing the pooler with user traffic.",
+    "verify": "rg -n 'take: 20000|take: 5000' app/admin/training-progress/page.tsx && rg -n '2000 \\* partnerIds' app/api/cron/partner-outcome-digest/route.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_apply_ratelimit_failopen",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "entityIds": ["ent_cluster_rate_limit", "ent_cluster_apply_signup"],
+    "title": "Apply/signup/AI/voice rate limiters fail open without Upstash",
+    "severity": "latent",
+    "blast": "checkApplySignupRateLimit / checkSignupRateLimit / checkAIToolRateLimit / checkVoiceSessionRateLimit return {success:true} when the limiter is null (lib/rate-limit.ts:383-437). Production boot throws only if Upstash is missing AND RATE_LIMIT_ALLOW_MISSING_UPSTASH is unset — but preview and the allow-missing flag run open. Apply is the paid/school funnel; voice is $0.30/min. Abuse or a shared library IP becomes an unbounded Resend/ElevenLabs/Supabase bill before the fail-closed auth limiters matter.",
+    "evidence": "lib/rate-limit.ts:383-387 checkSignupRateLimit fail-open. :389-393 checkApplySignupRateLimit fail-open. :434-437 checkAIToolRateLimit fail-open. :415-418 checkVoiceSessionRateLimit fail-open. Contrast :395-397 checkAuthRateLimit uses failClosedLimit. Boot assertion :19-27 throws in production without Redis unless RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.",
+    "verify": "rg -n 'if \\(!applySignupRateLimiter\\) return \\{ success: true \\}' lib/rate-limit.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_i18n_full_catalog_every_request",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "entityIds": ["ent_cluster_request_cost"],
+    "title": "Every request loads the full 184KB English message catalog then ships most of it to the client",
+    "severity": "latent",
+    "blast": "i18n/request.ts always import() messages/en.json (and merges a second locale). Root layout pickRootClientMessages copies nav, cta, footer, form, auth, common, dashboard, messages, profile, jobs, workspace, admin, counselor, employer, and ~20 more namespaces into NextIntlClientProvider. Marketing pages pay the portal catalog. Four locales × ~200KB on disk; client JS + SSR CPU grow linearly with keys, not with the page.",
+    "evidence": "i18n/request.ts:40-42 always load English fallback. wc -c messages/en.json = 184184. app/layout.tsx:59-94 pickRootClientMessages includes dashboard, admin, counselor, employer, resumeStudio, benefitsCliff, coach, first90. getMessages() at app/layout.tsx:218 on every render.",
+    "verify": "wc -c messages/en.json && rg -n 'pickRootClientMessages' app/layout.tsx",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_custom_domain_branding_uncached",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "entityIds": ["ent_cluster_request_cost"],
+    "title": "Custom-domain org branding skips unstable_cache and hits Prisma every request",
+    "severity": "latent",
+    "blast": "getDefaultOrgBranding is cached 1h. getRequestOrgBranding, when x-wap-org-id is set, does a raw prisma.organization.findUnique every layout render with no cache. The first tenant that uses a custom domain therefore adds a Prisma read to the already-heavy layout path. customDomainCache TTL is 60s and process-local, so new isolates still miss.",
+    "evidence": "lib/platform/defaultOrgTheme.ts:34-38 getDefaultOrgBranding unstable_cache 3600s. :45-64 getRequestOrgBranding if orgId then uncached findUnique. app/layout.tsx:214 always awaits getRequestOrgBranding(h). lib/tenant/customDomainCache.ts:15 TTL 60_000.",
+    "verify": "rg -n 'unstable_cache' lib/platform/defaultOrgTheme.ts && rg -n 'x-wap-org-id' lib/platform/defaultOrgTheme.ts",
+    "supersedes": null,
+    "status": "open"
+  }
+]

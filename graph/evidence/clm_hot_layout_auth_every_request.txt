@@ -1,0 +1,9 @@
+$ rg -n 'await getUser\(\)' app/layout.tsx
+135:  const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
+158:    const supabaseUser = await getUser();
+
+$ rg -n 'getSession\(\)' middleware.ts
+301:    await supabase.auth.getSession().catch((error) => {
+
+$ wc -c messages/en.json
+184184 messages/en.json

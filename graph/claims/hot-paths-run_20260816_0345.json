@@ -3,52 +3,62 @@
     "id": "clm_hot_stamp_update",
     "runId": "run_20260816_0345",
     "auditor": "hot-paths",
-    "entityIds": ["ent_cluster_apply_signup"],
+    "entityIds": [
+      "ent_cluster_apply_signup"
+    ],
     "title": "Signup updateMany stamps sponsoredByPartnerId on existing enrollments",
     "severity": "prod-break",
     "blast": "A returning / unconfirmed re-submit under a partner cookie writes sponsoredByPartnerId onto a row that already exists. Seat-cap counts that id, so a previously self-funded enrollment consumes a school seat; fundingNotes/source can be filled after the fact instead of only on create.",
-    "evidence": "app/api/apply/signup/route.ts:443-456 — after upsert update omits the field (419-422), updateMany still sets sponsoredByPartnerId on matching existing rows. rg -n sponsoredByPartnerId app/api/apply/signup/route.ts → 415 (create) and 454 (updateMany data).",
+    "evidence": "app/api/apply/signup/route.ts:443-456 \u2014 after upsert update omits the field (419-422), updateMany still sets sponsoredByPartnerId on matching existing rows. rg -n sponsoredByPartnerId app/api/apply/signup/route.ts \u2192 415 (create) and 454 (updateMany data).",
     "verify": "rg -U --multiline -q 'courseEnrollment\\.updateMany\\([\\s\\S]{0,400}sponsoredByPartnerId' app/api/apply/signup/route.ts && exit 1 || exit 0",
     "supersedes": null,
-    "status": "open"
+    "status": "wontfix"
   },
   {
     "id": "clm_hot_school2_no_page",
     "runId": "run_20260816_0345",
     "auditor": "hot-paths",
-    "entityIds": ["ent_cluster_admin_partners", "ent_cluster_partner_school"],
+    "entityIds": [
+      "ent_cluster_admin_partners",
+      "ent_cluster_partner_school"
+    ],
     "title": "Admin cannot stand up school #2: no enroll page and no school write fields",
     "severity": "ship-break",
-    "blast": "A second school created in /admin/partners/new never gets partnerType=high_school, sponsoredEnrollment, enrollmentPageEnabled, or catalog rows. Students hitting /enroll/<new-slug> 404 (only marketing/src/pages/enroll/concordia.astro exists; no app/enroll). Signup will not stamp funding. Schema comment at prisma/schema.prisma:985-986 says adding a school is data entry with no new code — that path is not wired.",
-    "evidence": "ls app/enroll → No such file or directory. rg sponsoredEnrollment|enrollmentPageEnabled|programCatalog|partnerType app/api/admin/partners/route.ts app/api/admin/partners/[id]/route.ts app/admin/partners/new/NewPartnerForm.tsx → no matches. partnerSchema (app/api/admin/partners/route.ts:33-47) is name/slug/referral/contact/active only. NewPartnerForm.tsx:34-41 POSTs those fields with active:true. prisma/schema.prisma:973,987,995 default partnerType=community, sponsoredEnrollment=false, enrollmentPageEnabled=false.",
+    "blast": "A second school created in /admin/partners/new never gets partnerType=high_school, sponsoredEnrollment, enrollmentPageEnabled, or catalog rows. Students hitting /enroll/<new-slug> 404 (only marketing/src/pages/enroll/concordia.astro exists; no app/enroll). Signup will not stamp funding. Schema comment at prisma/schema.prisma:985-986 says adding a school is data entry with no new code \u2014 that path is not wired.",
+    "evidence": "ls app/enroll \u2192 No such file or directory. rg sponsoredEnrollment|enrollmentPageEnabled|programCatalog|partnerType app/api/admin/partners/route.ts app/api/admin/partners/[id]/route.ts app/admin/partners/new/NewPartnerForm.tsx \u2192 no matches. partnerSchema (app/api/admin/partners/route.ts:33-47) is name/slug/referral/contact/active only. NewPartnerForm.tsx:34-41 POSTs those fields with active:true. prisma/schema.prisma:973,987,995 default partnerType=community, sponsoredEnrollment=false, enrollmentPageEnabled=false.",
     "verify": "test -e 'app/enroll/[school]/page.tsx' && rg -q 'sponsoredEnrollment' app/api/admin/partners/route.ts && rg -q 'enrollmentPageEnabled' app/api/admin/partners/route.ts",
     "supersedes": null,
-    "status": "open"
+    "status": "verified"
   },
   {
     "id": "clm_hot_empty_catalog",
     "runId": "run_20260816_0345",
     "auditor": "hot-paths",
-    "entityIds": ["ent_cluster_partner_school", "ent_cluster_admin_partners"],
+    "entityIds": [
+      "ent_cluster_partner_school",
+      "ent_cluster_admin_partners"
+    ],
     "title": "Publish path allows enrollmentPageEnabled with zero catalog rows",
     "severity": "latent",
-    "blast": "rul_publish_needs_catalog says a sponsored school with 0 PartnerProgramCatalog rows 404s enroll. scripts/create-chs-partner.ts sets enrollmentPageEnabled=true and never inserts catalog rows. lib/partner/adminSchoolPartner.ts (validateAdminProgramSlugs) does not exist, and admin POST/PATCH cannot require ≥1 program slug. Concordia still renders via hardcoded CHS_SLUGS in the Astro page; any page that reads programCatalog (or school #2 without a new .astro file) 404s.",
-    "evidence": "rg partnerProgramCatalog|programCatalog scripts/create-chs-partner.ts → no matches. scripts/create-chs-partner.ts:68 and :179 set enrollmentPageEnabled. ls lib/partner/adminSchoolPartner.ts → No such file or directory. marketing/src/pages/enroll/concordia.astro:15-21 hardcodes CHS_SLUGS instead of catalog.",
+    "blast": "rul_publish_needs_catalog says a sponsored school with 0 PartnerProgramCatalog rows 404s enroll. scripts/create-chs-partner.ts sets enrollmentPageEnabled=true and never inserts catalog rows. lib/partner/adminSchoolPartner.ts (validateAdminProgramSlugs) does not exist, and admin POST/PATCH cannot require \u22651 program slug. Concordia still renders via hardcoded CHS_SLUGS in the Astro page; any page that reads programCatalog (or school #2 without a new .astro file) 404s.",
+    "evidence": "rg partnerProgramCatalog|programCatalog scripts/create-chs-partner.ts \u2192 no matches. scripts/create-chs-partner.ts:68 and :179 set enrollmentPageEnabled. ls lib/partner/adminSchoolPartner.ts \u2192 No such file or directory. marketing/src/pages/enroll/concordia.astro:15-21 hardcodes CHS_SLUGS instead of catalog.",
     "verify": "test -f lib/partner/adminSchoolPartner.ts && rg -q 'validateAdminProgramSlugs' lib/partner/adminSchoolPartner.ts && rg -q 'partnerProgramCatalog' scripts/create-chs-partner.ts",
     "supersedes": null,
-    "status": "open"
+    "status": "verified"
   },
   {
     "id": "clm_hot_consent_ungated",
     "runId": "run_20260816_0345",
     "auditor": "hot-paths",
-    "entityIds": ["ent_cluster_coursera_consent"],
+    "entityIds": [
+      "ent_cluster_coursera_consent"
+    ],
     "title": "Guardian consent never mounts and does not gate Coursera activation",
     "severity": "prod-break",
     "blast": "rul_consent_gates_coursera_not_signup is unenforced. Minors complete /apply/signup with no consent write. Admins can flip courseraEnrollmentApproved and POST /api/admin/coursera/enroll-member / member self-enroll with no parentalConsentGiven check, consuming a paid B4B seat. ageBasedNav.requiresParentalConsent is never read.",
-    "evidence": "rg \"from .*ParentalConsentForm\" -g '*.ts' -g '*.tsx' → no importers (only components/forms/ParentalConsentForm.tsx:21 export). rg getAgeRestrictedFeatures|filterNavItemsByAge -g '*.ts' -g '*.tsx' → only lib/nav/ageBasedNav.ts:8,68. ls lib/admin/courseraConsentGate.ts → No such file. rg parentalConsentGiven lib/admin/courseraEnrollmentApproval.ts app/api/admin/coursera/enroll-member/route.ts app/api/member/coursera/enroll-in-course/route.ts → no matches. Approval write is lib/admin/courseraEnrollmentApproval.ts:39-46 (courseraEnrollmentApproved only).",
+    "evidence": "rg \"from .*ParentalConsentForm\" -g '*.ts' -g '*.tsx' \u2192 no importers (only components/forms/ParentalConsentForm.tsx:21 export). rg getAgeRestrictedFeatures|filterNavItemsByAge -g '*.ts' -g '*.tsx' \u2192 only lib/nav/ageBasedNav.ts:8,68. ls lib/admin/courseraConsentGate.ts \u2192 No such file. rg parentalConsentGiven lib/admin/courseraEnrollmentApproval.ts app/api/admin/coursera/enroll-member/route.ts app/api/member/coursera/enroll-in-course/route.ts \u2192 no matches. Approval write is lib/admin/courseraEnrollmentApproval.ts:39-46 (courseraEnrollmentApproved only).",
     "verify": "test -f lib/admin/courseraConsentGate.ts && rg -q 'courseraApprovalBlockedByConsent' lib/admin/courseraConsentGate.ts && rg -q 'ParentalConsentForm' -g '*.tsx' --glob '!components/forms/ParentalConsentForm.tsx' && rg -q 'parentalConsentGiven' lib/admin/courseraEnrollmentApproval.ts",
     "supersedes": null,
-    "status": "open"
+    "status": "verified"
   }
 ]

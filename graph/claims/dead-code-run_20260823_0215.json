@@ -1,0 +1,54 @@
+[
+  {
+    "id": "clm_dead_consent_form_unmounted",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_coursera_consent"],
+    "title": "ParentalConsentForm is still unmounted; member-facing consent is token-only",
+    "severity": "latent",
+    "blast": "Admin + token routes now write parentalConsentGiven (app/consent/[token], app/api/consent, AdminMemberConsentPanel). The React form at components/forms/ParentalConsentForm.tsx has no importers. ageBasedNav.requiresParentalConsent is still unread. A future 'mount the form on signup' change will fork the write path.",
+    "evidence": "rg ParentalConsentForm -g '*.ts' -g '*.tsx' → only components/forms/ParentalConsentForm.tsx. Token path exists: app/consent/[token]/page.tsx, app/api/consent/[token]/route.ts:87 sets parentalConsentGiven:true. lib/admin/courseraConsentGate.ts is imported by lib/admin/courseraEnrollmentApproval.ts:8.",
+    "verify": "rg -l 'ParentalConsentForm' -g '*.ts' -g '*.tsx' /workspace | grep -v 'components/forms/ParentalConsentForm.tsx'",
+    "supersedes": "clm_dead_consent_orphan",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_seeds_unwired_still",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_partner_school"],
+    "title": "create-chs-partner and seed-partner-school still never run from db:seed",
+    "severity": "latent",
+    "blast": "Fresh local/CI db:seed upserts default org + demo data but does not create Concordia / school #2. Production CHS still depends on a manual script. A new environment that only runs npm run db:seed has no enroll page partner row.",
+    "evidence": "package.json:27 db:seed → prisma/seed.ts. rg create-chs-partner|seed-partner-school prisma/seed.ts → no matches. scripts/create-chs-partner.ts and scripts/seed-partner-school.ts exist and write enrollmentPageEnabled.",
+    "verify": "rg -n 'create-chs-partner|seed-partner-school' prisma/seed.ts package.json",
+    "supersedes": "clm_dead_seeds_unwired",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_duplicate_nudge_crons",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_jobs_cron"],
+    "title": "Two weekly inactive-nudge crons scan member_events and email overlapping cohorts",
+    "severity": "latent",
+    "blast": "vercel.json schedules /api/cron/inactive-nudge (Mon 10:00) and /api/cron/inactivity-nudge (Wed 10:00). Both load recent memberEvent userIds then user.findMany of everyone else. At scale the Monday job groupBys the entire events table for 7 days; Wednesday findMany take:100 of recent events is also a full-table distinct. Throttle (MemberNudgeLog) reduces double-email but not the scan cost. 27 other crons share the same pooler.",
+    "evidence": "vercel.json:46-51 both paths. app/api/cron/inactive-nudge/route.ts:27-48 two groupBys on memberEvent + user.findMany take 1000. app/api/cron/inactivity-nudge/route.ts:26-49 memberEvent.findMany distinct take 100 then user.findMany take 100. Comments in both files admit they share nudgeThrottle.",
+    "verify": "rg -n 'inactive-nudge|inactivity-nudge' vercel.json",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_astro_enroll_shadow",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_partner_school"],
+    "title": "Hardcoded Astro /enroll/concordia still ships beside the Next enroll page",
+    "severity": "hygiene",
+    "blast": "Vercel copies marketing/dist/* into public/ before Next. A static public/enroll/concordia/index.html can win or collide with app/enroll/[school]/page.tsx depending on routing. Two copy sources (Astro CHS_SLUGS vs PartnerProgramCatalog) drift.",
+    "evidence": "marketing/src/pages/enroll/concordia.astro still present. app/enroll/[school]/page.tsx exists and is force-dynamic. vercel.json:2 cp -r marketing/dist/* public/. lib/enroll/resolveEnrollmentPartner.ts reads enrollmentPageEnabled + programCatalog.",
+    "verify": "test -f marketing/src/pages/enroll/concordia.astro && test -f app/enroll/[school]/page.tsx",
+    "supersedes": "clm_dead_enroll_route",
+    "status": "open"
+  }
+]

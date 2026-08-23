@@ -1,0 +1,41 @@
+[
+  {
+    "id": "clm_deps_prisma5_use_middleware",
+    "runId": "run_20260823_0215",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_prisma_db"],
+    "title": "Prisma 5.22 $use middleware is the GUC path and blocks a Prisma 6/7 upgrade",
+    "severity": "latent",
+    "blast": "lib/db/prisma.ts installs client.$use for RLS GUCs. Prisma 5.15+ deprecates $use; Prisma 6 removes it. Any WAP_RLS_GUC_ENABLED=true flip plus a client bump ships a compile/runtime break on every Prisma query. transactionOptions + flatten-tx override also sit on this client.",
+    "evidence": "package.json:@prisma/client and prisma pinned 5.22.0. lib/db/prisma.ts:138 client.$use(async (params, next) => { ... }). lib/db/prisma.ts:106-108 GUC layer off unless WAP_RLS_GUC_ENABLED=true. Prisma 6 release notes: $use removed in favor of $extends.",
+    "verify": "rg -n '\\$use\\(' lib/db/prisma.ts && node -e \"const p=require('./package.json'); if(p.dependencies['@prisma/client']!=='5.22.0') process.exit(1)\"",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_heroicons_dev_only",
+    "runId": "run_20260823_0215",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_request_cost"],
+    "title": "@heroicons/react is a production dependency used only by the Astryx lab",
+    "severity": "hygiene",
+    "blast": "The package ships in the production install and is a second icon family next to lucide-react (hundreds of portal imports) plus self-hosted Material Symbols. Unused prod deps inflate install + confuse bundle budgets.",
+    "evidence": "package.json:59 @heroicons/react ^2.2.0 under dependencies (not devDependencies). rg \"from '@heroicons\" -g '*.ts' -g '*.tsx' hits only app/dev/astryx/*. lucide-react is imported across app/admin, app/(portal), components/portal.",
+    "verify": "rg -l \"from '@heroicons\" -g '*.ts' -g '*.tsx' /workspace | grep -v '/app/dev/astryx/' ; test ${PIPESTATUS[0]} -ne 0",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_marketing_nested_install",
+    "runId": "run_20260823_0215",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_jobs_cron"],
+    "title": "Vercel production build runs a nested marketing npm ci before Next build",
+    "severity": "latent",
+    "blast": "vercel.json buildCommand always cd marketing && npm ci && npm run build && cp dist into public/ before Next. Two lockfiles (pnpm root + npm marketing). Cold prod builds pay a full Astro install on every production deploy; ignoreCommand forces production to always build. A marketing dep break blocks the Next app deploy.",
+    "evidence": "vercel.json:2-3 buildCommand and ignoreCommand. vercel.json:3 production ignore always exit 1 (never skip). package.json:7 root build is Next-only and does not copy marketing/dist — self-host and local npm run build omit the Astro tree.",
+    "verify": "rg -n 'marketing && npm ci' vercel.json && rg -n '\"build\":' package.json",
+    "supersedes": null,
+    "status": "open"
+  }
+]

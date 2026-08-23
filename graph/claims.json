@@ -1,106 +1,138 @@
 [
   {
-    "id": "clm_dead_enroll_flag",
-    "runId": "run_20260816_0345",
-    "auditor": "dead-code",
-    "title": "enrollmentPageEnabled and PartnerProgramCatalog are write-only; the publish gate cannot fire",
-    "severity": "prod-break",
-    "status": "open"
-  },
-  {
-    "id": "clm_hot_consent_ungated",
-    "runId": "run_20260816_0345",
+    "id": "clm_hot_dashboard_query_fanout",
+    "runId": "run_20260823_0215",
     "auditor": "hot-paths",
-    "title": "Guardian consent never mounts and does not gate Coursera activation",
+    "title": "Member dashboard home issues 20+ Prisma reads plus Coursera sync",
     "severity": "prod-break",
     "status": "open"
   },
   {
-    "id": "clm_hot_stamp_update",
-    "runId": "run_20260816_0345",
+    "id": "clm_hot_layout_auth_every_request",
+    "runId": "run_20260823_0215",
     "auditor": "hot-paths",
-    "title": "Signup updateMany stamps sponsoredByPartnerId on existing enrollments",
+    "title": "Root layout and middleware hit Supabase + Prisma on every HTML request",
     "severity": "prod-break",
     "status": "open"
   },
   {
-    "id": "clm_secrets_admin_partners_unscoped_pii",
-    "runId": "run_20260816_0345",
+    "id": "clm_secrets_admin_pages_unscoped",
+    "runId": "run_20260823_0215",
     "auditor": "secrets",
-    "title": "Admin partner pages load member emails and salaries with no tenant scope",
+    "title": "Admin layout is global isAdmin(); many admin pages query all tenants",
     "severity": "prod-break",
     "status": "open"
   },
   {
-    "id": "clm_dead_admin_unpublish",
-    "runId": "run_20260816_0345",
-    "auditor": "dead-code",
-    "title": "Admin partner create/PATCH cannot set sponsorship, enroll publish, partnerType, or catalog",
+    "id": "clm_secrets_orphan_user_default_org",
+    "runId": "run_20260823_0215",
+    "auditor": "secrets",
+    "title": "ensureAppUserProvisioned always writes orphans into the default workforceap org",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_admin_unbounded_scans",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "title": "Admin training-progress loads up to 20k courseProgress rows unscoped per request",
     "severity": "ship-break",
     "status": "open"
   },
   {
-    "id": "clm_dead_enroll_route",
-    "runId": "run_20260816_0345",
+    "id": "clm_dead_consent_form_unmounted",
+    "runId": "run_20260823_0215",
     "auditor": "dead-code",
-    "title": "Official /enroll/<slug> student URL has no Next route; only hardcoded Astro CHS page exists",
-    "severity": "ship-break",
+    "title": "ParentalConsentForm is still unmounted; member-facing consent is token-only",
+    "severity": "latent",
     "status": "open"
   },
   {
-    "id": "clm_hot_school2_no_page",
-    "runId": "run_20260816_0345",
+    "id": "clm_dead_duplicate_nudge_crons",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "title": "Two weekly inactive-nudge crons scan member_events and email overlapping cohorts",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_seeds_unwired_still",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "title": "create-chs-partner and seed-partner-school still never run from db:seed",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_marketing_nested_install",
+    "runId": "run_20260823_0215",
+    "auditor": "deps",
+    "title": "Vercel production build runs a nested marketing npm ci before Next build",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_prisma5_use_middleware",
+    "runId": "run_20260823_0215",
+    "auditor": "deps",
+    "title": "Prisma 5.22 $use middleware is the GUC path and blocks a Prisma 6/7 upgrade",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_apply_ratelimit_failopen",
+    "runId": "run_20260823_0215",
     "auditor": "hot-paths",
-    "title": "Admin cannot stand up school #2: no enroll page and no school write fields",
-    "severity": "ship-break",
-    "status": "open"
-  },
-  {
-    "id": "clm_dead_chs_catalog_gap",
-    "runId": "run_20260816_0345",
-    "auditor": "dead-code",
-    "title": "Production CHS script writes no catalog; school-#2 script writes catalog nothing reads",
+    "title": "Apply/signup/AI/voice rate limiters fail open without Upstash",
     "severity": "latent",
     "status": "open"
   },
   {
-    "id": "clm_dead_consent_orphan",
-    "runId": "run_20260816_0345",
-    "auditor": "dead-code",
-    "title": "ParentalConsentForm and ageBasedNav are unmounted; consent/age flags cannot fire",
-    "severity": "latent",
-    "status": "open"
-  },
-  {
-    "id": "clm_dead_seeds_unwired",
-    "runId": "run_20260816_0345",
-    "auditor": "dead-code",
-    "title": "create-chs-partner and seed-partner-school never run from db:seed or package.json",
-    "severity": "latent",
-    "status": "open"
-  },
-  {
-    "id": "clm_hot_empty_catalog",
-    "runId": "run_20260816_0345",
+    "id": "clm_hot_custom_domain_branding_uncached",
+    "runId": "run_20260823_0215",
     "auditor": "hot-paths",
-    "title": "Publish path allows enrollmentPageEnabled with zero catalog rows",
+    "title": "Custom-domain org branding skips unstable_cache and hits Prisma every request",
     "severity": "latent",
     "status": "open"
   },
   {
-    "id": "clm_secrets_consent_gate_missing",
-    "runId": "run_20260816_0345",
-    "auditor": "secrets",
-    "title": "Guardian consent never gates Coursera activation; courseraConsentGate.ts is absent",
+    "id": "clm_hot_i18n_full_catalog_every_request",
+    "runId": "run_20260823_0215",
+    "auditor": "hot-paths",
+    "title": "Every request loads the full 184KB English message catalog then ships most of it to the client",
     "severity": "latent",
     "status": "open"
   },
   {
-    "id": "clm_secrets_ref_cookie_clear_attrs",
-    "runId": "run_20260816_0345",
+    "id": "clm_secrets_qa_bypass_default_secret",
+    "runId": "run_20260823_0215",
     "auditor": "secrets",
-    "title": "wap_partner_ref clear omits httpOnly/SameSite/Secure used when planting",
+    "title": "Rate-limit QA bypass ships a hardcoded default secret",
     "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_rls_guc_fail_open",
+    "runId": "run_20260823_0215",
+    "auditor": "secrets",
+    "title": "RLS GUC layer is off; app connects as table owner so policies do not bind",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_astro_enroll_shadow",
+    "runId": "run_20260823_0215",
+    "auditor": "dead-code",
+    "title": "Hardcoded Astro /enroll/concordia still ships beside the Next enroll page",
+    "severity": "hygiene",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_heroicons_dev_only",
+    "runId": "run_20260823_0215",
+    "auditor": "deps",
+    "title": "@heroicons/react is a production dependency used only by the Astryx lab",
+    "severity": "hygiene",
     "status": "open"
   }
 ]

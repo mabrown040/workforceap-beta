@@ -1,0 +1,12 @@
+$ rg -n 'take: 20000|take: 5000' app/admin/training-progress/page.tsx
+57:      take: 5000,
+64:      take: 5000,
+69:      take: 20000,
+208:    take: 5000,
+224:      take: 5000,
+238:      take: 5000,
+264:      take: 5000,
+276:      take: 5000,
+
+$ rg -n '2000 \* partnerIds' app/api/cron/partner-outcome-digest/route.ts
+34:    take: 2000 * partnerIds.length,

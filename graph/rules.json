@@ -61,5 +61,47 @@
     "status": "proposed",
     "text": "Admin partner pages that load member email or salary must use isAdminInOrg + tenant scope, same as /api/admin/partners.",
     "check": "app/admin/partners/[id]/page.tsx calls withTenantScope or getActorOrganizationId"
+  },
+  {
+    "id": "rul_layout_skip_getuser_when_anonymous",
+    "fromClaimId": "clm_hot_layout_auth_every_request",
+    "status": "proposed",
+    "text": "Root layout must not call getUser() on anonymous requests. Trust only middleware-forwarded x-wap-user-id; public HTML must not add a Supabase getUser round-trip.",
+    "check": "app/layout.tsx resolvedUserId uses forwarded header only; no getUser() fallback"
+  },
+  {
+    "id": "rul_provision_uses_request_org",
+    "fromClaimId": "clm_secrets_orphan_user_default_org",
+    "status": "proposed",
+    "text": "ensureAppUserProvisioned must write organizationId from resolveOrgFromRequest / the auth user's org, never unconditionally getDefaultOrganizationId().",
+    "check": "lib/member/ensureAppUser.ts does not call getDefaultOrganizationId as the only org source"
+  },
+  {
+    "id": "rul_admin_pages_tenant_scoped",
+    "fromClaimId": "clm_secrets_admin_pages_unscoped",
+    "status": "proposed",
+    "text": "Admin pages that list members, placements, or progress must use isAdminInOrg + withTenantScope (or super_admin crossTenantOK). Global isAdmin() is not a tenant gate.",
+    "check": "app/admin/training-progress/page.tsx and app/admin/placements/page.tsx call withTenantScope or getActorOrganizationId"
+  },
+  {
+    "id": "rul_no_rls_guc_without_force",
+    "fromClaimId": "clm_secrets_rls_guc_fail_open",
+    "status": "proposed",
+    "text": "Do not set WAP_RLS_GUC_ENABLED=true unless FORCE ROW LEVEL SECURITY is on and GUC is batched inside the same $transaction as the query. Default remains off to avoid portal 504s.",
+    "check": "lib/db/prisma.ts WAP_RLS_GUC_ENABLED default false"
+  },
+  {
+    "id": "rul_dashboard_query_budget",
+    "fromClaimId": "clm_hot_dashboard_query_fanout",
+    "status": "proposed",
+    "text": "Member dashboard home must stay under a documented Prisma query budget (single batched loader). Do not add unbounded prisma.* calls to page.tsx.",
+    "check": "app/(portal)/dashboard/page.tsx prisma. count stays at or below the budget recorded in docs/SCALE-FIX-PLAN.md"
+  },
+  {
+    "id": "rul_apply_ratelimit_fail_closed_prod",
+    "fromClaimId": "clm_hot_apply_ratelimit_failopen",
+    "status": "proposed",
+    "text": "Apply/signup/voice/AI limiters must use failClosedLimit in production (same as auth/contact). Fail-open is dev-only.",
+    "check": "lib/rate-limit.ts checkApplySignupRateLimit uses failClosedLimit"
   }
 ]

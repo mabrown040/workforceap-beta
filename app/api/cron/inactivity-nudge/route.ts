@@ -7,12 +7,13 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
 import { createNotification } from '@/lib/notifications/create';
+import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
 
 /**
  * POST /api/cron/inactivity-nudge
  *
  * Sends a re-engagement nudge to members who have been inactive
- * for 14+ days. Capped at 100/run to avoid spam. Secured by CRON_SECRET.
+ * for 14+ days. Capped per run to avoid spam. Secured by CRON_SECRET.
  * Shares a 7-day cross-cron cooldown (via `MemberNudgeLog`) with
  * inactive-nudge and course-accountability — see lib/cron/nudgeThrottle.ts.
  *
@@ -22,19 +23,12 @@ async function handle(_req: NextRequest) {
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-  // Find enrolled members with no events in 14 days
-  const recentActiveUserIds = await prisma.memberEvent.findMany({
-    where: { createdAt: { gte: fourteenDaysAgo } },
-    select: { userId: true },
-    distinct: ['userId'],
-    take: 100,
-  });
-  const activeSet = new Set(recentActiveUserIds.map(r => r.userId));
-
   // Recipient is anyone with at least one row in `course_enrollments`
   // (covers multi-program users whose `enrolledProgram` may be null), OR
   // who still has the legacy `enrolledProgram` pointer set (covers
-  // unmigrated single-program users).
+  // unmigrated single-program users). Anti-join replaces the old
+  // `take: 100` active-user scan, which could misclassify members as
+  // inactive once more than 100 people had recent events.
   const candidates = await prisma.user.findMany({
     where: {
       deletedAt: null,
@@ -43,10 +37,10 @@ async function handle(_req: NextRequest) {
         { enrolledProgram: { not: null } },
       ],
       notificationsReminders: true,
-      id: { notIn: [...activeSet] },
+      memberEvents: { none: { createdAt: { gte: fourteenDaysAgo } } },
     },
     select: { id: true, email: true, fullName: true, enrolledProgram: true, enrolledAt: true },
-    take: 100,
+    take: CRON_NUDGE_CANDIDATE_CAP,
     orderBy: { enrolledAt: 'asc' },
   });
 

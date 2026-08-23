@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { buildPortalSwitcherRoles } from './portalRoleSwitcher';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('does not invent member access for employer-only users', () => {
   const roles = buildPortalSwitcherRoles({
@@ -69,4 +74,18 @@ test('ignores member-like profile defaults when member is not truly granted', ()
     { role: 'employer', roleLabel: 'Employer', homeHref: '/employer' },
     { role: 'admin', roleLabel: 'Admin', homeHref: '/admin' },
   ]);
+});
+
+test('portal layouts pass precomputed switcher fields', () => {
+  const files = [
+    'app/admin/layout.tsx',
+    'app/(portal)/dashboard/layout.tsx',
+    'app/(portal)/employer/layout.tsx',
+    'app/(portal)/partner/layout.tsx',
+    'app/(portal)/counselor/layout.tsx',
+  ];
+  for (const rel of files) {
+    const src = readFileSync(join(ROOT, rel), 'utf8');
+    assert.match(src, /getPortalSwitcherRoles\(user\.id,\s*\{/, rel);
+  }
 });

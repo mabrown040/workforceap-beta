@@ -6,6 +6,10 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import {
+  CRON_PARTNER_DIGEST_PARTNER_CAP,
+  partnerDigestReferralTake,
+} from '@/lib/cron/cronCaps';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
@@ -19,7 +23,7 @@ async function handle(_request: Request) {
 
   const partners = await prisma.partner.findMany({
     where: { active: true, notifyOnEnrollment: true },
-    take: 500,
+    take: CRON_PARTNER_DIGEST_PARTNER_CAP,
     select: {
       id: true,
       name: true,
@@ -28,10 +32,25 @@ async function handle(_request: Request) {
   });
 
   // Batch-load all referrals for all partners in one query (N+1 eliminator)
-  const partnerIds = partners.map((p) => p.id);
+  const partnerIds = partners.filter((p) => p.contactEmail?.trim()).map((p) => p.id);
+  if (partnerIds.length === 0) {
+    const runResult = {
+      ok: true,
+      checkedAt: now.toISOString(),
+      sent: 0,
+      skipped: partners.length,
+      failed: 0,
+      total: partners.length,
+      skippedReason: 'no_contactable_partners',
+    };
+    await setCronRecordsProcessed(0);
+    await logCronRun('cron_partner_digest', runResult);
+    return NextResponse.json({ ok: true, checkedAt: now.toISOString(), results: [] });
+  }
+
   const allReferrals = await prisma.partnerReferral.findMany({
     where: { partnerId: { in: partnerIds }, member: { deletedAt: null } },
-    take: 2000 * partnerIds.length,
+    take: partnerDigestReferralTake(partnerIds.length),
     include: {
       member: {
         select: {
@@ -71,6 +90,10 @@ async function handle(_request: Request) {
     }
 
     const referrals = referralsByPartner.get(p.id) ?? [];
+    if (referrals.length === 0) {
+      results.push({ partnerId: p.id, name: p.name, emailSent: false, error: 'no_referrals' });
+      continue;
+    }
 
     const stageCounts: Record<string, number> = {};
     const successLines: string[] = [];
@@ -143,8 +166,8 @@ async function handle(_request: Request) {
   }
 
   const sent = results.filter(r => r.emailSent).length;
-  const skipped = results.filter(r => r.error === 'no_contact_email').length;
-  const failed = results.filter(r => r.error && r.error !== 'no_contact_email').length;
+  const skipped = results.filter(r => r.error === 'no_contact_email' || r.error === 'no_referrals').length;
+  const failed = results.filter(r => r.error && r.error !== 'no_contact_email' && r.error !== 'no_referrals').length;
   const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');

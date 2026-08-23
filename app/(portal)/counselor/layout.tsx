@@ -24,13 +24,17 @@ export default async function CounselorLayout({ children }: { children: React.Re
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor');
 
-  const [allowedCounselor, allowedAdmin, superAdmin, portalRoles] = await Promise.all([
+  const [allowedCounselor, allowedAdmin, superAdmin] = await Promise.all([
     isCounselor(user.id),
     isAdmin(user.id),
     isSuperAdmin(user.id),
-    getPortalSwitcherRoles(user.id),
   ]);
   if (!allowedCounselor && !allowedAdmin) redirect('/dashboard');
+  const portalRoles = await getPortalSwitcherRoles(user.id, {
+    superAdmin,
+    hasCounselor: allowedCounselor,
+    hasAdmin: allowedAdmin,
+  });
 
   let subtitle = 'Counselor';
   try {

@@ -19,9 +19,13 @@ export default async function EmployerPortalLayout({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer');
 
-  const [superAdmin, portalRoles] = await Promise.all([isSuperAdmin(user.id), getPortalSwitcherRoles(user.id)]);
+  const superAdmin = await isSuperAdmin(user.id);
   const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+  const portalRoles = await getPortalSwitcherRoles(user.id, {
+    superAdmin,
+    hasEmployer: true,
+  });
   const cookieStore = await cookies();
   const superAdminImpersonating =
     superAdmin && Boolean(cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value);

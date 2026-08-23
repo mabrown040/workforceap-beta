@@ -35,11 +35,14 @@ export default async function AdminLayout({
     const hasAdmin = await isAdmin(user.id);
     if (!hasAdmin) redirect('/dashboard');
 
-    const [branding, superAdmin, portalRoles] = await Promise.all([
+    const [branding, superAdmin] = await Promise.all([
       getDefaultOrgBranding(),
       isSuperAdmin(user.id),
-      getPortalSwitcherRoles(user.id),
     ]);
+    const portalRoles = await getPortalSwitcherRoles(user.id, {
+      superAdmin,
+      hasAdmin: true,
+    });
 
     return (
       // Opt the entire admin route group out of browser translation.

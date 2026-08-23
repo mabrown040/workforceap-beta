@@ -209,9 +209,9 @@ export const CRON_REGISTRY: CronDef[] = [
     id: 'coursera-b4b-sync',
     name: 'Coursera B4B enrollment sync',
     description:
-      'Pulls Coursera For Business enrollment reports and writes/upserts course-level progress into CourseProgress + MemberProgramProgress.',
-    schedule: '0 */6 * * *',
-    scheduleLabel: 'Every 6 hours',
+      'Pulls Coursera For Business enrollment reports and writes/upserts course-level progress into CourseProgress + MemberProgramProgress. Staggered to :30 so it does not share the pooler with coursera-sync.',
+    schedule: '30 */6 * * *',
+    scheduleLabel: 'Every 6 hours at :30 UTC',
     apiPath: '/api/cron/coursera-b4b-sync',
     method: 'GET',
     icon: 'sync_alt',
@@ -223,7 +223,7 @@ export const CRON_REGISTRY: CronDef[] = [
     id: 'coursera-auto-heal',
     name: 'Coursera xAPI auto-heal',
     description:
-      'Hourly unmatched xAPI reconciliation and canonical course mapping refresh; replays ignored events when mappings exist.',
+      'Hourly unmatched xAPI reconciliation. B4B canonical seed + ignored replay run only when ignored events exist; quiet hours skip the B4B call.',
     schedule: '15 * * * *',
     scheduleLabel: 'Hourly at :15 UTC',
     apiPath: '/api/cron/coursera-auto-heal',

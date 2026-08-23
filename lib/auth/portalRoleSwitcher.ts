@@ -86,16 +86,7 @@ export async function getPortalSwitcherRoles(
   userId: string,
   precomputed?: Partial<PortalSwitcherInputs>
 ): Promise<PortalSwitcherRole[]> {
-  const inputs: PortalSwitcherInputs =
-    precomputed &&
-    precomputed.superAdmin !== undefined &&
-    precomputed.userRoleNames !== undefined &&
-    precomputed.hasEmployer !== undefined &&
-    precomputed.hasPartner !== undefined &&
-    precomputed.hasCounselor !== undefined &&
-    precomputed.hasAdmin !== undefined
-      ? (precomputed as PortalSwitcherInputs)
-      : await fetchPortalSwitcherInputs(userId);
+  const inputs = await resolvePortalSwitcherInputs(userId, precomputed);
 
   if (inputs.superAdmin) {
     return ROLE_ORDER.map((role) => ({
@@ -107,11 +98,20 @@ export async function getPortalSwitcherRoles(
   return buildPortalSwitcherRoles(inputs);
 }
 
-async function fetchPortalSwitcherInputs(userId: string): Promise<PortalSwitcherInputs> {
-  const [superAdmin, userRoleNames] = await Promise.all([
-    isSuperAdmin(userId),
-    getUserRoles(userId),
-  ]);
+/**
+ * Fill only the switcher fields the caller did not already compute.
+ * Layouts typically have `isAdmin` / `isSuperAdmin` / employer|partner|counselor
+ * context; passing those skips the matching lookups instead of requiring the
+ * full six-field snapshot `/api/auth/me` already builds.
+ */
+async function resolvePortalSwitcherInputs(
+  userId: string,
+  precomputed?: Partial<PortalSwitcherInputs>,
+): Promise<PortalSwitcherInputs> {
+  const superAdmin =
+    precomputed?.superAdmin !== undefined ? precomputed.superAdmin : await isSuperAdmin(userId);
+  const userRoleNames =
+    precomputed?.userRoleNames !== undefined ? precomputed.userRoleNames : await getUserRoles(userId);
 
   if (superAdmin) {
     return {
@@ -124,19 +124,25 @@ async function fetchPortalSwitcherInputs(userId: string): Promise<PortalSwitcher
     };
   }
 
-  const [employerNav, partnerCtx, counselorCtx, adminAccess] = await Promise.all([
-    getEmployerAccountForNav(userId),
-    getPartnerForUser(userId),
-    getCounselorForUser(userId),
-    isAdmin(userId),
+  const [hasEmployer, hasPartner, hasCounselor, hasAdmin] = await Promise.all([
+    precomputed?.hasEmployer !== undefined
+      ? precomputed.hasEmployer
+      : getEmployerAccountForNav(userId).then((row) => !!row),
+    precomputed?.hasPartner !== undefined
+      ? precomputed.hasPartner
+      : getPartnerForUser(userId).then((row) => !!row),
+    precomputed?.hasCounselor !== undefined
+      ? precomputed.hasCounselor
+      : getCounselorForUser(userId).then((row) => !!row),
+    precomputed?.hasAdmin !== undefined ? precomputed.hasAdmin : isAdmin(userId),
   ]);
 
   return {
     superAdmin,
     userRoleNames,
-    hasEmployer: !!employerNav,
-    hasPartner: !!partnerCtx,
-    hasCounselor: !!counselorCtx,
-    hasAdmin: adminAccess,
+    hasEmployer,
+    hasPartner,
+    hasCounselor,
+    hasAdmin,
   };
 }

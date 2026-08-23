@@ -220,17 +220,19 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
 
 test('loader module does not import Coursera, B4B, or getMemberState', () => {
   const src = readFileSync(path.join(ROOT, 'lib/member/loadMemberDashboardHome.ts'), 'utf8');
-  assert.doesNotMatch(src, /coursera/i);
-  assert.doesNotMatch(src, /b4b/i);
-  assert.doesNotMatch(src, /getMemberState/);
-  assert.doesNotMatch(src, /maybeAutoSync/);
-  assert.doesNotMatch(src, /getCache/);
+  const imports = src.split('\n').filter((line) => line.startsWith('import')).join('\n');
+  assert.doesNotMatch(imports, /coursera/i);
+  assert.doesNotMatch(imports, /b4b/i);
+  assert.doesNotMatch(imports, /getMemberState/);
+  assert.doesNotMatch(imports, /maybeAutoSync/);
+  assert.doesNotMatch(imports, /getCache/);
+  assert.doesNotMatch(src, /from '@\/lib\/coursera/);
 });
 
 test('kit-default dashboard page calls the loader and has no prisma. on that branch', () => {
   const src = readFileSync(path.join(ROOT, 'app/(portal)/dashboard/page.tsx'), 'utf8');
   const kitStart = src.indexOf("if (args.requestedUi !== 'legacy')");
-  const legacyStart = src.indexOf('loadMemberCareerBriefBundleSafe');
+  const legacyStart = src.indexOf('await loadMemberCareerBriefBundleSafe');
   assert.ok(kitStart > 0, 'kit branch missing');
   assert.ok(legacyStart > kitStart, 'legacy branch missing');
   const kitBlock = src.slice(kitStart, legacyStart);

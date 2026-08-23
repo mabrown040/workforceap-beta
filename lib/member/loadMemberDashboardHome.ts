@@ -425,9 +425,10 @@ async function fetchHomeRow(
  */
 export async function loadMemberDashboardHome(
   args: LoadMemberDashboardHomeArgs,
-  db: DashboardHomeDb = prisma,
+  db?: DashboardHomeDb,
 ): Promise<MemberDashboardHomeView> {
-  const run = () => fetchHomeRow(db, args.userId);
+  const client: DashboardHomeDb = db ?? (prisma as unknown as DashboardHomeDb);
+  const run = () => fetchHomeRow(client, args.userId);
   let { row, completedCount, prismaOpCount } = await withDbRetry(run);
 
   if (!row && args.provisionIfMissing) {

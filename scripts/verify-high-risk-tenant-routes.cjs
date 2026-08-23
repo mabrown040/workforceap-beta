@@ -229,13 +229,43 @@ assertContains(
 assertContains(
   'app/api/admin/placements/route.ts',
   ['memberInOrg(orgId)', "assertSameTenant('user', userId, orgId)"],
-  'admin placements scoped through member FK (PlacementRecord has no organizationId; withTenantScope alone is a no-op here)',
+  'admin placements scoped through member FK (PlacementRecord has no organizationId column)',
 );
 
 assertContains(
   'app/api/admin/users/route.ts',
   ['getActorOrganizationId', 'withTenantScope'],
   'admin users list/create is tenant-scoped (PII)',
+);
+
+assertContains(
+  'app/admin/members/page.tsx',
+  ['isAdminInOrg', 'getActorOrganizationId', 'withTenantScope'],
+  'admin members SSR list is org-scoped (not global isAdmin + unscoped findMany)',
+);
+
+assertContains(
+  'app/admin/placements/page.tsx',
+  ['isAdminInOrg', 'getActorOrganizationId', 'withTenantScope'],
+  'admin placements SSR list is org-scoped',
+);
+
+assertContains(
+  'app/admin/training-progress/page.tsx',
+  ['isAdminInOrg', 'getActorOrganizationId', 'withTenantScope'],
+  'admin training-progress SSR list is org-scoped',
+);
+
+assertContains(
+  'app/api/apply/signup/route.ts',
+  ['resolveProvisionOrganizationId'],
+  'apply signup resolves org from request host / program catalog',
+);
+
+assertContains(
+  'lib/member/ensureAppUser.ts',
+  ['resolveProvisionOrganizationId'],
+  'orphan provisioner resolves org from request / metadata, not default-only',
 );
 
 assertContains(
@@ -505,4 +535,4 @@ assertContains(
   'onboarding reset has auth',
 );
 
-console.log('[verify-high-risk-tenant-routes] OK — 50 routes verified');
+console.log('[verify-high-risk-tenant-routes] OK — 55 routes verified');

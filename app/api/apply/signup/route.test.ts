@@ -59,12 +59,10 @@ const state = vi.hoisted(() => ({
   }[],
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
-  /** Args passed to `applyEligibilityScreening.upsert`. */
-  screeningUpserts: [] as {
-    where: Record<string, unknown>;
-    create: Record<string, unknown>;
-    update: Record<string, unknown>;
-  }[],
+
+  resolvedOrgId: 'org-test-1',
+  provisionCalls: [] as Array<{ headers?: unknown; programSlug?: string | null }>,
+  userUpserts: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -79,7 +77,10 @@ vi.mock('@/lib/turnstile/verifyTurnstile', () => ({
 vi.mock('@/lib/db/prisma', () => {
   const tx = {
     user: {
-      upsert: vi.fn(async () => ({})),
+      upsert: vi.fn(async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
+        state.userUpserts.push(args);
+        return {};
+      }),
       findUnique: vi.fn(async () => null),
     },
     courseEnrollment: {
@@ -181,6 +182,13 @@ vi.mock('@/lib/tenant/organization', () => ({
   getDefaultOrganizationId: vi.fn(async () => 'org-test-1'),
 }));
 
+vi.mock('@/lib/tenant/resolveProvisionOrg', () => ({
+  resolveProvisionOrganizationId: vi.fn(async (input: { programSlug?: string | null }) => {
+    state.provisionCalls.push(input);
+    return state.resolvedOrgId;
+  }),
+}));
+
 vi.mock('@/lib/observability/captureApiError', () => ({
   captureApiError: vi.fn(),
 }));
@@ -278,7 +286,10 @@ function resetState() {
   state.cookieSets.length = 0;
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
-  state.screeningUpserts.length = 0;
+
+  state.provisionCalls.length = 0;
+  state.userUpserts.length = 0;
+  state.resolvedOrgId = 'org-test-1';
   state.partner = null;
   state.sponsoredSeatCount = 0;
   state.cookies = {};

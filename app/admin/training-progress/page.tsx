@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { isAdminInOrg } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
@@ -17,14 +18,6 @@ import {
   type TrainingRow,
   type Pace,
 } from '@/components/portal/kit/pages/admin-subviews/TrainingProgressKit';
-import {
-  TRAINING_PROGRESS_ENROLLMENT_CAP,
-  TRAINING_PROGRESS_LEARNER_CAP,
-  TRAINING_PROGRESS_LEGACY_SCAN_CAP,
-  TRAINING_PROGRESS_PROGRESS_CAP,
-  isListTruncated,
-  showingFirstLabel,
-} from '@/lib/db/queryCaps';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -47,29 +40,46 @@ export default async function AdminTrainingProgressPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/training-progress');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const orgId = await getActorOrganizationId(user.id).catch(() => null);
+  if (!orgId || !(await isAdminInOrg(user.id, orgId))) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
   // ─── Legacy: the original sortable dual-table (canonical + raw Coursera) ───
   if (requestedUi === 'legacy') {
-    return renderLegacy();
+    return renderLegacy(orgId);
   }
 
   // ─── DEFAULT: lean per-learner pace roster (design kit) ───
-  // Cap learners, then scope enrollments/progress to that page. Never hydrate
-  // an unscoped 20k courseProgress scan into SSR.
-  const learnerWhere = { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE };
-  const [learnerCountResult, learnersResult] = await Promise.allSettled([
-    prisma.user.count({ where: learnerWhere }),
-    prisma.user.findMany({
-      take: TRAINING_PROGRESS_LEARNER_CAP,
-      where: learnerWhere,
+  // One pass over members + their primary enrollment + canonical course
+  // progress. All lean (findMany take:N / count); no $transaction, no HTTP.
+  const [learnersResult, enrollmentsResult, progressResult] = await withTenantScope(orgId, (db) =>
+    Promise.allSettled([
+    db.user.findMany({
+      take: 5000,
+      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
       orderBy: [{ fullName: 'asc' }],
       select: { id: true, fullName: true, enrolledProgram: true },
     }),
-  ]);
+    // Primary program per learner drives the single pace row we show.
+    db.courseEnrollment.findMany({
+      take: 5000,
+      where: { isPrimary: true },
+      select: { userId: true, programSlug: true },
+    }),
+    db.courseProgress.findMany({
+      take: 20000,
+      select: {
+        userId: true,
+        programSlug: true,
+        courseSlug: true,
+        status: true,
+        percentComplete: true,
+        lastActivityAt: true,
+      },
+    }),
+  ]));
 
   // If we can't load learners we degrade to the proven legacy view rather than
   // render a fake/empty kit.
@@ -79,33 +89,6 @@ export default async function AdminTrainingProgressPage({
   }
 
   const learners = learnersResult.value;
-  const learnerIds = learners.map((l) => l.id);
-  const learnerTotal = learnerCountResult.status === 'fulfilled' ? learnerCountResult.value : learners.length;
-  const learnersTruncated = isListTruncated(learners.length, TRAINING_PROGRESS_LEARNER_CAP, learnerTotal);
-
-  const [enrollmentsResult, progressResult] = await Promise.allSettled([
-    learnerIds.length === 0
-      ? Promise.resolve([])
-      : prisma.courseEnrollment.findMany({
-          take: TRAINING_PROGRESS_ENROLLMENT_CAP,
-          where: { isPrimary: true, userId: { in: learnerIds } },
-          select: { userId: true, programSlug: true },
-        }),
-    learnerIds.length === 0
-      ? Promise.resolve([])
-      : prisma.courseProgress.findMany({
-          take: TRAINING_PROGRESS_PROGRESS_CAP,
-          where: { userId: { in: learnerIds } },
-          select: {
-            userId: true,
-            programSlug: true,
-            courseSlug: true,
-            status: true,
-            percentComplete: true,
-            lastActivityAt: true,
-          },
-        }),
-  ]);
 
   // Primary program per learner (falls back to legacy User.enrolledProgram
   // when no CourseEnrollment row exists yet — e.g. seeded users).
@@ -218,19 +201,15 @@ export default async function AdminTrainingProgressPage({
       behind={behind}
       stalled={stalled}
       avgPercent={avgPercent}
-      showingLabel={
-        learnersTruncated
-          ? showingFirstLabel(learners.length, learnerTotal, 'learners')
-          : undefined
-      }
     />
   );
 }
 
 /** Original sortable dual-table view (canonical curriculum + raw Coursera). */
-async function renderLegacy() {
-  const learners = await prisma.user.findMany({
-    take: TRAINING_PROGRESS_LEARNER_CAP,
+async function renderLegacy(orgId: string) {
+  const learners = await withTenantScope(orgId, (db) =>
+    db.user.findMany({
+    take: 5000,
     where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
     orderBy: [{ fullName: 'asc' }],
     select: {
@@ -240,13 +219,16 @@ async function renderLegacy() {
       enrolledProgram: true,
       profile: { select: { role: true } },
     },
-  });
+  }));
 
   const learnerIds = learners.map((l) => l.id);
 
-  const [canonicalProgressRows, rawCourseraRows, dbMappings, courseEnrollmentRows] = await Promise.all([
-    prisma.courseProgress.findMany({
-      take: TRAINING_PROGRESS_PROGRESS_CAP,
+  const [canonicalProgressRows, rawCourseraRows, dbMappings, courseEnrollmentRows] = await withTenantScope(
+    orgId,
+    (db) =>
+      Promise.all([
+    db.courseProgress.findMany({
+      take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
         userId: true,
@@ -259,8 +241,8 @@ async function renderLegacy() {
         lastUpdatedAt: true,
       },
     }),
-    prisma.courseraCourseProgress.findMany({
-      take: TRAINING_PROGRESS_LEGACY_SCAN_CAP,
+    db.courseraCourseProgress.findMany({
+      take: 5000,
       // Intentionally NOT filtered by `userId in learnerIds`. We want to
       // surface every Coursera enrollment the org has — including rows whose
       // courseraEmail never matched a WAP user. Those orphans are exactly the
@@ -285,8 +267,8 @@ async function renderLegacy() {
         completionTime: true,
       },
     }),
-    prisma.courseraCanonicalCourseMapping.findMany({
-      take: TRAINING_PROGRESS_LEGACY_SCAN_CAP,
+    db.courseraCanonicalCourseMapping.findMany({
+      take: 5000,
       select: {
         courseraCourseId: true,
         canonicalProgramSlug: true,
@@ -297,8 +279,8 @@ async function renderLegacy() {
     // (primary + secondary), not just `User.enrolledProgram`. The legacy
     // single-program field stays as a fallback below for users without any
     // CourseEnrollment rows yet (seeded test users).
-    prisma.courseEnrollment.findMany({
-      take: TRAINING_PROGRESS_PROGRESS_CAP,
+    db.courseEnrollment.findMany({
+      take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
         userId: true,
@@ -306,7 +288,7 @@ async function renderLegacy() {
         isPrimary: true,
       },
     }),
-  ]);
+  ]));
 
   const dbMappingByCourseraId = new Map(
     dbMappings.map((m) => [m.courseraCourseId, m]),

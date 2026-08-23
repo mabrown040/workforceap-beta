@@ -3,7 +3,12 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { makeScopedProxy, TenantScopeViolation, TENANT_SCOPED_MODELS } from './scopeProxy';
+import {
+  makeScopedProxy,
+  TenantScopeViolation,
+  TENANT_SCOPED_MODELS,
+  PARENT_FK_SCOPED_MODELS,
+} from './scopeProxy';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.1)
@@ -34,17 +39,17 @@ import { makeScopedProxy, TenantScopeViolation, TENANT_SCOPED_MODELS } from './s
  *   - OrganizationProgramCatalog
  *   - PreScreeningResponse
  *
- * Tables NOT in this list inherit their tenant via FK relationships (e.g.
- * `Application` is scoped via its `User.organizationId`). Those queries
- * must filter via the parent: `where: { user: { organizationId } }`.
+ * Parent-FK models (no `organizationId` column) are also scoped:
+ *   - Application, PlacementRecord, CourseProgress via `user.organizationId`
+ *   - MessageThread via member / employer / partner `organizationId`
  *
  * Caveats:
  *   - This helper is the application layer of defense. Sprint A.3 adds
  *     Postgres RLS as a backstop.
  *   - Raw SQL (`prisma.$queryRaw`) is NOT auto-scoped — those queries
  *     must manually include the tenant filter and get reviewed in PR.
- *   - Tables not in TENANT_SCOPED_MODELS pass through unchanged.
- *     Reviewers should still confirm the query is scoped via parent FK.
+ *   - Other tables still pass through unchanged. Reviewers should still
+ *     confirm those queries are scoped via parent FK.
  */
 
 type ScopedClient = Omit<typeof prisma, '$transaction' | '$connect' | '$disconnect' | '$on' | '$use' | '$extends'>;
@@ -196,4 +201,4 @@ export function subgroupInOrg(orgId: string) {
 }
 
 // Re-exports for convenience.
-export { TenantScopeViolation, TENANT_SCOPED_MODELS, Prisma };
+export { TenantScopeViolation, TENANT_SCOPED_MODELS, PARENT_FK_SCOPED_MODELS, Prisma };

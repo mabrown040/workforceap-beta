@@ -4,8 +4,9 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { isAdminInOrg } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PlacementsTableClient from '@/components/admin/PlacementsTableClient';
@@ -61,24 +62,19 @@ export default async function AdminPlacementsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/placements');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const orgId = await getActorOrganizationId(user.id).catch(() => null);
+  if (!orgId || !(await isAdminInOrg(user.id, orgId))) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
-  let placements: PlacementRecord[] = [];
-  let listError: string | null = null;
-  try {
-    placements = await prisma.placementRecord.findMany({
+  const placements: PlacementRecord[] = await withTenantScope(orgId, (db) =>
+    db.placementRecord.findMany({
       orderBy: { placedAt: 'desc' },
       take: 500,
       select: placementListSelect,
-    });
-  } catch (err) {
-    console.error('[admin/placements] list load failed', err);
-    listError =
-      'Placements could not be loaded. Try again, or record a placement if you already have the hire details.';
-  }
+    }),
+  );
 
   // Legacy → the original sortable/exportable admin table.
   if (requestedUi === 'legacy') {
@@ -99,12 +95,6 @@ export default async function AdminPlacementsPage({
             </div>
           }
         />
-        {listError ? (
-          <p role="alert" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-            {listError}{' '}
-            <Link href="/admin/placements/new">Record placement</Link>
-          </p>
-        ) : null}
         <PlacementsTableClient placements={placements} />
       </PortalPageFrame>
     );
@@ -116,11 +106,16 @@ export default async function AdminPlacementsPage({
   // Lean groupBy over completed surveys only; degrades to "Pending" on failure.
   const completedSurveyIds = new Set<string>();
   try {
-    const completed = await prisma.placementSurvey.groupBy({
-      by: ['placementId'],
-      where: { completedAt: { not: null } },
-      _count: { _all: true },
-    });
+    const completed = await withTenantScope(orgId, (db) =>
+      db.placementSurvey.groupBy({
+        by: ['placementId'],
+        where: {
+          completedAt: { not: null },
+          placement: { user: { organizationId: orgId } },
+        },
+        _count: { _all: true },
+      }),
+    );
     for (const row of completed) completedSurveyIds.add(row.placementId);
   } catch (err) {
     console.error('[admin/placements] survey aggregate failed', err);
@@ -129,10 +124,12 @@ export default async function AdminPlacementsPage({
   // Avg wage across placements that recorded a salary (lean aggregate).
   let avgWage = '—';
   try {
-    const agg = await prisma.placementRecord.aggregate({
-      where: { salaryOffered: { gt: 0 } },
-      _avg: { salaryOffered: true },
-    });
+    const agg = await withTenantScope(orgId, (db) =>
+      db.placementRecord.aggregate({
+        where: { salaryOffered: { gt: 0 } },
+        _avg: { salaryOffered: true },
+      }),
+    );
     avgWage = formatWageShort(
       agg._avg.salaryOffered != null ? Math.round(agg._avg.salaryOffered) : null,
     );
@@ -144,7 +141,9 @@ export default async function AdminPlacementsPage({
   const yearStart = new Date(new Date().getFullYear(), 0, 1);
   let ytd = 0;
   try {
-    ytd = await prisma.placementRecord.count({ where: { placedAt: { gte: yearStart } } });
+    ytd = await withTenantScope(orgId, (db) =>
+      db.placementRecord.count({ where: { placedAt: { gte: yearStart } } }),
+    );
   } catch (err) {
     console.error('[admin/placements] ytd count failed', err);
     ytd = placements.filter((p) => p.placedAt >= yearStart).length;
@@ -183,7 +182,6 @@ export default async function AdminPlacementsPage({
       retention90d={retention90d}
       toConfirm={toConfirm}
       total={placements.length}
-      loadError={listError}
     />
   );
 }

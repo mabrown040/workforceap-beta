@@ -59,6 +59,26 @@ export const TENANT_SCOPED_MODELS = new Set<string>([
   'chapterCurriculumItem',
 ]);
 
+/**
+ * Models that inherit tenant via a parent FK (no `organizationId` column).
+ *
+ * Do NOT add these to `TENANT_SCOPED_MODELS` — injecting a missing
+ * `organizationId` scalar 500s. The proxy instead injects the equivalent
+ * parent filter (`user: { organizationId }` or an OR of member/employer/
+ * partner). Wrapping these in `withTenantScope` used to be a no-op
+ * (`clm_hot_scope_proxy_false_safety`).
+ */
+export type ParentFkScope =
+  | { kind: 'user' }
+  | { kind: 'memberEmployerOrPartner' };
+
+export const PARENT_FK_SCOPED_MODELS: Record<string, ParentFkScope> = {
+  application: { kind: 'user' },
+  placementRecord: { kind: 'user' },
+  courseProgress: { kind: 'user' },
+  messageThread: { kind: 'memberEmployerOrPartner' },
+};
+
 const READ_OPS = new Set([
   'findMany',
   'findFirst',
@@ -93,11 +113,19 @@ const WRITE_OPS = new Set([
 export function makeScopedProxy<TClient extends object>(orgId: string, client: TClient): TClient {
   return new Proxy(client, {
     get(target, prop, receiver) {
-      if (typeof prop !== 'string' || !TENANT_SCOPED_MODELS.has(prop)) {
+      if (typeof prop !== 'string') {
         return Reflect.get(target, prop, receiver);
       }
-      const model = Reflect.get(target, prop, receiver);
-      return wrapModelDelegate(model, prop, orgId);
+      if (TENANT_SCOPED_MODELS.has(prop)) {
+        const model = Reflect.get(target, prop, receiver);
+        return wrapModelDelegate(model, prop, orgId);
+      }
+      const parentScope = PARENT_FK_SCOPED_MODELS[prop];
+      if (parentScope) {
+        const model = Reflect.get(target, prop, receiver);
+        return wrapParentFkDelegate(model, prop, orgId, parentScope);
+      }
+      return Reflect.get(target, prop, receiver);
     },
   }) as TClient;
 }
@@ -128,6 +156,166 @@ function wrapModelDelegate(model: unknown, modelName: string, orgId: string): un
       return original;
     },
   });
+}
+
+
+function wrapParentFkDelegate(
+  model: unknown,
+  modelName: string,
+  orgId: string,
+  scope: ParentFkScope,
+): unknown {
+  return new Proxy(model as object, {
+    get(target, op, receiver) {
+      if (typeof op !== 'string') return Reflect.get(target, op, receiver);
+
+      const opName = op;
+      const original = Reflect.get(target, op, receiver);
+      if (typeof original !== 'function') return original;
+
+      if (READ_OPS.has(opName)) {
+        return (args: Record<string, unknown> = {}) => {
+          const scopedArgs = enforceParentFkReadScope(args, modelName, opName, orgId, scope);
+          return (original as (a: unknown) => unknown).call(target, scopedArgs);
+        };
+      }
+
+      if (WRITE_OPS.has(opName)) {
+        return (args: Record<string, unknown> = {}) => {
+          const scopedArgs = enforceParentFkWriteScope(args, modelName, opName, orgId, scope);
+          return (original as (a: unknown) => unknown).call(target, scopedArgs);
+        };
+      }
+
+      return original;
+    },
+  });
+}
+
+function mergeParentFkWhere(
+  where: Record<string, unknown>,
+  model: string,
+  op: string,
+  orgId: string,
+  scope: ParentFkScope,
+): Record<string, unknown> {
+  if (scope.kind === 'user') {
+    const existing = where.user;
+    if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
+      const provided = extractOrgId(existing as Record<string, unknown>);
+      if (provided !== undefined && provided !== orgId) {
+        throw new TenantScopeViolation(model, op, orgId, String(provided));
+      }
+      return {
+        ...where,
+        user: { ...(existing as Record<string, unknown>), organizationId: orgId },
+      };
+    }
+    return {
+      ...where,
+      user: { organizationId: orgId },
+    };
+  }
+
+  if (scope.kind === 'memberEmployerOrPartner') {
+    const extra = {
+      OR: [
+        { member: { organizationId: orgId } },
+        { employer: { organizationId: orgId } },
+        { partner: { organizationId: orgId } },
+      ],
+    };
+    const existingAnd = where.AND;
+    const andClauses: unknown[] = [];
+    if (Array.isArray(existingAnd)) andClauses.push(...existingAnd);
+    else if (existingAnd !== undefined) andClauses.push(existingAnd);
+    const rest = { ...where };
+    delete rest.AND;
+    if (Object.keys(rest).length > 0) andClauses.push(rest);
+    andClauses.push(extra);
+    return { AND: andClauses };
+  }
+
+  const _exhaustive: never = scope;
+  return _exhaustive;
+}
+
+function rejectDirectOrganizationId(
+  data: Record<string, unknown> | undefined,
+  model: string,
+  op: string,
+): void {
+  if (!data || typeof data !== 'object') return;
+  if (data.organizationId !== undefined) {
+    throw new TenantScopeViolation(
+      model,
+      op,
+      'parent-fk-has-no-organizationId-column',
+      String(data.organizationId),
+    );
+  }
+}
+
+function enforceParentFkReadScope(
+  args: Record<string, unknown>,
+  model: string,
+  op: string,
+  orgId: string,
+  scope: ParentFkScope,
+): Record<string, unknown> {
+  const where = (args.where ?? {}) as Record<string, unknown>;
+  return {
+    ...args,
+    where: mergeParentFkWhere(where, model, op, orgId, scope),
+  };
+}
+
+function enforceParentFkWriteScope(
+  args: Record<string, unknown>,
+  model: string,
+  op: string,
+  orgId: string,
+  scope: ParentFkScope,
+): Record<string, unknown> {
+  const out = { ...args };
+
+  if (op === 'create') {
+    const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
+    rejectDirectOrganizationId(data, model, op);
+    return out;
+  }
+
+  if (op === 'createMany' || op === 'createManyAndReturn') {
+    const dataInput = out.data;
+    if (Array.isArray(dataInput)) {
+      for (const row of dataInput as Array<Record<string, unknown>>) {
+        rejectDirectOrganizationId(row, model, op);
+      }
+    } else if (dataInput && typeof dataInput === 'object') {
+      rejectDirectOrganizationId(dataInput as Record<string, unknown>, model, op);
+    }
+    return out;
+  }
+
+  if (op === 'upsert') {
+    const create = ((out.create ?? {}) as Record<string, unknown>) ?? {};
+    rejectDirectOrganizationId(create, model, op);
+    const update = ((out.update ?? {}) as Record<string, unknown>) ?? {};
+    rejectDirectOrganizationId(update, model, op);
+    const where = ((out.where ?? {}) as Record<string, unknown>) ?? {};
+    out.where = mergeParentFkWhere(where, model, op, orgId, scope);
+    return out;
+  }
+
+  const where = (out.where ?? {}) as Record<string, unknown>;
+  out.where = mergeParentFkWhere(where, model, op, orgId, scope);
+
+  if (op === 'update' || op === 'updateMany' || op === 'updateManyAndReturn') {
+    const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
+    rejectDirectOrganizationId(data, model, op);
+  }
+
+  return out;
 }
 
 function enforceReadScope(

@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -49,44 +50,42 @@ const CLAIMED_FILES = [
   'lib/data/applications.ts',
 ] as const;
 
-describe('scanCaps', () => {
-  it('keeps leftover scan caps below the old silent 5k floor', () => {
-    expect(ANALYTICS_SAMPLE_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(ANALYTICS_COHORT_DETAIL_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(REPORT_SAMPLE_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(WORK_QUEUE_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(LOOKUP_CATALOG_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(MEMBER_PROGRESS_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(COURSERA_B4B_REPORT_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(ONET_SYNC_OCCUPATION_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(CRON_SCOPED_LOOKUP_CAP).toBeLessThan(UNBOUNDED_SCAN_TAKE_FLOOR);
-    expect(UNBOUNDED_SCAN_TAKE_FLOOR).toBe(5000);
-  });
+test('leftover scan caps stay below the old silent 5k floor', () => {
+  assert.ok(ANALYTICS_SAMPLE_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(ANALYTICS_COHORT_DETAIL_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(REPORT_SAMPLE_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(WORK_QUEUE_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(LOOKUP_CATALOG_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(MEMBER_PROGRESS_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(COURSERA_B4B_REPORT_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(ONET_SYNC_OCCUPATION_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.ok(CRON_SCOPED_LOOKUP_CAP < UNBOUNDED_SCAN_TAKE_FLOOR);
+  assert.equal(UNBOUNDED_SCAN_TAKE_FLOOR, 5000);
+});
 
-  it('clampScanTake and sqlCount handle bad inputs', () => {
-    expect(clampScanTake(Number.NaN, 10)).toBe(1);
-    expect(clampScanTake(0, 10)).toBe(1);
-    expect(clampScanTake(99, 10)).toBe(10);
-    expect(sqlCount(12n)).toBe(12);
-    expect(sqlCount(4)).toBe(4);
-    expect(sqlCount(null)).toBe(0);
-  });
+test('clampScanTake and sqlCount handle bad inputs', () => {
+  assert.equal(clampScanTake(Number.NaN, 10), 1);
+  assert.equal(clampScanTake(0, 10), 1);
+  assert.equal(clampScanTake(99, 10), 10);
+  assert.equal(sqlCount(12n), 12);
+  assert.equal(sqlCount(4), 4);
+  assert.equal(sqlCount(null), 0);
+});
 
-  it('claimed leftover files no longer hydrate 5k/10k/20k rows', () => {
-    for (const rel of CLAIMED_FILES) {
-      const src = readRepo(rel);
-      expect(src, rel).not.toMatch(/take:\s*(5000|10000|20000)\b/);
-    }
-  });
+test('claimed leftover files no longer hydrate 5k/10k/20k rows', () => {
+  for (const rel of CLAIMED_FILES) {
+    const src = readRepo(rel);
+    assert.doesNotMatch(src, /take:\s*(5000|10000|20000)\b/, rel);
+  }
+});
 
-  it('Coursera B4B and O*NET sync document a per-run cap plus resume cursor', () => {
-    const b4b = readRepo('lib/coursera/b4bSync.ts');
-    expect(b4b).toMatch(/COURSERA_B4B_REPORT_CAP/);
-    expect(b4b).toMatch(/nextStart/);
-    expect(b4b).toMatch(/cron_coursera_b4b_sync/);
+test('Coursera B4B and O*NET sync document a per-run cap plus resume cursor', () => {
+  const b4b = readRepo('lib/coursera/b4bSync.ts');
+  assert.match(b4b, /COURSERA_B4B_REPORT_CAP/);
+  assert.match(b4b, /nextStart/);
+  assert.match(b4b, /cron_coursera_b4b_sync/);
 
-    const onet = readRepo('lib/onet/sync.ts');
-    expect(onet).toMatch(/ONET_SYNC_OCCUPATION_CAP/);
-    expect(onet).toMatch(/updated_at ASC NULLS FIRST|updatedAt ASC NULLS FIRST|NULLS FIRST/);
-  });
+  const onet = readRepo('lib/onet/sync.ts');
+  assert.match(onet, /ONET_SYNC_OCCUPATION_CAP/);
+  assert.match(onet, /updated_at ASC NULLS FIRST/);
 });

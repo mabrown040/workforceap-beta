@@ -28,6 +28,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_CATALOG_CAP } from '@/lib/db/scanCaps';
 
 export type SeedCanonicalMappingsSummary = {
   /** Number of `Course` rows scanned (regardless of whether they had a Coursera id). */
@@ -72,7 +73,7 @@ export async function seedCanonicalMappingsFromCatalog(
   const actorUserId = args.actorUserId ?? null;
 
   const courses = await prisma.course.findMany({
-    take: 5000,
+    take: LOOKUP_CATALOG_CAP,
     select: {
       programSlug: true,
       courseSlug: true,

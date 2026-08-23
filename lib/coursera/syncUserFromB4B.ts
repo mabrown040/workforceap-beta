@@ -17,6 +17,7 @@ import {
 import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
+import { MEMBER_PROGRESS_CAP } from '@/lib/db/scanCaps';
 import {
   loadCanonicalMappingsForCourseraIds,
   type CanonicalMappingIndex,
@@ -658,7 +659,7 @@ export async function syncUserFromB4B(args: {
   // cron calls `updateRollups`, but per-user sync must rebuild too.
   try {
     const slugRows = await prisma.courseProgress.findMany({
-      take: 5000,
+      take: MEMBER_PROGRESS_CAP,
       where: { userId: args.wapUserId },
       select: { programSlug: true },
       distinct: ['programSlug'],

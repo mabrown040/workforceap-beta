@@ -13,6 +13,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_CATALOG_CAP } from '@/lib/db/scanCaps';
 
 /**
  * A canonical mapping row resolved to its (programSlug, courseSlug) pair.
@@ -61,7 +62,7 @@ export async function loadCanonicalMappingsForCourseraIds(
   if (filtered.length === 0) return emptyCanonicalMappingIndex();
 
   const rows = await prisma.courseraCanonicalCourseMapping.findMany({
-    take: 5000,
+    take: LOOKUP_CATALOG_CAP,
     where: { courseraCourseId: { in: filtered } },
     select: {
       courseraCourseId: true,

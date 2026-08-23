@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { CRON_SCOPED_LOOKUP_CAP } from '@/lib/db/scanCaps';
 
 /**
  * Shared cross-cron nudge cooldown.
@@ -35,6 +36,7 @@ export async function filterNudgeEligibleUserIds(candidateUserIds: string[]): Pr
     where: { userId: { in: candidateUserIds }, sentAt: { gte: cutoff } },
     select: { userId: true },
     distinct: ['userId'],
+    take: CRON_SCOPED_LOOKUP_CAP,
   });
   const recentlyNudgedIds = new Set(recentlyNudged.map((r) => r.userId));
 

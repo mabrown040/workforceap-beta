@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { ONET_SYNC_OCCUPATION_CAP } from '@/lib/db/scanCaps';
 import {
   getOccupation,
   getOccupationAbilities,
@@ -140,19 +141,40 @@ export async function syncOccupationBundle(onetCode: string): Promise<void> {
   });
 }
 
-export async function syncTopMappedOccupations(): Promise<{ synced: number; errors: string[] }> {
-  const rows = await prisma.careerProgramMapping.findMany({
-    take: 5000,
-    where: { isActive: true },
-    select: { onetCode: true },
-    distinct: ['onetCode'],
-  });
+/**
+ * Refresh the next stale slice of mapped O*NET occupations.
+ *
+ * Hard-capped at `ONET_SYNC_OCCUPATION_CAP` per run. Ordered by
+ * `onet_occupations.updated_at ASC NULLS FIRST` so never-synced / oldest
+ * codes go first; the next cron or admin click continues with whatever is
+ * now the stalest. Does not hydrate the full mapping table.
+ */
+export async function syncTopMappedOccupations(): Promise<{
+  synced: number;
+  errors: string[];
+  attempted: number;
+  remaining: boolean;
+}> {
+  const rows = await prisma.$queryRaw<Array<{ onet_code: string }>>`
+    SELECT m.onet_code
+    FROM career_program_mappings m
+    LEFT JOIN onet_occupations o ON o.onet_code = m.onet_code
+    WHERE m.is_active = true
+    GROUP BY m.onet_code
+    ORDER BY MIN(o.updated_at) ASC NULLS FIRST, m.onet_code ASC
+    LIMIT ${ONET_SYNC_OCCUPATION_CAP}
+  `;
   const errors: string[] = [];
   let synced = 0;
-  for (const { onetCode } of rows) {
+  for (const { onet_code: onetCode } of rows) {
     const r = await syncOccupation(onetCode);
     if (r.ok) synced++;
     else if (r.error) errors.push(`${onetCode}: ${r.error}`);
   }
-  return { synced, errors };
+  return {
+    synced,
+    errors,
+    attempted: rows.length,
+    remaining: rows.length >= ONET_SYNC_OCCUPATION_CAP,
+  };
 }

@@ -8,6 +8,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { CRON_SCOPED_LOOKUP_CAP } from '@/lib/db/scanCaps';
 import {
   buildMemberClassificationInput,
   calculateAllAtRiskScores,
@@ -298,7 +299,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
   // Ensure alerts exist for all critical scores so we can track notifiedCounselorAt
   // Batch: find all existing alerts in one query, then create only missing ones.
   const existingAlerts = await prisma.atRiskAlert.findMany({
-    take: 5000,
+    take: CRON_SCOPED_LOOKUP_CAP,
     where: {
       userId: { in: criticalScores.map((s) => s.userId) },
       status: { in: ['open', 'acknowledged'] },
@@ -359,7 +360,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
 
   // Find all alerts for critical members (freshly created or existing)
   const alerts = await prisma.atRiskAlert.findMany({
-    take: 5000,
+    take: CRON_SCOPED_LOOKUP_CAP,
     where: {
       userId: { in: criticalScores.map((s) => s.userId) },
       status: { in: ['open', 'acknowledged'] },

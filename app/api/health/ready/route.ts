@@ -5,6 +5,7 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { publicApiCorsHeaders } from '@/lib/http/publicApiCors';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
 import { DEFAULT_ORG_SLUG } from '@/lib/tenant/organization';
+import { CACHE_TTL_MS, readyCache } from './_readyCache';
 
 const HEALTH_CORS = publicApiCorsHeaders('GET, HEAD, OPTIONS');
 
@@ -26,8 +27,6 @@ export const dynamic = 'force-dynamic';
  * public liveness probe.
  */
 
-const CACHE_TTL_MS = 5000;
-
 type CheckStatus = 'ok' | 'fail';
 
 type CheckResult = {
@@ -36,20 +35,6 @@ type CheckResult = {
   slug?: string;
   reason?: string;
 };
-
-type ReadyCacheEntry = {
-  body: unknown;
-  status: number;
-  headers: Record<string, string>;
-  until: number;
-};
-
-const readyCache: { current: ReadyCacheEntry | null } = { current: null };
-
-/** Test-only: clear the in-memory ready cache. */
-export function __resetReadyCache() {
-  readyCache.current = null;
-}
 
 function liveVersion(): string {
   return process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local';

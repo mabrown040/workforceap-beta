@@ -4,6 +4,14 @@ import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import type { AdminPageTenantOk } from './adminPageScopeFilters';
+
+export {
+  inheritJobOrg,
+  inheritMemberOrg,
+  inheritUserOrg,
+} from './adminPageScopeFilters';
+export type { AdminPageTenantOk } from './adminPageScopeFilters';
 
 /**
  * Admin SSR page tenant gate.
@@ -17,9 +25,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
  * existing surfaces like `/admin/invites`. Org-admin pages must not copy that
  * unscoped path.
  */
-export type AdminPageTenant =
-  | { ok: false }
-  | { ok: true; orgId: string; superAdmin: boolean };
+export type AdminPageTenant = { ok: false } | AdminPageTenantOk;
 
 type ScopedFn<T> = Parameters<typeof withTenantScope>[1];
 type AdminDb = Parameters<ScopedFn<unknown>>[0];
@@ -46,32 +52,11 @@ export async function resolveAdminPageTenant(userId: string): Promise<AdminPageT
  * is false — the proxy is a no-op on those delegates.
  */
 export async function withAdminPageScope<T>(
-  scope: Extract<AdminPageTenant, { ok: true }>,
+  scope: AdminPageTenantOk,
   fn: (db: AdminDb) => Promise<T>,
 ): Promise<T> {
   if (scope.superAdmin) {
     return fn(prisma as unknown as AdminDb);
   }
   return withTenantScope(scope.orgId, fn);
-}
-
-/** Spread onto where clauses that inherit tenant via `user`. */
-export function inheritUserOrg(
-  scope: Extract<AdminPageTenant, { ok: true }>,
-): { user?: { organizationId: string } } {
-  return scope.superAdmin ? {} : { user: { organizationId: scope.orgId } };
-}
-
-/** Spread onto where clauses that inherit tenant via `member`. */
-export function inheritMemberOrg(
-  scope: Extract<AdminPageTenant, { ok: true }>,
-): { member?: { organizationId: string } } {
-  return scope.superAdmin ? {} : { member: { organizationId: scope.orgId } };
-}
-
-/** Spread onto where clauses that inherit tenant via `job`. */
-export function inheritJobOrg(
-  scope: Extract<AdminPageTenant, { ok: true }>,
-): { job?: { organizationId: string } } {
-  return scope.superAdmin ? {} : { job: { organizationId: scope.orgId } };
 }

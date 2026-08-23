@@ -12,8 +12,12 @@ interface PreLaunchTagProps {
 }
 
 /**
- * Pre-launch trust indicator for WorkforceAP.
- * Shows "Pilot Program" badge + expandable explanation.
+ * Public-launch trust tag for apply heroes.
+ *
+ * Was "Pilot Program" (pre-launch). Go-live copy uses the Locked
+ * member-safe cost language from `docs/PRODUCT_STAKES.md` — no-cost to
+ * members, funded by grants — and does not tighten the 1–2 business day
+ * follow-up promise (Approval Required; that copy lives on confirmation).
  */
 export default function PreLaunchTag({ compact, showCard: controlledShow, onToggle }: PreLaunchTagProps) {
   const [open, setOpen] = useState(false);
@@ -27,9 +31,9 @@ export default function PreLaunchTag({ compact, showCard: controlledShow, onTogg
 
   if (compact) {
     return (
-      <span className={styles['compact-tag']} title="Pilot Program — limited spots available">
+      <span className={styles['compact-tag']} title="No cost to members — funded by grants and partnerships">
         <span className={styles['dot']} aria-hidden="true" />
-        Pilot Program
+        No cost to members
       </span>
     );
   }
@@ -44,25 +48,21 @@ export default function PreLaunchTag({ compact, showCard: controlledShow, onTogg
         aria-controls="prelaunch-explanation"
       >
         <span className={styles['dot']} aria-hidden="true" />
-        <span className={styles['tag-text']}>Pilot Program</span>
+        <span className={styles['tag-text']}>No cost to members</span>
         <span className={styles['tag-hint']}>{showCard ? '▲' : '▼'}</span>
       </button>
 
       {showCard && (
-        <div id="prelaunch-explanation" className={styles['card']} role="region" aria-label="Pilot program details">
-          <p className={styles['card-title']}>What "Pilot Program" means</p>
+        <div id="prelaunch-explanation" className={styles['card']} role="region" aria-label="Program cost details">
+          <p className={styles['card-title']}>What “no cost to members” means</p>
           <p className={styles['card-body']}>
-            WorkforceAP is currently in a limited pilot phase. We are serving a small
-            number of members to ensure our training and job-matching systems work
-            reliably before broader launch.
+            Qualifying members do not pay tuition. Programs are funded by grants
+            and community partnerships — not by charging members.
           </p>
           <p className={styles['card-body']}>
-            <strong>You are not paying for this.</strong> All programs are no-cost to
-            members, funded by grants and community partnerships.
-          </p>
-          <p className={styles['card-body']}>
-            Spots are limited. If you are placed on a waitlist, we will contact you as
-            soon as space opens.
+            A real team reviews each application. Follow-up timing is confirmed
+            on the application confirmation screen so we only promise what
+            operations can support.
           </p>
           <p className={styles['card-footer']}>
             Have questions? <a href="mailto:contact@workforceap.org">Email us</a> or

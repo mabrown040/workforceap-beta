@@ -28,7 +28,7 @@ const sPage = {
   hero: {
     padding: 'calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8)',
     textAlign: 'center' as const,
-    background: 'linear-gradient(170deg, var(--color-primary) 0%, #2a0a14 60%, var(--color-accent-dark) 100%)',
+    background: 'linear-gradient(170deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-accent-dark) 72%, black) 60%, var(--color-accent-dark) 100%)',
     color: 'var(--color-white)',
   } as React.CSSProperties,
 
@@ -220,7 +220,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
         </span>
         <h1 style={sPage.heroHeading}><span className="mdx-grad-accent">{isSchool ? t('schoolHeroHeading') : t('heroHeading')}</span></h1>
         <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{isSchool ? t('schoolApplySocialProof', { school: schoolApply?.partnerName ?? '' }) : t('applySocialProof')}</p>
-        {/* Pilot status — honest about limited availability */}
+        {/* Launch-safe cost tag — `PreLaunchTag` (no-cost / grants, not “Pilot Program”) */}
         <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
           <PreLaunchTag compact />
         </div>
@@ -500,14 +500,10 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
             bottom: 0;
             z-index: 40;
             padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
-            background: rgba(255, 255, 255, 0.96);
+            background: color-mix(in srgb, var(--surface-container-lowest) 96%, transparent);
             border-top: 1px solid var(--outline-variant);
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -8px 24px color-mix(in srgb, var(--color-on-surface) 8%, transparent);
             backdrop-filter: blur(8px);
-          }
-
-          html.dark .apply-organic-sticky-cta {
-            background: rgba(28, 27, 31, 0.96);
           }
 
           .apply-organic-sticky-cta__button {

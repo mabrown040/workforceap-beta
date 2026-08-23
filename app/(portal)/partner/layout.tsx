@@ -15,9 +15,13 @@ export default async function PartnerPortalLayout({ children }: { children: Reac
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
-  const [superUser, portalRoles] = await Promise.all([isSuperAdmin(user.id), getPortalSwitcherRoles(user.id)]);
+  const superUser = await isSuperAdmin(user.id);
   const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superUser });
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
+  const portalRoles = await getPortalSwitcherRoles(user.id, {
+    superAdmin: superUser,
+    hasPartner: true,
+  });
 
   const cookieStore = await cookies();
   const superAdminImpersonating = superUser && Boolean(cookieStore.get(SUPER_ADMIN_PARTNER_COOKIE)?.value);

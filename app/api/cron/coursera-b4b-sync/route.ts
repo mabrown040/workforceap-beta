@@ -19,7 +19,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  *      automatically without an admin click. Failures here are
  *      non-fatal — the enrollment-report sync is the primary work.
  *
- * Schedule: every 6 hours (e.g. 0 star/6 in vercel.json).
+ * Schedule: every 6 hours at :30 UTC (staggered from coursera-sync at :00).
  * Auth: CRON_SECRET via withCronLogging.
  */
 const WORKFLOW_KEY = 'cron_coursera_b4b_sync';

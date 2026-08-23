@@ -7,6 +7,7 @@ import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
+import { CRON_JOB_EXPIRY_CAP } from '@/lib/cron/cronCaps';
 
 const JOB_NAME = 'cron_job_expiry';
 
@@ -30,6 +31,8 @@ async function handle(_request: Request) {
       employerId: true,
       employer: { select: { userId: true, contactEmail: true } },
     },
+    take: CRON_JOB_EXPIRY_CAP,
+    orderBy: { expiresAt: 'asc' },
   });
 
   if (expiring.length === 0) {

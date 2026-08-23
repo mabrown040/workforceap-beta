@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUser } from '@/lib/auth/server';
-import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
@@ -32,14 +32,17 @@ export default async function AdminLayout({
   if (!user) redirect('/login');
 
   try {
-    const scope = await resolveAdminPageTenant(user.id);
-    if (!scope.ok) redirect('/dashboard');
+    const hasAdmin = await isAdmin(user.id);
+    if (!hasAdmin) redirect('/dashboard');
 
-    const [branding, superAdmin, portalRoles] = await Promise.all([
+    const [branding, superAdmin] = await Promise.all([
       getDefaultOrgBranding(),
-      Promise.resolve(scope.superAdmin),
-      getPortalSwitcherRoles(user.id),
+      isSuperAdmin(user.id),
     ]);
+    const portalRoles = await getPortalSwitcherRoles(user.id, {
+      superAdmin,
+      hasAdmin: true,
+    });
 
     return (
       // Opt the entire admin route group out of browser translation.

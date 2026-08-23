@@ -20,7 +20,7 @@
     },
     {
       "path": "/api/cron/coursera-b4b-sync",
-      "schedule": "0 */6 * * *"
+      "schedule": "30 */6 * * *"
     },
     {
       "path": "/api/cron/coursera-sync",

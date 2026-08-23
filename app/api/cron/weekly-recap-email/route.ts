@@ -37,19 +37,12 @@ async function handle(_request: Request) {
   });
 
   // At-risk students: enrolled but no events in 14+ days.
-  // PERF: Instead of unfiltered groupBy across entire member_events table,
-  // find users who DO have recent events (bounded 14-day scan), then count
-  // enrolled users NOT in that set.
-  const recentlyActive = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    where: { createdAt: { gte: fourteenDaysAgo } },
-  });
-  const activeUserIds = new Set(recentlyActive.map((r) => r.userId));
+  // SQL anti-join — do not materialize every recently-active userId.
   const atRiskStudents = await prisma.user.count({
     where: {
       deletedAt: null,
       enrolledProgram: { not: null },
-      id: { notIn: [...activeUserIds] },
+      memberEvents: { none: { createdAt: { gte: fourteenDaysAgo } } },
     },
   });
 

@@ -70,6 +70,6 @@ describe('DashboardLayout portal switching', () => {
     expect(prisma.user.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: 'user-1' } }),
     );
-    expect(getPortalSwitcherRoles).toHaveBeenCalledWith('user-1');
+    expect(getPortalSwitcherRoles).toHaveBeenCalledWith('user-1', { superAdmin: true });
   });
 });

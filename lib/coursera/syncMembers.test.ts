@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { COURSERA_SYNC_MEMBER_PAGE_SIZE, fetchEligibleCourseraMembers } from './syncMembers';
+import {
+  COURSERA_SYNC_MEMBER_CAP,
+  COURSERA_SYNC_MEMBER_PAGE_SIZE,
+  fetchEligibleCourseraMembers,
+} from './syncMembers';
 import { prisma } from '@/lib/db/prisma';
 
 test('fetchEligibleCourseraMembers pages beyond the first 100 users', async (t) => {
@@ -38,4 +42,35 @@ test('fetchEligibleCourseraMembers pages beyond the first 100 users', async (t) 
   assert.equal(members.at(-1)?.id, 'user-101');
   assert.deepEqual(calls.map((call) => call.skip), [0, COURSERA_SYNC_MEMBER_PAGE_SIZE]);
   assert.ok(calls.every((call) => call.take === COURSERA_SYNC_MEMBER_PAGE_SIZE));
+});
+
+test('fetchEligibleCourseraMembers stops at COURSERA_SYNC_MEMBER_CAP', async (t) => {
+  const userDelegate = (prisma as any).user;
+  const originalFindMany = userDelegate.findMany;
+  const originalTransaction = (prisma as any).$transaction;
+
+  t.after(() => {
+    userDelegate.findMany = originalFindMany;
+    (prisma as any).$transaction = originalTransaction;
+  });
+
+  const fullPage = Array.from({ length: COURSERA_SYNC_MEMBER_PAGE_SIZE }, (_, i) => ({
+    id: `cap-${i}`,
+    email: `cap-${i}@example.com`,
+    enrolledProgram: 'cybersecurity',
+  }));
+  const calls: any[] = [];
+
+  userDelegate.findMany = async (args: any) => {
+    calls.push(args);
+    return fullPage;
+  };
+  (prisma as any).$transaction = async (fn: (tx: unknown) => Promise<unknown>) =>
+    fn({ user: userDelegate });
+
+  const members = await fetchEligibleCourseraMembers();
+
+  assert.equal(members.length, COURSERA_SYNC_MEMBER_CAP);
+  assert.equal(calls.length, COURSERA_SYNC_MEMBER_CAP / COURSERA_SYNC_MEMBER_PAGE_SIZE);
+  assert.ok(calls.every((call) => call.take <= COURSERA_SYNC_MEMBER_PAGE_SIZE));
 });

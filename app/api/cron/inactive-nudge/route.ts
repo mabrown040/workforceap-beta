@@ -7,6 +7,7 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
 import { createNotification } from '@/lib/notifications/create';
+import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
@@ -17,35 +18,24 @@ import { createNotification } from '@/lib/notifications/create';
  * inactivity-nudge / course-accountability in the same window (see
  * lib/cron/nudgeThrottle.ts).
  * Secured with CRON_SECRET.
-
+ *
  */
 async function handle(_request: Request) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  // Find users who already received an inactive nudge in the last 7 days.
-  const recentlyNudged = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    where: { eventName: 'inactive_nudge_sent', createdAt: { gte: sevenDaysAgo } },
-  });
-  const nudgedUserIds = new Set(recentlyNudged.map((r) => r.userId));
-
-  // Find users who HAVE had activity in the last 7 days (bounded scan).
-  const recentlyActive = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    where: { createdAt: { gte: sevenDaysAgo } },
-  });
-  const activeUserIds = new Set(recentlyActive.map((r) => r.userId));
-
-  // Find eligible members who are NOT active AND NOT recently nudged (capped to 1000 per run).
+  // Anti-join instead of unbounded groupBy + notIn: one capped user scan.
   const candidates = await prisma.user.findMany({
     where: {
       deletedAt: null,
       notificationsReminders: true,
-      id: { notIn: [...activeUserIds, ...nudgedUserIds] },
+      AND: [
+        { memberEvents: { none: { createdAt: { gte: sevenDaysAgo } } } },
+        { memberEvents: { none: { eventName: 'inactive_nudge_sent', createdAt: { gte: sevenDaysAgo } } } },
+      ],
     },
     select: { id: true, email: true, fullName: true },
-    take: 1000,
+    take: CRON_NUDGE_CANDIDATE_CAP,
   });
 
   // Shared cross-cron cooldown: skip anyone nudged by ANY of these crons in
@@ -87,7 +77,13 @@ async function handle(_request: Request) {
     }
   }
 
-  const runResult = { ok: true, checkedAt: new Date().toISOString(), recentlyActiveCount: activeUserIds.size, recentlyNudgedCount: nudgedUserIds.size, inactiveEmailsSent: sent };
+  const runResult = {
+    ok: true,
+    checkedAt: new Date().toISOString(),
+    candidateCount: candidates.length,
+    eligibleCount: members.length,
+    inactiveEmailsSent: sent,
+  };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactive_nudge', runResult);
   return NextResponse.json(runResult);

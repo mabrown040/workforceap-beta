@@ -1,0 +1,80 @@
+[
+  {
+    "id": "clm_dead_ci_lint_vitest_advisory",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_ci_deploy", "ent_file_ci_gate"],
+    "title": "CI lint and vitest are continue-on-error while next build treats ESLint as a gate",
+    "severity": "latent",
+    "blast": "AGENTS.md and next.config.ts:32-37 say ESLint is a required build gate (ignoreDuringBuilds:false). .github/workflows/ci-gate.yml:78-91 still run npm run lint and npm run test:vitest with continue-on-error: true (vitest also `|| true`). Unit tests (node:test) are required. A PR can go red on vitest/lint in the log and still merge if tsc + test:unit + next build pass. Tenant-route grep is required but only covers a handful of APIs, not SSR pages. First beat never opened CI.",
+    "evidence": ".github/workflows/ci-gate.yml:64-71 unit tests required; :78-91 lint + vitest continue-on-error; :108-112 verify-high-risk-tenant-routes required. next.config.ts:37 eslint.ignoreDuringBuilds false. scripts/verify-high-risk-tenant-routes.cjs has no app/admin/**/page.tsx list-loader checks.",
+    "verify": "rg -n 'continue-on-error' .github/workflows/ci-gate.yml && rg -n 'ignoreDuringBuilds' next.config.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_verify_routes_misses_ssr",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_tests", "ent_cluster_admin_ssr"],
+    "title": "Tenant CI grep never opens admin/counselor/employer SSR list pages",
+    "severity": "latent",
+    "blast": "scripts/verify-high-risk-tenant-routes.cjs is the only required tenant gate. It asserts fragments on selected API routes (members/route, metrics, counselor inactive, employer jobs, partner referrals, invite accept, merge, subgroups). It does not read app/admin/members/page.tsx, placements/page.tsx, training-progress/page.tsx, counselors/page.tsx, students/page.tsx, users/page.tsx — the pages staff actually load. Those pages can regress to unscoped findMany and CI stays green.",
+    "evidence": "scripts/verify-high-risk-tenant-routes.cjs:33-117 API-only needles. rg training-progress|placements/page|members/page|counselors/page scripts/verify-high-risk-tenant-routes.cjs → no matches. app/admin/members/page.tsx has no organizationId.",
+    "verify": "rg -n 'page.tsx' scripts/verify-high-risk-tenant-routes.cjs; test $? -ne 0",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_no_query_budget_tests",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_tests", "ent_cluster_portal_hot"],
+    "title": "No test asserts dashboard Prisma count, layout getUser skip, or apply org source",
+    "severity": "latent",
+    "blast": "High-severity claims from both beats have verify: rg, not a failing unit test. rg 'ensureAppUserProvisioned|dashboard/page' in *.test.ts / *.spec.ts is empty. apply signup tests mock getDefaultOrganizationId and never fail if someone keeps using default org. Rate-limit fail-open is untested for public voice. The ranker top slice can stay open forever without a red CI.",
+    "evidence": "rg ensureAppUserProvisioned -g '*.test.ts' -g '*.spec.ts' → no product test (only getDefaultOrganizationId mocks). app/(portal)/dashboard/page.tsx prisma. count is 24; no test pins it. lib/member/ensureAppUser.ts has no colocated test file.",
+    "verify": "rg -l 'ensureAppUserProvisioned' -g '*.test.ts' -g '*.spec.ts'; test $? -ne 0",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_legacy_ui_still_shipped",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_employer", "ent_cluster_counselor"],
+    "title": "Kit lean paths are default but ?ui=legacy still ships the 5000-row scanners",
+    "severity": "latent",
+    "blast": "Comments say kit is default to avoid demo-DB stalls. The legacy branch is not deleted, not flagged, not admin-only. Bookmarks, shared links, and crawlers with ?ui=legacy reintroduce the 504 shape. First beat never opened employer/counselor homes.",
+    "evidence": "app/(portal)/employer/page.tsx:63-64 v2 kit default; leftover take:5000 at :238 after the kit return. app/(portal)/counselor/page.tsx:61-62 kit default; :143-190 legacy take:5000. app/admin/counselors/page.tsx:60-76 legacy take:5000 partners.",
+    "verify": "rg -n 'ui !== .legacy|ui=legacy|requestedUi === .legacy' 'app/(portal)/employer/page.tsx' 'app/(portal)/counselor/page.tsx' app/admin/counselors/page.tsx",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_fr_pt_unreviewed_live",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_i18n_catalog"],
+    "title": "fr and pt catalogs are live URLs but excluded from REVIEWED_LOCALES",
+    "severity": "hygiene",
+    "blast": "messages/fr.json 205017 bytes and pt.json 197129 bytes ship. APP_LOCALES includes fr/pt so /fr and /pt resolve; LanguageToggle only advertises en/es. Unreviewed copy on public apply/WIOA paths is a product-stakes risk (locked 'no cost to members' language). First beat counted 184KB en.json load cost only.",
+    "evidence": "lib/i18n/config.ts:1-15 APP_LOCALES vs REVIEWED_LOCALES. wc -c messages/*.json. LOCALEABLE_PATH_PREFIXES includes /apply /wioa-qualification /login.",
+    "verify": "rg -n 'REVIEWED_LOCALES|APP_LOCALES' lib/i18n/config.ts && wc -c messages/fr.json messages/pt.json",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_caddy_single_host",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "entityIds": ["ent_cluster_ci_deploy"],
+    "title": "Caddyfile only proxies workforceap.mikeslabs.com with no security headers",
+    "severity": "hygiene",
+    "blast": "Self-host path (DEPLOY.md) uses Caddy. File is 19 lines: reverse_proxy localhost:3000, no header_up, no request body limits, no rate_limit. Next sets HSTS/CSP; Caddy does not add a second layer. Custom domains for tenant orgs have no Caddy example. Not a Vercel issue.",
+    "evidence": "Caddyfile:4-10 workforceap.mikeslabs.com reverse_proxy only.",
+    "verify": "wc -l Caddyfile && rg -n 'header|rate' Caddyfile; test $? -ne 0",
+    "supersedes": null,
+    "status": "open"
+  }
+]

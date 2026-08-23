@@ -16,10 +16,42 @@
     "status": "open"
   },
   {
+    "id": "clm_hot_public_voice_failopen",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "Unauthenticated WIOA voice session mints ElevenLabs URLs with fail-open limiter",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_scope_proxy_false_safety",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "withTenantScope is a no-op for PlacementRecord, CourseProgress, Application, messages",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
     "id": "clm_secrets_admin_pages_unscoped",
     "runId": "run_20260823_0215",
     "auditor": "secrets",
     "title": "Admin layout is global isAdmin(); many admin pages query all tenants",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_apply_always_default_org",
+    "runId": "run_20260823_deep",
+    "auditor": "secrets",
+    "title": "Apply signup always writes users/applications into getDefaultOrganizationId()",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_gdpr_delete_leaves_blobs",
+    "runId": "run_20260823_deep",
+    "auditor": "secrets",
+    "title": "GDPR delete anonymizes users/profiles but leaves resume blobs and messages",
     "severity": "prod-break",
     "status": "open"
   },
@@ -32,11 +64,51 @@
     "status": "open"
   },
   {
+    "id": "clm_secrets_ssr_api_scope_split",
+    "runId": "run_20260823_deep",
+    "auditor": "secrets",
+    "title": "Admin APIs are often tenant-scoped; matching SSR pages still list every tenant",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_superadmin_fallback_upsert",
+    "runId": "run_20260823_deep",
+    "auditor": "secrets",
+    "title": "getPartnerForUser/getEmployerForUser upsert default-org preview rows and can open any first employer",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_admin_counselors_20k",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "Admin counselors kit hydrates 20k assignments unscoped on every load",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
     "id": "clm_hot_admin_unbounded_scans",
     "runId": "run_20260823_0215",
     "auditor": "hot-paths",
     "title": "Admin training-progress loads up to 20k courseProgress rows unscoped per request",
     "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_employer_legacy_5000",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "Employer and counselor default/legacy loaders still scan take:5000 rows",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_ci_lint_vitest_advisory",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "title": "CI lint and vitest are continue-on-error while next build treats ESLint as a gate",
+    "severity": "latent",
     "status": "open"
   },
   {
@@ -56,10 +128,42 @@
     "status": "open"
   },
   {
+    "id": "clm_dead_legacy_ui_still_shipped",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "title": "Kit lean paths are default but ?ui=legacy still ships the 5000-row scanners",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_no_query_budget_tests",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "title": "No test asserts dashboard Prisma count, layout getUser skip, or apply org source",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
     "id": "clm_dead_seeds_unwired_still",
     "runId": "run_20260823_0215",
     "auditor": "dead-code",
     "title": "create-chs-partner and seed-partner-school still never run from db:seed",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_verify_routes_misses_ssr",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "title": "Tenant CI grep never opens admin/counselor/employer SSR list pages",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_ci_allow_missing_upstash",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "title": "CI and next build set RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 so fail-open is the tested default",
     "severity": "latent",
     "status": "open"
   },
@@ -80,6 +184,22 @@
     "status": "open"
   },
   {
+    "id": "clm_deps_supabase_sql_unmapped_before",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "title": "supabase/ SQL tree is now mapped but is not the Prisma migrate source of truth",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_admin_manual_cron_trigger",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "Any global isAdmin can mint CRON_SECRET and fire every cron including mailers",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
     "id": "clm_hot_apply_ratelimit_failopen",
     "runId": "run_20260823_0215",
     "auditor": "hot-paths",
@@ -96,10 +216,50 @@
     "status": "open"
   },
   {
+    "id": "clm_hot_health_public_prisma",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "Public /api/health opens a Prisma $transaction and Upstash ping on a 5s cache",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
     "id": "clm_hot_i18n_full_catalog_every_request",
     "runId": "run_20260823_0215",
     "auditor": "hot-paths",
     "title": "Every request loads the full 184KB English message catalog then ships most of it to the client",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_middleware_ai_no_backstop",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "19 /api/ai routes plus leader/gdpr/subgroup have no middleware session backstop",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_three_nudge_email_paths",
+    "runId": "run_20260823_deep",
+    "auditor": "hot-paths",
+    "title": "Three cron paths send overlapping member inactivity emails plus B4B HTTP",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_csp_unsafe_eval",
+    "runId": "run_20260823_deep",
+    "auditor": "secrets",
+    "title": "Production CSP still allows script-src unsafe-inline and unsafe-eval",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_impersonation_cookie_unsigned",
+    "runId": "run_20260823_deep",
+    "auditor": "secrets",
+    "title": "Super-admin employer/partner impersonation cookies are unsigned UUIDs",
     "severity": "latent",
     "status": "open"
   },
@@ -128,10 +288,42 @@
     "status": "open"
   },
   {
+    "id": "clm_dead_caddy_single_host",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "title": "Caddyfile only proxies workforceap.mikeslabs.com with no security headers",
+    "severity": "hygiene",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_fr_pt_unreviewed_live",
+    "runId": "run_20260823_deep",
+    "auditor": "dead-code",
+    "title": "fr and pt catalogs are live URLs but excluded from REVIEWED_LOCALES",
+    "severity": "hygiene",
+    "status": "open"
+  },
+  {
     "id": "clm_deps_heroicons_dev_only",
     "runId": "run_20260823_0215",
     "auditor": "deps",
     "title": "@heroicons/react is a production dependency used only by the Astryx lab",
+    "severity": "hygiene",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_messages_new_keys_sidecar",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "title": "messages/new-i18n-keys.json (49KB) is a sidecar not loaded by i18n/request.ts",
+    "severity": "hygiene",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_pages_router_leftover",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "title": "pages/_app.tsx still exists beside the App Router tree",
     "severity": "hygiene",
     "status": "open"
   }

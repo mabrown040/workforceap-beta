@@ -1,0 +1,54 @@
+[
+  {
+    "id": "clm_deps_ci_allow_missing_upstash",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_ci_deploy", "ent_cluster_rate_limit"],
+    "title": "CI and next build set RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 so fail-open is the tested default",
+    "severity": "latent",
+    "blast": "lib/rate-limit.ts:19-27 throws in production without Upstash unless RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 or NEXT_PHASE=phase-production-build. ci-gate.yml:32 and :118 set the allow flag. Preview Vercel builds use npm run build (not build:with-migrate) and the same flag pattern. Tests never exercise fail-closed apply/voice. A preview that forgets Upstash matches CI and ships open limiters.",
+    "evidence": ".github/workflows/ci-gate.yml:32 and :118 RATE_LIMIT_ALLOW_MISSING_UPSTASH=1. lib/rate-limit.ts:17-27 boot throw. vercel.json:2 production uses build:with-migrate; else npm run build.",
+    "verify": "rg -n 'RATE_LIMIT_ALLOW_MISSING_UPSTASH' .github/workflows/ci-gate.yml lib/rate-limit.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_pages_router_leftover",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_content_shared"],
+    "title": "pages/_app.tsx still exists beside the App Router tree",
+    "severity": "hygiene",
+    "blast": "Next 15 App Router is canonical. pages/_app.tsx is a second entry that can confuse tracing and custom Document assumptions. Coverage map found it outside all blast-radius clusters until the content_shared seed. Confirm it is unused before deleting.",
+    "evidence": "pages/_app.tsx present. app/layout.tsx is the real root. next.config.ts outputFileTracingRoot = __dirname.",
+    "verify": "test -f pages/_app.tsx && test -f app/layout.tsx",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_messages_new_keys_sidecar",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_i18n_catalog"],
+    "title": "messages/new-i18n-keys.json (49KB) is a sidecar not loaded by i18n/request.ts",
+    "severity": "hygiene",
+    "blast": "i18n/request.ts import()s messages/{locale}.json. new-i18n-keys.json is 49515 bytes sitting in messages/ unused at runtime. Dead catalog weight in git; risk someone merges it blindly into en.json and grows the 184KB every-request load further.",
+    "evidence": "ls -la messages/. i18n/request.ts loads en/es/fr/pt only. wc -c messages/new-i18n-keys.json = 49515.",
+    "verify": "rg -n 'new-i18n-keys' i18n/request.ts; test $? -ne 0 && test -f messages/new-i18n-keys.json",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_supabase_sql_unmapped_before",
+    "runId": "run_20260823_deep",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_content_shared", "ent_cluster_prisma_db"],
+    "title": "supabase/ SQL tree is now mapped but is not the Prisma migrate source of truth",
+    "severity": "latent",
+    "blast": "Two schema histories: prisma/migrations (176 files) and supabase/. Local AGENTS.md forbids db:migrate:deploy because of duplicate partner_users migrations (P3018). Production uses scripts/safe-migrate.cjs. supabase/ can drift from schema.prisma. First map omitted both prisma/migrations and supabase/.",
+    "evidence": "prisma/migrations exists; supabase/ tracked (12 files). AGENTS.md: do not use db:migrate:deploy; duplicate 20260319100000 and 20260320000000 add_partner_users. scripts/safe-migrate.cjs is production path.",
+    "verify": "ls prisma/migrations | wc -l && ls supabase && rg -n 'partner_users' prisma/migrations -l | head",
+    "supersedes": null,
+    "status": "open"
+  }
+]

@@ -1,7 +1,7 @@
 {
-  "runId": "run_20260823_0215",
+  "runId": "run_20260823_deep",
   "generatedBy": "scripts/audit-rank.mjs",
-  "generatedAt": "2026-08-23T02:07:54.465Z",
+  "generatedAt": "2026-08-23T12:45:29.456Z",
   "topSlice": [
     {
       "id": "clm_hot_dashboard_query_fanout",
@@ -22,6 +22,24 @@
       "verify": "rg -n 'await getUser\\(\\)' app/layout.tsx && rg -n 'getSession\\(\\)' middleware.ts && wc -c messages/en.json"
     },
     {
+      "id": "clm_hot_public_voice_failopen",
+      "severity": "prod-break",
+      "auditor": "hot-paths",
+      "title": "Unauthenticated WIOA voice session mints ElevenLabs URLs with fail-open limiter",
+      "blast": "POST /api/public/wioa-qualification/voice-session has no getUser. It rate-limits via checkPublicVoiceSessionRateLimit which returns {success:true} when Upstash is null (lib/rate-limit.ts:524-527). File prices voice at ~$0.30/min and 1k unbounded reqs ≈ $1.5-3k. This is not on TENANT_API_PATHS. First beat covered apply/AI/voice fail-open for authed tools; it missed the public no-account mint. CI and Vercel build set RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 so preview deploys run this open.",
+      "evidence": "app/api/public/wioa-qualification/voice-session/route.ts:22-55 POST, no getUser, startElevenLabsPortalSession('wioa_prequal'). lib/rate-limit.ts:86-88 cost comment; :524-527 fail-open. middleware.ts:75 TENANT_API_PATHS omits /api/public and /api/ai. .github/workflows/ci-gate.yml:32 RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.",
+      "verify": "rg -n 'getUser' app/api/public/wioa-qualification/voice-session/route.ts; test $? -ne 0 && rg -n 'if \\(!publicVoiceSessionRateLimiter\\) return \\{ success: true \\}' lib/rate-limit.ts"
+    },
+    {
+      "id": "clm_hot_scope_proxy_false_safety",
+      "severity": "prod-break",
+      "auditor": "hot-paths",
+      "title": "withTenantScope is a no-op for PlacementRecord, CourseProgress, Application, messages",
+      "blast": "makeScopedProxy returns the raw delegate when the model is not in TENANT_SCOPED_MODELS. WIOA report wraps placementRecord.count/aggregate and courseProgress.groupBy and user.findMany take:10000 inside withTenantScope and treats that as isolation. PlacementRecord and CourseProgress have no organizationId column (schema.prisma Application:384, PlacementRecord:1255, CourseProgress:1851). A second-org admin hitting a 'scoped' API still reads every placement/progress row. verify-high-risk-tenant-routes.cjs asserts withTenantScope is called; it does not assert the model is in the set.",
+      "evidence": "lib/tenant/scopeProxy.ts:45-60 TENANT_SCOPED_MODELS (user/partner/employer/job/course/courseEnrollment/catalog/screening/chapter*). :96-98 if !TENANT_SCOPED_MODELS.has(prop) return Reflect.get — pass-through. app/api/admin/reports/wioa/route.ts:26-56 withTenantScope then db.placementRecord / db.courseProgress / db.user.findMany take:10000. prisma/schema.prisma PlacementRecord has no organizationId. scripts/verify-high-risk-tenant-routes.cjs does not mention training-progress, placements/page, members/page, counselors.",
+      "verify": "rg -n 'placementRecord|courseProgress|application|messageThread' lib/tenant/scopeProxy.ts; test $? -ne 0 && rg -n 'placementRecord' app/api/admin/reports/wioa/route.ts"
+    },
+    {
       "id": "clm_secrets_admin_pages_unscoped",
       "severity": "prod-break",
       "auditor": "secrets",
@@ -31,25 +49,53 @@
       "verify": "rg -n 'withTenantScope|getActorOrganizationId' app/admin/training-progress/page.tsx app/admin/placements/page.tsx; rg -n 'isAdminInOrg' app/admin/layout.tsx"
     },
     {
-      "id": "clm_secrets_orphan_user_default_org",
+      "id": "clm_secrets_apply_always_default_org",
       "severity": "prod-break",
       "auditor": "secrets",
-      "title": "ensureAppUserProvisioned always writes orphans into the default workforceap org",
-      "blast": "Root layout calls this on every authenticated render. A custom-domain / second-org user whose users row is missing is created under getDefaultOrganizationId() (slug workforceap). Subsequent withTenantScope / RLS / GUC orgId then attach that person to the wrong tenant. Seat, PII, and admin lists leak across orgs the first time multi-tenant is real.",
-      "evidence": "lib/member/ensureAppUser.ts:54 organizationId = await getDefaultOrganizationId(). app/layout.tsx:160 await ensureAppUserProvisioned(supabaseUser). No request-org or user.user_metadata org is consulted. getDefaultOrganizationId reads slug workforceap (lib/tenant/organization.ts:12-28).",
-      "verify": "rg -n 'getDefaultOrganizationId' lib/member/ensureAppUser.ts && rg -n 'ensureAppUserProvisioned' app/layout.tsx"
+      "title": "Apply signup always writes users/applications into getDefaultOrganizationId()",
+      "blast": "Sibling of clm_secrets_orphan_user_default_org (healer). The conversion path itself never consults resolveOrgFromRequest / custom-domain x-wap-org-id. app/api/apply/signup/route.ts:367 organizationId = getDefaultOrganizationId() then user + application + profile creates use that id. A custom-domain school funnel still stamps workforceap. First beat mapped only the healer; this is the write that creates the row the healer later 'heals'. Tests mock getDefaultOrganizationId and never assert request-org.",
+      "evidence": "app/api/apply/signup/route.ts:13 import getDefaultOrganizationId; :367 const organizationId = await withDbRetry(() => getDefaultOrganizationId()); :406,:437,:575 create payloads include that organizationId. No resolveOrgFromRequest in the file. app/api/apply/signup/route.test.ts mocks getDefaultOrganizationId → org-test-1.",
+      "verify": "rg -n 'getDefaultOrganizationId|resolveOrgFromRequest' app/api/apply/signup/route.ts"
     },
     {
-      "id": "clm_hot_admin_unbounded_scans",
-      "severity": "ship-break",
-      "auditor": "hot-paths",
-      "title": "Admin training-progress loads up to 20k courseProgress rows unscoped per request",
-      "blast": "force-dynamic page. A staff refresh allocates 5k users + 5k enrollments + 20k progress rows in one Node isolate (memory + pooler). No org filter. Cron partner-outcome-digest uses take: 2000 * partnerIds.length (up to 1M cap). Together they will OOM or 504 when member/progress tables grow.",
-      "evidence": "app/admin/training-progress/page.tsx:30 dynamic=force-dynamic; :56-78 take 5000/5000/20000. app/api/cron/partner-outcome-digest/route.ts:32-34 take: 2000 * partnerIds.length with deep include (placement, certs, applications, progress). vercel.json lists 27 cron paths sharing the pooler with user traffic.",
-      "verify": "rg -n 'take: 20000|take: 5000' app/admin/training-progress/page.tsx && rg -n '2000 \\* partnerIds' app/api/cron/partner-outcome-digest/route.ts"
+      "id": "clm_secrets_gdpr_delete_leaves_blobs",
+      "severity": "prod-break",
+      "auditor": "secrets",
+      "title": "GDPR delete anonymizes users/profiles but leaves resume blobs and messages",
+      "blast": "POST /api/gdpr/delete re-auths with password, signOut, raw UPDATE users email/name, UPDATE profiles nulls PII columns, inserts member_events, deletes Supabase auth user. It does not remove member-resumes / member-files objects (upload routes write cert-files/${userId}/ and resume paths). It does not delete or anonymize messages, applications.notes, placement_surveys, webhook payloads, or xapi_statements. Export (buildMemberExport) returns those tables — delete does not. lib/gdpr/ has no storage cleanup. Resume path columns are nulled so the app loses the pointer; the bucket object remains.",
+      "evidence": "app/api/gdpr/delete/route.ts:75-119 raw SQL users+profiles+member_events only. rg storage|resume_original|member-resumes lib/gdpr → no matches. app/api/member/resume/upload/route.ts:48 uploads to BUCKET. app/api/member/certifications/upload/route.ts:8 BUCKET=member-files path cert-files/${user.id}. lib/member/exportData.ts:23-63 still lists applications, messages, placements, surveys.",
+      "verify": "rg -n 'storage|remove' app/api/gdpr/delete/route.ts lib/gdpr; test $? -ne 0"
     }
   ],
   "dropped": [
+    {
+      "id": "clm_secrets_orphan_user_default_org",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_ssr_api_scope_split",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_superadmin_fallback_upsert",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_admin_counselors_20k",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_admin_unbounded_scans",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_employer_legacy_5000",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_ci_lint_vitest_advisory",
+      "reason": "below-slice"
+    },
     {
       "id": "clm_dead_consent_form_unmounted",
       "reason": "below-slice"
@@ -59,7 +105,23 @@
       "reason": "below-slice"
     },
     {
+      "id": "clm_dead_legacy_ui_still_shipped",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_no_query_budget_tests",
+      "reason": "below-slice"
+    },
+    {
       "id": "clm_dead_seeds_unwired_still",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_verify_routes_misses_ssr",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_deps_ci_allow_missing_upstash",
       "reason": "below-slice"
     },
     {
@@ -71,6 +133,14 @@
       "reason": "below-slice"
     },
     {
+      "id": "clm_deps_supabase_sql_unmapped_before",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_admin_manual_cron_trigger",
+      "reason": "below-slice"
+    },
+    {
       "id": "clm_hot_apply_ratelimit_failopen",
       "reason": "below-slice"
     },
@@ -79,7 +149,27 @@
       "reason": "below-slice"
     },
     {
+      "id": "clm_hot_health_public_prisma",
+      "reason": "below-slice"
+    },
+    {
       "id": "clm_hot_i18n_full_catalog_every_request",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_middleware_ai_no_backstop",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_hot_three_nudge_email_paths",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_csp_unsafe_eval",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_impersonation_cookie_unsigned",
       "reason": "below-slice"
     },
     {
@@ -95,7 +185,23 @@
       "reason": "hygiene-excluded"
     },
     {
+      "id": "clm_dead_caddy_single_host",
+      "reason": "hygiene-excluded"
+    },
+    {
+      "id": "clm_dead_fr_pt_unreviewed_live",
+      "reason": "hygiene-excluded"
+    },
+    {
       "id": "clm_deps_heroicons_dev_only",
+      "reason": "hygiene-excluded"
+    },
+    {
+      "id": "clm_deps_messages_new_keys_sidecar",
+      "reason": "hygiene-excluded"
+    },
+    {
+      "id": "clm_deps_pages_router_leftover",
       "reason": "hygiene-excluded"
     }
   ]

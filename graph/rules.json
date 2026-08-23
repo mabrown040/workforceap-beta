@@ -103,5 +103,61 @@
     "status": "proposed",
     "text": "Apply/signup/voice/AI limiters must use failClosedLimit in production (same as auth/contact). Fail-open is dev-only.",
     "check": "lib/rate-limit.ts checkApplySignupRateLimit uses failClosedLimit"
+  },
+  {
+    "id": "rul_scope_proxy_covers_progress_tables",
+    "fromClaimId": "clm_hot_scope_proxy_false_safety",
+    "status": "proposed",
+    "text": "withTenantScope must not be treated as isolation for PlacementRecord, CourseProgress, Application, or MessageThread until those models are in TENANT_SCOPED_MODELS or every call filters via user.organizationId.",
+    "check": "lib/tenant/scopeProxy.ts TENANT_SCOPED_MODELS includes placementRecord and courseProgress OR callers filter via user.organizationId"
+  },
+  {
+    "id": "rul_public_voice_fail_closed_prod",
+    "fromClaimId": "clm_hot_public_voice_failopen",
+    "status": "proposed",
+    "text": "Unauthenticated ElevenLabs session mints must use failClosedLimit in production. /api/public/* voice routes must not return success:true when Redis is null.",
+    "check": "lib/rate-limit.ts checkPublicVoiceSessionRateLimit uses failClosedLimit"
+  },
+  {
+    "id": "rul_apply_signup_uses_request_org",
+    "fromClaimId": "clm_secrets_apply_always_default_org",
+    "status": "proposed",
+    "text": "Apply signup must write organizationId from resolveOrgFromRequest / trusted host, not unconditionally getDefaultOrganizationId().",
+    "check": "app/api/apply/signup/route.ts does not use getDefaultOrganizationId as the only org source"
+  },
+  {
+    "id": "rul_admin_ssr_same_scope_as_api",
+    "fromClaimId": "clm_secrets_ssr_api_scope_split",
+    "status": "proposed",
+    "text": "Admin SSR list pages must use the same isAdminInOrg + withTenantScope (or parent FK) as their API counterparts. CI tenant grep must include page.tsx loaders.",
+    "check": "app/admin/members/page.tsx and app/admin/placements/page.tsx call withTenantScope or getActorOrganizationId"
+  },
+  {
+    "id": "rul_no_superadmin_any_tenant_fallback",
+    "fromClaimId": "clm_secrets_superadmin_fallback_upsert",
+    "status": "proposed",
+    "text": "getEmployerForUser/getPartnerForUser must not findFirst any active row or upsert preview tenants as a side effect of navigation. Impersonation requires an explicit signed cookie.",
+    "check": "lib/auth/roles.ts has no anyActiveEmployer / anyActivePartner fallback"
+  },
+  {
+    "id": "rul_gdpr_delete_removes_blobs",
+    "fromClaimId": "clm_secrets_gdpr_delete_leaves_blobs",
+    "status": "proposed",
+    "text": "GDPR delete must remove or expire storage objects under the member's resume/cert paths, not only null the profile columns.",
+    "check": "app/api/gdpr/delete/route.ts or lib/gdpr deletes from member-resumes / member-files"
+  },
+  {
+    "id": "rul_ci_tenant_grep_includes_ssr",
+    "fromClaimId": "clm_dead_verify_routes_misses_ssr",
+    "status": "proposed",
+    "text": "scripts/verify-high-risk-tenant-routes.cjs must assert org scope on admin SSR list pages (members, placements, training-progress, counselors), not only APIs.",
+    "check": "scripts/verify-high-risk-tenant-routes.cjs mentions app/admin/members/page.tsx"
+  },
+  {
+    "id": "rul_no_take_20k_admin_lists",
+    "fromClaimId": "clm_hot_admin_counselors_20k",
+    "status": "proposed",
+    "text": "Admin and portal list loaders must not use take >= 5000. Paginate or aggregate in SQL.",
+    "check": "rg take: 20000|take: 5000 app/admin app/(portal) returns no production page loaders"
   }
 ]

@@ -1,0 +1,159 @@
+=== clm_hot_employer_legacy_5000 ===
+app/(portal)/partner/page.tsx:569:            take: 5000,
+app/(portal)/counselor/page.tsx:145:      take: 5000,
+app/(portal)/counselor/page.tsx:173:      take: 5000,
+app/(portal)/counselor/page.tsx:190:          take: 5000,
+app/(portal)/employer/candidates/[studentId]/page.tsx:72:      take: 5000,
+app/(portal)/employer/candidates/[studentId]/page.tsx:80:      take: 5000,
+app/(portal)/employer/jobs/page.tsx:63:      take: 5000,
+app/(portal)/employer/jobs/page.tsx:69:      take: 5000,
+app/(portal)/employer/jobs/page.tsx:75:      take: 5000,
+app/(portal)/employer/page.tsx:239:      take: 5000,
+app/(portal)/employer/page.tsx:276:      take: 5000,
+app/(portal)/employer/pipeline/page.tsx:39:    take: 5000,
+app/(portal)/employer/pipeline/page.tsx:50:        take: 5000,
+app/(portal)/employer/matches/page.tsx:29:    take: 5000,
+app/(portal)/employer/matches/page.tsx:43:          take: 5000,
+
+=== clm_hot_admin_counselors_20k ===
+102:      take: 20000,
+members/page organizationId: NONE
+
+=== clm_hot_public_voice_failopen ===
+voice-session getUser: NONE
+lib/rate-limit.ts:525:  if (!publicVoiceSessionRateLimiter) return { success: true };
+
+=== clm_hot_scope_proxy_false_safety ===
+scopeProxy models: NONE of those
+41:    const placedMembers = await db.placementRecord.count({
+45:    const avgSalary = await db.placementRecord.aggregate({
+
+=== clm_hot_three_nudge_email_paths ===
+lib/cron/at-risk-alerts.ts:86:export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> {
+vercel.json:46:      "path": "/api/cron/inactive-nudge",
+vercel.json:50:      "path": "/api/cron/inactivity-nudge",
+app/api/cron/inactivity-nudge/route.ts:12: * POST /api/cron/inactivity-nudge
+app/api/cron/inactivity-nudge/route.ts:17: * inactive-nudge and course-accountability — see lib/cron/nudgeThrottle.ts.
+app/api/cron/inactivity-nudge/route.ts:79:      captureApiError(e, { route: 'cron/inactivity-nudge', extra: { userId: member.id } });
+app/api/cron/inactive-nudge/route.ts:17: * inactivity-nudge / course-accountability in the same window (see
+app/api/cron/inactive-nudge/route.ts:71:            metadata: { source: 'inactive-nudge', weekOf: sevenDaysAgo.toISOString() },
+app/api/cron/inactive-nudge/route.ts:86:      captureApiError(err, { route: 'cron/inactive-nudge', extra: { userId: member.id } });
+app/api/cron/at-risk-alerts/route.ts:5:  runMemberRetentionNudges,
+app/api/cron/at-risk-alerts/route.ts:41:  const nudgeResult = await runMemberRetentionNudges();
+app/api/cron/course-accountability/route.ts:28: * cross-cron cooldown (via `MemberNudgeLog`) with inactive-nudge and
+app/api/cron/course-accountability/route.ts:29: * inactivity-nudge — see lib/cron/nudgeThrottle.ts.
+app/api/cron/course-accountability/route.ts:40:  // expected to have been picked up by at-risk-check / inactive-nudge.
+
+=== clm_hot_health_public_prisma ===
+15:const CACHE_TTL_MS = 5000;
+34:    await prisma.$transaction((tx) => tx.$queryRaw`SELECT 1`);
+158:    healthCache.current = { body, status: httpStatus, headers, until: Date.now() + CACHE_TTL_MS };
+
+=== clm_hot_admin_manual_cron_trigger ===
+3:import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+18:    try { await requireAdmin(user.id); } catch {
+26:    const secret = process.env.CRON_SECRET;
+29:        error: 'CRON_SECRET not configured',
+30:        fix: 'Add CRON_SECRET to Vercel environment variables (Production) and redeploy.',
+34:    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org';
+
+=== clm_hot_middleware_ai_no_backstop ===
+75:const TENANT_API_PATHS = ['/api/member', '/api/employer', '/api/partner', '/api/counselor'];
+77:/** Routes under TENANT_API_PATHS that must stay reachable without a session. */
+109:  return TENANT_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+ai routes with getUser: 19
+
+=== clm_secrets_superadmin_fallback_upsert ===
+209:    const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
+220:    const anyActivePartner = await prisma.partner.findFirst({
+225:    if (anyActivePartner) {
+226:      const orgBranding = await getOrgBranding(anyActivePartner.organizationId);
+227:      return { partnerId: anyActivePartner.id, partner: anyActivePartner, orgBranding, hasDirectPartnerLink: false };
+326:async function ensureSuperAdminFallbackPartner(): Promise<{
+348:async function ensureSuperAdminFallbackEmployer(): Promise<{
+444:    const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer();
+447:    const anyActiveEmployer = await prisma.employer.findFirst({
+452:    if (anyActiveEmployer) return mapEmployerRow(anyActiveEmployer);
+
+=== clm_secrets_apply_always_default_org ===
+13:import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+367:    const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+
+=== clm_secrets_ssr_api_scope_split ===
+SSR members org: NONE
+4:import { withTenantScope } from '@/lib/tenant/withTenantScope';
+49:  const { rows, truncated } = await withTenantScope(orgId, (db) =>
+
+=== clm_secrets_gdpr_delete_leaves_blobs ===
+gdpr storage cleanup: NONE
+
+=== clm_secrets_impersonation_cookie_unsigned ===
+lib/auth/roles.ts:8:export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
+lib/auth/roles.ts:429:    const fromCookie = cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
+lib/auth/roles.ts:481:    const fromCookie = cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
+app/api/admin/employer-context/route.ts:4:import { isSuperAdmin, SUPER_ADMIN_EMPLOYER_COOKIE } from '@/lib/auth/roles';
+app/api/admin/employer-context/route.ts:29:    const id = store.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
+app/api/admin/employer-context/route.ts:56:      store.delete(SUPER_ADMIN_EMPLOYER_COOKIE);
+app/api/admin/employer-context/route.ts:75:    store.set(SUPER_ADMIN_EMPLOYER_COOKIE, employer.id, cookieOpts);
+
+=== clm_secrets_csp_unsafe_eval ===
+61:            //   - `'unsafe-inline'` and `'unsafe-eval'` remain on `script-src` and
+77:              "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://va.vercel-scripts.com https://challenges.cloudflare.com",
+56:const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-53JCT6WN';
+
+=== clm_dead_ci_lint_vitest_advisory ===
+76:      # new errors are visible. Flip to required (drop continue-on-error)
+80:        continue-on-error: true
+87:      # runs at 0%). Flip to required (drop continue-on-error) after a few
+91:        continue-on-error: true
+105:        continue-on-error: true
+37:  eslint: { ignoreDuringBuilds: false },
+
+=== clm_dead_verify_routes_misses_ssr ===
+verify script page.tsx: NONE
+
+=== clm_dead_no_query_budget_tests ===
+ensureAppUser tests: NONE
+dashboard prisma count: 24
+
+=== clm_dead_legacy_ui_still_shipped ===
+app/admin/counselors/page.tsx:60:  if (requestedUi === 'legacy') {
+app/(portal)/employer/page.tsx:64:  if (params?.ui !== 'legacy') {
+
+=== clm_dead_fr_pt_unreviewed_live ===
+1:export const APP_LOCALES = ['en', 'es', 'fr', 'pt'] as const;
+2:export type AppLocale = (typeof APP_LOCALES)[number];
+10: * `fr` and `pt` remain in `APP_LOCALES` (so /fr/... and /pt/... URLs that are
+15:export const REVIEWED_LOCALES = ['en', 'es'] as const;
+17:export function isReviewedLocale(locale: string): locale is (typeof REVIEWED_LOCALES)[number] {
+18:  return (REVIEWED_LOCALES as readonly string[]).includes(locale);
+28:  return (APP_LOCALES as readonly string[]).includes(value);
+107:  // /pt/... navigation — see isReviewedLocale / REVIEWED_LOCALES — but a
+205017 messages/fr.json
+197129 messages/pt.json
+184184 messages/en.json
+586330 total
+
+=== clm_dead_caddy_single_host ===
+18 Caddyfile
+Caddyfile header/rate: NONE
+
+=== clm_deps_ci_allow_missing_upstash ===
+lib/rate-limit.ts:17:const allowMissingUpstash = process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH?.trim() === '1';
+lib/rate-limit.ts:23:    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.';
+lib/rate-limit.ts:173:    // RATE_LIMIT_ALLOW_MISSING_UPSTASH=1). The boot assertion is skipped in
+lib/rate-limit.ts:179:        `[RATE-LIMIT] ${name} limiter is null but RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 — failing open for ${identifier}`
+.github/workflows/ci-gate.yml:32:      RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"
+.github/workflows/ci-gate.yml:118:          RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"
+
+=== clm_deps_pages_router_leftover ===
+both pages/_app and app/layout exist
+
+=== clm_deps_messages_new_keys_sidecar ===
+new-i18n-keys not loaded
+49515 messages/new-i18n-keys.json
+
+=== clm_deps_supabase_sql_unmapped_before ===
+prisma migrations: 166
+migrations
+policies.sql

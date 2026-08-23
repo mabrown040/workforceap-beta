@@ -26,5 +26,19 @@
     "rankFile": "graph/rank.json",
     "reportFile": "graph/reports/run_20260823_0215.md",
     "humanGate": "pending"
+  },
+  {
+    "id": "run_20260823_deep",
+    "startedAt": "2026-08-23T12:39:00.000Z",
+    "mapFile": "graph/map.json",
+    "claimFiles": [
+      "graph/claims/deps-run_20260823_deep.json",
+      "graph/claims/secrets-run_20260823_deep.json",
+      "graph/claims/dead-code-run_20260823_deep.json",
+      "graph/claims/hot-paths-run_20260823_deep.json"
+    ],
+    "rankFile": "graph/rank.json",
+    "reportFile": "graph/reports/run_20260823_deep.md",
+    "humanGate": "pending"
   }
 ]

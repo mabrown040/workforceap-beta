@@ -39,10 +39,12 @@ import { hasSupabaseServerEnv, createSupabaseServerClient, getSession, getUser }
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-function mockDefaultCookieStore() {
+const AUTH_COOKIE = { name: 'sb-workforceap-auth-token', value: 'base64.jwt' };
+
+function mockDefaultCookieStore(cookieList: { name: string; value: string }[] = []) {
   vi.mocked(cookies).mockResolvedValue({
     get: vi.fn(),
-    getAll: vi.fn(() => []),
+    getAll: vi.fn(() => cookieList),
     set: vi.fn(),
   } as any);
 }
@@ -138,9 +140,19 @@ describe('getSession', () => {
     expect(session).toBeNull();
   });
 
+  it('returns null when no Supabase session cookie is present', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+
+    const session = await getSession();
+    expect(session).toBeNull();
+    expect(createServerClient).not.toHaveBeenCalled();
+  });
+
   it('returns session from supabase', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    mockDefaultCookieStore([AUTH_COOKIE]);
 
     const mockSession = { user: { id: 'user-123' } };
     const mockClient = {
@@ -158,6 +170,7 @@ describe('getSession', () => {
   it('returns null when supabase session is null', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    mockDefaultCookieStore([AUTH_COOKIE]);
 
     const mockClient = {
       auth: {
@@ -196,9 +209,19 @@ describe('getUser', () => {
     expect(user).toBeNull();
   });
 
+  it('returns null when no Supabase session cookie is present', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+
+    const user = await getUser();
+    expect(user).toBeNull();
+    expect(createServerClient).not.toHaveBeenCalled();
+  });
+
   it('returns user from supabase', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    mockDefaultCookieStore([AUTH_COOKIE]);
 
     const mockUser = { id: 'user-123', email: 'test@example.com' };
     const mockClient = {
@@ -216,6 +239,7 @@ describe('getUser', () => {
   it('returns null when supabase user is null', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    mockDefaultCookieStore([AUTH_COOKIE]);
 
     const mockClient = {
       auth: {
@@ -231,6 +255,7 @@ describe('getUser', () => {
   it('returns null when Supabase returns an auth error', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    mockDefaultCookieStore([AUTH_COOKIE]);
 
     const mockClient = {
       auth: {

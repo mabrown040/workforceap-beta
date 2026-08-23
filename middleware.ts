@@ -34,13 +34,13 @@ import {
   PARTNER_REF_COOKIE_MAX_AGE,
 } from '@/lib/apply/applyReferralCapture';
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
+import { WAP_USER_ID_HEADER } from '@/lib/auth/layoutUserId';
+import { hasSupabaseAuthCookies, shouldTalkToGoTrue } from '@/lib/auth/supabaseAuthCookie';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
 const WAP_ORG_ID_HEADER = 'x-wap-org-id';
 /** Always-set header carrying the normalized Host so Node-runtime resolvers can populate cache. */
 const WAP_HOST_HEADER = 'x-wap-host';
-/** Header forwarded when middleware has cryptographically verified the user via Supabase. */
-const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
 const PORTAL_PATHS = [
   '/dashboard',
@@ -260,6 +260,20 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  const needsValidatedUser =
+    isProtectedPath(effectivePath) ||
+    isTenantApiPath(effectivePath) ||
+    (isStaffMfaEnforcementEnabled() &&
+      (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)));
+  const hasAuthCookie = hasSupabaseAuthCookies(request.cookies);
+
+  // Anonymous public HTML must not construct a GoTrue client. Protected /
+  // tenant-api paths still validate; cookie-bearing public pages still
+  // refresh the session so /apply and /en expiry UX stays intact.
+  if (!shouldTalkToGoTrue({ needsValidatedUser, hasAuthCookie })) {
+    return response;
+  }
+
   const sessionOnly = request.cookies.get(SESSION_ONLY_COOKIE)?.value === '1';
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookieOptions: getSupabaseCookieOptions(sessionOnly),
@@ -280,12 +294,6 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const needsValidatedUser =
-    isProtectedPath(effectivePath) ||
-    isTenantApiPath(effectivePath) ||
-    (isStaffMfaEnforcementEnabled() &&
-      (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)));
-
   let user: User | null = null;
   if (needsValidatedUser) {
     try {
@@ -298,13 +306,21 @@ export async function middleware(request: NextRequest) {
       user = null;
     }
   } else {
-    await supabase.auth.getSession().catch((error) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      user = session?.user ?? null;
+    } catch (error) {
       console.error('[middleware] Supabase session refresh failed:', error);
-    });
+      user = null;
+    }
   }
 
-  // Forward verified user ID to Node runtime so SSR layouts / API routes
-  // can set PostgreSQL GUCs without repeating the Supabase round-trip.
+  // Forward user ID to Node runtime so SSR layouts / API routes can set
+  // PostgreSQL GUCs without repeating the Supabase round-trip. Protected
+  // paths use getUser() (GoTrue-verified). Cookie-bearing public HTML uses
+  // getSession() so logged-in /en and /apply still provision and set Sentry.
   // NextResponse.next()/rewrite() snapshot the forwarded request headers at
   // construction time, so mutating `requestHeaders` after the fact never
   // reaches the app — rebuild the response with the updated headers and

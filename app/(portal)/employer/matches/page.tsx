@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
 import { getTranslations } from 'next-intl/server';
+import { EMPLOYER_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -25,22 +26,26 @@ export default async function EmployerMatchesPage() {
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
-  const matches = await prisma.aIJobMatch.findMany({
-    take: 5000,
-    where: { job: { employerId: ctx.employerId, status: 'live' } },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      job: { select: { id: true, title: true } },
-      student: { select: { id: true, fullName: true } },
-    },
-  });
+  const matchWhere = { job: { employerId: ctx.employerId, status: 'live' as const } };
+  const [matchTotal, matches] = await Promise.all([
+    prisma.aIJobMatch.count({ where: matchWhere }),
+    prisma.aIJobMatch.findMany({
+      take: EMPLOYER_LIST_CAP,
+      where: matchWhere,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        job: { select: { id: true, title: true } },
+        student: { select: { id: true, fullName: true } },
+      },
+    }),
+  ]);
 
   const keys = matches.map((m) => ({ jobId: m.jobId, studentId: m.studentId }));
   const applications =
     keys.length === 0
       ? []
       : await prisma.jobPostingApplication.findMany({
-          take: 5000,
+          take: EMPLOYER_LIST_CAP,
           where: { OR: keys.map((k) => ({ jobId: k.jobId, studentId: k.studentId })) },
           select: { id: true, jobId: true, studentId: true },
         });
@@ -67,6 +72,11 @@ export default async function EmployerMatchesPage() {
           title="Match history"
           goal="Every candidate WorkforceAP has suggested for your live roles, with fit score and pipeline status."
         />
+        {isListTruncated(matches.length, EMPLOYER_LIST_CAP, matchTotal) && (
+          <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0 }}>
+            {showingFirstLabel(matches.length, matchTotal, 'matches')}
+          </p>
+        )}
         <EmployerMatchHistoryClient initialRows={initialRows} />
       </div>
     </DesignSurface>

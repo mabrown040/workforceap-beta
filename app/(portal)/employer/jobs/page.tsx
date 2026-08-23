@@ -21,6 +21,7 @@ import {
   prismaWhereDeletableInListFilter,
   prismaWhereEmployerJobList,
 } from '@/lib/employer/employerJobsListQuery';
+import { EMPLOYER_LIST_CAP } from '@/lib/db/queryCaps';
 import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel, employerJobStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -60,19 +61,19 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       include: { _count: { select: { applications: true } } },
     }),
     prisma.job.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: prismaWhereDeletableInListFilter(employerId, filter, locationType),
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.job.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: prismaWhereClosableInListFilter(employerId, filter, locationType),
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.job.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: listWhere,
       select: { id: true, title: true },
     }),
@@ -254,18 +255,25 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               </div>
             </div>
           ) : (
-            <EmployerJobsBoard
-              jobs={boardItems}
-              filter={filter}
-              page={page}
-              pageSize={EMPLOYER_JOBS_PAGE_SIZE}
-              totalInFilter={totalInFilter}
-              totalInDb={totalInDb}
-              deletableInFilter={deletableRows}
-              closableInFilter={closableRows}
-              titleByIdInFilter={titleByIdInFilter}
-              locationType={locationType}
-            />
+            <>
+              {totalInFilter > EMPLOYER_LIST_CAP && (
+                <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '0 0 0.75rem' }}>
+                  Bulk actions include the first {EMPLOYER_LIST_CAP} postings in this filter.
+                </p>
+              )}
+              <EmployerJobsBoard
+                jobs={boardItems}
+                filter={filter}
+                page={page}
+                pageSize={EMPLOYER_JOBS_PAGE_SIZE}
+                totalInFilter={totalInFilter}
+                totalInDb={totalInDb}
+                deletableInFilter={deletableRows}
+                closableInFilter={closableRows}
+                titleByIdInFilter={titleByIdInFilter}
+                locationType={locationType}
+              />
+            </>
           )}
       </div>
     </PortalPageFrame>

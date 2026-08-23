@@ -1,6 +1,6 @@
 {
   "generatedBy": "scripts/audit-map.mjs",
-  "generatedAt": "2026-08-16T03:42:40.629Z",
+  "generatedAt": "2026-08-23T02:04:49.416Z",
   "cut": "blast-radius",
   "rulesLoaded": [
     "rul_enroll_no_locale_prefix",
@@ -14,6 +14,12 @@
       "id": "ent_cluster_partner_school",
       "label": "Partner-school enrollment",
       "files": [
+        "app/enroll/[school]/page.tsx",
+        "lib/enroll/enrollmentPath.ts",
+        "lib/enroll/resolveEnrollmentPartner.test.ts",
+        "lib/enroll/resolveEnrollmentPartner.ts",
+        "lib/partner/adminSchoolPartner.test.ts",
+        "lib/partner/adminSchoolPartner.ts",
         "lib/partner/attentionQueue.ts",
         "lib/partner/memberProgress.test.ts",
         "lib/partner/memberProgress.ts",
@@ -23,16 +29,18 @@
         "lib/partner/payoutEligibility.test.ts",
         "lib/partner/payoutEligibility.ts",
         "lib/partner/referralBundle.ts",
+        "lib/partner/sponsoredEnrollment.test.ts",
+        "lib/partner/sponsoredEnrollment.ts",
+        "lib/partner/syncProgramCatalog.ts",
         "lib/partners/chsPartner.test.ts",
         "lib/partners/chsPartner.ts",
         "lib/partners/sponsorship.test.ts",
         "lib/partners/sponsorship.ts",
-        "marketing/src/pages/enroll/concordia.astro",
         "scripts/create-chs-partner.ts",
         "scripts/seed-partner-school.ts",
         "scripts/stamp-chs-funding.ts"
       ],
-      "fileCount": 17,
+      "fileCount": 25,
       "hotspotCommits": 0,
       "auditors": [
         "deps",
@@ -48,10 +56,11 @@
         "app/api/apply/signup/route.test.ts",
         "app/api/apply/signup/route.ts",
         "lib/apply/applyReferralCapture.test.ts",
-        "lib/apply/applyReferralCapture.ts"
+        "lib/apply/applyReferralCapture.ts",
+        "lib/partner/sponsoredEnrollment.ts"
       ],
-      "fileCount": 4,
-      "hotspotCommits": 16,
+      "fileCount": 5,
+      "hotspotCommits": 13,
       "auditors": [
         "deps",
         "secrets",
@@ -82,9 +91,10 @@
         "app/api/admin/partners/[id]/route.ts",
         "app/api/admin/partners/export/route.ts",
         "app/api/admin/partners/invite/route.ts",
-        "app/api/admin/partners/route.ts"
+        "app/api/admin/partners/route.ts",
+        "lib/partner/adminSchoolPartner.ts"
       ],
-      "fileCount": 20,
+      "fileCount": 21,
       "hotspotCommits": 0,
       "auditors": [
         "deps",
@@ -131,7 +141,7 @@
         "middleware.ts"
       ],
       "fileCount": 32,
-      "hotspotCommits": 0,
+      "hotspotCommits": 7,
       "auditors": [
         "deps",
         "secrets",
@@ -143,11 +153,171 @@
       "id": "ent_cluster_coursera_consent",
       "label": "Coursera × guardian consent",
       "files": [
+        "app/api/consent/[token]/route.ts",
+        "app/consent/[token]/GuardianConsentForm.tsx",
+        "app/consent/[token]/page.tsx",
         "components/forms/ParentalConsentForm.tsx",
+        "lib/admin/courseraConsentGate.ts",
         "lib/nav/ageBasedNav.ts"
       ],
+      "fileCount": 6,
+      "hotspotCommits": 10,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_prisma_db",
+      "label": "Prisma client + GUC + pooler",
+      "files": [
+        "lib/db/gucContext.test.ts",
+        "lib/db/gucContext.ts",
+        "lib/db/optionalBuildDb.ts",
+        "lib/db/prisma.no-per-query-guc.test.ts",
+        "lib/db/prisma.test.ts",
+        "lib/db/prisma.ts",
+        "lib/db/prismaEnumFallback.ts",
+        "lib/db/withDbRetry.test.ts",
+        "lib/db/withDbRetry.ts",
+        "lib/db/withRequestGuc.test.ts",
+        "lib/db/withRequestGuc.ts",
+        "prisma/schema.prisma",
+        "scripts/ensure-prisma-env.cjs",
+        "scripts/prisma-env.js"
+      ],
+      "fileCount": 14,
+      "hotspotCommits": 8,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_request_cost",
+      "label": "Every-request layout / org / branding",
+      "files": [
+        "app/layout.tsx",
+        "lib/member/ensureAppUser.ts",
+        "lib/platform/defaultOrgTheme.ts",
+        "lib/tenant/customDomainCache.ts",
+        "lib/tenant/organization.ts",
+        "lib/tenant/resolveOrgFromRequest.ts"
+      ],
+      "fileCount": 6,
+      "hotspotCommits": 255,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_rate_limit",
+      "label": "Rate limit + abuse surfaces",
+      "files": [
+        "lib/messages/rateLimit.ts",
+        "lib/rate-limit.ts"
+      ],
       "fileCount": 2,
-      "hotspotCommits": 11,
+      "hotspotCommits": 61,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_payments",
+      "label": "Stripe donate + employer billing",
+      "files": [
+        "app/api/employer/webhook/route.ts",
+        "lib/stripe/client.ts",
+        "lib/stripe/connect.ts",
+        "lib/stripe/customer.ts",
+        "lib/stripe/pricing.ts"
+      ],
+      "fileCount": 5,
+      "hotspotCommits": 0,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_jobs_cron",
+      "label": "Cron / background jobs",
+      "files": [
+        "app/api/admin/crons/_cronsQuery.ts",
+        "app/api/admin/crons/export/route.ts",
+        "app/api/admin/crons/route.test.ts",
+        "app/api/admin/crons/route.ts",
+        "app/api/admin/crons/summary/_cronSummary.ts",
+        "app/api/admin/crons/summary/route.test.ts",
+        "app/api/admin/crons/summary/route.ts",
+        "app/api/cron/applicant-followup/route.ts",
+        "app/api/cron/at-risk-alerts/route.ts",
+        "app/api/cron/at-risk-check/route.ts",
+        "app/api/cron/course-accountability/route.ts",
+        "app/api/cron/coursera-auto-heal/route.ts",
+        "app/api/cron/coursera-b4b-sync/route.ts",
+        "app/api/cron/coursera-sync/route.ts",
+        "app/api/cron/coursera-training-sync/route.ts",
+        "app/api/cron/data-cleanup/route.ts",
+        "app/api/cron/deploy-health/route.ts",
+        "app/api/cron/employer-pending-applicants/route.ts",
+        "app/api/cron/inactive-nudge/route.ts",
+        "app/api/cron/inactivity-nudge/route.ts",
+        "app/api/cron/interview-reminders/route.ts",
+        "app/api/cron/job-alerts/route.ts",
+        "app/api/cron/job-expiry/route.ts",
+        "app/api/cron/milestone-cascade-draft/route.ts",
+        "app/api/cron/milestone-cascade-expire/route.ts",
+        "app/api/cron/milestone-celebration/route.ts",
+        "app/api/cron/onboarding-stalls/route.ts",
+        "app/api/cron/partner-outcome-digest/route.ts",
+        "app/api/cron/placement-survey/route.ts",
+        "app/api/cron/retention-decisions/route.ts",
+        "app/api/cron/smoke-test/route.ts",
+        "app/api/cron/stale-training-check/route.ts",
+        "app/api/cron/verification/route.ts",
+        "app/api/cron/weekly-recap-email/route.ts",
+        "app/api/cron/weekly-recap/_weeklyRecapCronStatus.ts",
+        "app/api/cron/weekly-recap/route.test.ts",
+        "app/api/cron/weekly-recap/route.ts",
+        "app/api/cron/wioa-report/route.ts",
+        "vercel.json"
+      ],
+      "fileCount": 39,
+      "hotspotCommits": 0,
+      "auditors": [
+        "deps",
+        "secrets",
+        "dead-code",
+        "hot-paths"
+      ]
+    },
+    {
+      "id": "ent_cluster_portal_hot",
+      "label": "Portal dashboard + jobs board",
+      "files": [
+        "app/(portal)/dashboard/page.tsx",
+        "lib/jobs/formatSalary.ts",
+        "lib/jobs/listingCache.ts",
+        "lib/jobs/publicJobFilters.ts",
+        "lib/jobs/syncCuratedJobToTracker.ts",
+        "lib/member/service.ts"
+      ],
+      "fileCount": 6,
+      "hotspotCommits": 30,
       "auditors": [
         "deps",
         "secrets",
@@ -158,60 +328,52 @@
   ],
   "hotspots": [
     {
-      "commits": 32,
+      "commits": 25,
       "path": "app/employers/page.tsx"
     },
     {
-      "commits": 26,
+      "commits": 24,
       "path": "app/impact/page.tsx"
     },
     {
-      "commits": 24,
-      "path": "app/apply/ApplyEligibilityClient.tsx"
-    },
-    {
-      "commits": 23,
+      "commits": 20,
       "path": "app/(portal)/dashboard/page.tsx"
     },
     {
-      "commits": 22,
-      "path": "app/layout.tsx"
+      "commits": 20,
+      "path": "app/apply/ApplyEligibilityClient.tsx"
     },
     {
-      "commits": 21,
+      "commits": 18,
       "path": "components/marketing/HomePageBelowFold.tsx"
     },
     {
-      "commits": 21,
+      "commits": 18,
+      "path": "app/layout.tsx"
+    },
+    {
+      "commits": 18,
       "path": "app/apply/PaidApplyVariant.tsx"
     },
     {
-      "commits": 20,
+      "commits": 18,
       "path": "app/apply/OrganicApplyPage.tsx"
     },
     {
-      "commits": 16,
-      "path": "components/MainNav.tsx"
-    },
-    {
-      "commits": 16,
-      "path": "app/api/apply/signup/route.ts"
-    },
-    {
-      "commits": 15,
+      "commits": 14,
       "path": "tests/api/impact-page.spec.ts"
     },
     {
-      "commits": 15,
-      "path": "app/page.tsx"
-    },
-    {
-      "commits": 15,
-      "path": "app/apply/create-account/ApplyCreateAccountForm.tsx"
+      "commits": 14,
+      "path": "components/MainNav.tsx"
     },
     {
       "commits": 14,
       "path": "app/admin/members/[id]/page.tsx"
+    },
+    {
+      "commits": 13,
+      "path": "app/api/apply/signup/route.ts"
     },
     {
       "commits": 12,
@@ -219,11 +381,7 @@
     },
     {
       "commits": 12,
-      "path": "app/(decision-journey)/programs/[slug]/page.tsx"
-    },
-    {
-      "commits": 12,
-      "path": "app/api/auth/login/route.ts"
+      "path": "app/page.tsx"
     },
     {
       "commits": 11,
@@ -235,7 +393,19 @@
     },
     {
       "commits": 11,
-      "path": "next.config.ts"
+      "path": "app/apply/create-account/ApplyCreateAccountForm.tsx"
+    },
+    {
+      "commits": 10,
+      "path": "lib/rate-limit.ts"
+    },
+    {
+      "commits": 10,
+      "path": "lib/nav/portalNav.ts"
+    },
+    {
+      "commits": 10,
+      "path": "app/(portal)/dashboard/learning/page.tsx"
     }
   ]
 }

@@ -3,7 +3,7 @@
     "id": "ent_cluster_partner_school",
     "kind": "cluster",
     "label": "Partner-school enrollment (Concordia pattern)",
-    "path": "lib/partners,lib/partner,marketing/src/pages/enroll,scripts/create-chs-partner.ts"
+    "path": "lib/partners,lib/partner,lib/enroll,app/enroll,marketing/src/pages/enroll,scripts/create-chs-partner.ts"
   },
   {
     "id": "ent_cluster_apply_signup",
@@ -20,13 +20,77 @@
   {
     "id": "ent_cluster_tenant_auth",
     "kind": "cluster",
-    "label": "Tenant + session",
+    "label": "Tenant + session + enroll cookie",
     "path": "lib/tenant,lib/auth,lib/i18n/config.ts,middleware.ts"
   },
   {
     "id": "ent_cluster_coursera_consent",
     "kind": "cluster",
     "label": "Coursera activation gated by guardian consent",
-    "path": "components/forms/ParentalConsentForm.tsx,lib/nav/ageBasedNav.ts"
+    "path": "lib/admin/courseraConsentGate.ts,components/forms/ParentalConsentForm.tsx,app/consent,app/api/consent"
+  },
+  {
+    "id": "ent_cluster_prisma_db",
+    "kind": "cluster",
+    "label": "Prisma client + GUC + pooler",
+    "path": "lib/db,prisma/schema.prisma"
+  },
+  {
+    "id": "ent_cluster_request_cost",
+    "kind": "cluster",
+    "label": "Every-request layout / org / branding",
+    "path": "app/layout.tsx,lib/platform/defaultOrgTheme.ts,lib/tenant/organization.ts,lib/tenant/resolveOrgFromRequest.ts"
+  },
+  {
+    "id": "ent_cluster_rate_limit",
+    "kind": "cluster",
+    "label": "Rate limit + abuse surfaces",
+    "path": "lib/rate-limit.ts"
+  },
+  {
+    "id": "ent_cluster_payments",
+    "kind": "cluster",
+    "label": "Stripe donate + employer billing",
+    "path": "lib/stripe,app/api/donate,app/api/employer/webhook"
+  },
+  {
+    "id": "ent_cluster_jobs_cron",
+    "kind": "cluster",
+    "label": "Cron / background jobs",
+    "path": "app/api/cron,vercel.json"
+  },
+  {
+    "id": "ent_cluster_portal_hot",
+    "kind": "cluster",
+    "label": "Portal dashboard + jobs board",
+    "path": "app/(portal)/dashboard/page.tsx,app/(portal)/dashboard/jobs,lib/jobs"
+  },
+  {
+    "id": "ent_file_layout",
+    "kind": "file",
+    "label": "Root layout",
+    "path": "app/layout.tsx",
+    "clusterId": "ent_cluster_request_cost"
+  },
+  {
+    "id": "ent_file_prisma",
+    "kind": "file",
+    "label": "Prisma client",
+    "path": "lib/db/prisma.ts",
+    "clusterId": "ent_cluster_prisma_db"
+  },
+  {
+    "id": "ent_file_ensure_user",
+    "kind": "file",
+    "label": "Orphan user provisioner",
+    "path": "lib/member/ensureAppUser.ts",
+    "clusterId": "ent_cluster_request_cost"
+  },
+  {
+    "id": "ent_route_dashboard",
+    "kind": "route",
+    "label": "Member dashboard home",
+    "path": "/dashboard",
+    "clusterId": "ent_cluster_portal_hot"
   }
 ]

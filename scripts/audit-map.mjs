@@ -56,6 +56,58 @@ const SEED_CLUSTERS = [
       "lib/nav/ageBasedNav.ts",
     ],
   },
+  {
+    id: "ent_cluster_prisma_db",
+    label: "Prisma client + GUC + pooler",
+    seeds: [
+      "lib/db/",
+      "prisma/schema.prisma",
+      "scripts/prisma-env.js",
+      "scripts/ensure-prisma-env.cjs",
+    ],
+  },
+  {
+    id: "ent_cluster_request_cost",
+    label: "Every-request layout / org / branding",
+    seeds: [
+      "app/layout.tsx",
+      "lib/platform/defaultOrgTheme.ts",
+      "lib/tenant/organization.ts",
+      "lib/tenant/resolveOrgFromRequest.ts",
+      "lib/tenant/customDomainCache.ts",
+      "lib/member/ensureAppUser.ts",
+    ],
+  },
+  {
+    id: "ent_cluster_rate_limit",
+    label: "Rate limit + abuse surfaces",
+    seeds: ["lib/rate-limit.ts", "lib/messages/rateLimit.ts"],
+  },
+  {
+    id: "ent_cluster_payments",
+    label: "Stripe donate + employer billing",
+    seeds: [
+      "lib/stripe/",
+      "app/api/donate/",
+      "app/api/employer/webhook/",
+      "app/api/webhooks/stripe/",
+    ],
+  },
+  {
+    id: "ent_cluster_jobs_cron",
+    label: "Cron / background jobs",
+    seeds: ["app/api/cron/", "app/api/admin/crons/", "vercel.json"],
+  },
+  {
+    id: "ent_cluster_portal_hot",
+    label: "Portal dashboard + jobs board",
+    seeds: [
+      "app/(portal)/dashboard/page.tsx",
+      "app/jobs/",
+      "lib/jobs/",
+      "lib/member/service.ts",
+    ],
+  },
 ];
 
 function sh(cmd) {

@@ -1,5 +1,6 @@
 import type { CareerExperienceBand, CareerRecommendationType } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_CATALOG_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
 import { scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
 import { getFitReasoning } from '@/lib/content/quizReasoning';
@@ -123,7 +124,7 @@ export async function buildCareerMatchResult(
   const prismaBand = uiBandToPrisma(experienceBand);
   const supportFlags = { needsComputerSupport: needsComputerSupport(answers) };
 
-  const rules = await prisma.careerQuizRule.findMany({ take: 5000, where: { isActive: true } });
+  const rules = await prisma.careerQuizRule.findMany({ take: LOOKUP_CATALOG_CAP, where: { isActive: true } });
   const boostMap = new Map<string, number>();
   for (const r of rules) {
     const sig = r.inputSignal as Record<string, unknown>;
@@ -133,7 +134,7 @@ export async function buildCareerMatchResult(
   }
 
   const mappings = await prisma.careerProgramMapping.findMany({
-    take: 5000,
+    take: LOOKUP_CATALOG_CAP,
     where: { isActive: true, experienceBand: prismaBand },
     include: { occupation: true },
   });

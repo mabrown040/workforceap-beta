@@ -12,6 +12,7 @@ import { CourseProgressStatus } from '@prisma/client';
 
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
+import { COURSERA_B4B_REPORT_CAP, COURSERA_B4B_USER_LOOKUP_CAP } from '@/lib/db/scanCaps';
 import {
   loadCanonicalMappingsForCourseraIds,
   type CanonicalMappingIndex,
@@ -60,6 +61,13 @@ export type B4BSyncResult = {
   skippedNoUser: number;
   errors: number;
   byUser: Record<string, { courses: number; unknownCourses: number; error?: string }>;
+  /**
+   * Coursera enrollmentReports `start` offset for the next cron run.
+   * Persisted via `logCronRun('cron_coursera_b4b_sync', result)` metadata.
+   * `null` means the pager wrapped (next run starts at 0).
+   */
+  nextStart: number | null;
+  capped: boolean;
 };
 
 /* ------------------------------------------------------------------ */
@@ -118,13 +126,39 @@ export function nextEnrollmentReportStart(args: {
   return start + batchLength;
 }
 
-async function fetchEnrollmentReports(token: string, orgId: string): Promise<B4BEnrollmentReport[]> {
-  const results: B4BEnrollmentReport[] = [];
-  let start = 0;
-  const limit = 1000;
+async function readB4BResumeStart(): Promise<number> {
+  const last = await prisma.workflowDiagnostic.findFirst({
+    where: { workflow: 'cron_coursera_b4b_sync', status: 'ok' },
+    orderBy: { createdAt: 'desc' },
+    select: { metadata: true },
+  });
+  const meta = last?.metadata;
+  if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return 0;
+  const raw = (meta as Record<string, unknown>).nextStart;
+  return typeof raw === 'number' && Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0;
+}
 
-  while (true) {
-    const url = `${B4B_API_BASE}/api/businesses.v1/${orgId}/enrollmentReports?start=${start}&limit=${limit}`;
+/**
+ * Fetch one incremental window of enrollment reports.
+ *
+ * Hard-capped at `COURSERA_B4B_REPORT_CAP` per cron run. The next run
+ * continues from `nextStart` stored on the last successful
+ * `cron_coursera_b4b_sync` workflowDiagnostic (see `readB4BResumeStart`).
+ * When Coursera reports no further page, `nextStart` is 0 so the following
+ * run wraps to the beginning of the catalog.
+ */
+async function fetchEnrollmentReports(
+  token: string,
+  orgId: string,
+  startAt: number,
+): Promise<{ reports: B4BEnrollmentReport[]; nextStart: number | null; capped: boolean }> {
+  const results: B4BEnrollmentReport[] = [];
+  let start = startAt;
+  const limit = Math.min(1000, COURSERA_B4B_REPORT_CAP);
+
+  while (results.length < COURSERA_B4B_REPORT_CAP) {
+    const pageLimit = Math.min(limit, COURSERA_B4B_REPORT_CAP - results.length);
+    const url = `${B4B_API_BASE}/api/businesses.v1/${orgId}/enrollmentReports?start=${start}&limit=${pageLimit}`;
     const resp = await fetchCourseraWithTransientRetry(url, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });
@@ -145,14 +179,16 @@ async function fetchEnrollmentReports(token: string, orgId: string): Promise<B4B
     const next = nextEnrollmentReportStart({
       start,
       batchLength: batch.length,
-      limit,
+      limit: pageLimit,
       total: json.paging?.total,
     });
-    if (next === null) break;
+    if (next === null) {
+      return { reports: results, nextStart: startAt > 0 ? 0 : null, capped: false };
+    }
     start = next;
   }
 
-  return results;
+  return { reports: results, nextStart: start, capped: true };
 }
 
 /* ------------------------------------------------------------------ */
@@ -523,19 +559,31 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   if (!orgId) throw new Error('Missing COURSERA_ORG_ID');
 
   const token = await getB4BToken();
-  const reports = await fetchEnrollmentReports(token, orgId);
+  const resumeStart = await readB4BResumeStart();
+  const { reports, nextStart, capped } = await fetchEnrollmentReports(token, orgId, resumeStart);
 
   const programIdToSlugs = buildProgramIdToSlugsMap();
   const courseIdToMeta = buildCourseIdToMetaMap();
 
-  // Pre-load all active users by normalized email
-  const users = await prisma.$transaction((tx) =>
-    tx.user.findMany({
-      take: 5000,
-      where: { deletedAt: null, email: { not: '' } },
+  // Resolve only emails in this incremental window (chunked). Never hydrate
+  // the whole user table — next cron continues from `nextStart`.
+  const reportEmails = [
+    ...new Set(
+      reports
+        .map((r) => r.email?.trim().toLowerCase())
+        .filter((email): email is string => Boolean(email)),
+    ),
+  ];
+  const users: Array<{ id: string; email: string }> = [];
+  for (let i = 0; i < reportEmails.length; i += COURSERA_B4B_USER_LOOKUP_CAP) {
+    const chunk = reportEmails.slice(i, i + COURSERA_B4B_USER_LOOKUP_CAP);
+    const page = await prisma.user.findMany({
+      where: { deletedAt: null, email: { in: chunk, mode: 'insensitive' } },
       select: { id: true, email: true },
-    }),
-  );
+      take: COURSERA_B4B_USER_LOOKUP_CAP,
+    });
+    users.push(...page);
+  }
   const userByEmail = new Map<string, string>();
   for (const u of users) {
     userByEmail.set(u.email.trim().toLowerCase(), u.id);
@@ -549,6 +597,8 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     skippedNoUser: 0,
     errors: 0,
     byUser: {},
+    nextStart,
+    capped,
   };
 
   // Deduplicate by (email, contentId) — keep most recent updatedAt
@@ -777,7 +827,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 async function updateRollups(emails: string[]) {
   const { affectedUsers, allRows } = await prisma.$transaction(async (tx) => {
     const affectedUsers = await tx.user.findMany({
-      take: 5000,
+      take: COURSERA_B4B_USER_LOOKUP_CAP,
       where: { email: { in: emails, mode: 'insensitive' }, deletedAt: null },
       select: { id: true, email: true },
     });
@@ -785,7 +835,7 @@ async function updateRollups(emails: string[]) {
     const allUserIds = affectedUsers.map((u) => u.id);
     const allRows = allUserIds.length
       ? await tx.courseProgress.findMany({
-          take: 5000,
+          take: COURSERA_B4B_REPORT_CAP,
           where: { userId: { in: allUserIds } },
           select: { userId: true, programSlug: true, status: true, percentComplete: true },
         })

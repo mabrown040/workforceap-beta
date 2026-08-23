@@ -17,12 +17,24 @@ type DbOverrides = {
   activePartners?: number;
 };
 
+function uniqueMemberIds(rows: Array<{ memberId: string }> | undefined): number {
+  return new Set((rows ?? []).map((r) => r.memberId)).size;
+}
+
 function makeDb(overrides: DbOverrides = {}) {
+  const referred = uniqueMemberIds(overrides.referralRows);
+  const partnerPlaced = overrides.partnerPlacementRows?.length ?? 0;
   return {
-    user: { count: vi.fn().mockResolvedValue(overrides.enrolled ?? 0) },
+    user: {
+      count: vi.fn()
+        .mockResolvedValueOnce(overrides.enrolled ?? 0)
+        .mockResolvedValueOnce(referred),
+    },
     placementRecord: {
-      count: vi.fn().mockResolvedValue(overrides.placed ?? 0),
-      findMany: vi.fn().mockResolvedValueOnce(overrides.partnerPlacementRows ?? []).mockResolvedValueOnce(overrides.storyRows ?? []),
+      count: vi.fn()
+        .mockResolvedValueOnce(overrides.placed ?? 0)
+        .mockResolvedValueOnce(partnerPlaced),
+      findMany: vi.fn().mockResolvedValue(overrides.storyRows ?? []),
     },
     partnerReferral: { findMany: vi.fn().mockResolvedValue(overrides.referralRows ?? []) },
     partner: { count: vi.fn().mockResolvedValue(overrides.activePartners ?? 0) },

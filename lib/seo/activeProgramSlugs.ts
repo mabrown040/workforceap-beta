@@ -1,5 +1,6 @@
 import { PROGRAMS } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_CATALOG_CAP } from '@/lib/db/scanCaps';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 
 export type ActiveProgramSlug = {
@@ -22,7 +23,7 @@ export async function getActiveProgramSlugsForSitemap(): Promise<ActiveProgramSl
     const rows = await prisma.organizationProgramCatalog.findMany({
       where: { status: 'active' },
       select: { programSlug: true, updatedAt: true },
-      take: 5000,
+      take: LOOKUP_CATALOG_CAP,
     });
 
     for (const row of rows) {

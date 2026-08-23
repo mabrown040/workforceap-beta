@@ -107,15 +107,14 @@ export async function getOutcomesSocialProof(
     const twoYearsAgo = new Date();
     twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
-    const [enrolled, placed, partnerReferrals, partnerPlacements, activePartners] = await Promise.all([
+    const [enrolled, placed, referrals, placements, activePartners] = await Promise.all([
       db.user.count({ where: { deletedAt: null, enrolledProgram: { not: null } } }),
       db.placementRecord.count({ where: { user: { deletedAt: null } } }),
-      db.partnerReferral.findMany({ where: { member: { deletedAt: null } }, select: { memberId: true }, take: 10000 }),
-      db.placementRecord.findMany({
+      db.user.count({
+        where: { deletedAt: null, partnerReferrals: { some: {} } },
+      }),
+      db.placementRecord.count({
         where: { user: { deletedAt: null, partnerReferrals: { some: {} } } },
-        select: { userId: true },
-        distinct: ['userId'],
-        take: 10000,
       }),
       db.partner.count({ where: { active: true, status: 'active', referrals: { some: { member: { deletedAt: null } } } } }),
     ]);
@@ -131,11 +130,6 @@ export async function getOutcomesSocialProof(
         })).map((row: StoryRecord) => ({ id: row.id, jobTitle: row.jobTitle, programSlug: row.programSlug, placedAt: row.placedAt }))
       : [];
 
-    const referralMemberIds = new Set(
-      (partnerReferrals as Array<{ memberId: string }>).map((row: { memberId: string }) => row.memberId),
-    );
-    const referrals = referralMemberIds.size;
-    const placements = partnerPlacements.length;
     const partnerSnapshot = referrals > 0 && placements > 0
       ? { referrals, placements, activePartners, placementRate: formatSuppressedRate(placements, referrals) }
       : null;

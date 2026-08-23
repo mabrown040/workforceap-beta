@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { ANALYTICS_COHORT_DETAIL_CAP } from '@/lib/db/scanCaps';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -162,6 +163,9 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
 
     const [
       membersServed,
+      enrolledCount,
+      placedAmongEnrolled,
+      completedAmongEnrolled,
       enrolledUsers,
       employersPartnered,
       jobsPosted,
@@ -169,8 +173,16 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
       salaryDeltas,
     ] = await Promise.all([
       prisma.user.count({ where: memberWhere }),
+      prisma.user.count({ where: { ...memberWhere, enrolledProgram: { not: null } } }),
+      prisma.user.count({
+        where: { ...memberWhere, enrolledProgram: { not: null }, placementRecord: { isNot: null } },
+      }),
+      prisma.memberProgramProgress.count({
+        where: { averagePercent: { gte: 100 }, user: { ...memberWhere, enrolledProgram: { not: null } } },
+      }),
       prisma.user.findMany({
-        take: 5000,
+        take: ANALYTICS_COHORT_DETAIL_CAP,
+        orderBy: { enrolledAt: 'desc' },
         where: { ...memberWhere, enrolledProgram: { not: null } },
         select: {
           id: true,
@@ -189,15 +201,18 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
         where: { organizationId: orgId, status: { in: [...jobPostedStatuses] } },
       }),
       prisma.placementRecord.count({ where: { user: memberWhere } }),
-      prisma.placementRecord.findMany({
-        take: 5000,
-        where: {
-          salaryOffered: { not: null },
-          wageAtFollowUp: { not: null },
-          user: memberWhere,
-        },
-        select: { salaryOffered: true, wageAtFollowUp: true },
-      }),
+      prisma.$queryRaw<Array<{ avg_delta: number | null; n: bigint | number }>>`
+        SELECT AVG(pr.wage_at_follow_up - pr.salary_offered) AS avg_delta, COUNT(*)::bigint AS n
+        FROM placement_records pr
+        INNER JOIN users u ON u.id = pr.user_id
+        LEFT JOIN profiles p ON p.user_id = u.id
+        WHERE pr.salary_offered IS NOT NULL
+          AND pr.wage_at_follow_up IS NOT NULL
+          AND u.organization_id = ${orgId}
+          AND u.deleted_at IS NULL
+          AND p.role = 'member'
+          AND u.email NOT IN ('member.success@workforceap.org', 'mbrown@hsconglomerates.com')
+      `,
     ]);
 
     const userIds = enrolledUsers.map((u) => u.id);
@@ -205,7 +220,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
 
     if (userIds.length) {
       const cps = await prisma.courseProgress.findMany({
-        take: 5000,
+        take: ANALYTICS_COHORT_DETAIL_CAP,
         where: {
           userId: { in: userIds },
           status: 'COMPLETED',
@@ -221,47 +236,63 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
       }
     }
 
-    const enrolledDenominator = enrolledUsers.length;
-    let completedForRate = 0;
-    let placedForRate = 0;
+    const enrolledDenominator = enrolledCount;
+    const completedForRate = completedAmongEnrolled;
+    const placedForRate = placedAmongEnrolled;
 
     type ProgramAgg = { enrolled: number; completed: number; daySum: number; dayCount: number };
     const bySlug = new Map<string, ProgramAgg>();
 
+    const [enrolledByProgram, completedByProgram] = await Promise.all([
+      prisma.user.groupBy({
+        by: ['enrolledProgram'],
+        where: { ...memberWhere, enrolledProgram: { not: null } },
+        _count: { _all: true },
+      }),
+      prisma.memberProgramProgress.groupBy({
+        by: ['programSlug'],
+        where: { averagePercent: { gte: 100 }, user: { ...memberWhere, enrolledProgram: { not: null } } },
+        _count: { _all: true },
+      }),
+    ]);
+    for (const row of enrolledByProgram) {
+      if (!row.enrolledProgram) continue;
+      bySlug.set(row.enrolledProgram, {
+        enrolled: row._count._all,
+        completed: 0,
+        daySum: 0,
+        dayCount: 0,
+      });
+    }
+    for (const row of completedByProgram) {
+      const cur = bySlug.get(row.programSlug) ?? { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
+      cur.completed = row._count._all;
+      bySlug.set(row.programSlug, cur);
+    }
+
     for (const u of enrolledUsers) {
       const slug = u.enrolledProgram!;
-      let agg = bySlug.get(slug);
-      if (!agg) {
-        agg = { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
-        bySlug.set(slug, agg);
-      }
-      agg.enrolled += 1;
-
+      const agg = bySlug.get(slug) ?? { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
       const progress = computeTrainingProgress(slug, u.coursesCompleted, u.memberProgramProgress);
       const isCompleted =
         progress.totalCourses > 0 &&
         (progress.pct >= 100 || progress.completedCount >= progress.totalCourses);
-
-      if (isCompleted) {
-        completedForRate += 1;
-        agg.completed += 1;
-        const k = `${u.id}\0${slug}`;
-        const lastCp = lastCompletedAtByUserProgram.get(k);
-        const endAt = completionEndDate({
-          programSlug: slug,
-          isCompleted,
-          memberProgramProgress: u.memberProgramProgress,
-          lastCourseCompletedAt: lastCp,
-        });
-        const startAt = u.enrolledAt ?? u.createdAt;
-        if (endAt && startAt && endAt >= startAt) {
-          const days = (endAt.getTime() - startAt.getTime()) / 86400000;
-          agg.daySum += days;
-          agg.dayCount += 1;
-        }
+      if (!isCompleted) continue;
+      const k = `${u.id}\0${slug}`;
+      const lastCp = lastCompletedAtByUserProgram.get(k);
+      const endAt = completionEndDate({
+        programSlug: slug,
+        isCompleted,
+        memberProgramProgress: u.memberProgramProgress,
+        lastCourseCompletedAt: lastCp,
+      });
+      const startAt = u.enrolledAt ?? u.createdAt;
+      if (endAt && startAt && endAt >= startAt) {
+        const days = (endAt.getTime() - startAt.getTime()) / 86400000;
+        agg.daySum += days;
+        agg.dayCount += 1;
+        bySlug.set(slug, agg);
       }
-
-      if (u.placementRecord) placedForRate += 1;
     }
 
     const completionRatePct =
@@ -269,11 +300,11 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
     const placementRatePct =
       enrolledDenominator > 0 ? Math.round((placedForRate / enrolledDenominator) * 100) : 0;
 
-    let avgSalaryIncreaseDollars: number | null = null;
-    if (salaryDeltas.length > 0) {
-      const sum = salaryDeltas.reduce((s, r) => s + (r.wageAtFollowUp! - r.salaryOffered!), 0);
-      avgSalaryIncreaseDollars = sum / salaryDeltas.length;
-    }
+    const salaryIncreaseSampleSize = Number(salaryDeltas[0]?.n ?? 0);
+    const avgSalaryIncreaseDollars =
+      salaryIncreaseSampleSize > 0 && salaryDeltas[0]?.avg_delta != null
+        ? Number(salaryDeltas[0].avg_delta)
+        : null;
 
     const programRows: ImpactProgramRow[] = [...bySlug.keys()]
       .sort((a, b) => {
@@ -305,7 +336,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
       completionRatePct,
       placementRatePct,
       avgSalaryIncreaseDollars,
-      salaryIncreaseSampleSize: salaryDeltas.length,
+      salaryIncreaseSampleSize,
       programs: programRows,
       employersPartnered,
       jobsPosted,

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { MEMBER_PROGRESS_CAP } from '@/lib/db/scanCaps';
 
 export type MemberSkillsetProgressRow = {
   skillsetId: string;
@@ -20,7 +21,7 @@ export type MemberSkillsetProgressRow = {
 export async function loadMemberSkillsetProgress(userId: string): Promise<MemberSkillsetProgressRow[]> {
   try {
     const rows = await prisma.courseraSkillsetProgress.findMany({
-      take: 5000,
+      take: MEMBER_PROGRESS_CAP,
       where: { userId },
       orderBy: [{ progressPct: 'desc' }, { skillsetName: 'asc' }],
       select: {

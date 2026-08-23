@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { WORK_QUEUE_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
   MATCH_WEIGHTS,
@@ -21,7 +22,8 @@ export async function matchStudentsForJob(job: {
   preferredCertifications: string[];
 }): Promise<StudentMatch[]> {
   const students = await prisma.user.findMany({
-    take: 5000,
+    take: WORK_QUEUE_CAP,
+    orderBy: { enrolledAt: 'desc' },
     where: {
       deletedAt: null,
       enrolledProgram: { not: null },

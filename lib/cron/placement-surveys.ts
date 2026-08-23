@@ -6,6 +6,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { CRON_SCOPED_LOOKUP_CAP } from '@/lib/db/scanCaps';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail, sendPlacementSurveyEscalationEmail } from '@/lib/email';
 import { createNotification } from '@/lib/notifications/create';
@@ -98,7 +99,7 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
 
     // Batch idempotency check: load all existing surveys for this wave + placement set
     const existingSurveys = await prisma.placementSurvey.findMany({
-      take: 5000,
+      take: CRON_SCOPED_LOOKUP_CAP,
       where: {
         placementId: { in: placements.map((p) => p.id) },
         wave,

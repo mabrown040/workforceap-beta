@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_CATALOG_CAP } from '@/lib/db/scanCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
 
 const FIT_WEIGHT: Record<string, number> = {
@@ -14,7 +15,7 @@ export async function mapIpCareerRowsToProgramSlugs(
   if (careers.length === 0) return [];
   const codes = [...new Set(careers.map((c) => c.code.trim()).filter(Boolean))];
   const mappings = await prisma.careerProgramMapping.findMany({
-    take: 5000,
+    take: LOOKUP_CATALOG_CAP,
     where: { isActive: true, onetCode: { in: codes } },
   });
   if (mappings.length === 0) return [];

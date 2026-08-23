@@ -92,5 +92,264 @@
     "label": "Member dashboard home",
     "path": "/dashboard",
     "clusterId": "ent_cluster_portal_hot"
+  },
+  {
+    "id": "ent_cluster_admin_ssr",
+    "kind": "cluster",
+    "label": "Admin SSR pages (global isAdmin + list loaders)",
+    "path": "app/admin,components/admin"
+  },
+  {
+    "id": "ent_cluster_admin_api",
+    "kind": "cluster",
+    "label": "Admin API write / export / cron-trigger surface",
+    "path": "app/api/admin,lib/admin"
+  },
+  {
+    "id": "ent_cluster_portal_member",
+    "kind": "cluster",
+    "label": "Member portal + member APIs",
+    "path": "app/(portal)/dashboard,app/api/member,lib/member"
+  },
+  {
+    "id": "ent_cluster_employer",
+    "kind": "cluster",
+    "label": "Employer portal + APIs + billing",
+    "path": "app/(portal)/employer,app/api/employer,lib/employer"
+  },
+  {
+    "id": "ent_cluster_partner_portal",
+    "kind": "cluster",
+    "label": "Partner portal + APIs + signup",
+    "path": "app/(portal)/partner,app/api/partner"
+  },
+  {
+    "id": "ent_cluster_counselor",
+    "kind": "cluster",
+    "label": "Counselor portal + APIs + caseload",
+    "path": "app/(portal)/counselor,app/api/counselor,lib/counselor"
+  },
+  {
+    "id": "ent_cluster_public_marketing",
+    "kind": "cluster",
+    "label": "Public marketing + Astro site",
+    "path": "app/page.tsx,app/(decision-journey),marketing"
+  },
+  {
+    "id": "ent_cluster_ai_spend",
+    "kind": "cluster",
+    "label": "AI tools + ElevenLabs + voice spend",
+    "path": "app/api/ai,lib/ai"
+  },
+  {
+    "id": "ent_cluster_email_notify",
+    "kind": "cluster",
+    "label": "Email / Resend / recap / nudges",
+    "path": "lib/email,app/api/admin/email-crons"
+  },
+  {
+    "id": "ent_cluster_storage_uploads",
+    "kind": "cluster",
+    "label": "File upload + storage buckets",
+    "path": "lib/storage,lib/resume,app/api/member/resume"
+  },
+  {
+    "id": "ent_cluster_feature_flags",
+    "kind": "cluster",
+    "label": "Feature flags + experiments",
+    "path": "lib/feature-flags,app/api/feature-flags"
+  },
+  {
+    "id": "ent_cluster_ci_deploy",
+    "kind": "cluster",
+    "label": "CI / deploy / Caddy / Next config",
+    "path": ".github,vercel.json,Caddyfile,next.config.ts"
+  },
+  {
+    "id": "ent_cluster_tests",
+    "kind": "cluster",
+    "label": "Automated tests that prove or fail to prove claims",
+    "path": "tests,scripts/verify-high-risk-tenant-routes.cjs"
+  },
+  {
+    "id": "ent_cluster_i18n_catalog",
+    "kind": "cluster",
+    "label": "i18n catalogs + locale routing",
+    "path": "messages,i18n,lib/i18n"
+  },
+  {
+    "id": "ent_cluster_xapi",
+    "kind": "cluster",
+    "label": "xAPI LRS ingest + Coursera statements",
+    "path": "lib/xapi,app/api/xapi"
+  },
+  {
+    "id": "ent_cluster_gdpr",
+    "kind": "cluster",
+    "label": "GDPR export / delete / consent",
+    "path": "lib/gdpr,app/api/gdpr"
+  },
+  {
+    "id": "ent_cluster_security",
+    "kind": "cluster",
+    "label": "Audit log + tokens + MFA + headers",
+    "path": "lib/security,lib/audit,lib/tokenizedLink.ts"
+  },
+  {
+    "id": "ent_cluster_scripts_ops",
+    "kind": "cluster",
+    "label": "Ops scripts + seed + audit ranker",
+    "path": "scripts"
+  },
+  {
+    "id": "ent_cluster_portal_kit",
+    "kind": "cluster",
+    "label": "Portal kit + shared chrome",
+    "path": "components/portal,docs/KIT_GUIDE.md"
+  },
+  {
+    "id": "ent_cluster_mentor",
+    "kind": "cluster",
+    "label": "Mentor apply + APIs",
+    "path": "app/mentor,app/api/mentor"
+  },
+  {
+    "id": "ent_cluster_org_public",
+    "kind": "cluster",
+    "label": "Public org pages + onboard",
+    "path": "app/org,app/api/org"
+  },
+  {
+    "id": "ent_cluster_survey_tokens",
+    "kind": "cluster",
+    "label": "Tokenized survey / questionnaire / invite links",
+    "path": "app/q,app/api/q,lib/tokenizedLink.ts"
+  },
+  {
+    "id": "ent_cluster_webhooks",
+    "kind": "cluster",
+    "label": "Inbound webhooks (Coursera, learning-completion, Stripe)",
+    "path": "app/api/webhooks,lib/webhooks"
+  },
+  {
+    "id": "ent_cluster_onet_quiz",
+    "kind": "cluster",
+    "label": "O*NET quiz / interest profiler / WIOA public",
+    "path": "lib/onet,app/api/public"
+  },
+  {
+    "id": "ent_cluster_supabase_auth",
+    "kind": "cluster",
+    "label": "Supabase auth pages + login APIs",
+    "path": "app/(auth),app/api/auth,lib/supabase"
+  },
+  {
+    "id": "ent_cluster_observability",
+    "kind": "cluster",
+    "label": "Sentry + request id + health",
+    "path": "lib/observability,app/api/health"
+  },
+  {
+    "id": "ent_cluster_dev_labs",
+    "kind": "cluster",
+    "label": "Dev / kit / Astryx labs (must stay prod-gated)",
+    "path": "app/dev"
+  },
+  {
+    "id": "ent_cluster_leader_subgroup",
+    "kind": "cluster",
+    "label": "Subgroup leader portal + APIs",
+    "path": "app/(portal)/leader,app/api/leader,app/api/subgroup"
+  },
+  {
+    "id": "ent_cluster_coursera_sync",
+    "kind": "cluster",
+    "label": "Coursera B4B sync + admin enrollment",
+    "path": "lib/coursera,app/admin/coursera"
+  },
+  {
+    "id": "ent_cluster_messages",
+    "kind": "cluster",
+    "label": "In-app messages + inbox",
+    "path": "lib/messages,app/admin/messages"
+  },
+  {
+    "id": "ent_cluster_locked_stakes",
+    "kind": "cluster",
+    "label": "Product stakes + locked copy",
+    "path": "docs/PRODUCT_STAKES.md,lib/locked-stakes"
+  },
+  {
+    "id": "ent_file_roles",
+    "kind": "file",
+    "label": "Role helpers + super-admin fallback upserts",
+    "path": "lib/auth/roles.ts",
+    "clusterId": "ent_cluster_tenant_auth"
+  },
+  {
+    "id": "ent_file_rate_limit",
+    "kind": "file",
+    "label": "Rate limiters",
+    "path": "lib/rate-limit.ts",
+    "clusterId": "ent_cluster_rate_limit"
+  },
+  {
+    "id": "ent_file_scope_proxy",
+    "kind": "file",
+    "label": "Tenant scope model list",
+    "path": "lib/tenant/scopeProxy.ts",
+    "clusterId": "ent_cluster_tenant_auth"
+  },
+  {
+    "id": "ent_route_public_voice",
+    "kind": "route",
+    "label": "Public WIOA voice session",
+    "path": "/api/public/wioa-qualification/voice-session",
+    "clusterId": "ent_cluster_ai_spend"
+  },
+  {
+    "id": "ent_route_apply_signup",
+    "kind": "route",
+    "label": "Apply signup",
+    "path": "/api/apply/signup",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_route_gdpr_delete",
+    "kind": "route",
+    "label": "GDPR account delete",
+    "path": "/api/gdpr/delete",
+    "clusterId": "ent_cluster_gdpr"
+  },
+  {
+    "id": "ent_file_ci_gate",
+    "kind": "file",
+    "label": "CI gate workflow",
+    "path": ".github/workflows/ci-gate.yml",
+    "clusterId": "ent_cluster_ci_deploy"
+  },
+  {
+    "id": "ent_cluster_app_tree",
+    "kind": "cluster",
+    "label": "Full App Router tree (coverage)",
+    "path": "app"
+  },
+  {
+    "id": "ent_cluster_lib_tree",
+    "kind": "cluster",
+    "label": "Full lib tree (coverage)",
+    "path": "lib"
+  },
+  {
+    "id": "ent_cluster_components_tree",
+    "kind": "cluster",
+    "label": "Full components tree (coverage)",
+    "path": "components,hooks"
+  },
+  {
+    "id": "ent_cluster_content_shared",
+    "kind": "cluster",
+    "label": "Content catalogs + shared + CSS + pages leftover",
+    "path": "content,shared,css,pages,supabase,emails"
   }
 ]

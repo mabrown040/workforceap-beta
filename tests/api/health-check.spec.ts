@@ -136,7 +136,7 @@ describe('GET /api/health/ready', () => {
     vi.clearAllMocks();
     __resetReadyCache();
     vi.mocked(checkPublicHealthRateLimit).mockResolvedValue({ success: true });
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue({ id: 'org-1' });
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({ id: 'org-1' } as never);
 
     process.env = {
       ...OLD_ENV,

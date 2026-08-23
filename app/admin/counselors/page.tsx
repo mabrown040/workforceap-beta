@@ -10,6 +10,8 @@ import {
   CounselorsRosterKit,
   type CounselorRow,
 } from '@/components/portal/kit/pages/admin-subviews/CounselorsRosterKit';
+import { loadCounselorAssignmentAggregates } from '@/lib/admin/counselorRosterAggregates';
+import { ADMIN_SSR_LIST_CAP, COUNSELOR_ROSTER_CAP } from '@/lib/db/queryCaps';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -59,7 +61,7 @@ export default async function AdminCounselorsPage({
   // Legacy → the original add-counselor form + flat roster list.
   if (requestedUi === 'legacy') {
     const partners = await prisma.partner.findMany({
-      take: 5000,
+      take: ADMIN_SSR_LIST_CAP,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
@@ -87,7 +89,7 @@ export default async function AdminCounselorsPage({
   const [counselorsResult, assignmentsResult] = await Promise.allSettled([
     prisma.counselor.findMany({
       where: { active: true },
-      take: 500,
+      take: COUNSELOR_ROSTER_CAP,
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
       select: {
         id: true,
@@ -97,14 +99,7 @@ export default async function AdminCounselorsPage({
         user: { select: { fullName: true } },
       },
     }),
-    prisma.counselorAssignment.findMany({
-      where: { active: true },
-      take: 20000,
-      select: {
-        counselorId: true,
-        member: { select: { memberStatus: true, lastLoginAt: true } },
-      },
-    }),
+    loadCounselorAssignmentAggregates(prisma, idleCutoff),
   ]);
 
   if (counselorsResult.status === 'rejected') {
@@ -121,16 +116,12 @@ export default async function AdminCounselorsPage({
   for (const c of counselorRecords) aggMap.set(c.id, { caseload: 0, atRisk: 0, placements: 0 });
 
   if (assignmentsResult.status === 'fulfilled') {
-    for (const a of assignmentsResult.value) {
-      const agg = aggMap.get(a.counselorId);
-      if (!agg) continue; // assignment for an inactive/filtered counselor
-      agg.caseload += 1;
-      if (a.member.memberStatus === 'placed') agg.placements += 1;
-      // At-risk: explicitly inactive, or no login within the idle window.
-      const lastLogin = a.member.lastLoginAt;
-      if (a.member.memberStatus === 'inactive' || !lastLogin || lastLogin < idleCutoff) {
-        agg.atRisk += 1;
-      }
+    for (const [counselorId, loaded] of assignmentsResult.value) {
+      const agg = aggMap.get(counselorId);
+      if (!agg) continue;
+      agg.caseload = loaded.caseload;
+      agg.atRisk = loaded.atRisk;
+      agg.placements = loaded.placements;
     }
   } else {
     console.error('[admin/counselors] assignment aggregate failed', assignmentsResult.reason);

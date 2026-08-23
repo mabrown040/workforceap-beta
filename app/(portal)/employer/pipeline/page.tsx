@@ -16,6 +16,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import { getTranslations } from 'next-intl/server';
+import { EMPLOYER_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -35,19 +36,27 @@ export default async function EmployerPipelinePage() {
 
   const t = await getTranslations('employer');
 
-  const jobs = await prisma.job.findMany({
-    take: 5000,
-    where: { employerId: ctx.employerId, status: 'live' },
-    select: { id: true, title: true },
-    orderBy: { updatedAt: 'desc' },
-  });
+  const liveJobWhere = { employerId: ctx.employerId, status: 'live' as const };
+  const [jobTotal, jobs] = await Promise.all([
+    prisma.job.count({ where: liveJobWhere }),
+    prisma.job.findMany({
+      take: EMPLOYER_LIST_CAP,
+      where: liveJobWhere,
+      select: { id: true, title: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
+  ]);
 
   const jobIds = jobs.map((j) => j.id);
+  const matchTotal =
+    jobIds.length === 0
+      ? 0
+      : await prisma.aIJobMatch.count({ where: { jobId: { in: jobIds } } });
   const allMatches =
     jobIds.length === 0
       ? []
       : await prisma.aIJobMatch.findMany({
-        take: 5000,
+        take: EMPLOYER_LIST_CAP,
           where: { jobId: { in: jobIds } },
           orderBy: [{ jobId: 'asc' }, { matchScore: 'desc' }],
           include: {
@@ -122,6 +131,17 @@ export default async function EmployerPipelinePage() {
         }
         action={<Link href="/employer/jobs" className="btn btn-outline btn-sm">{t('backToJobs')}</Link>}
       />
+      {(isListTruncated(jobs.length, EMPLOYER_LIST_CAP, jobTotal) ||
+        isListTruncated(allMatches.length, EMPLOYER_LIST_CAP, matchTotal)) && (
+        <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '0 1rem 0.75rem' }}>
+          {showingFirstLabel(
+            Math.min(allMatches.length, EMPLOYER_LIST_CAP),
+            Math.max(matchTotal, allMatches.length),
+            'matches'
+          )}
+          {jobTotal > EMPLOYER_LIST_CAP ? ` · ${showingFirstLabel(jobs.length, jobTotal, 'live jobs')}` : ''}
+        </p>
+      )}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
           {PIPELINE_STRIP.map((stage) => (

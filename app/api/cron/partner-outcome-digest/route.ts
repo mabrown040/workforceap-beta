@@ -6,6 +6,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { PARTNER_DIGEST_PARTNER_CAP, partnerDigestReferralTake } from '@/lib/db/queryCaps';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
@@ -19,7 +20,7 @@ async function handle(_request: Request) {
 
   const partners = await prisma.partner.findMany({
     where: { active: true, notifyOnEnrollment: true },
-    take: 500,
+    take: PARTNER_DIGEST_PARTNER_CAP,
     select: {
       id: true,
       name: true,
@@ -31,7 +32,7 @@ async function handle(_request: Request) {
   const partnerIds = partners.map((p) => p.id);
   const allReferrals = await prisma.partnerReferral.findMany({
     where: { partnerId: { in: partnerIds }, member: { deletedAt: null } },
-    take: 2000 * partnerIds.length,
+    take: partnerDigestReferralTake(partnerIds.length),
     include: {
       member: {
         select: {

@@ -22,6 +22,7 @@ import {
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 import { getTranslations } from 'next-intl/server';
+import { EMPLOYER_LIST_CAP } from '@/lib/db/queryCaps';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import {
   EmployerHomeKit,
@@ -56,7 +57,7 @@ export default async function EmployerDashboardPage({
   // ── ?ui=kit LEAN PATH ──────────────────────────────────────────────────
   // Runs AFTER the auth/role guard (access control preserved: user + ctx
   // resolved) but BEFORE the heavy `prisma.employer.findUnique`, the
-  // 9-query `Promise.all`, the take:5000 hired-application scan, and the
+  // 9-query `Promise.all`, the capped hired-application sample, and the
   // aIJobMatch match-to-hire pass — all of which stall on the demo DB.
   // Renders the redesigned employer kit from a handful of cheap queries.
   const params = await searchParams;
@@ -213,6 +214,7 @@ export default async function EmployerDashboardPage({
     totalMatches,
     interviewPipelineCount,
     hiredApplications,
+    hiredApplicationsCount,
     filledJobsCount,
     offerStageCount,
     screenedCount,
@@ -236,7 +238,7 @@ export default async function EmployerDashboardPage({
       },
     }),
     prisma.jobPostingApplication.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: { job: { employerId: ctx.employerId }, status: 'hired' },
       select: {
         jobId: true,
@@ -244,6 +246,9 @@ export default async function EmployerDashboardPage({
         statusUpdatedAt: true,
         appliedAt: true,
       },
+    }),
+    prisma.jobPostingApplication.count({
+      where: { job: { employerId: ctx.employerId }, status: 'hired' },
     }),
     prisma.job.count({ where: { employerId: ctx.employerId, status: 'filled' } }),
     prisma.jobPostingApplication.count({
@@ -262,7 +267,7 @@ export default async function EmployerDashboardPage({
   const activeJobs = jobCountsByStatus.get('live') ?? 0;
   const inReview = (jobCountsByStatus.get('pending') ?? 0) + (jobCountsByStatus.get('approved') ?? 0);
   const filledPositions = (jobCountsByStatus.get('filled') ?? 0) + (jobCountsByStatus.get('closed') ?? 0);
-  const hiresFromApplications = hiredApplications.length;
+  const hiresFromApplications = hiredApplicationsCount;
   const hiresTotal = hiresFromApplications + filledJobsCount;
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -273,7 +278,7 @@ export default async function EmployerDashboardPage({
   let avgMatchToHireDays: number | null = null;
   if (hiredApplications.length > 0) {
     const matchRows = await prisma.aIJobMatch.findMany({
-      take: 5000,
+      take: EMPLOYER_LIST_CAP,
       where: {
         OR: hiredApplications.map((h) => ({ jobId: h.jobId, studentId: h.studentId })),
       },

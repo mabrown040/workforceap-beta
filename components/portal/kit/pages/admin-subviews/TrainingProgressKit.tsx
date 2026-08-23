@@ -51,6 +51,8 @@ export interface TrainingProgressKitProps {
   stalled: number;
   /** Average percent complete across all rows (0–100, rounded). */
   avgPercent: number;
+  /** Override the footer when the loader capped the learner scan. */
+  showingLabel?: string;
 }
 
 const PACE_TOKEN_COLOR: Record<Pace, TokenColor> = {
@@ -66,6 +68,7 @@ export function TrainingProgressKit({
   behind,
   stalled,
   avgPercent,
+  showingLabel,
 }: TrainingProgressKitProps) {
   const kpis: KpiItem[] = [
     { label: 'On Track', value: onTrack, color: 'success' },
@@ -232,7 +235,7 @@ export function TrainingProgressKit({
           marginTop: 16,
         }}
       >
-        Showing {rows.length} learner{rows.length === 1 ? '' : 's'}
+        {showingLabel ?? `Showing ${rows.length} learner${rows.length === 1 ? '' : 's'}`}
       </p>
     </DesignSurface>
   );

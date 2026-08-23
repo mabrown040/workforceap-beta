@@ -10,7 +10,8 @@
  *   - Caller-provided organizationId that matches the scope is allowed
  *   - Caller-provided organizationId that DOESN'T match throws
  *     TenantScopeViolation
- *   - Non-tenant-scoped models pass through unchanged
+ *   - Parent-FK models inject user.organizationId (not a false safety)
+ *   - Unrelated models still pass through unchanged
  */
 
 import test from 'node:test';
@@ -60,9 +61,15 @@ function makeFakePrisma() {
     courseEnrollment: makeModel('courseEnrollment'),
     organizationProgramCatalog: makeModel('organizationProgramCatalog'),
     preScreeningResponse: makeModel('preScreeningResponse'),
-    // NOT tenant-scoped — should pass through unchanged
     application: makeModel('application'),
     placementRecord: makeModel('placementRecord'),
+    courseProgress: makeModel('courseProgress'),
+    messageThread: makeModel('messageThread'),
+    memberEvent: makeModel('memberEvent'),
+    memberProgramProgress: makeModel('memberProgramProgress'),
+    placementSurvey: makeModel('placementSurvey'),
+    courseraCourseProgress: makeModel('courseraCourseProgress'),
+    // NOT tenant-scoped and not parent-FK scoped — pass through unchanged
     blogPost: makeModel('blogPost'),
     __getCalls: () => [...calls],
     __reset: () => {
@@ -219,23 +226,163 @@ test('deleteMany injects organizationId into where', async () => {
   assert.equal(args.where.organizationId, ORG_A);
 });
 
-// ─── Non-tenant-scoped models pass through unchanged ────────────────────────
+// ─── Parent-FK models inject user.organizationId (not a no-op) ──────────────
 
-test('non-tenant-scoped model (Application) is not modified', async () => {
+test('Application.findMany injects user.organizationId (not a pass-through)', async () => {
   const fake = makeFakePrisma();
   const db = createScopedClient(ORG_A, fake);
   await db.application.findMany({ where: { status: 'PENDING' } });
   const [call] = fake.__getCalls();
-  assert.deepEqual(call.args, { where: { status: 'PENDING' } });
+  assert.deepEqual(call.args, {
+    where: { status: 'PENDING', user: { organizationId: ORG_A } },
+  });
 });
 
-test('non-tenant-scoped model (PlacementRecord) is not modified', async () => {
+test('PlacementRecord.count injects user.organizationId', async () => {
   const fake = makeFakePrisma();
   const db = createScopedClient(ORG_A, fake);
   await db.placementRecord.count();
   const [call] = fake.__getCalls();
-  // No organizationId injection — caller must scope via FK
-  assert.deepEqual(call.args, undefined);
+  assert.deepEqual(call.args, { where: { user: { organizationId: ORG_A } } });
+});
+
+test('CourseProgress.groupBy injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.courseProgress.groupBy({ by: ['userId'], where: { status: 'COMPLETED' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    by: ['userId'],
+    where: { status: 'COMPLETED', user: { organizationId: ORG_A } },
+  });
+});
+
+test('parent-FK merge keeps existing user filters and adds organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.placementRecord.count({ where: { user: { deletedAt: null } } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { user: { deletedAt: null, organizationId: ORG_A } },
+  });
+});
+
+test('parent-FK user.organizationId mismatch throws TenantScopeViolation', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.application.findMany({
+      where: { user: { organizationId: ORG_B } },
+    }),
+  );
+});
+
+test('parent-FK create does not inject a missing organizationId column', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.application.create({
+    data: { userId: 'u1', status: 'PENDING', programInterest: 'IT' },
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as { data: Record<string, unknown> };
+  assert.equal(args.data.organizationId, undefined);
+  assert.equal(args.data.userId, 'u1');
+});
+
+test('parent-FK create rejects a forged organizationId (would 500 on the row)', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.placementRecord.create({
+      data: { userId: 'u1', employerName: 'Acme', organizationId: ORG_B },
+    }),
+  );
+});
+
+test('CourseProgress.upsert scopes where via user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.courseProgress.upsert({
+    where: { userId_programSlug_courseSlug: { userId: 'u1', programSlug: 'it', courseSlug: 'c1' } },
+    create: { userId: 'u1', programSlug: 'it', courseSlug: 'c1' },
+    update: { percentComplete: 10 },
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as {
+    where: { user: { organizationId: string } };
+    create: { organizationId?: string };
+  };
+  assert.equal(args.where.user.organizationId, ORG_A);
+  assert.equal(args.create.organizationId, undefined);
+});
+
+test('MessageThread.findMany injects member/employer/partner org OR', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.messageThread.findMany({ where: { kind: 'member' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: {
+      AND: [
+        { kind: 'member' },
+        {
+          OR: [
+            { member: { organizationId: ORG_A } },
+            { employer: { organizationId: ORG_A } },
+            { partner: { organizationId: ORG_A } },
+          ],
+        },
+      ],
+    },
+  });
+});
+
+test('MemberEvent.findMany injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.memberEvent.findMany({ where: { eventName: 'login' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { eventName: 'login', user: { organizationId: ORG_A } },
+  });
+});
+
+test('MemberProgramProgress.count injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.memberProgramProgress.count({ where: { programSlug: 'it-support' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { programSlug: 'it-support', user: { organizationId: ORG_A } },
+  });
+});
+
+test('PlacementSurvey.findMany injects user.organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.placementSurvey.findMany({ where: { wave: 'thirty_day' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { wave: 'thirty_day', user: { organizationId: ORG_A } },
+  });
+});
+
+test('CourseraCourseProgress.findMany injects organizationId (has org column)', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.courseraCourseProgress.findMany({ where: { programSlug: 'it' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, {
+    where: { programSlug: 'it', organizationId: ORG_A },
+  });
+});
+
+test('unrelated model (BlogPost) is still not modified', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.blogPost.findMany({ where: { published: true } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, { where: { published: true } });
 });
 
 // ─── Edge: extracting equals form ──────────────────────────────────────────

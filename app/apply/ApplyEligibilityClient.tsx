@@ -16,7 +16,6 @@ import {
 } from '@/lib/apply/primaryBarrierOptions';
 import {
   APPLY_HEAR_ABOUT_OPTIONS,
-  APPLY_HEAR_ABOUT_OTHER,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
   type YesNo,

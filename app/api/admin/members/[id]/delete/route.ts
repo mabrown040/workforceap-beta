@@ -11,6 +11,12 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getProfileRole } from '@/lib/auth/roles';
 import { withDbRetry } from '@/lib/db/withDbRetry';
+import {
+  ACCOUNT_STORAGE_DELETE_FAILED,
+  MEMBER_FILES_BUCKET,
+  MEMBER_RESUME_BUCKET,
+  deleteUserStorageObjects,
+} from '@/lib/gdpr/deleteUserStorage';
 
 export const POST = withApiGuc(async (
   request: Request,
@@ -39,11 +45,40 @@ export const POST = withApiGuc(async (
     const existing = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
         where: { id },
-        select: { email: true, deletedAt: true },
+        select: {
+          email: true,
+          deletedAt: true,
+          profile: {
+            select: { resumeOriginalPath: true, resumeEnhancedPath: true },
+          },
+          userCertifications: { select: { proofUrl: true } },
+        },
       }),
     );
     if (!existing) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Soft-delete still removes member-resumes / member-files objects so PII
+    // does not linger while the row is recoverable. Restore will not bring
+    // those blobs back. Fail closed before rewriting the row so a storage
+    // error cannot leave a "deleted" member with leftover files.
+    const extraPaths = [
+      existing.profile?.resumeOriginalPath
+        ? { bucket: MEMBER_RESUME_BUCKET, path: existing.profile.resumeOriginalPath }
+        : null,
+      existing.profile?.resumeEnhancedPath
+        ? { bucket: MEMBER_RESUME_BUCKET, path: existing.profile.resumeEnhancedPath }
+        : null,
+      ...existing.userCertifications.map((cert) =>
+        cert.proofUrl ? { bucket: MEMBER_FILES_BUCKET, path: cert.proofUrl } : null,
+      ),
+    ].filter((row): row is { bucket: string; path: string } => Boolean(row));
+
+    const storage = await deleteUserStorageObjects(id, { extraPaths });
+    if (!storage.ok) {
+      console.error(`[admin/members/[id]/delete] storage object delete failed for ${id}:`, storage.error);
+      return NextResponse.json({ error: ACCOUNT_STORAGE_DELETE_FAILED }, { status: 502 });
     }
 
     // If the row is already soft-deleted, leave its email rewrite alone —

@@ -400,7 +400,7 @@ export default function ApplyResultsClient({
                   border: selected ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant)',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
-                  background: selected ? 'rgba(74, 155, 79, 0.08)' : 'var(--color-white)',
+                  background: selected ? 'color-mix(in srgb, var(--color-green) 8%, transparent)' : 'var(--color-white)',
                   position: 'relative',
                 }}
               >

@@ -677,7 +677,7 @@ export default function ApplyCreateAccountForm() {
                   gap: '0.35rem',
                   padding: '0.35rem 0.6rem',
                   borderRadius: '999px',
-                  background: 'rgba(173,44,77,0.08)',
+                  background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
                   color: 'var(--color-on-surface)',
                   fontSize: '0.8125rem',
                   fontWeight: 600,
@@ -796,7 +796,7 @@ export default function ApplyCreateAccountForm() {
         onToggle={(e) => setOptionalAddressOpen((e.currentTarget as HTMLDetailsElement).open)}
         style={{
           marginBottom: '1rem',
-          border: '1px solid rgba(0,0,0,0.08)',
+          border: '1px solid color-mix(in srgb, var(--color-on-surface) 8%, transparent)',
           borderRadius: '0.875rem',
           padding: '0.9rem 1rem',
           background: 'var(--surface-container-low)',
@@ -903,7 +903,7 @@ export default function ApplyCreateAccountForm() {
             <strong>{t('accountSmsLabel')}</strong> {t('accountSmsBody')}
           </span>
         </label>
-        <p id="sms-opt-in-hint" style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>{t('accountSmsFinePrint')}</p>
+        <p id="sms-opt-in-hint" style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)', marginTop: '4px' }}>{t('accountSmsFinePrint')}</p>
       </div>
       <div className="form-group">
         <label htmlFor="password">{t('accountPasswordLabel')}</label>
@@ -1053,8 +1053,8 @@ export default function ApplyCreateAccountForm() {
           className="form-error"
           style={{
             padding: '0.75rem 1rem',
-            background: 'rgba(173,44,77,0.08)',
-            border: '1px solid rgba(173,44,77,0.25)',
+            background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
             borderRadius: '0.5rem',
             marginTop: '0.75rem',
           }}

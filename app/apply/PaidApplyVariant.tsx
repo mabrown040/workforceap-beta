@@ -115,7 +115,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           background: linear-gradient(
             165deg,
             var(--color-primary) 0%,
-            #2a0a14 55%,
+            color-mix(in srgb, var(--color-accent-dark) 72%, black) 55%,
             var(--color-accent-dark) 100%
           );
           color: var(--color-white);
@@ -135,7 +135,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           margin: 0 auto var(--space-6);
           font-size: clamp(0.9375rem, 2.5vw, 1.05rem);
           line-height: var(--line-height-normal);
-          color: rgba(255, 255, 255, 0.88);
+          color: color-mix(in srgb, var(--color-on-accent) 88%, transparent);
         }
 
         .paid-apply-hero__help-compact {
@@ -183,14 +183,10 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           bottom: 0;
           z-index: 40;
           padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
-          background: rgba(255, 255, 255, 0.96);
+          background: color-mix(in srgb, var(--surface-container-lowest) 96%, transparent);
           border-top: 1px solid var(--outline-variant);
-          box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 -8px 24px color-mix(in srgb, var(--color-on-surface) 8%, transparent);
           backdrop-filter: blur(8px);
-        }
-
-        html.dark .paid-apply-sticky-cta {
-          background: rgba(28, 27, 31, 0.96);
         }
 
         .paid-apply-sticky-cta__button {
@@ -267,7 +263,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
             margin: 0 auto var(--space-4);
             font-size: var(--font-size-sm);
             line-height: var(--line-height-normal);
-            color: rgba(255, 255, 255, 0.88);
+            color: color-mix(in srgb, var(--color-on-accent) 88%, transparent);
           }
 
           /* Form entry trust bar + kicker carry nonprofit/no-cost/time — drop hero repeat */

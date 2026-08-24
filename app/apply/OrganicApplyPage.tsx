@@ -28,7 +28,7 @@ const sPage = {
   hero: {
     padding: 'calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8)',
     textAlign: 'center' as const,
-    background: 'linear-gradient(170deg, var(--color-primary) 0%, #2a0a14 60%, var(--color-accent-dark) 100%)',
+    background: 'linear-gradient(170deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-accent-dark) 72%, black) 60%, var(--color-accent-dark) 100%)',
     color: 'var(--color-white)',
   } as React.CSSProperties,
 
@@ -38,8 +38,8 @@ const sPage = {
     gap: 'var(--space-2)',
     padding: 'var(--space-1) var(--space-3)',
     borderRadius: 'var(--radius-xl)',
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'color-mix(in srgb, var(--color-on-accent) 10%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--color-on-accent) 15%, transparent)',
     fontSize: 'var(--font-size-sm)',
     fontWeight: 600,
     letterSpacing: '0.06em',
@@ -70,8 +70,8 @@ const sPage = {
     padding: 'var(--space-4) var(--space-5)',
     maxWidth: 640,
     borderRadius: 'var(--radius-lg)',
-    background: 'rgba(255,255,255,0.08)',
-    border: '1px solid rgba(255,255,255,0.14)',
+    background: 'color-mix(in srgb, var(--color-on-accent) 8%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--color-on-accent) 14%, transparent)',
     textAlign: 'left' as const,
   } as React.CSSProperties,
 
@@ -80,14 +80,14 @@ const sPage = {
     fontWeight: 700,
     letterSpacing: '0.04em',
     textTransform: 'uppercase' as const,
-    color: 'rgba(255,255,255,0.85)',
+    color: 'color-mix(in srgb, var(--color-on-accent) 85%, transparent)',
     margin: 0,
   } as React.CSSProperties,
 
   heroFallbackText: {
     fontSize: 'var(--font-size-sm)',
     lineHeight: 'var(--line-height-normal)',
-    color: 'rgba(255,255,255,0.86)',
+    color: 'color-mix(in srgb, var(--color-on-accent) 86%, transparent)',
     margin: 0,
   } as React.CSSProperties,
 
@@ -200,7 +200,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
       <p style={sPage.heroFallbackTitle}>{t('helpTitle')}</p>
       <p style={sPage.heroFallbackText}>{isSchool ? t('schoolHelpBody', { school: schoolApply?.partnerName ?? '' }) : t('helpBody')}</p>
       <div style={sPage.heroFallbackActions}>
-        <LocalizedLink href="/contact" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
+        <LocalizedLink href="/contact" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-on-accent)', borderColor: 'color-mix(in srgb, var(--color-on-accent) 30%, transparent)' }}>
           {t('helpCta1')}
         </LocalizedLink>
         <a href="tel:+15127771808" className="btn btn-primary mdx-btn mdx-btn--solid" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
@@ -411,7 +411,7 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
           max-width: 640px;
           font-size: var(--font-size-sm);
           line-height: var(--line-height-normal);
-          color: rgba(255, 255, 255, 0.88);
+          color: color-mix(in srgb, var(--color-on-accent) 88%, transparent);
         }
 
         .apply-hero-help-compact__link {
@@ -500,14 +500,10 @@ export default async function OrganicApplyPage({ program: programParam, schoolAp
             bottom: 0;
             z-index: 40;
             padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
-            background: rgba(255, 255, 255, 0.96);
+            background: color-mix(in srgb, var(--surface-container-lowest) 96%, transparent);
             border-top: 1px solid var(--outline-variant);
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -8px 24px color-mix(in srgb, var(--color-on-surface) 8%, transparent);
             backdrop-filter: blur(8px);
-          }
-
-          html.dark .apply-organic-sticky-cta {
-            background: rgba(28, 27, 31, 0.96);
           }
 
           .apply-organic-sticky-cta__button {

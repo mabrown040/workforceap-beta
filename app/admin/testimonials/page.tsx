@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import TestimonialsAdminClient from '@/components/admin/TestimonialsAdminClient';
@@ -17,9 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminTestimonialsPage() {
   const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) {
-    redirect('/login');
-  }
+  if (!user) redirect('/login');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   return (
     <PortalPageFrame>

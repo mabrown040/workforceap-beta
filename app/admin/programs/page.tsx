@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
@@ -38,8 +38,8 @@ export default async function AdminProgramsPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/programs');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -49,7 +49,7 @@ export default async function AdminProgramsPage({
   // both `it-cyber` and `ai-software` is counted once under each program,
   // not just under their primary `User.enrolledProgram`. Lean + degrades
   // gracefully: a failed aggregate still renders the catalog with empty stats.
-  const enrollmentResult = await prisma.courseEnrollment
+  const enrollmentResult = await withAdminPageScope(scope, (db) => db.courseEnrollment
     .findMany({
       take: 5000,
       where: { user: { deletedAt: null } },
@@ -76,7 +76,7 @@ export default async function AdminProgramsPage({
           memberProgramProgress: Array<{ programSlug: string; coursesCompleted: number }>;
         };
       }>;
-    });
+    }));
 
   const byProgram = new Map<string, { count: number; scores: number[]; completed: number }>();
   const seenLearners = new Set<string>();

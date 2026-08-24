@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { notFound, redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -85,8 +85,8 @@ export default async function AdminMemberDetailPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { id } = await params;
 
@@ -234,44 +234,47 @@ export default async function AdminMemberDetailPage({
     retentionDecision: true,
   } as const;
 
-  const sharedQueries = () => [
-    prisma.partner.findMany({
+  const leaderOrg = inheritLeaderOrg(scope);
+  const userOrg = inheritUserOrg(scope);
+  const sharedQueries = (db: any) => [
+    db.partner.findMany({
       take: 5000,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
-    prisma.partnerReferral.findFirst({
+    db.partnerReferral.findFirst({
       where: { memberId: id },
       select: { partnerId: true },
     }),
-    prisma.subgroup.findMany({
+    db.subgroup.findMany({
       take: 5000,
+      where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true },
     }),
-    prisma.memberSubgroup.findMany({
+    db.memberSubgroup.findMany({
       take: 5000,
       where: { memberId: id },
       select: { subgroupId: true },
     }),
-    prisma.counselor.findMany({
+    db.counselor.findMany({
       take: 5000,
-      where: { active: true },
+      where: { active: true, ...userOrg },
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
       include: {
         user: { select: { fullName: true } },
         partner: { select: { name: true } },
       },
     }),
-    prisma.counselorAssignment.findFirst({
+    db.counselorAssignment.findFirst({
       where: { memberId: id, active: true },
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
-    prisma.placementRecord.findUnique({ where: { userId: id }, select: placementRecordSafeSelect }).catch(() => null),
+    db.placementRecord.findFirst({ where: { userId: id }, select: placementRecordSafeSelect }).catch(() => null),
     // Multi-program: funding/workspace metadata lives on the primary
     // enrollment row. Secondary enrollments inherit nothing here.
-    prisma.courseEnrollment.findFirst({
+    db.courseEnrollment.findFirst({
       where: { userId: id, isPrimary: true },
       select: {
         fundingSource: true,
@@ -280,7 +283,7 @@ export default async function AdminMemberDetailPage({
         workspaceEmailProvisioned: true,
       },
     }).catch(() => null),
-    prisma.memberEvent.findMany({
+    db.memberEvent.findMany({
       where: { userId: id, eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED' },
       orderBy: { createdAt: 'desc' },
       take: 1,
@@ -301,10 +304,10 @@ export default async function AdminMemberDetailPage({
 
   try {
     [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
-      await Promise.all([
-        prisma.user.findUnique({ where: { id }, select: fullMemberSelect }),
-        ...sharedQueries(),
-      ]);
+      await withAdminPageScope(scope, (db) => Promise.all([
+        db.user.findFirst({ where: { id }, select: fullMemberSelect }),
+        ...sharedQueries(db),
+      ]));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error ?? '');
     const looksLikeSchemaDrift =
@@ -317,10 +320,10 @@ export default async function AdminMemberDetailPage({
     console.error('[admin/member-detail] falling back after optional data query failed', error);
 
     [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
-      await Promise.all([
-        prisma.user.findUnique({ where: { id }, select: fallbackMemberSelect }),
-        ...sharedQueries(),
-      ]);
+      await withAdminPageScope(scope, (db) => Promise.all([
+        db.user.findFirst({ where: { id }, select: fallbackMemberSelect }),
+        ...sharedQueries(db),
+      ]));
 
     if (member) {
       member = {
@@ -341,10 +344,10 @@ export default async function AdminMemberDetailPage({
 
   let wioaReviewerName: string | null = null;
   if (member.wioaReviewedByUserId) {
-    const rev = await prisma.user.findUnique({
+    const rev = await withAdminPageScope(scope, (db) => db.user.findFirst({
       where: { id: member.wioaReviewedByUserId },
       select: { fullName: true },
-    });
+    }));
     wioaReviewerName = rev?.fullName ?? null;
   }
 
@@ -409,11 +412,11 @@ export default async function AdminMemberDetailPage({
   const chatAuthorIds = compactStringIds(chatMsgs.map((m) => m.authorId));
   const chatAuthors =
     chatAuthorIds.length > 0
-      ? await prisma.user.findMany({
+      ? await withAdminPageScope(scope, (db) => db.user.findMany({
         take: 5000,
           where: { id: { in: chatAuthorIds } },
           select: { id: true, fullName: true },
-        })
+        }))
       : [];
   const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
 

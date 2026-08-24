@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentsTable from '@/components/admin/AssessmentsTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
@@ -41,18 +41,18 @@ export default async function AdminAssessmentsPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/assessments');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = await searchParams;
 
   // --- DEFAULT: design-kit assessments catalog wired into real (lean) data ---
   if (params.ui !== 'legacy') {
-    return renderKit();
+    return renderKit(scope);
   }
 
   // --- LEGACY (?ui=legacy): the proven results table + per-member drill-in ---
-  return renderLegacy({ params });
+  return renderLegacy({ params, scope });
 }
 
 /**
@@ -63,18 +63,18 @@ export default async function AdminAssessmentsPage({
  * average figures for that assessment. Lean: a single count + a single average
  * aggregate, run in parallel; aggregate failures degrade gracefully.
  */
-async function renderKit() {
+async function renderKit(scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk) {
   const completedWhere = {
     assessmentCompleted: true,
     assessmentCompletedAt: { not: null } as const,
   };
 
   const [completionsResult, avgResult] = await Promise.allSettled([
-    prisma.user.count({ where: completedWhere }),
-    prisma.user.aggregate({
+    withAdminPageScope(scope, (db) => db.user.count({ where: completedWhere })),
+    withAdminPageScope(scope, (db) => db.user.aggregate({
       where: { ...completedWhere, assessmentScorePct: { not: null } },
       _avg: { assessmentScorePct: true },
-    }),
+    })),
   ]);
 
   // If the core count fails, fall back to the proven legacy table rather than
@@ -110,8 +110,10 @@ async function renderKit() {
 /** Legacy results table + per-member drill-in (preserved behind ?ui=legacy). */
 async function renderLegacy({
   params,
+  scope,
 }: {
   params: { program?: string; minScore?: string; maxScore?: string; userId?: string; page?: string };
+  scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk;
 }) {
   const programFilter = params.program?.trim() || undefined;
   const minScore = params.minScore ? parseInt(params.minScore, 10) : undefined;
@@ -142,7 +144,7 @@ async function renderLegacy({
     // Run the page of results and the filtered count in parallel; a count
     // failure degrades to the loaded page length rather than hiding the table.
     const [usersResult, countResult] = await Promise.allSettled([
-      prisma.user.findMany({
+      withAdminPageScope(scope, (db) => db.user.findMany({
         where,
         orderBy: { assessmentCompletedAt: 'desc' },
         skip: (currentPage - 1) * pageSize,
@@ -158,8 +160,8 @@ async function renderLegacy({
           assessmentCompletedAt: true,
           assessmentAnswers: true,
         },
-      }),
-      prisma.user.count({ where }),
+      })),
+      withAdminPageScope(scope, (db) => db.user.count({ where })),
     ]);
     if (usersResult.status === 'rejected') throw usersResult.reason;
     users = usersResult.value;

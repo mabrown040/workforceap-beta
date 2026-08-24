@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -58,34 +58,37 @@ export default async function RetentionDecisionsQueuePage() {
   // the actual current pattern; counselors are instead notified directly by
   // the reminder cron (app/api/cron/retention-decisions) via in-app
   // notification rather than needing to browse this admin page themselves.
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const now = new Date();
   const eightyDaysAgo = new Date(now.getTime() - NINETY_DAY_WINDOW_START_DAYS * MS_PER_DAY);
 
+  const userOrg = inheritUserOrg(scope);
   const undecidedFilter: Prisma.PlacementRecordWhereInput = {
     OR: [{ retentionDecision: null }, { retentionDecision: 'pending' }],
+    ...userOrg,
   };
 
-  const [rows, totalUndecided] = await Promise.all([
-    prisma.placementRecord.findMany({
+  const [rows, totalUndecided] = await withAdminPageScope(scope, (db) => Promise.all([
+    db.placementRecord.findMany({
       where: { ...undecidedFilter, placedAt: { lte: eightyDaysAgo } },
       orderBy: { placedAt: 'asc' },
       take: 500,
       select: retentionQueueSelect,
     }),
-    prisma.placementRecord.count({ where: undecidedFilter }),
-  ]);
+    db.placementRecord.count({ where: undecidedFilter }),
+  ]));
 
   // Batched lookup of each placement's latest completed survey response —
   // one query for the whole page, no per-row N+1.
   const latestStillEmployed = new Map<string, boolean | null>();
   if (rows.length > 0) {
-    const surveys = await prisma.placementSurvey.findMany({
-      where: { placementId: { in: rows.map((r) => r.id) }, completedAt: { not: null } },
+    const surveys = await withAdminPageScope(scope, (db) => db.placementSurvey.findMany({
+      where: { placementId: { in: rows.map((r) => r.id) }, completedAt: { not: null }, ...userOrg },
       orderBy: { completedAt: 'desc' },
       select: { placementId: true, stillEmployed: true },
-    });
+    }));
     for (const s of surveys) {
       // Ordered desc by completedAt — first hit per placementId is the latest.
       if (!latestStillEmployed.has(s.placementId)) {

@@ -4,7 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
-import { getProfileRole, isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { getProfileRole } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import PageHeader from '@/components/portal/PageHeader';
@@ -79,12 +80,13 @@ export default async function AdminCourseraLearnerPage({
 
   const actor = await getUser();
   if (!actor) redirect(`/login?redirectTo=/admin/coursera/learners/${userId}`);
-  if (!(await isAdmin(actor.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(actor.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const actorOrgId = await getActorOrganizationId(actor.id);
   const isSuper = await isSuperAdmin(actor.id);
 
-  const member = await prisma.user.findUnique({
+  const member = await withAdminPageScope(scope, (db) => db.user.findFirst({
     where: {
       id: userId,
       deletedAt: null,
@@ -98,7 +100,7 @@ export default async function AdminCourseraLearnerPage({
       workspaceEmail: true,
       workspaceEmailProvisioned: true,
     },
-  });
+  }));
   if (!member) notFound();
 
   const role = await withDbRetry(() => getProfileRole(member.id)).catch((err) => {

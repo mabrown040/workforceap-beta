@@ -18,7 +18,7 @@ import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
 import CourseraInspectByEmailCard from '@/components/admin/CourseraInspectByEmailCard';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
@@ -348,7 +348,8 @@ export default async function AdminCourseraPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
   const organizationId = await getActorOrganizationId(user.id);
 
   const sp = (await searchParams) ?? {};
@@ -386,9 +387,9 @@ export default async function AdminCourseraPage({
     try {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const [approvedCount, activeRows] = await Promise.all([
-        prisma.user.count({
+        withAdminPageScope(scope, (db) => db.user.count({
           where: { organizationId, deletedAt: null, courseraEnrollmentApproved: true },
-        }),
+        })),
         prisma.$queryRaw<Array<{ count: bigint }>>`
           SELECT COUNT(DISTINCT actor_user.id)::bigint AS count
           FROM xapi_statements xs
@@ -498,7 +499,7 @@ export default async function AdminCourseraPage({
   // Include members, profile-less rows (treated as member), and admin/super_admin
   // dogfood accounts (same idea as MEMBER_OR_DOGFOOD_WHERE) so Coursera tooling
   // stays usable for platform operators testing with their own learner email.
-  const members = await prisma.user.findMany({
+  const members = await withAdminPageScope(scope, (db) => db.user.findMany({
     where: {
       deletedAt: null,
       organizationId,
@@ -524,7 +525,7 @@ export default async function AdminCourseraPage({
       },
     },
     take: 500,
-  });
+  }));
 
   let mappings = await Promise.resolve([] as Awaited<ReturnType<typeof listCourseraIdentityMappings>>);
   let xapiAttention = await Promise.resolve([] as Awaited<ReturnType<typeof listXapiStatementsNeedingAttention>>);

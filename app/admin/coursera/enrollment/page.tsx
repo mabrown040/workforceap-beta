@@ -6,7 +6,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraEnrollmentPipelineTable from '@/components/admin/CourseraEnrollmentPipelineTable';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { loadCourseraEnrollmentPipeline } from '@/lib/admin/courseraEnrollmentPipeline';
 
@@ -31,7 +31,8 @@ const SUMMARY_TILES: Array<{ key: 'totalApproved' | 'approvedNotStarted' | 'acti
 export default async function AdminCourseraEnrollmentPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera/enrollment');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const organizationId = await getActorOrganizationId(user.id);
   const { rows, summary, programs } = await loadCourseraEnrollmentPipeline(organizationId);

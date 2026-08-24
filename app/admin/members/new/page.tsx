@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { PROGRAMS } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import AddMemberWizard from './AddMemberWizard';
@@ -20,22 +20,24 @@ export default async function AddMemberPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members/new');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const [partners, subgroups] = await Promise.all([
-    prisma.partner.findMany({
+  const leaderOrg = inheritLeaderOrg(scope);
+  const [partners, subgroups] = await withAdminPageScope(scope, (db) => Promise.all([
+    db.partner.findMany({
       take: 5000,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
-    prisma.subgroup.findMany({
+    db.subgroup.findMany({
       take: 5000,
+      where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true },
     }),
-  ]);
+  ]));
 
   return (
     <div className="add-member-page">

@@ -2,7 +2,8 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
-import { getProfileRole, isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { getProfileRole } from '@/lib/auth/roles';
 import { revalidatePath } from 'next/cache';
 import { sendApplicantFollowupEmail } from '@/lib/email';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -12,7 +13,9 @@ import { withDbRetry } from '@/lib/db/withDbRetry';
 export async function remindStaleApplication(applicationId: string, userId: string) {
   return withAuthGuc(async () => {
     const user = await getUser();
-    if (!user || !(await isAdmin(user.id))) throw new Error('Unauthorized');
+    if (!user) throw new Error('Unauthorized');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) throw new Error('Unauthorized');
 
     const orgId = await getActorOrganizationId(user.id);
 

@@ -2,11 +2,15 @@ import 'server-only';
 
 import { FundingSource } from '@prisma/client';
 
-import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { calculateHealthStatus, type HealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import {
+  inheritUserOrg,
+  withAdminPageScope,
+  type AdminPageTenantOk,
+} from '@/lib/tenant/adminPageScope';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -84,8 +88,11 @@ const FUNDING_LABELS: Record<FundingSource, string> = {
  * slice is settled independently so one failing query degrades to zero rather
  * than blanking the page.
  */
-export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
+export async function loadAnalyticsOverview(
+  scope: AdminPageTenantOk,
+): Promise<AnalyticsOverview> {
   const thirtyDaysAgo = new Date(Date.now() - THIRTY_DAYS_MS);
+  const userOrg = inheritUserOrg(scope);
 
   const [
     trainingResult,
@@ -102,53 +109,54 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     qualifiedScreeningsResult,
     applicationsSubmittedResult,
     applicationsApprovedResult,
-  ] = await Promise.allSettled([
-    loadTrainingDashboardData(),
-    prisma.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
-    prisma.memberEvent.groupBy({
+  ] = await withAdminPageScope(scope, (db) =>
+    Promise.allSettled([
+    loadTrainingDashboardData(scope),
+    db.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
+    db.memberEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
       _max: { createdAt: true },
     }),
-    prisma.memberEvent.groupBy({
+    db.memberEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
       _count: { _all: true },
     }),
-    prisma.user.findMany({
+    db.user.findMany({
       where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, enrolledProgram: { not: null } },
       take: 5000,
       select: { id: true, enrolledAt: true },
     }),
-    prisma.placementRecord.count({
-      where: { user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } },
+    db.placementRecord.count({
+      where: { user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, ...(scope.superAdmin ? {} : { organizationId: scope.orgId }) } },
     }),
     // Member-confirmed placements still awaiting counselor verification.
-    prisma.placementRecord.count({
-      where: { startDateVerified: false, user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } },
+    db.placementRecord.count({
+      where: { startDateVerified: false, user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, ...(scope.superAdmin ? {} : { organizationId: scope.orgId }) } },
     }),
-    prisma.courseEnrollment.groupBy({
+    db.courseEnrollment.groupBy({
       by: ['fundingSource'],
       _count: { _all: true },
     }),
-    prisma.courseEnrollment.groupBy({
+    db.courseEnrollment.groupBy({
       by: ['programSlug'],
       _count: { _all: true },
     }),
-    prisma.user.count({
+    db.user.count({
       where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, createdAt: { gte: thirtyDaysAgo } },
     }),
-    prisma.applyEligibilityScreening.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-    prisma.applyEligibilityScreening.count({
+    db.applyEligibilityScreening.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+    db.applyEligibilityScreening.count({
       where: { createdAt: { gte: thirtyDaysAgo }, qualifies: true },
     }),
-    prisma.application.count({
-      where: { createdAt: { gte: thirtyDaysAgo }, submittedAt: { not: null } },
+    db.application.count({
+      where: { createdAt: { gte: thirtyDaysAgo }, submittedAt: { not: null }, ...userOrg },
     }),
-    prisma.application.count({
-      where: { createdAt: { gte: thirtyDaysAgo }, status: 'APPROVED' },
+    db.application.count({
+      where: { createdAt: { gte: thirtyDaysAgo }, status: 'APPROVED', ...userOrg },
     }),
-  ]);
+  ]));
 
   // ── Funnel + engagement (reuse the training dashboard aggregate) ──
   const training = trainingResult.status === 'fulfilled' ? trainingResult.value : null;

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Plus, Merge } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
@@ -35,8 +35,8 @@ export default async function AdminMembersPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const t = await getTranslations('admin');
 
@@ -113,8 +113,8 @@ export default async function AdminMembersPage({
   // deferred until we know which userIds are on this page — that turns 4
   // full-table scans into <=50-key index lookups with identical output, and
   // skips them entirely when the member list itself fails to load.
-  const [membersResult, totalCountResult, partnerOptionsResult] = await Promise.allSettled([
-    prisma.user.findMany({
+  const [membersResult, totalCountResult, partnerOptionsResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
+    db.user.findMany({
       where: whereClause,
       orderBy: { updatedAt: 'desc' },
       skip: (currentPage - 1) * pageSize,
@@ -161,14 +161,14 @@ export default async function AdminMembersPage({
         },
       },
     }),
-    prisma.user.count({ where: whereClause }),
+    db.user.count({ where: whereClause }),
     // Org-wide partner list for the filter dropdown (page-derived options
     // would shrink to whatever partners appear on the loaded page).
-    prisma.partner.findMany({
+    db.partner.findMany({
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     }),
-  ]);
+  ]));
 
   if (membersResult.status === 'rejected') {
     console.error('[admin/members] user list load failed', membersResult.reason);
@@ -195,16 +195,16 @@ export default async function AdminMembersPage({
   ] = await Promise.allSettled([
     // PERF: Bound last-event scan to 30 days. Users absent from this map
     // are treated as inactive by calculateHealthStatus (correct behavior).
-    prisma.memberEvent.groupBy({
+    withAdminPageScope(scope, (db) => db.memberEvent.groupBy({
       by: ['userId'],
       where: { userId: { in: pageMemberIds }, createdAt: { gte: thirtyDaysAgo } },
       _max: { createdAt: true },
-    }),
-    prisma.memberEvent.groupBy({
+    })),
+    withAdminPageScope(scope, (db) => db.memberEvent.groupBy({
       by: ['userId'],
       where: { userId: { in: pageMemberIds }, createdAt: { gte: thirtyDaysAgo } },
       _count: { _all: true },
-    }),
+    })),
     // Canonical completed-course count from `course_progress` (includes CSV-promoted Coursera rows).
     prisma.courseProgress.groupBy({
       by: ['userId'],

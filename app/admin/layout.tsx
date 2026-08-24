@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
@@ -32,12 +32,12 @@ export default async function AdminLayout({
   if (!user) redirect('/login');
 
   try {
-    const hasAdmin = await isAdmin(user.id);
-    if (!hasAdmin) redirect('/dashboard');
+    const scope = await resolveAdminPageTenant(user.id);
+    if (!scope.ok) redirect('/dashboard');
 
     const [branding, superAdmin, portalRoles] = await Promise.all([
       getDefaultOrgBranding(),
-      isSuperAdmin(user.id),
+      Promise.resolve(scope.superAdmin),
       getPortalSwitcherRoles(user.id),
     ]);
 

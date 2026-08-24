@@ -1,9 +1,14 @@
 import 'server-only';
 
-import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateHealthStatus, type HealthStatus, getHealthLabel, getHealthColor } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import {
+  inheritMemberOrg,
+  inheritUserOrg,
+  withAdminPageScope,
+  type AdminPageTenantOk,
+} from '@/lib/tenant/adminPageScope';
 
 /**
  * "Who needs you today" triage digest for the admin home.
@@ -71,12 +76,15 @@ function daysSince(date: Date | null): number | null {
   return Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export async function getTriageDigest(): Promise<TriageDigest> {
+export async function getTriageDigest(scope: AdminPageTenantOk): Promise<TriageDigest> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const userOrg = inheritUserOrg(scope);
+  const memberOrg = inheritMemberOrg(scope);
 
   // Everything runs in parallel and degrades independently — a single failing
   // slice must not blank out the whole digest (mirrors /admin/page error policy).
@@ -87,9 +95,10 @@ export async function getTriageDigest(): Promise<TriageDigest> {
     recentEventsResult,
     staleTrainingResult,
     counselorAssignmentsResult,
-  ] = await Promise.allSettled([
+  ] = await withAdminPageScope(scope, (db) =>
+    Promise.allSettled([
     // 1. New applicants (last 7 days) with no assigned counselor
-    prisma.user.findMany({
+    db.user.findMany({
       where: {
         deletedAt: null,
         ...MEMBER_OR_DOGFOOD_WHERE,
@@ -108,7 +117,7 @@ export async function getTriageDigest(): Promise<TriageDigest> {
       },
     }),
     // Member roster for health + stalled computation
-    prisma.user.findMany({
+    db.user.findMany({
       where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
       take: 3000,
       select: {
@@ -122,19 +131,19 @@ export async function getTriageDigest(): Promise<TriageDigest> {
       },
     }),
     // Last event per member (for health score + stalled)
-    prisma.memberEvent.groupBy({
+    db.memberEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
       _max: { createdAt: true },
     }),
     // Recent event count per member (for health score)
-    prisma.memberEvent.groupBy({
+    db.memberEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
       _count: { _all: true },
     }),
     // Members with staleTrainingDetectedAt set (at-risk signal)
-    prisma.user.findMany({
+    db.user.findMany({
       where: {
         deletedAt: null,
         ...MEMBER_OR_DOGFOOD_WHERE,
@@ -150,11 +159,11 @@ export async function getTriageDigest(): Promise<TriageDigest> {
       },
     }),
     // Active counselor assignments (to exclude from new-applicants count)
-    prisma.counselorAssignment.findMany({
-      where: { active: true },
+    db.counselorAssignment.findMany({
+      where: { active: true, ...memberOrg },
       select: { memberId: true },
     }),
-  ]);
+  ]));
 
   const buckets: TriageBucket[] = [];
 

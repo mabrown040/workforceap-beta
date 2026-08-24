@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
@@ -39,32 +39,33 @@ export default async function AdminTrainingProgressPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/training-progress');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
   // ─── Legacy: the original sortable dual-table (canonical + raw Coursera) ───
   if (requestedUi === 'legacy') {
-    return renderLegacy();
+    return renderLegacy(scope);
   }
 
   // ─── DEFAULT: lean per-learner pace roster (design kit) ───
   // One pass over members + their primary enrollment + canonical course
   // progress. All lean (findMany take:N / count); no $transaction, no HTTP.
   const [learnersResult, enrollmentsResult, progressResult] = await Promise.allSettled([
-    prisma.user.findMany({
+    withAdminPageScope(scope, (db) => db.user.findMany({
       take: 5000,
       where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
       orderBy: [{ fullName: 'asc' }],
       select: { id: true, fullName: true, enrolledProgram: true },
-    }),
+    })),
     // Primary program per learner drives the single pace row we show.
-    prisma.courseEnrollment.findMany({
+    withAdminPageScope(scope, (db) => db.courseEnrollment.findMany({
       take: 5000,
       where: { isPrimary: true },
       select: { userId: true, programSlug: true },
-    }),
+    })),
     prisma.courseProgress.findMany({
       take: 20000,
       select: {
@@ -203,8 +204,8 @@ export default async function AdminTrainingProgressPage({
 }
 
 /** Original sortable dual-table view (canonical curriculum + raw Coursera). */
-async function renderLegacy() {
-  const learners = await prisma.user.findMany({
+async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk) {
+  const learners = await withAdminPageScope(scope, (db) => db.user.findMany({
     take: 5000,
     where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
     orderBy: [{ fullName: 'asc' }],
@@ -215,7 +216,7 @@ async function renderLegacy() {
       enrolledProgram: true,
       profile: { select: { role: true } },
     },
-  });
+  }));
 
   const learnerIds = learners.map((l) => l.id);
 
@@ -272,7 +273,7 @@ async function renderLegacy() {
     // (primary + secondary), not just `User.enrolledProgram`. The legacy
     // single-program field stays as a fallback below for users without any
     // CourseEnrollment rows yet (seeded test users).
-    prisma.courseEnrollment.findMany({
+    withAdminPageScope(scope, (db) => db.courseEnrollment.findMany({
       take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
@@ -280,7 +281,7 @@ async function renderLegacy() {
         programSlug: true,
         isPrimary: true,
       },
-    }),
+    })),
   ]);
 
   const dbMappingByCourseraId = new Map(

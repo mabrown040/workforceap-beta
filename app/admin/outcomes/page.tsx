@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { redirect } from 'next/navigation';
 import { getBoardSnapshot, BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -32,10 +32,8 @@ export default async function OutcomesPage({
     redirect('/login?redirect=/admin/outcomes');
   }
 
-  const admin = await isAdmin(user.id);
-  if (!admin) {
-    redirect('/dashboard');
-  }
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;

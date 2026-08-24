@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import PageHeader from '@/components/portal/PageHeader';
@@ -36,11 +36,8 @@ export default async function AdminEmailTemplatesPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/email-templates');
-  try {
-    await requireAdmin(user.id);
-  } catch {
-    redirect('/dashboard');
-  }
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { ui } = await searchParams;
 

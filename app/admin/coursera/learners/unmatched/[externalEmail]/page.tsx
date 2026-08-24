@@ -9,7 +9,7 @@ import DataTable from '@/components/portal/ui/DataTable';
 import SectionHeader from '@/components/portal/ui/SectionHeader';
 import MapToUserActions from '@/components/admin/coursera/MapToUserActions';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   countUnmatchedXapiEventsByExternalEmail,
@@ -49,7 +49,8 @@ export default async function AdminCourseraUnmatchedLearnerPage({
 }) {
   const viewer = await getUser();
   if (!viewer) redirect('/login?redirectTo=/admin/coursera');
-  if (!(await isAdmin(viewer.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(viewer.id);
+  if (!scope.ok) redirect('/dashboard');
   const organizationId = await getActorOrganizationId(viewer.id);
 
   const { externalEmail } = await params;

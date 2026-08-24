@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { Bell, TriangleAlert, UserPlus, Briefcase, Award } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -45,8 +45,8 @@ export default async function AdminTodayPage({
   const user = await getUser();
   if (!user) redirect('/login');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
@@ -283,17 +283,18 @@ export default async function AdminTodayPage({
   // scope (RSC renders the returned JSX lazily), so re-establish the auth GUC
   // context here — otherwise these queries run with anonymous RLS credentials.
   const [triageDigest, sessionsTodayRows] = await withAuthGuc(() => Promise.all([
-    getTriageDigest().catch((reason): TriageDigest => {
+    getTriageDigest(scope).catch((reason): TriageDigest => {
       const msg = reason instanceof Error ? reason.message : String(reason);
       console.error('[admin/page] triageDigest failed', msg);
       return { buckets: [], allClear: true };
     }),
-    prisma.memberEvent
+    withAdminPageScope(scope, (db) => db.memberEvent
       .findMany({
         where: {
           eventName: 'ai_tool_run_completed',
           sessionId: { not: null },
           createdAt: { gte: startOfToday },
+          ...inheritUserOrg(scope),
         },
         select: { sessionId: true },
       })
@@ -301,7 +302,7 @@ export default async function AdminTodayPage({
         const msg = reason instanceof Error ? reason.message : String(reason);
         console.error('[admin/page] sessionsToday failed', msg);
         return [] as Array<{ sessionId: string | null }>;
-      }),
+      })),
   ]));
 
   const sessionsToday = new Set(

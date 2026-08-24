@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { getUser } from '@/lib/auth/server';
+import { resolveAdminPageTenant, withAdminPageScope, inheritLeaderOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
@@ -11,9 +13,13 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminSubgroupDetailPage({ params }: Props) {
   const { id } = await params;
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/subgroups');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const subgroup = await prisma.subgroup.findUnique({
-    where: { id },
+  const subgroup = await withAdminPageScope(scope, (db) => db.subgroup.findFirst({
+    where: { id, ...inheritLeaderOrg(scope) },
     include: {
       leader: { select: { id: true, fullName: true, email: true } },
       partner: { select: { id: true, name: true } },
@@ -43,7 +49,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
         orderBy: { assignedAt: 'desc' },
       },
     },
-  });
+  }));
 
   if (!subgroup) notFound();
 

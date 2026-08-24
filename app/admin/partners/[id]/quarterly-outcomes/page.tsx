@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -10,7 +10,7 @@ import PartnerQuarterlyOutcomesClient from './PartnerQuarterlyOutcomesClient';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const partner = await prisma.partner.findUnique({
+  const partner = await prisma.partner.findFirst({
     where: { id },
     select: { name: true },
   });
@@ -26,7 +26,8 @@ type Props = { params: Promise<{ id: string }> };
 export default async function PartnerQuarterlyOutcomesPage({ params }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/partners');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { id } = await params;
   const orgId = await getActorOrganizationId(user.id);

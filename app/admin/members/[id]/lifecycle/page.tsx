@@ -4,7 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
@@ -24,14 +24,16 @@ export default async function AdminMemberLifecyclePage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
-  const [member, enrollment, events] = await Promise.all([
-    prisma.user.findFirst({
-      where: { id: memberId, organizationId: orgId },
+  const userOrg = inheritUserOrg(scope);
+  const [member, enrollment, events] = await withAdminPageScope(scope, (db) => Promise.all([
+    db.user.findFirst({
+      where: { id: memberId },
       select: {
         id: true,
         fullName: true,
@@ -55,7 +57,7 @@ export default async function AdminMemberLifecyclePage({
       },
     }),
     // Multi-program: show the primary enrollment in the lifecycle header.
-    prisma.courseEnrollment.findFirst({
+    db.courseEnrollment.findFirst({
       where: { userId: memberId, isPrimary: true },
       select: {
         programSlug: true,
@@ -64,8 +66,8 @@ export default async function AdminMemberLifecyclePage({
         fundingSource: true,
       },
     }),
-    prisma.memberEvent.findMany({
-      where: { userId: memberId },
+    db.memberEvent.findMany({
+      where: { userId: memberId, ...userOrg },
       orderBy: { createdAt: 'desc' },
       take: 100,
       select: {
@@ -77,7 +79,7 @@ export default async function AdminMemberLifecyclePage({
         createdAt: true,
       },
     }),
-  ]);
+  ]));
 
   if (!member) notFound();
 

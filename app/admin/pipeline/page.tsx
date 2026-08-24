@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { CourseProgressStatus } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { PipelineFunnelKit } from '@/components/portal/kit/pages/admin-subviews/PipelineFunnelKit';
@@ -31,7 +31,8 @@ export default async function PipelinePage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/pipeline');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const sp = await searchParams;
   const requestedUi = typeof sp.ui === 'string' ? sp.ui : null;
@@ -46,7 +47,7 @@ export default async function PipelinePage({
   // control is preserved. All five stages are LEAN tenant-scoped `user.count`
   // calls (no findMany, no $transaction). `User` is a tenant-scoped model, so
   // withTenantScope auto-injects the org filter on every count. ──
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = scope.orgId;
 
   // Funnel cohort: members who STARTED their application in the last 90 days,
   // so every stage measures the same cohort and the bars read as a true
@@ -58,7 +59,7 @@ export default async function PipelinePage({
     createdAt: { gte: windowStart },
   } as const;
 
-  const funnel = await withTenantScope(orgId, async (db) => {
+  const funnel = await withAdminPageScope(scope, async (db) => {
     // Stage 1 (top of funnel): every member in the cohort "started application".
     // Stage 2: intake/assessment complete.
     // Stage 3 (approx): WIOA eligibility screened — `wioaReviewStatus` set.

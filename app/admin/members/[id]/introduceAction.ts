@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { revalidatePath } from 'next/cache';
 import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -12,7 +12,9 @@ import { logAuditEvent } from '@/lib/audit/log';
 
 export async function introduceMemberToEmployer(memberId: string, jobId: string) {
   const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) throw new Error('Unauthorized');
+  if (!user) throw new Error('Unauthorized');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) throw new Error('Unauthorized');
 
   const orgId = await getActorOrganizationId(user.id);
 

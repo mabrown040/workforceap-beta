@@ -5,7 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import AdminTrainingDashboardTable from '@/components/admin/AdminTrainingDashboardTable';
 import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,9 +28,10 @@ function MetricCard({ label, value, accent }: { label: string; value: string | n
 export default async function AdminTrainingProgressPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members/training');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const { metrics, rows } = await loadTrainingDashboardData();
+  const { metrics, rows } = await loadTrainingDashboardData(scope);
 
   return (
     <div>

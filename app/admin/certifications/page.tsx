@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getCertificationsCohortStats, cohortLabel } from '@/lib/admin/cohortAnalytics';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
@@ -27,7 +27,8 @@ export default async function AdminCertificationsAnalyticsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/certifications');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
@@ -38,9 +39,10 @@ export default async function AdminCertificationsAnalyticsPage({
   // pending queue and the kit's Approve/Reject buttons POST to
   // /api/admin/certifications/review. The legacy cohort-analytics view is kept
   // behind ?ui=legacy.
+  const userOrg = inheritUserOrg(scope);
   if (requestedUi !== 'legacy') {
-    const pending = await prisma.userCertification.findMany({
-      where: { status: 'pending' },
+  const pending = await withAdminPageScope(scope, (db) => db.userCertification.findMany({
+      where: { status: 'pending', ...userOrg },
       orderBy: { submittedAt: 'desc' },
       take: 50,
       select: {
@@ -50,7 +52,7 @@ export default async function AdminCertificationsAnalyticsPage({
         submittedAt: true,
         user: { select: { fullName: true, email: true, enrolledProgram: true } },
       },
-    });
+    }));
 
     // The `member-files` bucket is private; proofUrl stores the stable storage
     // path. Mint short-lived signed URLs at render time (same pattern as
@@ -95,7 +97,8 @@ export default async function AdminCertificationsAnalyticsPage({
 
   const [rows, recentCerts] = await Promise.all([
     getCertificationsCohortStats(),
-    prisma.userCertification.findMany({
+    withAdminPageScope(scope, (db) => db.userCertification.findMany({
+      where: { ...userOrg },
       orderBy: { earnedAt: 'desc' },
       take: 20,
       select: {
@@ -104,7 +107,7 @@ export default async function AdminCertificationsAnalyticsPage({
         earnedAt: true,
         user: { select: { fullName: true, email: true, enrolledProgram: true } },
       },
-    }),
+    })),
   ]);
 
   const totalCerts = rows.reduce((s, r) => s + r.totalCerts, 0);

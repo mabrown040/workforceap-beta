@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { buildPageMetadataAsync } from '@/app/seo';
 import QuarterlyOutcomesClient from './QuarterlyOutcomesClient';
 
@@ -16,7 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function QuarterlyOutcomesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/reports/quarterly-outcomes');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   return <QuarterlyOutcomesClient />;
 }

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import { getUser } from '@/lib/auth/server';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { isAdmin } from '@/lib/auth/roles';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -93,7 +94,8 @@ export default async function AgentInboxPage({
   if (!user) redirect('/login?redirectTo=/admin/agent-inbox');
   // The /admin layout already enforces isAdmin, but check again here so
   // this page's auth contract is self-evident from the file.
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const tenantScope = await resolveAdminPageTenant(user.id);
+  if (!tenantScope.ok) redirect('/dashboard');
 
   const { ui } = await searchParams;
   const legacy = ui === 'legacy';

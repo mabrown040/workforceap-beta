@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -61,16 +61,21 @@ export default async function AdminPlacementsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/placements');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
-  const placements: PlacementRecord[] = await prisma.placementRecord.findMany({
-    orderBy: { placedAt: 'desc' },
-    take: 500,
-    select: placementListSelect,
-  });
+  const userOrg = inheritUserOrg(scope);
+  const placements: PlacementRecord[] = await withAdminPageScope(scope, (db) =>
+    db.placementRecord.findMany({
+      where: { ...userOrg },
+      orderBy: { placedAt: 'desc' },
+      take: 500,
+      select: placementListSelect,
+    }),
+  );
 
   // Legacy → the original sortable/exportable admin table.
   if (requestedUi === 'legacy') {
@@ -102,11 +107,13 @@ export default async function AdminPlacementsPage({
   // Lean groupBy over completed surveys only; degrades to "Pending" on failure.
   const completedSurveyIds = new Set<string>();
   try {
-    const completed = await prisma.placementSurvey.groupBy({
-      by: ['placementId'],
-      where: { completedAt: { not: null } },
-      _count: { _all: true },
-    });
+    const completed = await withAdminPageScope(scope, (db) =>
+      db.placementSurvey.groupBy({
+        by: ['placementId'],
+        where: { completedAt: { not: null }, ...userOrg },
+        _count: { _all: true },
+      }),
+    );
     for (const row of completed) completedSurveyIds.add(row.placementId);
   } catch (err) {
     console.error('[admin/placements] survey aggregate failed', err);
@@ -115,10 +122,12 @@ export default async function AdminPlacementsPage({
   // Avg wage across placements that recorded a salary (lean aggregate).
   let avgWage = '—';
   try {
-    const agg = await prisma.placementRecord.aggregate({
-      where: { salaryOffered: { gt: 0 } },
-      _avg: { salaryOffered: true },
-    });
+    const agg = await withAdminPageScope(scope, (db) =>
+      db.placementRecord.aggregate({
+        where: { salaryOffered: { gt: 0 }, ...userOrg },
+        _avg: { salaryOffered: true },
+      }),
+    );
     avgWage = formatWageShort(
       agg._avg.salaryOffered != null ? Math.round(agg._avg.salaryOffered) : null,
     );
@@ -130,7 +139,9 @@ export default async function AdminPlacementsPage({
   const yearStart = new Date(new Date().getFullYear(), 0, 1);
   let ytd = 0;
   try {
-    ytd = await prisma.placementRecord.count({ where: { placedAt: { gte: yearStart } } });
+    ytd = await withAdminPageScope(scope, (db) =>
+      db.placementRecord.count({ where: { placedAt: { gte: yearStart }, ...userOrg } }),
+    );
   } catch (err) {
     console.error('[admin/placements] ytd count failed', err);
     ytd = placements.filter((p) => p.placedAt >= yearStart).length;

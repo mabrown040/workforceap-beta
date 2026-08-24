@@ -4,7 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { randomUUID } from 'node:crypto';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import PageHeader from '@/components/portal/PageHeader';
@@ -60,9 +60,10 @@ export default async function AdminSessionRunPage({
 
   const user = await getUser();
   if (!user) redirect(`/login?redirectTo=/admin/sessions/${memberId}/run`);
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const member = await prisma.user.findUnique({
+  const member = await withAdminPageScope(scope, (db) => db.user.findFirst({
     where: { id: memberId, deletedAt: null },
     select: {
       id: true,
@@ -72,7 +73,7 @@ export default async function AdminSessionRunPage({
       enrolledProgram: true,
       programInterest: true,
     },
-  });
+  }));
   if (!member) notFound();
 
   const existingResume = await getMemberResumePlainText(memberId, 8000, { preferOriginal: true });

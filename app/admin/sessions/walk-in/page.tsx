@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import PageHeader from '@/components/portal/PageHeader';
 import WalkInSessionClient from '@/components/portal/sessions/WalkInSessionClient';
 
@@ -17,7 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminWalkInSessionPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/sessions/walk-in');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   return (
     <>

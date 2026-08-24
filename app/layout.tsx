@@ -3,9 +3,9 @@ import Script from 'next/script';
 import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
-import type { AbstractIntlMessages } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { pickRootClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
@@ -54,45 +54,6 @@ const inter = Inter({
 });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-53JCT6WN';
-
-/** Matches every `useTranslations('…')` namespace used under this provider (omit server-only bundles). */
-function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMessages {
-  type MsgRecord = Record<string, unknown>;
-  const m = messages as MsgRecord;
-  const mk = m.marketing as MsgRecord | undefined;
-  const out: MsgRecord = {
-    nav: m.nav,
-    cta: m.cta,
-    footer: m.footer,
-    form: m.form,
-    auth: m.auth,
-    common: m.common,
-    dashboard: m.dashboard,
-    messages: m.messages,
-    profile: m.profile,
-    jobs: m.jobs,
-    workspace: m.workspace,
-    courseraProgress: m.courseraProgress,
-    partner: m.partner,
-    group: m.group,
-    apply: m.apply,
-    admin: m.admin,
-    findYourPath: m.findYourPath,
-    counselor: m.counselor,
-    employer: m.employer,
-    journeyGuide: m.journeyGuide,
-    resumeStudio: m.resumeStudio,
-    trainingBridge: m.trainingBridge,
-    benefitsCliff: m.benefitsCliff,
-    goals: m.goals,
-    coach: m.coach,
-    first90: m.first90,
-  };
-  if (mk && mk.programs !== undefined) {
-    out.marketing = { programs: mk.programs };
-  }
-  return out as AbstractIntlMessages;
-}
 
 export const viewport = {
   width: 'device-width',

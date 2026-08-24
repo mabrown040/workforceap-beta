@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
 import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
+import { pickPortalClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import '@/css/portal.css';
 import '@/css/portal-a11y.css';
 import '@/css/counselor.css';
@@ -23,16 +26,17 @@ export const metadata: Metadata = {
 // slow render completes instead of erroring. Applies to all (portal) pages.
 export const maxDuration = 60;
 
-export default function PortalLayout({
+export default async function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const messages = pickPortalClientMessages(await getMessages());
   return (
-    <>
+    <NextIntlClientProvider messages={messages}>
       <PartnerExclusiveServerGate />
       <LegacyViewNotice />
       <PortalLayoutClient>{children}</PortalLayoutClient>
-    </>
+    </NextIntlClientProvider>
   );
 }

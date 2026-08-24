@@ -9,7 +9,9 @@ import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
 import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations } from 'next-intl/server';
+import { pickAdminClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import '@/css/portal.css';
 import '@/css/counselor.css';
 import '@/css/language-toggle.css';
@@ -30,6 +32,7 @@ export default async function AdminLayout({
 }) {
   const user = await getUser();
   if (!user) redirect('/login');
+  const messages = pickAdminClientMessages(await getMessages());
 
   try {
     const hasAdmin = await isAdmin(user.id);
@@ -58,17 +61,20 @@ export default async function AdminLayout({
       // need — so opting the whole admin tree out is the cheapest fix.
       // `translate="no"` is the modern HTML standard; `class="notranslate"`
       // is Google Translate's legacy hint. Both, for compatibility.
+      <NextIntlClientProvider messages={messages}>
       <div translate="no" className="notranslate">
         <OrgBrandingBar branding={branding} />
         <LegacyViewNotice />
         <AdminPortalShell superAdmin={superAdmin} portalRoles={portalRoles}>{children}</AdminPortalShell>
       </div>
+      </NextIntlClientProvider>
     );
   } catch (err) {
     if (isRedirectError(err)) throw err;
     console.error('[admin/layout] Failed to load admin shell:', err);
     const t = await getTranslations('admin');
     return (
+      <NextIntlClientProvider messages={messages}>
       <div className="portal-route-fallback" style={{ padding: '2rem', maxWidth: '36rem' }}>
         <h1 className="portal-route-fallback__title">{t('adminTemporarilyUnavailable')}</h1>
         <p className="portal-route-fallback__desc">
@@ -86,6 +92,7 @@ export default async function AdminLayout({
           </Link>
         </nav>
       </div>
+      </NextIntlClientProvider>
     );
   }
 }

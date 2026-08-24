@@ -786,15 +786,15 @@ html.dark .apply-info-banner {
     color: var(--color-on-surface-variant);
 }
 html.dark .expectations-box {
-    background: #161a1f;
-    border-color: #2d3540;
-    color: #e5e7eb;
+    background: var(--surface-container);
+    border-color: var(--outline-variant);
+    color: var(--color-on-surface);
 }
 html.dark .expectations-box h3 {
-    color: #f1f5f9;
+    color: var(--color-on-surface);
 }
 html.dark .expectations-box li {
-    color: #cbd5e1;
+    color: var(--color-on-surface-variant);
 }
 html.dark .apply-hero-no-cost-callout {
     background: color-mix(in srgb, var(--color-on-accent) 10%, transparent);
@@ -823,8 +823,8 @@ html.dark .apply-results-anyway {
     color: var(--color-on-surface) !important;
 }
 html.dark .apply-foundational-support {
-    background: rgba(74, 155, 79, 0.12);
-    border-color: rgba(74, 155, 79, 0.35);
+    background: color-mix(in srgb, var(--color-green) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-green) 35%, transparent);
 }
 html.dark .apply-foundational-support__title,
 html.dark .apply-foundational-support__list {
@@ -834,10 +834,10 @@ html.dark .apply-results-program-hint {
     color: var(--color-on-surface-variant);
 }
 html.dark .quiz-results-next-links a {
-    color: #f472b6;
+    color: var(--color-accent-light);
 }
 html.dark .quiz-results-next-links a:hover {
-    color: #fda4af;
+    color: var(--color-marketing-accent-on-dark);
 }
 html.dark .training-course-card {
     background: #161a1f !important;

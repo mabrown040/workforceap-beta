@@ -19,8 +19,8 @@ export default function ApplyConfirmationCta() {
     <div
       className="apply-confirmation-account-cta"
       style={{
-        background: 'linear-gradient(135deg, rgba(173, 44, 77, 0.08), rgba(173, 44, 77, 0.02))',
-        border: '1px solid rgba(173, 44, 77, 0.25)',
+        background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, transparent), color-mix(in srgb, var(--color-accent) 2%, transparent))',
+        border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
         borderRadius: '8px',
         padding: '1.35rem',
         marginBottom: '1.5rem',

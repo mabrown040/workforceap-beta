@@ -135,7 +135,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           margin: 0 auto var(--space-6);
           font-size: clamp(0.9375rem, 2.5vw, 1.05rem);
           line-height: var(--line-height-normal);
-          color: rgba(255, 255, 255, 0.88);
+          color: color-mix(in srgb, var(--color-on-accent) 88%, transparent);
         }
 
         .paid-apply-hero__help-compact {
@@ -263,7 +263,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
             margin: 0 auto var(--space-4);
             font-size: var(--font-size-sm);
             line-height: var(--line-height-normal);
-            color: rgba(255, 255, 255, 0.88);
+            color: color-mix(in srgb, var(--color-on-accent) 88%, transparent);
           }
 
           /* Form entry trust bar + kicker carry nonprofit/no-cost/time — drop hero repeat */

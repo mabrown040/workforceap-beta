@@ -91,15 +91,15 @@ export default async function ApplyConfirmationPage() {
                   width: '5.5rem',
                   height: '5.5rem',
                   borderRadius: '9999px',
-                  background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                  background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto 1.25rem',
-                  boxShadow: '0 20px 40px -12px rgba(140,15,55,0.35)',
+                  boxShadow: '0 20px 40px -12px color-mix(in srgb, var(--color-accent-dark) 35%, transparent)',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '2.75rem', '--ms-wght': 600 } as CSSProperties}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-accent)', fontSize: '2.75rem', '--ms-wght': 600 } as CSSProperties}>
                   check
                 </span>
               </div>
@@ -123,8 +123,8 @@ export default async function ApplyConfirmationPage() {
               <div
                 className="mdx-card"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(173, 44, 77, 0.08), rgba(173, 44, 77, 0.02))',
-                  border: '1px solid rgba(173, 44, 77, 0.25)',
+                  background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, transparent), color-mix(in srgb, var(--color-accent) 2%, transparent))',
+                  border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
                   marginBottom: '1.5rem',
                 }}
               >
@@ -172,7 +172,7 @@ export default async function ApplyConfirmationPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {nextSteps.map((step) => (
                   <div key={step.num} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <div style={{ flexShrink: 0, width: '2rem', height: '2rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem' }}>
+                    <div style={{ flexShrink: 0, width: '2rem', height: '2rem', borderRadius: '9999px', background: 'var(--color-accent)', color: 'var(--color-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem' }}>
                       {step.num}
                     </div>
                     <div>

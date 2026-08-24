@@ -2,6 +2,13 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
+import {
+  APPLY_HEAR_ABOUT_OPTIONS,
+  hearAboutNeedsOther,
+  layoffCompanyApplicable,
+  normalizeYesNo,
+  type YesNo,
+} from '@/lib/apply/eligibilityExtendedFields';
 
 // Mirror the apply flow's option lists so member-supplied data stays
 // consistent with the public application (app/apply/ApplyEligibilityClient.tsx).
@@ -20,6 +27,16 @@ export type EligibilityInitial = {
   zip: string;
   county: string;
   primaryBarriers: string[];
+  q1?: YesNo | null;
+  q2?: YesNo | null;
+  q3?: YesNo | null;
+  receivingUnemployment?: YesNo | null;
+  exhaustedUnemployment?: YesNo | null;
+  layoffCompany?: string;
+  snapWic?: YesNo | null;
+  hearAbout?: string;
+  hearAboutOther?: string;
+  partnerAmbassadorReferral?: string;
 };
 
 const labelStyle = {
@@ -40,6 +57,50 @@ const inputStyle = {
   fontSize: '0.9375rem',
 } as const;
 
+function YesNoRow({
+  name,
+  label,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  value: YesNo | null;
+  onChange: (v: YesNo) => void;
+}) {
+  return (
+    <fieldset style={{ border: 'none', margin: 0, padding: 0 }}>
+      <legend style={{ ...labelStyle, marginBottom: '0.5rem' }}>{label}</legend>
+      <div role="radiogroup" style={{ display: 'flex', gap: '1rem' }}>
+        {(['yes', 'no'] as const).map((opt) => (
+          <label
+            key={opt}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              minHeight: '44px',
+              fontSize: '0.875rem',
+              color: 'var(--color-on-surface)',
+              cursor: 'pointer',
+            }}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={opt}
+              checked={value === opt}
+              onChange={() => onChange(opt)}
+              style={{ accentColor: 'var(--color-accent)' }}
+            />
+            {opt === 'yes' ? 'Yes' : 'No'}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
 export default function EligibilityForm({ initial }: { initial: EligibilityInitial }) {
   const [ageGroup, setAgeGroup] = useState<AgeGroupValue>(initial.ageGroup);
   const [city, setCity] = useState(initial.city);
@@ -49,10 +110,32 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   const [barriers, setBarriers] = useState<string[]>(
     normalizePrimaryBarriers(initial.primaryBarriers),
   );
+  const [q1, setQ1] = useState<YesNo | null>(normalizeYesNo(initial.q1));
+  const [q2, setQ2] = useState<YesNo | null>(normalizeYesNo(initial.q2));
+  const [q3, setQ3] = useState<YesNo | null>(normalizeYesNo(initial.q3));
+  const [receivingUnemployment, setReceivingUnemployment] = useState<YesNo | null>(
+    normalizeYesNo(initial.receivingUnemployment),
+  );
+  const [exhaustedUnemployment, setExhaustedUnemployment] = useState<YesNo | null>(
+    normalizeYesNo(initial.exhaustedUnemployment),
+  );
+  const [layoffCompany, setLayoffCompany] = useState(initial.layoffCompany ?? '');
+  const [snapWic, setSnapWic] = useState<YesNo | null>(normalizeYesNo(initial.snapWic));
+  const [hearAbout, setHearAbout] = useState(initial.hearAbout ?? '');
+  const [hearAboutOther, setHearAboutOther] = useState(initial.hearAboutOther ?? '');
+  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState(
+    initial.partnerAmbassadorReferral ?? '',
+  );
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
   const [hoveredBarrier, setHoveredBarrier] = useState<string | null>(null);
   const feedbackRef = useRef<HTMLSpanElement>(null);
+
+  const showLayoff = layoffCompanyApplicable({
+    unemployedOrUnderemployed: q1,
+    receivingUnemployment,
+    exhaustedUnemployment,
+  });
 
   // Move focus to the save result so keyboard/screen reader users get
   // immediate confirmation instead of having to scan the page for it.
@@ -83,6 +166,16 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
             zip: zip.trim() || null,
             county: county.trim() || null,
             primaryBarriers: barriers,
+            q1,
+            q2,
+            q3,
+            receivingUnemployment,
+            exhaustedUnemployment,
+            layoffCompany: showLayoff ? layoffCompany.trim() || null : null,
+            snapWic,
+            hearAbout: hearAbout.trim() || null,
+            hearAboutOther: hearAboutNeedsOther(hearAbout) ? hearAboutOther.trim() || null : null,
+            partnerAmbassadorReferral: partnerAmbassadorReferral.trim() || null,
           }),
         });
         if (!res.ok) {
@@ -101,6 +194,38 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem' }}>
+      <YesNoRow name="q1" label="Unemployed / underemployed?" value={q1} onChange={setQ1} />
+      <YesNoRow
+        name="receivingUnemployment"
+        label="Currently receiving unemployment benefits?"
+        value={receivingUnemployment}
+        onChange={setReceivingUnemployment}
+      />
+      <YesNoRow
+        name="exhaustedUnemployment"
+        label="Exhausted unemployment benefits?"
+        value={exhaustedUnemployment}
+        onChange={setExhaustedUnemployment}
+      />
+      {showLayoff ? (
+        <div>
+          <label htmlFor="elig-layoff" style={labelStyle}>
+            Layoff company (if applicable)
+          </label>
+          <input
+            id="elig-layoff"
+            type="text"
+            value={layoffCompany}
+            onChange={(e) => setLayoffCompany(e.target.value)}
+            style={inputStyle}
+            maxLength={200}
+          />
+        </div>
+      ) : null}
+      <YesNoRow name="q2" label="Household income below $60,000?" value={q2} onChange={setQ2} />
+      <YesNoRow name="snapWic" label="Currently receiving SNAP and/or WIC?" value={snapWic} onChange={setSnapWic} />
+      <YesNoRow name="q3" label="Authorized to work in the U.S.?" value={q3} onChange={setQ3} />
+
       <div>
         <label htmlFor="elig-age" style={labelStyle}>
           Age group
@@ -191,6 +316,54 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
           })}
         </div>
       </fieldset>
+
+      <div>
+        <label htmlFor="elig-hear" style={labelStyle}>
+          How did you hear about WorkforceAP?
+        </label>
+        <select
+          id="elig-hear"
+          value={hearAbout}
+          onChange={(e) => setHearAbout(e.target.value)}
+          style={inputStyle}
+        >
+          <option value="">Select one</option>
+          {APPLY_HEAR_ABOUT_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+      {hearAboutNeedsOther(hearAbout) ? (
+        <div>
+          <label htmlFor="elig-hear-other" style={labelStyle}>
+            Please tell us how you heard about us
+          </label>
+          <input
+            id="elig-hear-other"
+            type="text"
+            value={hearAboutOther}
+            onChange={(e) => setHearAboutOther(e.target.value)}
+            style={inputStyle}
+            maxLength={200}
+          />
+        </div>
+      ) : null}
+      <div>
+        <label htmlFor="elig-ambassador" style={labelStyle}>
+          Partner or community ambassador referral
+        </label>
+        <input
+          id="elig-ambassador"
+          type="text"
+          value={partnerAmbassadorReferral}
+          onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
+          style={inputStyle}
+          maxLength={200}
+          placeholder="Ambassador name or referral code"
+        />
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <button

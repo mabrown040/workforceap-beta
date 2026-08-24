@@ -2,6 +2,12 @@
 
 import { useState } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
+import {
+  APPLY_HEAR_ABOUT_OPTIONS,
+  hearAboutNeedsOther,
+  layoffCompanyApplicable,
+  type YesNo,
+} from '@/lib/apply/eligibilityExtendedFields';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
 
 // Option values copied EXACTLY from app/apply/ApplyEligibilityClient.tsx so the
@@ -24,6 +30,16 @@ export type PublicEligibilityPrefill = {
   zip: string;
   county: string;
   primaryBarriers: string[];
+  q1?: YesNo | null;
+  q2?: YesNo | null;
+  q3?: YesNo | null;
+  receivingUnemployment?: YesNo | null;
+  exhaustedUnemployment?: YesNo | null;
+  layoffCompany?: string;
+  snapWic?: YesNo | null;
+  hearAbout?: string;
+  hearAboutOther?: string;
+  partnerAmbassadorReferral?: string;
 };
 
 const fieldGroup: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.35rem' };
@@ -34,6 +50,39 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid var(--color-outline, #cbcbcb)',
   fontSize: '1rem',
 };
+
+function YesNoGroup({
+  name,
+  label,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  value: YesNo | null;
+  onChange: (v: YesNo) => void;
+}) {
+  return (
+    <fieldset style={{ ...fieldGroup, border: 'none', padding: 0, margin: 0 }}>
+      <legend style={labelStyle}>{label} *</legend>
+      <div role="radiogroup" style={{ display: 'flex', gap: '0.75rem', marginTop: '0.35rem' }}>
+        {(['yes', 'no'] as const).map((opt) => (
+          <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <input
+              type="radio"
+              name={name}
+              value={opt}
+              checked={value === opt}
+              onChange={() => onChange(opt)}
+              required
+            />
+            {opt === 'yes' ? 'Yes' : 'No'}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
 
 export default function PublicEligibilityForm({
   token,
@@ -54,6 +103,22 @@ export default function PublicEligibilityForm({
   const [primaryBarriers, setPrimaryBarriers] = useState<string[]>(
     normalizePrimaryBarriers(prefill.primaryBarriers),
   );
+  const [q1, setQ1] = useState<YesNo | null>(prefill.q1 ?? null);
+  const [q2, setQ2] = useState<YesNo | null>(prefill.q2 ?? null);
+  const [q3, setQ3] = useState<YesNo | null>(prefill.q3 ?? null);
+  const [receivingUnemployment, setReceivingUnemployment] = useState<YesNo | null>(
+    prefill.receivingUnemployment ?? null,
+  );
+  const [exhaustedUnemployment, setExhaustedUnemployment] = useState<YesNo | null>(
+    prefill.exhaustedUnemployment ?? null,
+  );
+  const [layoffCompany, setLayoffCompany] = useState(prefill.layoffCompany ?? '');
+  const [snapWic, setSnapWic] = useState<YesNo | null>(prefill.snapWic ?? null);
+  const [hearAbout, setHearAbout] = useState(prefill.hearAbout ?? '');
+  const [hearAboutOther, setHearAboutOther] = useState(prefill.hearAboutOther ?? '');
+  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState(
+    prefill.partnerAmbassadorReferral ?? '',
+  );
 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -64,6 +129,18 @@ export default function PublicEligibilityForm({
     );
 
   const zipOk = isValidPostalCode(zip);
+  const showLayoff = layoffCompanyApplicable({
+    unemployedOrUnderemployed: q1,
+    receivingUnemployment,
+    exhaustedUnemployment,
+  });
+  const fundingOk =
+    q1 !== null &&
+    q2 !== null &&
+    q3 !== null &&
+    receivingUnemployment !== null &&
+    exhaustedUnemployment !== null &&
+    snapWic !== null;
   const canSubmit =
     firstName.trim().length > 0 &&
     lastName.trim().length > 0 &&
@@ -73,6 +150,9 @@ export default function PublicEligibilityForm({
     zipOk &&
     county.trim().length > 0 &&
     primaryBarriers.length > 0 &&
+    hearAbout.trim().length > 0 &&
+    (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0) &&
+    fundingOk &&
     status !== 'submitting';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,6 +175,16 @@ export default function PublicEligibilityForm({
           zip: zip.trim(),
           county: county.trim(),
           primaryBarriers,
+          q1,
+          q2,
+          q3,
+          receivingUnemployment,
+          exhaustedUnemployment,
+          layoffCompany: showLayoff ? layoffCompany.trim() || null : null,
+          snapWic,
+          hearAbout: hearAbout.trim(),
+          hearAboutOther: hearAboutNeedsOther(hearAbout) ? hearAboutOther.trim() || null : null,
+          partnerAmbassadorReferral: partnerAmbassadorReferral.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -148,6 +238,34 @@ export default function PublicEligibilityForm({
         <input id="q-phone" type="tel" style={inputStyle} value={phone} autoComplete="tel" placeholder="(512) 555-0100" onChange={(e) => setPhone(e.target.value)} />
       </div>
 
+      <YesNoGroup
+        name="q1"
+        label="Unemployed / underemployed?"
+        value={q1}
+        onChange={setQ1}
+      />
+      <YesNoGroup
+        name="receivingUnemployment"
+        label="Currently receiving unemployment benefits?"
+        value={receivingUnemployment}
+        onChange={setReceivingUnemployment}
+      />
+      <YesNoGroup
+        name="exhaustedUnemployment"
+        label="Exhausted unemployment benefits?"
+        value={exhaustedUnemployment}
+        onChange={setExhaustedUnemployment}
+      />
+      {showLayoff ? (
+        <div style={fieldGroup}>
+          <label style={labelStyle} htmlFor="q-layoff">Layoff company (if applicable)</label>
+          <input id="q-layoff" style={inputStyle} value={layoffCompany} maxLength={200} onChange={(e) => setLayoffCompany(e.target.value)} />
+        </div>
+      ) : null}
+      <YesNoGroup name="q2" label="Household income below $60,000?" value={q2} onChange={setQ2} />
+      <YesNoGroup name="snapWic" label="Currently receiving SNAP and/or WIC?" value={snapWic} onChange={setSnapWic} />
+      <YesNoGroup name="q3" label="Authorized to work in the U.S.?" value={q3} onChange={setQ3} />
+
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-age-group">Age group *</label>
         <select id="q-age-group" style={inputStyle} value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)} required>
@@ -186,6 +304,33 @@ export default function PublicEligibilityForm({
         </div>
       </fieldset>
 
+      <div style={fieldGroup}>
+        <label style={labelStyle} htmlFor="q-hear-about">How did you hear about WorkforceAP? *</label>
+        <select id="q-hear-about" style={inputStyle} value={hearAbout} onChange={(e) => setHearAbout(e.target.value)} required>
+          <option value="">Select one</option>
+          {APPLY_HEAR_ABOUT_OPTIONS.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+      </div>
+      {hearAboutNeedsOther(hearAbout) ? (
+        <div style={fieldGroup}>
+          <label style={labelStyle} htmlFor="q-hear-other">Please tell us how you heard about us *</label>
+          <input id="q-hear-other" style={inputStyle} value={hearAboutOther} maxLength={200} onChange={(e) => setHearAboutOther(e.target.value)} required />
+        </div>
+      ) : null}
+      <div style={fieldGroup}>
+        <label style={labelStyle} htmlFor="q-ambassador">Partner or community ambassador referral</label>
+        <input
+          id="q-ambassador"
+          style={inputStyle}
+          value={partnerAmbassadorReferral}
+          maxLength={200}
+          placeholder="Ambassador name or referral code"
+          onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
+        />
+      </div>
+
       {status === 'error' ? (
         <p role="alert" style={{ color: 'rgb(153,27,27)', margin: 0, fontSize: '0.9rem' }}>{errorMsg}</p>
       ) : null}
@@ -200,11 +345,10 @@ export default function PublicEligibilityForm({
           background: canSubmit ? 'var(--color-accent, #ad2c4d)' : 'var(--color-outline, #c9c9c9)',
           color: '#fff',
           fontWeight: 600,
-          fontSize: '1rem',
           cursor: canSubmit ? 'pointer' : 'not-allowed',
         }}
       >
-        {status === 'submitting' ? 'Submitting…' : 'Submit'}
+        {status === 'submitting' ? 'Submitting…' : 'Submit eligibility info'}
       </button>
     </form>
   );

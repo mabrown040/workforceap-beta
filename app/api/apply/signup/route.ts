@@ -31,6 +31,7 @@ import {
   schoolApplicationNotes,
   schoolProfileBarriers,
 } from '@/lib/apply/schoolCollection';
+import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
 import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
@@ -97,6 +98,13 @@ const applySignupSchema = z.object({
   eligibilityQ1: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ2: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ3: z.enum(['yes', 'no']).optional().nullable(),
+  receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  exhaustedUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  layoffCompany: z.string().trim().max(200).optional().nullable(),
+  snapWic: z.enum(['yes', 'no']).optional().nullable(),
+  hearAbout: z.string().trim().max(200).optional().nullable(),
+  hearAboutOther: z.string().trim().max(200).optional().nullable(),
+  partnerAmbassadorReferral: z.string().trim().max(200).optional().nullable(),
   // Marketing attribution captured at first ad-landing visit. Stored on
   // the apply_signup_completed MemberEvent metadata so downstream analytics
   // (GA4, BigQuery, internal cohort queries) can attribute conversion to
@@ -166,6 +174,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       eligibilityQ1,
       eligibilityQ2,
       eligibilityQ3,
+      receivingUnemployment,
+      exhaustedUnemployment,
+      layoffCompany,
+      snapWic,
+      hearAbout,
+      hearAboutOther,
+      partnerAmbassadorReferral,
       utmSource,
       utmMedium,
       utmCampaign,
@@ -236,6 +251,16 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           ? [primaryBarrier]
           : [];
     let profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
+    const hearAboutNormalized = normalizeHearAbout(hearAbout);
+    const hearAboutOtherNormalized = normalizeHearAbout(hearAboutOther);
+    const receivingUnemploymentNormalized = normalizeYesNo(receivingUnemployment);
+    const exhaustedUnemploymentNormalized = normalizeYesNo(exhaustedUnemployment);
+    const snapWicNormalized = normalizeYesNo(snapWic);
+    const layoffCompanyNormalized = layoffCompany?.trim() ? layoffCompany.trim().slice(0, 200) : null;
+    const partnerAmbassadorNormalized = partnerAmbassadorReferral?.trim()
+      ? partnerAmbassadorReferral.trim().slice(0, 200)
+      : null;
+
     let applicationNotes = [
       ageGroup ? `Age group: ${ageGroup}` : null,
       city?.trim() ? `City: ${city.trim()}` : null,
@@ -244,6 +269,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       county?.trim() ? `County: ${county.trim()}` : null,
       profileBarrierTypes.length > 0 ? `Primary barrier(s): ${profileBarrierTypes.join(', ')}` : null,
       typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
+      receivingUnemploymentNormalized ? `Receiving unemployment: ${receivingUnemploymentNormalized}` : null,
+      exhaustedUnemploymentNormalized ? `Exhausted unemployment: ${exhaustedUnemploymentNormalized}` : null,
+      layoffCompanyNormalized ? `Layoff company: ${layoffCompanyNormalized}` : null,
+      snapWicNormalized ? `SNAP/WIC: ${snapWicNormalized}` : null,
+      hearAboutNormalized ? `Heard about us: ${hearAboutNormalized}` : null,
+      hearAboutOtherNormalized ? `Heard about us (other): ${hearAboutOtherNormalized}` : null,
+      partnerAmbassadorNormalized ? `Partner/ambassador referral: ${partnerAmbassadorNormalized}` : null,
     ].filter(Boolean).join('\n');
     let hasEmploymentBarrier = profileBarrierTypes.length > 0;
   
@@ -578,6 +610,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             q3: eligibilityQ3 ?? null,
             qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
             yesCount: eligibilityYesCount ?? 0,
+            receivingUnemployment: receivingUnemploymentNormalized,
+            exhaustedUnemployment: exhaustedUnemploymentNormalized,
+            layoffCompany: layoffCompanyNormalized,
+            snapWic: snapWicNormalized,
+            hearAbout: hearAboutNormalized,
+            hearAboutOther: hearAboutOtherNormalized,
+            partnerAmbassadorReferral: partnerAmbassadorNormalized,
           };
           await tx.applyEligibilityScreening.upsert({
             where: { userId: user.id },

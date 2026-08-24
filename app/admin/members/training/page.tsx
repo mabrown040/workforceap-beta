@@ -7,6 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -30,7 +31,8 @@ export default async function AdminTrainingProgressPage() {
   if (!user) redirect('/login?redirectTo=/admin/members/training');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { metrics, rows } = await loadTrainingDashboardData();
+  const organizationId = await getActorOrganizationId(user.id);
+  const { metrics, rows } = await loadTrainingDashboardData(organizationId);
 
   return (
     <div>

@@ -3,6 +3,11 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { tryResolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
+import {
+  buildInviteAcceptExistingUserUpdate,
+  chooseInviteAcceptOrganizationId,
+} from '@/lib/invitations/resolveInviteAcceptOrg';
 import { invitationRoleLabel, inviteAcceptLoginRedirect } from '@/lib/invitations/inviteRoleLabels';
 import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
@@ -157,27 +162,26 @@ async function ensureAppUserForInvite(
     enrolledProgram: string | null;
     enrolledAt: Date | null;
   }
-) {
+): Promise<string> {
   // Live DB may lack users.email unique index; avoid upsert which assumes schema constraints.
   const byId = await tx.user.findFirst({
     where: { id: authUserId },
-    select: { id: true },
+    select: { id: true, organizationId: true },
   });
   if (byId) {
+    // Existing invitees keep their tenant. Never stamp organizationId here.
     await tx.user.update({
       where: { id: authUserId },
-      data: {
-        organizationId: data.organizationId,
-        email: data.email,
+      data: buildInviteAcceptExistingUserUpdate({
         fullName: data.fullName,
+        email: data.email,
         phone: data.phone,
-        deletedAt: null,
-        enrolledProgram: data.enrolledProgram ?? undefined,
-        enrolledAt: data.enrolledAt ?? undefined,
-      },
+        enrolledProgram: data.enrolledProgram,
+        enrolledAt: data.enrolledAt,
+      }),
       select: { id: true },
     });
-    return;
+    return byId.organizationId;
   }
 
   const byEmail = await tx.user.findFirst({
@@ -202,6 +206,7 @@ async function ensureAppUserForInvite(
     },
     select: { id: true },
   });
+  return data.organizationId;
 }
 
 /**
@@ -387,7 +392,9 @@ async function acceptExistingUser(
       txStep = 'update_existing_user';
       await tx.user.update({
         where: { id: user.id },
-        data: { fullName: fullName || user.fullName, deletedAt: null },
+        data: buildInviteAcceptExistingUserUpdate({
+          fullName: fullName || user.fullName,
+        }),
         select: { id: true },
       });
 
@@ -583,25 +590,26 @@ async function finishNewUserDbSetup(
   invitation: AcceptInvitation,
   fullName: string,
   phone: string | null,
-  _request: NextRequest
+  request: NextRequest
 ) {
-  // Resolve the new user's organization from the inviter, not the global
-  // default. Before this fix, every accepted invite landed in the default
-  // org regardless of which tenant the admin who sent the invite belonged
-  // to — multi-tenant invites were broken at the root (AUDIT §C-T2).
-  // Fall back to the default org only if the inviter has no organizationId
-  // (e.g. legacy super-admin user rows pre-multitenancy).
+  // Inviter org first, then request host / x-wap-org-id, default last.
+  // Multi-tenant invites were broken when every accept landed in the
+  // default org (AUDIT §C-T2). Existing user rows never get restamped.
   let organizationId: string;
   try {
     const inviter = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: invitation.invitedById },
       select: { organizationId: true },
     }));
-    if (inviter?.organizationId) {
-      organizationId = inviter.organizationId;
-    } else {
-      organizationId = await getDefaultOrganizationId();
-    }
+    const requestOrganizationId = inviter?.organizationId
+      ? null
+      : await tryResolveOrgFromRequest(request.headers);
+    const chosen = chooseInviteAcceptOrganizationId(
+      inviter?.organizationId,
+      requestOrganizationId,
+      '',
+    );
+    organizationId = chosen || await getDefaultOrganizationId();
   } catch (err) {
     console.error('[finishNewUserDbSetup] organization resolution failed:', err);
     return NextResponse.json(
@@ -633,7 +641,7 @@ async function finishNewUserDbSetup(
       const inviteEmailNorm = String(invitation.email).trim().toLowerCase();
       txStep = 'ensure_app_user';
       inviteAcceptLog('tx:ensure_app_user', { invitationId });
-      await ensureAppUserForInvite(tx, authUserId, {
+      const stampedOrganizationId = await ensureAppUserForInvite(tx, authUserId, {
         organizationId,
         email: inviteEmailNorm,
         fullName,
@@ -645,7 +653,7 @@ async function finishNewUserDbSetup(
       if (invitation.role === 'member' && invitation.programSlug) {
         txStep = 'sync_course_enrollment_new';
         await ensureCourseEnrollmentForInvite(
-          tx, authUserId, organizationId, invitation.programSlug, invitation.invitedById
+          tx, authUserId, stampedOrganizationId, invitation.programSlug, invitation.invitedById
         );
       }
 

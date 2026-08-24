@@ -5,7 +5,7 @@ import { CourseProgressStatus } from '@prisma/client';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { trainingDashboardMemberWhere } from '@/lib/admin/overviewOrgFilter';
 import { deriveCareerPlanSignal, type CareerPlanSignal } from '@/lib/admin/careerPlanSignal';
 
 export type TrainingDashboardMetrics = {
@@ -56,13 +56,11 @@ function isStale(lastTrainingActivityAt: Date | null, enrolledAt: Date | null, s
   return Date.now() - baseline.getTime() > STALE_TRAINING_DAYS * 24 * 60 * 60 * 1000;
 }
 
-export async function loadTrainingDashboardData(): Promise<TrainingDashboardData> {
+export async function loadTrainingDashboardData(
+  organizationId: string,
+): Promise<TrainingDashboardData> {
   const members = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-      ...MEMBER_ONLY_WHERE,
-      enrolledProgram: { not: null },
-    },
+    where: trainingDashboardMemberWhere(organizationId),
     orderBy: { enrolledAt: 'desc' },
     take: 3000,
     select: {

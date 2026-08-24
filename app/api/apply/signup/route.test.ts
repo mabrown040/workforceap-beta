@@ -183,10 +183,8 @@ vi.mock('@/lib/tenant/organization', () => ({
 }));
 
 vi.mock('@/lib/tenant/resolveProvisionOrg', () => ({
-  resolveProvisionOrganizationId: vi.fn(async (input: { programSlug?: string | null }) => {
-    state.provisionCalls.push(input);
-    return state.resolvedOrgId;
-  }),
+
+  resolveProvisionOrganizationId: vi.fn(async () => 'org-test-1'),
 }));
 
 vi.mock('@/lib/observability/captureApiError', () => ({

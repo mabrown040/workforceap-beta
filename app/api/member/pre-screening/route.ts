@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { sendPreScreeningReadyEmail } from '@/lib/email';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -45,7 +44,7 @@ async function _POST(request: Request) {
 
   const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
-    select: { assessmentCompleted: true },
+    select: { assessmentCompleted: true, organizationId: true },
   }));
   if (!dbUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -74,7 +73,7 @@ async function _POST(request: Request) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const organizationId = await getDefaultOrganizationId();
+  const organizationId = dbUser.organizationId;
 
   await prisma.$transaction(async (tx) => {
     await tx.preScreeningDraft.deleteMany({ where: { userId: user.id } });

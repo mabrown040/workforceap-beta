@@ -404,6 +404,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
     }
   
+
+    const organizationId = await withDbRetry(() =>
+      resolveProvisionOrganizationId({
+        headers: request.headers,
+        programSlug,
+      }),
+    );
     const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledAt: true },

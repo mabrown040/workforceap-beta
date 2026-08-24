@@ -1,7 +1,8 @@
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
-import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
+import { tryCurrentRequestHeaders } from '@/lib/tenant/currentRequestHeaders';
 import type { HeadersLike } from '@/lib/tenant/resolveOrgFromRequest';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 
 type AuthUser = {
   id: string;
@@ -67,7 +68,7 @@ export async function ensureAppUserProvisioned(
   const organizationId = await withDbRetry(() =>
     resolveProvisionOrganizationId({
       explicitOrganizationId: options.organizationId,
-      headers: options.headers,
+      headers: options.headers ?? (await tryCurrentRequestHeaders()),
       metadata: user.user_metadata,
     }),
   );

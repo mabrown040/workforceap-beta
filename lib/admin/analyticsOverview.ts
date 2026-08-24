@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { calculateHealthStatus, type HealthStatus } from '@/lib/admin/healthScore';
-import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { analyticsOverviewUserWhere, triageDigestEventWhere } from '@/lib/admin/overviewOrgFilter';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -84,8 +84,9 @@ const FUNDING_LABELS: Record<FundingSource, string> = {
  * slice is settled independently so one failing query degrades to zero rather
  * than blanking the page.
  */
-export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
+export async function loadAnalyticsOverview(organizationId: string): Promise<AnalyticsOverview> {
   const thirtyDaysAgo = new Date(Date.now() - THIRTY_DAYS_MS);
+  const userWhere = analyticsOverviewUserWhere(organizationId);
 
   const [
     trainingResult,
@@ -103,50 +104,62 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     applicationsSubmittedResult,
     applicationsApprovedResult,
   ] = await Promise.allSettled([
-    loadTrainingDashboardData(),
-    prisma.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
+    loadTrainingDashboardData(organizationId),
+    prisma.user.count({ where: userWhere }),
     prisma.memberEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: triageDigestEventWhere(organizationId, thirtyDaysAgo),
       _max: { createdAt: true },
     }),
     prisma.memberEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: triageDigestEventWhere(organizationId, thirtyDaysAgo),
       _count: { _all: true },
     }),
     prisma.user.findMany({
-      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, enrolledProgram: { not: null } },
+      where: { ...userWhere, enrolledProgram: { not: null } },
       take: 5000,
       select: { id: true, enrolledAt: true },
     }),
     prisma.placementRecord.count({
-      where: { user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } },
+      where: { user: userWhere },
     }),
     // Member-confirmed placements still awaiting counselor verification.
     prisma.placementRecord.count({
-      where: { startDateVerified: false, user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } },
+      where: { startDateVerified: false, user: userWhere },
     }),
     prisma.courseEnrollment.groupBy({
       by: ['fundingSource'],
+      where: { organizationId },
       _count: { _all: true },
     }),
     prisma.courseEnrollment.groupBy({
       by: ['programSlug'],
+      where: { organizationId },
       _count: { _all: true },
     }),
     prisma.user.count({
-      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, createdAt: { gte: thirtyDaysAgo } },
+      where: { ...userWhere, createdAt: { gte: thirtyDaysAgo } },
     }),
-    prisma.applyEligibilityScreening.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
     prisma.applyEligibilityScreening.count({
-      where: { createdAt: { gte: thirtyDaysAgo }, qualifies: true },
+      where: { organizationId, createdAt: { gte: thirtyDaysAgo } },
+    }),
+    prisma.applyEligibilityScreening.count({
+      where: { organizationId, createdAt: { gte: thirtyDaysAgo }, qualifies: true },
     }),
     prisma.application.count({
-      where: { createdAt: { gte: thirtyDaysAgo }, submittedAt: { not: null } },
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+        submittedAt: { not: null },
+        user: { organizationId },
+      },
     }),
     prisma.application.count({
-      where: { createdAt: { gte: thirtyDaysAgo }, status: 'APPROVED' },
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+        status: 'APPROVED',
+        user: { organizationId },
+      },
     }),
   ]);
 

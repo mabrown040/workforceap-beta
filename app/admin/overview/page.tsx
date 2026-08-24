@@ -24,6 +24,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -116,6 +117,7 @@ export default async function AdminOverviewPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
   const superAdmin = await isSuperAdmin(user.id);
+  const organizationId = await getActorOrganizationId(user.id);
 
   let totalMembers: number;
   let assessmentsCompleted: number;
@@ -223,7 +225,9 @@ export default async function AdminOverviewPage() {
       pendingPlacements = pendingPlacementsResult.value;
     }
 
-    const [trainingDashboardResult] = await Promise.allSettled([loadTrainingDashboardData()]);
+    const [trainingDashboardResult] = await Promise.allSettled([
+      loadTrainingDashboardData(organizationId),
+    ]);
 
     if (trainingDashboardResult.status === 'rejected') {
       logPrismaReason('trainingDashboardMetrics', trainingDashboardResult.reason);
@@ -283,7 +287,7 @@ export default async function AdminOverviewPage() {
         createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       },
     }).catch(() => 0),
-    getTriageDigest().catch((reason): TriageDigest => {
+    getTriageDigest(organizationId).catch((reason): TriageDigest => {
       logPrismaReason('triageDigest', reason);
       return { buckets: [], allClear: true };
     }),

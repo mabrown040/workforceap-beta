@@ -54,6 +54,16 @@ export const salaryGuideRows: SalaryGuideRow[] = [
     midpointK: 110,
   },
   {
+    slug: 'software-developer-professional-certificate-ibm',
+    program: 'AI and Software Developer Professional Certificate (IBM)',
+    duration: '200 hours • Hybrid, Self-Paced',
+    salary: '$85K–$135K',
+    level: 'High',
+    ramp: 'Steeper',
+    color: '#4a9b4f',
+    midpointK: 110,
+  },
+  {
     slug: 'data-science-professional-certificate-ibm',
     program: 'Data Science and Database Administrator (DBA) Professional Certificate (IBM)',
     duration: '3-5 months',
@@ -236,8 +246,8 @@ export interface SalaryGuideSummaryStats {
 export const salaryGuideSummaryStats: SalaryGuideSummaryStats = {
   highestSalary: '$95K–$145K',
   highestProgram: 'AWS Cloud Technology Certificate',
-  avgMidpointLabel: '$80K',
-  over100Count: 8,
+  avgMidpointLabel: '$82K',
+  over100Count: 9,
 };
 
 /** Total tracks shown in the guide (matches the 20-program catalog). */

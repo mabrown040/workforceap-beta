@@ -78,7 +78,9 @@
 | `SUPABASE_SERVICE_ROLE_KEY` | 🔴 🔒 | Supabase service role key (bypasses RLS) | `eyJ...` | Server DB admin ops |
 | `AUTH_TRUST_COOKIE_SECRET` | 🔴 🔒 | Signing secret for admin MFA trust cookies | `openssl rand -hex 32` | `lib/auth/mfaTrust.ts` |
 | `ADMIN_MFA_TRUST_DAYS` | 🟡 🔒 | How long admin MFA trust lasts (default: 7) | `7` | `lib/auth/mfaTrust.ts` |
-| `STAFF_MFA_ENFORCEMENT` | 🟡 🔒 | Set `1` to force MFA for staff | `0` or `1` | Auth flows |
+| `STAFF_MFA_ENFORCEMENT` | 🟡 🔒 | Staff MFA gate. Production (`VERCEL_ENV=production`) defaults **on** unless `0`/`false`/`off`. Non-production defaults **off** unless `1`. | `0` or `1` | `lib/auth/mfaConfig.ts`, middleware, auth routes |
+| `WAP_RATE_LIMIT_QA_BYPASS` | 🟡 🔒 | CI rate-limit bypass. **Never on in production** (`VERCEL_ENV=production` hard-disables). | `0` or `1` | `lib/auth/qaBypass.ts` |
+| `WAP_RATE_LIMIT_QA_SECRET` | 🟡 🔒 | Shared secret for `x-wap-qa-bypass`. Required when bypass is on; no default. | random | `lib/auth/qaBypass.ts` |
 | `CRON_SECRET` | 🔴 🔒 | Protects `/api/cron/*` endpoints | `openssl rand -hex 32` | All cron routes |
 | `PLACEMENT_SURVEY_TOKEN_SECRET` | 🔴 🔒 | Signs post-placement survey email links | `openssl rand -hex 32` | Placement survey cron |
 | `NEXT_PUBLIC_CAPTCHA_ENABLED` | 🟡 👁️ | Enable Cloudflare Turnstile | `false` | Public forms |

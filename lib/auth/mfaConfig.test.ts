@@ -2,19 +2,57 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { isStaffMfaEnforcementEnabled } from './mfaConfig';
 
-test('staff MFA enforcement is disabled unless explicitly enabled', () => {
-  const previous = process.env.STAFF_MFA_ENFORCEMENT;
+function withEnv(vars: { STAFF_MFA_ENFORCEMENT?: string; VERCEL_ENV?: string }, fn: () => void) {
+  const prevFlag = process.env.STAFF_MFA_ENFORCEMENT;
+  const prevVercel = process.env.VERCEL_ENV;
   try {
-    delete process.env.STAFF_MFA_ENFORCEMENT;
-    assert.equal(isStaffMfaEnforcementEnabled(), false);
+    if (vars.STAFF_MFA_ENFORCEMENT === undefined) delete process.env.STAFF_MFA_ENFORCEMENT;
+    else process.env.STAFF_MFA_ENFORCEMENT = vars.STAFF_MFA_ENFORCEMENT;
 
-    process.env.STAFF_MFA_ENFORCEMENT = '0';
-    assert.equal(isStaffMfaEnforcementEnabled(), false);
+    if (vars.VERCEL_ENV === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = vars.VERCEL_ENV;
 
-    process.env.STAFF_MFA_ENFORCEMENT = '1';
-    assert.equal(isStaffMfaEnforcementEnabled(), true);
+    fn();
   } finally {
-    if (previous === undefined) delete process.env.STAFF_MFA_ENFORCEMENT;
-    else process.env.STAFF_MFA_ENFORCEMENT = previous;
+    if (prevFlag === undefined) delete process.env.STAFF_MFA_ENFORCEMENT;
+    else process.env.STAFF_MFA_ENFORCEMENT = prevFlag;
+    if (prevVercel === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = prevVercel;
   }
+}
+
+test('staff MFA stays opt-in outside Vercel production (staged rollout)', () => {
+  withEnv({ VERCEL_ENV: undefined, STAFF_MFA_ENFORCEMENT: undefined }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), false);
+  });
+  withEnv({ VERCEL_ENV: 'preview', STAFF_MFA_ENFORCEMENT: undefined }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), false);
+  });
+  withEnv({ VERCEL_ENV: 'preview', STAFF_MFA_ENFORCEMENT: '0' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), false);
+  });
+  withEnv({ VERCEL_ENV: undefined, STAFF_MFA_ENFORCEMENT: '1' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), true);
+  });
+});
+
+test('staff MFA fails closed in VERCEL_ENV=production unless explicitly disabled', () => {
+  withEnv({ VERCEL_ENV: 'production', STAFF_MFA_ENFORCEMENT: undefined }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), true);
+  });
+  withEnv({ VERCEL_ENV: 'production', STAFF_MFA_ENFORCEMENT: '' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), true);
+  });
+  withEnv({ VERCEL_ENV: 'production', STAFF_MFA_ENFORCEMENT: '1' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), true);
+  });
+  withEnv({ VERCEL_ENV: 'production', STAFF_MFA_ENFORCEMENT: '0' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), false);
+  });
+  withEnv({ VERCEL_ENV: 'production', STAFF_MFA_ENFORCEMENT: 'false' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), false);
+  });
+  withEnv({ VERCEL_ENV: 'production', STAFF_MFA_ENFORCEMENT: 'off' }, () => {
+    assert.equal(isStaffMfaEnforcementEnabled(), false);
+  });
 });

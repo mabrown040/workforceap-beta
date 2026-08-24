@@ -65,7 +65,7 @@ export async function ensureAppUserProvisioned(
   const fullName =
     (typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name.trim()) ||
     'Member';
-  const organizationId = await withDbRetry(() =>
+  const organizationId = await withDbRetry(async () =>
     resolveProvisionOrganizationId({
       explicitOrganizationId: options.organizationId,
       headers: options.headers ?? (await tryCurrentRequestHeaders()),

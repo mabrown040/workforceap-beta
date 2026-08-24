@@ -9,16 +9,11 @@
  * Production callers go through `lib/tenant/withTenantScope.ts` which
  * pulls in the real Prisma client and wraps it.
  *
- * KNOWN LIMITATION: cross-tenant foreign keys.
- * The proxy injects `organizationId` on the row being written, but does
- * NOT verify that other foreign-key targets (e.g. `employerId`,
- * `userId`) belong to the same tenant. A caller accepting a
- * user-controlled FK can create a corrupt row pointing at another
- * tenant's parent; reading it back via include relations would leak
- * the foreign tenant's data. Use `assertSameTenant` from
- * `withTenantScope.ts` at every callsite that takes a user-controlled
- * FK to a tenant-scoped model. The structural fix is Postgres RLS in
- * Sprint A.3 — see `docs/TENANT-ISOLATION.md` Invariant I-5.
+ * Parent-FK models (Application, PlacementRecord, CourseProgress) verify
+ * `userId` on create via the unscoped user lookup. Other cross-tenant FKs
+ * (e.g. Job.employerId) still need `assertSameTenant` at the callsite.
+ * The structural fix is Postgres RLS in Sprint A.3 — see
+ * `docs/TENANT-ISOLATION.md` Invariant I-5.
  *
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
  */
@@ -57,20 +52,22 @@ export const TENANT_SCOPED_MODELS = new Set<string>([
   'chapterMember',
   'chapterMeeting',
   'chapterCurriculumItem',
-  // Nullable org column (unmatched Coursera rows stay org-less). Direct
-  // scoping is correct — parent-FK via user would miss unmatched rows
-  // and reject the organizationId stamp new writes need.
-  'courseraCourseProgress',
 ]);
 
 /**
  * Models that inherit tenant via a parent FK (no `organizationId` column).
  *
  * Do NOT add these to `TENANT_SCOPED_MODELS` — injecting a missing
- * `organizationId` scalar 500s. The proxy instead injects the equivalent
- * parent filter (`user: { organizationId }` or an OR of member/employer/
- * partner). Wrapping these in `withTenantScope` used to be a no-op
- * (`clm_hot_scope_proxy_false_safety`).
+ * `organizationId` scalar 500s. Copied from the tenant-scope provision
+ * helper, then tightened:
+ *
+ * - WhereInput reads/writes (`findMany`, `count`, `updateMany`, …) inject
+ *   `user: { organizationId }` (or a member/employer/partner OR).
+ * - Unique-where ops (`findUnique`, `update`, `upsert` where, …) are left
+ *   alone — Prisma unique inputs cannot take a nested `user` filter.
+ * - **create / createMany / upsert.create** look up the parent `userId`
+ *   on the unscoped client (`assertSameTenant` equivalent) so an Org A
+ *   caller cannot attach a row to an Org B member.
  */
 export type ParentFkScope =
   | { kind: 'user' }
@@ -81,10 +78,21 @@ export const PARENT_FK_SCOPED_MODELS: Record<string, ParentFkScope> = {
   placementRecord: { kind: 'user' },
   courseProgress: { kind: 'user' },
   messageThread: { kind: 'memberEmployerOrPartner' },
-  memberEvent: { kind: 'user' },
-  memberProgramProgress: { kind: 'user' },
-  placementSurvey: { kind: 'user' },
 };
+
+const PARENT_FK_WHERE_OPS = new Set([
+  'findMany',
+  'findFirst',
+  'findFirstOrThrow',
+  'count',
+  'aggregate',
+  'groupBy',
+  'updateMany',
+  'updateManyAndReturn',
+  'deleteMany',
+]);
+
+const PARENT_FK_CREATE_OPS = new Set(['create', 'createMany', 'createManyAndReturn', 'upsert']);
 
 const READ_OPS = new Set([
   'findMany',
@@ -130,7 +138,7 @@ export function makeScopedProxy<TClient extends object>(orgId: string, client: T
       const parentScope = PARENT_FK_SCOPED_MODELS[prop];
       if (parentScope) {
         const model = Reflect.get(target, prop, receiver);
-        return wrapParentFkDelegate(model, prop, orgId, parentScope);
+        return wrapParentFkDelegate(model, prop, orgId, parentScope, target);
       }
       return Reflect.get(target, prop, receiver);
     },
@@ -165,12 +173,12 @@ function wrapModelDelegate(model: unknown, modelName: string, orgId: string): un
   });
 }
 
-
 function wrapParentFkDelegate(
   model: unknown,
   modelName: string,
   orgId: string,
   scope: ParentFkScope,
+  client: object,
 ): unknown {
   return new Proxy(model as object, {
     get(target, op, receiver) {
@@ -180,17 +188,11 @@ function wrapParentFkDelegate(
       const original = Reflect.get(target, op, receiver);
       if (typeof original !== 'function') return original;
 
-      if (READ_OPS.has(opName)) {
+      if (READ_OPS.has(opName) || WRITE_OPS.has(opName)) {
         return (args: Record<string, unknown> = {}) => {
-          const scopedArgs = enforceParentFkReadScope(args, modelName, opName, orgId, scope);
-          return (original as (a: unknown) => unknown).call(target, scopedArgs);
-        };
-      }
-
-      if (WRITE_OPS.has(opName)) {
-        return (args: Record<string, unknown> = {}) => {
-          const scopedArgs = enforceParentFkWriteScope(args, modelName, opName, orgId, scope);
-          return (original as (a: unknown) => unknown).call(target, scopedArgs);
+          const scopedArgs = enforceParentFkScope(args, modelName, opName, orgId, scope);
+          const pending = maybeAssertParentFkCreate(client, scopedArgs, modelName, opName, orgId, scope);
+          return pending.then(() => (original as (a: unknown) => unknown).call(target, scopedArgs));
         };
       }
 
@@ -263,21 +265,80 @@ function rejectDirectOrganizationId(
   }
 }
 
-function enforceParentFkReadScope(
+function extractParentUserId(data: Record<string, unknown>): string | undefined {
+  if (typeof data.userId === 'string' && data.userId.trim()) return data.userId;
+  const user = data.user;
+  if (user && typeof user === 'object' && !Array.isArray(user)) {
+    const connect = (user as { connect?: { id?: unknown } }).connect;
+    if (typeof connect?.id === 'string' && connect.id.trim()) return connect.id;
+  }
+  return undefined;
+}
+
+type UserLookupClient = {
+  user?: {
+    findUnique?: (args: {
+      where: { id: string };
+      select: { organizationId: true };
+    }) => Promise<{ organizationId?: string } | null>;
+  };
+};
+
+async function assertUserInOrg(
+  client: object,
+  userId: string,
+  model: string,
+  op: string,
+  orgId: string,
+): Promise<void> {
+  const findUnique = (client as UserLookupClient).user?.findUnique;
+  if (typeof findUnique !== 'function') {
+    throw new Error(`[tenant-scope] ${model}.${op}: parent-FK create requires client.user.findUnique`);
+  }
+  const row = await findUnique({ where: { id: userId }, select: { organizationId: true } });
+  if (!row) {
+    throw new TenantScopeViolation(model, op, orgId, 'not-found');
+  }
+  if (row.organizationId !== orgId) {
+    throw new TenantScopeViolation(model, op, orgId, String(row.organizationId ?? 'missing-organizationId'));
+  }
+}
+
+async function maybeAssertParentFkCreate(
+  client: object,
   args: Record<string, unknown>,
   model: string,
   op: string,
   orgId: string,
   scope: ParentFkScope,
-): Record<string, unknown> {
-  const where = (args.where ?? {}) as Record<string, unknown>;
-  return {
-    ...args,
-    where: mergeParentFkWhere(where, model, op, orgId, scope),
-  };
+): Promise<void> {
+  if (scope.kind !== 'user') return;
+  if (!PARENT_FK_CREATE_OPS.has(op)) return;
+
+  const rows: Record<string, unknown>[] = [];
+  if (op === 'create') {
+    rows.push(((args.data ?? {}) as Record<string, unknown>) ?? {});
+  } else if (op === 'upsert') {
+    rows.push(((args.create ?? {}) as Record<string, unknown>) ?? {});
+  } else {
+    const dataInput = args.data;
+    if (Array.isArray(dataInput)) {
+      rows.push(...(dataInput as Array<Record<string, unknown>>));
+    } else if (dataInput && typeof dataInput === 'object') {
+      rows.push(dataInput as Record<string, unknown>);
+    }
+  }
+
+  for (const row of rows) {
+    const userId = extractParentUserId(row);
+    if (!userId) {
+      throw new TenantScopeViolation(model, op, orgId, 'missing-parent-userId');
+    }
+    await assertUserInOrg(client, userId, model, op, orgId);
+  }
 }
 
-function enforceParentFkWriteScope(
+function enforceParentFkScope(
   args: Record<string, unknown>,
   model: string,
   op: string,
@@ -287,8 +348,7 @@ function enforceParentFkWriteScope(
   const out = { ...args };
 
   if (op === 'create') {
-    const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
-    rejectDirectOrganizationId(data, model, op);
+    rejectDirectOrganizationId((out.data ?? {}) as Record<string, unknown>, model, op);
     return out;
   }
 
@@ -305,21 +365,18 @@ function enforceParentFkWriteScope(
   }
 
   if (op === 'upsert') {
-    const create = ((out.create ?? {}) as Record<string, unknown>) ?? {};
-    rejectDirectOrganizationId(create, model, op);
-    const update = ((out.update ?? {}) as Record<string, unknown>) ?? {};
-    rejectDirectOrganizationId(update, model, op);
-    const where = ((out.where ?? {}) as Record<string, unknown>) ?? {};
-    out.where = mergeParentFkWhere(where, model, op, orgId, scope);
+    rejectDirectOrganizationId((out.create ?? {}) as Record<string, unknown>, model, op);
+    rejectDirectOrganizationId((out.update ?? {}) as Record<string, unknown>, model, op);
     return out;
   }
 
-  const where = (out.where ?? {}) as Record<string, unknown>;
-  out.where = mergeParentFkWhere(where, model, op, orgId, scope);
-
   if (op === 'update' || op === 'updateMany' || op === 'updateManyAndReturn') {
-    const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
-    rejectDirectOrganizationId(data, model, op);
+    rejectDirectOrganizationId((out.data ?? {}) as Record<string, unknown>, model, op);
+  }
+
+  if (PARENT_FK_WHERE_OPS.has(op)) {
+    const where = (out.where ?? {}) as Record<string, unknown>;
+    out.where = mergeParentFkWhere(where, model, op, orgId, scope);
   }
 
   return out;

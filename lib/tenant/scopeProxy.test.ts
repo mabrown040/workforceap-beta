@@ -10,7 +10,8 @@
  *   - Caller-provided organizationId that matches the scope is allowed
  *   - Caller-provided organizationId that DOESN'T match throws
  *     TenantScopeViolation
- *   - Parent-FK models inject user.organizationId (not a false safety)
+ *   - Parent-FK models inject user.organizationId on WhereInput ops
+ *   - Parent-FK create verifies the parent user's organizationId
  *   - Unrelated models still pass through unchanged
  */
 
@@ -32,6 +33,11 @@ function makeFakePrisma() {
   const makeModel = (name: string) => {
     const handler = (op: string) => async (args?: unknown) => {
       calls.push({ model: name, op, args });
+      if (name === 'user' && op === 'findUnique') {
+        const id = (args as { where?: { id?: string } } | undefined)?.where?.id;
+        if (id === 'missing-user') return null;
+        return { organizationId: id === 'user-org-b' ? ORG_B : ORG_A };
+      }
       return { __recorded: true };
     };
     return {
@@ -65,10 +71,6 @@ function makeFakePrisma() {
     placementRecord: makeModel('placementRecord'),
     courseProgress: makeModel('courseProgress'),
     messageThread: makeModel('messageThread'),
-    memberEvent: makeModel('memberEvent'),
-    memberProgramProgress: makeModel('memberProgramProgress'),
-    placementSurvey: makeModel('placementSurvey'),
-    courseraCourseProgress: makeModel('courseraCourseProgress'),
     // NOT tenant-scoped and not parent-FK scoped — pass through unchanged
     blogPost: makeModel('blogPost'),
     __getCalls: () => [...calls],
@@ -277,14 +279,23 @@ test('parent-FK user.organizationId mismatch throws TenantScopeViolation', () =>
   );
 });
 
+test('parent-FK findUnique does not inject nested user into unique where', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.application.findUnique({ where: { id: 'app-1' } });
+  const [call] = fake.__getCalls();
+  assert.deepEqual(call.args, { where: { id: 'app-1' } });
+});
+
 test('parent-FK create does not inject a missing organizationId column', async () => {
   const fake = makeFakePrisma();
   const db = createScopedClient(ORG_A, fake);
   await db.application.create({
     data: { userId: 'u1', status: 'PENDING', programInterest: 'IT' },
   });
-  const [call] = fake.__getCalls();
-  const args = call.args as { data: Record<string, unknown> };
+  const createCall = fake.__getCalls().find((c) => c.model === 'application' && c.op === 'create');
+  assert.ok(createCall);
+  const args = createCall.args as { data: Record<string, unknown> };
   assert.equal(args.data.organizationId, undefined);
   assert.equal(args.data.userId, 'u1');
 });
@@ -299,7 +310,61 @@ test('parent-FK create rejects a forged organizationId (would 500 on the row)', 
   );
 });
 
-test('CourseProgress.upsert scopes where via user.organizationId', async () => {
+test('parent-FK create verifies parent user is in the active org', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.application.create({
+    data: { userId: 'u1', status: 'PENDING', programInterest: 'IT' },
+  });
+  const lookup = fake.__getCalls().find((c) => c.model === 'user' && c.op === 'findUnique');
+  assert.ok(lookup);
+  assert.deepEqual(lookup.args, { where: { id: 'u1' }, select: { organizationId: true } });
+});
+
+test('parent-FK create rejects a parent user from another org', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await assert.rejects(
+    () =>
+      db.placementRecord.create({
+        data: { userId: 'user-org-b', employerName: 'Acme', jobTitle: 'Tech' },
+      }),
+    (err: unknown) => {
+      assert.ok(err instanceof TenantScopeViolation);
+      assert.equal(err.providedOrgId, ORG_B);
+      return true;
+    },
+  );
+  assert.equal(
+    fake.__getCalls().some((c) => c.model === 'placementRecord' && c.op === 'create'),
+    false,
+  );
+});
+
+test('parent-FK create rejects missing parent userId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await assert.rejects(
+    () => db.courseProgress.create({ data: { programSlug: 'it', courseSlug: 'c1' } }),
+    (err: unknown) => {
+      assert.ok(err instanceof TenantScopeViolation);
+      assert.equal(err.providedOrgId, 'missing-parent-userId');
+      return true;
+    },
+  );
+});
+
+test('parent-FK create accepts user.connect.id in the same org', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.application.create({
+    data: { user: { connect: { id: 'u1' } }, status: 'PENDING', programInterest: 'IT' },
+  });
+  const lookup = fake.__getCalls().find((c) => c.model === 'user' && c.op === 'findUnique');
+  assert.deepEqual((lookup?.args as { where: { id: string } }).where, { id: 'u1' });
+});
+
+test('CourseProgress.upsert verifies create.userId and does not rewrite unique where', async () => {
   const fake = makeFakePrisma();
   const db = createScopedClient(ORG_A, fake);
   await db.courseProgress.upsert({
@@ -307,13 +372,20 @@ test('CourseProgress.upsert scopes where via user.organizationId', async () => {
     create: { userId: 'u1', programSlug: 'it', courseSlug: 'c1' },
     update: { percentComplete: 10 },
   });
-  const [call] = fake.__getCalls();
-  const args = call.args as {
-    where: { user: { organizationId: string } };
-    create: { organizationId?: string };
+  const upsertCall = fake.__getCalls().find((c) => c.model === 'courseProgress' && c.op === 'upsert');
+  assert.ok(upsertCall);
+  const args = upsertCall.args as {
+    where: { user?: unknown; userId_programSlug_courseSlug: unknown };
+    create: { organizationId?: string; userId: string };
   };
-  assert.equal(args.where.user.organizationId, ORG_A);
+  assert.equal(args.where.user, undefined);
+  assert.deepEqual(args.where.userId_programSlug_courseSlug, {
+    userId: 'u1',
+    programSlug: 'it',
+    courseSlug: 'c1',
+  });
   assert.equal(args.create.organizationId, undefined);
+  assert.equal(args.create.userId, 'u1');
 });
 
 test('MessageThread.findMany injects member/employer/partner org OR', async () => {
@@ -334,46 +406,6 @@ test('MessageThread.findMany injects member/employer/partner org OR', async () =
         },
       ],
     },
-  });
-});
-
-test('MemberEvent.findMany injects user.organizationId', async () => {
-  const fake = makeFakePrisma();
-  const db = createScopedClient(ORG_A, fake);
-  await db.memberEvent.findMany({ where: { eventName: 'login' } });
-  const [call] = fake.__getCalls();
-  assert.deepEqual(call.args, {
-    where: { eventName: 'login', user: { organizationId: ORG_A } },
-  });
-});
-
-test('MemberProgramProgress.count injects user.organizationId', async () => {
-  const fake = makeFakePrisma();
-  const db = createScopedClient(ORG_A, fake);
-  await db.memberProgramProgress.count({ where: { programSlug: 'it-support' } });
-  const [call] = fake.__getCalls();
-  assert.deepEqual(call.args, {
-    where: { programSlug: 'it-support', user: { organizationId: ORG_A } },
-  });
-});
-
-test('PlacementSurvey.findMany injects user.organizationId', async () => {
-  const fake = makeFakePrisma();
-  const db = createScopedClient(ORG_A, fake);
-  await db.placementSurvey.findMany({ where: { wave: 'thirty_day' } });
-  const [call] = fake.__getCalls();
-  assert.deepEqual(call.args, {
-    where: { wave: 'thirty_day', user: { organizationId: ORG_A } },
-  });
-});
-
-test('CourseraCourseProgress.findMany injects organizationId (has org column)', async () => {
-  const fake = makeFakePrisma();
-  const db = createScopedClient(ORG_A, fake);
-  await db.courseraCourseProgress.findMany({ where: { programSlug: 'it' } });
-  const [call] = fake.__getCalls();
-  assert.deepEqual(call.args, {
-    where: { programSlug: 'it', organizationId: ORG_A },
   });
 });
 

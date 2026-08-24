@@ -41,6 +41,8 @@ import {
  *
  * Parent-FK models (no `organizationId` column) are also scoped:
  *   - Application, PlacementRecord, CourseProgress via `user.organizationId`
+ *     on WhereInput ops; **create** verifies the parent user belongs to
+ *     the active org (`assertSameTenant` equivalent)
  *   - MessageThread via member / employer / partner `organizationId`
  *
  * Caveats:

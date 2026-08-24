@@ -1,12 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { isQaBypassRequest } from '@/lib/auth/qaBypass';
 import { logger } from '@/lib/observability/logger';
-import {
-  decideMissingLimiter,
-  isAllowMissingUpstashEnabled,
-  isApplyFailClosedEnvEnabled,
-  type MissingLimiterMode,
-} from '@/lib/rate-limit-policy';
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -20,28 +15,23 @@ const upstashConfigured = Boolean(redisUrl && redisToken);
 // tools, etc.).  Dev stays fail-open so local development works without
 // credentials.
 // ──────────────────────────────────────────────────────────────────────────
-const allowMissingUpstash = isAllowMissingUpstashEnabled();
+const allowMissingUpstash = process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH?.trim() === '1';
 const nextPhase = process.env.NEXT_PHASE?.trim();
 if (isProduction && !upstashConfigured && !allowMissingUpstash && nextPhase !== 'phase-production-build') {
   const msg =
     '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
     'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +
-    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1. ' +
-    'Voice/AI spend stay fail-closed without Redis even with that opt-out. ' +
-    'Invite-accept, org-onboard, message-send, job-import, admin invite/token-links, and Coursera identity ' +
-    'use security fail-closed; careers-recommend / interest-profiler stay spend-closed. ' +
-    'Apply/signup stay open unless WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1.';
+    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.';
   logger.error(msg);
   // Throw synchronously so the server fails to boot rather than running
   // with silently-disabled security controls.
   throw new Error(msg);
 }
 
-// Apply/signup use apply-mode policy (open when RATE_LIMIT_ALLOW_MISSING_UPSTASH=1
-// unless WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1). Leftover abuse surfaces
-// (invite-accept, org-onboard, message-send, job-import, admin invite/token-links,
-// Coursera identity) use security fail-closed. Careers-recommend / interest-profiler
-// use spend fail-closed. Cheap public GET caps and webhooks stay fail-open.
+// Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.
+// Contact/confirmation remain fail-closed (spam risk). Add UPSTASH_* env vars to enable Redis-backed limits.
+const FAIL_CLOSED = !upstashConfigured;
+
 // Observable: one-time warning when running without Upstash (dev only, since
 // production throws above).  Helps catch mis-configured preview deploys.
 if (!isProduction && !upstashConfigured) {
@@ -137,38 +127,12 @@ let messageSendRateLimiter: Ratelimit | null = null;
  * @param name       — human-readable limiter name for logs
  * @param identifier — the key being rate-limited (IP, email, userId)
  */
-/**
- * QA / CI bypass for automated testing.
- *
- * When `WAP_RATE_LIMIT_QA_BYPASS=1` is set, any request carrying the
- * `x-wap-qa-bypass` header with the value from `WAP_RATE_LIMIT_QA_SECRET`
- * (or the default dev secret) is allowed through rate limiters.
- *
- * This is intentionally NOT a public env var — it must be set in CI
- * secrets or local .env only. Never commit the secret.
- */
-function isQaBypassEnabled(): boolean {
-  return process.env.WAP_RATE_LIMIT_QA_BYPASS?.trim() === '1';
-}
-
-function getQaBypassSecret(): string {
-  return process.env.WAP_RATE_LIMIT_QA_SECRET?.trim() || 'wap-qa-dev-secret-do-not-use-in-production';
-}
-
-function isQaBypassRequest(request?: Request): boolean {
-  if (!isQaBypassEnabled()) return false;
-  if (!request) return false;
-  const header = request.headers.get('x-wap-qa-bypass')?.trim();
-  return header === getQaBypassSecret();
-}
-
-async function runLimiter(
+async function failClosedLimit(
   limiter: Ratelimit | null,
   name: string,
   identifier: string,
-  mode: MissingLimiterMode,
   request?: Request
-): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
+): Promise<{ success: boolean; remaining?: number }> {
   if (isQaBypassRequest(request)) {
     logger.info(`[RATE-LIMIT] QA bypass active — allowing ${name} request for ${identifier}`);
     return { success: true };
@@ -176,58 +140,31 @@ async function runLimiter(
 
   if (limiter) {
     const result = await limiter.limit(identifier);
-    return { success: result.success, remaining: result.remaining, resetMs: result.reset };
+    return { success: result.success, remaining: result.remaining };
   }
 
-  const decision = decideMissingLimiter({
-    isProduction,
-    allowMissingUpstash,
-    mode,
-    applyFailClosedEnv: isApplyFailClosedEnvEnabled(),
-  });
-
-  if (!decision.success) {
-    logger.error(
-      `[RATE-LIMIT] ${name} limiter is null (${decision.reason}) — blocking request for ${identifier}`
-    );
+  // Limiter is null → Upstash not configured
+  if (isProduction) {
+    // Operator explicitly opted out of Upstash (e.g. preview/staging via
+    // RATE_LIMIT_ALLOW_MISSING_UPSTASH=1). The boot assertion is skipped in
+    // that case, so honor the opt-out here too and fail OPEN — otherwise every
+    // auth/login/forgot-password request is blocked with a 429 on environments
+    // that intentionally run without Redis.
+    if (allowMissingUpstash) {
+      logger.warn(
+        `[RATE-LIMIT] ${name} limiter is null but RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 — failing open for ${identifier}`
+      );
+      return { success: true };
+    }
+    // No opt-out: fail closed (defense-in-depth; the boot assertion normally
+    // prevents reaching here in real production).
+    logger.error(`[RATE-LIMIT] ${name} limiter is null in production — blocking request for ${identifier}`);
     return { success: false, remaining: 0 };
   }
 
-  if (decision.reason === 'dev-fail-open') {
-    logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
-  } else {
-    logger.warn(
-      `[RATE-LIMIT] ${name} limiter is null (${decision.reason}) — allowing request for ${identifier}`
-    );
-  }
+  // Dev: warn once per limiter name, then allow
+  logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
   return { success: true };
-}
-
-async function failClosedLimit(
-  limiter: Ratelimit | null,
-  name: string,
-  identifier: string,
-  request?: Request
-): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
-  return runLimiter(limiter, name, identifier, 'security', request);
-}
-
-async function failClosedSpendLimit(
-  limiter: Ratelimit | null,
-  name: string,
-  identifier: string,
-  request?: Request
-): Promise<{ success: boolean; remaining?: number }> {
-  return runLimiter(limiter, name, identifier, 'spend', request);
-}
-
-async function failClosedApplyLimit(
-  limiter: Ratelimit | null,
-  name: string,
-  identifier: string,
-  request?: Request
-): Promise<{ success: boolean; remaining?: number }> {
-  return runLimiter(limiter, name, identifier, 'apply', request);
 }
 
 if (redisUrl && redisToken) {
@@ -419,12 +356,16 @@ if (redisUrl && redisToken) {
   });
 }
 
-export async function checkSignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedApplyLimit(signupRateLimiter, 'signup', identifier, request);
+export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!signupRateLimiter) return { success: true };
+  const result = await signupRateLimiter.limit(identifier);
+  return { success: result.success, remaining: result.remaining };
 }
 
-export async function checkApplySignupRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedApplyLimit(applySignupRateLimiter, 'apply-signup', identifier, request);
+export async function checkApplySignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!applySignupRateLimiter) return { success: true };
+  const result = await applySignupRateLimiter.limit(identifier);
+  return { success: result.success, remaining: result.remaining };
 }
 
 export async function checkAuthRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
@@ -447,8 +388,10 @@ export async function checkAuthIpRateLimit(ip: string, request?: Request): Promi
  * 5-10 min, so unbounded mints are an immediate money-drain on a
  * compromised account.
  */
-export async function checkVoiceSessionRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedSpendLimit(voiceSessionRateLimiter, 'voice-session', `voice-session:${userId}`, request);
+export async function checkVoiceSessionRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!voiceSessionRateLimiter) return { success: true };
+  const result = await voiceSessionRateLimiter.limit(`voice-session:${userId}`);
+  return { success: result.success, remaining: result.remaining };
 }
 
 /**
@@ -456,14 +399,18 @@ export async function checkVoiceSessionRateLimit(userId: string, request?: Reque
  * (member/apply/employer/partner) to block one attacker rotating IPs to
  * spam verification mail to the same target address.
  */
-export async function checkSignupEmailRateLimit(email: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+export async function checkSignupEmailRateLimit(email: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!signupEmailRateLimiter) return { success: true };
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { success: true };
-  return failClosedApplyLimit(signupEmailRateLimiter, 'signup-email', `signup-email:${normalized}`, request);
+  const result = await signupEmailRateLimiter.limit(`signup-email:${normalized}`);
+  return { success: result.success, remaining: result.remaining };
 }
 
-export async function checkAIToolRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedSpendLimit(aiToolRateLimiter, 'ai-tool', userId, request);
+export async function checkAIToolRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!aiToolRateLimiter) return { success: true };
+  const result = await aiToolRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
@@ -477,8 +424,10 @@ export async function checkPartnerSignupRateLimit(identifier: string): Promise<{
   return { success: result.success };
 }
 
-export async function checkAdminInviteRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(adminInviteRateLimiter, 'admin-invite', userId, request);
+export async function checkAdminInviteRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!adminInviteRateLimiter) return { success: true };
+  const result = await adminInviteRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
 }
 
 /**
@@ -493,9 +442,11 @@ export async function checkBulkEmailRateLimit(userId: string): Promise<{ success
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-closed in production without Redis. */
-export async function checkEmployerJobImportRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(employerJobImportRateLimiter, 'employer-job-import', userId, request);
+/** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-open without Redis. */
+export async function checkEmployerJobImportRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!employerJobImportRateLimiter) return { success: true };
+  const result = await employerJobImportRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
 }
 
 /** Public confirmation-email endpoint — 5 per IP per hour. Fails closed in production. */
@@ -512,16 +463,18 @@ export async function checkConfirmationEmailEmailRateLimit(email: string): Promi
   return { success: r.success };
 }
 
-/** Public career quiz recommend — spend-mode fail-closed in production (O*NET / AI-adjacent cost). */
-export async function checkCareersRecommendRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedSpendLimit(careersRecommendRateLimiter, 'careers-recommend', ip, request);
-  return { success: r.success };
+/** Public career quiz recommend — fail-open without Redis (dev). */
+export async function checkCareersRecommendRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!careersRecommendRateLimiter) return { success: true };
+  const result = await careersRecommendRateLimiter.limit(ip);
+  return { success: result.success };
 }
 
-/** Member Interest Profiler API — per-user cap; spend-mode fail-closed in production (O*NET cost). */
-export async function checkInterestProfilerRateLimit(userId: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedSpendLimit(interestProfilerRateLimiter, 'interest-profiler', userId, request);
-  return { success: r.success };
+/** Member Interest Profiler API — per-user cap; fail-open without Redis (dev). */
+export async function checkInterestProfilerRateLimit(userId: string): Promise<{ success: boolean }> {
+  if (!interestProfilerRateLimiter) return { success: true };
+  const result = await interestProfilerRateLimiter.limit(userId);
+  return { success: result.success };
 }
 
 /** Forgot-password / reset email requests — per IP; fail-closed in production. */
@@ -536,25 +489,25 @@ export async function checkForgotPasswordEmailRateLimit(email: string): Promise<
   return { success: r.success };
 }
 
-/** Public GET /api/careers/* (occupation detail, program matches) — cheap catalog reads.
- * Fail-open without Redis is OK: these are inexpensive GETs; Redis only adds a scrape cap.
- */
+/** Public GET /api/careers/* (occupation detail, program matches) — per IP; fail-open without Redis. */
 export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicCareersGetRateLimiter) return { success: true };
   const result = await publicCareersGetRateLimiter.limit(ip);
   return { success: result.success };
 }
 
-/** Public voice-session minting — per IP. Fail-closed in production without Redis (ElevenLabs spend). */
-export async function checkPublicVoiceSessionRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedSpendLimit(publicVoiceSessionRateLimiter, 'public-voice-session', ip, request);
-  return { success: r.success };
+/** Public voice-session minting — per IP; fail-open without Redis in dev, but throttle aggressively when configured. */
+export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicVoiceSessionRateLimiter) return { success: true };
+  const result = await publicVoiceSessionRateLimiter.limit(ip);
+  return { success: result.success };
 }
 
-/** Invitation acceptance (account creation) — per IP; fail-closed in production without Redis. */
-export async function checkInviteAcceptRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedLimit(inviteAcceptRateLimiter, 'invite-accept', ip, request);
-  return { success: r.success };
+/** Invitation acceptance (account creation) — per IP; fail-open without Redis. */
+export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!inviteAcceptRateLimiter) return { success: true };
+  const result = await inviteAcceptRateLimiter.limit(ip);
+  return { success: result.success };
 }
 
 /** MFA code verification — 10 attempts per 15 min per IP; fail-open without Redis. */
@@ -564,14 +517,14 @@ export async function checkVerifyMfaRateLimit(ip: string): Promise<{ success: bo
   return { success: result.success };
 }
 
-/** GET /api/health — cheap liveness read. Fail-open without Redis is OK (same as other public GET caps). */
+/** GET /api/health — fail-open without Redis (same as other public GET caps). */
 export async function checkPublicHealthRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicHealthRateLimiter) return { success: true };
   const result = await publicHealthRateLimiter.limit(ip);
   return { success: result.success };
 }
 
-/** GET /api/xapi/config — cheap read. Fail-open without Redis is OK. */
+/** GET /api/xapi/config */
 export async function checkXapiConfigGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!xapiConfigGetRateLimiter) return { success: true };
   const result = await xapiConfigGetRateLimiter.limit(ip);
@@ -606,36 +559,34 @@ export async function checkPublicWioaQualificationRateLimit(ip: string): Promise
   return { success: result.success };
 }
 
-/**
- * Webhook endpoints (Coursera, learning-completion). Intentionally fail-open
- * without Redis. Signature/secret verification is the guard — a missing
- * limiter must not 429 Stripe, Resend, or partner webhook deliveries and
- * drop paid/retry events. Stripe + employer Stripe webhooks do not call
- * this helper; they rely on constructEvent signature verification only.
- */
+/** Webhook endpoints (Coursera, learning-completion, etc.) — generous for legitimate retries. */
 export async function checkWebhookRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!webhookRateLimiter) return { success: true };
   const result = await webhookRateLimiter.limit(ip);
   return { success: result.success };
 }
 
-/** POST /api/org/onboard — public organization creation; fail-closed in production without Redis. */
-export async function checkOrgOnboardRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedLimit(orgOnboardRateLimiter, 'org-onboard', ip, request);
-  return { success: r.success };
+/** POST /api/org/onboard — public organization creation; fail-open without Redis. */
+export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!orgOnboardRateLimiter) return { success: true };
+  const result = await orgOnboardRateLimiter.limit(ip);
+  return { success: result.success };
 }
 
-/** POST /api/public/interest-profiler/* — public no-account quiz; spend-mode fail-closed (O*NET cost). */
-export async function checkPublicInterestProfilerRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedSpendLimit(publicInterestProfilerRateLimiter, 'public-interest-profiler', ip, request);
-  return { success: r.success };
+/** POST /api/public/interest-profiler/* — public no-account quiz; cap per-IP O*NET abuse. Fail-open without Redis. */
+export async function checkPublicInterestProfilerRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicInterestProfilerRateLimiter) return { success: true };
+  const result = await publicInterestProfilerRateLimiter.limit(ip);
+  return { success: result.success };
 }
 
 /** Per-admin cap on tokenized-link minting — 10 per hour. Credential-minting
  * surface; without a cap a compromised admin token can mint unlimited links.
  */
-export async function checkAdminTokenLinksRateLimit(userId: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(adminTokenLinksRateLimiter, 'admin-token-links', userId, request);
+export async function checkAdminTokenLinksRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!adminTokenLinksRateLimiter) return { success: true };
+  const result = await adminTokenLinksRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
 }
 
 /** POST /api/q/[token]/submit — PUBLIC (no-account) tokenized eligibility
@@ -649,21 +600,24 @@ export async function checkPublicQuestionnaireSubmitRateLimit(ip: string): Promi
   return { success: result.success };
 }
 
-/** POST /api/member/coursera/identity — limit Coursera email spray. Fail-closed in production. */
-export async function checkCourseraIdentityRateLimit(ip: string, request?: Request): Promise<{ success: boolean }> {
-  const r = await failClosedLimit(courseraIdentityRateLimiter, 'coursera-identity', ip, request);
-  return { success: r.success };
+/** POST /api/member/coursera/identity — limit Coursera email spray. */
+export async function checkCourseraIdentityRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!courseraIdentityRateLimiter) return { success: true };
+  const result = await courseraIdentityRateLimiter.limit(ip);
+  return { success: result.success };
 }
 
 /**
  * Per-user cap on portal message sends — 10 messages per minute per user.
  * Backs `checkMessageRateLimit` in lib/messages/rateLimit.ts. Redis-backed so
  * the limit holds across all serverless instances (the prior in-memory Map
- * only enforced the limit per-instance). Fail-closed in production without Redis.
+ * only enforced the limit per-instance). Fail-open without Redis, matching
+ * the prior in-memory behavior of always allowing when unconfigured.
  */
 export async function checkMessageSendRateLimit(
-  userId: string,
-  request?: Request
+  userId: string
 ): Promise<{ success: boolean; remaining?: number; resetMs?: number }> {
-  return failClosedLimit(messageSendRateLimiter, 'message-send', `message-send:${userId}`, request);
+  if (!messageSendRateLimiter) return { success: true };
+  const result = await messageSendRateLimiter.limit(`message-send:${userId}`);
+  return { success: result.success, remaining: result.remaining, resetMs: result.reset };
 }

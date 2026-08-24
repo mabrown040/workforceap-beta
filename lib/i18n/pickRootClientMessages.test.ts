@@ -41,7 +41,8 @@ test('legacy fat picker still ships admin + apply + dashboard to every client', 
 test('root picker keeps a marketing nav string and drops admin/portal/apply', () => {
   const rootMessages = pickRootClientMessages(catalog);
   assert.equal(ns(rootMessages, 'nav').programs, 'Programs');
-  assert.equal(ns(ns(rootMessages, 'marketing'), 'testimonials').sectionTitle, 'Hear from our members');
+  const testimonials = ns(rootMessages, 'marketing').testimonials as Record<string, unknown>;
+  assert.equal(testimonials.sectionTitle, 'Hear from our members');
   assert.equal((rootMessages as Record<string, unknown>).admin, undefined);
   assert.equal((rootMessages as Record<string, unknown>).dashboard, undefined);
   assert.equal((rootMessages as Record<string, unknown>).apply, undefined);

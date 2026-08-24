@@ -1941,11 +1941,25 @@ model ApplyEligibilityScreening {
   id             String   @id @default(uuid())
   userId         String   @unique @map("user_id")
   organizationId String   @map("organization_id")
-  q1             String   @map("q1") // yes | no
-  q2             String   @map("q2") // yes | no
-  q3             String?  @map("q3") // yes | no
+  q1             String   @map("q1") // yes | no — unemployed / underemployed
+  q2             String   @map("q2") // yes | no — household income < $60k
+  q3             String?  @map("q3") // yes | no — work authorization
   qualifies      Boolean  @map("qualifies")
   yesCount       Int      @map("yes_count")
+  /// Currently receiving unemployment insurance benefits (yes | no).
+  receivingUnemployment String? @map("receiving_unemployment")
+  /// Exhausted unemployment benefits (yes | no).
+  exhaustedUnemployment String? @map("exhausted_unemployment")
+  /// Employer name if laid off (optional, free text).
+  layoffCompany String? @map("layoff_company")
+  /// Currently receiving SNAP and/or WIC (yes | no). Distinct from barrier multi-select.
+  snapWic String? @map("snap_wic")
+  /// How the applicant heard about WorkforceAP.
+  hearAbout String? @map("hear_about")
+  /// Free-text when hearAbout is Other.
+  hearAboutOther String? @map("hear_about_other")
+  /// Partner / community ambassador name or referral code (optional).
+  partnerAmbassadorReferral String? @map("partner_ambassador_referral")
   createdAt      DateTime @default(now()) @map("created_at")
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)

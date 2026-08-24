@@ -26,6 +26,14 @@ export type ApplyFlowDraftV1 = {
   primaryBarriers?: string[];
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
+  q3?: 'yes' | 'no' | null;
+  receivingUnemployment?: 'yes' | 'no' | null;
+  exhaustedUnemployment?: 'yes' | 'no' | null;
+  layoffCompany?: string;
+  snapWic?: 'yes' | 'no' | null;
+  hearAbout?: string;
+  hearAboutOther?: string;
+  partnerAmbassadorReferral?: string;
   gradeLevel?: string;
   parentGuardianName?: string;
   parentGuardianEmail?: string;

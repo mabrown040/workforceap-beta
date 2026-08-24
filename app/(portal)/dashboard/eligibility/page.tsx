@@ -25,19 +25,51 @@ export default async function EligibilityPage() {
     select: {
       wioaQualificationJson: true,
       profile: { select: { city: true, state: true, zip: true, barrierTypes: true } },
+      applyEligibilityScreenings: {
+        take: 1,
+        select: {
+          q1: true,
+          q2: true,
+          q3: true,
+          receivingUnemployment: true,
+          exhaustedUnemployment: true,
+          layoffCompany: true,
+          snapWic: true,
+          hearAbout: true,
+          hearAboutOther: true,
+          partnerAmbassadorReferral: true,
+        },
+      },
     },
   });
 
   const snapshot = (dbUser?.wioaQualificationJson ?? null) as Record<string, unknown> | null;
   const meta =
     snapshot && typeof snapshot.eligibilityForm === 'object' && snapshot.eligibilityForm !== null
-      ? (snapshot.eligibilityForm as { ageGroup?: string | null; county?: string | null })
+      ? (snapshot.eligibilityForm as {
+          ageGroup?: string | null;
+          county?: string | null;
+          q1?: string | null;
+          q2?: string | null;
+          q3?: string | null;
+          receivingUnemployment?: string | null;
+          exhaustedUnemployment?: string | null;
+          layoffCompany?: string | null;
+          snapWic?: string | null;
+          hearAbout?: string | null;
+          hearAboutOther?: string | null;
+          partnerAmbassadorReferral?: string | null;
+        })
       : null;
+  const screening = dbUser?.applyEligibilityScreenings[0] ?? null;
 
   const rawAge = meta?.ageGroup ?? '';
   const ageGroup: AgeGroupValue = (AGE_GROUP_VALUES as readonly string[]).includes(rawAge)
     ? (rawAge as AgeGroupValue)
     : '';
+
+  const asYesNo = (v: string | null | undefined): 'yes' | 'no' | null =>
+    v === 'yes' || v === 'no' ? v : null;
 
   const initial: EligibilityInitial = {
     ageGroup,
@@ -46,6 +78,17 @@ export default async function EligibilityPage() {
     zip: dbUser?.profile?.zip ?? '',
     county: meta?.county ?? '',
     primaryBarriers: dbUser?.profile?.barrierTypes ?? [],
+    q1: asYesNo(meta?.q1 ?? screening?.q1),
+    q2: asYesNo(meta?.q2 ?? screening?.q2),
+    q3: asYesNo(meta?.q3 ?? screening?.q3),
+    receivingUnemployment: asYesNo(meta?.receivingUnemployment ?? screening?.receivingUnemployment),
+    exhaustedUnemployment: asYesNo(meta?.exhaustedUnemployment ?? screening?.exhaustedUnemployment),
+    layoffCompany: meta?.layoffCompany ?? screening?.layoffCompany ?? '',
+    snapWic: asYesNo(meta?.snapWic ?? screening?.snapWic),
+    hearAbout: meta?.hearAbout ?? screening?.hearAbout ?? '',
+    hearAboutOther: meta?.hearAboutOther ?? screening?.hearAboutOther ?? '',
+    partnerAmbassadorReferral:
+      meta?.partnerAmbassadorReferral ?? screening?.partnerAmbassadorReferral ?? '',
   };
 
   return (

@@ -14,6 +14,13 @@ import {
   normalizePrimaryBarriers,
   PRIMARY_BARRIER_OPTIONS,
 } from '@/lib/apply/primaryBarrierOptions';
+import {
+  APPLY_HEAR_ABOUT_OPTIONS,
+  APPLY_HEAR_ABOUT_OTHER,
+  hearAboutNeedsOther,
+  layoffCompanyApplicable,
+  type YesNo,
+} from '@/lib/apply/eligibilityExtendedFields';
 import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
 import {
   SCHOOL_AGE_GROUPS,
@@ -24,11 +31,6 @@ import {
 } from '@/lib/apply/schoolCollection';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
-
-const ELIGIBILITY_KEYS = [
-  { legendKey: 'eligibilityQ1Legend', promptKey: 'eligibilityQ1Prompt' as const },
-  { legendKey: 'eligibilityQ2Legend', promptKey: 'eligibilityQ2Prompt' as const },
-] as const;
 
 const ADULT_AGE_GROUPS = [
   { value: 'under_18', label: 'Under 18' },
@@ -77,6 +79,14 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       primaryBarriers: payload.primaryBarriers,
       q1: payload.q1,
       q2: payload.q2,
+      q3: payload.q3,
+      receivingUnemployment: payload.receivingUnemployment,
+      exhaustedUnemployment: payload.exhaustedUnemployment,
+      layoffCompany: payload.layoffCompany,
+      snapWic: payload.snapWic,
+      hearAbout: payload.hearAbout,
+      hearAboutOther: payload.hearAboutOther,
+      partnerAmbassadorReferral: payload.partnerAmbassadorReferral,
       gradeLevel: payload.gradeLevel,
       parentGuardianName: payload.parentGuardianName,
       parentGuardianEmail: payload.parentGuardianEmail,
@@ -126,12 +136,20 @@ export default function ApplyEligibilityClient({
       normalizePrimaryBarriers(cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v])
     );
 
-  const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
+  const [q1, setQ1] = useState<YesNo | null>(null);
   const [gradeLevel, setGradeLevel] = useState('');
   const [parentGuardianName, setParentGuardianName] = useState('');
   const [parentGuardianEmail, setParentGuardianEmail] = useState('');
   const [parentGuardianPhone, setParentGuardianPhone] = useState('');
-  const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
+  const [q2, setQ2] = useState<YesNo | null>(null);
+  const [q3, setQ3] = useState<YesNo | null>(null);
+  const [receivingUnemployment, setReceivingUnemployment] = useState<YesNo | null>(null);
+  const [exhaustedUnemployment, setExhaustedUnemployment] = useState<YesNo | null>(null);
+  const [layoffCompany, setLayoffCompany] = useState('');
+  const [snapWic, setSnapWic] = useState<YesNo | null>(null);
+  const [hearAbout, setHearAbout] = useState('');
+  const [hearAboutOther, setHearAboutOther] = useState('');
+  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState('');
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
   const completedRef = useRef(false);
@@ -155,6 +173,14 @@ export default function ApplyEligibilityClient({
     setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
+    setQ3(draft.q3 ?? null);
+    setReceivingUnemployment(draft.receivingUnemployment ?? null);
+    setExhaustedUnemployment(draft.exhaustedUnemployment ?? null);
+    setLayoffCompany(draft.layoffCompany ?? '');
+    setSnapWic(draft.snapWic ?? null);
+    setHearAbout(draft.hearAbout ?? '');
+    setHearAboutOther(draft.hearAboutOther ?? '');
+    setPartnerAmbassadorReferral(draft.partnerAmbassadorReferral ?? '');
     setGradeLevel(draft.gradeLevel ?? '');
     setParentGuardianName(draft.parentGuardianName ?? '');
     setParentGuardianEmail(draft.parentGuardianEmail ?? '');
@@ -200,15 +226,60 @@ export default function ApplyEligibilityClient({
       stateVal.trim().length > 0 &&
       zipOk &&
       county.trim().length > 0 &&
-      primaryBarriers.length > 0;
+      primaryBarriers.length > 0 &&
+      hearAbout.trim().length > 0 &&
+      (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0);
+  const yesNoAnswers: Array<YesNo | null> = [
+    q1,
+    receivingUnemployment,
+    exhaustedUnemployment,
+    q2,
+    snapWic,
+    q3,
+  ];
+  const fundingAnswersOk = isSchool || yesNoAnswers.every((answer) => answer !== null);
   const canContinue =
     contactOk &&
     screeningDetailsOk &&
-    (isSchool || (q1 !== null && q2 !== null));
+    fundingAnswersOk;
   const ageOptions = isSchool ? SCHOOL_AGE_GROUPS : ADULT_AGE_GROUPS;
-  const missingEligibilityAnswers = [q1, q2].filter((answer) => answer === null).length;
-  const yesCount = [q1, q2].filter((answer) => answer === 'yes').length;
-  const qualifies = yesCount >= 1;
+  const missingEligibilityAnswers = yesNoAnswers.filter((answer) => answer === null).length;
+  const fundingYesCount = [q1, q2, q3].filter((answer) => answer === 'yes').length;
+  const yesCount = fundingYesCount;
+  const qualifies = fundingYesCount >= 1;
+  const showLayoffCompany = layoffCompanyApplicable({
+    unemployedOrUnderemployed: q1,
+    receivingUnemployment,
+    exhaustedUnemployment,
+  });
+
+  const draftPayload = () => ({
+    firstName,
+    lastName,
+    email,
+    phone,
+    ageGroup,
+    city,
+    state: stateVal,
+    zip,
+    county: isSchool ? '' : county,
+    primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
+    q1: isSchool ? null : q1,
+    q2: isSchool ? null : q2,
+    q3: isSchool ? null : q3,
+    receivingUnemployment: isSchool ? null : receivingUnemployment,
+    exhaustedUnemployment: isSchool ? null : exhaustedUnemployment,
+    layoffCompany: isSchool ? '' : layoffCompany,
+    snapWic: isSchool ? null : snapWic,
+    hearAbout: isSchool ? '' : hearAbout,
+    hearAboutOther: isSchool ? '' : hearAboutOther,
+    partnerAmbassadorReferral: isSchool ? '' : partnerAmbassadorReferral,
+    gradeLevel,
+    parentGuardianName,
+    parentGuardianEmail,
+    parentGuardianPhone,
+    schoolName: schoolApply?.schoolName,
+  });
 
   useEffect(() => {
     trackApplyFunnel(1, 'started');
@@ -216,11 +287,11 @@ export default function ApplyEligibilityClient({
   }, []);
 
   useEffect(() => {
-    answeredCountRef.current = [q1, q2].filter(Boolean).length;
+    answeredCountRef.current = yesNoAnswers.filter(Boolean).length;
     trackApplyFunnel(1, 'eligibility_progress', {
       answered_count: answeredCountRef.current,
     });
-  }, [q1, q2]);
+  }, [q1, q2, q3, receivingUnemployment, exhaustedUnemployment, snapWic]);
 
   useEffect(() => {
     return () => {
@@ -233,15 +304,7 @@ export default function ApplyEligibilityClient({
   }, []);
 
   const persistDraft = () => {
-    writeDraft({
-      firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip,
-      county: isSchool ? '' : county,
-      primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
-      q1: isSchool ? null : q1,
-      q2: isSchool ? null : q2,
-      gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone,
-      schoolName: schoolApply?.schoolName,
-    });
+    writeDraft(draftPayload());
   };
 
   const [autoSaved, setAutoSaved] = useState(false);
@@ -253,19 +316,39 @@ export default function ApplyEligibilityClient({
     }
     if (!firstName && !lastName && !email && !phone) return;
     const handle = setTimeout(() => {
-      writeDraft({
-        firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip,
-        county: isSchool ? '' : county,
-        primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
-        q1: isSchool ? null : q1,
-        q2: isSchool ? null : q2,
-        gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone,
-        schoolName: schoolApply?.schoolName,
-      });
+      writeDraft(draftPayload());
       setAutoSaved(true);
     }, 1500);
     return () => clearTimeout(handle);
-  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone, schoolApply?.schoolName]);
+    // draftPayload reads the latest field values on each run
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    firstName,
+    lastName,
+    email,
+    phone,
+    ageGroup,
+    city,
+    stateVal,
+    zip,
+    county,
+    primaryBarriers,
+    q1,
+    q2,
+    q3,
+    receivingUnemployment,
+    exhaustedUnemployment,
+    layoffCompany,
+    snapWic,
+    hearAbout,
+    hearAboutOther,
+    partnerAmbassadorReferral,
+    gradeLevel,
+    parentGuardianName,
+    parentGuardianEmail,
+    parentGuardianPhone,
+    schoolApply?.schoolName,
+  ]);
 
   const handleSaveLater = () => {
     persistDraft();
@@ -277,7 +360,7 @@ export default function ApplyEligibilityClient({
     if (!canContinue) {
       setAttemptedContinue(true);
       trackApplyFunnel(1, 'eligibility_continue_blocked', {
-        answered_count: [q1, q2].filter(Boolean).length,
+        answered_count: yesNoAnswers.filter(Boolean).length,
       });
       requestAnimationFrame(() => {
         const invalid = document.querySelector<HTMLElement>(
@@ -303,6 +386,20 @@ export default function ApplyEligibilityClient({
       const eligibilityJson = JSON.stringify({
         q1: isSchool ? null : q1,
         q2: isSchool ? null : q2,
+        q3: isSchool ? null : q3,
+        receivingUnemployment: isSchool ? null : receivingUnemployment,
+        exhaustedUnemployment: isSchool ? null : exhaustedUnemployment,
+        layoffCompany: isSchool ? undefined : (showLayoffCompany ? layoffCompany.trim() || undefined : undefined),
+        snapWic: isSchool ? null : snapWic,
+        hearAbout: isSchool ? undefined : hearAbout.trim() || undefined,
+        hearAboutOther: isSchool
+          ? undefined
+          : hearAboutNeedsOther(hearAbout)
+            ? hearAboutOther.trim() || undefined
+            : undefined,
+        partnerAmbassadorReferral: isSchool
+          ? undefined
+          : partnerAmbassadorReferral.trim() || undefined,
         qualifies: isSchool ? true : qualifies,
         yesCount: isSchool ? 0 : yesCount,
         firstName: firstName.trim(),
@@ -467,58 +564,72 @@ export default function ApplyEligibilityClient({
 
         {!isSchool ? (
         <div className="funding-questions">
-          <fieldset className="form-group apply-eligibility-fieldset">
-            <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[0].legendKey)}</legend>
-            <p className="apply-eligibility-prompt">{t(ELIGIBILITY_KEYS[0].promptKey)}</p>
-            <div
-              className="form-radio-cards"
-              role="radiogroup"
-              aria-invalid={attemptedContinue && q1 === null}
-              aria-describedby={attemptedContinue && q1 === null ? 'apply-eligibility-q1-error' : undefined}
-            >
-              <label className={`form-radio-card ${q1 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} required />
-                <span className="radio-dot" />
-                <span>{t('answerYes')}</span>
-              </label>
-              <label className={`form-radio-card ${q1 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} required />
-                <span className="radio-dot" />
-                <span>{t('answerNo')}</span>
-              </label>
+          {(
+            [
+              { key: 'q1', value: q1, set: setQ1, legendKey: 'eligibilityQ1Legend', promptKey: 'eligibilityQ1Prompt', errorId: 'apply-eligibility-q1-error' },
+              { key: 'receivingUnemployment', value: receivingUnemployment, set: setReceivingUnemployment, legendKey: 'eligibilityReceivingUnemploymentLegend', promptKey: 'eligibilityReceivingUnemploymentPrompt', errorId: 'apply-eligibility-receiving-error' },
+              { key: 'exhaustedUnemployment', value: exhaustedUnemployment, set: setExhaustedUnemployment, legendKey: 'eligibilityExhaustedUnemploymentLegend', promptKey: 'eligibilityExhaustedUnemploymentPrompt', errorId: 'apply-eligibility-exhausted-error' },
+              { key: 'q2', value: q2, set: setQ2, legendKey: 'eligibilityQ2Legend', promptKey: 'eligibilityQ2Prompt', errorId: 'apply-eligibility-q2-error' },
+              { key: 'snapWic', value: snapWic, set: setSnapWic, legendKey: 'eligibilitySnapWicLegend', promptKey: 'eligibilitySnapWicPrompt', errorId: 'apply-eligibility-snap-error' },
+              { key: 'q3', value: q3, set: setQ3, legendKey: 'eligibilityQ3Legend', promptKey: 'eligibilityQ3Prompt', errorId: 'apply-eligibility-q3-error' },
+            ] as const
+          ).map((item) => (
+            <fieldset key={item.key} className="form-group apply-eligibility-fieldset">
+              <legend className="apply-eligibility-legend">{t(item.legendKey)}</legend>
+              <p className="apply-eligibility-prompt">{t(item.promptKey)}</p>
+              <div
+                className="form-radio-cards"
+                role="radiogroup"
+                aria-invalid={attemptedContinue && item.value === null}
+                aria-describedby={attemptedContinue && item.value === null ? item.errorId : undefined}
+              >
+                <label className={`form-radio-card ${item.value === 'yes' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={item.key}
+                    value="yes"
+                    checked={item.value === 'yes'}
+                    onChange={() => item.set('yes')}
+                    required
+                  />
+                  <span className="radio-dot" />
+                  <span>{t('answerYes')}</span>
+                </label>
+                <label className={`form-radio-card ${item.value === 'no' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={item.key}
+                    value="no"
+                    checked={item.value === 'no'}
+                    onChange={() => item.set('no')}
+                    required
+                  />
+                  <span className="radio-dot" />
+                  <span>{t('answerNo')}</span>
+                </label>
+              </div>
+              {attemptedContinue && item.value === null && (
+                <p id={item.errorId} className="apply-eligibility-field-error" role="alert">
+                  {t('eligibilityRadioError')}
+                </p>
+              )}
+            </fieldset>
+          ))}
+          {showLayoffCompany ? (
+            <div className="form-group">
+              <label htmlFor="apply-layoff-company">{t('eligibilityLayoffCompanyLabel')}</label>
+              <input
+                id="apply-layoff-company"
+                type="text"
+                name="layoffCompany"
+                value={layoffCompany}
+                onChange={(e) => setLayoffCompany(e.target.value)}
+                maxLength={200}
+                placeholder={t('eligibilityLayoffCompanyPlaceholder')}
+              />
+              <p className="apply-field-hint">{t('eligibilityLayoffCompanyHint')}</p>
             </div>
-            {attemptedContinue && q1 === null && (
-              <p id="apply-eligibility-q1-error" className="apply-eligibility-field-error" role="alert">
-                {t('eligibilityRadioError')}
-              </p>
-            )}
-          </fieldset>
-          <fieldset className="form-group apply-eligibility-fieldset">
-            <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[1].legendKey)}</legend>
-            <p className="apply-eligibility-prompt">{t(ELIGIBILITY_KEYS[1].promptKey)}</p>
-            <div
-              className="form-radio-cards"
-              role="radiogroup"
-              aria-invalid={attemptedContinue && q2 === null}
-              aria-describedby={attemptedContinue && q2 === null ? 'apply-eligibility-q2-error' : undefined}
-            >
-              <label className={`form-radio-card ${q2 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} required />
-                <span className="radio-dot" />
-                <span>{t('answerYes')}</span>
-              </label>
-              <label className={`form-radio-card ${q2 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} required />
-                <span className="radio-dot" />
-                <span>{t('answerNo')}</span>
-              </label>
-            </div>
-            {attemptedContinue && q2 === null && (
-              <p id="apply-eligibility-q2-error" className="apply-eligibility-field-error" role="alert">
-                {t('eligibilityRadioError')}
-              </p>
-            )}
-          </fieldset>
+          ) : null}
         </div>
         ) : null}
         {!isSchool && canContinue && (
@@ -794,6 +905,54 @@ export default function ApplyEligibilityClient({
                   ))}
                 </div>
               </div>
+            ) : null}
+            {!isSchool ? (
+              <>
+                <div className="form-group apply-form-group--full">
+                  <label htmlFor="apply-hear-about">{t('eligibilityHearAboutLabel')}</label>
+                  <select
+                    id="apply-hear-about"
+                    name="hearAbout"
+                    value={hearAbout}
+                    onChange={(e) => setHearAbout(e.target.value)}
+                    required
+                    aria-invalid={attemptedContinue && !hearAbout.trim()}
+                  >
+                    <option value="">{t('eligibilityHearAboutPlaceholder')}</option>
+                    {APPLY_HEAR_ABOUT_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                {hearAboutNeedsOther(hearAbout) ? (
+                  <div className="form-group apply-form-group--full">
+                    <label htmlFor="apply-hear-about-other">{t('eligibilityHearAboutOtherLabel')}</label>
+                    <input
+                      id="apply-hear-about-other"
+                      type="text"
+                      name="hearAboutOther"
+                      value={hearAboutOther}
+                      onChange={(e) => setHearAboutOther(e.target.value)}
+                      required
+                      maxLength={200}
+                      aria-invalid={attemptedContinue && !hearAboutOther.trim()}
+                    />
+                  </div>
+                ) : null}
+                <div className="form-group apply-form-group--full">
+                  <label htmlFor="apply-partner-ambassador">{t('eligibilityPartnerAmbassadorLabel')}</label>
+                  <input
+                    id="apply-partner-ambassador"
+                    type="text"
+                    name="partnerAmbassadorReferral"
+                    value={partnerAmbassadorReferral}
+                    onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
+                    maxLength={200}
+                    placeholder={t('eligibilityPartnerAmbassadorPlaceholder')}
+                  />
+                  <p className="apply-field-hint">{t('eligibilityPartnerAmbassadorHint')}</p>
+                </div>
+              </>
             ) : null}
           </div>
           {attemptedContinue && !screeningDetailsOk && (

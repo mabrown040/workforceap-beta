@@ -59,6 +59,12 @@ const state = vi.hoisted(() => ({
   }[],
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
+  /** Args passed to `applyEligibilityScreening.upsert`. */
+  screeningUpserts: [] as {
+    where: Record<string, unknown>;
+    create: Record<string, unknown>;
+    update: Record<string, unknown>;
+  }[],
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -104,7 +110,16 @@ vi.mock('@/lib/db/prisma', () => {
         return { id: 'app-test-1' };
       }),
     },
-    applyEligibilityScreening: { upsert: vi.fn(async () => ({})) },
+    applyEligibilityScreening: {
+      upsert: vi.fn(async (args: {
+        where: Record<string, unknown>;
+        create: Record<string, unknown>;
+        update: Record<string, unknown>;
+      }) => {
+        state.screeningUpserts.push(args);
+        return {};
+      }),
+    },
     partnerReferral: {
       // A bare `create` against `@@unique([partnerId, memberId])` throws
       // P2002 the second time a returning applicant re-submits — which the
@@ -263,6 +278,7 @@ function resetState() {
   state.cookieSets.length = 0;
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
+  state.screeningUpserts.length = 0;
   state.partner = null;
   state.sponsoredSeatCount = 0;
   state.cookies = {};
@@ -779,5 +795,56 @@ describe('POST /api/apply/signup partner ref cookie handling', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
     expect(state.partnerReferralUpserts).toHaveLength(0);
+  });
+});
+
+describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
+  beforeEach(resetState);
+
+  it('persists unemployment / SNAP / hear-about / ambassador fields on screening upsert', async () => {
+    const res = await POST(
+      makeRequest({
+        eligibilityQ1: 'yes',
+        eligibilityQ2: 'yes',
+        eligibilityQ3: 'yes',
+        eligibilityYesCount: 3,
+        eligibilityQualifies: true,
+        receivingUnemployment: 'yes',
+        exhaustedUnemployment: 'no',
+        layoffCompany: 'Acme Logistics',
+        snapWic: 'yes',
+        hearAbout: 'Partner or community ambassador',
+        hearAboutOther: null,
+        partnerAmbassadorReferral: 'Ambassador Jane / code-abc',
+        primaryBarriers: ['seeking_skills_training', 'employment_gap'],
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(state.screeningUpserts).toHaveLength(1);
+    expect(state.screeningUpserts[0].create).toMatchObject({
+      q1: 'yes',
+      q2: 'yes',
+      q3: 'yes',
+      receivingUnemployment: 'yes',
+      exhaustedUnemployment: 'no',
+      layoffCompany: 'Acme Logistics',
+      snapWic: 'yes',
+      hearAbout: 'Partner or community ambassador',
+      partnerAmbassadorReferral: 'Ambassador Jane / code-abc',
+      yesCount: 3,
+      qualifies: true,
+    });
+    const notes = state.applicationCreates[0]?.data.notes ?? '';
+    expect(notes).toContain('Receiving unemployment: yes');
+    expect(notes).toContain('SNAP/WIC: yes');
+    expect(notes).toContain('Layoff company: Acme Logistics');
+    expect(notes).toContain('Heard about us: Partner or community ambassador');
+    expect(notes).toContain('Partner/ambassador referral: Ambassador Jane / code-abc');
+  });
+
+  it('rejects invalid receivingUnemployment values with 400', async () => {
+    const res = await POST(makeRequest({ receivingUnemployment: 'sometimes' }));
+    expect(res.status).toBe(400);
+    expect(state.screeningUpserts).toHaveLength(0);
   });
 });

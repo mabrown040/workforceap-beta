@@ -5,16 +5,16 @@ import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
 
 /**
  * Member-owned eligibility questionnaire (§9). Reuses the `app/api/member/profile`
  * pattern: city/state/zip + barrierTypes write to Profile columns (which exist).
  *
- * ageGroup + county have NO dedicated Profile column, so — without migrating —
+ * ageGroup + county + WS4 extended answers have NO dedicated Profile columns, so
  * they are persisted alongside the member's existing WIOA metadata on
- * `User.wioaQualificationJson` (the same JSON column the self-service WIOA
- * screening already owns). We merge into any existing snapshot rather than
- * clobber it, under an `eligibilityForm` key.
+ * `User.wioaQualificationJson` under an `eligibilityForm` key. When q1+q2 are
+ * present we also upsert `ApplyEligibilityScreening` for ops parity with apply.
  */
 const AGE_GROUP_VALUES = ['18_24', '25_50', '50_plus'] as const;
 
@@ -25,6 +25,16 @@ const eligibilitySchema = z.object({
   zip: z.string().trim().max(20).optional().nullable(),
   county: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
+  q1: z.enum(['yes', 'no']).optional().nullable(),
+  q2: z.enum(['yes', 'no']).optional().nullable(),
+  q3: z.enum(['yes', 'no']).optional().nullable(),
+  receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  exhaustedUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  layoffCompany: z.string().trim().max(200).optional().nullable(),
+  snapWic: z.enum(['yes', 'no']).optional().nullable(),
+  hearAbout: z.string().trim().max(200).optional().nullable(),
+  hearAboutOther: z.string().trim().max(200).optional().nullable(),
+  partnerAmbassadorReferral: z.string().trim().max(200).optional().nullable(),
 });
 
 type EligibilityFormMeta = {
@@ -32,6 +42,16 @@ type EligibilityFormMeta = {
   updatedAt: string;
   ageGroup: string | null;
   county: string | null;
+  q1: string | null;
+  q2: string | null;
+  q3: string | null;
+  receivingUnemployment: string | null;
+  exhaustedUnemployment: string | null;
+  layoffCompany: string | null;
+  snapWic: string | null;
+  hearAbout: string | null;
+  hearAboutOther: string | null;
+  partnerAmbassadorReferral: string | null;
 };
 
 async function _GET() {
@@ -46,6 +66,21 @@ async function _GET() {
         email: true,
         wioaQualificationJson: true,
         profile: { select: { city: true, state: true, zip: true, barrierTypes: true } },
+        applyEligibilityScreenings: {
+          take: 1,
+          select: {
+            q1: true,
+            q2: true,
+            q3: true,
+            receivingUnemployment: true,
+            exhaustedUnemployment: true,
+            layoffCompany: true,
+            snapWic: true,
+            hearAbout: true,
+            hearAboutOther: true,
+            partnerAmbassadorReferral: true,
+          },
+        },
       },
     }));
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -55,6 +90,7 @@ async function _GET() {
       snapshot && typeof snapshot.eligibilityForm === 'object' && snapshot.eligibilityForm !== null
         ? (snapshot.eligibilityForm as Partial<EligibilityFormMeta>)
         : null;
+    const screening = dbUser.applyEligibilityScreenings[0] ?? null;
 
     return NextResponse.json({
       fullName: dbUser.fullName,
@@ -65,6 +101,17 @@ async function _GET() {
       state: dbUser.profile?.state ?? null,
       zip: dbUser.profile?.zip ?? null,
       primaryBarriers: dbUser.profile?.barrierTypes ?? [],
+      q1: meta?.q1 ?? screening?.q1 ?? null,
+      q2: meta?.q2 ?? screening?.q2 ?? null,
+      q3: meta?.q3 ?? screening?.q3 ?? null,
+      receivingUnemployment: meta?.receivingUnemployment ?? screening?.receivingUnemployment ?? null,
+      exhaustedUnemployment: meta?.exhaustedUnemployment ?? screening?.exhaustedUnemployment ?? null,
+      layoffCompany: meta?.layoffCompany ?? screening?.layoffCompany ?? null,
+      snapWic: meta?.snapWic ?? screening?.snapWic ?? null,
+      hearAbout: meta?.hearAbout ?? screening?.hearAbout ?? null,
+      hearAboutOther: meta?.hearAboutOther ?? screening?.hearAboutOther ?? null,
+      partnerAmbassadorReferral:
+        meta?.partnerAmbassadorReferral ?? screening?.partnerAmbassadorReferral ?? null,
     });
   } catch (error) {
     console.error('/member/eligibility error:', error);
@@ -93,10 +140,41 @@ async function _PATCH(request: Request) {
       );
     }
 
-    const { ageGroup, city, state, zip, county, primaryBarriers } = parsed.data;
+    const {
+      ageGroup,
+      city,
+      state,
+      zip,
+      county,
+      primaryBarriers,
+      q1,
+      q2,
+      q3,
+      receivingUnemployment,
+      exhaustedUnemployment,
+      layoffCompany,
+      snapWic,
+      hearAbout,
+      hearAboutOther,
+      partnerAmbassadorReferral,
+    } = parsed.data;
     const barrierTypes = (primaryBarriers ?? [])
       .map((b) => b.trim())
       .filter((b) => b && b !== 'none');
+    const extended = {
+      q1: normalizeYesNo(q1),
+      q2: normalizeYesNo(q2),
+      q3: normalizeYesNo(q3),
+      receivingUnemployment: normalizeYesNo(receivingUnemployment),
+      exhaustedUnemployment: normalizeYesNo(exhaustedUnemployment),
+      layoffCompany: layoffCompany?.trim() ? layoffCompany.trim().slice(0, 200) : null,
+      snapWic: normalizeYesNo(snapWic),
+      hearAbout: normalizeHearAbout(hearAbout),
+      hearAboutOther: normalizeHearAbout(hearAboutOther),
+      partnerAmbassadorReferral: partnerAmbassadorReferral?.trim()
+        ? partnerAmbassadorReferral.trim().slice(0, 200)
+        : null,
+    };
 
     await prisma.$transaction(async (tx) => {
       // city/state/zip + barrierTypes → Profile (existing columns), mirrors
@@ -116,11 +194,10 @@ async function _PATCH(request: Request) {
         update: profileData,
       });
 
-      // ageGroup + county → User.wioaQualificationJson (no Profile column; no
-      // migration). Merge into any existing snapshot under `eligibilityForm`.
+      // ageGroup + county + WS4 answers → User.wioaQualificationJson.
       const current = await tx.user.findUnique({
         where: { id: user.id },
-        select: { wioaQualificationJson: true },
+        select: { wioaQualificationJson: true, organizationId: true },
       });
       const existing =
         (current?.wioaQualificationJson as Record<string, unknown> | null) ?? {};
@@ -129,11 +206,36 @@ async function _PATCH(request: Request) {
         updatedAt: new Date().toISOString(),
         ageGroup: ageGroup ?? null,
         county: county?.trim() || null,
+        ...extended,
       };
       await tx.user.update({
         where: { id: user.id },
         data: { wioaQualificationJson: { ...existing, eligibilityForm: meta } as object },
       });
+
+      if (extended.q1 && extended.q2 && current?.organizationId) {
+        const yesCount = [extended.q1, extended.q2, extended.q3].filter((v) => v === 'yes').length;
+        const screening = {
+          organizationId: current.organizationId,
+          q1: extended.q1,
+          q2: extended.q2,
+          q3: extended.q3,
+          qualifies: yesCount >= 1,
+          yesCount,
+          receivingUnemployment: extended.receivingUnemployment,
+          exhaustedUnemployment: extended.exhaustedUnemployment,
+          layoffCompany: extended.layoffCompany,
+          snapWic: extended.snapWic,
+          hearAbout: extended.hearAbout,
+          hearAboutOther: extended.hearAboutOther,
+          partnerAmbassadorReferral: extended.partnerAmbassadorReferral,
+        };
+        await tx.applyEligibilityScreening.upsert({
+          where: { userId: user.id },
+          create: { userId: user.id, ...screening },
+          update: screening,
+        });
+      }
     });
 
     auditLog({ actorUserId: user.id, action: 'member.eligibility.update', targetType: 'EligibilityForm', targetId: user.id }).catch(() => {});

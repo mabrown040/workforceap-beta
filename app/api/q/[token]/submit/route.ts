@@ -9,6 +9,7 @@ import {
 import { checkPublicQuestionnaireSubmitRateLimit } from '@/lib/rate-limit';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
 
 /**
  * POST /api/q/[token]/submit
@@ -38,6 +39,16 @@ const submitSchema = z.object({
   zip: z.string().trim().max(20).optional().nullable(),
   county: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
+  q1: z.enum(['yes', 'no']).optional().nullable(),
+  q2: z.enum(['yes', 'no']).optional().nullable(),
+  q3: z.enum(['yes', 'no']).optional().nullable(),
+  receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  exhaustedUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  layoffCompany: z.string().trim().max(200).optional().nullable(),
+  snapWic: z.enum(['yes', 'no']).optional().nullable(),
+  hearAbout: z.string().trim().max(200).optional().nullable(),
+  hearAboutOther: z.string().trim().max(200).optional().nullable(),
+  partnerAmbassadorReferral: z.string().trim().max(200).optional().nullable(),
 });
 
 type EligibilityFormMeta = {
@@ -45,6 +56,16 @@ type EligibilityFormMeta = {
   updatedAt: string;
   ageGroup: string | null;
   county: string | null;
+  q1: string | null;
+  q2: string | null;
+  q3: string | null;
+  receivingUnemployment: string | null;
+  exhaustedUnemployment: string | null;
+  layoffCompany: string | null;
+  snapWic: string | null;
+  hearAbout: string | null;
+  hearAboutOther: string | null;
+  partnerAmbassadorReferral: string | null;
 };
 
 function getClientIp(request: NextRequest): string {
@@ -97,6 +118,20 @@ export const POST = withApiGuc(
       const barrierTypes = (data.primaryBarriers ?? [])
         .map((b) => b.trim())
         .filter((b) => b && b !== 'none');
+      const extendedMeta = {
+        q1: normalizeYesNo(data.q1),
+        q2: normalizeYesNo(data.q2),
+        q3: normalizeYesNo(data.q3),
+        receivingUnemployment: normalizeYesNo(data.receivingUnemployment),
+        exhaustedUnemployment: normalizeYesNo(data.exhaustedUnemployment),
+        layoffCompany: data.layoffCompany?.trim() ? data.layoffCompany.trim().slice(0, 200) : null,
+        snapWic: normalizeYesNo(data.snapWic),
+        hearAbout: normalizeHearAbout(data.hearAbout),
+        hearAboutOther: normalizeHearAbout(data.hearAboutOther),
+        partnerAmbassadorReferral: data.partnerAmbassadorReferral?.trim()
+          ? data.partnerAmbassadorReferral.trim().slice(0, 200)
+          : null,
+      };
 
       // Atomic single-use consume BEFORE the write, so concurrent submits
       // can never both persist. If this call did not flip consumedAt, the
@@ -126,7 +161,7 @@ export const POST = withApiGuc(
 
           const current = await tx.user.findUnique({
             where: { id: subjectId },
-            select: { wioaQualificationJson: true },
+            select: { wioaQualificationJson: true, organizationId: true },
           });
           const existing =
             (current?.wioaQualificationJson as Record<string, unknown> | null) ?? {};
@@ -135,11 +170,38 @@ export const POST = withApiGuc(
             updatedAt: new Date().toISOString(),
             ageGroup: data.ageGroup ?? null,
             county: data.county?.trim() || null,
+            ...extendedMeta,
           };
           await tx.user.update({
             where: { id: subjectId },
             data: { wioaQualificationJson: { ...existing, eligibilityForm: meta } as object },
           });
+
+          if (extendedMeta.q1 && extendedMeta.q2 && current?.organizationId) {
+            const yesCount = [extendedMeta.q1, extendedMeta.q2, extendedMeta.q3].filter(
+              (v) => v === 'yes',
+            ).length;
+            const screening = {
+              organizationId: current.organizationId,
+              q1: extendedMeta.q1,
+              q2: extendedMeta.q2,
+              q3: extendedMeta.q3,
+              qualifies: yesCount >= 1,
+              yesCount,
+              receivingUnemployment: extendedMeta.receivingUnemployment,
+              exhaustedUnemployment: extendedMeta.exhaustedUnemployment,
+              layoffCompany: extendedMeta.layoffCompany,
+              snapWic: extendedMeta.snapWic,
+              hearAbout: extendedMeta.hearAbout,
+              hearAboutOther: extendedMeta.hearAboutOther,
+              partnerAmbassadorReferral: extendedMeta.partnerAmbassadorReferral,
+            };
+            await tx.applyEligibilityScreening.upsert({
+              where: { userId: subjectId },
+              create: { userId: subjectId, ...screening },
+              update: screening,
+            });
+          }
         });
         auditLog({
           actorUserId: link.subjectUserId,
@@ -180,6 +242,7 @@ export const POST = withApiGuc(
             zip: data.zip?.trim() || null,
             county: data.county?.trim() || null,
             primaryBarriers: barrierTypes,
+            ...extendedMeta,
           },
         });
       }

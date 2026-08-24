@@ -419,6 +419,13 @@ export default function ApplyCreateAccountForm() {
         q1?: 'yes' | 'no';
         q2?: 'yes' | 'no';
         q3?: 'yes' | 'no';
+        receivingUnemployment?: 'yes' | 'no';
+        exhaustedUnemployment?: 'yes' | 'no';
+        layoffCompany?: string;
+        snapWic?: 'yes' | 'no';
+        hearAbout?: string;
+        hearAboutOther?: string;
+        partnerAmbassadorReferral?: string;
         qualifies?: boolean;
         yesCount?: number;
         gradeLevel?: string;
@@ -478,6 +485,15 @@ export default function ApplyCreateAccountForm() {
           eligibilityQ1: schoolSignup ? undefined : eligibilityPayload?.q1,
           eligibilityQ2: schoolSignup ? undefined : eligibilityPayload?.q2,
           eligibilityQ3: schoolSignup ? undefined : eligibilityPayload?.q3,
+          receivingUnemployment: schoolSignup ? undefined : eligibilityPayload?.receivingUnemployment,
+          exhaustedUnemployment: schoolSignup ? undefined : eligibilityPayload?.exhaustedUnemployment,
+          layoffCompany: schoolSignup ? undefined : eligibilityPayload?.layoffCompany,
+          snapWic: schoolSignup ? undefined : eligibilityPayload?.snapWic,
+          hearAbout: schoolSignup ? undefined : eligibilityPayload?.hearAbout,
+          hearAboutOther: schoolSignup ? undefined : eligibilityPayload?.hearAboutOther,
+          partnerAmbassadorReferral: schoolSignup
+            ? undefined
+            : eligibilityPayload?.partnerAmbassadorReferral,
           eligibilityQualifies: schoolSignup ? true : eligibilityPayload?.qualifies,
           eligibilityYesCount: schoolSignup ? 0 : eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,

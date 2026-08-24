@@ -73,9 +73,9 @@
 ### Staff MFA Enforcement
 | Variable | Production Value | Local Dev Value | Description |
 |----------|------------------|-----------------|-------------|
-| `STAFF_MFA_ENFORCEMENT` | `0` (default) | `0` | Set to `1` to require MFA for admin/counselor login |
+| `STAFF_MFA_ENFORCEMENT` | unset or `1` (on by default) | `0` or unset | Production (`VERCEL_ENV=production`) fails closed: MFA is required unless this is explicitly `0`/`false`/`off`. Non-production stays opt-in (`1` to enable). |
 
-**Note:** Staff MFA is disabled by default for launch. Enable after staff onboarding is complete.
+**Note:** Do not ship production with `STAFF_MFA_ENFORCEMENT=0`. Enroll staff MFA before go-live.
 
 ### Optional: Analytics/Monitoring
 | Variable | Production Value | Local Dev Value | Source |
@@ -119,7 +119,7 @@
 - [x] Auth flows (login, signup, invite) tested
 - [x] Password reset working (public + admin-triggered)
 - [x] Rate limits bumped to 50/30min for workforce centers
-- [x] Staff MFA disabled by default
+- [x] Staff MFA fail-closed in Vercel production (`STAFF_MFA_ENFORCEMENT` unset/`1`; explicit `0` to disable)
 - [x] Voice coach first-message config fixed
 - [x] Voice coach transcripts auto-save
 - [x] No member-facing "Coming soon" stubs

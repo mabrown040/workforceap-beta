@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
 
 import { getUser } from '@/lib/auth/server';
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
@@ -54,7 +55,9 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   const { id } = await params;
   const user = await getUser();
   if (!user) redirect(`/login?redirectTo=/admin/partners/${id}`);
-  const orgId = await getActorOrganizationId(user.id);
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
+  const orgId = scope.orgId;
   const [partner, subgroups, allPartners] = await withTenantScope(orgId, (db) => Promise.all([
     db.partner.findUnique({
       where: { id },
@@ -115,14 +118,14 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   const placedMembers = members.filter((m) => m.placementRecord);
   const placementIds = placedMembers.map((m) => m.placementRecord!.id);
   const paidEvents = placementIds.length
-    ? await prisma.memberEvent.findMany({
+    ? await withAdminPageScope(scope, (db) => db.memberEvent.findMany({
         where: {
           eventName: 'PARTNER_PAYOUT_SENT',
           entityType: 'PlacementRecord',
           entityId: { in: placementIds },
         },
         select: { entityId: true },
-      })
+      }))
     : [];
   const paidPlacementIds = new Set(paidEvents.map((e) => e.entityId));
   const payoutRows: PayoutRow[] = placedMembers.map((m) => {

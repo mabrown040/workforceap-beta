@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { FUNNEL_DEFINITIONS } from '@/lib/events/catalog';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
@@ -173,7 +173,8 @@ export default async function AdminDiagnosticsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/diagnostics');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   await recordWorkflowDiagnostic({
     workflow: 'admin_diagnostics',
@@ -195,7 +196,7 @@ export default async function AdminDiagnosticsPage({
       prisma.workflowDiagnostic.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
       prisma.workflowDiagnostic.findMany({ where: { workflow: { startsWith: 'employer_import' } }, orderBy: { createdAt: 'desc' }, take: 10 }),
       prisma.workflowDiagnostic.findMany({ where: { workflow: { in: ['admin_job_matches', 'admin_match_suggestions'] } }, orderBy: { createdAt: 'desc' }, take: 10 }),
-      prisma.user.findMany({
+      withAdminPageScope(scope, (db) => db.user.findMany({
         where: { enrolledProgram: { not: null }, deletedAt: null },
         select: {
           id: true,
@@ -208,7 +209,7 @@ export default async function AdminDiagnosticsPage({
           },
         },
         take: 500,
-      }),
+      })),
     ]);
 
     const driftRecords = enrolledUsersForDrift.filter((u) => {

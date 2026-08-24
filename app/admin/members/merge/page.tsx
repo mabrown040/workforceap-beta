@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import MemberMergeClient from '@/components/admin/MemberMergeClient';
@@ -16,7 +16,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function AdminMemberMergePage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members/merge');
-  try { await requireAdmin(user.id); } catch { redirect('/dashboard'); }
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   return (
     <PortalPageFrame>

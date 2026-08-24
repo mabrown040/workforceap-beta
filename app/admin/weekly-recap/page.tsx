@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getWeeklyRecapCohortStats, getWeeklyScoreboardStats } from '@/lib/admin/cohortAnalytics';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -53,10 +53,11 @@ export default async function AdminWeeklyRecapAnalyticsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/weekly-recap');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const superAdmin = await isSuperAdmin(user.id);
-  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+  const superAdmin = scope.superAdmin;
+  const orgId = superAdmin ? null : scope.orgId;
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;

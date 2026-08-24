@@ -3,10 +3,13 @@ import 'server-only';
 import { CourseProgressStatus } from '@prisma/client';
 
 import { getProgramBySlug } from '@/lib/content/programs';
-import { prisma } from '@/lib/db/prisma';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
-import { trainingDashboardMemberWhere } from '@/lib/admin/overviewOrgFilter';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { deriveCareerPlanSignal, type CareerPlanSignal } from '@/lib/admin/careerPlanSignal';
+import {
+  withAdminPageScope,
+  type AdminPageTenantOk,
+} from '@/lib/tenant/adminPageScope';
 
 export type TrainingDashboardMetrics = {
   enrolledMembers: number;
@@ -57,10 +60,15 @@ function isStale(lastTrainingActivityAt: Date | null, enrolledAt: Date | null, s
 }
 
 export async function loadTrainingDashboardData(
-  organizationId: string,
+  scope: AdminPageTenantOk,
 ): Promise<TrainingDashboardData> {
-  const members = await prisma.user.findMany({
-    where: trainingDashboardMemberWhere(organizationId),
+  const members = await withAdminPageScope(scope, (db) =>
+    db.user.findMany({
+    where: {
+      deletedAt: null,
+      ...MEMBER_ONLY_WHERE,
+      enrolledProgram: { not: null },
+    },
     orderBy: { enrolledAt: 'desc' },
     take: 3000,
     select: {
@@ -125,7 +133,7 @@ export async function loadTrainingDashboardData(
         select: { counselor: { select: { user: { select: { fullName: true } } } } },
       },
     },
-  });
+  }));
 
   const rows: TrainingDashboardRow[] = [];
 

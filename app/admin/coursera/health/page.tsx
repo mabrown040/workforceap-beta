@@ -7,7 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
 import { prisma } from '@/lib/db/prisma';
 import IgnoredXapiSummaryCard from '@/components/admin/IgnoredXapiSummaryCard';
@@ -629,7 +629,8 @@ function summarizeMetadataCounts(metadata: Record<string, unknown> | null): stri
 export default async function AdminCourseraHealthPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera/health');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const now = new Date();
 

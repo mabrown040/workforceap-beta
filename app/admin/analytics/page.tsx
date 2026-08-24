@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_SAMPLE_CAP } from '@/lib/db/queryCaps';
@@ -216,12 +216,10 @@ export default async function AnalyticsPage({
     redirect('/login?redirect=/admin/analytics');
   }
 
-  const admin = await isAdmin(user.id);
-  if (!admin) {
-    redirect('/dashboard');
-  }
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = scope.superAdmin ? undefined : scope.orgId;
   const sp = await searchParams;
   const requestedUi = typeof sp.ui === 'string' ? sp.ui : null;
 

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import BlogPostActions from '@/components/admin/BlogPostActions';
@@ -46,7 +46,8 @@ export default async function AdminBlogPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/blog');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { ui } = await searchParams;
 

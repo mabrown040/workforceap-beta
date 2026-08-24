@@ -505,7 +505,8 @@ assertContains(
   'onboarding reset has auth',
 );
 
-// --- Admin SSR list/detail pages that used global isAdmin() + unscoped findMany ---
+// --- Admin SSR residual pages: isAdminInOrg gate + scoped lists (sprint finish) ---
+// Super-admin stays intentionally cross-tenant (see lib/tenant/adminPageScope.ts).
 
 assertContains(
   'lib/tenant/adminPageScope.ts',
@@ -514,87 +515,117 @@ assertContains(
 );
 
 assertContains(
-  'app/admin/users/page.tsx',
+  'app/admin/layout.tsx',
+  ['resolveAdminPageTenant'],
+  'admin layout uses isAdminInOrg via resolveAdminPageTenant (not global isAdmin)',
+);
+
+assertContains(
+  'app/admin/page.tsx',
+  ['resolveAdminPageTenant', 'getTriageDigest(scope)'],
+  'admin home passes tenant scope into triage digest',
+);
+
+assertContains(
+  'lib/admin/trainingDashboard.ts',
+  ['withAdminPageScope', 'AdminPageTenantOk'],
+  'loadTrainingDashboardData is org-scoped (super-admin unscoped)',
+);
+
+assertContains(
+  'lib/admin/triageDigest.ts',
+  ['withAdminPageScope', 'inheritUserOrg', 'inheritMemberOrg'],
+  'getTriageDigest is org-scoped (super-admin unscoped)',
+);
+
+assertContains(
+  'app/admin/members/page.tsx',
   ['resolveAdminPageTenant', 'withAdminPageScope'],
-  'admin users SSR list is org-scoped',
+  'admin members roster is org-scoped',
 );
 
 assertContains(
-  'app/admin/users/deleted/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope'],
-  'admin deleted-users SSR list is org-scoped',
-);
-
-assertContains(
-  'app/admin/students/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg'],
-  'admin students SSR roster is org-scoped',
-);
-
-assertContains(
-  'app/admin/jobs/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope'],
-  'admin jobs SSR board is org-scoped',
-);
-
-assertContains(
-  'app/admin/jobs/[id]/page.tsx',
+  'app/admin/members/[id]/page.tsx',
   ['resolveAdminPageTenant', 'withAdminPageScope', 'findFirst'],
-  'admin job detail is org-scoped (findFirst + injected organizationId)',
+  'admin member detail is org-scoped (findFirst + injected organizationId)',
 );
 
 assertContains(
-  'app/admin/employers/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritJobOrg'],
-  'admin employers SSR directory is org-scoped',
+  'app/admin/members/new/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritLeaderOrg'],
+  'admin add-member partner/subgroup lists are org-scoped',
 );
 
 assertContains(
-  'app/admin/employers/[id]/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope', 'findFirst'],
-  'admin employer detail is org-scoped',
+  'app/admin/members/training/page.tsx',
+  ['resolveAdminPageTenant', 'loadTrainingDashboardData(scope)'],
+  'admin training dashboard passes tenant scope',
 );
 
 assertContains(
-  'app/admin/wioa-screening/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope'],
-  'admin WIOA screening queue is org-scoped',
-);
-
-assertContains(
-  'app/admin/counselors/page.tsx',
-  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg', 'inheritMemberOrg'],
-  'admin counselors roster is org-scoped',
-);
-
-assertContains(
-  'app/admin/overview/page.tsx',
+  'app/admin/placements/page.tsx',
   ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg'],
-  'admin overview member/placement lists are org-scoped',
+  'admin placements list inherits tenant via user',
 );
 
 assertContains(
-  'app/admin/sessions/page.tsx',
-  ['resolveAdminPageTenant', 'inheritUserOrg', 'organizationId'],
-  'admin sessions history is org-scoped',
+  'app/admin/placements/retention/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'inheritUserOrg'],
+  'admin retention queue inherits tenant via user',
 );
 
 assertContains(
-  'app/admin/members/job-ready/page.tsx',
+  'app/admin/partners/page.tsx',
   ['resolveAdminPageTenant', 'withAdminPageScope'],
-  'admin job-ready member list is org-scoped',
+  'admin partners directory is org-scoped',
 );
 
 assertContains(
-  'app/admin/members/interview-ready/page.tsx',
+  'app/admin/programs/page.tsx',
   ['resolveAdminPageTenant', 'withAdminPageScope'],
-  'admin interview-ready member list is org-scoped',
+  'admin programs enrollment stats are org-scoped',
 );
 
 assertContains(
-  'app/admin/invites/page.tsx',
-  ['resolveAdminPageTenant', 'invitedBy = { organizationId: scope.orgId }'],
-  'admin invites list uses isAdminInOrg gate + inviter org (super-admin unscoped)',
+  'app/admin/assessments/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin assessments completions are org-scoped',
 );
 
-console.log('[verify-high-risk-tenant-routes] OK — 65 routes verified');
+assertContains(
+  'app/admin/subgroups/page.tsx',
+  ['resolveAdminPageTenant', 'inheritLeaderOrg'],
+  'admin subgroups directory inherits tenant via leader',
+);
+
+assertContains(
+  'app/admin/settings/page.tsx',
+  ['resolveAdminPageTenant'],
+  'admin settings requires isAdminInOrg even though queries are org-config',
+);
+
+assertContains(
+  'app/admin/feature-flags/page.tsx',
+  ['resolveAdminPageTenant'],
+  'admin feature-flags requires isAdminInOrg',
+);
+
+assertContains(
+  'app/admin/crons/page.tsx',
+  ['resolveAdminPageTenant'],
+  'admin crons requires isAdminInOrg',
+);
+
+assertContains(
+  'app/admin/diagnostics/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope'],
+  'admin diagnostics requires isAdminInOrg and scopes member drift list',
+);
+
+assertContains(
+  'app/admin/sessions/[memberId]/run/page.tsx',
+  ['resolveAdminPageTenant', 'withAdminPageScope', 'findFirst'],
+  'admin session run member lookup is org-scoped',
+);
+
+console.log('[verify-high-risk-tenant-routes] OK — 68 routes verified');

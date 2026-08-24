@@ -22,12 +22,9 @@ import {
 } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import {
-  inheritUserOrg,
-  resolveAdminPageTenant,
-  withAdminPageScope,
-} from '@/lib/tenant/adminPageScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
@@ -148,50 +145,48 @@ export default async function AdminOverviewPage() {
       recentPlacementsResult,
       pendingApplicationsResult,
       pendingPlacementsResult,
-    ] = await withAdminPageScope(scope, (db) =>
-      Promise.allSettled([
-        db.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
-        db.user.count({
-          where: { assessmentCompleted: true, deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-        }),
-        db.user.findMany({
-          where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            enrolledProgram: true,
-            enrolledAt: true,
-            assessmentScorePct: true,
-            assessmentCompleted: true,
-            createdAt: true,
+    ] = await withAdminPageScope(scope, (db) => Promise.allSettled([
+      db.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
+      db.user.count({
+        where: { assessmentCompleted: true, deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+      }),
+      db.user.findMany({
+        where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          enrolledProgram: true,
+          enrolledAt: true,
+          assessmentScorePct: true,
+          assessmentCompleted: true,
+          createdAt: true,
+        },
+      }),
+      db.placementRecord.findMany({
+        where: { ...userOrg },
+        orderBy: { placedAt: 'desc' },
+        take: 10,
+        select: placementRecordBaseSelect,
+      }),
+      db.application.count({ where: { status: 'PENDING', ...userOrg } }),
+      db.placementRecord.findMany({
+        where: { startDateVerified: false, ...userOrg },
+        orderBy: { placedAt: 'asc' },
+        take: 10,
+        select: {
+          id: true,
+          employerName: true,
+          jobTitle: true,
+          placedAt: true,
+          user: {
+            select: { id: true, fullName: true, email: true, enrolledProgram: true },
           },
-        }),
-        db.placementRecord.findMany({
-          where: { ...userOrg },
-          orderBy: { placedAt: 'desc' },
-          take: 10,
-          select: placementRecordBaseSelect,
-        }),
-        db.application.count({ where: { status: 'PENDING', ...userOrg } }),
-        db.placementRecord.findMany({
-          where: { startDateVerified: false, ...userOrg },
-          orderBy: { placedAt: 'asc' },
-          take: 10,
-          select: {
-            id: true,
-            employerName: true,
-            jobTitle: true,
-            placedAt: true,
-            user: {
-              select: { id: true, fullName: true, email: true, enrolledProgram: true },
-            },
-          },
-        }),
-      ]),
-    );
+        },
+      }),
+    ]));
 
     if (totalMembersResult.status === 'rejected') {
       logPrismaReason('totalMembers', totalMembersResult.reason);
@@ -231,7 +226,7 @@ export default async function AdminOverviewPage() {
       pendingPlacements = pendingPlacementsResult.value;
     }
 
-    const [trainingDashboardResult] = await Promise.allSettled([loadTrainingDashboardData()]);
+    const [trainingDashboardResult] = await Promise.allSettled([loadTrainingDashboardData(scope)]);
 
     if (trainingDashboardResult.status === 'rejected') {
       logPrismaReason('trainingDashboardMetrics', trainingDashboardResult.reason);
@@ -291,7 +286,7 @@ export default async function AdminOverviewPage() {
         createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       },
     }).catch(() => 0),
-    getTriageDigest().catch((reason): TriageDigest => {
+    getTriageDigest(scope).catch((reason): TriageDigest => {
       logPrismaReason('triageDigest', reason);
       return { buckets: [], allClear: true };
     }),

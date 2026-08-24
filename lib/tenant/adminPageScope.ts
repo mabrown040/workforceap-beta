@@ -7,7 +7,9 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import type { AdminPageTenantOk } from './adminPageScopeFilters';
 
 export {
+  inheritInvitedByOrg,
   inheritJobOrg,
+  inheritLeaderOrg,
   inheritMemberOrg,
   inheritUserOrg,
 } from './adminPageScopeFilters';

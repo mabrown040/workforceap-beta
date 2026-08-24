@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getTranslations } from 'next-intl/server';
 import { PROGRAMS } from '@/lib/content/programs';
@@ -35,7 +35,8 @@ export default async function AdminCareerMappingsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/career-mappings');
-  await requireAdmin(user.id);
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;

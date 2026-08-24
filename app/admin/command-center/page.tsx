@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { Bell, TriangleAlert, UserPlus, Briefcase, Award } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
@@ -36,8 +36,8 @@ export default async function AdminCommandCenterPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/command-center');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;

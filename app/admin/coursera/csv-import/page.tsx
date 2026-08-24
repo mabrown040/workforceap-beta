@@ -6,7 +6,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraCsvImportClient from '@/components/admin/CourseraCsvImportClient';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Coursera CSV import',
@@ -19,7 +19,8 @@ export const dynamic = 'force-dynamic';
 export default async function AdminCourseraCsvImportPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera/csv-import');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   return (
     <PortalPageFrame>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
@@ -57,7 +57,8 @@ function fmtRate(numerator: number, denominator: number): string {
 export async function GET(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const periodParam = req.nextUrl.searchParams.get('period');
   const period: BoardOutcomesPeriod =

@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { FileDown } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   getBoardOutcomes,
@@ -36,7 +37,8 @@ export default async function BoardOutcomesPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/board');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const sp = await searchParams;
   const period: BoardOutcomesPeriod = (VALID_PERIODS as string[]).includes(sp.period ?? '')

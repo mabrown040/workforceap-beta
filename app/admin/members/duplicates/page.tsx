@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -82,7 +83,8 @@ export default async function AdminMemberDuplicatesPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members/duplicates');
-  try { await requireAdmin(user.id); } catch { redirect('/dashboard'); }
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { ui } = await searchParams;
 

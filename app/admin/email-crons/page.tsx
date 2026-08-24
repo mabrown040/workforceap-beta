@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { CRON_REGISTRY, CRON_CATEGORY_COLOR } from '@/lib/admin/cronRegistry';
 import PageHeader from '@/components/portal/PageHeader';
@@ -43,7 +43,8 @@ export default async function AdminEmailCronsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/email-crons');
-  try { await requireAdmin(user.id); } catch { redirect('/dashboard'); }
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { ui } = await searchParams;
 

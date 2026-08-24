@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -37,8 +37,9 @@ function shortDate(d: Date): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-async function loadSurveyStats() {
+async function loadSurveyStats(scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk) {
   try {
+    const userOrg = inheritUserOrg(scope);
     const [
       surveys,
       total,
@@ -48,8 +49,9 @@ async function loadSurveyStats() {
       testimonialCount,
       avgJobSatisfactionAgg,
       avgTrainingRelevanceAgg,
-    ] = await Promise.all([
-      prisma.placementSurvey.findMany({
+    ] = await withAdminPageScope(scope, (db) => Promise.all([
+      db.placementSurvey.findMany({
+        where: { ...userOrg },
         orderBy: { sentAt: 'desc' },
         take: 100,
         select: {
@@ -67,24 +69,24 @@ async function loadSurveyStats() {
           },
         },
       }),
-      prisma.placementSurvey.count(),
-      prisma.placementSurvey.count({ where: { completedAt: { not: null } } }),
-      prisma.placementSurvey.count({ where: { completedAt: null } }),
-      prisma.placementSurvey.count({
-        where: { completedAt: { not: null }, stillEmployed: true },
+      db.placementSurvey.count({ where: { ...userOrg } }),
+      db.placementSurvey.count({ where: { completedAt: { not: null }, ...userOrg } }),
+      db.placementSurvey.count({ where: { completedAt: null, ...userOrg } }),
+      db.placementSurvey.count({
+        where: { completedAt: { not: null }, stillEmployed: true, ...userOrg },
       }),
-      prisma.placementSurvey.count({
-        where: { completedAt: { not: null }, allowTestimonial: true },
+      db.placementSurvey.count({
+        where: { completedAt: { not: null }, allowTestimonial: true, ...userOrg },
       }),
-      prisma.placementSurvey.aggregate({
-        where: { completedAt: { not: null } },
+      db.placementSurvey.aggregate({
+        where: { completedAt: { not: null }, ...userOrg },
         _avg: { jobSatisfaction: true },
       }),
-      prisma.placementSurvey.aggregate({
-        where: { completedAt: { not: null } },
+      db.placementSurvey.aggregate({
+        where: { completedAt: { not: null }, ...userOrg },
         _avg: { trainingRelevance: true },
       }),
-    ]);
+    ]));
 
     return {
       total,
@@ -113,14 +115,14 @@ export default async function PlacementSurveysPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) {
-    redirect('/login');
-  }
+  if (!user) redirect('/login');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
-  const data = await loadSurveyStats();
+  const data = await loadSurveyStats(scope);
   const stats = data?.stats;
   const surveys = data?.surveys ?? [];
 

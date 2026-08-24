@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { getUser } from '@/lib/auth/server';
+import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
-import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
-
 import SubgroupForm from '@/components/admin/SubgroupForm';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
@@ -16,19 +17,23 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NewSubgroupPage() {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/subgroups/new');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
   const [users, partners] = await Promise.all([
-    prisma.user.findMany({
-      take: LOOKUP_LIST_CAP,
+    withAdminPageScope(scope, (db) => db.user.findMany({
+      take: 5000,
       where: { deletedAt: null },
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: 'asc' },
-    }),
-    prisma.partner.findMany({
-      take: LOOKUP_LIST_CAP,
+    })),
+    withAdminPageScope(scope, (db) => db.partner.findMany({
+      take: 5000,
       where: { active: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
-    }),
+    })),
   ]);
 
   return (

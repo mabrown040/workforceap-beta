@@ -28,3 +28,17 @@ export function inheritJobOrg(
 ): { job?: { organizationId: string } } {
   return scope.superAdmin ? {} : { job: { organizationId: scope.orgId } };
 }
+
+/** Spread onto where clauses that inherit tenant via `leader` (Subgroup). */
+export function inheritLeaderOrg(
+  scope: AdminPageTenantOk,
+): { leader?: { organizationId: string } } {
+  return scope.superAdmin ? {} : { leader: { organizationId: scope.orgId } };
+}
+
+/** Spread onto where clauses that inherit tenant via `invitedBy` (Invitation). */
+export function inheritInvitedByOrg(
+  scope: AdminPageTenantOk,
+): { invitedBy?: { organizationId: string } } {
+  return scope.superAdmin ? {} : { invitedBy: { organizationId: scope.orgId } };
+}

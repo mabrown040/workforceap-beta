@@ -90,7 +90,7 @@ These endpoints historically aggregated or listed rows without an org filter; th
 | `GET /api/counselor/inactive-members` | Actor org | Raw SQL adds `users.organization_id = $orgId` |
 | `GET /api/employer/jobs` | Employer row | `withTenantScope(employer.organizationId)` on `job.findMany` |
 | Partner referrals (`loadPartnerReferralBundle`, `/api/partner/referral-members`, …) | Partner row | `partner.organizationId` + `member.organizationId` on referral queries; `ctx.partner.organizationId` threaded from `getPartnerForUser` |
-| Admin SSR lists (`/admin/users`, `/admin/students`, `/admin/jobs`, `/admin/employers`, `/admin/wioa-screening`, `/admin/counselors`, `/admin/sessions`, `/admin/overview`, job-ready / interview-ready) | `resolveAdminPageTenant` → actor org | `isAdminInOrg` + `withAdminPageScope`. **Super-admin stays cross-tenant** (support / ops), matching `isAdminInOrg` bypass. Org admins use `withTenantScope` plus FK helpers (`inheritUserOrg` / `inheritMemberOrg` / `inheritJobOrg`) for models without `organizationId`. |
+| Admin SSR residual pages (`/admin` home, members list/detail/new/training, placements, partners, programs, assessments, subgroups, Coursera roster, sessions run, weekly-recap, …) plus `loadTrainingDashboardData` / `getTriageDigest` | `resolveAdminPageTenant` → actor org | `isAdminInOrg` + `withAdminPageScope`. **Super-admin stays cross-tenant** (support / ops). Org admins use `withTenantScope` plus FK helpers (`inheritUserOrg` / `inheritMemberOrg` / `inheritLeaderOrg` / `inheritInvitedByOrg`) for models without `organizationId`. Settings / feature-flags / crons / diagnostics still require `isAdminInOrg` even when the payload is org-config or ops. |
 
 **Adding a new high-risk read:** thread `organizationId` from the authenticated actor or from the portal parent row (never from client input alone), use `withTenantScope` for tenant-scoped models, and for FK-scoped models use `where: { user: { organizationId: orgId } }` (or the appropriate parent relation). Register the route in `scripts/verify-high-risk-tenant-routes.cjs` if it bulk-loads PII or aggregates cross-member metrics.
 
@@ -207,7 +207,7 @@ What this PR **does not** do:
 
 | Date | Change |
 |---|---|
-| 2026-08-23 | Admin SSR list/detail pages: `resolveAdminPageTenant` + `withAdminPageScope`. Super-admin remains cross-tenant. |
+| 2026-08-24 | Residual admin SSR pages + overview helpers (`loadTrainingDashboardData`, `getTriageDigest`): `resolveAdminPageTenant` + `withAdminPageScope`. Super-admin remains cross-tenant. |
 | 2026-05-08 | Initial doc; Sprint A.1 in flight |
 
 ---

@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdminInOrg } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PlacementsTableClient from '@/components/admin/PlacementsTableClient';
@@ -62,14 +61,16 @@ export default async function AdminPlacementsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/placements');
-  const orgId = await getActorOrganizationId(user.id).catch(() => null);
-  if (!orgId || !(await isAdminInOrg(user.id, orgId))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
-  const placements: PlacementRecord[] = await withTenantScope(orgId, (db) =>
+  const userOrg = inheritUserOrg(scope);
+  const placements: PlacementRecord[] = await withAdminPageScope(scope, (db) =>
     db.placementRecord.findMany({
+      where: { ...userOrg },
       orderBy: { placedAt: 'desc' },
       take: 500,
       select: placementListSelect,
@@ -106,13 +107,10 @@ export default async function AdminPlacementsPage({
   // Lean groupBy over completed surveys only; degrades to "Pending" on failure.
   const completedSurveyIds = new Set<string>();
   try {
-    const completed = await withTenantScope(orgId, (db) =>
+    const completed = await withAdminPageScope(scope, (db) =>
       db.placementSurvey.groupBy({
         by: ['placementId'],
-        where: {
-          completedAt: { not: null },
-          placement: { user: { organizationId: orgId } },
-        },
+        where: { completedAt: { not: null }, ...userOrg },
         _count: { _all: true },
       }),
     );
@@ -124,9 +122,9 @@ export default async function AdminPlacementsPage({
   // Avg wage across placements that recorded a salary (lean aggregate).
   let avgWage = '—';
   try {
-    const agg = await withTenantScope(orgId, (db) =>
+    const agg = await withAdminPageScope(scope, (db) =>
       db.placementRecord.aggregate({
-        where: { salaryOffered: { gt: 0 } },
+        where: { salaryOffered: { gt: 0 }, ...userOrg },
         _avg: { salaryOffered: true },
       }),
     );
@@ -141,8 +139,8 @@ export default async function AdminPlacementsPage({
   const yearStart = new Date(new Date().getFullYear(), 0, 1);
   let ytd = 0;
   try {
-    ytd = await withTenantScope(orgId, (db) =>
-      db.placementRecord.count({ where: { placedAt: { gte: yearStart } } }),
+    ytd = await withAdminPageScope(scope, (db) =>
+      db.placementRecord.count({ where: { placedAt: { gte: yearStart }, ...userOrg } }),
     );
   } catch (err) {
     console.error('[admin/placements] ytd count failed', err);

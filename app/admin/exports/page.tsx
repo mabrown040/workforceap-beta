@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { PROGRAMS } from '@/lib/content/programs';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -30,7 +30,8 @@ export default async function AdminExportsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { ui: requestedUi } = await searchParams;
 

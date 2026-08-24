@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { getUser } from '@/lib/auth/server';
+import { resolveAdminPageTenant, withAdminPageScope, inheritLeaderOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
-import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
-
 import SubgroupForm from '@/components/admin/SubgroupForm';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
@@ -20,24 +20,28 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function EditSubgroupPage({ params }: Props) {
   const { id } = await params;
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/subgroups');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const [subgroup, users, partners] = await Promise.all([
-    prisma.subgroup.findUnique({
-      where: { id },
+    withAdminPageScope(scope, (db) => db.subgroup.findFirst({
+      where: { id, ...inheritLeaderOrg(scope) },
       select: { id: true, name: true, type: true, leaderId: true, partnerId: true, description: true },
-    }),
-    prisma.user.findMany({
-      take: LOOKUP_LIST_CAP,
+    })),
+    withAdminPageScope(scope, (db) => db.user.findMany({
+      take: 5000,
       where: { deletedAt: null },
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: 'asc' },
-    }),
-    prisma.partner.findMany({
-      take: LOOKUP_LIST_CAP,
+    })),
+    withAdminPageScope(scope, (db) => db.partner.findMany({
+      take: 5000,
       where: { active: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
-    }),
+    })),
   ]);
 
   if (!subgroup) notFound();

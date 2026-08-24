@@ -5,7 +5,7 @@ import { CheckCircle } from 'lucide-react';
 
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -65,16 +65,16 @@ export default async function AdminMemberStakeholderPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const { id } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
   // Mirror the admin detail page select shape so the two views never
   // diverge on what counts as "current state".
-  const member = await prisma.user.findFirst({
-    where: { id, organizationId: orgId },
+  const member = await withAdminPageScope(scope, (db) => db.user.findFirst({
+    where: { id },
     select: {
       id: true,
       email: true,
@@ -107,7 +107,7 @@ export default async function AdminMemberStakeholderPage({
         select: { id: true, certName: true, earnedAt: true },
       },
     },
-  });
+  }));
 
   if (!member || member.deletedAt) notFound();
 

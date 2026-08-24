@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { Plus, Merge } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdminInOrg } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
@@ -36,8 +35,8 @@ export default async function AdminMembersPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members');
 
-  const orgId = await getActorOrganizationId(user.id).catch(() => null);
-  if (!orgId || !(await isAdminInOrg(user.id, orgId))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const t = await getTranslations('admin');
 
@@ -114,8 +113,7 @@ export default async function AdminMembersPage({
   // deferred until we know which userIds are on this page — that turns 4
   // full-table scans into <=50-key index lookups with identical output, and
   // skips them entirely when the member list itself fails to load.
-  const [membersResult, totalCountResult, partnerOptionsResult] = await withTenantScope(orgId, (db) =>
-    Promise.allSettled([
+  const [membersResult, totalCountResult, partnerOptionsResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
     db.user.findMany({
       where: whereClause,
       orderBy: { updatedAt: 'desc' },
@@ -194,27 +192,26 @@ export default async function AdminMembersPage({
     canonicalCompletionsResult,
     programProgressResult,
     activeCourseProgressResult,
-  ] = await withTenantScope(orgId, (db) =>
-    Promise.allSettled([
+  ] = await Promise.allSettled([
     // PERF: Bound last-event scan to 30 days. Users absent from this map
     // are treated as inactive by calculateHealthStatus (correct behavior).
-    db.memberEvent.groupBy({
+    withAdminPageScope(scope, (db) => db.memberEvent.groupBy({
       by: ['userId'],
       where: { userId: { in: pageMemberIds }, createdAt: { gte: thirtyDaysAgo } },
       _max: { createdAt: true },
-    }),
-    db.memberEvent.groupBy({
+    })),
+    withAdminPageScope(scope, (db) => db.memberEvent.groupBy({
       by: ['userId'],
       where: { userId: { in: pageMemberIds }, createdAt: { gte: thirtyDaysAgo } },
       _count: { _all: true },
-    }),
+    })),
     // Canonical completed-course count from `course_progress` (includes CSV-promoted Coursera rows).
-    db.courseProgress.groupBy({
+    prisma.courseProgress.groupBy({
       by: ['userId'],
       where: { userId: { in: pageMemberIds }, status: 'COMPLETED' },
       _count: { _all: true },
     }),
-    db.memberProgramProgress.findMany({
+    prisma.memberProgramProgress.findMany({
       where: { userId: { in: pageMemberIds } },
       select: {
         userId: true,
@@ -224,12 +221,12 @@ export default async function AdminMembersPage({
         lastUpdatedAt: true,
       },
     }),
-    db.courseProgress.groupBy({
+    prisma.courseProgress.groupBy({
       by: ['userId'],
       where: { userId: { in: pageMemberIds }, status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
       _count: { _all: true },
     }),
-  ]));
+  ]);
 
   const lastEventMap: Map<string, Date | null> = new Map();
   if (lastEventsResult.status === 'fulfilled') {

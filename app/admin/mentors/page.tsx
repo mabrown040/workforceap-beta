@@ -4,10 +4,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
-import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
-
 import {
   MentorsDirectoryKit,
   type MentorCard,
@@ -55,7 +53,8 @@ async function updateMentorAction(formData: FormData) {
 
   const user = await getUser();
   if (!user) return;
-  await requireAdmin(user.id);
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const mentorId = String(formData.get('mentorId') || '');
   const action = String(formData.get('action') || '');
@@ -98,13 +97,14 @@ export default async function AdminMentorsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/mentors');
-  await requireAdmin(user.id);
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
   if (requestedUi === 'legacy') {
-    return <LegacyMentorsView />;
+    return <LegacyMentorsView scope={scope} />;
   }
 
   // --- DEFAULT: real (lean) mentor directory wired into MentorsDirectoryKit ---
@@ -112,9 +112,11 @@ export default async function AdminMentorsPage({
   // Lean directory page + full count + mentee counts (distinct members per
   // mentor, via mentor sessions), all in parallel. Aggregate failures degrade
   // gracefully — the directory must still render.
-  const [mentorsResult, totalResult, activeResult, sessionPairsResult] = await Promise.allSettled([
-    prisma.mentor.findMany({
+  const userOrg = inheritUserOrg(scope);
+  const [mentorsResult, totalResult, activeResult, sessionPairsResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
+    db.mentor.findMany({
       take: MENTOR_LIMIT,
+      where: { ...userOrg },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -125,20 +127,20 @@ export default async function AdminMentorsPage({
         approvedAt: true,
       },
     }),
-    prisma.mentor.count(),
-    prisma.mentor.count({ where: { isActive: true, approvedAt: { not: null } } }),
+    db.mentor.count({ where: { ...userOrg } }),
+    db.mentor.count({ where: { isActive: true, approvedAt: { not: null }, ...userOrg } }),
     // Distinct (mentor, member) pairs → one row per pairing. groupBy gives us
     // the unique member set per mentor without loading every session.
-    prisma.mentorSession.groupBy({
+    db.mentorSession.groupBy({
       by: ['mentorId', 'memberId'],
     }),
-  ]);
+  ]));
 
   // If the core directory query fails, fall back to the proven legacy view
   // rather than rendering a fabricated/empty kit.
   if (mentorsResult.status === 'rejected') {
     console.error('[admin/mentors] directory load failed', mentorsResult.reason);
-    return <LegacyMentorsView />;
+    return <LegacyMentorsView scope={scope} />;
   }
 
   const mentorRows = mentorsResult.value;
@@ -171,9 +173,9 @@ export default async function AdminMentorsPage({
 }
 
 /** Original mentor admin workspace (table + approve/deactivate). Behind ?ui=legacy. */
-async function LegacyMentorsView() {
-  const mentors = await prisma.mentor.findMany({
-    take: ADMIN_SSR_LIST_CAP,
+async function LegacyMentorsView({ scope }: { scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk }) {
+  const mentors = await withAdminPageScope(scope, (db) => db.mentor.findMany({
+    take: 5000,
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -184,17 +186,13 @@ async function LegacyMentorsView() {
       approvedAt: true,
       createdAt: true,
     },
-  });
+  }));
 
   return (
     <main style={{ padding: '1.5rem' }}>
       <PageHeader
         title="Mentors"
-        subtitle={
-          mentors.length >= ADMIN_SSR_LIST_CAP
-            ? `Showing first ${mentors.length} mentors`
-            : 'Review mentor applications and toggle active mentor availability.'
-        }
+        subtitle="Review mentor applications and toggle active mentor availability."
       />
 
       <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>

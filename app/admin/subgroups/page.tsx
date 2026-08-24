@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { DesignSurface } from '@/components/portal/kit';
 import {
@@ -48,8 +48,8 @@ export default async function AdminSubgroupsPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/subgroups');
 
-  const hasAdmin = await isAdmin(user.id);
-  if (!hasAdmin) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -61,9 +61,11 @@ export default async function AdminSubgroupsPage({
 
   // --- DEFAULT: real (lean) subgroup directory wired into the design kit ---
 
-  const [subgroupsResult, totalResult, memberAggResult] = await Promise.allSettled([
-    prisma.subgroup.findMany({
+  const leaderOrg = inheritLeaderOrg(scope);
+  const [subgroupsResult, totalResult, memberAggResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
+    db.subgroup.findMany({
       take: DIRECTORY_LIMIT,
+      where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: {
         id: true,
@@ -74,10 +76,10 @@ export default async function AdminSubgroupsPage({
         _count: { select: { members: true } },
       },
     }),
-    prisma.subgroup.count(),
+    db.subgroup.count({ where: { ...leaderOrg } }),
     // Total distinct member assignments across all subgroups (real aggregate).
-    prisma.memberSubgroup.groupBy({ by: ['subgroupId'], _count: { _all: true } }),
-  ]);
+    db.memberSubgroup.groupBy({ by: ['subgroupId'], _count: { _all: true } }),
+  ]));
 
   // If the core directory query fails, fall back to the proven legacy view
   // rather than rendering a fabricated/empty kit.

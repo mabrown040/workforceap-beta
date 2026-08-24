@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { getAiToolsCohortStats, getAiToolUsageCounts } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -24,7 +24,8 @@ export default async function AdminAiToolsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/ai-tools');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;

@@ -3,10 +3,8 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
-import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
-
 import { PROGRAMS } from '@/lib/content/programs';
 import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
 import PageHeader from '@/components/portal/PageHeader';
@@ -31,21 +29,24 @@ function pickQueryValue(input: string | string[] | undefined): string {
 export default async function AdminNewInvitePage({ searchParams }: InviteFormPageProps) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/invites/new');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
 
-  const [subgroups, partners] = await Promise.all([
-    prisma.subgroup.findMany({
-      take: LOOKUP_LIST_CAP,
+  const leaderOrg = inheritLeaderOrg(scope);
+  const [subgroups, partners] = await withAdminPageScope(scope, (db) => Promise.all([
+    db.subgroup.findMany({
+      take: 5000,
+      where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
-    prisma.partner.findMany({
-      take: LOOKUP_LIST_CAP,
+    db.partner.findMany({
+      take: 5000,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
-  ]);
+  ]));
 
   const params = (await searchParams) ?? {};
   const error = pickQueryValue(params.error);

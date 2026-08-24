@@ -1,10 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
-import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
-
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
@@ -30,10 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
 const PARTNER_LIMIT = 60;
 
 /** Legacy management table data (unchanged from the prior default render). */
-async function loadAdminPartnersData() {
-  return Promise.all([
-    prisma.partner.findMany({
-      take: LOOKUP_LIST_CAP,
+async function loadAdminPartnersData(scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk) {
+  const leaderOrg = inheritLeaderOrg(scope);
+  return withAdminPageScope(scope, (db) => Promise.all([
+    db.partner.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: {
         id: true,
@@ -65,26 +65,27 @@ async function loadAdminPartnersData() {
         },
       },
     }),
-    prisma.subgroup.findMany({
-      take: LOOKUP_LIST_CAP,
+    db.subgroup.findMany({
+      take: 5000,
+      where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),
-  ] as const);
+  ] as const));
 }
 
 type PartnersPayload = Awaited<ReturnType<typeof loadAdminPartnersData>>;
 
 /** The prior default render, preserved behind `?ui=legacy`. */
-async function LegacyPartnersTable({ userId }: { userId: string }) {
-  const superAdmin = await isSuperAdmin(userId);
+async function LegacyPartnersTable({ userId, scope }: { userId: string; scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk }) {
+  const superAdmin = scope.superAdmin;
 
   let partners: PartnersPayload[0];
   let subgroups: PartnersPayload[1];
   let loadError: string | null = null;
 
   try {
-    ;[partners, subgroups] = await loadAdminPartnersData();
+    ;[partners, subgroups] = await loadAdminPartnersData(scope);
   } catch (e) {
     console.error('[admin/partners] load failed', e);
     loadError =
@@ -160,7 +161,8 @@ export default async function AdminPartnersPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/partners');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const scope = await resolveAdminPageTenant(user.id);
+  if (!scope.ok) redirect('/dashboard');
   const orgId = await getActorOrganizationId(user.id);
 
   const params = (await searchParams) ?? {};
@@ -168,7 +170,7 @@ export default async function AdminPartnersPage({
 
   // Legacy → render the full management table (preserves the prior default).
   if (requestedUi === 'legacy') {
-    return <LegacyPartnersTable userId={user.id} />;
+    return <LegacyPartnersTable userId={user.id} scope={scope} />;
   }
 
   // --- DEFAULT: real (lean) partner directory wired into PartnersDirectoryKit ---
@@ -177,7 +179,7 @@ export default async function AdminPartnersPage({
   // all in parallel. Aggregate failures degrade gracefully (the grid still
   // renders; placed counts just fall back to 0).
   const [partnersResult, totalResult, placedResult, referralTotalResult, placedTotalResult] = await Promise.allSettled([
-    withTenantScope(orgId, (db) =>
+    withAdminPageScope(scope, (db) =>
       db.partner.findMany({
         take: PARTNER_LIMIT,
         orderBy: { name: 'asc' },
@@ -195,7 +197,7 @@ export default async function AdminPartnersPage({
         },
       }),
     ),
-    withTenantScope(orgId, (db) => db.partner.count()),
+    withAdminPageScope(scope, (db) => db.partner.count()),
     // "Placed" per partner = referred members whose memberStatus is 'placed'.
     prisma.partnerReferral.groupBy({
       by: ['partnerId'],
@@ -210,7 +212,7 @@ export default async function AdminPartnersPage({
   // rather than rendering a fabricated/empty kit.
   if (partnersResult.status === 'rejected') {
     console.error('[admin/partners] directory load failed', partnersResult.reason);
-    return <LegacyPartnersTable userId={user.id} />;
+    return <LegacyPartnersTable userId={user.id} scope={scope} />;
   }
 
   const rows = partnersResult.value;

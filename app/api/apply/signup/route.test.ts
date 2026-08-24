@@ -166,6 +166,10 @@ vi.mock('@/lib/tenant/organization', () => ({
   getDefaultOrganizationId: vi.fn(async () => 'org-test-1'),
 }));
 
+vi.mock('@/lib/tenant/resolveProvisionOrg', () => ({
+  resolveProvisionOrganizationId: vi.fn(async () => 'org-test-1'),
+}));
+
 vi.mock('@/lib/observability/captureApiError', () => ({
   captureApiError: vi.fn(),
 }));

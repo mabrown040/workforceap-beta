@@ -1,11 +1,20 @@
 import { prisma } from '@/lib/db/prisma';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
+import { tryCurrentRequestHeaders } from '@/lib/tenant/currentRequestHeaders';
+import type { HeadersLike } from '@/lib/tenant/resolveOrgFromRequest';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 
 type AuthUser = {
   id: string;
   email?: string | null;
   user_metadata?: Record<string, unknown> | null;
+};
+
+export type EnsureAppUserOptions = {
+  /** Already-resolved org from the caller (layout / signup). */
+  organizationId?: string | null;
+  /** Request headers so host / x-wap-org-id can win over the default org. */
+  headers?: HeadersLike;
 };
 
 function isUniquePkError(err: unknown): boolean {
@@ -28,16 +37,21 @@ function isUniquePkError(err: unknown): boolean {
  * `prisma.user.update` in /api/member/wioa-qualification.
  *
  * Given an authenticated Supabase user, this provisions the missing app rows
- * (a `users` row in the default org with role 'member', plus a minimal
- * `profiles` row) in one transaction. It is idempotent — a no-op when the rows
- * already exist — and tolerates concurrent creation (duplicate-PK from a racing
- * request is treated as success).
+ * (a `users` row in the request org — or default `workforceap` on the
+ * canonical host — with role 'member', plus a minimal `profiles` row)
+ * in one transaction. It is idempotent — a no-op when the rows already
+ * exist — and tolerates concurrent creation (duplicate-PK from a racing
+ * request is treated as success). Existing `users.organizationId` is
+ * never overwritten.
  *
  * Writes are wrapped with withDbRetry using isConnectionAcquisitionError so a
  * transient pooler blip while *acquiring* a connection is retried, but an
  * ambiguous mid-commit failure is not (the idempotency check absorbs the rest).
  */
-export async function ensureAppUserProvisioned(user: AuthUser): Promise<void> {
+export async function ensureAppUserProvisioned(
+  user: AuthUser,
+  options: EnsureAppUserOptions = {},
+): Promise<void> {
   // Fast path: rows already present. Read is safe to retry broadly.
   const existing = await withDbRetry(() =>
     prisma.user.findUnique({
@@ -51,7 +65,13 @@ export async function ensureAppUserProvisioned(user: AuthUser): Promise<void> {
   const fullName =
     (typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name.trim()) ||
     'Member';
-  const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+  const organizationId = await withDbRetry(() =>
+    resolveProvisionOrganizationId({
+      explicitOrganizationId: options.organizationId,
+      headers: options.headers ?? (await tryCurrentRequestHeaders()),
+      metadata: user.user_metadata,
+    }),
+  );
 
   try {
     await withDbRetry(

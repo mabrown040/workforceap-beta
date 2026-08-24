@@ -10,7 +10,7 @@ import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { trackEvent } from '@/lib/events/track';
 import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
 import { ApplicationStatus } from '@prisma/client';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -364,7 +364,12 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
     }
   
-    const organizationId = await withDbRetry(() => getDefaultOrganizationId());
+    const organizationId = await withDbRetry(() =>
+      resolveProvisionOrganizationId({
+        headers: request.headers,
+        programSlug,
+      }),
+    );
     const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledAt: true },

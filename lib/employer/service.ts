@@ -1,12 +1,23 @@
 import { prisma } from '@/lib/db/prisma';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { tryCurrentRequestHeaders } from '@/lib/tenant/currentRequestHeaders';
+import type { HeadersLike } from '@/lib/tenant/resolveOrgFromRequest';
+import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 import { EmployerSignupInput } from '@/lib/validation/employer';
+
+export type CreateEmployerUserOptions = {
+  organizationId?: string | null;
+  headers?: HeadersLike;
+};
 
 export async function createEmployerUser(
   userId: string,
-  data: EmployerSignupInput
+  data: EmployerSignupInput,
+  options: CreateEmployerUserOptions = {},
 ): Promise<void> {
-  const organizationId = await getDefaultOrganizationId();
+  const organizationId = await resolveProvisionOrganizationId({
+    explicitOrganizationId: options.organizationId,
+    headers: options.headers ?? (await tryCurrentRequestHeaders()),
+  });
 
   await prisma.$transaction(async (tx) => {
     // Create the user row

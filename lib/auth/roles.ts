@@ -206,7 +206,11 @@ export async function getPartnerForUser(
       return { partnerId: fallbackPartner.id, partner: fallbackPartner, orgBranding, hasDirectPartnerLink: false };
     }
 
-    const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
+    const actor = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { organizationId: true },
+    });
+    const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner(actor?.organizationId);
     if (ensuredFallbackPartner) {
       const orgBranding = await getOrgBranding(ensuredFallbackPartner.organizationId);
       return {
@@ -323,14 +327,31 @@ export async function isEmployer(userId: string): Promise<boolean> {
   return !!row;
 }
 
-async function ensureSuperAdminFallbackPartner(): Promise<{
+async function resolvePreviewFallbackOrganizationId(
+  preferredOrganizationId?: string | null,
+): Promise<string> {
+  const preferred = preferredOrganizationId?.trim();
+  if (preferred) return preferred;
+  return getDefaultOrganizationId();
+}
+
+async function ensureSuperAdminFallbackPartner(
+  preferredOrganizationId?: string | null,
+): Promise<{
   id: string;
   organizationId: string;
   name: string;
   slug: string;
   partnerType: string;
 }> {
-  const organizationId = await getDefaultOrganizationId();
+  const existing = await prisma.partner.findUnique({
+    where: { slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG },
+    select: { organizationId: true },
+  });
+  // Keep an existing fallback partner in its current tenant; only new
+  // creates take the actor org (or default when the actor has none).
+  const organizationId = existing?.organizationId
+    ?? await resolvePreviewFallbackOrganizationId(preferredOrganizationId);
   return prisma.partner.upsert({
     where: { slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG },
     update: { active: true, referralCode: SUPER_ADMIN_FALLBACK_PARTNER_SLUG },
@@ -345,25 +366,30 @@ async function ensureSuperAdminFallbackPartner(): Promise<{
   });
 }
 
-async function ensureSuperAdminFallbackEmployer(): Promise<{
+async function ensureSuperAdminFallbackEmployer(
+  preferredOrganizationId?: string | null,
+): Promise<{
   id: string;
   companyName: string;
   contactEmail: string;
   tier: string;
   logoUrl: string | null;
 }> {
-  const organizationId = await getDefaultOrganizationId();
+  const createOrganizationId = await resolvePreviewFallbackOrganizationId(preferredOrganizationId);
   const user = await prisma.user.upsert({
     where: { email: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL },
     update: { fullName: 'Preview Employer Seed' },
     create: {
       id: randomUUID(),
-      organizationId,
+      organizationId: createOrganizationId,
       email: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL,
       fullName: 'Preview Employer Seed',
     },
-    select: { id: true },
+    select: { id: true, organizationId: true },
   });
+  // If the seed user already exists, stamp the employer row with THAT org
+  // rather than the default tenant.
+  const organizationId = user.organizationId;
 
   return prisma.employer.upsert({
     where: { userId: user.id },
@@ -441,7 +467,11 @@ export async function getEmployerForUser(
     });
     if (fallbackEmployer) return mapEmployerRow(fallbackEmployer);
 
-    const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer();
+    const actor = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { organizationId: true },
+    });
+    const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer(actor?.organizationId);
     if (ensuredFallbackEmployer) return mapEmployerRow(ensuredFallbackEmployer);
 
     const anyActiveEmployer = await prisma.employer.findFirst({

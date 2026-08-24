@@ -282,8 +282,9 @@ export default async function AdminTodayPage({
   // Server components render outside the root layout's gucContextStorage.run()
   // scope (RSC renders the returned JSX lazily), so re-establish the auth GUC
   // context here — otherwise these queries run with anonymous RLS credentials.
+  const orgId = await getActorOrganizationId(user.id);
   const [triageDigest, sessionsTodayRows] = await withAuthGuc(() => Promise.all([
-    getTriageDigest().catch((reason): TriageDigest => {
+    getTriageDigest(orgId).catch((reason): TriageDigest => {
       const msg = reason instanceof Error ? reason.message : String(reason);
       console.error('[admin/page] triageDigest failed', msg);
       return { buckets: [], allClear: true };

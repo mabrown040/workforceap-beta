@@ -19,7 +19,7 @@ export const APPLY_HEAR_ABOUT_OPTIONS = [
 
 export type ApplyHearAboutOption = (typeof APPLY_HEAR_ABOUT_OPTIONS)[number];
 
-export const APPLY_HEAR_ABOUT_OTHER = 'Other / call in';
+export const APPLY_HEAR_ABOUT_OTHER = 'Other / write in';
 export const APPLY_HEAR_ABOUT_AMBASSADOR = 'Partner or community ambassador';
 
 export function isYesNo(value: unknown): value is YesNo {

@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import {
   APPLY_HEAR_ABOUT_AMBASSADOR,
   APPLY_HEAR_ABOUT_OPTIONS,
@@ -10,53 +11,60 @@ import {
   normalizeYesNo,
 } from './eligibilityExtendedFields';
 
-describe('eligibilityExtendedFields', () => {
-  it('normalizes yes/no and rejects other values', () => {
-    expect(normalizeYesNo('yes')).toBe('yes');
-    expect(normalizeYesNo('no')).toBe('no');
-    expect(normalizeYesNo('maybe')).toBeNull();
-    expect(normalizeYesNo(null)).toBeNull();
-  });
+test('normalizes yes/no and rejects other values', () => {
+  assert.equal(normalizeYesNo('yes'), 'yes');
+  assert.equal(normalizeYesNo('no'), 'no');
+  assert.equal(normalizeYesNo('maybe'), null);
+  assert.equal(normalizeYesNo(null), null);
+});
 
-  it('includes ambassador and other in hear-about options', () => {
-    expect(APPLY_HEAR_ABOUT_OPTIONS).toContain(APPLY_HEAR_ABOUT_AMBASSADOR);
-    expect(APPLY_HEAR_ABOUT_OPTIONS).toContain(APPLY_HEAR_ABOUT_OTHER);
-  });
+test('includes ambassador and other in hear-about options', () => {
+  assert.equal(
+    (APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(APPLY_HEAR_ABOUT_AMBASSADOR),
+    true,
+  );
+  assert.equal(
+    (APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(APPLY_HEAR_ABOUT_OTHER),
+    true,
+  );
+});
 
-  it('detects other + ambassador hear-about cases', () => {
-    expect(hearAboutNeedsOther(APPLY_HEAR_ABOUT_OTHER)).toBe(true);
-    expect(hearAboutNeedsOther('Friend or family')).toBe(false);
-    expect(hearAboutSuggestsAmbassador(APPLY_HEAR_ABOUT_AMBASSADOR)).toBe(true);
-    expect(hearAboutSuggestsAmbassador('Google / web search')).toBe(false);
-  });
+test('detects other + ambassador hear-about cases', () => {
+  assert.equal(hearAboutNeedsOther(APPLY_HEAR_ABOUT_OTHER), true);
+  assert.equal(hearAboutNeedsOther('Friend or family'), false);
+  assert.equal(hearAboutSuggestsAmbassador(APPLY_HEAR_ABOUT_AMBASSADOR), true);
+  assert.equal(hearAboutSuggestsAmbassador('Google / web search'), false);
+});
 
-  it('trims and caps hear-about strings', () => {
-    expect(normalizeHearAbout('  Friend or family  ')).toBe('Friend or family');
-    expect(normalizeHearAbout('')).toBeNull();
-    expect(normalizeHearAbout('x'.repeat(250))?.length).toBe(200);
-  });
+test('trims and caps hear-about strings', () => {
+  assert.equal(normalizeHearAbout('  Friend or family  '), 'Friend or family');
+  assert.equal(normalizeHearAbout(''), null);
+  assert.equal(normalizeHearAbout('x'.repeat(250))?.length, 200);
+});
 
-  it('shows layoff company when unemployment-related answers are yes', () => {
-    expect(
-      layoffCompanyApplicable({
-        unemployedOrUnderemployed: 'no',
-        receivingUnemployment: 'no',
-        exhaustedUnemployment: 'no',
-      }),
-    ).toBe(false);
-    expect(
-      layoffCompanyApplicable({
-        unemployedOrUnderemployed: 'yes',
-        receivingUnemployment: 'no',
-        exhaustedUnemployment: 'no',
-      }),
-    ).toBe(true);
-    expect(
-      layoffCompanyApplicable({
-        unemployedOrUnderemployed: 'no',
-        receivingUnemployment: 'yes',
-        exhaustedUnemployment: 'no',
-      }),
-    ).toBe(true);
-  });
+test('shows layoff company when unemployment-related answers are yes', () => {
+  assert.equal(
+    layoffCompanyApplicable({
+      unemployedOrUnderemployed: 'no',
+      receivingUnemployment: 'no',
+      exhaustedUnemployment: 'no',
+    }),
+    false,
+  );
+  assert.equal(
+    layoffCompanyApplicable({
+      unemployedOrUnderemployed: 'yes',
+      receivingUnemployment: 'no',
+      exhaustedUnemployment: 'no',
+    }),
+    true,
+  );
+  assert.equal(
+    layoffCompanyApplicable({
+      unemployedOrUnderemployed: 'no',
+      receivingUnemployment: 'yes',
+      exhaustedUnemployment: 'no',
+    }),
+    true,
+  );
 });

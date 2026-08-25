@@ -59,7 +59,7 @@ const PUBLIC_ROUTES: PublicRouteConfig[] = [
   { path: '/mentor', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/mentor/apply', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/accessibility', changeFrequency: 'yearly', priority: 0.5 },
-  { path: '/outcomes', changeFrequency: 'monthly', priority: 0.8 },
+  // /outcomes temporarily hidden (archived marketing page + redirects)
   { path: '/account/privacy', changeFrequency: 'yearly', priority: 0.4 },
 ];
 

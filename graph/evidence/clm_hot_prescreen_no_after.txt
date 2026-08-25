@@ -1,0 +1,4 @@
+5:import { sendPreScreeningReadyEmail } from '@/lib/email';
+119:  // `after()` so Vercel does not freeze before Resend finishes the admin alert.
+120:  after(() =>
+121:    sendPreScreeningReadyEmail({

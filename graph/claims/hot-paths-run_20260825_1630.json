@@ -1,0 +1,155 @@
+[
+  {
+    "id": "clm_hot_elig_token_no_after",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_q_token_submit",
+      "ent_cluster_apply_signup"
+    ],
+    "title": "Token eligibility submit emails are bare promises; die on Vercel freeze",
+    "severity": "ship-break",
+    "blast": "Public /api/q/[token]/submit returns {ok:true} then freezes before Resend; member + admin never get WS5 screening emails (same class as fixed apply signup).",
+    "evidence": "app/api/q/[token]/submit/route.ts:244-267 and :301-324 call sendEligibilityScreeningConfirmationEmail / sendEligibilityScreeningAdminEmail with .catch only \u2014 no after(). Response at :328 NextResponse.json({ ok: true }). Contrast app/api/apply/signup/route.ts:699 after(() => sendApplicationConfirmationEmail...).",
+    "verify": "rg -n \"after\\(|sendEligibilityScreening\" app/api/q/\\[token\\]/submit/route.ts",
+    "supersedes": null,
+    "status": "patched"
+  },
+  {
+    "id": "clm_hot_elig_member_no_after",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_member_eligibility_route"
+    ],
+    "title": "PATCH /api/member/eligibility fire-and-forget emails drop on serverless",
+    "severity": "ship-break",
+    "blast": "Dashboard eligibility save returns ok while confirmation + admin alert never leave the function on Vercel.",
+    "evidence": "app/api/member/eligibility/route.ts:254-283 explicit Fire-and-forget comment; sendEligibilityScreeningConfirmationEmail + sendEligibilityScreeningAdminEmail without after(); return NextResponse.json({ ok: true }) at :285.",
+    "verify": "rg -n \"after\\(|sendEligibilityScreening|Fire-and-forget\" app/api/member/eligibility/route.ts",
+    "supersedes": null,
+    "status": "patched"
+  },
+  {
+    "id": "clm_hot_prescreen_no_after",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_member_prescreen_route"
+    ],
+    "title": "Pre-screening admin alert is bare promise after JSON success",
+    "severity": "ship-break",
+    "blast": "Staff never notified that a member finished pre-screening; pipeline stall with silent drop.",
+    "evidence": "app/api/member/pre-screening/route.ts:119-126 sendPreScreeningReadyEmail(...).catch(...); then :130 return NextResponse.json({ ok: true }). No after() import.",
+    "verify": "rg -n \"after\\(|sendPreScreeningReadyEmail\" app/api/member/pre-screening/route.ts",
+    "supersedes": null,
+    "status": "patched"
+  },
+  {
+    "id": "clm_hot_employer_signup_no_after",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_employer_signup_route"
+    ],
+    "title": "Employer signup welcome + admin alert fire-and-forget after response path",
+    "severity": "ship-break",
+    "blast": "New employers get verification (awaited) but welcome/admin alert drop on Vercel; ops miss signup signal.",
+    "evidence": "app/api/employer/signup/route.ts:194 await sendEmployerVerificationEmail; :209-221 bare sendEmployerWelcomeEmail + sendEmployerSignupAdminAlertEmail .catch; :239 return NextResponse.json. No after().",
+    "verify": "rg -n \"after\\(|sendEmployerWelcomeEmail|sendEmployerSignupAdminAlertEmail|sendEmployerVerificationEmail\" app/api/employer/signup/route.ts",
+    "supersedes": null,
+    "status": "patched"
+  },
+  {
+    "id": "clm_hot_employer_approve_reject_no_after",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_employer_approve_route",
+      "ent_file_employer_reject_route"
+    ],
+    "title": "Employer approve/reject notification emails lack after()",
+    "severity": "ship-break",
+    "blast": "Employers approved/rejected in admin UI never receive status email on serverless freeze.",
+    "evidence": "app/api/admin/employers/[id]/approve/route.ts:69-73 sendEmployerApprovedEmail(...).catch; app/api/admin/employers/[id]/reject/route.ts:66 sendEmployerRejectedEmail(...).catch. Neither imports after from next/server.",
+    "verify": "rg -n \"after\\(|sendEmployerApprovedEmail|sendEmployerRejectedEmail\" app/api/admin/employers/[id]/approve/route.ts app/api/admin/employers/[id]/reject/route.ts",
+    "supersedes": null,
+    "status": "patched"
+  },
+  {
+    "id": "clm_hot_invite_accept_no_after",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_invite_accept_route"
+    ],
+    "title": "Invitation-accepted inviter email is bare promise",
+    "severity": "latent",
+    "blast": "Inviter may not learn accept succeeded; lower user-facing stake than applicant receipt.",
+    "evidence": "app/api/invite/accept/route.ts:490-495 and :740 sendInvitationAcceptedEmail(...).catch before return NextResponse.json success. No after().",
+    "verify": "rg -n \"after\\(|sendInvitationAcceptedEmail\" app/api/invite/accept/route.ts",
+    "supersedes": null,
+    "status": "patched"
+  },
+  {
+    "id": "clm_hot_apply_after_already_fixed",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_cluster_apply_signup",
+      "ent_file_apply_signup_route"
+    ],
+    "title": "Apply signup confirmation+admin already use after() (ba1160f8/d165391b)",
+    "severity": "hygiene",
+    "blast": "None \u2014 documents prior fix so auditors do not re-open it.",
+    "evidence": "git show ba1160f8 \u2014 after() for sendApplicationConfirmationEmail + sendNewApplicationAdminEmail; d165391b narrows applicationIdForAlert. route.test.ts mocks after via void Promise.resolve().then(fn).",
+    "verify": "rg -n \"after\\(\\(\\) =>\" app/api/apply/signup/route.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_contact_awaited_ok",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_contact_route"
+    ],
+    "title": "Contact form awaits Resend before JSON response",
+    "severity": "hygiene",
+    "blast": "None \u2014 sibling path already safe.",
+    "evidence": "app/api/contact/route.ts:115 await resend.emails.send({...}) before success response; returns 503 when RESEND_API_KEY missing.",
+    "verify": "rg -n \"await resend.emails.send|RESEND_API_KEY\" app/api/contact/route.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_enroll_after_ok",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_member_enroll_route"
+    ],
+    "title": "Member enroll course emails already scheduled with after()",
+    "severity": "hygiene",
+    "blast": "None \u2014 enroll path already matches apply pattern.",
+    "evidence": "app/api/member/enroll/route.ts:155-172 after(() => sendCourseEnrolledEmail...); after(() => maybeSendCourseKickoffEmail...).",
+    "verify": "rg -n \"after\\(|sendCourseEnrolledEmail|maybeSendCourseKickoffEmail\" app/api/member/enroll/route.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_stamp_update_wontfix",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_cluster_apply_signup"
+    ],
+    "title": "Supersede stamp updateMany claim \u2014 null-guarded create-only form",
+    "severity": "hygiene",
+    "blast": "Closes prior false prod-break so rank does not keep resurfacing it.",
+    "evidence": "Prior report graph/reports/run_20260816_0345.md ground check: updateMany only when fundingSource and fundingNotes both null; route.test.ts pins semantics.",
+    "verify": "rg -n \"fundingSource|sponsoredByPartnerId\" app/api/apply/signup/route.ts app/api/apply/signup/route.test.ts | head -40",
+    "supersedes": "clm_hot_stamp_update",
+    "status": "wontfix"
+  }
+]

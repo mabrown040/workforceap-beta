@@ -1,0 +1,8 @@
+app/api/admin/employers/[id]/reject/route.ts:5:import { sendEmployerRejectedEmail } from '@/lib/email';
+app/api/admin/employers/[id]/reject/route.ts:64:    // Best-effort rejection email via `after()` so Vercel does not freeze early.
+app/api/admin/employers/[id]/reject/route.ts:66:      after(() =>
+app/api/admin/employers/[id]/reject/route.ts:67:        sendEmployerRejectedEmail({
+app/api/admin/employers/[id]/approve/route.ts:5:import { sendEmployerApprovedEmail } from '@/lib/email';
+app/api/admin/employers/[id]/approve/route.ts:67:    // Best-effort approval email via `after()` so Vercel does not freeze early.
+app/api/admin/employers/[id]/approve/route.ts:69:      after(() =>
+app/api/admin/employers/[id]/approve/route.ts:70:        sendEmployerApprovedEmail({

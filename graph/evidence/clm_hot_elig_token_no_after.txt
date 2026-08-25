@@ -1,0 +1,11 @@
+14:  sendEligibilityScreeningAdminEmail,
+15:  sendEligibilityScreeningConfirmationEmail,
+244:          // `after()` keeps the Vercel invocation alive until Resend finishes.
+245:          after(() =>
+246:            sendEligibilityScreeningConfirmationEmail({
+258:          after(() =>
+259:            sendEligibilityScreeningAdminEmail({
+306:          after(() =>
+307:            sendEligibilityScreeningConfirmationEmail({
+319:          after(() =>
+320:            sendEligibilityScreeningAdminEmail({

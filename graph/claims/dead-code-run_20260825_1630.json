@@ -1,0 +1,28 @@
+[
+  {
+    "id": "clm_dead_confirmation_email_orphan",
+    "runId": "run_20260825_1630",
+    "auditor": "dead-code",
+    "entityIds": ["ent_file_apply_confirmation_email_route"],
+    "title": "No client calls /api/apply/confirmation-email after signup after() fix",
+    "severity": "latent",
+    "blast": "Orphan public POST remains attack surface (rate-limited) and confuses ops about which path sends receipts.",
+    "evidence": "rg '/api/apply/confirmation-email' across *.ts/*.tsx only hits the route itself and lib/rate-limit.ts prefixes — zero importers in app/ or components/. Apply signup now schedules sendApplicationConfirmationEmail via after() in app/api/apply/signup/route.ts:699.",
+    "verify": "rg -n \"/api/apply/confirmation-email\" --glob '*.{ts,tsx}' | rg -v 'confirmation-email/route|rate-limit'",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_elig_comment_fireforget",
+    "runId": "run_20260825_1630",
+    "auditor": "dead-code",
+    "entityIds": ["ent_file_member_eligibility_route"],
+    "title": "Member eligibility route comment still documents fire-and-forget sends",
+    "severity": "hygiene",
+    "blast": "Comment lies after a fix or documents the bug if left unfixed — either way drifts from apply signup pattern.",
+    "evidence": "app/api/member/eligibility/route.ts:254-255 comment '// Fire-and-forget confirmation to member + Mike/admin (WS5).' followed by bare sendEligibilityScreeningConfirmationEmail(...).catch without after().",
+    "verify": "rg -n \"Fire-and-forget confirmation\" app/api/member/eligibility/route.ts",
+    "supersedes": null,
+    "status": "open"
+  }
+]

@@ -1,0 +1,94 @@
+[
+  {
+    "id": "clm_hot_elig_member_no_after_verified",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_member_eligibility_route"
+    ],
+    "title": "PATCH /api/member/eligibility emails now use after()",
+    "severity": "ship-break",
+    "blast": "Closed \u2014 confirmation + admin alert scheduled via after().",
+    "evidence": "graph/evidence/clm_hot_elig_member_no_after.txt; graph/evidence/clm_hot_email_after_verify.txt",
+    "verify": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts",
+    "supersedes": "clm_hot_elig_member_no_after",
+    "status": "verified"
+  },
+  {
+    "id": "clm_hot_elig_token_no_after_verified",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_q_token_submit",
+      "ent_cluster_apply_signup"
+    ],
+    "title": "Token eligibility submit emails now use after()",
+    "severity": "ship-break",
+    "blast": "Closed \u2014 member + lead + admin paths scheduled via after().",
+    "evidence": "graph/evidence/clm_hot_elig_token_no_after.txt; graph/evidence/clm_hot_email_after_verify.txt",
+    "verify": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts",
+    "supersedes": "clm_hot_elig_token_no_after",
+    "status": "verified"
+  },
+  {
+    "id": "clm_hot_prescreen_no_after_verified",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_member_prescreen_route"
+    ],
+    "title": "Pre-screening admin alert now uses after()",
+    "severity": "ship-break",
+    "blast": "Closed \u2014 sendPreScreeningReadyEmail scheduled via after().",
+    "evidence": "graph/evidence/clm_hot_prescreen_no_after.txt; graph/evidence/clm_hot_email_after_verify.txt",
+    "verify": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts",
+    "supersedes": "clm_hot_prescreen_no_after",
+    "status": "verified"
+  },
+  {
+    "id": "clm_hot_employer_signup_no_after_verified",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_employer_signup_route"
+    ],
+    "title": "Employer signup welcome + admin alert now use after()",
+    "severity": "ship-break",
+    "blast": "Closed \u2014 verification remains awaited; welcome/admin via after().",
+    "evidence": "graph/evidence/clm_hot_employer_signup_no_after.txt; graph/evidence/clm_hot_email_after_verify.txt",
+    "verify": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts",
+    "supersedes": "clm_hot_employer_signup_no_after",
+    "status": "verified"
+  },
+  {
+    "id": "clm_hot_employer_approve_reject_no_after_verified",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_employer_approve_route",
+      "ent_file_employer_reject_route"
+    ],
+    "title": "Employer approve/reject emails now use after()",
+    "severity": "ship-break",
+    "blast": "Closed \u2014 both admin employer status emails scheduled via after().",
+    "evidence": "graph/evidence/clm_hot_employer_approve_reject_no_after.txt; graph/evidence/clm_hot_email_after_verify.txt",
+    "verify": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts",
+    "supersedes": "clm_hot_employer_approve_reject_no_after",
+    "status": "verified"
+  },
+  {
+    "id": "clm_hot_invite_accept_no_after_verified",
+    "runId": "run_20260825_1630",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_invite_accept_route"
+    ],
+    "title": "Invitation-accepted inviter email now uses after()",
+    "severity": "latent",
+    "blast": "Closed \u2014 both accept paths schedule sendInvitationAcceptedEmail via after().",
+    "evidence": "graph/evidence/clm_hot_email_after_verify.txt",
+    "verify": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts",
+    "supersedes": "clm_hot_invite_accept_no_after",
+    "status": "verified"
+  }
+]

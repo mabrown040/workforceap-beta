@@ -1,0 +1,28 @@
+[
+  {
+    "id": "clm_deps_after_api_present",
+    "runId": "run_20260825_1630",
+    "auditor": "deps",
+    "entityIds": ["ent_cluster_apply_signup", "ent_file_apply_signup_route"],
+    "title": "next/server after() available; apply signup already imports it",
+    "severity": "hygiene",
+    "blast": "None — documents that the serverless keep-alive primitive used by the apply fix is on Next 15.5.18 (package.json) and present in app/api/apply/signup/route.ts.",
+    "evidence": "package.json dependencies.next=15.5.18; app/api/apply/signup/route.ts imports after from next/server (rg: after(() => sendApplicationConfirmationEmail). Sibling routes app/api/member/eligibility/route.ts and app/api/q/[token]/submit/route.ts import NextResponse only — no after.",
+    "verify": "node -e \"const p=require('./package.json'); if(!String(p.dependencies.next).startsWith('15.')) process.exit(1);\"",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_resend_declared",
+    "runId": "run_20260825_1630",
+    "auditor": "deps",
+    "entityIds": ["ent_file_lib_email"],
+    "title": "resend ^4.0.1 declared; no unpublished import in email cluster",
+    "severity": "hygiene",
+    "blast": "None — Resend client resolves from package.json; lockfile has resend.",
+    "evidence": "package.json dependencies.resend=^4.0.1; lib/email.ts imports { Resend } from 'resend'.",
+    "verify": "node -e \"require('resend'); console.log('ok')\"",
+    "supersedes": null,
+    "status": "open"
+  }
+]

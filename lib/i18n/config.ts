@@ -37,10 +37,11 @@ export function isRtlLocale(locale: AppLocale): boolean {
 
 /** Public paths that use /{locale}/… URLs (redirect if prefix missing). */
 // NOTE: pure-content marketing leaf routes (/, /about, /what-we-do,
-// /how-it-works, /faq, /contact, /impact, /outcomes, /donate, /privacy, /terms,
+// /how-it-works, /faq, /contact, /impact, /donate, /privacy, /terms,
 // /accessibility) are now served by the Astro marketing site (static, at root)
 // and intentionally NOT listed here, so the middleware does not /{locale}/-
-// redirect them. Routes below stay Next-owned (dynamic / not yet migrated).
+// redirect them. (/outcomes is temporarily hidden — archived + redirected.)
+// Routes below stay Next-owned (dynamic / not yet migrated).
 export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
   '/apply',
   '/wioa-qualification',

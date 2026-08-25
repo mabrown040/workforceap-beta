@@ -12,4 +12,11 @@ export default defineConfig({
     locales: ['en', 'es', 'fr', 'pt'],
     routing: { prefixDefaultLocale: false },
   },
+  // Public /outcomes is temporarily hidden. Page source lives at
+  // src/_archive/outcomes.astro — restore by moving it back to
+  // src/pages/outcomes.astro and removing these redirects (+ Next redirects).
+  redirects: {
+    '/outcomes': '/',
+    '/outcomes/': '/',
+  },
 });

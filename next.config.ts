@@ -189,6 +189,23 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
 
+      // Public /outcomes temporarily hidden — page archived at
+      // marketing/src/_archive/outcomes.astro. Re-enable by restoring that
+      // file to marketing/src/pages/outcomes.astro and removing these entries
+      // (+ Astro redirects in marketing/astro.config.mjs).
+      { source: '/outcomes', destination: '/', permanent: false },
+      { source: '/outcomes/', destination: '/', permanent: false },
+      {
+        source: '/:locale(en|es|fr|pt)/outcomes',
+        destination: '/:locale',
+        permanent: false,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/outcomes/',
+        destination: '/:locale',
+        permanent: false,
+      },
+
       // Public marketing route aliases restored after responsive merge
       // (/about now served by the Astro marketing site at root — no locale redirect)
       { source: '/services', destination: '/what-we-do', permanent: true },

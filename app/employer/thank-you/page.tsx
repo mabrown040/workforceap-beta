@@ -21,7 +21,7 @@ export default async function EmployerThankYouPage() {
       funnel="employer"
       title={t('title')}
       lead={t('lead')}
-      resource={{ label: t('resourceLabel'), href: '/outcomes' }}
+      resource={{ label: t('resourceLabel'), href: '/impact' }}
       ctas={[
         { label: t('ctaEmployers'), href: '/employers', variant: 'outline' },
         { label: t('ctaHome'), href: '/', variant: 'muted' },

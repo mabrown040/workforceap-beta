@@ -68,5 +68,12 @@
     "status": "proposed",
     "text": "Kit-default /dashboard home issues at most MEMBER_DASHBOARD_HOME_PRISMA_BUDGET (2) Prisma operations via loadMemberDashboardHome. Coursera auto-sync and B4B stay off the default render path. ?ui=legacy may remain fat.",
     "check": "lib/member/loadMemberDashboardHome.ts:MEMBER_DASHBOARD_HOME_PRISMA_BUDGET === 2; app/(portal)/dashboard/page.tsx kit branch has no prisma."
+  },
+  {
+    "id": "rul_serverless_email_after",
+    "fromClaimId": "clm_hot_elig_member_no_after",
+    "status": "proposed",
+    "text": "API routes that send Resend/branded email after a success response must schedule with next/server after() (or await before responding). Bare sendX(...).catch freezes on Vercel serverless. Guard: lib/email/serverlessAfterGuard.test.ts.",
+    "check": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts"
   }
 ]

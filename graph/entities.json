@@ -8,8 +8,8 @@
   {
     "id": "ent_cluster_apply_signup",
     "kind": "cluster",
-    "label": "Apply / signup stamp",
-    "path": "app/api/apply/signup,lib/apply/applyReferralCapture.ts"
+    "label": "Apply / signup stamp + email receipts",
+    "path": "app/api/apply/signup,lib/apply/applyReferralCapture.ts,lib/email.ts"
   },
   {
     "id": "ent_cluster_admin_partners",
@@ -28,5 +28,83 @@
     "kind": "cluster",
     "label": "Coursera activation gated by guardian consent",
     "path": "components/forms/ParentalConsentForm.tsx,lib/nav/ageBasedNav.ts"
+  },
+  {
+    "id": "ent_file_apply_signup_route",
+    "kind": "file",
+    "label": "Apply signup API",
+    "path": "app/api/apply/signup/route.ts",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_file_lib_email",
+    "kind": "file",
+    "label": "Resend email helpers",
+    "path": "lib/email.ts",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_file_apply_confirmation_email_route",
+    "kind": "file",
+    "label": "Public confirmation-email resend endpoint",
+    "path": "app/api/apply/confirmation-email/route.ts",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_file_member_eligibility_route",
+    "kind": "route",
+    "label": "Member eligibility PATCH",
+    "path": "app/api/member/eligibility/route.ts",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_file_q_token_submit",
+    "kind": "route",
+    "label": "Tokenized eligibility submit",
+    "path": "app/api/q/[token]/submit/route.ts",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_file_member_prescreen_route",
+    "kind": "route",
+    "label": "Member pre-screening POST",
+    "path": "app/api/member/pre-screening/route.ts",
+    "clusterId": "ent_cluster_apply_signup"
+  },
+  {
+    "id": "ent_file_employer_signup_route",
+    "kind": "route",
+    "label": "Employer signup API",
+    "path": "app/api/employer/signup/route.ts"
+  },
+  {
+    "id": "ent_file_employer_approve_route",
+    "kind": "route",
+    "label": "Admin employer approve",
+    "path": "app/api/admin/employers/[id]/approve/route.ts"
+  },
+  {
+    "id": "ent_file_employer_reject_route",
+    "kind": "route",
+    "label": "Admin employer reject",
+    "path": "app/api/admin/employers/[id]/reject/route.ts"
+  },
+  {
+    "id": "ent_file_invite_accept_route",
+    "kind": "route",
+    "label": "Invite accept API",
+    "path": "app/api/invite/accept/route.ts"
+  },
+  {
+    "id": "ent_file_contact_route",
+    "kind": "route",
+    "label": "Contact form API",
+    "path": "app/api/contact/route.ts"
+  },
+  {
+    "id": "ent_file_member_enroll_route",
+    "kind": "route",
+    "label": "Member program enroll",
+    "path": "app/api/member/enroll/route.ts"
   }
 ]

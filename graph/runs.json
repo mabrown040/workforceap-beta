@@ -4,13 +4,28 @@
     "startedAt": "2026-08-16T03:45:00.000Z",
     "mapFile": "graph/map.json",
     "claimFiles": [
-      "graph/claims/deps-run_20260816_0345.json",
-      "graph/claims/secrets-run_20260816_0345.json",
-      "graph/claims/dead-code-run_20260816_0345.json",
-      "graph/claims/hot-paths-run_20260816_0345.json"
+      "graph/archive/claims/deps-run_20260816_0345.json",
+      "graph/archive/claims/secrets-run_20260816_0345.json",
+      "graph/archive/claims/dead-code-run_20260816_0345.json",
+      "graph/archive/claims/hot-paths-run_20260816_0345.json"
     ],
     "rankFile": "graph/rank.json",
     "reportFile": "graph/reports/run_20260816_0345.md",
-    "humanGate": "pending"
+    "humanGate": "deferred"
+  },
+  {
+    "id": "run_20260825_1630",
+    "startedAt": "2026-08-25T16:30:00.000Z",
+    "mapFile": "graph/map.json",
+    "claimFiles": [
+      "graph/claims/deps-run_20260825_1630.json",
+      "graph/claims/secrets-run_20260825_1630.json",
+      "graph/claims/dead-code-run_20260825_1630.json",
+      "graph/claims/hot-paths-run_20260825_1630.json",
+      "graph/claims/hot-paths-run_20260825_1630-verified.json"
+    ],
+    "rankFile": "graph/rank.json",
+    "reportFile": "graph/reports/run_20260825_1630.md",
+    "humanGate": "ship-selected"
   }
 ]

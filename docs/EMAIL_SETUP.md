@@ -52,7 +52,7 @@ These are sent by the Next.js app via Resend:
 |-------|---------|-----------|
 | Contact Form | Public submits contact form | info@workforceap.org |
 | Application Confirmation | User completes `/api/apply/signup` | Applicant (immediate receipt) |
-| New Application Admin | User signs up (Application created) | info@workforceap.org |
+| New Application Admin | User signs up (Application created) | `EMAIL_TO_ADMIN` or default: info@ + michael.brown@workforceap.org + michael.brown2@workforceap.org |
 | Application Accepted | Admin approves application | Applicant |
 | Application Rejected | Admin rejects application | Applicant |
 | Program Enrollment | Member enrolls in program | Member |

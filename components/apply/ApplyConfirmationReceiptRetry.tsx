@@ -11,8 +11,9 @@ type Props = {
 
 /**
  * Best-effort second attempt to deliver the apply receipt email when the user
- * lands on /apply/confirmation after signup. Covers serverless cases where the
- * signup route's after() send did not complete before the function froze.
+ * lands on /apply/confirmation after signup. Covers rare cases where the signup
+ * route's awaited Resend call failed (API error, timeout) — not the serverless
+ * freeze race, which is fixed by awaiting send before the signup response.
  */
 export default function ApplyConfirmationReceiptRetry({ email, fullName }: Props) {
   const startedRef = useRef(false);

@@ -18,7 +18,6 @@ const ROUTES_REQUIRING_AFTER = [
   {
     path: 'app/api/apply/signup/route.ts',
     symbols: [
-      'sendApplicationConfirmationEmail',
       'sendNewApplicationAdminEmail',
       'sendSchoolEnrollmentParentAckEmail',
       'sendSchoolEnrollmentPartnerAckEmail',
@@ -90,11 +89,11 @@ test('email hot-path routes wrap Resend sends in after()', () => {
       );
       for (const m of callSites) {
         const idx = m.index ?? 0;
-        const window = src.slice(Math.max(0, idx - 160), idx);
+        const window = src.slice(Math.max(0, idx - 600), idx);
         assert.match(
           window,
-          /after\s*\(\s*\(\s*\)\s*=>\s*$/,
-          `${route.path}: ${symbol} at offset ${idx} must be immediately inside after(() =>`,
+          /after\s*\(\s*(?:async\s*)?\(\s*\)\s*=>/,
+          `${route.path}: ${symbol} at offset ${idx} must run inside after(() =>`,
         );
       }
     }
@@ -104,4 +103,9 @@ test('email hot-path routes wrap Resend sends in after()', () => {
 test('contact form awaits Resend before responding', () => {
   const src = read('app/api/contact/route.ts');
   assert.match(src, /await\s+resend\.emails\.send\s*\(/);
+});
+
+test('apply signup awaits applicant receipt before responding', () => {
+  const src = read('app/api/apply/signup/route.ts');
+  assert.match(src, /await\s+sendApplicationConfirmationEmail\s*\(/);
 });

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { sendInvitationAcceptedEmail } from '@/lib/email';
@@ -487,12 +487,14 @@ async function acceptExistingUser(
   const inviter = await loadInviterForNotification(invitation.invitedById);
 
   if (inviter?.email) {
-    sendInvitationAcceptedEmail({
-      to: inviter.email,
-      accepterName: fullName || user.fullName,
-      accepterEmail: user.email,
-      role: roleLabel,
-    }).catch((err) => console.error('Invitation accepted email failed:', err));
+    after(() =>
+      sendInvitationAcceptedEmail({
+        to: inviter.email,
+        accepterName: fullName || user.fullName,
+        accepterEmail: user.email,
+        role: roleLabel,
+      }).catch((err) => console.error('Invitation accepted email failed:', err))
+    );
   }
 
   return NextResponse.json({
@@ -737,12 +739,14 @@ async function finishNewUserDbSetup(
   const inviter = await loadInviterForNotification(invitation.invitedById);
 
   if (inviter?.email) {
-    sendInvitationAcceptedEmail({
-      to: inviter.email,
-      accepterName: fullName,
-      accepterEmail: invitation.email,
-      role: roleLabel,
-    }).catch((err) => console.error('Invitation accepted email failed:', err));
+    after(() =>
+      sendInvitationAcceptedEmail({
+        to: inviter.email,
+        accepterName: fullName,
+        accepterEmail: invitation.email,
+        role: roleLabel,
+      }).catch((err) => console.error('Invitation accepted email failed:', err))
+    );
   }
 
   return NextResponse.json({

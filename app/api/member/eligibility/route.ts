@@ -181,10 +181,7 @@ async function _PATCH(request: Request) {
         : null,
     };
 
-    let memberFullName: string | null = null;
-    let memberEmailForNotify: string | null = null;
-
-    await prisma.$transaction(async (tx) => {
+    const notifyMeta = await prisma.$transaction(async (tx) => {
       // city/state/zip + barrierTypes → Profile (existing columns), mirrors
       // app/api/member/profile + the apply signup flow.
       const profileData: Record<string, unknown> = {};
@@ -207,8 +204,6 @@ async function _PATCH(request: Request) {
         where: { id: user.id },
         select: { wioaQualificationJson: true, organizationId: true, fullName: true, email: true },
       });
-      memberFullName = current?.fullName ?? null;
-      memberEmailForNotify = current?.email ?? user.email ?? null;
       const existing =
         (current?.wioaQualificationJson as Record<string, unknown> | null) ?? {};
       const meta: EligibilityFormMeta = {
@@ -246,6 +241,11 @@ async function _PATCH(request: Request) {
           update: screening,
         });
       }
+
+      return {
+        fullName: current?.fullName ?? null,
+        email: current?.email ?? user.email ?? null,
+      };
     });
 
     auditLog({ actorUserId: user.id, action: 'member.eligibility.update', targetType: 'EligibilityForm', targetId: user.id }).catch(() => {});
@@ -254,10 +254,10 @@ async function _PATCH(request: Request) {
     // Fire-and-forget confirmation to member + Mike/admin (WS5). Failures must
     // not roll back the saved answers.
     const eligibilityEmailFields = { ...extended };
-    if (memberEmailForNotify) {
-      const displayName = memberFullName?.trim() || memberEmailForNotify;
+    if (notifyMeta.email) {
+      const displayName = (notifyMeta.fullName ?? '').trim() || notifyMeta.email;
       sendEligibilityScreeningConfirmationEmail({
-        to: memberEmailForNotify,
+        to: notifyMeta.email,
         fullName: displayName,
         eligibility: eligibilityEmailFields,
       }).catch((err) => {
@@ -269,7 +269,7 @@ async function _PATCH(request: Request) {
       });
       sendEligibilityScreeningAdminEmail({
         memberName: displayName,
-        memberEmail: memberEmailForNotify,
+        memberEmail: notifyMeta.email,
         memberId: user.id,
         source: 'dashboard',
         eligibility: eligibilityEmailFields,

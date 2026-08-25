@@ -62,7 +62,8 @@ export function buildEligibilityCampaignWhere(opts?: {
     MEMBER_ONLY_WHERE,
     excludeChsPartnerReferralsWhere(),
     { deletedAt: null },
-    { email: { not: null } },
+    // Prefer non-empty emails; skip null/blank at send time as well.
+    { email: { not: '' } },
   ];
   if (missingScreeningOnly) {
     and.push({ applyEligibilityScreenings: { none: {} } });

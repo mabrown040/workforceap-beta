@@ -18,7 +18,8 @@
  * Safety:
  *   - Only acts on the specific known-bad migration name.
  *   - Idempotent: safe to run multiple times.
- *   - Exits 0 if no action needed (migration not found or already resolved).
+ *   - Exits 0 if no action needed (migration not found, already applied, or
+ *     not in a failed state — Prisma P3012).
  */
 
 require('./ensure-prisma-env.cjs');
@@ -29,15 +30,22 @@ if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
 }
 
 const { spawnSync } = require('child_process');
+const { isBenignMigrateResolveError } = require('./lib/prisma-resolve-benign.cjs');
 
 const FAILED_MIGRATION = '20260614180000_s2_compliance_guc_nullif_xapi_org';
 
 function runPrismaResolve() {
-  const r = spawnSync('npx', ['prisma', 'migrate', 'resolve', '--rolled-back', FAILED_MIGRATION], {
-    stdio: ['inherit', 'pipe', 'pipe'],
-    env: process.env,
-    shell: true,
-  });
+  // Pass a single shell string so npx + args stay one -c command (shell:true
+  // with an argv array only runs the first token as the script body).
+  const r = spawnSync(
+    `npx prisma migrate resolve --rolled-back ${FAILED_MIGRATION}`,
+    {
+      stdio: ['inherit', 'pipe', 'pipe'],
+      env: process.env,
+      shell: true,
+      encoding: 'utf8',
+    },
+  );
   const stdout = (r.stdout ?? '').toString();
   const stderr = (r.stderr ?? '').toString();
   process.stdout.write(stdout);
@@ -54,11 +62,11 @@ if (result.status === 0) {
   process.exit(0);
 }
 
-// If the migration is not found in the failed state, prisma resolve may error.
-// Check if the error is just "not found" vs a real problem.
-const combined = (result.stdout + result.stderr).toLowerCase();
-if (combined.includes('not found') || combined.includes('does not exist') || combined.includes('already resolved') || combined.includes('not in a failed state') || combined.includes('not in a failed state')) {
-  console.log(`resolve-failed-migration: ${FAILED_MIGRATION} is not in a failed state (already resolved or never applied).`);
+// Healthy / already-resolved migrations must not fail the build (P3012).
+if (isBenignMigrateResolveError(result.stdout, result.stderr)) {
+  console.log(
+    `resolve-failed-migration: ${FAILED_MIGRATION} is not in a failed state (already resolved, applied, or never failed). Skipping.`,
+  );
   process.exit(0);
 }
 

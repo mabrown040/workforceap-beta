@@ -152,9 +152,7 @@ export const POST = withApiGuc(
         // Bound link: write ONLY this member's profile + WIOA snapshot. Mirrors
         // /api/member/eligibility. No other member is ever touched.
         const subjectId = link.subjectUserId;
-        let notifyEmail: string | null = null;
-        let notifyName: string | null = null;
-        await prisma.$transaction(async (tx) => {
+        const notifyMeta = await prisma.$transaction(async (tx) => {
           const profileData: Record<string, unknown> = {
             city: data.city?.trim() || null,
             state: data.state?.trim() || null,
@@ -177,8 +175,6 @@ export const POST = withApiGuc(
               fullName: true,
             },
           });
-          notifyEmail = current?.email ?? data.email?.trim() ?? link.email ?? null;
-          notifyName = current?.fullName ?? null;
           const existing =
             (current?.wioaQualificationJson as Record<string, unknown> | null) ?? {};
           const meta: EligibilityFormMeta = {
@@ -218,6 +214,11 @@ export const POST = withApiGuc(
               update: screening,
             });
           }
+
+          return {
+            email: current?.email ?? data.email?.trim() ?? link.email ?? null,
+            fullName: current?.fullName ?? null,
+          };
         });
         auditLog({
           actorUserId: link.subjectUserId,
@@ -235,13 +236,13 @@ export const POST = withApiGuc(
           orgId: link.orgId,
         }).catch(() => {});
 
-        if (notifyEmail && hasEligibilityScreeningFields(extendedMeta)) {
+        if (notifyMeta.email && hasEligibilityScreeningFields(extendedMeta)) {
           const displayName =
-            notifyName?.trim() ||
+            (notifyMeta.fullName ?? '').trim() ||
             [data.firstName, data.lastName].filter(Boolean).join(' ').trim() ||
-            notifyEmail;
+            notifyMeta.email;
           sendEligibilityScreeningConfirmationEmail({
-            to: notifyEmail,
+            to: notifyMeta.email,
             fullName: displayName,
             eligibility: extendedMeta,
           }).catch((err) => {
@@ -253,7 +254,7 @@ export const POST = withApiGuc(
           });
           sendEligibilityScreeningAdminEmail({
             memberName: displayName,
-            memberEmail: notifyEmail,
+            memberEmail: notifyMeta.email,
             memberId: subjectId,
             source: 'token',
             eligibility: extendedMeta,

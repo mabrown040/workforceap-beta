@@ -286,6 +286,7 @@ function resetState() {
   state.cookieSets.length = 0;
   state.partnerReferralUpserts.length = 0;
   state.adminEmails.length = 0;
+  state.screeningUpserts.length = 0;
 
   state.provisionCalls.length = 0;
   state.userUpserts.length = 0;

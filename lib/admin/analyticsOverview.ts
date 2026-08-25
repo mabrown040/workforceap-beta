@@ -8,6 +8,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { calculateHealthStatus, type HealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import type { AdminPageTenantOk } from '@/lib/tenant/adminPageScope';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -85,7 +86,9 @@ const FUNDING_LABELS: Record<FundingSource, string> = {
  * slice is settled independently so one failing query degrades to zero rather
  * than blanking the page.
  */
-export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
+export async function loadAnalyticsOverview(
+  scope: AdminPageTenantOk,
+): Promise<AnalyticsOverview> {
   const thirtyDaysAgo = new Date(Date.now() - THIRTY_DAYS_MS);
 
   const [
@@ -104,7 +107,7 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     applicationsSubmittedResult,
     applicationsApprovedResult,
   ] = await Promise.allSettled([
-    loadTrainingDashboardData(),
+    loadTrainingDashboardData(scope),
     prisma.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
     prisma.memberEvent.groupBy({
       by: ['userId'],

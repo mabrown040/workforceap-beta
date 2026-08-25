@@ -63,6 +63,7 @@ const state = vi.hoisted(() => ({
   resolvedOrgId: 'org-test-1',
   provisionCalls: [] as Array<{ headers?: unknown; programSlug?: string | null }>,
   userUpserts: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
+  screeningUpserts: [] as UpsertArgs[],
 }));
 
 vi.mock('@/lib/rate-limit', () => ({

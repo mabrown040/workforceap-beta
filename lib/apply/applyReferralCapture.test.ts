@@ -8,6 +8,8 @@ import {
   APPLY_REFERRAL_COOKIE,
   APPLY_REFERRAL_SESSION_KEY,
   normalizePartnerRef,
+  partnerRefCookieClearOptions,
+  partnerRefForApplyLanding,
   partnerRefFromEnrollPath,
   shouldCaptureEnrollRef,
 } from './applyReferralCapture';
@@ -92,6 +94,27 @@ test('normalizePartnerRef: rejects anything outside [a-z0-9-]', () => {
 test('normalizePartnerRef: enforces the 64-character bound', () => {
   assert.equal(normalizePartnerRef('a'.repeat(64)), 'a'.repeat(64));
   assert.equal(normalizePartnerRef('a'.repeat(65)), null);
+});
+
+// --- partnerRefForApplyLanding -----------------------------------------------
+
+test('partnerRefForApplyLanding: uses explicit ?ref= only (ignores cookie leftovers)', () => {
+  assert.equal(partnerRefForApplyLanding('chs2026'), 'chs2026');
+  assert.equal(partnerRefForApplyLanding('Concordia'), 'concordia');
+  // Bare /apply — sticky enroll cookie must not be treated as intent here.
+  assert.equal(partnerRefForApplyLanding(null), null);
+  assert.equal(partnerRefForApplyLanding(undefined), null);
+  assert.equal(partnerRefForApplyLanding(''), null);
+  assert.equal(partnerRefForApplyLanding('  '), null);
+});
+
+test('partnerRefCookieClearOptions: matches plant attrs so browsers actually expire', () => {
+  const opts = partnerRefCookieClearOptions();
+  assert.equal(opts.path, '/');
+  assert.equal(opts.maxAge, 0);
+  assert.equal(opts.httpOnly, true);
+  assert.equal(opts.sameSite, 'lax');
+  assert.equal(typeof opts.secure, 'boolean');
 });
 
 // --- partnerRefFromEnrollPath ------------------------------------------------

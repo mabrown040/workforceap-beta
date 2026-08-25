@@ -29,6 +29,7 @@ import {
 } from '@/lib/apply/paidApplyUtm';
 import {
   partnerRefFromEnrollPath,
+  partnerRefCookieClearOptions,
   shouldCaptureEnrollRef,
   PARTNER_REF_COOKIE,
   PARTNER_REF_COOKIE_MAX_AGE,
@@ -227,6 +228,13 @@ export async function middleware(request: NextRequest) {
         maxAge: UTM_SOURCE_COOKIE_MAX_AGE,
         sameSite: 'lax',
       });
+    }
+    // Organic /apply (no ?ref=): expire sticky enroll attribution so the next
+    // applicant on a shared device is not stamped as Concordia (etc.). Explicit
+    // ?ref= keeps / refreshes attribution via ApplyRefCapture + signup body.
+    const applyRef = request.nextUrl.searchParams.get('ref');
+    if (!applyRef && request.cookies.get(PARTNER_REF_COOKIE)) {
+      response.cookies.set(PARTNER_REF_COOKIE, '', partnerRefCookieClearOptions());
     }
   }
 

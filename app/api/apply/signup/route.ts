@@ -16,7 +16,11 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { normalizePartnerRef, PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
+import {
+  normalizePartnerRef,
+  PARTNER_REF_COOKIE,
+  partnerRefCookieClearOptions,
+} from '@/lib/apply/applyReferralCapture';
 import {
   buildFundingNotes,
   buildSponsoredSeatWhere,
@@ -775,13 +779,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     // signup with no partner ref emits no `Set-Cookie` at all.
     if (hasPartnerRefCookie) {
       try {
-        cookieStore.set(PARTNER_REF_COOKIE, '', {
-          maxAge: 0,
-          path: '/',
-          httpOnly: true,
-          sameSite: 'lax',
-          secure: process.env.NODE_ENV === 'production',
-        });
+        cookieStore.set(PARTNER_REF_COOKIE, '', partnerRefCookieClearOptions());
       } catch (cookieErr) {
         // The account is already committed; never turn a cookie write into a
         // failed signup.

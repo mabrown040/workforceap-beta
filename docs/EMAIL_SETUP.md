@@ -51,6 +51,7 @@ These are sent by the Next.js app via Resend:
 | Email | Trigger | Recipient |
 |-------|---------|-----------|
 | Contact Form | Public submits contact form | info@workforceap.org |
+| Application Confirmation | User completes `/api/apply/signup` | Applicant (immediate receipt) |
 | New Application Admin | User signs up (Application created) | info@workforceap.org |
 | Application Accepted | Admin approves application | Applicant |
 | Application Rejected | Admin rejects application | Applicant |
@@ -58,5 +59,7 @@ These are sent by the Next.js app via Resend:
 | Course Completed | Member completes course | Member |
 | Weekly Recap | Cron (Sundays 6 PM) | Enrolled members |
 | Inactive Nudge | Cron (daily) | Members inactive 7+ days |
+
+**Apply signup note:** confirmation + admin alert sends are scheduled with Next.js `after()` so Vercel keeps the serverless invocation alive until Resend finishes. Without that, applicants can land on `/apply/confirmation` while the receipt email never leaves the function.
 
 The app uses `lib/email/template.ts` for branded HTML layout (dark header, white body, footer).

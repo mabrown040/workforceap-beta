@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
@@ -676,11 +676,11 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         sourcePage: '/apply/create-account',
       });
   
-      // Fire-and-forget post-signup notifications. Email failures (Resend
-      // outage, missing env, transient network) must NOT block account
-      // creation — the user is already authenticated and their record is
-      // committed. Errors are logged and surfaced via captureApiError so we
-      // can spot patterns without losing the signup.
+      // Post-signup notifications via next/server `after()` so Vercel keeps the
+      // invocation alive until Resend finishes. Bare fire-and-forget promises
+      // are often frozen when the JSON response returns — applicants then see
+      // the success page but never get the receipt email. Failures still must
+      // NOT roll back account creation; they are logged + captureApiError'd.
       const eligibilityEmailFields = {
         q1: eligibilityQ1 ?? null,
         q2: eligibilityQ2 ?? null,
@@ -696,17 +696,19 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         partnerAmbassadorReferral: partnerAmbassadorNormalized,
       };
 
-      sendApplicationConfirmationEmail({
-        to: user.email!,
-        fullName,
-        eligibility: eligibilityEmailFields,
-      }).catch((err) => {
-        logger.error('Member application confirmation email failed', { err });
-        captureApiError(err, {
-          route: 'POST /api/apply/signup#applicationConfirmation',
-          extra: { userId: user.id },
-        });
-      });
+      after(() =>
+        sendApplicationConfirmationEmail({
+          to: user.email!,
+          fullName,
+          eligibility: eligibilityEmailFields,
+        }).catch((err) => {
+          logger.error('Member application confirmation email failed', { err });
+          captureApiError(err, {
+            route: 'POST /api/apply/signup#applicationConfirmation',
+            extra: { userId: user.id },
+          });
+        })
+      );
   
       // Soft seat cap: the student is already through, but an admin has to
       // decide who funds this seat. Surfaced two STAFF-ONLY ways — this
@@ -731,21 +733,23 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             ? [applicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
             : applicationNotes;
 
-        sendNewApplicationAdminEmail({
-          applicantName: fullName,
-          applicantEmail: user.email!,
-          applicantPhone: phone,
-          programInterest: programInterestSummary,
-          applicationId: createdApplicationId,
-          applicationNotes: adminAlertNotes || undefined,
-          eligibility: eligibilityEmailFields,
-        }).catch((err) => {
-          logger.error('Admin new-application alert email failed', { err });
-          captureApiError(err, {
-            route: 'POST /api/apply/signup#newApplicationAdmin',
-            extra: { userId: user.id, applicationId: createdApplicationId },
-          });
-        });
+        after(() =>
+          sendNewApplicationAdminEmail({
+            applicantName: fullName,
+            applicantEmail: user.email!,
+            applicantPhone: phone,
+            programInterest: programInterestSummary,
+            applicationId: createdApplicationId,
+            applicationNotes: adminAlertNotes || undefined,
+            eligibility: eligibilityEmailFields,
+          }).catch((err) => {
+            logger.error('Admin new-application alert email failed', { err });
+            captureApiError(err, {
+              route: 'POST /api/apply/signup#newApplicationAdmin',
+              extra: { userId: user.id, applicationId: createdApplicationId },
+            });
+          })
+        );
       }
     } catch (dbError) {
       captureApiError(dbError, { route: 'POST /api/apply/signup' });

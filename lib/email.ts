@@ -8,6 +8,7 @@ import { sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
+import type { EligibilityScreeningFields } from '@/lib/apply/eligibilityScreeningFields';
 import {
   applicationAcceptedHtml,
   applicationRejectedHtml,
@@ -27,6 +28,8 @@ import {
   newJobApplicationHtml,
   aiMatchSuggestionHtml,
   applicationConfirmationHtml,
+  eligibilityScreeningConfirmationHtml,
+  eligibilityScreeningAdminAlertHtml,
   applicantFollowupHtml,
   adminPendingApplicantsHtml,
   adminWeeklyRecapHtml,
@@ -763,6 +766,7 @@ export async function sendNewApplicationAdminEmail(params: {
   programInterest: string;
   applicationId: string;
   applicationNotes?: string;
+  eligibility?: EligibilityScreeningFields | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1530,6 +1534,7 @@ export async function sendMatchActionEmail(
 export async function sendApplicationConfirmationEmail(params: {
   to: string;
   fullName: string;
+  eligibility?: EligibilityScreeningFields | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1539,7 +1544,10 @@ export async function sendApplicationConfirmationEmail(params: {
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
   const html = brandedEmailLayout({
     title: 'Application Received — WorkforceAP',
-    bodyHtml: applicationConfirmationHtml({ firstName: first }),
+    bodyHtml: applicationConfirmationHtml({
+      firstName: first,
+      eligibility: params.eligibility,
+    }),
     ctaText: 'Bookmark Your Portal',
     ctaUrl: `${SITE_URL}/login`,
   });
@@ -1553,6 +1561,76 @@ export async function sendApplicationConfirmationEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendApplicationConfirmationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Applicant confirmation after dashboard / token eligibility questionnaire submit. */
+export async function sendEligibilityScreeningConfirmationEmail(params: {
+  to: string;
+  fullName: string;
+  eligibility?: EligibilityScreeningFields | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEligibilityScreeningConfirmationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const html = brandedEmailLayout({
+    title: 'Eligibility questionnaire received',
+    bodyHtml: eligibilityScreeningConfirmationHtml({
+      firstName: first,
+      eligibility: params.eligibility,
+    }),
+    ctaText: 'Open member portal',
+    ctaUrl: `${SITE_URL}/login`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine('Eligibility questionnaire received — WorkforceAP'),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEligibilityScreeningConfirmationEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Mike/admin alert when eligibility screening is submitted outside apply signup. */
+export async function sendEligibilityScreeningAdminEmail(params: {
+  memberName: string;
+  memberEmail: string;
+  memberId?: string | null;
+  source: 'dashboard' | 'token' | 'apply';
+  eligibility?: EligibilityScreeningFields | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEligibilityScreeningAdminEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `Eligibility screening: ${params.memberName}`,
+    bodyHtml: eligibilityScreeningAdminAlertHtml(params),
+    ctaText: params.memberId ? 'Open member' : 'Open members',
+    ctaUrl: params.memberId
+      ? `${SITE_URL}/admin/members/${encodeURIComponent(params.memberId)}`
+      : `${SITE_URL}/admin/members`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: sanitizeEmailSubjectLine(`Eligibility screening: ${params.memberName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEligibilityScreeningAdminEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }
@@ -2380,6 +2458,13 @@ export async function sendInterviewPrepLink(params: {
 }
 
 /**
+ * Soft membership reminder copy for the Sept 14 WS5 campaign.
+ * Reminder only — does NOT disable accounts or lock members out.
+ */
+export const ELIGIBILITY_SOFT_DEADLINE_COPY =
+  'Please complete by September 14 to keep your membership current. This is a friendly reminder only — your account stays active either way.';
+
+/**
  * Send a logged-in member a link to the eligibility questionnaire portal page,
  * where they can complete / update their WIOA eligibility info. No token —
  * the portal page is auth-gated. Sibling of sendInvitationEmail.
@@ -2389,6 +2474,8 @@ export async function sendEligibilityLink(params: {
   name?: string | null;
   url: string;
   orgId?: string | null;
+  /** When true, include Sept 14 soft-reminder language (WS5 non-CHS campaign). */
+  softDeadlineReminder?: boolean;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -2398,12 +2485,16 @@ export async function sendEligibilityLink(params: {
   const branding = await getOrganizationBranding(params.orgId);
   const greeting = params.name?.trim() ? `Hi ${escapeHtml(params.name.trim())},` : 'Hi,';
   const title = 'Complete your eligibility info';
+  const softLine = params.softDeadlineReminder
+    ? `<p style="margin: 0 0 1rem;"><strong>${escapeHtml(ELIGIBILITY_SOFT_DEADLINE_COPY)}</strong></p>`
+    : '';
   const html = brandedEmailLayout({
     title,
     bodyHtml: `
       <p style="margin: 0 0 1rem;">${greeting}</p>
       <p style="margin: 0 0 1rem;">To keep your ${escapeHtml(branding.name)} file up to date, please take a moment to
       complete or update your eligibility information — your age group, location, and any barriers to employment.</p>
+      ${softLine}
       <p style="margin: 0 0 1rem;">Click the button below to open the form. It's pre-filled with what we already have, so it
       only takes a minute. You'll be asked to log in if you aren't already.</p>
     `,
@@ -2415,7 +2506,11 @@ export async function sendEligibilityLink(params: {
     await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
-      subject: sanitizeEmailSubjectLine(`Complete your eligibility info for ${branding.name}`),
+      subject: sanitizeEmailSubjectLine(
+        params.softDeadlineReminder
+          ? `Please complete your eligibility info by Sept 14 — ${branding.name}`
+          : `Complete your eligibility info for ${branding.name}`,
+      ),
       html,
     });
     return { ok: true };

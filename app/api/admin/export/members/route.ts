@@ -8,6 +8,10 @@ import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/l
 import { buildCsv, csvDate } from '@/lib/csv';
 import { buildMemberExportWhere, fetchMembersForExport, MEMBER_EXPORT_LIMIT } from './_membersExportQuery';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import {
+  ELIGIBILITY_DATASHEET_COLUMNS,
+  eligibilityDatasheetCells,
+} from '@/lib/apply/eligibilityScreeningFields';
 
 /**
  * GET /api/admin/export/members
@@ -84,6 +88,8 @@ async function _GET(req: NextRequest) {
     'Placed Job Title',
     'Placed Salary',
     'Placed Date',
+    ...ELIGIBILITY_DATASHEET_COLUMNS,
+    'Eligibility Screening Submitted',
   ];
 
   const csvRows = rows.map((u) => {
@@ -124,6 +130,7 @@ async function _GET(req: NextRequest) {
     const certs = u.userCertifications.map((c) => c.certName).join('; ');
 
     const p = u.placementRecord;
+    const screening = u.applyEligibilityScreenings[0] ?? null;
 
     return [
       u.fullName,
@@ -158,6 +165,8 @@ async function _GET(req: NextRequest) {
       p?.jobTitle,
       p?.salaryOffered != null ? `$${p.salaryOffered.toLocaleString()}` : '',
       csvDate(p?.placedAt),
+      ...eligibilityDatasheetCells(screening),
+      csvDate(screening?.createdAt),
     ];
   });
 

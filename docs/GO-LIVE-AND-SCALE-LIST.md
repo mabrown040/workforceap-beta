@@ -20,6 +20,7 @@ This is **not** another audit. Scale sequencing lives in [`docs/SCALE-FIX-PLAN.m
 
 Ops / human / do-not — not “write more Prisma.”
 
+- **WS5 eligibility ops residual (Mike):** soft Sept 14 reminder copy sign-off before non-CHS blast; optional second reminder wave after Sept 14 (still no lockout). See `docs/WS5-ELIGIBILITY-OPS.md` on `cursor/apply-eligibility-ops-datasheet-942e`.
 - **Remaining admin pages** if `cursor/admin-remaining-org-scope-942e` is still in flight — org-admin SSR lists that never called `resolveAdminPageTenant` / `withAdminPageScope`. Super-admin stays cross-tenant on purpose.
 - **RLS GUC do-not.** Never flip `WAP_RLS_GUC_ENABLED=true` alone. That is how the 2026-06-18 portal 504s happened (`docs/POSTMORTEM-2026-06-18-PORTAL-OUTAGE.md`, `lib/db/prisma.ts`). Phase 8 is a dedicated milestone (FORCE RLS + batched GUC + non-owner role together).
 - **Email deliverability rehearsal.** Resend domain + Supabase Auth SMTP + apply confirmation path (`docs/EMAIL_SETUP.md`). Ops must support the 1–2 business day promise.
@@ -49,6 +50,7 @@ Ops / human / do-not — not “write more Prisma.”
 | `cursor/gdpr-blobs-and-limiters-942e` | Phase 15 — GDPR / member-delete remove storage blobs |
 | `cursor/golive-ui-and-health-942e` | Health liveness vs ready probe; apply `PreLaunchTag` off Pilot copy; cookie a11y; apply dark tokens |
 | `cursor/sprint-wrap-golive-docs-942e` | Phase 6 i18n **picker** half — root ships chrome + marketing client keys; portal/admin/apply/auth attach their own slices. Catalog JSON files are **not** split. |
+| `cursor/apply-eligibility-ops-datasheet-942e` | WS5 — eligibility confirmation emails (WS4 fields), in-admin datasheet + CSV, non-CHS soft Sept 14 campaign (no lockout). Docs: `docs/WS5-ELIGIBILITY-OPS.md`. |
 
 ---
 

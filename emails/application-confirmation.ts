@@ -3,9 +3,18 @@
  */
 
 import { escapeHtml } from '@/lib/email/escapeHtml';
+import { eligibilityScreeningSummaryHtml } from './eligibility-screening-summary';
+import type { EligibilityScreeningFields } from '@/lib/apply/eligibilityScreeningFields';
 
-export function applicationConfirmationHtml(params: { firstName: string }): string {
-  const { firstName } = params;
+export function applicationConfirmationHtml(params: {
+  firstName: string;
+  /** WS4 adult eligibility answers when collected on apply. */
+  eligibility?: EligibilityScreeningFields | null;
+}): string {
+  const { firstName, eligibility } = params;
+  const eligibilityBlock = eligibilityScreeningSummaryHtml(eligibility, {
+    heading: 'Eligibility answers we received',
+  });
   return `
     <p>Hi ${escapeHtml(firstName)},</p>
     <p>We&rsquo;ve received your application to the Workforce Advancement Project. Here is what happens next:</p>
@@ -14,6 +23,7 @@ export function applicationConfirmationHtml(params: { firstName: string }): stri
       <li><strong>You&rsquo;ll receive an email with next steps</strong> &mdash; we tell you what comes next so you are not left guessing</li>
       <li><strong>If accepted, you&rsquo;ll get access to your member portal</strong> &mdash; training, AI career tools, and your counselor all in one place</li>
     </ol>
+    ${eligibilityBlock}
     <p><strong>What you can do while you wait:</strong></p>
     <ul>
       <li>Bookmark your portal login at <a href="https://www.workforceap.org/login">workforceap.org/login</a></li>

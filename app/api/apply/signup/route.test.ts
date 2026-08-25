@@ -249,6 +249,7 @@ vi.mock('@supabase/ssr', () => ({
 }));
 
 import { POST } from './route';
+import { sendApplicationConfirmationEmail, sendNewApplicationAdminEmail } from '@/lib/email';
 
 function makeRequest(overrides: Record<string, unknown> = {}) {
   const body = {
@@ -850,6 +851,24 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
     expect(notes).toContain('Layoff company: Acme Logistics');
     expect(notes).toContain('Heard about us: Partner or community ambassador');
     expect(notes).toContain('Partner/ambassador referral: Ambassador Jane / code-abc');
+
+    // WS5: confirmation + admin alert receive structured eligibility payload
+    await new Promise((r) => setTimeout(r, 0));
+    expect(sendApplicationConfirmationEmail).toHaveBeenCalled();
+    const confArgs = vi.mocked(sendApplicationConfirmationEmail).mock.calls.at(-1)?.[0];
+    expect(confArgs?.eligibility).toMatchObject({
+      receivingUnemployment: 'yes',
+      snapWic: 'yes',
+      layoffCompany: 'Acme Logistics',
+      hearAbout: 'Partner or community ambassador',
+      partnerAmbassadorReferral: 'Ambassador Jane / code-abc',
+    });
+    expect(sendNewApplicationAdminEmail).toHaveBeenCalled();
+    const adminArgs = vi.mocked(sendNewApplicationAdminEmail).mock.calls.at(-1)?.[0];
+    expect(adminArgs?.eligibility).toMatchObject({
+      receivingUnemployment: 'yes',
+      snapWic: 'yes',
+    });
   });
 
   it('rejects invalid receivingUnemployment values with 400', async () => {

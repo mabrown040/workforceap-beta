@@ -78,6 +78,25 @@ const memberExportSelect = {
   trainingAccessRequests: {
     select: { providerKey: true, status: true, activatedAt: true },
   },
+  applyEligibilityScreenings: {
+    take: 1,
+    orderBy: { createdAt: 'desc' },
+    select: {
+      q1: true,
+      q2: true,
+      q3: true,
+      qualifies: true,
+      yesCount: true,
+      receivingUnemployment: true,
+      exhaustedUnemployment: true,
+      layoffCompany: true,
+      snapWic: true,
+      hearAbout: true,
+      hearAboutOther: true,
+      partnerAmbassadorReferral: true,
+      createdAt: true,
+    },
+  },
 } satisfies Prisma.UserSelect;
 
 export type MemberExportUser = Prisma.UserGetPayload<{ select: typeof memberExportSelect }>;

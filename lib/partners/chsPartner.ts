@@ -39,3 +39,37 @@ export const CHS_SPONSORSHIP_STARTS_AT = new Date('2026-01-01T00:00:00Z');
 
 /** Inclusive sponsorship window end (UTC). */
 export const CHS_SPONSORSHIP_ENDS_AT = new Date('2026-12-31T23:59:59Z');
+
+/**
+ * True when a partner slug or referral code identifies Concordia High School.
+ * Used by ops campaigns that must exclude CHS members (WS5 soft reminder blast).
+ */
+export function isChsPartnerRef(slugOrCode: string | null | undefined): boolean {
+  if (!slugOrCode) return false;
+  const v = slugOrCode.trim().toLowerCase();
+  return v === CHS_PARTNER_SLUG || v === CHS_PARTNER_REFERRAL_CODE.toLowerCase();
+}
+
+/**
+ * Prisma `UserWhereInput` fragment: members who are NOT referred by the CHS partner.
+ * Match on Partner.slug OR Partner.referralCode so either identifier excludes them.
+ */
+export function excludeChsPartnerReferralsWhere(): {
+  partnerReferrals: {
+    none: {
+      partner: {
+        OR: Array<{ slug: string } | { referralCode: string }>;
+      };
+    };
+  };
+} {
+  return {
+    partnerReferrals: {
+      none: {
+        partner: {
+          OR: [{ slug: CHS_PARTNER_SLUG }, { referralCode: CHS_PARTNER_REFERRAL_CODE }],
+        },
+      },
+    },
+  };
+}

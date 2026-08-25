@@ -7,6 +7,8 @@ import {
   CHS_SPONSORSHIP_ENDS_AT,
   CHS_SPONSORSHIP_STARTS_AT,
   CHS_SPONSORSHIP_TERM_LABEL,
+  excludeChsPartnerReferralsWhere,
+  isChsPartnerRef,
 } from '@/lib/partners/chsPartner';
 import {
   normalizePartnerRef,
@@ -53,6 +55,14 @@ test('the sponsorship window covers the whole labelled term', () => {
   assert.equal(CHS_SPONSORSHIP_STARTS_AT.getUTCFullYear(), 2026);
   assert.equal(CHS_SPONSORSHIP_ENDS_AT.getUTCFullYear(), 2026);
   assert.ok(CHS_SPONSORSHIP_STARTS_AT.getTime() < CHS_SPONSORSHIP_ENDS_AT.getTime());
+});
+
+test('isChsPartnerRef and excludeChsPartnerReferralsWhere (WS5 campaign)', () => {
+  assert.equal(isChsPartnerRef('concordia'), true);
+  assert.equal(isChsPartnerRef('chs2026'), true);
+  assert.equal(isChsPartnerRef('other'), false);
+  const frag = excludeChsPartnerReferralsWhere();
+  assert.equal(frag.partnerReferrals.none.partner.OR.length, 2);
 });
 
 test('a partner provisioned from these constants sponsors for the whole term', () => {

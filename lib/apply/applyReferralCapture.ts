@@ -21,6 +21,39 @@ export const PARTNER_REF_COOKIE = APPLY_REFERRAL_COOKIE;
 /** 30 days — matches the member referral cookie in `app/r/[code]/route.ts`. */
 export const PARTNER_REF_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
+/**
+ * Landing `/apply` may open the school wizard only from an explicit `?ref=`.
+ * A leftover `wap_partner_ref` cookie (e.g. after `/enroll/concordia` on a
+ * family or lab device) must not silently turn organic WorkforceAP apply into
+ * Concordia (or any other school) attribution.
+ *
+ * Mid-funnel pages (`/apply/results`, `/apply/create-account`) and signup
+ * still read the cookie — those run after a prior `?ref=` (or enroll CTA)
+ * planted it for the same applicant.
+ */
+export function partnerRefForApplyLanding(
+  queryRef: string | null | undefined,
+): string | null {
+  return normalizePartnerRef(queryRef);
+}
+
+/** Cookie clear attrs must match middleware plant (httpOnly + sameSite + secure). */
+export function partnerRefCookieClearOptions(): {
+  httpOnly: true;
+  sameSite: 'lax';
+  secure: boolean;
+  path: '/';
+  maxAge: 0;
+} {
+  return {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 0,
+  };
+}
+
 /** Persist a partner ref in sessionStorage (and a first-party cookie for JS). */
 export function persistPartnerRef(raw: string | null | undefined): string | null {
   const ref = normalizePartnerRef(raw);

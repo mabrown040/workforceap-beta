@@ -9,11 +9,13 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
 import AdminExportForm from './AdminExportForm';
+import EligibilityDatasheetPanel from '@/components/admin/EligibilityDatasheetPanel';
 import { DesignSurface } from '@/components/portal/kit';
 import {
   ExportsKit,
   type ExportOption,
 } from '@/components/portal/kit/pages/admin-subviews/ExportsKit';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -42,16 +44,75 @@ export default async function AdminExportsPage({
   }));
   const t = await getTranslations('admin');
 
+  const previewMembers = await withAdminPageScope(scope, (db) =>
+    db.user.findMany({
+      where: {
+        deletedAt: null,
+        AND: [MEMBER_ONLY_WHERE, { applyEligibilityScreenings: { some: {} } }],
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 25,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        partnerReferrals: {
+          take: 1,
+          orderBy: { referredAt: 'desc' },
+          select: { partner: { select: { name: true } } },
+        },
+        applyEligibilityScreenings: {
+          take: 1,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            receivingUnemployment: true,
+            snapWic: true,
+            hearAbout: true,
+            createdAt: true,
+          },
+        },
+      },
+    }),
+  );
+
+  const previewRows = previewMembers.map((m) => {
+    const s = m.applyEligibilityScreenings[0];
+    return {
+      id: m.id,
+      fullName: m.fullName,
+      email: m.email,
+      partnerName: m.partnerReferrals[0]?.partner.name ?? null,
+      receivingUnemployment: s?.receivingUnemployment ?? null,
+      snapWic: s?.snapWic ?? null,
+      hearAbout: s?.hearAbout ?? null,
+      screeningAt: s?.createdAt
+        ? s.createdAt.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : null,
+    };
+  });
+
   // --- DEFAULT: kit card-grid of the REAL export options this page exposes ---
   if (requestedUi !== 'legacy') {
     const exports: ExportOption[] = [
       {
         id: 'member-training-report',
         title: 'Member Training Report',
-        description: 'Demographics, progress, certs & placements · filterable CSV',
+        description: 'Demographics, progress, certs, placements & eligibility · filterable CSV',
         href: '/admin/exports?ui=legacy',
         iconKey: 'filters',
         tone: 'accent',
+      },
+      {
+        id: 'eligibility-datasheet',
+        title: 'Eligibility screening datasheet',
+        description: 'WS4 fields · in-admin table + CSV (not Google Sheets)',
+        href: '/admin/exports?ui=legacy#eligibility-datasheet',
+        iconKey: 'csv',
+        tone: 'gold',
       },
       {
         id: 'funder-program-summary',
@@ -103,13 +164,17 @@ export default async function AdminExportsPage({
                   Member Training Report
                 </h2>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
-                  Demographics, enrollment, course progress, Coursera access, certifications, and placements.
+                  Demographics, enrollment, course progress, Coursera access, certifications, placements, and WS4 eligibility fields.
                 </p>
               </div>
             </div>
 
             <AdminExportForm programs={programs} stages={stages} />
           </div>
+        </section>
+
+        <section id="eligibility-datasheet" style={{ marginBottom: '2.5rem' }}>
+          <EligibilityDatasheetPanel previewRows={previewRows} />
         </section>
 
         {/* Funder program summary (grant reporting) */}
@@ -184,7 +249,7 @@ export default async function AdminExportsPage({
             {[
               { icon: 'person', title: 'Demographics', items: 'Name, email, phone, state, city, zip, DOB, education, employment, veteran status, ethnicity' },
               { icon: 'school', title: 'Training Progress', items: 'Program enrolled, enrollment date, courses completed, completion %, individual course names, funding source' },
-              { icon: 'workspace_premium', title: 'Outcomes & Compliance', items: 'Coursera access status, assessment score, WIOA signal & review status, certifications earned, placement details (employer, role, salary)' },
+              { icon: 'workspace_premium', title: 'Outcomes & Compliance', items: 'Coursera access status, assessment score, WIOA signal & review status, certifications earned, placement details, WS4 eligibility screening fields' },
             ].map((col) => (
               <div key={col.title} style={{ padding: '1rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">{col.icon}</span>

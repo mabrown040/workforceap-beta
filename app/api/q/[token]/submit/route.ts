@@ -10,6 +10,13 @@ import { checkPublicQuestionnaireSubmitRateLimit } from '@/lib/rate-limit';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
+import {
+  sendEligibilityScreeningAdminEmail,
+  sendEligibilityScreeningConfirmationEmail,
+} from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
+import { logger } from '@/lib/observability/logger';
+import { hasEligibilityScreeningFields } from '@/lib/apply/eligibilityScreeningFields';
 
 /**
  * POST /api/q/[token]/submit
@@ -145,6 +152,8 @@ export const POST = withApiGuc(
         // Bound link: write ONLY this member's profile + WIOA snapshot. Mirrors
         // /api/member/eligibility. No other member is ever touched.
         const subjectId = link.subjectUserId;
+        let notifyEmail: string | null = null;
+        let notifyName: string | null = null;
         await prisma.$transaction(async (tx) => {
           const profileData: Record<string, unknown> = {
             city: data.city?.trim() || null,
@@ -161,8 +170,15 @@ export const POST = withApiGuc(
 
           const current = await tx.user.findUnique({
             where: { id: subjectId },
-            select: { wioaQualificationJson: true, organizationId: true },
+            select: {
+              wioaQualificationJson: true,
+              organizationId: true,
+              email: true,
+              fullName: true,
+            },
           });
+          notifyEmail = current?.email ?? data.email?.trim() ?? link.email ?? null;
+          notifyName = current?.fullName ?? null;
           const existing =
             (current?.wioaQualificationJson as Record<string, unknown> | null) ?? {};
           const meta: EligibilityFormMeta = {
@@ -218,11 +234,45 @@ export const POST = withApiGuc(
           request: auditRequestMeta(request),
           orgId: link.orgId,
         }).catch(() => {});
+
+        if (notifyEmail && hasEligibilityScreeningFields(extendedMeta)) {
+          const displayName =
+            notifyName?.trim() ||
+            [data.firstName, data.lastName].filter(Boolean).join(' ').trim() ||
+            notifyEmail;
+          sendEligibilityScreeningConfirmationEmail({
+            to: notifyEmail,
+            fullName: displayName,
+            eligibility: extendedMeta,
+          }).catch((err) => {
+            logger.error('Token eligibility confirmation email failed', { err });
+            captureApiError(err, {
+              route: 'POST /api/q/[token]/submit#confirmation',
+              extra: { subjectUserId: subjectId },
+            });
+          });
+          sendEligibilityScreeningAdminEmail({
+            memberName: displayName,
+            memberEmail: notifyEmail,
+            memberId: subjectId,
+            source: 'token',
+            eligibility: extendedMeta,
+          }).catch((err) => {
+            logger.error('Token eligibility admin alert failed', { err });
+            captureApiError(err, {
+              route: 'POST /api/q/[token]/submit#adminAlert',
+              extra: { subjectUserId: subjectId },
+            });
+          });
+        }
       } else {
         // No-account lead: do NOT create a Supabase auth account or a User
         // FK row. Record the submission to the audit log so an admin can see
         // it (audit_logs.actorUserId is nullable). Keyed to the token's id +
         // email, with the full eligibility answers in metadata.
+        const leadEmail = data.email?.trim() || link.email || null;
+        const leadName =
+          [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || leadEmail || 'Lead';
         await auditLog({
           actorUserId: null,
           action: 'public_eligibility_lead_submitted',
@@ -232,7 +282,7 @@ export const POST = withApiGuc(
           actorRoleSnapshot: null,
           metadata: {
             orgId: link.orgId,
-            email: data.email?.trim() || link.email || null,
+            email: leadEmail,
             firstName: data.firstName?.trim() || null,
             lastName: data.lastName?.trim() || null,
             phone: data.phone?.trim() || null,
@@ -245,6 +295,33 @@ export const POST = withApiGuc(
             ...extendedMeta,
           },
         });
+
+        if (leadEmail && hasEligibilityScreeningFields(extendedMeta)) {
+          sendEligibilityScreeningConfirmationEmail({
+            to: leadEmail,
+            fullName: leadName,
+            eligibility: extendedMeta,
+          }).catch((err) => {
+            logger.error('Public lead eligibility confirmation email failed', { err });
+            captureApiError(err, {
+              route: 'POST /api/q/[token]/submit#leadConfirmation',
+              extra: { linkId: link.id },
+            });
+          });
+          sendEligibilityScreeningAdminEmail({
+            memberName: leadName,
+            memberEmail: leadEmail,
+            memberId: null,
+            source: 'token',
+            eligibility: extendedMeta,
+          }).catch((err) => {
+            logger.error('Public lead eligibility admin alert failed', { err });
+            captureApiError(err, {
+              route: 'POST /api/q/[token]/submit#leadAdminAlert',
+              extra: { linkId: link.id },
+            });
+          });
+        }
       }
 
       return NextResponse.json({ ok: true });

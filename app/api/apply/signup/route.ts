@@ -677,9 +677,25 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       // creation — the user is already authenticated and their record is
       // committed. Errors are logged and surfaced via captureApiError so we
       // can spot patterns without losing the signup.
+      const eligibilityEmailFields = {
+        q1: eligibilityQ1 ?? null,
+        q2: eligibilityQ2 ?? null,
+        q3: eligibilityQ3 ?? null,
+        qualifies: eligibilityQualifies ?? null,
+        yesCount: eligibilityYesCount ?? null,
+        receivingUnemployment: receivingUnemploymentNormalized,
+        exhaustedUnemployment: exhaustedUnemploymentNormalized,
+        layoffCompany: layoffCompanyNormalized,
+        snapWic: snapWicNormalized,
+        hearAbout: hearAboutNormalized,
+        hearAboutOther: hearAboutOtherNormalized,
+        partnerAmbassadorReferral: partnerAmbassadorNormalized,
+      };
+
       sendApplicationConfirmationEmail({
         to: user.email!,
         fullName,
+        eligibility: eligibilityEmailFields,
       }).catch((err) => {
         logger.error('Member application confirmation email failed', { err });
         captureApiError(err, {
@@ -718,6 +734,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           programInterest: programInterestSummary,
           applicationId: createdApplicationId,
           applicationNotes: adminAlertNotes || undefined,
+          eligibility: eligibilityEmailFields,
         }).catch((err) => {
           logger.error('Admin new-application alert email failed', { err });
           captureApiError(err, {

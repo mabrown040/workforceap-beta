@@ -6,7 +6,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExtendedFields';
-
+import {
+  sendEligibilityScreeningAdminEmail,
+  sendEligibilityScreeningConfirmationEmail,
+} from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
+import { logger } from '@/lib/observability/logger';
 /**
  * Member-owned eligibility questionnaire (§9). Reuses the `app/api/member/profile`
  * pattern: city/state/zip + barrierTypes write to Profile columns (which exist).
@@ -176,6 +181,9 @@ async function _PATCH(request: Request) {
         : null,
     };
 
+    let memberFullName: string | null = null;
+    let memberEmailForNotify: string | null = null;
+
     await prisma.$transaction(async (tx) => {
       // city/state/zip + barrierTypes → Profile (existing columns), mirrors
       // app/api/member/profile + the apply signup flow.
@@ -197,8 +205,10 @@ async function _PATCH(request: Request) {
       // ageGroup + county + WS4 answers → User.wioaQualificationJson.
       const current = await tx.user.findUnique({
         where: { id: user.id },
-        select: { wioaQualificationJson: true, organizationId: true },
+        select: { wioaQualificationJson: true, organizationId: true, fullName: true, email: true },
       });
+      memberFullName = current?.fullName ?? null;
+      memberEmailForNotify = current?.email ?? user.email ?? null;
       const existing =
         (current?.wioaQualificationJson as Record<string, unknown> | null) ?? {};
       const meta: EligibilityFormMeta = {
@@ -240,6 +250,38 @@ async function _PATCH(request: Request) {
 
     auditLog({ actorUserId: user.id, action: 'member.eligibility.update', targetType: 'EligibilityForm', targetId: user.id }).catch(() => {});
     logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'EligibilityForm', id: user.id }, result: { success: true } }).catch(() => {});
+
+    // Fire-and-forget confirmation to member + Mike/admin (WS5). Failures must
+    // not roll back the saved answers.
+    const eligibilityEmailFields = { ...extended };
+    if (memberEmailForNotify) {
+      const displayName = memberFullName?.trim() || memberEmailForNotify;
+      sendEligibilityScreeningConfirmationEmail({
+        to: memberEmailForNotify,
+        fullName: displayName,
+        eligibility: eligibilityEmailFields,
+      }).catch((err) => {
+        logger.error('Eligibility screening confirmation email failed', { err });
+        captureApiError(err, {
+          route: 'PATCH /api/member/eligibility#confirmation',
+          extra: { userId: user.id },
+        });
+      });
+      sendEligibilityScreeningAdminEmail({
+        memberName: displayName,
+        memberEmail: memberEmailForNotify,
+        memberId: user.id,
+        source: 'dashboard',
+        eligibility: eligibilityEmailFields,
+      }).catch((err) => {
+        logger.error('Eligibility screening admin alert failed', { err });
+        captureApiError(err, {
+          route: 'PATCH /api/member/eligibility#adminAlert',
+          extra: { userId: user.id },
+        });
+      });
+    }
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/member/eligibility error:', error);

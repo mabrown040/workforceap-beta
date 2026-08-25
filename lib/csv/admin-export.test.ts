@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dataToCsv, exportFilename } from './export';
+import { ELIGIBILITY_DATASHEET_COLUMNS } from '@/lib/apply/eligibilityScreeningFields';
 
 // ---- Members export shape test ----
 test('members export CSV includes expected columns', () => {
@@ -54,6 +55,19 @@ test('members export CSV includes expected columns', () => {
   assert.ok(lines[1].includes('Alice Smith'));
   assert.ok(lines[1].includes('Healthcare Admin'));
   assert.ok(lines[1].includes('60% · 3/5 done · 1 active'));
+});
+
+// ---- WS5 eligibility datasheet columns on members-style export ----
+test('eligibility screening columns appear in export header shape', () => {
+  const headers = [
+    'Full Name',
+    'Email',
+    ...ELIGIBILITY_DATASHEET_COLUMNS,
+    'Eligibility Screening Submitted',
+  ];
+  assert.ok(headers.includes('Receiving Unemployment'));
+  assert.ok(headers.includes('SNAP/WIC'));
+  assert.ok(headers.includes('Partner/Ambassador Referral'));
 });
 
 // ---- Feedback export shape test ----

@@ -704,19 +704,24 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         partnerAmbassadorReferral: partnerAmbassadorNormalized,
       };
 
-      after(() =>
-        sendApplicationConfirmationEmail({
-          to: user.email!,
-          fullName,
-          eligibility: eligibilityEmailFields,
-        }).catch((err) => {
+      after(async () => {
+        try {
+          const result = await sendApplicationConfirmationEmail({
+            to: user.email!,
+            fullName,
+            eligibility: eligibilityEmailFields,
+          });
+          if (!result.ok) {
+            throw new Error(result.error ?? 'Application confirmation email failed');
+          }
+        } catch (err) {
           logger.error('Member application confirmation email failed', { err });
           captureApiError(err, {
             route: 'POST /api/apply/signup#applicationConfirmation',
             extra: { userId: user.id },
           });
-        })
-      );
+        }
+      });
   
       // Soft seat cap: the student is already through, but an admin has to
       // decide who funds this seat. Surfaced two STAFF-ONLY ways — this
@@ -744,23 +749,28 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         // keep the `if (createdApplicationId)` narrow across the callback.
         const applicationIdForAlert = createdApplicationId;
 
-        after(() =>
-          sendNewApplicationAdminEmail({
-            applicantName: fullName,
-            applicantEmail: user.email!,
-            applicantPhone: phone,
-            programInterest: programInterestSummary,
-            applicationId: applicationIdForAlert,
-            applicationNotes: adminAlertNotes || undefined,
-            eligibility: eligibilityEmailFields,
-          }).catch((err) => {
+        after(async () => {
+          try {
+            const result = await sendNewApplicationAdminEmail({
+              applicantName: fullName,
+              applicantEmail: user.email!,
+              applicantPhone: phone,
+              programInterest: programInterestSummary,
+              applicationId: applicationIdForAlert,
+              applicationNotes: adminAlertNotes || undefined,
+              eligibility: eligibilityEmailFields,
+            });
+            if (!result.ok) {
+              throw new Error(result.error ?? 'Admin new-application alert failed');
+            }
+          } catch (err) {
             logger.error('Admin new-application alert email failed', { err });
             captureApiError(err, {
               route: 'POST /api/apply/signup#newApplicationAdmin',
               extra: { userId: user.id, applicationId: applicationIdForAlert },
             });
-          })
-        );
+          }
+        });
       }
 
       // School signup acknowledgments: parent/guardian (under 18) + partner admin.

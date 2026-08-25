@@ -73,7 +73,10 @@ async function _POST(request: NextRequest) {
       to: parsed.data.email,
       fullName: parsed.data.fullName,
     });
-    return NextResponse.json({ ok: result.ok });
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error ?? 'Send failed' }, { status: 502 });
+    }
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('[app/api/apply/confirmation-email] unexpected error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

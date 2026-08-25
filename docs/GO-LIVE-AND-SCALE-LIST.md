@@ -245,3 +245,7 @@ Source of truth: `.env.example` + `docs/ENVIRONMENT-VARIABLES.md`. Confirm **Pro
 4. Do not re-run the four-auditor playbook unless you have **one or two new claims**.
 
 **Related:** `docs/SCALE-FIX-PLAN.md` (audit branch) · `docs/FULL-REPO-AUDIT.md` (audit branch) · `docs/PRODUCT_STAKES.md` · `docs/KIT_GUIDE.md` · `docs/HANDOFF.md` · `docs/DEPLOYMENT-CHECKLIST.md` · `docs/COMPLETED-WORK-LOG.md`
+
+## Production cutover (2026-08-25)
+
+Track A + B + WS5 (soft reminder) are on `master`. Runbook: [`docs/PRODUCTION-CUTOVER-ROLLOUT.md`](./PRODUCTION-CUTOVER-ROLLOUT.md). **Do not** enable `WAP_RLS_GUC_ENABLED`.

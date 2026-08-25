@@ -17,6 +17,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { PARTNER_REF_COOKIE } from '@/lib/apply/applyReferralCapture';
 
+vi.mock('next/server', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next/server')>();
+  return {
+    ...actual,
+    // Match production: schedule side effects after the response. In tests,
+    // run on the next microtask so awaits that flush the queue still see emails.
+    after: (fn: () => unknown) => {
+      void Promise.resolve().then(fn);
+    },
+  };
+});
+
 type PartnerRow = {
   id: string;
   name: string;

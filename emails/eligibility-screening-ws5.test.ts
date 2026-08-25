@@ -60,6 +60,9 @@ describe('applicationConfirmationHtml WS5 eligibility payload', () => {
     assert.match(html, /Acme Logistics/);
     assert.match(html, /SNAP\/WIC/);
     assert.match(html, /Ambassador Jane/);
+    assert.match(html, /automatic receipt/);
+    assert.match(html, /1(?:&ndash;|–|-)\s*2 business days/);
+    assert.ok(!html.includes('3 to 5 business days'));
   });
 
   it('omits eligibility block when fields absent', () => {

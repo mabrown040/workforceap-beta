@@ -115,6 +115,8 @@ export default async function ApplyConfirmationPage() {
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.9rem', fontWeight: 600 }}>
                 <span>{t('confirmationChipOnFile')}</span>
                 <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
+                <span>{t('confirmationChipReceipt')}</span>
+                <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
                 <span>{t('confirmationChipReview')}</span>
               </div>
             </div>

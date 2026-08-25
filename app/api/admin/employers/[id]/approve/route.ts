@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -64,13 +64,15 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       }),
     );
 
-    // Best-effort approval email
+    // Best-effort approval email via `after()` so Vercel does not freeze early.
     if (updated.contactEmail) {
-      sendEmployerApprovedEmail({
-        to: updated.contactEmail,
-        companyName: updated.companyName,
-        contactName: updated.contactName || 'there',
-      }).catch((err) => console.error('Employer approval email failed:', err));
+      after(() =>
+        sendEmployerApprovedEmail({
+          to: updated.contactEmail!,
+          companyName: updated.companyName,
+          contactName: updated.contactName || 'there',
+        }).catch((err) => console.error('Employer approval email failed:', err))
+      );
     }
 
     await auditLog({

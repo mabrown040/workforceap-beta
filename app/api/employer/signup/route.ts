@@ -1,5 +1,5 @@
 import { createEmployerUser } from '@/lib/employer/service';
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { employerSignupSchema } from '@/lib/validation/employer';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
@@ -205,20 +205,24 @@ export async function POST(request: NextRequest) {
       console.error('Employer signup: verification email error:', err);
     }
 
-    // Best-effort welcome email
-    sendEmployerWelcomeEmail({
-      to: data.email,
-      companyName: data.companyName,
-      contactName: data.contactName,
-    }).catch((err) => console.error('Employer welcome email failed:', err));
+    // Best-effort welcome + admin alert via `after()` so Vercel keeps the
+    // invocation alive until Resend finishes (same pattern as apply signup).
+    after(() =>
+      sendEmployerWelcomeEmail({
+        to: data.email,
+        companyName: data.companyName,
+        contactName: data.contactName,
+      }).catch((err) => console.error('Employer welcome email failed:', err))
+    );
 
-    // Best-effort admin alert
-    sendEmployerSignupAdminAlertEmail({
-      companyName: data.companyName,
-      contactName: data.contactName,
-      contactEmail: data.email,
-      contactPhone: data.phone,
-    }).catch((err) => console.error('Employer admin alert failed:', err));
+    after(() =>
+      sendEmployerSignupAdminAlertEmail({
+        companyName: data.companyName,
+        contactName: data.contactName,
+        contactEmail: data.email,
+        contactPhone: data.phone,
+      }).catch((err) => console.error('Employer admin alert failed:', err))
+    );
 
     // Operator visibility bridge — new employer signup is high-signal
     void notifyDiscord({

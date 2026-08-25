@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -61,14 +61,16 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       }),
     );
 
-    // Best-effort rejection email
+    // Best-effort rejection email via `after()` so Vercel does not freeze early.
     if (employer.contactEmail) {
-      sendEmployerRejectedEmail({
-        to: employer.contactEmail,
-        companyName: employer.companyName,
-        contactName: employer.contactName || 'there',
-        reason: body.reason,
-      }).catch((err) => console.error('Employer rejection email failed:', err));
+      after(() =>
+        sendEmployerRejectedEmail({
+          to: employer.contactEmail!,
+          companyName: employer.companyName,
+          contactName: employer.contactName || 'there',
+          reason: body.reason,
+        }).catch((err) => console.error('Employer rejection email failed:', err))
+      );
     }
 
     await auditLog({

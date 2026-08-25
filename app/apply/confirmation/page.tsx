@@ -6,6 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
+import ApplyConfirmationReceiptRetry from '@/components/apply/ApplyConfirmationReceiptRetry';
 import ThankYouViewTracker from '@/components/marketing/ThankYouViewTracker';
 import ShareButtons from '@/components/apply/ShareButtons';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
@@ -34,6 +35,10 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
 
   const user = await getUser();
   const isAuthenticated = !!user;
+  const receiptEmail = user?.email?.trim() ?? '';
+  const receiptName =
+    (typeof user?.user_metadata?.full_name === 'string' ? user.user_metadata.full_name.trim() : '') ||
+    receiptEmail;
   const t = await getTranslations('apply');
 
   const tKey = (regular: string, school: string) =>
@@ -93,6 +98,9 @@ export default async function ApplyConfirmationPage({ searchParams }: PageProps)
   return (
     <div className="inner-page mdx afd-page">
       <ThankYouViewTracker funnel="apply" />
+      {isAuthenticated && receiptEmail ? (
+        <ApplyConfirmationReceiptRetry email={receiptEmail} fullName={receiptName} />
+      ) : null}
       <section className="content-section" style={{ paddingTop: 'calc(var(--nav-height-default, 80px) + 1.5rem)', paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 980 }}>
           <div className="apply-confirmation-shell" style={{ maxWidth: '720px', margin: '0 auto' }}>

@@ -142,7 +142,9 @@ export async function sendBrandedEmail(
   }
   // Resend resolves with { data, error } instead of throwing on API errors.
   if (result.error) {
-    recordEmailFailure(args, result.error.message ?? result.error.name ?? 'Resend API error');
+    const message = result.error.message ?? result.error.name ?? 'Resend API error';
+    recordEmailFailure(args, message);
+    throw new Error(message);
   }
   return result;
 }

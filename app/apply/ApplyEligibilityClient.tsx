@@ -14,6 +14,16 @@ import {
   normalizePrimaryBarriers,
   PRIMARY_BARRIER_OPTIONS,
 } from '@/lib/apply/primaryBarrierOptions';
+import {
+  APPLY_HEAR_ABOUT_OTHER,
+  APPLY_PARTNER_REFERRAL_OPTIONS,
+  countSoftQualifyYes,
+  laidOffCompanyRequired,
+  partnerReferralNeedsWriteIn,
+  softQualifies,
+  type YesNo,
+} from '@/lib/apply/eligibilityQuestionnaire';
+import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
 import {
   SCHOOL_AGE_GROUPS,
@@ -25,10 +35,17 @@ import {
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
-const ELIGIBILITY_KEYS = [
-  { legendKey: 'eligibilityQ1Legend', promptKey: 'eligibilityQ1Prompt' as const },
-  { legendKey: 'eligibilityQ2Legend', promptKey: 'eligibilityQ2Prompt' as const },
-] as const;
+type YesNoField = {
+  name: string;
+  legendKey:
+    | 'currentlyUnemployedLegend'
+    | 'receivingUnemploymentLegend'
+    | 'unemploymentRanOutLegend'
+    | 'onSnapWicLegend'
+    | 'incomeBelow60kLegend';
+  value: YesNo | null;
+  setValue: (v: YesNo) => void;
+};
 
 const ADULT_AGE_GROUPS = [
   { value: 'under_18', label: 'Under 18' },
@@ -75,8 +92,19 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       zip: payload.zip,
       county: payload.county,
       primaryBarriers: payload.primaryBarriers,
-      q1: payload.q1,
-      q2: payload.q2,
+      q1: payload.q1 ?? payload.currentlyUnemployed ?? null,
+      q2: payload.q2 ?? payload.incomeBelow60k ?? null,
+      currentlyUnemployed: payload.currentlyUnemployed ?? payload.q1 ?? null,
+      receivingUnemployment: payload.receivingUnemployment ?? null,
+      unemploymentRanOut: payload.unemploymentRanOut ?? null,
+      laidOffCompany: payload.laidOffCompany ?? '',
+      onSnapWicFoodStamps: payload.onSnapWicFoodStamps ?? null,
+      incomeBelow60k: payload.incomeBelow60k ?? payload.q2 ?? null,
+      hearAboutUs: payload.hearAboutUs ?? '',
+      hearAboutUsOther: payload.hearAboutUsOther ?? '',
+      partnerOrAmbassadorReferred: payload.partnerOrAmbassadorReferred ?? null,
+      partnerReferral: payload.partnerReferral ?? '',
+      partnerReferralOther: payload.partnerReferralOther ?? '',
       gradeLevel: payload.gradeLevel,
       parentGuardianName: payload.parentGuardianName,
       parentGuardianEmail: payload.parentGuardianEmail,
@@ -126,12 +154,21 @@ export default function ApplyEligibilityClient({
       normalizePrimaryBarriers(cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v])
     );
 
-  const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
+  const [currentlyUnemployed, setCurrentlyUnemployed] = useState<YesNo | null>(null);
+  const [receivingUnemployment, setReceivingUnemployment] = useState<YesNo | null>(null);
+  const [unemploymentRanOut, setUnemploymentRanOut] = useState<YesNo | null>(null);
+  const [laidOffCompany, setLaidOffCompany] = useState('');
+  const [onSnapWicFoodStamps, setOnSnapWicFoodStamps] = useState<YesNo | null>(null);
+  const [incomeBelow60k, setIncomeBelow60k] = useState<YesNo | null>(null);
+  const [hearAboutUs, setHearAboutUs] = useState('');
+  const [hearAboutUsOther, setHearAboutUsOther] = useState('');
+  const [partnerOrAmbassadorReferred, setPartnerOrAmbassadorReferred] = useState<YesNo | null>(null);
+  const [partnerReferral, setPartnerReferral] = useState('');
+  const [partnerReferralOther, setPartnerReferralOther] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
   const [parentGuardianName, setParentGuardianName] = useState('');
   const [parentGuardianEmail, setParentGuardianEmail] = useState('');
   const [parentGuardianPhone, setParentGuardianPhone] = useState('');
-  const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
   const completedRef = useRef(false);
@@ -153,8 +190,17 @@ export default function ApplyEligibilityClient({
     setZip(draft.zip ?? '');
     setCounty(draft.county ?? '');
     setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
-    setQ1(draft.q1 ?? null);
-    setQ2(draft.q2 ?? null);
+    setCurrentlyUnemployed(draft.currentlyUnemployed ?? draft.q1 ?? null);
+    setReceivingUnemployment(draft.receivingUnemployment ?? null);
+    setUnemploymentRanOut(draft.unemploymentRanOut ?? null);
+    setLaidOffCompany(draft.laidOffCompany ?? '');
+    setOnSnapWicFoodStamps(draft.onSnapWicFoodStamps ?? null);
+    setIncomeBelow60k(draft.incomeBelow60k ?? draft.q2 ?? null);
+    setHearAboutUs(draft.hearAboutUs ?? '');
+    setHearAboutUsOther(draft.hearAboutUsOther ?? '');
+    setPartnerOrAmbassadorReferred(draft.partnerOrAmbassadorReferred ?? null);
+    setPartnerReferral(draft.partnerReferral ?? '');
+    setPartnerReferralOther(draft.partnerReferralOther ?? '');
     setGradeLevel(draft.gradeLevel ?? '');
     setParentGuardianName(draft.parentGuardianName ?? '');
     setParentGuardianEmail(draft.parentGuardianEmail ?? '');
@@ -177,11 +223,36 @@ export default function ApplyEligibilityClient({
     email.trim().length > 0 &&
     emailLooksValid(email.trim()) &&
     phone.trim().length > 0 &&
-    phoneDigits.length >= 10;
+    phoneDigits.length === 10;
 
   const zipOk = isValidPostalCode(zip);
   const isSchool = Boolean(schoolApply);
   const guardianRequired = isSchool && schoolGuardianRequired(ageGroup);
+  const softInputs = {
+    currentlyUnemployed,
+    receivingUnemployment,
+    unemploymentRanOut,
+    onSnapWicFoodStamps,
+    incomeBelow60k,
+  };
+  const needLaidOffCompany = !isSchool && laidOffCompanyRequired(softInputs);
+  const hearAboutOk =
+    hearAboutUs.trim().length > 0 &&
+    (hearAboutUs !== APPLY_HEAR_ABOUT_OTHER || hearAboutUsOther.trim().length > 0);
+  const partnerReferralOk =
+    partnerOrAmbassadorReferred !== null &&
+    (partnerOrAmbassadorReferred === 'no' ||
+      (partnerReferral.trim().length > 0 &&
+        (!partnerReferralNeedsWriteIn(partnerReferral) || partnerReferralOther.trim().length > 0)));
+  const adultEligibilityOk =
+    currentlyUnemployed !== null &&
+    receivingUnemployment !== null &&
+    unemploymentRanOut !== null &&
+    onSnapWicFoodStamps !== null &&
+    incomeBelow60k !== null &&
+    (!needLaidOffCompany || laidOffCompany.trim().length > 0) &&
+    hearAboutOk &&
+    partnerReferralOk;
   const screeningDetailsOk = isSchool
     ? schoolDetailsComplete(
         {
@@ -200,15 +271,54 @@ export default function ApplyEligibilityClient({
       stateVal.trim().length > 0 &&
       zipOk &&
       county.trim().length > 0 &&
-      primaryBarriers.length > 0;
+      primaryBarriers.length > 0 &&
+      adultEligibilityOk;
   const canContinue =
     contactOk &&
     screeningDetailsOk &&
-    (isSchool || (q1 !== null && q2 !== null));
+    (isSchool || adultEligibilityOk);
   const ageOptions = isSchool ? SCHOOL_AGE_GROUPS : ADULT_AGE_GROUPS;
-  const missingEligibilityAnswers = [q1, q2].filter((answer) => answer === null).length;
-  const yesCount = [q1, q2].filter((answer) => answer === 'yes').length;
-  const qualifies = yesCount >= 1;
+  const missingEligibilityAnswers = [
+    currentlyUnemployed,
+    receivingUnemployment,
+    unemploymentRanOut,
+    onSnapWicFoodStamps,
+    incomeBelow60k,
+    partnerOrAmbassadorReferred,
+  ].filter((answer) => answer === null).length;
+  const yesCount = countSoftQualifyYes(softInputs);
+  const qualifies = softQualifies(softInputs);
+
+  const draftPayload = () => ({
+    firstName,
+    lastName,
+    email,
+    phone,
+    ageGroup,
+    city,
+    state: stateVal,
+    zip,
+    county: isSchool ? '' : county,
+    primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
+    q1: isSchool ? null : currentlyUnemployed,
+    q2: isSchool ? null : incomeBelow60k,
+    currentlyUnemployed: isSchool ? null : currentlyUnemployed,
+    receivingUnemployment: isSchool ? null : receivingUnemployment,
+    unemploymentRanOut: isSchool ? null : unemploymentRanOut,
+    laidOffCompany: isSchool ? '' : laidOffCompany,
+    onSnapWicFoodStamps: isSchool ? null : onSnapWicFoodStamps,
+    incomeBelow60k: isSchool ? null : incomeBelow60k,
+    hearAboutUs: isSchool ? '' : hearAboutUs,
+    hearAboutUsOther: isSchool ? '' : hearAboutUsOther,
+    partnerOrAmbassadorReferred: isSchool ? null : partnerOrAmbassadorReferred,
+    partnerReferral: isSchool ? '' : partnerReferral,
+    partnerReferralOther: isSchool ? '' : partnerReferralOther,
+    gradeLevel,
+    parentGuardianName,
+    parentGuardianEmail,
+    parentGuardianPhone,
+    schoolName: schoolApply?.schoolName,
+  });
 
   useEffect(() => {
     trackApplyFunnel(1, 'started');
@@ -216,11 +326,23 @@ export default function ApplyEligibilityClient({
   }, []);
 
   useEffect(() => {
-    answeredCountRef.current = [q1, q2].filter(Boolean).length;
+    answeredCountRef.current = [
+      currentlyUnemployed,
+      receivingUnemployment,
+      unemploymentRanOut,
+      onSnapWicFoodStamps,
+      incomeBelow60k,
+    ].filter(Boolean).length;
     trackApplyFunnel(1, 'eligibility_progress', {
       answered_count: answeredCountRef.current,
     });
-  }, [q1, q2]);
+  }, [
+    currentlyUnemployed,
+    receivingUnemployment,
+    unemploymentRanOut,
+    onSnapWicFoodStamps,
+    incomeBelow60k,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -233,15 +355,7 @@ export default function ApplyEligibilityClient({
   }, []);
 
   const persistDraft = () => {
-    writeDraft({
-      firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip,
-      county: isSchool ? '' : county,
-      primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
-      q1: isSchool ? null : q1,
-      q2: isSchool ? null : q2,
-      gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone,
-      schoolName: schoolApply?.schoolName,
-    });
+    writeDraft(draftPayload());
   };
 
   const [autoSaved, setAutoSaved] = useState(false);
@@ -253,19 +367,39 @@ export default function ApplyEligibilityClient({
     }
     if (!firstName && !lastName && !email && !phone) return;
     const handle = setTimeout(() => {
-      writeDraft({
-        firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip,
-        county: isSchool ? '' : county,
-        primaryBarriers: isSchool ? schoolPrimaryBarriers() : primaryBarriers,
-        q1: isSchool ? null : q1,
-        q2: isSchool ? null : q2,
-        gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone,
-        schoolName: schoolApply?.schoolName,
-      });
+      writeDraft(draftPayload());
       setAutoSaved(true);
     }, 1500);
     return () => clearTimeout(handle);
-  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, gradeLevel, parentGuardianName, parentGuardianEmail, parentGuardianPhone, schoolApply?.schoolName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- draftPayload fields listed below
+  }, [
+    firstName,
+    lastName,
+    email,
+    phone,
+    ageGroup,
+    city,
+    stateVal,
+    zip,
+    county,
+    primaryBarriers,
+    currentlyUnemployed,
+    receivingUnemployment,
+    unemploymentRanOut,
+    laidOffCompany,
+    onSnapWicFoodStamps,
+    incomeBelow60k,
+    hearAboutUs,
+    hearAboutUsOther,
+    partnerOrAmbassadorReferred,
+    partnerReferral,
+    partnerReferralOther,
+    gradeLevel,
+    parentGuardianName,
+    parentGuardianEmail,
+    parentGuardianPhone,
+    schoolApply?.schoolName,
+  ]);
 
   const handleSaveLater = () => {
     persistDraft();
@@ -277,7 +411,7 @@ export default function ApplyEligibilityClient({
     if (!canContinue) {
       setAttemptedContinue(true);
       trackApplyFunnel(1, 'eligibility_continue_blocked', {
-        answered_count: [q1, q2].filter(Boolean).length,
+        answered_count: answeredCountRef.current,
       });
       requestAnimationFrame(() => {
         const invalid = document.querySelector<HTMLElement>(
@@ -301,8 +435,19 @@ export default function ApplyEligibilityClient({
         /* ignore */
       }
       const eligibilityJson = JSON.stringify({
-        q1: isSchool ? null : q1,
-        q2: isSchool ? null : q2,
+        q1: isSchool ? null : currentlyUnemployed,
+        q2: isSchool ? null : incomeBelow60k,
+        currentlyUnemployed: isSchool ? null : currentlyUnemployed,
+        receivingUnemployment: isSchool ? null : receivingUnemployment,
+        unemploymentRanOut: isSchool ? null : unemploymentRanOut,
+        laidOffCompany: isSchool ? '' : laidOffCompany.trim(),
+        onSnapWicFoodStamps: isSchool ? null : onSnapWicFoodStamps,
+        incomeBelow60k: isSchool ? null : incomeBelow60k,
+        hearAboutUs: isSchool ? '' : hearAboutUs,
+        hearAboutUsOther: isSchool ? '' : hearAboutUsOther.trim(),
+        partnerOrAmbassadorReferred: isSchool ? null : partnerOrAmbassadorReferred,
+        partnerReferral: isSchool ? '' : partnerReferral,
+        partnerReferralOther: isSchool ? '' : partnerReferralOther.trim(),
         qualifies: isSchool ? true : qualifies,
         yesCount: isSchool ? 0 : yesCount,
         firstName: firstName.trim(),
@@ -332,6 +477,39 @@ export default function ApplyEligibilityClient({
     const resultsPath = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
     router.push(localizeHref(resultsPath, locale));
   };
+
+  const yesNoFields: YesNoField[] = [
+    {
+      name: 'currentlyUnemployed',
+      legendKey: 'currentlyUnemployedLegend',
+      value: currentlyUnemployed,
+      setValue: setCurrentlyUnemployed,
+    },
+    {
+      name: 'receivingUnemployment',
+      legendKey: 'receivingUnemploymentLegend',
+      value: receivingUnemployment,
+      setValue: setReceivingUnemployment,
+    },
+    {
+      name: 'unemploymentRanOut',
+      legendKey: 'unemploymentRanOutLegend',
+      value: unemploymentRanOut,
+      setValue: setUnemploymentRanOut,
+    },
+    {
+      name: 'onSnapWicFoodStamps',
+      legendKey: 'onSnapWicLegend',
+      value: onSnapWicFoodStamps,
+      setValue: setOnSnapWicFoodStamps,
+    },
+    {
+      name: 'incomeBelow60k',
+      legendKey: 'incomeBelow60kLegend',
+      value: incomeBelow60k,
+      setValue: setIncomeBelow60k,
+    },
+  ];
 
   return (
     <div className={`apply-flow apply-flow--step1${isPaid ? ' apply-flow--paid' : ''}`} data-variant={isPaid ? 'paid' : 'organic'}>
@@ -467,58 +645,123 @@ export default function ApplyEligibilityClient({
 
         {!isSchool ? (
         <div className="funding-questions">
-          <fieldset className="form-group apply-eligibility-fieldset">
-            <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[0].legendKey)}</legend>
-            <p className="apply-eligibility-prompt">{t(ELIGIBILITY_KEYS[0].promptKey)}</p>
-            <div
-              className="form-radio-cards"
-              role="radiogroup"
-              aria-invalid={attemptedContinue && q1 === null}
-              aria-describedby={attemptedContinue && q1 === null ? 'apply-eligibility-q1-error' : undefined}
-            >
-              <label className={`form-radio-card ${q1 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} required />
-                <span className="radio-dot" />
-                <span>{t('answerYes')}</span>
-              </label>
-              <label className={`form-radio-card ${q1 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} required />
-                <span className="radio-dot" />
-                <span>{t('answerNo')}</span>
-              </label>
+          {yesNoFields.slice(0, 3).map((field) => (
+            <fieldset key={field.name} className="form-group apply-eligibility-fieldset">
+              <legend className="apply-eligibility-legend">{t(field.legendKey)}</legend>
+              <div
+                className="form-radio-cards"
+                role="radiogroup"
+                aria-invalid={attemptedContinue && field.value === null}
+                aria-describedby={
+                  attemptedContinue && field.value === null
+                    ? `apply-eligibility-${field.name}-error`
+                    : undefined
+                }
+              >
+                <label className={`form-radio-card ${field.value === 'yes' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value="yes"
+                    checked={field.value === 'yes'}
+                    onChange={() => field.setValue('yes')}
+                    required
+                  />
+                  <span className="radio-dot" />
+                  <span>{t('answerYes')}</span>
+                </label>
+                <label className={`form-radio-card ${field.value === 'no' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value="no"
+                    checked={field.value === 'no'}
+                    onChange={() => field.setValue('no')}
+                    required
+                  />
+                  <span className="radio-dot" />
+                  <span>{t('answerNo')}</span>
+                </label>
+              </div>
+              {attemptedContinue && field.value === null && (
+                <p
+                  id={`apply-eligibility-${field.name}-error`}
+                  className="apply-eligibility-field-error"
+                  role="alert"
+                >
+                  {t('eligibilityRadioError')}
+                </p>
+              )}
+            </fieldset>
+          ))}
+          {needLaidOffCompany ? (
+            <div className="form-group">
+              <label htmlFor="apply-laid-off-company">{t('laidOffCompanyLabel')} *</label>
+              <input
+                id="apply-laid-off-company"
+                type="text"
+                name="laidOffCompany"
+                value={laidOffCompany}
+                onChange={(e) => setLaidOffCompany(e.target.value)}
+                required
+                aria-invalid={attemptedContinue && !laidOffCompany.trim()}
+              />
+              {attemptedContinue && !laidOffCompany.trim() && (
+                <p className="apply-eligibility-field-error" role="alert">
+                  {t('laidOffCompanyRequiredError')}
+                </p>
+              )}
             </div>
-            {attemptedContinue && q1 === null && (
-              <p id="apply-eligibility-q1-error" className="apply-eligibility-field-error" role="alert">
-                {t('eligibilityRadioError')}
-              </p>
-            )}
-          </fieldset>
-          <fieldset className="form-group apply-eligibility-fieldset">
-            <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[1].legendKey)}</legend>
-            <p className="apply-eligibility-prompt">{t(ELIGIBILITY_KEYS[1].promptKey)}</p>
-            <div
-              className="form-radio-cards"
-              role="radiogroup"
-              aria-invalid={attemptedContinue && q2 === null}
-              aria-describedby={attemptedContinue && q2 === null ? 'apply-eligibility-q2-error' : undefined}
-            >
-              <label className={`form-radio-card ${q2 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} required />
-                <span className="radio-dot" />
-                <span>{t('answerYes')}</span>
-              </label>
-              <label className={`form-radio-card ${q2 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} required />
-                <span className="radio-dot" />
-                <span>{t('answerNo')}</span>
-              </label>
-            </div>
-            {attemptedContinue && q2 === null && (
-              <p id="apply-eligibility-q2-error" className="apply-eligibility-field-error" role="alert">
-                {t('eligibilityRadioError')}
-              </p>
-            )}
-          </fieldset>
+          ) : null}
+          {yesNoFields.slice(3).map((field) => (
+            <fieldset key={field.name} className="form-group apply-eligibility-fieldset">
+              <legend className="apply-eligibility-legend">{t(field.legendKey)}</legend>
+              <div
+                className="form-radio-cards"
+                role="radiogroup"
+                aria-invalid={attemptedContinue && field.value === null}
+                aria-describedby={
+                  attemptedContinue && field.value === null
+                    ? `apply-eligibility-${field.name}-error`
+                    : undefined
+                }
+              >
+                <label className={`form-radio-card ${field.value === 'yes' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value="yes"
+                    checked={field.value === 'yes'}
+                    onChange={() => field.setValue('yes')}
+                    required
+                  />
+                  <span className="radio-dot" />
+                  <span>{t('answerYes')}</span>
+                </label>
+                <label className={`form-radio-card ${field.value === 'no' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value="no"
+                    checked={field.value === 'no'}
+                    onChange={() => field.setValue('no')}
+                    required
+                  />
+                  <span className="radio-dot" />
+                  <span>{t('answerNo')}</span>
+                </label>
+              </div>
+              {attemptedContinue && field.value === null && (
+                <p
+                  id={`apply-eligibility-${field.name}-error`}
+                  className="apply-eligibility-field-error"
+                  role="alert"
+                >
+                  {t('eligibilityRadioError')}
+                </p>
+              )}
+            </fieldset>
+          ))}
         </div>
         ) : null}
         {!isSchool && canContinue && (
@@ -612,12 +855,12 @@ export default function ApplyEligibilityClient({
                   setPhone(formatted);
                   if (phoneError) {
                     const digits = formatted.replace(/\D/g, '');
-                    if (digits.length >= 10) setPhoneError('');
+                    if (digits.length === 10) setPhoneError('');
                   }
                 }}
                 onBlur={() => {
                   const digits = phone.replace(/\D/g, '');
-                  if (digits.length > 0 && digits.length < 10) {
+                  if (digits.length > 0 && digits.length !== 10) {
                     setPhoneError(t('phoneValidationError'));
                   } else {
                     setPhoneError('');
@@ -625,7 +868,8 @@ export default function ApplyEligibilityClient({
                 }}
                 required
                 minLength={10}
-                aria-invalid={attemptedContinue && phone.replace(/\D/g, '').length < 10}
+                maxLength={14}
+                aria-invalid={attemptedContinue && phone.replace(/\D/g, '').length !== 10}
                 aria-describedby="apply-phone-hint apply-phone-error"
               />
               <p id="apply-phone-hint" className="apply-field-hint">{t('eligibilityPhoneHint')}</p>
@@ -794,6 +1038,121 @@ export default function ApplyEligibilityClient({
                   ))}
                 </div>
               </div>
+            ) : null}
+            {!isSchool ? (
+              <>
+                <div className="form-group apply-form-group--full">
+                  <label htmlFor="apply-hear-about">{t('hearAboutUsLabel')}</label>
+                  <select
+                    id="apply-hear-about"
+                    name="hearAboutUs"
+                    value={hearAboutUs}
+                    onChange={(e) => setHearAboutUs(e.target.value)}
+                    required
+                    aria-invalid={attemptedContinue && !hearAboutUs}
+                  >
+                    <option value="">{t('hearAboutUsPlaceholder')}</option>
+                    {PUBLIC_REFERRAL_SOURCE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {hearAboutUs === APPLY_HEAR_ABOUT_OTHER ? (
+                  <div className="form-group apply-form-group--full">
+                    <label htmlFor="apply-hear-about-other">{t('hearAboutUsOtherLabel')}</label>
+                    <input
+                      id="apply-hear-about-other"
+                      type="text"
+                      name="hearAboutUsOther"
+                      value={hearAboutUsOther}
+                      onChange={(e) => setHearAboutUsOther(e.target.value)}
+                      placeholder={t('hearAboutUsOtherPlaceholder')}
+                      required
+                      aria-invalid={attemptedContinue && !hearAboutUsOther.trim()}
+                    />
+                  </div>
+                ) : null}
+                <fieldset className="form-group apply-form-group--full apply-eligibility-fieldset">
+                  <legend className="apply-eligibility-legend">{t('partnerReferredLegend')}</legend>
+                  <div
+                    className="form-radio-cards"
+                    role="radiogroup"
+                    aria-invalid={attemptedContinue && partnerOrAmbassadorReferred === null}
+                  >
+                    <label
+                      className={`form-radio-card ${partnerOrAmbassadorReferred === 'yes' ? 'selected' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="partnerOrAmbassadorReferred"
+                        value="yes"
+                        checked={partnerOrAmbassadorReferred === 'yes'}
+                        onChange={() => setPartnerOrAmbassadorReferred('yes')}
+                        required
+                      />
+                      <span className="radio-dot" />
+                      <span>{t('answerYes')}</span>
+                    </label>
+                    <label
+                      className={`form-radio-card ${partnerOrAmbassadorReferred === 'no' ? 'selected' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="partnerOrAmbassadorReferred"
+                        value="no"
+                        checked={partnerOrAmbassadorReferred === 'no'}
+                        onChange={() => {
+                          setPartnerOrAmbassadorReferred('no');
+                          setPartnerReferral('');
+                          setPartnerReferralOther('');
+                        }}
+                        required
+                      />
+                      <span className="radio-dot" />
+                      <span>{t('answerNo')}</span>
+                    </label>
+                  </div>
+                </fieldset>
+                {partnerOrAmbassadorReferred === 'yes' ? (
+                  <>
+                    <div className="form-group apply-form-group--full">
+                      <label htmlFor="apply-partner-referral">{t('partnerReferralLabel')}</label>
+                      <select
+                        id="apply-partner-referral"
+                        name="partnerReferral"
+                        value={partnerReferral}
+                        onChange={(e) => setPartnerReferral(e.target.value)}
+                        required
+                        aria-invalid={attemptedContinue && !partnerReferral}
+                      >
+                        <option value="">{t('partnerReferralPlaceholder')}</option>
+                        {APPLY_PARTNER_REFERRAL_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {partnerReferralNeedsWriteIn(partnerReferral) ? (
+                      <div className="form-group apply-form-group--full">
+                        <label htmlFor="apply-partner-referral-other">{t('partnerReferralOtherLabel')}</label>
+                        <input
+                          id="apply-partner-referral-other"
+                          type="text"
+                          name="partnerReferralOther"
+                          value={partnerReferralOther}
+                          onChange={(e) => setPartnerReferralOther(e.target.value)}
+                          placeholder={t('partnerReferralOtherPlaceholder')}
+                          required
+                          aria-invalid={attemptedContinue && !partnerReferralOther.trim()}
+                        />
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+              </>
             ) : null}
           </div>
           {attemptedContinue && !screeningDetailsOk && (

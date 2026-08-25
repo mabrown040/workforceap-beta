@@ -24,8 +24,21 @@ export type ApplyFlowDraftV1 = {
   /** @deprecated single-select legacy; kept for back-compat with old drafts */
   primaryBarrier?: string;
   primaryBarriers?: string[];
+  /** @deprecated prefer currentlyUnemployed; kept for old drafts */
   q1: 'yes' | 'no' | null;
+  /** @deprecated prefer incomeBelow60k; kept for old drafts */
   q2: 'yes' | 'no' | null;
+  currentlyUnemployed?: 'yes' | 'no' | null;
+  receivingUnemployment?: 'yes' | 'no' | null;
+  unemploymentRanOut?: 'yes' | 'no' | null;
+  laidOffCompany?: string;
+  onSnapWicFoodStamps?: 'yes' | 'no' | null;
+  incomeBelow60k?: 'yes' | 'no' | null;
+  hearAboutUs?: string;
+  hearAboutUsOther?: string;
+  partnerOrAmbassadorReferred?: 'yes' | 'no' | null;
+  partnerReferral?: string;
+  partnerReferralOther?: string;
   gradeLevel?: string;
   parentGuardianName?: string;
   parentGuardianEmail?: string;

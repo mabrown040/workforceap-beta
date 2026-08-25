@@ -1941,11 +1941,13 @@ model ApplyEligibilityScreening {
   id             String   @id @default(uuid())
   userId         String   @unique @map("user_id")
   organizationId String   @map("organization_id")
-  q1             String   @map("q1") // yes | no
-  q2             String   @map("q2") // yes | no
-  q3             String?  @map("q3") // yes | no
+  q1             String   @map("q1") // yes | no — legacy: currentlyUnemployed
+  q2             String   @map("q2") // yes | no — legacy: incomeBelow60k
+  q3             String?  @map("q3") // yes | no — optional legacy
   qualifies      Boolean  @map("qualifies")
   yesCount       Int      @map("yes_count")
+  /// Full adult questionnaire snapshot (ApplyEligibilityAnswersV1).
+  answers        Json?    @map("answers")
   createdAt      DateTime @default(now()) @map("created_at")
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)

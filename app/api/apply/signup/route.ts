@@ -32,6 +32,12 @@ import {
   schoolProfileBarriers,
 } from '@/lib/apply/schoolCollection';
 import {
+  APPLY_HEAR_ABOUT_OTHER,
+  formatEligibilityAnswersForEmail,
+  partnerReferralLabel,
+  type ApplyEligibilityAnswersV1,
+} from '@/lib/apply/eligibilityQuestionnaire';
+import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
 } from '@/lib/email';
@@ -93,10 +99,21 @@ const applySignupSchema = z.object({
   primaryBarrier: z.string().trim().max(100).optional().nullable(),
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
   eligibilityQualifies: z.boolean().optional().nullable(),
-  eligibilityYesCount: z.number().int().min(0).max(3).optional().nullable(),
+  eligibilityYesCount: z.number().int().min(0).max(10).optional().nullable(),
   eligibilityQ1: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ2: z.enum(['yes', 'no']).optional().nullable(),
   eligibilityQ3: z.enum(['yes', 'no']).optional().nullable(),
+  currentlyUnemployed: z.enum(['yes', 'no']).optional().nullable(),
+  receivingUnemployment: z.enum(['yes', 'no']).optional().nullable(),
+  unemploymentRanOut: z.enum(['yes', 'no']).optional().nullable(),
+  laidOffCompany: z.string().trim().max(200).optional().nullable(),
+  onSnapWicFoodStamps: z.enum(['yes', 'no']).optional().nullable(),
+  incomeBelow60k: z.enum(['yes', 'no']).optional().nullable(),
+  hearAboutUs: z.string().trim().max(200).optional().nullable(),
+  hearAboutUsOther: z.string().trim().max(500).optional().nullable(),
+  partnerOrAmbassadorReferred: z.enum(['yes', 'no']).optional().nullable(),
+  partnerReferral: z.string().trim().max(100).optional().nullable(),
+  partnerReferralOther: z.string().trim().max(200).optional().nullable(),
   // Marketing attribution captured at first ad-landing visit. Stored on
   // the apply_signup_completed MemberEvent metadata so downstream analytics
   // (GA4, BigQuery, internal cohort queries) can attribute conversion to
@@ -166,6 +183,17 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       eligibilityQ1,
       eligibilityQ2,
       eligibilityQ3,
+      currentlyUnemployed,
+      receivingUnemployment,
+      unemploymentRanOut,
+      laidOffCompany,
+      onSnapWicFoodStamps,
+      incomeBelow60k,
+      hearAboutUs,
+      hearAboutUsOther,
+      partnerOrAmbassadorReferred,
+      partnerReferral,
+      partnerReferralOther,
       utmSource,
       utmMedium,
       utmCampaign,
@@ -236,6 +264,37 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           ? [primaryBarrier]
           : [];
     let profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
+    const resolvedUnemployed = currentlyUnemployed ?? eligibilityQ1 ?? null;
+    const resolvedIncome = incomeBelow60k ?? eligibilityQ2 ?? null;
+    const eligibilityAnswers: ApplyEligibilityAnswersV1 | null =
+      resolvedUnemployed && resolvedIncome
+        ? {
+            version: 1,
+            currentlyUnemployed: resolvedUnemployed,
+            receivingUnemployment: receivingUnemployment ?? null,
+            unemploymentRanOut: unemploymentRanOut ?? null,
+            laidOffCompany: laidOffCompany?.trim() || '',
+            onSnapWicFoodStamps: onSnapWicFoodStamps ?? null,
+            incomeBelow60k: resolvedIncome,
+            primaryBarriers: rawBarriers,
+            hearAboutUs: hearAboutUs?.trim() || '',
+            hearAboutUsOther: hearAboutUsOther?.trim() || '',
+            partnerOrAmbassadorReferred: partnerOrAmbassadorReferred ?? null,
+            partnerReferral: partnerReferral?.trim() || '',
+            partnerReferralOther: partnerReferralOther?.trim() || '',
+            ageGroup: ageGroup ?? '',
+            city: city?.trim() || '',
+            state: state?.trim() || '',
+            zip: zip?.trim() || '',
+            county: county?.trim() || '',
+          }
+        : null;
+    const eligibilityDetailsText = formatEligibilityAnswersForEmail(eligibilityAnswers, {
+      firstName,
+      lastName,
+      email,
+      phone,
+    });
     let applicationNotes = [
       ageGroup ? `Age group: ${ageGroup}` : null,
       city?.trim() ? `City: ${city.trim()}` : null,
@@ -243,8 +302,13 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       zip?.trim() ? `ZIP: ${zip.trim()}` : null,
       county?.trim() ? `County: ${county.trim()}` : null,
       profileBarrierTypes.length > 0 ? `Primary barrier(s): ${profileBarrierTypes.join(', ')}` : null,
-      typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
-    ].filter(Boolean).join('\n');
+      typeof eligibilityQualifies === 'boolean'
+        ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0} signals)`
+        : null,
+      eligibilityDetailsText || null,
+    ]
+      .filter(Boolean)
+      .join('\n');
     let hasEmploymentBarrier = profileBarrierTypes.length > 0;
   
     const cookieStore = await cookies();
@@ -295,6 +359,24 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         if (isSponsorshipActive(partner, new Date())) {
           sponsorPartner = partner;
         }
+      }
+    }
+    if (!referralSource) {
+      if (hearAboutUs?.trim()) {
+        referralSource =
+          hearAboutUs === APPLY_HEAR_ABOUT_OTHER && hearAboutUsOther?.trim()
+            ? `hear_about:${hearAboutUsOther.trim()}`
+            : `hear_about:${hearAboutUs.trim()}`;
+      }
+      if (partnerOrAmbassadorReferred === 'yes' && partnerReferral?.trim()) {
+        const partnerLabel = partnerReferralLabel(partnerReferral);
+        const writeIn = partnerReferralOther?.trim();
+        referralSource = [
+          referralSource,
+          `partner_form:${partnerLabel}${writeIn ? ` (${writeIn})` : ''}`,
+        ]
+          .filter(Boolean)
+          .join(' | ');
       }
     }
 
@@ -570,14 +652,15 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         // Upsert keyed on the unique user_id so a returning applicant who
         // re-runs the screener updates their row instead of violating the
         // unique constraint (which would roll back the whole signup).
-        if (!isSchoolSignup && eligibilityQ1 && eligibilityQ2) {
+        if (!isSchoolSignup && resolvedUnemployed && resolvedIncome) {
           const screening = {
             organizationId,
-            q1: eligibilityQ1,
-            q2: eligibilityQ2,
-            q3: eligibilityQ3 ?? null,
+            q1: resolvedUnemployed,
+            q2: resolvedIncome,
+            q3: eligibilityQ3 ?? receivingUnemployment ?? null,
             qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
             yesCount: eligibilityYesCount ?? 0,
+            answers: eligibilityAnswers ?? undefined,
           };
           await tx.applyEligibilityScreening.upsert({
             where: { userId: user.id },
@@ -672,6 +755,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           programInterest: programInterestSummary,
           applicationId: createdApplicationId,
           applicationNotes: adminAlertNotes || undefined,
+          eligibilityAnswers: eligibilityDetailsText || undefined,
         }).catch((err) => {
           logger.error('Admin new-application alert email failed', { err });
           captureApiError(err, {

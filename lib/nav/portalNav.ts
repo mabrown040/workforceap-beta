@@ -360,6 +360,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // funnel) in Advanced / System below. All underlying page.tsx routes preserved.
   { href: '/admin/students', label: 'Students', group: 'students', Icon: Users },
   {
+    href: '/admin/applications',
+    label: 'Applications datasheet',
+    group: 'students',
+    Icon: ClipboardList,
+  },
+  {
     href: '/admin/messages',
     label: 'Messages',
     group: 'students',

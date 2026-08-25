@@ -53,6 +53,15 @@ export default async function AdminExportsPage({
         tone: 'accent',
       },
       {
+        id: 'applications-eligibility',
+        title: 'Applications datasheet',
+        description: 'Eligibility questionnaire answers + program picks · CSV',
+        href: '/api/admin/export/applications',
+        iconKey: 'csv',
+        tone: 'info',
+        download: true,
+      },
+      {
         id: 'funder-program-summary',
         title: t('exportFunderCsvTitle'),
         description: 'Grant reporting · per-program enrollment, completion & placements',

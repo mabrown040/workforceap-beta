@@ -419,6 +419,17 @@ export default function ApplyCreateAccountForm() {
         q1?: 'yes' | 'no';
         q2?: 'yes' | 'no';
         q3?: 'yes' | 'no';
+        currentlyUnemployed?: 'yes' | 'no';
+        receivingUnemployment?: 'yes' | 'no';
+        unemploymentRanOut?: 'yes' | 'no';
+        laidOffCompany?: string;
+        onSnapWicFoodStamps?: 'yes' | 'no';
+        incomeBelow60k?: 'yes' | 'no';
+        hearAboutUs?: string;
+        hearAboutUsOther?: string;
+        partnerOrAmbassadorReferred?: 'yes' | 'no';
+        partnerReferral?: string;
+        partnerReferralOther?: string;
         qualifies?: boolean;
         yesCount?: number;
         gradeLevel?: string;
@@ -475,9 +486,26 @@ export default function ApplyCreateAccountForm() {
           county: schoolSignup ? undefined : eligibilityPayload?.county,
           primaryBarrier: schoolSignup ? undefined : eligibilityPayload?.primaryBarrier,
           primaryBarriers: schoolSignup ? schoolPrimaryBarriers() : eligibilityPayload?.primaryBarriers,
-          eligibilityQ1: schoolSignup ? undefined : eligibilityPayload?.q1,
-          eligibilityQ2: schoolSignup ? undefined : eligibilityPayload?.q2,
+          eligibilityQ1: schoolSignup
+            ? undefined
+            : eligibilityPayload?.currentlyUnemployed ?? eligibilityPayload?.q1,
+          eligibilityQ2: schoolSignup
+            ? undefined
+            : eligibilityPayload?.incomeBelow60k ?? eligibilityPayload?.q2,
           eligibilityQ3: schoolSignup ? undefined : eligibilityPayload?.q3,
+          currentlyUnemployed: schoolSignup ? undefined : eligibilityPayload?.currentlyUnemployed,
+          receivingUnemployment: schoolSignup ? undefined : eligibilityPayload?.receivingUnemployment,
+          unemploymentRanOut: schoolSignup ? undefined : eligibilityPayload?.unemploymentRanOut,
+          laidOffCompany: schoolSignup ? undefined : eligibilityPayload?.laidOffCompany,
+          onSnapWicFoodStamps: schoolSignup ? undefined : eligibilityPayload?.onSnapWicFoodStamps,
+          incomeBelow60k: schoolSignup ? undefined : eligibilityPayload?.incomeBelow60k,
+          hearAboutUs: schoolSignup ? undefined : eligibilityPayload?.hearAboutUs,
+          hearAboutUsOther: schoolSignup ? undefined : eligibilityPayload?.hearAboutUsOther,
+          partnerOrAmbassadorReferred: schoolSignup
+            ? undefined
+            : eligibilityPayload?.partnerOrAmbassadorReferred,
+          partnerReferral: schoolSignup ? undefined : eligibilityPayload?.partnerReferral,
+          partnerReferralOther: schoolSignup ? undefined : eligibilityPayload?.partnerReferralOther,
           eligibilityQualifies: schoolSignup ? true : eligibilityPayload?.qualifies,
           eligibilityYesCount: schoolSignup ? 0 : eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,

@@ -763,6 +763,7 @@ export async function sendNewApplicationAdminEmail(params: {
   programInterest: string;
   applicationId: string;
   applicationNotes?: string;
+  eligibilityAnswers?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -773,7 +774,7 @@ export async function sendNewApplicationAdminEmail(params: {
     title: `New Application: ${params.applicantName}`,
     bodyHtml: newApplicationAlertHtml(params),
     ctaText: 'Review Application',
-    ctaUrl: `${SITE_URL}/admin/members?highlight=${encodeURIComponent(params.applicationId)}`,
+    ctaUrl: `${SITE_URL}/admin/applications?highlight=${encodeURIComponent(params.applicationId)}`,
   });
   try {
     await sendBrandedEmail(resend, {

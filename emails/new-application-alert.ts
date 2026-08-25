@@ -11,12 +11,25 @@ export function newApplicationAlertHtml(params: {
   programInterest: string;
   applicationId: string;
   applicationNotes?: string;
+  eligibilityAnswers?: string;
 }): string {
-  const { applicantName, applicantEmail, applicantPhone, programInterest, applicationId, applicationNotes } = params;
+  const {
+    applicantName,
+    applicantEmail,
+    applicantPhone,
+    programInterest,
+    applicationId,
+    applicationNotes,
+    eligibilityAnswers,
+  } = params;
   const phoneLine = applicantPhone?.trim()
     ? `<p><strong>Phone:</strong> ${escapeHtml(applicantPhone.trim())}</p>`
     : '';
-  const detailsBlock = applicationNotes?.trim()
+  const questionnaireBlock = eligibilityAnswers?.trim()
+    ? `<p><strong>Eligibility questionnaire:</strong></p>
+    <p>${escapeHtml(eligibilityAnswers.trim()).replace(/\n/g, '<br>')}</p>`
+    : '';
+  const detailsBlock = applicationNotes?.trim() && !eligibilityAnswers?.trim()
     ? `<p><strong>Application details:</strong></p>
     <p>${escapeHtml(applicationNotes.trim()).replace(/\n/g, '<br>')}</p>`
     : '';
@@ -26,6 +39,7 @@ export function newApplicationAlertHtml(params: {
     <p><strong>Email:</strong> ${escapeHtml(applicantEmail)}</p>
     ${phoneLine}
     <p><strong>Program interest:</strong> ${escapeHtml(programInterest)}</p>
+    ${questionnaireBlock}
     ${detailsBlock}
     <p><strong>Application ID:</strong> ${escapeHtml(applicationId)}</p>
     <p>Please review the application in the admin panel.</p>

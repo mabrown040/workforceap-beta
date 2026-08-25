@@ -62,4 +62,6 @@ These are sent by the Next.js app via Resend:
 
 **Apply signup note:** confirmation + admin alert sends are scheduled with Next.js `after()` so Vercel keeps the serverless invocation alive until Resend finishes. Without that, applicants can land on `/apply/confirmation` while the receipt email never leaves the function.
 
+**Same `after()` pattern (shipped with apply-email blast audit):** member eligibility PATCH, tokenized `/api/q/[token]/submit`, member pre-screening admin alert, employer signup welcome/admin alert, admin employer approve/reject, and invite-accept inviter notification. Contact form and eligibility campaign already `await` Resend before responding. Member program enroll already used `after()`.
+
 The app uses `lib/email/template.ts` for branded HTML layout (dark header, white body, footer).

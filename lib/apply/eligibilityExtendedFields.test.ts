@@ -42,18 +42,10 @@ test('trims and caps hear-about strings', () => {
   assert.equal(normalizeHearAbout('x'.repeat(250))?.length, 200);
 });
 
-test('shows layoff company when unemployment-related answers are yes', () => {
+test('always shows layoff / last-employer company in eligibility block', () => {
   assert.equal(
     layoffCompanyApplicable({
       unemployedOrUnderemployed: 'no',
-      receivingUnemployment: 'no',
-      exhaustedUnemployment: 'no',
-    }),
-    false,
-  );
-  assert.equal(
-    layoffCompanyApplicable({
-      unemployedOrUnderemployed: 'yes',
       receivingUnemployment: 'no',
       exhaustedUnemployment: 'no',
     }),
@@ -61,8 +53,16 @@ test('shows layoff company when unemployment-related answers are yes', () => {
   );
   assert.equal(
     layoffCompanyApplicable({
-      unemployedOrUnderemployed: 'no',
-      receivingUnemployment: 'yes',
+      unemployedOrUnderemployed: null,
+      receivingUnemployment: null,
+      exhaustedUnemployment: null,
+    }),
+    true,
+  );
+  assert.equal(
+    layoffCompanyApplicable({
+      unemployedOrUnderemployed: 'yes',
+      receivingUnemployment: 'no',
       exhaustedUnemployment: 'no',
     }),
     true,

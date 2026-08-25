@@ -275,7 +275,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
       receivingUnemploymentNormalized ? `Receiving unemployment: ${receivingUnemploymentNormalized}` : null,
       exhaustedUnemploymentNormalized ? `Exhausted unemployment: ${exhaustedUnemploymentNormalized}` : null,
-      layoffCompanyNormalized ? `Layoff company: ${layoffCompanyNormalized}` : null,
+      layoffCompanyNormalized ? `Layoff / last employer: ${layoffCompanyNormalized}` : null,
       snapWicNormalized ? `SNAP/WIC: ${snapWicNormalized}` : null,
       hearAboutNormalized ? `Heard about us: ${hearAboutNormalized}` : null,
       hearAboutOtherNormalized ? `Heard about us (other): ${hearAboutOtherNormalized}` : null,

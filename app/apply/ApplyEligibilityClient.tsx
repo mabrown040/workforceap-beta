@@ -388,7 +388,7 @@ export default function ApplyEligibilityClient({
         q3: isSchool ? null : q3,
         receivingUnemployment: isSchool ? null : receivingUnemployment,
         exhaustedUnemployment: isSchool ? null : exhaustedUnemployment,
-        layoffCompany: isSchool ? undefined : (showLayoffCompany ? layoffCompany.trim() || undefined : undefined),
+        layoffCompany: isSchool ? undefined : layoffCompany.trim() || undefined,
         snapWic: isSchool ? null : snapWic,
         hearAbout: isSchool ? undefined : hearAbout.trim() || undefined,
         hearAboutOther: isSchool

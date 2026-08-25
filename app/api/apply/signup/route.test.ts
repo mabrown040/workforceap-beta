@@ -849,7 +849,7 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
     const notes = state.applicationCreates[0]?.data.notes ?? '';
     expect(notes).toContain('Receiving unemployment: yes');
     expect(notes).toContain('SNAP/WIC: yes');
-    expect(notes).toContain('Layoff company: Acme Logistics');
+    expect(notes).toContain('Layoff / last employer: Acme Logistics');
     expect(notes).toContain('Heard about us: Partner or community ambassador');
     expect(notes).toContain('Partner/ambassador referral: Ambassador Jane / code-abc');
 

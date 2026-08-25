@@ -180,7 +180,7 @@ export default function PublicEligibilityForm({
           q3,
           receivingUnemployment,
           exhaustedUnemployment,
-          layoffCompany: showLayoff ? layoffCompany.trim() || null : null,
+          layoffCompany: layoffCompany.trim() || null,
           snapWic,
           hearAbout: hearAbout.trim(),
           hearAboutOther: hearAboutNeedsOther(hearAbout) ? hearAboutOther.trim() || null : null,
@@ -258,7 +258,7 @@ export default function PublicEligibilityForm({
       />
       {showLayoff ? (
         <div style={fieldGroup}>
-          <label style={labelStyle} htmlFor="q-layoff">Layoff company (if applicable)</label>
+          <label style={labelStyle} htmlFor="q-layoff">What company did you get laid off from, or last work for?</label>
           <input id="q-layoff" style={inputStyle} value={layoffCompany} maxLength={200} onChange={(e) => setLayoffCompany(e.target.value)} />
         </div>
       ) : null}

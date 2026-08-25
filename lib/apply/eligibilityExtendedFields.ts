@@ -47,15 +47,21 @@ export function hearAboutSuggestsAmbassador(hearAbout: string | null | undefined
   return v.includes('ambassador') || v.includes('partner');
 }
 
-/** Show layoff company when employment / UI questions indicate it may apply. */
-export function layoffCompanyApplicable(input: {
+/**
+ * Layoff / last-employer company field visibility.
+ *
+ * Always shown in the adult eligibility block (apply, member dashboard, /q
+ * token forms). Ops (Mike) expects this question alongside unemployment /
+ * SNAP / hear-about — not gated behind a prior "yes", which hid it on first
+ * load and made the form look incomplete.
+ *
+ * Input is retained for call-site compatibility; unemployment answers no
+ * longer gate visibility.
+ */
+export function layoffCompanyApplicable(_input: {
   unemployedOrUnderemployed: YesNo | null;
   receivingUnemployment: YesNo | null;
   exhaustedUnemployment: YesNo | null;
 }): boolean {
-  return (
-    input.unemployedOrUnderemployed === 'yes' ||
-    input.receivingUnemployment === 'yes' ||
-    input.exhaustedUnemployment === 'yes'
-  );
+  return true;
 }

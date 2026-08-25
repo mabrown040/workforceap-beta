@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
 
 type PreviewRow = {
   id: string;
@@ -16,6 +17,44 @@ type PreviewRow = {
 type Props = {
   previewRows: PreviewRow[];
 };
+
+const columns: DataTableColumn<PreviewRow>[] = [
+  {
+    key: 'name',
+    header: 'Name',
+    cell: (row) => <a href={`/admin/members/${row.id}`}>{row.fullName ?? '—'}</a>,
+  },
+  {
+    key: 'email',
+    header: 'Email',
+    cell: (row) => row.email ?? '—',
+  },
+  {
+    key: 'partner',
+    header: 'Partner',
+    cell: (row) => row.partnerName ?? '—',
+  },
+  {
+    key: 'unemployment',
+    header: 'Unemployment',
+    cell: (row) => row.receivingUnemployment ?? '—',
+  },
+  {
+    key: 'snapWic',
+    header: 'SNAP/WIC',
+    cell: (row) => row.snapWic ?? '—',
+  },
+  {
+    key: 'hearAbout',
+    header: 'Heard about',
+    cell: (row) => row.hearAbout ?? '—',
+  },
+  {
+    key: 'submitted',
+    header: 'Submitted',
+    cell: (row) => row.screeningAt ?? '—',
+  },
+];
 
 /**
  * WS5: in-admin eligibility datasheet preview + CSV download + non-CHS
@@ -148,49 +187,20 @@ export default function EligibilityDatasheetPanel({ previewRows }: Props) {
         </p>
       ) : null}
 
-      <div style={{ overflowX: 'auto', marginTop: '0.75rem' }}>
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '0.8125rem',
-          }}
-        >
-          <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--outline-variant)' }}>
-              <th style={{ padding: '0.5rem' }}>Name</th>
-              <th style={{ padding: '0.5rem' }}>Email</th>
-              <th style={{ padding: '0.5rem' }}>Partner</th>
-              <th style={{ padding: '0.5rem' }}>Unemployment</th>
-              <th style={{ padding: '0.5rem' }}>SNAP/WIC</th>
-              <th style={{ padding: '0.5rem' }}>Heard about</th>
-              <th style={{ padding: '0.5rem' }}>Submitted</th>
-            </tr>
-          </thead>
-          <tbody>
-            {previewRows.length === 0 ? (
-              <tr>
-                <td colSpan={7} style={{ padding: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                  No eligibility screenings yet.
-                </td>
-              </tr>
-            ) : (
-              previewRows.map((row) => (
-                <tr key={row.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                  <td style={{ padding: '0.5rem' }}>
-                    <a href={`/admin/members/${row.id}`}>{row.fullName ?? '—'}</a>
-                  </td>
-                  <td style={{ padding: '0.5rem' }}>{row.email ?? '—'}</td>
-                  <td style={{ padding: '0.5rem' }}>{row.partnerName ?? '—'}</td>
-                  <td style={{ padding: '0.5rem' }}>{row.receivingUnemployment ?? '—'}</td>
-                  <td style={{ padding: '0.5rem' }}>{row.snapWic ?? '—'}</td>
-                  <td style={{ padding: '0.5rem' }}>{row.hearAbout ?? '—'}</td>
-                  <td style={{ padding: '0.5rem' }}>{row.screeningAt ?? '—'}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div style={{ marginTop: '0.75rem' }}>
+        <DataTable<PreviewRow>
+          variant="admin"
+          tableClassName="admin-table"
+          density="compact"
+          rows={previewRows}
+          rowKey={(row) => row.id}
+          columns={columns}
+          emptyState={
+            <p style={{ padding: '0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
+              No eligibility screenings yet.
+            </p>
+          }
+        />
       </div>
     </div>
   );

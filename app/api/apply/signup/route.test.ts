@@ -33,6 +33,8 @@ type PartnerRow = {
   id: string;
   name: string;
   partnerType: string;
+  contactEmail: string | null;
+  notifyOnEnrollment: boolean;
   sponsoredEnrollment: boolean;
   sponsorshipFundingSource: string | null;
   sponsorshipTermLabel: string | null;
@@ -229,6 +231,8 @@ vi.mock('@/lib/email', () => ({
     state.adminEmails.push(args);
     return undefined;
   }),
+  sendSchoolEnrollmentParentAckEmail: vi.fn(async () => undefined),
+  sendSchoolEnrollmentPartnerAckEmail: vi.fn(async () => undefined),
 }));
 
 vi.mock('next/headers', () => ({
@@ -261,7 +265,12 @@ vi.mock('@supabase/ssr', () => ({
 }));
 
 import { POST } from './route';
-import { sendApplicationConfirmationEmail, sendNewApplicationAdminEmail } from '@/lib/email';
+import {
+  sendApplicationConfirmationEmail,
+  sendNewApplicationAdminEmail,
+  sendSchoolEnrollmentParentAckEmail,
+  sendSchoolEnrollmentPartnerAckEmail,
+} from '@/lib/email';
 
 function makeRequest(overrides: Record<string, unknown> = {}) {
   const body = {
@@ -309,6 +318,7 @@ function resetState() {
   process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
   delete process.env.NEXT_PUBLIC_CAPTCHA_ENABLED;
+  vi.clearAllMocks();
 }
 
 describe('POST /api/apply/signup ageGroup validation', () => {
@@ -360,6 +370,8 @@ describe('POST /api/apply/signup sponsored enrollment', () => {
       id: 'partner-concordia',
       name: 'Concordia High School',
       partnerType: 'community',
+      contactEmail: 'marianne.rader@chsaustin.org',
+      notifyOnEnrollment: true,
       sponsoredEnrollment: true,
       sponsorshipFundingSource: null,
       sponsorshipTermLabel: 'Fall 2026',
@@ -702,6 +714,8 @@ describe('POST /api/apply/signup partner ref cookie handling', () => {
       id: 'partner-concordia',
       name: 'Concordia High School',
       partnerType: 'high_school',
+      contactEmail: 'marianne.rader@chsaustin.org',
+      notifyOnEnrollment: true,
       sponsoredEnrollment: true,
       sponsorshipFundingSource: null,
       sponsorshipTermLabel: '2026',
@@ -888,5 +902,120 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
     const res = await POST(makeRequest({ receivingUnemployment: 'sometimes' }));
     expect(res.status).toBe(400);
     expect(state.screeningUpserts).toHaveLength(0);
+  });
+});
+
+describe('POST /api/apply/signup school enrollment ack emails', () => {
+  beforeEach(resetState);
+
+  function schoolPartner(overrides: Partial<PartnerRow> = {}): PartnerRow {
+    return {
+      id: 'partner-concordia',
+      name: 'Concordia High School',
+      partnerType: 'high_school',
+      contactEmail: 'marianne.rader@chsaustin.org',
+      notifyOnEnrollment: true,
+      sponsoredEnrollment: true,
+      sponsorshipFundingSource: 'PARTNER_ORG',
+      sponsorshipTermLabel: '2026',
+      sponsorshipStartsAt: null,
+      sponsorshipEndsAt: null,
+      sponsorshipSeatCap: null,
+      schoolDistrict: 'Concordia',
+      ...overrides,
+    };
+  }
+
+  it('sends parent and partner ack emails on under-18 school signup', async () => {
+    state.partner = schoolPartner();
+
+    const res = await POST(
+      makeRequest({
+        referralRef: 'chs2026',
+        ageGroup: 'under_18',
+        gradeLevel: '11',
+        schoolName: 'Concordia High School',
+        parentGuardianName: 'Alex Rader',
+        parentGuardianEmail: 'parent@example.com',
+        primaryBarriers: ['high_school_student'],
+        eligibilityQ1: null,
+        eligibilityQ2: null,
+        county: null,
+      }),
+    );
+    expect(res.status).toBe(200);
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(sendSchoolEnrollmentParentAckEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'parent@example.com',
+        parentGuardianName: 'Alex Rader',
+        studentName: 'Concordia Student',
+        schoolName: 'Concordia High School',
+        programInterest: 'IT Support Professional Certificate (IBM)',
+      }),
+    );
+    expect(sendSchoolEnrollmentPartnerAckEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'marianne.rader@chsaustin.org',
+        partnerName: 'Concordia High School',
+        studentName: 'Concordia Student',
+        studentEmail: 'applicant@example.com',
+        gradeLevel: '11',
+      }),
+    );
+  });
+
+  it('skips parent ack when not under 18', async () => {
+    state.partner = schoolPartner();
+
+    await POST(
+      makeRequest({
+        referralRef: 'chs2026',
+        ageGroup: '18_24',
+        gradeLevel: '12',
+        primaryBarriers: ['high_school_student'],
+        eligibilityQ1: null,
+        eligibilityQ2: null,
+        county: null,
+      }),
+    );
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(sendSchoolEnrollmentParentAckEmail).not.toHaveBeenCalled();
+    expect(sendSchoolEnrollmentPartnerAckEmail).toHaveBeenCalled();
+  });
+
+  it('skips partner ack when notifyOnEnrollment is false', async () => {
+    state.partner = schoolPartner({ notifyOnEnrollment: false });
+
+    await POST(
+      makeRequest({
+        referralRef: 'chs2026',
+        ageGroup: 'under_18',
+        gradeLevel: '10',
+        parentGuardianEmail: 'parent@example.com',
+        primaryBarriers: ['high_school_student'],
+        eligibilityQ1: null,
+        eligibilityQ2: null,
+        county: null,
+      }),
+    );
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(sendSchoolEnrollmentParentAckEmail).toHaveBeenCalled();
+    expect(sendSchoolEnrollmentPartnerAckEmail).not.toHaveBeenCalled();
+  });
+
+  it('does not send school ack emails for adult WIOA signup', async () => {
+    await POST(makeRequest());
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(sendSchoolEnrollmentParentAckEmail).not.toHaveBeenCalled();
+    expect(sendSchoolEnrollmentPartnerAckEmail).not.toHaveBeenCalled();
   });
 });

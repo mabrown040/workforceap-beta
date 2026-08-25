@@ -30,6 +30,8 @@ import {
   applicationConfirmationHtml,
   eligibilityScreeningConfirmationHtml,
   eligibilityScreeningAdminAlertHtml,
+  schoolEnrollmentParentAckHtml,
+  schoolEnrollmentPartnerAckHtml,
   applicantFollowupHtml,
   adminPendingApplicantsHtml,
   adminWeeklyRecapHtml,
@@ -61,11 +63,35 @@ import {
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+/** Legacy single-inbox constant — prefer {@link getAdminAlertRecipients} for sends. */
 const ADMIN_EMAIL = 'info@workforceap.org';
+/** Inboxes that receive new-application and other staff alerts when EMAIL_TO_ADMIN is unset. */
+const DEFAULT_ADMIN_ALERT_RECIPIENTS = [
+  'info@workforceap.org',
+  'michael.brown@workforceap.org',
+  'michael.brown2@workforceap.org',
+] as const;
 const DEFAULT_VOICE_COACH_TRANSCRIPT_RECIPIENTS = [
   'michael.brown@workforceap.org',
   'michael.brown2@workforceap.org',
 ];
+
+/**
+ * Staff inboxes for admin alerts (new applications, pre-screening ready, etc.).
+ * Set `EMAIL_TO_ADMIN` to a comma-separated list in production; when unset, routes
+ * to the shared inbox plus Mike's WorkforceAP addresses so application reports
+ * are not silently dropped on info@ alone.
+ */
+export function getAdminAlertRecipients(): string[] {
+  const configured = (process.env.EMAIL_TO_ADMIN ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  if (configured.length > 0) {
+    return Array.from(new Set(configured));
+  }
+  return [...DEFAULT_ADMIN_ALERT_RECIPIENTS];
+}
 
 export function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -82,7 +108,7 @@ function getFrom(): string {
 
 /**
  * Recipients for the monthly WIOA report email (see sendWioaReportEmail).
- * Defaults to ADMIN_EMAIL when WIOA_REPORT_RECIPIENTS is unset — set the env
+ * Defaults to {@link getAdminAlertRecipients} when WIOA_REPORT_RECIPIENTS is unset — set the env
  * var to a comma-separated list to route the report to grant/compliance
  * staff instead of (or in addition to) the shared admin inbox.
  */
@@ -91,7 +117,7 @@ function getWioaReportRecipients(): string[] {
     .split(',')
     .map((email) => email.trim())
     .filter(Boolean);
-  return configured.length > 0 ? configured : [ADMIN_EMAIL];
+  return configured.length > 0 ? configured : getAdminAlertRecipients();
 }
 
 export function getVoiceCoachTranscriptRecipients(extra: string[] = []): string[] {
@@ -481,7 +507,7 @@ export function getAtRiskDigestRecipients(): string[] {
   if (parsed.length > 0) {
     return Array.from(new Set(parsed));
   }
-  return [ADMIN_EMAIL];
+  return getAdminAlertRecipients();
 }
 
 /**
@@ -748,7 +774,7 @@ export async function sendPreScreeningReadyEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`Interview ready: ${name}`),
       html,
     });
@@ -782,7 +808,7 @@ export async function sendNewApplicationAdminEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`New Application: ${params.applicantName}`),
       html,
     });
@@ -1356,7 +1382,7 @@ export async function sendJobSubmittedEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`New Job Submitted: ${params.jobTitle} - ${params.companyName}`),
       html,
     });
@@ -1565,6 +1591,89 @@ export async function sendApplicationConfirmationEmail(params: {
   }
 }
 
+/** Parent/guardian acknowledgment when an under-18 school student completes apply signup. */
+export async function sendSchoolEnrollmentParentAckEmail(params: {
+  to: string;
+  parentGuardianName?: string | null;
+  studentName: string;
+  schoolName: string;
+  programInterest: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendSchoolEnrollmentParentAckEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Application received — WorkforceAP',
+    bodyHtml: schoolEnrollmentParentAckHtml({
+      parentName: params.parentGuardianName,
+      studentName: params.studentName,
+      schoolName: params.schoolName,
+      programInterest: params.programInterest,
+    }),
+    ctaText: 'Learn about WorkforceAP',
+    ctaUrl: `${SITE_URL}/programs`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(
+        `${params.studentName} applied for career training — WorkforceAP`,
+      ),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendSchoolEnrollmentParentAckEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** School partner alert when a referred student completes apply signup. */
+export async function sendSchoolEnrollmentPartnerAckEmail(params: {
+  to: string;
+  partnerName: string;
+  studentName: string;
+  studentEmail: string;
+  programInterest: string;
+  gradeLevel?: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendSchoolEnrollmentPartnerAckEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `New ${params.partnerName} application`,
+    bodyHtml: schoolEnrollmentPartnerAckHtml({
+      partnerName: params.partnerName,
+      studentName: params.studentName,
+      studentEmail: params.studentEmail,
+      programInterest: params.programInterest,
+      gradeLevel: params.gradeLevel,
+      partnerPortalUrl: `${SITE_URL}/partner`,
+    }),
+    ctaText: 'Open partner portal',
+    ctaUrl: `${SITE_URL}/partner`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(
+        `[WorkforceAP] New student application — ${params.studentName}`,
+      ),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendSchoolEnrollmentPartnerAckEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /** Applicant confirmation after dashboard / token eligibility questionnaire submit. */
 export async function sendEligibilityScreeningConfirmationEmail(params: {
   to: string;
@@ -1624,7 +1733,7 @@ export async function sendEligibilityScreeningAdminEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`Eligibility screening: ${params.memberName}`),
       html,
     });
@@ -1685,7 +1794,7 @@ export async function sendAdminPendingApplicantsEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`Action Needed: ${params.pendingCount} pending applications over 3 days old`),
       html,
     });
@@ -1746,7 +1855,7 @@ export async function sendAdminStaleApplicantsDigestEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`${params.employers.length} employer${params.employers.length === 1 ? '' : 's'} with 10+ stale applicants`),
       html,
     });
@@ -1808,7 +1917,7 @@ export async function sendAdminWeeklyRecapEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(
         `Weekly Recap: ${params.newApplicants} new applicants, ${params.placements} placements`
       ),
@@ -1996,7 +2105,7 @@ export async function sendEmployerSignupAdminAlertEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ADMIN_EMAIL,
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`New employer signup: ${params.companyName}`),
       html,
     });
@@ -2095,7 +2204,7 @@ export async function sendAssessmentResetNotificationEmail(params: {
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
-      to: ['info@workforceap.org', ADMIN_EMAIL],
+      to: getAdminAlertRecipients(),
       subject: sanitizeEmailSubjectLine(`Assessment Reset — ${params.memberName}`),
       html,
     });

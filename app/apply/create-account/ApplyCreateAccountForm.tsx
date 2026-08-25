@@ -570,7 +570,17 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       completedRef.current = true;
-      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/confirmation' });
+      const schoolMinor =
+        schoolSignup &&
+        eligibilityPayload?.ageGroup === 'under_18' &&
+        eligibilityPayload?.parentGuardianEmail?.trim();
+      const confirmationPath = schoolSignup
+        ? `/apply/confirmation?school=1${schoolMinor ? '&minor=1' : ''}`
+        : '/apply/confirmation';
+      trackApplyFunnel(3, 'account_created', {
+        program_slugs: programRankedSlugs,
+        redirect_to: confirmationPath,
+      });
       if (isPaidUtmSource(attribution.utmSource)) {
         trackConversionWithValue('apply_signup_completed', {
           program_slugs: programRankedSlugs,
@@ -584,11 +594,11 @@ export default function ApplyCreateAccountForm() {
       }
 
       if (data.message) {
-        window.location.href = '/apply/confirmation';
+        window.location.href = confirmationPath;
         return;
       }
 
-      window.location.href = '/apply/confirmation';
+      window.location.href = confirmationPath;
     } catch {
       setError(t('errNetwork'));
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });

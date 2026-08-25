@@ -39,6 +39,8 @@ import { normalizeHearAbout, normalizeYesNo } from '@/lib/apply/eligibilityExten
 import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
+  sendSchoolEnrollmentParentAckEmail,
+  sendSchoolEnrollmentPartnerAckEmail,
 } from '@/lib/email';
 
 /**
@@ -298,6 +300,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       | null = null;
     let referralPartnerType: string | null = null;
     let referralPartnerName: string | null = null;
+    let referralPartnerContactEmail: string | null = null;
+    let referralPartnerNotifyOnEnrollment = true;
     const refFromBody = referralRef?.trim();
     const rawRefCookie = cookieStore.get(PARTNER_REF_COOKIE)?.value;
     const refFromCookie = normalizePartnerRef(rawRefCookie);
@@ -321,6 +325,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           id: true,
           name: true,
           partnerType: true,
+          contactEmail: true,
+          notifyOnEnrollment: true,
           sponsoredEnrollment: true,
           sponsorshipFundingSource: true,
           sponsorshipTermLabel: true,
@@ -335,6 +341,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         referralPartnerId = partner.id;
         referralPartnerType = partner.partnerType;
         referralPartnerName = partner.name;
+        referralPartnerContactEmail = partner.contactEmail?.trim() || null;
+        referralPartnerNotifyOnEnrollment = partner.notifyOnEnrollment;
         referralSource = `partner_ref:${refRaw}`;
         if (isSponsorshipActive(partner, new Date())) {
           sponsorPartner = partner;
@@ -754,6 +762,59 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           })
         );
       }
+
+      // School signup acknowledgments: parent/guardian (under 18) + partner admin.
+      // One partner email per signup — replaces sendPartnerNewMemberAssignedEmail
+      // here to avoid duplicate admin spam on the same event.
+      if (isSchoolSignup && referralPartnerId) {
+        const schoolDisplayName =
+          schoolName?.trim() || referralPartnerName?.trim() || 'your school';
+
+        if (
+          ageGroup === 'under_18' &&
+          parentGuardianEmail?.trim()
+        ) {
+          const parentEmail = parentGuardianEmail.trim();
+          after(() =>
+            sendSchoolEnrollmentParentAckEmail({
+              to: parentEmail,
+              parentGuardianName: parentGuardianName,
+              studentName: fullName,
+              schoolName: schoolDisplayName,
+              programInterest: programInterestSummary,
+            }).catch((err) => {
+              logger.error('School enrollment parent ack email failed', { err });
+              captureApiError(err, {
+                route: 'POST /api/apply/signup#schoolParentAck',
+                extra: { userId: user.id, referralPartnerId },
+              });
+            }),
+          );
+        }
+
+        if (
+          referralPartnerContactEmail &&
+          referralPartnerNotifyOnEnrollment
+        ) {
+          const partnerEmail = referralPartnerContactEmail;
+          after(() =>
+            sendSchoolEnrollmentPartnerAckEmail({
+              to: partnerEmail,
+              partnerName: referralPartnerName ?? schoolDisplayName,
+              studentName: fullName,
+              studentEmail: user.email!,
+              programInterest: programInterestSummary,
+              gradeLevel: gradeLevel?.trim() || null,
+            }).catch((err) => {
+              logger.error('School enrollment partner ack email failed', { err });
+              captureApiError(err, {
+                route: 'POST /api/apply/signup#schoolPartnerAck',
+                extra: { userId: user.id, referralPartnerId },
+              });
+            }),
+          );
+        }
+      }
     } catch (dbError) {
       captureApiError(dbError, { route: 'POST /api/apply/signup' });
       // Roll back the auth user we just created so a failed signup doesn't
@@ -798,7 +859,15 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     }
 
     if (authData.session) {
-      return NextResponse.json({ success: true, redirectTo: '/apply/confirmation' });
+      const schoolQuery = isSchoolSignup ? '?school=1' : '';
+      const minorQuery =
+        isSchoolSignup && ageGroup === 'under_18' && parentGuardianEmail?.trim()
+          ? `${schoolQuery ? '&' : '?'}minor=1`
+          : '';
+      return NextResponse.json({
+        success: true,
+        redirectTo: `/apply/confirmation${schoolQuery}${minorQuery}`,
+      });
     }
   
     return NextResponse.json({

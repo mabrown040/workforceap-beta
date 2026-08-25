@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -116,14 +116,17 @@ async function _POST(request: Request) {
     select: { fullName: true, email: true },
   }));
 
-  sendPreScreeningReadyEmail({
-    memberName: dbAfter?.fullName ?? undefined,
-    memberEmail: dbAfter?.email ?? user.email ?? '',
-    goal: parsed.data.primaryGoal,
-    weeklyHours: parsed.data.weeklyHours,
-    barrierSummary: parsed.data.barrier.slice(0, 120),
-    memberId: user.id,
-  }).catch((err) => console.error('Pre-screening admin email failed:', err));
+  // `after()` so Vercel does not freeze before Resend finishes the admin alert.
+  after(() =>
+    sendPreScreeningReadyEmail({
+      memberName: dbAfter?.fullName ?? undefined,
+      memberEmail: dbAfter?.email ?? user.email ?? '',
+      goal: parsed.data.primaryGoal,
+      weeklyHours: parsed.data.weeklyHours,
+      barrierSummary: parsed.data.barrier.slice(0, 120),
+      memberId: user.id,
+    }).catch((err) => console.error('Pre-screening admin email failed:', err))
+  );
 
   auditLog({ actorUserId: user.id, action: 'member.preScreening.submit', targetType: 'PreScreening', targetId: user.id }).catch(() => {});
   logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'PreScreening', id: user.id }, result: { success: true } }).catch(() => {});

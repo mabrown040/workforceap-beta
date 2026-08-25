@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
@@ -251,35 +251,41 @@ async function _PATCH(request: Request) {
     auditLog({ actorUserId: user.id, action: 'member.eligibility.update', targetType: 'EligibilityForm', targetId: user.id }).catch(() => {});
     logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'EligibilityForm', id: user.id }, result: { success: true } }).catch(() => {});
 
-    // Fire-and-forget confirmation to member + Mike/admin (WS5). Failures must
-    // not roll back the saved answers.
+    // Post-save notifications via next/server `after()` so Vercel keeps the
+    // invocation alive until Resend finishes. Bare fire-and-forget promises
+    // are often frozen when the JSON response returns. Failures must not roll
+    // back the saved answers.
     const eligibilityEmailFields = { ...extended };
     if (notifyMeta.email) {
       const displayName = (notifyMeta.fullName ?? '').trim() || notifyMeta.email;
-      sendEligibilityScreeningConfirmationEmail({
-        to: notifyMeta.email,
-        fullName: displayName,
-        eligibility: eligibilityEmailFields,
-      }).catch((err) => {
-        logger.error('Eligibility screening confirmation email failed', { err });
-        captureApiError(err, {
-          route: 'PATCH /api/member/eligibility#confirmation',
-          extra: { userId: user.id },
-        });
-      });
-      sendEligibilityScreeningAdminEmail({
-        memberName: displayName,
-        memberEmail: notifyMeta.email,
-        memberId: user.id,
-        source: 'dashboard',
-        eligibility: eligibilityEmailFields,
-      }).catch((err) => {
-        logger.error('Eligibility screening admin alert failed', { err });
-        captureApiError(err, {
-          route: 'PATCH /api/member/eligibility#adminAlert',
-          extra: { userId: user.id },
-        });
-      });
+      after(() =>
+        sendEligibilityScreeningConfirmationEmail({
+          to: notifyMeta.email!,
+          fullName: displayName,
+          eligibility: eligibilityEmailFields,
+        }).catch((err) => {
+          logger.error('Eligibility screening confirmation email failed', { err });
+          captureApiError(err, {
+            route: 'PATCH /api/member/eligibility#confirmation',
+            extra: { userId: user.id },
+          });
+        })
+      );
+      after(() =>
+        sendEligibilityScreeningAdminEmail({
+          memberName: displayName,
+          memberEmail: notifyMeta.email!,
+          memberId: user.id,
+          source: 'dashboard',
+          eligibility: eligibilityEmailFields,
+        }).catch((err) => {
+          logger.error('Eligibility screening admin alert failed', { err });
+          captureApiError(err, {
+            route: 'PATCH /api/member/eligibility#adminAlert',
+            extra: { userId: user.id },
+          });
+        })
+      );
     }
 
     return NextResponse.json({ ok: true });

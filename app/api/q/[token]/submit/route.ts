@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -241,30 +241,35 @@ export const POST = withApiGuc(
             (notifyMeta.fullName ?? '').trim() ||
             [data.firstName, data.lastName].filter(Boolean).join(' ').trim() ||
             notifyMeta.email;
-          sendEligibilityScreeningConfirmationEmail({
-            to: notifyMeta.email,
-            fullName: displayName,
-            eligibility: extendedMeta,
-          }).catch((err) => {
-            logger.error('Token eligibility confirmation email failed', { err });
-            captureApiError(err, {
-              route: 'POST /api/q/[token]/submit#confirmation',
-              extra: { subjectUserId: subjectId },
-            });
-          });
-          sendEligibilityScreeningAdminEmail({
-            memberName: displayName,
-            memberEmail: notifyMeta.email,
-            memberId: subjectId,
-            source: 'token',
-            eligibility: extendedMeta,
-          }).catch((err) => {
-            logger.error('Token eligibility admin alert failed', { err });
-            captureApiError(err, {
-              route: 'POST /api/q/[token]/submit#adminAlert',
-              extra: { subjectUserId: subjectId },
-            });
-          });
+          // `after()` keeps the Vercel invocation alive until Resend finishes.
+          after(() =>
+            sendEligibilityScreeningConfirmationEmail({
+              to: notifyMeta.email!,
+              fullName: displayName,
+              eligibility: extendedMeta,
+            }).catch((err) => {
+              logger.error('Token eligibility confirmation email failed', { err });
+              captureApiError(err, {
+                route: 'POST /api/q/[token]/submit#confirmation',
+                extra: { subjectUserId: subjectId },
+              });
+            })
+          );
+          after(() =>
+            sendEligibilityScreeningAdminEmail({
+              memberName: displayName,
+              memberEmail: notifyMeta.email!,
+              memberId: subjectId,
+              source: 'token',
+              eligibility: extendedMeta,
+            }).catch((err) => {
+              logger.error('Token eligibility admin alert failed', { err });
+              captureApiError(err, {
+                route: 'POST /api/q/[token]/submit#adminAlert',
+                extra: { subjectUserId: subjectId },
+              });
+            })
+          );
         }
       } else {
         // No-account lead: do NOT create a Supabase auth account or a User
@@ -298,30 +303,34 @@ export const POST = withApiGuc(
         });
 
         if (leadEmail && hasEligibilityScreeningFields(extendedMeta)) {
-          sendEligibilityScreeningConfirmationEmail({
-            to: leadEmail,
-            fullName: leadName,
-            eligibility: extendedMeta,
-          }).catch((err) => {
-            logger.error('Public lead eligibility confirmation email failed', { err });
-            captureApiError(err, {
-              route: 'POST /api/q/[token]/submit#leadConfirmation',
-              extra: { linkId: link.id },
-            });
-          });
-          sendEligibilityScreeningAdminEmail({
-            memberName: leadName,
-            memberEmail: leadEmail,
-            memberId: null,
-            source: 'token',
-            eligibility: extendedMeta,
-          }).catch((err) => {
-            logger.error('Public lead eligibility admin alert failed', { err });
-            captureApiError(err, {
-              route: 'POST /api/q/[token]/submit#leadAdminAlert',
-              extra: { linkId: link.id },
-            });
-          });
+          after(() =>
+            sendEligibilityScreeningConfirmationEmail({
+              to: leadEmail,
+              fullName: leadName,
+              eligibility: extendedMeta,
+            }).catch((err) => {
+              logger.error('Public lead eligibility confirmation email failed', { err });
+              captureApiError(err, {
+                route: 'POST /api/q/[token]/submit#leadConfirmation',
+                extra: { linkId: link.id },
+              });
+            })
+          );
+          after(() =>
+            sendEligibilityScreeningAdminEmail({
+              memberName: leadName,
+              memberEmail: leadEmail,
+              memberId: null,
+              source: 'token',
+              eligibility: extendedMeta,
+            }).catch((err) => {
+              logger.error('Public lead eligibility admin alert failed', { err });
+              captureApiError(err, {
+                route: 'POST /api/q/[token]/submit#leadAdminAlert',
+                extra: { linkId: link.id },
+              });
+            })
+          );
         }
       }
 

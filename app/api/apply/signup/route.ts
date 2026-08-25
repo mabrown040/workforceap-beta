@@ -684,11 +684,6 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         sourcePage: '/apply/create-account',
       });
   
-      // Post-signup notifications via next/server `after()` so Vercel keeps the
-      // invocation alive until Resend finishes. Bare fire-and-forget promises
-      // are often frozen when the JSON response returns — applicants then see
-      // the success page but never get the receipt email. Failures still must
-      // NOT roll back account creation; they are logged + captureApiError'd.
       const eligibilityEmailFields = {
         q1: eligibilityQ1 ?? null,
         q2: eligibilityQ2 ?? null,
@@ -704,24 +699,29 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         partnerAmbassadorReferral: partnerAmbassadorNormalized,
       };
 
-      after(async () => {
-        try {
-          const result = await sendApplicationConfirmationEmail({
-            to: user.email!,
-            fullName,
-            eligibility: eligibilityEmailFields,
-          });
-          if (!result.ok) {
-            throw new Error(result.error ?? 'Application confirmation email failed');
-          }
-        } catch (err) {
-          logger.error('Member application confirmation email failed', { err });
-          captureApiError(err, {
-            route: 'POST /api/apply/signup#applicationConfirmation',
-            extra: { userId: user.id },
-          });
+      // Applicant receipt is awaited before the success response — the promise
+      // the confirmation page makes ("receipt on file"). Serverless `after()`
+      // alone still races on Vercel: the function can freeze before Resend
+      // finishes, so Sandra-style misses happen even when signup succeeds.
+      // Failures must NOT roll back account creation; log + capture only.
+      try {
+        const result = await sendApplicationConfirmationEmail({
+          to: user.email!,
+          fullName,
+          eligibility: eligibilityEmailFields,
+        });
+        if (!result.ok) {
+          throw new Error(result.error ?? 'Application confirmation email failed');
         }
-      });
+      } catch (err) {
+        logger.error('Member application confirmation email failed', { err });
+        captureApiError(err, {
+          route: 'POST /api/apply/signup#applicationConfirmation',
+          extra: { userId: user.id },
+        });
+      }
+
+      // Staff / partner notifications stay in `after()` — not user-blocking.
   
       // Soft seat cap: the student is already through, but an admin has to
       // decide who funds this seat. Surfaced two STAFF-ONLY ways — this

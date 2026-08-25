@@ -879,8 +879,7 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
     expect(notes).toContain('Heard about us: Partner or community ambassador');
     expect(notes).toContain('Partner/ambassador referral: Ambassador Jane / code-abc');
 
-    // WS5: confirmation + admin alert receive structured eligibility payload
-    await new Promise((r) => setTimeout(r, 0));
+    // WS5: confirmation (awaited before response) + admin alert (after()) payloads
     expect(sendApplicationConfirmationEmail).toHaveBeenCalled();
     const confArgs = vi.mocked(sendApplicationConfirmationEmail).mock.calls.at(-1)?.[0];
     expect(confArgs?.eligibility).toMatchObject({
@@ -890,6 +889,7 @@ describe('POST /api/apply/signup WS4 eligibility extended fields', () => {
       hearAbout: 'Partner or community ambassador',
       partnerAmbassadorReferral: 'Ambassador Jane / code-abc',
     });
+    await new Promise((r) => setTimeout(r, 0));
     expect(sendNewApplicationAdminEmail).toHaveBeenCalled();
     const adminArgs = vi.mocked(sendNewApplicationAdminEmail).mock.calls.at(-1)?.[0];
     expect(adminArgs?.eligibility).toMatchObject({

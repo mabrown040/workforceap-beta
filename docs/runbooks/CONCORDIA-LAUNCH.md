@@ -11,7 +11,12 @@ school apply, admin form, guardian consent) are both in product.
 - **Referral code:** `chs2026` — also works at `/apply?ref=chs2026` (per-program: `/apply?ref=chs2026&program=<slug>`).
 - **Sponsorship window:** 2026-01-01 → 2026-12-31 UTC, term label `2026`, funding source `PARTNER_ORG`. Outside that window nothing is stamped automatically — extend `sponsorshipEndsAt` in `/admin/partners` before the pilot rolls into a new term.
 - **Seat cap: intentionally unset (uncapped).** Spend is controlled by the manual Coursera activation gate (`courseraEnrollmentApproved` per consented student).
-- **The partnership:** Concordia High School students enroll in WorkforceAP programs at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership. Partner contact: Dr. Marianne Rader (marianne.rader@chsaustin.org).
+- **The partnership:** Concordia High School students enroll in WorkforceAP programs at no cost to Concordia High School students for 2026 — sponsored through the WorkforceAP–Concordia partnership. Partner contact: Dr. Marianne Rader ([marianne.rader@chsaustin.org](mailto:marianne.rader@chsaustin.org)) — receives a partner enrollment ack email on each student signup when `notifyOnEnrollment=true`.
+- **Enrollment ack emails (on school signup):**
+  - **Student** — automatic application receipt (`sendApplicationConfirmationEmail`)
+  - **Parent/guardian** — when under 18 and `parentGuardianEmail` present (`sendSchoolEnrollmentParentAckEmail`) — includes 24–48 hour program enrollment timeline
+  - **CHS administrator** — partner `contactEmail` (`sendSchoolEnrollmentPartnerAckEmail`) — one email per signup (not duplicated with `sendPartnerNewMemberAssignedEmail`)
+- **24–48 hour messaging:** School enroll page and apply confirmation (`?school=1`) tell students to allow 24–48 hours for program enrollment setup — distinct from adult WIOA advisor 1–2 business day copy.
 - **Where attribution lands:**
   - `Application.referralSource = 'partner_ref:chs2026'`
   - A `PartnerReferral` roster row under the CHS partner
@@ -21,11 +26,12 @@ school apply, admin form, guardian consent) are both in product.
 ## One-Time Launch Steps
 
 1. Deploy the merged branch to production.
-2. Create or backfill the partner record (sponsorship flags + 5-program catalog). Required or `/enroll/concordia` 404s:
+2. Create or backfill the partner record (sponsorship flags + 13-program catalog). Required or `/enroll/concordia` 404s:
    ```bash
    node scripts/prisma-env.js npx tsx scripts/create-chs-partner.ts
+   node scripts/prisma-env.js npx tsx scripts/invite-chs-partner-admin.ts
    ```
-   Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
+   Expect a one-line `CREATED`/`UPDATED` summary with the partner id, `slug=concordia`, `referralCode=chs2026`, `sponsoredEnrollment=true`, `contactEmail=marianne.rader@chsaustin.org`, `notifyOnEnrollment=true`, and `seatCap=uncapped`. If `sponsoredEnrollment` is not true, the automatic funding stamp will not fire.
 3. **Prod smoke-test checklist:**
    - [ ] Visit `/enroll/concordia` on mobile **and** desktop; page renders, all 13 programs listed, CTAs work. URL is `/enroll/concordia`, not `/en/enroll/concordia`.
    - [ ] Click a program CTA → `/apply?ref=chs2026&program=…`. Income/employment questions are **hidden**. Grade level is required. Under 18 requires guardian name + email.
@@ -33,6 +39,8 @@ school apply, admin form, guardian consent) are both in product.
    - [ ] Verify in admin: Application is **PENDING** with `referralSource = 'partner_ref:chs2026'` and a `PartnerReferral` row exists under the CHS partner.
    - [ ] Verify the primary enrollment shows `fundingSource = PARTNER_ORG` **without** running `stamp-chs-funding.ts`.
    - [ ] Verify both Resend emails (verification + confirmation) and the admin alert fired.
+   - [ ] For an under-18 test signup with guardian email: verify parent ack email and CHS partner ack to marianne.rader@chsaustin.org.
+   - [ ] Confirm apply confirmation shows 24–48 hour program enrollment copy (`/apply/confirmation?school=1`).
    - [ ] Verify the test member is **ABSENT** from `/admin/wioa-screening` (CHS students are not WIOA-screened).
    - [ ] On the member detail page, record consent (or copy the guardian consent link and submit `/consent/<token>`).
    - [ ] Confirm Coursera approval is blocked until consent is on file, then approve after consent.
@@ -80,7 +88,7 @@ On `/admin/partners/new` (or Edit on an existing partner):
 
 ## Week 2 — Partner Portal
 
-Invite Dr. Rader (or a designated counselor) to the partner portal via the **Invite** button on `/admin/partners/<id>`. Roster, milestones, and exports work today.
+Invite Dr. Rader to the partner portal via the **Invite** button on `/admin/partners/<id>`, or run `scripts/invite-chs-partner-admin.ts` in production (sets contact + `notifyOnEnrollment`, prints invite steps). Roster, milestones, and exports work today.
 
 ## Failure Playbook
 
@@ -117,7 +125,7 @@ Here is what a student does, start to finish:
 
 **One small ask for your IT team:** please allowlist workforceap.org email domains so verification and welcome emails reach student inboxes.
 
-On timing: our advisors review applications within 1–2 business days of submission.
+On timing: allow **24–48 hours** for our team to enroll students into their chosen program after they apply — it's a manual setup process. Guardian consent for under-18 students is collected by the school before training activates.
 
 And on cost, to say it plainly for families: there is no cost to your students or their families for the 2026 program year — sponsored through the WorkforceAP–Concordia partnership; students are never asked for payment information.
 

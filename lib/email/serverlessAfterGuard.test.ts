@@ -17,7 +17,12 @@ function read(rel: string) {
 const ROUTES_REQUIRING_AFTER = [
   {
     path: 'app/api/apply/signup/route.ts',
-    symbols: ['sendApplicationConfirmationEmail', 'sendNewApplicationAdminEmail'],
+    symbols: [
+      'sendApplicationConfirmationEmail',
+      'sendNewApplicationAdminEmail',
+      'sendSchoolEnrollmentParentAckEmail',
+      'sendSchoolEnrollmentPartnerAckEmail',
+    ],
   },
   {
     path: 'app/api/member/eligibility/route.ts',

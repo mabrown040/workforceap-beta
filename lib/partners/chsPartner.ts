@@ -28,6 +28,9 @@ export const CHS_ENROLL_PATH = `/enroll/${CHS_PARTNER_SLUG}`;
  */
 export const CHS_PARTNER_REFERRAL_CODE = 'chs2026';
 
+/** Partner contact email for enrollment notifications (Dr. Marianne Rader). */
+export const CHS_PARTNER_CONTACT_EMAIL = 'marianne.rader@chsaustin.org';
+
 /** Partner display name. */
 export const CHS_PARTNER_NAME = 'Concordia High School';
 

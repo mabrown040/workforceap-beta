@@ -23,16 +23,27 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function ApplyConfirmationPage() {
+type PageProps = {
+  searchParams?: Promise<{ school?: string; minor?: string }>;
+};
+
+export default async function ApplyConfirmationPage({ searchParams }: PageProps) {
+  const sp = searchParams ? await searchParams : {};
+  const isSchoolContext = sp.school === '1';
+  const isMinorContext = sp.minor === '1';
+
   const user = await getUser();
   const isAuthenticated = !!user;
   const t = await getTranslations('apply');
 
+  const tKey = (regular: string, school: string) =>
+    (isSchoolContext ? t(school as Parameters<typeof t>[0]) : t(regular as Parameters<typeof t>[0])) as string;
+
   const nextSteps = [
-    { num: '1', title: t('confirmationStep1Title'), desc: t('confirmationStep1Desc') },
-    { num: '2', title: t('confirmationStep2Title'), desc: t('confirmationStep2Desc') },
-    { num: '3', title: t('confirmationStep3Title'), desc: t('confirmationStep3Desc') },
-    { num: '4', title: t('confirmationStep4Title'), desc: t('confirmationStep4Desc') },
+    { num: '1', title: tKey('confirmationStep1Title', 'confirmationSchoolStep1Title'), desc: tKey('confirmationStep1Desc', 'confirmationSchoolStep1Desc') },
+    { num: '2', title: tKey('confirmationStep2Title', 'confirmationSchoolStep2Title'), desc: tKey('confirmationStep2Desc', 'confirmationSchoolStep2Desc') },
+    { num: '3', title: tKey('confirmationStep3Title', 'confirmationSchoolStep3Title'), desc: tKey('confirmationStep3Desc', 'confirmationSchoolStep3Desc') },
+    { num: '4', title: tKey('confirmationStep4Title', 'confirmationSchoolStep4Title'), desc: tKey('confirmationStep4Desc', 'confirmationSchoolStep4Desc') },
   ] as const;
 
   const whatYouCanDoSignedIn = [
@@ -107,17 +118,22 @@ export default async function ApplyConfirmationPage() {
                 {t('confirmationHeroTitle')}
               </h1>
               <p style={{ color: 'var(--color-on-surface)', fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '36rem', margin: '0 auto 0.75rem', fontWeight: 600 }}>
-                {t('confirmationHeroLead')}
+                {tKey('confirmationHeroLead', 'confirmationSchoolHeroLead')}
               </p>
               <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.7, maxWidth: '34rem', margin: '0 auto 1rem' }}>
-                {t('confirmationHeroBody')}
+                {tKey('confirmationHeroBody', 'confirmationSchoolHeroBody')}
               </p>
+              {isMinorContext ? (
+                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: '34rem', margin: '0 auto 1rem' }}>
+                  {t('confirmationSchoolParentAckNote')}
+                </p>
+              ) : null}
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.9rem', fontWeight: 600 }}>
                 <span>{t('confirmationChipOnFile')}</span>
                 <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
                 <span>{t('confirmationChipReceipt')}</span>
                 <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
-                <span>{t('confirmationChipReview')}</span>
+                <span>{tKey('confirmationChipReview', 'confirmationSchoolChipReview')}</span>
               </div>
             </div>
 

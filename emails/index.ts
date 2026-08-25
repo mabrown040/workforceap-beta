@@ -48,3 +48,5 @@ export { jobAlertDigestHtml } from './job-alert-digest';
 export { employerPendingApplicantsHtml } from './employer-pending-applicants';
 export { adminStaleApplicantsDigestHtml } from './admin-stale-applicants-digest';
 export { employerJobExpiryHtml } from './job-expiry';
+export { schoolEnrollmentParentAckHtml } from './school-enrollment-parent-ack';
+export { schoolEnrollmentPartnerAckHtml } from './school-enrollment-partner-ack';

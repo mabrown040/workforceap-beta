@@ -31,6 +31,7 @@ import {
   CHS_PARTNER_NAME,
   CHS_PARTNER_REFERRAL_CODE,
   CHS_PARTNER_SLUG,
+  CHS_PARTNER_CONTACT_EMAIL,
   CHS_SPONSORSHIP_ENDS_AT,
   CHS_SPONSORSHIP_STARTS_AT,
   CHS_SPONSORSHIP_TERM_LABEL,
@@ -43,7 +44,7 @@ const REFERRAL_CODE = CHS_PARTNER_REFERRAL_CODE;
 const NAME = CHS_PARTNER_NAME;
 const PARTNER_TYPE = 'high_school';
 const CONTACT_NAME = 'Dr. Marianne Rader';
-const CONTACT_EMAIL = 'marianne.rader@chsaustin.org';
+const CONTACT_EMAIL = CHS_PARTNER_CONTACT_EMAIL;
 const NOTES =
   '2026 CHS pilot — no cost to CHS students in 2026; funding: PARTNER_ORG; ' +
   'under-18 consent collected by school; see docs/runbooks/CONCORDIA-LAUNCH.md';
@@ -166,6 +167,7 @@ async function main() {
           active: true,
           contactName: CONTACT_NAME,
           contactEmail: CONTACT_EMAIL,
+          notifyOnEnrollment: true,
           notes: NOTES,
           ...SPONSORSHIP,
           sponsorshipNotes: 'Sponsored by Concordia High School (2026)',
@@ -207,7 +209,11 @@ async function main() {
   if (existing.partnerType !== PARTNER_TYPE) data.partnerType = PARTNER_TYPE;
   if (isEmpty(existing.name)) data.name = NAME;
   if (isEmpty(existing.contactName)) data.contactName = CONTACT_NAME;
-  if (isEmpty(existing.contactEmail)) data.contactEmail = CONTACT_EMAIL;
+  // Mike explicitly requested marianne.rader@chsaustin.org for CHS admin alerts.
+  if (existing.contactEmail?.trim().toLowerCase() !== CONTACT_EMAIL.toLowerCase()) {
+    data.contactEmail = CONTACT_EMAIL;
+  }
+  if (!existing.notifyOnEnrollment) data.notifyOnEnrollment = true;
   if (isEmpty(existing.notes)) data.notes = NOTES;
   if (!existing.sponsoredEnrollment) data.sponsoredEnrollment = true;
   if (!existing.sponsorshipFundingSource) data.sponsorshipFundingSource = 'PARTNER_ORG';

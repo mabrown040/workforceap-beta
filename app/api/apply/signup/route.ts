@@ -732,6 +732,9 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           sponsorshipSeatCapReached && sponsorPartner
             ? [applicationNotes, seatCapNote(sponsorPartner.name)].filter(Boolean).join('\n')
             : applicationNotes;
+        // Capture a narrowed string for the `after()` closure — TS does not
+        // keep the `if (createdApplicationId)` narrow across the callback.
+        const applicationIdForAlert = createdApplicationId;
 
         after(() =>
           sendNewApplicationAdminEmail({
@@ -739,14 +742,14 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             applicantEmail: user.email!,
             applicantPhone: phone,
             programInterest: programInterestSummary,
-            applicationId: createdApplicationId,
+            applicationId: applicationIdForAlert,
             applicationNotes: adminAlertNotes || undefined,
             eligibility: eligibilityEmailFields,
           }).catch((err) => {
             logger.error('Admin new-application alert email failed', { err });
             captureApiError(err, {
               route: 'POST /api/apply/signup#newApplicationAdmin',
-              extra: { userId: user.id, applicationId: createdApplicationId },
+              extra: { userId: user.id, applicationId: applicationIdForAlert },
             });
           })
         );

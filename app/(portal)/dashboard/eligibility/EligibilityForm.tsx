@@ -171,7 +171,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
             q3,
             receivingUnemployment,
             exhaustedUnemployment,
-            layoffCompany: showLayoff ? layoffCompany.trim() || null : null,
+            layoffCompany: layoffCompany.trim() || null,
             snapWic,
             hearAbout: hearAbout.trim() || null,
             hearAboutOther: hearAboutNeedsOther(hearAbout) ? hearAboutOther.trim() || null : null,
@@ -210,7 +210,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
       {showLayoff ? (
         <div>
           <label htmlFor="elig-layoff" style={labelStyle}>
-            Layoff company (if applicable)
+            What company did you get laid off from, or last work for?
           </label>
           <input
             id="elig-layoff"

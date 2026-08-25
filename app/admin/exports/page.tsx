@@ -66,6 +66,7 @@ export default async function AdminExportsPage({
           orderBy: { createdAt: 'desc' },
           select: {
             receivingUnemployment: true,
+            layoffCompany: true,
             snapWic: true,
             hearAbout: true,
             createdAt: true,
@@ -83,6 +84,7 @@ export default async function AdminExportsPage({
       email: m.email,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       receivingUnemployment: s?.receivingUnemployment ?? null,
+      layoffCompany: s?.layoffCompany ?? null,
       snapWic: s?.snapWic ?? null,
       hearAbout: s?.hearAbout ?? null,
       screeningAt: s?.createdAt

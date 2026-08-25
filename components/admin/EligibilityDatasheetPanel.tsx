@@ -9,6 +9,7 @@ type PreviewRow = {
   email: string | null;
   partnerName: string | null;
   receivingUnemployment: string | null;
+  layoffCompany: string | null;
   snapWic: string | null;
   hearAbout: string | null;
   screeningAt: string | null;
@@ -38,6 +39,11 @@ const columns: DataTableColumn<PreviewRow>[] = [
     key: 'unemployment',
     header: 'Unemployment',
     cell: (row) => row.receivingUnemployment ?? '—',
+  },
+  {
+    key: 'layoffCompany',
+    header: 'Layoff / last employer',
+    cell: (row) => row.layoffCompany ?? '—',
   },
   {
     key: 'snapWic',
@@ -118,8 +124,8 @@ export default function EligibilityDatasheetPanel({ previewRows }: Props) {
             Eligibility screening datasheet
           </h2>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
-            WS4 fields (unemployment, SNAP/WIC, hear-about, ambassador) · CSV export in-admin (not Google Sheets).
-            Member Training Report also includes these columns.
+            WS4 fields (unemployment, layoff/last employer, SNAP/WIC, hear-about, ambassador) · CSV export
+            in-admin (not Google Sheets). Member Training Report also includes these columns.
           </p>
         </div>
       </div>

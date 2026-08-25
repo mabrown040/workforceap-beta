@@ -38,7 +38,7 @@ export function eligibilityScreeningSummaryHtml(
     row('Work authorization (Q3)', f.q3),
     row('Receiving unemployment', f.receivingUnemployment),
     row('Exhausted unemployment', f.exhaustedUnemployment),
-    row('Layoff company', f.layoffCompany),
+    row('Layoff / last employer', f.layoffCompany),
     row('SNAP/WIC', f.snapWic),
     row('Heard about us', f.hearAbout),
     row('Heard about us (other)', f.hearAboutOther),

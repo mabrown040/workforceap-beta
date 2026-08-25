@@ -95,7 +95,7 @@ export function eligibilityFieldsPlainLines(fields: EligibilityScreeningFields):
   if (fields.exhaustedUnemployment) {
     lines.push(`Exhausted unemployment: ${fields.exhaustedUnemployment}`);
   }
-  if (fields.layoffCompany) lines.push(`Layoff company: ${fields.layoffCompany}`);
+  if (fields.layoffCompany) lines.push(`Layoff / last employer: ${fields.layoffCompany}`);
   if (fields.snapWic) lines.push(`SNAP/WIC: ${fields.snapWic}`);
   if (fields.hearAbout) lines.push(`Heard about us: ${fields.hearAbout}`);
   if (fields.hearAboutOther) lines.push(`Heard about us (other): ${fields.hearAboutOther}`);

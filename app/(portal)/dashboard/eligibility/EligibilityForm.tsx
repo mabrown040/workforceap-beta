@@ -4,11 +4,15 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
+  formatPartnerAmbassadorReferral,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
   normalizeYesNo,
+  parsePartnerAmbassadorReferral,
+  partnerReferralNeedsWriteIn,
   type YesNo,
 } from '@/lib/apply/eligibilityExtendedFields';
+import { PartnerReferralSelectOptions } from '@/components/apply/HearAboutSelectOptions';
 
 // Mirror the apply flow's option lists so member-supplied data stays
 // consistent with the public application (app/apply/ApplyEligibilityClient.tsx).
@@ -123,9 +127,9 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   const [snapWic, setSnapWic] = useState<YesNo | null>(normalizeYesNo(initial.snapWic));
   const [hearAbout, setHearAbout] = useState(initial.hearAbout ?? '');
   const [hearAboutOther, setHearAboutOther] = useState(initial.hearAboutOther ?? '');
-  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState(
-    initial.partnerAmbassadorReferral ?? '',
-  );
+  const partnerInitial = parsePartnerAmbassadorReferral(initial.partnerAmbassadorReferral);
+  const [partnerSelect, setPartnerSelect] = useState(partnerInitial.selected);
+  const [partnerWriteIn, setPartnerWriteIn] = useState(partnerInitial.writeIn);
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
   const [hoveredBarrier, setHoveredBarrier] = useState<string | null>(null);
@@ -175,7 +179,8 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
             snapWic,
             hearAbout: hearAbout.trim() || null,
             hearAboutOther: hearAboutNeedsOther(hearAbout) ? hearAboutOther.trim() || null : null,
-            partnerAmbassadorReferral: partnerAmbassadorReferral.trim() || null,
+            partnerAmbassadorReferral:
+              formatPartnerAmbassadorReferral(partnerSelect, partnerWriteIn) || null,
           }),
         });
         if (!res.ok) {
@@ -326,6 +331,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
           value={hearAbout}
           onChange={setHearAbout}
           style={inputStyle}
+          placeholder="Choose from this list"
         />
       </div>
       {hearAboutNeedsOther(hearAbout) ? (
@@ -347,16 +353,31 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
         <label htmlFor="elig-ambassador" style={labelStyle}>
           Partner or community ambassador referral
         </label>
-        <input
+        <select
           id="elig-ambassador"
-          type="text"
-          value={partnerAmbassadorReferral}
-          onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
+          value={partnerSelect}
+          onChange={(e) => setPartnerSelect(e.target.value)}
           style={inputStyle}
-          maxLength={200}
-          placeholder="Ambassador name or referral code"
-        />
+        >
+          <option value="">Select a partner or ambassador (optional)</option>
+          <PartnerReferralSelectOptions />
+        </select>
       </div>
+      {partnerReferralNeedsWriteIn(partnerSelect) ? (
+        <div>
+          <label htmlFor="elig-ambassador-other" style={labelStyle}>
+            Partner or ambassador name
+          </label>
+          <input
+            id="elig-ambassador-other"
+            type="text"
+            value={partnerWriteIn}
+            onChange={(e) => setPartnerWriteIn(e.target.value)}
+            style={inputStyle}
+            maxLength={200}
+          />
+        </div>
+      ) : null}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <button

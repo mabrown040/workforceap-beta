@@ -16,10 +16,14 @@ import {
 } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
+  formatPartnerAmbassadorReferral,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
+  parsePartnerAmbassadorReferral,
+  partnerReferralNeedsWriteIn,
   type YesNo,
 } from '@/lib/apply/eligibilityExtendedFields';
+import { PartnerReferralSelectOptions } from '@/components/apply/HearAboutSelectOptions';
 import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
 import {
   SCHOOL_AGE_GROUPS,
@@ -148,7 +152,9 @@ export default function ApplyEligibilityClient({
   const [snapWic, setSnapWic] = useState<YesNo | null>(null);
   const [hearAbout, setHearAbout] = useState('');
   const [hearAboutOther, setHearAboutOther] = useState('');
-  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState('');
+  const [partnerSelect, setPartnerSelect] = useState('');
+  const [partnerWriteIn, setPartnerWriteIn] = useState('');
+  const partnerAmbassadorReferral = formatPartnerAmbassadorReferral(partnerSelect, partnerWriteIn);
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
   const completedRef = useRef(false);
@@ -179,7 +185,9 @@ export default function ApplyEligibilityClient({
     setSnapWic(draft.snapWic ?? null);
     setHearAbout(draft.hearAbout ?? '');
     setHearAboutOther(draft.hearAboutOther ?? '');
-    setPartnerAmbassadorReferral(draft.partnerAmbassadorReferral ?? '');
+    const partner = parsePartnerAmbassadorReferral(draft.partnerAmbassadorReferral);
+    setPartnerSelect(partner.selected);
+    setPartnerWriteIn(partner.writeIn);
     setGradeLevel(draft.gradeLevel ?? '');
     setParentGuardianName(draft.parentGuardianName ?? '');
     setParentGuardianEmail(draft.parentGuardianEmail ?? '');
@@ -227,7 +235,8 @@ export default function ApplyEligibilityClient({
       county.trim().length > 0 &&
       primaryBarriers.length > 0 &&
       hearAbout.trim().length > 0 &&
-      (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0);
+      (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0) &&
+      (!partnerReferralNeedsWriteIn(partnerSelect) || partnerWriteIn.trim().length > 0);
   const yesNoAnswers: Array<YesNo | null> = [
     q1,
     receivingUnemployment,
@@ -918,6 +927,7 @@ export default function ApplyEligibilityClient({
                     placeholder={t('eligibilityHearAboutPlaceholder')}
                     aria-invalid={attemptedContinue && !hearAbout.trim()}
                   />
+                  <p className="apply-field-hint">{t('eligibilityHearAboutHint')}</p>
                 </div>
                 {hearAboutNeedsOther(hearAbout) ? (
                   <div className="form-group apply-form-group--full">
@@ -936,17 +946,32 @@ export default function ApplyEligibilityClient({
                 ) : null}
                 <div className="form-group apply-form-group--full">
                   <label htmlFor="apply-partner-ambassador">{t('eligibilityPartnerAmbassadorLabel')}</label>
-                  <input
+                  <select
                     id="apply-partner-ambassador"
-                    type="text"
                     name="partnerAmbassadorReferral"
-                    value={partnerAmbassadorReferral}
-                    onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
-                    maxLength={200}
-                    placeholder={t('eligibilityPartnerAmbassadorPlaceholder')}
-                  />
+                    value={partnerSelect}
+                    onChange={(e) => setPartnerSelect(e.target.value)}
+                  >
+                    <option value="">{t('eligibilityPartnerAmbassadorPlaceholder')}</option>
+                    <PartnerReferralSelectOptions />
+                  </select>
                   <p className="apply-field-hint">{t('eligibilityPartnerAmbassadorHint')}</p>
                 </div>
+                {partnerReferralNeedsWriteIn(partnerSelect) ? (
+                  <div className="form-group apply-form-group--full">
+                    <label htmlFor="apply-partner-ambassador-other">{t('eligibilityPartnerAmbassadorWriteInLabel')}</label>
+                    <input
+                      id="apply-partner-ambassador-other"
+                      type="text"
+                      name="partnerAmbassadorWriteIn"
+                      value={partnerWriteIn}
+                      onChange={(e) => setPartnerWriteIn(e.target.value)}
+                      required
+                      maxLength={200}
+                      aria-invalid={attemptedContinue && !partnerWriteIn.trim()}
+                    />
+                  </div>
+                ) : null}
               </>
             ) : null}
           </div>

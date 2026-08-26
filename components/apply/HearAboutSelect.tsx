@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import { APPLY_HEAR_ABOUT_OPTIONS } from '@/lib/apply/eligibilityExtendedFields';
+import { HearAboutSelectOptions } from '@/components/apply/HearAboutSelectOptions';
 
 type Props = {
   id: string;
@@ -30,7 +31,7 @@ export default function HearAboutSelect({
   onChange,
   required,
   disabled,
-  placeholder = 'Select one',
+  placeholder = 'Choose from this list',
   className,
   style,
   'aria-invalid': ariaInvalid,
@@ -52,11 +53,7 @@ export default function HearAboutSelect({
     >
       <option value="">{placeholder}</option>
       {extraValue ? <option value={extraValue}>{extraValue}</option> : null}
-      {APPLY_HEAR_ABOUT_OPTIONS.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
+      <HearAboutSelectOptions />
     </select>
   );
 }

@@ -2,13 +2,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   APPLY_HEAR_ABOUT_AMBASSADOR,
+  APPLY_HEAR_ABOUT_GROUPS,
   APPLY_HEAR_ABOUT_OPTIONS,
   APPLY_HEAR_ABOUT_OTHER,
+  APPLY_PARTNER_AMBASSADOR_WRITEIN,
+  APPLY_PARTNER_OTHER,
+  APPLY_PARTNER_REFERRAL_OPTIONS,
+  applyHearAboutCoversPublicSources,
+  formatPartnerAmbassadorReferral,
   hearAboutNeedsOther,
   hearAboutSuggestsAmbassador,
   layoffCompanyApplicable,
   normalizeHearAbout,
   normalizeYesNo,
+  parsePartnerAmbassadorReferral,
+  partnerReferralNeedsWriteIn,
 } from './eligibilityExtendedFields';
 
 test('normalizes yes/no and rejects other values', () => {
@@ -39,10 +47,50 @@ test('hear-about dropdown has a populated Central Texas list (not placeholder-on
   assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes('Workforce Solutions Capital Area'));
 });
 
+test('hear-about menu is grouped and includes named partners', () => {
+  assert.equal(applyHearAboutCoversPublicSources(), true);
+  assert.ok(APPLY_HEAR_ABOUT_GROUPS.length >= 3);
+  assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes('Launch Pad Job Club'));
+  assert.ok(
+    (APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes('Purpose Works / Job Seekers Network'),
+  );
+  assert.equal(APPLY_HEAR_ABOUT_OPTIONS[0], 'Launch Pad Job Club');
+});
+
+test('partner referral dropdown matches the 8/24 named orgs plus write-ins', () => {
+  assert.deepEqual([...APPLY_PARTNER_REFERRAL_OPTIONS], [
+    'Launch Pad Job Club',
+    'Purpose Works / Job Seekers Network',
+    'Workforce Solutions Capital Area',
+    'Workforce Solutions Rural Capital Area',
+    APPLY_PARTNER_OTHER,
+    APPLY_PARTNER_AMBASSADOR_WRITEIN,
+  ]);
+  assert.equal(partnerReferralNeedsWriteIn(APPLY_PARTNER_OTHER), true);
+  assert.equal(partnerReferralNeedsWriteIn('Launch Pad Job Club'), false);
+  assert.equal(
+    formatPartnerAmbassadorReferral(APPLY_PARTNER_OTHER, 'Jane at church'),
+    `${APPLY_PARTNER_OTHER}: Jane at church`,
+  );
+  assert.deepEqual(parsePartnerAmbassadorReferral(`${APPLY_PARTNER_OTHER}: Jane at church`), {
+    selected: APPLY_PARTNER_OTHER,
+    writeIn: 'Jane at church',
+  });
+  assert.deepEqual(parsePartnerAmbassadorReferral('Launch Pad Job Club'), {
+    selected: 'Launch Pad Job Club',
+    writeIn: '',
+  });
+  assert.deepEqual(parsePartnerAmbassadorReferral('Free-text leftover'), {
+    selected: APPLY_PARTNER_OTHER,
+    writeIn: 'Free-text leftover',
+  });
+});
+
 test('detects other + ambassador hear-about cases', () => {
   assert.equal(hearAboutNeedsOther(APPLY_HEAR_ABOUT_OTHER), true);
   assert.equal(hearAboutNeedsOther('Friend or family'), false);
   assert.equal(hearAboutSuggestsAmbassador(APPLY_HEAR_ABOUT_AMBASSADOR), true);
+  assert.equal(hearAboutSuggestsAmbassador('Launch Pad Job Club'), true);
   assert.equal(hearAboutSuggestsAmbassador('Google / web search'), false);
 });
 

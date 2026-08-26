@@ -4,11 +4,15 @@ import { useState } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
+  formatPartnerAmbassadorReferral,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
+  parsePartnerAmbassadorReferral,
+  partnerReferralNeedsWriteIn,
   type YesNo,
 } from '@/lib/apply/eligibilityExtendedFields';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
+import { PartnerReferralSelectOptions } from '@/components/apply/HearAboutSelectOptions';
 
 // Option values copied EXACTLY from app/apply/ApplyEligibilityClient.tsx so the
 // public no-account form writes the same canonical values the rest of the app
@@ -116,9 +120,10 @@ export default function PublicEligibilityForm({
   const [snapWic, setSnapWic] = useState<YesNo | null>(prefill.snapWic ?? null);
   const [hearAbout, setHearAbout] = useState(prefill.hearAbout ?? '');
   const [hearAboutOther, setHearAboutOther] = useState(prefill.hearAboutOther ?? '');
-  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState(
-    prefill.partnerAmbassadorReferral ?? '',
-  );
+  const partnerPrefill = parsePartnerAmbassadorReferral(prefill.partnerAmbassadorReferral);
+  const [partnerSelect, setPartnerSelect] = useState(partnerPrefill.selected);
+  const [partnerWriteIn, setPartnerWriteIn] = useState(partnerPrefill.writeIn);
+  const partnerAmbassadorReferral = formatPartnerAmbassadorReferral(partnerSelect, partnerWriteIn);
 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -152,6 +157,7 @@ export default function PublicEligibilityForm({
     primaryBarriers.length > 0 &&
     hearAbout.trim().length > 0 &&
     (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0) &&
+    (!partnerReferralNeedsWriteIn(partnerSelect) || partnerWriteIn.trim().length > 0) &&
     fundingOk &&
     status !== 'submitting';
 
@@ -312,6 +318,7 @@ export default function PublicEligibilityForm({
           value={hearAbout}
           onChange={setHearAbout}
           required
+          placeholder="Choose from this list"
         />
       </div>
       {hearAboutNeedsOther(hearAbout) ? (
@@ -322,15 +329,29 @@ export default function PublicEligibilityForm({
       ) : null}
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-ambassador">Partner or community ambassador referral</label>
-        <input
+        <select
           id="q-ambassador"
           style={inputStyle}
-          value={partnerAmbassadorReferral}
-          maxLength={200}
-          placeholder="Ambassador name or referral code"
-          onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
-        />
+          value={partnerSelect}
+          onChange={(e) => setPartnerSelect(e.target.value)}
+        >
+          <option value="">Select a partner or ambassador (optional)</option>
+          <PartnerReferralSelectOptions />
+        </select>
       </div>
+      {partnerReferralNeedsWriteIn(partnerSelect) ? (
+        <div style={fieldGroup}>
+          <label style={labelStyle} htmlFor="q-ambassador-other">Partner or ambassador name *</label>
+          <input
+            id="q-ambassador-other"
+            style={inputStyle}
+            value={partnerWriteIn}
+            maxLength={200}
+            onChange={(e) => setPartnerWriteIn(e.target.value)}
+            required
+          />
+        </div>
+      ) : null}
 
       {status === 'error' ? (
         <p role="alert" style={{ color: 'rgb(153,27,27)', margin: 0, fontSize: '0.9rem' }}>{errorMsg}</p>

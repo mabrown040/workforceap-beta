@@ -23,7 +23,7 @@ export function scoreScaledToDisplayPercent(scoreScaled: number | null | undefin
 export function formatGradePercent(pct: number | null | undefined): string | null {
   if (pct == null || !Number.isFinite(pct)) return null;
   const rounded = Math.round(pct * 100) / 100;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+  return String(rounded);
 }
 
 /** Parse CSV / human-readable grade cells; returns 0–100 or null. */

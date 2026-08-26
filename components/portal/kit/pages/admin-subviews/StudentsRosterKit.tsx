@@ -130,7 +130,7 @@ function matchesFilter(student: StudentRow, filter: StudentFilter): boolean {
 function formatRosterGrade(pct: number | null | undefined): string {
   if (pct == null || !Number.isFinite(pct)) return '—';
   const rounded = Math.round(pct * 100) / 100;
-  return `${Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2)}%`;
+  return `${String(rounded)}%`;
 }
 
 function readinessColor(score: number): KitColor {

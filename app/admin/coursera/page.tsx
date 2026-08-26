@@ -36,6 +36,7 @@ import {
 } from '@/lib/xapi/mappings';
 import {
   countHiddenTestAccountUnmatchedLearners,
+  countUnmatchedLearners,
   loadBadgeProgressSummary,
   loadUnmatchedLearners,
 } from '@/lib/coursera/progressQueries';
@@ -377,8 +378,11 @@ export default async function AdminCourseraPage({
       console.error('[admin/coursera] kit sync status failed:', error);
     }
 
-    const kitUnmatched = await loadUnmatchedLearners(organizationId, 50, { includeTestAccounts: false });
+    const kitUnmatched = await loadUnmatchedLearners(organizationId, 500, { includeTestAccounts: false });
     const kitHiddenTest = await countHiddenTestAccountUnmatchedLearners(organizationId).catch(() => 0);
+    const kitUnmatchedTotal = await countUnmatchedLearners(organizationId, { includeTestAccounts: false }).catch(
+      () => kitUnmatched.length,
+    );
 
     // Enrollment seats-vs-budget: how many members are approved to enroll, and
     // how many are actually generating Coursera activity. "Approved" is honest
@@ -409,20 +413,30 @@ export default async function AdminCourseraPage({
 
     const unmatchedRows: UnmatchedLearnerRow[] = kitUnmatched.map((learner) => {
       const topBadge = learner.badges[0];
-      const caption = topBadge
-        ? `${topBadge.badgeTitle} · ${Math.round(topBadge.progressPercent)}%`
-        : [
-            learner.courseCount > 0 ? `${learner.courseCount} course${learner.courseCount === 1 ? '' : 's'}` : null,
-            learner.badgeCount > 0 ? `${learner.badgeCount} badge${learner.badgeCount === 1 ? '' : 's'}` : null,
-            learner.xapiCount > 0 ? `${learner.xapiCount} event${learner.xapiCount === 1 ? '' : 's'}` : null,
-          ]
-            .filter(Boolean)
-            .join(' · ') || 'No matched member';
+      const gradeCaption =
+        learner.latestGradePercent != null
+          ? `Grade ${Math.round(learner.latestGradePercent * 100) / 100}%`
+          : null;
+      const caption = [
+        gradeCaption,
+        topBadge
+          ? `${topBadge.badgeTitle} · ${Math.round(topBadge.progressPercent)}%`
+          : [
+              learner.courseCount > 0 ? `${learner.courseCount} course${learner.courseCount === 1 ? '' : 's'}` : null,
+              learner.badgeCount > 0 ? `${learner.badgeCount} badge${learner.badgeCount === 1 ? '' : 's'}` : null,
+              learner.xapiCount > 0 ? `${learner.xapiCount} event${learner.xapiCount === 1 ? '' : 's'}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · ') || null,
+      ]
+        .filter(Boolean)
+        .join(' · ') || 'No matched member';
       return {
         email: learner.externalEmail,
         name: learner.externalName,
         caption,
         href: `/admin/coursera/learners/unmatched/${encodeURIComponent(learner.externalEmail)}`,
+        gradePercent: learner.latestGradePercent,
       };
     });
 
@@ -436,7 +450,7 @@ export default async function AdminCourseraPage({
     // fixed cron cadence, so a quiet day or two across a small cohort is
     // normal. A full week of silence is a much stronger signal that the
     // webhook subscription itself has broken.
-    const unmatchedTotal = unmatchedRows.length + kitHiddenTest;
+    const unmatchedTotal = kitUnmatchedTotal + kitHiddenTest;
     const STALE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
     const isStale = kitSyncStatus.lastXapiReceivedAt
       ? Date.now() - kitSyncStatus.lastXapiReceivedAt.getTime() > STALE_THRESHOLD_MS
@@ -569,7 +583,7 @@ export default async function AdminCourseraPage({
   const courseProgress = await loadCourseProgressSummary(organizationId);
   const xapiCourseProgress = await loadXapiCourseProgressSummary(organizationId, members);
   const badgeProgress = await loadBadgeProgressSummary(organizationId);
-  const unmatchedLearners = await loadUnmatchedLearners(organizationId, 100, {
+  const unmatchedLearners = await loadUnmatchedLearners(organizationId, 500, {
     includeTestAccounts: showTestAccounts,
   });
   const hiddenTestAccountCount = showTestAccounts

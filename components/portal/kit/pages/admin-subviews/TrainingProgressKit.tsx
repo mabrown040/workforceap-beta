@@ -39,6 +39,10 @@ export interface TrainingRow {
   percentComplete: number;
   /** Pace classification. */
   pace: Pace;
+  /** Latest Coursera course grade 0–100; null when unknown. */
+  courseraGrade?: number | null;
+  /** False when the row is a Coursera identity with no WAP member. */
+  inWap?: boolean;
 }
 
 export interface TrainingProgressKitProps {
@@ -90,10 +94,15 @@ export function TrainingProgressKit({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            display: 'block',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
           }}
         >
-          {row.student}
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {row.student}
+          </span>
+          {row.inWap === false ? <Token label="Not in WAP" size="sm" color="pink" /> : null}
         </span>
       ),
     },
@@ -130,6 +139,18 @@ export function TrainingProgressKit({
       align: 'right',
       render: (row) => (
         <span style={{ ...numStyle, fontWeight: 700 }}>{row.percentComplete}%</span>
+      ),
+    },
+    {
+      key: 'courseraGrade',
+      header: 'Coursera grade',
+      align: 'right',
+      render: (row) => (
+        <span style={{ ...numStyle, fontWeight: 700 }}>
+          {row.courseraGrade != null && Number.isFinite(row.courseraGrade)
+            ? `${Math.round(row.courseraGrade * 100) / 100}%`
+            : '—'}
+        </span>
       ),
     },
     {
@@ -183,6 +204,11 @@ export function TrainingProgressKit({
                 >
                   {row.student}
                 </div>
+                {row.inWap === false ? (
+                  <div style={{ marginTop: 4 }}>
+                    <Token label="Not in WAP" size="sm" color="pink" />
+                  </div>
+                ) : null}
                 <div
                   style={{
                     fontSize: 11,
@@ -220,11 +246,19 @@ export function TrainingProgressKit({
               <span style={numStyle}>
                 Complete <b style={{ color: 'var(--wa-text)' }}>{row.percentComplete}%</b>
               </span>
+              <span style={numStyle}>
+                Grade{' '}
+                <b style={{ color: 'var(--wa-text)' }}>
+                  {row.courseraGrade != null && Number.isFinite(row.courseraGrade)
+                    ? `${Math.round(row.courseraGrade * 100) / 100}%`
+                    : '—'}
+                </b>
+              </span>
             </div>
           </Card>
         )}
         emptyTitle="No training progress yet"
-        emptyDescription="Once members enroll and start coursework, their pace shows up here."
+        emptyDescription="Members in a program and Coursera learners not yet in WAP show up here once activity exists."
       />
 
       <p

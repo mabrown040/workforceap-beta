@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { parseCourseGradeString } from '@/lib/coursera/courseGradeDisplay';
 
 // Heuristic re-exported from a server-only-free module so it can be unit-
 // tested in isolation. See lib/coursera/testAccountHeuristic.ts for the
@@ -117,6 +118,10 @@ export type UnmatchedLearner = {
   badgeCount: number;
   xapiCount: number;
   lastActivityTime: Date | null;
+  /** Latest Coursera course grade 0–100, null when unknown. */
+  latestGradePercent: number | null;
+  /** Latest Coursera course overall progress 0–100. */
+  latestProgressPercent: number;
 };
 
 export type LoadUnmatchedLearnersOptions = {
@@ -275,6 +280,39 @@ export async function loadUnmatchedLearners(
       badgesByEmail.set(row.externalEmail, list);
     }
 
+    const gradeRows = await prisma.$queryRaw<
+      Array<{
+        externalEmail: string;
+        courseGrade: string | null;
+        overallProgress: string | number | null;
+        lastActivityTime: Date | null;
+      }>
+    >`
+      SELECT
+        LOWER(external_email) AS "externalEmail",
+        course_grade AS "courseGrade",
+        overall_progress AS "overallProgress",
+        last_activity_time AS "lastActivityTime"
+      FROM coursera_course_progress
+      WHERE user_id IS NULL
+        AND organization_id = ${organizationId}
+        AND LOWER(external_email) = ANY(${emails}::text[])
+      ORDER BY last_activity_time DESC NULLS LAST
+    `;
+
+    const gradeByEmail = new Map<string, number>();
+    const progressByEmail = new Map<string, number>();
+    for (const row of gradeRows) {
+      const email = row.externalEmail;
+      if (!progressByEmail.has(email)) {
+        progressByEmail.set(email, Number(row.overallProgress) || 0);
+      }
+      if (!gradeByEmail.has(email)) {
+        const pct = parseCourseGradeString(row.courseGrade);
+        if (pct != null) gradeByEmail.set(email, pct);
+      }
+    }
+
     return learners.map((row) => ({
       externalEmail: row.externalEmail,
       externalName: row.externalName,
@@ -285,6 +323,8 @@ export async function loadUnmatchedLearners(
       badgeCount: Number(row.badgeCount) || 0,
       xapiCount: Number(row.xapiCount) || 0,
       lastActivityTime: row.lastActivityTime,
+      latestGradePercent: gradeByEmail.get(row.externalEmail) ?? null,
+      latestProgressPercent: progressByEmail.get(row.externalEmail) ?? 0,
     }));
   } catch (error) {
     console.error('[admin/coursera] failed to load unmatched learners:', error);
@@ -345,10 +385,50 @@ export async function countHiddenTestAccountUnmatchedLearners(organizationId: st
   }
 }
 
-// Reference TEST_ACCOUNT_EXCLUSION_WHERE so it isn't dropped by a future
-// dead-code prune; it's available for any future caller that needs to
-// filter test accounts in a non-grouped query.
-void TEST_ACCOUNT_EXCLUSION_WHERE;
+/**
+ * Distinct unmatched Coursera identities (CSV + badges + unresolved xAPI)
+ * for an org. Defaults to excluding likely test accounts, matching
+ * `loadUnmatchedLearners`.
+ */
+export async function countUnmatchedLearners(
+  organizationId: string,
+  options: LoadUnmatchedLearnersOptions = {},
+): Promise<number> {
+  try {
+    const exclusion = options.includeTestAccounts ? Prisma.empty : TEST_ACCOUNT_EXCLUSION_WHERE;
+    const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      WITH unioned AS (
+        SELECT LOWER(external_email) AS email
+        FROM coursera_course_progress
+        WHERE user_id IS NULL
+          AND organization_id = ${organizationId}
+        GROUP BY LOWER(external_email)
+        UNION
+        SELECT LOWER(external_email) AS email
+        FROM coursera_badge_progress
+        WHERE user_id IS NULL
+          AND organization_id = ${organizationId}
+        GROUP BY LOWER(external_email)
+        UNION
+        SELECT LOWER(COALESCE(actor_email, actor_identifier)) AS email
+        FROM coursera_xapi_events
+        WHERE completion_status IN ('unmatched', 'error')
+          AND COALESCE(actor_email, actor_identifier) IS NOT NULL
+          AND organization_id = ${organizationId}
+        GROUP BY LOWER(COALESCE(actor_email, actor_identifier))
+      )
+      SELECT COUNT(DISTINCT email)::bigint AS count
+      FROM unioned
+      WHERE email IS NOT NULL
+        ${exclusion}
+    `;
+    const count = rows[0]?.count ?? 0;
+    return typeof count === 'bigint' ? Number(count) : count;
+  } catch (error) {
+    console.error('[admin/coursera] failed to count unmatched learners:', error);
+    return 0;
+  }
+}
 
 export type LearnerCourseRow = {
   id: string;

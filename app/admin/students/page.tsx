@@ -17,6 +17,11 @@ import {
   type StudentRow,
   type StudentStatus,
 } from '@/components/portal/kit/pages/admin-subviews/StudentsRosterKit';
+import {
+  countUnmatchedLearners,
+  loadUnmatchedLearners,
+} from '@/lib/coursera/progressQueries';
+import { parseCourseGradeString } from '@/lib/coursera/courseGradeDisplay';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -28,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** Cap the lean roster so first paint stays cheap. The kit filters client-side. */
-const ROSTER_LIMIT = 50;
+const ROSTER_LIMIT = 2000;
 
 /** Build initials from a full name (e.g. "Jasmine Davis" → "JD"). */
 function initialsFrom(name: string): string {
@@ -209,6 +214,40 @@ export default async function AdminStudentsPage({
     if (name) counselorNameMap.set(row.memberId, name);
   }
 
+  const memberIds = members.map((m) => m.id);
+  const [unmatchedLearners, unmatchedCount, memberCourseRows] = await Promise.all([
+    loadUnmatchedLearners(scope.orgId, ROSTER_LIMIT, { includeTestAccounts: false }).catch(
+      (reason: unknown) => {
+        console.error('[admin/students] unmatched Coursera learners failed', reason);
+        return [];
+      },
+    ),
+    countUnmatchedLearners(scope.orgId, { includeTestAccounts: false }).catch((reason: unknown) => {
+      console.error('[admin/students] unmatched Coursera count failed', reason);
+      return 0;
+    }),
+    memberIds.length === 0
+      ? Promise.resolve([])
+      : withAdminPageScope(scope, (db) =>
+          db.courseraCourseProgress.findMany({
+            where: { userId: { in: memberIds } },
+            select: { userId: true, courseGrade: true, lastActivityTime: true },
+            orderBy: { lastActivityTime: 'desc' },
+            take: 20000,
+          }),
+        ).catch((reason: unknown) => {
+          console.error('[admin/students] Coursera grades failed', reason);
+          return [] as Array<{ userId: string | null; courseGrade: string | null; lastActivityTime: Date | null }>;
+        }),
+  ]);
+
+  const gradeByUserId = new Map<string, number>();
+  for (const row of memberCourseRows) {
+    if (!row.userId || gradeByUserId.has(row.userId)) continue;
+    const pct = parseCourseGradeString(row.courseGrade);
+    if (pct != null) gradeByUserId.set(row.userId, pct);
+  }
+
   const students: StudentRow[] = members.map((m) => {
     const programTitle = m.enrolledProgram
       ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram
@@ -256,8 +295,35 @@ export default async function AdminStudentsPage({
       counselor: counselorNameMap.get(m.id) ?? 'Unassigned',
       status,
       lastActive: relativeTime(m.lastLoginAt ?? m.updatedAt ?? null),
+      inWap: true,
+      courseraGrade: gradeByUserId.get(m.id) ?? null,
+      href: `/admin/members/${m.id}`,
     };
   });
 
-  return <StudentsRosterKit students={students} total={total} />;
+  for (const learner of unmatchedLearners) {
+    students.push({
+      id: `coursera:${learner.externalEmail}`,
+      name: learner.externalName?.trim() || learner.externalEmail,
+      initials: initialsFrom(learner.externalName || learner.externalEmail),
+      location: learner.externalEmail,
+      program: 'Coursera (not in WAP)',
+      progress: Math.round(learner.latestProgressPercent || 0),
+      readiness: 0,
+      counselor: 'Unassigned',
+      status: 'In Training',
+      lastActive: relativeTime(
+        learner.lastActivityTime instanceof Date
+          ? learner.lastActivityTime
+          : learner.lastActivityTime
+            ? new Date(learner.lastActivityTime)
+            : null,
+      ),
+      inWap: false,
+      courseraGrade: learner.latestGradePercent,
+      href: `/admin/coursera/learners/unmatched/${encodeURIComponent(learner.externalEmail)}`,
+    });
+  }
+
+  return <StudentsRosterKit students={students} total={total + unmatchedCount} />;
 }

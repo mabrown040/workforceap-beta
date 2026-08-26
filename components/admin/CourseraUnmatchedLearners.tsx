@@ -22,6 +22,8 @@ export type UnmatchedLearnerView = {
   badgeCount: number;
   xapiCount: number;
   lastActivityTime: Date | string | null;
+  latestGradePercent?: number | null;
+  latestProgressPercent?: number;
 };
 
 const cardStyle: React.CSSProperties = {
@@ -158,6 +160,23 @@ export default function CourseraUnmatchedLearners({
                 return (
                   <>
                     <strong>{learner.externalName || learner.externalEmail}</strong>
+                    {' '}
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.1rem 0.45rem',
+                        borderRadius: '999px',
+                        background: 'color-mix(in srgb, var(--color-error, #b42318) 12%, transparent)',
+                        color: 'var(--color-error, #b42318)',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.02em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Not in WAP
+                    </span>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                       {learner.externalEmail}
                       {learner.actorIdentifier && learner.actorIdentifier !== learner.externalEmail
@@ -187,6 +206,14 @@ export default function CourseraUnmatchedLearners({
                     ))}
                   </ul>
                 ),
+            },
+            {
+              key: 'grade',
+              header: 'Coursera grade',
+              cell: (learner) =>
+                learner.latestGradePercent != null && Number.isFinite(learner.latestGradePercent)
+                  ? `${Math.round(learner.latestGradePercent * 100) / 100}%`
+                  : '—',
             },
             {
               key: 'activity',

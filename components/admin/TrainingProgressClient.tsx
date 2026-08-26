@@ -55,6 +55,8 @@ export type CurriculumRow = {
   courseraCourseId: string | null;
   status: string;
   percentComplete: number;
+  /** Coursera / xAPI grade 0–100; null when unknown. */
+  gradePercent: number | null;
   lastActivityAt: string | null;
   lastUpdatedAt: string | null;
 };
@@ -77,6 +79,8 @@ export type RawCourseraRow = {
   mappingSource: 'db' | 'static' | null;
   suggestedProgramSlug: string | null;
   percentComplete: number;
+  /** Coursera course grade 0–100, null when unknown. */
+  gradePercent: number | null;
   learningHours: number;
   isCompleted: boolean;
   enrollmentTime: string | null;
@@ -185,7 +189,7 @@ function MapThisAction({
   if (!open) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-        <StatusBadge label="unmapped" variant="error" />
+        <StatusBadge label="Not in WAP" variant="error" />
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -577,6 +581,15 @@ export default function TrainingProgressClient({
       align: 'right',
     },
     {
+      key: 'gradePercent',
+      header: sortHeader('Grade', 'gradePercent'),
+      cell: (r) =>
+        r.gradePercent != null && Number.isFinite(r.gradePercent)
+          ? `${Math.round(r.gradePercent * 100) / 100}%`
+          : '—',
+      align: 'right',
+    },
+    {
       key: 'status',
       header: sortHeader('Status', 'status'),
       cell: (r) => (
@@ -609,7 +622,7 @@ export default function TrainingProgressClient({
           {learnerCell(r.learnerName ?? '(unknown)', r.learnerRole)}
           {!r.identityMatched && (
             <StatusBadge
-              label="identity unmatched"
+              label="Not in WAP"
               variant="warning"
               className="wa-ml-1"
             />
@@ -676,6 +689,15 @@ export default function TrainingProgressClient({
       key: 'percentComplete',
       header: sortHeader('Progress', 'percentComplete'),
       cell: (r) => `${Math.round(r.percentComplete)}%`,
+      align: 'right',
+    },
+    {
+      key: 'gradePercent',
+      header: sortHeader('Grade', 'gradePercent'),
+      cell: (r) =>
+        r.gradePercent != null && Number.isFinite(r.gradePercent)
+          ? `${Math.round(r.gradePercent * 100) / 100}%`
+          : '—',
       align: 'right',
     },
     {
@@ -752,7 +774,7 @@ export default function TrainingProgressClient({
       <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
         {view === 'curriculum'
           ? 'Row per (learner × enrolled program × canonical course). Pulls from the DB course_progress table — what the member dashboard renders. Click ▸ on any row to drill into per-item xAPI activity (lectures, quizzes, labs, peer reviews) for that learner on that Coursera course. A learner showing 0% here when their portal shows progress means raw Coursera activity exists in the Raw view but never promoted into course_progress (usually because no canonical mapping exists yet — open the Raw view and click "Map this →").'
-          : 'Row per (learner × actual Coursera course they’re enrolled in). Pulls from coursera_course_progress (CSV import + B4B refresh). Includes orphan rows whose Coursera email never matched a WAP user — those are flagged "identity unmatched" and need an identity mapping in /admin/coursera before the rest of the pipeline can promote their progress.'}
+          : 'Row per (learner × actual Coursera course they’re enrolled in). Pulls from coursera_course_progress (CSV import + B4B refresh). Includes every Coursera email — learners with no WAP account are flagged “Not in WAP” and need an identity mapping in /admin/coursera before progress can promote to the member dashboard.'}
       </p>
 
       {view === 'curriculum' ? (

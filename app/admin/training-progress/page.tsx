@@ -6,6 +6,9 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { prisma } from '@/lib/db/prisma';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { parseCourseGradeString, scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
+import { humanizeCourseraCourseTitle } from '@/lib/coursera/courseTitle';
+import { loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
@@ -74,6 +77,7 @@ export default async function AdminTrainingProgressPage({
         courseSlug: true,
         status: true,
         percentComplete: true,
+        scoreScaled: true,
         lastActivityAt: true,
       },
     }),
@@ -109,6 +113,7 @@ export default async function AdminTrainingProgressPage({
     { status: string; percentComplete: number }
   >();
   const lastActivityByUserProgram = new Map<string, Date>();
+  const gradeByUserId = new Map<string, number>();
   if (progressResult.status === 'fulfilled') {
     for (const p of progressResult.value) {
       progressByKey.set(`${p.userId}:${p.programSlug}:${p.courseSlug}`, {
@@ -121,6 +126,10 @@ export default async function AdminTrainingProgressPage({
         if (!cur || p.lastActivityAt > cur) {
           lastActivityByUserProgram.set(upKey, p.lastActivityAt);
         }
+      }
+      if (!gradeByUserId.has(p.userId)) {
+        const pct = scoreScaledToDisplayPercent(p.scoreScaled);
+        if (pct != null) gradeByUserId.set(p.userId, pct);
       }
     }
   } else {
@@ -165,10 +174,7 @@ export default async function AdminTrainingProgressPage({
     }
     const percentComplete = Math.round(percentSum / total);
 
-    // Skip learners with literally zero engagement in their program so the
-    // roster reflects *active* training, matching the mockup's live framing.
     const lastActivity = lastActivityByUserProgram.get(`${learner.id}:${programSlug}`);
-    if (percentComplete === 0 && done === 0 && !lastActivity) continue;
 
     rows.push({
       id: `${learner.id}:${programSlug}`,
@@ -178,11 +184,33 @@ export default async function AdminTrainingProgressPage({
       modulesTotal: total,
       percentComplete,
       pace: derivePace(percentComplete, lastActivity),
+      inWap: true,
+      courseraGrade: gradeByUserId.get(learner.id) ?? null,
     });
   }
 
   // Sort most-complete first so the live, healthy learners lead.
   rows.sort((a, b) => b.percentComplete - a.percentComplete);
+
+  const unmatchedLearners = await loadUnmatchedLearners(scope.orgId, 2000, {
+    includeTestAccounts: false,
+  }).catch((reason: unknown) => {
+    console.error('[admin/training-progress] unmatched Coursera learners failed', reason);
+    return [];
+  });
+  for (const learner of unmatchedLearners) {
+    rows.push({
+      id: `coursera:${learner.externalEmail}`,
+      student: learner.externalName?.trim() || learner.externalEmail,
+      program: 'Coursera (not in WAP)',
+      modulesDone: 0,
+      modulesTotal: learner.courseCount || 0,
+      percentComplete: Math.round(learner.latestProgressPercent || 0),
+      pace: 'Stalled',
+      inWap: false,
+      courseraGrade: learner.latestGradePercent,
+    });
+  }
 
   const onTrack = rows.filter((r) => r.pace === 'On track' || r.pace === 'Ahead').length;
   const behind = rows.filter((r) => r.pace === 'Behind').length;
@@ -233,6 +261,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
         percentComplete: true,
         lastActivityAt: true,
         lastUpdatedAt: true,
+        scoreScaled: true,
       },
     }),
     prisma.courseraCourseProgress.findMany({
@@ -254,6 +283,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
         programSlug: true,
         programName: true,
         overallProgress: true,
+        courseGrade: true,
         learningHours: true,
         isCompleted: true,
         enrollmentTime: true,
@@ -357,6 +387,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
           courseraCourseId: progress?.courseId ?? course.courseraCourseId ?? null,
           status: progress?.status ?? 'NOT_STARTED',
           percentComplete: progress?.percentComplete ?? 0,
+          gradePercent: scoreScaledToDisplayPercent(progress?.scoreScaled),
           lastActivityAt: progress?.lastActivityAt?.toISOString() ?? null,
           lastUpdatedAt: progress?.lastUpdatedAt?.toISOString() ?? null,
         });
@@ -406,7 +437,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
       identityMatched: Boolean(learner),
       courseraCourseId: row.courseraCourseId,
       courseraCourseSlug: row.courseraCourseSlug,
-      courseName: row.courseName,
+      courseName: humanizeCourseraCourseTitle(row.courseName, row.courseraCourseSlug),
       university: row.university,
       courseraProgramSlug: row.programSlug,
       courseraProgramName: row.programName,
@@ -415,6 +446,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
       mappingSource,
       suggestedProgramSlug: learner?.enrolledProgram ?? null,
       percentComplete: Number(row.overallProgress),
+      gradePercent: parseCourseGradeString(row.courseGrade),
       learningHours: Number(row.learningHours),
       isCompleted: row.isCompleted,
       enrollmentTime: row.enrollmentTime?.toISOString() ?? null,

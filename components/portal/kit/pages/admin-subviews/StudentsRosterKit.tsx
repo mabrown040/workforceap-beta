@@ -41,10 +41,16 @@ export interface StudentRow {
   status: StudentStatus;
   /** Last-active caption, e.g. "2h ago". */
   lastActive: string;
+  /** Latest Coursera course grade 0–100; null when unknown. */
+  courseraGrade?: number | null;
+  /** False when the row is a Coursera identity with no WAP member. */
+  inWap?: boolean;
+  /** Override the default `/admin/members/:id` row click. */
+  href?: string;
 }
 
 /** Filter chips. "All" is special-cased to show everything. */
-export type StudentFilter = 'All' | 'Job-Ready' | 'At Risk' | 'In Training';
+export type StudentFilter = 'All' | 'Job-Ready' | 'At Risk' | 'In Training' | 'Not in WAP';
 
 export interface StudentsRosterKitProps {
   students?: StudentRow[];
@@ -103,7 +109,7 @@ const DEFAULT_STUDENTS: StudentRow[] = [
   },
 ];
 
-const FILTERS: StudentFilter[] = ['All', 'Job-Ready', 'At Risk', 'In Training'];
+const FILTERS: StudentFilter[] = ['All', 'Job-Ready', 'At Risk', 'In Training', 'Not in WAP'];
 
 /** Maps the kit's semantic tone vocabulary to a real Token color. */
 const STATUS_TOKEN_COLOR: Record<StudentStatus, TokenColor> = {
@@ -116,7 +122,15 @@ const STATUS_TOKEN_COLOR: Record<StudentStatus, TokenColor> = {
 
 function matchesFilter(student: StudentRow, filter: StudentFilter): boolean {
   if (filter === 'All') return true;
+  if (filter === 'Not in WAP') return student.inWap === false;
+  if (student.inWap === false) return false;
   return student.status === filter;
+}
+
+function formatRosterGrade(pct: number | null | undefined): string {
+  if (pct == null || !Number.isFinite(pct)) return '—';
+  const rounded = Math.round(pct * 100) / 100;
+  return `${Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2)}%`;
 }
 
 function readinessColor(score: number): KitColor {
@@ -140,8 +154,9 @@ export function StudentsRosterKit({
   const counts: Record<StudentFilter, number> = {
     All: total,
     'Job-Ready': students.filter((s) => matchesFilter(s, 'Job-Ready')).length,
-    'At Risk': students.filter((s) => s.status === 'At Risk').length,
-    'In Training': students.filter((s) => s.status === 'In Training').length,
+    'At Risk': students.filter((s) => s.status === 'At Risk' && s.inWap !== false).length,
+    'In Training': students.filter((s) => s.status === 'In Training' && s.inWap !== false).length,
+    'Not in WAP': students.filter((s) => s.inWap === false).length,
   };
 
   const visible = students.filter((s) => matchesFilter(s, active));
@@ -150,8 +165,19 @@ export function StudentsRosterKit({
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
       <Avatar initials={row.initials ?? row.name.slice(0, 2).toUpperCase()} size={32} />
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {row.name}
+        <div
+          style={{
+            fontWeight: 700,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.name}</span>
+          {row.inWap === false ? <Token label="Not in WAP" size="sm" color="pink" /> : null}
         </div>
         <div
           style={{
@@ -190,6 +216,15 @@ export function StudentsRosterKit({
         <span style={{ color: 'var(--wa-muted)' }}>{row.program}</span>
       ) },
     { key: 'progress', header: 'Progress', render: (row) => <ProgressCell row={row} /> },
+    {
+      key: 'courseraGrade',
+      header: 'Coursera grade',
+      render: (row) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>
+          {formatRosterGrade(row.courseraGrade)}
+        </span>
+      ),
+    },
     {
       key: 'readiness',
       header: 'Readiness',
@@ -248,7 +283,7 @@ export function StudentsRosterKit({
         columns={columns}
         rows={visible}
         rowKey={(row) => row.id}
-        onRowClick={(row) => router.push(`/admin/members/${row.id}`)}
+        onRowClick={(row) => router.push(row.href ?? `/admin/members/${row.id}`)}
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (
@@ -282,7 +317,7 @@ export function StudentsRosterKit({
               variant={row.status === 'At Risk' ? 'accent' : 'success'}
             />
             <div style={{ fontSize: 10, color: 'var(--wa-muted)', marginTop: 6 }}>
-              {row.progress}% complete · last active {row.lastActive}
+              {row.progress}% complete · Coursera grade {formatRosterGrade(row.courseraGrade)} · last active {row.lastActive}
             </div>
           </Card>
         )}

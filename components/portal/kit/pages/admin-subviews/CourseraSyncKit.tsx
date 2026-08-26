@@ -47,6 +47,8 @@ export interface UnmatchedLearnerRow {
   caption: string;
   /** Detail/link-binding route for this learner. */
   href: string;
+  /** Latest Coursera course grade 0–100, when known. */
+  gradePercent?: number | null;
 }
 
 export interface CourseraSyncKitProps {
@@ -319,10 +321,16 @@ export function CourseraSyncKit({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
                       }}
                       title={row.name ? `${row.name} · ${row.email}` : row.email}
                     >
-                      {row.name || row.email}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {row.name || row.email}
+                      </span>
+                      <Token label="Not in WAP" size="sm" color="pink" />
                     </div>
                     <div
                       style={{

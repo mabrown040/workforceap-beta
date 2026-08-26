@@ -7,6 +7,7 @@ import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 
 export default function LinkedInHeadlineForm() {
   const [role, setRole] = useState('');
@@ -94,7 +95,7 @@ export default function LinkedInHeadlineForm() {
           disabled={loading}
         />
       </div>
-      {error && <div className="form-error" role="alert">{error}</div>}
+      {error ? <AiToolError error={error} /> : null}
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
         {loading ? (
           <>

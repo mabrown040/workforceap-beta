@@ -10,6 +10,7 @@ import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumeP
 import { FormField } from '@/components/portal/kit';
 
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 
 const textareaStyle: React.CSSProperties = {
   marginTop: 4,
@@ -145,11 +146,7 @@ export default function GapAnalyzerForm() {
         />
       </FormField>
 
-      {error && (
-        <p role="alert" style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--wa-danger)' }}>
-          {error}
-        </p>
-      )}
+      {error ? <AiToolError error={error} /> : null}
 
       <button
         type="submit"

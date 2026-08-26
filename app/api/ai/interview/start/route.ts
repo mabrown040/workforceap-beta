@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion } from '@/lib/ai/groq';
+import { ifAiUnconfigured } from '@/lib/ai/aiUnavailableResponse';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -18,12 +19,8 @@ export const POST = withApiGuc(async (request: Request) => {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!isAIConfigured()) {
-      return NextResponse.json(
-        { error: 'This feature is temporarily unavailable. Please try again soon.' },
-        { status: 503 }
-      );
-    }
+    const unconfigured = ifAiUnconfigured();
+    if (unconfigured) return unconfigured;
 
     const { success } = await checkAIToolRateLimit(user.id);
     if (!success) {

@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { prisma } from '@/lib/db/prisma';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
-import { isAIConfigured } from '@/lib/ai/groq';
+import { ifAiUnconfigured } from '@/lib/ai/aiUnavailableResponse';
 import {
   tailorResumeForJob,
   JobTailorUnavailableError,
@@ -24,8 +24,9 @@ export const POST = withApiGuc(
       const user = await getUser();
       if (!user) return fail('Unauthorized', 401);
 
-      if (!isAIConfigured()) {
-        return fail('This feature is temporarily unavailable. Please try again soon.', 503);
+      const unconfigured = ifAiUnconfigured();
+      if (unconfigured) {
+        return fail('Career writing tools are not configured yet. Ask your counselor if you need help now.', 503);
       }
 
       const { success: withinRateLimit } = await checkAIToolRateLimit(user.id);

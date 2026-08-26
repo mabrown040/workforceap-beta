@@ -8,6 +8,7 @@ import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
 import ResumeAnalysisPanel, { type ResumeSectionAuditCard } from './ResumeAnalysisPanel';
 import ResumeScoreBreakdown, { type ResumeScorePayload } from './ResumeScoreBreakdown';
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
 // Static visual styling per audit card. The *status* (Pass/Review) is derived
@@ -230,11 +231,7 @@ export default function ResumeStrengthForm() {
           disabled={loading}
         />
       </div>
-      {error && (
-        <div className="form-error" role="alert">
-          {error}
-        </div>
-      )}
+      {error ? <AiToolError error={error} /> : null}
       <button type="submit" className="btn btn-primary" disabled={loading || !canSubmit} aria-busy={loading}>
         {loading ? (
           <>

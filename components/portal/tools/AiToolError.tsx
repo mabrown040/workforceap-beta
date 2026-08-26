@@ -17,7 +17,8 @@ export default function AiToolError({
   onRetry,
   isRetrying,
   nextRetryIn,
-  retryCount}: AiToolErrorProps) {
+  retryCount,
+}: AiToolErrorProps) {
   const [countdown, setCountdown] = useState(nextRetryIn ?? 0);
 
   useEffect(() => {
@@ -45,10 +46,17 @@ export default function AiToolError({
     error.toLowerCase().includes('503');
 
   let friendlyMessage = error;
-  if (isRateLimited) {
-    friendlyMessage = 'Our AI tools are busy right now. We\'ll retry automatically.';
+  if (error.toLowerCase().includes('not configured') || error.toLowerCase().includes('ai_unconfigured')) {
+    friendlyMessage =
+      'Career writing tools are not configured yet. Ask your counselor if you need help now.';
+  } else if (isRateLimited) {
+    friendlyMessage = isRetrying
+      ? "Our AI tools are busy right now. We'll retry automatically."
+      : 'Our AI tools are busy right now. Please try again in a minute.';
   } else if (isUnavailable) {
-    friendlyMessage = 'This feature is temporarily unavailable. We\'ll retry automatically.';
+    friendlyMessage = isRetrying
+      ? "This feature is temporarily unavailable. We'll retry automatically."
+      : 'This feature is temporarily unavailable. Please try again in a minute.';
   } else if (error.toLowerCase().includes('no resume')) {
     friendlyMessage = error;
   }

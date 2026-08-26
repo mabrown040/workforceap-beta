@@ -8,6 +8,7 @@ import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumeP
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 
 interface ParsedMatchOutput {
   matchScore: number;
@@ -393,11 +394,7 @@ export default function JobMatchScorerForm() {
         />
       </div>
 
-      {error && (
-        <div className="form-error" role="alert">
-          {error}
-        </div>
-      )}
+      {error ? <AiToolError error={error} /> : null}
 
       <button type="submit" className="btn btn-primary" disabled={!canSubmit} aria-busy={loading}>
         {loading ? (

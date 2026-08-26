@@ -8,6 +8,7 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 
 const RESUME_PREFILL_MAX = 3500;
 
@@ -157,7 +158,7 @@ export default function LinkedInAboutForm() {
           disabled={loading}
         />
       </div>
-      {error && <div className="form-error" role="alert">{error}</div>}
+      {error ? <AiToolError error={error} /> : null}
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
         {loading ? (
           <>

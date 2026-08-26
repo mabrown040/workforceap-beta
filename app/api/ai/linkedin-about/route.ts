@@ -3,7 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { linkedinAboutSchema } from '@/lib/validation/linkedinAbout';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion } from '@/lib/ai/groq';
+import { ifAiUnconfigured } from '@/lib/ai/aiUnavailableResponse';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
@@ -16,7 +17,8 @@ export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+    const unconfigured = ifAiUnconfigured();
+    if (unconfigured) return unconfigured;
   
     const { success } = await checkAIToolRateLimit(user.id);
     if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });

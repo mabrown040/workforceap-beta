@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { chatCompletion } from './groq';
+import { groqChatCompletion } from './groq';
 import { geminiChat, isGeminiConfigured } from './geminiChat';
 
 const client = process.env.ANTHROPIC_API_KEY
@@ -49,7 +49,7 @@ export async function claudeChat(
   // Groq fallback — uses its own multi-model fallback chain internally.
   if (process.env.GROQ_API_KEY) {
     try {
-      const text = await chatCompletion(
+      const text = await groqChatCompletion(
         [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userContent },

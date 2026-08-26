@@ -62,9 +62,16 @@ export function useRetryableFetch() {
           onSuccess(data);
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
-          const isRetryable = retryableErrors.some((re) =>
-            message.toLowerCase().includes(re.toLowerCase())
-          );
+          const lower = message.toLowerCase();
+          const neverRetry = [
+            'not configured',
+            'ai_unconfigured',
+            'unauthorized',
+            'validation',
+          ];
+          const isRetryable =
+            !neverRetry.some((re) => lower.includes(re)) &&
+            retryableErrors.some((re) => lower.includes(re.toLowerCase()));
 
           if (isRetryable && attemptNum < maxRetries) {
             const delay = BASE_DELAY_MS * Math.pow(2, attemptNum - 1);

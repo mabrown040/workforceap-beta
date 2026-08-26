@@ -14,6 +14,7 @@ import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import { FormField, StatusTag } from '@/components/portal/kit';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 
 type Step = 'form' | 'pitch' | 'rehearse';
 
@@ -226,9 +227,7 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
           </FormField>
         ))}
 
-        {genError && (
-          <p role="alert" style={{ color: 'var(--wa-danger)', fontSize: '0.875rem', margin: 0, fontWeight: 600 }}>{genError}</p>
-        )}
+        {genError ? <AiToolError error={genError} /> : null}
 
         <button
           type="submit"

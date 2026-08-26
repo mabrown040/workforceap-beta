@@ -10,6 +10,7 @@ import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import { FormField } from '@/components/portal/kit';
 import ExportPdfButton from './ExportPdfButton';
 import ToolFollowThrough from './ToolFollowThrough';
+import AiToolError from './AiToolError';
 
 const primaryButtonStyle = {
   display: 'inline-flex',
@@ -160,20 +161,7 @@ export default function SalaryNegotiationForm() {
           <option value="email">Email</option>
         </select>
       </FormField>
-      {error && (
-        <div
-          role="alert"
-          style={{
-            padding: '10px 14px',
-            borderRadius: 'var(--wa-radius-sm)',
-            background: 'var(--wa-danger-soft)',
-            color: 'var(--wa-danger)',
-            fontSize: 13,
-            fontWeight: 600}}
-        >
-          {error}
-        </div>
-      )}
+      {error ? <AiToolError error={error} /> : null}
       <button type="submit" className="wa-kit-focus" style={primaryButtonStyle} disabled={loading} aria-busy={loading}>
         {loading ? (
           <>

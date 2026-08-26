@@ -1,6 +1,14 @@
 import Groq from 'groq-sdk';
+import Anthropic from '@anthropic-ai/sdk';
+import { isAIConfigured } from '@/lib/ai/configured';
+import { geminiChat, isGeminiConfigured } from '@/lib/ai/geminiChat';
+
+export { isAIConfigured } from '@/lib/ai/configured';
 
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
+const anthropic = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
 
 const MODELS = [
   'llama-3.3-70b-versatile',
@@ -9,9 +17,14 @@ const MODELS = [
   'llama-3.1-8b-instant',
 ] as const;
 
-export async function chatCompletion(
+export function isGroqConfigured(): boolean {
+  return !!groq;
+}
+
+/** Groq-only completion. Used by claudeChat so the provider chain cannot recurse. */
+export async function groqChatCompletion(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
-  options?: { maxTokens?: number; temperature?: number }
+  options?: { maxTokens?: number; temperature?: number },
 ) {
   if (!groq) return null;
 
@@ -41,6 +54,81 @@ export async function chatCompletion(
   return null;
 }
 
-export function isAIConfigured() {
-  return !!process.env.GROQ_API_KEY;
+function splitSystemUser(
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+): { system: string; user: string } {
+  const system = messages
+    .filter((m) => m.role === 'system')
+    .map((m) => m.content)
+    .join('\n\n');
+  const user = messages
+    .filter((m) => m.role !== 'system')
+    .map((m) => m.content)
+    .join('\n\n');
+  return { system, user };
+}
+
+/**
+ * Member-tool completion with Groq → Anthropic → Gemini fallback.
+ * `/api/ai/*` routes call this; they used to die when only Anthropic/Gemini
+ * was configured.
+ */
+export async function chatCompletion(
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+  options?: { maxTokens?: number; temperature?: number },
+) {
+  if (!isAIConfigured()) return null;
+
+  const errors: string[] = [];
+
+  if (groq) {
+    try {
+      const text = await groqChatCompletion(messages, options);
+      if (text) return text;
+      errors.push('groq: empty response');
+    } catch (err) {
+      errors.push(`groq: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  const { system, user } = splitSystemUser(messages);
+
+  if (anthropic) {
+    try {
+      const msg = await anthropic.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: options?.maxTokens ?? 2000,
+        system: system || 'You are a helpful assistant.',
+        messages: [{ role: 'user', content: user }],
+      });
+      const block = msg.content[0];
+      const text = block?.type === 'text' ? block.text : null;
+      if (text) {
+        console.warn('[ai] served via anthropic fallback (groq unavailable)');
+        return text;
+      }
+      errors.push('anthropic: empty response');
+    } catch (err) {
+      errors.push(`anthropic: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  if (isGeminiConfigured()) {
+    try {
+      const text = await geminiChat(system || 'You are a helpful assistant.', user, options);
+      if (text) {
+        console.warn('[ai] served via gemini fallback (groq + anthropic unavailable)');
+        return text;
+      }
+      errors.push('gemini: empty response');
+    } catch (err) {
+      errors.push(`gemini: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    console.error('[ai] chatCompletion providers failed:', errors.join(' | '));
+    throw new Error(errors[errors.length - 1] ?? 'All AI providers failed');
+  }
+  return null;
 }

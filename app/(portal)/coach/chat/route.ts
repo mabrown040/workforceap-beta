@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
-import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { chatCompletion } from '@/lib/ai/groq';
+import { ifAiUnconfigured } from '@/lib/ai/aiUnavailableResponse';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import {
   appendCoachMemoryToSystemPrompt,
@@ -51,12 +52,8 @@ export const POST = withApiGuc(async (req: NextRequest) => {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!isAIConfigured()) {
-      return NextResponse.json(
-        { error: 'This feature is temporarily unavailable. Please try again soon.' },
-        { status: 503 }
-      );
-    }
+    const unconfigured = ifAiUnconfigured();
+    if (unconfigured) return unconfigured;
 
     const { success } = await checkAIToolRateLimit(user.id);
     if (!success) {

@@ -1,4 +1,6 @@
 export const CENTRAL_TEXAS_REFERRAL_SOURCES = [
+  'Launch Pad Job Club',
+  'Purpose Works / Job Seekers Network',
   'Workforce Solutions Capital Area',
   'Workforce Solutions Rural Capital Area',
   'Texas Workforce Commission (TWC)',

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import { hearAboutNeedsOther } from '@/lib/apply/eligibilityExtendedFields';
 
 const BARRIER_OPTIONS = [
   { value: 'justice_involved', label: 'Justice-involved background' },
@@ -72,6 +73,7 @@ export default function DashboardProfileForm({
   const [state, setState] = useState(defaultState);
   const [zip, setZip] = useState(defaultZip);
   const [referralSource, setReferralSource] = useState(defaultReferralSource);
+  const [referralOther, setReferralOther] = useState('');
   const [linkedin, setLinkedin] = useState(defaultLinkedin);
   const [bio, setBio] = useState(defaultBio);
   const [hasEmploymentBarrier, setHasEmploymentBarrier] = useState(defaultHasEmploymentBarrier);
@@ -115,7 +117,9 @@ export default function DashboardProfileForm({
           city: city.trim() || null,
           state: state.trim() || null,
           zip: zip.trim() || null,
-          referralSource: referralSource.trim() || null,
+          referralSource: hearAboutNeedsOther(referralSource)
+            ? [referralSource, referralOther.trim()].filter(Boolean).join(': ').slice(0, 200) || null
+            : referralSource.trim() || null,
           linkedin: normalizedLinkedin,
           bio: bio.trim() || null,
           hasEmploymentBarrier: barrierTypes.length > 0,
@@ -221,15 +225,20 @@ export default function DashboardProfileForm({
         </div>
         <div className="form-group">
           <label htmlFor="referralSource">How did you hear about WorkforceAP?</label>
-          <select id="referralSource" value={referralSource} onChange={(e) => setReferralSource(e.target.value)}>
-            <option value="">Select…</option>
-            {PUBLIC_REFERRAL_SOURCE_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <HearAboutSelect id="referralSource" value={referralSource} onChange={setReferralSource} />
         </div>
+        {hearAboutNeedsOther(referralSource) ? (
+          <div className="form-group">
+            <label htmlFor="referralSourceOther">Please tell us how you heard about us</label>
+            <input
+              id="referralSourceOther"
+              type="text"
+              value={referralOther}
+              onChange={(e) => setReferralOther(e.target.value)}
+              maxLength={200}
+            />
+          </div>
+        ) : null}
         <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
           WorkforceAP programs are no cost to members. Keep your phone and address current so our team can confirm eligibility and next steps.
         </p>

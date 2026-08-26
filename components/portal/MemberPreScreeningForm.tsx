@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import { hearAboutNeedsOther } from '@/lib/apply/eligibilityExtendedFields';
 
 const EMPLOYMENT = ['Employed', 'Unemployed', 'Underemployed', 'Student'] as const;
 const GOALS = ['New career', 'Promotion', 'Certification', 'Exploring options'] as const;
 const HOURS = ['<5 hrs', '5-10 hrs', '10-20 hrs', '20+ hrs'] as const;
-const HEAR = PUBLIC_REFERRAL_SOURCE_OPTIONS;
 
 type DraftPayload = {
   employmentStatus: string;
@@ -29,7 +29,7 @@ export default function MemberPreScreeningForm() {
   const [primaryGoal, setPrimaryGoal] = useState<string>(GOALS[0]);
   const [weeklyHours, setWeeklyHours] = useState<string>(HOURS[2]);
   const [barrier, setBarrier] = useState('');
-  const [hearAbout, setHearAbout] = useState<string>(HEAR[0]);
+  const [hearAbout, setHearAbout] = useState<string>('');
   const [hearAboutOther, setHearAboutOther] = useState('');
   const [workforceAssistance, setWorkforceAssistance] = useState<'yes' | 'no' | ''>('');
   const [phone, setPhone] = useState('');
@@ -95,7 +95,7 @@ export default function MemberPreScreeningForm() {
             setWeeklyHours(d.weeklyHours);
           }
           if (d.barrier != null) setBarrier(d.barrier);
-          if (d.hearAbout && HEAR.includes(d.hearAbout as (typeof HEAR)[number])) {
+          if (d.hearAbout) {
             setHearAbout(d.hearAbout);
           }
           if (d.hearAboutOther != null) setHearAboutOther(d.hearAboutOther);
@@ -159,8 +159,8 @@ export default function MemberPreScreeningForm() {
           primaryGoal,
           weeklyHours,
           barrier: barrier.trim(),
-          hearAbout: hearAbout === 'Other' ? 'Other' : hearAbout,
-          hearAboutOther: hearAbout === 'Other' ? hearAboutOther.trim() || null : null,
+          hearAbout,
+          hearAboutOther: hearAboutNeedsOther(hearAbout) ? hearAboutOther.trim() || null : null,
           workforceAssistance: workforceAssistance === 'yes',
           phone: phone.trim(),
           address: address.trim(),
@@ -190,14 +190,14 @@ export default function MemberPreScreeningForm() {
           : 'Draft saves automatically as you type.';
 
   // Count completed required fields for progress indicator
-  const totalFields = hearAbout === 'Other' ? 9 : 8;
+  const totalFields = hearAboutNeedsOther(hearAbout) ? 9 : 8;
   const adjustedCompleted = [
     !!employmentStatus,
     !!primaryGoal,
     !!weeklyHours,
     !!barrier.trim(),
     !!hearAbout,
-    hearAbout === 'Other' ? !!hearAboutOther.trim() : null,
+    hearAboutNeedsOther(hearAbout) ? !!hearAboutOther.trim() : null,
     !!phone.trim(),
     !!address.trim(),
     workforceAssistance !== '',
@@ -288,20 +288,14 @@ export default function MemberPreScreeningForm() {
       </div>
       <div className="form-group">
         <label htmlFor="hear">How did you hear about us?</label>
-        <select id="hear" value={hearAbout} onChange={(e) => setHearAbout(e.target.value)} required>
-          {HEAR.map((x) => (
-            <option key={x} value={x}>
-              {x}
-            </option>
-          ))}
-        </select>
+        <HearAboutSelect id="hear" value={hearAbout} onChange={setHearAbout} required />
       </div>
-      {hearAbout === 'Other' && (
+      {hearAboutNeedsOther(hearAbout) ? (
         <div className="form-group">
           <label htmlFor="hearOther">Please specify</label>
           <input id="hearOther" value={hearAboutOther} onChange={(e) => setHearAboutOther(e.target.value)} required />
         </div>
-      )}
+      ) : null}
       <div className="form-group">
         <label htmlFor="phone">Phone number</label>
         <input id="phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required minLength={10} />

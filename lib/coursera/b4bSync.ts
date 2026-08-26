@@ -627,6 +627,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   // 6h over the whole org, so re-checking everyone unconditionally would be
   // gratuitous work for the (idempotent, guarded) handleProgramCompletion call.
   const newlyCompletedProgramSlugsByUser = new Map<string, Set<string>>();
+  const affectedUserIds = new Set<string>();
 
   // NOTE: gradebook merging now lives in `syncUserFromB4B` (the single-user
   // path used by dashboard auto-sync + admin "Sync from Coursera"). That path
@@ -733,6 +734,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       });
 
       result.upserted += 1;
+      affectedUserIds.add(userId);
       if (isKnown) {
         result.upsertedKnown += 1;
       } else {
@@ -761,10 +763,24 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     }
   }
 
-  // Update MemberProgramProgress rollups for affected users
-  await updateRollups(Object.keys(result.byUser));
+  // Rollups must key off portal user ids, not Coursera report emails.
+  // Identity-mapped alt-emails are not `users.email`, so looking up by the
+  // report address silently skipped MemberProgramProgress for the whole
+  // mapped cohort (progress row existed, dashboard rollup did not).
+  await updateRollups([...affectedUserIds]);
 
-  for (const emailKey of Object.keys(result.byUser)) {
+  const cacheEmails = new Set(Object.keys(result.byUser));
+  if (affectedUserIds.size > 0) {
+    const portalUsers = await prisma.user.findMany({
+      where: { id: { in: [...affectedUserIds] } },
+      select: { email: true },
+      take: COURSERA_B4B_USER_LOOKUP_CAP,
+    });
+    for (const u of portalUsers) {
+      if (u.email) cacheEmails.add(u.email.trim().toLowerCase());
+    }
+  }
+  for (const emailKey of cacheEmails) {
     invalidateLearnerProgressCacheForEmail(emailKey);
   }
 
@@ -815,11 +831,12 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 /*  Rollup rebuild                                                     */
 /* ------------------------------------------------------------------ */
 
-async function updateRollups(emails: string[]) {
+async function updateRollups(userIds: string[]) {
+  if (userIds.length === 0) return;
   const { affectedUsers, allRows } = await prisma.$transaction(async (tx) => {
     const affectedUsers = await tx.user.findMany({
       take: COURSERA_B4B_USER_LOOKUP_CAP,
-      where: { email: { in: emails, mode: 'insensitive' }, deletedAt: null },
+      where: { id: { in: userIds }, deletedAt: null },
       select: { id: true, email: true },
     });
 

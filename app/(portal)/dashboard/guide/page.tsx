@@ -31,7 +31,7 @@ const JOURNEY_STEPS = [
     num: 2,
     title: 'Complete your Training Preassessment',
     desc: 'This short assessment helps place you into the right training flow before Coursera unlocks.',
-    href: '/dashboard/skills-assessment',
+    href: '/dashboard/assessment',
     cta: 'Start preassessment',
     icon: 'assignment',
   },

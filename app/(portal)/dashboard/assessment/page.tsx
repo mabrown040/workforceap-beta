@@ -50,9 +50,8 @@ export default async function AssessmentPage({
     redirect('/dashboard');
   }
 
-  // Not-yet-interviewed members used to be redirected to /dashboard/skills-assessment,
-  // which itself redirects everyone to /dashboard/ai-tools — a dead loop with no
-  // explanation. Render an inline explanatory state instead, with a path forward
+  // Not-yet-interviewed members used to be bounced through /dashboard/skills-assessment
+  // → AI tools. Render an inline explanatory state instead, with a path forward
   // (request the interview) when the member is eligible.
   if (dbUser.interviewCompletedAt == null) {
     return (

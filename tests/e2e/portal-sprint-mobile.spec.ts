@@ -44,10 +44,8 @@ test.describe('Sprint pages on mobile', () => {
     await expectNoHorizontalOverflow(page);
     await page.getByRole('button', { name: /close add application dialog/i }).click();
 
-    await page.goto('/dashboard/skills-assessment');
-    await expect(page.getByRole('heading', { name: /skills assessment/i })).toBeVisible();
-    await expect(page.getByLabel(/target occupation/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /assess your skills/i })).toBeVisible();
+    await page.goto('/dashboard/ai-tools/skill-mapper');
+    await expect(page.getByRole('heading', { name: /skill mapper/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
 

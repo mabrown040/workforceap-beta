@@ -187,9 +187,9 @@ export default function LearningHubEnrolledCourses({
 
         {!assessmentCompleted ? (
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-            Complete your skills assessment to start your training.{' '}
-            <Link href="/dashboard/skills-assessment" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Skills assessment
+            Complete your Training Preassessment to start your training.{' '}
+            <Link href="/dashboard/assessment" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              Training Preassessment
             </Link>
           </p>
         ) : null}

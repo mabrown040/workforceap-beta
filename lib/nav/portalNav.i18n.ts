@@ -92,12 +92,12 @@ export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
     aliases: ['/dashboard/learning/interest-profiler'],
   },
   {
-    href: '/dashboard/skills-assessment',
+    href: '/dashboard/assessment',
     label: 'nav:trainingPreassessment',
     group: 'insights',
     tab: 'me',
     Icon: ClipboardCheck,
-    aliases: ['/dashboard/assessments', '/dashboard/assessment'],
+    aliases: ['/dashboard/assessments', '/dashboard/skills-assessment'],
   },
   { href: '/dashboard/weekly-recap', label: 'nav:weeklyRecap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {

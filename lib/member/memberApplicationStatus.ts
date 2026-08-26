@@ -127,7 +127,7 @@ export function buildMemberApplicationStatusView(
     applied: '/dashboard/messages',
     under_review: '/dashboard/messages',
     accepted: '/dashboard/profile',
-    enrolled: '/dashboard',
+    enrolled: '/dashboard/assessment',
     active: activeNextStep.href,
     rejected: 'mailto:info@workforceap.org',
   };

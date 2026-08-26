@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default async function AssessmentsPage() {
-  redirect('/dashboard/skills-assessment');
+  redirect('/dashboard/assessment');
 }

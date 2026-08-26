@@ -55,6 +55,7 @@ describe('buildMemberApplicationStatusView', () => {
     );
     assert.ok(view);
     assert.equal(view.stage, 'enrolled');
+    assert.equal(view.nextStepHref, '/dashboard/assessment');
   });
 
   it('APPROVED + enrolled + assessment complete → stage active', () => {

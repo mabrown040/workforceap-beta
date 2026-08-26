@@ -1,0 +1,52 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { MEMBER_PORTAL_NAV_ITEMS } from './portalNav';
+import { MEMBER_PORTAL_NAV_ITEMS_I18N } from './portalNav.i18n';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const source = (relativePath: string) => readFileSync(path.join(root, relativePath), 'utf8');
+
+test('Training Preassessment nav points at the assessment page, not AI tools', () => {
+  const item = MEMBER_PORTAL_NAV_ITEMS.find((entry) => entry.label === 'Training Preassessment');
+  assert.ok(item, 'expected a Training Preassessment nav item');
+  assert.equal(item.href, '/dashboard/assessment');
+  assert.ok(item.aliases?.includes('/dashboard/skills-assessment'));
+  assert.ok(item.aliases?.includes('/dashboard/assessments'));
+  assert.notEqual(item.href, '/dashboard/ai-tools');
+});
+
+test('i18n Training Preassessment nav matches the canonical assessment path', () => {
+  const item = MEMBER_PORTAL_NAV_ITEMS_I18N.find((entry) => entry.label === 'nav:trainingPreassessment');
+  assert.ok(item, 'expected an i18n Training Preassessment nav item');
+  assert.equal(item.href, '/dashboard/assessment');
+  assert.ok(item.aliases?.includes('/dashboard/skills-assessment'));
+});
+
+test('legacy skills-assessment URL redirects to Training Preassessment, not AI tools', () => {
+  const page = source('app/(portal)/dashboard/skills-assessment/page.tsx');
+  assert.match(page, /redirect\(['"]\/dashboard\/assessment['"]\)/);
+  assert.doesNotMatch(page, /\/dashboard\/ai-tools/);
+});
+
+test('plural assessments alias redirects to Training Preassessment', () => {
+  const page = source('app/(portal)/dashboard/assessments/page.tsx');
+  assert.match(page, /redirect\(['"]\/dashboard\/assessment['"]\)/);
+});
+
+test('labeled preassessment CTAs use the assessment page', () => {
+  const guide = source('app/(portal)/dashboard/guide/page.tsx');
+  assert.match(guide, /title: 'Complete your Training Preassessment'/);
+  assert.match(guide, /href: '\/dashboard\/assessment'/);
+  assert.doesNotMatch(guide, /href: '\/dashboard\/skills-assessment'/);
+
+  const home = source('components/portal/DashboardHomeClient.tsx');
+  assert.match(home, /href: '\/dashboard\/assessment'/);
+  assert.doesNotMatch(home, /href: '\/dashboard\/skills-assessment'/);
+
+  const learningHub = source('components/portal/LearningHubEnrolledCourses.tsx');
+  assert.match(learningHub, /href="\/dashboard\/assessment"/);
+  assert.doesNotMatch(learningHub, /href="\/dashboard\/skills-assessment"/);
+});

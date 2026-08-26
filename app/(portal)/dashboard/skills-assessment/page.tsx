@@ -6,12 +6,12 @@ import { getTranslations } from 'next-intl/server';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-    title: t('aiToolkit'),
-    description: t('aiToolkitDescription'),
-    path: '/dashboard/ai-tools',
+    title: t('assessmentMetaTitle'),
+    description: t('assessmentMetaDesc'),
+    path: '/dashboard/assessment',
   });
 }
 
 export default function SkillsAssessmentRedirectPage() {
-  redirect('/dashboard/ai-tools?toast=Skills+Assessment+has+moved+to+the+AI+Toolkit');
+  redirect('/dashboard/assessment');
 }

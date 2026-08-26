@@ -271,7 +271,7 @@ export default function DashboardHomeClient({
           hint: t('readinessBenchmark'),
           icon: 'psychology',
           accent: 'blue' as const,
-          href: '/dashboard/skills-assessment',
+          href: '/dashboard/assessment',
         }]
       : []),
     {
@@ -734,7 +734,7 @@ export default function DashboardHomeClient({
                 { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: t('myTrainingMetricLabel'), desc: t('myTrainingHubCardBody'), icon: 'school', action: 'training_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-                { href: '/dashboard/skills-assessment', label: showPreassessmentPhase ? 'Training preassessment' : 'Assessment results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/assessment', label: showPreassessmentPhase ? 'Training preassessment' : 'Assessment results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
               ].map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => handleDashboardAction(item.action)}>

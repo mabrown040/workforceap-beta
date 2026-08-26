@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Building2, Loader2, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import { hearAboutNeedsOther } from '@/lib/apply/eligibilityExtendedFields';
 import './signup-depth.css';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
@@ -28,6 +30,7 @@ export default function EmployerSignupPage() {
   const [industry, setIndustry] = useState('');
   const [companySize, setCompanySize] = useState('');
   const [hearAbout, setHearAbout] = useState('');
+  const [hearAboutOther, setHearAboutOther] = useState('');
   const [consentTerms, setConsentTerms] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
@@ -77,7 +80,9 @@ export default function EmployerSignupPage() {
           password,
           industry,
           companySize,
-          hearAbout,
+          hearAbout: hearAboutNeedsOther(hearAbout)
+            ? [hearAbout, hearAboutOther.trim()].filter(Boolean).join(': ').slice(0, 200)
+            : hearAbout,
           consentTerms,
           ...(CAPTCHA_ENABLED && turnstileToken ? { turnstileToken } : {}),
         }),
@@ -308,14 +313,24 @@ export default function EmployerSignupPage() {
                 <label htmlFor="hearAbout" className="sd-label wa-block wa-text-sm wa-mb-1">
                   How did you hear about WorkforceAP?
                 </label>
-                <input
+                <HearAboutSelect
                   id="hearAbout"
-                  type="text"
                   value={hearAbout}
-                  onChange={(e) => setHearAbout(e.target.value)}
+                  onChange={setHearAbout}
                   className="sd-field"
-                  placeholder="Referral, search, event, etc."
                 />
+                {hearAboutNeedsOther(hearAbout) ? (
+                  <input
+                    id="hearAboutOther"
+                    type="text"
+                    value={hearAboutOther}
+                    onChange={(e) => setHearAboutOther(e.target.value)}
+                    className="sd-field"
+                    style={{ marginTop: 8 }}
+                    placeholder="Please tell us how you heard about us"
+                    maxLength={200}
+                  />
+                ) : null}
               </div>
 
               {/* Terms */}

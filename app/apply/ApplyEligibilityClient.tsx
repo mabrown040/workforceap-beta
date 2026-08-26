@@ -14,8 +14,8 @@ import {
   normalizePrimaryBarriers,
   PRIMARY_BARRIER_OPTIONS,
 } from '@/lib/apply/primaryBarrierOptions';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
-  APPLY_HEAR_ABOUT_OPTIONS,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
   type YesNo,
@@ -909,19 +909,15 @@ export default function ApplyEligibilityClient({
               <>
                 <div className="form-group apply-form-group--full">
                   <label htmlFor="apply-hear-about">{t('eligibilityHearAboutLabel')}</label>
-                  <select
+                  <HearAboutSelect
                     id="apply-hear-about"
                     name="hearAbout"
                     value={hearAbout}
-                    onChange={(e) => setHearAbout(e.target.value)}
+                    onChange={setHearAbout}
                     required
+                    placeholder={t('eligibilityHearAboutPlaceholder')}
                     aria-invalid={attemptedContinue && !hearAbout.trim()}
-                  >
-                    <option value="">{t('eligibilityHearAboutPlaceholder')}</option>
-                    {APPLY_HEAR_ABOUT_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
+                  />
                 </div>
                 {hearAboutNeedsOther(hearAbout) ? (
                   <div className="form-group apply-form-group--full">

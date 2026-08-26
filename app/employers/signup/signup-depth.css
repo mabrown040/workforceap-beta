@@ -97,6 +97,10 @@
   background-position: right 14px center;
   padding-right: 40px;
 }
+.signup-depth select.sd-field option {
+  color: #1c1b1b;
+  background: #ffffff;
+}
 
 /* --- Password reveal toggle --- */
 .signup-depth .sd-pw-toggle {

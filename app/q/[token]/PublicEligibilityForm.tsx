@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
-  APPLY_HEAR_ABOUT_OPTIONS,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
   type YesNo,
@@ -306,12 +306,13 @@ export default function PublicEligibilityForm({
 
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-hear-about">How did you hear about WorkforceAP? *</label>
-        <select id="q-hear-about" style={inputStyle} value={hearAbout} onChange={(e) => setHearAbout(e.target.value)} required>
-          <option value="">Select one</option>
-          {APPLY_HEAR_ABOUT_OPTIONS.map((o) => (
-            <option key={o} value={o}>{o}</option>
-          ))}
-        </select>
+        <HearAboutSelect
+          id="q-hear-about"
+          style={inputStyle}
+          value={hearAbout}
+          onChange={setHearAbout}
+          required
+        />
       </div>
       {hearAboutNeedsOther(hearAbout) ? (
         <div style={fieldGroup}>

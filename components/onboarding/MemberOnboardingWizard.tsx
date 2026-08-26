@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import OnboardingWizard, { type OnboardingStep } from '@/components/onboarding/OnboardingWizard';
 import { PROGRAMS } from '@/lib/content/programs';
-import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import { hearAboutNeedsOther } from '@/lib/apply/eligibilityExtendedFields';
 
 export type MemberOnboardingWizardProps = {
   initialFullName: string;
@@ -48,13 +49,8 @@ export default function MemberOnboardingWizard({
   const [programInterest, setProgramInterest] = useState(
     () => initialProgramInterest.trim() || topPrograms[0]?.title || ''
   );
-  const [referralSource, setReferralSource] = useState(
-    PUBLIC_REFERRAL_SOURCE_OPTIONS.includes(initialReferralSource as (typeof PUBLIC_REFERRAL_SOURCE_OPTIONS)[number])
-      ? initialReferralSource
-      : initialReferralSource
-        ? 'Other / write in'
-        : ''
-  );
+  const [referralSource, setReferralSource] = useState(initialReferralSource);
+  const [referralOther, setReferralOther] = useState('');
 
   useEffect(() => {
     if (profileStepError && profileErrorRef.current) {
@@ -123,7 +119,9 @@ export default function MemberOnboardingWizard({
           zip: zip.trim() || null,
           linkedin: null,
           bio: null,
-          referralSource: referralSource || null,
+          referralSource: hearAboutNeedsOther(referralSource)
+            ? [referralSource, referralOther.trim()].filter(Boolean).join(': ').slice(0, 200) || null
+            : referralSource || null,
         }),
       });
     } catch {
@@ -297,20 +295,26 @@ export default function MemberOnboardingWizard({
           </div>
           <label htmlFor="member-referral-source" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             How did you hear about WorkforceAP?
-            <select
+            <HearAboutSelect
               id="member-referral-source"
               value={referralSource}
-              onChange={(e) => setReferralSource(e.target.value)}
+              onChange={setReferralSource}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
-            >
-              <option value="">Select…</option>
-              {PUBLIC_REFERRAL_SOURCE_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            />
           </label>
+          {hearAboutNeedsOther(referralSource) ? (
+            <label htmlFor="member-referral-other" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+              Please tell us how you heard about us
+              <input
+                id="member-referral-other"
+                type="text"
+                value={referralOther}
+                onChange={(e) => setReferralOther(e.target.value)}
+                maxLength={200}
+                className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
+              />
+            </label>
+          ) : null}
         </div>
       ),
     },

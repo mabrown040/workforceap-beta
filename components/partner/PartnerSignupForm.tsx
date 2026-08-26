@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
+import HearAboutSelect from '@/components/apply/HearAboutSelect';
+import { hearAboutNeedsOther } from '@/lib/apply/eligibilityExtendedFields';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -34,6 +36,8 @@ export default function PartnerSignupForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [hearAbout, setHearAbout] = useState('');
+  const [hearAboutOther, setHearAboutOther] = useState('');
 
   useEffect(() => {
     trackLeadFormEvent('partner_signup', 'viewed');
@@ -71,7 +75,9 @@ export default function PartnerSignupForm() {
       orgType: String(fd.get('org_type') || '').trim(),
       serveArea: String(fd.get('serve_area') || '').trim(),
       expectedMonthly: String(fd.get('expected_monthly') || '').trim(),
-      hearAbout: String(fd.get('hear_about') || '').trim() || null,
+      hearAbout: hearAboutNeedsOther(hearAbout)
+        ? [hearAbout, hearAboutOther.trim()].filter(Boolean).join(': ').slice(0, 2000) || null
+        : hearAbout.trim() || null,
       password,
       ...(CAPTCHA_ENABLED && turnstileToken ? { turnstileToken } : {}),
     };
@@ -96,6 +102,8 @@ export default function PartnerSignupForm() {
       setStatus('success');
       trackLeadFormEvent('partner_signup', 'succeeded', { org_type: payload.orgType, expected_monthly: payload.expectedMonthly });
       form.reset();
+      setHearAbout('');
+      setHearAboutOther('');
       router.push('/partners/thank-you');
     } catch {
       setStatus('error');
@@ -168,8 +176,27 @@ export default function PartnerSignupForm() {
       </div>
       <div className="form-group">
         <label htmlFor="ps-hear">How did you hear about WorkforceAP?</label>
-        <textarea id="ps-hear" name="hear_about" rows={3} maxLength={2000} disabled={status === 'sending'} />
+        <HearAboutSelect
+          id="ps-hear"
+          name="hear_about"
+          value={hearAbout}
+          onChange={setHearAbout}
+          disabled={status === 'sending'}
+        />
       </div>
+      {hearAboutNeedsOther(hearAbout) ? (
+        <div className="form-group">
+          <label htmlFor="ps-hear-other">Please tell us how you heard about us</label>
+          <input
+            id="ps-hear-other"
+            name="hear_about_other"
+            value={hearAboutOther}
+            onChange={(e) => setHearAboutOther(e.target.value)}
+            maxLength={200}
+            disabled={status === 'sending'}
+          />
+        </div>
+      ) : null}
 
       <div className="form-group">
         <label htmlFor="ps-password">Create password *</label>

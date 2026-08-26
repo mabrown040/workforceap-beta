@@ -29,6 +29,14 @@ test('includes ambassador and other in hear-about options', () => {
   );
 });
 
+test('hear-about dropdown has a populated Central Texas list (not placeholder-only)', () => {
+  assert.ok(APPLY_HEAR_ABOUT_OPTIONS.length >= 10);
+  assert.equal(new Set(APPLY_HEAR_ABOUT_OPTIONS).size, APPLY_HEAR_ABOUT_OPTIONS.length);
+  assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes('Google / web search'));
+  assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes('Friend or family'));
+  assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes('Workforce Solutions Capital Area'));
+});
+
 test('detects other + ambassador hear-about cases', () => {
   assert.equal(hearAboutNeedsOther(APPLY_HEAR_ABOUT_OTHER), true);
   assert.equal(hearAboutNeedsOther('Friend or family'), false);

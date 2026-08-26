@@ -3,6 +3,7 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
+import { resolveUserIdByCourseraEmail } from '@/lib/coursera/resolveUserIdByEmail';
 
 import type {
   BadgeIngestResult,
@@ -11,23 +12,8 @@ import type {
   ParsedCourseActivityRow,
 } from './csvImport';
 
-type UserMatch = { id: string };
-
 async function resolveUserIdByEmail(email: string): Promise<string | null> {
-  const lower = email.toLowerCase();
-
-  const directRows = await prisma.$queryRaw<UserMatch[]>`
-    SELECT id FROM users WHERE LOWER(email) = ${lower} AND deleted_at IS NULL LIMIT 1
-  `;
-  if (directRows[0]?.id) return directRows[0].id;
-
-  const mappingRows = await prisma.$queryRaw<UserMatch[]>`
-    SELECT user_id AS id
-    FROM coursera_identity_mappings
-    WHERE LOWER(coursera_email) = ${lower}
-    LIMIT 1
-  `;
-  return mappingRows[0]?.id ?? null;
+  return resolveUserIdByCourseraEmail(email);
 }
 
 /**

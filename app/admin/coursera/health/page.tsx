@@ -11,6 +11,7 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
 import { prisma } from '@/lib/db/prisma';
 import IgnoredXapiSummaryCard from '@/components/admin/IgnoredXapiSummaryCard';
+import { auditCourseraLinkHealth } from '@/lib/coursera/linkHealth';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -645,6 +646,7 @@ export default async function AdminCourseraHealthPage() {
     b4bPrograms,
     driftRows,
     syncDriftRows,
+    linkHealth,
   ] = await Promise.all([
     loadCanonicalMappingCount(),
     loadXapiTrafficSummary(now),
@@ -656,6 +658,10 @@ export default async function AdminCourseraHealthPage() {
     loadB4BProgramsSafe(),
     loadB4BvsOursDrift(),
     loadSyncDriftPairs(),
+    auditCourseraLinkHealth().catch((error) => {
+      console.error('[admin/coursera/health] link health failed:', error);
+      return null;
+    }),
   ]);
 
   // Build the B4B course-slug index used by the out-of-catalog and wrong-
@@ -802,6 +808,37 @@ export default async function AdminCourseraHealthPage() {
         severity === 'bad'
           ? 'Most events are being ignored — likely missing canonical mappings.'
           : undefined,
+      severity,
+    });
+  }
+
+  // Card 5: Coursera → portal identity link coverage
+  if (!linkHealth) {
+    cards.push({
+      title: 'Member link coverage',
+      primary: '—',
+      secondary: 'Unable to load link health',
+      severity: 'bad',
+    });
+  } else {
+    const orphanTotal =
+      linkHealth.courseProgress.orphan + linkHealth.badgeProgress.orphan;
+    const healable =
+      linkHealth.healableOrphans.courseProgress +
+      linkHealth.healableOrphans.badgeProgress;
+    const unmatched = linkHealth.xapiEvents.unmatched;
+    const severity: CardSeverity =
+      unmatched > 0 || healable > 0 ? 'warn' : orphanTotal > 0 ? 'warn' : 'ok';
+    cards.push({
+      title: 'Member link coverage',
+      primary: `${linkHealth.identityMappings.toLocaleString()} maps`,
+      secondary: `course ${linkHealth.courseProgress.linked}/${linkHealth.courseProgress.total} linked · badge ${linkHealth.badgeProgress.linked}/${linkHealth.badgeProgress.total} · xAPI unmatched ${unmatched}`,
+      hint:
+        healable > 0
+          ? `${healable} orphan row(s) already have a mapping — run Backfill orphans on /admin/coursera.`
+          : unmatched > 0
+            ? 'Unmatched xAPI actors need identity mappings under /admin/coursera.'
+            : undefined,
       severity,
     });
   }

@@ -23,6 +23,7 @@ import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCoursePro
 import { fetchCourseraWithTransientRetry } from '@/lib/coursera/b4bClient';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { resolveUserIdsByCourseraEmails } from '@/lib/coursera/resolveUserIdByEmail';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -565,8 +566,11 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   const programIdToSlugs = buildProgramIdToSlugsMap();
   const courseIdToMeta = buildCourseIdToMetaMap();
 
-  // Resolve only emails in this incremental window (chunked). Never hydrate
-  // the whole user table — next cron continues from `nextStart`.
+  // Resolve only emails in this incremental window. Direct portal email first,
+  // then coursera_identity_mappings — otherwise alt-email learners stay
+  // skippedNoUser forever on the org-wide cron (per-user syncUserFromB4B
+  // already accepts an explicit wapUserId). Never hydrate the whole user
+  // table — next cron continues from `nextStart`.
   const reportEmails = [
     ...new Set(
       reports
@@ -574,20 +578,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
         .filter((email): email is string => Boolean(email)),
     ),
   ];
-  const users: Array<{ id: string; email: string }> = [];
-  for (let i = 0; i < reportEmails.length; i += COURSERA_B4B_USER_LOOKUP_CAP) {
-    const chunk = reportEmails.slice(i, i + COURSERA_B4B_USER_LOOKUP_CAP);
-    const page = await prisma.user.findMany({
-      where: { deletedAt: null, email: { in: chunk, mode: 'insensitive' } },
-      select: { id: true, email: true },
-      take: COURSERA_B4B_USER_LOOKUP_CAP,
-    });
-    users.push(...page);
-  }
-  const userByEmail = new Map<string, string>();
-  for (const u of users) {
-    userByEmail.set(u.email.trim().toLowerCase(), u.id);
-  }
+  const userByEmail = await resolveUserIdsByCourseraEmails(reportEmails);
 
   const result: B4BSyncResult = {
     scanned: reports.length,

@@ -19,6 +19,13 @@ export function scoreScaledToDisplayPercent(scoreScaled: number | null | undefin
   return rounded;
 }
 
+/** Format a 0–100 grade for display (`87` or `87.25`). */
+export function formatGradePercent(pct: number | null | undefined): string | null {
+  if (pct == null || !Number.isFinite(pct)) return null;
+  const rounded = Math.round(pct * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+}
+
 /** Parse CSV / human-readable grade cells; returns 0–100 or null. */
 export function parseCourseGradeString(courseGrade: string | null | undefined): number | null {
   if (courseGrade == null || typeof courseGrade !== 'string') return null;

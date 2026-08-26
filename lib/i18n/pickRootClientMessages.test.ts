@@ -63,6 +63,8 @@ test('admin / apply / auth slices stay on their own catalogs', () => {
   const apply = pickApplyClientMessages(catalog);
   const auth = pickAuthClientMessages(catalog);
   assert.ok(ns(admin, 'admin'));
+  assert.ok(ns(admin, 'courseraProgress'));
+  assert.equal(ns(admin, 'courseraProgress').title, 'Coursera progress');
   assert.equal((admin as Record<string, unknown>).dashboard, undefined);
   assert.ok(ns(apply, 'apply'));
   assert.equal((apply as Record<string, unknown>).admin, undefined);

@@ -13,6 +13,7 @@ import {
   parseCourseGradeString,
   scoreScaledToDisplayPercent,
 } from '@/lib/coursera/courseGradeDisplay';
+import { humanizeCourseraCourseTitle } from '@/lib/coursera/courseTitle';
 import {
   fetchLearnerProgressFromB4B,
   type LearnerProgressByContent,
@@ -139,13 +140,13 @@ export default async function CourseraProgressCard({
         locallyCompleted || b4b?.isCompleted ? 100 : b4b != null ? b4b.overallProgress : csvPct;
       return {
         id: row.id,
-        courseName: row.courseName,
+        courseName: humanizeCourseraCourseTitle(row.courseName, row.courseraCourseSlug),
         university: row.university ?? null,
         courseraCourseSlug: row.courseraCourseSlug ?? null,
         overallProgress,
         gradePercent:
           parseCourseGradeString(row.courseGrade) ?? gradePercentByCourseraId.get(cid) ?? null,
-        learningHours: Number(row.learningHours) || 0,
+        learningHours: Number(row.learningHours) > 0 ? Number(row.learningHours) : null,
         isCompleted: locallyCompleted || b4b?.isCompleted === true,
         certificateUrl: row.certificateUrl ?? null,
         lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
@@ -182,12 +183,15 @@ export default async function CourseraProgressCard({
           : null;
     viewRows.push({
       id: `canonical-${c.id}`,
-      courseName: course?.name ?? discovered?.name ?? c.courseSlug,
+      courseName: humanizeCourseraCourseTitle(
+        course?.name ?? discovered?.name ?? c.courseSlug,
+        c.courseSlug,
+      ),
       university: discovered?.partner ?? null,
       courseraCourseSlug: c.courseSlug,
       overallProgress,
       gradePercent: scoreScaledToDisplayPercent(c.scoreScaled),
-      learningHours: 0,
+      learningHours: null,
       isCompleted: locallyCompleted || b4b?.isCompleted === true,
       certificateUrl: null,
       lastActivityTime: c.lastUpdatedAt ? c.lastUpdatedAt.toISOString() : null,

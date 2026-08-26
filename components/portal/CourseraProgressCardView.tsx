@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { formatGradePercent } from '@/lib/coursera/courseGradeDisplay';
 
 export type CourseraProgressRow = {
   id: string;
@@ -10,7 +11,7 @@ export type CourseraProgressRow = {
   /** 0..100 (Decimal serialized as number on the wire). */
   overallProgress: number;
   /** Total learning hours so far. */
-  learningHours: number;
+  learningHours: number | null;
   isCompleted: boolean;
   certificateUrl: string | null;
   /**
@@ -37,15 +38,22 @@ export type CourseraProgressCardViewProps = {
   launchUrl: string;
 };
 
-type CourseraRelativeTranslations = (
-  key: 'noActivity' | 'justNow' | 'minutesAgo' | 'hoursAgo' | 'daysAgo' | 'monthsAgo',
-  values?: { count?: number },
-) => string;
+type TranslateFn = (key: string, values?: Record<string, string | number>) => string;
 
-function formatRelative(iso: string | null, tr: CourseraRelativeTranslations): string {
-  if (!iso) return tr('noActivity');
+function labelOrFallback(t: TranslateFn, key: string, fallback: string, values?: Record<string, string | number>): string {
+  try {
+    const value = values ? t(key, values) : t(key);
+    if (!value || value === key || value.includes('courseraProgress.')) return fallback;
+    return value;
+  } catch {
+    return fallback;
+  }
+}
+
+function formatRelative(iso: string | null, t: TranslateFn): string {
+  if (!iso) return labelOrFallback(t, 'relative.noActivity', 'No activity yet');
   const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return tr('noActivity');
+  if (Number.isNaN(then)) return labelOrFallback(t, 'relative.noActivity', 'No activity yet');
   const now = Date.now();
   const diffMs = Math.max(0, now - then);
   const sec = Math.floor(diffMs / 1000);
@@ -54,18 +62,33 @@ function formatRelative(iso: string | null, tr: CourseraRelativeTranslations): s
   const day = Math.floor(hr / 24);
   if (day >= 30) {
     const months = Math.floor(day / 30);
-    return tr('monthsAgo', { count: months });
+    return labelOrFallback(
+      t,
+      'relative.monthsAgo',
+      months === 1 ? '1 month ago' : `${months} months ago`,
+      { count: months },
+    );
   }
   if (day >= 1) {
-    return tr('daysAgo', { count: day });
+    return labelOrFallback(
+      t,
+      'relative.daysAgo',
+      day === 1 ? '1 day ago' : `${day} days ago`,
+      { count: day },
+    );
   }
   if (hr >= 1) {
-    return tr('hoursAgo', { count: hr });
+    return labelOrFallback(
+      t,
+      'relative.hoursAgo',
+      hr === 1 ? '1 hour ago' : `${hr} hours ago`,
+      { count: hr },
+    );
   }
   if (min >= 1) {
-    return tr('minutesAgo', { count: min });
+    return labelOrFallback(t, 'relative.minutesAgo', `${min} min ago`, { count: min });
   }
-  return tr('justNow');
+  return labelOrFallback(t, 'relative.justNow', 'Just now');
 }
 
 /**
@@ -84,21 +107,27 @@ function buildCourseLink(
   return fallback;
 }
 
-function formatGradeDisplay(pct: number): string {
-  const rounded = Math.round(pct * 100) / 100;
-  if (Number.isInteger(rounded)) return String(rounded);
-  return rounded.toFixed(2);
-}
-
 export default function CourseraProgressCardView({
   rows,
   programHomeUrl,
   launchUrl,
 }: CourseraProgressCardViewProps) {
   const t = useTranslations('courseraProgress');
-  const tr = useTranslations('courseraProgress.relative');
 
-  const title = t('title');
+  const title = labelOrFallback(t, 'title', 'Coursera progress');
+  const empty = labelOrFallback(
+    t,
+    'empty',
+    'Coursera progress will appear here once you start a course in the program.',
+  );
+  const launch = labelOrFallback(t, 'launch', 'Launch Coursera');
+  const coursesLabel = labelOrFallback(t, 'courses', 'courses');
+  const progressLabel = labelOrFallback(t, 'progressLabel', 'Progress');
+  const gradeLabel = labelOrFallback(t, 'gradeLabel', 'Grade');
+  const hoursLabel = labelOrFallback(t, 'hours', 'h');
+  const completedLabel = labelOrFallback(t, 'completed', 'Completed');
+  const viewOnCoursera = labelOrFallback(t, 'viewOnCoursera', 'View on Coursera');
+  const viewCertificate = labelOrFallback(t, 'viewCertificate', 'View certificate');
 
   if (rows.length === 0) {
     return (
@@ -120,7 +149,7 @@ export default function CourseraProgressCardView({
             </h2>
           </div>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.875rem', lineHeight: 1.6 }}>
-            {t('empty')}
+            {empty}
           </p>
           <a
             href={launchUrl}
@@ -132,7 +161,7 @@ export default function CourseraProgressCardView({
             <span className="material-symbols-outlined" style={{ fontSize: '1.05rem' }} aria-hidden>
               open_in_new
             </span>
-            {t('launch')}
+            {launch}
           </a>
         </div>
       </section>
@@ -165,17 +194,14 @@ export default function CourseraProgressCardView({
             </h2>
           </div>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            {rows.length} {t('courses')}
+            {rows.length} {coursesLabel}
           </span>
         </div>
 
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem' }}>
           {rows.map((row) => {
             const pct = Math.max(0, Math.min(100, Math.round(row.overallProgress)));
-            const gradeLabel =
-              row.gradePercent != null && Number.isFinite(row.gradePercent)
-                ? formatGradeDisplay(row.gradePercent)
-                : null;
+            const gradeDisplay = formatGradePercent(row.gradePercent);
             const link = buildCourseLink(row.viewUrl ?? null, programHomeUrl);
             return (
               <li
@@ -222,7 +248,7 @@ export default function CourseraProgressCardView({
                       <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }} aria-hidden>
                         check_circle
                       </span>
-                      {t('completed')}
+                      {completedLabel}
                     </span>
                   ) : null}
                 </div>
@@ -259,21 +285,25 @@ export default function CourseraProgressCardView({
                 >
                   <span>
                     <strong style={{ color: 'var(--color-on-surface)' }}>
-                      {t('progressLabel')}: {pct}%
+                      {progressLabel}: {pct}%
                     </strong>
-                    {gradeLabel != null ? (
+                    {gradeDisplay != null ? (
                       <>
                         {' '}
                         ·{' '}
                         <strong style={{ color: 'var(--color-on-surface)' }}>
-                          {t('gradeLabel')}: {gradeLabel}%
+                          {gradeLabel}: {gradeDisplay}%
                         </strong>
                       </>
                     ) : null}
-                    {' '}
-                    · {row.learningHours.toFixed(1)} {t('hours')}
+                    {row.learningHours != null && row.learningHours > 0 ? (
+                      <>
+                        {' '}
+                        · {row.learningHours.toFixed(1)} {hoursLabel}
+                      </>
+                    ) : null}
                   </span>
-                  <span>{formatRelative(row.lastActivityTime, tr)}</span>
+                  <span>{formatRelative(row.lastActivityTime, t)}</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.55rem' }}>
@@ -288,7 +318,7 @@ export default function CourseraProgressCardView({
                       <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
                         open_in_new
                       </span>
-                      {t('viewOnCoursera')}
+                      {viewOnCoursera}
                     </a>
                   ) : null}
                   {row.isCompleted && row.certificateUrl ? (
@@ -302,7 +332,7 @@ export default function CourseraProgressCardView({
                       <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
                         workspace_premium
                       </span>
-                      {t('viewCertificate')}
+                      {viewCertificate}
                     </a>
                   ) : null}
                 </div>

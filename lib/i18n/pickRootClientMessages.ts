@@ -98,7 +98,7 @@ export function pickClientMessageSlice(
       Object.assign(out, pickNamespaces(m, PORTAL_CLIENT_NAMESPACES));
       break;
     case 'admin':
-      Object.assign(out, pickNamespaces(m, ['admin']));
+      Object.assign(out, pickNamespaces(m, ['admin', 'courseraProgress']));
       break;
     case 'apply':
       Object.assign(out, pickNamespaces(m, ['apply']));

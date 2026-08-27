@@ -44,6 +44,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [outcome, setOutcome] = useState<{ message: string; pct: number } | null>(null);
+  const [continueHref, setContinueHref] = useState('/dashboard');
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
 
   const [firstName, setFirstName] = useState(defaultFirstName);
@@ -180,14 +181,9 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
       const intended =
         (typeof window !== 'undefined' ? sessionStorage.getItem(ASSESSMENT_REDIRECT_KEY) : null) || defaultRedirectTo || null;
       if (typeof window !== 'undefined') sessionStorage.removeItem(ASSESSMENT_REDIRECT_KEY);
-
-      setTimeout(() => {
-        if (intended && intended.startsWith('/') && !intended.startsWith('//')) {
-          router.push(intended);
-        } else {
-          router.push('/dashboard');
-        }
-      }, 3000);
+      setContinueHref(
+        intended && intended.startsWith('/') && !intended.startsWith('//') ? intended : '/dashboard',
+      );
     } catch {
       setError('Submission failed. Please try again.');
     } finally {
@@ -219,7 +215,10 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
         >
           {outcome.message}
         </p>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Redirecting you shortly...</p>
+        <p style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '1.25rem' }}>Score {outcome.pct}%</p>
+        <button type="button" className="btn btn-primary" onClick={() => router.push(continueHref)}>
+          Continue
+        </button>
       </div>
     );
   }
@@ -227,14 +226,16 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
   return (
     <div className={`assessment-wizard quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
       {/* Progress indicator */}
-      <div className="quiz-progress-bar assessment-wizard-progress">
-        <div
-          className="quiz-progress-fill"
-          style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
-        />
+      <div className="assessment-wizard-progress">
         <p className="quiz-progress-label" style={{ fontVariantNumeric: 'tabular-nums' }} aria-live="polite">
           Step {currentStep} of {TOTAL_STEPS}
         </p>
+        <div className="quiz-progress-bar">
+          <div
+            className="quiz-progress-fill"
+            style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+          />
+        </div>
         <div className="assessment-wizard-steps" aria-hidden>
           {STEP_CONFIG.map((s) => (
             <span

@@ -3,13 +3,16 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
-import { formatPortalDateTime } from '@/lib/formatDate';
+import { formatPortalDate } from '@/lib/formatDate';
+
+const PAGE_TITLE = 'Training Preassessment';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -30,80 +33,150 @@ export default async function AssessmentPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/assessment');
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    include: {
-      profile: true,
-      // Multi-program: read enrolledByAdminId from the primary enrollment;
-      // counselor-created intent is tracked on the primary row.
-      courseEnrollments: {
-        where: { isPrimary: true },
-        select: { enrolledByAdminId: true },
-        take: 1,
+  const [dbUser, staffBypass] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        profile: true,
+        courseEnrollments: {
+          where: { isPrimary: true },
+          select: { enrolledByAdminId: true },
+          take: 1,
+        },
       },
-    },
-  });
+    }),
+    canBypassMemberAssessment(user.id),
+  ]);
 
   if (!dbUser) redirect('/login');
 
-  if (dbUser.assessmentCompleted) {
-    redirect('/dashboard');
-  }
-
-  // Not-yet-interviewed members used to be bounced through /dashboard/skills-assessment
-  // → AI tools. Render an inline explanatory state instead, with a path forward
-  // (request the interview) when the member is eligible.
-  if (dbUser.interviewCompletedAt == null) {
-    return (
-      <div className="inner-page">
-        <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
-          <PageHeader
-            title="Skills snapshot"
-            subtitle="Your skills assessment unlocks after your intake conversation with our team."
-            breadcrumbs={[
-              { label: 'Member Portal', href: '/dashboard' },
-              { label: 'Skills snapshot' },
-            ]}
-          />
-        </div>
-
-        <section className="content-section">
-          <div className="container" style={{ maxWidth: '720px' }}>
-            <div className="portal-card portal-card--flat portal-card--padded">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span
-                  className="material-symbols-outlined"
-                  aria-hidden="true"
-                  style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}
-                >
-                  lock
-                </span>
-                <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Not available yet</h2>
-              </div>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
-                Your skills assessment unlocks after your intake conversation with our team. That short
-                conversation helps your counselor personalize your learning path before we ask you to
-                complete a skills snapshot.
-              </p>
-              {dbUser.interviewRequestedAt ? (
-                <p style={{ margin: 0, color: 'var(--color-on-surface)', fontWeight: 600 }}>
-                  Requested on {formatPortalDateTime(dbUser.interviewRequestedAt)} — we&apos;ll be in touch to schedule it.
-                </p>
-              ) : dbUser.interviewEligible ? (
-                <MemberInterviewRequestButton />
-              ) : (
-                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
-                  Complete your pre-screening from your dashboard home to become eligible to request an
-                  intake interview.
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
+  return (
+    <div className="inner-page">
+      <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
+        <PageHeader
+          title={PAGE_TITLE}
+          subtitle={
+            dbUser.assessmentCompleted
+              ? 'Your snapshot is on file. Use it with your counselor and keep training.'
+              : 'A short skills check before Coursera courses unlock.'
+          }
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: PAGE_TITLE },
+          ]}
+        />
       </div>
-    );
-  }
 
+      <section className="content-section">
+        <div className="container" style={{ maxWidth: '720px' }}>
+          {dbUser.assessmentCompleted ? (
+            <AssessmentCompletedCard
+              scorePct={dbUser.assessmentScorePct}
+              completedAt={dbUser.assessmentCompletedAt}
+              programInterest={dbUser.programInterest}
+            />
+          ) : dbUser.interviewCompletedAt == null && !staffBypass ? (
+            <AssessmentLockedCard
+              interviewRequestedAt={dbUser.interviewRequestedAt}
+              interviewEligible={dbUser.interviewEligible}
+            />
+          ) : (
+            <AssessmentReady
+              dbUser={dbUser}
+              redirectTo={redirectTo}
+            />
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function AssessmentCompletedCard({
+  scorePct,
+  completedAt,
+  programInterest,
+}: {
+  scorePct: number | null;
+  completedAt: Date | null;
+  programInterest: string | null;
+}) {
+  return (
+    <div className="portal-card portal-card--flat portal-card--padded">
+      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem' }}>Preassessment complete</h2>
+      <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: '0 0 1rem' }}>
+        {scorePct != null ? `Score ${scorePct}%. ` : ''}
+        {completedAt ? `Finished ${formatPortalDate(completedAt)}. ` : ''}
+        {programInterest ? `Program of interest: ${programInterest}.` : ''}
+      </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <Link href="/dashboard/training" className="btn btn-primary">
+          Continue training
+        </Link>
+        <Link href="/dashboard" className="btn btn-outline">
+          Back to dashboard
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function AssessmentLockedCard({
+  interviewRequestedAt,
+  interviewEligible,
+}: {
+  interviewRequestedAt: Date | null;
+  interviewEligible: boolean;
+}) {
+  return (
+    <div className="portal-card portal-card--flat portal-card--padded">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <span
+          className="material-symbols-outlined"
+          aria-hidden="true"
+          style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}
+        >
+          lock
+        </span>
+        <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Unlocks after intake</h2>
+      </div>
+      <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
+        Talk with our team first. Then this preassessment personalizes your learning path.
+      </p>
+      {interviewRequestedAt ? (
+        <p style={{ margin: 0, color: 'var(--color-on-surface)', fontWeight: 600 }}>
+          Requested on {formatPortalDate(interviewRequestedAt)} — we&apos;ll schedule it.
+        </p>
+      ) : interviewEligible ? (
+        <MemberInterviewRequestButton />
+      ) : (
+        <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
+          Finish pre-screening on your dashboard, then request intake.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function AssessmentReady({
+  dbUser,
+  redirectTo,
+}: {
+  dbUser: {
+    fullName: string | null;
+    phone: string | null;
+    profile: {
+      profilePhone: string | null;
+      profileAddress: string | null;
+      city: string | null;
+      state: string | null;
+      zip: string | null;
+      referralSource: string | null;
+    } | null;
+    courseEnrollments: Array<{ enrolledByAdminId: string | null }>;
+  };
+  redirectTo: string | undefined;
+}) {
   const nameParts = dbUser.fullName?.split(' ') ?? [];
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') ?? '';
@@ -119,55 +192,28 @@ export default async function AssessmentPage({
   });
   const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
 
-  return (
-    <>
-    <div className="inner-page">
-      <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
-        <PageHeader
-          title="Skills snapshot"
-          subtitle="Before we connect you with your Coursera courses, we need a quick skills snapshot. This helps your counselor personalize your learning path and identify any additional support resources."
-          breadcrumbs={[
-            { label: 'Member Portal', href: '/dashboard' },
-            { label: 'Skills snapshot' },
-          ]}
-        />
+  if (starterProfileReview.required) {
+    return (
+      <div
+        className="portal-card portal-card--flat portal-card--padded"
+        style={{ border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)' }}
+      >
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem' }}>Confirm your details first</h2>
+        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
+          Your counselor started this account. Confirm contact and referral details before the preassessment.
+          {starterProfileMissingLabels.length ? ` Missing: ${starterProfileMissingLabels.join(', ')}.` : ''}
+        </p>
+        <Link href="/dashboard/profile" className="btn btn-primary">Review profile</Link>
       </div>
+    );
+  }
 
-      <section className="content-section">
-        <div className="container" style={{ maxWidth: '720px' }}>
-          {starterProfileReview.required ? (
-            <div
-              className="portal-card portal-card--flat portal-card--padded"
-              style={{ border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span
-                  className="material-symbols-outlined"
-                  aria-hidden="true"
-                  style={{ fontSize: '1.25rem', color: 'var(--color-accent)' }}
-                >
-                  checklist
-                </span>
-                <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Review your starter details first</h2>
-              </div>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
-                Your counselor started this account for you. Before WorkforceAP unlocks your Training Preassessment,
-                confirm your contact and referral details on your profile.
-                {starterProfileMissingLabels.length ? ` Missing now: ${starterProfileMissingLabels.join(', ')}.` : ''}
-              </p>
-              <Link href="/dashboard/profile" className="btn btn-primary">Review profile</Link>
-            </div>
-          ) : (
-            <AssessmentForm
-              defaultFirstName={firstName}
-              defaultLastName={lastName}
-              defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
-              defaultRedirectTo={redirectTo || undefined}
-            />
-          )}
-        </div>
-      </section>
-
-    </div>    </>
+  return (
+    <AssessmentForm
+      defaultFirstName={firstName}
+      defaultLastName={lastName}
+      defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
+      defaultRedirectTo={redirectTo || undefined}
+    />
   );
 }

@@ -60,7 +60,7 @@ const MILESTONE_META: Record<MilestoneState, { icon: LucideIcon; iconSize: numbe
 
 export function MemberProgressKit({
   readinessScore = 84,
-  readinessNote = "You're in the top 20% of your cohort. Finish AWS Practitioner to reach “Job Ready”.",
+  readinessNote = 'Finish your current certification to reach Job Ready.',
   weekStats = DEFAULT_WEEK_STATS,
   statsHeading = 'Progress by area',
   milestones = DEFAULT_MILESTONES,
@@ -97,7 +97,7 @@ export function MemberProgressKit({
             Readiness &amp; Progress
           </h1>
           <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Your job-readiness score, this week&rsquo;s activity, and the milestones ahead.
+            Score, this week, next milestone.
           </p>
         </div>
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">

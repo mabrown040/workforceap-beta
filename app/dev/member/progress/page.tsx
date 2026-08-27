@@ -14,7 +14,7 @@ export default function DevMemberProgressPage() {
   return (
     <MemberProgressKit
       readinessScore={84}
-      readinessNote="You're in the top 20% of your cohort. Finish AWS Practitioner to reach “Job Ready”."
+      readinessNote="Finish AWS Practitioner to reach Job Ready."
       weekStats={[
         { value: '5.2', label: 'Hrs Learned', color: 'var(--wa-accent)' },
         { value: '3', label: 'Jobs Applied', color: 'var(--wa-info)' },

@@ -654,7 +654,7 @@ export default function WorkspaceShell({
                 >
                   {contextLabel}
                 </span>
-                {!wide ? <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} /> : null}
+                <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
               </div>
               {!wide ? (
                 <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>

@@ -47,4 +47,14 @@ describe('Career Studio consolidation', () => {
     expect(nav).not.toContain("label: 'Voice + Career Studio'");
     expect(nav).not.toContain("href: '/dashboard/toolkit', label: 'Career Toolkit'");
   });
+
+  it('sends the member home Career Studio link to the canonical hub', () => {
+    const home = source('components/portal/kit/pages/member/MemberHomeKit.tsx');
+    const loader = source('lib/member/loadMemberDashboardHome.ts');
+
+    expect(home).toContain("toolkitHref = '/dashboard/ai-tools'");
+    expect(loader).toContain("toolkitHref: '/dashboard/ai-tools'");
+    expect(home).not.toContain("toolkitHref = '/dashboard/toolkit'");
+    expect(loader).not.toContain("toolkitHref: '/dashboard/toolkit'");
+  });
 });

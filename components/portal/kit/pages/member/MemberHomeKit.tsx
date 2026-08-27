@@ -552,7 +552,7 @@ export function MemberHomeKit({
   nextBadgeRemaining = 'Not started',
   pipeline = [],
   resumeHref = '/dashboard/program',
-  toolkitHref = '/dashboard/toolkit',
+  toolkitHref = '/dashboard/ai-tools',
   jobsHref = '/dashboard/jobs',
   coursesHref = '#',
   currentStreak = 0,

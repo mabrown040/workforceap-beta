@@ -103,7 +103,7 @@ const FILTER_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
   minHeight: 44,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -617,7 +617,7 @@ export default function JobsListingClient({
             color: 'var(--wa-text)',
             borderRadius: 999,
             fontWeight: 600,
-            fontSize: 14,
+            fontSize: 'var(--wa-type-body)',
             cursor: 'pointer',
           }}
         >

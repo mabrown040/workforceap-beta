@@ -16,8 +16,6 @@ export default function DevMemberToolkitPage() {
 
   return (
     <MemberToolkitKit
-      heroTitle="Get hired faster."
-      heroSubtitle="AI tools tuned to your training path and local job market."
       tools={[
         { id: 'resume', icon: <FileText size={20} aria-hidden="true" />, title: 'Resume Audit', body: 'Score your resume against the role and get fix-it suggestions.', cta: 'Run Audit', href: '#' },
         { id: 'cover', icon: <MailOpen size={20} aria-hidden="true" />, title: 'Cover Letter', body: 'Generate a tailored cover letter for any saved job in seconds.', cta: 'Generate', href: '#' },

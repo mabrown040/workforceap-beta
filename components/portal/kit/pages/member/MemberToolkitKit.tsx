@@ -58,8 +58,8 @@ const DEFAULT_TOOLS: ToolCard[] = [
 ];
 
 export function MemberToolkitKit({
-  heroTitle = 'Get hired faster.',
-  heroSubtitle = 'AI tools tuned to your training path and local job market.',
+  heroTitle = 'Resume, cover letter, interview',
+  heroSubtitle = 'Each tool uses your program and saved jobs. Pick one and go.',
   tools = DEFAULT_TOOLS,
   advisorOnline = true,
   advisorMessages,
@@ -94,72 +94,83 @@ export function MemberToolkitKit({
           <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>{heroSubtitle}</p>
         </div>
 
-        {/* Tool cards — numbered so the row reads as an ordered path
-            (audit → tailor → practice), not just three unrelated options. */}
-        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
+        {/* Tool list — one path, not a 3-up icon-circle grid. */}
+        <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
           {tools.map((tool, i) => {
-            const ctaStyle = {
-              marginTop: 16,
-              width: '100%',
-              minHeight: 44,
-              padding: '10px 0',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-              fontWeight: 600,
-              fontSize: 12,
-              borderRadius: 999,
-              border: 'none',
-              cursor: 'pointer',
-            } as const;
-            const ctaClassName =
-              'wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
-            return (
-              <div key={tool.id} className="wa-kit-card wa-kit-card--hover" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <div className="wa-flex wa-items-center wa-justify-between">
-                    <div
-                      style={{ padding: 12, width: 'fit-content', background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', borderRadius: 'var(--wa-radius-sm)' }}
-                    >
-                      {tool.icon}
-                    </div>
-                    <span
-                      aria-hidden="true"
-                      style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      Step {i + 1}
-                    </span>
-                  </div>
-                  <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginTop: 16, textWrap: 'balance' }}>{tool.title}</h3>
-                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>{tool.body}</p>
+            const row = (
+              <>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    fontVariantNumeric: 'tabular-nums',
+                    color: 'var(--wa-muted)',
+                    minWidth: 28,
+                  }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0, textWrap: 'balance' }}>{tool.title}</h3>
+                  <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>{tool.body}</p>
                 </div>
-                {onAction ? (
-                  <button
-                    type="button"
-                    onClick={() => onAction(tool.id)}
-                    className={ctaClassName}
-                    style={ctaStyle}
-                  >
-                    {tool.cta}
-                  </button>
-                ) : tool.href ? (
-                  <Link
-                    href={tool.href}
-                    className={ctaClassName}
-                    style={{ ...ctaStyle, display: 'block', textAlign: 'center', textDecoration: 'none' }}
-                  >
-                    {tool.cta}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className="wa-kit-focus"
-                    style={{ ...ctaStyle, cursor: 'not-allowed', opacity: 0.6 }}
-                    disabled
-                    aria-label={`${tool.cta} — not available yet`}
-                  >
-                    {tool.cta}
-                  </button>
-                )}
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: 'var(--wa-accent)',
+                    flexShrink: 0,
+                  }}
+                >
+                  {tool.cta}
+                </span>
+              </>
+            );
+            const rowStyle = {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              minHeight: 72,
+              padding: '14px 18px',
+              borderTop: i === 0 ? 'none' : '1px solid var(--wa-border)',
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              width: '100%',
+              background: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left' as const,
+            };
+            const rowClass =
+              'wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none';
+            if (onAction) {
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  onClick={() => onAction(tool.id)}
+                  className={rowClass}
+                  style={rowStyle}
+                >
+                  {row}
+                </button>
+              );
+            }
+            if (tool.href) {
+              return (
+                <Link key={tool.id} href={tool.href} className={rowClass} style={rowStyle}>
+                  {row}
+                </Link>
+              );
+            }
+            return (
+              <div
+                key={tool.id}
+                className="wa-kit-focus"
+                style={{ ...rowStyle, cursor: 'not-allowed', opacity: 0.6 }}
+                aria-disabled="true"
+              >
+                {row}
               </div>
             );
           })}

@@ -29,36 +29,17 @@ const SOURCE_OPTIONS: Array<{ value: Source; label: string }> = [
 ];
 
 const KIT_BTN =
-  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+  'wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
 
 const kitBtnSolid: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
   gap: 8,
-  minHeight: 44,
-  padding: '10px 16px',
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  border: '1px solid var(--wa-accent)',
-  fontWeight: 600,
-  fontSize: 14,
-  borderRadius: 999,
-  cursor: 'pointer',
   whiteSpace: 'nowrap',
-};
-
-const kitBtnOutline: CSSProperties = {
-  ...kitBtnSolid,
-  background: 'transparent',
-  color: 'var(--wa-accent)',
-  border: '1px solid var(--wa-border)',
 };
 
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -66,6 +47,7 @@ const FIELD_CONTROL: CSSProperties = {
   background: 'var(--wa-surface)',
   color: 'var(--wa-text)',
   fontFamily: 'inherit',
+  minHeight: 44,
 };
 
 export default function LogExternalApplicationButton({
@@ -172,8 +154,8 @@ export default function LogExternalApplicationButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={KIT_BTN}
-        style={variant === 'primary' ? kitBtnSolid : kitBtnOutline}
+        className={`${KIT_BTN}${variant === 'primary' ? '' : ' wa-kit-cta--ghost'}`}
+        style={kitBtnSolid}
       >
         <ExternalLink size={16} aria-hidden />
         Log an outside application
@@ -208,7 +190,7 @@ export default function LogExternalApplicationButton({
               <h2 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
                 Application logged
               </h2>
-              <p style={{ margin: '0 0 20px', color: 'var(--wa-muted)', fontSize: 14, lineHeight: 1.5 }}>
+              <p className="wa-kit-lede" style={{ margin: '0 0 20px' }}>
                 Noted {role} at {company} on {savedAt.toLocaleDateString()}. Your counselor was notified.
               </p>
               {feedbackAppId && feedbackTools.length > 0 ? (
@@ -226,7 +208,7 @@ export default function LogExternalApplicationButton({
                 />
               ) : null}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button type="button" className={KIT_BTN} style={kitBtnOutline} onClick={close}>
+                <button type="button" className={`${KIT_BTN} wa-kit-cta--ghost`} style={kitBtnSolid} onClick={close}>
                   Done
                 </button>
                 <button type="button" className={KIT_BTN} style={kitBtnSolid} onClick={reset}>
@@ -240,7 +222,7 @@ export default function LogExternalApplicationButton({
                 <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
                   Log an outside application
                 </h2>
-                <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+                <p className="wa-kit-lede" style={{ margin: '6px 0 0' }}>
                   Applied on Indeed, LinkedIn, or a company site? Add it to your tracker so your counselor can follow up.
                 </p>
               </header>
@@ -315,7 +297,7 @@ export default function LogExternalApplicationButton({
                     padding: '12px 14px',
                     borderRadius: 'var(--wa-radius-sm)',
                     margin: '12px 0 0',
-                    fontSize: 13,
+                    fontSize: 'var(--wa-type-body)',
                   }}
                 >
                   {error}
@@ -323,7 +305,7 @@ export default function LogExternalApplicationButton({
               ) : null}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap', marginTop: 16 }}>
-                <button type="button" className={KIT_BTN} style={kitBtnOutline} onClick={close} disabled={submitting}>
+                <button type="button" className={`${KIT_BTN} wa-kit-cta--ghost`} style={kitBtnSolid} onClick={close} disabled={submitting}>
                   Cancel
                 </button>
                 <button type="submit" className={KIT_BTN} style={kitBtnSolid} disabled={!canSubmit}>

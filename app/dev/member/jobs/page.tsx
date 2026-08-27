@@ -70,7 +70,17 @@ export default async function DevMemberJobsPage({
   if (process.env.VERCEL_ENV === 'production') notFound();
   const { state } = await searchParams;
   if (state === 'board') {
-    return <MemberJobsBoard />;
+    return (
+      <MemberJobsBoard
+        pipelineHref="/dev/member/jobs"
+        jobs={[
+          { id: 'j1', title: 'Cloud Support Engineer', company: 'Deloitte', location: 'Austin, TX', meta: 'Full-time · $58k–72k', match: '92% match', applied: true, href: '/dev/member/jobs?state=detail' },
+          { id: 'j2', title: 'Junior Salesforce Consultant', company: 'Accenture', location: 'Remote', meta: 'Full-time · $54k–66k', match: '87% match', href: '/dev/member/jobs?state=detail' },
+          { id: 'j3', title: 'Technical Support Associate', company: 'Tesla', location: 'Austin, TX', meta: 'Full-time · $46k–52k', match: '74% match', href: '/dev/member/jobs?state=detail' },
+          { id: 'j4', title: 'IT Support Specialist', company: 'HEB', location: 'Austin, TX', meta: 'Full-time · $48k–55k', href: '/dev/member/jobs?state=detail' },
+        ]}
+      />
+    );
   }
   if (state === 'listing') {
     return (
@@ -186,7 +196,7 @@ function ProofCopy() {
         color: 'var(--wa-accent)',
         border: '1px solid var(--wa-border)',
         fontWeight: 600,
-        fontSize: 14,
+        fontSize: 'var(--wa-type-body)',
         borderRadius: 999,
       }}
     >

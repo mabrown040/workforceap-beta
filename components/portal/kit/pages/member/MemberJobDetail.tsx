@@ -42,16 +42,7 @@ function BackLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <NextLink
       href={href}
-      className="wa-kit-focus"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        minHeight: 44,
-        fontSize: 13,
-        fontWeight: 600,
-        color: 'var(--wa-accent)',
-        textDecoration: 'none',
-      }}
+      className="wa-page-action wa-kit-focus"
     >
       {children}
     </NextLink>
@@ -121,7 +112,7 @@ export function MemberJobDetail({
             <h2 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 8px' }}>
               Description
             </h2>
-            <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.6, color: 'var(--wa-text)' }}>
+            <div className="wa-kit-lede" style={{ whiteSpace: 'pre-wrap', color: 'var(--wa-text)' }}>
               {description}
             </div>
           </div>
@@ -132,7 +123,7 @@ export function MemberJobDetail({
             <h2 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 8px' }}>
               Requirements
             </h2>
-            <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--wa-text)', fontSize: 14, lineHeight: 1.55 }}>
+            <ul className="wa-kit-lede" style={{ margin: 0, paddingLeft: 18, color: 'var(--wa-text)' }}>
               {requirements.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -145,15 +136,15 @@ export function MemberJobDetail({
             <h2 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 6px' }}>
               What this employer looks for
             </h2>
-            <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+            <p className="wa-kit-lede" style={{ margin: '0 0 12px' }}>
               {screening.packTitle} — shared by {screening.employerLabel}. Informational, so you can prepare before you apply.
             </p>
-            <ol style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 8, fontSize: 14, lineHeight: 1.55 }}>
+            <ol className="wa-kit-lede" style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 8, color: 'var(--wa-text)' }}>
               {screening.questions.map((q, i) => (
                 <li key={q.id ?? i}>
                   {q.prompt ?? 'See counselor for details.'}
                   {q.type ? (
-                    <span style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+                    <span className="wa-kit-meta">
                       {' '}
                       ({q.type.replace(/_/g, ' ')})
                     </span>
@@ -175,14 +166,14 @@ export function MemberJobDetail({
             <h2 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 6px' }}>
               Know someone at {referral.company}?
             </h2>
-            <p style={{ margin: '0 0 12px', fontSize: 13, lineHeight: 1.5, color: 'var(--wa-muted)' }}>
-              A warm intro more than doubles your odds vs. applying cold. If you know anyone there — even loosely — send them this:
+            <p className="wa-kit-lede" style={{ margin: '0 0 12px' }}>
+              If you know someone there, send them this:
             </p>
             <div
+              className="wa-kit-lede"
               style={{
                 whiteSpace: 'pre-wrap',
-                fontSize: 13,
-                lineHeight: 1.55,
+                color: 'var(--wa-text)',
                 padding: '12px 14px',
                 borderRadius: 'var(--wa-radius-sm)',
                 border: '1px solid var(--wa-border)',

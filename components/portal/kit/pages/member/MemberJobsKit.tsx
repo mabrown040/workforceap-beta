@@ -1,7 +1,7 @@
-import { Briefcase, Compass, Sparkles } from 'lucide-react';
+import { Briefcase, Compass } from 'lucide-react';
 import NextLink from 'next/link';
 import type { ReactNode } from 'react';
-import { DesignSurface, KpiStrip, DataTable, StatusTag, PageOpener, JobListingRow, type Column, type KitTone } from '@/components/portal/kit';
+import { DesignSurface, KpiStrip, DataTable, StatusTag, PageOpener, JobListingRow, KitEmptyState, type Column, type KitTone } from '@/components/portal/kit';
 import { JOBS_EMPTY_RECOMMENDATIONS } from '@/lib/member/jobPipelineDisplay';
 
 /**
@@ -9,6 +9,9 @@ import { JOBS_EMPTY_RECOMMENDATIONS } from '@/lib/member/jobPipelineDisplay';
  * Faithful port of `data-view-panel="jobs"` in
  * docs/mockups/workforceap-member-suite.html.
  * Recommended matches use JobListingRow so pipeline, board, and listing share one row.
+ *
+ * Defaults are empty. Proofs and the live route pass real rows — never invent
+ * a Deloitte/Accenture pipeline when the caller omits data.
  *
  * Target route: app/(portal)/dashboard/jobs
  * Surface: warm (member-facing).
@@ -46,13 +49,6 @@ export interface MemberJobsKitProps {
   recommended?: RecommendedJob[];
 }
 
-const DEFAULT_APPLICATIONS: ApplicationRow[] = [
-  { id: 'a1', role: 'Salesforce Administrator', company: 'Deloitte', location: 'Austin, TX', applied: 'Jun 12', stage: 'Interviewing', tone: 'warn' },
-  { id: 'a2', role: 'Agentforce Solutions Engineer', company: 'Accenture', location: 'Remote', applied: 'Jun 14', stage: 'Applied', tone: 'muted' },
-  { id: 'a3', role: 'Cloud Support Associate', company: 'Indeed', location: 'Austin, TX', applied: 'Jun 16', stage: 'Screening', tone: 'info' },
-  { id: 'a4', role: 'Junior Cloud Engineer', company: 'Oracle', location: 'Austin, TX', applied: 'Jun 18', stage: 'Applied', tone: 'muted' },
-];
-
 function JobsCta({
   href,
   children,
@@ -62,25 +58,11 @@ function JobsCta({
   children: ReactNode;
   variant?: 'primary' | 'secondary';
 }) {
-  const primary = variant === 'primary';
+  const ghost = variant === 'secondary';
   return (
     <NextLink
       href={href}
-      className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 44,
-        padding: '10px 16px',
-        background: primary ? 'var(--wa-accent)' : 'transparent',
-        color: primary ? 'var(--wa-on-accent)' : 'var(--wa-accent)',
-        border: primary ? 'none' : '1px solid var(--wa-border)',
-        fontWeight: 600,
-        fontSize: 14,
-        borderRadius: 999,
-        textDecoration: 'none',
-      }}
+      className={`wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none${ghost ? ' wa-kit-cta--ghost' : ''}`}
     >
       {children}
     </NextLink>
@@ -88,31 +70,31 @@ function JobsCta({
 }
 
 export function MemberJobsKit({
-  saved = 9,
-  applied = 4,
-  interviewing = 1,
+  saved = 0,
+  applied = 0,
+  interviewing = 0,
   offers = 0,
-  syncedLabel = 'Synced 3m ago',
+  syncedLabel,
   browseHref = '#',
   profileHref = '/dashboard/profile',
   jobHref = (id: string) => `/dashboard/jobs/${id}`,
-  applications = DEFAULT_APPLICATIONS,
+  applications = [],
   recommended = [],
 }: MemberJobsKitProps) {
   const columns: Column<ApplicationRow>[] = [
     { key: 'role', header: 'Role', render: (r) => <span style={{ fontWeight: 700 }}>{r.role}</span> },
-    { key: 'company', header: 'Company', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.company}</span> },
-    { key: 'location', header: 'Location', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.location}</span> },
-    { key: 'applied', header: 'Applied', render: (r) => <span style={{ color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{r.applied}</span> },
+    { key: 'company', header: 'Company', render: (r) => <span className="wa-kit-meta">{r.company}</span> },
+    { key: 'location', header: 'Location', render: (r) => <span className="wa-kit-meta">{r.location}</span> },
+    { key: 'applied', header: 'Applied', render: (r) => <span className="wa-kit-meta" style={{ fontVariantNumeric: 'tabular-nums' }}>{r.applied}</span> },
     { key: 'stage', header: 'Stage', align: 'right', render: (r) => <StatusTag tone={r.tone}>{r.stage}</StatusTag> },
   ];
   const applicationCard = (row: ApplicationRow) => (
     <div className="wa-kit-card wa-kit-card--sm">
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-3">
         <div>
-          <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
-          <div style={{ marginTop: 2, fontSize: 13, color: 'var(--wa-muted)' }}>{row.company}</div>
-          <div style={{ marginTop: 2, fontSize: 13, color: 'var(--wa-muted)' }}>
+          <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{row.role}</div>
+          <div className="wa-kit-meta" style={{ marginTop: 2 }}>{row.company}</div>
+          <div className="wa-kit-meta" style={{ marginTop: 2 }}>
             {row.location} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.applied}</span>
           </div>
         </div>
@@ -143,21 +125,16 @@ export function MemberJobsKit({
           <div className="wa-flex wa-flex-col md:wa-flex-row md:wa-items-center wa-justify-between wa-gap-3" style={{ marginBottom: 16 }}>
             <div>
               <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Applications</h2>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)' }}>{syncedLabel}</p>
+              {syncedLabel ? <p className="wa-kit-meta">{syncedLabel}</p> : null}
             </div>
             {applications.length > 0 ? <JobsCta href={browseHref}>Open board</JobsCta> : null}
           </div>
           {applications.length === 0 ? (
-            <div>
-              <Briefcase size={22} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />
-              <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: '10px 0 0' }}>No applications yet</h3>
-              <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 6, lineHeight: 1.5 }}>
-                Track jobs you apply to. They appear here.
-              </p>
-              <div style={{ marginTop: 16 }}>
-                <JobsCta href={browseHref}>Open board</JobsCta>
-              </div>
-            </div>
+            <KitEmptyState
+              title="No applications yet"
+              description="Track jobs you apply to. They appear here."
+              action={<JobsCta href={browseHref}>Open board</JobsCta>}
+            />
           ) : (
             <DataTable<ApplicationRow>
               columns={columns}
@@ -176,11 +153,11 @@ export function MemberJobsKit({
           <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Recommended</h2>
           {recommended.length === 0 ? (
             <div className="wa-kit-card">
-              <Sparkles size={22} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />
+              <Briefcase size={22} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />
               <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: '10px 0 0' }}>
                 {JOBS_EMPTY_RECOMMENDATIONS.title}
               </h3>
-              <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 6, lineHeight: 1.5 }}>
+              <p className="wa-kit-lede" style={{ marginTop: 6 }}>
                 {JOBS_EMPTY_RECOMMENDATIONS.description}
               </p>
               <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 16 }}>
@@ -204,7 +181,7 @@ export function MemberJobsKit({
                   first={i === 0}
                   icon={
                     job.logo ? (
-                      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.04em' }}>{job.logo}</span>
+                      <span className="wa-kit-meta" style={{ fontWeight: 800, letterSpacing: '0.04em', color: 'var(--wa-text)' }}>{job.logo}</span>
                     ) : undefined
                   }
                 />

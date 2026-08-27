@@ -42,6 +42,8 @@ export interface InvitesKitProps {
   rate: number;
   /** Right-aligned header action (e.g. "Send Invites"). */
   action?: ReactNode;
+  /** Next-step affordance shown when no invites exist yet. */
+  emptyAction?: ReactNode;
 }
 
 const STATUS_COLOR: Record<InviteRow['status'], TokenColor> = {
@@ -65,6 +67,7 @@ export function InvitesKit({
   pending,
   rate,
   action,
+  emptyAction,
 }: InvitesKitProps) {
   const kpis: KpiItem[] = [
     { label: 'Sent', value: sent },
@@ -181,18 +184,25 @@ export function InvitesKit({
         )}
         emptyTitle="No invitations yet"
         emptyDescription="Send invites to add members, partners, or counselors to the platform."
+        emptyAction={emptyAction}
       />
 
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 12,
-          color: 'var(--wa-muted)',
-          marginTop: 16,
-        }}
-      >
-        Showing {invites.length} of {sent}
-      </p>
+      {/* Only worth saying when the table is actually truncated — under an empty
+          table it would read "Showing 0 of 0", and when everything fits it just
+          repeats the Sent KPI. */}
+      {invites.length > 0 && invites.length < sent ? (
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--wa-muted)',
+            marginTop: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Showing the {invites.length} most recent of {sent}
+        </p>
+      ) : null}
     </DesignSurface>
   );
 }

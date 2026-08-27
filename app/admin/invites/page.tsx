@@ -83,8 +83,11 @@ export default async function AdminInvitesPage({
     where.invitedBy = { organizationId: scope.orgId };
   }
 
-  // Lean parallel reads: count by status (KPI) + recent rows (table).
-  const [byStatusResult, rowsResult] = await Promise.allSettled([
+  const now = new Date();
+
+  // Lean parallel reads: count by status (KPI) + recent rows (table) + the
+  // pending-but-past-expiry count, which the KPI has to subtract out (below).
+  const [byStatusResult, rowsResult, expiredPendingResult] = await Promise.allSettled([
     prisma.invitation.groupBy({
       by: ['status'],
       where,
@@ -103,6 +106,9 @@ export default async function AdminInvitesPage({
         createdAt: true,
       },
     }),
+    prisma.invitation.count({
+      where: { ...where, status: 'pending', expiresAt: { lte: now } },
+    }),
   ]);
 
   if (rowsResult.status === 'rejected') {
@@ -110,11 +116,9 @@ export default async function AdminInvitesPage({
     redirect('/admin/invites?ui=legacy');
   }
 
-  const now = new Date();
   const records = rowsResult.value;
 
-  // KPI counts from the lean groupBy. "Pending" reflects DB pending; expired
-  // pendings are counted under expired to match the legacy stat cards.
+  // KPI counts from the lean groupBy, keyed on the raw DB status.
   const counts: Record<string, number> = {
     pending: 0,
     accepted: 0,
@@ -131,7 +135,17 @@ export default async function AdminInvitesPage({
 
   const sent = counts.pending + counts.accepted + counts.expired + counts.revoked;
   const accepted = counts.accepted;
-  const pending = counts.pending;
+
+  // The table renders a pending invite past its expiresAt as "Expired"
+  // (effectiveStatus below), so the KPI has to apply the same rule or the stat
+  // card contradicts the Status column sitting right beneath it. A failed count
+  // falls back to the raw DB total rather than silently under-reporting.
+  const expiredPending =
+    expiredPendingResult.status === 'fulfilled' ? expiredPendingResult.value : 0;
+  if (expiredPendingResult.status === 'rejected') {
+    console.error('[admin/invites] expired-pending count failed', expiredPendingResult.reason);
+  }
+  const pending = Math.max(0, counts.pending - expiredPending);
   const rate = sent > 0 ? Math.round((accepted / sent) * 100) : 0;
 
   const invites: InviteRow[] = records.map((inv) => ({
@@ -172,6 +186,11 @@ export default async function AdminInvitesPage({
       pending={pending}
       rate={rate}
       action={action}
+      emptyAction={
+        <Link href="/admin/invites/new" className="btn btn-primary">
+          Send your first invite
+        </Link>
+      }
     />
   );
 }

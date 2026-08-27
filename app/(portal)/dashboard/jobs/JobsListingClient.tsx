@@ -70,33 +70,21 @@ function KitCta({
   children: ReactNode;
   variant?: 'solid' | 'outline' | 'ghost';
 }) {
-  const style: CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 44,
-    padding: '10px 16px',
-    background: variant === 'solid' ? 'var(--wa-accent)' : 'transparent',
-    color:
-      variant === 'solid'
-        ? 'var(--wa-on-accent)'
-        : variant === 'ghost'
-          ? 'var(--wa-muted)'
-          : 'var(--wa-accent)',
-    border:
-      variant === 'solid'
-        ? '1px solid var(--wa-accent)'
-        : variant === 'ghost'
-          ? '1px solid transparent'
-          : '1px solid var(--wa-border)',
-    fontWeight: 600,
-    fontSize: 14,
-    borderRadius: 999,
-    textDecoration: 'none',
-    cursor: 'pointer',
-  };
-  const className =
-    'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+  const className = [
+    'wa-kit-cta',
+    'wa-kit-focus',
+    'hover:wa-opacity-90',
+    'active:wa-scale-[0.98]',
+    'motion-reduce:active:wa-scale-100',
+    'wa-transition-[opacity,transform]',
+    'wa-duration-150',
+    'motion-reduce:wa-transition-none',
+    variant === 'solid' ? '' : 'wa-kit-cta--ghost',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const style: CSSProperties | undefined =
+    variant === 'ghost' ? { color: 'var(--wa-muted)', borderColor: 'transparent' } : undefined;
   if (href) {
     return (
       <Link href={href} className={className} style={style}>

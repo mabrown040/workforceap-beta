@@ -177,7 +177,6 @@ export function MemberJobDetail({
                 borderRadius: 'var(--wa-radius-sm)',
                 border: '1px solid var(--wa-border)',
                 background: 'var(--wa-surface)',
-                color: 'var(--wa-text)',
                 marginBottom: 12,
               }}
             >

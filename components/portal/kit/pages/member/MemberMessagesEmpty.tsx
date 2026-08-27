@@ -1,5 +1,5 @@
 import { MessageCircle } from 'lucide-react';
-import { DesignSurface, PageOpener } from '@/components/portal/kit';
+import { DesignSurface, KitEmptyState, PageOpener } from '@/components/portal/kit';
 
 /**
  * Member Portal — MESSAGES empty (inbox still provisioning).
@@ -27,30 +27,16 @@ export function MemberMessagesEmpty({
           lede="Counselor and support in one inbox."
           icon={<MessageCircle size={13} aria-hidden="true" />}
         />
-        <div className="wa-kit-card" style={{ textAlign: 'center' }}>
-          <MessageCircle size={32} aria-hidden="true" style={{ color: 'var(--wa-accent)', marginBottom: 12 }} />
-          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: '0 0 0.35rem' }}>
-            {title}
-          </h2>
-          <p className="wa-kit-lede" style={{ margin: '0 0 1.25rem' }}>
-            {description}
-          </p>
-          <a
-            href={actionHref}
-            className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-            style={{
-              minHeight: 44,
-              padding: '10px 16px',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-              fontWeight: 600,
-              fontSize: 'var(--wa-type-body)',
-              borderRadius: 999,
-              textDecoration: 'none',
-            }}
-          >
-            {actionLabel}
-          </a>
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title={title}
+            description={description}
+            action={
+              <a href={actionHref} className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                {actionLabel}
+              </a>
+            }
+          />
         </div>
       </div>
     </DesignSurface>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
-import { DesignSurface, Avatar, ChatThread, PageOpener, type ChatMessage } from '@/components/portal/kit';
+import { DesignSurface, Avatar, ChatThread, KitEmptyState, PageOpener, type ChatMessage } from '@/components/portal/kit';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 /**
@@ -222,9 +222,12 @@ export function MemberMessagesKit({
             </div>
             <div>
               {conversations.length === 0 ? (
-                <p className="wa-kit-lede" style={{ margin: 0, padding: '20px' }}>
-                  No conversations yet. Your counselor thread opens here after you send a message.
-                </p>
+                <div style={{ padding: '20px' }}>
+                  <KitEmptyState
+                    title="No conversations yet"
+                    description="Your counselor thread opens here after you send a message."
+                  />
+                </div>
               ) : (
               conversations.map((c) => (
                 <button

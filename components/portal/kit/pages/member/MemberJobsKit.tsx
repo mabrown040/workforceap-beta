@@ -1,4 +1,4 @@
-import { Briefcase, Compass } from 'lucide-react';
+import { Compass } from 'lucide-react';
 import NextLink from 'next/link';
 import type { ReactNode } from 'react';
 import { DesignSurface, KpiStrip, DataTable, StatusTag, PageOpener, JobListingRow, KitEmptyState, type Column, type KitTone } from '@/components/portal/kit';
@@ -153,21 +153,20 @@ export function MemberJobsKit({
           <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Recommended</h2>
           {recommended.length === 0 ? (
             <div className="wa-kit-card">
-              <Briefcase size={22} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />
-              <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: '10px 0 0' }}>
-                {JOBS_EMPTY_RECOMMENDATIONS.title}
-              </h3>
-              <p className="wa-kit-lede" style={{ marginTop: 6 }}>
-                {JOBS_EMPTY_RECOMMENDATIONS.description}
-              </p>
-              <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 16 }}>
-                <JobsCta href={profileHref}>{JOBS_EMPTY_RECOMMENDATIONS.primaryCta}</JobsCta>
-                {applications.length === 0 ? (
-                  <JobsCta href={browseHref} variant="secondary">
-                    {JOBS_EMPTY_RECOMMENDATIONS.secondaryCta}
-                  </JobsCta>
-                ) : null}
-              </div>
+              <KitEmptyState
+                title={JOBS_EMPTY_RECOMMENDATIONS.title}
+                description={JOBS_EMPTY_RECOMMENDATIONS.description}
+                action={
+                  <div className="wa-flex wa-flex-wrap wa-gap-2">
+                    <JobsCta href={profileHref}>{JOBS_EMPTY_RECOMMENDATIONS.primaryCta}</JobsCta>
+                    {applications.length === 0 ? (
+                      <JobsCta href={browseHref} variant="secondary">
+                        {JOBS_EMPTY_RECOMMENDATIONS.secondaryCta}
+                      </JobsCta>
+                    ) : null}
+                  </div>
+                }
+              />
             </div>
           ) : (
             <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>

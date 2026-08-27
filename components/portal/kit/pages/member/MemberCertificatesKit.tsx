@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Download, Award } from 'lucide-react';
 import Link from 'next/link';
-import { DesignSurface, KpiStrip, ProgressBar, PageOpener } from '@/components/portal/kit';
+import { DesignSurface, KpiStrip, KitEmptyState, ProgressBar, PageOpener } from '@/components/portal/kit';
 import ShareButton from '@/components/ui/ShareButton';
 import { buildCertificateShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
 
@@ -101,30 +101,15 @@ export function MemberCertificatesKit({
             <h2 className="sr-only">Earned certificates</h2>
             {earned.length === 0 ? (
               <div className="wa-kit-card">
-                <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0 }}>No certificates yet</h3>
-                <p className="wa-kit-lede" style={{ marginTop: 6 }}>
-                  Completed credentials will appear here after they are logged and verified.
-                </p>
-                <Link
-                  href={counselorHref}
-                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: 44,
-                    marginTop: 16,
-                    padding: '10px 16px',
-                    background: 'var(--wa-accent)',
-                    color: 'var(--wa-on-accent)',
-                    fontWeight: 600,
-                    fontSize: 'var(--wa-type-body)',
-                    borderRadius: 999,
-                    textDecoration: 'none',
-                  }}
-                >
-                  Message counselor
-                </Link>
+                <KitEmptyState
+                  title="No certificates yet"
+                  description="Completed credentials will appear here after they are logged and verified."
+                  action={
+                    <Link href={counselorHref} className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                      Message counselor
+                    </Link>
+                  }
+                />
               </div>
             ) : (
               <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>

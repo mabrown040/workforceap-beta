@@ -166,6 +166,7 @@ async function renderMemberDashboard(
         firstName={home.firstName}
         coursePercent={home.coursePercent}
         programTitle={home.programTitle}
+        programStatus={home.programStatus}
         activeJobs={home.activeJobs}
         certs={home.certs}
         points={home.points}

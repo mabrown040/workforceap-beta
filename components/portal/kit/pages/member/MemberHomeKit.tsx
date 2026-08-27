@@ -537,24 +537,24 @@ const pipelineCard = (row: PipelineRow) => {
 /* ---------------------------------------------------------------------- */
 
 export function MemberHomeKit({
-  firstName = 'Mike',
+  firstName = '',
   greeting,
   coursePercent = 0,
   activeJobs = 0,
   certs = 0,
   points = 0,
-  programTitle = 'Program',
-  programStatus = 'In progress',
+  programTitle,
+  programStatus,
   nextLesson,
   nextLessonDue,
   nextBadgePercent = 0,
-  nextBadgeName = 'Next badge',
-  nextBadgeRemaining = 'Not started',
+  nextBadgeName,
+  nextBadgeRemaining,
   pipeline = [],
   resumeHref = '/dashboard/program',
   toolkitHref = '/dashboard/ai-tools',
   jobsHref = '/dashboard/jobs',
-  coursesHref = '#',
+  coursesHref = '/dashboard/program',
   currentStreak = 0,
   longestStreak = 0,
   goals = [],
@@ -587,7 +587,7 @@ export function MemberHomeKit({
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
         <PageOpener
           kicker="Home"
-          title={greeting ? `${greeting}, ${firstName}` : firstName}
+          title={greeting && firstName ? `${greeting}, ${firstName}` : firstName || 'Home'}
           lede={nextLesson ? `Next: ${nextLesson}${nextLessonDue ? ` · ${nextLessonDue}` : ''}` : 'Pick up your program, jobs, or Career Studio.'}
           icon={<Home size={13} aria-hidden="true" />}
           action={
@@ -634,11 +634,25 @@ export function MemberHomeKit({
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
               <div style={{ minWidth: 0, flex: 1 }}>
-                <StatusTag tone="info">{programStatus}</StatusTag>
-                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8, textWrap: 'balance' }}>{programTitle}</h3>
-                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
-                  Next: {nextLesson} · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
-                </p>
+                {programStatus ? <StatusTag tone="info">{programStatus}</StatusTag> : null}
+                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: programStatus ? 8 : 0, textWrap: 'balance' }}>
+                  {programTitle ?? 'No program enrolled'}
+                </h3>
+                {nextLesson ? (
+                  <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
+                    Next: {nextLesson}
+                    {nextLessonDue ? (
+                      <>
+                        {' '}
+                        · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
+                      </>
+                    ) : null}
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
+                    {programTitle ? 'No next module on file.' : 'Choose a program to start.'}
+                  </p>
+                )}
                 {hasModuleRow ? (
                   <div style={{ marginTop: 10 }}>
                     <ProgressBar
@@ -665,7 +679,15 @@ export function MemberHomeKit({
                       textDecoration: 'none',
                     }}
                   >
-                    Resume module <Play size={13} aria-hidden />
+                    {programTitle ? (
+                      <>
+                        Resume module <Play size={13} aria-hidden />
+                      </>
+                    ) : (
+                      <>
+                        Choose program <ArrowRight size={13} aria-hidden />
+                      </>
+                    )}
                   </Link>
                 </div>
               </div>
@@ -792,9 +814,9 @@ export function MemberHomeKit({
                 <Medal size={24} />
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: 15 }}>{nextBadgeName}</div>
+                <div style={{ fontWeight: 800, fontSize: 15 }}>{nextBadgeName ?? 'Next badge'}</div>
                 <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-                  {nextBadgeRemaining} to go
+                  {nextBadgeRemaining ? `${nextBadgeRemaining} to go` : 'Not started'}
                 </div>
               </div>
             </div>

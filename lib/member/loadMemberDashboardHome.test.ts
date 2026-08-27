@@ -218,6 +218,9 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   assert.equal(view.doThisNext, null);
   assert.equal(view.coursesHref, '/dashboard/program');
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
+  assert.equal(view.nextLesson, undefined);
+  assert.equal(view.programTitle, undefined);
+  assert.equal(view.programStatus, undefined);
 });
 
 test('loader module does not import Coursera, B4B, or getMemberState', () => {
@@ -229,6 +232,9 @@ test('loader module does not import Coursera, B4B, or getMemberState', () => {
   assert.doesNotMatch(imports, /maybeAutoSync/);
   assert.doesNotMatch(imports, /getCache/);
   assert.doesNotMatch(src, /from '@\/lib\/coursera/);
+  assert.doesNotMatch(src, /nextLesson: 'Continue your training'/);
+  assert.doesNotMatch(src, /'Up next'/);
+  assert.doesNotMatch(src, /\?\? 'there'/);
 });
 
 test('kit-default dashboard page calls the loader and has no prisma. on that branch', () => {

@@ -982,24 +982,25 @@ function PhaseCelebration({
       <div
         style={{
           padding: '1rem 1.25rem',
-          borderRadius: '0.8rem',
-          background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-lowest)), color-mix(in srgb, var(--color-accent) 4%, var(--surface-container-lowest)))',
-          border: '1.5px solid color-mix(in srgb, var(--color-accent) 22%, transparent)',
+          borderRadius: 'var(--wa-radius-sm)',
+          background:
+            'linear-gradient(135deg, color-mix(in srgb, var(--wa-accent) 8%, var(--wa-surface)), color-mix(in srgb, var(--wa-accent) 4%, var(--wa-surface)))',
+          border: '1.5px solid color-mix(in srgb, var(--wa-accent) 22%, transparent)',
           marginBottom: '1.25rem',
           textAlign: 'left',
         }}
       >
-        <p style={{ margin: '0 0 0.35rem', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)' }}>
+        <p style={{ margin: '0 0 0.35rem', fontSize: 'var(--wa-type-meta)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--wa-accent)' }}>
           Your new resume bullet
         </p>
-        <p style={{ margin: 0, fontSize: '0.95rem', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
+        <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.6, color: 'var(--wa-text)' }}>
           {result.resumeBullet}
         </p>
       </div>
 
       {result.skillsUnlocked.length > 0 && (
         <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-          <p style={{ margin: '0 0 0.45rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <p style={{ margin: '0 0 0.45rem', fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Skills added to your profile:
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
@@ -1013,27 +1014,14 @@ function PhaseCelebration({
       <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <a
           href="/dashboard/ai-tools/resume-studio"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.6rem 1.1rem',
-            borderRadius: '0.5rem',
-            border: '1.5px solid var(--color-accent)',
-            color: 'var(--color-accent)',
-            fontWeight: 700,
-            fontSize: '0.88rem',
-            textDecoration: 'none',
-            background: 'none',
-          }}
+          className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90"
         >
           Open Resume Studio →
         </a>
         <button
           type="button"
-          className="btn btn-primary"
+          className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100"
           onClick={onComplete}
-          style={{ fontSize: '0.9rem' }}
         >
           Done ✓
         </button>

@@ -97,21 +97,21 @@ type Props = {
 
 const CARD_STYLE: React.CSSProperties = {
   position: 'relative',
-  background: 'var(--surface-container-lowest)',
-  borderRadius: 'var(--radius-xl, 1rem)',
+  background: 'var(--wa-surface)',
+  borderRadius: 'var(--wa-radius-sm)',
   padding: '2rem',
   width: '100%',
   maxWidth: '600px',
   maxHeight: '90vh',
   overflowY: 'auto',
-  boxShadow: '0 24px 64px rgba(0,0,0,0.24)',
+  boxShadow: 'var(--wa-shadow-lg)',
 };
 
 const OVERLAY_STYLE: React.CSSProperties = {
   position: 'fixed',
   inset: 0,
-  zIndex: 1000,
-  background: 'rgba(0,0,0,0.58)',
+  zIndex: 1100,
+  background: 'color-mix(in srgb, var(--wa-text) 55%, transparent)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -166,10 +166,10 @@ function CloseButton({ onClick }: { onClick: () => void }) {
         minWidth: 44,
         minHeight: 44,
         background: 'none',
-        border: '1px solid var(--outline-variant)',
+        border: '1px solid var(--wa-border)',
         borderRadius: 999,
         cursor: 'pointer',
-        color: 'var(--color-on-surface-variant)',
+        color: 'var(--wa-muted)',
         lineHeight: 1,
         display: 'flex',
         alignItems: 'center',
@@ -189,11 +189,13 @@ function SkillChip({ label, green }: { label: string; green?: boolean }) {
         alignItems: 'center',
         padding: '0.2rem 0.55rem',
         borderRadius: '9999px',
-        background: green ? 'rgba(74,155,79,0.12)' : 'var(--surface-container-high, rgba(0,0,0,0.06))',
-        border: green ? '1px solid rgba(74,155,79,0.22)' : '1px solid var(--outline-variant)',
-        fontSize: '0.75rem',
+        background: green ? 'var(--wa-success-soft)' : 'var(--wa-surface-2)',
+        border: green
+          ? '1px solid color-mix(in srgb, var(--wa-success) 22%, transparent)'
+          : '1px solid var(--wa-border)',
+        fontSize: 'var(--wa-type-meta)',
         fontWeight: 600,
-        color: green ? '#256b2a' : 'var(--color-on-surface-variant)',
+        color: green ? 'var(--wa-success)' : 'var(--wa-muted)',
       }}
     >
       {label}
@@ -215,12 +217,12 @@ function CopyButton({ text }: { text: string }) {
       style={{
         marginTop: '0.4rem',
         background: 'none',
-        border: '1px solid var(--outline-variant)',
-        borderRadius: '0.4rem',
+        border: '1px solid var(--wa-border)',
+        borderRadius: 'var(--wa-radius-sm)',
         cursor: 'pointer',
-        fontSize: '0.78rem',
+        fontSize: 'var(--wa-type-meta)',
         fontWeight: 600,
-        color: copied ? 'var(--color-green)' : 'var(--color-on-surface-variant)',
+        color: copied ? 'var(--wa-success)' : 'var(--wa-muted)',
         padding: '0.3rem 0.65rem',
         display: 'inline-flex',
         alignItems: 'center',
@@ -431,23 +433,23 @@ function PhaseQuiz({
 
       {/* Progress */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-        <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <p style={{ margin: 0, fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Question {currentQ + 1}/{questions.length}
         </p>
-        <div style={{ flex: 1, height: '4px', borderRadius: '9999px', background: 'var(--outline-variant)' }}>
+        <div style={{ flex: 1, height: '4px', borderRadius: '9999px', background: 'var(--wa-track)' }}>
           <div
             style={{
               height: '100%',
               borderRadius: '9999px',
-              background: 'var(--color-accent)',
+              background: 'var(--wa-accent)',
               width: `${((currentQ + (isAnswered ? 1 : 0)) / questions.length) * 100}%`,
-              transition: 'width 0.3s ease',
+              transition: 'width var(--wa-dur-slow) var(--wa-ease)',
             }}
           />
         </div>
       </div>
 
-      <h3 style={{ margin: '0 0 1.1rem', fontSize: '1.05rem', fontWeight: 700, lineHeight: 1.4, paddingRight: '1.5rem' }}>
+      <h3 style={{ margin: '0 0 1.1rem', fontSize: 'var(--wa-type-body)', fontWeight: 700, lineHeight: 1.4, paddingRight: '1.5rem' }}>
         {question.text}
       </h3>
 
@@ -457,23 +459,23 @@ function PhaseQuiz({
           const isCorrect = feedback !== null && idx === feedback.correctIndex;
           const isSelected = selectedThisQ === idx;
 
-          let bg = 'var(--surface-container, rgba(0,0,0,0.04))';
-          let border = '1px solid var(--outline-variant)';
-          let color = 'var(--color-on-surface)';
+          let bg = 'var(--wa-surface-2)';
+          let border = '1px solid var(--wa-border)';
+          let color = 'var(--wa-text)';
 
           if (isAnswered) {
             if (isCorrect) {
-              bg = 'rgba(74,155,79,0.12)';
-              border = '1.5px solid rgba(74,155,79,0.5)';
-              color = 'var(--color-green)';
+              bg = 'var(--wa-success-soft)';
+              border = '1.5px solid color-mix(in srgb, var(--wa-success) 50%, transparent)';
+              color = 'var(--wa-success)';
             } else if (isSelected && !isCorrect) {
-              bg = 'rgba(194,60,60,0.1)';
-              border = '1.5px solid rgba(194,60,60,0.4)';
-              color = 'var(--color-error)';
+              bg = 'var(--wa-danger-soft)';
+              border = '1.5px solid color-mix(in srgb, var(--wa-danger) 40%, transparent)';
+              color = 'var(--wa-danger)';
             }
           } else if (isSelected) {
-            bg = 'color-mix(in srgb, var(--color-accent) 10%, var(--surface-container-lowest))';
-            border = '1.5px solid var(--color-accent)';
+            bg = 'color-mix(in srgb, var(--wa-accent) 10%, var(--wa-surface))';
+            border = '1.5px solid var(--wa-accent)';
           }
 
           return (
@@ -486,16 +488,17 @@ function PhaseQuiz({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.6rem',
+                minHeight: 44,
                 padding: '0.75rem 1rem',
-                borderRadius: '0.65rem',
+                borderRadius: 'var(--wa-radius-sm)',
                 background: bg,
                 border,
                 color,
-                fontSize: '0.9rem',
+                fontSize: 'var(--wa-type-body)',
                 fontWeight: 500,
                 textAlign: 'left',
                 cursor: isAnswered ? 'default' : 'pointer',
-                transition: 'background 0.15s, border-color 0.15s',
+                transition: 'background var(--wa-dur-fast), border-color var(--wa-dur-fast)',
               }}
             >
               <span
@@ -504,13 +507,23 @@ function PhaseQuiz({
                   width: '1.5rem',
                   height: '1.5rem',
                   borderRadius: '50%',
-                  background: isAnswered && isCorrect ? 'rgba(74,155,79,0.25)' : isAnswered && isSelected && !isCorrect ? 'rgba(194,60,60,0.2)' : 'var(--outline-variant)',
+                  background:
+                    isAnswered && isCorrect
+                      ? 'color-mix(in srgb, var(--wa-success) 25%, transparent)'
+                      : isAnswered && isSelected && !isCorrect
+                        ? 'color-mix(in srgb, var(--wa-danger) 20%, transparent)'
+                        : 'var(--wa-border)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.7rem',
+                  fontSize: 'var(--wa-type-meta)',
                   fontWeight: 800,
-                  color: isAnswered && isCorrect ? 'var(--color-green)' : isAnswered && isSelected && !isCorrect ? 'var(--color-error)' : 'var(--color-on-surface-variant)',
+                  color:
+                    isAnswered && isCorrect
+                      ? 'var(--wa-success)'
+                      : isAnswered && isSelected && !isCorrect
+                        ? 'var(--wa-danger)'
+                        : 'var(--wa-muted)',
                 }}
               >
                 {isAnswered && isCorrect ? (
@@ -529,12 +542,12 @@ function PhaseQuiz({
 
       {/* Checking / error states */}
       {checking && (
-        <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+        <p style={{ margin: '0 0 1rem', fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>
           Checking…
         </p>
       )}
       {checkError && (
-        <p role="alert" style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-error, #c83232)' }}>
+        <p role="alert" style={{ margin: '0 0 1rem', fontSize: 'var(--wa-type-body)', color: 'var(--wa-danger)' }}>
           {checkError}
         </p>
       )}
@@ -546,14 +559,16 @@ function PhaseQuiz({
           aria-live="polite"
           style={{
             padding: '0.75rem 1rem',
-            borderRadius: '0.65rem',
-            background: feedback.correct ? 'rgba(74,155,79,0.08)' : 'rgba(194,120,0,0.08)',
-            border: feedback.correct ? '1px solid rgba(74,155,79,0.2)' : '1px solid rgba(194,120,0,0.2)',
+            borderRadius: 'var(--wa-radius-sm)',
+            background: feedback.correct ? 'var(--wa-success-soft)' : 'var(--wa-gold-soft)',
+            border: feedback.correct
+              ? '1px solid color-mix(in srgb, var(--wa-success) 20%, transparent)'
+              : '1px solid color-mix(in srgb, var(--wa-gold) 20%, transparent)',
             marginBottom: '1rem',
           }}
         >
-          <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.55, color: 'var(--color-on-surface)', display: 'flex', gap: '0.4rem' }}>
-            <span style={{ flexShrink: 0, marginTop: '0.15rem', color: feedback.correct ? 'var(--color-green)' : 'var(--color-amber)' }}>
+          <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', lineHeight: 1.55, color: 'var(--wa-text)', display: 'flex', gap: '0.4rem' }}>
+            <span style={{ flexShrink: 0, marginTop: '0.15rem', color: feedback.correct ? 'var(--wa-success)' : 'var(--wa-gold)' }}>
               {feedback.correct ? <CheckCircle2 size={16} aria-hidden="true" /> : <Lightbulb size={16} aria-hidden="true" />}
             </span>
             <span>
@@ -566,9 +581,8 @@ function PhaseQuiz({
       {isAnswered && (
         <button
           type="button"
-          className="btn btn-primary"
+          className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100"
           onClick={handleNext}
-          style={{ fontSize: '0.9rem' }}
         >
           {isLast ? 'See how you did →' : 'Next →'}
         </button>

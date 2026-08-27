@@ -16,6 +16,8 @@ const HIDE_MARKETING_CHROME_PREFIXES = [
   '/certifications',
   '/profile',
   '/account',
+  // Kit / Astryx proofs must use the portal one-shell rule, not Sign In + Apply Now.
+  '/dev',
 ] as const;
 
 export function isMarketingChromeHidden(pathname: string | null | undefined): boolean {

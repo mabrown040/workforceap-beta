@@ -76,6 +76,9 @@ const TARGETS = [
   { name: 'member-program', path: '/dev/member/program' },
   { name: 'member-progress', path: '/dev/member/progress' },
   { name: 'member-toolkit', path: '/dev/member/toolkit' },
+  { name: 'member-assessment', path: '/dev/member/assessment' },
+  { name: 'member-assessment-form', path: '/dev/member/assessment?state=form' },
+  { name: 'member-missions', path: '/dev/member/missions' },
   // Portal Command Centers (app/dev/staff/*-command showcase routes, mock data)
   { name: 'admin-command', path: '/dev/staff/admin-command' },
   { name: 'counselor-command', path: '/dev/staff/counselor-command' },

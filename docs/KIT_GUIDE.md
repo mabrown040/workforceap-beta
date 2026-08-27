@@ -47,6 +47,10 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   `[data-surface]` inside `.workspace-shell-root`. Member navigation and
   `PageOpener` labels use sentence case; keep intentional names such as
   “AI Career Tools” intact.
+- **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
+  `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
+  `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
+  Do not set kit metadata below 13px.
 - **Shape / density / pop (flip per surface, §2):** `--wa-radius`, `--wa-radius-sm`, `--wa-pad`,
   `--wa-pad-sm`, `--wa-pop`, `--wa-shadow`, `--wa-shadow-lg`.
 - **Motion (§7):** `--wa-dur-fast` (120ms) / `--wa-dur-base` (200ms) / `--wa-dur-slow` (300ms) +

@@ -17,6 +17,9 @@ interface PageOpenerProps extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
  * Member page opener — kicker + h1 + lede. Matches the VoiceStudio / member
  * kit idiom so every member surface starts the same way. Use this instead of
  * `PageHeader` breadcrumbs on warm member routes.
+ *
+ * Type: kicker is metadata (`--wa-type-meta`, 13px floor); lede is body
+ * (`--wa-type-body`, 16px on warm).
  */
 export function PageOpener({
   kicker,
@@ -37,16 +40,7 @@ export function PageOpener({
       {...rest}
     >
       <div style={{ minWidth: 0 }}>
-        <div
-          className="wa-flex wa-items-center wa-gap-2"
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: 'var(--wa-accent)',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-          }}
-        >
+        <div className="wa-page-opener-kicker wa-flex wa-items-center wa-gap-2">
           {icon}
           <span>{kicker}</span>
         </div>
@@ -62,9 +56,7 @@ export function PageOpener({
         >
           {title}
         </h1>
-        {lede ? (
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>{lede}</p>
-        ) : null}
+        {lede ? <p className="wa-page-opener-lede">{lede}</p> : null}
       </div>
       {action}
     </div>

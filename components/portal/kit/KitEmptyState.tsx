@@ -6,7 +6,7 @@ export function KitEmptyState({ title, description }: { title: string; descripti
         {title}
       </h3>
       {description ? (
-        <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 6, lineHeight: 1.5 }}>
+        <p className="wa-kit-lede" style={{ marginTop: 6 }}>
           {description}
         </p>
       ) : null}

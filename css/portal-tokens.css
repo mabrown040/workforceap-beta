@@ -126,6 +126,11 @@
   --wa-dur-slow: 300ms; /* larger movements: drawers, surface morphs */
   --wa-ease: cubic-bezier(0.2, 0, 0, 1);
 
+  /* Type floors. Warm member UI: body ≥16px, metadata ≥13px. Dense may
+     compact body; metadata still does not go below 13px. */
+  --wa-type-body: 16px;
+  --wa-type-meta: 13px;
+
   /*
    * — z-index scale (Foundation) — ordered low → high. Fixed-position layers
    * (nav-drawer / modal / tour / toast) can legitimately appear above one
@@ -205,6 +210,8 @@ html.dark [data-surface],
   --wa-pad: 28px;
   --wa-pad-sm: 18px;
   --wa-pop: 1;
+  --wa-type-body: 16px;
+  --wa-type-meta: 13px;
 }
 
 /* DENSE — admin / data / charts / rosters / staff queues. Compact, sharp, pop off. */
@@ -214,6 +221,8 @@ html.dark [data-surface],
   --wa-pad: 16px;
   --wa-pad-sm: 12px;
   --wa-pop: 0;
+  --wa-type-body: 14px;
+  --wa-type-meta: 13px;
 }
 
 /*

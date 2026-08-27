@@ -49,7 +49,9 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }} role="log" aria-live="polite" aria-relevant="additions">
         {messages.length === 0 ? (
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>No messages yet — say hello.</p>
+          <p className="wa-kit-lede" style={{ margin: 0 }}>
+            {canSend ? 'No messages yet. Type below to start this thread.' : 'No messages in this thread yet.'}
+          </p>
         ) : (
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {messages.map((m) => {
@@ -76,7 +78,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
                       background: mine ? 'var(--wa-accent-soft)' : 'var(--wa-bg)',
                       border: mine ? 'none' : '1px solid var(--wa-border)',
                       color: 'var(--wa-text)',
-                      fontSize: 14,
+                      fontSize: 'var(--wa-type-body)',
                       lineHeight: 1.45,
                     }}
                   >
@@ -117,7 +119,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
             borderRadius: 999,
             background: 'var(--wa-bg)',
             color: 'var(--wa-text)',
-            fontSize: 14,
+            fontSize: 'var(--wa-type-body)',
           }}
         />
         <button

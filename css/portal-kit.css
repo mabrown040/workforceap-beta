@@ -30,6 +30,40 @@
 }
 
 /* Quiet PageOpener action — stays on the wash instead of becoming a header chip. */
+.wa-page-opener-kicker {
+  font-size: var(--wa-type-meta);
+  font-weight: 700;
+  color: var(--wa-accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.wa-page-opener-lede {
+  font-size: var(--wa-type-body);
+  color: var(--wa-muted);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.wa-kit-meta {
+  font-size: var(--wa-type-meta);
+  color: var(--wa-muted);
+}
+.wa-kit-lede {
+  font-size: var(--wa-type-body);
+  color: var(--wa-muted);
+  line-height: 1.5;
+}
+.wa-kit-control {
+  margin-top: 4px;
+  width: 100%;
+  min-height: 44px;
+  font-size: var(--wa-type-body);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 10px 12px;
+  outline: none;
+  background: var(--wa-surface);
+  color: var(--wa-text);
+}
 .wa-page-action {
   box-sizing: border-box;
   min-height: 44px;
@@ -42,7 +76,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--wa-type-body);
   font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
@@ -142,7 +176,7 @@ html.dark [data-surface] .wa-kit-card,
 }
 
 .wa-kit-stat-label {
-  font-size: 10px;
+  font-size: var(--wa-type-meta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -160,10 +194,10 @@ html.dark [data-surface] .wa-kit-card,
   align-items: center;
   gap: 5px;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: var(--wa-type-meta);
   font-weight: 700;
   text-transform: uppercase;
-  padding: 3px 10px;
+  padding: 5px 10px;
 }
 /* Tag text is small (9px) → foregrounds are WCAG-AA-tuned (4.5:1) per mode via
    light-dark(): darkened hues on the light pastel tints, lightened hues on the
@@ -234,7 +268,7 @@ html.dark [data-surface] .wa-kit-card,
   border-collapse: collapse;
 }
 .wa-kit-table th {
-  font-size: 10px;
+  font-size: var(--wa-type-meta);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--wa-muted);
@@ -245,7 +279,7 @@ html.dark [data-surface] .wa-kit-card,
 }
 .wa-kit-table td {
   padding: 10px 14px;
-  font-size: 12px;
+  font-size: var(--wa-type-body);
   border-bottom: 1px solid var(--wa-border);
 }
 .wa-kit-table tbody tr:last-child td {
@@ -282,7 +316,7 @@ html.dark [data-surface] .wa-kit-card,
 
 .wa-kit-field-label {
   display: block;
-  font-size: 0.8125rem;
+  font-size: var(--wa-type-meta);
   font-weight: 600;
   line-height: 1.35;
   color: var(--wa-text);
@@ -476,7 +510,7 @@ html.dark [data-surface] .wa-kit-card,
   background: transparent;
   color: var(--wa-text);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--wa-type-meta);
   font-weight: 600;
   line-height: 1;
   display: inline-flex;

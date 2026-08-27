@@ -13,7 +13,8 @@ interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 const CONTROL_STYLE = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  minHeight: 44,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -43,7 +44,7 @@ export function FormField({ label, full, children, id, ref, ...inputProps }: For
           {...inputProps}
           id={fieldId}
           ref={ref}
-          className="wa-kit-focus"
+          className="wa-kit-focus wa-kit-control"
           style={CONTROL_STYLE}
         />
       )}

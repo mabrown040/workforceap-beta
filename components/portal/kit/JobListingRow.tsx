@@ -76,16 +76,15 @@ export function JobListingRow({
           className="wa-job-listing-row__title"
           style={{
             fontWeight: 700,
-            fontSize: 15,
+            fontSize: 'var(--wa-type-body)',
             margin: 0,
           }}
         >
           {title}
         </h3>
         <p
+          className="wa-kit-meta"
           style={{
-            fontSize: 13,
-            color: 'var(--wa-muted)',
             margin: '4px 0 0',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -104,8 +103,8 @@ export function JobListingRow({
           ) : null}
           {match ? (
             <span
+              className="wa-kit-meta"
               style={{
-                fontSize: 13,
                 fontWeight: 700,
                 color: 'var(--wa-success)',
                 flexShrink: 0,

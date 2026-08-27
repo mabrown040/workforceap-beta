@@ -38,9 +38,9 @@ export function StatTile({
         </div>
         {delta ? (
           <div
+            className="wa-kit-meta"
             style={{
               color: colorVar(deltaColor ?? 'success'),
-              fontSize: 10,
               fontWeight: 700,
               marginTop: 4,
             }}

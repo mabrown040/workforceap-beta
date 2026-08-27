@@ -168,14 +168,7 @@ export default function WorkspaceShell({
   const isCollapsedDesktop = collapsed && wide;
   const isMobileDrawer = drawerOpen && !wide;
   const fetchedIsSuperAdmin = useIsSuperAdmin();
-  /**
-   * `||`, not `??`: the server prop is an explicit `false` whenever the
-   * profile-role lookup degraded (the dashboard layout catches DB errors and
-   * falls back to 'member'), and `??` would then pin the switcher hidden for
-   * the whole session. Promote off the client `/api/auth/me` fetch instead —
-   * this matches SuperAdminViewSwitcher's own `initialIsSuperAdmin || fetched`.
-   */
-  const isSuperAdmin = superAdmin || fetchedIsSuperAdmin;
+  const isSuperAdmin = Boolean(superAdmin) || fetchedIsSuperAdmin;
   const tNav = useTranslations('nav');
   const tWorkspace = useTranslations('workspace');
   const tGroup = useTranslations('group');
@@ -661,7 +654,7 @@ export default function WorkspaceShell({
                 >
                   {contextLabel}
                 </span>
-                {!wide ? <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} /> : null}
+                <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
               </div>
               {!wide ? (
                 <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>

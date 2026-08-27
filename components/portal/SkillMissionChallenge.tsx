@@ -814,9 +814,9 @@ function PhaseResult({
       <h2
         style={{
           margin: '0 0 0.75rem',
-          fontSize: '1.4rem',
+          fontSize: 'var(--wa-type-body)',
           fontWeight: 900,
-          color: passed ? 'var(--color-green)' : 'var(--color-amber)',
+          color: passed ? 'var(--wa-success)' : 'var(--wa-gold)',
           paddingRight: '1.5rem',
           display: 'flex',
           alignItems: 'center',
@@ -831,13 +831,15 @@ function PhaseResult({
       <div
         style={{
           padding: '1rem',
-          borderRadius: '0.7rem',
-          background: passed ? 'rgba(74,155,79,0.07)' : 'rgba(194,120,0,0.07)',
-          border: passed ? '1px solid rgba(74,155,79,0.2)' : '1px solid rgba(194,120,0,0.22)',
+          borderRadius: 'var(--wa-radius-sm)',
+          background: passed ? 'var(--wa-success-soft)' : 'var(--wa-gold-soft)',
+          border: passed
+            ? '1px solid color-mix(in srgb, var(--wa-success) 20%, transparent)'
+            : '1px solid color-mix(in srgb, var(--wa-gold) 22%, transparent)',
           marginBottom: '1.1rem',
         }}
       >
-        <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.65, color: 'var(--color-on-surface)' }}>
+        <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', lineHeight: 1.65, color: 'var(--wa-text)' }}>
           {result.coachingNote}
         </p>
       </div>
@@ -847,7 +849,7 @@ function PhaseResult({
           {/* Skills unlocked */}
           {result.skillsUnlocked.length > 0 && (
             <div style={{ marginBottom: '1.1rem' }}>
-              <p style={{ margin: '0 0 0.45rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              <p style={{ margin: '0 0 0.45rem', fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Skills you demonstrated:
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
@@ -860,18 +862,18 @@ function PhaseResult({
 
           {/* Resume bullet */}
           <div style={{ marginBottom: '1rem' }}>
-            <p style={{ margin: '0 0 0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Your Resume Bullet:
+            <p style={{ margin: '0 0 0.4rem', fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Your resume bullet:
             </p>
             <div
               style={{
                 padding: '0.85rem 1rem',
-                borderRadius: '0.65rem',
-                background: 'var(--surface-container, rgba(0,0,0,0.04))',
-                border: '1px solid var(--outline-variant)',
-                fontSize: '0.9rem',
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-surface-2)',
+                border: '1px solid var(--wa-border)',
+                fontSize: 'var(--wa-type-body)',
                 lineHeight: 1.6,
-                color: 'var(--color-on-surface)',
+                color: 'var(--wa-text)',
                 fontStyle: 'italic',
               }}
             >
@@ -882,18 +884,18 @@ function PhaseResult({
 
           {/* STAR story */}
           <div style={{ marginBottom: '1.25rem' }}>
-            <p style={{ margin: '0 0 0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Your STAR Story:
+            <p style={{ margin: '0 0 0.4rem', fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Your STAR story:
             </p>
             <div
               style={{
                 padding: '0.85rem 1rem',
-                borderRadius: '0.65rem',
-                background: 'var(--surface-container, rgba(0,0,0,0.04))',
-                border: '1px solid var(--outline-variant)',
-                fontSize: '0.88rem',
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-surface-2)',
+                border: '1px solid var(--wa-border)',
+                fontSize: 'var(--wa-type-body)',
                 lineHeight: 1.7,
-                color: 'var(--color-on-surface)',
+                color: 'var(--wa-text)',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -904,10 +906,9 @@ function PhaseResult({
 
           <button
             type="button"
-            className="btn btn-primary"
+            className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100"
             onClick={onContinue}
             aria-label="Continue"
-            style={{ fontSize: '0.92rem' }}
           >
             Continue →
           </button>
@@ -919,16 +920,16 @@ function PhaseResult({
           <div
             style={{
               padding: '0.85rem 1rem',
-              borderRadius: '0.65rem',
-              background: 'var(--surface-container, rgba(0,0,0,0.04))',
-              border: '1px solid var(--outline-variant)',
+              borderRadius: 'var(--wa-radius-sm)',
+              background: 'var(--wa-surface-2)',
+              border: '1px solid var(--wa-border)',
               marginBottom: '1.25rem',
             }}
           >
-            <p style={{ margin: '0 0 0.4rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+            <p style={{ margin: '0 0 0.4rem', fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-muted)' }}>
               What to review before retrying:
             </p>
-            <p style={{ margin: 0, fontSize: '0.87rem', lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
+            <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', lineHeight: 1.6, color: 'var(--wa-text)' }}>
               Re-read your course materials, focusing on the core concepts tested in the quiz.
               When you write your scenario response, use the STAR method: Situation, Task, Action, Result.
               Aim for 150+ words with specific, concrete details.
@@ -937,11 +938,11 @@ function PhaseResult({
 
           <button
             type="button"
-            className="btn btn-primary"
+            className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100"
             onClick={onClose}
-            style={{ fontSize: '0.9rem', background: 'var(--color-amber)', borderColor: 'var(--color-amber)' }}
+            style={{ background: 'var(--wa-gold)' }}
           >
-            Close &amp; Review
+            Close &amp; review
           </button>
         </>
       )}

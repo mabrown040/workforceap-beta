@@ -20,6 +20,18 @@ export default function DevMemberProfilePage() {
       email="mike.brown@email.com"
       location="Austin, TX"
       programInterest="Cloud & IT"
+      programOptions={['Cloud & IT', 'Data & AI', 'Healthcare', 'Skilled Trades']}
+      badges={[
+        { label: '2 certs', bg: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' },
+        { label: '84 readiness', bg: 'var(--wa-success-soft)', color: 'var(--wa-success)' },
+        { label: '12-day streak', bg: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' },
+      ]}
+      notifications={[
+        { key: 'jobs', label: 'Job matches', enabled: true },
+        { key: 'counselor', label: 'Counselor messages', enabled: true },
+        { key: 'reminders', label: 'Course reminders', enabled: false },
+        { key: 'recap', label: 'Weekly recap email', enabled: true },
+      ]}
     />
   );
 }

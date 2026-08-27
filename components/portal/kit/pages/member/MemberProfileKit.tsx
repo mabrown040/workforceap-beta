@@ -86,29 +86,20 @@ export interface MemberProfileKitProps {
   live?: boolean;
 }
 
-const DEFAULT_BADGES: ProfileBadge[] = [
-  { label: '2 certs', bg: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' },
-  { label: '84 readiness', bg: 'var(--wa-success-soft)', color: 'var(--wa-success)' },
-  { label: '12-day streak', bg: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' },
-];
+const DEFAULT_BADGES: ProfileBadge[] = [];
 
-const DEFAULT_PROGRAM_OPTIONS = ['Cloud & IT', 'Data & AI', 'Healthcare', 'Skilled Trades'];
+const DEFAULT_PROGRAM_OPTIONS: string[] = [];
 
-const DEFAULT_NOTIFICATIONS: NotificationPref[] = [
-  { key: 'jobs', label: 'Job matches', enabled: true },
-  { key: 'counselor', label: 'Counselor messages', enabled: true },
-  { key: 'reminders', label: 'Course reminders', enabled: false },
-  { key: 'recap', label: 'Weekly recap email', enabled: true },
-];
+const DEFAULT_NOTIFICATIONS: NotificationPref[] = [];
 
 export function MemberProfileKit({
-  name = 'Mike Brown',
-  initials = 'MB',
-  headline = 'AWS Cloud Practitioner candidate · Austin, TX',
+  name = '',
+  initials = '',
+  headline = '',
   badges = DEFAULT_BADGES,
-  email = 'mike.brown@email.com',
-  location = 'Austin, TX',
-  programInterest = 'Cloud & IT',
+  email = '',
+  location = '',
+  programInterest = '',
   programOptions = DEFAULT_PROGRAM_OPTIONS,
   notifications = DEFAULT_NOTIFICATIONS,
   accountPassthrough,
@@ -234,10 +225,14 @@ export function MemberProfileKit({
         />
         {/* Profile header */}
         <div className="wa-kit-card wa-flex wa-flex-col sm:wa-flex-row wa-items-center wa-gap-5">
-          <Avatar initials={initials} size={80} gradient />
+          <Avatar initials={initials || '?'} size={80} gradient />
           <div style={{ flex: 1, textAlign: 'center' }} className="sm:wa-text-left">
-            <h2 className="h-font" style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>{name}</h2>
-            <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>{headline}</p>
+            <h2 className="h-font" style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>
+              {name || 'Name not on file'}
+            </h2>
+            {headline ? (
+              <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>{headline}</p>
+            ) : null}
             <div className="wa-flex wa-flex-wrap wa-gap-2 wa-justify-center sm:wa-justify-start" style={{ marginTop: 12 }}>
               {badges.map((b) => (
                 <span
@@ -289,7 +284,9 @@ export function MemberProfileKit({
                     color: 'var(--wa-text)',
                   }}
                 >
-                  {[programInterest, ...programOptions.filter((o) => o !== programInterest)].map((opt) => (
+                  {[programInterest, ...programOptions.filter((o) => o !== programInterest)]
+                    .filter(Boolean)
+                    .map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>
@@ -353,6 +350,9 @@ export function MemberProfileKit({
                 {prefError}
               </p>
             ) : null}
+            {prefs.length === 0 ? (
+              <p className="wa-kit-lede" style={{ margin: 0 }}>Notification preferences appear here when your account is connected.</p>
+            ) : (
             <div className="wa-space-y-4">
               {prefs.map((p) => (
                 <Toggle
@@ -363,6 +363,7 @@ export function MemberProfileKit({
                 />
               ))}
             </div>
+            )}
             {live ? (
               <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--wa-border)' }}>
                 <PushNotificationsToggle />

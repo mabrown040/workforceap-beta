@@ -50,7 +50,8 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
 - **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
   `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
-  Do not set kit metadata below 13px.
+  Do not set kit metadata below 13px. Member pills use `.wa-kit-cta` /
+  `.wa-kit-cta--ghost` (44px, `--wa-type-body`) instead of a 13–14px inline size.
 - **Shape / density / pop (flip per surface, §2):** `--wa-radius`, `--wa-radius-sm`, `--wa-pad`,
   `--wa-pad-sm`, `--wa-pop`, `--wa-shadow`, `--wa-shadow-lg`.
 - **Motion (§7):** `--wa-dur-fast` (120ms) / `--wa-dur-base` (200ms) / `--wa-dur-slow` (300ms) +
@@ -177,7 +178,7 @@ Foundation: `DesignSurface` / `useSurface`, `colorVar` + `KitColor`/`KitTone` ty
 | `StatTile`, `KpiStrip` | single stat / row of stats (never hand-roll stat blocks) |
 | `StatusTag` | semantic status pill (every table status column, risk tiers) |
 | `JobListingRow` | member open-role listing row (live `/dashboard/jobs` + board proof — not `.job-card` mosaics) |
-| `KitEmptyState` | titled empty placeholder for listing and table shells |
+| `KitEmptyState` | titled empty placeholder for listing and table shells (optional `action` = real next step) |
 | `SectionHeader` | titled section starts |
 | `PageOpener` | member page start (kicker + h1 + lede, optional quiet `.wa-page-action`) — not `PageHeader` breadcrumbs or an outlined title-bar chip |
 | `ProgressRing`, `ProgressBar` | completion / capacity |

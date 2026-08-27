@@ -1,5 +1,16 @@
-/** Serializable empty placeholder for server-rendered DataTable shells. */
-export function KitEmptyState({ title, description }: { title: string; description?: string }) {
+import type { ReactNode } from 'react';
+
+/** Serializable empty placeholder for listing and table shells. */
+export function KitEmptyState({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  /** Real next step — a kit CTA, never pep-talk. */
+  action?: ReactNode;
+}) {
   return (
     <div style={{ textAlign: 'center', padding: '24px 16px' }}>
       <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0, color: 'var(--wa-text)' }}>
@@ -10,6 +21,7 @@ export function KitEmptyState({ title, description }: { title: string; descripti
           {description}
         </p>
       ) : null}
+      {action ? <div style={{ marginTop: 16 }}>{action}</div> : null}
     </div>
   );
 }

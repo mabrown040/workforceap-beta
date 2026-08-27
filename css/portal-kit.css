@@ -85,6 +85,34 @@
   background: color-mix(in srgb, var(--wa-accent) 8%, transparent);
 }
 
+/* Primary 44px pill. Ghost variant for secondary actions on the same row. */
+.wa-kit-cta {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: var(--wa-accent);
+  color: var(--wa-on-accent);
+  font-weight: 600;
+  font-size: var(--wa-type-body);
+  line-height: 1.2;
+  border-radius: 999px;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+.wa-kit-cta--ghost {
+  background: transparent;
+  color: var(--wa-accent);
+  border: 1px solid var(--wa-border);
+}
+.wa-kit-cta--block {
+  width: 100%;
+}
+
 /* Section tabs on member pages are states on the wash, not another title bar. */
 .wa-page-tabs .astryx-segmented-control {
   background: transparent;

@@ -7,6 +7,7 @@ import {
   getSkillMissionDefinition as getDefFromCatalog,
   type SkillMissionDefinition,
 } from '@/lib/content/skillMissionCatalog';
+import { isMissionCourseComplete, resolveMissionUnlockSlugs } from '@/lib/member/missionCourseUnlock';
 
 export { type SkillMissionDefinition };
 
@@ -130,11 +131,18 @@ export async function loadSkillMissionSummary(args: {
     };
   }
 
+  const programCourses = getProgramBySlug(args.programSlug)?.courses ?? [];
+
   const missions: SkillMissionSummaryItem[] = definitions.map((def) => {
     const latestEvent = latestEventMap.get(def.key) ?? null;
+    const unlockSlugs = resolveMissionUnlockSlugs({
+      missionCourseSlug: def.courseSlug,
+      missionCourseTitle: def.courseTitle,
+      programCourses,
+    });
 
     let status: MissionStatus;
-    if (!args.completedCourseSlugs.includes(def.courseSlug)) {
+    if (!isMissionCourseComplete(unlockSlugs, args.completedCourseSlugs)) {
       status = 'locked';
     } else if (latestEvent?.eventName === MISSION_EVENT_PASSED) {
       status = 'passed';

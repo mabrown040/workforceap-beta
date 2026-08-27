@@ -19,28 +19,30 @@ export type SkillMissionTeaserData = {
 
 export default function SkillMissionTeaserCard({
   data,
+  href = '/dashboard/missions',
 }: {
   data: SkillMissionTeaserData | null;
+  href?: string;
 }) {
   const hasProgress = !!data && data.passedCount > 0;
   const hasReady = !!data && data.readyCount > 0;
   const hasRetry = !!data && data.retryCount > 0;
 
-  let ctaLabel = 'Explore skill missions';
-  let statusLine = 'Turn every course you finish into resume-ready career proof.';
+  let ctaLabel = 'Open skill missions';
+  let statusLine = 'Pass a mission after each course for a resume bullet.';
   if (hasReady && data?.nextMissionName) {
     ctaLabel = 'Start challenge';
     statusLine = data.nextMissionCourse
-      ? `Mission unlocked for ${data.nextMissionCourse} — prove it and earn a resume bullet.`
-      : 'A new mission is unlocked and waiting for you.';
+      ? `Ready for ${data.nextMissionCourse}.`
+      : 'A mission is ready.';
   } else if (hasRetry) {
-    ctaLabel = 'Retry your mission';
-    statusLine = 'Your coach left feedback — take another shot at your mission.';
+    ctaLabel = 'Retry mission';
+    statusLine = 'Review the last attempt, then retry.';
   } else if (hasProgress) {
-    ctaLabel = 'View my career proof';
-    statusLine = 'Finish your next course to unlock another mission.';
+    ctaLabel = 'Open career proof';
+    statusLine = 'Finish the next course to unlock another mission.';
   } else if (data) {
-    statusLine = 'Complete your first course to unlock your first mission.';
+    statusLine = 'Finish a course to unlock the first mission.';
   }
 
   return (
@@ -137,24 +139,13 @@ export default function SkillMissionTeaserCard({
       )}
 
       <Link
-        href="/dashboard/missions"
-        className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
+        href={href}
+        className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
         style={{
-          minHeight: 44,
           maxWidth: '100%',
-          padding: '10px 16px',
-          borderRadius: 999,
-          background: 'var(--wa-accent)',
-          color: 'var(--wa-on-accent)',
-          fontSize: 'var(--wa-type-body)',
-          fontWeight: 700,
-          lineHeight: 1.2,
-          textDecoration: 'none',
-          boxSizing: 'border-box',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          gap: 6,
         }}
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{ctaLabel}</span>

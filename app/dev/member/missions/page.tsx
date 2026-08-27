@@ -156,6 +156,7 @@ export default async function DevMemberMissionsPage({
         />
         {view === 'teaser' ? (
           <SkillMissionTeaserCard
+            href="/dev/member/missions"
             data={{
               careerReadinessPct: 50,
               passedCount: 2,

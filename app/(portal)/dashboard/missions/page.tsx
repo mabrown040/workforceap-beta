@@ -7,8 +7,9 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
+import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
+import { skillMissionEmptyState } from '@/lib/member/skillMissionEmptyState';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
-import { getProgramBySlug } from '@/lib/content/programs';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -23,27 +24,29 @@ export default async function SkillMissionsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/missions');
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      enrolledProgram: true,
-      courseProgress: {
-        where: { status: 'COMPLETED' },
-        select: { programSlug: true, courseSlug: true },
+  const [activeProgram, dbUser] = await Promise.all([
+    getActiveProgramForDashboard({ userId: user.id }),
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        courseProgress: {
+          where: { status: 'COMPLETED' },
+          select: { programSlug: true, courseSlug: true },
+        },
       },
-    },
-  });
+    }),
+  ]);
 
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  const completedCourseSlugs = enrolledProgram
+  const programSlug = activeProgram.activeProgramSlug;
+  const completedCourseSlugs = programSlug
     ? dbUser?.courseProgress
-        .filter((row) => row.programSlug === enrolledProgram)
+        .filter((row) => row.programSlug === programSlug)
         .map((row) => row.courseSlug) ?? []
     : [];
 
   const summary = await loadSkillMissionSummary({
     userId: user.id,
-    programSlug: enrolledProgram,
+    programSlug,
     completedCourseSlugs,
   });
 
@@ -51,32 +54,36 @@ export default async function SkillMissionsPage() {
     <div className="portal-main-content">
       <PageHeader
         title="Skill Missions"
-        subtitle="Prove what you learned — every passed mission earns a resume bullet and an interview-ready STAR story."
+        subtitle="Pass a mission after each course for a resume bullet and a STAR story."
         breadcrumbs={[{ href: '/dashboard', label: 'Dashboard' }, { label: 'Skill Missions' }]}
       />
 
       {summary ? (
         <SkillMissionPanel summary={summary} />
-      ) : enrolledProgram ? (
-        /* Enrolled, but this program has no missions authored yet. Telling an
-           enrolled member to "Choose my program" reads as though their
-           enrollment was lost — say what's actually true instead. */
-        <PortalEmptyState
-          icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}
-          title="Missions are on the way for this program"
-          description={`We're still writing the skill missions for ${
-            getProgramBySlug(enrolledProgram)?.title ?? 'your program'
-          }. Keep working through your courses — your counselor will let you know as soon as missions open up, and your progress still counts toward your certificate.`}
-          primaryAction={{ href: '/dashboard/program', label: 'View my program' }}
-        />
       ) : (
-        <PortalEmptyState
-          icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}
-          title="Your missions unlock with a program"
-          description="Enroll in a training program and a skill mission unlocks after each course you complete. Pass a mission to earn a resume bullet and a STAR story you can use in interviews."
-          primaryAction={{ href: '/dashboard/program', label: 'Choose my program' }}
+        <MissionsEmptyState
+          programSlug={programSlug}
+          programTitle={activeProgram.programTitle}
         />
       )}
     </div>
+  );
+}
+
+function MissionsEmptyState({
+  programSlug,
+  programTitle,
+}: {
+  programSlug: string | null;
+  programTitle: string | null;
+}) {
+  const empty = skillMissionEmptyState({ programSlug, programTitle });
+  return (
+    <PortalEmptyState
+      icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}
+      title={empty.title}
+      description={empty.description}
+      primaryAction={empty.primaryAction}
+    />
   );
 }

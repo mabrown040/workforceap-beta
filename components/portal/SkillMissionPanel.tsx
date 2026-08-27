@@ -115,7 +115,7 @@ function LockedCard({ mission }: { mission: SkillMissionSummaryItem }) {
     <article className="wa-kit-card" style={{ display: 'flex', alignItems: 'flex-start', gap: 12, opacity: 0.72 }}>
       <Lock size={20} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-muted)', marginTop: 2 }} />
       <div>
-        <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
+        <h4 style={{ margin: '0 0 4px', fontSize: 'var(--wa-type-body)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
           {mission.missionName}
         </h4>
         <p style={{ margin: 0, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', lineHeight: 1.45 }}>
@@ -200,7 +200,7 @@ function PassedCard({
       <div className="wa-flex wa-items-start" style={{ gap: 10, marginBottom: 8 }}>
         <CheckCircle2 size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-success)', marginTop: 2 }} />
         <div>
-          <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
+          <h4 style={{ margin: 0, fontSize: 'var(--wa-type-body)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
           <p style={{ margin: '2px 0 0', fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-success)' }}>
@@ -272,7 +272,7 @@ function RetryCard({
           >
             Review needed
           </span>
-          <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
+          <h4 style={{ margin: 0, fontSize: 'var(--wa-type-body)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
         </div>

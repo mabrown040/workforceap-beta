@@ -1525,7 +1525,7 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
     >
       <div style={{ minWidth: 0, flex: 1 }}>
         <div className="wa-flex wa-items-center wa-gap-2">
-          <h4 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>{title}</h4>
+          <h4 style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', margin: 0 }}>{title}</h4>
           {tag === 'BETA' ? (
             <span style={{ padding: '2px 8px', fontSize: 'var(--wa-type-meta)', fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
           ) : tag === 'VOICE' ? (

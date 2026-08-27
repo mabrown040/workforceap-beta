@@ -218,7 +218,7 @@ export function MemberMessagesKit({
             style={{ borderRight: '1px solid var(--wa-border)' }}
           >
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
-              <h2 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Conversations</h2>
+              <h2 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>Conversations</h2>
             </div>
             <div>
               {conversations.length === 0 ? (

@@ -102,7 +102,7 @@ export function MemberJobDetail({
         />
 
         {salary ? (
-          <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>
+          <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>
             {salary}
           </p>
         ) : null}
@@ -160,7 +160,6 @@ export function MemberJobDetail({
             className="wa-kit-card"
             style={{
               background: 'var(--wa-accent-soft)',
-              borderLeft: '3px solid var(--wa-accent)',
             }}
           >
             <h2 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 6px' }}>

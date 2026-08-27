@@ -37,7 +37,7 @@ export default async function DevMemberAssessmentPage({
           lede={
             view === 'completed'
               ? 'On file for you and your counselor.'
-              : '35 questions. Then Coursera courses unlock.'
+              : 'Complete this check. Then Coursera courses unlock.'
           }
           icon={<ClipboardCheck size={13} aria-hidden="true" />}
         />

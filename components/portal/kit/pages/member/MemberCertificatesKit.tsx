@@ -121,7 +121,7 @@ export function MemberCertificatesKit({
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
-                        <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
+                        <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>{cert.title}</h3>
                         {cert.verified ? (
                           <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} />
                         ) : null}
@@ -156,7 +156,7 @@ export function MemberCertificatesKit({
                     style={{ padding: '16px 20px', borderTop: i === 0 ? 'none' : '1px solid var(--wa-border)' }}
                   >
                     <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
-                      <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
+                      <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>{cert.title}</h3>
                       <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
                         {pct}%
                       </span>

@@ -349,7 +349,7 @@ export default function AssessmentForm({
             <div className={styles.review}>
               <p className={styles.reviewTitle}>Review</p>
               <p className={styles.reviewBody}>
-                {firstName} {lastName} • {programInterest} • All 35 questions answered
+                {firstName} {lastName} • {programInterest} • All {ASSESSMENT_QUESTIONS.length} questions answered
               </p>
             </div>
           )}

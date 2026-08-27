@@ -801,10 +801,12 @@ export function MemberHomeKit({
                 <Medal size={24} />
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: 15 }}>{nextBadgeName ?? 'Next badge'}</div>
+                <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)' }}>{nextBadgeName ?? 'Next badge'}</div>
+                {nextBadgeRemaining ? (
                 <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-                  {nextBadgeRemaining ? `${nextBadgeRemaining} to go` : 'Not started'}
+                  {nextBadgeRemaining} to go
                 </div>
+                ) : null}
               </div>
             </div>
             <SegmentedProgress pct={nextBadgePercent} segments={7} color="var(--wa-gold)" label={`${nextBadgeName} badge progress`} />

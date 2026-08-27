@@ -353,7 +353,7 @@ const columns: TableColumn<DogRow>[] = [
     width: proportional(2),
     renderCell: (item: DogRow) => (
       <HStack gap={3} vAlign="center">
-        <Avatar name={item.name} size="small" />
+        <Avatar name={item.name} size="sm" />
         <VStack gap={0}>
           <Text type="body">{item.name}</Text>
           <Text type="supporting" color="secondary">

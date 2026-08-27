@@ -95,9 +95,9 @@ export default function AstryxComponentsSampler() {
         <HStack gap={4} align="center" wrap="wrap">
           <Pagination page={page} totalPages={12} onChange={setPage} label="Sampler pagination" size="sm" />
           <HStack gap={1} align="center">
-            <Avatar name="Jasmine Davis" size="small" />
-            <Avatar name="Mike Brown" size="small" />
-            <Avatar name="Carlos Torres" size="small" />
+            <Avatar name="Jasmine Davis" size="sm" />
+            <Avatar name="Mike Brown" size="sm" />
+            <Avatar name="Carlos Torres" size="sm" />
           </HStack>
         </HStack>
       </VStack>
@@ -127,7 +127,7 @@ export default function AstryxComponentsSampler() {
           <ChatMessage sender="user">
             <ChatMessageBubble>How do I get ready for my interview Friday?</ChatMessageBubble>
           </ChatMessage>
-          <ChatMessage sender="assistant" avatar={<Avatar name="Coach" size="small" />} name="Coach">
+          <ChatMessage sender="assistant" avatar={<Avatar name="Coach" size="sm" />} name="Coach">
             <Markdown density="compact" headingLevelStart={3}>{MD_SAMPLE}</Markdown>
           </ChatMessage>
         </ChatMessageList>

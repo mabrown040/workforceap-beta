@@ -27,7 +27,7 @@ export default async function DevMemberAssessmentPage({
           title="Training Preassessment"
           subtitle={
             view === 'completed'
-              ? 'Your snapshot is on file. Use it with your counselor and keep training.'
+              ? 'On file for you and your counselor.'
               : 'A short skills check before Coursera courses unlock.'
           }
           breadcrumbs={[
@@ -40,16 +40,30 @@ export default async function DevMemberAssessmentPage({
         <div className="container" style={{ maxWidth: '720px' }}>
           {view === 'completed' ? (
             <div className="portal-card portal-card--flat portal-card--padded">
-              <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem' }}>Preassessment complete</h2>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: '0 0 1rem' }}>
-                Score 82%. Finished Aug 12, 2026. Program of interest: CompTIA A+ Professional Certificate.
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 'clamp(2.75rem, 9vw, 3.75rem)',
+                  fontWeight: 800,
+                  letterSpacing: '-0.04em',
+                  lineHeight: 1,
+                  fontVariantNumeric: 'tabular-nums',
+                  color: 'var(--wa-text)',
+                }}
+              >
+                82
+                <span style={{ marginLeft: '0.12em', fontSize: '0.38em', fontWeight: 700, color: 'var(--wa-muted)' }}>%</span>
+              </p>
+              <h2 style={{ margin: '0.75rem 0 0.35rem', fontSize: '1.125rem' }}>Preassessment complete</h2>
+              <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem' }}>
+                Finished Aug 12, 2026 · CompTIA A+ Professional Certificate
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <Link href="/dashboard/training" className="btn btn-primary">
+                <Link href="/dashboard/training" className="btn btn-primary" style={{ minHeight: 44 }}>
                   Continue training
                 </Link>
-                <Link href="/dashboard" className="btn btn-outline">
-                  Back to dashboard
+                <Link href="/dashboard" className="btn btn-outline" style={{ minHeight: 44 }}>
+                  Dashboard
                 </Link>
               </div>
             </div>

@@ -54,7 +54,7 @@
 
 .progressLabel {
   margin: 0 0 0.5rem;
-  font-size: 0.8125rem;
+  font-size: var(--wa-type-meta);
   font-weight: 600;
   color: var(--wa-muted);
   font-variant-numeric: tabular-nums;
@@ -90,7 +90,7 @@
   border: 1px solid var(--wa-border);
   background: transparent;
   color: var(--wa-accent);
-  font-size: 14px;
+  font-size: var(--wa-type-body);
   font-weight: 600;
   font-family: inherit;
   text-decoration: none;
@@ -133,7 +133,7 @@
 
 .meta {
   margin: 0 0 1.5rem;
-  font-size: 0.875rem;
+  font-size: var(--wa-type-meta);
   color: var(--wa-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -150,7 +150,7 @@
 .wizard .field label {
   display: block;
   margin-bottom: 0.4rem;
-  font-size: 0.875rem;
+  font-size: var(--wa-type-meta);
   font-weight: 600;
   color: var(--wa-text);
   line-height: 1.35;
@@ -195,7 +195,7 @@
   padding: 0;
   margin: 0 0 0.6rem;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: var(--wa-type-body);
   color: var(--wa-text);
 }
 
@@ -261,7 +261,7 @@
   background: var(--wa-surface-2);
   border: 1px solid var(--wa-border);
   border-radius: var(--wa-radius-sm);
-  font-size: 0.875rem;
+  font-size: var(--wa-type-meta);
 }
 
 .reviewTitle {
@@ -279,7 +279,7 @@
   margin: 1rem 0 0;
   color: var(--wa-danger);
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--wa-type-meta);
 }
 
 .actions {
@@ -300,7 +300,7 @@
   background: var(--wa-accent);
   color: var(--wa-on-accent);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--wa-type-body);
   font-family: inherit;
   cursor: pointer;
 }
@@ -352,7 +352,7 @@
 
 .confirmCopy {
   margin: 0 0 1.25rem;
-  font-size: 14px;
+  font-size: var(--wa-type-body);
   color: var(--wa-muted);
   line-height: 1.5;
 }

@@ -12,7 +12,7 @@ export function KitEmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div style={{ textAlign: 'center', padding: '24px 16px' }}>
+    <div style={{ textAlign: 'left', padding: 0 }}>
       <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0, color: 'var(--wa-text)' }}>
         {title}
       </h3>

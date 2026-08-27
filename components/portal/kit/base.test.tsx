@@ -5,6 +5,8 @@ import { StatusTag } from './StatusTag';
 import { StatTile } from './StatTile';
 import { cx } from './base';
 
+import { JobListingRow } from './JobListingRow';
+
 describe('KitBaseProps contract', () => {
   it('cx joins truthy classes in order (consumer last)', () => {
     expect(cx('a', undefined, 'b', false, 'consumer')).toBe('a b consumer');
@@ -19,7 +21,9 @@ describe('KitBaseProps contract', () => {
     );
     const el = screen.getByTestId('tag');
     expect(ref.current).toBe(el);
-    expect(el.className).toBe('wa-ml-2');
+    expect(el.className).toContain('wa-kit-tag');
+    expect(el.className).toContain('wa-kit-tag--ok');
+    expect(el.className).toContain('wa-ml-2');
     expect(el.style.marginTop).toBe('4px');
     expect(screen.getByText('Active')).toBeTruthy();
   });
@@ -28,5 +32,31 @@ describe('KitBaseProps contract', () => {
     render(<StatTile label="Members" value={42} data-testid="tile" className="custom" />);
     const el = screen.getByTestId('tile');
     expect(el.className).toBe('custom');
+  });
+
+  it('JobListingRow passes through className, style, ref, and data-*', () => {
+    const ref = createRef<HTMLAnchorElement>();
+    render(
+      <JobListingRow
+        href="/dashboard/jobs/j1"
+        title="Cloud Support Engineer"
+        meta="Deloitte · Austin, TX"
+        match="92% match"
+        applied
+        first
+        className="wa-ml-2"
+        style={{ marginTop: 4 }}
+        ref={ref}
+        data-testid="job-row"
+      />,
+    );
+    const el = screen.getByTestId('job-row');
+    expect(ref.current).toBe(el);
+    expect(el.className).toContain('wa-kit-focus');
+    expect(el.className).toContain('wa-ml-2');
+    expect(el.style.marginTop).toBe('4px');
+    expect(screen.getByText('Cloud Support Engineer')).toBeTruthy();
+    expect(screen.getByText('92% match')).toBeTruthy();
+    expect(screen.getByText('Applied')).toBeTruthy();
   });
 });

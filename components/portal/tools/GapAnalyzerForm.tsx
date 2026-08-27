@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, type ChangeEvent, type CSSProperties, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Search, Copy, Check, UploadCloud } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
@@ -12,10 +12,10 @@ import { FormField } from '@/components/portal/kit';
 import ToolFollowThrough from './ToolFollowThrough';
 import AiToolError from './AiToolError';
 
-const textareaStyle: React.CSSProperties = {
+const textareaStyle: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -24,25 +24,40 @@ const textareaStyle: React.CSSProperties = {
   color: 'var(--wa-text)',
   fontFamily: 'inherit',
   resize: 'vertical',
-  minHeight: 220};
+  minHeight: 220,
+};
 
-export default function GapAnalyzerForm() {
-  const [resume, setResume] = useState('');
-  const [output, setOutput] = useState('');
+export default function GapAnalyzerForm({
+  preview = false,
+  initialResume = '',
+  previewOutput,
+}: {
+  preview?: boolean;
+  initialResume?: string;
+  previewOutput?: string;
+} = {}) {
+  const [resume, setResume] = useState(initialResume);
+  const [output, setOutput] = useState(previewOutput ?? '');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
 
-  useHydrateMemberResumePlainText(setResume);
+  useHydrateMemberResumePlainText(setResume, undefined, !preview);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setOutput('');
     setLoading(true);
     trackToolLaunch('gap-analyzer', 'Resume Gap Analyzer');
+
+    if (preview) {
+      if (previewOutput) setOutput(previewOutput);
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/ai/gap-analyzer', {
@@ -67,9 +82,13 @@ export default function GapAnalyzerForm() {
     if (output) void copy(output);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (preview) {
+      e.target.value = '';
+      return;
+    }
     setError('');
     setExtracting(true);
     try {
@@ -98,21 +117,11 @@ export default function GapAnalyzerForm() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
           <label
             htmlFor="resume-file-input"
-            className="wa-kit-focus"
+            className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              minHeight: 36,
-              padding: '6px 14px',
-              fontSize: 12.5,
-              fontWeight: 700,
-              borderRadius: 999,
-              border: '1px solid var(--wa-border)',
-              background: 'var(--wa-surface-2)',
-              color: 'var(--wa-text)',
               cursor: extracting || loading ? 'not-allowed' : 'pointer',
-              opacity: extracting || loading ? 0.6 : 1}}
+              opacity: extracting || loading ? 0.6 : 1,
+            }}
           >
             <UploadCloud size={14} aria-hidden />
             Upload resume file
@@ -127,7 +136,7 @@ export default function GapAnalyzerForm() {
             className="sr-only"
           />
           {extracting && (
-            <span style={{ fontSize: '0.8rem', color: 'var(--wa-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <PortalInlineSpinner size={13} />
               Extracting text…
             </span>
@@ -137,7 +146,7 @@ export default function GapAnalyzerForm() {
           id="resume"
           value={resume}
           onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume here..."
+          placeholder="Paste your resume"
           rows={12}
           required
           disabled={loading}
@@ -152,23 +161,12 @@ export default function GapAnalyzerForm() {
         type="submit"
         disabled={loading}
         aria-busy={loading}
-        className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+        className="wa-kit-cta wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
         style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          minHeight: 46,
-          padding: '10px 20px',
-          background: 'var(--wa-accent)',
-          color: 'var(--wa-on-accent)',
-          fontWeight: 700,
-          fontSize: 14,
-          borderRadius: 999,
-          border: 'none',
           cursor: loading ? 'not-allowed' : 'pointer',
           opacity: loading ? 0.75 : 1,
-          alignSelf: 'flex-start'}}
+          alignSelf: 'flex-start',
+        }}
       >
         {loading ? (
           <>
@@ -186,30 +184,17 @@ export default function GapAnalyzerForm() {
       {output && (
         <div className="wa-kit-card wa-kit-card--sm" style={{ marginTop: '0.25rem' }}>
           <div className="wa-flex wa-items-center wa-justify-between wa-gap-2" style={{ marginBottom: 10, flexWrap: 'wrap' }}>
-            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--wa-text)', letterSpacing: '-0.01em' }}>
+            <h3 style={{ margin: 0, fontSize: 'var(--wa-type-body)', fontWeight: 800, color: 'var(--wa-text)', letterSpacing: '-0.01em' }}>
               Gap analysis
             </h3>
             <button
               type="button"
               onClick={handleCopy}
-              className="wa-kit-focus"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                minHeight: 34,
-                padding: '6px 12px',
-                fontSize: 12.5,
-                fontWeight: 700,
-                borderRadius: 999,
-                border: '1px solid var(--wa-border)',
-                background: 'var(--wa-surface)',
-                color: 'var(--wa-text)',
-                cursor: 'pointer'}}
+              className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus"
             >
               <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
-                {copied ? 'Copied!' : 'Copy to clipboard'}
+                {copied ? 'Copied' : 'Copy'}
               </span>
             </button>
           </div>
@@ -222,20 +207,23 @@ export default function GapAnalyzerForm() {
               border: '1px solid var(--wa-border)',
               color: 'var(--wa-text)',
               fontFamily: 'inherit',
-              fontSize: '0.875rem',
+              fontSize: 'var(--wa-type-body)',
               lineHeight: 1.65,
               whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word'}}
+              wordBreak: 'break-word',
+            }}
           >
             {output}
           </pre>
-          <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: 'var(--wa-muted)' }}>
-            Saved to your history.{' '}
-            <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
-              View all results
-            </Link>
-          </p>
-          <ToolFollowThrough toolType="gap_analyzer" />
+          {!preview ? (
+            <p style={{ margin: '0.75rem 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
+              Saved to your history.{' '}
+              <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                View all results
+              </Link>
+            </p>
+          ) : null}
+          {!preview ? <ToolFollowThrough toolType="gap_analyzer" /> : null}
         </div>
       )}
     </form>

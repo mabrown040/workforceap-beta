@@ -14,6 +14,13 @@ describe('Career Studio consolidation', () => {
     expect(page).toContain(": 'coaches';");
   });
 
+  it('keeps the member toolkit proof on VoiceStudioKit, not MemberToolkitKit', () => {
+    const proof = source('app/dev/member/toolkit/page.tsx');
+
+    expect(proof).toContain('VoiceStudioKit');
+    expect(proof).not.toMatch(/from '@\/components\/portal\/kit\/pages\/member\/MemberToolkitKit'/);
+  });
+
   it('does not load resume data for the default Coaches tab', () => {
     const page = source('app/(portal)/dashboard/ai-tools/page.tsx');
     const studio = source('components/portal/kit/pages/VoiceStudioKit.tsx');
@@ -39,5 +46,15 @@ describe('Career Studio consolidation', () => {
     expect(nav).toContain("href: '/dashboard/ai-tools', label: 'AI Career Tools'");
     expect(nav).not.toContain("label: 'Voice + Career Studio'");
     expect(nav).not.toContain("href: '/dashboard/toolkit', label: 'Career Toolkit'");
+  });
+
+  it('sends the member home Career Studio link to the canonical hub', () => {
+    const home = source('components/portal/kit/pages/member/MemberHomeKit.tsx');
+    const loader = source('lib/member/loadMemberDashboardHome.ts');
+
+    expect(home).toContain("toolkitHref = '/dashboard/ai-tools'");
+    expect(loader).toContain("toolkitHref: '/dashboard/ai-tools'");
+    expect(home).not.toContain("toolkitHref = '/dashboard/toolkit'");
+    expect(loader).not.toContain("toolkitHref: '/dashboard/toolkit'");
   });
 });

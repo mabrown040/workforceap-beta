@@ -9,9 +9,9 @@ import { MEMBER_PORTAL_NAV_ITEMS_I18N } from './portalNav.i18n';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const source = (relativePath: string) => readFileSync(path.join(root, relativePath), 'utf8');
 
-test('Training Preassessment nav points at the assessment page, not AI tools', () => {
-  const item = MEMBER_PORTAL_NAV_ITEMS.find((entry) => entry.label === 'Training Preassessment');
-  assert.ok(item, 'expected a Training Preassessment nav item');
+test('Training preassessment nav points at the assessment page, not AI tools', () => {
+  const item = MEMBER_PORTAL_NAV_ITEMS.find((entry) => entry.label === 'Training preassessment');
+  assert.ok(item, 'expected a Training preassessment nav item');
   assert.equal(item.href, '/dashboard/assessment');
   assert.ok(item.aliases?.includes('/dashboard/skills-assessment'));
   assert.ok(item.aliases?.includes('/dashboard/assessments'));
@@ -51,9 +51,9 @@ test('labeled preassessment CTAs use the assessment page', () => {
   assert.doesNotMatch(learningHub, /href="\/dashboard\/skills-assessment"/);
 });
 
-test('completed Training Preassessment stays on the page instead of dumping home', () => {
+test('completed Skills check stays on the page instead of dumping home', () => {
   const page = source('app/(portal)/dashboard/assessment/page.tsx');
-  assert.match(page, /Training Preassessment/);
+  assert.match(page, /Skills check/);
   assert.match(page, /Preassessment complete/);
   assert.doesNotMatch(page, /if \(dbUser\.assessmentCompleted\) \{\s*redirect\('\/dashboard'\)/);
   assert.doesNotMatch(page, /Skills snapshot/);

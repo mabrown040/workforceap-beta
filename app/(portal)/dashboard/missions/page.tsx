@@ -4,12 +4,11 @@ import { Target } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import PageHeader from '@/components/portal/PageHeader';
-import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
-import { skillMissionEmptyState } from '@/lib/member/skillMissionEmptyState';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
+import { SkillMissionEmpty } from '@/components/portal/SkillMissionEmpty';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -51,39 +50,24 @@ export default async function SkillMissionsPage() {
   });
 
   return (
-    <div className="portal-main-content">
-      <PageHeader
-        title="Skill Missions"
-        subtitle="Pass a mission after each course for a resume bullet and a STAR story."
-        breadcrumbs={[{ href: '/dashboard', label: 'Dashboard' }, { label: 'Skill Missions' }]}
-      />
-
-      {summary ? (
-        <SkillMissionPanel summary={summary} />
-      ) : (
-        <MissionsEmptyState
-          programSlug={programSlug}
-          programTitle={activeProgram.programTitle}
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Missions"
+          title="Skill missions"
+          lede="One pass per course. Resume bullet and STAR story."
+          icon={<Target size={13} aria-hidden="true" />}
         />
-      )}
-    </div>
-  );
-}
 
-function MissionsEmptyState({
-  programSlug,
-  programTitle,
-}: {
-  programSlug: string | null;
-  programTitle: string | null;
-}) {
-  const empty = skillMissionEmptyState({ programSlug, programTitle });
-  return (
-    <PortalEmptyState
-      icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}
-      title={empty.title}
-      description={empty.description}
-      primaryAction={empty.primaryAction}
-    />
+        {summary ? (
+          <SkillMissionPanel summary={summary} hideTitle />
+        ) : (
+          <SkillMissionEmpty
+            programSlug={programSlug}
+            programTitle={activeProgram.programTitle}
+          />
+        )}
+      </div>
+    </DesignSurface>
   );
 }

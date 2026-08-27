@@ -9,8 +9,11 @@ import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
 export default function MemberPortalTopNav({
   badgeCounts,
+  hrefMap,
 }: {
   badgeCounts?: Partial<Record<NavBadgeKey, number>>;
+  /** Rewrite canonical /dashboard hrefs (used by /dev/member proofs). */
+  hrefMap?: Record<string, string>;
 }) {
   const pathname = usePathname() ?? '/dashboard';
   const t = useTranslations('nav');
@@ -31,26 +34,39 @@ export default function MemberPortalTopNav({
     };
   }, []);
 
+  const remap = (href: string) => hrefMap?.[href] ?? href;
+  const isActive = (canonical: string, href: string) => {
+    if (pathname === href || pathname === `${href}/`) return true;
+    if (canonical === '/dashboard') {
+      return pathname === '/dashboard' || pathname === '/dashboard/';
+    }
+    return pathname.startsWith(`${href}/`) || pathname.startsWith(`${canonical}/`) || pathname === canonical;
+  };
+
+  // Proofs pass hrefMap to stay on /dev/member. Omit tabs whose canonical
+  // isn't remapped so they don't drop members onto live /dashboard/* routes
+  // (AI Advisor → /dashboard/counselor would duplicate Career Tools anyway).
   const tabs = [
-    { href: '/dashboard', label: t('dashboard'), icon: 'home', matches: (p: string) => p === '/dashboard' || p === '/dashboard/' },
-    { href: '/dashboard/program', label: t('myProgram'), icon: 'school', matches: (p: string) => p.startsWith('/dashboard/program') },
-    { href: '/dashboard/ai-tools', label: t('careerToolkit'), icon: 'auto_awesome', matches: (p: string) => p.startsWith('/dashboard/ai-tools') },
-    { href: '/dashboard/messages', label: t('counselorChat'), icon: 'chat', matches: (p: string) => p.startsWith('/dashboard/messages'), badgeKey: 'counselor_messages_unread' as NavBadgeKey },
-    { href: '/dashboard/jobs', label: t('jobBoard'), icon: 'work', matches: (p: string) => p.startsWith('/dashboard/jobs') },
-    { href: '/dashboard/counselor', label: t('aiCounselor'), icon: 'support_agent', matches: (p: string) => p.startsWith('/dashboard/counselor') },
-  ];
+    { canonical: '/dashboard', label: t('dashboard'), icon: 'home' },
+    { canonical: '/dashboard/program', label: t('myProgram'), icon: 'school' },
+    { canonical: '/dashboard/ai-tools', label: t('careerToolkit'), icon: 'auto_awesome' },
+    { canonical: '/dashboard/messages', label: t('counselorChat'), icon: 'chat', badgeKey: 'counselor_messages_unread' as NavBadgeKey },
+    { canonical: '/dashboard/jobs', label: t('jobBoard'), icon: 'work' },
+    { canonical: '/dashboard/counselor', label: t('aiCounselor'), icon: 'support_agent' },
+  ].filter((tab) => !hrefMap || tab.canonical in hrefMap);
 
   return (
     <nav ref={navRef} className="member-portal-top-nav" aria-label={t('memberPortal')}>
       <ul className="member-portal-top-nav__list">
         {tabs.map((tab) => {
-          const active = tab.matches(pathname);
+          const href = remap(tab.canonical);
+          const active = isActive(tab.canonical, href);
           const badge = tab.badgeKey ? badgeCounts?.[tab.badgeKey] : undefined;
           return (
-            <li key={tab.href} className="member-portal-top-nav__item">
+            <li key={tab.canonical} className="member-portal-top-nav__item">
               <Link
-                href={tab.href}
-                prefetch={tab.href === '/dashboard'}
+                href={href}
+                prefetch={tab.canonical === '/dashboard'}
                 className={`member-portal-top-nav__link${active ? ' member-portal-top-nav__link--active' : ''}`}
                 aria-current={active ? 'page' : undefined}
               >

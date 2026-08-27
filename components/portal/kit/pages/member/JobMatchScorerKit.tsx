@@ -1,85 +1,128 @@
 import { FlaskConical, ShieldCheck, Info, GitCompareArrows as CompareIcon } from 'lucide-react';
-import { Card } from '@astryxdesign/core/Card';
-import { DesignSurface, SectionHeader, CardHead } from '@/components/portal/kit';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
+import { ToolkitToolChrome } from './ToolkitToolChrome';
 
 /**
- * Member Portal — JOB MATCH SCORER tool page.
- * Command Center reskin of the page chrome around the existing
- * `JobMatchScorerForm` client component (scoring / gap analysis logic
- * untouched).
+ * Member Portal — job match scorer tool page.
+ * PageOpener chrome around JobMatchScorerForm. History is omitted in preview.
  *
  * Target route: app/(portal)/dashboard/ai-tools/job-match-scorer
  * Surface: warm (member-facing).
  */
 
-const INFO_TILES = [
+const INFO_ROWS = [
   {
     icon: FlaskConical,
     title: 'Methodology',
-    body: 'Keyword overlap, semantic similarity, and role-relevant weighting produce an actionable compatibility score.',
+    body: 'Keyword overlap, semantic similarity, and role-relevant weighting produce a compatibility score.',
   },
   {
     icon: ShieldCheck,
     title: 'Privacy',
-    body: 'Job text and resume content are processed for this session. Copy or export results before you leave the page if you need to keep them.',
+    body: 'Job text and resume content are processed for this session. Copy or export results before you leave if you need to keep them.',
   },
   {
     icon: Info,
     title: 'Session',
-    body: "Results reflect this run's inputs. Re-run after you update your resume or try a different posting.",
+    body: 'Results reflect this run. Re-run after you update your resume or try a different posting.',
   },
 ];
 
-export function JobMatchScorerKit({ userId }: { userId: string }) {
+export function JobMatchScorerKit({
+  userId,
+  preview = false,
+  backHref,
+  initialResume,
+  initialJobDescription,
+  initialJobUrl,
+  previewOutput,
+  previewParsed,
+  previewError,
+}: {
+  userId?: string;
+  preview?: boolean;
+  backHref?: string;
+  initialResume?: string;
+  initialJobDescription?: string;
+  initialJobUrl?: string;
+  previewOutput?: string;
+  previewError?: string;
+  previewParsed?: {
+    matchScore: number;
+    strengths: string[];
+    gaps: string[];
+    quickWins: string[];
+    rawText: string;
+  } | null;
+}) {
   return (
-    <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <SectionHeader
-          kicker="Career Toolkit"
-          title="Job Match Scorer"
-          goal="Paste a job description and your resume. Get a match score and specific gaps to address."
+    <ToolkitToolChrome
+      title="Job match scorer"
+      lede="Paste a posting and your resume. Get a score and the gaps to close."
+      icon={<CompareIcon size={13} aria-hidden="true" />}
+      backHref={backHref}
+      maxWidth={1080}
+    >
+      <div className="wa-kit-card">
+        <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Analysis</h2>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 14px' }}>Resume vs. job description</p>
+        <JobMatchScorerForm
+          preview={preview}
+          initialResume={initialResume}
+          initialJobDescription={initialJobDescription}
+          initialJobUrl={initialJobUrl}
+          previewOutput={previewOutput}
+          previewParsed={previewParsed}
+          previewError={previewError}
         />
-
-        <Card>
-          <CardHead title="Analysis" />
-          <div className="wa-flex wa-items-center wa-gap-2" style={{ marginTop: -6, marginBottom: 14 }}>
-            <CompareIcon size={13} aria-hidden="true" style={{ color: 'var(--wa-muted)' }} />
-            <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>Resume vs. job description</span>
-          </div>
-          <JobMatchScorerForm />
-        </Card>
-
-        <ToolHistoryPanel userId={userId} toolType="job_match_scorer" />
-
-        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
-          {INFO_TILES.map(({ icon: Icon, title, body }) => (
-            <Card key={title}>
-              <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: 8 }}>
-                <div
-                  aria-hidden="true"
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 'var(--wa-radius-sm)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'var(--wa-accent-soft)',
-                    color: 'var(--wa-accent)',
-                    flexShrink: 0,
-                  }}
-                >
-                  <Icon size={14} aria-hidden="true" />
-                </div>
-                <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>{title}</h3>
-              </div>
-              <p style={{ fontSize: 12, lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>{body}</p>
-            </Card>
-          ))}
-        </div>
       </div>
-    </DesignSurface>
+
+      {userId && !preview ? <ToolHistoryPanel userId={userId} toolType="job_match_scorer" /> : null}
+
+      <div className="wa-kit-card">
+        <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>
+          How this works
+        </p>
+        <ul style={{ listStyle: 'none', margin: '12px 0 0', padding: 0 }}>
+          {INFO_ROWS.map(({ icon: Icon, title, body }, index) => (
+            <li
+              key={title}
+              className="wa-flex wa-gap-3"
+              style={{
+                padding: '12px 0',
+                borderTop: index === 0 ? '1px solid var(--wa-border)' : undefined,
+                borderBottom: '1px solid var(--wa-border)',
+              }}
+            >
+              <div
+                aria-hidden="true"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 'var(--wa-radius-sm)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'var(--wa-surface-2)',
+                  color: 'var(--wa-accent)',
+                  flexShrink: 0,
+                }}
+              >
+                <Icon size={14} aria-hidden="true" />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>
+                  {title}
+                </p>
+                <p className="wa-kit-lede" style={{ margin: '4px 0 0' }}>
+                  {body}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </ToolkitToolChrome>
   );
 }

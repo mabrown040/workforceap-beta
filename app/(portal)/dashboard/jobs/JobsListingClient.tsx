@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, type CSSProperties, type ReactNode } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Briefcase, MapPin, Clock, DollarSign, Search, SlidersHorizontal, X, Bookmark } from 'lucide-react';
+import { Briefcase, Search, SlidersHorizontal, X, Bookmark } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
+import { JobListingRow, JobListingRowSkeleton, KitEmptyState, FormField } from '@/components/portal/kit';
 
 const DEBOUNCE_MS = 400;
 
@@ -58,22 +59,63 @@ function formatSalary(min: number | null, max: number | null): string {
   return formatJobSalaryRange(min, max) ?? '';
 }
 
-function JobCardSkeleton() {
+function KitCta({
+  href,
+  onClick,
+  children,
+  variant = 'outline',
+}: {
+  href?: string;
+  onClick?: () => void;
+  children: ReactNode;
+  variant?: 'solid' | 'outline' | 'ghost';
+}) {
+  const className = [
+    'wa-kit-cta',
+    'wa-kit-focus',
+    'hover:wa-opacity-90',
+    'active:wa-scale-[0.98]',
+    'motion-reduce:active:wa-scale-100',
+    'wa-transition-[opacity,transform]',
+    'wa-duration-150',
+    'motion-reduce:wa-transition-none',
+    variant === 'solid' ? '' : 'wa-kit-cta--ghost',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const style: CSSProperties | undefined =
+    variant === 'ghost' ? { color: 'var(--wa-muted)', borderColor: 'transparent' } : undefined;
+  if (href) {
+    return (
+      <Link href={href} className={className} style={style}>
+        {children}
+      </Link>
+    );
+  }
   return (
-    <div className="job-card job-card--skeleton" aria-hidden>
-      <div className="job-card__logo job-card__logo--skeleton" />
-      <div className="job-card__body">
-        <div className="job-card__skeleton-line job-card__skeleton-line--title" />
-        <div className="job-card__skeleton-line job-card__skeleton-line--company" />
-        <div className="job-card__meta">
-          <div className="job-card__skeleton-line job-card__skeleton-line--meta" />
-          <div className="job-card__skeleton-line job-card__skeleton-line--meta" />
-        </div>
-        <div className="job-card__skeleton-line job-card__skeleton-line--salary" />
-      </div>
-    </div>
+    <button type="button" onClick={onClick} className={className} style={style}>
+      {children}
+    </button>
   );
 }
+
+const FILTER_CONTROL: CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  minHeight: 44,
+  fontSize: 'var(--wa-type-body)',
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+};
+
+const FILTER_FIELD_WRAP: CSSProperties = {
+  minWidth: 160,
+  flex: '1 1 160px',
+};
 
 function JobCard({
   job,
@@ -83,6 +125,7 @@ function JobCard({
   isSaved,
   onToggleSave,
   t,
+  first = false,
 }: {
   job: Job;
   isAuthenticated: boolean;
@@ -91,132 +134,84 @@ function JobCard({
   isSaved?: boolean;
   onToggleSave?: (jobId: string) => void;
   t: (k: string) => string;
+  first?: boolean;
 }) {
   const locationDisplay = job.location ?? getLocationLabels(t)[job.locationType] ?? job.locationType;
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
+  const jobTypeLabel = getJobTypeLabels(t)[job.jobType] ?? job.jobType;
+  const meta = [job.employer.companyName, locationDisplay, jobTypeLabel, salaryStr]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <Link
-      href={isAuthenticated ? `/dashboard/jobs/${job.id}` : `/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${job.id}`)}`}
-      className="job-card"
-      style={{ position: 'relative' }}
-    >
-      {isAuthenticated && onToggleSave && (
-        <button
-          type="button"
-          className="job-card__save-toggle wa-transition-[background-color,transform] wa-duration-150 hover:wa-bg-[var(--surface-container-high)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 motion-reduce:wa-transition-none focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[var(--color-accent)] focus-visible:wa-ring-offset-1"
-          aria-pressed={!!isSaved}
-          aria-label={isSaved ? 'Saved' : 'Save job'}
-          title={isSaved ? 'Saved' : 'Save job'}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onToggleSave(job.id);
-          }}
-          style={{
-            position: 'absolute',
-            top: '0.25rem',
-            right: '0.25rem',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '2.75rem',
-            height: '2.75rem',
-            borderRadius: '999px',
-            border: '1px solid color-mix(in srgb, var(--outline-variant) 60%, transparent)',
-            background: 'var(--surface-container)',
-            color: isSaved ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-            cursor: 'pointer',
-            zIndex: 1,
-          }}
-        >
-          <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} aria-hidden />
-        </button>
-      )}
-      <div className="job-card__logo">
-        {job.employer.logoUrl ? (
+    <JobListingRow
+      href={
+        isAuthenticated
+          ? `/dashboard/jobs/${job.id}`
+          : `/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${job.id}`)}`
+      }
+      title={job.title}
+      meta={meta}
+      match={matchPct !== undefined && matchPct > 0 ? `${matchPct}% ${t('match')}` : undefined}
+      applied={isApplied}
+      first={first}
+      icon={
+        job.employer.logoUrl ? (
           <Image
             src={job.employer.logoUrl}
             alt=""
-            width={56}
-            height={56}
+            width={40}
+            height={40}
             unoptimized
-            className="job-card__logo-img"
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           />
-        ) : (
-          <div className="job-card__logo-placeholder" aria-hidden>
-            <Briefcase size={24} />
-          </div>
-        )}
-      </div>
-      <div className="job-card__body">
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', justifyContent: 'space-between' }}>
-          <h3 className="job-card__title" style={{ margin: 0, flex: 1, paddingRight: onToggleSave ? '2.5rem' : 0 }}>{job.title}</h3>
-          <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {isApplied && (
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)', border: '1px solid color-mix(in srgb, var(--color-green) 30%, transparent)', borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
-                Applied
-              </span>
-            )}
-            {matchPct !== undefined && matchPct > 0 && (() => {
-              const matchColor =
-                matchPct >= 70
-                  ? 'var(--color-teal, #0d9488)'
-                  : matchPct >= 40
-                    ? 'var(--color-amber)'
-                    : 'var(--color-on-surface-variant)';
-              return (
-                <span style={{
-                  fontSize: '0.7rem', fontWeight: 700,
-                  background: `color-mix(in srgb, ${matchColor} 12%, transparent)`,
-                  color: matchColor,
-                  border: `1px solid color-mix(in srgb, ${matchColor} 30%, transparent)`,
-                  borderRadius: '999px', padding: '0.15rem 0.5rem',
-                }}>
-                  {matchPct}% {t('match')}
-                </span>
-              );
-            })()}
-          </div>
-        </div>
-        <p className="job-card__company">{job.employer.companyName}</p>
-        <div className="job-card__meta">
-          <span className="job-card__meta-item">
-            <MapPin size={14} aria-hidden />
-            {locationDisplay}
-          </span>
-          <span className="job-card__meta-item">
-            <Clock size={14} aria-hidden />
-            {getJobTypeLabels(t)[job.jobType] ?? job.jobType}
-          </span>
-        </div>
-        {salaryStr && (
-          <p className="job-card__salary">
-            <DollarSign size={14} aria-hidden />
-            {salaryStr}
-          </p>
-        )}
-      </div>
-      <span className="job-card__arrow" aria-hidden>
-        →
-      </span>
-    </Link>
+        ) : undefined
+      }
+      trailing={
+        isAuthenticated && onToggleSave ? (
+          <button
+            type="button"
+            className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+            aria-pressed={!!isSaved}
+            aria-label={isSaved ? 'Saved' : 'Save job'}
+            title={isSaved ? 'Saved' : 'Save job'}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleSave(job.id);
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 44,
+              height: 44,
+              borderRadius: 999,
+              border: '1px solid var(--wa-border)',
+              background: 'var(--wa-surface-2)',
+              color: isSaved ? 'var(--wa-accent)' : 'var(--wa-muted)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} aria-hidden />
+          </button>
+        ) : undefined
+      }
+    />
   );
 }
 
 function JobsEmptyState({ onClearFilters, t }: { onClearFilters: () => void; t: (k: string) => string }) {
   return (
-    <div className="jobs-empty-state">
-      <div className="jobs-empty-state__icon" aria-hidden>
-        <Briefcase size={48} strokeWidth={1.5} />
+    <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+      <div style={{ color: 'var(--wa-muted)', marginBottom: 4 }} aria-hidden>
+        <Briefcase size={32} strokeWidth={1.5} />
       </div>
-      <h3 className="jobs-empty-state__title">{t('noJobsMatchFilters')}</h3>
-      <p className="jobs-empty-state__text">
-        {t('tryAdjustingFilters')}
-      </p>
-      <button type="button" className="btn btn-outline" onClick={onClearFilters}>
-        {t('clearFilters')}
-      </button>
+      <KitEmptyState title={t('noJobsMatchFilters')} description={t('tryAdjustingFilters')} />
+      <div style={{ marginTop: 16 }}>
+        <KitCta onClick={onClearFilters}>{t('clearFilters')}</KitCta>
+      </div>
     </div>
   );
 }
@@ -224,44 +219,40 @@ function JobsEmptyState({ onClearFilters, t }: { onClearFilters: () => void; t: 
 function JobsNoResultsState({ isAuthenticated, t }: { isAuthenticated: boolean; t: (k: string) => string }) {
   if (isAuthenticated) {
     return (
-      <div className="jobs-empty-state">
-        <div className="jobs-empty-state__icon" aria-hidden>
-          <Briefcase size={48} strokeWidth={1.5} />
+      <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+        <div style={{ color: 'var(--wa-muted)', marginBottom: 4 }} aria-hidden>
+          <Briefcase size={32} strokeWidth={1.5} />
         </div>
-        <h3 className="jobs-empty-state__title">{t('noOpeningsListed')}</h3>
-        <p className="jobs-empty-state__text">
-          {t('newRolesAppear')}
-        </p>
-        <div className="jobs-empty-state__actions">
-          <Link href="/dashboard/messages" className="btn btn-primary">
+        <KitEmptyState title={t('noOpeningsListed')} description={t('newRolesAppear')} />
+        <div
+          className="wa-flex wa-flex-wrap wa-items-center"
+          style={{ gap: 8, justifyContent: 'center', marginTop: 16 }}
+        >
+          <KitCta href="/dashboard/messages" variant="solid">
             {t('messageCounselor')}
-          </Link>
-          <Link href="/dashboard/ai-tools/job-match-scorer" className="btn btn-outline">
-            {t('improveJobMatches')}
-          </Link>
+          </KitCta>
+          <KitCta href="/dashboard/ai-tools/job-match-scorer">{t('improveJobMatches')}</KitCta>
         </div>
       </div>
     );
   }
   return (
-    <div className="jobs-empty-state">
-      <div className="jobs-empty-state__icon" aria-hidden>
-        <Briefcase size={48} strokeWidth={1.5} />
+    <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+      <div style={{ color: 'var(--wa-muted)', marginBottom: 4 }} aria-hidden>
+        <Briefcase size={32} strokeWidth={1.5} />
       </div>
-      <h3 className="jobs-empty-state__title">{t('noJobsAvailable')}</h3>
-      <p className="jobs-empty-state__text">
-        {t('newJobsAddedRegularly')}
-      </p>
-      <div className="jobs-empty-state__actions">
-        <Link href="/programs" className="btn btn-primary">
+      <KitEmptyState title={t('noJobsAvailable')} description={t('newJobsAddedRegularly')} />
+      <div
+        className="wa-flex wa-flex-wrap wa-items-center"
+        style={{ gap: 8, justifyContent: 'center', marginTop: 16 }}
+      >
+        <KitCta href="/programs" variant="solid">
           {t('browsePrograms')}
-        </Link>
-        <Link href="/apply" className="btn btn-outline">
-          {t('applyForTraining')}
-        </Link>
-        <Link href="/employers" className="btn btn-ghost">
+        </KitCta>
+        <KitCta href="/apply">{t('applyForTraining')}</KitCta>
+        <KitCta href="/employers" variant="ghost">
           {t('forEmployers')}
-        </Link>
+        </KitCta>
       </div>
     </div>
   );
@@ -273,12 +264,19 @@ export default function JobsListingClient({
   initialJobs = [] as Job[],
   initialTotal = 0,
   appliedJobIds = [] as string[],
+  initialMatchedJobs = [] as MatchedJob[],
+  initialSavedJobIds = [] as string[],
+  preview = false,
 }: {
   isAuthenticated?: boolean;
   ageGroup?: 'under14' | 'youth14to17' | 'adult18plus';
   initialJobs?: Job[];
   initialTotal?: number;
   appliedJobIds?: string[];
+  initialMatchedJobs?: MatchedJob[];
+  initialSavedJobIds?: string[];
+  /** Skip network fetches — /dev/member proofs and Storybook-lite. */
+  preview?: boolean;
 }) {
   const t = useTranslations('jobs');
   const router = useRouter();
@@ -288,8 +286,8 @@ export default function JobsListingClient({
   // Use SSR data as initial state; skip loading state if we have initial data
   const hasInitialData = initialJobs.length > 0;
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
-  const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
-  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>(initialMatchedJobs);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set(initialSavedJobIds));
   const appliedSet = new Set(appliedJobIds);
   const [loading, setLoading] = useState(!hasInitialData);
   const [loadingMatches, setLoadingMatches] = useState(false);
@@ -359,6 +357,8 @@ export default function JobsListingClient({
     if (sort && sort !== 'newest') params.set('sort', sort);
 
     if (ageGroup) params.set('ageGroup', ageGroup);
+
+    if (preview) return;
     
     // Skip the first fetch if we have SSR data and no filters are active
     if (initialJobs.length > 0 && !hasActiveFilters) {
@@ -370,25 +370,25 @@ export default function JobsListingClient({
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setJobs(data); })
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasActiveFilters]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasActiveFilters, preview]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (preview || !isAuthenticated) return;
     setLoadingMatches(true);
     fetch('/api/member/matched-jobs')
       .then((r) => (r.ok ? r.json() : { jobs: [] }))
       .then((d) => setMatchedJobs(d.jobs ?? []))
       .catch(() => setMatchedJobs([]))
       .finally(() => setLoadingMatches(false));
-  }, [isAuthenticated]);
+  }, [isAuthenticated, preview]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (preview || !isAuthenticated) return;
     fetch('/api/member/saved-jobs')
       .then((r) => (r.ok ? r.json() : { jobIds: [] }))
       .then((d) => setSavedJobIds(new Set(Array.isArray(d.jobIds) ? d.jobIds : [])))
       .catch(() => setSavedJobIds(new Set()));
-  }, [isAuthenticated]);
+  }, [isAuthenticated, preview]);
 
   const handleToggleSave = useCallback((jobId: string) => {
     setSavedJobIds((prev) => {
@@ -399,6 +399,7 @@ export default function JobsListingClient({
       } else {
         next.add(jobId);
       }
+      if (preview) return next;
       // Optimistic — revert on failure below.
       const request = wasSaved
         ? fetch(`/api/member/saved-jobs?jobId=${encodeURIComponent(jobId)}`, { method: 'DELETE' })
@@ -424,141 +425,138 @@ export default function JobsListingClient({
       });
       return next;
     });
-  }, []);
+  }, [preview]);
 
   const filterPanel = (
-    <div className="job-filters-panel">
-      <div className="job-filter-group">
-        <label htmlFor="job-search-q" className="job-filter-label">
+    <div className="job-filters-panel wa-kit-card">
+      <div style={{ ...FILTER_FIELD_WRAP, minWidth: 200, flex: '2 1 220px' }}>
+        <label htmlFor="job-search-q" className="wa-kit-field-label">
           {t('searchJobs')}
         </label>
-        <div className="job-search-input-wrap">
-          <Search size={18} className="job-search-icon" aria-hidden />
+        <div style={{ position: 'relative' }}>
+          <Search
+            size={16}
+            aria-hidden
+            style={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--wa-muted)',
+              pointerEvents: 'none',
+            }}
+          />
           <input
             id="job-search-q"
             type="search"
             placeholder="Titles, companies, keywords…"
             value={qLocal}
             onChange={(e) => handleKeywordChange(e.target.value)}
-            className="job-search-input"
+            className="wa-kit-focus"
             autoComplete="off"
+            style={{ ...FILTER_CONTROL, paddingLeft: 36 }}
           />
         </div>
       </div>
 
-      <div className="job-filter-group">
-        <label htmlFor="job-filter-program" className="job-filter-label">
-          Program
-        </label>
-        <select
-          id="job-filter-program"
-          value={program}
-          onChange={(e) => updateUrl({ program: e.target.value || undefined })}
-          className="job-filter-select"
-        >
-          <option value="">All programs</option>
-          {PROGRAMS.map((p) => (
-            <option key={p.slug} value={p.slug}>
-              {p.title}
-            </option>
-          ))}
-        </select>
+      <div style={FILTER_FIELD_WRAP}>
+        <FormField label="Program" id="job-filter-program">
+          <select
+            value={program}
+            onChange={(e) => updateUrl({ program: e.target.value || undefined })}
+            style={FILTER_CONTROL}
+          >
+            <option value="">All programs</option>
+            {PROGRAMS.map((p) => (
+              <option key={p.slug} value={p.slug}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+        </FormField>
       </div>
 
-      <div className="job-filter-group">
-        <label htmlFor="job-filter-location" className="job-filter-label">
-          Location type
-        </label>
-        <select
-          id="job-filter-location"
-          value={locationType}
-          onChange={(e) => updateUrl({ locationType: e.target.value || undefined })}
-          className="job-filter-select"
-          aria-label="Filter by location type"
-        >
-          <option value="">All locations</option>
-          <option value="remote">Remote</option>
-          <option value="hybrid">Hybrid</option>
-          <option value="onsite">On-site</option>
-        </select>
+      <div style={FILTER_FIELD_WRAP}>
+        <FormField label="Location type" id="job-filter-location">
+          <select
+            value={locationType}
+            onChange={(e) => updateUrl({ locationType: e.target.value || undefined })}
+            aria-label="Filter by location type"
+            style={FILTER_CONTROL}
+          >
+            <option value="">All locations</option>
+            <option value="remote">Remote</option>
+            <option value="hybrid">Hybrid</option>
+            <option value="onsite">On-site</option>
+          </select>
+        </FormField>
       </div>
 
-      <div className="job-filter-group">
-        <label htmlFor="job-filter-type" className="job-filter-label">
-          Job type
-        </label>
-        <select
-          id="job-filter-type"
-          value={jobType}
-          onChange={(e) => updateUrl({ jobType: e.target.value || undefined })}
-          className="job-filter-select"
-          aria-label="Filter by job type"
-        >
-          <option value="">All types</option>
-          <option value="fulltime">Full-time</option>
-          <option value="parttime">Part-time</option>
-          <option value="contract">Contract</option>
-        </select>
+      <div style={FILTER_FIELD_WRAP}>
+        <FormField label="Job type" id="job-filter-type">
+          <select
+            value={jobType}
+            onChange={(e) => updateUrl({ jobType: e.target.value || undefined })}
+            aria-label="Filter by job type"
+            style={FILTER_CONTROL}
+          >
+            <option value="">All types</option>
+            <option value="fulltime">Full-time</option>
+            <option value="parttime">Part-time</option>
+            <option value="contract">Contract</option>
+          </select>
+        </FormField>
       </div>
 
-      <div className="job-filter-group job-filter-group--sort">
-        <label htmlFor="job-filter-sort" className="job-filter-label">
-          Sort by
-        </label>
-        <select
-          id="job-filter-sort"
-          value={sort}
-          onChange={(e) => updateUrl({ sort: e.target.value })}
-          className="job-filter-select"
-        >
-          {getSortOptions(t).map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+      <div style={FILTER_FIELD_WRAP}>
+        <FormField label="Sort by" id="job-filter-sort">
+          <select
+            value={sort}
+            onChange={(e) => updateUrl({ sort: e.target.value })}
+            style={FILTER_CONTROL}
+          >
+            {getSortOptions(t).map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </FormField>
       </div>
 
-      <div className="job-filter-row">
-        <div className="job-filter-group">
-          <label htmlFor="job-filter-salary-min" className="job-filter-label">
-            Min salary ($/yr)
-          </label>
-          <input
-            id="job-filter-salary-min"
-            type="number"
-            min={0}
-            step={5000}
-            placeholder="e.g. 50000 (annual USD)"
-            title="Annual salary in USD, no commas"
-            value={salaryMin}
-            onChange={(e) => updateUrl({ salaryMin: e.target.value || undefined })}
-            className="job-filter-input"
-          />
+      <div className="job-filter-row" style={{ flex: '1 1 100%', gap: 12 }}>
+        <div style={FILTER_FIELD_WRAP}>
+          <FormField label="Min salary ($/yr)" id="job-filter-salary-min">
+            <input
+              type="number"
+              min={0}
+              step={5000}
+              placeholder="e.g. 50000 (annual USD)"
+              title="Annual salary in USD, no commas"
+              value={salaryMin}
+              onChange={(e) => updateUrl({ salaryMin: e.target.value || undefined })}
+              style={FILTER_CONTROL}
+            />
+          </FormField>
         </div>
-        <div className="job-filter-group">
-          <label htmlFor="job-filter-salary-max" className="job-filter-label">
-            Max salary ($/yr)
-          </label>
-          <input
-            id="job-filter-salary-max"
-            type="number"
-            min={0}
-            step={5000}
-            placeholder="Optional max (annual USD)"
-            title="Leave blank for no upper limit"
-            value={salaryMax}
-            onChange={(e) => updateUrl({ salaryMax: e.target.value || undefined })}
-            className="job-filter-input"
-          />
+        <div style={FILTER_FIELD_WRAP}>
+          <FormField label="Max salary ($/yr)" id="job-filter-salary-max">
+            <input
+              type="number"
+              min={0}
+              step={5000}
+              placeholder="Optional max (annual USD)"
+              title="Leave blank for no upper limit"
+              value={salaryMax}
+              onChange={(e) => updateUrl({ salaryMax: e.target.value || undefined })}
+              style={FILTER_CONTROL}
+            />
+          </FormField>
         </div>
       </div>
 
       {hasActiveFilters && (
-        <button type="button" onClick={clearFilters} className="job-filter-clear">
-          <X size={14} />
-          {t('clearAllFilters')}
-        </button>
+        <KitCta onClick={clearFilters}>{t('clearAllFilters')}</KitCta>
       )}
     </div>
   );
@@ -566,70 +564,39 @@ export default function JobsListingClient({
   return (
     <div className="job-board jobs-listing">
       {isAuthenticated && (loadingMatches || matchedJobs.length > 0) && (
-        <section
-          style={{
-            marginBottom: '1.5rem',
-            padding: '1rem',
-            background: 'var(--surface-container-low)',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: 'var(--radius-lg)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+        <section className="wa-kit-card" style={{ padding: 0, overflow: 'hidden', marginBottom: 16 }}>
+          <div
+            className="wa-flex wa-flex-wrap wa-items-center"
+            style={{
+              gap: 12,
+              justifyContent: 'space-between',
+              padding: '16px 18px 12px',
+            }}
+          >
             <div>
-              <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Best matches for you</h2>
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: 'var(--wa-text)' }}>
+                Best matches for you
+              </h2>
+              <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--wa-muted)' }}>
                 Ranked from your program, readiness, certifications, and activity.
               </p>
             </div>
-            <a href="/dashboard/readiness" className="btn btn-outline" style={{ whiteSpace: 'nowrap' }}>
-              Improve readiness
-            </a>
+            <KitCta href="/dashboard/readiness">Improve readiness</KitCta>
           </div>
-
           {loadingMatches ? (
-            <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>Loading matches…</p>
+            <p style={{ margin: 0, padding: '8px 18px 16px', fontSize: 13, color: 'var(--wa-muted)' }}>
+              Loading matches…
+            </p>
           ) : (
-            <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {matchedJobs.slice(0, 3).map((job) => (
-                <Link
-                  key={job.id}
-                  href={`/dashboard/jobs/${job.id}`}
-                  className="wa-transition-colors wa-duration-150 hover:wa-bg-[var(--surface-container-high)]"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '1rem',
-                    padding: '0.875rem 1rem',
-                    background: 'var(--surface-container)',
-                    borderRadius: 'var(--radius-md)',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700 }}>{job.title}</div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-                      {job.company} · {job.location}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      flexShrink: 0,
-                      background: 'color-mix(in srgb, var(--color-teal, #0d9488) 12%, transparent)',
-                      color: 'var(--color-teal, #0d9488)',
-                      borderRadius: '999px',
-                      padding: '0.35rem 0.65rem',
-                      fontWeight: 700,
-                      fontSize: '0.85rem',
-                    }}
-                  >
-                    {job.matchPct}% match
-                  </div>
-                </Link>
-              ))}
-            </div>
+            matchedJobs.slice(0, 3).map((job) => (
+              <JobListingRow
+                key={job.id}
+                href={`/dashboard/jobs/${job.id}`}
+                title={job.title}
+                meta={`${job.company} · ${job.location}`}
+                match={`${job.matchPct}% match`}
+              />
+            ))
           )}
         </section>
       )}
@@ -637,11 +604,24 @@ export default function JobsListingClient({
         <button
           type="button"
           onClick={() => setFiltersOpen((o) => !o)}
-          className="job-filters-toggle"
+          className="job-filters-toggle wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
           aria-expanded={filtersOpen}
           aria-controls="job-filters-drawer"
+          style={{
+            alignItems: 'center',
+            gap: 8,
+            minHeight: 44,
+            padding: '10px 16px',
+            background: 'var(--wa-surface)',
+            border: '1px solid var(--wa-border)',
+            color: 'var(--wa-text)',
+            borderRadius: 999,
+            fontWeight: 600,
+            fontSize: 'var(--wa-type-body)',
+            cursor: 'pointer',
+          }}
         >
-          <SlidersHorizontal size={18} />
+          <SlidersHorizontal size={16} aria-hidden />
           Filters{hasActiveFilters ? ` (${[q && 'search', locationType && 'location', jobType && 'type', program && 'program', (salaryMin || salaryMax) && 'salary', sort !== 'newest' && 'sort'].filter(Boolean).length})` : ''}
         </button>
       </div>
@@ -654,17 +634,32 @@ export default function JobsListingClient({
       <aside
         id="job-filters-drawer"
         className={`job-filters-drawer ${filtersOpen ? 'is-open' : ''}`}
+        data-kit-filters="true"
       >
         <div className="job-filters-drawer-inner">
           <div className="job-filters-drawer-header">
-            <h3>Filters</h3>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em' }}>
+              Filters
+            </h3>
             <button
               type="button"
               onClick={() => setFiltersOpen(false)}
-              className="job-filters-drawer-close"
+              className="job-filters-drawer-close wa-kit-focus"
               aria-label="Close filters"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 44,
+                height: 44,
+                borderRadius: 999,
+                border: '1px solid var(--wa-border)',
+                background: 'var(--wa-surface-2)',
+                color: 'var(--wa-muted)',
+                cursor: 'pointer',
+              }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
           {filterPanel}
@@ -678,9 +673,9 @@ export default function JobsListingClient({
       </aside>
 
       {loading ? (
-        <div className="jobs-grid" aria-busy="true" aria-live="polite">
+        <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }} aria-busy="true" aria-live="polite">
           {Array.from({ length: 6 }).map((_, i) => (
-            <JobCardSkeleton key={i} />
+            <JobListingRowSkeleton key={i} first={i === 0} />
           ))}
         </div>
       ) : jobs.length === 0 ? (
@@ -691,11 +686,11 @@ export default function JobsListingClient({
         )
       ) : (
         <>
-          <p className="job-count">
+          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 8px' }}>
             {jobs.length} {jobs.length === 1 ? 'job' : 'jobs'} found
           </p>
-          <div className="jobs-grid">
-            {jobs.map((j) => {
+          <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {jobs.map((j, i) => {
               const matched = matchedJobs.find((m) => m.id === j.id);
               return (
                 <JobCard
@@ -707,6 +702,7 @@ export default function JobsListingClient({
                   isSaved={savedJobIds.has(j.id)}
                   onToggleSave={isAuthenticated ? handleToggleSave : undefined}
                   t={t}
+                  first={i === 0}
                 />
               );
             })}

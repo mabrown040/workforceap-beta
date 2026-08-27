@@ -1,36 +1,17 @@
-import { Briefcase, Compass, Sparkles } from 'lucide-react';
+import { Compass } from 'lucide-react';
 import NextLink from 'next/link';
-import { Card } from '@astryxdesign/core/Card';
-import { Button } from '@astryxdesign/core/Button';
-import { Token, type TokenColor } from '@astryxdesign/core/Token';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
-import { Link as AstryxLink } from '@astryxdesign/core/Link';
-import { DesignSurface, KpiStrip, DataTable, type Column, type KitTone } from '@/components/portal/kit';
+import type { ReactNode } from 'react';
+import { DesignSurface, KpiStrip, DataTable, StatusTag, PageOpener, JobListingRow, KitEmptyState, type Column, type KitTone } from '@/components/portal/kit';
 import { JOBS_EMPTY_RECOMMENDATIONS } from '@/lib/member/jobPipelineDisplay';
-
-/** Maps the kit's semantic tone (StatusTag's palette) to the closest Token color. */
-function tokenColorForTone(tone: KitTone): TokenColor {
-  switch (tone) {
-    case 'ok':
-      return 'green';
-    case 'warn':
-      return 'yellow';
-    case 'alert':
-      return 'pink';
-    case 'danger':
-      return 'red';
-    case 'info':
-      return 'blue';
-    case 'muted':
-    default:
-      return 'gray';
-  }
-}
 
 /**
  * Member Portal — JOB PIPELINE view.
  * Faithful port of `data-view-panel="jobs"` in
  * docs/mockups/workforceap-member-suite.html.
+ * Recommended matches use JobListingRow so pipeline, board, and listing share one row.
+ *
+ * Defaults are empty. Proofs and the live route pass real rows — never invent
+ * a Deloitte/Accenture pipeline when the caller omits data.
  *
  * Target route: app/(portal)/dashboard/jobs
  * Surface: warm (member-facing).
@@ -62,82 +43,75 @@ export interface MemberJobsKitProps {
   syncedLabel?: string;
   browseHref?: string;
   profileHref?: string;
+  /** Match-row destination. Proofs pass a hash so they stay on /dev/member. */
+  jobHref?: (jobId: string) => string;
   applications?: ApplicationRow[];
   recommended?: RecommendedJob[];
 }
 
-const DEFAULT_APPLICATIONS: ApplicationRow[] = [
-  { id: 'a1', role: 'Salesforce Administrator', company: 'Deloitte', location: 'Austin, TX', applied: 'Jun 12', stage: 'Interviewing', tone: 'warn' },
-  { id: 'a2', role: 'Agentforce Solutions Engineer', company: 'Accenture', location: 'Remote', applied: 'Jun 14', stage: 'Applied', tone: 'muted' },
-  { id: 'a3', role: 'Cloud Support Associate', company: 'Indeed', location: 'Austin, TX', applied: 'Jun 16', stage: 'Screening', tone: 'info' },
-  { id: 'a4', role: 'Junior Cloud Engineer', company: 'Oracle', location: 'Austin, TX', applied: 'Jun 18', stage: 'Applied', tone: 'muted' },
-];
+function JobsCta({
+  href,
+  children,
+  variant = 'primary',
+}: {
+  href: string;
+  children: ReactNode;
+  variant?: 'primary' | 'secondary';
+}) {
+  const ghost = variant === 'secondary';
+  return (
+    <NextLink
+      href={href}
+      className={`wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none${ghost ? ' wa-kit-cta--ghost' : ''}`}
+    >
+      {children}
+    </NextLink>
+  );
+}
 
 export function MemberJobsKit({
-  saved = 9,
-  applied = 4,
-  interviewing = 1,
+  saved = 0,
+  applied = 0,
+  interviewing = 0,
   offers = 0,
-  syncedLabel = 'Synced 3m ago',
+  syncedLabel,
   browseHref = '#',
   profileHref = '/dashboard/profile',
-  applications = DEFAULT_APPLICATIONS,
+  jobHref = (id: string) => `/dashboard/jobs/${id}`,
+  applications = [],
   recommended = [],
 }: MemberJobsKitProps) {
   const columns: Column<ApplicationRow>[] = [
     { key: 'role', header: 'Role', render: (r) => <span style={{ fontWeight: 700 }}>{r.role}</span> },
-    { key: 'company', header: 'Company', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.company}</span> },
-    { key: 'location', header: 'Location', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.location}</span> },
-    { key: 'applied', header: 'Applied', render: (r) => <span style={{ color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{r.applied}</span> },
-    { key: 'stage', header: 'Stage', align: 'right', render: (r) => <Token label={r.stage} size="sm" color={tokenColorForTone(r.tone)} /> },
+    { key: 'company', header: 'Company', render: (r) => <span className="wa-kit-meta">{r.company}</span> },
+    { key: 'location', header: 'Location', render: (r) => <span className="wa-kit-meta">{r.location}</span> },
+    { key: 'applied', header: 'Applied', render: (r) => <span className="wa-kit-meta" style={{ fontVariantNumeric: 'tabular-nums' }}>{r.applied}</span> },
+    { key: 'stage', header: 'Stage', align: 'right', render: (r) => <StatusTag tone={r.tone}>{r.stage}</StatusTag> },
   ];
   const applicationCard = (row: ApplicationRow) => (
-    <Card>
+    <div className="wa-kit-card wa-kit-card--sm">
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-3">
         <div>
-          <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
-          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.company}</div>
-          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>
+          <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{row.role}</div>
+          <div className="wa-kit-meta" style={{ marginTop: 2 }}>{row.company}</div>
+          <div className="wa-kit-meta" style={{ marginTop: 2 }}>
             {row.location} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.applied}</span>
           </div>
         </div>
-        <Token label={row.stage} size="sm" color={tokenColorForTone(row.tone)} />
+        <StatusTag tone={row.tone}>{row.stage}</StatusTag>
       </div>
-    </Card>
+    </div>
   );
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
-        {/* Page opener — eyebrow + title so the tab reads as an intentional
-            page rather than a floating widget (matches VoiceStudioKit idiom). */}
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              color: 'var(--wa-accent)',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
-            <Compass size={13} aria-hidden="true" />
-            <span>Job search</span>
-          </div>
-          <h1
-            className="h-font"
-            style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}
-          >
-            Job Pipeline
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Track applications, discover new roles, and keep momentum toward an offer.
-          </p>
-        </div>
-        {/* KPI strip */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Job search"
+          title="Pipeline"
+          lede="Applications, matches, next interviews."
+          icon={<Compass size={13} aria-hidden="true" />}
+        />
         <KpiStrip
           items={[
             { label: 'Saved', value: saved, color: 'text' },
@@ -147,27 +121,19 @@ export function MemberJobsKit({
           ]}
         />
 
-        {/* Application pipeline */}
-        <Card>
+        <div className="wa-kit-card">
           <div className="wa-flex wa-flex-col md:wa-flex-row md:wa-items-center wa-justify-between wa-gap-3" style={{ marginBottom: 16 }}>
             <div>
-              <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Application Pipeline</h2>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{syncedLabel}</p>
+              <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Applications</h2>
+              {syncedLabel ? <p className="wa-kit-meta">{syncedLabel}</p> : null}
             </div>
-            <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
-              <Button label="Browse Job Board" variant="primary" size="sm" />
-            </AstryxLink>
+            {applications.length > 0 ? <JobsCta href={browseHref}>Open board</JobsCta> : null}
           </div>
           {applications.length === 0 ? (
-            <EmptyState
-              icon={<Briefcase size={28} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />}
+            <KitEmptyState
               title="No applications yet"
-              description="Track jobs you apply to and they'll show up here."
-              actions={
-                <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
-                  <Button label="Browse Job Board" variant="primary" size="sm" />
-                </AstryxLink>
-              }
+              description="Track jobs you apply to. They appear here."
+              action={<JobsCta href={browseHref}>Open board</JobsCta>}
             />
           ) : (
             <DataTable<ApplicationRow>
@@ -178,63 +144,48 @@ export function MemberJobsKit({
               cardRender={applicationCard}
               minWidth={560}
               emptyTitle="No applications yet"
-              emptyDescription="Track jobs you apply to and they'll show up here."
+              emptyDescription="Track jobs you apply to. They appear here."
             />
           )}
-        </Card>
+        </div>
 
-        {/* Recommended for you */}
         <div>
-          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Recommended for you</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Recommended</h2>
           {recommended.length === 0 ? (
-            <EmptyState
-              icon={<Sparkles size={28} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />}
-              title={JOBS_EMPTY_RECOMMENDATIONS.title}
-              description={JOBS_EMPTY_RECOMMENDATIONS.description}
-              actions={
-                <>
-                  <AstryxLink href={profileHref} as={NextLink as never} isStandalone>
-                    <Button label={JOBS_EMPTY_RECOMMENDATIONS.primaryCta} variant="primary" size="sm" />
-                  </AstryxLink>
-                  <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
-                    <Button label={JOBS_EMPTY_RECOMMENDATIONS.secondaryCta} variant="secondary" size="sm" />
-                  </AstryxLink>
-                </>
-              }
-            />
-          ) : (
-          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
-            {recommended.map((job) => (
-              <Card key={job.id}>
-                <div className="wa-flex wa-items-start wa-justify-between">
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 'var(--wa-radius-sm)',
-                      background: 'var(--wa-accent-soft)',
-                      color: 'var(--wa-accent)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: 13,
-                    }}
-                  >
-                    {job.logo}
+            <div className="wa-kit-card">
+              <KitEmptyState
+                title={JOBS_EMPTY_RECOMMENDATIONS.title}
+                description={JOBS_EMPTY_RECOMMENDATIONS.description}
+                action={
+                  <div className="wa-flex wa-flex-wrap wa-gap-2">
+                    <JobsCta href={profileHref}>{JOBS_EMPTY_RECOMMENDATIONS.primaryCta}</JobsCta>
+                    {applications.length === 0 ? (
+                      <JobsCta href={browseHref} variant="secondary">
+                        {JOBS_EMPTY_RECOMMENDATIONS.secondaryCta}
+                      </JobsCta>
+                    ) : null}
                   </div>
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-success)' }}>{job.match}</span>
-                </div>
-                <h3 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{job.title}</h3>
-                <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{job.meta}</p>
-                <div style={{ marginTop: 12 }}>
-                  <AstryxLink href={`/dashboard/jobs/${job.id}`} as={NextLink as never} isStandalone>
-                    <Button label="Quick Apply" variant="secondary" size="sm" style={{ width: '100%' }} />
-                  </AstryxLink>
-                </div>
-              </Card>
-            ))}
-          </div>
+                }
+              />
+            </div>
+          ) : (
+            <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
+              {recommended.map((job, i) => (
+                <JobListingRow
+                  key={job.id}
+                  href={jobHref(job.id)}
+                  title={job.title}
+                  meta={job.meta}
+                  match={job.match}
+                  first={i === 0}
+                  icon={
+                    job.logo ? (
+                      <span className="wa-kit-meta" style={{ fontWeight: 800, letterSpacing: '0.04em', color: 'var(--wa-text)' }}>{job.logo}</span>
+                    ) : undefined
+                  }
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>

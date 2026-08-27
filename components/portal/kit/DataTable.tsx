@@ -30,8 +30,9 @@ interface DataTableProps<T> extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
 }
 
 /**
- * Dense roster table — Astryx `Table` chrome via `KitTableShell` (pre-rendered
- * cells keep server `render` columns RSC-safe). Mobile: scroll or stacked cards.
+ * Dense roster table — native `.wa-kit-table` chrome via `KitTableShell`
+ * (pre-rendered cells keep server `render` columns RSC-safe). Mobile: scroll
+ * or stacked cards. Row density is surface-driven (see KitTableShell).
  */
 export function DataTable<T>({
   columns,

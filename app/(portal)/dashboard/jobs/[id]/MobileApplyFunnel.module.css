@@ -1,8 +1,9 @@
 .mobile-funnel-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
-  background: var(--surface-container-lowest);
+  z-index: var(--z-modal);
+  background: var(--wa-surface);
+  color: var(--wa-text);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -10,233 +11,195 @@
 
 .mobile-funnel-header {
   flex-shrink: 0;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--outline-variant, #e5e5e5);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--wa-border);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: var(--surface-container-lowest);
+  gap: 12px;
+  background: var(--wa-surface);
 }
 
 .mobile-funnel-back-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--outline-variant, #e5e5e5);
-  background: transparent;
-  color: var(--color-on-surface, #1a1a1a);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--wa-border);
+  background: var(--wa-surface-2);
+  color: var(--wa-text);
   cursor: pointer;
   flex-shrink: 0;
   font-size: 1.1rem;
   padding: 0;
-  transition: background 0.15s ease;
+  transition: opacity var(--wa-dur-fast) var(--wa-ease);
 }
 
 .mobile-funnel-back-btn:hover {
-  background: var(--surface-container, #f5f5f5);
-}
-
-html.dark .mobile-funnel-back-btn:hover {
-  background: var(--surface-container, #2a2a2a);
+  opacity: 0.9;
 }
 
 .mobile-funnel-title {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
   flex: 1;
   line-height: 1.3;
+  color: var(--wa-text);
 }
 
 .mobile-funnel-progress {
   font-size: 0.8rem;
-  color: var(--color-on-surface-variant, #666);
-  font-weight: 500;
+  color: var(--wa-muted);
+  font-weight: 600;
   flex-shrink: 0;
 }
 
 .mobile-funnel-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.25rem;
+  padding: 20px;
   -webkit-overflow-scrolling: touch;
   scroll-padding-bottom: 120px;
 }
 
 .mobile-funnel-footer {
   flex-shrink: 0;
-  padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--outline-variant, #e5e5e5);
-  background: var(--surface-container-lowest);
+  padding: 16px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--wa-border);
+  background: var(--wa-surface);
   position: relative;
 }
 
-/* Progress bar */
 .mobile-funnel-progress-bar {
   display: flex;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .mobile-funnel-progress-segment {
   flex: 1;
   height: 4px;
-  border-radius: 2px;
-  background: var(--outline-variant, #e5e5e5);
-  transition: background 0.3s ease;
+  border-radius: 999px;
+  background: var(--wa-track);
+  transition: background var(--wa-dur-base) var(--wa-ease);
 }
 
 .mobile-funnel-progress-segment.active {
-  background: var(--color-accent, #ad2c4d);
+  background: var(--wa-accent);
 }
 
-/* Step 1: Overview */
-.overview-card {
-  background: var(--surface-container-low, #f9f9f9);
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid var(--outline-variant, #e5e5e5);
-  margin-bottom: 1.25rem;
-}
-
-html.dark .overview-card {
-  background: var(--surface-container-low, #222);
-  border-color: var(--outline-variant, #333);
+.overview-card,
+.consent-card,
+.tracked-card {
+  background: var(--wa-surface);
+  border-radius: var(--wa-radius-sm);
+  padding: 20px;
+  border: 1px solid var(--wa-border);
+  margin-bottom: 16px;
 }
 
 .overview-title {
   font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0 0 0.35rem;
+  font-weight: 800;
+  margin: 0 0 6px;
   line-height: 1.3;
+  color: var(--wa-text);
 }
 
 .overview-meta {
   font-size: 0.9rem;
-  color: var(--color-on-surface-variant, #666);
-  margin-bottom: 0.75rem;
+  color: var(--wa-muted);
+  margin-bottom: 12px;
 }
 
 .overview-salary {
   font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-accent, #ad2c4d);
-  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--wa-text);
+  margin-bottom: 16px;
 }
 
 .overview-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* Step 2: Apply */
-.consent-card {
-  background: var(--surface-container-lowest, #fff);
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid var(--outline-variant, #e5e5e5);
-  margin-bottom: 1rem;
-}
-
-html.dark .consent-card {
-  background: var(--surface-container-lowest, #1a1a1a);
-  border-color: var(--outline-variant, #333);
+  gap: 12px;
 }
 
 .consent-label {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
+  gap: 10px;
   cursor: pointer;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
   font-size: 0.95rem;
   line-height: 1.5;
+  color: var(--wa-text);
 }
 
 .consent-checkbox {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  margin-top: 0.1rem;
-  accent-color: var(--color-accent, #ad2c4d);
+  margin-top: 2px;
+  accent-color: var(--wa-accent);
 }
 
 .consent-error {
-  color: var(--color-error, #c62828);
+  color: var(--wa-danger);
   font-size: 0.85rem;
-  margin-top: -0.5rem;
-  margin-bottom: 0.75rem;
-  padding-left: 1.6rem;
+  margin-top: -8px;
+  margin-bottom: 12px;
+  padding-left: 26px;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 6px;
 }
 
 .consent-hint {
   font-size: 0.8rem;
-  color: var(--color-on-surface-variant, #666);
-  margin-top: 0.75rem;
+  color: var(--wa-muted);
+  margin-top: 12px;
   line-height: 1.4;
 }
 
-/* Step 3: Success */
 .success-card {
-  background: color-mix(in srgb, var(--color-green, #4a9b4f) 8%, transparent);
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid color-mix(in srgb, var(--color-green, #4a9b4f) 25%, transparent);
+  background: var(--wa-success-soft);
+  border-radius: var(--wa-radius-sm);
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--wa-success) 28%, transparent);
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .success-title {
-  font-weight: 700;
-  /* Was `--color-accent` with a green fallback that never triggers (accent
-     is always defined) — rendered the success title in brand magenta, at
-     odds with the green success-card tint above. */
-  color: var(--color-green, #4a9b4f);
-  margin: 0 0 0.5rem;
+  font-weight: 800;
+  color: var(--wa-success);
+  margin: 0 0 8px;
   font-size: 1.1rem;
 }
 
 .success-body {
-  margin: 0 0 0.75rem;
-  color: var(--color-on-surface-variant, #666);
+  margin: 0 0 12px;
+  color: var(--wa-muted);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.tracked-card {
-  background: var(--surface-container, #f5f5f5);
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid var(--outline-variant, #e5e5e5);
-  margin-bottom: 1rem;
-}
-
-html.dark .tracked-card {
-  background: var(--surface-container, #2a2a2a);
-  border-color: var(--outline-variant, #333);
-}
-
-/* Buttons */
 .mobile-funnel-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 52px;
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 10px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 999px;
   border: none;
   cursor: pointer;
-  transition: transform 0.1s ease, opacity 0.15s ease;
+  transition: opacity var(--wa-dur-fast) var(--wa-ease), transform var(--wa-dur-fast) var(--wa-ease);
   text-decoration: none;
   line-height: 1.2;
 }
@@ -251,23 +214,23 @@ html.dark .tracked-card {
 }
 
 .mobile-funnel-btn-primary {
-  background: var(--color-accent, #ad2c4d);
-  color: #ffffff;
+  background: var(--wa-accent);
+  color: var(--wa-on-accent);
 }
 
 .mobile-funnel-btn-primary:hover {
-  background: var(--color-accent-dark, #8c0f37);
+  opacity: 0.9;
 }
 
 .mobile-funnel-btn-secondary {
   background: transparent;
-  color: var(--color-accent, #ad2c4d);
-  border: 1.5px solid var(--color-accent, #ad2c4d);
+  color: var(--wa-accent);
+  border: 1px solid var(--wa-border);
 }
 
 .mobile-funnel-btn-ghost {
   background: transparent;
-  color: var(--color-on-surface-variant, #666);
+  color: var(--wa-muted);
   border: none;
   font-weight: 600;
   text-decoration: underline;
@@ -275,7 +238,6 @@ html.dark .tracked-card {
   min-height: 44px;
 }
 
-/* Desktop fallback */
 .desktop-apply-container {
   display: block;
 }
@@ -286,46 +248,42 @@ html.dark .tracked-card {
   }
 }
 
-/* Mobile sticky CTA bar */
 .mobile-sticky-cta {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 50;
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-  background: var(--surface-container-lowest);
-  border-top: 1px solid var(--outline-variant, #e5e5e5);
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  z-index: var(--z-nav-drawer);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--wa-surface);
+  border-top: 1px solid var(--wa-border);
+  box-shadow: var(--wa-shadow-lg);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-html.dark .mobile-sticky-cta {
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+  gap: 8px;
 }
 
 .mobile-sticky-cta-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .mobile-sticky-cta-title {
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  color: var(--wa-text);
 }
 
 .mobile-sticky-cta-meta {
   font-size: 0.75rem;
-  color: var(--color-on-surface-variant, #666);
+  color: var(--wa-muted);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -335,16 +293,16 @@ html.dark .mobile-sticky-cta {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 52px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 10px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 999px;
   border: none;
   cursor: pointer;
-  background: var(--color-accent, #ad2c4d);
-  color: #ffffff;
-  transition: transform 0.1s ease, opacity 0.15s ease;
+  background: var(--wa-accent);
+  color: var(--wa-on-accent);
+  transition: opacity var(--wa-dur-fast) var(--wa-ease), transform var(--wa-dur-fast) var(--wa-ease);
 }
 
 .mobile-sticky-cta-btn:active {
@@ -361,7 +319,6 @@ html.dark .mobile-sticky-cta {
   flex-shrink: 0;
 }
 
-/* Mobile-only visibility */
 .mobile-only {
   display: none;
 }
@@ -372,29 +329,39 @@ html.dark .mobile-sticky-cta {
   }
 }
 
-/* Guest state */
 .guest-card {
   text-align: center;
-  padding: 1rem 0.5rem;
+  padding: 16px 8px;
 }
 
 .guest-card .mobile-funnel-btn {
-  margin-bottom: 0.75rem;
+  margin-bottom: 12px;
 }
 
 .guest-text {
   font-size: 0.85rem;
-  color: var(--color-on-surface-variant, #666);
-  margin-bottom: 0.5rem;
+  color: var(--wa-muted);
+  margin-bottom: 8px;
   line-height: 1.4;
 }
 
 .guest-link {
-  color: var(--color-accent, #ad2c4d);
+  color: var(--wa-accent);
   font-weight: 600;
   text-decoration: none;
 }
 
 .guest-link:hover {
   text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-funnel-btn,
+  .mobile-funnel-btn:active,
+  .mobile-sticky-cta-btn,
+  .mobile-sticky-cta-btn:active,
+  .mobile-funnel-progress-segment {
+    transition: none;
+    transform: none;
+  }
 }

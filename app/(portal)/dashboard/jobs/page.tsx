@@ -6,11 +6,12 @@ import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
-import PageHeader from '@/components/portal/PageHeader';
+import { Briefcase } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
-import { getTranslations } from 'next-intl/server';
 import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKit';
 import { displayJobLocation } from '@/lib/member/jobPipelineDisplay';
 
@@ -322,244 +323,254 @@ export default async function JobsPage({
   }
 
   return (
-    <>
-    <div className="inner-page">
-      <PageHeader
-        title={t('jobBoard')}
-        subtitle={t('jobBoardSubtitle')}
-        breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('jobBoard') }]}
-      />
-      <section className="content-section" style={{ paddingTop: '1rem' }}>
-        <div className="container">
-          {/* S1-3: Cert-to-job pathway banner — certs that open doors */}
-          {user ? (
-            <div
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Job search"
+          title={t('jobBoard')}
+          lede={t('jobBoardSubtitle')}
+          icon={<Briefcase size={13} aria-hidden="true" />}
+        />
+        {user ? (
+          <div
+            className="wa-kit-card"
+            style={{
+              background: 'var(--wa-accent-soft)',
+              borderLeft: '3px solid var(--wa-accent)',
+            }}
+          >
+            <p
               style={{
-                padding: '1.125rem 1.25rem',
-                background: 'color-mix(in srgb, var(--color-accent) 6%, var(--surface-container-low))',
-                border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
-                borderLeft: '3px solid var(--color-accent)',
-                borderRadius: '0.875rem',
-                marginBottom: '1.25rem',
+                fontSize: 12,
+                fontWeight: 700,
+                color: 'var(--wa-accent)',
+                margin: '0 0 6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
               }}
             >
-              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {t('certificatesThatOpenDoors')}
-              </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
-                {t('certificatesDescription')}
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-                {[
-                  'Google IT Support',
-                  'CompTIA A+',
-                  'AWS Cloud Practitioner',
-                  'Google Project Management',
-                  'IBM Data Analyst',
-                ].map((cert) => (
-                  <a
-                    key={cert}
-                    href="/dashboard/certifications"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      padding: '0.3125rem 0.75rem',
-                      background: 'var(--surface-container)',
-                      border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
-                      borderRadius: '99px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      color: 'var(--color-accent)',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    {cert}
-                  </a>
-                ))}
+              {t('certificatesThatOpenDoors')}
+            </p>
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
+              {t('certificatesDescription')}
+            </p>
+            <div className="wa-flex wa-flex-wrap wa-items-center" style={{ gap: 8 }}>
+              {[
+                'Google IT Support',
+                'CompTIA A+',
+                'AWS Cloud Practitioner',
+                'Google Project Management',
+                'IBM Data Analyst',
+              ].map((cert) => (
                 <a
+                  key={cert}
                   href="/dashboard/certifications"
+                  className="wa-kit-focus"
                   style={{
-                    fontSize: '0.75rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    minHeight: 32,
+                    padding: '4px 12px',
+                    background: 'var(--wa-surface)',
+                    border: '1px solid var(--wa-border)',
+                    borderRadius: 999,
+                    fontSize: 12,
                     fontWeight: 600,
-                    color: 'var(--color-on-surface-variant)',
+                    color: 'var(--wa-accent)',
                     textDecoration: 'none',
-                    marginLeft: '0.25rem',
                   }}
                 >
-                  {t('viewAllCerts')} →
+                  {cert}
                 </a>
-              </div>
+              ))}
+              <a
+                href="/dashboard/certifications"
+                className="wa-kit-focus"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: 'var(--wa-muted)',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('viewAllCerts')} →
+              </a>
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
+        {user ? (
+          <div
+            className="wa-kit-card wa-flex wa-flex-col sm:wa-flex-row sm:wa-items-center"
+            style={{ gap: 16 }}
+          >
+            <div style={{ flex: 1, minWidth: '14rem' }}>
+              <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--wa-text)', margin: '0 0 4px' }}>
+                {t('alreadyAppliedQuestion')}
+              </p>
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0, lineHeight: 1.45 }}>
+                {t('logApplicationHere')}
+              </p>
+            </div>
+            <LogExternalApplicationButton variant="primary" />
+          </div>
+        ) : null}
+
+        <div className="wa-kit-card">
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 4px' }}>
+            {t('searchBeyondBoard')}
+          </p>
+          <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0 }}>
+            {user && profileCity
+              ? `Using your profile location: ${primaryLocation}.`
+              : 'If no city is saved yet, start with Austin metro and nearby suburbs.'}
+          </p>
           {user ? (
-            // Quiet bordered surface — the accent-filled button below is this
-            // view's one color-carrying call to action; the cert-pathway
-            // banner above already owns the page's single accent-tinted hero,
-            // so this stays neutral to avoid two competing color blocks.
-            <div
-              className="portal-card portal-card--flat"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '1rem 1.25rem',
-                border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
-                background: 'var(--surface-container-low)',
-                marginBottom: '1.25rem',
-                flexWrap: 'wrap',
-              }}
-            >
-              <div style={{ flex: 1, minWidth: '14rem' }}>
-                <p style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
-                  {t('alreadyAppliedQuestion')}
-                </p>
-                <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
-                  {t('logApplicationHere')}
-                </p>
-              </div>
-              <LogExternalApplicationButton variant="primary" />
-            </div>
+            <p style={{ fontSize: 12, margin: '6px 0 0' }}>
+              <a
+                href="/dashboard/profile"
+                className="wa-kit-focus"
+                style={{ color: 'var(--wa-accent)', fontWeight: 600, textDecoration: 'none' }}
+              >
+                {t('updateProfileLocation')} →
+              </a>
+            </p>
           ) : null}
-
-          {/* External search engines */}
-          <div style={{
-            padding: '0.875rem 1.25rem',
-            background: 'var(--surface-container-low)',
-            border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
-            borderRadius: '0.875rem',
-            marginBottom: '1.25rem',
-          }}>
-            <div style={{ marginBottom: '0.75rem' }}>
-              <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
-                {t('searchBeyondBoard')}
-              </p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                {user && profileCity
-                  ? `Using your profile location: ${primaryLocation}.`
-                  : 'If no city is saved yet, start with Austin metro and nearby suburbs.'}
-              </p>
-              {user ? (
-                <p style={{ fontSize: '0.75rem', margin: '0.35rem 0 0' }}>
-                  <a href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                    {t('updateProfileLocation')} →
-                  </a>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+              gap: 12,
+              marginTop: 16,
+            }}
+          >
+            {externalBoards.map((engine) => (
+              <a
+                key={engine.label}
+                href={engine.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-kit-focus"
+                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+              >
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 4px' }}>
+                  {engine.label} ↗
                 </p>
-              ) : null}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.75rem' }}>
-              {externalBoards.map((engine) => (
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: 'var(--wa-accent)',
+                    margin: '0 0 4px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  Best for: {engine.bestFor}
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0, lineHeight: 1.45 }}>
+                  {engine.note}
+                </p>
+              </a>
+            ))}
+          </div>
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--wa-border)' }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 8px' }}>
+              {t('quickAustinPresets')}
+            </p>
+            <div className="wa-flex wa-flex-wrap" style={{ gap: 8, marginBottom: 14 }}>
+              {quickLocations.map((location) => (
                 <a
-                  key={engine.label}
-                  href={engine.href}
+                  key={location}
+                  href={`https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: location }).toString()}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="wa-transition-[border-color,box-shadow] wa-duration-150 hover:wa-shadow-sm"
-                  style={{ textDecoration: 'none', color: 'inherit', display: 'block', borderRadius: '0.875rem' }}
+                  className="wa-kit-focus"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    minHeight: 36,
+                    padding: '6px 12px',
+                    border: '1px solid var(--wa-border)',
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: 'var(--wa-accent)',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    background: 'var(--wa-surface)',
+                  }}
                 >
-                  <div
-                    className="portal-card portal-card--flat hover:wa-border-[var(--color-accent)]"
-                    style={{ padding: '0.875rem', height: '100%', transition: 'border-color 150ms ease' }}
-                  >
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
-                      {engine.label} ↗
-                    </p>
-                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-accent)', margin: '0 0 0.25rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Best for: {engine.bestFor}
-                    </p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
-                      {engine.note}
-                    </p>
-                  </div>
+                  {location.replace(', TX', '')} ↗
                 </a>
               ))}
             </div>
-            <div style={{ marginTop: '0.875rem', paddingTop: '0.875rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
-                {t('quickAustinPresets')}
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.875rem' }}>
-                {quickLocations.map((location) => (
-                  <a
-                    key={location}
-                    href={`https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: location }).toString()}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline"
-                    style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}
-                  >
-                    {location.replace(', TX', '')} ↗
-                  </a>
-                ))}
-              </div>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.35rem' }}>
-                {t('bestRoutineForMembers')}
-              </p>
-              <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
-                {t('bestRoutineDescription')}
-              </p>
-              <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', lineHeight: 1.5 }}>
-                <li>{t('checkIndeedLinkedIn')}</li>
-                <li>{t('useWorkInTexas')}</li>
-                <li>{t('logEveryApplication')}</li>
-              </ul>
-            </div>
-          </div>
-
-          {!user ? (
-            <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
-              <strong>{t('applyingIsForMembers')}</strong>{' '}
-              <a href="/login?redirectTo=/dashboard/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                {t('logIn')}
-              </a>{' '}
-              {t('or')}{' '}
-              <a href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                {t('startApplication')}
-              </a>{' '}
-              {t('toSubmitProfile')}
+            <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 6px' }}>
+              {t('bestRoutineForMembers')}
             </p>
-          ) : null}
-          {ageGroup === 'under14' ? (
-            <div style={{
-              padding: '2rem',
-              background: 'var(--surface-container-low)',
-              borderRadius: 'var(--radius-md)',
-              textAlign: 'center'
-            }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                {t('careerExplorationYoung')}
-              </h3>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
-                {t('careerExplorationYoungDesc')}
+            <p style={{ margin: '0 0 8px', fontSize: 12, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+              {t('bestRoutineDescription')}
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 16, color: 'var(--wa-muted)', fontSize: 12, lineHeight: 1.5 }}>
+              <li>{t('checkIndeedLinkedIn')}</li>
+              <li>{t('useWorkInTexas')}</li>
+              <li>{t('logEveryApplication')}</li>
+            </ul>
+          </div>
+        </div>
+
+        {!user ? (
+          <p style={{ fontSize: 15, lineHeight: 1.5, color: 'var(--wa-text)', margin: 0 }}>
+            <strong>{t('applyingIsForMembers')}</strong>{' '}
+            <a
+              href="/login?redirectTo=/dashboard/jobs"
+              className="wa-kit-focus"
+              style={{ color: 'var(--wa-accent)', fontWeight: 600 }}
+            >
+              {t('logIn')}
+            </a>{' '}
+            {t('or')}{' '}
+            <a href="/apply" className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
+              {t('startApplication')}
+            </a>{' '}
+            {t('toSubmitProfile')}
+          </p>
+        ) : null}
+        {ageGroup === 'under14' ? (
+          <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 8px' }}>
+              {t('careerExplorationYoung')}
+            </h3>
+            <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, margin: '0 0 16px' }}>
+              {t('careerExplorationYoungDesc')}
+            </p>
+            <a
+              href="/programs"
+              className="wa-kit-focus"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 44,
+                padding: '10px 16px',
+                background: 'var(--wa-accent)',
+                color: 'var(--wa-on-accent)',
+                fontWeight: 600,
+                fontSize: 14,
+                borderRadius: 999,
+                textDecoration: 'none',
+              }}
+            >
+              {t('exploreTrainingPrograms')}
+            </a>
+          </div>
+        ) : ageGroup === 'youth14to17' ? (
+          <>
+            <div className="wa-kit-card">
+              <p style={{ fontSize: 14, lineHeight: 1.5, margin: 0, color: 'var(--wa-text)' }}>
+                <strong>{t('youthJobBoard')}</strong> {t('youthJobBoardDesc')}
               </p>
-              <a href="/programs" className="btn btn-primary">
-                {t('exploreTrainingPrograms')}
-              </a>
             </div>
-          ) : ageGroup === 'youth14to17' ? (
-            <>
-              <div style={{
-                padding: '1rem',
-                background: 'var(--surface-container)',
-                border: '1px solid var(--surface-container-highest)',
-                borderRadius: 'var(--radius-md)',
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{ fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
-                  <strong>{t('youthJobBoard')}</strong> {t('youthJobBoardDesc')}
-                </p>
-              </div>
-              <Suspense fallback={<JobsBoardSkeleton />}>
-                <JobsListingClient
-                  isAuthenticated={!!user}
-                  ageGroup={ageGroup}
-                  initialJobs={initialJobs}
-                  initialTotal={initialTotal}
-                  appliedJobIds={appliedJobIds}
-                />
-              </Suspense>
-            </>
-          ) : (
             <Suspense fallback={<JobsBoardSkeleton />}>
               <JobsListingClient
                 isAuthenticated={!!user}
@@ -569,9 +580,19 @@ export default async function JobsPage({
                 appliedJobIds={appliedJobIds}
               />
             </Suspense>
-          )}
-        </div>
-      </section>
-    </div>    </>
+          </>
+        ) : (
+          <Suspense fallback={<JobsBoardSkeleton />}>
+            <JobsListingClient
+              isAuthenticated={!!user}
+              ageGroup={ageGroup}
+              initialJobs={initialJobs}
+              initialTotal={initialTotal}
+              appliedJobIds={appliedJobIds}
+            />
+          </Suspense>
+        )}
+      </div>
+    </DesignSurface>
   );
 }

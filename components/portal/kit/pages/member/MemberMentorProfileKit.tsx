@@ -44,7 +44,7 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
         <Link
           href="/dashboard/mentors"
           className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
         >
           <ArrowLeft size={13} aria-hidden="true" /> Back to mentors
         </Link>
@@ -60,19 +60,19 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
                 {mentor.fullName}
               </h1>
               {metaLine ? (
-                <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2 }}>{metaLine}</p>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 2 }}>{metaLine}</p>
               ) : null}
             </div>
             {mentor.industry ? <Token label={mentor.industry} size="sm" color="blue" /> : null}
           </div>
 
           {mentor.bio ? (
-            <p style={{ fontSize: 14, lineHeight: 1.65, color: 'var(--wa-text)', marginTop: 16 }}>{mentor.bio}</p>
+            <p style={{ fontSize: 'var(--wa-type-body)', lineHeight: 1.65, color: 'var(--wa-text)', marginTop: 16 }}>{mentor.bio}</p>
           ) : null}
 
           <div className="wa-flex wa-items-center wa-gap-4" style={{ marginTop: 16, flexWrap: 'wrap' }}>
             {mentor.company ? (
-              <span className="wa-flex wa-items-center wa-gap-2" style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
+              <span className="wa-flex wa-items-center wa-gap-2" style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                 <Building2 size={13} aria-hidden="true" /> {mentor.company}
               </span>
             ) : null}
@@ -82,7 +82,7 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
                 target="_blank"
                 rel="noreferrer"
                 className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
               >
                 <Linkedin size={13} aria-hidden="true" /> View LinkedIn profile
               </a>
@@ -91,7 +91,7 @@ export function MemberMentorProfileKit({ mentor, sessionForm }: MemberMentorProf
         </Card>
 
         <Card>
-          <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
             Pick a time and share what you&rsquo;d like to cover — {mentor.fullName.split(' ')[0]} will confirm by email.
           </p>
           {sessionForm}

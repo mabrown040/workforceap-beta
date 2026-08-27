@@ -1,15 +1,14 @@
-import { Card } from '@astryxdesign/core/Card';
-import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import { Mic } from 'lucide-react';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
 import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
+import { ToolkitToolChrome } from './ToolkitToolChrome';
 
 /**
- * Member Portal — INTERVIEW PRACTICE tool page.
- * Command Center reskin of the page chrome around the existing
- * `InterviewPracticeForm` / `InterviewPracticeSaved` client components
- * (question generation + STAR worksheet logic untouched).
+ * Member Portal — interview practice tool page.
+ * PageOpener chrome around InterviewPracticeForm / InterviewPracticeSaved.
  *
  * Target route: app/(portal)/dashboard/ai-tools/interview-practice
+ * Proof: /dev/member/interview-practice
  * Surface: warm (member-facing).
  */
 
@@ -27,31 +26,46 @@ interface SavedResult {
 }
 
 export interface InterviewPracticeKitProps {
-  memberId: string;
-  initialData: InitialData | null;
-  savedResults: SavedResult[];
+  memberId?: string;
+  initialData?: InitialData | null;
+  savedResults?: SavedResult[];
+  backHref?: string;
+  /** Skip resume hydrate / generate POST — /dev/member proofs. */
+  preview?: boolean;
+  previewQuestions?: Array<{
+    question: string;
+    type: string;
+    tip: string;
+    starHint?: string;
+    exampleAnswer?: string;
+  }>;
 }
 
-export function InterviewPracticeKit({ memberId, initialData, savedResults }: InterviewPracticeKitProps) {
+export function InterviewPracticeKit({
+  memberId,
+  initialData = null,
+  savedResults = [],
+  backHref,
+  preview = false,
+  previewQuestions,
+}: InterviewPracticeKitProps) {
   return (
-    <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <SectionHeader
-          kicker="Career Toolkit"
-          title="Interview Practice"
-          goal="Role-specific questions with STAR-style answer frameworks."
+    <ToolkitToolChrome
+      title="Interview practice"
+      lede="Role-specific questions with STAR answer frames."
+      icon={<Mic size={13} aria-hidden="true" />}
+      backHref={backHref}
+      maxWidth={1000}
+    >
+      <div className="wa-kit-card">
+        <InterviewPracticeForm
+          memberId={memberId}
+          initialData={initialData}
+          preview={preview}
+          previewQuestions={previewQuestions}
         />
-        <Card>
-          <p style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>
-            Generate tailored interview questions for any role. Choose behavioral, technical, or situational focus and
-            get structured prompts you can practice out loud or in writing.
-          </p>
-        </Card>
-        <Card>
-          <InterviewPracticeForm memberId={memberId} initialData={initialData} />
-        </Card>
-        <InterviewPracticeSaved results={savedResults} />
       </div>
-    </DesignSurface>
+      <InterviewPracticeSaved results={savedResults} />
+    </ToolkitToolChrome>
   );
 }

@@ -186,6 +186,7 @@ test('loadMemberDashboardHome combines enrollment + progress into kit props', as
   assert.equal(view.resumeHref, '/dashboard/training');
   assert.equal(view.doThisNext?.variant, 'urgent');
   assert.equal(view.nextLesson, 'Finish Hardware module');
+  assert.equal(view.toolkitHref, '/dashboard/ai-tools');
 });
 
 test('loadMemberDashboardHome provisions an orphan then re-reads once', async () => {
@@ -216,6 +217,10 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   assert.equal(view.points, 0);
   assert.equal(view.doThisNext, null);
   assert.equal(view.coursesHref, '/dashboard/program');
+  assert.equal(view.toolkitHref, '/dashboard/ai-tools');
+  assert.equal(view.nextLesson, undefined);
+  assert.equal(view.programTitle, undefined);
+  assert.equal(view.programStatus, undefined);
 });
 
 test('loader module does not import Coursera, B4B, or getMemberState', () => {
@@ -227,6 +232,9 @@ test('loader module does not import Coursera, B4B, or getMemberState', () => {
   assert.doesNotMatch(imports, /maybeAutoSync/);
   assert.doesNotMatch(imports, /getCache/);
   assert.doesNotMatch(src, /from '@\/lib\/coursera/);
+  assert.doesNotMatch(src, /nextLesson: 'Continue your training'/);
+  assert.doesNotMatch(src, /'Up next'/);
+  assert.doesNotMatch(src, /\?\? 'there'/);
 });
 
 test('kit-default dashboard page calls the loader and has no prisma. on that branch', () => {

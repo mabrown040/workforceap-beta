@@ -61,6 +61,7 @@ export default function WorkspaceShell({
   contextLogoUrl,
   marketingSiteHref,
   marketingSiteLabel,
+  navHrefMap,
   showResumeUploadHint,
   portalRoles,
   attributionLabel,
@@ -89,6 +90,8 @@ export default function WorkspaceShell({
   /** Public marketing site — shown prominently in header when set (e.g. member portal). */
   marketingSiteHref?: string;
   marketingSiteLabel?: string;
+  /** Rewrite canonical member nav hrefs (e.g. /dev/member proofs). */
+  navHrefMap?: Record<string, string>;
   /** Member: prompt to upload resume when none on file */
   showResumeUploadHint?: boolean;
   /** Optional set of role-switch targets for authenticated multi-role users */
@@ -124,10 +127,10 @@ export default function WorkspaceShell({
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
-  // Members now use the left command-rail on desktop (the flat top-nav is hidden
-  // there), and that rail is the ONLY nav — so it must show every item grouped by
-  // `group`, not just the active tab's slice (which would strand most pages).
-  // Tab-filtering still drives the member flat top-nav on mobile/tablet.
+  // Members: left command-rail on desktop (>=1024), MemberPortalTopNav on
+  // small screens (<=768), hamburger drawer in between. Do not also paint
+  // the overflowing flat tab bar — it only appeared at 769–1023 and duplicated
+  // the drawer (FINDING-023). Other roles still get tab-filtered rails.
   const desktopNavItems =
     portalRole === 'member'
       ? navItems
@@ -135,32 +138,6 @@ export default function WorkspaceShell({
         ? navItems.filter((i) => i.tab === activeTab)
         : navItems;
   const mobileDrawerNavItems = navItems;
-  // Member flat top-nav (#2069): a single-level, horizontally-scrollable nav that
-  // matches the wa-v2-member mockup — the mockup's primary destinations come first,
-  // then every remaining page follows in the same row. Because ALL items live in
-  // this one nav, the contextual left sidebar can be hidden for members (portal CSS)
-  // without orphaning any page (the failure mode that got the earlier CSS-only
-  // sidebar-hide reverted — see docs/PORTAL_NAV_SPEC.md §2).
-  const MEMBER_PRIMARY_HREFS = [
-    '/dashboard',
-    '/dashboard/program',
-    '/dashboard/jobs',
-    '/dashboard/certifications',
-    '/dashboard/ai-tools',
-    '/dashboard/readiness',
-    '/dashboard/messages',
-    '/dashboard/profile',
-  ];
-  const memberFlatNav =
-    portalRole === 'member'
-      ? [
-          ...MEMBER_PRIMARY_HREFS.flatMap((h) => {
-            const it = navItems.find((i) => i.href === h);
-            return it ? [it] : [];
-          }),
-          ...navItems.filter((i) => !MEMBER_PRIMARY_HREFS.includes(i.href)),
-        ]
-      : [];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -197,27 +174,29 @@ export default function WorkspaceShell({
     // Nav labels
     const navMap: Record<string, string> = {
       'Home': tNav('dashboard'),
-      'My Program': tNav('myProgram'),
+      'My program': tNav('myProgram'),
       'My Classes': tNav('training'),
-      'My Certificates': tNav('myCertificates'),
-      'My Career Plan': tNav('careerPlan'),
+      'My certificates': tNav('myCertificates'),
+      'My career plan': tNav('careerPlan'),
       'WIOA Qualification': tNav('wioaQualification'),
-      'Job Board': tNav('jobBoard'),
-      'Job Applications': tNav('jobApplications'),
+      'Job board': tNav('jobBoard'),
+      'Job applications': tNav('jobApplications'),
       'Resume': tNav('resume'),
-      'My Progress': tNav('myProgress'),
+      'My progress': tNav('myProgress'),
       'Career Toolkit': tNav('careerToolkit'),
       'AI Counselor': tNav('aiCounselor'),
       'Learning Hub': tNav('learningHub'),
       'Find your career': tNav('findYourCareer'),
-      'Training Preassessment': tNav('trainingPreassessment'),
-      'Weekly Recap': tNav('weeklyRecap'),
+      'Training preassessment': tNav('trainingPreassessment'),
+      'Weekly recap': tNav('weeklyRecap'),
       'Counselor Chat': tNav('counselorChat'),
+      'Advisor Chat': tNav('counselorChat'),
+      'Messages': tNav('counselorChat'),
       'Resources': tNav('resources'),
       'Help & Support': tNav('help'),
       'Member Guide': tNav('memberGuide'),
-      'Profile & Settings': tNav('profile'),
-      'My Account': tNav('myAccount'),
+      'Profile & settings': tNav('profile'),
+      'My account': tNav('myAccount'),
       'Sign out': tNav('signOut'),
     };
     if (label in navMap) return navMap[label];
@@ -400,19 +379,21 @@ export default function WorkspaceShell({
             <Link href={firstHref} prefetch={false} className="workspace-shell-brand">
               WorkforceAP
             </Link>
-            <span className="workspace-shell-tagline">{translateLabel(workspaceLabel)}</span>
-            {marketingSiteHref ? (
-              <Link
-                href={marketingSiteHref}
-                prefetch={false}
-                className="workspace-shell-public-site-link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ExternalLink size={14} aria-hidden />
-                {marketingSiteLabel ?? tNav('publicSite')}
-              </Link>
-            ) : null}
+            <div className="workspace-shell-brand-meta">
+              <span className="workspace-shell-tagline">{translateLabel(workspaceLabel)}</span>
+              {marketingSiteHref ? (
+                <Link
+                  href={marketingSiteHref}
+                  prefetch={false}
+                  className="workspace-shell-public-site-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink size={14} aria-hidden />
+                  {marketingSiteLabel ?? tNav('publicSite')}
+                </Link>
+              ) : null}
+            </div>
           </div>
         </div>
         <div className="workspace-shell-header__meta">
@@ -450,7 +431,7 @@ export default function WorkspaceShell({
           ) : null}
           {/* Global search for admin now lives in the command rail (see
               workspace-sidebar-search below), matching the admin-full mockup. */}
-          <PortalHeaderActions badges={badges} />
+          <PortalHeaderActions badges={badges} hidePublicSite={Boolean(marketingSiteHref)} />
           {attributionLabel ? (
             <span
               className="workspace-shell-attribution"
@@ -494,59 +475,34 @@ export default function WorkspaceShell({
         tabIndex={-1}
       />
 
-      {hasTabs && activeTab && (
+      {hasTabs && activeTab && portalRole !== 'member' ? (
         <nav
           ref={tabBarRef}
-          className={`workspace-tab-bar${portalRole === 'member' ? ' workspace-tab-bar--flat' : ''}`}
+          className="workspace-tab-bar"
           aria-label={tNav('workspaceTabs')}
         >
           <div className="workspace-tab-bar-inner">
-            {portalRole === 'member'
-              ? /* Flat single-level member nav (#2069) — every page in one scrollable row. */
-                memberFlatNav.map((item) => {
-                  const isActive =
-                    activeHref === item.href ||
-                    isActiveRoute(pathname, item.href, item.aliases ?? []);
-                  const b = badgeTotalForItem(badges, item);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      prefetch={false}
-                      className={`workspace-tab workspace-tab--flat${isActive ? ' workspace-tab--active' : ''}`}
-                      aria-current={isActive ? 'page' : undefined}
-                      onClick={closeDrawer}
-                      {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
-                    >
-                      <span className="workspace-tab-label">{translateLabel(item.label)}</span>
-                      {b > 0 ? (
-                        <span className="workspace-nav-badge">{b > 99 ? '99+' : b}</span>
-                      ) : null}
-                    </Link>
-                  );
-                })
-              : NAV_TAB_ORDER.map((tab) => {
-                  const meta = NAV_TAB_META[tab];
-                  const isActive = tab === activeTab;
-                  // Find the first item in this tab to link to
-                  const firstItem = navItems.find((i) => i.tab === tab);
-                  return (
-                    <Link
-                      key={tab}
-                      href={firstItem?.href ?? '/dashboard'}
-                      prefetch={false}
-                      className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
-                      aria-current={isActive ? 'page' : undefined}
-                      onClick={closeDrawer}
-                    >
-                      <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
-                      <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
-                    </Link>
-                  );
-                })}
+            {NAV_TAB_ORDER.map((tab) => {
+              const meta = NAV_TAB_META[tab];
+              const isActive = tab === activeTab;
+              const firstItem = navItems.find((i) => i.tab === tab);
+              return (
+                <Link
+                  key={tab}
+                  href={firstItem?.href ?? '/dashboard'}
+                  prefetch={false}
+                  className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={closeDrawer}
+                >
+                  <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
+                  <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
+                </Link>
+              );
+            })}
           </div>
         </nav>
-      )}
+      ) : null}
 
       <div className="workspace-shell-body">
         <aside
@@ -647,15 +603,14 @@ export default function WorkspaceShell({
               </ul>
             </nav>
             <div className="workspace-sidebar-footer">
-              <div className="workspace-sidebar-meta">
-                <span
-                  className={`workspace-sidebar-context workspace-sidebar-context--chip${isCollapsedDesktop ? ' sr-only' : ''}`}
-                  title={contextLabel}
-                >
-                  {contextLabel}
-                </span>
-                <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
-              </div>
+              {!wide ? (
+                <div className="workspace-sidebar-meta">
+                  <span className="workspace-sidebar-context workspace-sidebar-context--chip" title={contextLabel}>
+                    {contextLabel}
+                  </span>
+                  <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
+                </div>
+              ) : null}
               {!wide ? (
                 <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>
                   {translateLabel(PRODUCT_COPY.publicSiteLabel)}
@@ -678,7 +633,7 @@ export default function WorkspaceShell({
         </aside>
 
         <div ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
-          {portalRole === 'member' ? <MemberPortalTopNav badgeCounts={badges} /> : null}
+          {portalRole === 'member' ? <MemberPortalTopNav badgeCounts={badges} hrefMap={navHrefMap} /> : null}
           {topBanner}
           <UnreviewedLocaleBanner />
           <div className="workspace-shell-main-inner">{children}</div>

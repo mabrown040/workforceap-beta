@@ -1,17 +1,136 @@
 import { notFound } from 'next/navigation';
 import { Target } from 'lucide-react';
-import PageHeader from '@/components/portal/PageHeader';
-import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
-import { skillMissionEmptyState } from '@/lib/member/skillMissionEmptyState';
+import { DesignSurface, PageOpener } from '@/components/portal/kit';
+import SkillMissionPanel, { type SkillMissionSummary } from '@/components/portal/SkillMissionPanel';
+import { SkillMissionChallengePreview } from '@/components/portal/SkillMissionChallenge';
+import SkillMissionTeaserCard from '@/components/portal/SkillMissionTeaserCard';
+import { SkillMissionEmpty } from '@/components/portal/SkillMissionEmpty';
 
 /**
- * Credential-free proofs for Skill Missions empty states + the superadmin
- * portal switcher that belongs in the member header.
- *   /dev/member/missions              — unenrolled ("Choose my program")
+ * Credential-free proofs for Skill Missions.
+ * Superadmin switcher lives in WorkspaceShell (DevMemberShell passes
+ * `superAdmin`) — do not render a second workspace-shell-header here.
+ *   /dev/member/missions              — unenrolled ("Choose program")
  *   /dev/member/missions?state=enrolled — enrolled program with no catalog missions
+ *   /dev/member/missions?state=active   — populated journey (passed / ready / retry / locked)
+ *   /dev/member/missions?state=challenge — kit challenge overlay (preview, no POST)
+ *   /dev/member/missions?state=passed    — quiet pass overlay (resume bullet saved)
+ *   /dev/member/missions?state=teaser    — live Home mission teaser chrome
  */
 export const dynamic = 'force-dynamic';
+
+const DEV_HREF: Record<string, string> = {
+  '/dashboard/program': '/dev/member/program',
+  '/dashboard/training': '/dev/member/program',
+};
+
+const QUIZ = {
+  text: 'Which well-architected pillar covers cost?',
+  options: ['Security', 'Cost Optimization', 'Reliability', 'Performance'] as [string, string, string, string],
+};
+
+const ACTIVE_SUMMARY: SkillMissionSummary = {
+  programSlug: 'aws-cloud-technology-amazon',
+  programTitle: 'AWS Cloud Technology Certificate',
+  totalMissions: 4,
+  passedCount: 1,
+  readyCount: 1,
+  retryCount: 1,
+  streak: 2,
+  careerReadinessPct: 25,
+  demonstratedSkills: ['AWS fundamentals', 'Cost awareness'],
+  missions: [
+    {
+      key: 'aws-cloud-concepts',
+      courseSlug: 'cloud-concepts',
+      programSlug: 'aws-cloud-technology-amazon',
+      programTitle: 'AWS Cloud Technology Certificate',
+      courseTitle: 'Cloud Concepts',
+      missionName: 'Explain the cloud to a hiring manager',
+      missionTagline: 'Turn the first module into a 30-second pitch.',
+      primaryAxis: 'communication',
+      skillLabels: ['AWS fundamentals', 'Storytelling'],
+      scenarioPrompt: '',
+      evidenceHint: '',
+      quizQuestions: [QUIZ],
+      estimatedMinutes: 12,
+      status: 'passed',
+      completedAt: new Date('2026-07-18T12:00:00.000Z'),
+      latestResult: {
+        verdict: 'passed',
+        coachingNote: '',
+        starStory: '',
+        resumeBullet: 'Explained AWS shared-responsibility tradeoffs to a non-technical hiring manager.',
+        skillsUnlocked: ['AWS fundamentals', 'Cost awareness'],
+      },
+      aiToolResultId: 'preview-resume',
+    },
+    {
+      key: 'aws-security',
+      courseSlug: 'security-compliance',
+      programSlug: 'aws-cloud-technology-amazon',
+      programTitle: 'AWS Cloud Technology Certificate',
+      courseTitle: 'Security & Compliance',
+      missionName: 'Defend a least-privilege decision',
+      missionTagline: 'Prove you can say no to a risky IAM request.',
+      primaryAxis: 'judgment',
+      skillLabels: ['IAM', 'Security'],
+      scenarioPrompt:
+        'A teammate asks you to attach AdministratorAccess so a vendor can “just get unblocked.” Walk the hiring manager through what you do instead.',
+      evidenceHint: '',
+      quizQuestions: [QUIZ],
+      estimatedMinutes: 15,
+      status: 'ready',
+      completedAt: null,
+      latestResult: null,
+      aiToolResultId: null,
+    },
+    {
+      key: 'aws-billing',
+      courseSlug: 'billing-pricing',
+      programSlug: 'aws-cloud-technology-amazon',
+      programTitle: 'AWS Cloud Technology Certificate',
+      courseTitle: 'Billing & Pricing',
+      missionName: 'Catch a runaway bill',
+      missionTagline: 'Show how you would investigate a cost spike.',
+      primaryAxis: 'analysis',
+      skillLabels: ['Cost Explorer', 'FinOps'],
+      scenarioPrompt: '',
+      evidenceHint: '',
+      quizQuestions: [QUIZ],
+      estimatedMinutes: 18,
+      status: 'needs_retry',
+      completedAt: null,
+      latestResult: {
+        verdict: 'needs_retry',
+        coachingNote: 'Name the service and the 24-hour window before you recommend a fix. Hiring managers want the evidence trail.',
+        starStory: '',
+        resumeBullet: '',
+        skillsUnlocked: [],
+      },
+      aiToolResultId: null,
+    },
+    {
+      key: 'aws-exam',
+      courseSlug: 'exam-readiness',
+      programSlug: 'aws-cloud-technology-amazon',
+      programTitle: 'AWS Cloud Technology Certificate',
+      courseTitle: 'Exam Readiness',
+      missionName: 'Walk through a practice exam miss',
+      missionTagline: 'Turn a wrong answer into a teaching moment.',
+      primaryAxis: 'learning',
+      skillLabels: ['Exam strategy'],
+      scenarioPrompt: '',
+      evidenceHint: '',
+      quizQuestions: [QUIZ],
+      estimatedMinutes: 20,
+      status: 'locked',
+      completedAt: null,
+      latestResult: null,
+      aiToolResultId: null,
+    },
+  ],
+};
 
 export default async function DevMemberMissionsPage({
   searchParams,
@@ -21,40 +140,53 @@ export default async function DevMemberMissionsPage({
   if (process.env.VERCEL_ENV === 'production') notFound();
 
   const { state } = await searchParams;
-  const empty =
-    state === 'enrolled'
-      ? skillMissionEmptyState({
-          programSlug: 'ai-professional-practitioner-certificate',
-          programTitle: 'AI Professional Practitioner Certificate',
-        })
-      : skillMissionEmptyState({ programSlug: null, programTitle: null });
+  const view =
+    state === 'enrolled' || state === 'active' || state === 'challenge' || state === 'passed' || state === 'teaser'
+      ? state
+      : 'empty';
 
   return (
-    <div className="portal-main-content">
-      <header
-        className="workspace-shell-header"
-        style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--color-border)' }}
-      >
-        <div className="workspace-shell-header__brand">
-          <span className="workspace-shell-brand">WorkforceAP</span>
-        </div>
-        <div className="workspace-shell-header__meta">
-          <SuperAdminViewSwitcher initialIsSuperAdmin />
-        </div>
-      </header>
-      <div style={{ padding: '1.5rem' }}>
-        <PageHeader
-          title="Skill Missions"
-          subtitle="Pass a mission after each course for a resume bullet and a STAR story."
-          breadcrumbs={[{ href: '/dashboard', label: 'Dashboard' }, { label: 'Skill Missions' }]}
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Missions"
+          title="Skill missions"
+          lede="One pass per course. Resume bullet and STAR story."
+          icon={<Target size={13} aria-hidden="true" />}
         />
-        <PortalEmptyState
-          icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}
-          title={empty.title}
-          description={empty.description}
-          primaryAction={empty.primaryAction}
-        />
+        {view === 'teaser' ? (
+          <SkillMissionTeaserCard
+            href="/dev/member/missions"
+            data={{
+              careerReadinessPct: 50,
+              passedCount: 2,
+              totalMissions: 4,
+              readyCount: 1,
+              retryCount: 0,
+              streak: 3,
+              nextMissionName: 'Defend a least-privilege decision',
+              nextMissionCourse: 'Security & Compliance',
+            }}
+          />
+        ) : view === 'passed' ? (
+          <SkillMissionChallengePreview mission={ACTIVE_SUMMARY.missions[1]!} state="passed" />
+        ) : view === 'challenge' ? (
+          <SkillMissionChallengePreview mission={ACTIVE_SUMMARY.missions[1]!} />
+        ) : view === 'active' ? (
+          <SkillMissionPanel
+            summary={ACTIVE_SUMMARY}
+            hideTitle
+            preview
+            resumeStudioHref="#"
+          />
+        ) : (
+          <SkillMissionEmpty
+            programSlug={view === 'enrolled' ? 'ai-professional-practitioner-certificate' : null}
+            programTitle={view === 'enrolled' ? 'AI Professional Practitioner Certificate' : null}
+            hrefMap={DEV_HREF}
+          />
+        )}
       </div>
-    </div>
+    </DesignSurface>
   );
 }

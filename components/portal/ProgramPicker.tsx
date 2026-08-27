@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Program } from '@/lib/content/programs';
@@ -16,6 +16,32 @@ type ProgramPickerProps = {
   programs: Program[];
   /** When available cheaply from the parent page, shown on the WIOA_PENDING notice. Optional — no extra fetch is done here. */
   wioaScreeningSubmittedAt?: Date | string | null;
+  /** Proofs: select/confirm stay local — no POST to `/api/member/enroll`. */
+  preview?: boolean;
+};
+
+const kitPrimaryBtn: CSSProperties = {
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+};
+
+const kitGhostBtn: CSSProperties = {
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'transparent',
+  color: 'var(--wa-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  border: '1px solid var(--wa-border)',
+  cursor: 'pointer',
 };
 
 function formatSubmittedDate(value: Date | string): string {
@@ -33,74 +59,83 @@ function WioaErrorMessage({
 }) {
   if (error.type === 'generic') {
     return (
-      <p role="alert" style={{ marginTop: '0.75rem', color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+      <p role="alert" style={{ marginTop: 12, color: 'var(--wa-danger)', fontSize: 14, fontWeight: 600 }}>
         {error.message}
       </p>
     );
   }
 
   const isBlocked = error.code === 'WIOA_NOT_ELIGIBLE';
-  const bg = isBlocked ? 'rgba(173,44,77,0.08)' : 'rgba(43,123,185,0.08)';
-  const border = isBlocked ? '1px solid rgba(173,44,77,0.25)' : '1px solid rgba(43,123,185,0.25)';
-  const color = isBlocked ? 'var(--color-accent)' : 'var(--color-blue)';
   const submittedLabel = wioaScreeningSubmittedAt ? formatSubmittedDate(wioaScreeningSubmittedAt) : '';
 
   return (
     <div
       role="alert"
       style={{
-        marginTop: '0.75rem',
-        padding: '0.875rem 1rem',
-        background: bg,
-        border,
-        borderRadius: '0.5rem',
-        fontSize: '0.875rem',
-        color: 'var(--color-on-surface)',
-        lineHeight: 1.55,
+        marginTop: 12,
+        padding: 12,
+        borderRadius: 'var(--wa-radius-sm)',
+        background: isBlocked ? 'var(--wa-danger-soft)' : 'var(--wa-info-soft)',
+        border: isBlocked
+          ? '1px solid color-mix(in srgb, var(--wa-danger) 28%, transparent)'
+          : '1px solid color-mix(in srgb, var(--wa-info) 28%, transparent)',
+        color: isBlocked ? 'var(--wa-danger)' : 'var(--wa-info)',
       }}
     >
-      <p style={{ margin: 0, fontWeight: 600, color, marginBottom: error.code === 'WIOA_NOT_STARTED' || error.code === 'WIOA_NOT_ELIGIBLE' || error.code === 'WIOA_PENDING' ? '0.5rem' : 0 }}>
+      <p
+        style={{
+          margin: 0,
+          fontWeight: 600,
+          color: isBlocked ? 'var(--wa-danger)' : 'var(--wa-info)',
+          marginBottom: 8,
+          fontSize: 14,
+        }}
+      >
         {error.message}
       </p>
-      {error.code === 'WIOA_PENDING' && (
+      {error.code === 'WIOA_PENDING' ? (
         <>
-          <p style={{ margin: '0 0 0.5rem' }}>
+          <p style={{ margin: '0 0 8px', fontSize: 14, lineHeight: 1.5, color: 'var(--wa-text)' }}>
             {submittedLabel ? `Submitted ${submittedLabel} — r` : 'R'}eview is typically completed within a few business
             days. You don&apos;t need to do anything else while it&apos;s in progress.
           </p>
           <Link
             href="/dashboard/messages"
-            style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+            className="wa-kit-focus"
+            style={{ color: 'var(--wa-info)', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}
           >
             Message your counselor →
           </Link>
         </>
-      )}
-      {error.code === 'WIOA_NOT_STARTED' && (
+      ) : null}
+      {error.code === 'WIOA_NOT_STARTED' ? (
         <Link
           href="/dashboard/learning/wioa-qualification"
-          style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+          className="wa-kit-focus"
+          style={{ color: 'var(--wa-info)', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}
         >
           Start WIOA screening →
         </Link>
-      )}
-      {error.code === 'WIOA_NOT_ELIGIBLE' && (
+      ) : null}
+      {error.code === 'WIOA_NOT_ELIGIBLE' ? (
         <Link
           href="/contact"
-          style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+          className="wa-kit-focus"
+          style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}
         >
           Contact WorkforceAP →
         </Link>
-      )}
+      ) : null}
     </div>
   );
 }
 
-export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: ProgramPickerProps) {
+export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, preview = false }: ProgramPickerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [enrollError, setEnrollError] = useState<EnrollError | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [previewDone, setPreviewDone] = useState(false);
 
   const selectedProgram = useMemo(
     () => programs.find((program) => program.slug === selectedSlug) ?? null,
@@ -110,6 +145,10 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: Pr
   const handleConfirm = async () => {
     if (!selectedProgram) return;
     setEnrollError(null);
+    if (preview) {
+      setPreviewDone(true);
+      return;
+    }
     setLoading(selectedProgram.slug);
     try {
       const res = await fetch('/api/member/enroll', {
@@ -139,40 +178,51 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: Pr
   return (
     <div>
       {selectedProgram && (
-        <div className="card" style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--outline-variant)' }}>
-          <p style={{ marginBottom: '0.35rem', fontWeight: 700 }}>Review your selection</p>
-          <p style={{ marginBottom: '0.35rem' }}>
-            <strong>{selectedProgram.title}</strong> · {selectedProgram.duration} · {selectedProgram.salary}
-          </p>
-          <p style={{ marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-            Funding is tied to one program. After you confirm, changes require WorkforceAP admin help.
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleConfirm}
-              disabled={!!loading}
-              aria-busy={loading === selectedProgram.slug}
-              style={{ minHeight: '48px' }}
-            >
-              <span aria-live="polite">
-                {loading === selectedProgram.slug ? 'Confirming…' : 'Confirm program'}
-              </span>
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => { setSelectedSlug(null); setEnrollError(null); }}
-              disabled={!!loading}
-              style={{ minHeight: '48px' }}
-            >
-              Keep comparing
-            </button>
-          </div>
-
-          {enrollError && (
-            <WioaErrorMessage error={enrollError} wioaScreeningSubmittedAt={wioaScreeningSubmittedAt} />
+        <div className="wa-kit-card" style={{ marginBottom: 16 }}>
+          {previewDone ? (
+            <p role="status" aria-live="polite" style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--wa-text)' }}>
+              Preview only — enrollment stays on the live program page.
+            </p>
+          ) : (
+            <>
+              <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Review your selection</p>
+              <p style={{ margin: '0 0 6px', fontSize: 14 }}>
+                <strong>{selectedProgram.title}</strong> · {selectedProgram.duration} · {selectedProgram.salary}
+              </p>
+              <p style={{ margin: '0 0 12px', color: 'var(--wa-muted)', fontSize: 14, lineHeight: 1.5 }}>
+                Funding is tied to one program. After you confirm, changes require WorkforceAP admin help.
+              </p>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="wa-kit-focus hover:wa-opacity-90"
+                  onClick={() => void handleConfirm()}
+                  disabled={!!loading}
+                  aria-busy={loading === selectedProgram.slug}
+                  style={kitPrimaryBtn}
+                >
+                  <span aria-live="polite">
+                    {loading === selectedProgram.slug ? 'Confirming…' : 'Confirm program'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="wa-kit-focus hover:wa-opacity-90"
+                  onClick={() => {
+                    setSelectedSlug(null);
+                    setEnrollError(null);
+                    setPreviewDone(false);
+                  }}
+                  disabled={!!loading}
+                  style={kitGhostBtn}
+                >
+                  Keep comparing
+                </button>
+              </div>
+              {enrollError ? (
+                <WioaErrorMessage error={enrollError} wioaScreeningSubmittedAt={wioaScreeningSubmittedAt} />
+              ) : null}
+            </>
           )}
         </div>
       )}
@@ -181,7 +231,7 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: Pr
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '1rem',
+          gap: 16,
         }}
       >
         {programs.map((p) => {
@@ -189,50 +239,52 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt }: Pr
           return (
             <div
               key={p.slug}
+              className="wa-kit-card"
               style={{
-                padding: '1.25rem',
-                border: isSelected ? `2px solid ${p.borderColor}` : '1px solid var(--outline-variant)',
-                borderRadius: 'var(--radius-md)',
+                border: isSelected ? '2px solid var(--wa-accent)' : undefined,
                 borderTop: `3px solid ${p.borderColor}`,
-                background: 'var(--surface-container-low)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+              <div className="wa-flex wa-items-start wa-justify-between" style={{ marginBottom: 8, gap: 8 }}>
                 <span
                   style={{
                     background: p.categoryColor,
-                    color: 'white',
-                    padding: '0.2rem 0.6rem',
-                    borderRadius: '50px',
-                    fontSize: '0.75rem',
+                    color: 'var(--wa-on-accent)',
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                    fontSize: 12,
                     fontWeight: 600,
                   }}
                 >
                   {p.categoryLabel}
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={p} size={24} /></span>
+                <span style={{ display: 'flex', alignItems: 'center' }}>
+                  <ProgramIcon program={p} size={24} />
+                </span>
               </div>
-              <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 8px' }}>{p.title}</h3>
+              <div style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 12, lineHeight: 1.45 }}>
+                <div className="wa-flex wa-items-center" style={{ gap: 6 }}>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>
                     schedule
                   </span>
                   {p.duration}
                 </div>
-                <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
+                <div style={{ color: 'var(--wa-accent)', fontWeight: 600, marginTop: 4 }}>{p.salary}</div>
               </div>
               <button
                 type="button"
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '0.6rem' }}
-                onClick={() => setSelectedSlug(p.slug)}
+                className="wa-kit-focus hover:wa-opacity-90"
+                style={{ ...kitPrimaryBtn, width: '100%' }}
+                onClick={() => {
+                  setSelectedSlug(p.slug);
+                  setPreviewDone(false);
+                  setEnrollError(null);
+                }}
                 disabled={!!loading}
                 aria-busy={loading === p.slug}
               >
-                <span aria-live="polite">
-                  {isSelected ? 'Ready to confirm above' : 'Review selection'}
-                </span>
+                <span aria-live="polite">{isSelected ? 'Ready to confirm above' : 'Review selection'}</span>
               </button>
             </div>
           );

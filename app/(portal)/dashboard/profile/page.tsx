@@ -265,15 +265,15 @@ export default async function DashboardProfilePage({
     const profileBadges: { label: string; bg: string; color: string }[] = [];
     if (certCount > 0) {
       profileBadges.push({
-        label: `${certCount} ${certCount === 1 ? "Cert" : "Certs"}`,
-        bg: "var(--wa-gold-soft, #FEF3C7)",
+        label: `${certCount} ${certCount === 1 ? "cert" : "certs"}`,
+        bg: "var(--wa-gold-soft)",
         color: "var(--wa-gold)",
       });
     }
     if (readinessScore > 0) {
       profileBadges.push({
-        label: `${readinessScore} Readiness`,
-        bg: "#ecfdf3",
+        label: `${readinessScore} readiness`,
+        bg: "var(--wa-success-soft)",
         color: "var(--wa-success)",
       });
     }

@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import {
   Play,
   Wand2,
@@ -8,23 +9,20 @@ import {
   ArrowRight,
   ArrowUp,
   ArrowDown,
-  Home,
   Flame,
   Target,
   BookOpen,
   Briefcase,
   Star,
+  Home,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Card } from '@astryxdesign/core/Card';
-import { Button } from '@astryxdesign/core/Button';
-import { Token } from '@astryxdesign/core/Token';
-import { ProgressBar } from '@astryxdesign/core/ProgressBar';
-import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DataTable,
   DesignSurface,
+  PageOpener,
+  ProgressBar,
   ProgressRing,
   StatusTag,
   colorVar,
@@ -40,7 +38,7 @@ import type { NextBestAction } from '@/lib/member/nextBestActions';
  * Faithful port of the approved Command Center mockup onto the portal design
  * kit (warm surface + --wa-* tokens + wa-kit-* classes + lucide icons). Layout
  * order, top to bottom:
- *   1. Page opener (eyebrow + greeting) with the streak chip alongside it.
+ *   1. PageOpener (Home kicker + greeting) with the streak chip in `action`.
  *   2. Full-bleed "Do this next" banner (MemberDoThisNextCard, kit variant).
  *   3. A 4-up stat-tile row (course / active jobs / certs / points), each with
  *      an optional inline sparkline + delta chip.
@@ -107,6 +105,7 @@ export interface PointsLedgerEntry {
 
 export interface MemberHomeKitProps {
   firstName?: string;
+  /** Optional time-of-day phrase. Omit on live — title is the member's name. */
   greeting?: string;
   /** 0–100 course completion. */
   coursePercent?: number;
@@ -157,12 +156,6 @@ export interface MemberHomeKitProps {
   pointsLedger?: PointsLedgerEntry[];
 }
 
-const DEFAULT_PIPELINE: PipelineRow[] = [
-  { role: 'Salesforce Administrator', company: 'Deloitte', stage: 'Interviewing', tone: 'warn', appliedLabel: 'Jun 18', stageIndex: 3, stageTotal: 3 },
-  { role: 'Agentforce SE', company: 'Accenture', stage: 'Applied', tone: 'muted', appliedLabel: 'Jun 29', stageIndex: 1, stageTotal: 3 },
-  { role: 'Cloud Support Associate', company: 'Indeed', stage: 'Screening', tone: 'info', appliedLabel: 'Jun 24', stageIndex: 2, stageTotal: 3 },
-];
-
 /* ---------------------------------------------------------------------- */
 /* Small pure helpers                                                      */
 /* ---------------------------------------------------------------------- */
@@ -212,15 +205,28 @@ function sparklinePoints(series: number[]): string {
 /* Presentational sub-components                                          */
 /* ---------------------------------------------------------------------- */
 
+const HOME_TEXT_LINK: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: 44,
+  fontSize: 'var(--wa-type-body)',
+  fontWeight: 700,
+  color: 'var(--wa-accent)',
+  textDecoration: 'none',
+  flexShrink: 0,
+  gap: 6,
+};
+
 function KitCardHead({ title, linkLabel, linkHref }: { title: string; linkLabel?: string; linkHref?: string }) {
   return (
     <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 14, gap: 12 }}>
-      <span className="wa-kit-stat-label">{title}</span>
+      <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', textWrap: 'balance' }}>{title}</h3>
       {linkLabel && linkHref ? (
         <a
           href={linkHref}
           className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-          style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none', flexShrink: 0 }}
+          style={HOME_TEXT_LINK}
         >
           {linkLabel}
         </a>
@@ -238,9 +244,9 @@ function DeltaChip({ delta, direction = 'up' }: { delta: string; direction?: 'up
         display: 'inline-flex',
         alignItems: 'center',
         gap: 3,
-        fontSize: 11,
+        fontSize: 'var(--wa-type-meta)',
         fontWeight: 700,
-        padding: '3px 7px',
+        padding: '4px 8px',
         borderRadius: 999,
         color,
         background: `color-mix(in srgb, ${color} 12%, transparent)`,
@@ -267,7 +273,7 @@ function StatSparkTile({
   spark?: StatSpark;
 }) {
   return (
-    <Card>
+    <div className="wa-kit-card">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div className="wa-flex wa-items-start wa-justify-between">
         <div
@@ -301,7 +307,7 @@ function StatSparkTile({
         >
           {value}
         </div>
-        <div className="wa-kit-stat-label" style={{ marginTop: 4 }}>
+        <div style={{ marginTop: 4, fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}>
           {label}
         </div>
       </div>
@@ -318,7 +324,7 @@ function StatSparkTile({
         </svg>
       ) : null}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -418,7 +424,7 @@ function WeeklyActivityChart({ data }: { data: WeeklyActivityPoint[] }) {
       </svg>
       <div
         className="wa-flex wa-items-center wa-justify-between"
-        style={{ fontSize: 11, color: 'var(--wa-muted)', fontWeight: 600, padding: '2px 4px 0' }}
+        style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, padding: '2px 4px 0' }}
       >
         {data.map((d) => (
           <span key={d.day}>{d.day}</span>
@@ -448,7 +454,7 @@ const pipelineColumns: Column<PipelineRow>[] = [
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               color: 'var(--wa-on-accent)',
               background: logoColorFor(row.company),
             }}
@@ -456,8 +462,8 @@ const pipelineColumns: Column<PipelineRow>[] = [
             {initial}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--wa-text)' }}>{row.role}</div>
-            <div style={{ fontSize: 11, color: 'var(--wa-muted)', fontWeight: 600, marginTop: 1 }}>{row.company}</div>
+            <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{row.role}</div>
+            <div className="wa-kit-meta" style={{ fontWeight: 600, marginTop: 1 }}>{row.company}</div>
           </div>
         </div>
       );
@@ -478,7 +484,7 @@ const pipelineColumns: Column<PipelineRow>[] = [
     header: 'Applied',
     align: 'right',
     render: (row) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--wa-muted)', fontSize: 12, fontWeight: 600 }}>
+      <span className="wa-kit-meta" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
         {row.appliedLabel ?? '—'}
       </span>
     ),
@@ -502,7 +508,7 @@ const pipelineCard = (row: PipelineRow) => {
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               color: 'var(--wa-on-accent)',
               background: logoColorFor(row.company),
             }}
@@ -510,15 +516,15 @@ const pipelineCard = (row: PipelineRow) => {
             {initial}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
-            <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.company}</div>
+            <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{row.role}</div>
+            <div className="wa-kit-meta" style={{ marginTop: 2 }}>{row.company}</div>
           </div>
         </div>
         <StatusTag tone={row.tone}>{row.stage}</StatusTag>
       </div>
       <div className="wa-flex wa-items-center wa-justify-between" style={{ marginTop: 10 }}>
         <PipelineStageTrack row={row} />
-        <span style={{ fontSize: 11, color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+        <span className="wa-kit-meta" style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
           {row.appliedLabel ?? '—'}
         </span>
       </div>
@@ -531,24 +537,24 @@ const pipelineCard = (row: PipelineRow) => {
 /* ---------------------------------------------------------------------- */
 
 export function MemberHomeKit({
-  firstName = 'Mike',
-  greeting = 'Good morning',
-  coursePercent = 78,
-  activeJobs = 4,
-  certs = 2,
-  points = 1240,
-  programTitle = 'AWS Cloud Practitioner',
-  programStatus = 'In Progress',
-  nextLesson = 'Shared Responsibility Model',
-  nextLessonDue = 'Due Thursday',
-  nextBadgePercent = 60,
-  nextBadgeName = 'Cloud Foundations',
-  nextBadgeRemaining = '2 modules',
-  pipeline = DEFAULT_PIPELINE,
+  firstName = '',
+  greeting,
+  coursePercent = 0,
+  activeJobs = 0,
+  certs = 0,
+  points = 0,
+  programTitle,
+  programStatus,
+  nextLesson,
+  nextLessonDue,
+  nextBadgePercent = 0,
+  nextBadgeName,
+  nextBadgeRemaining,
+  pipeline = [],
   resumeHref = '/dashboard/program',
-  toolkitHref = '/dashboard/toolkit',
+  toolkitHref = '/dashboard/ai-tools',
   jobsHref = '/dashboard/jobs',
-  coursesHref = '#',
+  coursesHref = '/dashboard/program',
   currentStreak = 0,
   longestStreak = 0,
   goals = [],
@@ -569,7 +575,7 @@ export function MemberHomeKit({
 
   const statTiles: Array<{ key: string; icon: LucideIcon; label: string; value: string | number; color: string; spark?: StatSpark }> = [
     { key: 'course', icon: BookOpen, label: 'Course', value: `${pct}%`, color: 'var(--wa-accent)', spark: courseSpark },
-    { key: 'jobs', icon: Briefcase, label: 'Active Jobs', value: activeJobs, color: 'var(--wa-info)', spark: activeJobsSpark },
+    { key: 'jobs', icon: Briefcase, label: 'Active jobs', value: activeJobs, color: 'var(--wa-info)', spark: activeJobsSpark },
     { key: 'certs', icon: Medal, label: 'Certs', value: certs, color: 'var(--wa-gold)', spark: certsSpark },
     { key: 'points', icon: Star, label: 'Points', value: points.toLocaleString(), color: 'var(--wa-success)', spark: pointsSpark },
   ];
@@ -578,46 +584,36 @@ export function MemberHomeKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
-        <h1 className="sr-only">Member dashboard</h1>
-
-        {/* 1. Page opener — eyebrow + greeting, with the streak chip alongside
-            (mirrors the mockup's page-head row) when the member has a streak. */}
-        <div className="wa-flex wa-items-end wa-justify-between wa-flex-wrap" style={{ gap: 12 }}>
-          <div>
-            <div
-              className="wa-flex wa-items-center wa-gap-2 wa-text-xs wa-font-bold wa-uppercase"
-              style={{ letterSpacing: '0.12em', color: 'var(--wa-accent)' }}
-            >
-              <Home size={13} />
-              <span>{greeting}</span>
-            </div>
-            <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
-              Keep climbing, {firstName}.
-            </h2>
-          </div>
-          {currentStreak > 0 ? (
-            <span
-              className="wa-flex wa-items-center wa-gap-2"
-              style={{
-                padding: '7px 13px 7px 10px',
-                borderRadius: 999,
-                background: 'color-mix(in srgb, var(--wa-gold) 12%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--wa-gold) 35%, transparent)',
-                fontSize: 13,
-                fontWeight: 700,
-                color: 'var(--wa-gold)',
-                flexShrink: 0,
-              }}
-            >
-              <Flame size={15} aria-hidden />
-              <span>
-                <b style={{ color: 'var(--wa-text)', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{currentStreak}</b>
-                -day streak{longestStreak > currentStreak ? ` · best ${longestStreak}` : ''}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Home"
+          title={greeting && firstName ? `${greeting}, ${firstName}` : firstName || 'Home'}
+          lede={nextLesson ? `Next: ${nextLesson}${nextLessonDue ? ` · ${nextLessonDue}` : ''}` : 'Pick up your program, jobs, or Career Studio.'}
+          icon={<Home size={13} aria-hidden="true" />}
+          action={
+            currentStreak > 0 ? (
+              <span
+                className="wa-flex wa-items-center wa-gap-2"
+                style={{
+                  padding: '7px 13px 7px 10px',
+                  borderRadius: 999,
+                  background: 'color-mix(in srgb, var(--wa-gold) 12%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--wa-gold) 35%, transparent)',
+                  fontSize: 'var(--wa-type-meta)',
+                  fontWeight: 700,
+                  color: 'var(--wa-gold)',
+                  flexShrink: 0,
+                }}
+              >
+                <Flame size={15} aria-hidden />
+                <span>
+                  <b style={{ color: 'var(--wa-text)', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{currentStreak}</b>
+                  -day streak{longestStreak > currentStreak ? ` · best ${longestStreak}` : ''}
+                </span>
               </span>
-            </span>
-          ) : null}
-        </div>
+            ) : null
+          }
+        />
 
         {/* 2. Dominant next-best-action banner. Renders nothing when there's no
             pending action (see MemberDoThisNextCard). */}
@@ -633,32 +629,57 @@ export function MemberHomeKit({
         {/* 4. Mixed row — certification ring, weekly activity, points ledger. */}
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-12 wa-gap-4">
           <div className="lg:wa-col-span-4">
-          <Card>
-            <KitCardHead title="Certification path" linkLabel="View plan" linkHref={resumeHref} />
+          <div className="wa-kit-card">
+            <KitCardHead title="Certification path" linkLabel="Open plan" linkHref={resumeHref} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
               <div style={{ minWidth: 0, flex: 1 }}>
-                <Token label={programStatus} size="sm" color="green" />
-                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8, textWrap: 'balance' }}>{programTitle}</h3>
-                <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
-                  Next: {nextLesson} · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
-                </p>
+                {programStatus ? <StatusTag tone="info">{programStatus}</StatusTag> : null}
+                <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: programStatus ? 8 : 0, textWrap: 'balance' }}>
+                  {programTitle ?? 'No program enrolled'}
+                </h3>
+                {nextLesson ? (
+                  <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
+                    Next: {nextLesson}
+                    {nextLessonDue ? (
+                      <>
+                        {' '}
+                        · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
+                      </>
+                    ) : null}
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
+                    {programTitle ? 'No next module on file.' : 'Choose a program to start.'}
+                  </p>
+                )}
                 {hasModuleRow ? (
                   <div style={{ marginTop: 10 }}>
                     <ProgressBar
-                      value={Math.round(((certModulesDone as number) / (certModulesTotal as number)) * 100)}
-                      label="Certification module progress"
+                      pct={Math.round(((certModulesDone as number) / (certModulesTotal as number)) * 100)}
+                      aria-label="Certification module progress"
                     />
                   </div>
                 ) : null}
                 <div style={{ marginTop: 12 }}>
-                  <AstryxLink href={resumeHref ?? '#'} as={Link as never} isStandalone>
-                    <Button label="Resume" variant="primary" size="sm" endContent={<Play size={11} aria-hidden />} />
-                  </AstryxLink>
+                  <Link
+                    href={resumeHref ?? '/dashboard/program'}
+                    className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  >
+                    {programTitle ? (
+                      <>
+                        Resume module <Play size={13} aria-hidden />
+                      </>
+                    ) : (
+                      <>
+                        Choose program <ArrowRight size={13} aria-hidden />
+                      </>
+                    )}
+                  </Link>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
           </div>
 
           <div className="wa-kit-card lg:wa-col-span-5" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -668,7 +689,7 @@ export function MemberHomeKit({
                 <WeeklyActivityChart data={weeklyActivity} />
                 <div
                   className="wa-flex wa-items-center wa-justify-between"
-                  style={{ marginTop: 10, fontSize: 12, fontWeight: 600, color: 'var(--wa-muted)' }}
+                  style={{ marginTop: 10, fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}
                 >
                   <span className="wa-flex wa-items-center wa-gap-2">
                     <span aria-hidden style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--wa-accent)' }} />
@@ -682,8 +703,11 @@ export function MemberHomeKit({
                 </div>
               </>
             ) : (
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: 0 }}>
-                Log study time this week to see your activity trend here.
+              <p className="wa-kit-lede" style={{ margin: 0 }}>
+                No study minutes this week.{' '}
+                <a href={resumeHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                  Open program
+                </a>
               </p>
             )}
           </div>
@@ -694,7 +718,7 @@ export function MemberHomeKit({
               <span style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
                 {points.toLocaleString()}
               </span>
-              <span style={{ fontSize: 12, color: 'var(--wa-muted)', fontWeight: 700 }}>pts</span>
+              <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 700 }}>pts</span>
             </div>
             {typeof pointsThisWeek === 'number' ? (
               <span
@@ -702,7 +726,7 @@ export function MemberHomeKit({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 4,
-                  fontSize: 11,
+                  fontSize: 'var(--wa-type-meta)',
                   fontWeight: 700,
                   color: 'var(--wa-success)',
                   background: 'color-mix(in srgb, var(--wa-success) 12%, transparent)',
@@ -719,7 +743,7 @@ export function MemberHomeKit({
             {pointsLedger.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 4 }}>
                 {pointsLedger.map((entry, i) => (
-                  <div key={`${entry.label}-${i}`} className="wa-flex wa-items-center wa-justify-between" style={{ fontSize: 12 }}>
+                  <div key={`${entry.label}-${i}`} className="wa-flex wa-items-center wa-justify-between" style={{ fontSize: 'var(--wa-type-meta)' }}>
                     <span className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-muted)', fontWeight: 600 }}>
                       <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: colorVar(entry.color ?? 'accent') }} />
                       {entry.label}
@@ -735,14 +759,14 @@ export function MemberHomeKit({
         {/* 5. Application pipeline table + Next Badge (segmented progress). */}
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-12 wa-gap-4">
           <div className="wa-kit-card lg:wa-col-span-8">
-            <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 12 }}>
+            <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 12, gap: 12 }}>
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', textWrap: 'balance' }}>Application pipeline</h3>
               <a
                 href={jobsHref}
                 className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
+                style={HOME_TEXT_LINK}
               >
-                View all{pipeline.length > 0 ? ` ${pipeline.length}` : ''} &rarr;
+                Open jobs
               </a>
             </div>
             <DataTable<PipelineRow>
@@ -777,25 +801,27 @@ export function MemberHomeKit({
                 <Medal size={24} />
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: 15 }}>{nextBadgeName}</div>
-                <div style={{ fontSize: 12, color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)' }}>{nextBadgeName ?? 'Next badge'}</div>
+                {nextBadgeRemaining ? (
+                <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                   {nextBadgeRemaining} to go
                 </div>
+                ) : null}
               </div>
             </div>
             <SegmentedProgress pct={nextBadgePercent} segments={7} color="var(--wa-gold)" label={`${nextBadgeName} badge progress`} />
             {goals.length > 0 ? (
               <div style={{ marginTop: 2, paddingTop: 14, borderTop: '1px solid var(--wa-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <span className="wa-kit-stat-label wa-flex wa-items-center wa-gap-2">
-                  <Target size={12} aria-hidden /> Goals
+                <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--wa-muted)' }} className="wa-flex wa-items-center wa-gap-2">
+                  <Target size={14} aria-hidden /> Goals
                 </span>
                 {goals.slice(0, 2).map((g) => (
                   <div key={g.title}>
                     <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 3 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {g.title}
                       </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>
                         {g.percent}%
                       </span>
                     </div>
@@ -807,9 +833,9 @@ export function MemberHomeKit({
                 <a
                   href={goalsHref}
                   className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                  style={{ fontSize: 11, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
+                  style={HOME_TEXT_LINK}
                 >
-                  View all goals &rarr;
+                  Open goals
                 </a>
               </div>
             ) : null}
@@ -823,16 +849,16 @@ export function MemberHomeKit({
           <a
             href={coursesHref}
             className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--wa-info)', textDecoration: 'none' }}
+            style={{ ...HOME_TEXT_LINK, color: 'var(--wa-info)' }}
           >
-            <GraduationCap size={14} aria-hidden /> Learning Hub <ArrowRight size={12} aria-hidden />
+            <GraduationCap size={14} aria-hidden /> Learning hub <ArrowRight size={14} aria-hidden />
           </a>
           <a
             href={toolkitHref}
             className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
+            style={HOME_TEXT_LINK}
           >
-            <Wand2 size={14} aria-hidden /> Career Toolkit <ArrowRight size={12} aria-hidden />
+            <Wand2 size={14} aria-hidden /> Career Studio <ArrowRight size={14} aria-hidden />
           </a>
         </div>
       </div>

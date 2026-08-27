@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type CSSProperties } from 'react';
 import {
-  Sparkles,
   Copy,
   Check,
   Video,
   CircleStop,
   RotateCcw,
-  CheckCircle2} from 'lucide-react';
+  CheckCircle2,
+} from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import { FormField, StatusTag } from '@/components/portal/kit';
@@ -18,60 +18,81 @@ import AiToolError from './AiToolError';
 
 type Step = 'form' | 'pitch' | 'rehearse';
 
-const fieldStyle: React.CSSProperties = {
+const KIT_BTN =
+  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+
+const kitBtnSolid: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  border: '1px solid var(--wa-accent)',
+  fontWeight: 600,
+  fontSize: 'var(--wa-type-body)',
+  borderRadius: 999,
+  cursor: 'pointer',
+};
+
+const kitBtnOutline: CSSProperties = {
+  ...kitBtnSolid,
+  background: 'transparent',
+  color: 'var(--wa-accent)',
+  border: '1px solid var(--wa-border)',
+};
+
+const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
   outline: 'none',
   background: 'var(--wa-surface)',
   color: 'var(--wa-text)',
-  fontFamily: 'inherit'};
+  fontFamily: 'inherit',
+  minHeight: 44,
+  boxSizing: 'border-box',
+};
 
-const primaryBtnStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 8,
-  minHeight: 46,
-  padding: '10px 20px',
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  fontWeight: 700,
-  fontSize: 14,
-  borderRadius: 999,
-  border: 'none',
-  cursor: 'pointer'};
+const FIELDS = [
+  { id: 'ep-name', key: 'name' as const, label: 'Full name', placeholder: 'Jordan Reyes', required: true },
+  { id: 'ep-role', key: 'role' as const, label: 'Target role', placeholder: 'Cloud Support Associate', required: true },
+  { id: 'ep-strengths', key: 'strengths' as const, label: 'Strengths', placeholder: 'Ticket triage, runbooks' },
+  { id: 'ep-certs', key: 'certs' as const, label: 'Certifications', placeholder: 'CompTIA A+, Google IT Support' },
+  { id: 'ep-industry', key: 'industry' as const, label: 'Industry', placeholder: 'Hybrid cloud support' },
+];
 
-const outlineBtnStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  minHeight: 36,
-  padding: '7px 14px',
-  fontSize: 12.5,
-  fontWeight: 700,
-  borderRadius: 999,
-  border: '1px solid var(--wa-border)',
-  background: 'var(--wa-surface)',
-  color: 'var(--wa-text)',
-  cursor: 'pointer'};
-
-const btnFocusClass =
-  'wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
-
-export default function ElevatorPitchClient({ initialData }: { initialData?: { name: string; targetRole: string; strengths: string; certifications: string; industry: string } | null }) {
-  const [step, setStep] = useState<Step>('form');
-
-  // Form fields
+export default function ElevatorPitchClient({
+  initialData,
+  preview = false,
+  previewStep = 'form',
+  previewPitch,
+}: {
+  initialData?: { name: string; targetRole: string; strengths: string; certifications: string; industry: string } | null;
+  preview?: boolean;
+  previewStep?: Step;
+  previewPitch?: string;
+} = {}) {
+  const [step, setStep] = useState<Step>(previewStep);
   const [name, setName] = useState(initialData?.name ?? '');
   const [targetRole, setTargetRole] = useState(initialData?.targetRole ?? '');
   const [strengths, setStrengths] = useState(initialData?.strengths ?? '');
   const [certifications, setCertifications] = useState(initialData?.certifications ?? '');
   const [industry, setIndustry] = useState(initialData?.industry ?? '');
   const [language, setLanguage] = useState<AiToolLanguage>('en');
+  const setters = {
+    name: setName,
+    role: setTargetRole,
+    strengths: setStrengths,
+    certs: setCertifications,
+    industry: setIndustry,
+  };
+  const values = { name, role: targetRole, strengths, certs: certifications, industry };
 
   useDraftAutosave('ai-tool:elevator-pitch:name', name, setName);
   useDraftAutosave('ai-tool:elevator-pitch:targetRole', targetRole, setTargetRole);
@@ -79,14 +100,12 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
   useDraftAutosave('ai-tool:elevator-pitch:certifications', certifications, setCertifications);
   useDraftAutosave('ai-tool:elevator-pitch:industry', industry, setIndustry);
 
-  // Generated pitch
-  const [pitch, setPitch] = useState('');
+  const [pitch, setPitch] = useState(previewPitch ?? '');
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
   const [emailStatus, setEmailStatus] = useState<{ sent: boolean; error?: string | null } | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Rehearsal recording
   const [recording, setRecording] = useState(false);
   const [recordingError, setRecordingError] = useState<string | null>(null);
   const [playbackUrl, setPlaybackUrl] = useState<string | null>(null);
@@ -98,10 +117,9 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
   const streamRef = useRef<MediaStream | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      streamRef.current?.getTracks().forEach(t => t.stop());
+      streamRef.current?.getTracks().forEach((t) => t.stop());
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, []);
@@ -109,6 +127,11 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !targetRole.trim()) return;
+    if (preview) {
+      if (previewPitch) setPitch(previewPitch);
+      setStep('pitch');
+      return;
+    }
     setGenerating(true);
     setGenError(null);
     setEmailStatus(null);
@@ -117,9 +140,13 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, targetRole, strengths, certifications, industry, language })});
+        body: JSON.stringify({ name, targetRole, strengths, certifications, industry, language }),
+      });
       const data = await res.json() as { pitch?: string; error?: string; emailSent?: boolean; emailError?: string };
-      if (!res.ok || !data.pitch) { setGenError(data.error ?? 'Could not generate. Try again.'); return; }
+      if (!res.ok || !data.pitch) {
+        setGenError(data.error ?? 'Could not generate. Try again.');
+        return;
+      }
       setPitch(data.pitch);
       setEmailStatus({ sent: data.emailSent === true, error: data.emailError ?? null });
       setStep('pitch');
@@ -131,24 +158,34 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
   };
 
   const startRehearsal = async () => {
+    if (preview) {
+      setStep('rehearse');
+      setRecording(false);
+      setCountdown(0);
+      return;
+    }
     setRecordingError(null);
     setPlaybackUrl(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
-      if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.play().catch(() => {}); }
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => {});
+      }
       chunksRef.current = [];
       const mr = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9,opus' });
       mediaRef.current = mr;
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = (ev) => {
+        if (ev.data.size > 0) chunksRef.current.push(ev.data);
+      };
       mr.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
         setPlaybackUrl(url);
-        stream.getTracks().forEach(t => t.stop());
-        if (playbackRef.current) { playbackRef.current.src = url; }
+        stream.getTracks().forEach((t) => t.stop());
+        if (playbackRef.current) playbackRef.current.src = url;
       };
-      // 3-second countdown then start
       setCountdown(3);
       setStep('rehearse');
       let c = 3;
@@ -161,8 +198,8 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
           mr.start(100);
         }
       }, 1000);
-    } catch (e) {
-      setRecordingError(e instanceof Error ? e.message : 'Camera/mic not available. Allow access and try again.');
+    } catch (err) {
+      setRecordingError(err instanceof Error ? err.message : 'Camera/mic not available. Allow access and try again.');
     }
   };
 
@@ -175,7 +212,7 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
     setPlaybackUrl(null);
     setRecording(false);
     setCountdown(0);
-    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current?.getTracks().forEach((t) => t.stop());
   };
 
   const handleCopy = async () => {
@@ -188,187 +225,235 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
     }
   };
 
-  // ── FORM STEP ──────────────────────────────────────────────
   if (step === 'form') {
     return (
-      <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <AiToolLanguageSelector value={language} onChange={setLanguage} />
-        <div
-          className="wa-kit-card wa-kit-card--sm"
-          style={{ background: 'color-mix(in srgb, var(--wa-accent) 6%, transparent)', border: 'none', display: 'flex', gap: 10, alignItems: 'flex-start' }}
-        >
-          <Sparkles size={17} color="var(--wa-accent)" aria-hidden style={{ flexShrink: 0, marginTop: 1 }} />
-          <p style={{ fontSize: '0.8125rem', color: 'var(--wa-text)', margin: 0, lineHeight: 1.55 }}>
-            <strong>Answer 5 quick questions</strong> and we&rsquo;ll write a 10–20 second elevator statement you can rehearse and record.
-          </p>
-        </div>
-
-        {[
-          { id: 'ep-name', label: 'Your full name', value: name, set: setName, placeholder: 'e.g. Jordan Smith', required: true },
-          { id: 'ep-role', label: 'Position you are looking for', value: targetRole, set: setTargetRole, placeholder: 'e.g. IT Support Specialist', required: true },
-          { id: 'ep-strengths', label: 'What you excel or are gifted at', value: strengths, set: setStrengths, placeholder: 'e.g. problem-solving, customer service, fast learner' },
-          { id: 'ep-certs', label: 'Certifications you have or are working toward', value: certifications, set: setCertifications, placeholder: 'e.g. CompTIA A+, Google IT Support' },
-          { id: 'ep-industry', label: 'Industry you are targeting', value: industry, set: setIndustry, placeholder: 'e.g. Healthcare IT, Managed Services' },
-        ].map(({ id, label, value, set, placeholder, required }) => (
-          <FormField
-            key={id}
-            id={id}
-            label={required ? `${label} *` : label}
-          >
+        {FIELDS.map(({ id, key, label, placeholder, required }) => (
+          <FormField key={id} id={id} label={label}>
             <input
               id={id}
               type="text"
-              value={value}
-              onChange={e => set(e.target.value)}
+              value={values[key]}
+              onChange={(e) => setters[key](e.target.value)}
               placeholder={placeholder}
               required={required}
-              style={fieldStyle}
+              style={FIELD_CONTROL}
             />
           </FormField>
         ))}
-
         {genError ? <AiToolError error={genError} /> : null}
-
         <button
           type="submit"
           disabled={generating || !name.trim() || !targetRole.trim()}
           aria-busy={generating}
-          className={btnFocusClass}
-          style={{ ...primaryBtnStyle, opacity: generating || !name.trim() || !targetRole.trim() ? 0.7 : 1, alignSelf: 'flex-start' }}
+          className={KIT_BTN}
+          style={{
+            ...kitBtnSolid,
+            opacity: generating || !name.trim() || !targetRole.trim() ? 0.6 : 1,
+            cursor: generating || !name.trim() || !targetRole.trim() ? 'not-allowed' : 'pointer',
+            alignSelf: 'flex-start',
+          }}
         >
-          <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            {generating ? (
-              <>
-                <PortalInlineSpinner size={16} /> Writing your pitch…
-              </>
-            ) : (
-              <>
-                <Sparkles size={16} aria-hidden /> Write My Elevator Pitch
-              </>
-            )}
-          </span>
+          {generating ? (
+            <>
+              <PortalInlineSpinner size={18} />
+              Writing…
+            </>
+          ) : (
+            'Write pitch'
+          )}
         </button>
       </form>
     );
   }
 
-  // ── PITCH REVIEW STEP ──────────────────────────────────────
   if (step === 'pitch') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        <div className="wa-kit-card wa-kit-card--sm">
-          <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--wa-accent)', margin: '0 0 0.75rem' }}>
-            Your Elevator Pitch
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <p className="wa-kit-field-label" style={{ marginBottom: 8 }}>
+            Pitch
           </p>
-          <p style={{ fontSize: '1.0625rem', lineHeight: 1.7, color: 'var(--wa-text)', margin: 0, fontStyle: 'italic' }}>
-            &ldquo;{pitch}&rdquo;
+          <p style={{ fontSize: 16, lineHeight: 1.65, color: 'var(--wa-text)', margin: 0 }}>
+            {pitch}
           </p>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => void handleCopy()} className="wa-kit-focus" style={outlineBtnStyle}>
-              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
-                {copied ? 'Copied!' : 'Copy'}
+          <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+            <button type="button" onClick={() => void handleCopy()} className={KIT_BTN} style={kitBtnOutline}>
+              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+                {copied ? 'Copied' : 'Copy'}
               </span>
             </button>
-            <button type="button" onClick={() => setStep('form')} className="wa-kit-focus" style={outlineBtnStyle}>
+            <button type="button" onClick={() => setStep('form')} className={KIT_BTN} style={kitBtnOutline}>
               Edit answers
             </button>
           </div>
-          <div style={{ marginTop: '1rem' }}>
-            {emailStatus?.sent ? (
-              <StatusTag tone="ok">Emailed to you for later</StatusTag>
-            ) : (
-              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--wa-muted)' }}>
-                We generated your speech, but email did not send{emailStatus?.error ? `: ${emailStatus.error}` : '.'} Copy it now and try again if needed.
-              </p>
-            )}
-          </div>
+          {!preview && emailStatus?.sent ? (
+            <div style={{ marginTop: 12 }}>
+              <StatusTag tone="ok">Emailed</StatusTag>
+            </div>
+          ) : null}
+          {!preview && emailStatus && !emailStatus.sent ? (
+            <p style={{ margin: '12px 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
+              Email did not send{emailStatus.error ? `: ${emailStatus.error}` : '.'} Copy the pitch.
+            </p>
+          ) : null}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>Ready to rehearse?</p>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--wa-muted)', margin: 0, lineHeight: 1.5 }}>
-            We&rsquo;ll turn on your camera and mic. Read the speech out loud, watch yourself, and refine the delivery immediately.
+        <div>
+          <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 4px' }}>Rehearse</p>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 12px', lineHeight: 1.45 }}>
+            Camera and mic. Read the pitch out loud.
           </p>
-          <button type="button" onClick={() => void startRehearsal()} className={btnFocusClass} style={{ ...primaryBtnStyle, alignSelf: 'flex-start' }}>
-            <Video size={17} aria-hidden />
-            Start Rehearsal Recording
+          <button type="button" onClick={() => void startRehearsal()} className={KIT_BTN} style={kitBtnSolid}>
+            <Video size={16} aria-hidden="true" />
+            Start rehearsal
           </button>
-          {recordingError && <p style={{ color: 'var(--wa-danger)', fontSize: '0.875rem', margin: 0 }}>{recordingError}</p>}
+          {recordingError ? <p style={{ color: 'var(--wa-danger)', fontSize: 'var(--wa-type-body)', margin: '8px 0 0' }}>{recordingError}</p> : null}
         </div>
-
-        <ToolFollowThrough toolType="elevator_pitch" output={pitch} />
+        {!preview ? <ToolFollowThrough toolType="elevator_pitch" output={pitch} /> : null}
       </div>
     );
   }
 
-  // ── REHEARSAL STEP ─────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Pitch prompt card */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div
-        className="wa-kit-card wa-kit-card--sm"
-        style={{ background: 'color-mix(in srgb, var(--wa-accent) 6%, transparent)', border: 'none' }}
+        style={{
+          padding: 16,
+          background: 'var(--wa-surface-2)',
+          borderRadius: 'var(--wa-radius-sm)',
+          border: '1px solid var(--wa-border)',
+        }}
       >
-        <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--wa-accent)', margin: '0 0 0.5rem' }}>
-          Read this out loud ↓
+        <p className="wa-kit-field-label" style={{ marginBottom: 8 }}>
+          Read this
         </p>
-        <p style={{ fontSize: '1.0625rem', lineHeight: 1.65, color: 'var(--wa-text)', margin: 0, fontWeight: 600 }}>
-          &ldquo;{pitch}&rdquo;
+        <p style={{ fontSize: 16, lineHeight: 1.65, color: 'var(--wa-text)', margin: 0, fontWeight: 600 }}>
+          {pitch}
         </p>
       </div>
 
-      {/* Camera live feed */}
-      <div style={{ position: 'relative', borderRadius: 'var(--wa-radius-sm)', overflow: 'hidden', background: '#000', aspectRatio: '16/9', maxHeight: '320px' }}>
-        <video ref={videoRef} muted autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        {countdown > 0 && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)' }}>
-            <span style={{ fontSize: '5rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{countdown}</span>
-          </div>
+      <div
+        style={{
+          position: 'relative',
+          borderRadius: 'var(--wa-radius-sm)',
+          overflow: 'hidden',
+          background: 'var(--wa-sidebar-bg)',
+          aspectRatio: '16/9',
+          maxHeight: 320,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {preview ? (
+          <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', color: 'var(--wa-sidebar-muted)', padding: 16, textAlign: 'center' }}>
+            Camera and mic run in a signed-in session.
+          </p>
+        ) : (
+          <video ref={videoRef} muted autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
-        {recording && (
-          <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.625rem', borderRadius: '9999px', background: 'var(--wa-accent)', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fff', animation: 'portal-pulse 1s ease-in-out infinite', display: 'block' }} />
+        {countdown > 0 ? (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'color-mix(in srgb, var(--wa-sidebar-bg) 60%, transparent)',
+            }}
+          >
+            <span style={{ fontSize: 64, fontWeight: 800, color: 'var(--wa-sidebar-text)', lineHeight: 1 }}>{countdown}</span>
+          </div>
+        ) : null}
+        {recording ? (
+          <div
+            style={{
+              position: 'absolute',
+              top: 12,
+              left: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 12px',
+              minHeight: 44,
+              borderRadius: 999,
+              background: 'var(--wa-accent)',
+              color: 'var(--wa-on-accent)',
+              fontSize: 'var(--wa-type-meta)',
+              fontWeight: 700,
+            }}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 999,
+                background: 'var(--wa-on-accent)',
+                display: 'block',
+              }}
+            />
             REC
           </div>
-        )}
+        ) : null}
       </div>
 
-      {/* Controls */}
-      {recording && !playbackUrl && (
-        <button type="button" onClick={stopRecording} className={btnFocusClass} style={{ ...primaryBtnStyle, alignSelf: 'flex-start' }}>
-          <CircleStop size={17} aria-hidden />
-          Stop Recording
+      {recording && !playbackUrl ? (
+        <button type="button" onClick={stopRecording} className={KIT_BTN} style={{ ...kitBtnSolid, alignSelf: 'flex-start' }}>
+          <CircleStop size={16} aria-hidden="true" />
+          Stop
         </button>
-      )}
+      ) : null}
 
-      {/* Playback */}
-      {playbackUrl && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-          <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--wa-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle2 size={16} color="var(--wa-success)" aria-hidden />
-            Playback — watch yourself!
+      {playbackUrl ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle2 size={16} color="var(--wa-success)" aria-hidden="true" />
+            Playback
           </p>
-          <video ref={playbackRef} src={playbackUrl} controls playsInline style={{ width: '100%', borderRadius: 'var(--wa-radius-sm)', background: '#000', maxHeight: '320px', objectFit: 'cover' }} />
-          <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={resetRehearsal} className="wa-kit-focus" style={outlineBtnStyle}>
-              <RotateCcw size={13} aria-hidden /> Record again
+          <video
+            ref={playbackRef}
+            src={playbackUrl}
+            controls
+            playsInline
+            style={{ width: '100%', borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-sidebar-bg)', maxHeight: 320, objectFit: 'cover' }}
+          />
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" onClick={resetRehearsal} className={KIT_BTN} style={kitBtnOutline}>
+              <RotateCcw size={16} aria-hidden="true" /> Record again
             </button>
-            <button type="button" onClick={() => setStep('pitch')} className="wa-kit-focus" style={outlineBtnStyle}>
+            <button type="button" onClick={() => setStep('pitch')} className={KIT_BTN} style={kitBtnOutline}>
               Edit pitch
             </button>
-            <button type="button" onClick={() => { setStep('form'); setPlaybackUrl(null); }} className="wa-kit-focus" style={outlineBtnStyle}>
+            <button
+              type="button"
+              onClick={() => {
+                setStep('form');
+                setPlaybackUrl(null);
+              }}
+              className={KIT_BTN}
+              style={kitBtnOutline}
+            >
               Start over
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
-      {!recording && !playbackUrl && countdown === 0 && (
-        <button type="button" onClick={() => void startRehearsal()} className="wa-kit-focus" style={outlineBtnStyle}>
-          <RotateCcw size={13} aria-hidden /> Try again
-        </button>
-      )}
+      {!recording && !playbackUrl && countdown === 0 ? (
+        preview ? (
+          <button type="button" onClick={() => setStep('pitch')} className={KIT_BTN} style={{ ...kitBtnOutline, alignSelf: 'flex-start' }}>
+            Back to pitch
+          </button>
+        ) : (
+          <button type="button" onClick={() => void startRehearsal()} className={KIT_BTN} style={{ ...kitBtnOutline, alignSelf: 'flex-start' }}>
+            <RotateCcw size={16} aria-hidden="true" /> Try again
+          </button>
+        )
+      ) : null}
     </div>
   );
 }

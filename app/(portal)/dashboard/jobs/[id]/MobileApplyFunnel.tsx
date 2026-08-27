@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useId } from 'react';
+import { useState, useCallback, useRef, useEffect, useId, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
 import { scrollBehavior } from '@/lib/a11y/scrollBehavior';
@@ -19,6 +19,8 @@ interface MobileApplyFunnelProps {
   jobType?: string;
   description?: string | null;
   requirements?: string[];
+  /** Skip network POSTs — /dev/member proofs. */
+  preview?: boolean;
 }
 
 export default function MobileApplyFunnel({
@@ -31,6 +33,7 @@ export default function MobileApplyFunnel({
   jobType,
   description,
   requirements,
+  preview = false,
 }: MobileApplyFunnelProps) {
   const [step, setStep] = useState<Step>('overview');
   const [applying, setApplying] = useState(false);
@@ -81,6 +84,11 @@ export default function MobileApplyFunnel({
     }
 
     setApplying(true);
+    if (preview) {
+      setStep('success');
+      setApplying(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/dashboard/jobs/${jobId}/apply`, {
         method: 'POST',
@@ -112,6 +120,11 @@ export default function MobileApplyFunnel({
   async function handleAddToTracker() {
     clearErrors();
     setTracking(true);
+    if (preview) {
+      setStep('tracked');
+      setTracking(false);
+      return;
+    }
     try {
       const res = await fetch('/api/member/job-applications/track-curated', {
         method: 'POST',
@@ -189,82 +202,122 @@ export default function MobileApplyFunnel({
     return () => restoreFns.forEach((fn) => fn());
   }, [overlayActive, trapRef]);
 
+  const kitBtn =
+    'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+  const kitBtnSolid: CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+    padding: '10px 16px',
+    background: 'var(--wa-accent)',
+    color: 'var(--wa-on-accent)',
+    border: '1px solid var(--wa-accent)',
+    fontWeight: 600,
+    fontSize: 14,
+    borderRadius: 999,
+    textDecoration: 'none',
+    cursor: 'pointer',
+    width: '100%',
+  };
+
   // === DESKTOP FALLBACK (inline apply form) ===
   const desktopApply = (
-    <div className={styles['desktop-apply-container']}>
+    <div className={`${styles['desktop-apply-container']} wa-kit-card`}>
       {error && (
-        <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }} role="alert">
+        <div
+          role="alert"
+          style={{
+            padding: '12px 14px',
+            marginBottom: 16,
+            borderRadius: 'var(--wa-radius-sm)',
+            background: 'var(--wa-danger-soft)',
+            color: 'var(--wa-danger)',
+            fontSize: 13,
+          }}
+        >
           {error}
           {error === 'Please log in to apply.' && (
-            <Link href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
+            <Link
+              href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`}
+              className="wa-kit-focus"
+              style={{ marginLeft: 8, color: 'var(--wa-accent)', fontWeight: 600 }}
+            >
               Log in
             </Link>
           )}
         </div>
       )}
 
-      <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)' }}>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Application Consent</h3>
+      <div style={{ marginBottom: 16 }}>
+        <h3 style={{ fontSize: 15, fontWeight: 800, margin: '0 0 12px', color: 'var(--wa-text)' }}>
+          Application consent
+        </h3>
 
-        <label style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
+        <label style={{ display: 'flex', alignItems: 'start', gap: 8, cursor: 'pointer', marginBottom: 12 }}>
           <input
             type="checkbox"
             checked={profileShareConsent}
             onChange={(e) => { setProfileShareConsent(e.target.checked); clearErrors(); }}
-            style={{ marginTop: '0.15rem', flexShrink: 0 }}
+            style={{ marginTop: 3, flexShrink: 0, accentColor: 'var(--wa-accent)' }}
           />
-          <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+          <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--wa-text)' }}>
             I consent to share my profile information (name, contact, program, skills) with this employer.
-            <span style={{ color: 'var(--color-accent)' }}> *</span>
+            <span style={{ color: 'var(--wa-accent)' }}> *</span>
           </span>
         </label>
 
-        <label style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', cursor: 'pointer' }}>
+        <label style={{ display: 'flex', alignItems: 'start', gap: 8, cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={resumeShareConsent}
             onChange={(e) => setResumeShareConsent(e.target.checked)}
-            style={{ marginTop: '0.15rem', flexShrink: 0 }}
+            style={{ marginTop: 3, flexShrink: 0, accentColor: 'var(--wa-accent)' }}
           />
-          <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+          <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--wa-text)' }}>
             Also share my resume with this employer (if available)
           </span>
         </label>
 
         {fieldErrors.consent && (
-          <p style={{ display: 'flex', alignItems: 'flex-start', gap: '0.35rem', fontSize: '0.85rem', color: 'var(--color-error)', marginTop: '0.5rem' }} role="alert">
-            <AlertTriangle size={15} aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+          <p style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 13, color: 'var(--wa-danger)', marginTop: 8 }} role="alert">
+            <AlertTriangle size={15} aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }} />
             {fieldErrors.consent}
           </p>
         )}
 
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', lineHeight: 1.4 }}>
+        <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12, lineHeight: 1.45 }}>
           Your information will only be shared with this employer for this specific job application.
-          You can manage your applications in your <Link href="/dashboard/job-applications" style={{ color: 'var(--color-accent)' }}>dashboard</Link>.
+          You can manage your applications in your{' '}
+          <Link href="/dashboard/job-applications" className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
+            dashboard
+          </Link>
+          .
         </p>
       </div>
 
       <button
         type="button"
-        className="btn btn-accent btn-large"
+        className={kitBtn}
         onClick={handleApply}
         disabled={applying || !profileShareConsent}
-        style={{ width: '100%', minHeight: '52px' }}
+        style={kitBtnSolid}
       >
-        {applying ? 'Submitting application…' : 'Submit Application'}
+        {applying ? 'Submitting application…' : 'Submit application'}
       </button>
 
-      <p style={{ margin: '1rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+      <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--wa-muted)', textAlign: 'center' }}>
         Not ready to apply?{' '}
         <button
           type="button"
           onClick={handleAddToTracker}
           disabled={tracking}
+          className="wa-kit-focus"
           style={{
             background: 'none',
             border: 'none',
             padding: 0,
-            color: 'var(--color-accent)',
+            color: 'var(--wa-accent)',
             fontWeight: 600,
             cursor: tracking ? 'wait' : 'pointer',
             textDecoration: 'underline',
@@ -338,7 +391,17 @@ export default function MobileApplyFunnel({
         {/* Body */}
         <div className={styles['mobile-funnel-body']}>
           {error && (
-            <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }} role="alert">
+            <div
+              role="alert"
+              style={{
+                padding: '12px 14px',
+                marginBottom: 16,
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-danger-soft)',
+                color: 'var(--wa-danger)',
+                fontSize: 13,
+              }}
+            >
               {error}
             </div>
           )}
@@ -364,7 +427,7 @@ export default function MobileApplyFunnel({
                   />
                   <span>
                     I consent to share my profile information (name, contact, program, skills) with this employer.
-                    <span style={{ color: 'var(--color-accent)' }}> *</span>
+                    <span style={{ color: 'var(--wa-accent)' }}> *</span>
                   </span>
                 </label>
                 {fieldErrors.consent && (
@@ -387,7 +450,7 @@ export default function MobileApplyFunnel({
                 <p className={styles['consent-hint']}>
                   Your information will only be shared with this employer for this specific job application.
                   You can manage your applications in your{' '}
-                  <Link href="/dashboard/job-applications" style={{ color: 'var(--color-accent)' }}>dashboard</Link>.
+                  <Link href="/dashboard/job-applications" className="wa-kit-focus" style={{ color: 'var(--wa-accent)' }}>dashboard</Link>.
                 </p>
               </div>
             </>
@@ -398,7 +461,7 @@ export default function MobileApplyFunnel({
               <p className={styles['success-title']}>Application submitted successfully!</p>
               <p className={styles['success-body']}>The employer will review your application and contact you.</p>
               <p className={styles['success-body']}>
-                <Link href="/dashboard/job-applications" style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
+                <Link href="/dashboard/job-applications" className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>
                   Open Application Tracker
                 </Link>
                 {' '}to see this role on your board.
@@ -409,7 +472,7 @@ export default function MobileApplyFunnel({
           {step === 'tracked' && (
             <div className={styles['tracked-card']}>
               <p style={{ fontWeight: 700, margin: 0 }}>Saved to your Application Tracker</p>
-              <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+              <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--wa-muted)' }}>
                 We added this job under <strong>Saved</strong>. Update the stage as you apply and interview.
               </p>
               <Link href="/dashboard/job-applications" className={styles['mobile-funnel-btn'] + ' ' + styles['mobile-funnel-btn-primary']} style={{ marginTop: '0.75rem', display: 'inline-flex' }}>
@@ -434,7 +497,7 @@ export default function MobileApplyFunnel({
                 {applying ? 'Submitting application…' : 'Submit Application'}
               </button>
               {!profileShareConsent && (
-                <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+                <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--wa-muted)', textAlign: 'center' }}>
                   Please consent to share your profile to apply
                 </p>
               )}
@@ -470,21 +533,23 @@ export default function MobileApplyFunnel({
             </p>
           </div>
         </div>
-        <div className={styles['desktop-apply-container']}>
-          <div className="job-apply-guest">
-            <Link href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`} className="btn btn-primary btn-large">
-              Log in to apply
+        <div className={`${styles['desktop-apply-container']} wa-kit-card`}>
+          <Link
+            href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`}
+            className={kitBtn}
+            style={kitBtnSolid}
+          >
+            Log in to apply
+          </Link>
+          <p style={{ marginTop: 12, fontSize: 14, color: 'var(--wa-muted)' }}>
+            You need a WorkforceAP member account to submit an application to this role.
+          </p>
+          <p style={{ marginTop: 8, fontSize: 13, color: 'var(--wa-muted)' }}>
+            New here?{' '}
+            <Link href="/apply" className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
+              Start your application
             </Link>
-            <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-              You need a WorkforceAP member account to submit an application to this role.
-            </p>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-              New here?{' '}
-              <Link href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                Start your application
-              </Link>
-            </p>
-          </div>
+          </p>
         </div>
       </>
     );

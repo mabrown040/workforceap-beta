@@ -1,14 +1,6 @@
 'use client';
 
 import type { CSSProperties, ReactNode, Ref } from 'react';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHeaderCell,
-} from '@astryxdesign/core/Table';
 import { cx, type KitDataAttrs } from './base';
 import { KitEmptyState } from './KitEmptyState';
 
@@ -30,14 +22,18 @@ interface KitTableShellProps extends KitDataAttrs {
   emptyTitle: string;
   emptyDescription?: string;
   onRowKeyClick?: (key: string) => void;
+  /** Override surface-driven density. Warm → balanced, dense → compact. */
+  density?: 'compact' | 'balanced' | 'spacious';
   className?: string;
   style?: CSSProperties;
   ref?: Ref<HTMLDivElement>;
 }
 
 /**
- * Astryx Table chrome for kit DataTable — accepts pre-rendered cell ReactNodes
- * from server parents so column `render` functions stay RSC-safe.
+ * Native table chrome for kit DataTable — `.wa-kit-table` on `--wa-*`.
+ * Accepts pre-rendered cell ReactNodes from server parents so column `render`
+ * functions stay RSC-safe. Density follows the nearest DesignSurface via
+ * `[data-surface]`; pass `density` to override.
  */
 export function KitTableShell({
   columns,
@@ -46,6 +42,7 @@ export function KitTableShell({
   emptyTitle,
   emptyDescription,
   onRowKeyClick,
+  density,
   className,
   style,
   ref,
@@ -56,30 +53,34 @@ export function KitTableShell({
   return (
     <div ref={ref} className={cx('wa-kit-table-wrap', className)} style={style} {...rest}>
       <div className="wa-overflow-x-auto">
-        <Table density="compact" dividers="rows" hasHover={clickable} style={{ minWidth }}>
-          <TableHeader>
-            <TableRow isHeaderRow>
+        <table
+          className={cx('wa-kit-table', clickable && 'wa-kit-table--clickable')}
+          data-density={density}
+          style={{ minWidth }}
+        >
+          <thead>
+            <tr>
               {columns.map((c) => (
-                <TableHeaderCell
+                <th
                   key={c.key}
                   scope="col"
                   style={c.align === 'right' ? { textAlign: 'right' } : undefined}
                 >
                   {c.header}
-                </TableHeaderCell>
+                </th>
               ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+            </tr>
+          </thead>
+          <tbody>
             {rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length || 1}>
+              <tr>
+                <td colSpan={columns.length || 1}>
                   <KitEmptyState title={emptyTitle} description={emptyDescription} />
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ) : (
               rows.map((row) => (
-                <TableRow
+                <tr
                   key={row.key}
                   onClick={clickable ? () => onRowKeyClick?.(row.key) : undefined}
                   onKeyDown={
@@ -95,21 +96,20 @@ export function KitTableShell({
                   role={clickable ? 'button' : undefined}
                   tabIndex={clickable ? 0 : undefined}
                   className={clickable ? 'wa-kit-focus' : undefined}
-                  style={clickable ? { cursor: 'pointer' } : undefined}
                 >
                   {columns.map((c, i) => (
-                    <TableCell
+                    <td
                       key={c.key}
                       style={c.align === 'right' ? { textAlign: 'right' } : undefined}
                     >
                       {row.cells[i]}
-                    </TableCell>
+                    </td>
                   ))}
-                </TableRow>
+                </tr>
               ))
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   );

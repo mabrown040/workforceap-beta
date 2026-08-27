@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
+import { History, Sparkles } from 'lucide-react';
 
 type TailorResult = {
   matchScoreBefore: number;
@@ -13,10 +14,59 @@ type TailorResult = {
 
 type TailorResponse = (TailorResult & { ok: true }) | { ok: false; error: string };
 
+const KIT_BTN =
+  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+
+const kitBtnSolid: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  border: '1px solid var(--wa-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  cursor: 'pointer',
+};
+
+const kitBtnOutline: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'transparent',
+  color: 'var(--wa-accent)',
+  border: '1px solid var(--wa-border)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  cursor: 'pointer',
+};
+
+export const JOB_TAILOR_PREVIEW_RESULT: TailorResult = {
+  matchScoreBefore: 62,
+  matchScoreAfter: 84,
+  changes: [
+    'Lead with ticket triage and runbook writing instead of generic IT support.',
+    'Named AWS and Azure incidents from your lab work in the summary.',
+    'Cut two unrelated retail bullets so the cloud support signal is first.',
+  ],
+  gaps: [
+    'This posting asks for CompTIA A+ or Google IT Support — add the credential if you have it.',
+    'No explicit hybrid-schedule line. Confirm Austin office days in the cover letter.',
+  ],
+  tailoredResume:
+    'JORDAN REYES\nCloud support · Austin, TX\n\nSUMMARY\nIT support graduate who triages VPN and identity tickets, writes runbooks, and has lab hours on AWS and Azure. Looking for a hybrid Austin cloud support seat.\n\nEXPERIENCE\nWorkforceAP labs — Ticket triage, runbook drafts, and escalation notes for cloud identity incidents.\n',
+};
+
 function scoreColor(score: number): string {
-  if (score >= 75) return 'var(--color-green)';
-  if (score >= 50) return 'var(--color-amber)';
-  return 'var(--color-error)';
+  if (score >= 75) return 'var(--wa-success)';
+  if (score >= 50) return 'var(--wa-gold)';
+  return 'var(--wa-danger)';
 }
 
 function ScoreBadge({ label, score }: { label: string; score: number }) {
@@ -24,33 +74,60 @@ function ScoreBadge({ label, score }: { label: string; score: number }) {
     <div style={{ textAlign: 'center' }}>
       <div
         style={{
-          fontSize: '1.9rem',
-          fontWeight: 900,
+          fontSize: 30,
+          fontWeight: 800,
           lineHeight: 1,
+          letterSpacing: '-0.03em',
+          fontVariantNumeric: 'tabular-nums',
           color: scoreColor(score),
         }}
       >
         {score}%
       </div>
-      <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.12em',
+          color: 'var(--wa-muted)',
+          marginTop: 6,
+        }}
+      >
         {label}
       </div>
     </div>
   );
 }
 
-export default function JobTailorPanel({ jobId }: { jobId: string }) {
+export default function JobTailorPanel({
+  jobId,
+  preview = false,
+  initialResult = null,
+}: {
+  jobId: string;
+  /** Skip the tailor POST — /dev/member proofs. */
+  preview?: boolean;
+  /** Seed the result view so proofs can screenshot populated chrome. */
+  initialResult?: TailorResult | null;
+}) {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<TailorResult | null>(null);
+  const [result, setResult] = useState<TailorResult | null>(initialResult);
   const [error, setError] = useState<string | null>(null);
   const [needsResume, setNeedsResume] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showResume, setShowResume] = useState(false);
+  const [showResume, setShowResume] = useState(Boolean(initialResult));
 
   async function runTailor() {
     setLoading(true);
     setError(null);
     setNeedsResume(false);
+    if (preview) {
+      setResult(JOB_TAILOR_PREVIEW_RESULT);
+      setShowResume(true);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/ai/job-tailor/${encodeURIComponent(jobId)}`, {
         method: 'POST',
@@ -58,13 +135,13 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
       const data = (await res.json()) as TailorResponse;
       if (!data.ok) {
         if (res.status === 409) setNeedsResume(true);
-        else setError(data.error || 'Something went wrong. Please try again.');
+        else setError(data.error || 'Could not tailor this resume. Try again.');
         return;
       }
       setResult(data);
       setShowResume(true);
     } catch {
-      setError('Could not reach the server. Please try again.');
+      setError('Could not reach the server. Try again.');
     } finally {
       setLoading(false);
     }
@@ -93,63 +170,53 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
   }
 
   return (
-    <section
-      aria-label="Tailor your resume"
-      style={{
-        margin: '0 0 1.5rem',
-        padding: '1.1rem 1.25rem',
-        borderRadius: '0.85rem',
-        border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)',
-        background: 'color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-low, rgba(0,0,0,0.02)))',
-      }}
-    >
+    <section className="wa-kit-card" aria-label="Resume tailor" style={{ margin: 0 }}>
       <p
+        className="wa-flex wa-items-center wa-gap-2"
         style={{
-          margin: '0 0 0.3rem',
-          fontSize: '0.72rem',
+          margin: '0 0 8px',
+          fontSize: 12,
           fontWeight: 700,
-          letterSpacing: '0.08em',
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'var(--color-accent)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.3rem',
+          color: 'var(--wa-accent)',
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }} aria-hidden="true">
-          auto_awesome
-        </span>
-        AI Resume Tailor
+        <Sparkles size={13} aria-hidden="true" />
+        Resume tailor
       </p>
 
       {!result && (
         <>
-          <p style={{ margin: '0 0 0.85rem', fontSize: '0.92rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
-            See how your resume scores against this job, then get a version rewritten to speak
-            this employer&apos;s language — built from your real experience, nothing invented.
+          <p style={{ margin: '0 0 16px', fontSize: 14, lineHeight: 1.55, color: 'var(--wa-muted)' }}>
+            Score your resume against this posting, then rewrite it in the employer&apos;s language
+            from experience you already have.
           </p>
           <button
             type="button"
-            className="btn btn-primary"
+            className={KIT_BTN}
             onClick={() => void runTailor()}
             disabled={loading}
             aria-busy={loading}
-            style={{ fontSize: '0.9rem' }}
+            style={kitBtnSolid}
           >
-            <span aria-live="polite">
-              {loading ? 'Tailoring your resume… (~20 sec)' : 'Tailor my resume for this job →'}
-            </span>
+            <span aria-live="polite">{loading ? 'Tailoring…' : 'Tailor resume'}</span>
           </button>
           {needsResume && (
-            <p style={{ margin: '0.7rem 0 0', fontSize: '0.87rem', lineHeight: 1.5 }}>
-              We need your resume first.{' '}
-              <Link href="/dashboard/resume" style={{ fontWeight: 700 }}>
-                Upload it in Resume Studio →
-              </Link>
+            <p style={{ margin: '12px 0 0', fontSize: 13, lineHeight: 1.5, color: 'var(--wa-text)' }}>
+              Upload a resume in{' '}
+              <Link
+                href="/dashboard/resume"
+                className="wa-kit-focus"
+                style={{ fontWeight: 700, color: 'var(--wa-accent)' }}
+              >
+                Resume Studio
+              </Link>{' '}
+              first.
             </p>
           )}
           {error && (
-            <p role="alert" style={{ margin: '0.7rem 0 0', fontSize: '0.87rem', color: 'var(--color-error)' }}>
+            <p role="alert" style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--wa-danger)' }}>
               {error}
             </p>
           )}
@@ -158,84 +225,99 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
 
       {result && (
         <div>
-          {/* Scores */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', margin: '0.5rem 0 1rem', flexWrap: 'wrap' }}>
+          <div
+            className="wa-flex wa-items-center wa-flex-wrap"
+            style={{ gap: 20, margin: '8px 0 16px' }}
+          >
             <ScoreBadge label="Your resume" score={result.matchScoreBefore} />
-            <span style={{ fontSize: '1.3rem', color: 'var(--color-on-surface-variant)' }} aria-hidden>
+            <span style={{ fontSize: 18, color: 'var(--wa-muted)', fontWeight: 600 }} aria-hidden>
               →
             </span>
             <ScoreBadge label="Tailored" score={result.matchScoreAfter} />
           </div>
 
-          {/* Changes */}
           {result.changes.length > 0 && (
-            <div style={{ marginBottom: '0.9rem' }}>
-              <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
+            <div style={{ marginBottom: 16 }}>
+              <p
+                style={{
+                  margin: '0 0 6px',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  color: 'var(--wa-muted)',
+                }}
+              >
                 What changed
               </p>
-              <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.88rem', lineHeight: 1.6 }}>
-                {result.changes.map((c, i) => (
-                  <li key={i}>{c}</li>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.55, color: 'var(--wa-text)' }}>
+                {result.changes.map((c) => (
+                  <li key={c}>{c}</li>
                 ))}
               </ul>
             </div>
           )}
 
-          {/* Gaps */}
           {result.gaps.length > 0 && (
             <div
               style={{
-                marginBottom: '0.9rem',
-                padding: '0.6rem 0.85rem',
-                borderRadius: '0.55rem',
-                background: 'color-mix(in srgb, var(--color-amber) 8%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--color-amber) 20%, transparent)',
+                marginBottom: 16,
+                padding: '12px 14px',
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-gold-soft)',
+                border: '1px solid var(--wa-border)',
               }}
             >
-              <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-amber)' }}>
-                Address these in your cover letter
+              <p
+                style={{
+                  margin: '0 0 6px',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  color: 'var(--wa-gold-dark)',
+                }}
+              >
+                Cover in your letter
               </p>
-              <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.88rem', lineHeight: 1.6 }}>
-                {result.gaps.map((g, i) => (
-                  <li key={i}>{g}</li>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.55, color: 'var(--wa-text)' }}>
+                {result.gaps.map((g) => (
+                  <li key={g}>{g}</li>
                 ))}
               </ul>
             </div>
           )}
 
-          {/* Tailored resume */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-            <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => void copyResume()}>
-              <span aria-live="polite">
-                {copied ? 'Copied ✓' : 'Copy tailored resume'}
-              </span>
+          <div className="wa-flex wa-flex-wrap" style={{ gap: 8, marginBottom: 12 }}>
+            <button type="button" className={KIT_BTN} style={kitBtnSolid} onClick={() => void copyResume()}>
+              <span aria-live="polite">{copied ? 'Copied' : 'Copy tailored resume'}</span>
             </button>
-            <button type="button" className="btn btn-outline" style={{ fontSize: '0.85rem' }} onClick={downloadResume}>
+            <button type="button" className={KIT_BTN} style={kitBtnOutline} onClick={downloadResume}>
               Download .txt
             </button>
             <button
               type="button"
-              className="btn btn-outline"
-              style={{ fontSize: '0.85rem' }}
+              className={KIT_BTN}
+              style={kitBtnOutline}
               onClick={() => setShowResume((v) => !v)}
             >
-              {showResume ? 'Hide' : 'Show'} resume
+              {showResume ? 'Hide resume' : 'Show resume'}
             </button>
           </div>
           {showResume && (
             <textarea
               readOnly
               value={result.tailoredResume}
-              rows={16}
+              rows={12}
               aria-label="Tailored resume"
               style={{
                 width: '100%',
-                padding: '0.85rem 1rem',
-                borderRadius: '0.65rem',
-                border: '1px solid var(--outline-variant)',
-                background: 'var(--surface-container-lowest)',
-                color: 'var(--color-on-surface)',
-                fontSize: '0.85rem',
+                padding: '12px 14px',
+                borderRadius: 'var(--wa-radius-sm)',
+                border: '1px solid var(--wa-border)',
+                background: 'var(--wa-surface-2)',
+                color: 'var(--wa-text)',
+                fontSize: 13,
                 lineHeight: 1.55,
                 fontFamily: 'inherit',
                 boxSizing: 'border-box',
@@ -243,13 +325,19 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
               }}
             />
           )}
-          <p style={{ margin: '0.6rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-            Saved to your{' '}
-            <Link href="/dashboard/ai-tools/history" style={{ fontWeight: 600 }}>
-              AI tool history
-            </Link>{' '}
-            — match scores are AI estimates, not a guarantee.
-          </p>
+          <div style={{ marginTop: 12 }}>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+              Saved to history. Match scores are estimates, not a guarantee.
+            </p>
+            <Link
+              href="/dashboard/ai-tools/history"
+              className="wa-page-action wa-kit-focus"
+              style={{ marginTop: 4 }}
+            >
+              <History size={14} aria-hidden="true" />
+              Open AI tool history
+            </Link>
+          </div>
         </div>
       )}
     </section>

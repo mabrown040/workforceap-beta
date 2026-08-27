@@ -11,9 +11,11 @@ import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
  */
 export function useHydrateMemberResumePlainText(
   setText: Dispatch<SetStateAction<string>>,
-  memberId?: string
+  memberId?: string,
+  enabled = true,
 ) {
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     const url = memberId
       ? `/api/member/resume?includePlainText=1&memberId=${encodeURIComponent(memberId)}`
@@ -32,5 +34,5 @@ export function useHydrateMemberResumePlainText(
     return () => {
       cancelled = true;
     };
-  }, [setText, memberId]);
+  }, [setText, memberId, enabled]);
 }

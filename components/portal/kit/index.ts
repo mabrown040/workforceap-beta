@@ -5,9 +5,11 @@
  * semantics, the KitBaseProps contract, and the anti-pattern list. If you
  * change exports here, update the guide's component index in the same PR.
  *
- * Phase 0 ships the foundation + primitives. Layout/data/persona components
- * fan out Astryx under the hood (Badge, Card, Avatar, ProgressBar, EmptyState,
- * Switch, ClickableCard, StatusDot, Token) — see ./astryxMap.ts for tone maps.
+ * Kit primitives (`StatusTag`, `Avatar`, `ProgressBar`, `KitEmptyState`, …)
+ * stay on `--wa-*`. Pages compose Astryx Card/Token/Button per KIT_GUIDE §9;
+ * the barrel does not wrap primitives in Astryx. `./astryxMap.ts` is only the
+ * tone bridge where kit still feeds Astryx Token/Badge: `alert` → brand
+ * magenta, `danger` → true red. Do not collapse those tones.
  */
 export { DesignSurface, useSurface, type SurfaceMode } from './DesignSurface';
 export { cx, type KitBaseProps, type KitDataAttrs } from './base';
@@ -17,7 +19,10 @@ export { useAnnounce, announce } from './hooks/useAnnounce';
 export { StatTile } from './StatTile';
 export { KpiStrip, type KpiItem } from './KpiStrip';
 export { StatusTag } from './StatusTag';
+export { JobListingRow, JobListingRowSkeleton } from './JobListingRow';
+export { KitEmptyState } from './KitEmptyState';
 export { SectionHeader } from './SectionHeader';
+export { PageOpener } from './PageOpener';
 export { ProgressRing } from './ProgressRing';
 export { ProgressBar } from './ProgressBar';
 export { Avatar } from './Avatar';

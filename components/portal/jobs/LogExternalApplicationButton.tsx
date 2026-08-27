@@ -1,18 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { CheckCircle2, ExternalLink } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
 import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
+import { FormField } from '@/components/portal/kit';
 
 /**
- * "I applied somewhere else — log it" CTA + modal form.
+ * "Log an outside application" CTA + modal form.
  *
  * Per /plan-ceo-review (2026-04-26): closes the placement-tracking gap.
  * Member finds a job on Indeed/LinkedIn, applies there, comes back to
- * WorkforceAP and logs the apply in 30 seconds without leaving the Job
- * Board page. Counselor gets notified automatically.
+ * WorkforceAP and logs the apply without leaving the Job Board page.
+ * Counselor gets notified automatically.
  */
 type Source = 'INDEED' | 'LINKEDIN' | 'GLASSDOOR' | 'ZIPRECRUITER' | 'WORKINTEXAS' | 'AUSTINJOBS' | 'DIRECT' | 'OTHER';
 
@@ -27,7 +28,36 @@ const SOURCE_OPTIONS: Array<{ value: Source; label: string }> = [
   { value: 'DIRECT', label: 'Company site' },
 ];
 
-export default function LogExternalApplicationButton({ variant = 'secondary' }: { variant?: 'primary' | 'secondary' } = {}) {
+const KIT_BTN =
+  'wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+
+const kitBtnSolid: CSSProperties = {
+  gap: 8,
+  whiteSpace: 'nowrap',
+};
+
+const FIELD_CONTROL: CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 'var(--wa-type-body)',
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  fontFamily: 'inherit',
+  minHeight: 44,
+};
+
+export default function LogExternalApplicationButton({
+  variant = 'secondary',
+  preview = false,
+}: {
+  variant?: 'primary' | 'secondary';
+  /** Skip the log POST — /dev/member proofs. */
+  preview?: boolean;
+} = {}) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -49,7 +79,6 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
     if (!dlg) return;
     if (open && !dlg.open) {
       dlg.showModal();
-      // Focus first field after dialog renders
       setTimeout(() => firstFieldRef.current?.focus(), 50);
     } else if (!open && dlg.open) {
       dlg.close();
@@ -70,7 +99,6 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
 
   const close = () => {
     setOpen(false);
-    // Wait briefly so closing animation doesn't reset visible content
     setTimeout(reset, 200);
   };
 
@@ -78,6 +106,13 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    if (preview) {
+      setSavedAt(new Date());
+      setFeedbackAppId(null);
+      setFeedbackTools([]);
+      setSubmitting(false);
+      return;
+    }
     try {
       const res = await fetch('/api/member/job-applications/log-external', {
         method: 'POST',
@@ -87,10 +122,12 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
           role: role.trim(),
           url: url.trim() || undefined,
           source,
-          notes: notes.trim() || undefined})});
+          notes: notes.trim() || undefined,
+        }),
+      });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? 'Could not log application. Try again.');
+        setError(data.error ?? 'Could not log this application. Try again.');
         setSubmitting(false);
         return;
       }
@@ -105,7 +142,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
       setSubmitting(false);
     } catch (err) {
       console.error('[log-external]', err);
-      setError('Network error. Check your connection and try again.');
+      setError('Could not reach the server. Try again.');
       setSubmitting(false);
     }
   };
@@ -117,39 +154,44 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`btn ${variant === 'primary' ? 'btn-primary' : 'btn-muted'} btn-small`}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
+        className={`${KIT_BTN}${variant === 'primary' ? '' : ' wa-kit-cta--ghost'}`}
+        style={kitBtnSolid}
       >
         <ExternalLink size={16} aria-hidden />
-        I applied somewhere else &mdash; log it
+        Log an outside application
       </button>
 
       <dialog
         ref={dialogRef}
         onClose={() => setOpen(false)}
         onClick={(e) => {
-          // Click backdrop closes
           if (e.target === dialogRef.current) close();
         }}
+        className="wa-log-ext-dialog"
         style={{
           padding: 0,
-          border: 'none',
-          borderRadius: '0.875rem',
-          maxWidth: '520px',
+          border: '1px solid var(--wa-border)',
+          borderRadius: 'var(--wa-radius)',
+          maxWidth: 520,
           width: '92vw',
-          background: 'var(--color-surface, white)',
-          color: 'var(--color-on-surface)',
-          boxShadow: '0 24px 64px rgba(17, 24, 39, 0.2)'}}
+          background: 'var(--wa-surface)',
+          color: 'var(--wa-text)',
+          boxShadow: 'var(--wa-shadow-lg)',
+        }}
       >
-        <div style={{ padding: '1.5rem 1.5rem 1.25rem' }}>
+        <div style={{ padding: 'var(--wa-pad)' }}>
           {savedAt ? (
-            <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-              <CheckCircle2 size={32} style={{ color: 'var(--color-green, #4a9b4f)', margin: '0 auto 0.75rem', display: 'block' }} aria-hidden />
-              <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 700 }}>Application logged</h2>
-              <p style={{ margin: '0 0 1.25rem', color: 'var(--color-on-surface-variant)' }}>
-                We noted your application for <strong>{role}</strong> at <strong>{company}</strong> on
-                {' '}{savedAt.toLocaleDateString()}. Your counselor was notified and can offer interview
-                prep or follow-up support.
+            <div style={{ textAlign: 'center', padding: '8px 0' }}>
+              <CheckCircle2
+                size={32}
+                style={{ color: 'var(--wa-success)', margin: '0 auto 12px', display: 'block' }}
+                aria-hidden
+              />
+              <h2 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
+                Application logged
+              </h2>
+              <p className="wa-kit-lede" style={{ margin: '0 0 20px' }}>
+                Noted {role} at {company} on {savedAt.toLocaleDateString()}. Your counselor was notified.
               </p>
               {feedbackAppId && feedbackTools.length > 0 ? (
                 <ApplicationAiFeedbackPrompt
@@ -165,48 +207,40 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
                   }}
                 />
               ) : null}
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-muted btn-small" onClick={close}>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button type="button" className={`${KIT_BTN} wa-kit-cta--ghost`} style={kitBtnSolid} onClick={close}>
                   Done
                 </button>
-                <button type="button" className="btn btn-primary btn-small" onClick={reset}>
+                <button type="button" className={KIT_BTN} style={kitBtnSolid} onClick={reset}>
                   Log another
                 </button>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate>
-              <header style={{ marginBottom: '1rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Log an external application</h2>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  Just applied on Indeed, LinkedIn, or a company site? Drop the basics and we&rsquo;ll
-                  add it to your tracker + give your counselor a heads-up.
+              <header style={{ marginBottom: 16 }}>
+                <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
+                  Log an outside application
+                </h2>
+                <p className="wa-kit-lede" style={{ margin: '6px 0 0' }}>
+                  Applied on Indeed, LinkedIn, or a company site? Add it to your tracker so your counselor can follow up.
                 </p>
               </header>
 
-              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                <label htmlFor="log-ext-company">
-                  Company <span style={{ color: 'var(--color-accent)' }}>*</span>
-                </label>
-                <input
+              <div style={{ display: 'grid', gap: 12, marginBottom: 12 }}>
+                <FormField
                   id="log-ext-company"
+                  label="Company"
                   ref={firstFieldRef}
-                  type="text"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder="Acme Corp"
                   required
                   disabled={submitting}
                 />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                <label htmlFor="log-ext-role">
-                  Role <span style={{ color: 'var(--color-accent)' }}>*</span>
-                </label>
-                <input
+                <FormField
                   id="log-ext-role"
-                  type="text"
+                  label="Role"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="IT Support Specialist"
@@ -215,61 +249,66 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label htmlFor="log-ext-source">Where</label>
+              <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2" style={{ gap: 12, marginBottom: 12 }}>
+                <FormField label="Where">
                   <select
                     id="log-ext-source"
                     value={source}
                     onChange={(e) => setSource(e.target.value as Source)}
                     disabled={submitting}
+                    style={FIELD_CONTROL}
                   >
                     {SOURCE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
                     ))}
                   </select>
-                </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label htmlFor="log-ext-url">Job URL (optional)</label>
-                  <input
-                    id="log-ext-url"
-                    type="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://..."
-                    disabled={submitting}
-                  />
-                </div>
+                </FormField>
+                <FormField
+                  id="log-ext-url"
+                  label="Job URL (optional)"
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://"
+                  disabled={submitting}
+                />
               </div>
 
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label htmlFor="log-ext-notes">Notes (optional)</label>
+              <FormField label="Notes (optional)">
                 <textarea
                   id="log-ext-notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
-                  placeholder="Recruiter contact, salary range, anything you want your counselor to know."
+                  placeholder="Recruiter, salary range, anything your counselor should know."
                   disabled={submitting}
+                  style={{ ...FIELD_CONTROL, resize: 'vertical' }}
                 />
-              </div>
+              </FormField>
 
               {error ? (
-                <div role="alert" style={{ background: 'rgba(173,44,77,0.08)', borderLeft: '4px solid var(--color-accent)', padding: '0.65rem 0.85rem', borderRadius: '0 6px 6px 0', marginBottom: '0.75rem', fontSize: '0.875rem' }}>
+                <div
+                  role="alert"
+                  style={{
+                    background: 'var(--wa-danger-soft)',
+                    color: 'var(--wa-danger)',
+                    padding: '12px 14px',
+                    borderRadius: 'var(--wa-radius-sm)',
+                    margin: '12px 0 0',
+                    fontSize: 'var(--wa-type-body)',
+                  }}
+                >
                   {error}
                 </div>
               ) : null}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-muted btn-small" onClick={close} disabled={submitting}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap', marginTop: 16 }}>
+                <button type="button" className={`${KIT_BTN} wa-kit-cta--ghost`} style={kitBtnSolid} onClick={close} disabled={submitting}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-small"
-                  disabled={!canSubmit}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                >
+                <button type="submit" className={KIT_BTN} style={kitBtnSolid} disabled={!canSubmit}>
                   {submitting ? <PortalInlineSpinner size={16} /> : null}
                   {submitting ? 'Logging…' : 'Log application'}
                 </button>
@@ -278,6 +317,11 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
           )}
         </div>
       </dialog>
+      <style>{`
+        .wa-log-ext-dialog::backdrop {
+          background: color-mix(in srgb, var(--wa-text) 48%, transparent);
+        }
+      `}</style>
     </>
   );
 }

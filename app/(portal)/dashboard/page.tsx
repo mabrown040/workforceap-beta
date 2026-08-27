@@ -166,6 +166,7 @@ async function renderMemberDashboard(
         firstName={home.firstName}
         coursePercent={home.coursePercent}
         programTitle={home.programTitle}
+        programStatus={home.programStatus}
         activeJobs={home.activeJobs}
         certs={home.certs}
         points={home.points}
@@ -832,7 +833,7 @@ async function renderMemberDashboard(
   if (dominantNextAction) {
     focusLine = dominantNextAction.title;
   } else if (topGoalTitle) {
-    focusLine = `Keep moving on “${topGoalTitle}”.`;
+    focusLine = `Continue “${topGoalTitle}”.`;
   } else if (noApplicationOnFile) {
     focusLine = 'Start your application — it takes about 10 minutes.';
   } else if (enrolledProgram && !allCoursesComplete) {

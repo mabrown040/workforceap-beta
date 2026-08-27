@@ -71,7 +71,7 @@ export default function DevDashboardPage() {
           <ProgressRing pct={78} size={112} onDark />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', opacity: 0.75 }}>12-day streak 🔥</div>
-            <h2 className="h-font" style={{ fontSize: 26, margin: '4px 0 2px' }}>Keep climbing, Mike.</h2>
+            <h2 className="h-font" style={{ fontSize: 26, margin: '4px 0 2px' }}>Mike</h2>
             <p style={{ fontSize: 13, opacity: 0.85, margin: 0 }}>You're 78% to your AWS cert — one module today hits your weekly goal.</p>
             <button style={{ marginTop: 12, padding: '9px 18px', background: '#fff', color: 'var(--wa-accent)', fontWeight: 700, fontSize: 13, borderRadius: 999, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <Play size={13} /> Resume module

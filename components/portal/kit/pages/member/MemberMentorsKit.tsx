@@ -46,7 +46,7 @@ export function MemberMentorsKit({ mentors }: MemberMentorsKitProps) {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               color: 'var(--wa-accent)',
               letterSpacing: '0.12em',
@@ -62,7 +62,7 @@ export function MemberMentorsKit({ mentors }: MemberMentorsKitProps) {
           >
             Find a mentor
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
+          <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', marginTop: 4 }}>
             Browse WorkforceAP mentors and request a session with someone in your field.
           </p>
         </div>
@@ -83,13 +83,13 @@ export function MemberMentorsKit({ mentors }: MemberMentorsKitProps) {
                   <div className="wa-flex wa-items-center wa-gap-3">
                     <Avatar initials={initialsOf(mentor.fullName)} size={40} />
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', color: 'var(--wa-text)' }}>{mentor.fullName}</div>
-                      {mentor.title ? <div style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{mentor.title}</div> : null}
+                      <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.01em', color: 'var(--wa-text)' }}>{mentor.fullName}</div>
+                      {mentor.title ? <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>{mentor.title}</div> : null}
                     </div>
                   </div>
                   <div className="wa-flex wa-items-center wa-justify-between wa-gap-2" style={{ flexWrap: 'wrap' }}>
                     {mentor.company ? (
-                      <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{mentor.company}</span>
+                      <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>{mentor.company}</span>
                     ) : <span />}
                     {mentor.industry ? (
                       <Token label={mentor.industry} size="sm" color="blue" />

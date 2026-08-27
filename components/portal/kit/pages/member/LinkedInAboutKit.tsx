@@ -1,32 +1,51 @@
-import { Card } from '@astryxdesign/core/Card';
-import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import { Briefcase } from 'lucide-react';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
+import { ToolkitToolChrome } from './ToolkitToolChrome';
 
 /**
- * Member Portal — LINKEDIN ABOUT tool page.
- * Command Center reskin of the page chrome around the existing
- * `LinkedInAboutForm` client component (resume prefill + generation logic
- * untouched).
+ * Member Portal — LinkedIn About tool page.
+ * PageOpener chrome around LinkedInAboutForm. History is omitted in preview.
  *
  * Target route: app/(portal)/dashboard/ai-tools/linkedin-about
  * Surface: warm (member-facing).
  */
 
-export function LinkedInAboutKit({ userId }: { userId: string }) {
+export function LinkedInAboutKit({
+  userId,
+  preview = false,
+  backHref,
+  initialRole,
+  initialBullets,
+  previewOutput,
+  resumeHref,
+}: {
+  userId?: string;
+  preview?: boolean;
+  backHref?: string;
+  initialRole?: string;
+  initialBullets?: string;
+  previewOutput?: string;
+  resumeHref?: string;
+}) {
   return (
-    <DesignSurface surface="warm">
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <SectionHeader
-          kicker="Career Toolkit"
-          title="LinkedIn About"
-          goal="Add your target role and highlights. If you have a resume on file, we prefill from it and use the full text when generating your 3-paragraph About section."
+    <ToolkitToolChrome
+      title="LinkedIn About"
+      lede="Three paragraphs for your About. Prefills from a resume on file."
+      icon={<Briefcase size={13} aria-hidden="true" />}
+      backHref={backHref}
+      maxWidth={760}
+    >
+      <div className="wa-kit-card">
+        <LinkedInAboutForm
+          preview={preview}
+          initialRole={initialRole}
+          initialBullets={initialBullets}
+          previewOutput={previewOutput}
+          resumeHref={resumeHref}
         />
-        <Card>
-          <LinkedInAboutForm />
-        </Card>
-        <ToolHistoryPanel userId={userId} toolType="linkedin_about" />
       </div>
-    </DesignSurface>
+      {userId && !preview ? <ToolHistoryPanel userId={userId} toolType="linkedin_about" /> : null}
+    </ToolkitToolChrome>
   );
 }

@@ -38,10 +38,9 @@ export default function TodayHero({
   focusLine,
   contextLine,
   insights,
-  greetingPhrase,
 }: TodayHeroProps) {
   const name = firstName?.trim() || 'there';
-  const greeting = isNewMember ? `Welcome, ${name}` : `${greetingPhrase ?? 'Good morning'}, ${name}`;
+  const greeting = isNewMember ? `Welcome, ${name}` : name;
 
   return (
     <section className={styles.hero} aria-label="Today">
@@ -63,8 +62,8 @@ export default function TodayHero({
             <MessageCircle size={18} strokeWidth={2.25} />
           </span>
           <span className={styles.quickBody}>
-            <span className={styles.quickTitle}>Talk to your coach</span>
-            <span className={styles.quickSub}>Ask anything, anytime</span>
+            <span className={styles.quickTitle}>Counselor chat</span>
+            <span className={styles.quickSub}>Open messages</span>
           </span>
         </Link>
         <Link href="/dashboard#goals" className={styles.quick}>
@@ -72,8 +71,8 @@ export default function TodayHero({
             <Target size={18} strokeWidth={2.25} />
           </span>
           <span className={styles.quickBody}>
-            <span className={styles.quickTitle}>Your goals</span>
-            <span className={styles.quickSub}>Track your next steps</span>
+            <span className={styles.quickTitle}>Goals</span>
+            <span className={styles.quickSub}>Open your next steps</span>
           </span>
         </Link>
       </div>

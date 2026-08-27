@@ -59,8 +59,11 @@ export type MemberDashboardHomeView = {
   currentStreak: number;
   longestStreak: number;
   goals: DashboardGoalSummary[];
-  nextLesson: string;
-  nextLessonDue: string;
+  /** Real next step title. Omit rather than invent "Continue your training". */
+  nextLesson?: string;
+  nextLessonDue?: string;
+  /** Honest enrollment status. Omit when no program is on file. */
+  programStatus?: string;
   nextBadgeName?: string;
   nextBadgePercent?: number;
   nextBadgeRemaining?: string;
@@ -237,8 +240,21 @@ export function deriveNextBadge(args: {
   };
 }
 
+function displayFirstName(
+  fullName: string | null | undefined,
+  fallback: string | null | undefined,
+): string {
+  const pick = (value: string | null | undefined): string => {
+    const trimmed = value?.trim() ?? '';
+    if (!trimmed) return '';
+    if (trimmed.includes('@')) return trimmed.split('@')[0] || '';
+    return trimmed.split(/\s+/)[0] || '';
+  };
+  return pick(fullName) || pick(fallback);
+}
+
 function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashboardHomeView {
-  const firstName = (fallbackDisplayName ?? 'there').split(' ')[0] || 'there';
+  const firstName = displayFirstName(null, fallbackDisplayName);
   const badge = deriveNextBadge({ totalPoints: 0, certCount: 0 });
   return {
     firstName,
@@ -249,8 +265,6 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     currentStreak: 0,
     longestStreak: 0,
     goals: [],
-    nextLesson: 'Continue your training',
-    nextLessonDue: 'Up next',
     nextBadgeName: badge.nextBadgeName,
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,
@@ -260,7 +274,7 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     pointsLedger: [],
     resumeHref: '/dashboard/program',
     coursesHref: '/dashboard/program',
-    toolkitHref: '/dashboard/toolkit',
+    toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext: null,
     prismaOpCount: 1,
@@ -277,8 +291,7 @@ function shapeHome(args: {
   const program = slug ? getProgramBySlug(slug) : undefined;
   const totalCourses = program?.courses?.length ?? 0;
   const pct = totalCourses ? Math.round((args.completedCount / totalCourses) * 100) : 0;
-  const firstName =
-    (args.row.fullName ?? args.fallbackDisplayName ?? 'there').split(' ')[0] || 'there';
+  const firstName = displayFirstName(args.row.fullName, args.fallbackDisplayName);
 
   const topAction = args.row.nextBestActions[0] ?? null;
   const programHref = slug ? `/dashboard?program=${encodeURIComponent(slug)}` : '/dashboard/program';
@@ -309,14 +322,14 @@ function shapeHome(args: {
     firstName,
     coursePercent: pct,
     programTitle: program?.title ?? undefined,
+    programStatus: program ? (pct >= 100 ? 'Complete' : 'In progress') : undefined,
     activeJobs: args.row._count.jobApplications,
     certs: args.row._count.userCertifications,
     points: totalPoints,
     currentStreak: args.row.memberPoints?.currentStreak ?? 0,
     longestStreak: args.row.memberPoints?.longestStreak ?? 0,
     goals: mapGoalSummaries(args.row.goals),
-    nextLesson: topAction?.title ?? program?.title ?? 'Continue your training',
-    nextLessonDue: topAction ? 'Recommended next step' : 'Up next',
+    nextLesson: topAction?.title,
     nextBadgeName: badge.nextBadgeName,
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,
@@ -327,7 +340,7 @@ function shapeHome(args: {
     pointsThisWeek: pointsThisWeek > 0 ? pointsThisWeek : undefined,
     resumeHref: topAction?.ctaHref ?? programHref,
     coursesHref: programHref,
-    toolkitHref: '/dashboard/toolkit',
+    toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext,
     prismaOpCount: args.prismaOpCount,

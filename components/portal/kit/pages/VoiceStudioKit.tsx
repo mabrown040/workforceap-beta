@@ -15,8 +15,9 @@
  *   toolkit  → AI Career Toolkit        (3 numbered steps of tool cards)
  *
  * The "Mock Interview" coach card and the Live Session tab button both switch to
- * the `session` tab. Dark panels (#1a1a1a / #0f0f10) are intentional and use
- * inline backgrounds — the kit's warm surface is light.
+ * the `session` tab. Page chrome is PageOpener + SegmentedControl on the shared
+ * `--wa-bg-wave` wash (same as other member kits). Live-session panels stay dark
+ * on purpose (`--wa-sidebar-*` / session tokens — not a second app header).
  *
  * Animations (orb pulse, expanding rings, equalizer) are gated behind
  * prefers-reduced-motion: reduce. Focus rings use wa-kit-focus where on light
@@ -66,6 +67,8 @@ import {
 } from 'lucide-react';
 import type { Conversation } from '@elevenlabs/client';
 import { DesignSurface } from '../DesignSurface';
+import { PageOpener } from '../PageOpener';
+import { KitEmptyState } from '../KitEmptyState';
 import { VoiceOrb } from '../VoiceOrb';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
@@ -222,99 +225,51 @@ export function VoiceStudioKit({
     <DesignSurface surface="warm">
       <style>{ORB_CSS}</style>
 
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--wa-bg)', color: 'var(--wa-text)' }}>
-        {/* ============ STICKY DARK HEADER + TABS ============ */}
-        <header
-          style={{
-            position: 'sticky',
-            top: 'calc(var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 0px))',
-            zIndex: 25,
-            background: '#1a1a1a',
-            color: '#fff',
-          }}
-        >
-          <div
-            className="wa-flex wa-flex-col lg:wa-flex-row"
-            style={{
-              maxWidth: 1280,
-              margin: '0 auto',
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
+      <div
+        style={{
+          minHeight: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          color: 'var(--wa-text)',
+          maxWidth: 1280,
+          margin: '0 auto',
+          padding: 'var(--wa-pad-sm)',
+          boxSizing: 'border-box',
+        }}
+        className="wa-space-y-6"
+      >
+        <PageOpener
+          kicker="Career studio"
+          title="AI Career Tools"
+          lede="Voice coaches and the AI toolkit."
+          icon={<AudioLines size={13} aria-hidden="true" />}
+        />
+        <div className="wa-page-tabs">
+          <SegmentedControl
+            value={tab}
+            onChange={(v) => selectTab(v as StudioTab)}
+            label="Voice studio sections"
+            size="sm"
+            layout="hug"
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  background: 'var(--wa-accent)',
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <AudioLines size={16} aria-hidden="true" />
-              </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>AI Career Tools</div>
-                <div style={{ fontSize: 10, color: '#a3a3a3' }}>
-                  Voice coaching, resume tools, and interview prep in one place.
-                </div>
-              </div>
-            </div>
-
-            <SegmentedControl
-              value={tab}
-              onChange={(v) => selectTab(v as StudioTab)}
-              label="Voice studio sections"
-              size="sm"
-              layout="hug"
-            >
-              {TABS.map((t) => (
-                <SegmentedControlItem key={t.id} value={t.id} label={t.label} />
-              ))}
-            </SegmentedControl>
-          </div>
-        </header>
-
-        <main
-          style={{
-            flexGrow: 1,
-            width: '100%',
-            maxWidth: 1280,
-            margin: '0 auto',
-            padding: 16,
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
+            {TABS.map((t) => (
+              <SegmentedControlItem key={t.id} value={t.id} label={t.label} />
+            ))}
+          </SegmentedControl>
+        </div>
+        <div
+          role="tabpanel"
+          id={`vs-panel-${tab}`}
+          aria-labelledby={`vs-tab-${tab}`}
+          tabIndex={0}
+          className="wa-kit-focus"
+          style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
         >
-          <h1 className="sr-only">Voice and AI Career Tools</h1>
-          <div
-            role="tabpanel"
-            id={`vs-panel-${tab}`}
-            aria-labelledby={`vs-tab-${tab}`}
-            tabIndex={0}
-            className="wa-kit-focus"
-            style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
-          >
-            {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
-            {tab === 'session' && <SessionPanel agent={agent} />}
-            {tab === 'studio' && (
-              <StudioPanel data={resumeStudio} />
-            )}
-            {tab === 'toolkit' && <ToolkitPanel />}
-          </div>
-        </main>
-
-        <footer style={{ background: '#1a1a1a', color: '#737373', fontSize: 10, textAlign: 'center', padding: '12px 16px' }}>
-          Built for focused practice, clearer next steps, and staff-supported career momentum
-        </footer>
+          {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
+          {tab === 'session' && <SessionPanel agent={agent} />}
+          {tab === 'studio' && <StudioPanel data={resumeStudio} />}
+          {tab === 'toolkit' && <ToolkitPanel />}
+        </div>
       </div>
     </DesignSurface>
   );
@@ -411,33 +366,10 @@ const COACH_CARDS: CoachCard[] = [
 function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void }) {
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div
-        className="wa-flex-col md:wa-flex-row"
-        style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}
-      >
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              color: 'var(--wa-accent)',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
-            <Headset size={13} aria-hidden="true" />
-            <span>Talk it out</span>
-          </div>
-          <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
-            Voice Coaches
-          </h2>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Real-time spoken coaching. Your program context is included automatically.
-          </p>
-        </div>
+      <div className="wa-flex wa-items-center wa-justify-between wa-flex-wrap" style={{ gap: 12 }}>
+        <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0, maxWidth: '42rem' }}>
+          Real-time spoken coaching. Your program context is included automatically.
+        </p>
         <HStack
           gap={2}
           align="center"
@@ -452,11 +384,6 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
           <Token label="Live voice · ~5 min" size="sm" color="green" />
         </HStack>
       </div>
-
-      <Card>
-        <strong style={{ color: 'var(--wa-text)' }}>Pick a coach for what you need right now.</strong>{' '}
-        Each live session uses your program context automatically, so you can talk through next steps without setup.
-      </Card>
 
       <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-5">
         {COACH_CARDS.map((c) => (
@@ -479,18 +406,18 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
 
   switch (variant) {
     case 'gold':
-      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-gold), var(--wa-gold-dark))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
+      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-gold), var(--wa-gold-dark))', color: 'var(--wa-on-accent)', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       ctaColor = undefined;
       break;
     case 'crimson':
-      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
+      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))', color: 'var(--wa-on-accent)', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       break;
     case 'crimson-deep':
-      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent-dark), color-mix(in srgb, var(--wa-accent-dark) 70%, black))', color: '#fff', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
+      cardStyle = { background: 'linear-gradient(to bottom right, var(--wa-accent-dark), color-mix(in srgb, var(--wa-accent-dark) 70%, black))', color: 'var(--wa-on-accent)', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)' };
       iconChip = { background: 'rgba(255,255,255,0.22)' };
       bodyColor = 'rgba(255,255,255,0.92)';
       break;
@@ -501,14 +428,14 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
       ctaColor = 'var(--wa-info)';
       break;
     case 'dark':
-      cardStyle = { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)' };
+      cardStyle = { background: 'var(--wa-sidebar-bg)', color: 'var(--wa-sidebar-text)', border: '1px solid var(--wa-sidebar-border)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)' };
       iconChip = { background: 'var(--wa-accent)' };
       bodyColor = 'rgba(255,255,255,0.9)';
       break;
     case 'gold-light':
     default:
       // Use theme tokens only (no hardcoded cream) so the card flips in dark
-      // mode — the previous hardcoded #faf7f0 bg + flipping text tokens made
+      // mode — the previous hardcoded cream + flipping text tokens made
       // this card unreadable in dark. CTA uses --wa-text for guaranteed AA;
       // the gold identity carries through the icon chip + badge.
       cardStyle = { background: 'var(--wa-gold-soft)', border: '1px solid var(--wa-border)', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
@@ -541,16 +468,16 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>
-        <p style={{ fontSize: 13.5, color: bodyColor, marginTop: 6, lineHeight: 1.5 }}>{body}</p>
+        <p style={{ fontSize: 'var(--wa-type-body)', color: bodyColor, marginTop: 6, lineHeight: 1.5 }}>{body}</p>
         <div
           style={{
             marginTop: 14,
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            fontSize: 13,
+            fontSize: 'var(--wa-type-meta)',
             fontWeight: 700,
-            color: ctaColor ?? (isLightBody ? 'var(--wa-text)' : '#fff'),
+            color: ctaColor ?? (isLightBody ? 'var(--wa-text)' : 'var(--wa-on-accent)'),
           }}
         >
           <Cta size={13} aria-hidden="true" />
@@ -590,6 +517,14 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
 
 type SessionPhase = 'idle' | 'connecting' | 'active' | 'ended';
 type TranscriptLine = { speaker: 'agent' | 'user'; text: string };
+
+/** Always-dark session stage — tint from `--wa-sidebar-*`, never raw white. */
+const SESSION_FAINT = 'color-mix(in srgb, var(--wa-sidebar-text) 40%, transparent)';
+const SESSION_SOFT = 'color-mix(in srgb, var(--wa-sidebar-text) 50%, transparent)';
+const SESSION_MUTED = 'color-mix(in srgb, var(--wa-sidebar-text) 60%, transparent)';
+const SESSION_INK = 'color-mix(in srgb, var(--wa-sidebar-text) 90%, transparent)';
+const SESSION_CHIP = 'color-mix(in srgb, var(--wa-sidebar-text) 10%, transparent)';
+const SESSION_CHIP_STRONG = 'color-mix(in srgb, var(--wa-sidebar-text) 12%, transparent)';
 
 function formatClock(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60);
@@ -811,7 +746,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
         : phase === 'ended'
           ? 'Session ended'
           : `Ready · ${label}`;
-  const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : 'rgba(255,255,255,0.4)';
+  const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : SESSION_FAINT;
 
   // Big status caption under the orb.
   const caption =
@@ -839,29 +774,10 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
     // flex-start (not center): centering split the leftover height into a
     // large dead band ABOVE the section title; anchoring to the top with the
     // tall clamped stage reads intentional and keeps the heading scannable.
-    <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: 8, gap: 16 }}>
-      <div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            color: 'var(--wa-accent)',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-          }}
-        >
-          <Headset size={13} aria-hidden="true" />
-          <span>Live session</span>
-        </div>
-        <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
-          {label}
-        </h2>
-        <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-          Real-time spoken coaching — your program context is included automatically.
-        </p>
+    <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 16 }}>
+      <div className="wa-flex wa-items-baseline wa-justify-between wa-flex-wrap" style={{ gap: 8 }}>
+        <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: 0 }}>{label}</h2>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: 0 }}>Live voice · program context included</p>
       </div>
 
       {/* Dark "stage" — an intentional, always-dark media surface (like a call/theater
@@ -876,7 +792,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
           boxShadow: 'var(--wa-shadow-lg)',
         }}
       >
-        <div style={{ background: '#1a1a1a', borderRadius: 22, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--wa-sidebar-bg)', borderRadius: 22, overflow: 'hidden' }}>
           <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-5" style={{ minHeight: 'clamp(560px, 60vh, 720px)' }}>
           {/* Orb / status — spans 3 of 5 on lg */}
           <div
@@ -887,15 +803,15 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fff',
+              color: 'var(--wa-sidebar-text)',
               position: 'relative',
             }}
           >
-            <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700 }}>
+            <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--wa-type-meta)', fontWeight: 700 }}>
               <span aria-hidden="true" className={isLive ? 'vs-dot' : undefined} style={{ width: 8, height: 8, borderRadius: 999, background: dotColor }} />
               {status}
             </div>
-            <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--wa-type-meta)', color: SESSION_MUTED }}>
               <Clock size={13} aria-hidden="true" />
               {formatClock(elapsed)}
             </div>
@@ -928,8 +844,8 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               <div style={{ height: 32, marginBottom: 12 }} aria-hidden />
             )}
 
-            <p style={{ fontSize: 14, fontWeight: 600 }}>{caption}</p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
+            <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 600 }}>{caption}</p>
+            <p style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_SOFT, marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
 
             {error ? (
               <div
@@ -940,12 +856,12 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: 8,
-                  background: 'rgba(173,44,77,0.15)',
-                  border: '1px solid rgba(173,44,77,0.4)',
+                  background: 'color-mix(in srgb, var(--wa-danger) 18%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--wa-danger) 45%, transparent)',
                   borderRadius: 12,
                   padding: '10px 14px',
-                  fontSize: 12,
-                  color: '#f0a9b8',
+                  fontSize: 'var(--wa-type-meta)',
+                  color: 'color-mix(in srgb, var(--wa-danger) 55%, var(--wa-sidebar-text))',
                   textAlign: 'left',
                 }}
               >
@@ -958,7 +874,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             {phase === 'idle' && askRole ? (
               <div style={{ width: '100%', maxWidth: 360, marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: SESSION_MUTED }}>
                     Target role
                   </span>
                   <input
@@ -968,17 +884,17 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     placeholder="e.g. Cloud Support Associate"
                     className="vs-focus-dark"
                     style={{
-                      background: '#0f0f10',
-                      border: '1px solid #404040',
+                      background: 'color-mix(in srgb, var(--wa-sidebar-bg) 82%, black)',
+                      border: '1px solid var(--wa-sidebar-border)',
                       borderRadius: 10,
                       padding: '10px 12px',
-                      color: '#fff',
-                      fontSize: 14,
+                      color: 'var(--wa-sidebar-text)',
+                      fontSize: 'var(--wa-type-body)',
                     }}
                   />
                 </label>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: SESSION_MUTED }}>
                     Interview type
                   </span>
                   <select
@@ -986,12 +902,12 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     onChange={(e) => setInterviewType(e.target.value)}
                     className="vs-focus-dark"
                     style={{
-                      background: '#0f0f10',
-                      border: '1px solid #404040',
+                      background: 'color-mix(in srgb, var(--wa-sidebar-bg) 82%, black)',
+                      border: '1px solid var(--wa-sidebar-border)',
                       borderRadius: 10,
                       padding: '10px 12px',
-                      color: '#fff',
-                      fontSize: 14,
+                      color: 'var(--wa-sidebar-text)',
+                      fontSize: 'var(--wa-type-body)',
                       cursor: 'pointer',
                     }}
                   >
@@ -1000,7 +916,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     <option value="general">General / screening</option>
                   </select>
                 </label>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, margin: 0 }}>
                   Leave the role blank for a general practice interview.
                 </p>
               </div>
@@ -1017,7 +933,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     aria-pressed={muted}
                     title={muted ? 'Unmute microphone' : 'Mute microphone'}
                     onClick={toggleMute}
-                    style={{ ...circleBtn, background: muted ? accent : 'rgba(255,255,255,0.1)' }}
+                    style={{ ...circleBtn, background: muted ? accent : SESSION_CHIP }}
                   >
                     {muted ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />}
                   </button>
@@ -1029,9 +945,9 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                       padding: '12px 24px',
                       borderRadius: 999,
                       background: accent,
-                      color: '#fff',
+                      color: 'var(--wa-on-accent)',
                       fontWeight: 700,
-                      fontSize: 14,
+                      fontSize: 'var(--wa-type-body)',
                       border: 'none',
                       cursor: 'pointer',
                       display: 'inline-flex',
@@ -1051,10 +967,10 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   style={{
                     padding: '12px 28px',
                     borderRadius: 999,
-                    background: 'rgba(255,255,255,0.12)',
-                    color: '#fff',
+                    background: SESSION_CHIP_STRONG,
+                    color: 'var(--wa-sidebar-text)',
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     border: 'none',
                     cursor: 'wait',
                     opacity: 0.7,
@@ -1063,7 +979,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     gap: 8,
                   }}
                 >
-                  <span className="vs-dot" style={{ width: 8, height: 8, borderRadius: 999, background: '#fff' }} />
+                  <span className="vs-dot" style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--wa-sidebar-text)' }} />
                   Connecting…
                 </button>
               ) : (
@@ -1075,9 +991,9 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     padding: '12px 28px',
                     borderRadius: 999,
                     background: accent,
-                    color: '#fff',
+                    color: 'var(--wa-on-accent)',
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     border: 'none',
                     cursor: 'pointer',
                     display: 'inline-flex',
@@ -1096,19 +1012,19 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
           <div
             className="lg:wa-col-span-2"
             style={{
-              background: '#0f0f10',
-              borderTop: '1px solid #262626',
+              background: 'color-mix(in srgb, var(--wa-sidebar-bg) 82%, black)',
+              borderTop: '1px solid var(--wa-sidebar-border)',
               padding: 24,
               display: 'flex',
               flexDirection: 'column',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ fontWeight: 700, color: '#fff', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontWeight: 700, color: 'var(--wa-sidebar-text)', fontSize: 'var(--wa-type-body)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Captions size={15} color={accent} aria-hidden="true" />
                 Live Transcript
               </h3>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+              <span style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, fontWeight: 700 }}>
                 {isLive ? 'LIVE' : phase === 'ended' ? 'SAVED' : 'IDLE'}
               </span>
             </div>
@@ -1117,10 +1033,10 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               ref={transcriptScrollRef}
               role="log"
               aria-live="polite"
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 12, minHeight: 0 }}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 'var(--wa-type-meta)', minHeight: 0 }}
             >
               {lines.length === 0 ? (
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', margin: 0 }}>
+                <p style={{ color: SESSION_FAINT, fontStyle: 'italic', margin: 0 }}>
                   {phase === 'active'
                     ? 'Waiting for speech — your conversation will appear here.'
                     : phase === 'connecting'
@@ -1132,7 +1048,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   line.speaker === 'agent' ? (
                     <div key={`${i}-${line.text.slice(0, 16)}`}>
                       <div style={{ ...transcriptLabelCoach, color: accent }}>Coach</div>
-                      <div style={{ ...bubble, background: '#1a1a1a', color: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 4 }}>
+                      <div style={{ ...bubble, background: 'var(--wa-sidebar-bg)', color: SESSION_INK, borderTopLeftRadius: 4 }}>
                         {line.text}
                       </div>
                     </div>
@@ -1143,7 +1059,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                         style={{
                           ...bubble,
                           background: accent,
-                          color: '#fff',
+                          color: 'var(--wa-on-accent)',
                           borderTopRightRadius: 4,
                           display: 'inline-block',
                           textAlign: 'left',
@@ -1161,14 +1077,14 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               style={{
                 marginTop: 16,
                 paddingTop: 16,
-                borderTop: '1px solid #262626',
+                borderTop: '1px solid var(--wa-sidebar-border)',
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: 8,
                 textAlign: 'center',
               }}
             >
-              <SessionStat value={String(lines.length)} label="Exchanges" color="#fff" />
+              <SessionStat value={String(lines.length)} label="Exchanges" color="var(--wa-sidebar-text)" />
               <SessionStat value={String(userTurns)} label="Your turns" color="var(--wa-success)" />
               <SessionStat value={formatClock(elapsed)} label="Duration" color="var(--wa-gold)" />
             </div>
@@ -1176,7 +1092,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
         </div>
         </div>
       </div>
-      <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 0 }}>
+      <p style={{ textAlign: 'center', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 0 }}>
         Speak naturally with the AI coach. Your live transcript appears here while you practice.
       </p>
     </section>
@@ -1187,7 +1103,7 @@ function SessionStat({ value, label, color }: { value: string; label: string; co
   return (
     <div>
       <div style={{ fontSize: 18, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
     </div>
   );
 }
@@ -1196,13 +1112,13 @@ const circleBtn: React.CSSProperties = {
   width: 48,
   height: 48,
   borderRadius: 999,
-  background: 'rgba(255,255,255,0.1)',
+  background: SESSION_CHIP,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   border: 'none',
   cursor: 'pointer',
-  color: '#fff',
+  color: 'var(--wa-sidebar-text)',
 };
 
 const bubble: React.CSSProperties = {
@@ -1211,7 +1127,7 @@ const bubble: React.CSSProperties = {
 };
 
 const transcriptLabelCoach: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 'var(--wa-type-meta)',
   fontWeight: 700,
   color: 'var(--wa-accent)',
   textTransform: 'uppercase',
@@ -1220,9 +1136,9 @@ const transcriptLabelCoach: React.CSSProperties = {
 };
 
 const transcriptLabelYou: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 'var(--wa-type-meta)',
   fontWeight: 700,
-  color: 'rgba(255,255,255,0.6)',
+  color: SESSION_MUTED,
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   marginBottom: 4,
@@ -1262,7 +1178,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
           background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))',
           borderRadius: 24,
           padding: 'clamp(20px, 5vw, 28px)',
-          color: '#fff',
+          color: 'var(--wa-on-accent)',
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
@@ -1274,7 +1190,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
         <div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
@@ -1285,13 +1201,13 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             }}
           >
             <FlaskConical size={13} aria-hidden="true" />
-            AI Career Tools
+            Resume
             <Token label="BETA" size="sm" color="gray" />
           </div>
           <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
             Resume Studio
           </h2>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+          <p style={{ fontSize: 'var(--wa-type-body)', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
             {hasResume
               ? 'Your instant structural read and top fixes — then full AI scoring, rewrites, and voice coaching.'
               : 'Add your resume to get an instant structural read, full AI scoring, and rewrites.'}
@@ -1314,7 +1230,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             {/* real structural score ring */}
             <Card>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-              <h3 style={{ fontWeight: 800, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
+              <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-meta)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
                 Structure Score
               </h3>
               <div style={{ position: 'relative' }}>
@@ -1335,10 +1251,10 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 </svg>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: 36, fontWeight: 800, color: band?.color ?? 'var(--wa-gold)', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)', letterSpacing: '0.08em' }}>OF 100</span>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', letterSpacing: '0.08em' }}>OF 100</span>
                 </div>
               </div>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>
+              <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 12 }}>
                 {band?.label}. This is the instant structural read — run the full AI analysis for market &amp; skills-match scoring.
               </p>
               </div>
@@ -1365,8 +1281,8 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                     <CheckCircle2 size={15} aria-hidden="true" />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 12 }}>No structural issues</div>
-                    <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-meta)' }}>No structural issues</div>
+                    <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                       Your formatting, bullets, and quantification look strong. Run the full analysis for market &amp; skills-coverage insights.
                     </div>
                   </div>
@@ -1381,10 +1297,9 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             <div className="lg:wa-col-span-2">
             <Card>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Take it further</h3>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
-                The full AI analysis scores your resume against live job-market keywords and O*NET skills coverage, then
-                rewrites weak bullets to lead with measurable impact.
+              <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Full analysis</h3>
+              <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+                Scores this resume against job-market keywords and O*NET skills, then rewrites weak bullets.
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
                 <AstryxLink href={TOOL_HREF['resume-studio'] + '?view=score'} as={Link as never} isStandalone>
@@ -1405,7 +1320,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               style={{
                 textAlign: 'left',
                 background: 'linear-gradient(to bottom right, var(--wa-accent), var(--wa-accent-dark))',
-                color: '#fff',
+                color: 'var(--wa-on-accent)',
                 borderRadius: 24,
                 padding: 'clamp(20px, 5vw, 28px)',
                 display: 'flex',
@@ -1421,12 +1336,12 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 <div style={{ padding: 12, width: 'fit-content', background: 'rgba(255,255,255,0.15)', borderRadius: 16, display: 'inline-flex' }}>
                   <Sparkles size={20} aria-hidden="true" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                  Prefer to discuss it out loud? Open the Resume Coach voice session with your draft loaded.
+                <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Resume coach</h3>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+                  Voice session with this resume loaded.
                 </p>
               </div>
-              <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700 }}>
+              <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', fontWeight: 700 }}>
                 <Mic size={13} aria-hidden="true" />
                 Start voice session
               </div>
@@ -1435,38 +1350,17 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
         </>
       ) : (
         /* no resume on file — honest empty state */
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '48px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
-        >
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FileText size={26} aria-hidden="true" />
-          </div>
-          <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>No resume on file yet</h3>
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', maxWidth: 420, margin: 0, lineHeight: 1.5 }}>
-            Add your resume to see an instant structure score, your top fixes, and the full AI analysis with market &amp;
-            skills-match scoring.
-          </p>
-          <Link
-            href={TOOL_HREF['resume-studio']}
-            className="wa-kit-focus vs-btn-solid"
-            style={{
-              marginTop: 4,
-              padding: '10px 20px',
-              background: 'var(--wa-accent)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 14,
-              borderRadius: 999,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <Upload size={14} aria-hidden="true" />
-            Add your resume
-          </Link>
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title="No resume on file"
+            description="Add a resume to see a structure score, top fixes, and keyword analysis."
+            action={
+              <Link href={TOOL_HREF['resume-studio']} className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                <Upload size={14} aria-hidden="true" />
+                Add resume
+              </Link>
+            }
+          />
         </div>
       )}
     </section>
@@ -1494,8 +1388,8 @@ function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
           <Sparkles size={13} aria-hidden="true" />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
-          <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{detail}</div>
+          <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-meta)' }}>{title}</div>
+          <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>{detail}</div>
         </div>
         <AstryxLink href={TOOL_HREF['resume-rewriter']} as={Link as never} isStandalone>
           <Button label="Fix with AI" variant="primary" size="sm" />
@@ -1567,29 +1461,9 @@ function ToolkitPanel() {
   const toolCount = TOOLKIT_STEPS.reduce((n, step) => n + step.tools.length, 0);
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            color: 'var(--wa-accent)',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-          }}
-        >
-          <Sparkles size={13} aria-hidden="true" />
-          <span>AI Career Toolkit</span>
-        </div>
-        <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
-          Everything to get hired, in order.
-        </h2>
-        <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-          {toolCount} AI tools tuned to your training path and the Austin market. Work top to bottom.
-        </p>
-      </div>
+      <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0 }}>
+        {toolCount} tools. Work top to bottom.
+      </p>
 
       {TOOLKIT_STEPS.map((step) => (
         <div key={step.n}>
@@ -1600,11 +1474,11 @@ function ToolkitPanel() {
                 height: 24,
                 borderRadius: 999,
                 background: 'var(--wa-accent)',
-                color: '#fff',
+                color: 'var(--wa-on-accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 12,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 700,
               }}
             >
@@ -1612,7 +1486,7 @@ function ToolkitPanel() {
             </span>
             <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em' }}>{step.title}</h3>
           </div>
-          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {step.tools.map((tool) => (
               <ToolCardView key={tool.title} tool={tool} />
             ))}
@@ -1625,13 +1499,6 @@ function ToolkitPanel() {
 
 function ToolCardView({ tool }: { tool: ToolCard }) {
   const { Icon, title, body, accent, tag, href } = tool;
-  const accentStyle =
-    accent === 'gold'
-      ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
-      : accent === 'blue'
-        ? { background: 'var(--wa-info-soft)', color: 'var(--wa-info)' }
-        : { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' };
-  const cardBorder = accent === 'gold' ? '#ece2c8' : 'var(--wa-border)';
   const tagStyle =
     accent === 'gold'
       ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
@@ -1640,32 +1507,34 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
   return (
     <Link
       href={href}
-      className="wa-kit-focus vs-hero-card"
+      className="wa-kit-focus"
       style={{
         textAlign: 'left',
         background: 'var(--wa-surface)',
-        border: `1px solid ${cardBorder}`,
-        borderRadius: 16,
-        padding: 20,
+        borderBottom: '1px solid var(--wa-border)',
+        padding: '14px 4px',
         cursor: 'pointer',
-        display: 'block',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
         width: '100%',
+        minHeight: 64,
         textDecoration: 'none',
         color: 'var(--wa-text)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ padding: 10, borderRadius: 12, display: 'inline-flex', ...accentStyle }}>
-          <Icon size={16} aria-hidden="true" />
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className="wa-flex wa-items-center wa-gap-2">
+          <h4 style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', margin: 0 }}>{title}</h4>
+          {tag === 'BETA' ? (
+            <span style={{ padding: '2px 8px', fontSize: 'var(--wa-type-meta)', fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
+          ) : tag === 'VOICE' ? (
+            <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
+          ) : null}
         </div>
-        {tag === 'BETA' ? (
-          <span style={{ padding: '2px 8px', fontSize: 9, fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
-        ) : tag === 'VOICE' ? (
-          <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
-        ) : null}
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 0' }}>{body}</p>
       </div>
-      <h4 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{title}</h4>
-      <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{body}</p>
+      <Icon size={16} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-muted)' }} />
     </Link>
   );
 }
@@ -1685,7 +1554,7 @@ const ORB_CSS = `
 .vs-orb-ring.vs-d3 { animation-delay: 1.8s; }
 .vs-eqbar { height: 60%; animation: vsEq 1s ease-in-out infinite; }
 .vs-dot { animation: vsPulse 1.6s ease-in-out infinite; }
-.vs-focus-dark:focus-visible { outline: none; box-shadow: 0 0 0 2px #121212, 0 0 0 4px #ad2c4d; }
+.vs-focus-dark:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--wa-sidebar-bg), 0 0 0 4px var(--wa-accent); }
 
 /* Micro-interactions — transform/opacity only, so they're cheap to composite
    and safe to disable wholesale under reduced motion below. */

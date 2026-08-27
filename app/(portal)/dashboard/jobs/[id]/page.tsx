@@ -1,17 +1,15 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import PageHero from '@/components/PageHero';
 import MobileApplyFunnel from './MobileApplyFunnel';
 import JobTailorPanel from '@/components/portal/JobTailorPanel';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
-import PageHeader from '@/components/portal/PageHeader';
 import { getProgramBySlug } from '@/lib/content/programs';
 import ReferralCopyButton from './ReferralCopyButton';
+import { MemberJobDetail } from '@/components/portal/kit/pages/member/MemberJobDetail';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -159,128 +157,37 @@ export default async function JobDetailPage({ params }: Props) {
   };
 
   return (
-    <>
-    <div className="inner-page">
-      <PageHeader
-        title="Job Details"
-        titleHeadingLevel={2}
-        breadcrumbs={[
-          { label: 'Job Board', href: '/dashboard/jobs' },
-          { label: 'Job Details' },
-        ]}
-      />
-      <PageHero
-        title={job.title}
-        subtitle={`${job.employer.companyName} · ${job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType} · ${JOB_TYPE_LABELS[job.jobType] ?? job.jobType}`}
-      >
-        {employerLogoUrl ? (
-          <div style={{ marginTop: '0.75rem' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={employerLogoUrl}
-              alt=""
-              width={72}
-              height={72}
-              style={{ objectFit: 'contain', borderRadius: 8, background: 'var(--surface-container-low)' }}
-            />
-          </div>
-        ) : null}
-      </PageHero>
-      <section className="content-section" style={{ paddingTop: '1rem' }}>
-        <div className="container" style={{ maxWidth: 720 }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <Link href="/dashboard/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-              ← Back to Job Board
-            </Link>
-          </div>
-
-          {salaryLine && (
-            <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>
-              <strong>Salary:</strong> {salaryLine}
-            </p>
-          )}
-
-          {user && <JobTailorPanel jobId={job.id} />}
-
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Description</h2>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{job.description}</div>
-          </div>
-
-          {job.requirements?.length > 0 && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Requirements</h2>
-              <ul style={{ paddingLeft: '1.25rem' }}>
-                {job.requirements.map((r: string, i: number) => (
-                  <li key={i}>{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {screeningQuestions && screeningQuestions.length > 0 && (
-            <div
-              style={{
-                marginBottom: '1.5rem',
-                padding: '1.1rem 1.25rem',
-                borderRadius: '0.85rem',
-                border: '1px solid var(--outline-variant)',
-                background: 'var(--surface-container-low)',
-              }}
-            >
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>What this employer looks for</h2>
-              <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                {screeningPack!.packTitle} — shared by {screeningPack!.employerLabel}. Informational, so you can prepare before you apply.
-              </p>
-              <ol style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.6rem' }}>
-                {screeningQuestions.map((q, i) => (
-                  <li key={q.id ?? i} style={{ lineHeight: 1.55 }}>
-                    {q.prompt ?? 'See counselor for details.'}{' '}
-                    {q.type && (
-                      <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                        ({q.type.replace(/_/g, ' ')})
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {referralMessage && (
-            <div
-              style={{
-                marginBottom: '1.5rem',
-                padding: '1.1rem 1.25rem',
-                borderRadius: '0.85rem',
-                border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)',
-                background: 'color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-low, rgba(0,0,0,0.02)))',
-              }}
-            >
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>
-                Know someone at {job.employer.companyName}?
-              </h2>
-              <p style={{ margin: '0 0 0.75rem', fontSize: '0.88rem', lineHeight: 1.5, color: 'var(--color-on-surface)' }}>
-                A warm intro more than doubles your odds vs. applying cold. If you know anyone there — even loosely — send them this:
-              </p>
-              <div
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  fontSize: '0.88rem',
-                  lineHeight: 1.55,
-                  padding: '0.85rem 1rem',
-                  borderRadius: '0.65rem',
-                  border: '1px solid var(--outline-variant)',
-                  background: 'var(--surface-container-lowest)',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                {referralMessage}
-              </div>
-              <ReferralCopyButton text={referralMessage} />
-            </div>
-          )}
-
+    <MemberJobDetail
+      title={job.title}
+      company={job.employer.companyName}
+      location={job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType}
+      jobType={JOB_TYPE_LABELS[job.jobType] ?? job.jobType}
+      salary={salaryLine}
+      description={job.description}
+      requirements={job.requirements ?? []}
+      backHref="/dashboard/jobs"
+      logoUrl={employerLogoUrl}
+      screening={
+        screeningQuestions && screeningQuestions.length > 0 && screeningPack
+          ? {
+              packTitle: screeningPack.packTitle,
+              employerLabel: screeningPack.employerLabel,
+              questions: screeningQuestions,
+            }
+          : null
+      }
+      referral={
+        referralMessage
+          ? {
+              company: job.employer.companyName,
+              message: referralMessage,
+              copySlot: <ReferralCopyButton text={referralMessage} />,
+            }
+          : null
+      }
+      applySlot={
+        <>
+          {user ? <JobTailorPanel jobId={job.id} /> : null}
           <MobileApplyFunnel
             jobId={job.id}
             authenticated={!!user}
@@ -292,8 +199,8 @@ export default async function JobDetailPage({ params }: Props) {
             description={job.description}
             requirements={job.requirements}
           />
-        </div>
-      </section>
-    </div>    </>
+        </>
+      }
+    />
   );
 }

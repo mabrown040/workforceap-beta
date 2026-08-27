@@ -2,15 +2,12 @@
 
 import { Play, Check, Lock, CalendarDays, Target, ArrowRight, GraduationCap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { DesignSurface, ProgressRing } from '@/components/portal/kit';
+import { DesignSurface, ProgressRing, PageOpener } from '@/components/portal/kit';
 
 /**
- * Member Portal — MY PROGRAM view.
- * Faithful port of `data-view-panel="program"` in
- * docs/mockups/workforceap-member-suite.html.
- *
- * Target route: app/(portal)/dashboard/program
- * Surface: warm (member-facing).
+ * Member Portal — program / certification path (kit ProgressRing + modules +
+ * live session + missions). Live at `/dashboard/program`; proof at
+ * `/dev/member/program`. Surface: warm (member-facing).
  */
 
 type ModuleState = 'done' | 'active' | 'locked';
@@ -49,29 +46,23 @@ export interface MemberProgramKitProps {
   missionsHref?: string;
 }
 
-const DEFAULT_MODULES: ProgramModule[] = [
-  { title: 'Cloud Concepts', state: 'done' },
-  { title: 'Security & Compliance', state: 'done' },
-  { title: 'Shared Responsibility Model', state: 'active' },
-  { title: 'Billing & Pricing', state: 'locked' },
-  { title: 'Exam Readiness', state: 'locked' },
-];
+const DEFAULT_MODULES: ProgramModule[] = [];
 
 const MODULE_META: Record<ModuleState, { label: string; color: string; icon: LucideIcon; iconSize: number; bg: string; border?: string; iconBg: string; iconColor: string }> = {
   done: {
     label: 'Done',
     color: 'var(--wa-success)',
     icon: Check,
-    iconSize: 13,
-    bg: 'var(--wa-bg)',
+    iconSize: 14,
+    bg: 'var(--wa-surface-2)',
     iconBg: 'var(--wa-success)',
     iconColor: 'var(--wa-on-accent)',
   },
   active: {
-    label: 'In Progress',
+    label: 'In progress',
     color: 'var(--wa-accent)',
     icon: Play,
-    iconSize: 11,
+    iconSize: 14,
     bg: 'var(--wa-accent-soft)',
     border: '1px solid var(--wa-accent-soft)',
     iconBg: 'var(--wa-accent)',
@@ -81,7 +72,7 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Luc
     label: 'Locked',
     color: 'var(--wa-muted)',
     icon: Lock,
-    iconSize: 11,
+    iconSize: 14,
     bg: 'var(--wa-surface)',
     border: '1px solid var(--wa-border)',
     iconBg: 'var(--wa-surface-2)',
@@ -90,12 +81,12 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Luc
 };
 
 export function MemberProgramKit({
-  programTitle = 'AWS Cloud Practitioner Essentials',
-  progressPercent = 78,
-  modulesComplete = 7,
-  modulesTotal = 9,
-  estRemaining = '4 hrs remaining',
-  resumeHref = '#',
+  programTitle = 'Your program',
+  progressPercent = 0,
+  modulesComplete = 0,
+  modulesTotal = 0,
+  estRemaining,
+  resumeHref = '/dashboard/learning',
   modules = DEFAULT_MODULES,
   liveSessionTitle,
   liveSessionWhen,
@@ -146,35 +137,13 @@ export function MemberProgramKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
-        {/* Page opener — eyebrow + title so the tab reads as an intentional
-            page rather than a floating widget (matches VoiceStudioKit idiom). */}
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              color: 'var(--wa-accent)',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
-            <GraduationCap size={13} aria-hidden="true" />
-            <span>My program</span>
-          </div>
-          <h1
-            className="h-font"
-            style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}
-          >
-            Your certification path
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Modules, live sessions, and missions in one place.
-          </p>
-        </div>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Program"
+          title="Certification path"
+          lede="Modules, live sessions, and missions."
+          icon={<GraduationCap size={13} aria-hidden="true" />}
+        />
         {/* Gradient hero */}
         <div
           className="wa-kit-card wa-kit-card--gradient-crimson wa-flex wa-flex-col md:wa-flex-row md:wa-items-center"
@@ -184,34 +153,28 @@ export function MemberProgramKit({
             <ProgressRing pct={pct} size={120} onDark label="Program progress" />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
-              Current Program
+            <div className="wa-kit-meta" style={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.7, color: 'inherit' }}>
+              Current program
             </div>
             <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
               {programTitle}
             </h2>
-            <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
-              {modulesComplete} of {modulesTotal} modules complete · Est. {estRemaining}
+            <p className="wa-kit-lede" style={{ opacity: 0.8, marginTop: 4, fontVariantNumeric: 'tabular-nums', color: 'inherit' }}>
+              {modulesComplete} of {modulesTotal} modules complete
+              {estRemaining ? ` · ${estRemaining}` : ''}
             </p>
           </div>
           <a
             href={resumeHref}
-            className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+            className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '12px 20px',
               background: 'var(--wa-on-accent)',
               color: 'var(--wa-accent)',
               fontWeight: 700,
-              fontSize: 14,
-              borderRadius: 999,
-              textDecoration: 'none',
               whiteSpace: 'nowrap',
             }}
           >
-            Resume Module <Play size={12} aria-hidden="true" />
+            Resume module <Play size={14} aria-hidden="true" />
           </a>
         </div>
 
@@ -220,6 +183,14 @@ export function MemberProgramKit({
           <div className="wa-kit-card lg:wa-col-span-2">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16, textWrap: 'balance' }}>Modules</h3>
             <div className="wa-space-y-2">
+              {modules.length === 0 ? (
+                <p className="wa-kit-lede" style={{ margin: 0 }}>
+                  No modules on this path yet.{' '}
+                  <a href={resumeHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                    Open learning
+                  </a>
+                </p>
+              ) : null}
               {modules.map((m) => {
                 const meta = MODULE_META[m.state];
                 const Icon = meta.icon;
@@ -244,8 +215,8 @@ export function MemberProgramKit({
                   >
                     <div
                       style={{
-                        width: 28,
-                        height: 28,
+                        width: 32,
+                        height: 32,
                         borderRadius: 999,
                         background: meta.iconBg,
                         color: meta.iconColor,
@@ -257,31 +228,19 @@ export function MemberProgramKit({
                     >
                       <Icon size={meta.iconSize} aria-hidden="true" />
                     </div>
-                    <span style={{ fontWeight: 600, fontSize: 14, flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
+                    <span style={{ fontWeight: 600, fontSize: 'var(--wa-type-body)', flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
                       {m.title}
                     </span>
                     {isActive ? (
                       <a
                         href={moduleHref}
-                        className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: 'var(--wa-on-accent)',
-                          background: 'var(--wa-accent)',
-                          padding: '6px 12px',
-                          borderRadius: 999,
-                          textDecoration: 'none',
-                          whiteSpace: 'nowrap',
-                        }}
+                        className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                        style={{ whiteSpace: 'nowrap' }}
                       >
-                        Continue in Coursera <ArrowRight size={11} aria-hidden="true" />
+                        Continue <ArrowRight size={14} aria-hidden="true" />
                       </a>
                     ) : (
-                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: meta.color }}>
+                      <span className="wa-kit-meta" style={{ fontWeight: 700, color: meta.color }}>
                         {meta.label}
                       </span>
                     )}
@@ -297,31 +256,19 @@ export function MemberProgramKit({
               <div className="wa-kit-card">
                 <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-accent)', marginBottom: 8 }}>
                   <CalendarDays size={15} aria-hidden="true" />
-                  <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Next Live Session</h3>
+                  <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>Next live session</h3>
                 </div>
-                <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
+                <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700 }}>{liveSessionTitle}</p>
                 {liveSessionWhen && (
-                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{liveSessionWhen}</p>
+                  <p className="wa-kit-meta" style={{ marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{liveSessionWhen}</p>
                 )}
                 <button
                   type="button"
                   onClick={handleAddToCalendar}
-                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                  style={{
-                    marginTop: 12,
-                    width: '100%',
-                    minHeight: 44,
-                    padding: '10px 0',
-                    background: 'var(--wa-accent)',
-                    color: 'var(--wa-on-accent)',
-                    fontWeight: 600,
-                    fontSize: 12,
-                    borderRadius: 999,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
+                  className="wa-kit-cta wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{ marginTop: 12 }}
                 >
-                  Add to Calendar
+                  Add to calendar
                 </button>
               </div>
             )}
@@ -346,17 +293,17 @@ export function MemberProgramKit({
                 >
                   <Target size={14} aria-hidden="true" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Skill Missions</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>Skill missions</h3>
               </div>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
-                {missionsSummary ?? 'View your active missions and points to earn this week.'}
+              <p className="wa-kit-lede">
+                {missionsSummary ?? 'No missions assigned.'}
               </p>
               <a
                 href={missionsHref}
-                className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'var(--wa-gold)', textDecoration: 'none' }}
+                className="wa-page-action wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                style={{ marginTop: 12, color: 'var(--wa-gold)' }}
               >
-                View missions <ArrowRight size={12} aria-hidden="true" />
+                Open missions <ArrowRight size={14} aria-hidden="true" />
               </a>
             </div>
           </div>

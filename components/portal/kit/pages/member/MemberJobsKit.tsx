@@ -134,7 +134,7 @@ export function MemberJobsKit({
             Job Pipeline
           </h1>
           <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Track applications, discover new roles, and keep momentum toward an offer.
+            Applications, matches, next interviews.
           </p>
         </div>
         {/* KPI strip */}
@@ -196,43 +196,42 @@ export function MemberJobsKit({
                   <AstryxLink href={profileHref} as={NextLink as never} isStandalone>
                     <Button label={JOBS_EMPTY_RECOMMENDATIONS.primaryCta} variant="primary" size="sm" />
                   </AstryxLink>
-                  <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
-                    <Button label={JOBS_EMPTY_RECOMMENDATIONS.secondaryCta} variant="secondary" size="sm" />
-                  </AstryxLink>
+                  {applications.length === 0 ? (
+                    <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
+                      <Button label={JOBS_EMPTY_RECOMMENDATIONS.secondaryCta} variant="secondary" size="sm" />
+                    </AstryxLink>
+                  ) : null}
                 </>
               }
             />
           ) : (
-          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
-            {recommended.map((job) => (
-              <Card key={job.id}>
-                <div className="wa-flex wa-items-start wa-justify-between">
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 'var(--wa-radius-sm)',
-                      background: 'var(--wa-accent-soft)',
-                      color: 'var(--wa-accent)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: 13,
-                    }}
-                  >
-                    {job.logo}
-                  </div>
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-success)' }}>{job.match}</span>
+          <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {recommended.map((job, i) => (
+              <AstryxLink
+                key={job.id}
+                href={`/dashboard/jobs/${job.id}`}
+                as={NextLink as never}
+                isStandalone
+                className="wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  minHeight: 64,
+                  padding: '14px 18px',
+                  borderTop: i === 0 ? 'none' : '1px solid var(--wa-border)',
+                  textDecoration: 'none',
+                  color: 'var(--wa-text)',
+                }}
+              >
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>{job.title}</h3>
+                  <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>{job.meta}</p>
                 </div>
-                <h3 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{job.title}</h3>
-                <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{job.meta}</p>
-                <div style={{ marginTop: 12 }}>
-                  <AstryxLink href={`/dashboard/jobs/${job.id}`} as={NextLink as never} isStandalone>
-                    <Button label="Quick Apply" variant="secondary" size="sm" style={{ width: '100%' }} />
-                  </AstryxLink>
-                </div>
-              </Card>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-success)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                  {job.match}
+                </span>
+              </AstryxLink>
             ))}
           </div>
           )}

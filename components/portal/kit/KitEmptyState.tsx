@@ -13,7 +13,7 @@ export function KitEmptyState({
 }) {
   return (
     <div style={{ textAlign: 'left', padding: 0 }}>
-      <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0, color: 'var(--wa-text)' }}>
+      <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em', margin: 0, color: 'var(--wa-text)' }}>
         {title}
       </h3>
       {description ? (

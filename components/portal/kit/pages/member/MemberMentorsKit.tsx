@@ -83,7 +83,7 @@ export function MemberMentorsKit({ mentors }: MemberMentorsKitProps) {
                   <div className="wa-flex wa-items-center wa-gap-3">
                     <Avatar initials={initialsOf(mentor.fullName)} size={40} />
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', color: 'var(--wa-text)' }}>{mentor.fullName}</div>
+                      <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.01em', color: 'var(--wa-text)' }}>{mentor.fullName}</div>
                       {mentor.title ? <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>{mentor.title}</div> : null}
                     </div>
                   </div>

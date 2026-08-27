@@ -113,7 +113,7 @@ export default function SkillMissionTeaserCard({
       </div>
 
       {hasReady && data?.nextMissionName ? (
-        <h3 style={{ margin: '0 0 0.25rem', fontSize: 16, fontWeight: 800, letterSpacing: '-0.01em', color: 'var(--wa-text)' }}>
+        <h3 style={{ margin: '0 0 0.25rem', fontSize: 'var(--wa-type-body)', fontWeight: 800, letterSpacing: '-0.01em', color: 'var(--wa-text)' }}>
           {data.nextMissionName}
         </h3>
       ) : null}

@@ -68,6 +68,7 @@ import {
 import type { Conversation } from '@elevenlabs/client';
 import { DesignSurface } from '../DesignSurface';
 import { PageOpener } from '../PageOpener';
+import { KitEmptyState } from '../KitEmptyState';
 import { VoiceOrb } from '../VoiceOrb';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
@@ -383,11 +384,6 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
           <Token label="Live voice · ~5 min" size="sm" color="green" />
         </HStack>
       </div>
-
-      <Card>
-        <strong style={{ color: 'var(--wa-text)' }}>Pick a coach for what you need right now.</strong>{' '}
-        Each live session uses your program context automatically, so you can talk through next steps without setup.
-      </Card>
 
       <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-5">
         {COACH_CARDS.map((c) => (
@@ -1293,10 +1289,9 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             <div className="lg:wa-col-span-2">
             <Card>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Take it further</h3>
+              <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Full analysis</h3>
               <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
-                The full AI analysis scores your resume against live job-market keywords and O*NET skills coverage, then
-                rewrites weak bullets to lead with measurable impact.
+                Scores this resume against job-market keywords and O*NET skills, then rewrites weak bullets.
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
                 <AstryxLink href={TOOL_HREF['resume-studio'] + '?view=score'} as={Link as never} isStandalone>
@@ -1333,9 +1328,9 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 <div style={{ padding: 12, width: 'fit-content', background: 'rgba(255,255,255,0.15)', borderRadius: 16, display: 'inline-flex' }}>
                   <Sparkles size={20} aria-hidden="true" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Resume coach</h3>
                 <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-                  Prefer to discuss it out loud? Open the Resume Coach voice session with your draft loaded.
+                  Voice session with this resume loaded.
                 </p>
               </div>
               <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', fontWeight: 700 }}>
@@ -1347,38 +1342,17 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
         </>
       ) : (
         /* no resume on file — honest empty state */
-        <div
-          className="wa-kit-card"
-          style={{ textAlign: 'center', padding: '48px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
-        >
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FileText size={26} aria-hidden="true" />
-          </div>
-          <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>No resume on file yet</h3>
-          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', maxWidth: 420, margin: 0, lineHeight: 1.5 }}>
-            Add your resume to see an instant structure score, your top fixes, and the full AI analysis with market &amp;
-            skills-match scoring.
-          </p>
-          <Link
-            href={TOOL_HREF['resume-studio']}
-            className="wa-kit-focus vs-btn-solid"
-            style={{
-              marginTop: 4,
-              padding: '10px 20px',
-              background: 'var(--wa-accent)',
-              color: 'var(--wa-on-accent)',
-              fontWeight: 700,
-              fontSize: 'var(--wa-type-body)',
-              borderRadius: 999,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <Upload size={14} aria-hidden="true" />
-            Add your resume
-          </Link>
+        <div className="wa-kit-card">
+          <KitEmptyState
+            title="No resume on file"
+            description="Add a resume to see a structure score, top fixes, and keyword analysis."
+            action={
+              <Link href={TOOL_HREF['resume-studio']} className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                <Upload size={14} aria-hidden="true" />
+                Add resume
+              </Link>
+            }
+          />
         </div>
       )}
     </section>

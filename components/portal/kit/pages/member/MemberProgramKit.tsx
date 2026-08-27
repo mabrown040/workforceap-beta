@@ -46,13 +46,7 @@ export interface MemberProgramKitProps {
   missionsHref?: string;
 }
 
-const DEFAULT_MODULES: ProgramModule[] = [
-  { title: 'Cloud Concepts', state: 'done' },
-  { title: 'Security & Compliance', state: 'done' },
-  { title: 'Shared Responsibility Model', state: 'active' },
-  { title: 'Billing & Pricing', state: 'locked' },
-  { title: 'Exam Readiness', state: 'locked' },
-];
+const DEFAULT_MODULES: ProgramModule[] = [];
 
 const MODULE_META: Record<ModuleState, { label: string; color: string; icon: LucideIcon; iconSize: number; bg: string; border?: string; iconBg: string; iconColor: string }> = {
   done: {
@@ -87,12 +81,12 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Luc
 };
 
 export function MemberProgramKit({
-  programTitle = 'AWS Cloud Practitioner Essentials',
-  progressPercent = 78,
-  modulesComplete = 7,
-  modulesTotal = 9,
-  estRemaining = '4 hrs remaining',
-  resumeHref = '#',
+  programTitle = 'Your program',
+  progressPercent = 0,
+  modulesComplete = 0,
+  modulesTotal = 0,
+  estRemaining,
+  resumeHref = '/dashboard/learning',
   modules = DEFAULT_MODULES,
   liveSessionTitle,
   liveSessionWhen,
@@ -159,32 +153,24 @@ export function MemberProgramKit({
             <ProgressRing pct={pct} size={120} onDark label="Program progress" />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.7 }}>
+            <div className="wa-kit-meta" style={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.7, color: 'inherit' }}>
               Current program
             </div>
             <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
               {programTitle}
             </h2>
-            <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
-              {modulesComplete} of {modulesTotal} modules complete · Est. {estRemaining}
+            <p className="wa-kit-lede" style={{ opacity: 0.8, marginTop: 4, fontVariantNumeric: 'tabular-nums', color: 'inherit' }}>
+              {modulesComplete} of {modulesTotal} modules complete
+              {estRemaining ? ` · ${estRemaining}` : ''}
             </p>
           </div>
           <a
             href={resumeHref}
-            className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+            className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              minHeight: 44,
-              padding: '12px 20px',
               background: 'var(--wa-on-accent)',
               color: 'var(--wa-accent)',
               fontWeight: 700,
-              fontSize: 14,
-              borderRadius: 999,
-              textDecoration: 'none',
               whiteSpace: 'nowrap',
             }}
           >
@@ -197,6 +183,14 @@ export function MemberProgramKit({
           <div className="wa-kit-card lg:wa-col-span-2">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16, textWrap: 'balance' }}>Modules</h3>
             <div className="wa-space-y-2">
+              {modules.length === 0 ? (
+                <p className="wa-kit-lede" style={{ margin: 0 }}>
+                  No modules on this path yet.{' '}
+                  <a href={resumeHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                    Open learning
+                  </a>
+                </p>
+              ) : null}
               {modules.map((m) => {
                 const meta = MODULE_META[m.state];
                 const Icon = meta.icon;
@@ -234,32 +228,19 @@ export function MemberProgramKit({
                     >
                       <Icon size={meta.iconSize} aria-hidden="true" />
                     </div>
-                    <span style={{ fontWeight: 600, fontSize: 14, flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
+                    <span style={{ fontWeight: 600, fontSize: 'var(--wa-type-body)', flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
                       {m.title}
                     </span>
                     {isActive ? (
                       <a
                         href={moduleHref}
-                        className="wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 4,
-                          minHeight: 44,
-                          padding: '0 8px',
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: 'var(--wa-accent)',
-                          background: 'transparent',
-                          textDecoration: 'none',
-                          whiteSpace: 'nowrap',
-                        }}
+                        className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                        style={{ whiteSpace: 'nowrap' }}
                       >
                         Continue <ArrowRight size={14} aria-hidden="true" />
                       </a>
                     ) : (
-                      <span style={{ fontSize: 13, fontWeight: 700, color: meta.color }}>
+                      <span className="wa-kit-meta" style={{ fontWeight: 700, color: meta.color }}>
                         {meta.label}
                       </span>
                     )}
@@ -275,29 +256,17 @@ export function MemberProgramKit({
               <div className="wa-kit-card">
                 <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-accent)', marginBottom: 8 }}>
                   <CalendarDays size={15} aria-hidden="true" />
-                  <h3 style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em' }}>Next live session</h3>
+                  <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>Next live session</h3>
                 </div>
-                <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
+                <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700 }}>{liveSessionTitle}</p>
                 {liveSessionWhen && (
-                  <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{liveSessionWhen}</p>
+                  <p className="wa-kit-meta" style={{ marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{liveSessionWhen}</p>
                 )}
                 <button
                   type="button"
                   onClick={handleAddToCalendar}
-                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                  style={{
-                    marginTop: 12,
-                    width: '100%',
-                    minHeight: 44,
-                    padding: '10px 0',
-                    background: 'var(--wa-accent)',
-                    color: 'var(--wa-on-accent)',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    borderRadius: 999,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
+                  className="wa-kit-cta wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{ marginTop: 12 }}
                 >
                   Add to calendar
                 </button>
@@ -324,26 +293,15 @@ export function MemberProgramKit({
                 >
                   <Target size={14} aria-hidden="true" />
                 </div>
-                <h3 style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em' }}>Skill missions</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', letterSpacing: '-0.02em' }}>Skill missions</h3>
               </div>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+              <p className="wa-kit-lede">
                 {missionsSummary ?? 'No missions assigned.'}
               </p>
               <a
                 href={missionsHref}
-                className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                style={{
-                  marginTop: 12,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  minHeight: 44,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: 'var(--wa-gold)',
-                  textDecoration: 'none',
-                }}
+                className="wa-page-action wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                style={{ marginTop: 12, color: 'var(--wa-gold)' }}
               >
                 Open missions <ArrowRight size={14} aria-hidden="true" />
               </a>

@@ -60,7 +60,7 @@ export default async function DevMemberProgramPage({
       liveSessionWhen="Thu, Jul 9 · 6:00 PM CT"
       liveSessionStart="2026-07-09T23:00:00.000Z"
       liveSessionDurationMinutes={60}
-      missionsSummary="3 missions active · 180 pts this week"
+      missionsSummary="3 missions ready on this path."
       missionsHref="#"
     />
   );

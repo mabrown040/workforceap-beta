@@ -155,7 +155,7 @@ export default async function ProgramPage({
         progressPercent={progressPercent}
         modulesComplete={completedCount}
         modulesTotal={totalCourses}
-        estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : 'Almost done'}
+        estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : undefined}
         resumeHref="/dashboard/learning"
         modules={modules}
         // Live session + missions aren't loaded on this route — keep the kit

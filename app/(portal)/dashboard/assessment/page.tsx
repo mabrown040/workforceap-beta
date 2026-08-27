@@ -5,8 +5,10 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
+import AssessmentRetakeButton from '@/components/portal/AssessmentRetakeButton';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
+import { TOTAL_POINTS_PUBLIC } from '@/lib/assessment/questions';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import { formatPortalDateTime } from '@/lib/formatDate';
@@ -46,8 +48,73 @@ export default async function AssessmentPage({
 
   if (!dbUser) redirect('/login');
 
+  // Completed members used to be silently bounced to /dashboard, which made every
+  // "Training Preassessment" link feel broken (click → land back home with no
+  // explanation). Render their result with a path to review answers or retake.
   if (dbUser.assessmentCompleted) {
-    redirect('/dashboard');
+    return (
+      <div className="inner-page">
+        <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
+          <PageHeader
+            title="Skills snapshot"
+            subtitle="You've already completed your Training Preassessment — here's where you landed."
+            breadcrumbs={[
+              { label: 'Member Portal', href: '/dashboard' },
+              { label: 'Skills snapshot' },
+            ]}
+          />
+        </div>
+
+        <section className="content-section">
+          <div className="container" style={{ maxWidth: '720px' }}>
+            <div className="portal-card portal-card--flat portal-card--padded">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontSize: '1.25rem', color: 'var(--color-green, #4a9b4f)' }}
+                >
+                  task_alt
+                </span>
+                <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Preassessment complete</h2>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>
+                    Score
+                  </p>
+                  <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)', letterSpacing: '-0.04em', margin: 0, lineHeight: 1 }}>
+                    {dbUser.assessmentScorePct ?? 0}
+                    <span style={{ fontSize: '1rem' }}>%</span>
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
+                    {dbUser.assessmentScore ?? 0}/{TOTAL_POINTS_PUBLIC} points
+                  </p>
+                </div>
+                {dbUser.assessmentCompletedAt ? (
+                  <div>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>
+                      Completed
+                    </p>
+                    <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>
+                      {formatPortalDateTime(dbUser.assessmentCompletedAt)}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                Your counselor uses this snapshot to personalize your learning path. You can review
+                your answers on your profile, or retake the assessment if things have changed.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <Link href="/dashboard/profile" className="btn btn-primary">Review my answers</Link>
+                <AssessmentRetakeButton />
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   // Not-yet-interviewed members used to be bounced through /dashboard/skills-assessment

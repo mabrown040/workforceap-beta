@@ -8,6 +8,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -56,6 +57,18 @@ export default async function SkillMissionsPage() {
 
       {summary ? (
         <SkillMissionPanel summary={summary} />
+      ) : enrolledProgram ? (
+        /* Enrolled, but this program has no missions authored yet. Telling an
+           enrolled member to "Choose my program" reads as though their
+           enrollment was lost — say what's actually true instead. */
+        <PortalEmptyState
+          icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}
+          title="Missions are on the way for this program"
+          description={`We're still writing the skill missions for ${
+            getProgramBySlug(enrolledProgram)?.title ?? 'your program'
+          }. Keep working through your courses — your counselor will let you know as soon as missions open up, and your progress still counts toward your certificate.`}
+          primaryAction={{ href: '/dashboard/program', label: 'View my program' }}
+        />
       ) : (
         <PortalEmptyState
           icon={<Target size={32} aria-hidden="true" style={{ color: 'var(--color-accent)' }} />}

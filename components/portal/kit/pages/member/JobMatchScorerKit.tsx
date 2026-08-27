@@ -11,7 +11,7 @@ import { ToolkitToolChrome } from './ToolkitToolChrome';
  * Surface: warm (member-facing).
  */
 
-const INFO_TILES = [
+const INFO_ROWS = [
   {
     icon: FlaskConical,
     title: 'Methodology',
@@ -25,7 +25,7 @@ const INFO_TILES = [
   {
     icon: Info,
     title: 'Session',
-    body: "Results reflect this run. Re-run after you update your resume or try a different posting.",
+    body: 'Results reflect this run. Re-run after you update your resume or try a different posting.',
   },
 ];
 
@@ -80,15 +80,26 @@ export function JobMatchScorerKit({
 
       {userId && !preview ? <ToolHistoryPanel userId={userId} toolType="job_match_scorer" /> : null}
 
-      <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
-        {INFO_TILES.map(({ icon: Icon, title, body }) => (
-          <div key={title} className="wa-kit-card">
-            <div className="wa-flex wa-items-center wa-gap-2" style={{ marginBottom: 8 }}>
+      <div className="wa-kit-card">
+        <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>
+          How this works
+        </p>
+        <ul style={{ listStyle: 'none', margin: '12px 0 0', padding: 0 }}>
+          {INFO_ROWS.map(({ icon: Icon, title, body }, index) => (
+            <li
+              key={title}
+              className="wa-flex wa-gap-3"
+              style={{
+                padding: '12px 0',
+                borderTop: index === 0 ? '1px solid var(--wa-border)' : undefined,
+                borderBottom: '1px solid var(--wa-border)',
+              }}
+            >
               <div
                 aria-hidden="true"
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 32,
+                  height: 32,
                   borderRadius: 'var(--wa-radius-sm)',
                   display: 'flex',
                   alignItems: 'center',
@@ -100,11 +111,17 @@ export function JobMatchScorerKit({
               >
                 <Icon size={14} aria-hidden="true" />
               </div>
-              <h3 style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>{title}</h3>
-            </div>
-            <p style={{ fontSize: 'var(--wa-type-meta)', lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>{body}</p>
-          </div>
-        ))}
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>
+                  {title}
+                </p>
+                <p className="wa-kit-lede" style={{ margin: '4px 0 0' }}>
+                  {body}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </ToolkitToolChrome>
   );

@@ -23,7 +23,7 @@ export function SignOutButton({ className, children, onSignOutStart }: SignOutBu
 
   const mergedClass =
     className != null && className !== ''
-      ? /\bbtn\b/.test(className)
+      ? /\bbtn\b/.test(className) || className.includes('wa-shell-text-action')
         ? className
         : `btn ${className}`.trim()
       : 'btn';

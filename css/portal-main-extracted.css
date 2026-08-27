@@ -1247,11 +1247,11 @@ html.dark .portal-nav {
     padding: 0.72rem 1.25rem;
     /* PWA on notched iPhones (black-translucent status bar + viewport-fit=cover): push content below the notch */
     padding-top: max(0.72rem, env(safe-area-inset-top, 0.72rem));
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur-xl);
-    -webkit-backdrop-filter: var(--glass-blur-xl);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    background: var(--wa-shell-header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    box-shadow: none;
     position: sticky;
     top: 0;
     z-index: 60;
@@ -1322,17 +1322,26 @@ html.dark .portal-nav {
         font-size: 0.76rem;
     }
 }
-html:not(.dark) .workspace-shell-header {
-    background: var(--wa-surface-glass, rgba(255, 255, 255, 0.92));
-    border-bottom-color: rgba(173, 44, 77, 0.12);
-    box-shadow: 0 1px 0 rgba(124, 13, 48, 0.06), 0 16px 40px rgba(173, 44, 77, 0.06);
-}
 .workspace-shell-header__brand {
     display: flex;
     align-items: center;
     gap: 0.65rem;
     min-width: 0;
     flex: 1 1 auto;
+}
+/* Beat css/main.css `html.dark .workspace-shell-*` glass slabs so dark mode
+   uses the same wash + translucent header as light. */
+html.dark .workspace-shell-root,
+[data-theme='dark'] .workspace-shell-root {
+    background: var(--wa-bg-wave);
+}
+html.dark .workspace-shell-header,
+[data-theme='dark'] .workspace-shell-header {
+    background: var(--wa-shell-header-bg);
+    border-bottom-color: transparent;
+    box-shadow: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 .workspace-menu-btn {
     display: flex;
@@ -1372,12 +1381,18 @@ html:not(.dark) .workspace-shell-header {
     letter-spacing: 0.07em;
     color: var(--color-accent);
 }
+.workspace-shell-brand-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 0.75rem;
+    min-width: 0;
+}
 .workspace-shell-public-site-link {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    margin-top: 0.35rem;
-    font-size: 0.78rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--color-accent);
     text-decoration: none;
@@ -1598,11 +1613,8 @@ html.dark .workspace-tab-bar {
     gap: 0.4rem;
 }
 @media (min-width: 1024px) {
-    /* Members use the same left command-rail as every other portal on desktop
-       (the contextual rail renders the member nav grouped by primary/workflows/
-       insights/manage). The flat top-nav is hidden here — it would otherwise
-       overflow and hide items with no way to scroll on a mouse — and remains the
-       primary nav on mobile, where it scrolls/swipes. */
+    /* Members no longer render a flat tab bar (FINDING-023). Keep this
+       hide rule so leftover markup cannot overflow the rail. */
     html[data-portal-role="member"] .workspace-tab-bar--flat {
         display: none !important;
     }
@@ -2008,9 +2020,7 @@ html.dark .workspace-sidebar-signout:hover {
     min-width: 0;
     padding: 1.25rem 1rem;
     width: 100%;
-    background:
-        radial-gradient(740px 360px at 50% -120px, rgba(217, 77, 115, 0.09), transparent 70%),
-        transparent;
+    background: transparent;
 }
 /* Mobile bottom nav: `main#main-content` + WorkspaceShell `.workspace-shell-main` (marketing.css). */
 @media (max-width: 767px) {
@@ -3647,7 +3657,16 @@ body:has(.dashboard-drawer-overlay.open) {
     display: flex;
 }
 .portal-header-actions-mobile {
+    /* Stay hidden on desktop. A later unscoped `display: flex` used to
+       override this and paint a second bell / theme / hamburger next to
+       the desktop ActionItems (FINDING-018b). Layout props that do not
+       change visibility live here; the 639px query is the only place
+       that sets display:flex. */
     display: none;
+    position: relative;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
 }
 @media (max-width: 639px) {
     .portal-header-actions-desktop {
@@ -3658,15 +3677,11 @@ body:has(.dashboard-drawer-overlay.open) {
     }
 }
 /*
- * Workspace shell mobile: the drawer sidebar already renders its own
- * public-site link and sign-out button (WorkspaceShell.tsx), so this
- * hamburger's dropdown skips those two (PortalHeaderActions.tsx's
- * `hideSidebarDuplicates`) instead of the previous `display: none !important`
- * here — that blanket rule also hid NotificationBell and ThemeToggle, which
- * are NOT available anywhere else on mobile, so mobile users had no way to
- * see notifications or toggle dark mode at all.
+ * Workspace shell mobile: public-site and sign-out live in the drawer
+ * (WorkspaceShell.tsx). Header actions on small screens are bell + theme
+ * only — do not add a second hamburger here (FINDING-020).
  */
-/* Mobile header: hamburger menu for actions */
+/* Mobile header: compact padding */
 @media (max-width: 640px) {
     .portal-shell-header {
         padding: 0.75rem 1rem;
@@ -3686,13 +3701,6 @@ body:has(.dashboard-drawer-overlay.open) {
     .workspace-shell-header--minimal-mobile .workspace-shell-tagline {
         display: none;
     }
-}
-.portal-header-actions-mobile {
-    position: relative;
-    align-items: center;
-    display: flex;
-    gap: 0.35rem;
-    flex-shrink: 0;
 }
 .portal-header-actions-mobile__primary {
     display: flex;
@@ -3769,13 +3777,27 @@ body:has(.dashboard-drawer-overlay.open) {
     flex-direction: column;
     gap: 0.35rem;
     padding: 0.35rem 0.5rem 0.65rem;
+    /* Rail is always dark chrome; force dark tokens so Light/System/Dark
+       isn't a light-mode widget sitting on the sidebar. */
+    color-scheme: dark;
+}
+.workspace-sidebar-appearance .astryx-segmented-control {
+    background: transparent;
+}
+.workspace-sidebar-appearance .astryx-segmented-control-item[data-selected] {
+    background: color-mix(in srgb, var(--wa-accent) 24%, transparent);
+    color: var(--wa-sidebar-text);
+    box-shadow: none;
+}
+.workspace-sidebar-appearance .astryx-segmented-control-item:not([data-selected]):hover {
+    background: color-mix(in srgb, var(--wa-sidebar-text) 7%, transparent);
 }
 .workspace-sidebar-appearance__label {
     font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color-on-surface-variant);
+    color: var(--wa-sidebar-label);
 }
 .dev-view-toggle {
     display: flex;

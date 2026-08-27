@@ -14,20 +14,8 @@ export default function DevMemberProgressPage() {
   return (
     <MemberProgressKit
       readinessScore={84}
-      readinessNote="Finish AWS Practitioner to reach Job Ready."
-      weekStats={[
-        { value: '5.2', label: 'Hrs Learned', color: 'var(--wa-accent)' },
-        { value: '3', label: 'Jobs Applied', color: 'var(--wa-info)' },
-        { value: '2', label: 'Modules', color: 'var(--wa-gold)' },
-        { value: '+320', label: 'Points', color: 'var(--wa-success)' },
-      ]}
-      statsHeading="Progress by area"
-      milestones={[
-        { label: 'Completed intake & eligibility', when: 'May 2', state: 'done' },
-        { label: 'Earned first certification', when: 'Mar 18', state: 'done' },
-        { label: 'First interview scheduled', when: 'This week', state: 'active' },
-        { label: 'Job placement', when: 'Goal', state: 'goal' },
-      ]}
+      readinessNote="Finish AWS Practitioner."
+      statsHeading="This week"
       readinessCoachHref="#"
     />
   );

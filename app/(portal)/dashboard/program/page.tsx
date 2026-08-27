@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { GraduationCap } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -19,6 +20,7 @@ import ProgramChangeRequestModal from '@/components/portal/ProgramChangeRequestM
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatDate } from '@/lib/i18n/date';
+import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -82,18 +84,18 @@ export default async function ProgramPage({
   // become a public free-for-all. Keep later reassignment counselor/admin-driven.
   if (!enrolledSlug || !program) {
     return (
-      <>
-        <div className="portal-pad-x" style={{ paddingBottom: '6rem' }}>
+      <DesignSurface surface="warm">
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
           {staffViewer && <StaffViewBanner page="program" />}
-          <PageHeader
+          <PageOpener
+            kicker="Program"
             title="Choose your program"
-            subtitle="Pick your track. Funding covers one program at a time — your counselor can help you switch later if your goals change."
-            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'My Program' }]}
+            lede="Funding covers one program at a time. Your counselor can help you switch later."
+            icon={<GraduationCap size={13} aria-hidden="true" />}
           />
           <ProgramPicker programs={pickerPrograms.length ? pickerPrograms : []} />
         </div>
-        <MobileBottomNav variant="portal" />
-      </>
+      </DesignSurface>
     );
   }
 

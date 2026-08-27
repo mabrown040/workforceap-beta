@@ -5,10 +5,10 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import PageHeader from '@/components/portal/PageHeader';
-import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import { getTranslations } from 'next-intl/server';
+import { MemberMessagesEmpty } from '@/components/portal/kit/pages/member/MemberMessagesEmpty';
 import { MemberMessagesKit } from '@/components/portal/kit/pages/member/MemberMessagesKit';
 import type { ChatMessage } from '@/components/portal/kit';
 
@@ -45,28 +45,11 @@ export default async function MemberMessagesPage({
   });
   if (!memberRow) {
     return (
-      <>
-        <PageHeader
-          title={t('inbox')}
-          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
-        />
-        <div style={{ maxWidth: 480, margin: '2rem auto', padding: '0 1rem' }}>
-          <PortalEmptyState
-            icon={
-              <span
-                className="material-symbols-outlined"
-                aria-hidden="true"
-                style={{ fontSize: '2.5rem', color: 'var(--wa-accent, var(--color-accent))' }}
-              >
-                mail
-              </span>
-            }
-            title={t('noMessagesYet')}
-            description="Your inbox is still being set up. Check back shortly, or reach out and we'll help right away."
-            primaryAction={{ label: 'Email support', href: 'mailto:info@workforceap.org' }}
-          />
-        </div>
-      </>
+      <MemberMessagesEmpty
+        title={t('noMessagesYet')}
+        actionLabel="Email support"
+        actionHref="mailto:info@workforceap.org"
+      />
     );
   }
 
@@ -140,23 +123,17 @@ export default async function MemberMessagesPage({
     ];
 
     return (
-      <>
-        <PageHeader
-          title={t('inbox')}
-          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
-        />
-        <MemberMessagesKit
-          memberUserId={user.id}
-          threadId={thread.id}
-          conversations={conversations}
-          activeName={activeName}
-          activeRole={counselorName ? 'Career Counselor' : 'Support'}
-          activeInitials={counselorInitials}
-          activeOnline={Boolean(thread.counselorUserId)}
-          otherInitials={counselorInitials}
-          messages={kitMessages}
-        />
-      </>
+      <MemberMessagesKit
+        memberUserId={user.id}
+        threadId={thread.id}
+        conversations={conversations}
+        activeName={activeName}
+        activeRole={counselorName ? 'Career Counselor' : 'Support'}
+        activeInitials={counselorInitials}
+        activeOnline={Boolean(thread.counselorUserId)}
+        otherInitials={counselorInitials}
+        messages={kitMessages}
+      />
     );
   }
 

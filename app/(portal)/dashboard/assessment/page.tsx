@@ -6,13 +6,14 @@ import { getUser } from '@/lib/auth/server';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
-import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import Link from 'next/link';
+import { ClipboardCheck, Lock } from 'lucide-react';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import { formatPortalDate } from '@/lib/formatDate';
 
-const PAGE_TITLE = 'Training Preassessment';
+const PAGE_TITLE = 'Skills check';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -51,24 +52,19 @@ export default async function AssessmentPage({
   if (!dbUser) redirect('/login');
 
   return (
-    <div className="inner-page">
-      <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
-        <PageHeader
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Preassessment"
           title={PAGE_TITLE}
-          subtitle={
+          lede={
             dbUser.assessmentCompleted
               ? 'On file for you and your counselor.'
-              : 'A short skills check before Coursera courses unlock.'
+              : '35 questions. Then Coursera courses unlock.'
           }
-          breadcrumbs={[
-            { label: 'Member Portal', href: '/dashboard' },
-            { label: PAGE_TITLE },
-          ]}
+          icon={<ClipboardCheck size={13} aria-hidden="true" />}
         />
-      </div>
-
-      <section className="content-section">
-        <div className="container" style={{ maxWidth: '720px' }}>
+        <div style={{ maxWidth: 720 }}>
           {dbUser.assessmentCompleted ? (
             <AssessmentCompletedCard
               scorePct={dbUser.assessmentScorePct}
@@ -87,8 +83,8 @@ export default async function AssessmentPage({
             />
           )}
         </div>
-      </section>
-    </div>
+      </div>
+    </DesignSurface>
   );
 }
 
@@ -102,7 +98,7 @@ function AssessmentCompletedCard({
   programInterest: string | null;
 }) {
   return (
-    <div className="portal-card portal-card--flat portal-card--padded">
+    <div className="wa-kit-card">
       {scorePct != null ? (
         <p
           style={{
@@ -128,10 +124,17 @@ function AssessmentCompletedCard({
           </span>
         </p>
       ) : null}
-      <h2 style={{ margin: scorePct != null ? '0.75rem 0 0.35rem' : '0 0 0.5rem', fontSize: '1.125rem' }}>
+      <h2
+        style={{
+          margin: scorePct != null ? '0.75rem 0 0.35rem' : '0 0 0.5rem',
+          fontSize: 17,
+          fontWeight: 800,
+          letterSpacing: '-0.02em',
+        }}
+      >
         Preassessment complete
       </h2>
-      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem' }}>
+      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem', fontSize: 14 }}>
         {[
           completedAt ? `Finished ${formatPortalDate(completedAt)}` : null,
           programInterest,
@@ -140,11 +143,38 @@ function AssessmentCompletedCard({
           .join(' · ')}
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <Link href="/dashboard/training" className="btn btn-primary" style={{ minHeight: 44 }}>
+        <Link
+          href="/dashboard/training"
+          className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
+          style={{
+            minHeight: 44,
+            padding: '10px 16px',
+            background: 'var(--wa-accent)',
+            color: 'var(--wa-on-accent)',
+            fontWeight: 600,
+            fontSize: 14,
+            borderRadius: 999,
+            textDecoration: 'none',
+          }}
+        >
           Continue training
         </Link>
-        <Link href="/dashboard" className="btn btn-outline" style={{ minHeight: 44 }}>
-          Dashboard
+        <Link
+          href="/dashboard"
+          className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
+          style={{
+            minHeight: 44,
+            padding: '10px 16px',
+            background: 'transparent',
+            color: 'var(--wa-accent)',
+            border: '1px solid var(--wa-border)',
+            fontWeight: 600,
+            fontSize: 14,
+            borderRadius: 999,
+            textDecoration: 'none',
+          }}
+        >
+          Open home
         </Link>
       </div>
     </div>
@@ -159,29 +189,25 @@ function AssessmentLockedCard({
   interviewEligible: boolean;
 }) {
   return (
-    <div className="portal-card portal-card--flat portal-card--padded">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-        <span
-          className="material-symbols-outlined"
-          aria-hidden="true"
-          style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}
-        >
-          lock
-        </span>
-        <h2 style={{ margin: 0, fontSize: '1.125rem' }}>Unlocks after intake</h2>
+    <div className="wa-kit-card">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <Lock size={18} aria-hidden="true" style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
+          Unlocks after intake
+        </h2>
       </div>
-      <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
-        Talk with our team first. Then this preassessment personalizes your learning path.
+      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 14 }}>
+        Complete intake first. Then this check unlocks.
       </p>
       {interviewRequestedAt ? (
-        <p style={{ margin: 0, color: 'var(--color-on-surface)', fontWeight: 600 }}>
+        <p style={{ margin: 0, color: 'var(--wa-text)', fontWeight: 600, fontSize: 14 }}>
           Requested on {formatPortalDate(interviewRequestedAt)} — we&apos;ll schedule it.
         </p>
       ) : interviewEligible ? (
         <MemberInterviewRequestButton />
       ) : (
-        <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
-          Finish pre-screening on your dashboard, then request intake.
+        <p style={{ margin: 0, color: 'var(--wa-muted)', fontSize: 14 }}>
+          Finish pre-screening on home, then request intake.
         </p>
       )}
     </div>
@@ -224,16 +250,30 @@ function AssessmentReady({
 
   if (starterProfileReview.required) {
     return (
-      <div
-        className="portal-card portal-card--flat portal-card--padded"
-        style={{ border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)' }}
-      >
-        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem' }}>Confirm your details first</h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
+      <div className="wa-kit-card">
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
+          Confirm your details first
+        </h2>
+        <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 14 }}>
           Your counselor started this account. Confirm contact and referral details before the preassessment.
           {starterProfileMissingLabels.length ? ` Missing: ${starterProfileMissingLabels.join(', ')}.` : ''}
         </p>
-        <Link href="/dashboard/profile" className="btn btn-primary">Review profile</Link>
+        <Link
+          href="/dashboard/profile"
+          className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
+          style={{
+            minHeight: 44,
+            padding: '10px 16px',
+            background: 'var(--wa-accent)',
+            color: 'var(--wa-on-accent)',
+            fontWeight: 600,
+            fontSize: 14,
+            borderRadius: 999,
+            textDecoration: 'none',
+          }}
+        >
+          Review profile
+        </Link>
       </div>
     );
   }

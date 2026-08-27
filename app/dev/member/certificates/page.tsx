@@ -26,13 +26,13 @@ export default function DevMemberCertificatesPage() {
           id: 'aws-saa',
           title: 'AWS Solutions Architect Associate',
           percent: 47.2,
-          note: 'Complete AWS Practitioner first to unlock the exam voucher.',
+          note: 'Finish AWS Practitioner to unlock the voucher.',
         },
         {
           id: 'comptia-aplus',
           title: 'CompTIA A+',
           percent: 18,
-          note: 'Just started — Core 1 hardware module in progress.',
+          note: 'Core 1 hardware in progress.',
         },
       ]}
     />

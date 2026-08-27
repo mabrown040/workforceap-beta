@@ -1,19 +1,33 @@
 'use client';
 
-import { Wand2, FileText, MailOpen, Mic, MessagesSquare, Circle } from 'lucide-react';
+import {
+  Briefcase,
+  FilePen,
+  Gauge,
+  GitCompareArrows,
+  Handshake,
+  Headset,
+  MailOpen,
+  MessagesSquare,
+  Mic,
+  Speech,
+  Wand2,
+  Circle,
+} from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { DesignSurface, ChatThread, type ChatMessage } from '@/components/portal/kit';
+import { DesignSurface, ChatThread, PageOpener, type ChatMessage } from '@/components/portal/kit';
 
 /**
- * Member Portal — CAREER TOOLKIT view (AI tools + advisor).
- * Faithful port of `data-view-panel="toolkit"` in
- * docs/mockups/workforceap-member-suite.html.
+ * Member Portal — Career Studio destination list (AI tools + advisor).
+ * PageOpener kicker “Career Studio”, title “Career tools”, 13px row indexes
+ * and coach meta so the hub matches the rest of the member kit.
  *
  * Interactive (AI advisor composer) → 'use client'.
  *
- * Target route: app/(portal)/dashboard/toolkit
- * Surface: warm (member-facing).
+ * Destination-style tool list. The live Career Studio hub
+ * (`/dashboard/ai-tools` and `/dev/member/toolkit`) is VoiceStudioKit —
+ * voice coaches + toolkit tabs. Do not swap that hub for this list.
  */
 
 interface ToolCard {
@@ -27,8 +41,17 @@ interface ToolCard {
 }
 
 export interface MemberToolkitKitProps {
+  /** PageOpener title. */
   heroTitle?: string;
+  /** PageOpener lede. */
   heroSubtitle?: string;
+  /** Voice-coach destination. Empty or `#` hides the coach CTA. */
+  coachHref?: string;
+  /**
+   * Remap tool hrefs (e.g. `/dashboard/ai-tools/…` → `/dev/member/…`).
+   * Tools whose live href is missing from the map are omitted.
+   */
+  hrefMap?: Record<string, string>;
   tools?: ToolCard[];
   advisorOnline?: boolean;
   advisorMessages?: ChatMessage[];
@@ -52,57 +75,138 @@ export interface MemberToolkitKitProps {
  * used across the portal, e.g. ai-tools index, certifications, CareerCounselor).
  */
 const DEFAULT_TOOLS: ToolCard[] = [
-  { id: 'resume', icon: <FileText size={20} aria-hidden="true" />, title: 'Resume Audit', body: 'Score your resume against the role and get fix-it suggestions.', cta: 'Run Audit', href: '/dashboard/ai-tools/resume-analysis' },
-  { id: 'cover', icon: <MailOpen size={20} aria-hidden="true" />, title: 'Cover Letter', body: 'Generate a tailored cover letter for any saved job in seconds.', cta: 'Generate', href: '/dashboard/ai-tools/cover-letter' },
-  { id: 'interview', icon: <Mic size={20} aria-hidden="true" />, title: 'Interview Prep', body: 'Practice common questions with instant AI feedback.', cta: 'Start Session', href: '/dashboard/ai-tools/interview-prep' },
+  {
+    id: 'job-match',
+    icon: <GitCompareArrows size={20} aria-hidden="true" />,
+    title: 'Job match',
+    body: 'Score a posting against your resume.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/job-match-scorer',
+  },
+  {
+    id: 'resume-rewriter',
+    icon: <FilePen size={20} aria-hidden="true" />,
+    title: 'Resume rewriter',
+    body: 'Reposition bullets toward a job title.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/resume-rewriter',
+  },
+  {
+    id: 'resume-strength',
+    icon: <Gauge size={20} aria-hidden="true" />,
+    title: 'Resume strength',
+    body: 'Score structure, keywords, and gaps.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/resume-analysis',
+  },
+  {
+    id: 'interview-prep',
+    icon: <Mic size={20} aria-hidden="true" />,
+    title: 'Interview prep',
+    body: 'Resume, letter, and practice in one bundle.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/interview-prep',
+  },
+  {
+    id: 'interview-practice',
+    icon: <Mic size={20} aria-hidden="true" />,
+    title: 'Interview practice',
+    body: 'Role questions with STAR frames.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/interview-practice',
+  },
+  {
+    id: 'interview-coach',
+    icon: <Headset size={20} aria-hidden="true" />,
+    title: 'Interview coach',
+    body: 'Run a mock interview and get feedback.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/interview-coach',
+  },
+  {
+    id: 'linkedin-headline',
+    icon: <Briefcase size={20} aria-hidden="true" />,
+    title: 'LinkedIn headline',
+    body: 'Write a headline recruiters can scan.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/linkedin-headline',
+  },
+  {
+    id: 'linkedin-about',
+    icon: <Briefcase size={20} aria-hidden="true" />,
+    title: 'LinkedIn About',
+    body: 'Three paragraphs from your highlights.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/linkedin-about',
+  },
+  {
+    id: 'cover',
+    icon: <MailOpen size={20} aria-hidden="true" />,
+    title: 'Cover letter',
+    body: 'Write a letter for a posting.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/cover-letter',
+  },
+  {
+    id: 'salary',
+    icon: <Handshake size={20} aria-hidden="true" />,
+    title: 'Salary negotiation',
+    body: 'Write a phone or email script from the offer.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/salary-negotiation',
+  },
+  {
+    id: 'elevator',
+    icon: <Speech size={20} aria-hidden="true" />,
+    title: 'Elevator pitch',
+    body: 'Write a 10–20 second intro, then rehearse it.',
+    cta: 'Open',
+    href: '/dashboard/ai-tools/elevator-pitch',
+  },
 ];
 
 export function MemberToolkitKit({
-  heroTitle = 'Resume, cover letter, interview',
+  heroTitle = 'Career tools',
   heroSubtitle = 'Each tool uses your program and saved jobs. Pick one and go.',
+  coachHref = '/dashboard/ai-tools/career-business-coach',
+  hrefMap,
   tools = DEFAULT_TOOLS,
   advisorOnline = true,
   advisorMessages,
   onAction,
   onSend,
 }: MemberToolkitKitProps) {
+  const resolvedTools = hrefMap
+    ? tools
+        .map((tool) => {
+          if (!tool.href || !hrefMap[tool.href]) return null;
+          return { ...tool, href: hrefMap[tool.href] };
+        })
+        .filter((tool): tool is ToolCard => tool != null)
+    : tools;
+  const coachLink = coachHref && coachHref !== '#' ? coachHref : null;
   // No fabricated transcript: with no real advisor history supplied, show a
-  // neutral, non-persona empty-state greeting rather than a fake exchange.
-  const messages: ChatMessage[] =
-    advisorMessages ??
-    [
-      {
-        id: 'advisor-empty',
-        from: 'other',
-        author: <MessagesSquare size={13} />,
-        text: 'Ask me about your resume, a job posting, or interview prep and I can point you to the right tool.',
-      },
-    ];
+  // status line rather than a fake exchange.
+  const messages: ChatMessage[] = advisorMessages ?? [];
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <h1 className="sr-only">Career toolkit</h1>
-        {/* Gradient hero */}
-        <div className="wa-kit-card wa-kit-card--gradient-crimson">
-          <div className="wa-flex wa-items-center wa-gap-2" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
-            <Wand2 size={13} aria-hidden="true" />
-            AI Career Toolkit
-          </div>
-          <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
-            {heroTitle}
-          </h2>
-          <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>{heroSubtitle}</p>
-        </div>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-5">
+        <PageOpener
+          kicker="Career Studio"
+          title={heroTitle}
+          lede={heroSubtitle}
+          icon={<Wand2 size={13} aria-hidden="true" />}
+        />
 
         {/* Tool list — one path, not a 3-up icon-circle grid. */}
         <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
-          {tools.map((tool, i) => {
+          {resolvedTools.map((tool, i) => {
             const row = (
               <>
                 <span
                   aria-hidden="true"
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: 800,
                     fontVariantNumeric: 'tabular-nums',
                     color: 'var(--wa-muted)',
@@ -117,9 +221,17 @@ export function MemberToolkitKit({
                 </div>
                 <span
                   style={{
-                    fontSize: 13,
-                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 44,
+                    padding: '10px 16px',
+                    background: 'transparent',
                     color: 'var(--wa-accent)',
+                    border: '1px solid var(--wa-border)',
+                    fontWeight: 600,
+                    fontSize: 14,
+                    borderRadius: 999,
                     flexShrink: 0,
                   }}
                 >
@@ -183,13 +295,15 @@ export function MemberToolkitKit({
               <MessagesSquare size={18} aria-hidden="true" />
             </div>
             <div>
-              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>AI Advisor</h3>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>24/7 career guidance</p>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: 0 }}>Career coach</h3>
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>
+                Pick a tool above, or open the coach.
+              </p>
             </div>
             {advisorOnline && onSend ? (
               <span
                 className="wa-flex wa-items-center wa-gap-1"
-                style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: 'var(--wa-success)' }}
+                style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 700, color: 'var(--wa-success)' }}
               >
                 <Circle size={6} fill="currentColor" aria-hidden="true" />
                 Online
@@ -201,7 +315,7 @@ export function MemberToolkitKit({
             <div style={{ minHeight: 200 }}>
               <ChatThread
                 messages={messages}
-                placeholder="Ask your advisor anything…"
+                placeholder="Ask about a resume, posting, or interview"
                 onSend={onSend}
               />
             </div>
@@ -210,31 +324,34 @@ export function MemberToolkitKit({
                show a live-looking composer that silently discards input, so
                show the greeting and route members to the live (voice) career
                coach instead. */
-            <div style={{ minHeight: 200 }}>
+            <div>
               {messages.map((m) => (
                 <p key={m.id} style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 8px' }}>
                   {m.text}
                 </p>
               ))}
-              <Link
-                href="/dashboard/ai-tools/career-business-coach"
-                className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  marginTop: 16,
-                  minHeight: 44,
-                  padding: '8px 16px',
-                  background: 'var(--wa-accent)',
-                  color: 'var(--wa-on-accent)',
-                  fontWeight: 600,
-                  fontSize: 12,
-                  borderRadius: 999,
-                  textDecoration: 'none',
-                }}
-              >
-                Start a live session with your career coach
-              </Link>
+              {coachLink ? (
+                <Link
+                  href={coachLink}
+                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    marginTop: 16,
+                    minHeight: 44,
+                    padding: '10px 16px',
+                    background: 'var(--wa-accent)',
+                    color: 'var(--wa-on-accent)',
+                    border: '1px solid var(--wa-accent)',
+                    fontWeight: 600,
+                    fontSize: 14,
+                    borderRadius: 999,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Open career coach
+                </Link>
+              ) : null}
             </div>
           )}
         </div>

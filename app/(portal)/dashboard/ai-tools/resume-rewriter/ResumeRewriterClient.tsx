@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
+import { FileText, Upload } from 'lucide-react';
 import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 
 type ResumeResponse = {
@@ -9,35 +10,22 @@ type ResumeResponse = {
   resumePlainText?: string | null;
 };
 
-/* Compact promo strip — was a heavy primary card competing with the
-   form below. Demoted to a single inline note (audit #130) so the
-   form is the visual focus. */
 function ResumeCoachRedirectCard() {
   return (
     <p
       style={{
-        margin: '0 0 0.75rem',
-        padding: '0.5rem 0.875rem',
-        borderRadius: 10,
-        border: '1px solid color-mix(in srgb, var(--color-blue) 18%, transparent)',
-        background: 'color-mix(in srgb, var(--color-blue) 5%, transparent)',
-        fontSize: '0.8125rem',
-        color: 'var(--color-on-surface-variant)',
-        display: 'flex',
-        gap: '0.5rem',
-        alignItems: 'center',
-        flexWrap: 'wrap',
+        margin: '0 0 12px',
+        fontSize: 13,
+        color: 'var(--wa-muted)',
+        lineHeight: 1.45,
       }}
     >
-      <span aria-hidden style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-blue)' }}>
-        Tip
-      </span>
-      <span>Prefer talking it through? </span>
+      Voice flow:{' '}
       <Link
         href="/dashboard/ai-tools/resume-studio?view=coach"
-        style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'underline' }}
+        style={{ color: 'var(--wa-accent)', fontWeight: 600 }}
       >
-        Open Resume & Experience Enhancer for the voice flow →
+        Resume & Experience Enhancer
       </Link>
     </p>
   );
@@ -113,41 +101,41 @@ function ResumeRewriterWithPrefill({ initialData }: { initialData?: { resume: st
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '0.75rem',
+                gap: 8,
                 flexWrap: 'wrap',
-                padding: '0.85rem 1rem',
-                borderRadius: 10,
-                background: 'color-mix(in srgb, var(--color-green, #4a9b4f) 10%, transparent)',
-                color: 'var(--color-green, #4a9b4f)',
-                border: '1px solid color-mix(in srgb, var(--color-green, #4a9b4f) 20%, transparent)',
-                marginBottom: '0.75rem',
+                padding: '10px 12px',
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-success-soft)',
+                color: 'var(--wa-success)',
+                border: '1px solid var(--wa-border)',
+                marginBottom: 8,
+                fontSize: 13,
+                lineHeight: 1.45,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', lineHeight: 1.4 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">description</span>
-                <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>
-                  Your uploaded resume has been loaded. Edit below or{' '}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setResumeText('');
-                      setShowLoadedBanner(false);
-                    }}
-                    style={{
-                      border: 'none',
-                      background: 'transparent',
-                      color: 'inherit',
-                      fontWeight: 700,
-                      textDecoration: 'underline',
-                      cursor: 'pointer',
-                      padding: 0,
-                    }}
-                  >
-                    Replace with new
-                  </button>
-                </span>
-              </div>
+              <FileText size={16} aria-hidden="true" />
+              <span style={{ fontWeight: 600 }}>
+                Resume on file loaded.{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResumeText('');
+                    setShowLoadedBanner(false);
+                  }}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: 'inherit',
+                    fontWeight: 700,
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    padding: 0,
+                    minHeight: 44,
+                  }}
+                >
+                  Replace
+                </button>
+              </span>
             </div>
           ) : null}
 
@@ -156,21 +144,23 @@ function ResumeRewriterWithPrefill({ initialData }: { initialData?: { resume: st
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.55rem',
+                gap: 8,
                 flexWrap: 'wrap',
-                padding: '0.85rem 1rem',
-                borderRadius: 10,
-                background: 'var(--surface-container-low)',
-                color: 'var(--color-on-surface-variant)',
-                border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
-                marginBottom: '0.75rem',
+                padding: '10px 12px',
+                borderRadius: 'var(--wa-radius-sm)',
+                background: 'var(--wa-surface-2)',
+                color: 'var(--wa-muted)',
+                border: '1px solid var(--wa-border)',
+                marginBottom: 8,
+                fontSize: 13,
+                lineHeight: 1.45,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">upload_file</span>
-              <span style={{ fontSize: '0.88rem' }}>
-                No resume uploaded yet.{' '}
-                <Link href="/dashboard/resume" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline' }}>
-                  Upload your resume →
+              <Upload size={16} aria-hidden="true" />
+              <span>
+                No resume on file.{' '}
+                <Link href="/dashboard/resume" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
+                  Upload resume
                 </Link>
               </span>
             </div>

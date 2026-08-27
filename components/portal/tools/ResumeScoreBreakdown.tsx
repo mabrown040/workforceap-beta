@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { CheckCircle2, AlertCircle, Target, Briefcase } from 'lucide-react';
 
 export interface SubscoreBreakdown {
@@ -42,29 +43,25 @@ export interface ResumeScorePayload {
 }
 
 function colorForScore(score: number): string {
-  if (score >= 80) return 'var(--md-sys-color-tertiary, #16a34a)';
-  if (score >= 60) return 'var(--md-sys-color-secondary, #ca8a04)';
-  return 'var(--md-sys-color-error, #dc2626)';
+  if (score >= 80) return 'var(--wa-success)';
+  if (score >= 60) return 'var(--wa-gold)';
+  return 'var(--wa-danger)';
 }
 
-function Bar({ score }: { score: number }) {
+function Bar({ score, label }: { score: number; label: string }) {
+  const clamped = Math.min(100, Math.max(0, score));
   return (
     <div
-      style={{
-        width: '100%',
-        height: 6,
-        background: 'var(--surface-container-high)',
-        borderRadius: 4,
-        overflow: 'hidden',
-      }}
+      className="wa-kit-bar-track"
+      role="progressbar"
+      aria-valuenow={clamped}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={label}
     >
       <div
-        style={{
-          width: `${Math.min(100, Math.max(0, score))}%`,
-          height: '100%',
-          background: colorForScore(score),
-          transition: 'width 0.4s ease',
-        }}
+        className="wa-kit-bar-fill"
+        style={{ width: `${clamped}%`, background: colorForScore(score) }}
       />
     </div>
   );
@@ -78,187 +75,213 @@ const STRUCTURAL_LABELS: Record<string, string> = {
   contact: 'Contact essentials',
 };
 
+const chipBase = {
+  padding: '6px 10px',
+  borderRadius: 999,
+  background: 'var(--wa-surface)',
+  fontSize: 13,
+  fontWeight: 600,
+} as const;
+
 export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScorePayload }) {
   const composite = payload.composite ?? payload.structural?.composite ?? 0;
   const pillars = payload.pillars ?? {};
 
   return (
     <div
-      className="portal-card portal-card--flat"
       style={{
-        padding: '1.25rem',
-        borderRadius: 12,
-        marginTop: '1.5rem',
-        marginBottom: '1.5rem',
-        background: 'var(--surface-container-low)',
+        marginTop: 8,
+        padding: 20,
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.25rem',
+        gap: 16,
+        background: 'var(--wa-surface-2)',
+        borderRadius: 'var(--wa-radius)',
+        border: '1px solid var(--wa-border)',
       }}
     >
-      {/* Composite header */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div>
-          <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
-            Composite Score
-          </div>
-          <div style={{ fontSize: '2.4rem', fontWeight: 700, color: colorForScore(composite), lineHeight: 1 }}>
+          <div className="wa-kit-field-label">Composite</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: colorForScore(composite), lineHeight: 1, marginTop: 4 }}>
             {composite}
-            <span style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', fontWeight: 400 }}>/100</span>
+            <span style={{ fontSize: 14, color: 'var(--wa-muted)', fontWeight: 400 }}>/100</span>
           </div>
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', maxWidth: 320 }}>
-          Weighted across structural ATS basics, O*NET skill coverage, and live market keywords.
-        </div>
+        <p style={{ fontSize: 13, color: 'var(--wa-muted)', maxWidth: 320, margin: 0, lineHeight: 1.45 }}>
+          Structure, O*NET coverage, and market keywords.
+        </p>
       </div>
 
-      {/* Three pillars */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-        {pillars.structural && (
-          <PillarTile label={pillars.structural.label} score={pillars.structural.score} icon={<CheckCircle2 size={16} />} />
-        )}
-        {pillars.onetCoverage && (
-          <PillarTile label={pillars.onetCoverage.label} score={pillars.onetCoverage.score} icon={<Target size={16} />} />
-        )}
-        {pillars.marketCoverage && (
-          <PillarTile label={pillars.marketCoverage.label} score={pillars.marketCoverage.score} icon={<Briefcase size={16} />} />
-        )}
+      <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-3 wa-gap-3">
+        {pillars.structural ? (
+          <PillarTile label={pillars.structural.label} score={pillars.structural.score} icon={<CheckCircle2 size={16} aria-hidden="true" />} />
+        ) : null}
+        {pillars.onetCoverage ? (
+          <PillarTile label={pillars.onetCoverage.label} score={pillars.onetCoverage.score} icon={<Target size={16} aria-hidden="true" />} />
+        ) : null}
+        {pillars.marketCoverage ? (
+          <PillarTile label={pillars.marketCoverage.label} score={pillars.marketCoverage.score} icon={<Briefcase size={16} aria-hidden="true" />} />
+        ) : null}
       </div>
 
-      {/* Structural subscore breakdown */}
-      {payload.structural && (
+      {payload.structural ? (
         <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            Structural subscores (deterministic)
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {Object.entries(payload.structural.breakdown).map(([key, sub]) => (
-              <div key={key} style={{ display: 'grid', gridTemplateColumns: '180px 1fr 50px', gap: '0.75rem', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem' }}>{STRUCTURAL_LABELS[key] ?? key}</span>
-                <Bar score={sub.score} />
-                <span style={{ fontSize: '0.82rem', textAlign: 'right', color: colorForScore(sub.score), fontWeight: 600 }}>
-                  {sub.score}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Target occupations + O*NET gaps */}
-      {payload.occupations && payload.occupations.length > 0 && (
-        <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            Target occupations (inferred)
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {payload.occupations.map((occ) => {
-              const cov = payload.onetCoverage?.find((c) => c.onetCode === occ.onetCode);
+          <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Structure</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {Object.entries(payload.structural.breakdown).map(([key, sub]) => {
+              const label = STRUCTURAL_LABELS[key] ?? key;
               return (
-                <div key={occ.onetCode} style={{ padding: '0.75rem', borderRadius: 8, background: 'var(--surface-container-high)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{occ.title}</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                      {occ.onetCode} · {Math.round(occ.confidence * 100)}% fit
-                    </span>
+                <div key={key}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 13, color: 'var(--wa-text)' }}>{label}</span>
+                    <span style={{ fontSize: 13, color: colorForScore(sub.score), fontWeight: 600 }}>{sub.score}</span>
                   </div>
-                  {cov && (
-                    <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 50px', gap: '0.75rem', alignItems: 'center', marginTop: '0.5rem' }}>
-                        <Bar score={cov.coverageScore} />
-                        <span style={{ fontSize: '0.82rem', textAlign: 'right', color: colorForScore(cov.coverageScore), fontWeight: 600 }}>
-                          {cov.coverageScore}
-                        </span>
-                      </div>
-                      {cov.topGaps.length > 0 && (
-                        <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.25rem' }}>
-                            <AlertCircle size={12} />
-                            <span>Top gaps</span>
-                          </div>
-                          <ul style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                            {cov.topGaps.slice(0, 4).map((g) => (
-                              <li key={g.skill}>
-                                <strong>{g.skill}</strong> <span style={{ opacity: 0.7 }}>(importance {g.importance})</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </>
-                  )}
+                  <Bar score={sub.score} label={label} />
                 </div>
               );
             })}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Market keyword coverage */}
-      {payload.marketCoverage && payload.marketCoverage.some((m) => m.source !== 'unavailable') && (
+      {payload.occupations && payload.occupations.length > 0 ? (
         <div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            Live market keywords
+          <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Target occupations</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {payload.occupations.map((occ) => {
+              const cov = payload.onetCoverage?.find((c) => c.onetCode === occ.onetCode);
+              return (
+                <div
+                  key={occ.onetCode}
+                  style={{
+                    padding: 12,
+                    borderRadius: 'var(--wa-radius-sm)',
+                    background: 'var(--wa-surface-2)',
+                    border: '1px solid var(--wa-border)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--wa-text)' }}>{occ.title}</span>
+                    <span style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+                      {occ.onetCode} · {Math.round(occ.confidence * 100)}% fit
+                    </span>
+                  </div>
+                  {cov ? (
+                    <>
+                      <div style={{ marginTop: 8 }}>
+                        <Bar score={cov.coverageScore} label={`${occ.title} coverage`} />
+                        <p style={{ margin: '4px 0 0', fontSize: 13, textAlign: 'right', color: colorForScore(cov.coverageScore), fontWeight: 600 }}>
+                          {cov.coverageScore}
+                        </p>
+                      </div>
+                      {cov.topGaps.length > 0 ? (
+                        <div style={{ marginTop: 8, fontSize: 13, color: 'var(--wa-muted)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, color: 'var(--wa-text)', fontWeight: 600 }}>
+                            <AlertCircle size={14} aria-hidden="true" />
+                            Gaps
+                          </div>
+                          <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            {cov.topGaps.slice(0, 4).map((g) => (
+                              <li key={g.skill}>
+                                <strong style={{ color: 'var(--wa-text)' }}>{g.skill}</strong>{' '}
+                                <span>(importance {g.importance})</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
+        </div>
+      ) : null}
+
+      {payload.marketCoverage && payload.marketCoverage.some((m) => m.source !== 'unavailable') ? (
+        <div>
+          <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Market keywords</p>
           {payload.marketCoverage.map((m, i) => {
             if (m.source === 'unavailable') return null;
             const occ = payload.occupations?.[i];
             return (
-              <div key={i} style={{ padding: '0.75rem', borderRadius: 8, background: 'var(--surface-container-high)', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
-                  <span>{occ?.title ?? 'occupation'}</span>
-                  <span>{m.postingCount} live postings · {m.source}</span>
+              <div
+                key={i}
+                style={{
+                  padding: 12,
+                  borderRadius: 'var(--wa-radius-sm)',
+                  background: 'var(--wa-surface-2)',
+                  border: '1px solid var(--wa-border)',
+                  marginBottom: 8,
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--wa-muted)', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
+                  <span>{occ?.title ?? 'Occupation'}</span>
+                  <span>{m.postingCount} live postings</span>
                 </div>
-                {m.mustHaveMissing.length > 0 && (
-                  <div style={{ fontSize: '0.78rem', marginBottom: '0.5rem' }}>
-                    <div style={{ fontWeight: 600, marginBottom: '0.25rem', color: 'var(--md-sys-color-error, #dc2626)' }}>
-                      Missing from your resume (in ≥70% of postings):
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                {m.mustHaveMissing.length > 0 ? (
+                  <div style={{ fontSize: 13, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 600, margin: '0 0 6px', color: 'var(--wa-danger)' }}>
+                      Missing (≥70% of postings)
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {m.mustHaveMissing.slice(0, 8).map((kw) => (
-                        <span key={kw.phrase} style={{ padding: '0.15rem 0.5rem', borderRadius: 999, background: 'var(--surface-container-low)', border: '1px solid var(--md-sys-color-error, #dc2626)', fontSize: '0.72rem' }}>
+                        <span
+                          key={kw.phrase}
+                          style={{ ...chipBase, border: '1px solid var(--wa-danger)', color: 'var(--wa-danger)' }}
+                        >
                           {kw.phrase} ({Math.round(kw.frequency * 100)}%)
                         </span>
                       ))}
                     </div>
                   </div>
-                )}
-                {m.mustHavePresent.length > 0 && (
-                  <div style={{ fontSize: '0.78rem' }}>
-                    <div style={{ fontWeight: 600, marginBottom: '0.25rem', color: 'var(--md-sys-color-tertiary, #16a34a)' }}>
-                      You already cover:
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                ) : null}
+                {m.mustHavePresent.length > 0 ? (
+                  <div style={{ fontSize: 13 }}>
+                    <p style={{ fontWeight: 600, margin: '0 0 6px', color: 'var(--wa-success)' }}>On the resume</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {m.mustHavePresent.slice(0, 8).map((kw) => (
-                        <span key={kw.phrase} style={{ padding: '0.15rem 0.5rem', borderRadius: 999, background: 'var(--surface-container-low)', border: '1px solid var(--md-sys-color-tertiary, #16a34a)', fontSize: '0.72rem' }}>
+                        <span
+                          key={kw.phrase}
+                          style={{ ...chipBase, border: '1px solid var(--wa-success)', color: 'var(--wa-success)' }}
+                        >
                           {kw.phrase}
                         </span>
                       ))}
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
             );
           })}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
 
-function PillarTile({ label, score, icon }: { label: string; score: number; icon: React.ReactNode }) {
+function PillarTile({ label, score, icon }: { label: string; score: number; icon: ReactNode }) {
   return (
-    <div style={{ padding: '0.75rem', borderRadius: 8, background: 'var(--surface-container-high)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem' }}>
+    <div
+      style={{
+        padding: 12,
+        borderRadius: 'var(--wa-radius-sm)',
+        background: 'var(--wa-surface-2)',
+        border: '1px solid var(--wa-border)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--wa-muted)', marginBottom: 6 }}>
         {icon}
         <span>{label}</span>
       </div>
-      <div style={{ fontSize: '1.6rem', fontWeight: 700, color: colorForScore(score), lineHeight: 1 }}>
+      <div style={{ fontSize: 24, fontWeight: 700, color: colorForScore(score), lineHeight: 1 }}>
         {score}
-        <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 400 }}>/100</span>
+        <span style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 400 }}>/100</span>
       </div>
-      <div style={{ marginTop: '0.4rem' }}>
-        <Bar score={score} />
+      <div style={{ marginTop: 8 }}>
+        <Bar score={score} label={label} />
       </div>
     </div>
   );

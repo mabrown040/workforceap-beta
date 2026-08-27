@@ -23,11 +23,21 @@ export default function ReferralCopyButton({ text }: { text: string }) {
   return (
     <button
       type="button"
-      className="btn btn-outline"
-      style={{ fontSize: '0.85rem' }}
+      className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+      style={{
+        minHeight: 44,
+        padding: '10px 16px',
+        background: 'transparent',
+        color: 'var(--wa-accent)',
+        border: '1px solid var(--wa-border)',
+        fontWeight: 600,
+        fontSize: 14,
+        borderRadius: 999,
+        cursor: 'pointer',
+      }}
       onClick={() => void handleCopy()}
     >
-      <span aria-live="polite">{copied ? 'Copied ✓' : 'Copy message'}</span>
+      <span aria-live="polite">{copied ? 'Copied' : 'Copy message'}</span>
     </button>
   );
 }

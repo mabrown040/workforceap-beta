@@ -21,6 +21,54 @@
     border-radius var(--wa-dur-slow) var(--wa-ease),
     padding var(--wa-dur-slow) var(--wa-ease);
 }
+
+/* Member titles belong to the shared canvas. Never recut them as title bars. */
+.wa-page-opener {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Quiet PageOpener action — stays on the wash instead of becoming a header chip. */
+.wa-page-action {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--wa-radius-sm);
+  background: transparent;
+  color: var(--wa-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.wa-page-action:hover {
+  background: color-mix(in srgb, var(--wa-accent) 8%, transparent);
+}
+
+/* Section tabs on member pages are states on the wash, not another title bar. */
+.wa-page-tabs .astryx-segmented-control {
+  background: transparent;
+  padding: 0;
+  gap: 4px;
+}
+.wa-page-tabs .astryx-segmented-control-item {
+  min-height: 44px;
+}
+.wa-page-tabs .astryx-segmented-control-item[data-selected] {
+  background: color-mix(in srgb, var(--wa-accent) 14%, transparent);
+  color: var(--wa-accent);
+  box-shadow: none;
+}
+.wa-page-tabs .astryx-segmented-control-item:not([data-selected]):hover {
+  background: color-mix(in srgb, var(--wa-accent) 8%, transparent);
+}
+
 [data-surface] .wa-kit-card {
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--wa-surface) 96%, white 4%), var(--wa-surface));
@@ -203,8 +251,33 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-table tbody tr:last-child td {
   border-bottom: none;
 }
-.wa-kit-table tbody tr:hover {
-  background: var(--wa-bg);
+[data-surface='warm'] .wa-kit-table:not([data-density]) th,
+[data-surface='warm'] .wa-kit-table:not([data-density]) td {
+  padding: 12px 16px;
+}
+[data-surface='dense'] .wa-kit-table:not([data-density]) th,
+[data-surface='dense'] .wa-kit-table:not([data-density]) td {
+  padding: 8px 12px;
+}
+.wa-kit-table[data-density='compact'] th,
+.wa-kit-table[data-density='compact'] td {
+  padding: 8px 12px;
+}
+.wa-kit-table[data-density='balanced'] th,
+.wa-kit-table[data-density='balanced'] td {
+  padding: 12px 16px;
+}
+.wa-kit-table[data-density='spacious'] th,
+.wa-kit-table[data-density='spacious'] td {
+  padding: 16px 18px;
+}
+.wa-kit-table--clickable tbody tr {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .wa-kit-table tbody tr:hover {
+    background: var(--wa-bg);
+  }
 }
 
 .wa-kit-field-label {
@@ -215,14 +288,208 @@ html.dark [data-surface] .wa-kit-card,
   color: var(--wa-text);
 }
 
+.wa-kit-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.wa-kit-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.wa-kit-toggle-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--wa-track);
+  transition: background var(--wa-dur-fast) var(--wa-ease);
+}
+.wa-kit-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--wa-surface);
+  box-shadow: var(--wa-shadow);
+  transition: transform var(--wa-dur-fast) var(--wa-ease);
+}
+.wa-kit-toggle[data-checked='true'] .wa-kit-toggle-track {
+  background: var(--wa-accent);
+}
+.wa-kit-toggle[data-checked='true'] .wa-kit-toggle-thumb {
+  transform: translateX(20px);
+}
+.wa-kit-toggle-input:focus-visible + .wa-kit-toggle-track {
+  box-shadow: 0 0 0 2px var(--wa-surface), 0 0 0 4px var(--wa-accent);
+}
+.wa-kit-toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wa-text);
+}
+
+/* Open-role rows: preserve full job names on phones; actions get their own line. */
+.wa-job-listing-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.wa-job-listing-row__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.wa-job-listing-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .wa-job-listing-row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px 12px;
+  }
+  .wa-job-listing-row__body,
+  .wa-job-listing-row__actions {
+    grid-column: 2;
+  }
+  .wa-job-listing-row__title {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+  .wa-job-listing-row__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* Job listing filters — keep .job-filters-drawer behavior, paint with --wa-*.
+   main.css sets .job-filters-drawer-inner { position: absolute } AFTER the
+   md+ promotion block, so desktop never un-fixed. These selectors win. */
+.job-filters-drawer[data-kit-filters] .job-filters-drawer-inner {
+  background: var(--wa-surface);
+  color: var(--wa-text);
+  box-shadow: var(--wa-shadow-lg);
+}
+.job-filters-drawer[data-kit-filters] .job-filters-drawer-backdrop {
+  background: color-mix(in srgb, var(--wa-text) 40%, transparent);
+}
+@media (min-width: 768px) {
+  .job-filters-drawer[data-kit-filters] {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    pointer-events: auto;
+    visibility: visible;
+    margin-bottom: 1rem;
+  }
+  .job-filters-drawer[data-kit-filters] .job-filters-drawer-backdrop,
+  .job-filters-drawer[data-kit-filters] .job-filters-drawer-header,
+  .job-filters-drawer[data-kit-filters] .job-filters-drawer-close {
+    display: none;
+  }
+  .job-filters-drawer[data-kit-filters] .job-filters-drawer-inner {
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    padding: 0;
+    transform: none;
+    transition: none;
+  }
+  .job-filters-drawer[data-kit-filters] .job-filters-panel {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .job-filters-drawer[data-kit-filters] .job-filter-row {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wa-kit-card,
   .wa-kit-bar-fill,
-  .wa-kit-table tbody tr {
+  .wa-kit-table tbody tr,
+  .wa-kit-toggle-track,
+  .wa-kit-toggle-thumb {
     transition: none !important;
   }
 
   .wa-kit-card--hover:active {
     transform: none;
   }
+}
+
+/* Header theme control — sit on the shell chrome, not a white/slate chip. */
+.wa-theme-toggle {
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--wa-radius-sm);
+  background: transparent;
+  color: var(--wa-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.wa-theme-toggle:hover {
+  background: color-mix(in srgb, var(--wa-accent) 10%, transparent);
+}
+.wa-theme-toggle:disabled {
+  cursor: default;
+}
+
+/* Header text actions (Sign out, public site) — sit on the shell chrome, not a white outline chip. */
+.wa-shell-text-action {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--wa-radius-sm);
+  background: transparent;
+  color: var(--wa-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: none;
+}
+.wa-shell-text-action:hover {
+  background: color-mix(in srgb, var(--wa-accent) 10%, transparent);
+  color: var(--wa-accent);
+}
+.wa-shell-text-action:disabled {
+  cursor: default;
 }

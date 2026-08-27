@@ -20,14 +20,14 @@ export function skillMissionEmptyState(args: {
     const name = args.programTitle?.trim() || 'this program';
     return {
       title: `No missions for ${name} yet`,
-      description: 'Keep training. Missions will show up here when this program has them.',
+      description: 'No catalog missions for this program yet.',
       primaryAction: { href: '/dashboard/training', label: 'Continue training' },
     };
   }
 
   return {
-    title: 'Enroll to unlock missions',
-    description: 'Finish a course, then pass a mission for a resume bullet and interview story.',
-    primaryAction: { href: '/dashboard/program', label: 'Choose my program' },
+    title: 'No program enrolled',
+    description: 'Enroll in a program to see missions.',
+    primaryAction: { href: '/dashboard/program', label: 'Choose program' },
   };
 }

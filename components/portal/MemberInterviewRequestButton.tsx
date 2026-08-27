@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function MemberInterviewRequestButton() {
+export default function MemberInterviewRequestButton({
+  preview = false,
+}: {
+  /** Proofs: show the kit CTA without POSTing `/api/member/interview-request`. */
+  preview?: boolean;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -11,6 +16,10 @@ export default function MemberInterviewRequestButton() {
 
   const submit = async () => {
     setError('');
+    if (preview) {
+      setDone(true);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/member/interview-request', { method: 'POST' });
@@ -31,7 +40,7 @@ export default function MemberInterviewRequestButton() {
 
   if (done) {
     return (
-      <p role="status" aria-live="polite" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+      <p role="status" aria-live="polite" style={{ color: 'var(--wa-text)', margin: 0, fontSize: 14, fontWeight: 600 }}>
         Interview request sent. A counselor will follow up.
       </p>
     );
@@ -39,14 +48,33 @@ export default function MemberInterviewRequestButton() {
 
   return (
     <div>
-      {error && <p className="form-error" role="alert">{error}</p>}
-      <button type="button" className="btn btn-primary" disabled={loading} onClick={() => void submit()} aria-busy={loading}>
-        <span aria-live="polite">
-          {loading ? 'Sending…' : 'Request interview'}
-        </span>
+      {error ? (
+        <p role="alert" style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--wa-danger)', fontWeight: 600 }}>
+          {error}
+        </p>
+      ) : null}
+      <button
+        type="button"
+        className="wa-kit-focus hover:wa-opacity-90"
+        disabled={loading}
+        onClick={() => void submit()}
+        aria-busy={loading}
+        style={{
+          minHeight: 44,
+          padding: '10px 16px',
+          background: 'var(--wa-accent)',
+          color: 'var(--wa-on-accent)',
+          fontWeight: 600,
+          fontSize: 14,
+          borderRadius: 999,
+          border: 'none',
+          cursor: loading ? 'wait' : 'pointer',
+        }}
+      >
+        <span aria-live="polite">{loading ? 'Sending…' : 'Request interview'}</span>
       </button>
-      <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
-        Opens scheduling by email on our side — you’ll hear from a counselor.
+      <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.5 }}>
+        Opens scheduling by email — a counselor will follow up.
       </p>
     </div>
   );

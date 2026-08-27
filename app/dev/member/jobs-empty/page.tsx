@@ -17,8 +17,9 @@ export default function DevMemberJobsEmptyPage() {
       interviewing={1}
       offers={0}
       syncedLabel="2 active applications"
-      browseHref="/dashboard/jobs?ui=legacy"
-      profileHref="/dashboard/profile"
+      browseHref="/dev/member/jobs?state=board"
+      profileHref="/dev/member/profile"
+      jobHref={() => '#'}
       applications={[
         { id: 'a1', role: 'Account Executive', company: 'Salesforce', location: 'Location not listed', applied: 'Apr 16', stage: 'Accepted', tone: 'ok' },
         { id: 'a2', role: 'IT Support Technician', company: 'Dell Technologies', location: 'Location not listed', applied: 'Mar 16', stage: 'Applied', tone: 'muted' },

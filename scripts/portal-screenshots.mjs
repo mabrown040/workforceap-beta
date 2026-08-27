@@ -16,6 +16,9 @@
  *      we fall back to the container's preinstalled browser at
  *      /opt/pw-browsers/chromium when present.
  *
+ * Capture uses waitUntil: 'load' (not networkidle). WorkspaceShell + Vercel
+ * analytics keep connections open, so networkidle never fires on /dev/member.
+ *
  * This script owns the dev-server lifecycle in a single foreground process
  * (spawn -> wait -> shoot -> clean SIGTERM), so it never leaves a half-killed
  * server behind (which is what corrupts .next and causes exit-144 cold starts).
@@ -23,7 +26,8 @@
  * Usage:
  *   node scripts/portal-screenshots.mjs                 # light, desktop, all routes
  *   node scripts/portal-screenshots.mjs --dark          # also capture dark mode
- *   node scripts/portal-screenshots.mjs --mobile        # also capture 390px
+ *   node scripts/portal-screenshots.mjs --mobile        # also capture 375px
+ *   node scripts/portal-screenshots.mjs --tablet        # also capture 768px
  *   node scripts/portal-screenshots.mjs --only voice-studio
  *   node scripts/portal-screenshots.mjs --out /tmp/shots --label after
  *   node scripts/portal-screenshots.mjs --base http://localhost:3000  # reuse a running server
@@ -54,6 +58,7 @@ const LABEL = opt('label', '');
 const ONLY = opt('only', null);
 const WITH_DARK = flag('dark');
 const WITH_MOBILE = flag('mobile');
+const WITH_TABLET = flag('tablet');
 const CLEAN = flag('clean');
 
 // The showcase routes (real components, mock data). `tab` clicks a role=tab
@@ -61,24 +66,69 @@ const CLEAN = flag('clean');
 const TARGETS = [
   { name: 'dashboard', path: '/dev/dashboard' },
   { name: 'kit', path: '/dev/kit' },
-  { name: 'voice-live', path: '/dev/voice-studio', tab: 'Live' },
-  { name: 'voice-toolkit', path: '/dev/voice-studio', tab: 'Toolkit' },
+  { name: 'voice-live', path: '/dev/voice-studio', tab: 'Practice' },
+  { name: 'voice-toolkit', path: '/dev/voice-studio', tab: 'All Tools' },
   { name: 'voice-resume', path: '/dev/voice-studio', tab: 'Resume' },
   { name: 'compare', path: '/dev/compare' },
   // Member kit tabs (app/dev/member/** showcase routes, mock data)
   { name: 'member-home', path: '/dev/member/home' },
   { name: 'member-jobs', path: '/dev/member/jobs' },
   { name: 'member-jobs-empty', path: '/dev/member/jobs-empty' },
+  { name: 'member-jobs-board', path: '/dev/member/jobs?state=board' },
+  { name: 'member-jobs-listing', path: '/dev/member/jobs?state=listing' },
+  { name: 'member-jobs-detail', path: '/dev/member/jobs?state=detail' },
   { name: 'member-certificates', path: '/dev/member/certificates' },
   { name: 'member-certificates-empty', path: '/dev/member/certificates-empty' },
   { name: 'member-messages', path: '/dev/member/messages' },
+  { name: 'member-messages-empty', path: '/dev/member/messages?state=empty' },
   { name: 'member-profile', path: '/dev/member/profile' },
   { name: 'member-program', path: '/dev/member/program' },
+  { name: 'member-program-empty', path: '/dev/member/program?state=empty' },
   { name: 'member-progress', path: '/dev/member/progress' },
   { name: 'member-toolkit', path: '/dev/member/toolkit' },
+  { name: 'member-toolkit-practice', path: '/dev/member/toolkit?tab=session' },
+  { name: 'member-toolkit-resume', path: '/dev/member/toolkit?tab=studio' },
+  { name: 'member-toolkit-tools', path: '/dev/member/toolkit?tab=toolkit' },
+  { name: 'member-interview-prep', path: '/dev/member/interview-prep' },
+  { name: 'member-interview-prep-filled', path: '/dev/member/interview-prep?state=filled' },
+  { name: 'member-interview-practice', path: '/dev/member/interview-practice' },
+  { name: 'member-interview-practice-filled', path: '/dev/member/interview-practice?state=filled' },
+  { name: 'member-linkedin-headline', path: '/dev/member/linkedin-headline' },
+  { name: 'member-linkedin-headline-filled', path: '/dev/member/linkedin-headline?state=filled' },
+  { name: 'member-linkedin-about', path: '/dev/member/linkedin-about' },
+  { name: 'member-linkedin-about-filled', path: '/dev/member/linkedin-about?state=filled' },
+  { name: 'member-cover-letter', path: '/dev/member/cover-letter' },
+  { name: 'member-cover-letter-filled', path: '/dev/member/cover-letter?state=filled' },
+  { name: 'member-salary-negotiation', path: '/dev/member/salary-negotiation' },
+  { name: 'member-salary-negotiation-filled', path: '/dev/member/salary-negotiation?state=filled' },
+  { name: 'member-elevator-pitch', path: '/dev/member/elevator-pitch' },
+  { name: 'member-elevator-pitch-filled', path: '/dev/member/elevator-pitch?state=filled' },
+  { name: 'member-elevator-pitch-rehearse', path: '/dev/member/elevator-pitch?state=rehearse' },
+  { name: 'member-resume-rewriter', path: '/dev/member/resume-rewriter' },
+  { name: 'member-resume-rewriter-filled', path: '/dev/member/resume-rewriter?state=filled' },
+  { name: 'member-resume-strength', path: '/dev/member/resume-strength' },
+  { name: 'member-resume-strength-filled', path: '/dev/member/resume-strength?state=filled' },
+  { name: 'member-resume-studio', path: '/dev/member/resume-studio' },
+  { name: 'member-resume-studio-filled', path: '/dev/member/resume-studio?state=filled' },
+  { name: 'member-resume-studio-rewrite', path: '/dev/member/resume-studio?view=rewrite' },
+  { name: 'member-resume-studio-coach', path: '/dev/member/resume-studio?view=coach' },
+  { name: 'member-job-match', path: '/dev/member/job-match' },
+  { name: 'member-job-match-filled', path: '/dev/member/job-match?state=filled' },
+  { name: 'member-job-match-error', path: '/dev/member/job-match?state=error' },
+  { name: 'member-interview-coach', path: '/dev/member/interview-coach' },
+  { name: 'member-interview-coach-interview', path: '/dev/member/interview-coach?state=interview' },
+  { name: 'member-interview-coach-feedback', path: '/dev/member/interview-coach?state=feedback' },
   { name: 'member-assessment', path: '/dev/member/assessment' },
+  { name: 'member-assessment-locked', path: '/dev/member/assessment?state=locked' },
   { name: 'member-assessment-form', path: '/dev/member/assessment?state=form' },
+  { name: 'member-assessment-questions', path: '/dev/member/assessment?state=questions' },
+  { name: 'member-assessment-confirm', path: '/dev/member/assessment?state=confirm' },
   { name: 'member-missions', path: '/dev/member/missions' },
+  { name: 'member-missions-enrolled', path: '/dev/member/missions?state=enrolled' },
+  { name: 'member-missions-active', path: '/dev/member/missions?state=active' },
+  { name: 'member-missions-teaser', path: '/dev/member/missions?state=teaser' },
+  { name: 'member-missions-challenge', path: '/dev/member/missions?state=challenge' },
+  { name: 'member-missions-passed', path: '/dev/member/missions?state=passed' },
   // Portal Command Centers (app/dev/staff/*-command showcase routes, mock data)
   { name: 'admin-command', path: '/dev/staff/admin-command' },
   { name: 'counselor-command', path: '/dev/staff/counselor-command' },
@@ -95,7 +145,7 @@ const TARGETS = [
   { name: 'staff-pipeline-funnel', path: '/dev/staff/pipeline-funnel' },
   { name: 'staff-crons-monitor', path: '/dev/staff/crons-monitor' },
   { name: 'staff-counselors', path: '/dev/staff/counselors' },
-].filter((t) => !ONLY || t.name === ONLY || t.path.includes(ONLY));
+].filter((t) => !ONLY || t.name === ONLY || t.name.startsWith(`${ONLY}-`) || t.path.includes(ONLY));
 
 const DEV_ENV = {
   ...process.env,
@@ -134,7 +184,8 @@ async function waitForReady(base, timeoutMs = 180_000) {
 async function shoot(context, target, mode) {
   const page = await context.newPage();
   const base = BASE ?? `http://localhost:${PORT}`;
-  await page.goto(`${base}${target.path}`, { waitUntil: 'networkidle', timeout: 90_000 });
+  await page.goto(`${base}${target.path}`, { waitUntil: 'load', timeout: 90_000 });
+  await page.waitForTimeout(400);
   if (mode === 'dark') {
     // ThemeInitScript reads localStorage 'wap-theme'; also force the class in
     // case the init script already ran before our storage write took effect.
@@ -187,7 +238,8 @@ async function main() {
     const modes = ['light', ...(WITH_DARK ? ['dark'] : [])];
     const viewports = [
       { name: 'desktop', width: 1440, height: 1600 },
-      ...(WITH_MOBILE ? [{ name: 'mobile', width: 390, height: 1600 }] : []),
+      ...(WITH_TABLET ? [{ name: 'tablet', width: 768, height: 1600 }] : []),
+      ...(WITH_MOBILE ? [{ name: 'mobile', width: 375, height: 1600 }] : []),
     ];
     for (const vp of viewports) {
       for (const mode of modes) {

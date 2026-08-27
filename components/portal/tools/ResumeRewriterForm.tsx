@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
-import { } from 'lucide-react';
+import { Check, Copy, Upload } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
+import { FormField, Toggle } from '@/components/portal/kit';
 import ExportPdfButton from './ExportPdfButton';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
 import { useRetryableFetch } from '@/hooks/useRetryableFetch';
@@ -22,19 +24,74 @@ const SALARY_RANGES = [
   '$130,000+',
 ];
 
+const TONES = ['professional', 'conversational', 'executive'] as const;
+type Tone = (typeof TONES)[number];
+
+const KIT_BTN =
+  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+
+const kitBtnSolid: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  border: '1px solid var(--wa-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  cursor: 'pointer',
+};
+
+const kitBtnOutline: CSSProperties = {
+  ...kitBtnSolid,
+  background: 'transparent',
+  color: 'var(--wa-accent)',
+  border: '1px solid var(--wa-border)',
+};
+
+const FIELD_CONTROL: CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 14,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  fontFamily: 'inherit',
+  minHeight: 44,
+  boxSizing: 'border-box',
+};
+
 type ResumeRewriterFormProps = {
   initialResume?: string;
+  initialJobTarget?: string;
+  initialTargetSalary?: string;
+  initialTargetLocation?: string;
   /** When set with onResumeChange, the resume field is controlled (e.g. profile coach Accept → append). */
   resumeControlled?: string;
   onResumeChange?: (value: string) => void;
   resumeBanner?: ReactNode;
+  preview?: boolean;
+  previewOutput?: string;
 };
 
 export default function ResumeRewriterForm({
   initialResume,
+  initialJobTarget = '',
+  initialTargetSalary = '',
+  initialTargetLocation = '',
   resumeControlled,
   onResumeChange,
-  resumeBanner}: ResumeRewriterFormProps = {}) {
+  resumeBanner,
+  preview = false,
+  previewOutput,
+}: ResumeRewriterFormProps = {}) {
   const [internalResume, setInternalResume] = useState(initialResume ?? '');
   const isControlled = onResumeChange != null;
   const resume = isControlled ? (resumeControlled ?? '') : internalResume;
@@ -44,43 +101,27 @@ export default function ResumeRewriterForm({
     else setInternalResume(value);
   };
 
-  const onResumeChangeRef = useRef(onResumeChange);
-  const resumeControlledRef = useRef(resumeControlled);
-  onResumeChangeRef.current = onResumeChange;
-  resumeControlledRef.current = resumeControlled;
+  useHydrateMemberResumePlainText(setInternalResume, undefined, !preview && !isControlled);
 
-  useEffect(() => {
-    if (isControlled) return;
-    let cancelled = false;
-    fetch('/api/member/resume?includePlainText=1')
-      .then((r) => r.json())
-      .then((d: { resumePlainText?: string | null }) => {
-        if (cancelled) return;
-        const t = d.resumePlainText?.trim();
-        if (!t) return;
-        setInternalResume((prev) => (prev.trim() ? prev : t));
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [isControlled]);
-
-  const [jobTarget, setJobTarget] = useState('');
-  const [targetSalary, setTargetSalary] = useState('');
-  const [targetLocation, setTargetLocation] = useState('');
+  const [jobTarget, setJobTarget] = useState(initialJobTarget);
+  const [targetSalary, setTargetSalary] = useState(initialTargetSalary);
+  const [targetLocation, setTargetLocation] = useState(initialTargetLocation);
   const [language, setLanguage] = useState<AiToolLanguage>('en');
-  const [output, setOutput] = useState('');
+  const [output, setOutput] = useState(previewOutput ?? '');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
-  const [tone, setTone] = useState<'professional' | 'conversational' | 'executive'>('professional');
+  const [tone, setTone] = useState<Tone>('professional');
   const [atsOptimize, setAtsOptimize] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
   const { execute, clearRetry, retryState } = useRetryableFetch();
 
   const doSubmit = async () => {
+    if (preview) {
+      if (previewOutput) setOutput(previewOutput);
+      return;
+    }
     setError('');
     setOutput('');
     setLoading(true);
@@ -98,7 +139,9 @@ export default function ResumeRewriterForm({
             targetLocation: targetLocation.trim() || undefined,
             tone,
             atsOptimize,
-            language})});
+            language,
+          }),
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
         return data;
@@ -112,17 +155,17 @@ export default function ResumeRewriterForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (preview) {
+      if (previewOutput) setOutput(previewOutput);
+      return;
+    }
     clearRetry();
     void doSubmit();
   };
 
-  const handleCopy = () => {
-    if (output) void copy(output);
-  };
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || preview) return;
     setError('');
     setExtracting(true);
     try {
@@ -130,7 +173,8 @@ export default function ResumeRewriterForm({
       formData.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', {
         method: 'POST',
-        body: formData});
+        body: formData,
+      });
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
@@ -146,170 +190,231 @@ export default function ResumeRewriterForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <AiToolLanguageSelector value={language} onChange={setLanguage} />
-      <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
-        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
-          <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.
+
+      <div>
+        <p className="wa-kit-field-label" style={{ marginBottom: 8 }}>
+          Tone
         </p>
-      </div>
-
-      {/* Controls bar */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'var(--surface-container)', borderRadius: '0.75rem', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: '1 1 auto' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">tune</span>
-          <label htmlFor="tone-select" style={{ fontSize: '0.8125rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Tone</label>
-          <select
-            id="tone-select"
-            value={tone}
-            onChange={(e) => setTone(e.target.value as typeof tone)}
-            disabled={loading}
-            style={{ fontSize: '0.8125rem', padding: '0.375rem 0.625rem', borderRadius: '0.375rem', border: '1px solid var(--outline-variant)', background: 'var(--color-white, #fff)', color: 'var(--color-on-surface)', minHeight: '36px' }}
-          >
-            <option value="professional">Professional</option>
-            <option value="conversational">Conversational</option>
-            <option value="executive">Executive</option>
-          </select>
-        </div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-          <input
-            type="checkbox"
-            checked={atsOptimize}
-            onChange={(e) => setAtsOptimize(e.target.checked)}
-            disabled={loading}
-            style={{ width: '18px', height: '18px', accentColor: 'var(--color-accent)' }}
-          />
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: atsOptimize ? 'var(--color-green)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">verified</span>
-          ATS Optimized
-        </label>
-      </div>
-
-      <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1.5rem' }}>
-        <legend style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', display: 'block' }}>Your Career Goal</legend>
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          <div className="form-group">
-            <label htmlFor="job-target">Target job title *</label>
-            <input
-              id="job-target"
-              type="text"
-              value={jobTarget}
-              onChange={(e) => setJobTarget(e.target.value)}
-              placeholder="e.g. IT Support Specialist, Cybersecurity Analyst, Data Analyst"
-              required
-              disabled={loading}
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label htmlFor="target-salary">Target salary range</label>
-              <select
-                id="target-salary"
-                value={targetSalary}
-                onChange={(e) => setTargetSalary(e.target.value)}
+        <div role="group" aria-label="Tone" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {TONES.map((t) => {
+            const on = tone === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTone(t)}
                 disabled={loading}
+                aria-pressed={on}
+                className={KIT_BTN}
+                style={{
+                  ...(on ? kitBtnSolid : kitBtnOutline),
+                  textTransform: 'capitalize',
+                  opacity: loading ? 0.55 : 1,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                }}
               >
-                {SALARY_RANGES.map((s) => (
-                  <option key={s} value={s}>{s || 'Select a range (optional)'}</option>
-                ))}
-              </select>
-              <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Helps calibrate language and seniority level</small>
-            </div>
-            <div className="form-group">
-              <label htmlFor="target-location">Target city / location</label>
-              <input
-                id="target-location"
-                type="text"
-                value={targetLocation}
-                onChange={(e) => setTargetLocation(e.target.value)}
-                placeholder="e.g. Austin, TX"
-                disabled={loading}
-              />
-              <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Tailors language to your local job market</small>
-            </div>
-          </div>
+                {t}
+              </button>
+            );
+          })}
         </div>
-      </fieldset>
+      </div>
 
-      <div className="form-group">
-        <label htmlFor="resume">Your resume (paste or upload PDF/DOCX) *</label>
-        {resumeBanner}
-        <div className="resume-upload-row">
+      <Toggle checked={atsOptimize} onChange={setAtsOptimize} label="ATS keywords" />
+
+      <FormField label="Target job title" id="job-target" full>
+        <input
+          id="job-target"
+          type="text"
+          value={jobTarget}
+          onChange={(e) => setJobTarget(e.target.value)}
+          placeholder="IT Support Specialist, Cybersecurity Analyst"
+          required
+          disabled={loading}
+          style={FIELD_CONTROL}
+        />
+      </FormField>
+
+      <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-3">
+        <FormField label="Salary range" id="target-salary">
+          <select
+            id="target-salary"
+            value={targetSalary}
+            onChange={(e) => setTargetSalary(e.target.value)}
+            disabled={loading}
+            style={FIELD_CONTROL}
+          >
+            {SALARY_RANGES.map((s) => (
+              <option key={s} value={s}>
+                {s || 'Optional'}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="City / location" id="target-location">
           <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx,.doc,.txt"
-            onChange={handleFileUpload}
-            disabled={extracting || loading}
-            className="resume-file-input"
+            id="target-location"
+            type="text"
+            value={targetLocation}
+            onChange={(e) => setTargetLocation(e.target.value)}
+            placeholder="Austin, TX"
+            disabled={loading}
+            style={FIELD_CONTROL}
           />
-          {extracting && <span className="resume-upload-status">Extracting text...</span>}
-        </div>
+        </FormField>
+      </div>
+      <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+        Salary and city calibrate seniority and local phrasing. Optional.
+      </p>
+
+      <div>
+        <label htmlFor="resume" className="wa-kit-field-label" style={{ marginBottom: 8, display: 'block' }}>
+          Resume
+        </label>
+        {resumeBanner}
+        {!preview ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, margin: '0 0 8px' }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,.doc,.txt"
+              onChange={handleFileUpload}
+              disabled={extracting || loading}
+              className="wa-sr-only"
+              id="resume-file"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={extracting || loading}
+              className={KIT_BTN}
+              style={{
+                ...kitBtnOutline,
+                opacity: extracting || loading ? 0.55 : 1,
+                cursor: extracting || loading ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <Upload size={16} aria-hidden="true" />
+              {extracting ? 'Extracting…' : 'Upload PDF or DOCX'}
+            </button>
+          </div>
+        ) : null}
         <textarea
           id="resume"
           value={resume}
           onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume here..."
+          placeholder="Paste your resume."
           rows={12}
           required
           disabled={loading}
+          className="wa-kit-focus"
+          style={{ ...FIELD_CONTROL, resize: 'vertical', minHeight: 200 }}
         />
       </div>
-      {error && (
-        <div style={{ marginBottom: '1rem' }}>
-          <AiToolError
-            error={error}
-            onRetry={retryState.isRetrying ? undefined : doSubmit}
-            isRetrying={retryState.isRetrying}
-            nextRetryIn={retryState.nextRetryIn}
-            retryCount={retryState.retryCount}
-          />
-        </div>
-      )}
-      <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>
+      <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+        Prefills from a resume on file.
+      </p>
+
+      <ul
+        style={{
+          margin: 0,
+          paddingLeft: 18,
+          fontSize: 13,
+          color: 'var(--wa-muted)',
+          lineHeight: 1.65,
+        }}
+      >
+        <li>Quantify bullets (“Reduced ticket response time by 40%”).</li>
+        <li>Mirror keywords from the posting.</li>
+        <li>One page under 10 years; two pages max.</li>
+        <li>Lead each bullet with an action verb.</li>
+      </ul>
+
+      {error ? (
+        <AiToolError
+          error={error}
+          onRetry={retryState.isRetrying ? undefined : doSubmit}
+          isRetrying={retryState.isRetrying}
+          nextRetryIn={retryState.nextRetryIn}
+          retryCount={retryState.retryCount}
+        />
+      ) : null}
+
+      <button
+        type="submit"
+        disabled={loading}
+        aria-busy={loading}
+        className={KIT_BTN}
+        style={{
+          ...kitBtnSolid,
+          alignSelf: 'flex-start',
+          opacity: loading ? 0.6 : 1,
+          cursor: loading ? 'not-allowed' : 'pointer',
+        }}
+      >
         {loading ? (
           <>
             <PortalInlineSpinner size={18} />
-            Positioning your resume…
+            Rewriting…
           </>
         ) : (
-          'Position my resume'
+          'Rewrite resume'
         )}
       </button>
 
-      {output && (
-        <div className="resume-rewriter-output">
-          <div className="resume-rewriter-output-header">
-            <h3>Your repositioned resume</h3>
-            <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
-                  {copied ? 'check' : 'content_copy'}
-                </span>
-                {copied ? 'Copied!' : 'Copy to clipboard'}
+      {output ? (
+        <div
+          style={{
+            marginTop: 8,
+            padding: 20,
+            background: 'var(--wa-surface-2)',
+            borderRadius: 'var(--wa-radius)',
+            border: '1px solid var(--wa-border)',
+          }}
+        >
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <h3 style={{ flex: '1 1 100%', margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--wa-text)' }}>
+              Rewritten resume
+            </h3>
+            <button type="button" onClick={() => void copy(output)} className={KIT_BTN} style={kitBtnOutline}>
+              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+                {copied ? 'Copied' : 'Copy'}
               </span>
             </button>
-            <ExportPdfButton text={output} title="Resume" toolName="Resume Rewriter" />
+            <ExportPdfButton kit text={output} title="Resume" toolName="Resume Rewriter" />
           </div>
-          <pre className="resume-rewriter-output-content">{output}</pre>
-          <p className="ai-result-saved">
-            Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
-          </p>
-          <ToolFollowThrough toolType="resume_rewriter" output={output} />
+          <pre
+            className="resume-rewriter-output-content"
+            style={{
+              margin: 0,
+              padding: 16,
+              borderRadius: 'var(--wa-radius-sm)',
+              background: 'var(--wa-surface)',
+              border: '1px solid var(--wa-border)',
+              color: 'var(--wa-text)',
+              fontFamily: 'inherit',
+              fontSize: 14,
+              lineHeight: 1.65,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}
+          >
+            {output}
+          </pre>
+          {!preview ? (
+            <p style={{ margin: '12px 0 0', fontSize: 14, color: 'var(--wa-muted)' }}>
+              Saved to history.{' '}
+              <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
+                View all results
+              </Link>
+            </p>
+          ) : null}
+          {!preview ? <ToolFollowThrough toolType="resume_rewriter" output={output} /> : null}
         </div>
-      )}
-      {/* Knowledge card */}
-      <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container-low)', borderRadius: '0.75rem', border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-gold)' }} aria-hidden="true">lightbulb</span>
-          <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Resume tips</span>
-        </div>
-        <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-          <li>Use quantifiable achievements (&ldquo;Reduced ticket response time by 40%&rdquo;)</li>
-          <li>Mirror keywords from the job posting for ATS compatibility</li>
-          <li>Keep to 1 page for &lt;10 years experience, 2 pages max</li>
-          <li>Lead each bullet with a strong action verb</li>
-        </ul>
-      </div>
+      ) : null}
     </form>
   );
 }

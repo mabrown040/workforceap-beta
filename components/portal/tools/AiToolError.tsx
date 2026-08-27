@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@astryxdesign/core/Button';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 
 type AiToolErrorProps = {
@@ -67,52 +68,33 @@ export default function AiToolError({
       aria-live="polite"
       style={{
         padding: '1rem 1.25rem',
-        borderRadius: '12px',
-        background: 'rgba(173,44,77,0.08)',
-        border: '1px solid rgba(173,44,77,0.2)',
-        color: 'var(--color-accent)',
-        fontSize: '0.875rem',
+        borderRadius: 'var(--wa-radius-sm)',
+        background: 'var(--wa-danger-soft)',
+        border: '1px solid color-mix(in srgb, var(--wa-danger) 28%, var(--wa-border))',
+        color: 'var(--wa-text)',
+        fontSize: 14,
         lineHeight: 1.5}}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: isRetryable ? '0.75rem' : 0 }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
-          error
-        </span>
+        <AlertTriangle size={18} aria-hidden="true" style={{ color: 'var(--wa-danger)', flexShrink: 0 }} />
         <p style={{ margin: 0, fontWeight: 600 }}>{friendlyMessage}</p>
       </div>
 
       {isRetryable && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
+          <Button
+            label={isRetrying ? `Retrying${retryCount != null ? ` (${retryCount + 1}/3)` : ''}…` : 'Retry now'}
+            variant="secondary"
+            size="sm"
             onClick={onRetry}
-            disabled={isRetrying}
-            className="btn btn-outline"
-            style={{
-              fontSize: '0.8125rem',
-              padding: '0.4rem 0.875rem',
-              opacity: isRetrying ? 0.6 : 1,
-              cursor: isRetrying ? 'not-allowed' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem'}}
+            isDisabled={isRetrying}
+            style={{ minHeight: 44 }}
+            icon={isRetrying ? <PortalInlineSpinner size={14} /> : <RefreshCw size={14} aria-hidden="true" />}
             aria-label={isRetrying ? 'Retrying automatically' : 'Retry now'}
-          >
-            {isRetrying ? (
-              <>
-                <PortalInlineSpinner size={14} />
-                Retrying{retryCount != null ? ` (${retryCount + 1}/${3})` : ''}…
-              </>
-            ) : (
-              <>
-                <RefreshCw size={14} />
-                Retry now
-              </>
-            )}
-          </button>
+          />
 
           {isRetrying && countdown > 0 && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+            <span style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
               Next retry in {Math.ceil(countdown / 1000)}s
             </span>
           )}

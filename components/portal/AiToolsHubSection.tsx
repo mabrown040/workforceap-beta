@@ -6,7 +6,7 @@ import { AI_TOOLS_HUB } from '@/lib/portal/aiToolsHub';
 export default function AiToolsHubSection() {
   return (
     <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
-      <h2 className="wa-sr-only">Career toolkit categories</h2>
+      <h2 className="wa-sr-only">Career Studio categories</h2>
       <div className="ai-tools-hub-grid">
         {AI_TOOLS_HUB.map((cat) => (
           <div key={cat.id} className="ai-tools-hub-card portal-card portal-card--flat">

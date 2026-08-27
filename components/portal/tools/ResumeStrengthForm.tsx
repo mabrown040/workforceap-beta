@@ -1,50 +1,78 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { } from 'lucide-react';
+import { useState, useRef, useEffect, type CSSProperties } from 'react';
+import { Upload } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
 import ResumeAnalysisPanel, { type ResumeSectionAuditCard } from './ResumeAnalysisPanel';
 import ResumeScoreBreakdown, { type ResumeScorePayload } from './ResumeScoreBreakdown';
-import ToolFollowThrough from './ToolFollowThrough';
 import AiToolError from './AiToolError';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
-// Static visual styling per audit card. The *status* (Pass/Review) is derived
-// from the real per-resume structural subscores below — never hardcoded.
+const KIT_BTN =
+  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+
+const kitBtnSolid: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  border: '1px solid var(--wa-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  cursor: 'pointer',
+};
+
+const kitBtnOutline: CSSProperties = {
+  ...kitBtnSolid,
+  background: 'transparent',
+  color: 'var(--wa-accent)',
+  border: '1px solid var(--wa-border)',
+};
+
+const FIELD_CONTROL: CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 14,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  fontFamily: 'inherit',
+  minHeight: 200,
+  boxSizing: 'border-box',
+  resize: 'vertical',
+};
+
 const SECTION_AUDIT_STYLE = {
   structure: {
     title: 'Sections & structure',
     description: 'See strengths and improvements in the analysis text.',
-    accent: '#1565c0',
-    accentSoft: 'rgba(21, 101, 192, 0.12)'},
+  },
   quantification: {
     title: 'Quantified achievements',
     description: 'Check bullets for metrics, scope, and strong action verbs.',
-    accent: '#ed8b00',
-    accentSoft: 'rgba(237, 139, 0, 0.14)'},
+  },
   actionVerbs: {
     title: 'Action-verb openers',
     description: 'Lead bullets with strong action verbs aligned to your target roles.',
-    accent: '#2e7d32',
-    accentSoft: 'rgba(46, 125, 50, 0.12)'},
+  },
   contact: {
     title: 'Contact essentials',
     description: 'Ensure email, phone, and location are present and ATS-parsable.',
-    accent: '#6a1b9a',
-    accentSoft: 'rgba(106, 27, 154, 0.12)'}} as const;
+  },
+} as const;
 
-// Order in which audit cards appear when the corresponding subscore exists.
 const SECTION_AUDIT_ORDER = ['structure', 'quantification', 'actionVerbs', 'contact'] as const;
 
-const PASS_STYLE = { status: 'Pass', statusColor: 'var(--color-green)', accent: '#2e7d32', accentSoft: 'rgba(46, 125, 50, 0.12)' };
-
-/**
- * Build per-section audit cards from the real deterministic structural subscores
- * returned by the resume-strength API. Each card's status (Pass/Review) reflects
- * that resume's actual subscore rather than a constant.
- */
 function deriveSectionAuditCards(payload: ResumeScorePayload | null): ResumeSectionAuditCard[] {
   const breakdown = payload?.structural?.breakdown;
   if (!breakdown) return [];
@@ -57,17 +85,11 @@ function deriveSectionAuditCards(payload: ResumeScorePayload | null): ResumeSect
       title: style.title,
       status: isPass ? 'Pass' : 'Review',
       description: style.description,
-      accent: isPass ? PASS_STYLE.accent : style.accent,
-      accentSoft: isPass ? PASS_STYLE.accentSoft : style.accentSoft,
-      statusColor: isPass ? PASS_STYLE.statusColor : '#b26a00'}];
+      tone: isPass ? 'ok' : 'warn',
+    }];
   });
 }
 
-/**
- * Surface the real per-resume findings the deterministic scorer produced for the
- * weakest structural dimensions (quantification, structure, contact). These are the
- * actual `notes` computed from this resume, not generic tips.
- */
 function deriveMissingMetrics(payload: ResumeScorePayload | null): string[] {
   const breakdown = payload?.structural?.breakdown;
   if (!breakdown) return [];
@@ -77,7 +99,6 @@ function deriveMissingMetrics(payload: ResumeScorePayload | null): string[] {
     if (sub && sub.score < 80) {
       for (const note of sub.notes) {
         const trimmed = note.trim();
-        // Skip purely informational tallies; keep actionable gaps.
         if (trimmed && !findings.includes(trimmed)) findings.push(trimmed);
       }
     }
@@ -85,7 +106,6 @@ function deriveMissingMetrics(payload: ResumeScorePayload | null): string[] {
   return findings;
 }
 
-/** Collect the real "must-have" keywords this resume already covers / is missing across target occupations. */
 function deriveKeyword(
   payload: ResumeScorePayload | null,
   field: 'mustHavePresent' | 'mustHaveMissing',
@@ -102,10 +122,20 @@ function deriveKeyword(
   return Array.from(seen).slice(0, 8);
 }
 
-export default function ResumeStrengthForm() {
-  const [resume, setResume] = useState('');
-  const [output, setOutput] = useState('');
-  const [scorePayload, setScorePayload] = useState<ResumeScorePayload | null>(null);
+export default function ResumeStrengthForm({
+  preview = false,
+  initialResume = '',
+  previewOutput,
+  previewPayload,
+}: {
+  preview?: boolean;
+  initialResume?: string;
+  previewOutput?: string;
+  previewPayload?: ResumeScorePayload | null;
+} = {}) {
+  const [resume, setResume] = useState(initialResume);
+  const [output, setOutput] = useState(previewOutput ?? '');
+  const [scorePayload, setScorePayload] = useState<ResumeScorePayload | null>(previewPayload ?? null);
   const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -114,26 +144,36 @@ export default function ResumeStrengthForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [showFloating, setShowFloating] = useState(false);
 
-  useHydrateMemberResumePlainText(setResume);
+  useHydrateMemberResumePlainText(setResume, undefined, !preview);
 
   const canSubmit = resume.trim().length >= 100 && !loading;
 
   useEffect(() => {
-    if (!formRef.current || !canSubmit) {
+    if (preview || !formRef.current || !canSubmit) {
       setShowFloating(false);
       return;
     }
     const observer = new IntersectionObserver(
       ([entry]) => setShowFloating(!entry.isIntersecting && canSubmit),
-      { threshold: 0 }
+      { threshold: 0 },
     );
     const submitBtn = formRef.current.querySelector('button[type="submit"]');
     if (submitBtn) observer.observe(submitBtn);
     return () => observer.disconnect();
-  }, [canSubmit]);
+  }, [canSubmit, preview]);
+
+  const applyPreview = () => {
+    if (previewOutput) setOutput(previewOutput);
+    if (previewPayload) setScorePayload(previewPayload);
+    setExtractionWarning(getResumeExtractionWarning(resume));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (preview) {
+      applyPreview();
+      return;
+    }
     setError('');
     setOutput('');
     setScorePayload(null);
@@ -146,7 +186,8 @@ export default function ResumeStrengthForm() {
       const res = await fetch('/api/ai/resume-strength', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume })});
+        body: JSON.stringify({ resume }),
+      });
 
       const data = await res.json();
 
@@ -164,7 +205,8 @@ export default function ResumeStrengthForm() {
         structural: data.structural,
         occupations: data.occupations,
         onetCoverage: data.onetCoverage,
-        marketCoverage: data.marketCoverage});
+        marketCoverage: data.marketCoverage,
+      });
     } catch {
       trackAIToolRun('errored', 'resume-analysis', { reason: 'network_error' });
       setError('Network error. Please try again.');
@@ -175,7 +217,7 @@ export default function ResumeStrengthForm() {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || preview) return;
     setError('');
     setExtracting(true);
     try {
@@ -183,7 +225,8 @@ export default function ResumeStrengthForm() {
       formData.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', {
         method: 'POST',
-        body: formData});
+        body: formData,
+      });
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
@@ -206,46 +249,80 @@ export default function ResumeStrengthForm() {
   const missingSkills = deriveKeyword(scorePayload, 'mustHaveMissing');
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
-      <div className="form-group">
-        <label htmlFor="resume-strength-body">Your resume (paste or upload PDF/DOCX)</label>
-        <div className="resume-upload-row">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx,.doc,.txt"
-            onChange={handleFileUpload}
-            disabled={extracting || loading}
-            className="resume-file-input"
-          />
-          {extracting && <span className="resume-upload-status">Extracting text...</span>}
-        </div>
+    <form ref={formRef} onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div>
+        <label htmlFor="resume-strength-body" className="wa-kit-field-label" style={{ marginBottom: 8, display: 'block' }}>
+          Resume
+        </label>
+        {!preview ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, margin: '0 0 8px' }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,.doc,.txt"
+              onChange={handleFileUpload}
+              disabled={extracting || loading}
+              className="wa-sr-only"
+              id="resume-strength-file"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={extracting || loading}
+              className={KIT_BTN}
+              style={{
+                ...kitBtnOutline,
+                opacity: extracting || loading ? 0.55 : 1,
+                cursor: extracting || loading ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <Upload size={16} aria-hidden="true" />
+              {extracting ? 'Extracting…' : 'Upload PDF or DOCX'}
+            </button>
+          </div>
+        ) : null}
         <textarea
           id="resume-strength-body"
           value={resume}
           onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume here (at least 100 characters)…"
+          placeholder="Paste your resume (100 characters min)."
           rows={12}
           required
           minLength={100}
           disabled={loading}
+          className="wa-kit-focus"
+          style={FIELD_CONTROL}
         />
       </div>
+      <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+        Prefills from a resume on file.
+      </p>
       {error ? <AiToolError error={error} /> : null}
-      <button type="submit" className="btn btn-primary" disabled={loading || !canSubmit} aria-busy={loading}>
+      <button
+        type="submit"
+        className={KIT_BTN}
+        disabled={loading || !canSubmit}
+        aria-busy={loading}
+        style={{
+          ...kitBtnSolid,
+          alignSelf: 'flex-start',
+          opacity: loading || !canSubmit ? 0.6 : 1,
+          cursor: loading || !canSubmit ? 'not-allowed' : 'pointer',
+        }}
+      >
         {loading ? (
           <>
             <PortalInlineSpinner size={18} />
             Analyzing…
           </>
         ) : (
-          'Analyze resume strength'
+          'Analyze resume'
         )}
       </button>
 
-      {output && (
+      {output ? (
         <>
-          {scorePayload && <ResumeScoreBreakdown payload={scorePayload} />}
+          {scorePayload ? <ResumeScoreBreakdown payload={scorePayload} /> : null}
           <ResumeAnalysisPanel
             resumePreview={resume}
             scorePercent={scorePercent}
@@ -259,29 +336,36 @@ export default function ResumeStrengthForm() {
             bulletSuggestions={[]}
             exportTitle="Resume Strength Analysis"
             pdfToolName="Resume Analysis"
+            preview={preview}
           />
-          <ToolFollowThrough toolType="resume_rewriter" />
         </>
-      )}
-      {showFloating && (
+      ) : null}
+      {showFloating ? (
         <div
           style={{
             position: 'fixed',
             bottom: '5rem',
             left: '1rem',
             right: '1rem',
-            zIndex: 50}}
+            zIndex: 'var(--z-sticky)',
+          }}
         >
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', boxShadow: '0 4px 14px rgba(0,0,0,0.12)' }}
+            className={KIT_BTN}
+            style={{
+              ...kitBtnSolid,
+              width: '100%',
+              boxShadow: 'var(--wa-shadow-lg)',
+              opacity: loading || !canSubmit ? 0.6 : 1,
+              cursor: loading || !canSubmit ? 'not-allowed' : 'pointer',
+            }}
             disabled={loading || !canSubmit}
           >
-            {loading ? 'Analyzing…' : 'Analyze resume strength'}
+            {loading ? 'Analyzing…' : 'Analyze resume'}
           </button>
         </div>
-      )}
+      ) : null}
     </form>
   );
 }

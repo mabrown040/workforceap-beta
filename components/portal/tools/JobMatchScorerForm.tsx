@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Link as LinkIcon } from 'lucide-react';
+import { useState, useRef, useEffect, type CSSProperties } from 'react';
+import { Link as LinkIcon, BarChart2 } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
@@ -9,8 +9,41 @@ import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 import ToolFollowThrough from './ToolFollowThrough';
 import AiToolError from './AiToolError';
+import { FormField } from '@/components/portal/kit';
 
-interface ParsedMatchOutput {
+const KIT_BTN =
+  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+
+const kitBtnSolid: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  border: '1px solid var(--wa-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  cursor: 'pointer',
+};
+
+const FIELD_CONTROL: CSSProperties = {
+  marginTop: 4,
+  width: '100%',
+  fontSize: 14,
+  border: '1px solid var(--wa-border)',
+  borderRadius: 'var(--wa-radius-sm)',
+  padding: '10px 12px',
+  outline: 'none',
+  background: 'var(--wa-surface)',
+  color: 'var(--wa-text)',
+  fontFamily: 'inherit',
+};
+
+export interface ParsedMatchOutput {
   matchScore: number;
   strengths: string[];
   gaps: string[];
@@ -22,9 +55,7 @@ interface SectionAuditCard {
   title: string;
   status: string;
   description: string;
-  accent: string;
-  accentSoft: string;
-  statusColor: string;
+  tone: 'ok' | 'warn' | 'info' | 'danger';
 }
 
 interface BulletSuggestion {
@@ -40,52 +71,48 @@ function deriveSectionAuditCards(parsed: ParsedMatchOutput | null, resumeText: s
 
   // Summary card based on overall match
   const summaryStatus = parsed.matchScore >= 80 ? 'Strong' : parsed.matchScore >= 60 ? 'Good' : 'Needs work';
-  const summaryColor = parsed.matchScore >= 80 ? '#2e7d32' : parsed.matchScore >= 60 ? '#2b7bb9' : '#ed8b00';
+  const summaryTone = parsed.matchScore >= 80 ? 'ok' : parsed.matchScore >= 60 ? 'info' : 'warn';
   cards.push({
     title: 'Summary',
     status: summaryStatus,
     description: `Overall match score: ${parsed.matchScore}%. ${parsed.strengths.length} strengths identified, ${parsed.gaps.length} gaps to address.`,
-    accent: summaryColor,
-    accentSoft: `${summaryColor}20`,
-    statusColor: summaryColor});
+    tone: summaryTone,
+  });
 
   // Experience card based on gaps analysis
-  const hasExperienceGaps = parsed.gaps.some(g => 
+  const hasExperienceGaps = parsed.gaps.some(g =>
     /experience|years|background|worked|role|position/i.test(g)
   );
   cards.push({
     title: 'Experience',
     status: hasExperienceGaps ? 'Needs work' : 'Strong',
-    description: hasExperienceGaps 
+    description: hasExperienceGaps
       ? 'Some experience gaps identified. Consider highlighting transferable skills.'
       : 'Your experience aligns well with the role requirements.',
-    accent: hasExperienceGaps ? '#ed8b00' : '#2e7d32',
-    accentSoft: hasExperienceGaps ? 'rgba(237, 139, 0, 0.14)' : 'rgba(46, 125, 50, 0.12)',
-    statusColor: hasExperienceGaps ? '#b26a00' : 'var(--color-green)'});
+    tone: hasExperienceGaps ? 'warn' : 'ok',
+  });
 
   // Skills card based on strengths
   const skillsMatch = parsed.strengths.length;
   cards.push({
     title: 'Skills',
     status: skillsMatch >= 3 ? 'Strong' : skillsMatch >= 1 ? 'Good' : 'Needs work',
-    description: skillsMatch > 0 
+    description: skillsMatch > 0
       ? `${skillsMatch} key skills match the job requirements.`
       : 'Limited direct skill matches found. Review the gaps section.',
-    accent: skillsMatch >= 2 ? '#2e7d32' : '#ed8b00',
-    accentSoft: skillsMatch >= 2 ? 'rgba(46, 125, 50, 0.12)' : 'rgba(237, 139, 0, 0.14)',
-    statusColor: skillsMatch >= 2 ? 'var(--color-green)' : '#b26a00'});
+    tone: skillsMatch >= 2 ? 'ok' : 'warn',
+  });
 
   // Education card - basic heuristic
   const hasEducationSection = /education|degree|bachelor|master|phd|certification/i.test(resumeLower);
   cards.push({
     title: 'Education',
     status: hasEducationSection ? 'Present' : 'Missing detail',
-    description: hasEducationSection 
+    description: hasEducationSection
       ? 'Education section found. Ensure relevant certifications are highlighted.'
       : 'Education details not clearly found. Consider adding relevant credentials.',
-    accent: hasEducationSection ? '#2b7bb9' : '#d32f2f',
-    accentSoft: hasEducationSection ? 'rgba(43, 123, 185, 0.12)' : 'rgba(211, 47, 47, 0.12)',
-    statusColor: hasEducationSection ? '#2b7bb9' : '#d32f2f'});
+    tone: hasEducationSection ? 'info' : 'danger',
+  });
 
   return cards;
 }
@@ -216,27 +243,45 @@ function extractSkillsFromAnalysis(parsed: ParsedMatchOutput | null, resumeText:
     .slice(0, 3);
   
   // Fallback: if no skills extracted, return empty arrays
-  return { 
-    matched: matched.length > 0 ? matched : ['Experience', 'Skills'], 
-    missing: missing.length > 0 ? missing : ['See gaps above'] 
+  return {
+    matched,
+    missing,
   };
 }
 
-export default function JobMatchScorerForm() {
-  const [resume, setResume] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [jobUrl, setJobUrl] = useState('');
-  const [output, setOutput] = useState('');
-  const [parsedOutput, setParsedOutput] = useState<ParsedMatchOutput | null>(null);
+export default function JobMatchScorerForm({
+  preview = false,
+  initialResume = '',
+  initialJobDescription = '',
+  initialJobUrl = '',
+  previewOutput = '',
+  previewParsed = null,
+  previewError = '',
+}: {
+  preview?: boolean;
+  initialResume?: string;
+  initialJobDescription?: string;
+  initialJobUrl?: string;
+  /** Seed analysis results — /dev/member?state=filled. */
+  previewOutput?: string;
+  previewParsed?: ParsedMatchOutput | null;
+  /** Seed the shared error state — /dev/member?state=error. */
+  previewError?: string;
+} = {}) {
+  const [resume, setResume] = useState(initialResume);
+  const [jobDescription, setJobDescription] = useState(initialJobDescription);
+  const [jobUrl, setJobUrl] = useState(initialJobUrl);
+  const [output, setOutput] = useState(previewOutput);
+  const [parsedOutput, setParsedOutput] = useState<ParsedMatchOutput | null>(previewParsed);
   const [loading, setLoading] = useState(false);
   const [scrapingUrl, setScrapingUrl] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(previewError);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [showFloating, setShowFloating] = useState(false);
 
-  useHydrateMemberResumePlainText(setResume);
+  useHydrateMemberResumePlainText(setResume, undefined, !preview);
   // Resume hydrates server-side. Persist the user-typed inputs so a refresh
   // mid-paste of a long job description doesn't lose the work.
   useDraftAutosave('ai-tool:job-match-scorer:jobDescription', jobDescription, setJobDescription);
@@ -260,6 +305,7 @@ export default function JobMatchScorerForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (preview) return;
     setError('');
     setOutput('');
     setParsedOutput(null);
@@ -330,73 +376,84 @@ export default function JobMatchScorerForm() {
   const scorePercent = parsedOutput?.matchScore ?? 0;
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
-      <div className="form-group">
-        <label htmlFor="job-url">
-          Job posting URL (optional)
-          <span style={{ fontWeight: 400, color: 'var(--color-on-surface-variant)', marginLeft: '0.5rem' }}>
-            — we&rsquo;ll scrape the job description
-          </span>
-        </label>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <input
-            id="job-url"
-            type="url"
-            value={jobUrl}
-            onChange={(e) => setJobUrl(e.target.value)}
-            placeholder="https://company.com/careers/job-posting"
-            disabled={loading || scrapingUrl}
-            style={{ flex: 1 }}
-          />
-          {scrapingUrl && <PortalInlineSpinner size={18} />}
-        </div>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-          <LinkIcon size={12} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
-          Best results come from direct Greenhouse, Lever, and Ashby job links. Other career pages may vary.
+    <form ref={formRef} onSubmit={handleSubmit} style={{ margin: 0 }}>
+      <div className="wa-space-y-4">
+        <FormField
+          id="job-url"
+          label="Job posting URL (optional)"
+          type="url"
+          value={jobUrl}
+          onChange={(e) => setJobUrl(e.target.value)}
+          placeholder="https://company.com/careers/job-posting"
+          disabled={loading || scrapingUrl}
+        />
+        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+          <LinkIcon size={12} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }} />
+          Direct Greenhouse, Lever, and Ashby links scrape cleanest.
         </p>
-      </div>
+        {scrapingUrl ? (
+          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
+            <PortalInlineSpinner size={16} /> Fetching posting…
+          </p>
+        ) : null}
 
-      <div className="form-group">
-        <label htmlFor="job-desc">
-          Job description {jobUrl.trim() ? '(optional if the URL works, recommended as backup)' : '(required if no URL)'}
-        </label>
-        <textarea
-          id="job-desc"
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
-          placeholder="Paste the full job posting here..."
-          rows={6}
-          disabled={loading}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="resume">Your resume (paste or upload PDF/DOCX)</label>
-        <div className="resume-upload-row">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx,.doc,.txt"
-            onChange={handleFileUpload}
-            disabled={extracting || loading}
-            className="resume-file-input"
+        <FormField label="Job description" id="job-desc" full>
+          <textarea
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
+            placeholder="Paste the posting here."
+            rows={6}
+            disabled={loading}
+            style={{ ...FIELD_CONTROL, minHeight: 140, resize: 'vertical' }}
           />
-          {extracting && <span className="resume-upload-status">Extracting text...</span>}
-        </div>
-        <textarea
-          id="resume"
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-          placeholder="Paste your resume here..."
-          rows={10}
-          required
-          disabled={loading}
-        />
+        </FormField>
+
+        <FormField label="Resume" id="resume" full>
+          <textarea
+            value={resume}
+            onChange={(e) => setResume(e.target.value)}
+            placeholder="Paste your resume here."
+            rows={8}
+            required
+            disabled={loading}
+            style={{ ...FIELD_CONTROL, minHeight: 160, resize: 'vertical' }}
+          />
+        </FormField>
+        {preview ? null : (
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx,.doc,.txt"
+              onChange={handleFileUpload}
+              disabled={extracting || loading}
+              style={{ fontSize: 13, color: 'var(--wa-muted)' }}
+            />
+            {extracting ? (
+              <span style={{ fontSize: 13, color: 'var(--wa-muted)', marginLeft: 8 }}>Extracting text…</span>
+            ) : null}
+          </div>
+        )}
       </div>
 
-      {error ? <AiToolError error={error} /> : null}
+      {error ? (
+        <div style={{ marginTop: 12 }}>
+          <AiToolError error={error} />
+        </div>
+      ) : null}
 
-      <button type="submit" className="btn btn-primary" disabled={!canSubmit} aria-busy={loading}>
+      <button
+        type="submit"
+        className={KIT_BTN}
+        disabled={!canSubmit}
+        aria-busy={loading}
+        style={{
+          ...kitBtnSolid,
+          marginTop: 16,
+          opacity: !canSubmit ? 0.55 : 1,
+          cursor: !canSubmit ? 'not-allowed' : 'pointer',
+        }}
+      >
         {loading ? (
           <>
             <PortalInlineSpinner size={18} />
@@ -418,38 +475,35 @@ export default function JobMatchScorerForm() {
             sectionAuditCards={sectionAuditCards}
             missingMetrics={missingMetrics}
             bulletSuggestions={bulletSuggestions}
+            preview={preview}
           />
-          <ToolFollowThrough toolType="job_match_scorer" />
+          <ToolFollowThrough
+            toolType="job_match_scorer"
+            hrefOverride={preview ? '/dev/member/home' : undefined}
+          />
         </>
       )}
 
       {/* Floating analyze button — mobile */}
-      {showFloating && (
+      {showFloating && !output && (
         <div
           style={{
             position: 'fixed',
             bottom: '5rem',
             left: '1rem',
             right: '1rem',
-            zIndex: 50,
-            display: 'flex'}}
-          className="md:wa-hidden"
+            zIndex: 'var(--z-sticky)' as CSSProperties['zIndex']}}
+          className="wa-flex md:wa-hidden"
         >
           <button
             type="submit"
-            className="btn btn-primary"
+            className={`${KIT_BTN} md:wa-hidden`}
             disabled={loading}
             style={{
+              ...kitBtnSolid,
               width: '100%',
-              minHeight: '48px',
-              fontSize: '1rem',
-              fontWeight: 700,
-              borderRadius: 'var(--radius-lg)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem'}}
+              boxShadow: 'var(--wa-shadow-lg)',
+            }}
           >
             {loading ? (
               <>
@@ -458,8 +512,8 @@ export default function JobMatchScorerForm() {
               </>
             ) : (
               <>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">analytics</span>
-                Analyze Match
+                <BarChart2 size={16} aria-hidden="true" />
+                Get match score
               </>
             )}
           </button>

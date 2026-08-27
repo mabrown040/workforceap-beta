@@ -30,7 +30,7 @@
     "careerToolkit": "Outils de Carrière IA",
     "aiCounselor": "Conseiller IA",
     "trainingPreassessment": "Pré-évaluation de formation",
-    "counselorChat": "Chat conseiller",
+    "counselorChat": "Messages",
     "aboutUs": "À propos",
     "whatWeDo": "Ce que nous faisons",
     "howItWorks": "Comment ça marche",
@@ -2808,17 +2808,17 @@
     "betaTag": "Bêta",
     "viewsLabel": "Vues du Studio CV",
     "tabs": {
-      "score": "Mon score",
-      "rewrite": "Réécrire avec l'IA",
-      "coach": "En parler"
+      "score": "Score",
+      "rewrite": "Réécrire",
+      "coach": "Coach"
     },
-    "emptyTitle": "Pas encore de CV enregistré ? Commencez ici.",
-    "emptyStep1": "Téléversez ou collez votre CV ci-dessous.",
-    "emptyStep2": "Obtenez votre score et voyez quoi corriger en premier.",
-    "emptyStep3": "Utilisez les réécritures IA ou parlez-en avec votre coach.",
-    "nextStepsTitle": "Prêt à le rendre plus fort ?",
-    "ctaRewrite": "Réécrire avec l'IA",
-    "ctaCoach": "En parler",
+    "emptyTitle": "Pas de CV enregistré.",
+    "emptyStep1": "Collez ou téléversez un CV.",
+    "emptyStep2": "Obtenez le score et les premiers écarts.",
+    "emptyStep3": "Réécrivez les puces ou ouvrez le coach vocal.",
+    "nextStepsTitle": "Suite",
+    "ctaRewrite": "Réécrire",
+    "ctaCoach": "Coach",
     "rewriteHistoryTitle": "Réécritures récentes de CV"
   },
   "trainingBridge": {

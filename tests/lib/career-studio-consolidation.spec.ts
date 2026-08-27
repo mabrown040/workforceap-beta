@@ -14,6 +14,13 @@ describe('Career Studio consolidation', () => {
     expect(page).toContain(": 'coaches';");
   });
 
+  it('keeps the member toolkit proof on VoiceStudioKit, not MemberToolkitKit', () => {
+    const proof = source('app/dev/member/toolkit/page.tsx');
+
+    expect(proof).toContain('VoiceStudioKit');
+    expect(proof).not.toMatch(/from '@\/components\/portal\/kit\/pages\/member\/MemberToolkitKit'/);
+  });
+
   it('does not load resume data for the default Coaches tab', () => {
     const page = source('app/(portal)/dashboard/ai-tools/page.tsx');
     const studio = source('components/portal/kit/pages/VoiceStudioKit.tsx');

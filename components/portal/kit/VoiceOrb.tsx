@@ -154,8 +154,7 @@ export function VoiceOrb({
           height: size,
           borderRadius: 999,
           background: muted
-            ? // eslint-disable-next-line no-restricted-syntax -- intentional fixed greys: the muted orb stays dark chrome in both themes (like the sidebar), not a themed surface
-              'linear-gradient(135deg, #4b4b4b, #2a2a2a)'
+            ? 'linear-gradient(135deg, color-mix(in srgb, var(--wa-sidebar-muted) 36%, var(--wa-sidebar-bg)), var(--wa-sidebar-border))'
             : `radial-gradient(circle at 35% 32%, ${accent}, ${accentDark})`,
           display: 'flex',
           alignItems: 'center',

@@ -1,47 +1,67 @@
 import dynamic from 'next/dynamic';
-import { Card } from '@astryxdesign/core/Card';
-import { DesignSurface, SectionHeader } from '@/components/portal/kit';
+import { Mic } from 'lucide-react';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
+import { ToolkitToolChrome } from './ToolkitToolChrome';
 
 /**
- * Member Portal — AI INTERVIEW COACH tool page.
- * Command Center reskin of the page chrome around the existing
- * `InterviewCoach` client component (form + voice/text session logic
- * untouched — this file only supplies the warm-surface layout).
+ * Member Portal — interview coach tool page.
+ * PageOpener chrome around InterviewCoach. History is omitted in preview.
  *
  * Target route: app/(portal)/dashboard/ai-tools/interview-coach
+ * Proof: /dev/member/interview-coach
  * Surface: warm (member-facing).
  */
 
 const InterviewCoach = dynamic(() => import('@/components/portal/tools/InterviewCoach'), {
   loading: () => (
-    <Card role="status" aria-live="polite">
-      <p style={{ margin: 0, color: 'var(--wa-muted)', fontWeight: 600, fontSize: 14 }}>
-        Loading interview coach…
-      </p>
-    </Card>
+    <p role="status" aria-live="polite" style={{ margin: 0, color: 'var(--wa-muted)', fontWeight: 600, fontSize: 14 }}>
+      Loading interview coach…
+    </p>
   ),
 });
 
-export function InterviewCoachKit({ userId }: { userId: string }) {
+export function InterviewCoachKit({
+  userId,
+  preview = false,
+  backHref,
+  initialRole,
+  initialPhase,
+  initialQuestion,
+  initialFeedback,
+}: {
+  userId?: string;
+  preview?: boolean;
+  backHref?: string;
+  initialRole?: string;
+  initialPhase?: 'setup' | 'voice' | 'interview' | 'feedback';
+  initialQuestion?: string;
+  initialFeedback?: string;
+}) {
   return (
-    <DesignSurface surface="warm">
-      <div style={{ maxWidth: 980, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        <SectionHeader
-          kicker="Career Toolkit"
-          title="AI Interview Coach"
-          goal="Run a text-based mock interview and get instant AI feedback."
+    <ToolkitToolChrome
+      title="Interview coach"
+      lede="Run a mock interview and get feedback."
+      icon={<Mic size={13} aria-hidden="true" />}
+      backHref={backHref}
+      maxWidth={980}
+    >
+      <div className="wa-kit-card">
+        <InterviewCoach
+          preview={preview}
+          initialRole={initialRole}
+          initialPhase={initialPhase}
+          initialQuestion={initialQuestion}
+          initialFeedback={initialFeedback}
         />
-        <Card>
-          <InterviewCoach />
-        </Card>
+      </div>
+      {userId && !preview ? (
         <ToolHistoryPanel
           userId={userId}
           toolType="interview_coach"
           title="Recent coaching sessions"
-          emptyMessage="No coaching sessions yet — run a mock interview above and it will show up here."
+          emptyMessage="No coaching sessions yet. Run a mock interview above and it shows up here."
         />
-      </div>
-    </DesignSurface>
+      ) : null}
+    </ToolkitToolChrome>
   );
 }

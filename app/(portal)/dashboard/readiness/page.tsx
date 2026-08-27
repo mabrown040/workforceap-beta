@@ -100,10 +100,16 @@ export default async function DashboardReadinessPage({
     // "This week" stats aren't tracked on this route; surface the four real
     // readiness categories (the actual signal this page loads) as the stat
     // tiles instead of the kit's fabricated weekly counters.
-    const weekStats = categories.map((cat) => ({
+    const KIT_STAT_COLORS = [
+      'var(--wa-info)',
+      'var(--wa-accent)',
+      'var(--wa-success)',
+      'var(--wa-gold)',
+    ] as const;
+    const weekStats = categories.map((cat, i) => ({
       value: `${cat.pct}%`,
       label: cat.label,
-      color: cat.color,
+      color: KIT_STAT_COLORS[i] ?? 'var(--wa-accent)',
     }));
 
     // Milestones derived from the real categories: a category fully earned is
@@ -123,7 +129,7 @@ export default async function DashboardReadinessPage({
 
     const readinessNote = priorityAction
       ? `Next: ${priorityAction.label}`
-      : 'You\'ve hit every readiness milestone — keep your activity fresh to stay job ready.';
+      : 'Every category is complete.';
 
     return (
       <MemberProgressKit

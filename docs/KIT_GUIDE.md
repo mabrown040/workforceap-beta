@@ -32,10 +32,21 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
 
 - **Brand (constant across modes):** `--wa-accent` (brand magenta) / `--wa-accent-dark` /
   `--wa-accent-soft` / `--wa-on-accent`, `--wa-gold(-dark|-soft)`, `--wa-info(-soft)`,
-  `--wa-success`, `--wa-danger(-soft)`, `--wa-violet`.
+  `--wa-success(-soft)`, `--wa-danger(-soft)`, `--wa-violet`.
 - **Neutrals (flip in dark mode):** `--wa-bg`, `--wa-surface`, `--wa-surface-2` (raised
   fill: icon tiles, chips), `--wa-text`, `--wa-muted`, `--wa-border`, `--wa-track`, plus the
-  sidebar set (`--wa-sidebar-*`, dark chrome in both modes).
+  sidebar set (`--wa-sidebar-*`, dark chrome in both modes). `--wa-bg-wave` is the shared
+  member canvas (accent/gold wash on `--wa-bg`); `--wa-shell-header-bg` is the translucent
+  sticky nav so the wash continues through the header. Member header and mobile
+  nav borders stay transparent; `PageOpener` is never recut as a title bar.
+  Appearance lives once in the rail/drawer, with its selected segment melting
+  into the rail rather than sitting on a second slab. Header text actions sit
+  directly on the chrome (`.wa-shell-text-action`) rather than in outline chips.
+  Member section controls use `.wa-page-tabs` so Astryx tabs also read as states
+  on the wash, not another title bar. Do not paint a second wash on
+  `[data-surface]` inside `.workspace-shell-root`. Member navigation and
+  `PageOpener` labels use sentence case; keep intentional names such as
+  “AI Career Tools” intact.
 - **Shape / density / pop (flip per surface, §2):** `--wa-radius`, `--wa-radius-sm`, `--wa-pad`,
   `--wa-pad-sm`, `--wa-pop`, `--wa-shadow`, `--wa-shadow-lg`.
 - **Motion (§7):** `--wa-dur-fast` (120ms) / `--wa-dur-base` (200ms) / `--wa-dur-slow` (300ms) +
@@ -161,10 +172,13 @@ Foundation: `DesignSurface` / `useSurface`, `colorVar` + `KitColor`/`KitTone` ty
 |---|---|
 | `StatTile`, `KpiStrip` | single stat / row of stats (never hand-roll stat blocks) |
 | `StatusTag` | semantic status pill (every table status column, risk tiers) |
+| `JobListingRow` | member open-role listing row (live `/dashboard/jobs` + board proof — not `.job-card` mosaics) |
+| `KitEmptyState` | titled empty placeholder for listing and table shells |
 | `SectionHeader` | titled section starts |
+| `PageOpener` | member page start (kicker + h1 + lede, optional quiet `.wa-page-action`) — not `PageHeader` breadcrumbs or an outlined title-bar chip |
 | `ProgressRing`, `ProgressBar` | completion / capacity |
 | `Avatar` | people |
-| `DataTable` (+ `Column`) | tabular data — never raw `<table>` + manual borders; supports `render`/`cardRender` for custom cells / mobile cards |
+| `DataTable` (+ `Column`) | tabular data — never raw `<table>` + manual borders; supports `render`/`cardRender` for custom cells / mobile cards. Row density follows DesignSurface (warm → balanced, dense → compact). |
 | `FeatureTile` | member-facing gradient/pop tiles |
 | `QueueRow`, `WorkQueueItem` | staff work queues |
 | `KanbanBoard`, `KanbanColumnHeader` | pipeline boards |
@@ -186,6 +200,11 @@ any future kit Dialog/Menu/Combobox must be built on them):
 
 Reference compositions ("templates"): `components/portal/kit/pages/{member,admin,admin-subviews}/`
 plus `PartnerOverviewKit.tsx`, `VoiceStudioKit.tsx`. **Start new pages by copying the nearest one.**
+`VoiceStudioKit` is the canonical Career Studio hub (`/dashboard/ai-tools` and
+`/dev/member/toolkit`): voice coaches, live practice, Resume Studio, and the AI
+toolkit. Do not replace it with `MemberToolkitKit`. Page chrome is `PageOpener`
+on the shared `--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`,
+not raw hex) — that is session chrome, not a second app header.
 
 ---
 
@@ -260,9 +279,9 @@ The Astryx design system is installed site-wide (`app/layout.tsx` imports `reset
   WorkforceAP-specific composites that already encode real layout/business logic —
   `DataTable`, `StageTrack`, `SegmentedProgress`, `QueueRow`, `WorkQueueItem`, `ChatThread`,
   `KpiStrip`, `CardHead`, `Sparkline`/`AreaChartMini`, `ProgressRing`, `FeatureTile`,
-  `FormField`, the kit's own `Avatar` — stay on the kit; they have no 1:1 Astryx equivalent and
-  don't need one. The rule is "generic primitive → Astryx, domain composite → kit," not
-  "no Astryx in kit/pages."
+  `FormField`, the kit's own `Avatar` and `ChatThread` — stay on the kit; they have no
+  1:1 Astryx equivalent and don't need one. The rule is "generic primitive → Astryx, domain
+  composite → kit," not "no Astryx in kit/pages."
 - **Workflow (mandatory):** `pnpm exec astryx build "<idea>"` → `astryx template <name>` →
   `astryx component <Name>` before writing Astryx UI. Do not invent props — the docs are the
   contract. Reference proofs live at `/dev/astryx` (templates + production overlay demos).

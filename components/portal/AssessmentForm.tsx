@@ -13,37 +13,57 @@ import {
   type QuestionChoice,
 } from '@/lib/assessment/questions';
 import styles from './AssessmentForm.module.css';
+import { assessmentConfirmMessage } from '@/lib/member/assessmentConfirmMessage';
 
 const ASSESSMENT_REDIRECT_KEY = 'assessment_intended_destination';
 
 const TOTAL_STEPS = 8;
 
-/** Step 1: About You. Steps 2–8: question ranges (inclusive). */
+/** Step 1: About you. Steps 2–8: question ranges (inclusive). */
 const STEP_CONFIG = [
-  { id: 1, title: 'About You', questionRange: null as [number, number] | null },
-  { id: 2, title: 'Basic Skills', questionRange: [1, 5] as [number, number] },
-  { id: 3, title: 'Technical Aptitude', questionRange: [6, 10] as [number, number] },
-  { id: 4, title: 'Problem Solving', questionRange: [11, 15] as [number, number] },
+  { id: 1, title: 'About you', questionRange: null as [number, number] | null },
+  { id: 2, title: 'Basic skills', questionRange: [1, 5] as [number, number] },
+  { id: 3, title: 'Technical aptitude', questionRange: [6, 10] as [number, number] },
+  { id: 4, title: 'Problem solving', questionRange: [11, 15] as [number, number] },
   { id: 5, title: 'Communication', questionRange: [16, 20] as [number, number] },
-  { id: 6, title: 'Learning Style', questionRange: [21, 25] as [number, number] },
-  { id: 7, title: 'Career Goals', questionRange: [26, 30] as [number, number] },
-  { id: 8, title: 'Final Questions', questionRange: [31, 35] as [number, number] },
+  { id: 6, title: 'Learning style', questionRange: [21, 25] as [number, number] },
+  { id: 7, title: 'Career goals', questionRange: [26, 30] as [number, number] },
+  { id: 8, title: 'Final questions', questionRange: [31, 35] as [number, number] },
 ];
+
+type AssessmentOutcome = { message: string; pct: number };
 
 type AssessmentFormProps = {
   defaultFirstName: string;
   defaultLastName: string;
   defaultPhone: string;
   defaultRedirectTo?: string;
+  /**
+   * Credential-free proofs (`/dev/member/assessment?state=confirm`): skip the
+   * wizard and render the post-submit score billboard.
+   */
+  previewOutcome?: AssessmentOutcome;
+  /** Credential-free proofs: open the wizard on this 1-based step. */
+  previewStep?: number;
 };
 
-export default function AssessmentForm({ defaultFirstName, defaultLastName, defaultPhone, defaultRedirectTo }: AssessmentFormProps) {
+export default function AssessmentForm({
+  defaultFirstName,
+  defaultLastName,
+  defaultPhone,
+  defaultRedirectTo,
+  previewOutcome,
+  previewStep,
+}: AssessmentFormProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [step, setStep] = useState<'form' | 'confirm'>('form');
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (!previewStep) return 1;
+    return Math.max(1, Math.min(TOTAL_STEPS, Math.round(previewStep)));
+  });
+  const [step, setStep] = useState<'form' | 'confirm'>(previewOutcome ? 'confirm' : 'form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [outcome, setOutcome] = useState<{ message: string; pct: number } | null>(null);
+  const [outcome, setOutcome] = useState<AssessmentOutcome | null>(previewOutcome ?? null);
   const [continueHref, setContinueHref] = useState('/dashboard');
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
 
@@ -61,8 +81,8 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
   // button — this view fully replaces the wizard, so nothing else signals
   // the change to assistive tech.
   useEffect(() => {
-    if (step === 'confirm') confirmHeadingRef.current?.focus();
-  }, [step]);
+    if (step === 'confirm' && !previewOutcome) confirmHeadingRef.current?.focus();
+  }, [step, previewOutcome]);
 
   // Move focus to each step's heading on Next/Back so keyboard and
   // screen-reader users get a clear signal the section changed, instead of
@@ -168,14 +188,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
       // The server is the source of truth for the score — it re-derives
       // raw/pct from answers and ignores any client-supplied score.
       const pct: number = typeof data.scorePct === 'number' ? data.scorePct : 0;
-      const message =
-        pct >= 75
-          ? "You're ready to start training! Your counselor will be in touch."
-          : pct >= 50
-            ? 'Great job! Your counselor may suggest some foundational resources alongside your training.'
-            : 'Thanks for completing the assessment. Your counselor will follow up with next steps based on your answers.';
-
-      setOutcome({ message, pct });
+      setOutcome({ message: assessmentConfirmMessage(pct), pct });
       setStep('confirm');
 
       const intended =
@@ -193,210 +206,178 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
 
   if (step === 'confirm' && outcome) {
     return (
-      <div
-        className="assessment-confirm"
-        style={{
-          textAlign: 'center',
-          padding: '3rem 2rem',
-          background: 'var(--color-light)',
-          borderRadius: 'var(--radius-md)',
-        }}
-      >
-        <h2 ref={confirmHeadingRef} tabIndex={-1} style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-          Assessment complete
-        </h2>
-        <p
-          style={{
-            fontSize: '1.1rem',
-            marginBottom: '1.5rem',
-            maxWidth: '480px',
-            margin: '0 auto 1.5rem',
-          }}
-        >
-          {outcome.message}
+      <div className={`wa-kit-card ${styles.confirm}`}>
+        <p className={styles.score}>
+          {outcome.pct}
+          <span className={styles.scoreUnit}>%</span>
         </p>
-        <p style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '1.25rem' }}>Score {outcome.pct}%</p>
-        <button type="button" className="btn btn-primary" onClick={() => router.push(continueHref)}>
-          Continue
+        <h2 ref={confirmHeadingRef} tabIndex={-1} className={styles.confirmTitle}>
+          Preassessment complete
+        </h2>
+        <p className={styles.confirmCopy}>{outcome.message}</p>
+        <button type="button" className={`wa-kit-focus ${styles.primaryBtn}`} onClick={() => router.push(continueHref)}>
+          {continueHref === '/dashboard' ? 'Open home' : 'Continue'}
         </button>
       </div>
     );
   }
 
   return (
-    <div className={`assessment-wizard quiz-flow ${direction === 'prev' ? 'quiz-slide-prev' : 'quiz-slide-next'}`}>
-      {/* Progress indicator */}
-      <div className="assessment-wizard-progress">
-        <p className="quiz-progress-label" style={{ fontVariantNumeric: 'tabular-nums' }} aria-live="polite">
-          Step {currentStep} of {TOTAL_STEPS}
-        </p>
-        <div className="quiz-progress-bar">
-          <div
-            className="quiz-progress-fill"
-            style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
-          />
-        </div>
-        <div className="assessment-wizard-steps" aria-hidden>
-          {STEP_CONFIG.map((s) => (
-            <span
-              key={s.id}
-              className={`assessment-wizard-dot ${s.id <= currentStep ? 'active' : ''} ${s.id === currentStep ? 'current' : ''}`}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="quiz-step-content assessment-wizard-content">
-        {currentStep > 1 && (
-          <button type="button" className="quiz-back-link" onClick={handleBack}>
-            ← Back
-          </button>
-        )}
-
-        {currentStep === 1 ? (
-          <section className="assessment-section">
-            <h2 ref={stepHeadingRef} tabIndex={-1} className="quiz-question" style={{ marginBottom: '1.25rem' }}>
-              About You
-            </h2>
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              <div className="form-group">
-                <label htmlFor="firstName">First Name *</label>
-                <input
-                  id="firstName"
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                  autoComplete="given-name"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="lastName">Last Name *</label>
-                <input
-                  id="lastName"
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                  autoComplete="family-name"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number *</label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                  autoComplete="tel"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="programInterest">Program of Interest *</label>
-                <select
-                  id="programInterest"
-                  value={programInterest}
-                  onChange={(e) => setProgramInterest(e.target.value)}
-                  required
-                >
-                  <option value="">Select a program</option>
-                  {PROGRAM_TITLES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </section>
-        ) : (
-          <section className="assessment-section">
-            <h2 ref={stepHeadingRef} tabIndex={-1} className="quiz-question" style={{ marginBottom: '0.5rem' }}>
-              {config?.title}
-            </h2>
-            <p style={{ marginBottom: '1.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-              Questions {config?.questionRange?.[0]}–{config?.questionRange?.[1]} of {ASSESSMENT_QUESTIONS.length}
-            </p>
-            <div className="assessment-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              {questionsInStep.map((q) => (
-                <fieldset
-                  key={q.id}
-                  className="assessment-question"
-                  style={{ border: 'none', padding: 0, margin: 0 }}
-                >
-                  <legend style={{ fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.95rem' }}>
-                    Q{q.id}. {q.question}
-                  </legend>
-                  <div className="quiz-answers" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {q.choices.map((c) => (
-                      <label
-                        key={c.value}
-                        className={`quiz-answer-card ${styles.answerCardFocus} ${answers[q.id] === c.value ? 'selected' : ''}`}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <input
-                          type="radio"
-                          name={`q${q.id}`}
-                          value={c.value}
-                          checked={answers[q.id] === c.value}
-                          onChange={() => setAnswer(q.id, c.value)}
-                        />
-                        <span className="radio-dot" />
-                        <span>
-                          {c.value}) {c.label}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {currentStep === TOTAL_STEPS && stepComplete && (
-          <div
-            className="assessment-wizard-summary"
-            style={{
-              marginTop: '1.5rem',
-              padding: '1rem',
-              background: 'var(--color-light)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--outline-variant)',
-              fontSize: '0.9rem',
-            }}
-          >
-            <p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>Review</p>
-            <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>
-              {firstName} {lastName} • {programInterest} • All 35 questions answered
-            </p>
-          </div>
-        )}
-
-        {error && (
-          <p className="form-error" role="alert" style={{ marginTop: '1rem' }}>
-            {error}
+    <div className={`wa-kit-card ${styles.wizard} ${direction === 'prev' ? styles.slidePrev : styles.slideNext}`}>
+        <div className={styles.progress}>
+          <p className={styles.progressLabel} aria-live="polite">
+            Step {currentStep} of {TOTAL_STEPS}
+            {config?.title ? ` · ${config.title}` : ''}
           </p>
-        )}
+          <div className={styles.progressBar}>
+            <div
+              className={styles.progressFill}
+              style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+            />
+          </div>
+        </div>
 
-        <div className="assessment-wizard-actions" style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          {currentStep < TOTAL_STEPS ? (
-            <button type="button" className="btn btn-primary" onClick={handleNext}>
-              Next →
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              disabled={loading || !stepComplete}
-            >
-              {loading ? 'Submitting...' : 'Submit Assessment'}
+        <div>
+          {currentStep > 1 && (
+            <button type="button" className={`wa-kit-focus ${styles.back}`} onClick={handleBack}>
+              Back
             </button>
           )}
+
+          {currentStep === 1 ? (
+            <section>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className={styles.heading}>
+                About you
+              </h2>
+              <div className={styles.fields}>
+                <div className={styles.field}>
+                  <label htmlFor="firstName">First name *</label>
+                  <input
+                    id="firstName"
+                    className={styles.control}
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    autoComplete="given-name"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="lastName">Last name *</label>
+                  <input
+                    id="lastName"
+                    className={styles.control}
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    autoComplete="family-name"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="phone">Phone *</label>
+                  <input
+                    id="phone"
+                    className={styles.control}
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    autoComplete="tel"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="programInterest">Program of interest *</label>
+                  <select
+                    id="programInterest"
+                    className={styles.control}
+                    value={programInterest}
+                    onChange={(e) => setProgramInterest(e.target.value)}
+                    required
+                  >
+                    <option value="">Select a program</option>
+                    {PROGRAM_TITLES.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </section>
+          ) : (
+            <section>
+              <h2 ref={stepHeadingRef} tabIndex={-1} className={`${styles.heading} ${styles.headingWithMeta}`}>
+                {config?.title}
+              </h2>
+              <p className={styles.meta}>
+                Questions {config?.questionRange?.[0]}–{config?.questionRange?.[1]} of {ASSESSMENT_QUESTIONS.length}
+              </p>
+              <div className={styles.questions}>
+                {questionsInStep.map((q) => (
+                  <fieldset key={q.id} className={styles.question}>
+                    <legend className={styles.legend}>
+                      Q{q.id}. {q.question}
+                    </legend>
+                    <div className={styles.answers}>
+                      {q.choices.map((c) => (
+                        <label
+                          key={c.value}
+                          className={`${styles.answer} ${answers[q.id] === c.value ? styles.answerSelected : ''}`}
+                        >
+                          <input
+                            type="radio"
+                            name={`q${q.id}`}
+                            value={c.value}
+                            checked={answers[q.id] === c.value}
+                            onChange={() => setAnswer(q.id, c.value)}
+                          />
+                          <span className={styles.dot} aria-hidden="true" />
+                          <span>
+                            {c.value}) {c.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {currentStep === TOTAL_STEPS && stepComplete && (
+            <div className={styles.review}>
+              <p className={styles.reviewTitle}>Review</p>
+              <p className={styles.reviewBody}>
+                {firstName} {lastName} • {programInterest} • All 35 questions answered
+              </p>
+            </div>
+          )}
+
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className={styles.actions}>
+            {currentStep < TOTAL_STEPS ? (
+              <button type="button" className={`wa-kit-focus ${styles.primaryBtn}`} onClick={handleNext}>
+                Next
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={`wa-kit-focus ${styles.primaryBtn}`}
+                onClick={handleSubmit}
+                disabled={loading || !stepComplete}
+              >
+                {loading ? 'Submitting…' : 'Submit assessment'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }
+

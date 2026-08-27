@@ -23,7 +23,7 @@ structurally: every route lives in the flat nav, so nothing is orphaned.
 | AI Tools | `/dashboard/ai-tools` | Career Toolkit |
 | Career Brief | `/dashboard/career-brief` | My Career Plan |
 | Certificates | `/dashboard/certifications` | My Certificates |
-| Messages | `/dashboard/messages` | Advisor Chat |
+| Messages | `/dashboard/messages` | Messages |
 
 - Desktop: horizontal top nav (centered, ~max-width 1100). Mobile: bottom tab bar (kit `AppShellMember` already does both).
 - **Remove the member desktop left sidebar entirely.** Staff portals keep theirs (see §3).

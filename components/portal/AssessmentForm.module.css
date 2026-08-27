@@ -1,14 +1,358 @@
 /*
- * Scoped focus-visible fix for the assessment quiz radio cards.
- * The shared `.quiz-answer-card input` rule (css/main.css) visually hides
- * the native radio with `opacity: 0`, which also hides the site-wide
- * `input:focus-visible` outline/box-shadow — keyboard users tabbing through
- * the assessment get no visible focus indicator (WCAG 2.4.7). Rather than
- * edit the shared, multi-surface main.css, apply a `:focus-within` ring to
- * the label itself, scoped to this component.
+ * Training Preassessment wizard — portal tokens only (`--wa-*`).
+ * Lives outside the kit package so it can keep its own step machine, but it
+ * must read as the same product as `/dashboard` kit pages (not the marketing
+ * `.quiz-flow` chrome in css/main.css).
  */
-.answerCardFocus:focus-within {
-  outline: 3px solid var(--color-accent);
+
+.wizard,
+.confirm {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.slideNext {
+  animation: assessmentSlideIn var(--wa-dur-slow) var(--wa-ease);
+}
+
+.slidePrev {
+  animation: assessmentSlideBack var(--wa-dur-slow) var(--wa-ease);
+}
+
+@keyframes assessmentSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes assessmentSlideBack {
+  from {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slideNext,
+  .slidePrev {
+    animation: none;
+  }
+}
+
+.progress {
+  margin-bottom: 1.25rem;
+}
+
+.progressLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--wa-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressBar {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--wa-track);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--wa-accent);
+  transition: width var(--wa-dur-slow) var(--wa-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressFill {
+    transition: none;
+  }
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  margin: 0 0 0.75rem;
+  border: 1px solid var(--wa-border);
+  background: transparent;
+  color: var(--wa-accent);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.back:hover {
+  opacity: 0.9;
+}
+
+.back:focus-visible {
+  outline: 3px solid var(--wa-accent);
   outline-offset: 2px;
-  border-radius: var(--radius-md, 0.5rem);
+}
+
+.heading {
+  margin: 0 0 1.25rem;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--wa-text);
+}
+
+.heading:focus,
+.confirmTitle:focus {
+  outline: none;
+}
+
+.heading:focus-visible,
+.confirmTitle:focus-visible {
+  outline: 3px solid var(--wa-accent);
+  outline-offset: 2px;
+  border-radius: var(--wa-radius-sm);
+}
+
+.headingWithMeta {
+  margin-bottom: 0.35rem;
+}
+
+.meta {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--wa-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fields {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  margin: 0;
+}
+
+.wizard .field label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--wa-text);
+  line-height: 1.35;
+}
+
+.wizard .field .control {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-surface-2);
+  color: var(--wa-text);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.wizard .field .control:hover {
+  border-color: color-mix(in srgb, var(--wa-border) 40%, var(--wa-muted) 60%);
+}
+
+.wizard .field .control:focus {
+  outline: none;
+  border-color: var(--wa-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--wa-accent) 16%, transparent);
+  background: var(--wa-surface);
+}
+
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.question {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend {
+  padding: 0;
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--wa-text);
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.answer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--wa-dur-fast) var(--wa-ease),
+    background-color var(--wa-dur-fast) var(--wa-ease);
+}
+
+.answer:hover {
+  border-color: color-mix(in srgb, var(--wa-border) 40%, var(--wa-muted) 60%);
+}
+
+.answerSelected {
+  border-color: var(--wa-accent);
+  background: var(--wa-accent-soft);
+}
+
+.answer:focus-within {
+  outline: 3px solid var(--wa-accent);
+  outline-offset: 2px;
+}
+
+.answer input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dot {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--wa-border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--wa-surface);
+}
+
+.answerSelected .dot {
+  border-color: var(--wa-accent);
+  background: var(--wa-accent);
+  box-shadow: inset 0 0 0 3px var(--wa-surface);
+}
+
+.review {
+  margin-top: 1.5rem;
+  padding: var(--wa-pad-sm);
+  background: var(--wa-surface-2);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  font-size: 0.875rem;
+}
+
+.reviewTitle {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  color: var(--wa-text);
+}
+
+.reviewBody {
+  margin: 0;
+  color: var(--wa-muted);
+}
+
+.error {
+  margin: 1rem 0 0;
+  color: var(--wa-danger);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--wa-accent);
+  border-radius: 999px;
+  background: var(--wa-accent);
+  color: var(--wa-on-accent);
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.primaryBtn:focus-visible {
+  outline: 3px solid var(--wa-accent);
+  outline-offset: 2px;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 639px) {
+  .primaryBtn {
+    width: 100%;
+  }
+}
+
+.score {
+  margin: 0;
+  font-size: clamp(2.75rem, 9vw, 3.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--wa-text);
+}
+
+.scoreUnit {
+  margin-left: 0.12em;
+  font-size: 0.38em;
+  font-weight: 700;
+  color: var(--wa-muted);
+}
+
+.confirmTitle {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--wa-text);
+}
+
+.confirmCopy {
+  margin: 0 0 1.25rem;
+  font-size: 14px;
+  color: var(--wa-muted);
+  line-height: 1.5;
 }

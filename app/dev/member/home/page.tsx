@@ -20,7 +20,7 @@ export default function DevMemberHomePage() {
       certs={2}
       points={1240}
       programTitle="AWS Cloud Practitioner"
-      programStatus="In Progress"
+      programStatus="In progress"
       nextLesson="Shared Responsibility Model"
       nextLessonDue="Due Thursday"
       nextBadgePercent={60}
@@ -28,16 +28,16 @@ export default function DevMemberHomePage() {
       nextBadgeRemaining="2 modules"
       currentStreak={12}
       longestStreak={12}
-      resumeHref="/dashboard/program"
-      toolkitHref="/dashboard/toolkit"
-      jobsHref="/dashboard/jobs"
-      coursesHref="/dashboard/learning"
-      goalsHref="/dashboard?ui=legacy&tab=learning#goals"
+      resumeHref="/dev/member/program"
+      toolkitHref="/dev/member/toolkit"
+      jobsHref="/dev/member/jobs"
+      coursesHref="/dev/member/program"
+      goalsHref="/dev/member/progress"
       doThisNext={{
         id: 'resume-module',
         title: 'Shared Responsibility Model',
         body: '~25 min · Module 8 of 9 · AWS Cloud Practitioner — due Thursday.',
-        href: '/dashboard/program',
+        href: '/dev/member/program',
         cta: 'Resume module',
         variant: 'urgent',
         weight: 100,

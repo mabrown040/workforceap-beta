@@ -1,16 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { Button } from '@astryxdesign/core/Button';
+import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
 export default function ToolFollowThrough({
   toolType,
   inputSummary,
   output,
+  hrefOverride,
 }: {
   toolType: string;
   inputSummary?: string | null;
   output?: string | null;
+  /** Keep credential-free proofs inside `/dev/member/*`. */
+  hrefOverride?: string;
 }) {
   const next = getAIToolFollowThrough({ toolType, inputSummary, output });
 
@@ -18,20 +23,21 @@ export default function ToolFollowThrough({
     <div
       style={{
         marginTop: '1.25rem',
-        borderLeft: '4px solid var(--color-accent)',
-        background: 'var(--surface-container)',
-        borderRadius: '0.75rem',
-        padding: '1rem',
+        border: '1px solid color-mix(in srgb, var(--wa-accent) 22%, var(--wa-border))',
+        borderLeft: '4px solid var(--wa-accent)',
+        background: 'var(--wa-accent-soft)',
+        borderRadius: 'var(--wa-radius-sm)',
+        padding: 'var(--wa-pad-sm)',
       }}
     >
       <p
         style={{
           margin: '0 0 0.25rem',
-          fontSize: '0.6875rem',
+          fontSize: 13,
           fontWeight: 800,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          color: 'var(--color-accent)',
+          color: 'var(--wa-accent)',
         }}
       >
         Do this next
@@ -39,9 +45,9 @@ export default function ToolFollowThrough({
       <p
         style={{
           margin: '0 0 0.25rem',
-          fontSize: '0.9375rem',
+          fontSize: 15,
           fontWeight: 700,
-          color: 'var(--color-on-surface)',
+          color: 'var(--wa-text)',
         }}
       >
         {next.title}
@@ -49,16 +55,16 @@ export default function ToolFollowThrough({
       <p
         style={{
           margin: '0 0 0.75rem',
-          fontSize: '0.8125rem',
+          fontSize: 13,
           lineHeight: 1.55,
-          color: 'var(--color-on-surface-variant)',
+          color: 'var(--wa-muted)',
         }}
       >
         {next.body}
       </p>
-      <Link href={next.href} className="btn btn-outline">
-        {next.cta}
-      </Link>
+      <AstryxLink href={hrefOverride ?? next.href} as={Link as never} isStandalone>
+        <Button label={next.cta} variant="primary" size="sm" style={{ minHeight: 44 }} />
+      </AstryxLink>
     </div>
   );
 }

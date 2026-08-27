@@ -40,8 +40,7 @@ export default function ThemeToggle({
     setTheme(nextTheme(theme));
   }, [theme, setTheme]);
 
-  const portalClasses =
-    'wa-inline-flex wa-h-10 wa-w-10 wa-items-center wa-justify-center wa-rounded-lg wa-border wa-border-slate-300 wa-bg-white wa-text-slate-900 wa-transition-colors hover:wa-bg-slate-50 focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-brand-accent focus-visible:wa-ring-offset-2 dark:wa-border-slate-600 dark:wa-bg-slate-800 dark:wa-text-white dark:hover:wa-bg-slate-700';
+  const portalClasses = 'portal-icon-btn wa-theme-toggle wa-kit-focus';
   const marketingClasses =
     'wa-inline-flex wa-h-10 wa-w-10 wa-items-center wa-justify-center wa-rounded-full wa-border wa-border-slate-300 wa-bg-white/95 wa-p-1.5 wa-text-slate-900 wa-transition-colors hover:wa-bg-white focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-white focus-visible:wa-ring-offset-2 focus-visible:wa-ring-offset-[#111] dark:wa-border-white/20 dark:wa-bg-white/10 dark:wa-text-white dark:hover:wa-bg-white/20';
 
@@ -63,7 +62,7 @@ export default function ThemeToggle({
       ) : resolved === 'dark' ? (
         <Sun size={20} strokeWidth={2} className="wa-shrink-0" aria-hidden />
       ) : (
-        <Moon size={20} strokeWidth={2} className="wa-shrink-0 wa-text-slate-900 dark:wa-text-white" aria-hidden />
+        <Moon size={20} strokeWidth={2} className="wa-shrink-0" aria-hidden />
       )}
     </button>
   );

@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
-import { Card } from '@astryxdesign/core/Card';
-import { IconButton } from '@astryxdesign/core/IconButton';
-import { StatusDot } from '@astryxdesign/core/StatusDot';
-import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/components/portal/kit';
+import { DesignSurface, Avatar, ChatThread, PageOpener, type ChatMessage } from '@/components/portal/kit';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 /**
@@ -64,18 +61,18 @@ export interface MemberMessagesKitProps {
 }
 
 const DEFAULT_CONVERSATIONS: Conversation[] = [
-  { id: 'sarah', name: 'Sarah Chen', role: 'Your Counselor', preview: "Great progress this week! Let's talk about…", unread: true, active: true },
+  { id: 'sarah', name: 'Sarah Chen', role: 'Counselor', preview: 'AWS Practitioner at 78%. Deloitte interview is next.', unread: true, active: true },
   { id: 'team', name: 'WorkforceAP Team', role: 'Support', preview: 'Your AWS exam voucher is ready.' },
 ];
 
 const DEFAULT_MESSAGES: ChatMessage[] = [
-  { id: 'm1', from: 'other', author: 'SC', text: 'Hi Mike! Great progress — 78% on AWS Practitioner. How are you feeling about the Deloitte interview?' },
-  { id: 'm2', from: 'self', text: 'A little nervous about the technical questions honestly.' },
+  { id: 'm1', from: 'other', author: 'SC', text: 'AWS Practitioner is at 78%. The Deloitte interview is next — want to walk the technical questions?' },
+  { id: 'm2', from: 'self', text: 'The technical questions are the gap.' },
   {
     id: 'm3',
     from: 'other',
     author: 'SC',
-    text: "Totally normal. Let's do a mock interview Thursday. I'll also flag the Interview Prep tool in your Career Toolkit — it's tuned for Salesforce admin roles.",
+    text: 'Thursday mock interview. Use Interview prep in Career Studio for Salesforce admin roles.',
   },
 ];
 
@@ -214,26 +211,14 @@ export function MemberMessagesKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
-        {/* Page opener — eyebrow + title, matching the VoiceStudioKit idiom,
-            so the tab reads as an intentional page rather than a floating
-            widget. */}
-        <div>
-          <div
-            className="wa-flex wa-items-center wa-gap-2"
-            style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
-          >
-            <MessageCircle size={13} aria-hidden="true" />
-            <span>Inbox</span>
-          </div>
-          <h1 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
-            Messages
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Reach your counselor and the WorkforceAP support team in one place.
-          </p>
-        </div>
-        <Card>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Inbox"
+          title="Messages"
+          lede="Counselor and support in one inbox."
+          icon={<MessageCircle size={13} aria-hidden="true" />}
+        />
+        <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div
             className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3"
             style={{ overflow: 'hidden', minHeight: 520 }}
@@ -253,7 +238,7 @@ export function MemberMessagesKit({
                   key={c.id}
                   type="button"
                   onClick={() => setMobileView('thread')}
-                  className={`wa-kit-focus wa-transition-colors wa-duration-150 motion-reduce:wa-transition-none${c.active ? '' : ' hover:wa-bg-[var(--wa-bg)]'}`}
+                  className={`wa-kit-focus wa-transition-colors wa-duration-150 motion-reduce:wa-transition-none${c.active ? '' : ' hover:wa-bg-[var(--wa-surface-2)]'}`}
                   style={{
                     display: 'block',
                     width: '100%',
@@ -268,12 +253,23 @@ export function MemberMessagesKit({
                 >
                   <div className="wa-flex wa-items-center wa-justify-between">
                     <span style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</span>
-                    {c.unread ? <StatusDot variant="accent" label="Unread message" /> : null}
+                    {c.unread ? (
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 999,
+                          background: 'var(--wa-accent)',
+                          flexShrink: 0,
+                        }}
+                        aria-label="Unread message"
+                      />
+                    ) : null}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--wa-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{c.role}</div>
+                  <div style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2 }}>{c.role}</div>
                   <p
                     style={{
-                      fontSize: 12,
+                      fontSize: 13,
                       color: c.active ? 'var(--wa-text)' : 'var(--wa-muted)',
                       marginTop: 4,
                       overflow: 'hidden',
@@ -298,19 +294,43 @@ export function MemberMessagesKit({
             <div className="wa-flex wa-items-center wa-gap-3" style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
               {/* Mobile-only back button → return to the conversation list. */}
               <span className="md:wa-hidden" style={{ marginLeft: -4, flexShrink: 0 }}>
-                <IconButton
-                  label="Back to messages"
-                  icon={<ArrowLeft size={18} aria-hidden="true" />}
-                  variant="ghost"
-                  size="md"
+                <button
+                  type="button"
                   onClick={() => setMobileView('list')}
-                />
+                  className="wa-kit-focus"
+                  aria-label="Back to messages"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 44,
+                    height: 44,
+                    border: 'none',
+                    background: 'transparent',
+                    color: 'var(--wa-text)',
+                    cursor: 'pointer',
+                    borderRadius: 'var(--wa-radius-sm)',
+                  }}
+                >
+                  <ArrowLeft size={18} aria-hidden="true" />
+                </button>
               </span>
-              <Avatar initials={activeInitials} size={36} gradient={false} />
+              <Avatar initials={activeInitials} size={36} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{activeName}</div>
-                <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 10, fontWeight: 700, color: 'var(--wa-muted)' }}>
-                  {activeOnline ? <StatusDot variant="success" label="Online" isPulsing /> : null}
+                <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}>
+                  {activeOnline ? (
+                    <span
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 999,
+                        background: 'var(--wa-success)',
+                        flexShrink: 0,
+                      }}
+                      aria-hidden="true"
+                    />
+                  ) : null}
                   <span style={{ color: activeOnline ? 'var(--wa-success)' : undefined }}>
                     {activeOnline ? 'Online · ' : ''}{activeRole}
                   </span>
@@ -319,7 +339,7 @@ export function MemberMessagesKit({
             </div>
             <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column' }}>
               {error ? (
-                <p role="alert" style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--wa-danger)' }}>
+                <p role="alert" style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--wa-danger)' }}>
                   {error}
                 </p>
               ) : null}
@@ -331,7 +351,7 @@ export function MemberMessagesKit({
             </div>
           </div>
           </div>
-        </Card>
+        </div>
       </div>
     </DesignSurface>
   );

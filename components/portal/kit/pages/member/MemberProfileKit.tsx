@@ -3,20 +3,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IdCard } from 'lucide-react';
-import { DesignSurface, Avatar, FormField, Toggle } from '@/components/portal/kit';
+import { DesignSurface, Avatar, FormField, Toggle, PageOpener } from '@/components/portal/kit';
 import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import PushNotificationsToggle from '@/components/portal/PushNotificationsToggle';
 import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
 
 /**
- * Member Portal — PROFILE view (account details + notification prefs).
- * Faithful port of `data-view-panel="profile"` in
- * docs/mockups/workforceap-member-suite.html.
- *
+ * Member Portal — profile (account details + notification prefs).
+ * Live at `/dashboard/profile`; proof at `/dev/member/profile`.
  * Interactive (form fields + toggles) → 'use client'.
- *
- * Target route: app/(portal)/dashboard/profile
  * Surface: warm (member-facing).
  *
  * Real save mechanism (reuses the same endpoints the legacy
@@ -91,8 +87,8 @@ export interface MemberProfileKitProps {
 }
 
 const DEFAULT_BADGES: ProfileBadge[] = [
-  { label: '2 Certs', bg: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' },
-  { label: '84 Readiness', bg: 'var(--wa-success-soft, rgba(74,155,79,0.12))', color: 'var(--wa-success)' },
+  { label: '2 certs', bg: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' },
+  { label: '84 readiness', bg: 'var(--wa-success-soft)', color: 'var(--wa-success)' },
   { label: '12-day streak', bg: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' },
 ];
 
@@ -229,25 +225,13 @@ export function MemberProfileKit({
 
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-6">
-        {/* Page opener — eyebrow + title, matching the VoiceStudioKit idiom,
-            so the tab reads as an intentional page rather than a floating
-            widget stack. */}
-        <div>
-          <div
-            className="wa-flex wa-items-center wa-gap-2"
-            style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
-          >
-            <IdCard size={13} aria-hidden="true" />
-            <span>Account</span>
-          </div>
-          <h1 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
-            Profile &amp; settings
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Update your details, notification preferences, and account security.
-          </p>
-        </div>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+        <PageOpener
+          kicker="Account"
+          title="Profile"
+          lede="Details, notifications, and security."
+          icon={<IdCard size={13} aria-hidden="true" />}
+        />
         {/* Profile header */}
         <div className="wa-kit-card wa-flex wa-flex-col sm:wa-flex-row wa-items-center wa-gap-5">
           <Avatar initials={initials} size={80} gradient />
@@ -258,15 +242,15 @@ export function MemberProfileKit({
               {badges.map((b) => (
                 <span
                   key={b.label}
-                  style={{ padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: b.bg, color: b.color, fontVariantNumeric: 'tabular-nums' }}
+                  style={{ padding: '6px 12px', borderRadius: 999, fontSize: 13, fontWeight: 700, background: b.bg, color: b.color, fontVariantNumeric: 'tabular-nums' }}
                 >
                   {b.label}
                 </span>
               ))}
             </div>
           </div>
-          <p style={{ maxWidth: 180, fontSize: 12, color: 'var(--wa-muted)', textAlign: 'center' }}>
-            Ask your advisor if your profile photo needs to change.
+          <p style={{ maxWidth: 180, fontSize: 13, color: 'var(--wa-muted)', textAlign: 'center', lineHeight: 1.45 }}>
+            Photo is managed by your counselor.
           </p>
         </div>
 
@@ -275,10 +259,10 @@ export function MemberProfileKit({
               span only applies where the 3-col grid exists so it can't create an
               overflowing implicit track on mobile/tablet). */}
           <div className="wa-kit-card lg:wa-col-span-2">
-            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Account Details</h3>
+            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Account details</h3>
             <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
               <FormField
-                label="Full Name"
+                label="Full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -288,7 +272,7 @@ export function MemberProfileKit({
                 value={loc}
                 onChange={(e) => setLoc(e.target.value)}
               />
-              <FormField label="Program Interest">
+              <FormField label="Program">
                 <select
                   value={programInterest}
                   disabled
@@ -314,8 +298,8 @@ export function MemberProfileKit({
               </FormField>
             </div>
             {live ? (
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 8 }}>
-                Email and program are managed by your counselor and can&apos;t be changed here.
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.45 }}>
+                Email and program are managed by your counselor.
               </p>
             ) : null}
             {accountError ? (
@@ -340,6 +324,7 @@ export function MemberProfileKit({
               className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
               style={{
                 marginTop: 20,
+                minHeight: 44,
                 padding: '10px 20px',
                 background: 'var(--wa-accent)',
                 color: 'var(--wa-on-accent)',
@@ -351,7 +336,7 @@ export function MemberProfileKit({
                 opacity: !live || savingAccount ? 0.7 : 1,
               }}
             >
-              {savingAccount ? 'Saving…' : 'Save Changes'}
+              {savingAccount ? 'Saving…' : 'Save changes'}
             </button>
           </div>
 
@@ -400,13 +385,13 @@ export function MemberProfileKit({
                 change a password at all; members were stranded unless they knew
                 to log out and use "forgot password" on the sign-in screen. */}
             <div className="wa-kit-card">
-              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8 }}>Password &amp; Security</h3>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8 }}>Password and security</h3>
               <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
-                Reset your password by email any time — no need to remember your current one.
+                Reset by email — current password is not required.
               </p>
               <a
                 href={`/forgot-password?email=${encodeURIComponent(email)}`}
-                className="wa-kit-focus hover:wa-bg-[var(--wa-bg)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                className="wa-kit-focus hover:wa-bg-[var(--wa-surface-2)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -428,7 +413,7 @@ export function MemberProfileKit({
                 via the legacy (?ui=legacy) fallback, not the live default UI. */}
             <div className="wa-kit-card" style={{ borderColor: 'var(--wa-danger)' }}>
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8, color: 'var(--wa-danger)' }}>
-                Danger Zone
+                Delete account
               </h3>
               <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
                 Permanently delete your WorkforceAP account and training progress. This can&apos;t be undone.

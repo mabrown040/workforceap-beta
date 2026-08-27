@@ -113,7 +113,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
               background: 'var(--wa-on-accent)',
               color: 'var(--wa-accent)',
               fontWeight: 700,
-              fontSize: 12,
+              fontSize: 14,
               borderRadius: 999,
               textDecoration: 'none',
               maxWidth: '100%',
@@ -123,7 +123,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
               whiteSpace: 'nowrap',
             }}
           >
-            {action.cta} <ArrowRight size={12} aria-hidden />
+            {action.cta} <ArrowRight size={14} aria-hidden />
           </Link>
         </div>
       </section>

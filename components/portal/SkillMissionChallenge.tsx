@@ -11,7 +11,6 @@ import {
   Lightbulb,
   Target,
   BookOpenCheck,
-  Trophy,
   RotateCcw,
 } from 'lucide-react';
 
@@ -87,6 +86,8 @@ type Props = {
   mission: SkillMissionSummaryItem;
   onClose: () => void;
   onComplete: (result: MissionEvalResponse & { ok: true }) => void;
+  /** Proofs: skip quiz-check / evaluate POSTs and stay local. */
+  preview?: boolean;
 };
 
 // ── Shared style tokens ───────────────────────────────────────────────────────
@@ -118,6 +119,7 @@ function CloseButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
+      className="wa-kit-focus hover:wa-opacity-90"
       aria-label="Close mission"
       onClick={onClick}
       style={{
@@ -310,10 +312,12 @@ function PhaseQuiz({
   mission,
   onFinish,
   onClose,
+  preview = false,
 }: {
   mission: SkillMissionSummaryItem;
   onFinish: (answers: QuizAnswer[]) => void;
   onClose: () => void;
+  preview?: boolean;
 }) {
   const questions = mission.quizQuestions.slice(0, 3);
   const [currentQ, setCurrentQ] = useState(0);
@@ -332,6 +336,23 @@ function PhaseQuiz({
     setSelectedThisQ(idx);
     setChecking(true);
     setCheckError(null);
+    if (preview) {
+      const fake: QuizCheckResponse = {
+        correct: idx === 1,
+        correctIndex: 1,
+        explanation:
+          idx === 1
+            ? 'Cost Optimization is the pillar that covers spend, rightsizing, and unused resources.'
+            : 'The well-architected Cost Optimization pillar is the one hiring managers want to hear.',
+      };
+      setFeedback(fake);
+      setAnswers((prev) => [
+        ...prev,
+        { questionIndex: currentQ, selectedIndex: idx, correct: fake.correct },
+      ]);
+      setChecking(false);
+      return;
+    }
     try {
       const res = await fetch(
         `/api/skill-missions/${encodeURIComponent(mission.courseSlug)}/quiz-check`,
@@ -502,7 +523,7 @@ function PhaseQuiz({
               {feedback.correct ? <CheckCircle2 size={16} aria-hidden="true" /> : <Lightbulb size={16} aria-hidden="true" />}
             </span>
             <span>
-              <strong>{feedback.correct ? 'Exactly right!' : "Here's why:"}</strong> {feedback.explanation}
+              <strong>{feedback.correct ? 'Correct.' : "Here's why:"}</strong> {feedback.explanation}
             </span>
           </p>
         </div>
@@ -641,7 +662,7 @@ function PhaseScenario({
           fontWeight: wordCount >= 150 ? 700 : 400,
         }}
       >
-        {wordCount} words{wordCount >= 150 ? ' ✓ Great depth!' : wordCount >= 50 ? ' — keep going' : ''}
+        {wordCount} words{wordCount >= 150 ? ' · enough for STAR' : wordCount >= 50 ? ' · add a result' : ''}
       </p>
 
       {/* Evidence hint */}
@@ -683,11 +704,11 @@ function PhaseScenario({
           onClick={handleSubmit}
           disabled={charCount < 20 || loading}
           style={{
-            fontSize: '0.9rem',
+            ...KIT_PRIMARY,
             opacity: charCount < 20 ? 0.5 : 1,
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: 6,
           }}
         >
           {loading ? (
@@ -703,10 +724,10 @@ function PhaseScenario({
                   animation: 'spin 0.7s linear infinite',
                 }}
               />
-              Coaching in progress…
+              Coaching…
             </>
           ) : (
-            'Submit for AI Coaching →'
+            'Submit for coaching'
           )}
         </button>
         <button
@@ -761,8 +782,8 @@ function PhaseResult({
           gap: '0.5rem',
         }}
       >
-        {passed ? <Trophy size={22} aria-hidden="true" /> : <RotateCcw size={22} aria-hidden="true" />}
-        {passed ? 'Mission Passed!' : 'Keep Going'}
+        {passed ? <CheckCircle2 size={22} aria-hidden="true" /> : <RotateCcw size={22} aria-hidden="true" />}
+        {passed ? 'Mission passed' : 'Try again'}
       </h2>
 
       {/* Coaching note */}
@@ -981,13 +1002,25 @@ function PhaseCelebration({
 
 // ── Root component ────────────────────────────────────────────────────────────
 
-export default function SkillMissionChallenge({ mission, onClose, onComplete }: Props) {
-  const [phase, setPhase] = useState<0 | 1 | 2 | 3 | 4>(0);
+export default function SkillMissionChallenge({
+  mission,
+  onClose,
+  onComplete,
+  preview = false,
+  initialPhase = 0,
+  initialResult = null,
+}: Props) {
+  const [phase, setPhase] = useState<0 | 1 | 2 | 3 | 4>(initialPhase);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswer[]>([]);
-  const [evalResult, setEvalResult] = useState<(MissionEvalResponse & { ok: true }) | null>(null);
+  const [evalResult, setEvalResult] = useState<(MissionEvalResponse & { ok: true }) | null>(initialResult);
 
   const submitScenario = useCallback(
     async (scenarioResponse: string) => {
+      if (preview) {
+        setEvalResult(previewPassResult(mission));
+        setPhase(3);
+        return;
+      }
       const res = await fetch(
         `/api/skill-missions/${encodeURIComponent(mission.courseSlug)}/evaluate`,
         {
@@ -1014,7 +1047,7 @@ export default function SkillMissionChallenge({ mission, onClose, onComplete }: 
       setEvalResult(data as MissionEvalResponse & { ok: true });
       setPhase(3);
     },
-    [mission, quizAnswers],
+    [mission, quizAnswers, preview],
   );
 
   function handleQuizFinish(answers: QuizAnswer[]) {
@@ -1046,7 +1079,7 @@ export default function SkillMissionChallenge({ mission, onClose, onComplete }: 
         <PhaseIntro mission={mission} onAccept={() => setPhase(1)} onClose={onClose} />
       )}
       {phase === 1 && (
-        <PhaseQuiz mission={mission} onFinish={handleQuizFinish} onClose={onClose} />
+        <PhaseQuiz mission={mission} onFinish={handleQuizFinish} onClose={onClose} preview={preview} />
       )}
       {phase === 2 && (
         <PhaseScenario
@@ -1064,5 +1097,27 @@ export default function SkillMissionChallenge({ mission, onClose, onComplete }: 
         <PhaseCelebration result={evalResult} onComplete={handleComplete} />
       )}
     </div>
+  );
+}
+
+/** Proof-only: overlay intro without POSTing quiz-check / evaluate. */
+export function SkillMissionChallengePreview({
+  mission,
+  state,
+}: {
+  mission: SkillMissionSummaryItem;
+  /** `passed` opens the quiet pass overlay without walking the quiz. */
+  state?: 'challenge' | 'passed';
+}) {
+  const canned = previewPassResult(mission);
+  return (
+    <SkillMissionChallenge
+      mission={mission}
+      preview
+      initialPhase={state === 'passed' ? 4 : 0}
+      initialResult={state === 'passed' ? canned : null}
+      onClose={() => undefined}
+      onComplete={() => undefined}
+    />
   );
 }

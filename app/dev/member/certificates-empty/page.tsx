@@ -18,6 +18,7 @@ export default function DevMemberCertificatesEmptyPage() {
       verifiedCount={0}
       earned={[]}
       inProgress={[]}
+      counselorHref="/dev/member/messages"
     />
   );
 }

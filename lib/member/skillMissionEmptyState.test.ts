@@ -11,11 +11,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('unenrolled members are sent to choose a program, not a training page', () => {
   const empty = skillMissionEmptyState({ programSlug: null, programTitle: null });
-  assert.equal(empty.title, 'Enroll to unlock missions');
+  assert.equal(empty.title, 'No program enrolled');
   assert.ok(empty.description.length <= 96);
   assert.doesNotMatch(empty.description, /Enroll in a training program and a skill mission unlocks/);
   assert.equal(empty.primaryAction.href, '/dashboard/program');
-  assert.equal(empty.primaryAction.label, 'Choose my program');
+  assert.equal(empty.primaryAction.label, 'Choose program');
 });
 
 test('enrolled members without catalog missions keep training, not choose-a-program', () => {
@@ -24,7 +24,7 @@ test('enrolled members without catalog missions keep training, not choose-a-prog
     programTitle: 'AI Professional Practitioner Certificate',
   });
   assert.equal(empty.title, 'No missions for AI Professional Practitioner Certificate yet');
-  assert.doesNotMatch(empty.primaryAction.label, /Choose my program/i);
+  assert.doesNotMatch(empty.primaryAction.label, /Choose program/i);
   assert.equal(empty.primaryAction.href, '/dashboard/training');
   assert.equal(empty.primaryAction.label, 'Continue training');
 });

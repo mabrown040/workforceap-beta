@@ -51,6 +51,7 @@
   --wa-accent-soft: light-dark(#fdf2f4, rgba(224, 101, 138, 0.18));
   --wa-gold-soft: light-dark(#fef3c7, rgba(212, 173, 90, 0.2));
   --wa-info-soft: light-dark(#eef5fb, rgba(119, 173, 230, 0.18));
+  --wa-success-soft: light-dark(#eef6ee, rgba(111, 201, 154, 0.18));
 
   /* — neutrals (flip per mode; dark values ported from the same artifact) — */
   --wa-bg: light-dark(#f7f8fa, #130d0f);
@@ -60,10 +61,14 @@
   --wa-muted: light-dark(#737373, #b39ea4);
   --wa-border: light-dark(#e8e8e8, #372830);
   --wa-track: light-dark(#f0eef0, #2c1c21);
-  --wa-shell-header-bg: light-dark(
-    color-mix(in srgb, #ffffff 92%, transparent),
-    color-mix(in srgb, #1e1417 88%, transparent)
-  );
+  /* Shared portal canvas: warm wash on --wa-bg. Header/nav sit on this, not a
+     separate white/glass slab. Shell paints it; pages inside stay transparent. */
+  --wa-bg-wave:
+    radial-gradient(circle at 38% -8%, color-mix(in srgb, var(--wa-accent) 12%, transparent) 0, transparent 32rem),
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--wa-gold) 8%, transparent) 0, transparent 26rem),
+    var(--wa-bg);
+  /* Sticky chrome: mostly clear so the wash continues through the nav. */
+  --wa-shell-header-bg: color-mix(in srgb, var(--wa-bg) 18%, transparent);
   /* sidebar is dark chrome in both modes */
   --wa-sidebar-bg: #161616;
   --wa-sidebar-border: #2a2a2a;
@@ -168,11 +173,14 @@
  * it explicitly so the portal's own dark palette actually shows.
  */
 [data-surface] {
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--wa-accent) 7%, transparent) 0, transparent 34rem),
-    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--wa-gold) 6%, transparent) 0, transparent 26rem),
-    var(--wa-bg);
+  background: var(--wa-bg-wave);
   color: var(--wa-text);
+}
+
+/* Inside WorkspaceShell the wash is on `.workspace-shell-root`. Re-painting it
+   here cuts the nav bar off from the page. Keep type tokens, drop the fill. */
+.workspace-shell-root [data-surface] {
+  background: transparent;
 }
 
 

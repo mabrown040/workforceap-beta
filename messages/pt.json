@@ -30,7 +30,7 @@
     "careerToolkit": "Ferramentas de Carreira com IA",
     "aiCounselor": "Conselheiro de IA",
     "trainingPreassessment": "Pré-avaliação de Treinamento",
-    "counselorChat": "Chat com Conselheiro",
+    "counselorChat": "Mensagens",
     "aboutUs": "Sobre Nós",
     "whatWeDo": "O Que Fazemos",
     "howItWorks": "Como Funciona",
@@ -2808,17 +2808,17 @@
     "betaTag": "Beta",
     "viewsLabel": "Visualizações do Estúdio de Currículo",
     "tabs": {
-      "score": "Minha pontuação",
-      "rewrite": "Reescrever com IA",
-      "coach": "Conversar sobre isso"
+      "score": "Pontuação",
+      "rewrite": "Reescrever",
+      "coach": "Coach"
     },
-    "emptyTitle": "Ainda não tem currículo salvo? Comece aqui.",
-    "emptyStep1": "Envie ou cole seu currículo abaixo.",
-    "emptyStep2": "Veja sua pontuação e o que corrigir primeiro.",
-    "emptyStep3": "Use reescritas com IA ou converse com seu coach.",
-    "nextStepsTitle": "Pronto para deixá-lo mais forte?",
-    "ctaRewrite": "Reescrever com IA",
-    "ctaCoach": "Conversar sobre isso",
+    "emptyTitle": "Nenhum currículo em arquivo.",
+    "emptyStep1": "Cole ou envie um currículo.",
+    "emptyStep2": "Veja a pontuação e as primeiras lacunas.",
+    "emptyStep3": "Reescreva bullets ou abra o coach de voz.",
+    "nextStepsTitle": "Próximo",
+    "ctaRewrite": "Reescrever",
+    "ctaCoach": "Coach",
     "rewriteHistoryTitle": "Reescritas recentes de currículo"
   },
   "trainingBridge": {

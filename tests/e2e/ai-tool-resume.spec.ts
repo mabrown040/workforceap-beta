@@ -45,7 +45,7 @@ test.describe("AI tool flow — Resume Rewriter", () => {
     await page.locator("#target-location").fill("Austin, TX");
     await page.locator("#resume").fill("Previous experience in customer support. Handled tickets and improved response times.");
 
-    await page.getByRole("button", { name: /position my resume/i }).click();
+    await page.getByRole("button", { name: /rewrite resume/i }).click();
     await expect(page.locator(".resume-rewriter-output-content")).toBeVisible({ timeout: 15000 });
     await expect(page.locator(".resume-rewriter-output-content")).toContainText("E2E Test Output");
   });
@@ -68,7 +68,7 @@ test.describe("AI tool flow — Resume Rewriter", () => {
 
     await page.locator("#job-target").fill("Data Analyst");
     await page.locator("#resume").fill("Experience with Excel and SQL. Created reports for management.");
-    await page.getByRole("button", { name: /position my resume/i }).click();
+    await page.getByRole("button", { name: /rewrite resume/i }).click();
     await expect(page.locator(".resume-rewriter-output-content")).toBeVisible({ timeout: 15000 });
   });
 });

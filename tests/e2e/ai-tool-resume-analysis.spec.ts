@@ -65,7 +65,7 @@ QUICK WINS:
     await expect(page.getByRole('heading', { name: /resume analysis/i })).toBeVisible({ timeout: 15000 });
 
     await page.locator('#resume-strength-body').fill(FLATTENED_RESUME);
-    await page.getByRole('button', { name: /analyze resume strength/i }).click();
+    await page.getByRole('button', { name: /analyze resume/i }).click();
 
     await expect(page.getByText('77%', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/flattened headings or bullets during text extraction/i)).toBeVisible();

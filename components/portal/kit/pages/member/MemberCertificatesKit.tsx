@@ -1,13 +1,8 @@
 'use client';
 
-import { CheckCircle2, Download, Award, Hourglass } from 'lucide-react';
+import { CheckCircle2, Download, Award } from 'lucide-react';
 import Link from 'next/link';
-import { Card } from '@astryxdesign/core/Card';
-import { Button } from '@astryxdesign/core/Button';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
-import { ProgressBar } from '@astryxdesign/core/ProgressBar';
-import { Link as AstryxLink } from '@astryxdesign/core/Link';
-import { DesignSurface, KpiStrip } from '@/components/portal/kit';
+import { DesignSurface, KpiStrip, ProgressBar, PageOpener } from '@/components/portal/kit';
 import ShareButton from '@/components/ui/ShareButton';
 import { buildCertificateShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
 
@@ -48,6 +43,8 @@ export interface MemberCertificatesKitProps {
   verifiedCount?: number;
   earned?: EarnedCert[];
   inProgress?: InProgressCert[];
+  /** Empty-state counselor CTA. Proofs pass /dev/member/messages. */
+  counselorHref?: string;
 }
 
 const DEFAULT_EARNED: EarnedCert[] = [
@@ -60,7 +57,7 @@ const DEFAULT_IN_PROGRESS: InProgressCert[] = [
     id: 'aws-saa',
     title: 'AWS Solutions Architect Associate',
     percent: 40,
-    note: 'Complete AWS Practitioner first to unlock the exam voucher.',
+    note: 'Finish AWS Practitioner to unlock the voucher.',
   },
 ];
 
@@ -79,7 +76,7 @@ function EarnedCertShareButton({ title, earnedAtIso }: { title: string; earnedAt
     // simply omitted). The shared credential title is real either way.
     earnedAtIso: earnedAtIso ?? '',
   });
-  return <ShareButton url={share.url} title={share.title} text={share.text} />;
+  return <ShareButton chrome="kit" url={share.url} title={share.title} text={share.text} />;
 }
 
 export function MemberCertificatesKit({
@@ -89,34 +86,22 @@ export function MemberCertificatesKit({
   verifiedCount = 2,
   earned = DEFAULT_EARNED,
   inProgress = DEFAULT_IN_PROGRESS,
+  counselorHref = '/dashboard/messages',
 }: MemberCertificatesKitProps) {
   return (
     <DesignSurface surface="warm">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
-        {/* Page opener — eyebrow + title, matching the VoiceStudioKit idiom,
-            so the tab reads as an intentional page rather than a floating
-            widget stack. */}
-        <div>
-          <div
-            className="wa-flex wa-items-center wa-gap-2"
-            style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
-          >
-            <Award size={13} aria-hidden="true" />
-            <span>Credentials</span>
-          </div>
-          <h1 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
-            Certificates and achievements
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-            Verified credentials, plus what&apos;s in progress.
-          </p>
-        </div>
-        {/* KPI strip */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-5">
+        <PageOpener
+          kicker="Credentials"
+          title="Certificates and achievements"
+          lede="Verified credentials, plus what's in progress."
+          icon={<Award size={13} aria-hidden="true" />}
+        />
         <KpiStrip
           items={[
             { label: 'Earned', value: earnedCount, color: 'gold' },
-            { label: 'In Progress', value: inProgressCount, color: 'accent' },
-            { label: 'Learning Hrs', value: learningHours, color: 'text' },
+            { label: 'In progress', value: inProgressCount, color: 'accent' },
+            { label: 'Hours', value: learningHours, color: 'text' },
             { label: 'Verified', value: verifiedCount, color: 'success' },
           ]}
         />
@@ -128,54 +113,48 @@ export function MemberCertificatesKit({
           <div>
             <h2 className="sr-only">Earned certificates</h2>
             {earned.length === 0 ? (
-              <Card>
-                <EmptyState
-                  icon={
-                    <div
-                      style={{ width: 40, height: 40, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <Award size={18} aria-hidden="true" />
-                    </div>
-                  }
-                  title="No certificates yet"
-                  description="Completed credentials will appear here after they are logged and verified."
-                  actions={
-                    <AstryxLink href="/dashboard/messages" as={Link as never} isStandalone>
-                      <Button label="Message your counselor" variant="primary" size="sm" />
-                    </AstryxLink>
-                  }
-                />
-              </Card>
+              <div className="wa-kit-card">
+                <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0 }}>No certificates yet</h3>
+                <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 6, lineHeight: 1.5 }}>
+                  Completed credentials will appear here after they are logged and verified.
+                </p>
+                <Link
+                  href={counselorHref}
+                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 44,
+                    marginTop: 16,
+                    padding: '10px 16px',
+                    background: 'var(--wa-accent)',
+                    color: 'var(--wa-on-accent)',
+                    fontWeight: 600,
+                    fontSize: 14,
+                    borderRadius: 999,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Message counselor
+                </Link>
+              </div>
             ) : (
-              <Card padding={0} style={{ overflow: 'hidden' }}>
+              <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
                 {earned.map((cert, i) => (
                   <div
                     key={cert.id}
-                    className="wa-flex wa-gap-4"
+                    className="wa-flex wa-items-start wa-gap-4"
                     style={{ padding: '16px 20px', borderTop: i === 0 ? 'none' : '1px solid var(--wa-border)' }}
                   >
-                    <div
-                      aria-hidden="true"
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 'var(--wa-radius-sm)',
-                        background: 'var(--wa-gold-soft)',
-                        color: 'var(--wa-gold)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Award size={22} aria-hidden="true" />
-                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
                         <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                        {cert.verified ? <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} /> : null}
+                        {cert.verified ? (
+                          <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} />
+                        ) : null}
                       </div>
-                      <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{cert.meta}</p>
+                      <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{cert.meta}</p>
                       <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
                         <a
                           href="/api/member/certifications/export"
@@ -185,70 +164,48 @@ export function MemberCertificatesKit({
                           style={{
                             minHeight: 44,
                             padding: '10px 12px',
-                            background: 'var(--wa-gold)',
+                            background: 'var(--wa-accent)',
                             color: 'var(--wa-on-accent)',
                             fontWeight: 600,
-                            fontSize: 11,
+                            fontSize: 13,
                             borderRadius: 999,
                             border: 'none',
                             cursor: 'pointer',
                             textDecoration: 'none',
                           }}
                         >
-                          <Download size={11} aria-hidden="true" /> Download
+                          <Download size={14} aria-hidden="true" /> Download
                         </a>
                         <EarnedCertShareButton title={cert.title} earnedAtIso={cert.earnedAtIso} />
                       </div>
                     </div>
                   </div>
                 ))}
-              </Card>
+              </div>
             )}
           </div>
 
-          {/* In-progress certificates — the one deliberate color-filled surface
-              on this view (calls out active, in-flight work). */}
           {inProgress.length > 0 ? (
-            <div className="wa-space-y-4">
+            <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
               <h2 className="sr-only">Certificates in progress</h2>
-              {inProgress.map((cert) => {
+              {inProgress.map((cert, i) => {
                 const pct = Math.max(0, Math.min(100, Math.round(cert.percent)));
                 return (
-                  <Card
+                  <div
                     key={cert.id}
-                    className="wa-flex wa-gap-4 sm:wa-gap-5"
-                    style={{ background: 'var(--wa-accent-soft)', borderColor: 'var(--wa-accent-soft)' }}
+                    style={{ padding: '16px 20px', borderTop: i === 0 ? 'none' : '1px solid var(--wa-border)' }}
                   >
-                    <div
-                      aria-hidden="true"
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 'var(--wa-radius-sm)',
-                        background: 'var(--wa-surface)',
-                        color: 'var(--wa-accent)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        border: '1px solid var(--wa-accent-soft)',
-                      }}
-                    >
-                      <Hourglass size={22} aria-hidden="true" />
+                    <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
+                      <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                        {pct}%
+                      </span>
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
-                        <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                        <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
-                          In Progress · {pct}%
-                        </span>
-                      </div>
-                      <div style={{ marginTop: 12 }}>
-                        <ProgressBar value={pct} label={`${cert.title} progress`} isLabelHidden />
-                      </div>
-                      <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 8 }}>{cert.note}</p>
+                    <div style={{ marginTop: 12 }}>
+                      <ProgressBar pct={pct} aria-label={`${cert.title} progress`} />
                     </div>
-                  </Card>
+                    <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.45 }}>{cert.note}</p>
+                  </div>
                 );
               })}
             </div>

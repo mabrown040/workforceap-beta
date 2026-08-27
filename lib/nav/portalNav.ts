@@ -98,7 +98,7 @@ export type PortalNavItem = {
 
 export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   journey: { label: 'Home', icon: 'home' },
-  program: { label: 'My Program', icon: 'school' },
+  program: { label: 'My program', icon: 'school' },
   jobs: { label: 'Jobs', icon: 'work' },
   me: { label: 'AI Career Tools', icon: 'auto_awesome' },
 };
@@ -147,8 +147,8 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Home tab ──
   { href: '/dashboard', label: 'Home', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
-  { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
-  { href: '/dashboard/missions', label: 'Skill Missions', group: 'primary', tab: 'program', Icon: Target },
+  { href: '/dashboard/program', label: 'My program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  { href: '/dashboard/missions', label: 'Skill missions', group: 'primary', tab: 'program', Icon: Target },
   {
     href: '/dashboard/program/start',
     label: 'Path to certification',
@@ -156,8 +156,8 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tab: 'program',
     Icon: GitBranch,
   },
-  { href: '/dashboard/certifications', label: 'My Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
-  { href: '/dashboard/career-brief', label: 'My Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
+  { href: '/dashboard/certifications', label: 'My certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/career-brief', label: 'My career plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE
     ? [
         {
@@ -172,7 +172,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Jobs tab ──
   {
     href: '/dashboard/jobs',
-    label: 'Job Board',
+    label: 'Job board',
     group: 'workflows',
     tab: 'jobs',
     Icon: Briefcase,
@@ -180,7 +180,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   {
     href: '/dashboard/job-applications',
-    label: 'Job Applications',
+    label: 'Job applications',
     group: 'workflows',
     tab: 'jobs',
     Icon: FileText,
@@ -188,7 +188,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'applications_new',
   },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
-  { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
+  { href: '/dashboard/readiness', label: 'My progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'AI Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/toolkit', '/dashboard/ai-tools/studio'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
@@ -211,17 +211,17 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   {
     href: '/dashboard/assessment',
-    label: 'Training Preassessment',
+    label: 'Training preassessment',
     group: 'insights',
     tab: 'me',
     Icon: ClipboardCheck,
     aliases: ['/dashboard/assessments', '/dashboard/skills-assessment'],
   },
   // ── Profile tab ──
-  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
+  { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {
     href: '/dashboard/messages',
-    label: 'Advisor Chat',
+    label: 'Messages',
     group: 'primary',
     tab: 'journey',
     Icon: MessageSquare,
@@ -240,7 +240,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'me', Icon: BookOpen },
   {
     href: '/dashboard/profile',
-    label: 'Profile & Settings',
+    label: 'Profile & settings',
     group: 'manage',
     tab: 'me',
     Icon: User,
@@ -249,8 +249,8 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   // "My Account" is the member's home base — it lands on the dashboard, not on
   // the profile/settings page (which surprised members). Account settings stay
-  // reachable via "Profile & Settings" above (/dashboard/profile #settings).
-  { href: '/dashboard', label: 'My Account', group: 'manage', tab: 'me', Icon: Home },
+  // reachable via "Profile & settings" above (/dashboard/profile #settings).
+  { href: '/dashboard', label: 'My account', group: 'manage', tab: 'me', Icon: Home },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, CheckCircle2, RotateCcw, Flame } from 'lucide-react';
 import SkillMissionChallenge from './SkillMissionChallenge';
@@ -43,7 +43,7 @@ type SkillMissionSummaryItem = {
   aiToolResultId: string | null;
 };
 
-type SkillMissionSummary = {
+export type SkillMissionSummary = {
   programSlug: string;
   programTitle: string | null;
   totalMissions: number;
@@ -68,7 +68,17 @@ type MissionEvalResponse =
     }
   | { ok: false; error: string };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+const kitPrimaryBtn = {
+  minHeight: 44,
+  padding: '10px 16px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  fontWeight: 600,
+  fontSize: 14,
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+} as const;
 
 function formatPassedDate(date: Date | null): string {
   if (!date) return '';
@@ -76,33 +86,49 @@ function formatPassedDate(date: Date | null): string {
   return `Passed ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 }
 
-// ── Mission card subcomponents ───────────────────────────────────────────────
+function Chip({
+  children,
+  tone = 'muted',
+}: {
+  children: ReactNode;
+  tone?: 'muted' | 'accent' | 'success' | 'gold';
+}) {
+  const palette = {
+    muted: { bg: 'var(--wa-surface-2)', fg: 'var(--wa-muted)', border: '1px solid var(--wa-border)' },
+    accent: { bg: 'var(--wa-accent-soft)', fg: 'var(--wa-accent)', border: '1px solid color-mix(in srgb, var(--wa-accent) 22%, transparent)' },
+    success: { bg: 'var(--wa-success-soft)', fg: 'var(--wa-success)', border: '1px solid color-mix(in srgb, var(--wa-success) 28%, transparent)' },
+    gold: { bg: 'var(--wa-gold-soft)', fg: 'var(--wa-gold)', border: '1px solid color-mix(in srgb, var(--wa-gold) 28%, transparent)' },
+  }[tone];
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '4px 10px',
+        borderRadius: 999,
+        background: palette.bg,
+        border: palette.border,
+        fontSize: 13,
+        fontWeight: 700,
+        color: palette.fg,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
 
 function LockedCard({ mission }: { mission: SkillMissionSummaryItem }) {
   return (
-    <article
-      style={{
-        borderRadius: '0.9rem',
-        border: '1px solid var(--outline-variant)',
-        background: 'var(--surface-container)',
-        padding: '0.95rem 1rem',
-        opacity: 0.62,
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '0.75rem',
-      }}
-    >
-      <Lock
-        size={22}
-        aria-hidden="true"
-        style={{ flexShrink: 0, color: 'var(--color-on-surface-variant)', marginTop: '0.1rem' }}
-      />
+    <article className="wa-kit-card" style={{ display: 'flex', alignItems: 'flex-start', gap: 12, opacity: 0.72 }}>
+      <Lock size={20} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-muted)', marginTop: 2 }} />
       <div>
-        <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+        <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
           {mission.missionName}
         </h4>
-        <p style={{ margin: 0, fontSize: '0.83rem', color: 'var(--color-on-surface-variant)' }}>
-          Complete <strong>{mission.courseTitle}</strong> to unlock
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+          Finish <strong style={{ color: 'var(--wa-text)' }}>{mission.courseTitle}</strong> to unlock
         </p>
       </div>
     </article>
@@ -118,149 +144,113 @@ function ReadyCard({
 }) {
   return (
     <article
+      className="wa-kit-card"
       style={{
-        borderRadius: '0.9rem',
-        border: '2px solid var(--color-accent)',
-        background: 'color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-low))',
-        padding: '1rem 1.1rem',
-        boxShadow: '0 8px 24px -12px color-mix(in srgb, var(--color-accent) 30%, transparent)',
+        border: '2px solid var(--wa-accent)',
+        background: 'color-mix(in srgb, var(--wa-accent-soft) 70%, var(--wa-surface))',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+      <div className="wa-flex wa-items-start wa-justify-between wa-flex-wrap" style={{ gap: 12, marginBottom: 8 }}>
         <div>
           <span
             style={{
               display: 'inline-block',
-              fontSize: '0.68rem',
+              fontSize: 13,
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'var(--color-accent)',
-              marginBottom: '0.3rem',
+              color: 'var(--wa-accent)',
+              marginBottom: 4,
             }}
           >
-            Mission Ready
+            Mission ready
           </span>
-          <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+          <h4 style={{ margin: 0, fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.86rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
             {mission.missionTagline}
           </p>
         </div>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            padding: '0.25rem 0.55rem',
-            borderRadius: '9999px',
-            background: 'var(--surface-container-high)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            color: 'var(--color-on-surface-variant)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          ~{mission.estimatedMinutes} min
-        </span>
+        <Chip>~{mission.estimatedMinutes} min</Chip>
       </div>
 
-      {mission.skillLabels.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.75rem' }}>
+      {mission.skillLabels.length > 0 ? (
+        <div className="wa-flex wa-flex-wrap" style={{ gap: 6, marginBottom: 12 }}>
           {mission.skillLabels.slice(0, 4).map((s) => (
-            <span
-              key={s}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0.15rem 0.45rem',
-                borderRadius: '9999px',
-                background: 'var(--surface-container-high)',
-                fontSize: '0.74rem',
-                color: 'var(--color-on-surface-variant)',
-              }}
-            >
-              {s}
-            </span>
+            <Chip key={s}>{s}</Chip>
           ))}
         </div>
-      )}
+      ) : null}
 
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={onStart}
-        style={{ alignSelf: 'flex-start', fontSize: '0.88rem' }}
-      >
-        Start Mission →
+      <button type="button" className="wa-kit-focus hover:wa-opacity-90" onClick={onStart} style={kitPrimaryBtn}>
+        Start mission
       </button>
     </article>
   );
 }
 
-function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
+function PassedCard({
+  mission,
+  resumeStudioHref,
+}: {
+  mission: SkillMissionSummaryItem;
+  resumeStudioHref: string;
+}) {
   const result = mission.latestResult;
   return (
     <article
+      className="wa-kit-card"
       style={{
-        borderRadius: '0.9rem',
-        border: '1px solid rgba(74,155,79,0.28)',
-        background: 'rgba(74,155,79,0.06)',
-        padding: '0.95rem 1rem',
+        border: '1px solid color-mix(in srgb, var(--wa-success) 28%, var(--wa-border))',
+        background: 'color-mix(in srgb, var(--wa-success-soft) 80%, var(--wa-surface))',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.45rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <CheckCircle2 size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--color-green)' }} />
-          <div>
-            <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-              {mission.missionName}
-            </h4>
-            <p style={{ margin: '0.1rem 0 0', fontSize: '0.78rem', color: 'var(--color-green)' }}>
-              {formatPassedDate(mission.completedAt)}
-            </p>
-          </div>
+      <div className="wa-flex wa-items-start" style={{ gap: 10, marginBottom: 8 }}>
+        <CheckCircle2 size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-success)', marginTop: 2 }} />
+        <div>
+          <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
+            {mission.missionName}
+          </h4>
+          <p style={{ margin: '2px 0 0', fontSize: 13, fontWeight: 600, color: 'var(--wa-success)' }}>
+            {formatPassedDate(mission.completedAt)}
+          </p>
         </div>
       </div>
 
-      {result && result.skillsUnlocked.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.5rem' }}>
+      {result && result.skillsUnlocked.length > 0 ? (
+        <div className="wa-flex wa-flex-wrap" style={{ gap: 6, marginBottom: 8 }}>
           {result.skillsUnlocked.map((s) => (
-            <span
-              key={s}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0.15rem 0.45rem',
-                borderRadius: '9999px',
-                background: 'rgba(74,155,79,0.12)',
-                border: '1px solid rgba(74,155,79,0.2)',
-                fontSize: '0.73rem',
-                fontWeight: 600,
-                color: 'var(--color-green)',
-              }}
-            >
+            <Chip key={s} tone="success">
               {s}
-            </span>
+            </Chip>
           ))}
         </div>
-      )}
+      ) : null}
 
-      {result && result.resumeBullet && (
-        <p style={{ margin: '0.25rem 0 0.45rem', fontSize: '0.82rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+      {result?.resumeBullet ? (
+        <p style={{ margin: '0 0 8px', fontSize: 13, fontStyle: 'italic', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
           &ldquo;{result.resumeBullet}&rdquo;
         </p>
-      )}
+      ) : null}
 
-      {mission.aiToolResultId && (
+      {mission.aiToolResultId ? (
         <a
-          href="/dashboard/ai-tools/resume-studio"
-          style={{ fontSize: '0.78rem', color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}
+          href={resumeStudioHref}
+          className="wa-kit-focus"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            minHeight: 44,
+            fontSize: 14,
+            color: 'var(--wa-accent)',
+            textDecoration: 'none',
+            fontWeight: 700,
+          }}
         >
-          View in Resume Studio →
+          Open resume studio
         </a>
-      )}
+      ) : null}
     </article>
   );
 }
@@ -279,56 +269,63 @@ function RetryCard({
 
   return (
     <article
+      className="wa-kit-card"
       style={{
-        borderRadius: '0.9rem',
-        border: '2px solid rgba(194,120,0,0.45)',
-        background: 'rgba(194,120,0,0.06)',
-        padding: '0.95rem 1rem',
+        border: '2px solid color-mix(in srgb, var(--wa-gold) 45%, var(--wa-border))',
+        background: 'color-mix(in srgb, var(--wa-gold-soft) 80%, var(--wa-surface))',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
+      <div className="wa-flex wa-items-start wa-justify-between wa-flex-wrap" style={{ gap: 12, marginBottom: 8 }}>
         <div>
           <span
             style={{
               display: 'inline-block',
-              fontSize: '0.68rem',
+              fontSize: 13,
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'var(--color-amber)',
-              marginBottom: '0.25rem',
+              color: 'var(--wa-gold)',
+              marginBottom: 4,
             }}
           >
             Review needed
           </span>
-          <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+          <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
         </div>
-        <RotateCcw size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--color-amber)' }} />
+        <RotateCcw size={18} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-gold)' }} />
       </div>
 
-      {preview && (
-        <p style={{ margin: '0 0 0.65rem', fontSize: '0.83rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-          {preview}
-        </p>
-      )}
+      {preview ? (
+        <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.5 }}>{preview}</p>
+      ) : null}
 
       <button
         type="button"
-        className="btn btn-primary"
+        className="wa-kit-focus hover:wa-opacity-90"
         onClick={onRetry}
-        style={{ fontSize: '0.85rem', background: 'var(--color-amber)', borderColor: 'var(--color-amber)' }}
+        style={{ ...kitPrimaryBtn, background: 'var(--wa-gold)' }}
       >
-        Retry Mission →
+        Retry mission
       </button>
     </article>
   );
 }
 
-// ── Main panel ───────────────────────────────────────────────────────────────
-
-export default function SkillMissionPanel({ summary }: { summary: SkillMissionSummary | null }) {
+export default function SkillMissionPanel({
+  summary,
+  hideTitle = false,
+  preview = false,
+  resumeStudioHref = '/dashboard/ai-tools/resume-studio',
+}: {
+  summary: SkillMissionSummary | null;
+  /** When the route already has a PageOpener, skip the inner “Skill Missions” heading. */
+  hideTitle?: boolean;
+  /** Proofs: Start/Retry stay on the list (no challenge POST). */
+  preview?: boolean;
+  resumeStudioHref?: string;
+}) {
   const router = useRouter();
   const [activeMission, setActiveMission] = useState<SkillMissionSummaryItem | null>(null);
 
@@ -339,194 +336,108 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
     router.refresh();
   }
 
+  const openMission = (mission: SkillMissionSummaryItem) => {
+    if (preview) return;
+    setActiveMission(mission);
+  };
+
   return (
     <>
-      <section
-        style={{
-          background: 'var(--surface-container-low)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '1.25rem',
-          border: '1px solid var(--outline-variant)',
-          marginBottom: '1.5rem',
-        }}
-      >
-        {/* Header */}
-        <div style={{ marginBottom: '1rem' }}>
-          <p
-            style={{
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'var(--color-accent)',
-              margin: '0 0 0.3rem',
-            }}
-          >
-            Skill Missions
-          </p>
-          <h3 style={{ margin: '0 0 0.3rem', fontSize: '1.15rem', fontWeight: 800 }}>
-            Your Career Proof Journey
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.87rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-            Turn your training into employer-ready evidence — one mission at a time.
-          </p>
-        </div>
+      <section>
+        {hideTitle ? null : (
+          <div style={{ marginBottom: 16 }}>
+            <p
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'var(--wa-accent)',
+                margin: '0 0 4px',
+              }}
+            >
+              Missions
+            </p>
+            <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
+              Skill missions
+            </h3>
+            <p style={{ margin: 0, fontSize: 14, color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+              One pass per course. Resume bullet and STAR story.
+            </p>
+          </div>
+        )}
 
-        {/* Stats row */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            flexWrap: 'wrap',
-            marginBottom: '0.9rem',
-          }}
-        >
-          {/* Career readiness big number */}
+        <div className="wa-flex wa-items-center wa-flex-wrap" style={{ gap: 10, marginBottom: 16 }}>
           <div
             style={{
               display: 'flex',
               alignItems: 'baseline',
-              gap: '0.3rem',
-              padding: '0.45rem 0.85rem',
-              borderRadius: '0.7rem',
-              background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container))',
-              border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 'var(--wa-radius-sm)',
+              background: 'var(--wa-accent-soft)',
+              border: '1px solid color-mix(in srgb, var(--wa-accent) 22%, transparent)',
             }}
           >
-            <span style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
+            <span style={{ fontSize: 26, fontWeight: 800, color: 'var(--wa-accent)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
               {summary.careerReadinessPct}%
             </span>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-              missions passed
-            </span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}>passed</span>
           </div>
-
-          {/* Passed count */}
-          <span className="training-status-chip training-status-chip--complete">
-            {summary.passedCount} passed
-          </span>
-
-          {/* Ready count */}
-          {summary.readyCount > 0 && (
-            <span className="training-status-chip training-status-chip--progress">
-              {summary.readyCount} ready
-            </span>
-          )}
-
-          {/* Retry count */}
-          {summary.retryCount > 0 && (
-            <span className="training-status-chip training-status-chip--pending">
-              {summary.retryCount} to retry
-            </span>
-          )}
-
-          {/* Streak badge */}
-          {summary.streak > 0 && (
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                padding: '0.25rem 0.6rem',
-                borderRadius: '9999px',
-                background: 'rgba(230,120,0,0.12)',
-                border: '1px solid rgba(230,120,0,0.25)',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                color: 'var(--color-amber)',
-              }}
-            >
+          <Chip tone="success">{summary.passedCount} passed</Chip>
+          {summary.readyCount > 0 ? <Chip tone="accent">{summary.readyCount} ready</Chip> : null}
+          {summary.retryCount > 0 ? <Chip tone="gold">{summary.retryCount} to retry</Chip> : null}
+          {summary.streak > 0 ? (
+            <Chip tone="gold">
               <Flame size={13} aria-hidden="true" /> {summary.streak} streak
-            </span>
-          )}
+            </Chip>
+          ) : null}
         </div>
 
-        {/* Demonstrated skills chips */}
-        {summary.demonstratedSkills.length > 0 && (
-          <div style={{ marginBottom: '1rem' }}>
-            <p style={{ margin: '0 0 0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-              Skills you&apos;ve demonstrated
+        {summary.demonstratedSkills.length > 0 ? (
+          <div style={{ marginBottom: 16 }}>
+            <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: 'var(--wa-muted)' }}>
+              Demonstrated skills
             </p>
-            <div
-              style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}
-            >
+            <div className="wa-flex wa-flex-wrap" style={{ gap: 6 }}>
               {summary.demonstratedSkills.slice(0, 10).map((skill) => (
-                <span
-                  key={skill}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '0.2rem 0.55rem',
-                    borderRadius: '9999px',
-                    background: 'rgba(74,155,79,0.1)',
-                    border: '1px solid rgba(74,155,79,0.2)',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: 'var(--color-green)',
-                    animation: 'fadeIn 0.4s ease both',
-                  }}
-                >
+                <Chip key={skill} tone="success">
                   {skill}
-                </span>
+                </Chip>
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
-        {/* Mission list */}
-        <div style={{ display: 'grid', gap: '0.85rem' }}>
+        <div style={{ display: 'grid', gap: 12 }}>
           {summary.missions.map((mission) => {
             if (mission.status === 'locked') {
               return <LockedCard key={mission.key} mission={mission} />;
             }
             if (mission.status === 'ready') {
-              return (
-                <ReadyCard
-                  key={mission.key}
-                  mission={mission}
-                  onStart={() => setActiveMission(mission)}
-                />
-              );
+              return <ReadyCard key={mission.key} mission={mission} onStart={() => openMission(mission)} />;
             }
             if (mission.status === 'passed') {
-              return <PassedCard key={mission.key} mission={mission} />;
+              return <PassedCard key={mission.key} mission={mission} resumeStudioHref={resumeStudioHref} />;
             }
             if (mission.status === 'needs_retry') {
-              return (
-                <RetryCard
-                  key={mission.key}
-                  mission={mission}
-                  onRetry={() => setActiveMission(mission)}
-                />
-              );
+              return <RetryCard key={mission.key} mission={mission} onRetry={() => openMission(mission)} />;
             }
             return null;
           })}
         </div>
       </section>
 
-      {/* Challenge modal */}
-      {activeMission && (
+      {activeMission ? (
         <SkillMissionChallenge
           mission={activeMission}
           onClose={() => {
             setActiveMission(null);
-            // A needs_retry result is recorded server-side even when the
-            // member closes instead of completing — refresh so the card
-            // flips from "Start Mission" to "Retry Mission" immediately.
             router.refresh();
           }}
           onComplete={handleComplete}
         />
-      )}
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(4px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      ) : null}
     </>
   );
 }

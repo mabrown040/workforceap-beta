@@ -46,14 +46,18 @@ export function MemberDashboardKit({
         <div className="wa-kit-card wa-kit-card--gradient-crimson" style={{ display: 'flex', alignItems: 'center', gap: 22, marginBottom: 20 }}>
           <ProgressRing pct={pct} size={112} onDark />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', opacity: 0.75 }}>Member Portal</div>
+            <div style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', opacity: 0.75 }}>Member Portal</div>
             <h2 className="h-font" style={{ fontSize: 26, margin: '4px 0 2px', fontWeight: 800, letterSpacing: '-.03em' }}>{firstName}</h2>
-            <p style={{ fontSize: 13, opacity: 0.85, margin: 0 }}>
-              {programTitle ? `You're ${pct}% through ${programTitle}.` : `You're ${pct}% of the way there.`}
-              {nextMilestone ? ` Next up: ${nextMilestone}.` : ''}
+            <p className="wa-kit-lede" style={{ opacity: 0.85, margin: 0, color: 'inherit' }}>
+              {programTitle ? `${pct}% through ${programTitle}.` : 'No program enrolled.'}
+              {nextMilestone ? ` Next: ${nextMilestone}.` : ''}
             </p>
             {programTitle ? (
-              <a href="/dashboard/program" style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'var(--wa-on-accent)', color: 'var(--wa-accent)', fontWeight: 700, fontSize: 13, borderRadius: 999, textDecoration: 'none' }}>
+              <a
+                href="/dashboard/program"
+                className="wa-kit-cta wa-kit-focus"
+                style={{ marginTop: 12, background: 'var(--wa-on-accent)', color: 'var(--wa-accent)', fontWeight: 700 }}
+              >
                 <Play size={13} /> Resume program
               </a>
             ) : null}
@@ -78,7 +82,7 @@ export function MemberDashboardKit({
               <ArrowRight size={20} />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--wa-accent)' }}>Do this next</div>
+              <div style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--wa-accent)' }}>Do this next</div>
               <div style={{ fontWeight: 700, fontSize: 15 }}>{nextMilestone}</div>
             </div>
           </div>
@@ -95,9 +99,9 @@ export function MemberDashboardKit({
               <div>
                 <div style={{ width: 44, height: 44, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-info-soft)', color: 'var(--wa-info)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Briefcase size={20} /></div>
                 <h3 style={{ fontWeight: 800, fontSize: 17, marginTop: 14, letterSpacing: '-.02em' }}>Find Jobs</h3>
-                <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>Roles matched to your program.</p>
+                <p className="wa-kit-lede" style={{ marginTop: 2 }}>Roles matched to your program.</p>
               </div>
-              <a href={jobSearchUrl} style={{ fontSize: 12, fontWeight: 700, marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}>Browse jobs <ArrowRight size={13} /></a>
+              <a href={jobSearchUrl} className="wa-page-action" style={{ marginTop: 12, justifyContent: 'flex-start', padding: 0 }}>Browse jobs <ArrowRight size={13} /></a>
             </div>
           ) : null}
         </div>

@@ -245,7 +245,7 @@ export function MemberMessagesKit({
                   }}
                 >
                   <div className="wa-flex wa-items-center wa-justify-between">
-                    <span style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</span>
+                    <span style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)' }}>{c.name}</span>
                     {c.unread ? (
                       <span
                         style={{
@@ -312,8 +312,8 @@ export function MemberMessagesKit({
               </span>
               <Avatar initials={activeInitials} size={36} />
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>{activeName}</div>
-                <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}>
+                <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)' }}>{activeName}</div>
+                <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}>
                   {activeOnline ? (
                     <span
                       style={{

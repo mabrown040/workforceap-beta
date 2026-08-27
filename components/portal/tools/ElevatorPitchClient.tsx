@@ -32,7 +32,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -47,7 +47,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -295,22 +295,22 @@ export default function ElevatorPitchClient({
             </div>
           ) : null}
           {!preview && emailStatus && !emailStatus.sent ? (
-            <p style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--wa-muted)' }}>
+            <p style={{ margin: '12px 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
               Email did not send{emailStatus.error ? `: ${emailStatus.error}` : '.'} Copy the pitch.
             </p>
           ) : null}
         </div>
 
         <div>
-          <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 4px' }}>Rehearse</p>
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 12px', lineHeight: 1.45 }}>
+          <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 4px' }}>Rehearse</p>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 12px', lineHeight: 1.45 }}>
             Camera and mic. Read the pitch out loud.
           </p>
           <button type="button" onClick={() => void startRehearsal()} className={KIT_BTN} style={kitBtnSolid}>
             <Video size={16} aria-hidden="true" />
             Start rehearsal
           </button>
-          {recordingError ? <p style={{ color: 'var(--wa-danger)', fontSize: 14, margin: '8px 0 0' }}>{recordingError}</p> : null}
+          {recordingError ? <p style={{ color: 'var(--wa-danger)', fontSize: 'var(--wa-type-body)', margin: '8px 0 0' }}>{recordingError}</p> : null}
         </div>
         {!preview ? <ToolFollowThrough toolType="elevator_pitch" output={pitch} /> : null}
       </div>
@@ -349,7 +349,7 @@ export default function ElevatorPitchClient({
         }}
       >
         {preview ? (
-          <p style={{ margin: 0, fontSize: 14, color: 'var(--wa-sidebar-muted)', padding: 16, textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', color: 'var(--wa-sidebar-muted)', padding: 16, textAlign: 'center' }}>
             Camera and mic run in a signed-in session.
           </p>
         ) : (
@@ -383,7 +383,7 @@ export default function ElevatorPitchClient({
               borderRadius: 999,
               background: 'var(--wa-accent)',
               color: 'var(--wa-on-accent)',
-              fontSize: 13,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
             }}
           >
@@ -410,7 +410,7 @@ export default function ElevatorPitchClient({
 
       {playbackUrl ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--wa-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <p style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <CheckCircle2 size={16} color="var(--wa-success)" aria-hidden="true" />
             Playback
           </p>

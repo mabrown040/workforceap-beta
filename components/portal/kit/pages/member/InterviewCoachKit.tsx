@@ -14,7 +14,7 @@ import { ToolkitToolChrome } from './ToolkitToolChrome';
 
 const InterviewCoach = dynamic(() => import('@/components/portal/tools/InterviewCoach'), {
   loading: () => (
-    <p role="status" aria-live="polite" style={{ margin: 0, color: 'var(--wa-muted)', fontWeight: 600, fontSize: 14 }}>
+    <p role="status" aria-live="polite" style={{ margin: 0, color: 'var(--wa-muted)', fontWeight: 600, fontSize: 'var(--wa-type-body)' }}>
       Loading interview coach…
     </p>
   ),

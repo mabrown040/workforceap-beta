@@ -24,7 +24,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -39,7 +39,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -294,7 +294,7 @@ export default function ResumeStrengthForm({
           style={FIELD_CONTROL}
         />
       </div>
-      <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+      <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
         Prefills from a resume on file.
       </p>
       {error ? <AiToolError error={error} /> : null}

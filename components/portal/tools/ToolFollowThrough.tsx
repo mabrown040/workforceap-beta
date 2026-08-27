@@ -33,7 +33,7 @@ export default function ToolFollowThrough({
       <p
         style={{
           margin: '0 0 0.25rem',
-          fontSize: 13,
+          fontSize: 'var(--wa-type-meta)',
           fontWeight: 800,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
@@ -55,7 +55,7 @@ export default function ToolFollowThrough({
       <p
         style={{
           margin: '0 0 0.75rem',
-          fontSize: 13,
+          fontSize: 'var(--wa-type-meta)',
           lineHeight: 1.55,
           color: 'var(--wa-muted)',
         }}

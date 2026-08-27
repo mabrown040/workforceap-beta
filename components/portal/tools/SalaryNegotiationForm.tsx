@@ -26,7 +26,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -41,7 +41,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -265,7 +265,7 @@ export default function SalaryNegotiationForm({
               border: '1px solid var(--wa-border)',
               color: 'var(--wa-text)',
               fontFamily: 'inherit',
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               lineHeight: 1.65,
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
@@ -274,7 +274,7 @@ export default function SalaryNegotiationForm({
             {output}
           </pre>
           {!preview ? (
-            <p style={{ margin: '12px 0 0', fontSize: 14, color: 'var(--wa-muted)' }}>
+            <p style={{ margin: '12px 0 0', fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>
               Saved to history.{' '}
               <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
                 View all results

@@ -67,7 +67,7 @@ export default function SkillMissionTeaserCard({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.3rem',
-            fontSize: 13,
+            fontSize: 'var(--wa-type-meta)',
             fontWeight: 700,
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
@@ -83,7 +83,7 @@ export default function SkillMissionTeaserCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.2rem',
-                fontSize: 13,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 700,
                 color: 'var(--wa-gold)',
                 background: 'var(--wa-gold-soft)',
@@ -98,7 +98,7 @@ export default function SkillMissionTeaserCard({
           {data && (
             <span
               style={{
-                fontSize: 13,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 700,
                 color: 'var(--wa-muted)',
                 whiteSpace: 'nowrap',
@@ -119,7 +119,7 @@ export default function SkillMissionTeaserCard({
       <p
         style={{
           margin: '0 0 0.75rem',
-          fontSize: 14,
+          fontSize: 'var(--wa-type-body)',
           lineHeight: 1.5,
           color: 'var(--wa-text)',
         }}
@@ -146,7 +146,7 @@ export default function SkillMissionTeaserCard({
           borderRadius: 999,
           background: 'var(--wa-accent)',
           color: 'var(--wa-on-accent)',
-          fontSize: 14,
+          fontSize: 'var(--wa-type-body)',
           fontWeight: 700,
           lineHeight: 1.2,
           textDecoration: 'none',

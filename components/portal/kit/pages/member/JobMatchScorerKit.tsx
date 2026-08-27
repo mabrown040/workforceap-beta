@@ -66,7 +66,7 @@ export function JobMatchScorerKit({
     >
       <div className="wa-kit-card">
         <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Analysis</h2>
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 14px' }}>Resume vs. job description</p>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 14px' }}>Resume vs. job description</p>
         <JobMatchScorerForm
           preview={preview}
           initialResume={initialResume}
@@ -100,9 +100,9 @@ export function JobMatchScorerKit({
               >
                 <Icon size={14} aria-hidden="true" />
               </div>
-              <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>{title}</h3>
+              <h3 style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, margin: 0, color: 'var(--wa-text)' }}>{title}</h3>
             </div>
-            <p style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>{body}</p>
+            <p style={{ fontSize: 'var(--wa-type-meta)', lineHeight: 1.55, color: 'var(--wa-muted)', margin: 0 }}>{body}</p>
           </div>
         ))}
       </div>

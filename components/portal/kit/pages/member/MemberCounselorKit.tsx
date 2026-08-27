@@ -39,7 +39,7 @@ export function MemberCounselorKit({ title, subtitle, voiceSurface, pastSessions
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               color: 'var(--wa-accent)',
               letterSpacing: '0.12em',
@@ -55,7 +55,7 @@ export function MemberCounselorKit({ title, subtitle, voiceSurface, pastSessions
           >
             {title}
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>{subtitle}</p>
+          <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', marginTop: 4 }}>{subtitle}</p>
         </div>
 
         <div style={{ maxWidth: 640, margin: '0 auto', width: '100%' }}>{voiceSurface}</div>
@@ -73,13 +73,13 @@ export function MemberCounselorKit({ title, subtitle, voiceSurface, pastSessions
                 >
                   <Card>
                     <div className="wa-flex wa-items-center wa-justify-between wa-gap-3">
-                      <p style={{ fontSize: 12, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{session.dateLabel}</p>
+                      <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}>{session.dateLabel}</p>
                       <ArrowRight size={13} aria-hidden="true" style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
                     </div>
                     {session.steps.length > 0 ? (
                       <ul style={{ margin: '6px 0 0', padding: '0 0 0 1.1rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {session.steps.map((step, i) => (
-                          <li key={i} style={{ fontSize: 13, color: 'var(--wa-text)' }}>{step}</li>
+                          <li key={i} style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-text)' }}>{step}</li>
                         ))}
                       </ul>
                     ) : null}

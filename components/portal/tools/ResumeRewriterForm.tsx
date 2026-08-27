@@ -41,7 +41,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -56,7 +56,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -265,7 +265,7 @@ export default function ResumeRewriterForm({
           />
         </FormField>
       </div>
-      <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+      <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
         Salary and city calibrate seniority and local phrasing. Optional.
       </p>
 
@@ -313,7 +313,7 @@ export default function ResumeRewriterForm({
           style={{ ...FIELD_CONTROL, resize: 'vertical', minHeight: 200 }}
         />
       </div>
-      <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+      <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
         Prefills from a resume on file.
       </p>
 
@@ -321,7 +321,7 @@ export default function ResumeRewriterForm({
         style={{
           margin: 0,
           paddingLeft: 18,
-          fontSize: 13,
+          fontSize: 'var(--wa-type-meta)',
           color: 'var(--wa-muted)',
           lineHeight: 1.65,
         }}
@@ -396,7 +396,7 @@ export default function ResumeRewriterForm({
               border: '1px solid var(--wa-border)',
               color: 'var(--wa-text)',
               fontFamily: 'inherit',
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               lineHeight: 1.65,
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
@@ -405,7 +405,7 @@ export default function ResumeRewriterForm({
             {output}
           </pre>
           {!preview ? (
-            <p style={{ margin: '12px 0 0', fontSize: 14, color: 'var(--wa-muted)' }}>
+            <p style={{ margin: '12px 0 0', fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>
               Saved to history.{' '}
               <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
                 View all results

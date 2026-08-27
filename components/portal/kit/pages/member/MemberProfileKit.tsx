@@ -237,12 +237,12 @@ export function MemberProfileKit({
           <Avatar initials={initials} size={80} gradient />
           <div style={{ flex: 1, textAlign: 'center' }} className="sm:wa-text-left">
             <h2 className="h-font" style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>{name}</h2>
-            <p style={{ fontSize: 14, color: 'var(--wa-muted)' }}>{headline}</p>
+            <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>{headline}</p>
             <div className="wa-flex wa-flex-wrap wa-gap-2 wa-justify-center sm:wa-justify-start" style={{ marginTop: 12 }}>
               {badges.map((b) => (
                 <span
                   key={b.label}
-                  style={{ padding: '6px 12px', borderRadius: 999, fontSize: 13, fontWeight: 700, background: b.bg, color: b.color, fontVariantNumeric: 'tabular-nums' }}
+                  style={{ padding: '6px 12px', borderRadius: 999, fontSize: 'var(--wa-type-meta)', fontWeight: 700, background: b.bg, color: b.color, fontVariantNumeric: 'tabular-nums' }}
                 >
                   {b.label}
                 </span>
@@ -307,13 +307,13 @@ export function MemberProfileKit({
                 ref={accountErrorRef}
                 role="alert"
                 tabIndex={-1}
-                style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginTop: 12 }}
+                style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-accent)', fontWeight: 600, marginTop: 12 }}
               >
                 {accountError}
               </p>
             ) : null}
             {accountSaved && !accountError ? (
-              <p role="status" aria-live="polite" style={{ fontSize: 13, color: 'var(--wa-success)', fontWeight: 600, marginTop: 12 }}>
+              <p role="status" aria-live="polite" style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-success)', fontWeight: 600, marginTop: 12 }}>
                 Saved.
               </p>
             ) : null}
@@ -329,7 +329,7 @@ export function MemberProfileKit({
                 background: 'var(--wa-accent)',
                 color: 'var(--wa-on-accent)',
                 fontWeight: 600,
-                fontSize: 14,
+                fontSize: 'var(--wa-type-body)',
                 borderRadius: 999,
                 border: 'none',
                 cursor: !live || savingAccount ? 'not-allowed' : 'pointer',
@@ -348,7 +348,7 @@ export function MemberProfileKit({
                 ref={prefErrorRef}
                 role="alert"
                 tabIndex={-1}
-                style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginBottom: 12 }}
+                style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-accent)', fontWeight: 600, marginBottom: 12 }}
               >
                 {prefError}
               </p>
@@ -401,7 +401,7 @@ export function MemberProfileKit({
                   border: '1px solid var(--wa-border)',
                   color: 'var(--wa-text)',
                   fontWeight: 600,
-                  fontSize: 14,
+                  fontSize: 'var(--wa-type-body)',
                   textDecoration: 'none',
                 }}
               >

@@ -244,7 +244,7 @@ function DeltaChip({ delta, direction = 'up' }: { delta: string; direction?: 'up
         display: 'inline-flex',
         alignItems: 'center',
         gap: 3,
-        fontSize: 13,
+        fontSize: 'var(--wa-type-meta)',
         fontWeight: 700,
         padding: '4px 8px',
         borderRadius: 999,
@@ -307,7 +307,7 @@ function StatSparkTile({
         >
           {value}
         </div>
-        <div style={{ marginTop: 4, fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}>
+        <div style={{ marginTop: 4, fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}>
           {label}
         </div>
       </div>
@@ -424,7 +424,7 @@ function WeeklyActivityChart({ data }: { data: WeeklyActivityPoint[] }) {
       </svg>
       <div
         className="wa-flex wa-items-center wa-justify-between"
-        style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 600, padding: '2px 4px 0' }}
+        style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, padding: '2px 4px 0' }}
       >
         {data.map((d) => (
           <span key={d.day}>{d.day}</span>
@@ -454,7 +454,7 @@ const pipelineColumns: Column<PipelineRow>[] = [
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               color: 'var(--wa-on-accent)',
               background: logoColorFor(row.company),
             }}
@@ -484,7 +484,7 @@ const pipelineColumns: Column<PipelineRow>[] = [
     header: 'Applied',
     align: 'right',
     render: (row) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--wa-muted)', fontSize: 13, fontWeight: 600 }}>
+      <span className="wa-kit-meta" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
         {row.appliedLabel ?? '—'}
       </span>
     ),
@@ -508,7 +508,7 @@ const pipelineCard = (row: PipelineRow) => {
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               color: 'var(--wa-on-accent)',
               background: logoColorFor(row.company),
             }}
@@ -516,15 +516,15 @@ const pipelineCard = (row: PipelineRow) => {
             {initial}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
-            <div style={{ marginTop: 2, fontSize: 13, color: 'var(--wa-muted)' }}>{row.company}</div>
+            <div style={{ fontWeight: 800, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{row.role}</div>
+            <div className="wa-kit-meta" style={{ marginTop: 2 }}>{row.company}</div>
           </div>
         </div>
         <StatusTag tone={row.tone}>{row.stage}</StatusTag>
       </div>
       <div className="wa-flex wa-items-center wa-justify-between" style={{ marginTop: 10 }}>
         <PipelineStageTrack row={row} />
-        <span style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+        <span className="wa-kit-meta" style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
           {row.appliedLabel ?? '—'}
         </span>
       </div>
@@ -599,7 +599,7 @@ export function MemberHomeKit({
                   borderRadius: 999,
                   background: 'color-mix(in srgb, var(--wa-gold) 12%, transparent)',
                   border: '1px solid color-mix(in srgb, var(--wa-gold) 35%, transparent)',
-                  fontSize: 13,
+                  fontSize: 'var(--wa-type-meta)',
                   fontWeight: 700,
                   color: 'var(--wa-gold)',
                   flexShrink: 0,
@@ -636,7 +636,7 @@ export function MemberHomeKit({
               <div style={{ minWidth: 0, flex: 1 }}>
                 <StatusTag tone="info">{programStatus}</StatusTag>
                 <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8, textWrap: 'balance' }}>{programTitle}</h3>
-                <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 4 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>
                   Next: {nextLesson} · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
                 </p>
                 {hasModuleRow ? (
@@ -680,7 +680,7 @@ export function MemberHomeKit({
                 <WeeklyActivityChart data={weeklyActivity} />
                 <div
                   className="wa-flex wa-items-center wa-justify-between"
-                  style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}
+                  style={{ marginTop: 10, fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}
                 >
                   <span className="wa-flex wa-items-center wa-gap-2">
                     <span aria-hidden style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--wa-accent)' }} />
@@ -709,7 +709,7 @@ export function MemberHomeKit({
               <span style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
                 {points.toLocaleString()}
               </span>
-              <span style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 700 }}>pts</span>
+              <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 700 }}>pts</span>
             </div>
             {typeof pointsThisWeek === 'number' ? (
               <span
@@ -717,7 +717,7 @@ export function MemberHomeKit({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 4,
-                  fontSize: 13,
+                  fontSize: 'var(--wa-type-meta)',
                   fontWeight: 700,
                   color: 'var(--wa-success)',
                   background: 'color-mix(in srgb, var(--wa-success) 12%, transparent)',
@@ -734,7 +734,7 @@ export function MemberHomeKit({
             {pointsLedger.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 4 }}>
                 {pointsLedger.map((entry, i) => (
-                  <div key={`${entry.label}-${i}`} className="wa-flex wa-items-center wa-justify-between" style={{ fontSize: 13 }}>
+                  <div key={`${entry.label}-${i}`} className="wa-flex wa-items-center wa-justify-between" style={{ fontSize: 'var(--wa-type-meta)' }}>
                     <span className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-muted)', fontWeight: 600 }}>
                       <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: colorVar(entry.color ?? 'accent') }} />
                       {entry.label}
@@ -793,7 +793,7 @@ export function MemberHomeKit({
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 800, fontSize: 15 }}>{nextBadgeName}</div>
-                <div style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                   {nextBadgeRemaining} to go
                 </div>
               </div>
@@ -801,16 +801,16 @@ export function MemberHomeKit({
             <SegmentedProgress pct={nextBadgePercent} segments={7} color="var(--wa-gold)" label={`${nextBadgeName} badge progress`} />
             {goals.length > 0 ? (
               <div style={{ marginTop: 2, paddingTop: 14, borderTop: '1px solid var(--wa-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--wa-muted)' }} className="wa-flex wa-items-center wa-gap-2">
+                <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--wa-muted)' }} className="wa-flex wa-items-center wa-gap-2">
                   <Target size={14} aria-hidden /> Goals
                 </span>
                 {goals.slice(0, 2).map((g) => (
                   <div key={g.title}>
                     <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 3 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {g.title}
                       </span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', flexShrink: 0, marginLeft: 6, fontVariantNumeric: 'tabular-nums' }}>
                         {g.percent}%
                       </span>
                     </div>

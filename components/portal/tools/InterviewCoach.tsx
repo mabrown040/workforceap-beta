@@ -44,7 +44,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -59,7 +59,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -396,7 +396,7 @@ export default function InterviewCoach({
           Past sessions
         </h3>
         {sessionsLoading ? (
-          <p role="status" style={{ fontSize: 14, color: 'var(--wa-muted)', margin: 0 }}>
+          <p role="status" style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0 }}>
             Loading sessions…
           </p>
         ) : (
@@ -437,7 +437,7 @@ export default function InterviewCoach({
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                       <span
                         style={{
-                          fontSize: 13,
+                          fontSize: 'var(--wa-type-meta)',
                           color: 'var(--wa-muted)',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -453,11 +453,11 @@ export default function InterviewCoach({
                         <ChevronDown size={16} aria-hidden="true" color="var(--wa-muted)" />
                       )}
                     </div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--wa-text)' }}>
+                    <div style={{ fontWeight: 600, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>
                       {s.role} · {s.interviewType.charAt(0).toUpperCase() + s.interviewType.slice(1)}
                     </div>
                     {!isExpanded && s.feedback ? (
-                      <div style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+                      <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                         {s.feedback.slice(0, 100)}
                         {s.feedback.length > 100 ? '…' : ''}
                       </div>
@@ -477,7 +477,7 @@ export default function InterviewCoach({
                           <div
                             style={{
                               fontWeight: 700,
-                              fontSize: 13,
+                              fontSize: 'var(--wa-type-meta)',
                               color: 'var(--wa-muted)',
                               marginBottom: 6,
                               letterSpacing: '0.04em',
@@ -488,7 +488,7 @@ export default function InterviewCoach({
                           </div>
                           <div
                             style={{
-                              fontSize: 14,
+                              fontSize: 'var(--wa-type-body)',
                               lineHeight: 1.6,
                               whiteSpace: 'pre-wrap',
                               color: 'var(--wa-text)',
@@ -503,7 +503,7 @@ export default function InterviewCoach({
                           <div
                             style={{
                               fontWeight: 700,
-                              fontSize: 13,
+                              fontSize: 'var(--wa-type-meta)',
                               color: 'var(--wa-muted)',
                               marginBottom: 8,
                               letterSpacing: '0.04em',
@@ -514,13 +514,13 @@ export default function InterviewCoach({
                           </div>
                           {s.questions.map((q, i) => (
                             <div key={i} style={{ marginBottom: 12 }}>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--wa-text)', marginBottom: 4 }}>
+                              <div style={{ fontSize: 'var(--wa-type-body)', fontWeight: 600, color: 'var(--wa-text)', marginBottom: 4 }}>
                                 Q{i + 1}: {q}
                               </div>
                               {s.answers[i] ? (
                                 <div
                                   style={{
-                                    fontSize: 14,
+                                    fontSize: 'var(--wa-type-body)',
                                     color: 'var(--wa-muted)',
                                     paddingLeft: 12,
                                     borderLeft: '2px solid var(--wa-border)',
@@ -576,7 +576,7 @@ export default function InterviewCoach({
             style={FIELD_CONTROL}
           />
         </FormField>
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 16px', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 16px', lineHeight: 1.45 }}>
           The interviewer asks from this title.
         </p>
         <div style={{ marginBottom: 16 }}>
@@ -614,7 +614,7 @@ export default function InterviewCoach({
         >
           {loading ? 'Starting…' : 'Start interview'}
         </button>
-        <p style={{ marginTop: 12, fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+        <p style={{ marginTop: 12, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', lineHeight: 1.45 }}>
           Voice when the microphone is available. Text otherwise.
         </p>
         {pastSessionsSection}
@@ -658,11 +658,11 @@ export default function InterviewCoach({
             <Mic size={20} />
           </div>
           <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{statusCopy}</div>
-          <div style={{ fontSize: 14, opacity: 0.85 }}>
+          <div style={{ fontSize: 'var(--wa-type-body)', opacity: 0.85 }}>
             {interviewType} · {role}
           </div>
           {wsStatus === 'connecting' ? (
-            <div style={{ marginTop: 12, fontSize: 13, opacity: 0.8 }}>Allow microphone access when prompted.</div>
+            <div style={{ marginTop: 12, fontSize: 'var(--wa-type-meta)', opacity: 0.8 }}>Allow microphone access when prompted.</div>
           ) : null}
           {voiceError ? (
             <div
@@ -672,7 +672,7 @@ export default function InterviewCoach({
                 background: 'var(--wa-danger-soft)',
                 color: 'var(--wa-text)',
                 borderRadius: 'var(--wa-radius-sm)',
-                fontSize: 13,
+                fontSize: 'var(--wa-type-meta)',
                 textAlign: 'left',
                 wordBreak: 'break-word',
               }}
@@ -703,7 +703,7 @@ export default function InterviewCoach({
             Cancel
           </button>
         </div>
-        <p style={{ marginTop: 16, fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+        <p style={{ marginTop: 16, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', lineHeight: 1.45 }}>
           Voice is processed by ElevenLabs. Text fallback stays available.
         </p>
       </div>
@@ -726,7 +726,7 @@ export default function InterviewCoach({
           <h2 style={{ fontWeight: 700, fontSize: 16, color: 'var(--wa-text)', margin: 0 }}>{role || 'Interview'}</h2>
           <span
             style={{
-              fontSize: 13,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 600,
               color: 'var(--wa-muted)',
               background: 'var(--wa-surface-2)',
@@ -753,9 +753,9 @@ export default function InterviewCoach({
               borderLeft: '3px solid var(--wa-accent)',
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-muted)', marginBottom: 4 }}>Q{i + 1}</div>
-            <div style={{ fontSize: 14, color: 'var(--wa-text)', marginBottom: 8 }}>{entry.question}</div>
-            <div style={{ fontSize: 14, color: 'var(--wa-muted)' }}>{entry.answer}</div>
+            <div style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', marginBottom: 4 }}>Q{i + 1}</div>
+            <div style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)', marginBottom: 8 }}>{entry.question}</div>
+            <div style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>{entry.answer}</div>
           </div>
         ))}
         <div
@@ -768,7 +768,7 @@ export default function InterviewCoach({
         >
           <div
             style={{
-              fontSize: 13,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               color: 'var(--wa-on-accent)',
               opacity: 0.85,
@@ -777,7 +777,7 @@ export default function InterviewCoach({
           >
             Interviewer
           </div>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--wa-on-accent)', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 'var(--wa-type-body)', fontWeight: 500, color: 'var(--wa-on-accent)', lineHeight: 1.5 }}>
             {loading ? '…' : currentQuestion}
           </div>
         </div>
@@ -835,7 +835,7 @@ export default function InterviewCoach({
         <div
           style={{
             whiteSpace: 'pre-wrap',
-            fontSize: 14,
+            fontSize: 'var(--wa-type-body)',
             lineHeight: 1.7,
             color: 'var(--wa-text)',
           }}

@@ -25,7 +25,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -33,7 +33,7 @@ const kitBtnSolid: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -387,12 +387,12 @@ export default function JobMatchScorerForm({
           placeholder="https://company.com/careers/job-posting"
           disabled={loading || scrapingUrl}
         />
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
           <LinkIcon size={12} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }} />
           Direct Greenhouse, Lever, and Ashby links scrape cleanest.
         </p>
         {scrapingUrl ? (
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: 0 }}>
             <PortalInlineSpinner size={16} /> Fetching posting…
           </p>
         ) : null}
@@ -427,10 +427,10 @@ export default function JobMatchScorerForm({
               accept=".pdf,.docx,.doc,.txt"
               onChange={handleFileUpload}
               disabled={extracting || loading}
-              style={{ fontSize: 13, color: 'var(--wa-muted)' }}
+              style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}
             />
             {extracting ? (
-              <span style={{ fontSize: 13, color: 'var(--wa-muted)', marginLeft: 8 }}>Extracting text…</span>
+              <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginLeft: 8 }}>Extracting text…</span>
             ) : null}
           </div>
         )}

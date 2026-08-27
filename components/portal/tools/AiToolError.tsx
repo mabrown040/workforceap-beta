@@ -72,7 +72,7 @@ export default function AiToolError({
         background: 'var(--wa-danger-soft)',
         border: '1px solid color-mix(in srgb, var(--wa-danger) 28%, var(--wa-border))',
         color: 'var(--wa-text)',
-        fontSize: 14,
+        fontSize: 'var(--wa-type-body)',
         lineHeight: 1.5}}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: isRetryable ? '0.75rem' : 0 }}>
@@ -94,7 +94,7 @@ export default function AiToolError({
           />
 
           {isRetrying && countdown > 0 && (
-            <span style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+            <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
               Next retry in {Math.ceil(countdown / 1000)}s
             </span>
           )}

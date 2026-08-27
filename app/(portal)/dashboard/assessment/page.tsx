@@ -134,7 +134,7 @@ function AssessmentCompletedCard({
       >
         Preassessment complete
       </h2>
-      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem', fontSize: 14 }}>
+      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem', fontSize: 'var(--wa-type-body)' }}>
         {[
           completedAt ? `Finished ${formatPortalDate(completedAt)}` : null,
           programInterest,
@@ -145,34 +145,13 @@ function AssessmentCompletedCard({
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
         <Link
           href="/dashboard/training"
-          className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-          style={{
-            minHeight: 44,
-            padding: '10px 16px',
-            background: 'var(--wa-accent)',
-            color: 'var(--wa-on-accent)',
-            fontWeight: 600,
-            fontSize: 14,
-            borderRadius: 999,
-            textDecoration: 'none',
-          }}
+          className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
         >
           Continue training
         </Link>
         <Link
           href="/dashboard"
-          className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-          style={{
-            minHeight: 44,
-            padding: '10px 16px',
-            background: 'transparent',
-            color: 'var(--wa-accent)',
-            border: '1px solid var(--wa-border)',
-            fontWeight: 600,
-            fontSize: 14,
-            borderRadius: 999,
-            textDecoration: 'none',
-          }}
+          className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90"
         >
           Open home
         </Link>
@@ -196,17 +175,17 @@ function AssessmentLockedCard({
           Unlocks after intake
         </h2>
       </div>
-      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 14 }}>
+      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 'var(--wa-type-body)' }}>
         Complete intake first. Then this check unlocks.
       </p>
       {interviewRequestedAt ? (
-        <p style={{ margin: 0, color: 'var(--wa-text)', fontWeight: 600, fontSize: 14 }}>
+        <p style={{ margin: 0, color: 'var(--wa-text)', fontWeight: 600, fontSize: 'var(--wa-type-body)' }}>
           Requested on {formatPortalDate(interviewRequestedAt)} — we&apos;ll schedule it.
         </p>
       ) : interviewEligible ? (
         <MemberInterviewRequestButton />
       ) : (
-        <p style={{ margin: 0, color: 'var(--wa-muted)', fontSize: 14 }}>
+        <p style={{ margin: 0, color: 'var(--wa-muted)', fontSize: 'var(--wa-type-body)' }}>
           Finish pre-screening on home, then request intake.
         </p>
       )}
@@ -254,7 +233,7 @@ function AssessmentReady({
         <h2 style={{ margin: '0 0 0.5rem', fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
           Confirm your details first
         </h2>
-        <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 14 }}>
+        <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 'var(--wa-type-body)' }}>
           Your counselor started this account. Confirm contact and referral details before the preassessment.
           {starterProfileMissingLabels.length ? ` Missing: ${starterProfileMissingLabels.join(', ')}.` : ''}
         </p>
@@ -267,7 +246,7 @@ function AssessmentReady({
             background: 'var(--wa-accent)',
             color: 'var(--wa-on-accent)',
             fontWeight: 600,
-            fontSize: 14,
+            fontSize: 'var(--wa-type-body)',
             borderRadius: 999,
             textDecoration: 'none',
           }}

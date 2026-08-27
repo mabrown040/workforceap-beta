@@ -366,7 +366,7 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div className="wa-flex wa-items-center wa-justify-between wa-flex-wrap" style={{ gap: 12 }}>
-        <p style={{ fontSize: 14, color: 'var(--wa-muted)', margin: 0, maxWidth: '42rem' }}>
+        <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0, maxWidth: '42rem' }}>
           Real-time spoken coaching. Your program context is included automatically.
         </p>
         <HStack
@@ -472,14 +472,14 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>
-        <p style={{ fontSize: 13.5, color: bodyColor, marginTop: 6, lineHeight: 1.5 }}>{body}</p>
+        <p style={{ fontSize: 'var(--wa-type-body)', color: bodyColor, marginTop: 6, lineHeight: 1.5 }}>{body}</p>
         <div
           style={{
             marginTop: 14,
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            fontSize: 13,
+            fontSize: 'var(--wa-type-meta)',
             fontWeight: 700,
             color: ctaColor ?? (isLightBody ? 'var(--wa-text)' : 'var(--wa-on-accent)'),
           }}
@@ -773,7 +773,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
     <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 16 }}>
       <div className="wa-flex wa-items-baseline wa-justify-between wa-flex-wrap" style={{ gap: 8 }}>
         <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: 0 }}>{label}</h2>
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>Live voice · program context included</p>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: 0 }}>Live voice · program context included</p>
       </div>
 
       {/* Dark "stage" — an intentional, always-dark media surface (like a call/theater
@@ -803,11 +803,11 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               position: 'relative',
             }}
           >
-            <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700 }}>
+            <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--wa-type-meta)', fontWeight: 700 }}>
               <span aria-hidden="true" className={isLive ? 'vs-dot' : undefined} style={{ width: 8, height: 8, borderRadius: 999, background: dotColor }} />
               {status}
             </div>
-            <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.6)' }}>
               <Clock size={13} aria-hidden="true" />
               {formatClock(elapsed)}
             </div>
@@ -840,8 +840,8 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               <div style={{ height: 32, marginBottom: 12 }} aria-hidden />
             )}
 
-            <p style={{ fontSize: 14, fontWeight: 600 }}>{caption}</p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
+            <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 600 }}>{caption}</p>
+            <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.5)', marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
 
             {error ? (
               <div
@@ -856,7 +856,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   border: '1px solid rgba(173,44,77,0.4)',
                   borderRadius: 12,
                   padding: '10px 14px',
-                  fontSize: 12,
+                  fontSize: 'var(--wa-type-meta)',
                   color: 'color-mix(in srgb, var(--wa-accent) 42%, var(--wa-sidebar-text))',
                   textAlign: 'left',
                 }}
@@ -870,7 +870,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             {phase === 'idle' && askRole ? (
               <div style={{ width: '100%', maxWidth: 360, marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                     Target role
                   </span>
                   <input
@@ -885,12 +885,12 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                       borderRadius: 10,
                       padding: '10px 12px',
                       color: 'var(--wa-sidebar-text)',
-                      fontSize: 14,
+                      fontSize: 'var(--wa-type-body)',
                     }}
                   />
                 </label>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
                     Interview type
                   </span>
                   <select
@@ -903,7 +903,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                       borderRadius: 10,
                       padding: '10px 12px',
                       color: 'var(--wa-sidebar-text)',
-                      fontSize: 14,
+                      fontSize: 'var(--wa-type-body)',
                       cursor: 'pointer',
                     }}
                   >
@@ -912,7 +912,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     <option value="general">General / screening</option>
                   </select>
                 </label>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
                   Leave the role blank for a general practice interview.
                 </p>
               </div>
@@ -943,7 +943,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                       background: accent,
                       color: 'var(--wa-on-accent)',
                       fontWeight: 700,
-                      fontSize: 14,
+                      fontSize: 'var(--wa-type-body)',
                       border: 'none',
                       cursor: 'pointer',
                       display: 'inline-flex',
@@ -966,7 +966,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     background: 'rgba(255,255,255,0.12)',
                     color: 'var(--wa-sidebar-text)',
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     border: 'none',
                     cursor: 'wait',
                     opacity: 0.7,
@@ -989,7 +989,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     background: accent,
                     color: 'var(--wa-on-accent)',
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     border: 'none',
                     cursor: 'pointer',
                     display: 'inline-flex',
@@ -1016,11 +1016,11 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ fontWeight: 700, color: 'var(--wa-sidebar-text)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontWeight: 700, color: 'var(--wa-sidebar-text)', fontSize: 'var(--wa-type-body)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Captions size={15} color={accent} aria-hidden="true" />
                 Live Transcript
               </h3>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+              <span style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
                 {isLive ? 'LIVE' : phase === 'ended' ? 'SAVED' : 'IDLE'}
               </span>
             </div>
@@ -1029,7 +1029,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               ref={transcriptScrollRef}
               role="log"
               aria-live="polite"
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 12, minHeight: 0 }}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 'var(--wa-type-meta)', minHeight: 0 }}
             >
               {lines.length === 0 ? (
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', margin: 0 }}>
@@ -1088,7 +1088,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
         </div>
         </div>
       </div>
-      <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 0 }}>
+      <p style={{ textAlign: 'center', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 0 }}>
         Speak naturally with the AI coach. Your live transcript appears here while you practice.
       </p>
     </section>
@@ -1099,7 +1099,7 @@ function SessionStat({ value, label, color }: { value: string; label: string; co
   return (
     <div>
       <div style={{ fontSize: 18, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
     </div>
   );
 }
@@ -1123,7 +1123,7 @@ const bubble: React.CSSProperties = {
 };
 
 const transcriptLabelCoach: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: 'var(--wa-type-meta)',
   fontWeight: 700,
   color: 'var(--wa-accent)',
   textTransform: 'uppercase',
@@ -1132,7 +1132,7 @@ const transcriptLabelCoach: React.CSSProperties = {
 };
 
 const transcriptLabelYou: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: 'var(--wa-type-meta)',
   fontWeight: 700,
   color: 'rgba(255,255,255,0.6)',
   textTransform: 'uppercase',
@@ -1186,7 +1186,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
         <div>
           <div
             style={{
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
@@ -1203,7 +1203,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
           <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
             Resume Studio
           </h2>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+          <p style={{ fontSize: 'var(--wa-type-body)', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
             {hasResume
               ? 'Your instant structural read and top fixes — then full AI scoring, rewrites, and voice coaching.'
               : 'Add your resume to get an instant structural read, full AI scoring, and rewrites.'}
@@ -1226,7 +1226,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             {/* real structural score ring */}
             <Card>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-              <h3 style={{ fontWeight: 800, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
+              <h3 style={{ fontWeight: 800, fontSize: 'var(--wa-type-meta)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
                 Structure Score
               </h3>
               <div style={{ position: 'relative' }}>
@@ -1247,10 +1247,10 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 </svg>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: 36, fontWeight: 800, color: band?.color ?? 'var(--wa-gold)', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-muted)', letterSpacing: '0.08em' }}>OF 100</span>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', letterSpacing: '0.08em' }}>OF 100</span>
                 </div>
               </div>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>
+              <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 12 }}>
                 {band?.label}. This is the instant structural read — run the full AI analysis for market &amp; skills-match scoring.
               </p>
               </div>
@@ -1277,8 +1277,8 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                     <CheckCircle2 size={15} aria-hidden="true" />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 12 }}>No structural issues</div>
-                    <div style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-meta)' }}>No structural issues</div>
+                    <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                       Your formatting, bullets, and quantification look strong. Run the full analysis for market &amp; skills-coverage insights.
                     </div>
                   </div>
@@ -1294,7 +1294,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             <Card>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Take it further</h3>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
                 The full AI analysis scores your resume against live job-market keywords and O*NET skills coverage, then
                 rewrites weak bullets to lead with measurable impact.
               </p>
@@ -1334,11 +1334,11 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                   <Sparkles size={20} aria-hidden="true" />
                 </div>
                 <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
                   Prefer to discuss it out loud? Open the Resume Coach voice session with your draft loaded.
                 </p>
               </div>
-              <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700 }}>
+              <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', fontWeight: 700 }}>
                 <Mic size={13} aria-hidden="true" />
                 Start voice session
               </div>
@@ -1355,7 +1355,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
             <FileText size={26} aria-hidden="true" />
           </div>
           <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>No resume on file yet</h3>
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', maxWidth: 420, margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', maxWidth: 420, margin: 0, lineHeight: 1.5 }}>
             Add your resume to see an instant structure score, your top fixes, and the full AI analysis with market &amp;
             skills-match scoring.
           </p>
@@ -1368,7 +1368,7 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               background: 'var(--wa-accent)',
               color: 'var(--wa-on-accent)',
               fontWeight: 700,
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               borderRadius: 999,
               textDecoration: 'none',
               display: 'inline-flex',
@@ -1406,8 +1406,8 @@ function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
           <Sparkles size={13} aria-hidden="true" />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
-          <div style={{ fontSize: 13, color: 'var(--wa-muted)' }}>{detail}</div>
+          <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-meta)' }}>{title}</div>
+          <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>{detail}</div>
         </div>
         <AstryxLink href={TOOL_HREF['resume-rewriter']} as={Link as never} isStandalone>
           <Button label="Fix with AI" variant="primary" size="sm" />
@@ -1479,7 +1479,7 @@ function ToolkitPanel() {
   const toolCount = TOOLKIT_STEPS.reduce((n, step) => n + step.tools.length, 0);
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <p style={{ fontSize: 14, color: 'var(--wa-muted)', margin: 0 }}>
+      <p style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: 0 }}>
         {toolCount} tools. Work top to bottom.
       </p>
 
@@ -1496,7 +1496,7 @@ function ToolkitPanel() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 12,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 700,
               }}
             >
@@ -1545,12 +1545,12 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
         <div className="wa-flex wa-items-center wa-gap-2">
           <h4 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>{title}</h4>
           {tag === 'BETA' ? (
-            <span style={{ padding: '2px 8px', fontSize: 12, fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
+            <span style={{ padding: '2px 8px', fontSize: 'var(--wa-type-meta)', fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
           ) : tag === 'VOICE' ? (
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
+            <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
           ) : null}
         </div>
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>{body}</p>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 0' }}>{body}</p>
       </div>
       <Icon size={16} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-muted)' }} />
     </Link>

@@ -61,40 +61,19 @@ export default async function DevMemberAssessmentPage({
               <h2 style={{ margin: '0.75rem 0 0.35rem', fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
                 Preassessment complete
               </h2>
-              <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem', fontSize: 14 }}>
+              <p style={{ color: 'var(--wa-muted)', lineHeight: 1.5, margin: '0 0 1.25rem', fontSize: 'var(--wa-type-body)' }}>
                 Finished Aug 12, 2026 · CompTIA A+ Professional Certificate
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <Link
                   href="/dev/member/program"
-                  className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-                  style={{
-                    minHeight: 44,
-                    padding: '10px 16px',
-                    background: 'var(--wa-accent)',
-                    color: 'var(--wa-on-accent)',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    borderRadius: 999,
-                    textDecoration: 'none',
-                  }}
+                  className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
                 >
                   Continue training
                 </Link>
                 <Link
                   href="/dev/member/home"
-                  className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-                  style={{
-                    minHeight: 44,
-                    padding: '10px 16px',
-                    background: 'transparent',
-                    color: 'var(--wa-accent)',
-                    border: '1px solid var(--wa-border)',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    borderRadius: 999,
-                    textDecoration: 'none',
-                  }}
+                  className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90"
                 >
                   Open home
                 </Link>
@@ -108,7 +87,7 @@ export default async function DevMemberAssessmentPage({
                   Unlocks after intake
                 </h2>
               </div>
-              <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 14 }}>
+              <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 'var(--wa-type-body)' }}>
                 Complete intake first. Then this check unlocks.
               </p>
               <MemberInterviewRequestButton preview />

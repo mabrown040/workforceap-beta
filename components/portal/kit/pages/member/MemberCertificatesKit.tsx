@@ -184,7 +184,7 @@ export function MemberCertificatesKit({
                   >
                     <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
                       <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--wa-accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-accent)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
                         {pct}%
                       </span>
                     </div>

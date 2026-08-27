@@ -65,7 +65,8 @@ export function MemberProgressKit({
           {/* Job readiness ring */}
           <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <h2
-              style={{ fontWeight: 800, fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}
+              className="wa-kit-meta"
+              style={{ fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}
             >
               Score
             </h2>
@@ -73,24 +74,8 @@ export function MemberProgressKit({
             <p className="wa-kit-lede" style={{ marginTop: 12 }}>{readinessNote}</p>
             <a
               href={readinessCoachHref}
-              className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-              style={{
-                marginTop: 16,
-                width: '100%',
-                minHeight: 44,
-                padding: '10px 16px',
-                borderRadius: 999,
-                background: 'var(--wa-accent)',
-                color: 'var(--wa-on-accent)',
-                border: '1px solid var(--wa-accent)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                textDecoration: 'none',
-                fontSize: 14,
-                fontWeight: 600,
-              }}
+              className="wa-kit-cta wa-kit-cta--block wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+              style={{ marginTop: 16 }}
             >
               <Mic size={14} aria-hidden />
               Open readiness coach
@@ -124,7 +109,7 @@ export function MemberProgressKit({
             </div>
             )}
 
-            <h3 style={{ fontWeight: 700, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--wa-muted)', marginBottom: 12 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 'var(--wa-type-meta)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--wa-muted)', marginBottom: 12 }}>
               Milestones
             </h3>
             {milestones.length === 0 ? (
@@ -151,8 +136,8 @@ export function MemberProgressKit({
                     >
                       <Icon size={meta.iconSize} aria-hidden="true" />
                     </div>
-                    <span style={{ fontSize: 14, fontWeight: 600, flex: 1, minWidth: 0, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
-                    <span style={{ fontSize: 13, fontWeight: m.state === 'active' ? 700 : 500, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{m.when}</span>
+                    <span style={{ fontSize: 'var(--wa-type-body)', fontWeight: 600, flex: 1, minWidth: 0, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
+                    <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: m.state === 'active' ? 700 : 500, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{m.when}</span>
                   </div>
                 );
               })}

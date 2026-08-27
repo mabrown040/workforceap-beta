@@ -24,7 +24,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -177,7 +177,7 @@ export default function LinkedInHeadlineForm({
                   borderRadius: 'var(--wa-radius-sm)',
                 }}
               >
-                <span style={{ flex: 1, minWidth: 0, fontSize: 14, lineHeight: 1.5, color: 'var(--wa-text)' }}>{h}</span>
+                <span style={{ flex: 1, minWidth: 0, fontSize: 'var(--wa-type-body)', lineHeight: 1.5, color: 'var(--wa-text)' }}>{h}</span>
                 <button
                   type="button"
                   className={KIT_BTN}
@@ -192,7 +192,7 @@ export default function LinkedInHeadlineForm({
           </ul>
           {!preview ? (
             <>
-              <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-muted)' }}>
+              <p style={{ margin: 0, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                 Saved to your history.{' '}
                 <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
                   View all results

@@ -27,7 +27,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -42,7 +42,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -150,18 +150,18 @@ export default function LinkedInAboutForm({
   return (
     <form onSubmit={handleSubmit} style={{ margin: 0 }}>
       {resumeLoading ? (
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
           Looking for a resume on file…
         </p>
       ) : resumeLoaded ? (
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
           Prefills from a resume on file.{' '}
           <Link href={resumeHref} style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
             View resume
           </Link>
         </p>
       ) : (
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
           No resume on file.{' '}
           <Link href={resumeHref} style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
             Upload a resume
@@ -246,7 +246,7 @@ export default function LinkedInAboutForm({
               background: 'var(--wa-surface-2)',
               border: '1px solid var(--wa-border)',
               borderRadius: 'var(--wa-radius-sm)',
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               lineHeight: 1.55,
               whiteSpace: 'pre-wrap',
               fontFamily: 'inherit',
@@ -257,7 +257,7 @@ export default function LinkedInAboutForm({
           </pre>
           {!preview ? (
             <>
-              <p style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--wa-muted)' }}>
+              <p style={{ margin: '12px 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                 Saved to your history.{' '}
                 <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
                   View all results

@@ -79,7 +79,7 @@ const chipBase = {
   padding: '6px 10px',
   borderRadius: 999,
   background: 'var(--wa-surface)',
-  fontSize: 13,
+  fontSize: 'var(--wa-type-meta)',
   fontWeight: 600,
 } as const;
 
@@ -105,10 +105,10 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
           <div className="wa-kit-field-label">Composite</div>
           <div style={{ fontSize: 32, fontWeight: 700, color: colorForScore(composite), lineHeight: 1, marginTop: 4 }}>
             {composite}
-            <span style={{ fontSize: 14, color: 'var(--wa-muted)', fontWeight: 400 }}>/100</span>
+            <span style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', fontWeight: 400 }}>/100</span>
           </div>
         </div>
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', maxWidth: 320, margin: 0, lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', maxWidth: 320, margin: 0, lineHeight: 1.45 }}>
           Structure, O*NET coverage, and market keywords.
         </p>
       </div>
@@ -127,15 +127,15 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
 
       {payload.structural ? (
         <div>
-          <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Structure</p>
+          <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Structure</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {Object.entries(payload.structural.breakdown).map(([key, sub]) => {
               const label = STRUCTURAL_LABELS[key] ?? key;
               return (
                 <div key={key}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 13, color: 'var(--wa-text)' }}>{label}</span>
-                    <span style={{ fontSize: 13, color: colorForScore(sub.score), fontWeight: 600 }}>{sub.score}</span>
+                    <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-text)' }}>{label}</span>
+                    <span style={{ fontSize: 'var(--wa-type-meta)', color: colorForScore(sub.score), fontWeight: 600 }}>{sub.score}</span>
                   </div>
                   <Bar score={sub.score} label={label} />
                 </div>
@@ -147,7 +147,7 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
 
       {payload.occupations && payload.occupations.length > 0 ? (
         <div>
-          <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Target occupations</p>
+          <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Target occupations</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {payload.occupations.map((occ) => {
               const cov = payload.onetCoverage?.find((c) => c.onetCode === occ.onetCode);
@@ -162,8 +162,8 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--wa-text)' }}>{occ.title}</span>
-                    <span style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+                    <span style={{ fontSize: 'var(--wa-type-body)', fontWeight: 600, color: 'var(--wa-text)' }}>{occ.title}</span>
+                    <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                       {occ.onetCode} · {Math.round(occ.confidence * 100)}% fit
                     </span>
                   </div>
@@ -171,12 +171,12 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
                     <>
                       <div style={{ marginTop: 8 }}>
                         <Bar score={cov.coverageScore} label={`${occ.title} coverage`} />
-                        <p style={{ margin: '4px 0 0', fontSize: 13, textAlign: 'right', color: colorForScore(cov.coverageScore), fontWeight: 600 }}>
+                        <p style={{ margin: '4px 0 0', fontSize: 'var(--wa-type-meta)', textAlign: 'right', color: colorForScore(cov.coverageScore), fontWeight: 600 }}>
                           {cov.coverageScore}
                         </p>
                       </div>
                       {cov.topGaps.length > 0 ? (
-                        <div style={{ marginTop: 8, fontSize: 13, color: 'var(--wa-muted)' }}>
+                        <div style={{ marginTop: 8, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, color: 'var(--wa-text)', fontWeight: 600 }}>
                             <AlertCircle size={14} aria-hidden="true" />
                             Gaps
@@ -202,7 +202,7 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
 
       {payload.marketCoverage && payload.marketCoverage.some((m) => m.source !== 'unavailable') ? (
         <div>
-          <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Market keywords</p>
+          <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, margin: '0 0 8px', color: 'var(--wa-text)' }}>Market keywords</p>
           {payload.marketCoverage.map((m, i) => {
             if (m.source === 'unavailable') return null;
             const occ = payload.occupations?.[i];
@@ -217,12 +217,12 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
                   marginBottom: 8,
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--wa-muted)', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
                   <span>{occ?.title ?? 'Occupation'}</span>
                   <span>{m.postingCount} live postings</span>
                 </div>
                 {m.mustHaveMissing.length > 0 ? (
-                  <div style={{ fontSize: 13, marginBottom: 8 }}>
+                  <div style={{ fontSize: 'var(--wa-type-meta)', marginBottom: 8 }}>
                     <p style={{ fontWeight: 600, margin: '0 0 6px', color: 'var(--wa-danger)' }}>
                       Missing (≥70% of postings)
                     </p>
@@ -239,7 +239,7 @@ export default function ResumeScoreBreakdown({ payload }: { payload: ResumeScore
                   </div>
                 ) : null}
                 {m.mustHavePresent.length > 0 ? (
-                  <div style={{ fontSize: 13 }}>
+                  <div style={{ fontSize: 'var(--wa-type-meta)' }}>
                     <p style={{ fontWeight: 600, margin: '0 0 6px', color: 'var(--wa-success)' }}>On the resume</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {m.mustHavePresent.slice(0, 8).map((kw) => (
@@ -272,13 +272,13 @@ function PillarTile({ label, score, icon }: { label: string; score: number; icon
         border: '1px solid var(--wa-border)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--wa-muted)', marginBottom: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginBottom: 6 }}>
         {icon}
         <span>{label}</span>
       </div>
       <div style={{ fontSize: 24, fontWeight: 700, color: colorForScore(score), lineHeight: 1 }}>
         {score}
-        <span style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 400 }}>/100</span>
+        <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 400 }}>/100</span>
       </div>
       <div style={{ marginTop: 8 }}>
         <Bar score={score} label={label} />

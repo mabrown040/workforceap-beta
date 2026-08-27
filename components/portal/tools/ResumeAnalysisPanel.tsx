@@ -50,7 +50,7 @@ const kitBtnOutline: CSSProperties = {
   color: 'var(--wa-accent)',
   border: '1px solid var(--wa-border)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -90,7 +90,7 @@ export default function ResumeAnalysisPanel({
       <div className="resume-analysis-preview-pane">
         <div
           className="resume-analysis-preview-label"
-          style={{ color: 'var(--wa-muted)', fontSize: 13, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}
+          style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}
         >
           Your resume
         </div>
@@ -107,7 +107,7 @@ export default function ResumeAnalysisPanel({
             padding: 16,
           }}
         >
-          <pre className="resume-analysis-preview-pre" style={{ margin: 0, fontFamily: 'inherit', fontSize: 13, lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--wa-text)' }}>
+          <pre className="resume-analysis-preview-pre" style={{ margin: 0, fontFamily: 'inherit', fontSize: 'var(--wa-type-meta)', lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--wa-text)' }}>
             {resumePreview || '—'}
           </pre>
         </div>
@@ -151,7 +151,7 @@ export default function ResumeAnalysisPanel({
               border: '1px solid var(--wa-gold)',
               background: 'var(--wa-gold-soft)',
               color: 'var(--wa-text)',
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               lineHeight: 1.45,
             }}
           >
@@ -161,7 +161,7 @@ export default function ResumeAnalysisPanel({
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, margin: '20px 0' }}>
           <ProgressRing pct={clamped} size={120} color="accent" label={gaugeLabel} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}>{gaugeLabel}</span>
+          <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}>{gaugeLabel}</span>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
@@ -172,7 +172,7 @@ export default function ResumeAnalysisPanel({
                 minHeight: 32,
                 padding: '4px 12px',
                 borderRadius: 999,
-                fontSize: 13,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 600,
                 background: 'var(--wa-success-soft)',
                 color: 'var(--wa-success)',
@@ -190,7 +190,7 @@ export default function ResumeAnalysisPanel({
                 minHeight: 32,
                 padding: '4px 12px',
                 borderRadius: 999,
-                fontSize: 13,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 600,
                 background: 'var(--wa-danger-soft)',
                 color: 'var(--wa-danger)',
@@ -205,7 +205,7 @@ export default function ResumeAnalysisPanel({
 
         <pre
           className="resume-rewriter-output-content"
-          style={{ color: 'var(--wa-text)', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}
+          style={{ color: 'var(--wa-text)', fontFamily: 'inherit', fontSize: 'var(--wa-type-body)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}
         >
           {analysisText}
         </pre>
@@ -233,7 +233,7 @@ export default function ResumeAnalysisPanel({
                     <h5 style={{ margin: 0, fontSize: 15, color: 'var(--wa-text)' }}>{card.title}</h5>
                     <StatusTag tone={card.tone}>{card.status}</StatusTag>
                   </div>
-                  <p style={{ margin: '10px 0 0', color: 'var(--wa-muted)', lineHeight: 1.5, fontSize: 14 }}>
+                  <p style={{ margin: '10px 0 0', color: 'var(--wa-muted)', lineHeight: 1.5, fontSize: 'var(--wa-type-body)' }}>
                     {card.description}
                   </p>
                 </article>
@@ -261,7 +261,7 @@ export default function ResumeAnalysisPanel({
                   display: 'grid',
                   gap: 8,
                   color: 'var(--wa-text)',
-                  fontSize: 14,
+                  fontSize: 'var(--wa-type-body)',
                 }}
               >
                 {missingMetrics.map((metric) => (
@@ -298,7 +298,7 @@ export default function ResumeAnalysisPanel({
                       >
                         <div
                           style={{
-                            fontSize: 13,
+                            fontSize: 'var(--wa-type-meta)',
                             fontWeight: 700,
                             letterSpacing: '0.06em',
                             textTransform: 'uppercase',
@@ -307,7 +307,7 @@ export default function ResumeAnalysisPanel({
                         >
                           Before
                         </div>
-                        <p style={{ margin: '6px 0 0', lineHeight: 1.55, color: 'var(--wa-text)', fontSize: 14 }}>
+                        <p style={{ margin: '6px 0 0', lineHeight: 1.55, color: 'var(--wa-text)', fontSize: 'var(--wa-type-body)' }}>
                           {item.before}
                         </p>
                       </div>
@@ -321,7 +321,7 @@ export default function ResumeAnalysisPanel({
                       >
                         <div
                           style={{
-                            fontSize: 13,
+                            fontSize: 'var(--wa-type-meta)',
                             fontWeight: 700,
                             letterSpacing: '0.06em',
                             textTransform: 'uppercase',
@@ -330,7 +330,7 @@ export default function ResumeAnalysisPanel({
                         >
                           After
                         </div>
-                        <p style={{ margin: '6px 0 0', lineHeight: 1.55, color: 'var(--wa-text)', fontSize: 14 }}>
+                        <p style={{ margin: '6px 0 0', lineHeight: 1.55, color: 'var(--wa-text)', fontSize: 'var(--wa-type-body)' }}>
                           {item.after}
                         </p>
                       </div>
@@ -345,7 +345,7 @@ export default function ResumeAnalysisPanel({
         {!preview ? <ToolFollowThrough toolType="resume_analysis" /> : null}
 
         {!preview ? (
-          <p className="ai-result-saved" style={{ marginTop: 16, fontSize: 14, color: 'var(--wa-muted)' }}>
+          <p className="ai-result-saved" style={{ marginTop: 16, fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>
             Saved to history.{' '}
             <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
               View all results

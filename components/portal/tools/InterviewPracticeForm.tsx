@@ -40,7 +40,7 @@ const kitBtnSolid: CSSProperties = {
   color: 'var(--wa-on-accent)',
   border: '1px solid var(--wa-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };
@@ -55,7 +55,7 @@ const kitBtnOutline: CSSProperties = {
 const FIELD_CONTROL: CSSProperties = {
   marginTop: 4,
   width: '100%',
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   border: '1px solid var(--wa-border)',
   borderRadius: 'var(--wa-radius-sm)',
   padding: '10px 12px',
@@ -240,7 +240,7 @@ export default function InterviewPracticeForm({
             style={{ ...FIELD_CONTROL, minHeight: 120, resize: 'vertical' }}
           />
         </FormField>
-        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
+        <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
           Prefills from a resume on file. Used to tailor questions — not shown to employers.
         </p>
         <FormField label="Experience level" id="experience">
@@ -307,7 +307,7 @@ export default function InterviewPracticeForm({
           disabled={loading}
           style={{ width: '100%', accentColor: 'var(--wa-accent)' }}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--wa-muted)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
           <span>Warm-up</span>
           <span>Expert</span>
         </div>
@@ -380,7 +380,7 @@ export default function InterviewPracticeForm({
               toolName="Interview Practice"
             />
           </div>
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 16px', lineHeight: 1.45 }}>
             STAR worksheet under each question. Included in copy, PDF, and .txt.
           </p>
           <ol className="interview-practice-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 16 }}>
@@ -406,11 +406,11 @@ export default function InterviewPracticeForm({
                     {i + 1}. {q.question}
                   </div>
                   <StatusTag tone={tone}>{q.type}</StatusTag>
-                  <p className="interview-practice-tip" style={{ fontSize: 14, color: 'var(--wa-muted)', margin: '8px 0 0', lineHeight: 1.5 }}>
+                  <p className="interview-practice-tip" style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', margin: '8px 0 0', lineHeight: 1.5 }}>
                     {q.tip}
                   </p>
                   {q.starHint ? (
-                    <p className="interview-practice-star" style={{ fontSize: 13, color: 'var(--wa-accent)', margin: '8px 0 0' }}>
+                    <p className="interview-practice-star" style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-accent)', margin: '8px 0 0' }}>
                       STAR hint: {q.starHint}
                     </p>
                   ) : null}
@@ -458,12 +458,12 @@ export default function InterviewPracticeForm({
                         background: 'var(--wa-surface-2)',
                         borderRadius: 'var(--wa-radius-sm)',
                         border: '1px solid var(--wa-border)',
-                        fontSize: 14,
+                        fontSize: 'var(--wa-type-body)',
                         color: 'var(--wa-text)',
                         lineHeight: 1.5,
                       }}
                     >
-                      <strong style={{ fontSize: 13, color: 'var(--wa-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                      <strong style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                         Example
                       </strong>
                       <p style={{ margin: '6px 0 0' }}>{q.exampleAnswer}</p>
@@ -475,7 +475,7 @@ export default function InterviewPracticeForm({
           </ol>
           {!preview ? <ToolFollowThrough toolType="interview_practice" /> : null}
           {!preview ? (
-            <p className="ai-result-saved" style={{ marginTop: 16, fontSize: 14, color: 'var(--wa-muted)' }}>
+            <p className="ai-result-saved" style={{ marginTop: 16, fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>
               Saved to history.{' '}
               <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 600 }}>
                 View all results

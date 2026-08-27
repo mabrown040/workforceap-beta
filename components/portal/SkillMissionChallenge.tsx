@@ -126,7 +126,7 @@ const KIT_PRIMARY: React.CSSProperties = {
   border: 'none',
   borderRadius: 999,
   fontWeight: 700,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   cursor: 'pointer',
 };
 
@@ -967,7 +967,7 @@ function PhaseCelebration({
       <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--wa-text)' }}>
         Mission passed
       </h2>
-      <p style={{ margin: '0 0 1.5rem', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.55 }}>
+      <p style={{ margin: '0 0 1.5rem', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', lineHeight: 1.55 }}>
         The STAR story and resume bullet stay here. Open Resume Studio when you want them in a draft.
       </p>
 

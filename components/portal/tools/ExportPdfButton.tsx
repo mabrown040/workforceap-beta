@@ -20,7 +20,7 @@ const kitBtnOutline: CSSProperties = {
   color: 'var(--wa-accent)',
   border: '1px solid var(--wa-border)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   cursor: 'pointer',
 };

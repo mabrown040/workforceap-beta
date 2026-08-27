@@ -24,7 +24,7 @@ export function MemberCounselorSessionKit({ title, dateLabel, output, backLabel 
         <Link
           href="/dashboard/counselor"
           className="wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-accent)', textDecoration: 'none' }}
         >
           <ArrowLeft size={13} aria-hidden="true" /> {backLabel}
         </Link>
@@ -35,7 +35,7 @@ export function MemberCounselorSessionKit({ title, dateLabel, output, backLabel 
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              fontSize: 12,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               color: 'var(--wa-accent)',
               letterSpacing: '0.12em',
@@ -45,11 +45,11 @@ export function MemberCounselorSessionKit({ title, dateLabel, output, backLabel 
             <MessagesSquare size={13} aria-hidden="true" />
             <span>{title}</span>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{dateLabel}</p>
+          <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{dateLabel}</p>
         </div>
 
         <Card>
-          <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.65, fontSize: 14, color: 'var(--wa-text)' }}>{output}</div>
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.65, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{output}</div>
         </Card>
       </div>
     </DesignSurface>

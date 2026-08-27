@@ -74,7 +74,7 @@ const kitPrimaryBtn = {
   background: 'var(--wa-accent)',
   color: 'var(--wa-on-accent)',
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   borderRadius: 999,
   border: 'none',
   cursor: 'pointer',
@@ -109,7 +109,7 @@ function Chip({
         borderRadius: 999,
         background: palette.bg,
         border: palette.border,
-        fontSize: 13,
+        fontSize: 'var(--wa-type-meta)',
         fontWeight: 700,
         color: palette.fg,
       }}
@@ -127,7 +127,7 @@ function LockedCard({ mission }: { mission: SkillMissionSummaryItem }) {
         <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
           {mission.missionName}
         </h4>
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+        <p style={{ margin: 0, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', lineHeight: 1.45 }}>
           Finish <strong style={{ color: 'var(--wa-text)' }}>{mission.courseTitle}</strong> to unlock
         </p>
       </div>
@@ -155,7 +155,7 @@ function ReadyCard({
           <span
             style={{
               display: 'inline-block',
-              fontSize: 13,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
@@ -168,7 +168,7 @@ function ReadyCard({
           <h4 style={{ margin: 0, fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--wa-muted)', lineHeight: 1.45 }}>
+          <p style={{ margin: '4px 0 0', fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', lineHeight: 1.45 }}>
             {mission.missionTagline}
           </p>
         </div>
@@ -212,7 +212,7 @@ function PassedCard({
           <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
-          <p style={{ margin: '2px 0 0', fontSize: 13, fontWeight: 600, color: 'var(--wa-success)' }}>
+          <p style={{ margin: '2px 0 0', fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-success)' }}>
             {formatPassedDate(mission.completedAt)}
           </p>
         </div>
@@ -229,7 +229,7 @@ function PassedCard({
       ) : null}
 
       {result?.resumeBullet ? (
-        <p style={{ margin: '0 0 8px', fontSize: 13, fontStyle: 'italic', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+        <p style={{ margin: '0 0 8px', fontSize: 'var(--wa-type-meta)', fontStyle: 'italic', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
           &ldquo;{result.resumeBullet}&rdquo;
         </p>
       ) : null}
@@ -242,7 +242,7 @@ function PassedCard({
             display: 'inline-flex',
             alignItems: 'center',
             minHeight: 44,
-            fontSize: 14,
+            fontSize: 'var(--wa-type-body)',
             color: 'var(--wa-accent)',
             textDecoration: 'none',
             fontWeight: 700,
@@ -280,7 +280,7 @@ function RetryCard({
           <span
             style={{
               display: 'inline-block',
-              fontSize: 13,
+              fontSize: 'var(--wa-type-meta)',
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
@@ -298,7 +298,7 @@ function RetryCard({
       </div>
 
       {preview ? (
-        <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.5 }}>{preview}</p>
+        <p style={{ margin: '0 0 12px', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', lineHeight: 1.5 }}>{preview}</p>
       ) : null}
 
       <button
@@ -348,7 +348,7 @@ export default function SkillMissionPanel({
           <div style={{ marginBottom: 16 }}>
             <p
               style={{
-                fontSize: 13,
+                fontSize: 'var(--wa-type-meta)',
                 fontWeight: 700,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
@@ -361,7 +361,7 @@ export default function SkillMissionPanel({
             <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--wa-text)' }}>
               Skill missions
             </h3>
-            <p style={{ margin: 0, fontSize: 14, color: 'var(--wa-muted)', lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
               One pass per course. Resume bullet and STAR story.
             </p>
           </div>
@@ -382,7 +382,7 @@ export default function SkillMissionPanel({
             <span style={{ fontSize: 26, fontWeight: 800, color: 'var(--wa-accent)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
               {summary.careerReadinessPct}%
             </span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)' }}>passed</span>
+            <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 600, color: 'var(--wa-muted)' }}>passed</span>
           </div>
           <Chip tone="success">{summary.passedCount} passed</Chip>
           {summary.readyCount > 0 ? <Chip tone="accent">{summary.readyCount} ready</Chip> : null}
@@ -396,7 +396,7 @@ export default function SkillMissionPanel({
 
         {summary.demonstratedSkills.length > 0 ? (
           <div style={{ marginBottom: 16 }}>
-            <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: 'var(--wa-muted)' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-muted)' }}>
               Demonstrated skills
             </p>
             <div className="wa-flex wa-flex-wrap" style={{ gap: 6 }}>

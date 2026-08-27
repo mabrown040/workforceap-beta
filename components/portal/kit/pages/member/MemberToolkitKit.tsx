@@ -204,7 +204,7 @@ export function MemberToolkitKit({
                 <span
                   aria-hidden="true"
                   style={{
-                    fontSize: 13,
+                    fontSize: 'var(--wa-type-meta)',
                     fontWeight: 800,
                     fontVariantNumeric: 'tabular-nums',
                     color: 'var(--wa-muted)',
@@ -215,7 +215,7 @@ export function MemberToolkitKit({
                 </span>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0, textWrap: 'balance' }}>{tool.title}</h3>
-                  <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>{tool.body}</p>
+                  <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 0' }}>{tool.body}</p>
                 </div>
                 <span
                   style={{
@@ -228,7 +228,7 @@ export function MemberToolkitKit({
                     color: 'var(--wa-accent)',
                     border: '1px solid var(--wa-border)',
                     fontWeight: 600,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     borderRadius: 999,
                     flexShrink: 0,
                   }}
@@ -294,14 +294,14 @@ export function MemberToolkitKit({
             </div>
             <div>
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: 0 }}>Career coach</h3>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>
+              <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 0' }}>
                 Pick a tool above, or open the coach.
               </p>
             </div>
             {advisorOnline && onSend ? (
               <span
                 className="wa-flex wa-items-center wa-gap-1"
-                style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 700, color: 'var(--wa-success)' }}
+                style={{ marginLeft: 'auto', fontSize: 'var(--wa-type-meta)', fontWeight: 700, color: 'var(--wa-success)' }}
               >
                 <Circle size={6} fill="currentColor" aria-hidden="true" />
                 Online
@@ -324,7 +324,7 @@ export function MemberToolkitKit({
                coach instead. */
             <div>
               {messages.map((m) => (
-                <p key={m.id} style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '0 0 8px' }}>
+                <p key={m.id} style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '0 0 8px' }}>
                   {m.text}
                 </p>
               ))}
@@ -342,7 +342,7 @@ export function MemberToolkitKit({
                     color: 'var(--wa-on-accent)',
                     border: '1px solid var(--wa-accent)',
                     fontWeight: 600,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     borderRadius: 999,
                     textDecoration: 'none',
                   }}

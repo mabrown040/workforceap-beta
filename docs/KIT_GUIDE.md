@@ -139,7 +139,9 @@ There are two status vocabularies. Don't invent a third.
 | `muted` | gray | inactive / default |
 
 **`alert` vs `danger` is deliberate**: a failed/rejected row must not read as just another
-brand-magenta highlight — use `danger` there (see the note in `tokens.ts`).
+brand-magenta highlight — use `danger` there (see the note in `tokens.ts`). When kit tones
+feed Astryx `Token` (`astryxMap.toneToTokenColor`), `alert` maps to `pink` and `danger` maps
+to `red`. Do not map both to `red`.
 
 **App-wide `StatusTone`** (`lib/ui/statusColors.ts`) — `success | warning | danger | info |
 neutral`, returning `{ fg, bg, border }` triples for badges/chips outside the kit. **Gotcha:** its

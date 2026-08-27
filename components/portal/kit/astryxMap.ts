@@ -29,7 +29,8 @@ export function toneToTokenColor(tone: KitTone): 'green' | 'yellow' | 'pink' | '
     case 'warn':
       return 'yellow';
     case 'alert':
-      return 'red';
+      /* Brand magenta — distinct from danger red. KIT_GUIDE §4. */
+      return 'pink';
     case 'danger':
       return 'red';
     case 'info':

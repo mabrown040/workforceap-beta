@@ -118,17 +118,6 @@ const OVERLAY_STYLE: React.CSSProperties = {
   padding: '1rem',
 };
 
-const KIT_PRIMARY: React.CSSProperties = {
-  minHeight: 44,
-  padding: '10px 18px',
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  border: 'none',
-  borderRadius: 999,
-  fontWeight: 700,
-  fontSize: 'var(--wa-type-body)',
-  cursor: 'pointer',
-};
 
 function previewPassResult(
   mission: SkillMissionSummaryItem,
@@ -638,11 +627,14 @@ function PhaseScenario({
           gap: '0.4rem',
           padding: '0.3rem 0.7rem',
           borderRadius: '9999px',
-          background: correctCount === 3 ? 'rgba(74,155,79,0.1)' : 'rgba(194,120,0,0.1)',
-          border: correctCount === 3 ? '1px solid rgba(74,155,79,0.22)' : '1px solid rgba(194,120,0,0.22)',
-          fontSize: '0.78rem',
+          background: correctCount === 3 ? 'var(--wa-success-soft)' : 'var(--wa-gold-soft)',
+          border:
+            correctCount === 3
+              ? '1px solid color-mix(in srgb, var(--wa-success) 22%, transparent)'
+              : '1px solid color-mix(in srgb, var(--wa-gold) 22%, transparent)',
+          fontSize: 'var(--wa-type-meta)',
           fontWeight: 700,
-          color: correctCount === 3 ? 'var(--color-green)' : 'var(--color-amber)',
+          color: correctCount === 3 ? 'var(--wa-success)' : 'var(--wa-gold)',
           marginBottom: '1rem',
         }}
       >
@@ -650,10 +642,10 @@ function PhaseScenario({
         {correctCount}/3 quiz questions correct
       </div>
 
-      <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.15rem', fontWeight: 800, paddingRight: '1.5rem' }}>
+      <h3 style={{ margin: '0 0 0.35rem', fontSize: 'var(--wa-type-body)', fontWeight: 800, paddingRight: '1.5rem' }}>
         Now show it in action
       </h3>
-      <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+      <p style={{ margin: '0 0 1rem', fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
         Describe a real or realistic situation where you&apos;d apply these skills.
       </p>
 
@@ -662,12 +654,12 @@ function PhaseScenario({
         style={{
           margin: '0 0 1rem',
           padding: '0.85rem 1rem 0.85rem 1.25rem',
-          borderLeft: '3px solid var(--color-accent)',
-          background: 'color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-low, rgba(0,0,0,0.03)))',
-          borderRadius: '0 0.6rem 0.6rem 0',
-          fontSize: '0.92rem',
+          borderLeft: '3px solid var(--wa-accent)',
+          background: 'color-mix(in srgb, var(--wa-accent) 5%, var(--wa-surface))',
+          borderRadius: '0 var(--wa-radius-sm) var(--wa-radius-sm) 0',
+          fontSize: 'var(--wa-type-body)',
           lineHeight: 1.65,
-          color: 'var(--color-on-surface)',
+          color: 'var(--wa-text)',
           fontStyle: 'italic',
         }}
       >
@@ -684,20 +676,20 @@ function PhaseScenario({
           style={{
             width: '100%',
             padding: '0.85rem 1rem',
-            borderRadius: '0.65rem',
-            border: '1.5px solid var(--outline-variant)',
-            background: 'var(--surface-container-low, rgba(0,0,0,0.02))',
-            fontSize: '0.9rem',
+            borderRadius: 'var(--wa-radius-sm)',
+            border: '1.5px solid var(--wa-border)',
+            background: 'var(--wa-surface-2)',
+            fontSize: 'var(--wa-type-body)',
             lineHeight: 1.6,
-            color: 'var(--color-on-surface)',
+            color: 'var(--wa-text)',
             resize: 'vertical',
             boxSizing: 'border-box',
             outline: 'none',
             fontFamily: 'inherit',
-            transition: 'border-color 0.15s',
+            transition: 'border-color var(--wa-dur-fast)',
           }}
-          onFocus={(e) => { e.target.style.borderColor = 'var(--color-accent)'; }}
-          onBlur={(e) => { e.target.style.borderColor = 'var(--outline-variant)'; }}
+          onFocus={(e) => { e.target.style.borderColor = 'var(--wa-accent)'; }}
+          onBlur={(e) => { e.target.style.borderColor = 'var(--wa-border)'; }}
         />
       </div>
 
@@ -705,8 +697,8 @@ function PhaseScenario({
       <p
         style={{
           margin: '0 0 0.6rem',
-          fontSize: '0.76rem',
-          color: wordCount >= 150 ? 'var(--color-green)' : 'var(--color-on-surface-variant)',
+          fontSize: 'var(--wa-type-meta)',
+          color: wordCount >= 150 ? 'var(--wa-success)' : 'var(--wa-muted)',
           fontWeight: wordCount >= 150 ? 700 : 400,
         }}
       >
@@ -717,10 +709,10 @@ function PhaseScenario({
       <div
         style={{
           padding: '0.6rem 0.85rem',
-          borderRadius: '0.55rem',
-          background: 'var(--surface-container, rgba(0,0,0,0.04))',
-          fontSize: '0.8rem',
-          color: 'var(--color-on-surface-variant)',
+          borderRadius: 'var(--wa-radius-sm)',
+          background: 'var(--wa-surface-2)',
+          fontSize: 'var(--wa-type-body)',
+          color: 'var(--wa-muted)',
           marginBottom: '1.25rem',
           lineHeight: 1.5,
         }}
@@ -733,11 +725,11 @@ function PhaseScenario({
           role="alert"
           style={{
             padding: '0.65rem 0.85rem',
-            borderRadius: '0.55rem',
-            background: 'rgba(194,60,60,0.08)',
-            border: '1px solid rgba(194,60,60,0.25)',
-            fontSize: '0.85rem',
-            color: 'var(--color-error)',
+            borderRadius: 'var(--wa-radius-sm)',
+            background: 'var(--wa-danger-soft)',
+            border: '1px solid color-mix(in srgb, var(--wa-danger) 25%, transparent)',
+            fontSize: 'var(--wa-type-body)',
+            color: 'var(--wa-danger)',
             marginBottom: '1rem',
           }}
         >
@@ -748,11 +740,10 @@ function PhaseScenario({
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <button
           type="button"
-          className="btn btn-primary"
+          className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100"
           onClick={handleSubmit}
           disabled={charCount < 20 || loading}
           style={{
-            ...KIT_PRIMARY,
             opacity: charCount < 20 ? 0.5 : 1,
             display: 'flex',
             alignItems: 'center',
@@ -767,8 +758,8 @@ function PhaseScenario({
                   width: '0.85rem',
                   height: '0.85rem',
                   borderRadius: '50%',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  borderTopColor: '#fff',
+                  border: '2px solid color-mix(in srgb, var(--wa-on-accent) 30%, transparent)',
+                  borderTopColor: 'var(--wa-on-accent)',
                   animation: 'spin 0.7s linear infinite',
                 }}
               />
@@ -782,13 +773,15 @@ function PhaseScenario({
           type="button"
           onClick={onBack}
           disabled={loading}
+          className="wa-kit-focus"
           style={{
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            fontSize: '0.85rem',
-            color: 'var(--color-on-surface-variant)',
+            fontSize: 'var(--wa-type-body)',
+            color: 'var(--wa-muted)',
             padding: '0.5rem',
+            minHeight: 44,
             textDecoration: 'underline',
           }}
         >

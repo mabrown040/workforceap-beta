@@ -240,20 +240,20 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
 
       <p
         style={{
-          fontSize: '0.7rem',
+          fontSize: 'var(--wa-type-meta)',
           fontWeight: 700,
-          letterSpacing: '0.1em',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          color: 'var(--color-accent)',
+          color: 'var(--wa-accent)',
           margin: '0 0 0.5rem',
         }}
       >
         Skill Mission
       </p>
-      <h2 style={{ margin: '0 0 0.4rem', fontSize: '1.5rem', fontWeight: 900, lineHeight: 1.2, paddingRight: '2rem' }}>
+      <h2 style={{ margin: '0 0 0.4rem', fontSize: '1.5rem', fontWeight: 900, lineHeight: 1.2, paddingRight: '2rem', color: 'var(--wa-text)' }}>
         {mission.missionName}
       </h2>
-      <p style={{ margin: '0 0 1rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+      <p style={{ margin: '0 0 1rem', fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)', lineHeight: 1.55 }}>
         {mission.missionTagline}
       </p>
 
@@ -265,10 +265,11 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
             gap: '0.25rem',
             padding: '0.3rem 0.65rem',
             borderRadius: '9999px',
-            background: 'var(--surface-container-high, rgba(0,0,0,0.06))',
-            fontSize: '0.8rem',
+            background: 'var(--wa-surface-2)',
+            border: '1px solid var(--wa-border)',
+            fontSize: 'var(--wa-type-meta)',
             fontWeight: 600,
-            color: 'var(--color-on-surface-variant)',
+            color: 'var(--wa-muted)',
           }}
         >
           <Clock size={14} aria-hidden="true" /> ~{mission.estimatedMinutes} min
@@ -280,10 +281,11 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
             gap: '0.25rem',
             padding: '0.3rem 0.65rem',
             borderRadius: '9999px',
-            background: 'var(--surface-container-high, rgba(0,0,0,0.06))',
-            fontSize: '0.8rem',
+            background: 'var(--wa-surface-2)',
+            border: '1px solid var(--wa-border)',
+            fontSize: 'var(--wa-type-meta)',
             fontWeight: 600,
-            color: 'var(--color-on-surface-variant)',
+            color: 'var(--wa-muted)',
           }}
         >
           <ClipboardList size={14} aria-hidden="true" /> 3 quiz questions + scenario
@@ -292,7 +294,16 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
 
       {mission.skillLabels.length > 0 && (
         <div style={{ marginBottom: '1.1rem' }}>
-          <p style={{ margin: '0 0 0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+          <p
+            style={{
+              margin: '0 0 0.4rem',
+              fontSize: 'var(--wa-type-meta)',
+              fontWeight: 700,
+              color: 'var(--wa-muted)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+            }}
+          >
             Skills you&apos;ll prove:
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
@@ -306,16 +317,25 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
       <div
         style={{
           padding: '0.85rem 1rem',
-          borderRadius: '0.7rem',
-          background: 'var(--surface-container, rgba(0,0,0,0.04))',
-          border: '1px solid var(--outline-variant)',
+          borderRadius: 'var(--wa-radius-sm)',
+          background: 'var(--wa-surface-2)',
+          border: '1px solid var(--wa-border)',
           marginBottom: '1.5rem',
         }}
       >
-        <p style={{ margin: '0 0 0.3rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+        <p
+          style={{
+            margin: '0 0 0.3rem',
+            fontSize: 'var(--wa-type-meta)',
+            fontWeight: 700,
+            color: 'var(--wa-muted)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}
+        >
           What you&apos;ll prove:
         </p>
-        <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-on-surface)', lineHeight: 1.55, fontStyle: 'italic' }}>
+        <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)', lineHeight: 1.55, fontStyle: 'italic' }}>
           &ldquo;{scenarioPreview}&rdquo;
         </p>
       </div>

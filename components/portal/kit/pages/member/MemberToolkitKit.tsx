@@ -217,22 +217,7 @@ export function MemberToolkitKit({
                   <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0, textWrap: 'balance' }}>{tool.title}</h3>
                   <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '4px 0 0' }}>{tool.body}</p>
                 </div>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: 44,
-                    padding: '10px 16px',
-                    background: 'transparent',
-                    color: 'var(--wa-accent)',
-                    border: '1px solid var(--wa-border)',
-                    fontWeight: 600,
-                    fontSize: 'var(--wa-type-body)',
-                    borderRadius: 999,
-                    flexShrink: 0,
-                  }}
-                >
+                <span className="wa-kit-cta wa-kit-cta--ghost" style={{ pointerEvents: 'none' }}>
                   {tool.cta}
                 </span>
               </>
@@ -331,21 +316,8 @@ export function MemberToolkitKit({
               {coachLink ? (
                 <Link
                   href={coachLink}
-                  className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    marginTop: 16,
-                    minHeight: 44,
-                    padding: '10px 16px',
-                    background: 'var(--wa-accent)',
-                    color: 'var(--wa-on-accent)',
-                    border: '1px solid var(--wa-accent)',
-                    fontWeight: 600,
-                    fontSize: 'var(--wa-type-body)',
-                    borderRadius: 999,
-                    textDecoration: 'none',
-                  }}
+                  className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                  style={{ marginTop: 16 }}
                 >
                   Open career coach
                 </Link>

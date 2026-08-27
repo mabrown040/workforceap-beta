@@ -68,17 +68,8 @@ type MissionEvalResponse =
     }
   | { ok: false; error: string };
 
-const kitPrimaryBtn = {
-  minHeight: 44,
-  padding: '10px 16px',
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  fontWeight: 600,
-  fontSize: 'var(--wa-type-body)',
-  borderRadius: 999,
-  border: 'none',
-  cursor: 'pointer',
-} as const;
+const kitCtaClass =
+  'wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
 
 function formatPassedDate(date: Date | null): string {
   if (!date) return '';
@@ -183,7 +174,7 @@ function ReadyCard({
         </div>
       ) : null}
 
-      <button type="button" className="wa-kit-focus hover:wa-opacity-90" onClick={onStart} style={kitPrimaryBtn}>
+      <button type="button" className={kitCtaClass} onClick={onStart}>
         Start mission
       </button>
     </article>
@@ -237,16 +228,7 @@ function PassedCard({
       {mission.aiToolResultId ? (
         <a
           href={resumeStudioHref}
-          className="wa-kit-focus"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            minHeight: 44,
-            fontSize: 'var(--wa-type-body)',
-            color: 'var(--wa-accent)',
-            textDecoration: 'none',
-            fontWeight: 700,
-          }}
+          className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus"
         >
           Open resume studio
         </a>
@@ -303,9 +285,9 @@ function RetryCard({
 
       <button
         type="button"
-        className="wa-kit-focus hover:wa-opacity-90"
+        className={kitCtaClass}
         onClick={onRetry}
-        style={{ ...kitPrimaryBtn, background: 'var(--wa-gold)' }}
+        style={{ background: 'var(--wa-gold)' }}
       >
         Retry mission
       </button>

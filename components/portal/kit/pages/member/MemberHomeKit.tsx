@@ -664,20 +664,7 @@ export function MemberHomeKit({
                 <div style={{ marginTop: 12 }}>
                   <Link
                     href={resumeHref ?? '/dashboard/program'}
-                    className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      minHeight: 44,
-                      padding: '8px 16px',
-                      background: 'var(--wa-accent)',
-                      color: 'var(--wa-on-accent)',
-                      fontWeight: 700,
-                      fontSize: 'var(--wa-type-body)',
-                      borderRadius: 999,
-                      textDecoration: 'none',
-                    }}
+                    className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                   >
                     {programTitle ? (
                       <>

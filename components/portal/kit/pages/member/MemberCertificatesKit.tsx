@@ -131,20 +131,8 @@ export function MemberCertificatesKit({
                         <a
                           href="/api/member/certifications/export"
                           download="my-certificates.csv"
-                          className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none wa-flex wa-items-center wa-gap-1"
+                          className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
                           title="Download your certificate records (CSV)"
-                          style={{
-                            minHeight: 44,
-                            padding: '10px 12px',
-                            background: 'var(--wa-accent)',
-                            color: 'var(--wa-on-accent)',
-                            fontWeight: 600,
-                            fontSize: 'var(--wa-type-body)',
-                            borderRadius: 999,
-                            border: 'none',
-                            cursor: 'pointer',
-                            textDecoration: 'none',
-                          }}
                         >
                           <Download size={14} aria-hidden="true" /> Download
                         </a>

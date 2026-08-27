@@ -185,21 +185,7 @@ export default async function DevMemberJobsPage({
 
 function ProofCopy() {
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 44,
-        padding: '10px 16px',
-        background: 'transparent',
-        color: 'var(--wa-accent)',
-        border: '1px solid var(--wa-border)',
-        fontWeight: 600,
-        fontSize: 'var(--wa-type-body)',
-        borderRadius: 999,
-      }}
-    >
+    <span className="wa-kit-cta wa-kit-cta--ghost">
       Copy message
     </span>
   );

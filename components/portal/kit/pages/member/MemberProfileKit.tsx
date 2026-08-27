@@ -318,17 +318,9 @@ export function MemberProfileKit({
               type="button"
               onClick={handleSaveAccount}
               disabled={!live || savingAccount}
-              className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+              className="wa-kit-cta wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
               style={{
                 marginTop: 20,
-                minHeight: 44,
-                padding: '10px 20px',
-                background: 'var(--wa-accent)',
-                color: 'var(--wa-on-accent)',
-                fontWeight: 600,
-                fontSize: 'var(--wa-type-body)',
-                borderRadius: 999,
-                border: 'none',
                 cursor: !live || savingAccount ? 'not-allowed' : 'pointer',
                 opacity: !live || savingAccount ? 0.7 : 1,
               }}
@@ -392,19 +384,7 @@ export function MemberProfileKit({
               </p>
               <a
                 href={`/forgot-password?email=${encodeURIComponent(email)}`}
-                className="wa-kit-focus hover:wa-bg-[var(--wa-surface-2)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  minHeight: 44,
-                  padding: '10px 20px',
-                  borderRadius: 999,
-                  border: '1px solid var(--wa-border)',
-                  color: 'var(--wa-text)',
-                  fontWeight: 600,
-                  fontSize: 'var(--wa-type-body)',
-                  textDecoration: 'none',
-                }}
+                className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-bg-[var(--wa-surface-2)] active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[background-color,transform] wa-duration-150 motion-reduce:wa-transition-none"
               >
                 Reset password
               </a>

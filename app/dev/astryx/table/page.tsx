@@ -798,7 +798,7 @@ function TaskDetailPanel({
           </MetadataListItem>
           <MetadataListItem label="Assignee">
             <HStack gap={2} vAlign="center">
-              <Avatar name={task.assignee} size="xsm" />
+              <Avatar name={task.assignee} size="xsmall" />
               <Text type="body">{task.assignee}</Text>
             </HStack>
           </MetadataListItem>
@@ -1066,7 +1066,7 @@ export default function DataTableTemplate() {
                             </Text>
                           </TableCell>
                           <TableCell>
-                            <Avatar name={task.assignee} size="xsm" />
+                            <Avatar name={task.assignee} size="xsmall" />
                           </TableCell>
                           <TableCell>
                             <DropdownMenu

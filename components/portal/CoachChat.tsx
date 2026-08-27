@@ -264,7 +264,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
               <ChatMessage
                 key={m.id}
                 sender="assistant"
-                avatar={<Avatar name={t('chat.coach')} size="sm" />}
+                avatar={<Avatar name={t('chat.coach')} size="small" />}
                 name={t('chat.coach')}
               >
                 <Markdown density="compact" headingLevelStart={3}>
@@ -276,7 +276,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
           {sending ? (
             <ChatMessage
               sender="assistant"
-              avatar={<Avatar name={t('chat.coach')} size="sm" />}
+              avatar={<Avatar name={t('chat.coach')} size="small" />}
               name={t('chat.coach')}
             >
               <Spinner size="sm" aria-label={t('chat.typingAria')} />

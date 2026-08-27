@@ -100,34 +100,30 @@ export function MemberJobsBoard({
             Search beyond this board
           </p>
           <p className="wa-kit-lede" style={{ margin: 0 }}>
-            If no city is saved yet, start with Austin metro.
+            Partner openings are listed above. Other boards cover roles that are not posted here.
           </p>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-              gap: 12,
-              marginTop: 16,
-            }}
-          >
+          <ul style={{ listStyle: 'none', margin: '16px 0 0', padding: 0 }}>
             {[
-              { label: 'Indeed', bestFor: 'volume', note: 'Largest feed for Austin metro roles.' },
-              { label: 'LinkedIn', bestFor: 'network', note: 'Warm intros and recruiter traffic.' },
-              { label: 'WorkInTexas', bestFor: 'local', note: 'Texas workforce listings and WIOA-adjacent roles.' },
-            ].map((engine) => (
-              <div key={engine.label} className="wa-kit-card wa-kit-card--sm">
-                <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)', margin: '0 0 4px' }}>
+              { label: 'Indeed', note: 'Largest public job feed.' },
+              { label: 'LinkedIn', note: 'Recruiter traffic and warm intros.' },
+              { label: 'WorkInTexas', note: 'Texas workforce listings.' },
+            ].map((engine, i) => (
+              <li
+                key={engine.label}
+                className="wa-flex wa-items-baseline wa-justify-between wa-gap-3"
+                style={{
+                  padding: '12px 0',
+                  borderTop: i === 0 ? '1px solid var(--wa-border)' : undefined,
+                  borderBottom: '1px solid var(--wa-border)',
+                }}
+              >
+                <span style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700, color: 'var(--wa-text)' }}>
                   {engine.label}
-                </p>
-                <p className="wa-kit-meta" style={{ fontWeight: 700, color: 'var(--wa-accent)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Best for: {engine.bestFor}
-                </p>
-                <p className="wa-kit-lede" style={{ margin: 0 }}>
-                  {engine.note}
-                </p>
-              </div>
+                </span>
+                <span className="wa-kit-meta">{engine.note}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </DesignSurface>

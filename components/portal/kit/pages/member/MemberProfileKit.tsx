@@ -304,7 +304,7 @@ export function MemberProfileKit({
                 ref={accountErrorRef}
                 role="alert"
                 tabIndex={-1}
-                style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-accent)', fontWeight: 600, marginTop: 12 }}
+                style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-danger)', fontWeight: 600, marginTop: 12 }}
               >
                 {accountError}
               </p>
@@ -337,7 +337,7 @@ export function MemberProfileKit({
                 ref={prefErrorRef}
                 role="alert"
                 tabIndex={-1}
-                style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-accent)', fontWeight: 600, marginBottom: 12 }}
+                style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-danger)', fontWeight: 600, marginBottom: 12 }}
               >
                 {prefError}
               </p>

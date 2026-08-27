@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKit';
 
 /**
- * Storybook-lite showcase — MemberJobsKit EMPTY state (no applications, no
- * recommendations yet). Preview-only, no auth/DB.
+ * Storybook-lite — tracked applications with no AI matches (the live state
+ * that truncated empty-recommendation copy).
  */
 export const dynamic = 'force-dynamic';
 
@@ -12,13 +12,17 @@ export default function DevMemberJobsEmptyPage() {
 
   return (
     <MemberJobsKit
-      saved={0}
-      applied={0}
-      interviewing={0}
+      saved={1}
+      applied={1}
+      interviewing={1}
       offers={0}
-      syncedLabel="Not synced yet"
-      browseHref="#"
-      applications={[]}
+      syncedLabel="2 active applications"
+      browseHref="/dashboard/jobs?ui=legacy"
+      profileHref="/dashboard/profile"
+      applications={[
+        { id: 'a1', role: 'Account Executive', company: 'Salesforce', location: 'Location not listed', applied: 'Apr 16', stage: 'Accepted', tone: 'ok' },
+        { id: 'a2', role: 'IT Support Technician', company: 'Dell Technologies', location: 'Location not listed', applied: 'Mar 16', stage: 'Applied', tone: 'muted' },
+      ]}
       recommended={[]}
     />
   );

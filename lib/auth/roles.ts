@@ -4,6 +4,9 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
+import { hasAdminAccess, hasSuperAdminAccess } from '@/lib/auth/roleAccess';
+
+export { hasAdminAccess, hasSuperAdminAccess } from '@/lib/auth/roleAccess';
 
 export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
 export const SUPER_ADMIN_PARTNER_COOKIE = 'wa_super_admin_partner_id';
@@ -34,14 +37,16 @@ export const getProfileRole = cache(async function getProfileRole(userId: string
 
 export const isSuperAdmin = cache(async function isSuperAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
-  return profileRole === 'super_admin';
+  if (hasSuperAdminAccess(profileRole, [])) return true;
+  const roles = await getUserRoles(userId);
+  return hasSuperAdminAccess(profileRole, roles);
 });
 
 export async function isAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
-  if (profileRole === 'admin' || profileRole === 'super_admin') return true;
+  if (hasAdminAccess(profileRole, [])) return true;
   const roles = await getUserRoles(userId);
-  return roles.includes('admin');
+  return hasAdminAccess(profileRole, roles);
 }
 
 /**
@@ -66,9 +71,9 @@ export async function isAdminInOrg(userId: string, orgId: string): Promise<boole
 
 export async function isStaff(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
-  if (profileRole === 'admin' || profileRole === 'super_admin') return true;
+  if (hasAdminAccess(profileRole, [])) return true;
   const roles = await getUserRoles(userId);
-  return roles.includes('admin') || roles.includes('case_manager');
+  return hasAdminAccess(profileRole, roles) || roles.includes('case_manager');
 }
 
 /**
@@ -88,9 +93,9 @@ export const canBypassMemberAssessment = cache(async function canBypassMemberAss
   userId: string
 ): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
-  if (profileRole === 'super_admin' || profileRole === 'admin') return true;
+  if (hasAdminAccess(profileRole, [])) return true;
   const roles = await getUserRoles(userId);
-  return roles.includes('admin');
+  return hasAdminAccess(profileRole, roles);
 });
 
 export async function isCaseManager(userId: string): Promise<boolean> {

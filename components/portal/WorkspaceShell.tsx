@@ -168,7 +168,7 @@ export default function WorkspaceShell({
   const isCollapsedDesktop = collapsed && wide;
   const isMobileDrawer = drawerOpen && !wide;
   const fetchedIsSuperAdmin = useIsSuperAdmin();
-  const isSuperAdmin = superAdmin ?? fetchedIsSuperAdmin;
+  const isSuperAdmin = Boolean(superAdmin) || fetchedIsSuperAdmin;
   const tNav = useTranslations('nav');
   const tWorkspace = useTranslations('workspace');
   const tGroup = useTranslations('group');

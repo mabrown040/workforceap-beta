@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { getProfileRole } from '@/lib/auth/roles';
+import { getProfileRole, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
@@ -21,15 +21,20 @@ export default async function DashboardLayout({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
 
-  const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
-    console.error('[dashboard:layout] profileRole lookup failed; degrading to member', err);
-    return 'member';
-  });
-  if (profileRole === 'admin') {
+  const [profileRole, superAdmin] = await Promise.all([
+    withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      console.error('[dashboard:layout] profileRole lookup failed; degrading to member', err);
+      return 'member';
+    }),
+    withDbRetry(() => isSuperAdmin(user.id)).catch((err) => {
+      console.error('[dashboard:layout] isSuperAdmin lookup failed; treating as not super admin', err);
+      return false;
+    }),
+  ]);
+  if (profileRole === 'admin' && !superAdmin) {
     redirect('/admin');
   }
 
-  const superAdmin = profileRole === 'super_admin';
   const portalRolesPromise = getPortalSwitcherRoles(user.id, { superAdmin });
 
   let dbUser: {

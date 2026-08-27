@@ -71,5 +71,15 @@ describe('DashboardLayout portal switching', () => {
       expect.objectContaining({ where: { id: 'user-1' } }),
     );
     expect(getPortalSwitcherRoles).toHaveBeenCalledWith('user-1', { superAdmin: true });
+    expect(isSuperAdmin).toHaveBeenCalledWith('user-1');
+  });
+
+  it('keeps the superadmin switcher when UserRole grants super_admin and profile is member', async () => {
+    vi.mocked(getProfileRole).mockResolvedValue('member');
+    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+
+    await expect(DashboardLayout({ children: <div /> })).resolves.toBeTruthy();
+
+    expect(getPortalSwitcherRoles).toHaveBeenCalledWith('user-1', { superAdmin: true });
   });
 });

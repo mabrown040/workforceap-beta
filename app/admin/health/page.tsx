@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { RefreshCw } from 'lucide-react';
+import { Skeleton } from '@astryxdesign/core/Skeleton';
 import PageHeader from '@/components/portal/PageHeader';
 import type { HealthResponse, HealthStatus, SubsystemCheck } from '@/app/api/admin/health/route';
 import {
@@ -629,6 +630,75 @@ function LegacyHealthView({
   );
 }
 
+/* ─── Loading / error states ─── */
+
+/**
+ * Mirrors HealthKitView's layout: a four-tile status row over the integration
+ * bars, so the page doesn't reflow when the real data lands.
+ */
+function HealthLoadingSkeleton() {
+  return (
+    <div className="wa-p-6" aria-busy="true" aria-live="polite">
+      <span className="wa-sr-only">Loading system health…</span>
+      <Skeleton width={180} height={24} />
+      <div style={{ marginTop: 8 }}>
+        <Skeleton width={260} height={14} />
+      </div>
+
+      <div
+        className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3"
+        style={{ marginTop: 24 }}
+        aria-hidden
+      >
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} height={96} index={i} />
+        ))}
+      </div>
+
+      <div style={{ marginTop: 24, display: 'grid', gap: 12 }} aria-hidden>
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} height={28} index={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The health endpoint is the one place where "it failed" is itself the signal,
+ * so name the subsystem that failed and keep the retry next to it.
+ */
+function HealthErrorState({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+  return (
+    <div className="wa-p-6">
+      <PageHeader title="System Health" subtitle="Services & integrations" />
+      <div role="alert" style={{ maxWidth: '60ch' }}>
+        <p style={{ fontWeight: 700, color: 'var(--wa-danger)', margin: 0 }}>
+          Could not reach the health endpoint.
+        </p>
+        <p style={{ color: 'var(--wa-muted)', fontSize: 13, margin: '6px 0 0' }}>
+          {error
+            ? `/api/admin/health responded with: ${error}.`
+            : '/api/admin/health returned no data.'}{' '}
+          The platform itself may still be healthy — this page only reports what that endpoint
+          says. Retry, or check the cron monitor and webhook events directly.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+          <button onClick={onRetry} className="btn btn-primary btn-sm">
+            Retry
+          </button>
+          <Link href="/admin/crons" className="btn btn-outline btn-sm">
+            Cron Monitor
+          </Link>
+          <Link href="/admin/webhook-events" className="btn btn-outline btn-sm">
+            Webhook Events
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main page ─── */
 
 export default function AdminHealthPage() {
@@ -637,28 +707,11 @@ export default function AdminHealthPage() {
   const legacy = searchParams?.get('ui') === 'legacy';
 
   if (loading) {
-    return (
-      <div>
-        <PageHeader title="System Health" subtitle="Services & integrations" />
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-          <p>Loading health data…</p>
-        </div>
-      </div>
-    );
+    return <HealthLoadingSkeleton />;
   }
 
   if (error || !data) {
-    return (
-      <div>
-        <PageHeader title="System Health" subtitle="Services & integrations" />
-        <div style={{ padding: '2rem', color: 'var(--color-accent)' }}>
-          <p>Error loading health data: {error || 'No data'}</p>
-          <button onClick={refetch} className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }}>
-            Retry
-          </button>
-        </div>
-      </div>
-    );
+    return <HealthErrorState error={error} onRetry={refetch} />;
   }
 
   if (legacy) {

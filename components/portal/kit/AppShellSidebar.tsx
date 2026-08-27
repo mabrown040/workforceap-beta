@@ -39,7 +39,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {open ? (
-        <div onClick={() => setOpen(false)} className="lg:wa-hidden" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }} />
+        <div onClick={() => setOpen(false)} className="lg:wa-hidden" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 'var(--z-nav-drawer)' }} />
       ) : null}
 
       <aside
@@ -51,7 +51,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
           color: 'var(--wa-sidebar-text)',
           position: 'fixed',
           height: '100vh',
-          zIndex: 50,
+          zIndex: 'calc(var(--z-nav-drawer) + 10)',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -86,7 +86,8 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                       marginBottom: 2,
                       background: on ? 'var(--wa-accent)' : 'transparent',
                       color: on ? 'var(--wa-on-accent)' : 'var(--wa-sidebar-muted)',
-                      transition: 'background-color 0.2s, color 0.2s',
+                      transition:
+                        'background-color var(--wa-dur-fast) var(--wa-ease), color var(--wa-dur-fast) var(--wa-ease)',
                     }}
                   >
                     <span style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -94,7 +95,22 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.label}</span>
                     </span>
                     {it.badge != null ? (
-                      <span style={{ padding: '1px 7px', fontSize: 10, fontWeight: 700, borderRadius: 999, background: 'var(--wa-accent)', color: 'var(--wa-on-accent)' }}>{it.badge}</span>
+                      // The active row is already filled with --wa-accent, so an
+                      // accent-on-accent badge would vanish into it; invert the
+                      // pair there to keep the count readable in both states.
+                      <span
+                        style={{
+                          padding: '1px 7px',
+                          fontSize: 10,
+                          fontWeight: 700,
+                          borderRadius: 999,
+                          fontVariantNumeric: 'tabular-nums',
+                          background: on ? 'var(--wa-on-accent)' : 'var(--wa-accent)',
+                          color: on ? 'var(--wa-accent)' : 'var(--wa-on-accent)',
+                        }}
+                      >
+                        {it.badge}
+                      </span>
                     ) : null}
                   </button>
                 );
@@ -106,8 +122,8 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
       </aside>
 
       <div className="lg:wa-ml-64" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <header style={{ position: 'sticky', top: 0, zIndex: 30, background: 'var(--wa-shell-header-bg)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--wa-border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button type="button" onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus wa-flex" aria-label="Open menu" style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', color: 'var(--wa-text)', cursor: 'pointer', flexShrink: 0, alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s, border-color 0.2s' }}><Menu size={20} aria-hidden="true" /></button>
+        <header style={{ position: 'sticky', top: 0, zIndex: 'var(--z-sticky)', background: 'var(--wa-shell-header-bg)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--wa-border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button type="button" onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus wa-flex" aria-label="Open menu" style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', color: 'var(--wa-text)', cursor: 'pointer', flexShrink: 0, alignItems: 'center', justifyContent: 'center', transition: 'background-color var(--wa-dur-fast) var(--wa-ease), border-color var(--wa-dur-fast) var(--wa-ease)' }}><Menu size={20} aria-hidden="true" /></button>
           <div style={{ flex: 1, minWidth: 0 }}>{topbar}</div>
         </header>
         <main style={{ flex: 1, padding: 16 }}>{children}</main>

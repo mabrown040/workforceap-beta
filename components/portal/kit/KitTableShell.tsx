@@ -29,6 +29,8 @@ interface KitTableShellProps extends KitDataAttrs {
   minWidth?: number;
   emptyTitle: string;
   emptyDescription?: string;
+  /** Next-step affordance rendered inside the empty state (see KitEmptyState). */
+  emptyAction?: ReactNode;
   onRowKeyClick?: (key: string) => void;
   className?: string;
   style?: CSSProperties;
@@ -45,6 +47,7 @@ export function KitTableShell({
   minWidth = 600,
   emptyTitle,
   emptyDescription,
+  emptyAction,
   onRowKeyClick,
   className,
   style,
@@ -74,7 +77,11 @@ export function KitTableShell({
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length || 1}>
-                  <KitEmptyState title={emptyTitle} description={emptyDescription} />
+                  <KitEmptyState
+                    title={emptyTitle}
+                    description={emptyDescription}
+                    action={emptyAction}
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -100,7 +107,14 @@ export function KitTableShell({
                   {columns.map((c, i) => (
                     <TableCell
                       key={c.key}
-                      style={c.align === 'right' ? { textAlign: 'right' } : undefined}
+                      // Right-aligned columns are numeric by convention here, and
+                      // digits must share a width so figures stack cleanly down
+                      // the column.
+                      style={
+                        c.align === 'right'
+                          ? { textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
+                          : undefined
+                      }
                     >
                       {row.cells[i]}
                     </TableCell>

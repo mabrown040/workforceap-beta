@@ -27,6 +27,8 @@ interface DataTableProps<T> extends KitBaseProps<HTMLDivElement>, KitDataAttrs {
   onRowClick?: (row: T) => void;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Next-step affordance rendered inside the empty state (see KitEmptyState). */
+  emptyAction?: ReactNode;
 }
 
 /**
@@ -43,6 +45,7 @@ export function DataTable<T>({
   onRowClick,
   emptyTitle = 'No rows yet',
   emptyDescription,
+  emptyAction,
   className,
   style,
   ref,
@@ -73,6 +76,7 @@ export function DataTable<T>({
       minWidth={minWidth}
       emptyTitle={emptyTitle}
       emptyDescription={emptyDescription}
+      emptyAction={emptyAction}
       onRowKeyClick={onRowKeyClick}
       ref={single ? ref : undefined}
       className={single ? className : 'wa-kit-table-wrap'}
@@ -90,7 +94,7 @@ export function DataTable<T>({
       <div className="wa-hidden lg:wa-block">{tableEl}</div>
       <div className="lg:wa-hidden wa-space-y-2">
         {rows.length === 0 ? (
-          <KitEmptyState title={emptyTitle} description={emptyDescription} />
+          <KitEmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />
         ) : (
           rows.map((row) => (
             <div

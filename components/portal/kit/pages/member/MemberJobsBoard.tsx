@@ -37,7 +37,7 @@ function BoardCta({ href, children }: { href: string; children: ReactNode }) {
   return (
     <NextLink
       href={href}
-      className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+      className="wa-page-action wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
     >
       {children}
     </NextLink>

@@ -331,11 +331,10 @@ function PhaseIntro({ mission, onAccept, onClose }: { mission: SkillMissionSumma
 
       <button
         type="button"
-        className="btn btn-primary"
+        className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100"
         onClick={onAccept}
-        style={{ fontSize: '0.95rem', padding: '0.7rem 1.5rem' }}
       >
-        Accept Mission →
+        Accept mission
       </button>
     </div>
   );

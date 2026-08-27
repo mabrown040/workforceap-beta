@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, type CSSProperties } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText, Mail, Copy, Check } from 'lucide-react';
 import { PortalInlineSpinner } from '@/components/portal/PortalInlineSpinner';
+import { KitEmptyState } from '@/components/portal/kit';
 
 export type PrepBundleItem = {
   toolType: string;
@@ -13,30 +14,8 @@ export type PrepBundleItem = {
 };
 
 const KIT_BTN =
-  'wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
-
-const kitBtnSolid: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 8,
-  minHeight: 44,
-  padding: '10px 16px',
-  background: 'var(--wa-accent)',
-  color: 'var(--wa-on-accent)',
-  border: '1px solid var(--wa-accent)',
-  fontWeight: 600,
-  fontSize: 14,
-  borderRadius: 999,
-  cursor: 'pointer',
-};
-
-const kitBtnOutline: CSSProperties = {
-  ...kitBtnSolid,
-  background: 'transparent',
-  color: 'var(--wa-accent)',
-  border: '1px solid var(--wa-border)',
-};
+  'wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none';
+const KIT_BTN_GHOST = `${KIT_BTN} wa-kit-cta--ghost`;
 
 const EMPTY_TOOLS = [
   { label: 'Resume', href: '/dashboard/ai-tools/resume-studio?view=rewrite', desc: 'Polished version of your resume' },
@@ -150,7 +129,7 @@ export default function InterviewPrepBundle({
       <div role="status" aria-live="polite" className="wa-kit-card">
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <PortalInlineSpinner size={20} />
-          <span style={{ fontSize: 14, color: 'var(--wa-muted)' }}>Loading bundle…</span>
+          <span style={{ fontSize: 'var(--wa-type-body)', color: 'var(--wa-muted)' }}>Loading bundle…</span>
         </div>
       </div>
     );
@@ -160,12 +139,10 @@ export default function InterviewPrepBundle({
     return (
       <div>
         <div className="wa-kit-card" style={{ marginBottom: 16 }}>
-          <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: '0 0 0.35rem' }}>
-            No prep materials yet
-          </h2>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', margin: 0, lineHeight: 1.5 }}>
-            Run a tool and it shows up here to email or copy.
-          </p>
+          <KitEmptyState
+            title="No prep materials yet"
+            description="Run a tool and it shows up here to email or copy."
+          />
         </div>
         <div className="wa-kit-card" style={{ padding: 0, overflow: 'hidden' }}>
           {EMPTY_TOOLS.map((tool, i) => (
@@ -186,25 +163,10 @@ export default function InterviewPrepBundle({
             >
               <FileText size={18} aria-hidden="true" style={{ color: 'var(--wa-accent)', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em' }}>{tool.label}</div>
-                <div style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 4 }}>{tool.desc}</div>
+                <div style={{ fontSize: 'var(--wa-type-body)', fontWeight: 800, letterSpacing: '-0.02em' }}>{tool.label}</div>
+                <div style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 4 }}>{tool.desc}</div>
               </div>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: 44,
-                  padding: '10px 16px',
-                  background: 'transparent',
-                  color: 'var(--wa-accent)',
-                  border: '1px solid var(--wa-border)',
-                  fontWeight: 600,
-                  fontSize: 14,
-                  borderRadius: 999,
-                  flexShrink: 0,
-                }}
-              >
+              <span className="wa-kit-cta wa-kit-cta--ghost" style={{ flexShrink: 0 }}>
                 Open
               </span>
             </Link>
@@ -225,13 +187,13 @@ export default function InterviewPrepBundle({
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 600, marginRight: 4 }}>
+        <span style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', fontWeight: 600, marginRight: 4 }}>
           {selectedItems.length} of {bundle.items.length} selected
         </span>
-        <button type="button" onClick={selectAll} className={KIT_BTN} style={kitBtnOutline}>
+        <button type="button" onClick={selectAll} className={KIT_BTN_GHOST}>
           Select all
         </button>
-        <button type="button" onClick={deselectAll} className={KIT_BTN} style={kitBtnOutline}>
+        <button type="button" onClick={deselectAll} className={KIT_BTN_GHOST}>
           Deselect
         </button>
       </div>
@@ -244,7 +206,6 @@ export default function InterviewPrepBundle({
           disabled={sending || selectedItems.length === 0}
           aria-busy={sending}
           style={{
-            ...kitBtnSolid,
             opacity: sending || selectedItems.length === 0 ? 0.55 : 1,
             cursor: sending || selectedItems.length === 0 ? 'not-allowed' : 'pointer',
           }}
@@ -254,11 +215,10 @@ export default function InterviewPrepBundle({
         </button>
         <button
           type="button"
-          className={KIT_BTN}
+          className={KIT_BTN_GHOST}
           onClick={copySelected}
           disabled={selectedItems.length === 0}
           style={{
-            ...kitBtnOutline,
             opacity: selectedItems.length === 0 ? 0.55 : 1,
             cursor: selectedItems.length === 0 ? 'not-allowed' : 'pointer',
           }}
@@ -269,7 +229,7 @@ export default function InterviewPrepBundle({
       </div>
 
       {errorMessage ? (
-        <p role="alert" style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: 'var(--wa-danger)' }}>
+        <p role="alert" style={{ margin: '0 0 12px', fontSize: 'var(--wa-type-body)', fontWeight: 600, color: 'var(--wa-danger)' }}>
           {errorMessage}
         </p>
       ) : null}
@@ -283,7 +243,7 @@ export default function InterviewPrepBundle({
             borderColor: 'color-mix(in srgb, var(--wa-success) 28%, transparent)',
           }}
         >
-          <p style={{ margin: 0, fontSize: 14, color: 'var(--wa-text)' }}>
+          <p style={{ margin: 0, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>
             Bundle sent to {sentTo} ({selectedItems.length} items).
           </p>
         </div>
@@ -341,15 +301,15 @@ export default function InterviewPrepBundle({
                 {isSelected ? <Check size={12} style={{ color: 'var(--wa-on-accent)' }} /> : null}
               </span>
               <FileText size={16} aria-hidden="true" style={{ color: 'var(--wa-accent)', flexShrink: 0 }} />
-              <span style={{ fontSize: 14, fontWeight: 700 }}>{item.title}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--wa-muted)', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 'var(--wa-type-body)', fontWeight: 700 }}>{item.title}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', whiteSpace: 'nowrap' }}>
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
             </button>
             <div
               style={{
                 padding: 'var(--wa-pad-sm)',
-                fontSize: 14,
+                fontSize: 'var(--wa-type-body)',
                 lineHeight: 1.6,
                 whiteSpace: 'pre-wrap',
                 maxHeight: 240,

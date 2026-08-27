@@ -518,6 +518,14 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
 type SessionPhase = 'idle' | 'connecting' | 'active' | 'ended';
 type TranscriptLine = { speaker: 'agent' | 'user'; text: string };
 
+/** Always-dark session stage — tint from `--wa-sidebar-*`, never raw white. */
+const SESSION_FAINT = 'color-mix(in srgb, var(--wa-sidebar-text) 40%, transparent)';
+const SESSION_SOFT = 'color-mix(in srgb, var(--wa-sidebar-text) 50%, transparent)';
+const SESSION_MUTED = 'color-mix(in srgb, var(--wa-sidebar-text) 60%, transparent)';
+const SESSION_INK = 'color-mix(in srgb, var(--wa-sidebar-text) 90%, transparent)';
+const SESSION_CHIP = 'color-mix(in srgb, var(--wa-sidebar-text) 10%, transparent)';
+const SESSION_CHIP_STRONG = 'color-mix(in srgb, var(--wa-sidebar-text) 12%, transparent)';
+
 function formatClock(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
@@ -738,7 +746,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
         : phase === 'ended'
           ? 'Session ended'
           : `Ready · ${label}`;
-  const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : 'rgba(255,255,255,0.4)';
+  const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : SESSION_FAINT;
 
   // Big status caption under the orb.
   const caption =
@@ -803,7 +811,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               <span aria-hidden="true" className={isLive ? 'vs-dot' : undefined} style={{ width: 8, height: 8, borderRadius: 999, background: dotColor }} />
               {status}
             </div>
-            <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--wa-type-meta)', color: SESSION_MUTED }}>
               <Clock size={13} aria-hidden="true" />
               {formatClock(elapsed)}
             </div>
@@ -837,7 +845,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             )}
 
             <p style={{ fontSize: 'var(--wa-type-body)', fontWeight: 600 }}>{caption}</p>
-            <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.5)', marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
+            <p style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_SOFT, marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
 
             {error ? (
               <div
@@ -848,12 +856,12 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: 8,
-                  background: 'rgba(173,44,77,0.15)',
-                  border: '1px solid rgba(173,44,77,0.4)',
+                  background: 'color-mix(in srgb, var(--wa-danger) 18%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--wa-danger) 45%, transparent)',
                   borderRadius: 12,
                   padding: '10px 14px',
                   fontSize: 'var(--wa-type-meta)',
-                  color: 'color-mix(in srgb, var(--wa-accent) 42%, var(--wa-sidebar-text))',
+                  color: 'color-mix(in srgb, var(--wa-danger) 55%, var(--wa-sidebar-text))',
                   textAlign: 'left',
                 }}
               >
@@ -866,7 +874,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
             {phase === 'idle' && askRole ? (
               <div style={{ width: '100%', maxWidth: 360, marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: SESSION_MUTED }}>
                     Target role
                   </span>
                   <input
@@ -886,7 +894,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   />
                 </label>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 'var(--wa-type-meta)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: SESSION_MUTED }}>
                     Interview type
                   </span>
                   <select
@@ -908,7 +916,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     <option value="general">General / screening</option>
                   </select>
                 </label>
-                <p style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                <p style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, margin: 0 }}>
                   Leave the role blank for a general practice interview.
                 </p>
               </div>
@@ -925,7 +933,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                     aria-pressed={muted}
                     title={muted ? 'Unmute microphone' : 'Mute microphone'}
                     onClick={toggleMute}
-                    style={{ ...circleBtn, background: muted ? accent : 'rgba(255,255,255,0.1)' }}
+                    style={{ ...circleBtn, background: muted ? accent : SESSION_CHIP }}
                   >
                     {muted ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />}
                   </button>
@@ -959,7 +967,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   style={{
                     padding: '12px 28px',
                     borderRadius: 999,
-                    background: 'rgba(255,255,255,0.12)',
+                    background: SESSION_CHIP_STRONG,
                     color: 'var(--wa-sidebar-text)',
                     fontWeight: 700,
                     fontSize: 'var(--wa-type-body)',
@@ -1016,7 +1024,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                 <Captions size={15} color={accent} aria-hidden="true" />
                 Live Transcript
               </h3>
-              <span style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+              <span style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, fontWeight: 700 }}>
                 {isLive ? 'LIVE' : phase === 'ended' ? 'SAVED' : 'IDLE'}
               </span>
             </div>
@@ -1028,7 +1036,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 'var(--wa-type-meta)', minHeight: 0 }}
             >
               {lines.length === 0 ? (
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', margin: 0 }}>
+                <p style={{ color: SESSION_FAINT, fontStyle: 'italic', margin: 0 }}>
                   {phase === 'active'
                     ? 'Waiting for speech — your conversation will appear here.'
                     : phase === 'connecting'
@@ -1040,7 +1048,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                   line.speaker === 'agent' ? (
                     <div key={`${i}-${line.text.slice(0, 16)}`}>
                       <div style={{ ...transcriptLabelCoach, color: accent }}>Coach</div>
-                      <div style={{ ...bubble, background: 'var(--wa-sidebar-bg)', color: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 4 }}>
+                      <div style={{ ...bubble, background: 'var(--wa-sidebar-bg)', color: SESSION_INK, borderTopLeftRadius: 4 }}>
                         {line.text}
                       </div>
                     </div>
@@ -1095,7 +1103,7 @@ function SessionStat({ value, label, color }: { value: string; label: string; co
   return (
     <div>
       <div style={{ fontSize: 18, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-      <div style={{ fontSize: 'var(--wa-type-meta)', color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
     </div>
   );
 }
@@ -1104,7 +1112,7 @@ const circleBtn: React.CSSProperties = {
   width: 48,
   height: 48,
   borderRadius: 999,
-  background: 'rgba(255,255,255,0.1)',
+  background: SESSION_CHIP,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -1130,7 +1138,7 @@ const transcriptLabelCoach: React.CSSProperties = {
 const transcriptLabelYou: React.CSSProperties = {
   fontSize: 'var(--wa-type-meta)',
   fontWeight: 700,
-  color: 'rgba(255,255,255,0.6)',
+  color: SESSION_MUTED,
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   marginBottom: 4,

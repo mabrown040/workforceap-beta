@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ArrowUp,
   ArrowDown,
-  Home,
   Flame,
   Target,
   BookOpen,
@@ -17,14 +16,10 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Card } from '@astryxdesign/core/Card';
-import { Button } from '@astryxdesign/core/Button';
-import { Token } from '@astryxdesign/core/Token';
-import { ProgressBar } from '@astryxdesign/core/ProgressBar';
-import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import {
   DataTable,
   DesignSurface,
+  ProgressBar,
   ProgressRing,
   StatusTag,
   colorVar,
@@ -267,7 +262,7 @@ function StatSparkTile({
   spark?: StatSpark;
 }) {
   return (
-    <Card>
+    <div className="wa-kit-card">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div className="wa-flex wa-items-start wa-justify-between">
         <div
@@ -318,7 +313,7 @@ function StatSparkTile({
         </svg>
       ) : null}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -585,15 +580,8 @@ export function MemberHomeKit({
             (mirrors the mockup's page-head row) when the member has a streak. */}
         <div className="wa-flex wa-items-end wa-justify-between wa-flex-wrap" style={{ gap: 12 }}>
           <div>
-            <div
-              className="wa-flex wa-items-center wa-gap-2 wa-text-xs wa-font-bold wa-uppercase"
-              style={{ letterSpacing: '0.12em', color: 'var(--wa-accent)' }}
-            >
-              <Home size={13} />
-              <span>{greeting}</span>
-            </div>
-            <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, textWrap: 'balance' }}>
-              Keep climbing, {firstName}.
+            <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', margin: 0, textWrap: 'balance' }}>
+              {greeting}, {firstName}
             </h2>
           </div>
           {currentStreak > 0 ? (
@@ -633,12 +621,12 @@ export function MemberHomeKit({
         {/* 4. Mixed row — certification ring, weekly activity, points ledger. */}
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-12 wa-gap-4">
           <div className="lg:wa-col-span-4">
-          <Card>
+          <div className="wa-kit-card">
             <KitCardHead title="Certification path" linkLabel="View plan" linkHref={resumeHref} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
               <div style={{ minWidth: 0, flex: 1 }}>
-                <Token label={programStatus} size="sm" color="green" />
+                <StatusTag tone="info">{programStatus}</StatusTag>
                 <h3 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8, textWrap: 'balance' }}>{programTitle}</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
                   Next: {nextLesson} · <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>{nextLessonDue}</span>
@@ -646,19 +634,35 @@ export function MemberHomeKit({
                 {hasModuleRow ? (
                   <div style={{ marginTop: 10 }}>
                     <ProgressBar
-                      value={Math.round(((certModulesDone as number) / (certModulesTotal as number)) * 100)}
-                      label="Certification module progress"
+                      pct={Math.round(((certModulesDone as number) / (certModulesTotal as number)) * 100)}
+                      aria-label="Certification module progress"
                     />
                   </div>
                 ) : null}
                 <div style={{ marginTop: 12 }}>
-                  <AstryxLink href={resumeHref ?? '#'} as={Link as never} isStandalone>
-                    <Button label="Resume" variant="primary" size="sm" endContent={<Play size={11} aria-hidden />} />
-                  </AstryxLink>
+                  <Link
+                    href={resumeHref ?? '/dashboard/program'}
+                    className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      minHeight: 44,
+                      padding: '8px 16px',
+                      background: 'var(--wa-accent)',
+                      color: 'var(--wa-on-accent)',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      borderRadius: 999,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    Resume <Play size={13} aria-hidden />
+                  </Link>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
           </div>
 
           <div className="wa-kit-card lg:wa-col-span-5" style={{ display: 'flex', flexDirection: 'column' }}>

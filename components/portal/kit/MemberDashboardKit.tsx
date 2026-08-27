@@ -47,7 +47,7 @@ export function MemberDashboardKit({
           <ProgressRing pct={pct} size={112} onDark />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', opacity: 0.75 }}>Member Portal</div>
-            <h2 className="h-font" style={{ fontSize: 26, margin: '4px 0 2px', fontWeight: 800, letterSpacing: '-.03em' }}>Keep climbing, {firstName}.</h2>
+            <h2 className="h-font" style={{ fontSize: 26, margin: '4px 0 2px', fontWeight: 800, letterSpacing: '-.03em' }}>{firstName}</h2>
             <p style={{ fontSize: 13, opacity: 0.85, margin: 0 }}>
               {programTitle ? `You're ${pct}% through ${programTitle}.` : `You're ${pct}% of the way there.`}
               {nextMilestone ? ` Next up: ${nextMilestone}.` : ''}

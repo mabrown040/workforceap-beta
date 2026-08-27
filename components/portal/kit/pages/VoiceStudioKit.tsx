@@ -1583,11 +1583,11 @@ function ToolkitPanel() {
           <Sparkles size={13} aria-hidden="true" />
           <span>AI Career Toolkit</span>
         </div>
-        <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
-          Everything to get hired, in order.
+        <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em', textWrap: 'balance' }}>
+          Resume, cover letter, interview
         </h2>
         <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
-          {toolCount} AI tools tuned to your training path and the Austin market. Work top to bottom.
+          {toolCount} tools. Work top to bottom.
         </p>
       </div>
 
@@ -1600,7 +1600,7 @@ function ToolkitPanel() {
                 height: 24,
                 borderRadius: 999,
                 background: 'var(--wa-accent)',
-                color: '#fff',
+                color: 'var(--wa-on-accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1612,7 +1612,7 @@ function ToolkitPanel() {
             </span>
             <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em' }}>{step.title}</h3>
           </div>
-          <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {step.tools.map((tool) => (
               <ToolCardView key={tool.title} tool={tool} />
             ))}
@@ -1625,13 +1625,6 @@ function ToolkitPanel() {
 
 function ToolCardView({ tool }: { tool: ToolCard }) {
   const { Icon, title, body, accent, tag, href } = tool;
-  const accentStyle =
-    accent === 'gold'
-      ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
-      : accent === 'blue'
-        ? { background: 'var(--wa-info-soft)', color: 'var(--wa-info)' }
-        : { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' };
-  const cardBorder = accent === 'gold' ? '#ece2c8' : 'var(--wa-border)';
   const tagStyle =
     accent === 'gold'
       ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
@@ -1640,32 +1633,34 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
   return (
     <Link
       href={href}
-      className="wa-kit-focus vs-hero-card"
+      className="wa-kit-focus"
       style={{
         textAlign: 'left',
         background: 'var(--wa-surface)',
-        border: `1px solid ${cardBorder}`,
-        borderRadius: 16,
-        padding: 20,
+        borderBottom: '1px solid var(--wa-border)',
+        padding: '14px 4px',
         cursor: 'pointer',
-        display: 'block',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
         width: '100%',
+        minHeight: 64,
         textDecoration: 'none',
         color: 'var(--wa-text)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ padding: 10, borderRadius: 12, display: 'inline-flex', ...accentStyle }}>
-          <Icon size={16} aria-hidden="true" />
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className="wa-flex wa-items-center wa-gap-2">
+          <h4 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>{title}</h4>
+          {tag === 'BETA' ? (
+            <span style={{ padding: '2px 8px', fontSize: 9, fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
+          ) : tag === 'VOICE' ? (
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
+          ) : null}
         </div>
-        {tag === 'BETA' ? (
-          <span style={{ padding: '2px 8px', fontSize: 9, fontWeight: 700, borderRadius: 4, ...tagStyle }}>BETA</span>
-        ) : tag === 'VOICE' ? (
-          <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)', textTransform: 'uppercase' }}>Voice</span>
-        ) : null}
+        <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: '4px 0 0' }}>{body}</p>
       </div>
-      <h4 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{title}</h4>
-      <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{body}</p>
+      <Icon size={16} aria-hidden="true" style={{ flexShrink: 0, color: 'var(--wa-muted)' }} />
     </Link>
   );
 }

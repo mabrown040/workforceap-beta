@@ -1,6 +1,6 @@
 import { Check, Mic, TrendingUp, Zap, Flag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { DesignSurface, PageOpener, ProgressRing } from '@/components/portal/kit';
+import { DesignSurface, PageOpener, ProgressRing, KitEmptyState } from '@/components/portal/kit';
 
 /**
  * Member Portal — progress / readiness (kit ProgressRing + weekly stats +
@@ -88,16 +88,15 @@ export function MemberProgressKit({
           <div className="wa-kit-card lg:wa-col-span-2">
             <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>{statsHeading}</h2>
             {weekStats.length === 0 ? (
-              <p className="wa-kit-lede" style={{ marginBottom: 24 }}>
-                Category scores appear after Training Preassessment.{' '}
-                <a
-                  href="/dashboard/assessment"
-                  className="wa-kit-focus"
-                  style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}
-                >
-                  Open skills check
-                </a>
-              </p>
+              <KitEmptyState
+                title="No category scores yet"
+                description="Scores appear after Training Preassessment."
+                action={
+                  <a href="/dashboard/assessment" className="wa-kit-cta wa-kit-focus hover:wa-opacity-90">
+                    Open skills check
+                  </a>
+                }
+              />
             ) : (
             <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 24 }}>
               {weekStats.map((stat) => (
@@ -113,7 +112,10 @@ export function MemberProgressKit({
               Milestones
             </h3>
             {milestones.length === 0 ? (
-              <p className="wa-kit-lede">Milestones fill in as you complete intake, training, and interviews.</p>
+              <KitEmptyState
+                title="No milestones yet"
+                description="Milestones fill in as you complete intake, training, and interviews."
+              />
             ) : (
             <div className="wa-space-y-3">
               {milestones.map((m) => {

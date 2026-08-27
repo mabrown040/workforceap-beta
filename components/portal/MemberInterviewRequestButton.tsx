@@ -40,7 +40,7 @@ export default function MemberInterviewRequestButton({
 
   if (done) {
     return (
-      <p role="status" aria-live="polite" style={{ color: 'var(--wa-text)', margin: 0, fontSize: 14, fontWeight: 600 }}>
+      <p role="status" aria-live="polite" style={{ color: 'var(--wa-text)', margin: 0, fontSize: 'var(--wa-type-body)', fontWeight: 600 }}>
         Interview request sent. A counselor will follow up.
       </p>
     );
@@ -49,31 +49,21 @@ export default function MemberInterviewRequestButton({
   return (
     <div>
       {error ? (
-        <p role="alert" style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--wa-danger)', fontWeight: 600 }}>
+        <p role="alert" style={{ margin: '0 0 8px', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-danger)', fontWeight: 600 }}>
           {error}
         </p>
       ) : null}
       <button
         type="button"
-        className="wa-kit-focus hover:wa-opacity-90"
+        className="wa-kit-cta wa-kit-focus hover:wa-opacity-90"
         disabled={loading}
         onClick={() => void submit()}
         aria-busy={loading}
-        style={{
-          minHeight: 44,
-          padding: '10px 16px',
-          background: 'var(--wa-accent)',
-          color: 'var(--wa-on-accent)',
-          fontWeight: 600,
-          fontSize: 14,
-          borderRadius: 999,
-          border: 'none',
-          cursor: loading ? 'wait' : 'pointer',
-        }}
+        style={{ cursor: loading ? 'wait' : 'pointer' }}
       >
         <span aria-live="polite">{loading ? 'Sending…' : 'Request interview'}</span>
       </button>
-      <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.5 }}>
         Opens scheduling by email — a counselor will follow up.
       </p>
     </div>

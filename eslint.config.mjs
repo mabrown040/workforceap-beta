@@ -45,9 +45,11 @@ const config = [
     ignores: [
       // The DataTable implementation legitimately renders <table>.
       "components/portal/ui/DataTable.tsx",
-      // Design-kit DataTable: warm/dense token-driven table implementation
-      // (Phase 0 portal redesign). Sibling to the ui/ one; renders <table> by design.
+      // Design-kit DataTable + its native chrome shell: warm/dense token-driven
+      // table implementation (Phase 0 portal redesign). Sibling to the ui/ one;
+      // KitTableShell is the <table> host DataTable composes.
       "components/portal/kit/DataTable.tsx",
+      "components/portal/kit/KitTableShell.tsx",
       // Legacy admin UIs still use raw tables; migrate to <DataTable> over time.
       // 2026-05-20: each retained <table> now carries a <caption className="sr-only"> for a11y.
       "app/admin/placement-surveys/page.tsx",
@@ -84,6 +86,7 @@ const config = [
     files: ["components/portal/kit/**/*.{ts,tsx}"],
     ignores: [
       "components/portal/kit/DataTable.tsx",
+      "components/portal/kit/KitTableShell.tsx",
       // The Voice Studio session theater is intentionally fixed dark chrome
       // (same in light and dark — see the file's header comment); its ~30
       // dark-panel literals are by design, not token debt.
@@ -110,9 +113,12 @@ const config = [
     },
   },
   {
-    // kit/DataTable.tsx legitimately renders <table>, but the hex ban still
-    // applies to it.
-    files: ["components/portal/kit/DataTable.tsx"],
+    // kit/DataTable.tsx and KitTableShell legitimately render <table>, but
+    // the hex ban still applies to both.
+    files: [
+      "components/portal/kit/DataTable.tsx",
+      "components/portal/kit/KitTableShell.tsx",
+    ],
     rules: {
       "no-restricted-syntax": [
         process.env.CI || process.env.WAP_STRICT_LINT ? "error" : "warn",

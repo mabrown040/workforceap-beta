@@ -1,6 +1,7 @@
 import { Briefcase } from 'lucide-react';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { colorVar } from '../../tokens';
 import { ToolkitToolChrome } from './ToolkitToolChrome';
 
 /**
@@ -30,16 +31,16 @@ export function CareerBusinessCoachKit({
         headline="Talk through any career or business challenge"
         subtext="Project management, sales, marketing, communication — get guidance tailored to your situation."
         icon={<Briefcase size={22} aria-hidden="true" />}
-        glowColor="#ad2c4d"
-        gradient="linear-gradient(135deg, #ad2c4d 0%, #8c0f37 100%)"
+        glowColor={colorVar('accent')}
+        gradient={`linear-gradient(135deg, ${colorVar('accent')} 0%, ${colorVar('accentDark')} 100%)`}
       >
         <PortalVoiceSessionLazy
           sessionEndpoint="/api/member/career-business-coach/voice-session"
           completionEndpoint="/api/member/career-business-coach/completion"
           title="Career and Business Coach"
           description="Share your challenge — project management, sales, marketing, or career growth."
-          accent="#ad2c4d"
-          accentDark="#8c0f37"
+          accent={colorVar('accent')}
+          accentDark={colorVar('accentDark')}
           speakingLabel="Coach is speaking…"
           listeningLabel="Listening…"
         />

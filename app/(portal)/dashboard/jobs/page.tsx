@@ -12,6 +12,7 @@ import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
 import { getTranslations } from 'next-intl/server';
 import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKit';
+import { displayJobLocation } from '@/lib/member/jobPipelineDisplay';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -256,7 +257,7 @@ export default async function JobsPage({
         id: r.id,
         role: r.role,
         company: r.company,
-        location: r.location ?? '—',
+        location: displayJobLocation(r.location),
         applied: fmtDay(r.appliedAt ?? r.createdAt),
         stage: STAGE_META[r.status].label,
         tone: STAGE_META[r.status].tone,
@@ -278,7 +279,6 @@ export default async function JobsPage({
       take: 3,
       select: {
         matchScore: true,
-        matchReasons: true,
         job: {
           select: {
             id: true,
@@ -295,29 +295,15 @@ export default async function JobsPage({
     const formatSalary = (min: number | null, max: number | null) =>
       min && max ? `$${Math.round(min / 1000)}k–${Math.round(max / 1000)}k` : null;
 
-    const recommended = aiMatches.length > 0
-      ? aiMatches.map((m) => ({
-          id: m.job.id,
-          logo: (m.job.employer.companyName || '?').slice(0, 2).toUpperCase(),
-          match: `${m.matchScore}% match`,
-          title: m.job.title,
-          meta: [m.job.employer.companyName, m.job.location, formatSalary(m.job.salaryMin, m.job.salaryMax)]
-            .filter(Boolean)
-            .join(' · '),
-          matchReasons: m.matchReasons,
-        }))
-      : initialJobs.slice(0, 3).map((job) => {
-          const meta = [job.employer.companyName, job.location, formatSalary(job.salaryMin, job.salaryMax)]
-            .filter(Boolean)
-            .join(' · ');
-          return {
-            id: job.id,
-            logo: (job.employer.companyName || '?').slice(0, 2).toUpperCase(),
-            match: 'New',
-            title: job.title,
-            meta,
-          };
-        });
+    const recommended = aiMatches.map((m) => ({
+      id: m.job.id,
+      logo: (m.job.employer.companyName || '?').slice(0, 2).toUpperCase(),
+      match: `${m.matchScore}% match`,
+      title: m.job.title,
+      meta: [m.job.employer.companyName, m.job.location, formatSalary(m.job.salaryMin, m.job.salaryMax)]
+        .filter(Boolean)
+        .join(' · '),
+    }));
 
     return (
       <MemberJobsKit
@@ -327,11 +313,10 @@ export default async function JobsPage({
         offers={offersCount}
         syncedLabel={`${applications.length} active application${applications.length === 1 ? '' : 's'}`}
         browseHref="/dashboard/jobs?ui=legacy"
+        profileHref="/dashboard/profile"
         // Pass the member's REAL rows (DataTable renders its own empty state).
-        // Recommended falls back to the kit's demo cards only when the live
-        // board returned nothing, to avoid a bare "Recommended" heading.
         applications={applications}
-        recommended={recommended.length > 0 ? recommended : undefined}
+        recommended={recommended}
       />
     );
   }

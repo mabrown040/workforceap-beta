@@ -6,6 +6,7 @@ import { Token, type TokenColor } from '@astryxdesign/core/Token';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Link as AstryxLink } from '@astryxdesign/core/Link';
 import { DesignSurface, KpiStrip, DataTable, type Column, type KitTone } from '@/components/portal/kit';
+import { JOBS_EMPTY_RECOMMENDATIONS } from '@/lib/member/jobPipelineDisplay';
 
 /** Maps the kit's semantic tone (StatusTag's palette) to the closest Token color. */
 function tokenColorForTone(tone: KitTone): TokenColor {
@@ -60,6 +61,7 @@ export interface MemberJobsKitProps {
   offers?: number;
   syncedLabel?: string;
   browseHref?: string;
+  profileHref?: string;
   applications?: ApplicationRow[];
   recommended?: RecommendedJob[];
 }
@@ -78,6 +80,7 @@ export function MemberJobsKit({
   offers = 0,
   syncedLabel = 'Synced 3m ago',
   browseHref = '#',
+  profileHref = '/dashboard/profile',
   applications = DEFAULT_APPLICATIONS,
   recommended = [],
 }: MemberJobsKitProps) {
@@ -160,7 +163,6 @@ export function MemberJobsKit({
               icon={<Briefcase size={28} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />}
               title="No applications yet"
               description="Track jobs you apply to and they'll show up here."
-              isCompact
               actions={
                 <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
                   <Button label="Browse Job Board" variant="primary" size="sm" />
@@ -187,13 +189,17 @@ export function MemberJobsKit({
           {recommended.length === 0 ? (
             <EmptyState
               icon={<Sparkles size={28} aria-hidden="true" style={{ color: 'var(--wa-accent)' }} />}
-              title="No recommendations yet"
-              description="Keep your profile and certifications up to date and we'll surface matching roles here."
-              isCompact
+              title={JOBS_EMPTY_RECOMMENDATIONS.title}
+              description={JOBS_EMPTY_RECOMMENDATIONS.description}
               actions={
-                <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
-                  <Button label="Browse Job Board" variant="primary" size="sm" />
-                </AstryxLink>
+                <>
+                  <AstryxLink href={profileHref} as={NextLink as never} isStandalone>
+                    <Button label={JOBS_EMPTY_RECOMMENDATIONS.primaryCta} variant="primary" size="sm" />
+                  </AstryxLink>
+                  <AstryxLink href={browseHref} as={NextLink as never} isStandalone>
+                    <Button label={JOBS_EMPTY_RECOMMENDATIONS.secondaryCta} variant="secondary" size="sm" />
+                  </AstryxLink>
+                </>
               }
             />
           ) : (

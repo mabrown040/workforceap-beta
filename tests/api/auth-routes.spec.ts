@@ -976,6 +976,31 @@ describe('GET /api/auth/me', () => {
     expect(body.availablePortals).toEqual([]);
   });
 
+  it('returns superAdmin true when UserRole grants super_admin even if profile is member', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-sa', email: 'mike@example.com' } as any);
+
+    const { getProfileRole, isSuperAdmin } = await import('@/lib/auth/roles');
+    vi.mocked(getProfileRole).mockResolvedValue('member');
+    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+
+    const { getPortalSwitcherRoles } = await import('@/lib/auth/portalRoleSwitcher');
+    vi.mocked(getPortalSwitcherRoles).mockResolvedValue([
+      { role: 'member', roleLabel: 'Member', homeHref: '/dashboard' },
+      { role: 'admin', roleLabel: 'Admin', homeHref: '/admin' },
+    ]);
+
+    const res = await meGET(new Request('http://localhost:3000/api/auth/me'));
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.superAdmin).toBe(true);
+    expect(isSuperAdmin).toHaveBeenCalledWith('user-sa');
+    expect(getPortalSwitcherRoles).toHaveBeenCalledWith(
+      'user-sa',
+      expect.objectContaining({ superAdmin: true }),
+    );
+  });
+
   it('returns 500 on unexpected error', async () => {
     vi.mocked(getUser).mockRejectedValue(new Error('DB failure'));
 

@@ -51,7 +51,10 @@ export const GET = withApiGuc(async () => {
       console.error('[api:auth-me] profileRole lookup failed; degrading to member', err);
       return 'member';
     });
-    const superAdmin = role === 'super_admin';
+    const superAdmin = await withDbRetry(() => isSuperAdmin(user.id)).catch((err) => {
+      console.error('[api:auth-me] isSuperAdmin lookup failed; falling back to profile role', err);
+      return role === 'super_admin';
+    });
 
     if (superAdmin) {
       const availablePortals = await withDbRetry(() => getPortalSwitcherRoles(user.id, {

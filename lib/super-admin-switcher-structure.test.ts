@@ -16,11 +16,11 @@ test('super-admin switcher uses server-provided state where available', () => {
 
   assert.match(switcher, /initialIsSuperAdmin\?: boolean/);
   assert.match(switcher, /const isSuperAdmin = initialIsSuperAdmin \|\| fetchedIsSuperAdmin/);
-  assert.match(shell, /const isSuperAdmin = superAdmin \?\? fetchedIsSuperAdmin/);
+  assert.match(shell, /const isSuperAdmin = Boolean\(superAdmin\) \|\| fetchedIsSuperAdmin/);
   assert.equal((shell.match(/<SuperAdminViewSwitcher initialIsSuperAdmin=\{isSuperAdmin\} \/>/g) ?? []).length, 2);
   assert.match(memberShell, /superAdmin=\{superAdmin\}/);
   assert.match(counselorShell, /superAdmin=\{superAdmin\}/);
-  assert.match(memberLayout, /const superAdminPromise = isSuperAdmin\(user\.id\)/);
+  assert.match(memberLayout, /isSuperAdmin\(user\.id\)/);
   assert.match(memberLayout, /<MemberWorkspaceShell hasResume=\{hasResume\} superAdmin=\{superAdmin\} portalRoles=\{portalRoles\}>/);
   assert.match(counselorLayout, /isSuperAdmin\(user\.id\)/);
   assert.match(counselorLayout, /<CounselorPortalShell subtitle=\{subtitle\} superAdmin=\{superAdmin\} portalRoles=\{portalRoles\}>/);

@@ -2067,6 +2067,7 @@ html.dark .workspace-sidebar-signout:hover {
     background: rgba(173, 44, 77, 0.1);
     border: 1px solid rgba(173, 44, 77, 0.2);
     border-radius: 0.5rem;
+    flex-shrink: 0;
 }
 .super-admin-view-switcher__badge {
     font-size: 0.65rem;

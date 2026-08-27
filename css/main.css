@@ -7775,7 +7775,8 @@ html.dark .apply-barrier-option input:checked {
     font-size: 0.9rem;
     cursor: pointer;
     margin-bottom: 1rem;
-    padding: 0;
+    min-height: var(--touch-target-min, 44px);
+    padding: 0.5rem 0;
     text-decoration: underline;
 }
 .quiz-back-link:hover { color: var(--color-accent); }

@@ -107,6 +107,62 @@ test('isSuperAdmin is true when profile role is super_admin', async (t) => {
   assert.equal(await isSuperAdmin('user-super-admin-profile'), true);
 });
 
+test('isSuperAdmin is true when UserRole grants super_admin even if profile is member', async (t) => {
+  const profileDelegate = prisma.profile as any;
+  const userRoleDelegate = prisma.userRole as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  const originalFindMany = userRoleDelegate.findMany;
+  t.after(() => {
+    profileDelegate.findUnique = originalFindUnique;
+    userRoleDelegate.findMany = originalFindMany;
+  });
+  profileDelegate.findUnique = async () => ({ role: 'member' } as any);
+  userRoleDelegate.findMany = async () => ([{ role: { name: 'super_admin' } }] as any[]);
+  assert.equal(await isSuperAdmin('user-super-admin-userrole'), true);
+});
+
+test('isSuperAdmin is false for admin-only UserRole', async (t) => {
+  const profileDelegate = prisma.profile as any;
+  const userRoleDelegate = prisma.userRole as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  const originalFindMany = userRoleDelegate.findMany;
+  t.after(() => {
+    profileDelegate.findUnique = originalFindUnique;
+    userRoleDelegate.findMany = originalFindMany;
+  });
+  profileDelegate.findUnique = async () => ({ role: 'member' } as any);
+  userRoleDelegate.findMany = async () => ([{ role: { name: 'admin' } }] as any[]);
+  assert.equal(await isSuperAdmin('user-admin-userrole-not-super'), false);
+});
+
+test('isAdmin is true when UserRole grants super_admin', async (t) => {
+  const profileDelegate = prisma.profile as any;
+  const userRoleDelegate = prisma.userRole as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  const originalFindMany = userRoleDelegate.findMany;
+  t.after(() => {
+    profileDelegate.findUnique = originalFindUnique;
+    userRoleDelegate.findMany = originalFindMany;
+  });
+  profileDelegate.findUnique = async () => ({ role: 'member' } as any);
+  userRoleDelegate.findMany = async () => ([{ role: { name: 'super_admin' } }] as any[]);
+  assert.equal(await isAdmin('user-admin-via-super-userrole'), true);
+});
+
+test('canBypassMemberAssessment is true when super_admin via UserRole table', async (t) => {
+  const profileDelegate = prisma.profile as any;
+  const userRoleDelegate = prisma.userRole as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  const originalFindMany = userRoleDelegate.findMany;
+  t.after(() => {
+    profileDelegate.findUnique = originalFindUnique;
+    userRoleDelegate.findMany = originalFindMany;
+  });
+  profileDelegate.findUnique = async () => ({ role: 'member' } as any);
+  userRoleDelegate.findMany = async () => ([{ role: { name: 'super_admin' } }] as any[]);
+  assert.equal(await canBypassMemberAssessment('user-bypass-userrole-super'), true);
+});
+
 test('isCounselor is true for super_admin without a counselor row', async (t) => {
   const profileDelegate = prisma.profile as any;
   const counselorDelegate = prisma.counselor as any;

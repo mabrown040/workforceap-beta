@@ -45,6 +45,7 @@ const DEV_ALIASES: Record<string, string[]> = {
     '/dev/member/resume-studio',
     '/dev/member/salary-negotiation',
     '/dev/member/elevator-pitch',
+    '/dev/member/gap-analyzer',
   ],
 };
 

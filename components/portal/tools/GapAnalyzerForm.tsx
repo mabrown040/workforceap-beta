@@ -27,16 +27,24 @@ const textareaStyle: CSSProperties = {
   minHeight: 220,
 };
 
-export default function GapAnalyzerForm() {
-  const [resume, setResume] = useState('');
-  const [output, setOutput] = useState('');
+export default function GapAnalyzerForm({
+  preview = false,
+  initialResume = '',
+  previewOutput,
+}: {
+  preview?: boolean;
+  initialResume?: string;
+  previewOutput?: string;
+} = {}) {
+  const [resume, setResume] = useState(initialResume);
+  const [output, setOutput] = useState(previewOutput ?? '');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
 
-  useHydrateMemberResumePlainText(setResume);
+  useHydrateMemberResumePlainText(setResume, undefined, !preview);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -44,6 +52,12 @@ export default function GapAnalyzerForm() {
     setOutput('');
     setLoading(true);
     trackToolLaunch('gap-analyzer', 'Resume Gap Analyzer');
+
+    if (preview) {
+      if (previewOutput) setOutput(previewOutput);
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/ai/gap-analyzer', {
@@ -71,6 +85,10 @@ export default function GapAnalyzerForm() {
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (preview) {
+      e.target.value = '';
+      return;
+    }
     setError('');
     setExtracting(true);
     try {
@@ -197,13 +215,15 @@ export default function GapAnalyzerForm() {
           >
             {output}
           </pre>
-          <p style={{ margin: '0.75rem 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
-            Saved to your history.{' '}
-            <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
-              View all results
-            </Link>
-          </p>
-          <ToolFollowThrough toolType="gap_analyzer" />
+          {!preview ? (
+            <p style={{ margin: '0.75rem 0 0', fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}>
+              Saved to your history.{' '}
+              <Link href="/dashboard/ai-tools/history" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                View all results
+              </Link>
+            </p>
+          ) : null}
+          {!preview ? <ToolFollowThrough toolType="gap_analyzer" /> : null}
         </div>
       )}
     </form>

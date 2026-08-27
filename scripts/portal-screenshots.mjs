@@ -115,6 +115,8 @@ const TARGETS = [
   { name: 'member-job-match', path: '/dev/member/job-match' },
   { name: 'member-job-match-filled', path: '/dev/member/job-match?state=filled' },
   { name: 'member-job-match-error', path: '/dev/member/job-match?state=error' },
+  { name: 'member-gap-analyzer', path: '/dev/member/gap-analyzer' },
+  { name: 'member-gap-analyzer-filled', path: '/dev/member/gap-analyzer?state=filled' },
   { name: 'member-interview-coach', path: '/dev/member/interview-coach' },
   { name: 'member-interview-coach-interview', path: '/dev/member/interview-coach?state=interview' },
   { name: 'member-interview-coach-feedback', path: '/dev/member/interview-coach?state=feedback' },

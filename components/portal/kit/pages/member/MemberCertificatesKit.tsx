@@ -47,20 +47,6 @@ export interface MemberCertificatesKitProps {
   counselorHref?: string;
 }
 
-const DEFAULT_EARNED: EarnedCert[] = [
-  { id: 'aws-cp', title: 'AWS Cloud Practitioner', meta: 'Issued May 2026 · Credential ID AWS-CP-8841', verified: true },
-  { id: 'sf-adm', title: 'Salesforce Administrator', meta: 'Issued Mar 2026 · Credential ID SF-ADM-2207', verified: true },
-];
-
-const DEFAULT_IN_PROGRESS: InProgressCert[] = [
-  {
-    id: 'aws-saa',
-    title: 'AWS Solutions Architect Associate',
-    percent: 40,
-    note: 'Finish AWS Practitioner to unlock the voucher.',
-  },
-];
-
 /**
  * Share action for an earned certificate card. Mirrors the legacy
  * CertificationViewButton wiring: builds the dated share link via
@@ -80,14 +66,22 @@ function EarnedCertShareButton({ title, earnedAtIso }: { title: string; earnedAt
 }
 
 export function MemberCertificatesKit({
-  earnedCount = 2,
-  inProgressCount = 1,
-  learningHours = 86,
-  verifiedCount = 2,
-  earned = DEFAULT_EARNED,
-  inProgress = DEFAULT_IN_PROGRESS,
+  earnedCount = 0,
+  inProgressCount = 0,
+  learningHours,
+  verifiedCount = 0,
+  earned = [],
+  inProgress = [],
   counselorHref = '/dashboard/messages',
 }: MemberCertificatesKitProps) {
+  const kpiItems = [
+    { label: 'Earned', value: earnedCount, color: 'gold' as const },
+    { label: 'In progress', value: inProgressCount, color: 'accent' as const },
+    ...(typeof learningHours === 'number' && learningHours > 0
+      ? [{ label: 'Hours', value: learningHours, color: 'text' as const }]
+      : []),
+    { label: 'Verified', value: verifiedCount, color: 'success' as const },
+  ];
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-5">
@@ -97,14 +91,7 @@ export function MemberCertificatesKit({
           lede="Verified credentials, plus what's in progress."
           icon={<Award size={13} aria-hidden="true" />}
         />
-        <KpiStrip
-          items={[
-            { label: 'Earned', value: earnedCount, color: 'gold' },
-            { label: 'In progress', value: inProgressCount, color: 'accent' },
-            { label: 'Hours', value: learningHours, color: 'text' },
-            { label: 'Verified', value: verifiedCount, color: 'success' },
-          ]}
-        />
+        <KpiStrip items={kpiItems} />
 
         <div className="wa-space-y-4">
           {/* Earned certificates — quiet bordered surface, rows + hairlines
@@ -115,7 +102,7 @@ export function MemberCertificatesKit({
             {earned.length === 0 ? (
               <div className="wa-kit-card">
                 <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', margin: 0 }}>No certificates yet</h3>
-                <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 6, lineHeight: 1.5 }}>
+                <p className="wa-kit-lede" style={{ marginTop: 6 }}>
                   Completed credentials will appear here after they are logged and verified.
                 </p>
                 <Link
@@ -131,7 +118,7 @@ export function MemberCertificatesKit({
                     background: 'var(--wa-accent)',
                     color: 'var(--wa-on-accent)',
                     fontWeight: 600,
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     borderRadius: 999,
                     textDecoration: 'none',
                   }}
@@ -154,7 +141,7 @@ export function MemberCertificatesKit({
                           <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} />
                         ) : null}
                       </div>
-                      <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{cert.meta}</p>
+                      <p className="wa-kit-meta" style={{ marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{cert.meta}</p>
                       <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
                         <a
                           href="/api/member/certifications/export"
@@ -167,7 +154,7 @@ export function MemberCertificatesKit({
                             background: 'var(--wa-accent)',
                             color: 'var(--wa-on-accent)',
                             fontWeight: 600,
-                            fontSize: 13,
+                            fontSize: 'var(--wa-type-body)',
                             borderRadius: 999,
                             border: 'none',
                             cursor: 'pointer',
@@ -204,7 +191,7 @@ export function MemberCertificatesKit({
                     <div style={{ marginTop: 12 }}>
                       <ProgressBar pct={pct} aria-label={`${cert.title} progress`} />
                     </div>
-                    <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.45 }}>{cert.note}</p>
+                    <p className="wa-kit-lede" style={{ marginTop: 8 }}>{cert.note}</p>
                   </div>
                 );
               })}

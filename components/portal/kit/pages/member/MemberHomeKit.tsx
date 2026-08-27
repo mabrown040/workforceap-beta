@@ -105,6 +105,7 @@ export interface PointsLedgerEntry {
 
 export interface MemberHomeKitProps {
   firstName?: string;
+  /** Optional time-of-day phrase. Omit on live — title is the member's name. */
   greeting?: string;
   /** 0–100 course completion. */
   coursePercent?: number;
@@ -154,12 +155,6 @@ export interface MemberHomeKitProps {
   /** Recent point-earning events for the points ledger. Omit/empty to hide the list (points total still shows). */
   pointsLedger?: PointsLedgerEntry[];
 }
-
-const DEFAULT_PIPELINE: PipelineRow[] = [
-  { role: 'Salesforce Administrator', company: 'Deloitte', stage: 'Interviewing', tone: 'warn', appliedLabel: 'Jun 18', stageIndex: 3, stageTotal: 3 },
-  { role: 'Agentforce SE', company: 'Accenture', stage: 'Applied', tone: 'muted', appliedLabel: 'Jun 29', stageIndex: 1, stageTotal: 3 },
-  { role: 'Cloud Support Associate', company: 'Indeed', stage: 'Screening', tone: 'info', appliedLabel: 'Jun 24', stageIndex: 2, stageTotal: 3 },
-];
 
 /* ---------------------------------------------------------------------- */
 /* Small pure helpers                                                      */
@@ -215,7 +210,7 @@ const HOME_TEXT_LINK: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   minHeight: 44,
-  fontSize: 14,
+  fontSize: 'var(--wa-type-body)',
   fontWeight: 700,
   color: 'var(--wa-accent)',
   textDecoration: 'none',
@@ -467,8 +462,8 @@ const pipelineColumns: Column<PipelineRow>[] = [
             {initial}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--wa-text)' }}>{row.role}</div>
-            <div style={{ fontSize: 13, color: 'var(--wa-muted)', fontWeight: 600, marginTop: 1 }}>{row.company}</div>
+            <div style={{ fontWeight: 700, fontSize: 'var(--wa-type-body)', color: 'var(--wa-text)' }}>{row.role}</div>
+            <div className="wa-kit-meta" style={{ fontWeight: 600, marginTop: 1 }}>{row.company}</div>
           </div>
         </div>
       );
@@ -543,19 +538,19 @@ const pipelineCard = (row: PipelineRow) => {
 
 export function MemberHomeKit({
   firstName = 'Mike',
-  greeting = 'Good morning',
-  coursePercent = 78,
-  activeJobs = 4,
-  certs = 2,
-  points = 1240,
-  programTitle = 'AWS Cloud Practitioner',
+  greeting,
+  coursePercent = 0,
+  activeJobs = 0,
+  certs = 0,
+  points = 0,
+  programTitle = 'Program',
   programStatus = 'In progress',
-  nextLesson = 'Shared Responsibility Model',
-  nextLessonDue = 'Due Thursday',
-  nextBadgePercent = 60,
-  nextBadgeName = 'Cloud Foundations',
-  nextBadgeRemaining = '2 modules',
-  pipeline = DEFAULT_PIPELINE,
+  nextLesson,
+  nextLessonDue,
+  nextBadgePercent = 0,
+  nextBadgeName = 'Next badge',
+  nextBadgeRemaining = 'Not started',
+  pipeline = [],
   resumeHref = '/dashboard/program',
   toolkitHref = '/dashboard/toolkit',
   jobsHref = '/dashboard/jobs',
@@ -592,7 +587,8 @@ export function MemberHomeKit({
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
         <PageOpener
           kicker="Home"
-          title={`${greeting}, ${firstName}`}
+          title={greeting ? `${greeting}, ${firstName}` : firstName}
+          lede={nextLesson ? `Next: ${nextLesson}${nextLessonDue ? ` · ${nextLessonDue}` : ''}` : 'Pick up your program, jobs, or Career Studio.'}
           icon={<Home size={13} aria-hidden="true" />}
           action={
             currentStreak > 0 ? (
@@ -664,7 +660,7 @@ export function MemberHomeKit({
                       background: 'var(--wa-accent)',
                       color: 'var(--wa-on-accent)',
                       fontWeight: 700,
-                      fontSize: 13,
+                      fontSize: 'var(--wa-type-body)',
                       borderRadius: 999,
                       textDecoration: 'none',
                     }}
@@ -698,8 +694,11 @@ export function MemberHomeKit({
                 </div>
               </>
             ) : (
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
-                No study minutes this week.
+              <p className="wa-kit-lede" style={{ margin: 0 }}>
+                No study minutes this week.{' '}
+                <a href={resumeHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                  Open program
+                </a>
               </p>
             )}
           </div>

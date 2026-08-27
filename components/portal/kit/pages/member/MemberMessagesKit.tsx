@@ -60,28 +60,16 @@ export interface MemberMessagesKitProps {
   threadId?: string;
 }
 
-const DEFAULT_CONVERSATIONS: Conversation[] = [
-  { id: 'sarah', name: 'Sarah Chen', role: 'Counselor', preview: 'AWS Practitioner at 78%. Deloitte interview is next.', unread: true, active: true },
-  { id: 'team', name: 'WorkforceAP Team', role: 'Support', preview: 'Your AWS exam voucher is ready.' },
-];
+const DEFAULT_CONVERSATIONS: Conversation[] = [];
 
-const DEFAULT_MESSAGES: ChatMessage[] = [
-  { id: 'm1', from: 'other', author: 'SC', text: 'AWS Practitioner is at 78%. The Deloitte interview is next — want to walk the technical questions?' },
-  { id: 'm2', from: 'self', text: 'The technical questions are the gap.' },
-  {
-    id: 'm3',
-    from: 'other',
-    author: 'SC',
-    text: 'Thursday mock interview. Use Interview prep in Career Studio for Salesforce admin roles.',
-  },
-];
+const DEFAULT_MESSAGES: ChatMessage[] = [];
 
 export function MemberMessagesKit({
   conversations = DEFAULT_CONVERSATIONS,
-  activeName = 'Sarah Chen',
-  activeRole = 'Career Counselor',
-  activeInitials = 'SC',
-  activeOnline = true,
+  activeName = 'Counselor',
+  activeRole = 'Support',
+  activeInitials = 'CS',
+  activeOnline = false,
   messages: messagesProp = DEFAULT_MESSAGES,
   onSend,
   memberUserId,
@@ -233,7 +221,12 @@ export function MemberMessagesKit({
               <h2 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Conversations</h2>
             </div>
             <div>
-              {conversations.map((c) => (
+              {conversations.length === 0 ? (
+                <p className="wa-kit-lede" style={{ margin: 0, padding: '20px' }}>
+                  No conversations yet. Your counselor thread opens here after you send a message.
+                </p>
+              ) : (
+              conversations.map((c) => (
                 <button
                   key={c.id}
                   type="button"
@@ -246,7 +239,7 @@ export function MemberMessagesKit({
                     padding: '16px 20px',
                     border: 'none',
                     borderBottom: '1px solid var(--wa-border)',
-                    borderLeft: c.active ? '2px solid var(--wa-accent)' : '2px solid transparent',
+                    borderLeft: '2px solid transparent',
                     background: c.active ? 'var(--wa-accent-soft)' : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -266,11 +259,12 @@ export function MemberMessagesKit({
                       />
                     ) : null}
                   </div>
-                  <div style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 2 }}>{c.role}</div>
+                  <div className="wa-kit-meta" style={{ marginTop: 2 }}>{c.role}</div>
                   <p
+                    className={c.active ? undefined : 'wa-kit-meta'}
                     style={{
-                      fontSize: 13,
-                      color: c.active ? 'var(--wa-text)' : 'var(--wa-muted)',
+                      fontSize: c.active ? 'var(--wa-type-body)' : undefined,
+                      color: c.active ? 'var(--wa-text)' : undefined,
                       marginTop: 4,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -280,7 +274,8 @@ export function MemberMessagesKit({
                     {c.preview}
                   </p>
                 </button>
-              ))}
+              ))
+              )}
             </div>
           </div>
 
@@ -339,7 +334,7 @@ export function MemberMessagesKit({
             </div>
             <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column' }}>
               {error ? (
-                <p role="alert" style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--wa-danger)' }}>
+                <p role="alert" className="wa-kit-lede" style={{ margin: '0 0 12px', color: 'var(--wa-danger)' }}>
                   {error}
                 </p>
               ) : null}

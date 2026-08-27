@@ -26,25 +26,34 @@ export default async function DevMemberMessagesPage({
   return (
     <MemberMessagesKit
       conversations={[
-        { id: 'sarah', name: 'Sarah Chen', role: 'Counselor', preview: 'AWS Practitioner at 78%. Deloitte interview is next.', unread: true, active: true },
-        { id: 'team', name: 'WorkforceAP Team', role: 'Support', preview: 'Your AWS exam voucher is ready.', unread: true },
-        { id: 'jasmine', name: 'Jasmine Davis', role: 'Peer Cohort', preview: 'Anyone free to do a mock interview Thursday?' },
+        {
+          id: 'counselor',
+          name: 'Counselor',
+          role: 'Career counselor',
+          preview: 'Reply here about training, jobs, or your next session.',
+          unread: true,
+          active: true,
+        },
+        {
+          id: 'team',
+          name: 'WorkforceAP Team',
+          role: 'Support',
+          preview: 'Workspace email and Coursera access questions go here.',
+        },
       ]}
-      activeName="Sarah Chen"
-      activeRole="Career Counselor"
-      activeInitials="SC"
+      activeName="Counselor"
+      activeRole="Career counselor"
+      activeInitials="CS"
       activeOnline
       messages={[
-        { id: 'm1', from: 'other', author: 'SC', text: 'AWS Practitioner is at 78%. The Deloitte interview is next — want to walk the technical questions?' },
-        { id: 'm2', from: 'self', text: 'The technical questions are the gap.' },
         {
-          id: 'm3',
+          id: 'm1',
           from: 'other',
-          author: 'SC',
-          text: 'Thursday mock interview. Use Interview prep in Career Studio for Salesforce admin roles.',
+          author: 'CS',
+          text: 'This thread is with your counselor. Send a question about training, jobs, or your next session.',
         },
-        { id: 'm4', from: 'self', text: 'Thursday works.' },
-        { id: 'm5', from: 'other', author: 'SC', text: 'Thursday 2pm CT. Calendar invite next.' },
+        { id: 'm2', from: 'self', text: 'Will do.' },
+        { id: 'm3', from: 'other', author: 'CS', text: 'I will reply on this thread.' },
       ]}
     />
   );

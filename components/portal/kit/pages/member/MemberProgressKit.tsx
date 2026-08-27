@@ -32,19 +32,9 @@ export interface MemberProgressKitProps {
   readinessCoachHref?: string;
 }
 
-const DEFAULT_WEEK_STATS: WeekStat[] = [
-  { value: '5.2', label: 'Hours', color: 'var(--wa-accent)' },
-  { value: '3', label: 'Jobs applied', color: 'var(--wa-info)' },
-  { value: '2', label: 'Modules', color: 'var(--wa-gold)' },
-  { value: '+320', label: 'Points', color: 'var(--wa-success)' },
-];
+const DEFAULT_WEEK_STATS: WeekStat[] = [];
 
-const DEFAULT_MILESTONES: Milestone[] = [
-  { label: 'Completed intake & eligibility', when: 'May 2', state: 'done' },
-  { label: 'Earned first certification', when: 'Mar 18', state: 'done' },
-  { label: 'First interview scheduled', when: 'This week', state: 'active' },
-  { label: 'Job placement', when: 'Goal', state: 'goal' },
-];
+const DEFAULT_MILESTONES: Milestone[] = [];
 
 const MILESTONE_META: Record<MilestoneState, { icon: LucideIcon; iconSize: number; iconBg: string; iconColor: string; whenColor: string; dim: boolean }> = {
   done: { icon: Check, iconSize: 14, iconBg: 'var(--wa-success)', iconColor: 'var(--wa-on-accent)', whenColor: 'var(--wa-muted)', dim: false },
@@ -53,8 +43,8 @@ const MILESTONE_META: Record<MilestoneState, { icon: LucideIcon; iconSize: numbe
 };
 
 export function MemberProgressKit({
-  readinessScore = 84,
-  readinessNote = 'Finish your current certification.',
+  readinessScore = 0,
+  readinessNote = 'Complete Training Preassessment to see a score.',
   weekStats = DEFAULT_WEEK_STATS,
   statsHeading = 'Progress by area',
   milestones = DEFAULT_MILESTONES,
@@ -80,7 +70,7 @@ export function MemberProgressKit({
               Score
             </h2>
             <ProgressRing pct={score} size={160} color="success" label="Readiness score" />
-            <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 12, lineHeight: 1.45 }}>{readinessNote}</p>
+            <p className="wa-kit-lede" style={{ marginTop: 12 }}>{readinessNote}</p>
             <a
               href={readinessCoachHref}
               className="wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
@@ -112,18 +102,34 @@ export function MemberProgressKit({
               it can't force an overflowing implicit track at narrow widths). */}
           <div className="wa-kit-card lg:wa-col-span-2">
             <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>{statsHeading}</h2>
+            {weekStats.length === 0 ? (
+              <p className="wa-kit-lede" style={{ marginBottom: 24 }}>
+                Category scores appear after Training Preassessment.{' '}
+                <a
+                  href="/dashboard/assessment"
+                  className="wa-kit-focus"
+                  style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}
+                >
+                  Open skills check
+                </a>
+              </p>
+            ) : (
             <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 24 }}>
               {weekStats.map((stat) => (
                 <div key={stat.label} style={{ textAlign: 'center', padding: 12, background: 'var(--wa-surface-2)', borderRadius: 'var(--wa-radius-sm)' }}>
                   <div style={{ fontSize: 22, fontWeight: 800, color: stat.color, fontVariantNumeric: 'tabular-nums' }}>{stat.value}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--wa-muted)', marginTop: 4 }}>{stat.label}</div>
+                  <div className="wa-kit-meta" style={{ fontWeight: 600, marginTop: 4 }}>{stat.label}</div>
                 </div>
               ))}
             </div>
+            )}
 
             <h3 style={{ fontWeight: 700, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--wa-muted)', marginBottom: 12 }}>
               Milestones
             </h3>
+            {milestones.length === 0 ? (
+              <p className="wa-kit-lede">Milestones fill in as you complete intake, training, and interviews.</p>
+            ) : (
             <div className="wa-space-y-3">
               {milestones.map((m) => {
                 const meta = MILESTONE_META[m.state];
@@ -151,6 +157,7 @@ export function MemberProgressKit({
                 );
               })}
             </div>
+            )}
           </div>
         </div>
       </div>

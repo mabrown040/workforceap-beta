@@ -14,7 +14,6 @@ export default function DevMemberHomePage() {
   return (
     <MemberHomeKit
       firstName="Mike"
-      greeting="Good morning"
       coursePercent={78}
       activeJobs={4}
       certs={2}

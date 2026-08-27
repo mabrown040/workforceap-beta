@@ -249,7 +249,7 @@ export function MemberProfileKit({
               ))}
             </div>
           </div>
-          <p style={{ maxWidth: 180, fontSize: 13, color: 'var(--wa-muted)', textAlign: 'center', lineHeight: 1.45 }}>
+          <p className="wa-kit-meta" style={{ maxWidth: 180, textAlign: 'center', lineHeight: 1.45 }}>
             Photo is managed by your counselor.
           </p>
         </div>
@@ -280,7 +280,7 @@ export function MemberProfileKit({
                   style={{
                     marginTop: 4,
                     width: '100%',
-                    fontSize: 14,
+                    fontSize: 'var(--wa-type-body)',
                     border: '1px solid var(--wa-border)',
                     borderRadius: 'var(--wa-radius-sm)',
                     padding: '10px 12px',
@@ -298,7 +298,7 @@ export function MemberProfileKit({
               </FormField>
             </div>
             {live ? (
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginTop: 8, lineHeight: 1.45 }}>
+              <p className="wa-kit-lede" style={{ marginTop: 8 }}>
                 Email and program are managed by your counselor.
               </p>
             ) : null}
@@ -386,7 +386,7 @@ export function MemberProfileKit({
                 to log out and use "forgot password" on the sign-in screen. */}
             <div className="wa-kit-card">
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8 }}>Password and security</h3>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+              <p className="wa-kit-lede" style={{ marginBottom: 16 }}>
                 Reset by email — current password is not required.
               </p>
               <a
@@ -415,7 +415,7 @@ export function MemberProfileKit({
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 8, color: 'var(--wa-danger)' }}>
                 Delete account
               </h3>
-              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+              <p className="wa-kit-lede" style={{ marginBottom: 16 }}>
                 Permanently delete your WorkforceAP account and training progress. This can&apos;t be undone.
               </p>
               <DeleteAccountButton />

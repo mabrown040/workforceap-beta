@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import { trackFunnelEvent } from '@/lib/analytics/events';
@@ -60,8 +60,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
             className="wa-flex wa-items-center wa-gap-2"
             style={{ color: 'color-mix(in srgb, var(--wa-on-accent) 85%, transparent)' }}
           >
-            <Sparkles size={13} aria-hidden />
-            <span className="wa-text-xs wa-font-bold wa-uppercase" style={{ letterSpacing: '0.14em' }}>
+            <span className="wa-kit-meta" style={{ letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, color: 'inherit' }}>
               {t('doThisNext')}
             </span>
           </div>
@@ -84,11 +83,10 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
             {action.title}
           </h2>
           <p
+            className="wa-kit-lede"
             style={{
-              fontSize: 13,
               color: 'color-mix(in srgb, var(--wa-on-accent) 90%, transparent)',
               margin: 0,
-              lineHeight: 1.55,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               display: '-webkit-box',
@@ -113,7 +111,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
               background: 'var(--wa-on-accent)',
               color: 'var(--wa-accent)',
               fontWeight: 700,
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               borderRadius: 999,
               textDecoration: 'none',
               maxWidth: '100%',
@@ -153,7 +151,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
           >
             {t('doThisNext')}
           </p>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--wa-on-accent)', margin: 0, lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {action.title}
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', margin: 0, lineHeight: 1.55, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
@@ -166,7 +164,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem', varian
             style={{
               marginTop: '0.25rem',
               alignSelf: 'flex-start',
-              background: '#fff',
+              background: 'var(--wa-on-accent)',
               color: 'var(--color-accent)',
               fontWeight: 700,
               border: 'none',

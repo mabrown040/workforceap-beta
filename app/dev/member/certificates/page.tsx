@@ -15,7 +15,6 @@ export default function DevMemberCertificatesPage() {
     <MemberCertificatesKit
       earnedCount={2}
       inProgressCount={2}
-      learningHours={86}
       verifiedCount={2}
       earned={[
         { id: 'aws-cp', title: 'AWS Cloud Practitioner', meta: 'Issued May 2026 · Credential ID AWS-CP-8841', verified: true, earnedAtIso: '2026-05-14' },

@@ -32,7 +32,7 @@ export function MemberMessagesEmpty({
           <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: '0 0 0.35rem' }}>
             {title}
           </h2>
-          <p style={{ fontSize: 14, color: 'var(--wa-muted)', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
+          <p className="wa-kit-lede" style={{ margin: '0 0 1.25rem' }}>
             {description}
           </p>
           <a
@@ -44,7 +44,7 @@ export function MemberMessagesEmpty({
               background: 'var(--wa-accent)',
               color: 'var(--wa-on-accent)',
               fontWeight: 600,
-              fontSize: 14,
+              fontSize: 'var(--wa-type-body)',
               borderRadius: 999,
               textDecoration: 'none',
             }}

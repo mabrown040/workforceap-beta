@@ -1,12 +1,13 @@
 'use client';
 
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import type { InputHTMLAttributes, ReactNode, Ref } from 'react';
 import { cloneElement, isValidElement, useId } from 'react';
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   full?: boolean;
   children?: ReactNode; // pass a <select> etc. instead of the default input
+  ref?: Ref<HTMLInputElement>;
 }
 
 const CONTROL_STYLE = {
@@ -22,7 +23,7 @@ const CONTROL_STYLE = {
 } as const;
 
 /** Labeled input/select field — kit-native `.wa-kit-field-label` on `--wa-*`. */
-export function FormField({ label, full, children, id, ...inputProps }: FormFieldProps) {
+export function FormField({ label, full, children, id, ref, ...inputProps }: FormFieldProps) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const labeledChild = isValidElement<{ id?: string; className?: string }>(children)
@@ -41,6 +42,7 @@ export function FormField({ label, full, children, id, ...inputProps }: FormFiel
         <input
           {...inputProps}
           id={fieldId}
+          ref={ref}
           className="wa-kit-focus"
           style={CONTROL_STYLE}
         />

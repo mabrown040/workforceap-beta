@@ -177,12 +177,10 @@ export function MemberToolkitKit({
   onSend,
 }: MemberToolkitKitProps) {
   const resolvedTools = hrefMap
-    ? tools
-        .map((tool) => {
-          if (!tool.href || !hrefMap[tool.href]) return null;
-          return { ...tool, href: hrefMap[tool.href] };
-        })
-        .filter((tool): tool is ToolCard => tool != null)
+    ? tools.flatMap((tool) => {
+        if (!tool.href || !hrefMap[tool.href]) return [];
+        return [{ ...tool, href: hrefMap[tool.href] }];
+      })
     : tools;
   const coachLink = coachHref && coachHref !== '#' ? coachHref : null;
   // No fabricated transcript: with no real advisor history supplied, show a

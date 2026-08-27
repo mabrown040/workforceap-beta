@@ -88,6 +88,9 @@ type Props = {
   onComplete: (result: MissionEvalResponse & { ok: true }) => void;
   /** Proofs: skip quiz-check / evaluate POSTs and stay local. */
   preview?: boolean;
+  /** Proofs: open a later phase without walking the quiz. */
+  initialPhase?: 0 | 1 | 2 | 3 | 4;
+  initialResult?: (MissionEvalResponse & { ok: true }) | null;
 };
 
 // ── Shared style tokens ───────────────────────────────────────────────────────
@@ -115,6 +118,38 @@ const OVERLAY_STYLE: React.CSSProperties = {
   padding: '1rem',
 };
 
+const KIT_PRIMARY: React.CSSProperties = {
+  minHeight: 44,
+  padding: '10px 18px',
+  background: 'var(--wa-accent)',
+  color: 'var(--wa-on-accent)',
+  border: 'none',
+  borderRadius: 999,
+  fontWeight: 700,
+  fontSize: 14,
+  cursor: 'pointer',
+};
+
+function previewPassResult(
+  mission: SkillMissionSummaryItem,
+): MissionEvalResponse & { ok: true } {
+  const prior = mission.latestResult;
+  return {
+    ok: true,
+    verdict: 'passed',
+    coachingNote:
+      prior?.coachingNote ?? 'This is a local proof overlay. Nothing was submitted.',
+    starStory: prior?.starStory ?? mission.scenarioPrompt,
+    resumeBullet:
+      prior?.resumeBullet ?? `${mission.missionName}: completed the skill challenge.`,
+    skillsUnlocked: prior?.skillsUnlocked.length
+      ? prior.skillsUnlocked
+      : mission.skillLabels,
+    quizCorrectCount: mission.quizQuestions.length,
+    aiToolResultId: mission.aiToolResultId,
+  };
+}
+
 function CloseButton({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -132,7 +167,7 @@ function CloseButton({ onClick }: { onClick: () => void }) {
         minHeight: 44,
         background: 'none',
         border: '1px solid var(--outline-variant)',
-        borderRadius: '0.4rem',
+        borderRadius: 999,
         cursor: 'pointer',
         color: 'var(--color-on-surface-variant)',
         lineHeight: 1,
@@ -924,16 +959,16 @@ function PhaseCelebration({
         textAlign: 'center',
       }}
     >
-      <Trophy
-        size={48}
+      <CheckCircle2
+        size={28}
         aria-hidden="true"
-        style={{ color: 'var(--color-gold)', marginBottom: '0.5rem', display: 'inline-block' }}
+        style={{ color: 'var(--wa-success)', marginBottom: '0.5rem', display: 'inline-block' }}
       />
-      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-on-surface)' }}>
-        Career proof unlocked!
+      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--wa-text)' }}>
+        Mission passed
       </h2>
-      <p style={{ margin: '0 0 1.5rem', fontSize: '0.92rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-        This just dropped into your Resume Studio — ready to use in your next application.
+      <p style={{ margin: '0 0 1.5rem', fontSize: 13, color: 'var(--wa-muted)', lineHeight: 1.55 }}>
+        The STAR story and resume bullet stay here. Open Resume Studio when you want them in a draft.
       </p>
 
       {/* Resume bullet spotlight */}

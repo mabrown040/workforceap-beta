@@ -274,16 +274,21 @@ export function PlacementsKit({
         }
       />
 
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 12,
-          color: 'var(--wa-muted)',
-          marginTop: 16,
-        }}
-      >
-        Showing {placements.length} of {total}
-      </p>
+      {/* Suppressed when the table is empty — the empty state above already
+          explains the situation, and "Showing 0 of 0" is pure noise. */}
+      {placements.length > 0 ? (
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--wa-muted)',
+            marginTop: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Showing {placements.length} of {total}
+        </p>
+      ) : null}
     </DesignSurface>
   );
 }

@@ -181,7 +181,7 @@ function EmptyQueueState({ rosterHref }: { rosterHref: string }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <CheckCircle2 size={18} aria-hidden style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Nice work — no one&rsquo;s waiting on you right now.</p>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>No members are waiting on a reply.</p>
           <Link href={rosterHref} style={{ fontSize: 12, fontWeight: 600, color: 'var(--wa-accent)', textDecoration: 'none' }}>
             Browse your full roster
           </Link>

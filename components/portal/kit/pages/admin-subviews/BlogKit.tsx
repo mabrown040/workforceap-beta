@@ -187,6 +187,16 @@ export function BlogKit({ posts = DEFAULT_POSTS }: BlogKitProps) {
         )}
         emptyTitle="No blog posts yet"
         emptyDescription="Create your first post to start publishing content."
+        emptyAction={
+          <AstryxLink href="/admin/blog/new" as={NextLink as never} isStandalone>
+            <Button
+              label="Write the first post"
+              variant="primary"
+              size="sm"
+              icon={<Plus size={14} aria-hidden="true" />}
+            />
+          </AstryxLink>
+        }
       />
     </DesignSurface>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Token, type TokenColor } from '@astryxdesign/core/Token';
@@ -160,6 +161,12 @@ export function StudentsRosterKit({
   };
 
   const visible = students.filter((s) => matchesFilter(s, active));
+
+  // An empty table means two different things here: nobody is enrolled at all,
+  // or the active chip filtered everyone out. Only the second one has a next
+  // step the admin can take, so don't offer "clear the filter" when there is
+  // no filter to clear.
+  const filteredToNothing = students.length > 0 && visible.length === 0;
 
   const StudentCell = ({ row }: { row: StudentRow }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
@@ -321,13 +328,37 @@ export function StudentsRosterKit({
             </div>
           </Card>
         )}
-        emptyTitle="No students match this view"
-        emptyDescription="Try a different filter."
+        emptyTitle={filteredToNothing ? `No students match “${active}”` : 'No students yet'}
+        emptyDescription={
+          filteredToNothing
+            ? `${total.toLocaleString('en-US')} students are on the roster, but none of them are in this view.`
+            : 'Students appear here once they are invited and enrolled in a program.'
+        }
+        emptyAction={
+          filteredToNothing ? (
+            <Button
+              label="Show all students"
+              variant="secondary"
+              size="sm"
+              onClick={() => setActive('All')}
+            />
+          ) : undefined
+        }
       />
 
-      <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 16 }}>
-        Showing {visible.length} of {total}
-      </p>
+      {visible.length > 0 ? (
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--wa-muted)',
+            marginTop: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Showing {visible.length} of {total}
+        </p>
+      ) : null}
     </DesignSurface>
   );
 }

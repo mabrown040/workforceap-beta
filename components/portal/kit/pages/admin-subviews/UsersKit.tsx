@@ -169,18 +169,33 @@ export function UsersKit({ users, total }: UsersKitProps) {
         )}
         emptyTitle="No staff accounts yet"
         emptyDescription="Invite an admin or counselor to start managing staff access."
+        emptyAction={
+          <AstryxLink href="/admin/invites/new" as={Link as never} isStandalone>
+            <Button
+              label="Invite a staff member"
+              variant="primary"
+              size="sm"
+              icon={<Plus size={14} aria-hidden="true" />}
+            />
+          </AstryxLink>
+        }
       />
 
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 12,
-          color: 'var(--wa-muted)',
-          marginTop: 16,
-        }}
-      >
-        Showing {users.length} of {total}
-      </p>
+      {/* Suppressed when the table is empty — the empty state above already
+          explains the situation, and "Showing 0 of 0" is pure noise. */}
+      {users.length > 0 ? (
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--wa-muted)',
+            marginTop: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Showing {users.length} of {total}
+        </p>
+      ) : null}
     </DesignSurface>
   );
 }

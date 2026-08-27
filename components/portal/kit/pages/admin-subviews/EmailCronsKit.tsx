@@ -180,16 +180,21 @@ export function EmailCronsKit({
         emptyDescription="Registered email and workflow jobs will appear here."
       />
 
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 12,
-          color: 'var(--wa-muted)',
-          marginTop: 16,
-        }}
-      >
-        Showing {jobs.length} of {totalJobs}
-      </p>
+      {/* Suppressed when the table is empty — the empty state above already
+          explains the situation, and "Showing 0 of 0" is pure noise. */}
+      {jobs.length > 0 ? (
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--wa-muted)',
+            marginTop: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Showing {jobs.length} of {totalJobs}
+        </p>
+      ) : null}
     </DesignSurface>
   );
 }

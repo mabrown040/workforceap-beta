@@ -171,16 +171,21 @@ export function PlacementSurveysKit({
         emptyDescription="Placement follow-up surveys will appear here once they're sent."
       />
 
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 12,
-          color: 'var(--wa-muted)',
-          marginTop: 16,
-        }}
-      >
-        Showing {rows.length} of {sent}
-      </p>
+      {/* Suppressed when the table is empty — the empty state above already
+          explains the situation, and "Showing 0 of 0" is pure noise. */}
+      {rows.length > 0 ? (
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--wa-muted)',
+            marginTop: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Showing {rows.length} of {sent}
+        </p>
+      ) : null}
     </DesignSurface>
   );
 }

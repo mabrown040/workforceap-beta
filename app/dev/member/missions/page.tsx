@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation';
 import { Target } from 'lucide-react';
-import Link from 'next/link';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import SkillMissionPanel, { type SkillMissionSummary } from '@/components/portal/SkillMissionPanel';
 import { SkillMissionChallengePreview } from '@/components/portal/SkillMissionChallenge';
 import SkillMissionTeaserCard from '@/components/portal/SkillMissionTeaserCard';
-import { skillMissionEmptyState } from '@/lib/member/skillMissionEmptyState';
+import { SkillMissionEmpty } from '@/components/portal/SkillMissionEmpty';
 
 /**
  * Credential-free proofs for Skill Missions.
@@ -180,50 +179,13 @@ export default async function DevMemberMissionsPage({
             resumeStudioHref="#"
           />
         ) : (
-          <MissionsEmptyProof enrolled={view === 'enrolled'} />
+          <SkillMissionEmpty
+            programSlug={view === 'enrolled' ? 'ai-professional-practitioner-certificate' : null}
+            programTitle={view === 'enrolled' ? 'AI Professional Practitioner Certificate' : null}
+            hrefMap={DEV_HREF}
+          />
         )}
       </div>
     </DesignSurface>
-  );
-}
-
-function MissionsEmptyProof({ enrolled }: { enrolled: boolean }) {
-  const empty = enrolled
-    ? skillMissionEmptyState({
-        programSlug: 'ai-professional-practitioner-certificate',
-        programTitle: 'AI Professional Practitioner Certificate',
-      })
-    : skillMissionEmptyState({ programSlug: null, programTitle: null });
-  const actionHref = DEV_HREF[empty.primaryAction.href] ?? empty.primaryAction.href;
-
-  return (
-    <div
-      className="wa-kit-card"
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-    >
-      <Target size={32} aria-hidden="true" style={{ color: 'var(--wa-accent)', marginBottom: 12 }} />
-      <h2 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', margin: '0 0 0.35rem' }}>
-        {empty.title}
-      </h2>
-      <p style={{ fontSize: 14, color: 'var(--wa-muted)', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
-        {empty.description}
-      </p>
-      <Link
-        href={actionHref}
-        className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-        style={{
-          minHeight: 44,
-          padding: '10px 16px',
-          background: 'var(--wa-accent)',
-          color: 'var(--wa-on-accent)',
-          fontWeight: 600,
-          fontSize: 14,
-          borderRadius: 999,
-          textDecoration: 'none',
-        }}
-      >
-        {empty.primaryAction.label}
-      </Link>
-    </div>
   );
 }

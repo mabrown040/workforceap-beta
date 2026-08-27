@@ -41,7 +41,7 @@ test('falls back to "this program" when the catalog title is missing', () => {
 test('missions page uses the dashboard program helper, not only User.enrolledProgram', () => {
   const src = readFileSync(join(ROOT, 'app/(portal)/dashboard/missions/page.tsx'), 'utf8');
   assert.match(src, /getActiveProgramForDashboard/);
-  assert.match(src, /skillMissionEmptyState/);
+  assert.match(src, /SkillMissionEmpty/);
   assert.doesNotMatch(src, /enrolledProgram:/);
 });
 

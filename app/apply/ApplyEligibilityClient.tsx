@@ -16,8 +16,13 @@ import {
 } from '@/lib/apply/primaryBarrierOptions';
 import HearAboutSelect from '@/components/apply/HearAboutSelect';
 import {
+  APPLY_PARTNER_REFERRAL_OPTIONS,
+  formatPartnerAmbassadorReferral,
   hearAboutNeedsOther,
   layoffCompanyApplicable,
+  parsePartnerAmbassadorReferral,
+  partnerReferralNeedsWriteIn,
+  partnerReferralWriteInMaxLength,
   type YesNo,
 } from '@/lib/apply/eligibilityExtendedFields';
 import type { SchoolApplyContext } from '@/lib/apply/resolveSchoolApply';
@@ -148,7 +153,12 @@ export default function ApplyEligibilityClient({
   const [snapWic, setSnapWic] = useState<YesNo | null>(null);
   const [hearAbout, setHearAbout] = useState('');
   const [hearAboutOther, setHearAboutOther] = useState('');
-  const [partnerAmbassadorReferral, setPartnerAmbassadorReferral] = useState('');
+  const [partnerReferralSelection, setPartnerReferralSelection] = useState('');
+  const [partnerReferralWriteIn, setPartnerReferralWriteIn] = useState('');
+  const partnerAmbassadorReferral = formatPartnerAmbassadorReferral(
+    partnerReferralSelection,
+    partnerReferralWriteIn,
+  );
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
   const completedRef = useRef(false);
@@ -179,7 +189,9 @@ export default function ApplyEligibilityClient({
     setSnapWic(draft.snapWic ?? null);
     setHearAbout(draft.hearAbout ?? '');
     setHearAboutOther(draft.hearAboutOther ?? '');
-    setPartnerAmbassadorReferral(draft.partnerAmbassadorReferral ?? '');
+    const partnerReferral = parsePartnerAmbassadorReferral(draft.partnerAmbassadorReferral);
+    setPartnerReferralSelection(partnerReferral.selected);
+    setPartnerReferralWriteIn(partnerReferral.writeIn);
     setGradeLevel(draft.gradeLevel ?? '');
     setParentGuardianName(draft.parentGuardianName ?? '');
     setParentGuardianEmail(draft.parentGuardianEmail ?? '');
@@ -227,7 +239,9 @@ export default function ApplyEligibilityClient({
       county.trim().length > 0 &&
       primaryBarriers.length > 0 &&
       hearAbout.trim().length > 0 &&
-      (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0);
+      (!hearAboutNeedsOther(hearAbout) || hearAboutOther.trim().length > 0) &&
+      (!partnerReferralNeedsWriteIn(partnerReferralSelection) ||
+        partnerReferralWriteIn.trim().length > 0);
   const yesNoAnswers: Array<YesNo | null> = [
     q1,
     receivingUnemployment,
@@ -341,7 +355,8 @@ export default function ApplyEligibilityClient({
     snapWic,
     hearAbout,
     hearAboutOther,
-    partnerAmbassadorReferral,
+    partnerReferralSelection,
+    partnerReferralWriteIn,
     gradeLevel,
     parentGuardianName,
     parentGuardianEmail,
@@ -936,17 +951,37 @@ export default function ApplyEligibilityClient({
                 ) : null}
                 <div className="form-group apply-form-group--full">
                   <label htmlFor="apply-partner-ambassador">{t('eligibilityPartnerAmbassadorLabel')}</label>
-                  <input
+                  <select
                     id="apply-partner-ambassador"
-                    type="text"
                     name="partnerAmbassadorReferral"
-                    value={partnerAmbassadorReferral}
-                    onChange={(e) => setPartnerAmbassadorReferral(e.target.value)}
-                    maxLength={200}
-                    placeholder={t('eligibilityPartnerAmbassadorPlaceholder')}
-                  />
-                  <p className="apply-field-hint">{t('eligibilityPartnerAmbassadorHint')}</p>
+                    value={partnerReferralSelection}
+                    onChange={(e) => setPartnerReferralSelection(e.target.value)}
+                  >
+                    <option value="">{t('eligibilityPartnerAmbassadorLabel')}</option>
+                    {APPLY_PARTNER_REFERRAL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                {partnerReferralNeedsWriteIn(partnerReferralSelection) ? (
+                  <div className="form-group apply-form-group--full">
+                    <label htmlFor="apply-partner-ambassador-write-in">
+                      {partnerReferralSelection}
+                    </label>
+                    <input
+                      id="apply-partner-ambassador-write-in"
+                      type="text"
+                      name="partnerAmbassadorWriteIn"
+                      value={partnerReferralWriteIn}
+                      onChange={(e) => setPartnerReferralWriteIn(e.target.value)}
+                      required
+                      maxLength={partnerReferralWriteInMaxLength(partnerReferralSelection)}
+                      aria-invalid={attemptedContinue && !partnerReferralWriteIn.trim()}
+                    />
+                  </div>
+                ) : null}
               </>
             ) : null}
           </div>

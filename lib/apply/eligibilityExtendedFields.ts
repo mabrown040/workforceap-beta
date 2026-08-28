@@ -22,6 +22,21 @@ export type ApplyHearAboutOption = (typeof APPLY_HEAR_ABOUT_OPTIONS)[number];
 export const APPLY_HEAR_ABOUT_OTHER = 'Other / write in';
 export const APPLY_HEAR_ABOUT_AMBASSADOR = 'Partner or community ambassador';
 
+export const APPLY_PARTNER_OTHER = 'Other Partner (write in)';
+export const APPLY_PARTNER_AMBASSADOR_WRITE_IN = 'Community Ambassador (write in)';
+
+/** Dedicated partner / ambassador choices requested for the public application. */
+export const APPLY_PARTNER_REFERRAL_OPTIONS = [
+  'Launch Pad Job Club',
+  'Purpose Works / Job Seekers Network',
+  'Workforce Solutions Capital Area',
+  'Workforce Solutions Rural Capital Area',
+  APPLY_PARTNER_OTHER,
+  APPLY_PARTNER_AMBASSADOR_WRITE_IN,
+] as const;
+
+export type ApplyPartnerReferralOption = (typeof APPLY_PARTNER_REFERRAL_OPTIONS)[number];
+
 export function isYesNo(value: unknown): value is YesNo {
   return value === 'yes' || value === 'no';
 }
@@ -45,6 +60,63 @@ export function hearAboutNeedsOther(hearAbout: string | null | undefined): boole
 export function hearAboutSuggestsAmbassador(hearAbout: string | null | undefined): boolean {
   const v = (hearAbout ?? '').toLowerCase();
   return v.includes('ambassador') || v.includes('partner');
+}
+
+export function partnerReferralNeedsWriteIn(selected: string | null | undefined): boolean {
+  return selected === APPLY_PARTNER_OTHER || selected === APPLY_PARTNER_AMBASSADOR_WRITE_IN;
+}
+
+/**
+ * Convert the existing single stored field into dropdown state.
+ *
+ * Older drafts may contain unrestricted text. Keep that text available by
+ * restoring it through the generic partner write-in instead of dropping it.
+ */
+export function parsePartnerAmbassadorReferral(stored: string | null | undefined): {
+  selected: string;
+  writeIn: string;
+} {
+  const raw = (stored ?? '').trim();
+  if (!raw) return { selected: '', writeIn: '' };
+
+  const options = APPLY_PARTNER_REFERRAL_OPTIONS as readonly string[];
+  if (options.includes(raw) && !partnerReferralNeedsWriteIn(raw)) {
+    return { selected: raw, writeIn: '' };
+  }
+
+  for (const prefix of [APPLY_PARTNER_OTHER, APPLY_PARTNER_AMBASSADOR_WRITE_IN] as const) {
+    if (raw === prefix) return { selected: prefix, writeIn: '' };
+    const taggedPrefix = `${prefix}:`;
+    if (raw.startsWith(taggedPrefix)) {
+      return { selected: prefix, writeIn: raw.slice(taggedPrefix.length).trim() };
+    }
+  }
+
+  return { selected: APPLY_PARTNER_OTHER, writeIn: raw };
+}
+
+/** Preserve the API's existing single-string storage contract (maximum 200 characters). */
+export function formatPartnerAmbassadorReferral(selected: string, writeIn: string): string {
+  const normalizedSelection = selected.trim();
+  if (!normalizedSelection) return '';
+  if (!partnerReferralNeedsWriteIn(normalizedSelection)) {
+    return normalizedSelection.slice(0, 200);
+  }
+
+  const normalizedWriteIn = writeIn.trim();
+  if (normalizedSelection === APPLY_PARTNER_OTHER && normalizedWriteIn) {
+    return normalizedWriteIn.slice(0, 200);
+  }
+  const value = normalizedWriteIn
+    ? `${normalizedSelection}: ${normalizedWriteIn}`
+    : normalizedSelection;
+  return value.slice(0, 200);
+}
+
+export function partnerReferralWriteInMaxLength(selected: string): number {
+  return selected === APPLY_PARTNER_AMBASSADOR_WRITE_IN
+    ? 200 - selected.length - 2
+    : 200;
 }
 
 /**

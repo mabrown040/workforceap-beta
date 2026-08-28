@@ -4,11 +4,18 @@ import {
   APPLY_HEAR_ABOUT_AMBASSADOR,
   APPLY_HEAR_ABOUT_OPTIONS,
   APPLY_HEAR_ABOUT_OTHER,
+  APPLY_PARTNER_AMBASSADOR_WRITE_IN,
+  APPLY_PARTNER_OTHER,
+  APPLY_PARTNER_REFERRAL_OPTIONS,
+  formatPartnerAmbassadorReferral,
   hearAboutNeedsOther,
   hearAboutSuggestsAmbassador,
   layoffCompanyApplicable,
   normalizeHearAbout,
   normalizeYesNo,
+  parsePartnerAmbassadorReferral,
+  partnerReferralNeedsWriteIn,
+  partnerReferralWriteInMaxLength,
 } from './eligibilityExtendedFields';
 
 test('normalizes yes/no and rejects other values', () => {
@@ -44,6 +51,60 @@ test('detects other + ambassador hear-about cases', () => {
   assert.equal(hearAboutNeedsOther('Friend or family'), false);
   assert.equal(hearAboutSuggestsAmbassador(APPLY_HEAR_ABOUT_AMBASSADOR), true);
   assert.equal(hearAboutSuggestsAmbassador('Google / web search'), false);
+});
+
+test('partner referral dropdown exposes exactly the requested choices', () => {
+  assert.deepEqual([...APPLY_PARTNER_REFERRAL_OPTIONS], [
+    'Launch Pad Job Club',
+    'Purpose Works / Job Seekers Network',
+    'Workforce Solutions Capital Area',
+    'Workforce Solutions Rural Capital Area',
+    'Other Partner (write in)',
+    'Community Ambassador (write in)',
+  ]);
+});
+
+test('partner referral draft values parse and format without losing details', () => {
+  assert.deepEqual(parsePartnerAmbassadorReferral('Launch Pad Job Club'), {
+    selected: 'Launch Pad Job Club',
+    writeIn: '',
+  });
+  assert.equal(
+    formatPartnerAmbassadorReferral('Launch Pad Job Club', 'ignored stale value'),
+    'Launch Pad Job Club',
+  );
+
+  const ambassadorStored = `${APPLY_PARTNER_AMBASSADOR_WRITE_IN}: Jane Doe`;
+  const ambassador = parsePartnerAmbassadorReferral(ambassadorStored);
+  assert.deepEqual(ambassador, {
+    selected: APPLY_PARTNER_AMBASSADOR_WRITE_IN,
+    writeIn: 'Jane Doe',
+  });
+  assert.equal(
+    formatPartnerAmbassadorReferral(ambassador.selected, ambassador.writeIn),
+    ambassadorStored,
+  );
+  assert.equal(partnerReferralNeedsWriteIn(APPLY_PARTNER_AMBASSADOR_WRITE_IN), true);
+  assert.equal(partnerReferralNeedsWriteIn(APPLY_PARTNER_OTHER), true);
+
+  const legacy = parsePartnerAmbassadorReferral('Ambassador Jane / code-abc');
+  assert.deepEqual(legacy, {
+    selected: APPLY_PARTNER_OTHER,
+    writeIn: 'Ambassador Jane / code-abc',
+  });
+  assert.equal(
+    formatPartnerAmbassadorReferral(legacy.selected, legacy.writeIn),
+    'Ambassador Jane / code-abc',
+  );
+  assert.equal(partnerReferralWriteInMaxLength(APPLY_PARTNER_OTHER), 200);
+  assert.equal(
+    partnerReferralWriteInMaxLength(APPLY_PARTNER_AMBASSADOR_WRITE_IN),
+    200 - APPLY_PARTNER_AMBASSADOR_WRITE_IN.length - 2,
+  );
+  assert.equal(
+    formatPartnerAmbassadorReferral(APPLY_PARTNER_AMBASSADOR_WRITE_IN, 'x'.repeat(250)).length,
+    200,
+  );
 });
 
 test('trims and caps hear-about strings', () => {

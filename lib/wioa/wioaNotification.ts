@@ -1,12 +1,34 @@
-import { Resend } from 'resend';
+import {
+  Resend,
+  type CreateEmailOptions,
+  type CreateEmailResponse,
+} from 'resend';
+import { getAdminAlertRecipients } from '@/lib/email';
 import { barrierLabel, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
-const NOTIFY_EMAIL = process.env.WIOA_SCREENING_NOTIFY_EMAIL ?? 'info@workforceap.org';
+export function getWioaScreeningNotificationRecipients(): string[] {
+  const configured = (process.env.WIOA_SCREENING_NOTIFY_EMAIL ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+  return configured.length > 0
+    ? Array.from(new Set(configured))
+    : getAdminAlertRecipients();
+}
 
 export type WioaScreeningNotificationContact = {
   fullName: string;
   email: string;
   phone?: string | null;
+};
+
+export type WioaEmailSender = (
+  payload: CreateEmailOptions
+) => Promise<CreateEmailResponse>;
+
+type WioaNotificationDependencies = {
+  sendEmail?: WioaEmailSender;
 };
 
 export async function sendWioaScreeningNotification(params: {
@@ -15,20 +37,23 @@ export async function sendWioaScreeningNotification(params: {
   snapshot: WioaQualificationSnapshot;
   userId?: string | null;
   adminUrl?: string | null;
-}): Promise<boolean> {
+}, dependencies: WioaNotificationDependencies = {}): Promise<boolean> {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return false;
 
-  const resend = new Resend(resendKey);
+  const sendEmail = dependencies.sendEmail ?? ((payload: CreateEmailOptions) => {
+    const resend = new Resend(resendKey);
+    return resend.emails.send(payload);
+  });
   const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
   const { source, contact, snapshot, userId, adminUrl } = params;
   const { answers, signal, reasons, submittedAt } = snapshot;
   const sourceLabel = source === 'member_portal' ? 'Member portal screening' : 'Public WIOA screening';
 
   try {
-    await resend.emails.send({
+    const result = await sendEmail({
       from: emailFrom,
-      to: NOTIFY_EMAIL,
+      to: getWioaScreeningNotificationRecipients(),
       subject: `${sourceLabel} — ${contact.fullName}`,
       text: [
         `Source: ${sourceLabel}`,
@@ -56,9 +81,24 @@ export async function sendWioaScreeningNotification(params: {
         .filter(Boolean)
         .join('\n'),
     });
+
+    if (result.error) {
+      console.error('[wioa-notification] email rejected by provider', {
+        errorName: result.error.name,
+      });
+      return false;
+    }
+
+    if (!result.data?.id) {
+      console.error('[wioa-notification] email provider returned no delivery id');
+      return false;
+    }
+
     return true;
   } catch (err) {
-    console.error('[wioa-notification] email failed:', err);
+    console.error('[wioa-notification] email request failed', {
+      errorName: err instanceof Error ? err.name : 'unknown_error',
+    });
     return false;
   }
 }

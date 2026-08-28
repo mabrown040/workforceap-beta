@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { BookOpen, ChevronRight, FolderOpen, ShieldCheck } from 'lucide-react';
 import { trackLearningHubNavigate } from '@/lib/analytics/events';
+import { isWioaPortalAvailable } from '@/lib/wioa/wioaAvailability';
 
-const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
+const WIOA_AVAILABLE = isWioaPortalAvailable(process.env.NEXT_PUBLIC_WIOA_ENABLED);
 
 export default function LearningHubDestinationCards() {
   return (

@@ -7,8 +7,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP, MEMBER_HISTORY_CAP, isListTruncated } from '@/lib/db/queryCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
 // Use the client-safe questions file — the "Full Q&A" details list only
@@ -238,7 +238,7 @@ export default async function AdminMemberDetailPage({
   const userOrg = inheritUserOrg(scope);
   const sharedQueries = (db: any) => [
     db.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
@@ -248,18 +248,18 @@ export default async function AdminMemberDetailPage({
       select: { partnerId: true },
     }),
     db.subgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true },
     }),
     db.memberSubgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { memberId: id },
       select: { subgroupId: true },
     }),
     db.counselor.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { active: true, ...userOrg },
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
       include: {
@@ -355,9 +355,11 @@ export default async function AdminMemberDetailPage({
     where: { userId: member.id },
   });
 
-  const organizationId = await getActorOrganizationId(user.id);
+  // Super-admins may deliberately open a member outside their home tenant.
+  // Program choices and WIOA history must follow the subject member, not the actor.
+  const organizationId = member.organizationId;
   const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
-    take: 5000,
+    take: LOOKUP_LIST_CAP,
     where: { organizationId },
     orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
     select: { programSlug: true, name: true, status: true },
@@ -404,21 +406,27 @@ export default async function AdminMemberDetailPage({
     employed: !!placedOutcomeRow,
   };
   const chatThread = await getOrCreateMemberCounselorThread(member.id);
-  const chatMsgs = await prisma.message.findMany({
-    take: 5000,
-    where: { threadId: chatThread.id },
-    orderBy: { createdAt: 'asc' },
-  });
+  const [chatMsgsNewestFirst, chatMessageTotal] = await Promise.all([
+    prisma.message.findMany({
+      take: MEMBER_HISTORY_CAP,
+      where: { threadId: chatThread.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.message.count({ where: { threadId: chatThread.id } }),
+  ]);
+  const chatMsgs = chatMsgsNewestFirst.slice().reverse();
   const chatAuthorIds = compactStringIds(chatMsgs.map((m) => m.authorId));
   const chatAuthors =
     chatAuthorIds.length > 0
       ? await withAdminPageScope(scope, (db) => db.user.findMany({
-        take: 5000,
+        take: MEMBER_HISTORY_CAP,
           where: { id: { in: chatAuthorIds } },
           select: { id: true, fullName: true },
         }))
       : [];
   const chatNameById = new Map(chatAuthors.map((n) => [n.id, n.fullName]));
+  const chatTruncated = isListTruncated(chatMsgs.length, MEMBER_HISTORY_CAP, chatMessageTotal);
+  const chatLabel = `Showing latest ${chatMsgs.length} of ${chatMessageTotal} messages`;
 
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
   const wioaDecisionHistory = await loadWioaReviewSnapshots(member.id, organizationId);
@@ -498,7 +506,7 @@ export default async function AdminMemberDetailPage({
       <PageHeader
         breadcrumbs={[{ label: 'Members', href: '/admin/members' }, { label: 'Member Details' }]}
         title={member.fullName}
-        subtitle={member.email}
+        subtitle={chatTruncated ? `${member.email} · ${chatLabel}` : member.email}
         action={
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch', flexWrap: 'wrap', maxWidth: 430 }}>
             <Link href={`/admin/members/${id}/stakeholder`} className="btn btn-outline" style={{ flex: '1 1 10rem', justifyContent: 'center', minHeight: 44, textAlign: 'center' }}>Open stakeholder view</Link>

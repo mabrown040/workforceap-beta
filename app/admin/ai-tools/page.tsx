@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 import { getAiToolsCohortStats, getAiToolUsageCounts } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -26,6 +26,7 @@ export default async function AdminAiToolsPage({
   if (!user) redirect('/login?redirectTo=/admin/ai-tools');
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const analyticsOrgId = scope.superAdmin ? undefined : scope.orgId;
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -34,7 +35,7 @@ export default async function AdminAiToolsPage({
   if (requestedUi !== 'legacy') {
     // Lean per-tool counts (groupBy toolType + voice-session count). Degrades to
     // [] on failure, in which case cards render with "—" instead of counts.
-    const usage = await getAiToolUsageCounts().catch(() => []);
+    const usage = await getAiToolUsageCounts(analyticsOrgId).catch(() => []);
 
     return (
       <DesignSurface surface="dense">
@@ -44,7 +45,7 @@ export default async function AdminAiToolsPage({
   }
 
   // --- LEGACY (?ui=legacy): original cohort-by-cohort usage analytics table ---
-  const rows = await getAiToolsCohortStats();
+  const rows = await getAiToolsCohortStats(analyticsOrgId);
 
   return (
     <>

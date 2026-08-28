@@ -91,11 +91,10 @@ async function listTestFiles() {
  */
 function classify(relPath) {
   const src = readFileSync(path.join(ROOT, relPath), 'utf8');
+  const normalized = relPath.replace(/\\/g, '/');
   const importsVitest =
     /from\s+['"]vitest['"]/.test(src) || /require\(['"]vitest['"]\)/.test(src);
   if (importsVitest) {
-    // Normalize to forward slashes so the comparison works on Windows too.
-    const normalized = relPath.replace(/\\/g, '/');
     if (KNOWN_VITEST_SPECS.has(normalized)) {
       return { skip: 'vitest' };
     }
@@ -106,10 +105,10 @@ function classify(relPath) {
   // Heuristic: if the test file references `webhooks/retry`, `coursera/webhookAuth`,
   // we know those targets pull in server-only. Until we add a runtime shim,
   // skip the known-broken pair.
-  if (/lib\/webhooks\/retry\.test\.ts|lib\/coursera\/webhookAuth\.test\.ts/.test(relPath)) {
+  if (/lib\/webhooks\/retry\.test\.ts|lib\/coursera\/webhookAuth\.test\.ts/.test(normalized)) {
     return { skip: 'serverOnly' };
   }
-  if (/lib\/auth\/roles\.test\.ts/.test(relPath)) {
+  if (/lib\/auth\/roles\.test\.ts/.test(normalized)) {
     // Hits the real Prisma client via getProfileRole — needs a postgres
     // server we don't have in CI. Mocking Prisma here would mean
     // rewriting the test against the wrapper rather than the real

@@ -510,8 +510,8 @@ function QuizResultsView({
 
       <div className="quiz-results-next-steps">
         <p>
-          On the comparison page, check up to four tracks to see them side-by-side — time, difficulty, salary band, and best-for
-          notes. Then use the salary guide for the same published ranges.
+          Use the comparison page to review published tracks side-by-side — time, difficulty, salary band, and best-for notes.
+          Then use the salary guide for the same published ranges.
         </p>
         <div className="quiz-results-next-links">
           <LocalizedLink href="/program-comparison">Compare programs</LocalizedLink>

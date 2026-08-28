@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { canAdminActInSubjectOrganization } from '@/lib/tenant/adminSubjectAccess';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
@@ -40,15 +41,42 @@ export const PATCH = withApiGuc(async (
     return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
   }
 
-  // Tenant scope: an Org A admin cannot change program enrollment on
-  // an Org B member by guessing their UUID.
-  const orgId = await getActorOrganizationId(user.id);
-  const target = await prisma.$transaction((tx) => tx.user.findFirst({
-    where: { id, organizationId: orgId },
-    select: { id: true },
-  }));
+  // Org admins stay inside their own tenant. Platform super-admins may act on
+  // the subject tenant because the matching admin member page intentionally
+  // supports cross-tenant operations.
+  const superAdmin = await isSuperAdmin(user.id);
+  const subjectOrgId = await getSubjectOrganizationId(id).catch(() => null);
+  if (!subjectOrgId) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
+  const actorOrgId = superAdmin ? null : await getActorOrganizationId(user.id);
+  if (!canAdminActInSubjectOrganization({ actorOrgId, subjectOrgId, superAdmin })) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
+  const orgId = subjectOrgId;
+
+  const [target, catalogSize, catalogEntry] = await Promise.all([
+    prisma.user.findFirst({
+      where: { id, organizationId: orgId },
+      select: { id: true },
+    }),
+    prisma.organizationProgramCatalog.count({ where: { organizationId: orgId } }),
+    prisma.organizationProgramCatalog.findFirst({
+      where: { organizationId: orgId, programSlug },
+      select: { programSlug: true },
+    }),
+  ]);
   if (!target) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
+  // Match the admin member picker: organizations with an explicit catalog may
+  // only assign programs in that catalog. Empty catalogs retain the global
+  // static fallback used by legacy/default tenants.
+  if (catalogSize > 0 && !catalogEntry) {
+    return NextResponse.json(
+      { error: "Program is not available for this member's organization." },
+      { status: 400 },
+    );
   }
 
   const now = new Date();
@@ -91,15 +119,22 @@ export const PATCH = withApiGuc(async (
     });
   });
 
-  await sendPartnerMilestoneEmail(id, 'Program enrollment', {
-    Program: program.title,
-  });
-
-  // Invalidate cached member state so dashboard reflects program change immediately
-  await invalidateMemberState(id);
+  // The program write has committed. Notification/cache failures must not
+  // turn that successful mutation into a misleading 500 in the admin UI.
+  const postCommitResults = await Promise.allSettled([
+    sendPartnerMilestoneEmail(id, 'Program enrollment', {
+      Program: program.title,
+    }),
+    invalidateMemberState(id),
+  ]);
+  for (const result of postCommitResults) {
+    if (result.status === 'rejected') {
+      console.error('[admin/member-program] post-commit side effect failed', result.reason);
+    }
+  }
 
   auditLog({ actorUserId: user.id, action: 'admin_member_program_change', targetType: 'User', targetId: id, metadata: { programSlug, orgId } }).catch((err) => console.error('[audit] admin_member_program_change:', err));
-  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'User', id }, result: { success: true, extensions: { programSlug } }, request: auditRequestMeta(request), orgId }).catch((err) => console.error('[audit] admin_member_program_change xapi:', err));
+  logAuditEvent({ user: { id: user.id, role: superAdmin ? 'super_admin' : 'admin' }, verb: 'updated', object: { type: 'User', id }, result: { success: true, extensions: { programSlug } }, request: auditRequestMeta(request), orgId }).catch((err) => console.error('[audit] admin_member_program_change xapi:', err));
 
   return NextResponse.json({ ok: true });
 

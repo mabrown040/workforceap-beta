@@ -2,15 +2,17 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { canAdminActInSubjectOrganization } from '@/lib/tenant/adminSubjectAccess';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getB4BOrgId } from '@/lib/coursera/b4bClient';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { EnrollStateError, runEnrollStateMachine } from '@/lib/coursera/enrollState';
 import { buildB4BPort, writeEnrollAudit } from '@/lib/coursera/enrollPort';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
 
 /**
  * POST /api/admin/coursera/enroll-member
@@ -28,7 +30,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * subsequent courses are one click each from the member's own dashboard.
  *
  * Guardrails (server-enforced):
- *   - admin-only + same-tenant (mirrors the approval-toggle route);
+ *   - admin-only + same-tenant for org admins; platform super-admin support
+ *     may deliberately act in the subject member's tenant;
  *   - `courseraEnrollmentApproved` must already be true → 409 otherwise.
  *     This button does NOT auto-approve: approval is the budget gate and
  *     stays an explicit, separately-audited decision;
@@ -55,12 +58,16 @@ async function _POST(request: Request) {
     }
     const { memberId } = parsed.data;
 
-    // Tenant scoping mirrors the approval-toggle route: operate in the
-    // subject's org and refuse cross-tenant actors.
-    const subjectOrgId = await getSubjectOrganizationId(memberId);
-    const actorOrgId = await getActorOrganizationId(user.id);
-    if (actorOrgId !== subjectOrgId) {
-      return NextResponse.json({ error: 'Forbidden — cross-tenant' }, { status: 403 });
+    // Operate in the subject's org. Org admins remain same-tenant; platform
+    // super-admins retain deliberate cross-tenant support access.
+    const superAdmin = await isSuperAdmin(user.id);
+    const subjectOrgId = await getSubjectOrganizationId(memberId).catch(() => null);
+    if (!subjectOrgId) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
+    const actorOrgId = superAdmin ? null : await getActorOrganizationId(user.id);
+    if (!canAdminActInSubjectOrganization({ actorOrgId, subjectOrgId, superAdmin })) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
     const member = await withTenantScope(subjectOrgId, (db) =>
@@ -72,6 +79,15 @@ async function _POST(request: Request) {
           fullName: true,
           enrolledProgram: true,
           courseraEnrollmentApproved: true,
+          courseEnrollments: {
+            select: {
+              id: true,
+              programSlug: true,
+              isPrimary: true,
+              enrolledAt: true,
+            },
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          },
         },
       }),
     );
@@ -91,13 +107,17 @@ async function _POST(request: Request) {
         { status: 409 },
       );
     }
-    if (!member.enrolledProgram) {
+    const { activeProgramSlug: enrolledProgram } = resolveActiveDashboardProgram({
+      enrollments: member.courseEnrollments,
+      legacyEnrolledProgram: member.enrolledProgram,
+    });
+    if (!enrolledProgram) {
       return NextResponse.json(
         { error: 'Member has no assigned program.', code: 'NO_PROGRAM' },
         { status: 409 },
       );
     }
-    const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram];
+    const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
     if (!discoveredProgram || discoveredProgram.courses.length === 0) {
       return NextResponse.json(
         { error: 'Program not in Coursera catalog.', code: 'PROGRAM_NOT_MAPPED' },
@@ -133,7 +153,7 @@ async function _POST(request: Request) {
           err.events.map((event) =>
             writeEnrollAudit({
               actorUserId: user.id,
-              actorRole: 'admin',
+              actorRole: superAdmin ? 'super_admin' : 'admin',
               targetUserId: member.id,
               event,
             }),
@@ -164,7 +184,7 @@ async function _POST(request: Request) {
     for (const event of result.events) {
       await writeEnrollAudit({
         actorUserId: user.id,
-        actorRole: 'admin',
+        actorRole: superAdmin ? 'super_admin' : 'admin',
         targetUserId: member.id,
         event,
       }).catch((auditErr) => {
@@ -181,7 +201,7 @@ async function _POST(request: Request) {
         orgId: subjectOrgId,
         adminId: user.id,
         email: member.email,
-        enrolledProgram: member.enrolledProgram,
+        enrolledProgram,
       }).catch(() => {
         /* fire-and-forget */
       });

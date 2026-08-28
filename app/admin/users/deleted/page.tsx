@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
+import { ADMIN_SSR_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
 import DeletedUsersClient, {
   type DeletedUserRow,
@@ -38,19 +39,28 @@ export default async function AdminDeletedUsersPage() {
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
 
-  const rows = await withAdminPageScope(scope, (db) =>
-    db.user.findMany({
-      take: 5000,
-      where: { deletedAt: { not: null } },
-      orderBy: { deletedAt: 'desc' },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        deletedAt: true,
-        createdAt: true,
-      },
-    }),
+  const [rows, total, stillBoundCount] = await withAdminPageScope(scope, (db) =>
+    Promise.all([
+      db.user.findMany({
+        take: ADMIN_SSR_LIST_CAP,
+        where: { deletedAt: { not: null } },
+        orderBy: { deletedAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          deletedAt: true,
+          createdAt: true,
+        },
+      }),
+      db.user.count({ where: { deletedAt: { not: null } } }),
+      db.user.count({
+        where: {
+          deletedAt: { not: null },
+          NOT: { email: { endsWith: '@deleted.invalid' } },
+        },
+      }),
+    ]),
   );
 
   const data: DeletedUserRow[] = rows.map((r) => {
@@ -66,20 +76,26 @@ export default async function AdminDeletedUsersPage() {
     };
   });
 
-  const stillBoundCount = data.filter((d) => !d.isFreed).length;
-
   return (
     <>
       <PageHeader
         title="Deleted users"
-        subtitle="Soft-deleted user records. Free their email to release the unique constraint so the address can be reused for a new signup, or restore the row to bring the user back."
+        subtitle={
+          isListTruncated(data.length, ADMIN_SSR_LIST_CAP, total)
+            ? showingFirstLabel(data.length, total, 'deleted users')
+            : 'Soft-deleted user records. Free their email to release the unique constraint so the address can be reused for a new signup, or restore the row to bring the user back.'
+        }
         breadcrumbs={[
           { label: 'Admin', href: '/admin' },
           { label: 'Users', href: '/admin/users' },
           { label: 'Deleted' },
         ]}
       />
-      <DeletedUsersClient rows={data} stillBoundCount={stillBoundCount} />
+      <DeletedUsersClient
+        rows={data}
+        totalDeletedCount={total}
+        stillBoundCount={stillBoundCount}
+      />
     </>
   );
 }

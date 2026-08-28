@@ -342,7 +342,15 @@ export default function MainNav() {
         </button>
 
         {/* Mobile backdrop */}
-        <button type="button" className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`} aria-label="Close navigation menu" tabIndex={mobileOpen ? 0 : -1} onClick={closeMobile} {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})} />
+        <button
+          type="button"
+          className={`mobile-nav-backdrop${mobileOpen ? ' visible' : ''}`}
+          aria-label="Close navigation menu"
+          aria-hidden={!mobileOpen}
+          tabIndex={mobileOpen ? 0 : -1}
+          onClick={closeMobile}
+          {...(!mobileOpen ? { 'data-nav-hidden': 'true' } : {})}
+        />
 
         {/* Nav links — single list, used for both desktop and mobile */}
         <ul ref={menuRef} id={navMenuId} className={`nav-menu${mobileOpen ? ' mobile-open' : ''}`}>

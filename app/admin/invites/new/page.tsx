@@ -5,6 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
 import { PROGRAMS } from '@/lib/content/programs';
 import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
 import PageHeader from '@/components/portal/PageHeader';
@@ -35,13 +36,13 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
   const leaderOrg = inheritLeaderOrg(scope);
   const [subgroups, partners] = await withAdminPageScope(scope, (db) => Promise.all([
     db.subgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
     db.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },

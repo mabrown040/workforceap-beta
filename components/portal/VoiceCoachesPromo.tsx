@@ -88,8 +88,8 @@ export default function VoiceCoachesPromo() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
           <VoiceCoachLauncherCard
             {...studentCounselorVoiceSurface}
-            title="Career Counselor"
-            description="Private voice session that ends with a personalized 3-step action plan."
+            title="Lilley Career Coach"
+            description="Talk through training, your job search, or your next step, then leave with a personalized action plan."
             href="/dashboard/ai-tools/studio?tab=session&agent=counselor"
             ctaLabel="Start session"
           />

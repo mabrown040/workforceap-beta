@@ -112,7 +112,7 @@ const SESSION_AGENTS: Record<VoiceStudioAgentKey, SessionAgentConfig> = {
     askRole: true,
     ...AGENT_ACCENT.crimson,
   },
-  counselor: { label: 'Career Counselor', endpoint: '/api/counselor/session', ...AGENT_ACCENT.blue },
+  counselor: { label: 'Lilley Career Coach', endpoint: '/api/counselor/session', ...AGENT_ACCENT.blue },
   business: { label: 'Career & Business Coach', endpoint: '/api/member/career-business-coach/voice-session', ...AGENT_ACCENT.crimson },
 };
 
@@ -332,9 +332,9 @@ const COACH_CARDS: CoachCard[] = [
     key: 'counselor',
     variant: 'counselor',
     Icon: Headphones,
-    badge: 'COUNSELOR',
-    title: 'Career Counselor',
-    body: 'Private voice session — then your personalized action plan.',
+    badge: 'LILLEY',
+    title: 'Lilley Career Coach',
+    body: 'Student career coaching for training, job search, and your next step.',
     ctaIcon: Mic,
     cta: 'Start session',
     agent: SESSION_AGENTS.counselor,

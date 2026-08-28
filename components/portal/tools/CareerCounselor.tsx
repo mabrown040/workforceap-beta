@@ -205,6 +205,12 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           Speak naturally about your training, job search, or next step.
         </p>
 
+        <p id="lilley-data-use" style={{ marginBottom: '1.25rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
+          Your voice session is processed by ElevenLabs. Its transcript is analyzed by an AI provider,
+          saved to your WorkforceAP AI history and coach memory, and may be emailed to configured
+          WorkforceAP support recipients. Avoid sharing sensitive personal information.
+        </p>
+
         {voiceError && (
           <div role="alert" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.85rem', color: 'var(--color-error, #b91c1c)', fontWeight: 600 }}>
             {voiceError}
@@ -213,6 +219,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
         <button type="button"
           onClick={startSession}
+          aria-describedby="lilley-data-use"
           style={{
             display: 'block', width: '100%', background: ACCENT, color: '#fff',
             border: 0, borderRadius: 10, padding: '1rem', fontWeight: 700,
@@ -335,9 +342,6 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           </button>
         </div>
 
-        <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
-          Your voice session is processed by ElevenLabs. Avoid sharing sensitive personal information.
-        </p>
       </div>
     );
   }

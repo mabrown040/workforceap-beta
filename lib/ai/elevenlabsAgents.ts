@@ -41,8 +41,6 @@ const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   interview: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
   // Legacy key name; this agent is Lilley, the member-facing student career coach.
   counselor: 'agent_1101kqfjfm8retm8j6md467wzxdb',
-  // Dedicated staff/caseload agent retained for the counselor workspace.
-  counselor_staff: 'agent_2801kmznvsemfmms06r0e02es1b9',
   employer: 'agent_0901kmznx45vf19s9psjrctqr6x5',
   partner: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
   readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',

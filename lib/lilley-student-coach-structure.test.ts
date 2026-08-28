@@ -116,7 +116,7 @@ test('Lilley action plans and saved history stay student-facing', () => {
   assert.doesNotMatch(src, /Career readiness voice coach|Career counselor action-plan/);
 });
 
-test('Lilley and staff counselor fallbacks target separate ElevenLabs agents', (t) => {
+test('Lilley has a member fallback while staff mode requires a configured agent', (t) => {
   const previousMember = process.env.ELEVENLABS_COUNSELOR_AGENT_ID;
   const previousStaff = process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
   t.after(() => {
@@ -129,12 +129,15 @@ test('Lilley and staff counselor fallbacks target separate ElevenLabs agents', (
   delete process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
 
   assert.equal(getElevenLabsAgentId('counselor'), 'agent_1101kqfjfm8retm8j6md467wzxdb');
-  assert.equal(getElevenLabsAgentId('counselor_staff'), 'agent_2801kmznvsemfmms06r0e02es1b9');
+  assert.equal(getElevenLabsAgentId('counselor_staff'), undefined);
+
+  process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID = 'agent_configured_staff';
+  assert.equal(getElevenLabsAgentId('counselor_staff'), 'agent_configured_staff');
 
   const src = readFileSync(agentsPath, 'utf8');
 
   assert.match(src, /counselor: 'agent_1101kqfjfm8retm8j6md467wzxdb'/);
-  assert.match(src, /counselor_staff: 'agent_2801kmznvsemfmms06r0e02es1b9'/);
+  assert.doesNotMatch(src, /counselor_staff:\s*'agent_/);
   assert.match(src, /RETIRED_COUNSELOR_AGENT_IDS\.has\(fromEnv\)/);
 });
 

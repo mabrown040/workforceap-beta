@@ -35,8 +35,9 @@ import {
   Users,
   UsersRound,
 } from 'lucide-react';
+import { isWioaPortalAvailable } from '@/lib/wioa/wioaAvailability';
 
-const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
+const WIOA_AVAILABLE = isWioaPortalAvailable(process.env.NEXT_PUBLIC_WIOA_ENABLED);
 
 export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
   { href: '/dashboard', label: 'nav:dashboard', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },

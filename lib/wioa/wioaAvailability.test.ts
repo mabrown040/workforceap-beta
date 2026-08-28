@@ -26,4 +26,7 @@ test('all member discovery surfaces use the shared default-on guard', () => {
     assert.match(source, /isWioaPortalAvailable/);
     assert.doesNotMatch(source, /NEXT_PUBLIC_WIOA_ENABLED\s*===\s*['"]1['"]/);
   }
+
+  const envExample = readFileSync(join(process.cwd(), '.env.example'), 'utf8');
+  assert.match(envExample, /^NEXT_PUBLIC_WIOA_ENABLED=1$/m);
 });

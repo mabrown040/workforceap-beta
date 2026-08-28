@@ -149,7 +149,8 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 |------|-------|-------------|---------|---------|
 | `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
-| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: Lilley member career coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: Lilley, the member-facing student career coach | `agent_...` | `/api/counselor/session` member/default mode |
+| `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` | 🟢 🔒 | Separate ConvAI agent for counselor/admin caseload, outreach, and staff portal guidance | `agent_...` | `/api/counselor/session` explicit staff mode |
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | 🟢 🔒 | ConvAI agent: employer coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_READINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: readiness coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | 🟢 🔒 | ConvAI agent: resume coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
@@ -161,7 +162,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
 
-**Note:** Agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience. Override with env vars per deploy. The retired counselor-agent ID is ignored so a stale deploy value cannot route members back to the former staff/caseload agent.
+**Note:** Agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience. Keep the member and staff counselor IDs separate: member/default sessions use Lilley, while only role-authorized counselor/admin requests with `audience: "staff"` use the staff agent. The retired staff/caseload ID is ignored when supplied through the member-facing key so a stale deploy value cannot route members away from Lilley.
 
 ---
 

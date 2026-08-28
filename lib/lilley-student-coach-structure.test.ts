@@ -143,12 +143,14 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
     name?: string;
     conversation_config?: {
       agent?: { first_message?: string; prompt?: { prompt?: string } };
+      tts?: { voice_id?: string };
     };
   };
   const firstMessage = patch.conversation_config?.agent?.first_message ?? '';
   const prompt = patch.conversation_config?.agent?.prompt?.prompt ?? '';
 
   assert.equal(patch.name, 'Lilley - WorkforceAP Student Career Coach');
+  assert.equal(patch.conversation_config?.tts?.voice_id, 'XrExE9yKIg1WjnnlVkGX');
   assert.match(firstMessage, /I'm Lilley, your WorkforceAP AI career coach/);
   assert.match(prompt, /student-facing AI Career Coach/);
   assert.match(prompt, /You do not assist counselors with caseloads/);

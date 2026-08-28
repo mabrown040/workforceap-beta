@@ -91,6 +91,7 @@ These endpoints historically aggregated or listed rows without an org filter; th
 | `GET /api/employer/jobs` | Employer row | `withTenantScope(employer.organizationId)` on `job.findMany` |
 | Partner referrals (`loadPartnerReferralBundle`, `/api/partner/referral-members`, …) | Partner row | `partner.organizationId` + `member.organizationId` on referral queries; `ctx.partner.organizationId` threaded from `getPartnerForUser` |
 | Admin SSR residual pages (`/admin` home, members list/detail/new/training, placements, partners, programs, assessments, subgroups, Coursera roster, sessions run, weekly-recap, …) plus `loadTrainingDashboardData` / `getTriageDigest` | `resolveAdminPageTenant` → actor org | `isAdminInOrg` + `withAdminPageScope`. **Super-admin stays cross-tenant** (support / ops). Org admins use `withTenantScope` plus FK helpers (`inheritUserOrg` / `inheritMemberOrg` / `inheritLeaderOrg` / `inheritInvitedByOrg`) for models without `organizationId`. Settings / feature-flags / crons / diagnostics still require `isAdminInOrg` even when the payload is org-config or ops. |
+| Member program / Coursera support mutations (`/api/admin/members/[id]/program`, `/api/admin/members/[id]/coursera-enrollment-approval`, `/api/admin/coursera/enroll-member`) | Verified subject member org | Org admins must match the subject org. Super-admin support may act in the subject org after resolving the member server-side; denied and missing subject IDs both return 404. Client-supplied organization IDs are never trusted. |
 
 **Adding a new high-risk read:** thread `organizationId` from the authenticated actor or from the portal parent row (never from client input alone), use `withTenantScope` for tenant-scoped models, and for FK-scoped models use `where: { user: { organizationId: orgId } }` (or the appropriate parent relation). Register the route in `scripts/verify-high-risk-tenant-routes.cjs` if it bulk-loads PII or aggregates cross-member metrics.
 
@@ -130,9 +131,9 @@ These are testable. Every Track A PR must preserve them.
 
 **Test:** `tests/tenant-isolation.test.ts` — fixture two orgs, fire every registered endpoint as Org A's admin, assert no Org B UUID in the response.
 
-### I-3: No write path tags a row with a different tenant than the actor
+### I-3: No write path tags a row with an unauthorized tenant
 
-**Test:** the admin "create member" / "create job" / "assign counselor" endpoints, when called by an Org A admin with body `{ organizationId: 'org-b' }`, must reject the request (or silently overwrite to Org A's id). Assert via fixture.
+**Test:** the admin "create member" / "create job" / "assign counselor" endpoints, when called by an Org A admin with body `{ organizationId: 'org-b' }`, must reject the request (or silently overwrite to Org A's id). Org admins remain bound to their actor org. The audited exception is a platform super-admin support mutation that first resolves an existing subject member server-side and scopes the write to that member's organization. Assert both the regular-admin rejection and super-admin subject-org path via fixtures.
 
 ### I-4: Audit log records the affected tenant
 
@@ -158,6 +159,7 @@ Some operations cross tenants by design. These get explicit annotation and revie
 
 - **`getDefaultOrganizationId()`** — single-tenant lookup at write time
 - **Super-admin debug endpoints** — `isSuperAdmin(userId)` is the gate; logs the action
+- **Super-admin subject-member support mutations** — program assignment, Coursera approval, and paid Coursera enrollment resolve the member and subject organization server-side; org admins cannot cross tenants
 - **System cron jobs** that aggregate across tenants for platform-wide metrics (e.g. monthly Coursera sync) — wrapped in `withSystemScope()`, audited, doc'd
 - **`getBoardSnapshot()`** in `lib/admin/boardOutcomes.ts` — currently aggregates platform-wide; will be scoped to the requesting admin's org in Sprint A.2
 
@@ -207,6 +209,7 @@ What this PR **does not** do:
 
 | Date | Change |
 |---|---|
+| 2026-08-27 | Documented subject-member scoping for admin program assignment and Coursera approval/enrollment: org admins stay same-tenant; super-admin support writes use the verified member org. |
 | 2026-08-24 | Residual admin SSR pages + overview helpers (`loadTrainingDashboardData`, `getTriageDigest`): `resolveAdminPageTenant` + `withAdminPageScope`. Super-admin remains cross-tenant. |
 | 2026-05-08 | Initial doc; Sprint A.1 in flight |
 

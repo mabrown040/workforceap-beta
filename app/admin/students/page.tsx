@@ -22,6 +22,7 @@ import {
   loadUnmatchedLearners,
 } from '@/lib/coursera/progressQueries';
 import { parseCourseGradeString } from '@/lib/coursera/courseGradeDisplay';
+import { loadStudentRosterEnrichment } from '@/lib/admin/studentsRosterEnrichment';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -121,7 +122,7 @@ export default async function AdminStudentsPage({
   // Lean roster + full count + light activity/progress aggregates, all in
   // parallel. Aggregate failures degrade gracefully (members list must show).
   const userOrg = inheritUserOrg(scope);
-  const [membersResult, totalResult, lastEventsResult, recentEventsResult, programProgressResult] =
+  const [membersResult, totalResult, lastEventsResult, recentEventsResult] =
     await withAdminPageScope(scope, (db) =>
       Promise.allSettled([
         db.user.findMany({
@@ -153,11 +154,6 @@ export default async function AdminStudentsPage({
           where: { createdAt: { gte: thirtyDaysAgo }, ...userOrg },
           _count: { _all: true },
         }),
-        db.memberProgramProgress.findMany({
-          take: 5000,
-          where: { ...userOrg },
-          select: { userId: true, programSlug: true, averagePercent: true },
-        }),
       ]),
     );
 
@@ -170,6 +166,7 @@ export default async function AdminStudentsPage({
 
   const members = membersResult.value;
   const total = totalResult.status === 'fulfilled' ? totalResult.value : members.length;
+  const memberIds = members.map((m) => m.id);
 
   const lastEventMap = new Map<string, Date | null>();
   if (lastEventsResult.status === 'fulfilled') {
@@ -184,11 +181,23 @@ export default async function AdminStudentsPage({
   const eventAggregatesOk =
     lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
 
+  const rosterEnrichmentRows = await loadStudentRosterEnrichment({
+    organizationId: scope.orgId,
+    superAdmin: scope.superAdmin,
+    userIds: memberIds,
+  }).catch((reason: unknown) => {
+    console.error('[admin/students] roster enrichment load failed', reason);
+    return [];
+  });
+
   const programProgressMap = new Map<string, number>();
-  if (programProgressResult.status === 'fulfilled') {
-    for (const row of programProgressResult.value) {
+  const gradeByUserId = new Map<string, number>();
+  for (const row of rosterEnrichmentRows) {
+    if (row.programSlug && row.averagePercent != null) {
       programProgressMap.set(`${row.userId}:${row.programSlug}`, row.averagePercent);
     }
+    const grade = parseCourseGradeString(row.courseGrade);
+    if (grade != null) gradeByUserId.set(row.userId, grade);
   }
 
   // One extra query over the already-loaded page of members: resolve each
@@ -214,8 +223,7 @@ export default async function AdminStudentsPage({
     if (name) counselorNameMap.set(row.memberId, name);
   }
 
-  const memberIds = members.map((m) => m.id);
-  const [unmatchedLearners, unmatchedCount, memberCourseRows] = await Promise.all([
+  const [unmatchedLearners, unmatchedCount] = await Promise.all([
     loadUnmatchedLearners(scope.orgId, ROSTER_LIMIT, { includeTestAccounts: false }).catch(
       (reason: unknown) => {
         console.error('[admin/students] unmatched Coursera learners failed', reason);
@@ -226,27 +234,7 @@ export default async function AdminStudentsPage({
       console.error('[admin/students] unmatched Coursera count failed', reason);
       return 0;
     }),
-    memberIds.length === 0
-      ? Promise.resolve([])
-      : withAdminPageScope(scope, (db) =>
-          db.courseraCourseProgress.findMany({
-            where: { userId: { in: memberIds } },
-            select: { userId: true, courseGrade: true, lastActivityTime: true },
-            orderBy: { lastActivityTime: 'desc' },
-            take: 20000,
-          }),
-        ).catch((reason: unknown) => {
-          console.error('[admin/students] Coursera grades failed', reason);
-          return [] as Array<{ userId: string | null; courseGrade: string | null; lastActivityTime: Date | null }>;
-        }),
   ]);
-
-  const gradeByUserId = new Map<string, number>();
-  for (const row of memberCourseRows) {
-    if (!row.userId || gradeByUserId.has(row.userId)) continue;
-    const pct = parseCourseGradeString(row.courseGrade);
-    if (pct != null) gradeByUserId.set(row.userId, pct);
-  }
 
   const students: StudentRow[] = members.map((m) => {
     const programTitle = m.enrolledProgram

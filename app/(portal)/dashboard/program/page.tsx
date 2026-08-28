@@ -10,6 +10,7 @@ import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
+import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -49,30 +50,39 @@ export default async function ProgramPage({
     .filter((p): p is NonNullable<typeof p> => !!p);
   if (pickerPrograms.length === 0) pickerPrograms = PROGRAMS;
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      enrolledProgram: true,
-      enrolledAt: true,
-      workspaceEmail: true,
-      workspaceEmailProvisioned: true,
-      // Multi-program: workspace metadata lives on the primary enrollment
-      // (matches /dashboard/program/start). Returns 0 or 1 row.
-      courseEnrollments: {
-        where: { isPrimary: true },
-        select: {
-          id: true,
-          workspaceEmail: true,
-          workspaceEmailProvisioned: true,
-          enrolledAt: true,
+  const [dbUser, activeProgramView] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        enrolledProgram: true,
+        organizationId: true,
+        enrolledAt: true,
+        workspaceEmail: true,
+        workspaceEmailProvisioned: true,
+        courseEnrollments: {
+          select: {
+            id: true,
+            programSlug: true,
+            isPrimary: true,
+            workspaceEmail: true,
+            workspaceEmailProvisioned: true,
+            enrolledAt: true,
+          },
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
         },
-        take: 1,
       },
-    },
-  });
+    }),
+    getActiveProgramForDashboard({ userId: user.id }),
+  ]);
 
-  const enrolledSlug = dbUser?.enrolledProgram ?? null;
+  // Match the launch handler's enrollment resolution. The legacy User field can
+  // drift from the primary CourseEnrollment and must not render a different course.
+  const enrolledSlug = activeProgramView.activeProgramSlug;
   const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+  const activeEnrollment =
+    dbUser?.courseEnrollments.find((row) => row.programSlug === enrolledSlug) ??
+    dbUser?.courseEnrollments[0];
+  const enrolledAt = activeEnrollment?.enrolledAt ?? dbUser?.enrolledAt ?? null;
   const staffViewer = await canBypassMemberAssessment(user.id);
   const otherPrograms = pickerPrograms.filter((p) => p.slug !== enrolledSlug);
   const pendingRequest = await prisma.programChangeRequest.findFirst({
@@ -98,6 +108,25 @@ export default async function ProgramPage({
       </DesignSurface>
     );
   }
+
+  const tenantCourseMappings = dbUser?.organizationId
+    ? await prisma.course.findMany({
+        where: {
+          organizationId: dbUser.organizationId,
+          programSlug: enrolledSlug,
+          courseraSlug: { not: null },
+        },
+        select: { courseSlug: true, courseraSlug: true },
+      })
+    : [];
+  const launchableCourseSlugs = new Set([
+    ...tenantCourseMappings
+      .filter((course) => Boolean(course.courseraSlug?.trim()))
+      .map((course) => course.courseSlug),
+    ...(DISCOVERED_COURSERA_PROGRAMS[enrolledSlug]?.courses
+      .filter((course) => Boolean(course.courseId?.trim()))
+      .map((course) => course.slug) ?? []),
+  ]);
 
   const courseraProgramId = DISCOVERED_COURSERA_PROGRAMS[enrolledSlug]?.courseraProgramId;
   const b4bProgress =
@@ -131,6 +160,9 @@ export default async function ProgramPage({
     const progressPercent =
       trainingView?.progressPercentDisplay ??
       (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
+    const nextCourseLaunchHref = nextCourseSlug && launchableCourseSlugs.has(nextCourseSlug)
+      ? `/api/member/coursera/launch?course=${encodeURIComponent(nextCourseSlug)}`
+      : undefined;
 
     // Per-course state: completed → done, the resolved "next" course → active,
     // everything else → locked. Mirrors the legacy course-list logic below.
@@ -139,6 +171,10 @@ export default async function ProgramPage({
       const isNext = !done && c.slug === nextCourseSlug;
       return {
         title: c.name,
+        slug: c.slug,
+        launchHref: launchableCourseSlugs.has(c.slug)
+          ? `/api/member/coursera/launch?course=${encodeURIComponent(c.slug)}`
+          : undefined,
         state: done ? ('done' as const) : isNext ? ('active' as const) : ('locked' as const),
       };
     });
@@ -157,6 +193,7 @@ export default async function ProgramPage({
         modulesTotal={totalCourses}
         estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : undefined}
         resumeHref="/dashboard/learning"
+        courseraLaunchHref={nextCourseLaunchHref}
         modules={modules}
         // Live session + missions aren't loaded on this route — keep the kit
         // defaults and point the missions CTA at the live missions page.
@@ -171,7 +208,7 @@ export default async function ProgramPage({
         {staffViewer && <StaffViewBanner page="program" />}
         <PageHeader
           title="My Program"
-          subtitle={dbUser?.enrolledAt ? `Enrolled ${formatDate(dbUser.enrolledAt)}` : undefined}
+          subtitle={enrolledAt ? `Enrolled ${formatDate(enrolledAt)}` : undefined}
           breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'My Program' }]}
         />
 
@@ -181,13 +218,13 @@ export default async function ProgramPage({
               Coursera & training email
             </p>
             <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', lineHeight: 1.55 }}>
-              {dbUser?.courseEnrollments?.[0]?.workspaceEmailProvisioned || dbUser?.workspaceEmailProvisioned
+              {activeEnrollment?.workspaceEmailProvisioned || dbUser?.workspaceEmailProvisioned
                 ? 'Your WorkforceAP training seat is on file. Use the training email below when opening Coursera links so progress syncs.'
                 : 'Staff still provisions Coursera under your assigned WorkforceAP workspace email when your seat is ready — watch Counselor Chat for the exact address.'}
             </p>
-            {(dbUser?.courseEnrollments?.[0]?.workspaceEmail || dbUser?.workspaceEmail) && (
+            {(activeEnrollment?.workspaceEmail || dbUser?.workspaceEmail) && (
               <p style={{ margin: '0.5rem 0 0', fontWeight: 700, wordBreak: 'break-all' }}>
-                {dbUser?.courseEnrollments?.[0]?.workspaceEmail ?? dbUser?.workspaceEmail}
+                {activeEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail}
               </p>
             )}
             <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

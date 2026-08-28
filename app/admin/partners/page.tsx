@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { isSuperAdmin } from '@/lib/auth/roles';
@@ -33,7 +34,7 @@ async function loadAdminPartnersData(scope: import("@/lib/tenant/adminPageScope"
   const leaderOrg = inheritLeaderOrg(scope);
   return withAdminPageScope(scope, (db) => Promise.all([
     db.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       orderBy: { name: 'asc' },
       select: {
         id: true,
@@ -66,7 +67,7 @@ async function loadAdminPartnersData(scope: import("@/lib/tenant/adminPageScope"
       },
     }),
     db.subgroup.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { ...leaderOrg },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },

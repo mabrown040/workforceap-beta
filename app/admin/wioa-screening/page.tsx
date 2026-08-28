@@ -5,6 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { Prisma } from '@prisma/client';
 import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
+import { ADMIN_SSR_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { wioaReviewLabel, WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import PageHeader from '@/components/portal/PageHeader';
@@ -99,25 +100,31 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
     const reviewFilter = normalizeReviewParam(sp.review);
 
     let rows: WioaQueueRow[] = [];
+    let totalRows = 0;
     try {
-      rows = await withAdminPageScope(scope, (db) =>
-        db.user.findMany({
-          take: 5000,
-          where: {
-            deletedAt: null,
-            wioaQualificationJson: { not: Prisma.DbNull },
-            ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
-          },
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            wioaQualificationJson: true,
-            wioaReviewStatus: true,
-            wioaReviewedAt: true,
-            updatedAt: true,
-          },
-        }),
+      const where = {
+        deletedAt: null,
+        wioaQualificationJson: { not: Prisma.DbNull },
+        ...(reviewFilter ? { wioaReviewStatus: reviewFilter } : {}),
+      } satisfies Prisma.UserWhereInput;
+      [rows, totalRows] = await withAdminPageScope(scope, (db) =>
+        Promise.all([
+          db.user.findMany({
+            take: ADMIN_SSR_LIST_CAP,
+            where,
+            orderBy: { updatedAt: 'desc' },
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              wioaQualificationJson: true,
+              wioaReviewStatus: true,
+              wioaReviewedAt: true,
+              updatedAt: true,
+            },
+          }),
+          db.user.count({ where }),
+        ]),
       );
     } catch (error) {
       console.error('[admin/wioa-screening] failed to load queue', error);
@@ -155,7 +162,15 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
       <PortalPageFrame>
         <PageHeader
           title="WIOA screening queue"
-          subtitle="Members who completed the portal self-screening. Review status is for internal workflow only."
+          subtitle={
+            isListTruncated(enriched.length, ADMIN_SSR_LIST_CAP, totalRows)
+              ? showingFirstLabel(
+                  enriched.length,
+                  totalRows,
+                  reviewFilter ? 'screenings matching this filter' : 'screenings',
+                )
+              : 'Members who completed the portal self-screening. Review status is for internal workflow only.'
+          }
           action={
             <Link href="/admin/members" className="btn btn-outline">
               ← All members

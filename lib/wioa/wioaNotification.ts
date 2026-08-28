@@ -1,7 +1,17 @@
 import { Resend } from 'resend';
+import { getAdminAlertRecipients } from '@/lib/email';
 import { barrierLabel, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
-const NOTIFY_EMAIL = process.env.WIOA_SCREENING_NOTIFY_EMAIL ?? 'info@workforceap.org';
+export function getWioaScreeningNotificationRecipients(): string[] {
+  const configured = (process.env.WIOA_SCREENING_NOTIFY_EMAIL ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+  return configured.length > 0
+    ? Array.from(new Set(configured))
+    : getAdminAlertRecipients();
+}
 
 export type WioaScreeningNotificationContact = {
   fullName: string;
@@ -28,7 +38,7 @@ export async function sendWioaScreeningNotification(params: {
   try {
     await resend.emails.send({
       from: emailFrom,
-      to: NOTIFY_EMAIL,
+      to: getWioaScreeningNotificationRecipients(),
       subject: `${sourceLabel} — ${contact.fullName}`,
       text: [
         `Source: ${sourceLabel}`,

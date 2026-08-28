@@ -3,6 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Mic, Volume2, Check } from 'lucide-react';
 import type { Conversation } from '@elevenlabs/client';
+import {
+  appendVoiceTranscriptTurn,
+  extractVoiceTranscriptTurn,
+  type VoiceTranscriptTurn,
+} from '@/lib/interview/voiceTranscript';
 import ToolFollowThrough from './ToolFollowThrough';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
@@ -34,7 +39,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   const [agentSpeaking, setAgentSpeaking] = useState(false);
 
   const convRef = useRef<Conversation | null>(null);
-  const transcriptRef = useRef<{ role: 'agent' | 'user'; text: string }[]>([]);
+  const transcriptRef = useRef<VoiceTranscriptTurn[]>([]);
   const intentionalRef = useRef(false);
 
   // Inject animation styles once
@@ -71,7 +76,11 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     let signedUrl: string;
     let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
-      const res = await fetch('/api/counselor/session', { method: 'POST' });
+      const res = await fetch('/api/counselor/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audience: 'member' }),
+      });
       const data = await res.json() as {
         signedUrl?: string;
         dynamicVariables?: Record<string, string | number | boolean>;
@@ -108,19 +117,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           intentionalRef.current = false;
         },
         onMessage: (event) => {
-          const ev = event as unknown as Record<string, unknown>;
-          if (ev.type === 'user_transcript') {
-            const text = (ev.user_transcription_event as { user_transcript: string })?.user_transcript;
-            if (text) transcriptRef.current.push({ role: 'user', text });
-          } else if (ev.type === 'agent_response') {
-            const text = (ev.agent_response_event as { agent_response: string })?.agent_response;
-            if (text) transcriptRef.current.push({ role: 'agent', text });
-          } else if (ev.type === 'agent_response_correction') {
-            // ignore partial corrections
-          }
-          // Track speaking state for visual indicator
-          if (ev.type === 'agent_response') setAgentSpeaking(true);
-          if (ev.type === 'user_transcript') setAgentSpeaking(false);
+          const turn = extractVoiceTranscriptTurn(event);
+          transcriptRef.current = appendVoiceTranscriptTurn(transcriptRef.current, turn);
+          if (turn) setAgentSpeaking(turn.role === 'agent');
         },
         onError: (msg) => {
           setVoiceError(String(msg) || 'Connection error');

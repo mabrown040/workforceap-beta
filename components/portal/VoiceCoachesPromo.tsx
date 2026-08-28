@@ -90,7 +90,7 @@ export default function VoiceCoachesPromo() {
             {...studentCounselorVoiceSurface}
             title="Lilley Career Coach"
             description="Talk through training, your job search, or your next step, then leave with a personalized action plan."
-            href="/dashboard/ai-tools/studio?tab=session&agent=counselor"
+            href="/dashboard/counselor"
             ctaLabel="Start session"
           />
           <VoiceCoachLauncherCard

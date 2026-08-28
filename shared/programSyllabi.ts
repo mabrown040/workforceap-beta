@@ -438,7 +438,7 @@ export const PROGRAM_SYLLABI = {
   },
   "data-analytics-professional-certificate-google": {
     "slug": "data-analytics-professional-certificate-google",
-    "title": "Management and Data Analyst Professional Certificate (Google/IBM)",
+    "title": "Management Analyst & Business Intelligence Professional Certificate",
     "providers": "Google and IBM via Coursera",
     "providerLine": "Powered by Google and IBM via Coursera   |   Delivery Format: Hybrid, Self-Paced",
     "deliveryFormat": "Hybrid, Self-Paced",
@@ -517,11 +517,14 @@ export const PROGRAM_SYLLABI = {
       }
     ],
     "sourceDocument": "6-Management_and_Data_Analyst_Professional_Certificate_Google_IBM.pdf",
-    "sourceSha256": "66c22d099dba8e33d8d3fe2e7292a3a1314905beb65386e1e54213993da058c3"
+    "sourceSha256": "66c22d099dba8e33d8d3fe2e7292a3a1314905beb65386e1e54213993da058c3",
+    "sourceNotes": [
+      "Display title updated from the August 27, 2026 EDvera resubmission instructions. The amended syllabus artifact must replace this historical source filename and hash before course-level changes are published."
+    ]
   },
   "data-science-professional-certificate-ibm": {
     "slug": "data-science-professional-certificate-ibm",
-    "title": "Data Science and Database Administrator (DBA) Professional Certificate (IBM)",
+    "title": "Database Administrator (DBA) Professional Certificate (IBM)",
     "providers": "IBM via Coursera",
     "providerLine": "Powered by IBM via Coursera   |   Delivery Format: Online, Self-Paced",
     "deliveryFormat": "Online, Self-Paced",
@@ -582,7 +585,8 @@ export const PROGRAM_SYLLABI = {
     "sourceDocument": "7-Data_Science_and_Database_Administrator_Professional_Certificate.pdf",
     "sourceSha256": "1ea9bdc781ffeb261879b46e1f22504eea624bc4fd5e4bf35ade2f7f516d3994",
     "sourceNotes": [
-      "WorkforceAP-curated 160-hour pathway using selected IBM courses delivered through Coursera; it does not by itself confer the full IBM Data Science Professional Certificate or the IBM Relational Database Administrator certificate. Course hours are Coursera estimates reviewed August 4, 2026."
+      "WorkforceAP-curated 160-hour pathway using selected IBM courses delivered through Coursera; it does not by itself confer the full IBM Data Science Professional Certificate or the IBM Relational Database Administrator certificate. Course hours are Coursera estimates reviewed August 4, 2026.",
+      "Display title updated from the August 27, 2026 EDvera resubmission instructions. The amended syllabus artifact must replace this historical source filename and hash before removed data-science courses are remapped."
     ]
   },
   "aws-cloud-technology-amazon": {
@@ -655,7 +659,7 @@ export const PROGRAM_SYLLABI = {
   },
   "ux-design-professional-certificate-google": {
     "slug": "ux-design-professional-certificate-google",
-    "title": "UX Design Professional Certificate (Google)",
+    "title": "User Experience & Interface Design Professional Certificate",
     "providers": "Google via Coursera",
     "providerLine": "Powered by Google via Coursera   |   Delivery Format: Hybrid, Self-Paced",
     "deliveryFormat": "Hybrid, Self-Paced",
@@ -709,7 +713,10 @@ export const PROGRAM_SYLLABI = {
       }
     ],
     "sourceDocument": "9-UX_Design_Professional_Certificate_Google.docx",
-    "sourceSha256": "6aa6f5826e0f44a2e5c43914c1c43aac4acc7dbe4dc3b7bf30841bb9633c15b7"
+    "sourceSha256": "6aa6f5826e0f44a2e5c43914c1c43aac4acc7dbe4dc3b7bf30841bb9633c15b7",
+    "sourceNotes": [
+      "Display title updated from the August 27, 2026 EDvera resubmission instructions; Google UX content and the 160-hour total were confirmed unchanged."
+    ]
   },
   "digital-marketing-e-commerce-google": {
     "slug": "digital-marketing-e-commerce-google",

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { PROGRAMS } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { PROGRAM_SYLLABI } from '../../shared/programSyllabi';
 import {
   PROGRAMS as MARKETING_PROGRAMS,
@@ -14,10 +14,10 @@ const EXPECTED_SYLLABI = {
   'cybersecurity-professional-certificate-google': ['Networking and Cybersecurity Professional Certificate (Net+, Sec+)', 160, 14],
   'project-management-professional-certificate-microsoft': ['Project Management Professional Certificate (Microsoft)', 160, 10],
   'ai-practitioner-professional-certificate-aws': ['AI Practitioner Professional Certificate (AWS)', 160, 17],
-  'data-analytics-professional-certificate-google': ['Management and Data Analyst Professional Certificate (Google/IBM)', 160, 13],
-  'data-science-professional-certificate-ibm': ['Data Science and Database Administrator (DBA) Professional Certificate (IBM)', 160, 9],
+  'data-analytics-professional-certificate-google': ['Management Analyst & Business Intelligence Professional Certificate', 160, 13],
+  'data-science-professional-certificate-ibm': ['Database Administrator (DBA) Professional Certificate (IBM)', 160, 9],
   'aws-cloud-technology-amazon': ['AWS Cloud Technology Professional Certificate (AWS)', 160, 10],
-  'ux-design-professional-certificate-google': ['UX Design Professional Certificate (Google)', 160, 8],
+  'ux-design-professional-certificate-google': ['User Experience & Interface Design Professional Certificate', 160, 8],
   'digital-marketing-e-commerce-google': ['Digital Marketing & E-Commerce Professional Certificate (Google)', 160, 8],
   'software-developer-professional-certificate-ibm': ['AI and Software Developer Professional Certificate (IBM)', 200, 17],
   'health-information-technology-mchit': ['Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)', 160, 16],
@@ -62,6 +62,23 @@ describe('TWC syllabus source lock', () => {
       expect(partnerBadge(marketingProgram!)).toBe(syllabus.providers);
     },
   );
+
+  it.each([
+    [
+      'Management and Data Analyst Professional Certificate (Google/IBM)',
+      'data-analytics-professional-certificate-google',
+    ],
+    [
+      'Data Science and Database Administrator (DBA) Professional Certificate (IBM)',
+      'data-science-professional-certificate-ibm',
+    ],
+    [
+      'UX Design Professional Certificate (Google)',
+      'ux-design-professional-certificate-google',
+    ],
+  ] as const)('keeps the previous title %s resolvable', (previousTitle, canonicalSlug) => {
+    expect(getProgramBySlug(previousTitle)?.slug).toBe(canonicalSlug);
+  });
 
   it('renders syllabus facts and removes the generic course placeholder', () => {
     const detailTemplate = readFileSync(

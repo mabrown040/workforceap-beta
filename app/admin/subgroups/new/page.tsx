@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
+import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
 import SubgroupForm from '@/components/admin/SubgroupForm';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
@@ -23,13 +24,13 @@ export default async function NewSubgroupPage() {
   if (!scope.ok) redirect('/dashboard');
   const [users, partners] = await Promise.all([
     withAdminPageScope(scope, (db) => db.user.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { deletedAt: null },
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: 'asc' },
     })),
     withAdminPageScope(scope, (db) => db.partner.findMany({
-      take: 5000,
+      take: LOOKUP_LIST_CAP,
       where: { active: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },

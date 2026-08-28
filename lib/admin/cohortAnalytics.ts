@@ -447,31 +447,69 @@ export type AiToolsCohortRow = {
   membersUsedTools: number;
 };
 
-export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
+/**
+ * Tenant predicates shared by every AI-tools analytics query.
+ *
+ * Passing no org is deliberate: only the super-admin page path does that so
+ * platform operators retain the existing cross-tenant view.
+ */
+export function aiToolsUserScope(orgId?: string | null): Prisma.UserWhereInput {
+  return {
+    deletedAt: null,
+    ...(orgId ? { organizationId: orgId } : {}),
+  };
+}
+
+export function aiToolsActivityScope(
+  orgId?: string | null,
+): { user?: { organizationId: string } } {
+  return orgId ? { user: { organizationId: orgId } } : {};
+}
+
+async function runAiToolsRawQuery<T>(
+  orgId: string | null | undefined,
+  query: () => Promise<T>,
+): Promise<T> {
+  if (orgId) return query();
+
+  // An omitted org is the deliberate super-admin support view. Import lazily
+  // so the pure scope helpers above remain runnable in the DB-free unit suite.
+  const { crossTenantOK } = await import('@/lib/tenant/withTenantScope');
+  return crossTenantOK(query);
+}
+
+export async function getAiToolsCohortStats(
+  orgId?: string | null,
+): Promise<AiToolsCohortRow[]> {
   const now = new Date();
   const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
+  const activityScope = aiToolsActivityScope(orgId);
 
   const users = await prisma.user.findMany({
     take: 500,
-    where: { deletedAt: null },
+    where: aiToolsUserScope(orgId),
     select: { id: true, enrolledProgram: true },
   });
   const byCohort = userIdsByCohort(users);
+  const loadVoiceEvents = () => prisma.$queryRaw<Array<{ user_id: string; created_at: Date }>>`
+    SELECT me.user_id, me.created_at
+    FROM member_events me
+    INNER JOIN users u ON u.id = me.user_id
+    WHERE me.event_name = 'ai_tool_run_started'
+      AND me.entity_type = 'ai_tool'
+      AND COALESCE(me.metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
+      ${orgId ? Prisma.sql`AND u.organization_id = ${orgId}` : Prisma.empty}
+    ORDER BY me.created_at DESC
+    LIMIT ${ANALYTICS_COHORT_DETAIL_CAP}
+  `;
 
   const [savedRuns, voiceEvents] = await Promise.all([
     prisma.aIToolResult.findMany({
       take: 500,
+      where: activityScope,
       select: { userId: true, createdAt: true },
     }),
-    prisma.$queryRaw<Array<{ user_id: string; created_at: Date }>>`
-      SELECT "user_id", "created_at"
-      FROM "member_events"
-      WHERE "event_name" = 'ai_tool_run_started'
-        AND "entity_type" = 'ai_tool'
-        AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
-      ORDER BY "created_at" DESC
-      LIMIT ${ANALYTICS_COHORT_DETAIL_CAP}
-    `,
+    runAiToolsRawQuery(orgId, loadVoiceEvents),
   ]);
 
   // Merge voice session events into the unified runs list
@@ -521,22 +559,27 @@ export type AiToolUsageRow = {
  * No `$transaction`, no per-tool HTTP. Degrades to `[]` on failure so the page
  * can render the catalog without counts.
  */
-export async function getAiToolUsageCounts(): Promise<AiToolUsageRow[]> {
+export async function getAiToolUsageCounts(
+  orgId?: string | null,
+): Promise<AiToolUsageRow[]> {
+  const activityScope = aiToolsActivityScope(orgId);
+  const loadVoiceCount = () => prisma.$queryRaw<Array<{ count: bigint }>>`
+    SELECT COUNT(*)::bigint AS count
+    FROM member_events me
+    INNER JOIN users u ON u.id = me.user_id
+    WHERE me.event_name = 'ai_tool_run_started'
+      AND me.entity_type = 'ai_tool'
+      AND COALESCE(me.metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
+      ${orgId ? Prisma.sql`AND u.organization_id = ${orgId}` : Prisma.empty}
+  `;
   const [byType, voiceCount] = await Promise.all([
     prisma.aIToolResult
-      .groupBy({ by: ['toolType'], _count: { _all: true } })
+      .groupBy({ by: ['toolType'], where: activityScope, _count: { _all: true } })
       .catch((reason: unknown) => {
         console.error('[admin/ai-tools] tool usage groupBy failed', reason);
         return [] as Array<{ toolType: string; _count: { _all: number } }>;
       }),
-    prisma
-      .$queryRaw<Array<{ count: bigint }>>`
-        SELECT COUNT(*)::bigint AS count
-        FROM "member_events"
-        WHERE "event_name" = 'ai_tool_run_started'
-          AND "entity_type" = 'ai_tool'
-          AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
-      `
+    runAiToolsRawQuery(orgId, loadVoiceCount)
       .catch((reason: unknown) => {
         console.error('[admin/ai-tools] voice session count failed', reason);
         return [] as Array<{ count: bigint }>;

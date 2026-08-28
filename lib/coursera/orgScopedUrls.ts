@@ -198,10 +198,38 @@ export async function getOrgScopedProgramUrl(programSlug: string): Promise<strin
 export async function getOrgScopedCourseUrl(
   programSlug: string,
   courseraCourseId: string,
+  courseraCourseSlug: string | null | undefined,
 ): Promise<string> {
-  const programUrl = await getOrgScopedProgramUrl(programSlug);
+  const courseSlug = courseraCourseSlug?.trim();
+  const courseFallback = courseSlug ? localFallbackUrl(courseSlug, 'course') : null;
+
+  let programUrl: string;
+  try {
+    programUrl = await getOrgScopedProgramUrl(programSlug);
+  } catch {
+    return courseFallback ?? PLATFORM_URL;
+  }
+
+  // A course id only has meaning inside a real org-scoped /programs/... URL.
+  // Appending it to the platform root produces a 200 page that never opens
+  // the requested course, which looks like a dead CTA to the member.
+  let isOrgScopedProgramUrl = false;
+  try {
+    const parsed = new URL(programUrl);
+    const hostname = parsed.hostname.toLowerCase();
+    isOrgScopedProgramUrl =
+      (hostname === 'coursera.org' || hostname.endsWith('.coursera.org')) &&
+      /^\/programs\/[^/?#]+\/?$/.test(parsed.pathname);
+  } catch {
+    isOrgScopedProgramUrl = false;
+  }
+
+  if (!isOrgScopedProgramUrl) {
+    return courseFallback ?? programUrl;
+  }
+
   const id = courseraCourseId?.trim();
-  if (!id) return programUrl;
+  if (!id) return courseFallback ?? programUrl;
 
   // The "showMiniModal" param tells Coursera to surface the in-program
   // course modal rather than navigating away from the program shell.

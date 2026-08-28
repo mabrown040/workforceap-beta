@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import LegacyViewNotice from '@/components/portal/LegacyViewNotice';
@@ -35,17 +35,16 @@ export default async function AdminLayout({
   const messages = pickAdminClientMessages(await getMessages());
 
   try {
-    const hasAdmin = await isAdmin(user.id);
-    if (!hasAdmin) redirect('/dashboard');
+    const scope = await resolveAdminPageTenant(user.id);
+    if (!scope.ok) redirect('/dashboard');
 
-    const [branding, superAdmin] = await Promise.all([
+    const [branding, portalRoles] = await Promise.all([
       getDefaultOrgBranding(),
-      isSuperAdmin(user.id),
+      getPortalSwitcherRoles(user.id, {
+        superAdmin: scope.superAdmin,
+        hasAdmin: true,
+      }),
     ]);
-    const portalRoles = await getPortalSwitcherRoles(user.id, {
-      superAdmin,
-      hasAdmin: true,
-    });
 
     return (
       // Opt the entire admin route group out of browser translation.
@@ -68,7 +67,7 @@ export default async function AdminLayout({
       <div translate="no" className="notranslate">
         <OrgBrandingBar branding={branding} />
         <LegacyViewNotice />
-        <AdminPortalShell superAdmin={superAdmin} portalRoles={portalRoles}>{children}</AdminPortalShell>
+        <AdminPortalShell superAdmin={scope.superAdmin} portalRoles={portalRoles}>{children}</AdminPortalShell>
       </div>
       </NextIntlClientProvider>
     );

@@ -10,8 +10,8 @@ import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
 /**
- * Batch-rewrite every soft-deleted user's email to the sentinel form
- * if it isn't already. Backfills the deletes that happened before
+ * Batch-rewrite up to 100 soft-deleted users' emails to the sentinel form
+ * if they aren't already rewritten. Repeated calls backfill deletes from before
  * #757 added per-row email rewriting on delete.
  *
  * Sentinel form (must match app/api/admin/members/[id]/delete/route.ts):

@@ -151,7 +151,11 @@ export default async function CourseraProgressCard({
         certificateUrl: row.certificateUrl ?? null,
         lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
         viewUrl: row.programSlug
-          ? await getOrgScopedCourseUrl(row.programSlug, row.courseraCourseId)
+          ? await getOrgScopedCourseUrl(
+              row.programSlug,
+              row.courseraCourseId,
+              row.courseraCourseSlug,
+            )
           : null,
       };
     }),
@@ -177,7 +181,7 @@ export default async function CourseraProgressCard({
       locallyCompleted || b4b?.isCompleted ? 100 : b4b != null ? b4b.overallProgress : localPct;
     const viewUrl =
       c.programSlug && discovered?.courseId
-        ? await getOrgScopedCourseUrl(c.programSlug, discovered.courseId)
+        ? await getOrgScopedCourseUrl(c.programSlug, discovered.courseId, discovered.slug)
         : c.programSlug
           ? await getOrgScopedProgramUrl(c.programSlug)
           : null;

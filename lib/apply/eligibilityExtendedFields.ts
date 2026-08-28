@@ -6,7 +6,11 @@
  * School / CHS paths skip these (see ApplyEligibilityClient + signup route).
  */
 
-import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import {
+  PUBLIC_REFERRAL_SOURCE_OPTIONS,
+  REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
+  REFERRAL_SOURCE_OTHER_PARTNER,
+} from '@/lib/referralSources';
 
 export const YES_NO = ['yes', 'no'] as const;
 export type YesNo = (typeof YES_NO)[number];
@@ -39,7 +43,13 @@ export function normalizeHearAbout(value: unknown): string | null {
 }
 
 export function hearAboutNeedsOther(hearAbout: string | null | undefined): boolean {
-  return (hearAbout ?? '') === APPLY_HEAR_ABOUT_OTHER || (hearAbout ?? '').toLowerCase() === 'other';
+  const value = hearAbout ?? '';
+  return (
+    value === APPLY_HEAR_ABOUT_OTHER ||
+    value === REFERRAL_SOURCE_OTHER_PARTNER ||
+    value === REFERRAL_SOURCE_COMMUNITY_AMBASSADOR ||
+    value.toLowerCase() === 'other'
+  );
 }
 
 export function hearAboutSuggestsAmbassador(hearAbout: string | null | undefined): boolean {

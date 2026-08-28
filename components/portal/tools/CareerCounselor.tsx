@@ -7,7 +7,7 @@ import ToolFollowThrough from './ToolFollowThrough';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
-// Supporting blue lane for counselor/advisor conversations.
+// Supporting blue lane for student career-coaching conversations.
 const ACCENT = '#2b7bb9';
 const ACCENT_DARK = '#1f5a87';
 const ACCENT_BG = 'rgba(43, 123, 185, 0.12)';
@@ -69,13 +69,19 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     }
 
     let signedUrl: string;
+    let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
       const res = await fetch('/api/counselor/session', { method: 'POST' });
-      const data = await res.json() as { signedUrl?: string; error?: string };
+      const data = await res.json() as {
+        signedUrl?: string;
+        dynamicVariables?: Record<string, string | number | boolean>;
+        error?: string;
+      };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Failed to start session');
       }
       signedUrl = data.signedUrl;
+      dynamicVariables = data.dynamicVariables;
     } catch (err) {
       setVoiceError(err instanceof Error ? err.message : 'Could not connect. Please try again.');
       setPhase('pre');
@@ -88,6 +94,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       const { Conversation } = await import('@elevenlabs/client');
       const conv = await Conversation.startSession({
         signedUrl,
+        ...(dynamicVariables && Object.keys(dynamicVariables).length > 0
+          ? { dynamicVariables }
+          : {}),
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           if (!intentionalRef.current) {
@@ -192,8 +201,8 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           {firstName ? `Hi ${firstName}.` : 'Hi there.'} Ready when you are.
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '2rem', lineHeight: 1.6, fontSize: '0.95rem' }}>
-          This is a private conversation — just you and your counselor.
-          Speak naturally about where you are in your job search.
+          This is a one-on-one conversation with Lilley, your AI career coach.
+          Speak naturally about your training, job search, or next step.
         </p>
 
         {voiceError && (
@@ -222,7 +231,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {[
               '3–5 minute conversation at your own pace',
-              'Ask anything about your job search',
+              'Ask about training, your job search, or your next step',
               "You'll get a personalized action plan after",
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
@@ -281,7 +290,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.4rem' }}>
-            {agentSpeaking ? 'Your counselor is speaking…' : 'Listening — speak when ready'}
+            {agentSpeaking ? 'Lilley is speaking…' : 'Listening — speak when ready'}
           </div>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
@@ -327,7 +336,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </div>
 
         <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
-          Your voice session is processed by ElevenLabs and is private to you.
+          Your voice session is processed by ElevenLabs. Avoid sharing sensitive personal information.
         </p>
       </div>
     );

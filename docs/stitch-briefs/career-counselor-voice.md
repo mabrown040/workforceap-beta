@@ -95,9 +95,9 @@ Your session is private. Speak naturally — I'm here to help.
 
 ## Technical Context
 
-- ElevenLabs agent ID: `agent_2801kmznvsemfmms06r0e02es1b9`
-- Uses `@elevenlabs/client` SDK → `Conversation.startSession({ signedUrl })`
-- API route: POST `/api/counselor/session` → returns `{ signedUrl }`
+- ElevenLabs agent: `Lilley - WorkforceAP Student Career Coach` (`agent_1101kqfjfm8retm8j6md467wzxdb`)
+- Uses `@elevenlabs/client` SDK → `Conversation.startSession({ signedUrl, dynamicVariables })`
+- API route: POST `/api/counselor/session` → returns `{ signedUrl, dynamicVariables }`
 - Post-session feedback: POST `/api/counselor/feedback` → returns `{ steps: string[] }`
 - Auth: requires logged-in member (use `getUser()` from `@/lib/auth/server`)
 - Follow same pattern as `/dashboard/interview-coach` (working reference implementation)

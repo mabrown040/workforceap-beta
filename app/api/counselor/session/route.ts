@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
-import { fetchCounselorPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { cookies } from 'next/headers';
 import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -26,7 +26,7 @@ async function _POST(request: Request) {
     const locale = getAppLocaleFromCookieStore(cookieStore);
   
     try {
-      const dynamicVariables = await fetchCounselorPortalDynamicVariables(user.id);
+      const dynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
       const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('counselor', {
         dynamicVariables,
         locale,

@@ -171,6 +171,7 @@ Workforce Advancement Project (WorkforceAP) is a **free career training platform
 | `/how-it-works` | 11-step process explanation |
 | `/apply` | Application form |
 | `/dashboard` | Member portal (requires login) |
+| `/dashboard/counselor` | Lilley, the member AI career coach (requires login) |
 | `/admin/*` | Admin panel (requires admin role) |
 | `/partners` | Public partner information |
 | `/faq` | Frequently asked questions |
@@ -194,6 +195,7 @@ After login, members access 10 sections:
    - LinkedIn Optimizer
    - Salary Negotiation Script
    - Application Tracker
+   - Lilley Career Coach (voice coaching, saved action plan, and coach memory)
 5. **Resources** — Loaner laptop info, templates, guides
 6. **Career Brief** — Weekly career guidance articles
 7. **Learning** — Skills library, supplementary courses

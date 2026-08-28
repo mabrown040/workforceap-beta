@@ -18,7 +18,7 @@
 | **Testing** | Vitest (unit) + Playwright (E2E) | Separate configs; E2E loads `.env.e2e.local` |
 | **Email** | React Email + Resend | Templates in `/emails`; preview with `npm run email` |
 | **AI / LLM** | Anthropic, Groq, Gemini | Fallback chain for resilience |
-| **Voice** | ElevenLabs ConvAI | Conversational AI agents for interview/counselor flows |
+| **Voice** | ElevenLabs ConvAI | Conversational AI agents for interviews and member career-coaching flows |
 | **Learning** | Coursera Enterprise / B4B | xAPI + SSO integration for course progress |
 | **Payments** | Stripe | Org onboarding tiers |
 | **Monitoring** | Sentry + Vercel Analytics | Error tracking + Web Vitals |

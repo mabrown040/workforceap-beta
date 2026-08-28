@@ -12,7 +12,7 @@ Members can't find their past AI tool results. The history page exists at `/dash
 Add to the `TOOL_LABELS` map:
 ```typescript
 interview_coach: 'AI Interview Coach',
-career_counselor: 'Career Counselor',
+career_counselor: 'Lilley Career Coach',
 ```
 
 ### 2. Add "View History" link to AI Tools page — `app/(portal)/dashboard/ai-tools/page.tsx`

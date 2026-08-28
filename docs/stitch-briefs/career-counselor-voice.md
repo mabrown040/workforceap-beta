@@ -1,7 +1,7 @@
-# Stitch Brief: Career Counselor Voice Tool
+# Stitch Brief: Lilley Student Career Coach Voice Tool
 
 ## What We're Building
-A voice-powered career counseling experience inside the WorkforceAP member portal. Members tap a button, speak to an AI counselor, and leave with a clear next step — in under 5 minutes.
+A voice-powered student career-coaching experience inside the WorkforceAP member portal. Members tap a button, speak to Lilley—an AI career coach—and leave with a clear next step in under 5 minutes.
 
 ---
 
@@ -25,9 +25,11 @@ The UI needs to feel like walking into a room where someone is expecting you and
 
 ### Entry State
 Member arrives from their dashboard. They should feel:
-- **Safe** — this is private, just them and the counselor
+- **Supported** — this is a one-on-one coaching session built for the member
 - **Capable** — they can do this, it's easy to start
 - **Hopeful** — something is about to happen that could actually move their life forward
+
+Before the member starts, show the data-use notice: ElevenLabs processes the voice session; another AI provider analyzes the transcript; WorkforceAP saves the transcript/action plan to AI history and coach memory; configured WorkforceAP support recipients may receive it by email.
 
 Visual cue: Warm, human. Not cold tech. Think: a well-lit office, not a chatbot bubble.
 
@@ -35,12 +37,12 @@ Visual cue: Warm, human. Not cold tech. Think: a well-lit office, not a chatbot 
 They're talking to someone who is listening. Visual:
 - Clear voice activity indicator — they can tell when the AI is listening vs. speaking
 - Session feels alive, not frozen
-- Simple end/pause controls — they're in control
+- Simple end/cancel controls — they're in control
 
 ### After the Session
-They get 1-3 concrete next steps based on what they said. Not generic advice. Not a wall of text. Three things they can do today.
+They get three concrete next steps based on what they said. Not generic advice. Not a wall of text. Three things they can do today.
 
-And — critically — a path to act on those steps immediately (links to the right tools in their dashboard).
+The action plan is saved automatically to AI Tools history. Members can check off steps in the current view and use the follow-through links below it to continue in relevant portal tools.
 
 ---
 
@@ -50,8 +52,8 @@ And — critically — a path to act on those steps immediately (links to the ri
 
 ```
 [Header]
-AI Career Counselor
-Your session is private. Speak naturally — I'm here to help.
+Lilley, Your AI Career Coach
+Speak naturally about your training, job search, or next step.
 
 [Main Card - Pre-session]
   Warm illustration or ambient visual (not a robot)
@@ -62,7 +64,7 @@ Your session is private. Speak naturally — I'm here to help.
   
   What to expect:
   - 3-5 minute conversation
-  - Ask me anything about your job search
+  - Ask about training, your job search, or your next step
   - You'll get a personalized action plan after
 
 [Active Session]
@@ -73,11 +75,11 @@ Your session is private. Speak naturally — I'm here to help.
 [Post-Session - Feedback Card]
   "Here's your action plan:"
   
-  [ ] Step 1 (linked to tool or resource)
+  [ ] Step 1
   [ ] Step 2
   [ ] Step 3
   
-  "Save to my dashboard" button
+  Follow-through links to relevant portal tools
   "Start a new session" link
 ```
 
@@ -85,7 +87,7 @@ Your session is private. Speak naturally — I'm here to help.
 
 ## Design Direction
 
-- **Color temperature:** Warm — amber/gold accents over the dark portal theme, not cold blue
+- **Color lane:** Calm support blue over the dark portal theme, using the existing `--wa-info` token family rather than new hex values
 - **Typography:** Human and readable — slightly larger than the rest of the portal
 - **Animation:** Breathing/pulse on the active state — alive, not mechanical
 - **Avatar/illustration:** Abstract warmth, not a robot face. Think: a glowing orb, a soft shape, something that suggests presence without pretending to be a person
@@ -98,9 +100,9 @@ Your session is private. Speak naturally — I'm here to help.
 - ElevenLabs agent: `Lilley - WorkforceAP Student Career Coach` (`agent_1101kqfjfm8retm8j6md467wzxdb`)
 - Uses `@elevenlabs/client` SDK → `Conversation.startSession({ signedUrl, dynamicVariables })`
 - API route: POST `/api/counselor/session` → returns `{ signedUrl, dynamicVariables }`
-- Post-session feedback: POST `/api/counselor/feedback` → returns `{ steps: string[] }`
+- Post-session feedback: POST `/api/counselor/feedback` → generates `{ steps: string[] }`, saves AI history/coach memory, and may email configured WorkforceAP recipients
 - Auth: requires logged-in member (use `getUser()` from `@/lib/auth/server`)
-- Follow same pattern as `/dashboard/interview-coach` (working reference implementation)
+- Follow same pattern as `/dashboard/ai-tools/interview-coach` (working reference implementation)
 
 ### CSP Requirements (already in next.config.ts):
 - `microphone=(self)` in Permissions-Policy
@@ -116,7 +118,9 @@ That's the bar. Not "voice AI works." That someone's week got better because the
 
 ---
 
-## Files to Create
+## Implementation Files
+
+These files implement the current flow:
 
 1. `app/(portal)/dashboard/counselor/page.tsx` — server page (auth check, pass user name to component)
 2. `components/portal/tools/CareerCounselor.tsx` — client component (voice session UI)

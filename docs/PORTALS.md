@@ -85,7 +85,7 @@ The member dashboard is the primary experience for enrolled members. It adapts b
 
 ### Career Support (`/dashboard/*`)
 
-- `counselor` — My assigned counselor
+- `counselor` — Lilley, the member AI career coach (not an assigned staff counselor)
 - `mentor` — My mentor
 - `mentors` — Mentor directory
 - `messages` — Platform messaging

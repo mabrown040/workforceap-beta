@@ -3,6 +3,8 @@
 **File:** `.env.local` (for local dev) or Vercel Environment Variables (for production)  
 **Last Updated:** 2026-04-24
 
+> **Superseded deployment reference:** use [`docs/ENVIRONMENT-VARIABLES.md`](docs/ENVIRONMENT-VARIABLES.md) as the canonical inventory. This legacy snapshot describes expected configuration, not proof of current Vercel Production state; re-verify live values before a release.
+
 ---
 
 ## Required Variables
@@ -85,9 +87,9 @@
 
 ---
 
-## Current Vercel Production Status
+## Historical Vercel Production Status Snapshot
 
-**Checked:** 2026-04-24
+**Checked:** 2026-04-24 — re-verification is required before the next production cutover.
 
 **Present:**
 - ✅ `RESEND_API_KEY` — Email service functional

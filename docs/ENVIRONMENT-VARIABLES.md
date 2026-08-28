@@ -149,7 +149,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 |------|-------|-------------|---------|---------|
 | `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
-| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: counselor | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: Lilley member career coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | 🟢 🔒 | ConvAI agent: employer coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_READINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: readiness coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | 🟢 🔒 | ConvAI agent: resume coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
@@ -161,7 +161,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
 
-**Note:** Agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience. Override with env vars per deploy.
+**Note:** Agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience. Override with env vars per deploy. The retired counselor-agent ID is ignored so a stale deploy value cannot route members back to the former staff/caseload agent.
 
 ---
 

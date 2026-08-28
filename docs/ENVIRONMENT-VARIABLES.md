@@ -235,7 +235,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 
 | Name | Badge | Description | Example | Used In |
 |------|-------|-------------|---------|---------|
-| `NEXT_PUBLIC_WIOA_ENABLED` | 🟡 👁️ | Enable WIOA program features | `1` | Portal nav, learning hub |
+| `NEXT_PUBLIC_WIOA_ENABLED` | 🟡 👁️ | Show WIOA discovery links (`0` hides nav/cards; direct page and APIs remain available) | `1` | Portal nav, learning hub |
 | `WIOA_SCREENING_NOTIFY_EMAIL` | 🟢 🔒 | WIOA screening notifications | `info@workforceap.org` | `lib/wioa/wioaNotification.ts` |
 
 ---

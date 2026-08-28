@@ -10,7 +10,7 @@ test('the portal WIOA assessment is available by default', () => {
   assert.equal(isWioaPortalAvailable('1'), true);
 });
 
-test('an explicit zero remains the WIOA portal kill switch', () => {
+test('an explicit zero hides WIOA from portal navigation and discovery', () => {
   assert.equal(isWioaPortalAvailable('0'), false);
 });
 
@@ -29,4 +29,5 @@ test('all member discovery surfaces use the shared default-on guard', () => {
 
   const envExample = readFileSync(join(process.cwd(), '.env.example'), 'utf8');
   assert.match(envExample, /^NEXT_PUBLIC_WIOA_ENABLED=1$/m);
+  assert.match(envExample, /navigation and Learning Hub discovery/);
 });

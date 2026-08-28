@@ -59,6 +59,51 @@ test('Coursera launch route uses DB course override for requested course deep li
   assert.equal(res.redirectedTo, 'https://www.coursera.org/specializations/db-course-slug');
 });
 
+test('Coursera launch route passes discovered course slug to the org-scoped resolver', async () => {
+  let resolvedArgs: [string, string, string] | null = null;
+  const handler = createCourseraLaunchHandler(makeDeps({
+    getDiscoveredProgram: () => ({
+      courses: [{ slug: 'second-course', courseId: 'course-id-2' }],
+    }),
+    getOrgScopedCourseUrl: async (programSlug, courseId, courseSlug) => {
+      resolvedArgs = [programSlug, courseId, courseSlug];
+      return `https://www.coursera.org/learn/${courseSlug}`;
+    },
+  }));
+
+  const res = await handler(new Request('https://workforceap.test/api/member/coursera/launch?course=second-course'));
+
+  assert.deepEqual(resolvedArgs, [
+    'it-support-professional-certificate-ibm',
+    'course-id-2',
+    'second-course',
+  ]);
+  assert.equal(res.redirectedTo, 'https://www.coursera.org/learn/second-course');
+});
+
+test('Coursera launch route uses configured course mapping for a requested course', async () => {
+  const handler = createCourseraLaunchHandler(makeDeps());
+
+  const res = await handler(new Request('https://workforceap.test/api/member/coursera/launch?course=second-course'));
+
+  assert.equal(
+    res.redirectedTo,
+    'https://www.coursera.org/programs/org-program/learn/course-id-2',
+  );
+});
+
+test('Coursera launch route keeps an unmapped requested course inside WorkforceAP', async () => {
+  const handler = createCourseraLaunchHandler(makeDeps({
+    getCourseraConfig: () => ({ courseIdMap: {} }),
+    getOrgScopedProgramUrl: async () => 'https://www.coursera.org/',
+    buildCourseraLaunchUrl: () => 'https://www.coursera.org/',
+  }));
+
+  const res = await handler(new Request('https://workforceap.test/api/member/coursera/launch?course=second-course'));
+
+  assert.equal(res.redirectedTo, 'https://workforceap.test/dashboard/training?error=launch_failed');
+});
+
 test('Coursera launch route uses active dashboard program instead of legacy enrolledProgram', async () => {
   const handler = createCourseraLaunchHandler(makeDeps({
     resolveActiveProgram: async () => 'cybersecurity-professional-certificate-google',

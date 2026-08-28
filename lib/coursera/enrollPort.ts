@@ -98,7 +98,7 @@ export function _resetRosterLookupCacheForTesting() {
  */
 export async function writeEnrollAudit(args: {
   actorUserId: string;
-  actorRole: 'member' | 'admin';
+  actorRole: 'member' | 'admin' | 'super_admin';
   targetUserId: string;
   event: EnrollAuditEvent;
 }): Promise<void> {

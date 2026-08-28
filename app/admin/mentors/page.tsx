@@ -6,6 +6,7 @@ import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/queryCaps';
 import {
   MentorsDirectoryKit,
   type MentorCard,
@@ -61,16 +62,29 @@ async function updateMentorAction(formData: FormData) {
 
   if (!mentorId) return;
 
-  if (action === 'approve') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true, approvedAt: new Date() } });
-  }
+  const data =
+    action === 'approve'
+      ? { isActive: true, approvedAt: new Date() }
+      : action === 'deactivate'
+        ? { isActive: false }
+        : action === 'activate'
+          ? { isActive: true }
+          : null;
+  if (!data) return;
 
-  if (action === 'deactivate') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: false } });
-  }
-
-  if (action === 'activate') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true } });
+  // Mentor is not covered by the tenant scope proxy. Keep the write bound to
+  // the mentor's related user for org admins; super-admin deliberately gets
+  // the empty predicate for cross-tenant support.
+  const result = await prisma.mentor.updateMany({
+    where: { id: mentorId, ...inheritUserOrg(scope) },
+    data,
+  });
+  if (result.count !== 1) {
+    console.warn('[admin/mentors] mentor update rejected or target missing', {
+      mentorId,
+      action,
+      orgId: scope.orgId,
+    });
   }
 }
 
@@ -174,25 +188,34 @@ export default async function AdminMentorsPage({
 
 /** Original mentor admin workspace (table + approve/deactivate). Behind ?ui=legacy. */
 async function LegacyMentorsView({ scope }: { scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk }) {
-  const mentors = await withAdminPageScope(scope, (db) => db.mentor.findMany({
-    take: 5000,
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      fullName: true,
-      company: true,
-      industry: true,
-      isActive: true,
-      approvedAt: true,
-      createdAt: true,
-    },
-  }));
+  const userOrg = inheritUserOrg(scope);
+  const [mentors, total] = await withAdminPageScope(scope, (db) => Promise.all([
+    db.mentor.findMany({
+      take: ADMIN_SSR_LIST_CAP,
+      where: { ...userOrg },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        company: true,
+        industry: true,
+        isActive: true,
+        approvedAt: true,
+        createdAt: true,
+      },
+    }),
+    db.mentor.count({ where: { ...userOrg } }),
+  ]));
 
   return (
     <main style={{ padding: '1.5rem' }}>
       <PageHeader
         title="Mentors"
-        subtitle="Review mentor applications and toggle active mentor availability."
+        subtitle={
+          isListTruncated(mentors.length, ADMIN_SSR_LIST_CAP, total)
+            ? showingFirstLabel(mentors.length, total, 'mentors')
+            : 'Review mentor applications and toggle active mentor availability.'
+        }
       />
 
       <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>

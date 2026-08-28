@@ -20,9 +20,11 @@ type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export default function DeletedUsersClient({
   rows,
+  totalDeletedCount,
   stillBoundCount,
 }: {
   rows: DeletedUserRow[];
+  totalDeletedCount: number;
   stillBoundCount: number;
 }) {
   const router = useRouter();
@@ -124,7 +126,9 @@ export default function DeletedUsersClient({
           </span>
           <div>
             <p style={{ margin: 0, fontWeight: 700, color: 'var(--color-on-surface)' }}>
-              {rows.length} soft-deleted user{rows.length === 1 ? '' : 's'}
+              {rows.length < totalDeletedCount
+                ? `Showing ${rows.length} of ${totalDeletedCount} soft-deleted users`
+                : `${totalDeletedCount} soft-deleted user${totalDeletedCount === 1 ? '' : 's'}`}
             </p>
             <p style={{ margin: '0.15rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
               {stillBoundCount === 0
@@ -142,7 +146,7 @@ export default function DeletedUsersClient({
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
             {batchStatus === 'loading' ? <PortalInlineSpinner size={14} /> : <Wand2 size={14} aria-hidden />}
-            Free emails on all {stillBoundCount}
+            Free next batch (up to 100)
           </button>
         ) : null}
       </div>
@@ -295,7 +299,7 @@ export default function DeletedUsersClient({
       <ConfirmDialog
         open={confirmBatchFree}
         title="Free deleted emails?"
-        body={`Free emails on all ${stillBoundCount} soft-deleted rows whose email still occupies the unique slot? Those addresses become available for new signups.`}
+        body={`Free the next batch of up to 100 of the ${stillBoundCount} soft-deleted rows whose email still occupies the unique slot? Those addresses become available for new signups. Repeat until the remaining count reaches zero.`}
         confirmLabel="Free emails"
         danger
         busy={batchStatus === 'loading'}

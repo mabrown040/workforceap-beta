@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { canAdminActInSubjectOrganization } from '@/lib/tenant/adminSubjectAccess';
 import { auditRequestMeta } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { setCourseraEnrollmentApproval } from '@/lib/admin/courseraEnrollmentApproval';
@@ -49,16 +50,20 @@ async function _PATCH(
   }
   const approved = parsed.data.approved;
 
-  // Tenant scoping: route the write through the subject's org, not the
-  // actor's. A super_admin viewing a partner-org member must mutate the
-  // partner-org row, not their own.
-  const subjectOrgId = await getSubjectOrganizationId(memberId);
-  const actorOrgId = await getActorOrganizationId(user.id);
-  if (actorOrgId !== subjectOrgId) {
-    return NextResponse.json({ error: 'Forbidden — cross-tenant' }, { status: 403 });
+  // Route the write through the subject's org. Org admins remain same-tenant;
+  // platform super-admins retain the cross-tenant support access already
+  // granted by the admin member detail page.
+  const superAdmin = await isSuperAdmin(user.id);
+  const subjectOrgId = await getSubjectOrganizationId(memberId).catch(() => null);
+  if (!subjectOrgId) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
+  const actorOrgId = superAdmin ? null : await getActorOrganizationId(user.id);
+  if (!canAdminActInSubjectOrganization({ actorOrgId, subjectOrgId, superAdmin })) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
 
-  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  const actorRole = superAdmin ? 'super_admin' : 'admin';
   const result = await setCourseraEnrollmentApproval({
     memberId,
     approved,

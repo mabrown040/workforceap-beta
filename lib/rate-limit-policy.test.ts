@@ -108,9 +108,26 @@ test('security mode honors allow-missing in production', () => {
 test('env helpers only treat the string 1 as enabled', () => {
   assert.equal(isAllowMissingUpstashEnabled('1'), true);
   assert.equal(isAllowMissingUpstashEnabled('true'), false);
-  assert.equal(isAllowMissingUpstashEnabled(undefined), false);
+  assert.equal(isAllowMissingUpstashEnabled(''), false);
   assert.equal(isApplyFailClosedEnvEnabled('1'), true);
   assert.equal(isApplyFailClosedEnvEnabled('0'), false);
   assert.equal(ALLOW_MISSING_UPSTASH_ENV, 'RATE_LIMIT_ALLOW_MISSING_UPSTASH');
   assert.equal(APPLY_FAIL_CLOSED_ENV, 'WAP_APPLY_RATE_LIMIT_FAIL_CLOSED');
+});
+
+test('allow-missing helper reads its default from the environment', () => {
+  const previous = process.env[ALLOW_MISSING_UPSTASH_ENV];
+
+  try {
+    delete process.env[ALLOW_MISSING_UPSTASH_ENV];
+    assert.equal(isAllowMissingUpstashEnabled(), false);
+    process.env[ALLOW_MISSING_UPSTASH_ENV] = '1';
+    assert.equal(isAllowMissingUpstashEnabled(), true);
+  } finally {
+    if (previous === undefined) {
+      delete process.env[ALLOW_MISSING_UPSTASH_ENV];
+    } else {
+      process.env[ALLOW_MISSING_UPSTASH_ENV] = previous;
+    }
+  }
 });

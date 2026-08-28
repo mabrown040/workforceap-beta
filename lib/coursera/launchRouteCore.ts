@@ -46,7 +46,11 @@ export type CourseraLaunchDependencies<ResponseLike, ProgramType extends Program
     currentCourseId?: string | null;
   }) => string | null;
   getDiscoveredProgram: (programSlug: string) => DiscoveredProgram;
-  getOrgScopedCourseUrl: (programSlug: string, courseId: string) => Promise<string>;
+  getOrgScopedCourseUrl: (
+    programSlug: string,
+    courseId: string,
+    courseSlug: string,
+  ) => Promise<string>;
   getOrgScopedProgramUrl: (programSlug: string) => Promise<string | null>;
   localFallbackUrl: (slug: string, kind: 'course' | 'specialization') => string;
   redirect: (url: URL | string) => ResponseLike;
@@ -119,6 +123,7 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
           const orgScoped = await deps.getOrgScopedCourseUrl(
             enrolledProgram,
             discoveredCourse.courseId,
+            discoveredCourse.slug,
           );
           return deps.redirect(orgScoped);
         }
@@ -147,6 +152,18 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
       courseIdMap && currentCourseIndex != null && currentCourseIndex >= 0
         ? courseIdMap[currentCourseIndex]
         : undefined;
+
+    if (requestedSlug) {
+      if (enrolledProgram && currentCourseId) {
+        return deps.redirect(
+          await deps.getOrgScopedCourseUrl(enrolledProgram, currentCourseId, requestedSlug),
+        );
+      }
+
+      const errorUrl = new URL('/dashboard/training', request.url);
+      errorUrl.searchParams.set('error', 'launch_failed');
+      return deps.redirect(errorUrl);
+    }
 
     const orgScopedProgramUrl = enrolledProgram
       ? await deps.getOrgScopedProgramUrl(enrolledProgram)

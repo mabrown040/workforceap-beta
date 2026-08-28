@@ -13,6 +13,10 @@ import {
   getProgramSyllabus,
   type ProgramSyllabus,
 } from '../../shared/programSyllabi';
+import {
+  getProgramCurriculum,
+  type ProgramCurriculum,
+} from '../../shared/programCurricula';
 
 export const FUNDING_SOURCES = [
   'WIOA',
@@ -90,6 +94,11 @@ export interface Program {
   languagesSupported?: LanguageSupport;
   /** Exact TWC syllabus transcription when one has been supplied. */
   syllabus?: ProgramSyllabus;
+  /**
+   * WorkforceAP-authored class content for programs outside the TWC
+   * submission (CPT, CLT). Never set at the same time as `syllabus`.
+   */
+  curriculum?: ProgramCurriculum;
   /** Exact syllabus description for regulated programs. */
   description?: string;
 }
@@ -184,6 +193,9 @@ function mkProgram(
       }));
 
   const syllabus = getProgramSyllabus(slug);
+  // A program is either a TWC transcription or an in-house curriculum, never
+  // both: the syllabus is the regulated source and always wins.
+  const curriculum = syllabus ? undefined : getProgramCurriculum(slug);
   const normalizeCourseName = (name: string) =>
     name
       .toLowerCase()
@@ -204,7 +216,20 @@ function mkProgram(
           courseraCourseId: discovered?.courseraCourseId,
         };
       })
-    : catalogCourses;
+    : curriculum
+      ? curriculum.courses.map((course, index) => {
+          const existing = catalogCourses.find(
+            (candidate) => normalizeCourseName(candidate.name) === normalizeCourseName(course.name),
+          );
+          return {
+            slug: existing?.slug ?? `${slug}-course-${index + 1}`,
+            name: course.name,
+            estimatedHours: course.hours,
+            description: course.description,
+            courseraCourseId: existing?.courseraCourseId,
+          };
+        })
+      : catalogCourses;
   return {
     slug,
     title: syllabus?.title ?? title,
@@ -213,7 +238,11 @@ function mkProgram(
     categoryColor: canonicalCategoryColor,
     borderColor: canonicalCategoryColor,
     icon,
-    duration: syllabus ? `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}` : duration,
+    duration: syllabus
+      ? `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}`
+      : curriculum
+        ? `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`
+        : duration,
     salary,
     skills,
     courses,
@@ -222,6 +251,7 @@ function mkProgram(
     courseraB4BProgramId: 'TpIlAogTQ8-SJQKIE8PP9w',
     languagesSupported,
     syllabus,
+    curriculum,
     description: syllabus?.description,
   };
 }

@@ -1935,7 +1935,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 14,
     contributions: [
       { axis: 'Engineering', score: 30, specificSkills: ['Manufacturing basics', 'Industry overview'] },
       { axis: 'Strategy', score: 15, specificSkills: ['Manufacturing careers'] },
@@ -1950,7 +1950,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 18,
     contributions: [
       { axis: 'Design', score: 35, specificSkills: ['Blueprint reading', 'Technical drawing', 'GD&T'] },
       { axis: 'Engineering', score: 30, specificSkills: ['Engineering drawings', 'Specifications'] },
@@ -1965,7 +1965,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 24,
     contributions: [
       { axis: 'Engineering', score: 50, specificSkills: ['Machining', 'CNC', 'G-code', 'Tooling'] },
       { axis: 'Analytics', score: 25, specificSkills: ['Precision measurement', 'Quality control'] },
@@ -1980,7 +1980,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 18,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['Welding', 'Fabrication', 'Metallurgy'] },
       { axis: 'Service', score: 25, specificSkills: ['Safety', 'Quality'] },
@@ -1995,7 +1995,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 24,
     contributions: [
       { axis: 'Analytics', score: 45, specificSkills: ['Quality control', 'Inspection', 'SPC', 'Metrology'] },
       { axis: 'Engineering', score: 30, specificSkills: ['Measurement systems', 'Calibration'] },
@@ -2010,7 +2010,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 22,
     contributions: [
       { axis: 'Service', score: 50, specificSkills: ['Safety', 'OSHA', 'Compliance', 'Risk management'] },
       { axis: 'Strategy', score: 20, specificSkills: ['Safety programs', 'Culture'] },
@@ -2025,7 +2025,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 20,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Lean', 'Continuous improvement', 'Waste reduction'] },
       { axis: 'Analytics', score: 30, specificSkills: ['Process analysis', 'Value stream mapping'] },
@@ -2040,7 +2040,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-production-technician-cpt',
     programTitle: 'Certified Production Technician (CPT)',
     partner: 'CPT',
-    estimatedHours: 10,
+    estimatedHours: 20,
     contributions: [
       { axis: 'Engineering', score: 40, specificSkills: ['Integration', 'Applied manufacturing'] },
       { axis: 'Strategy', score: 25, specificSkills: ['Career readiness', 'Certification prep'] },
@@ -2062,7 +2062,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 16,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['Supply chain basics', 'Industry overview'] },
       { axis: 'Analytics', score: 20, specificSkills: ['SC concepts', 'Flow understanding'] },
@@ -2077,7 +2077,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 22,
     contributions: [
       { axis: 'Analytics', score: 40, specificSkills: ['Inventory', 'Forecasting', 'ABC analysis'] },
       { axis: 'Strategy', score: 30, specificSkills: ['Inventory strategy', 'Optimization'] },
@@ -2092,7 +2092,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 20,
     contributions: [
       { axis: 'Strategy', score: 35, specificSkills: ['Transportation', 'Distribution', 'Routing'] },
       { axis: 'Engineering', score: 25, specificSkills: ['Transportation modes', 'Equipment'] },
@@ -2107,7 +2107,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 24,
     contributions: [
       { axis: 'Engineering', score: 40, specificSkills: ['Warehouse', 'Material handling', 'Layout'] },
       { axis: 'Strategy', score: 25, specificSkills: ['Warehouse design', 'Efficiency'] },
@@ -2122,7 +2122,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 18,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Procurement', 'Sourcing', 'Negotiation'] },
       { axis: 'Service', score: 25, specificSkills: ['Vendor relations', 'Ethics'] },
@@ -2137,7 +2137,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 22,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['SAP', 'ERP', 'SC technology', 'Systems'] },
       { axis: 'Analytics', score: 30, specificSkills: ['System analysis', 'Data flow'] },
@@ -2152,7 +2152,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 18,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Global trade', 'Import/export', 'Compliance'] },
       { axis: 'Service', score: 25, specificSkills: ['Trade ethics', 'Regulations'] },
@@ -2167,7 +2167,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     programSlug: 'certified-logistics-technician-clt',
     programTitle: 'Certified Logistics Technician (CLT)',
     partner: 'CLT',
-    estimatedHours: 10,
+    estimatedHours: 20,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['Certification prep', 'Career readiness'] },
       { axis: 'Analytics', score: 25, specificSkills: ['Knowledge synthesis'] },

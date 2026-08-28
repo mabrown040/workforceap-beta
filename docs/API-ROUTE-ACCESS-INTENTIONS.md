@@ -21,6 +21,7 @@ Short reference for endpoints that are **not** “signed-in member only” in th
 | Route | Notes |
 |-------|--------|
 | `POST /api/counselor/feedback` | Any logged-in portal user may post (readiness / AI career coach completion on `/dashboard/counselor`). Not restricted to staff `isCounselor`. |
+| `POST /api/counselor/session` | Any logged-in member may mint a Lilley voice session with their member/program context. This is a member AI career-coaching route, not staff or caseload tooling. |
 
 ## Subgroup leader APIs
 

@@ -29,6 +29,8 @@ Counts are from `app/(portal)/**/page.tsx`, `app/admin/**/page.tsx`, etc.
 | **Employer** | 13 | `/employer/**` |
 | **Counselor** | 6 | `/counselor/**` (not the same as **`/dashboard/counselor`**, which is the **member** surface for counselor-related content). |
 
+> **Current-state note (2026-08-28):** `/dashboard/counselor` is Lilley, the member AI career coach. It uses member/program context and is not staff or caseload tooling. Historical snapshots below retain the wording that existed when this audit was run.
+
 **Dynamic routes** (need a real ID from a list page): e.g. `/dashboard/jobs/[id]`, `/dashboard/career-library/[id]`, `/employer/jobs/[id]`, `/employer/candidates/[studentId]`, `/partner/members/[id]`, `/counselor/students/[memberId]`, `/admin/members/[id]`, etc.
 
 ---

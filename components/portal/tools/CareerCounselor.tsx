@@ -3,11 +3,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Mic, Volume2, Check } from 'lucide-react';
 import type { Conversation } from '@elevenlabs/client';
+import {
+  appendVoiceTranscriptTurn,
+  extractVoiceTranscriptTurn,
+  type VoiceTranscriptTurn,
+} from '@/lib/interview/voiceTranscript';
 import ToolFollowThrough from './ToolFollowThrough';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
-// Supporting blue lane for counselor/advisor conversations.
+// Supporting blue lane for student career-coaching conversations.
 const ACCENT = '#2b7bb9';
 const ACCENT_DARK = '#1f5a87';
 const ACCENT_BG = 'rgba(43, 123, 185, 0.12)';
@@ -34,7 +39,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   const [agentSpeaking, setAgentSpeaking] = useState(false);
 
   const convRef = useRef<Conversation | null>(null);
-  const transcriptRef = useRef<{ role: 'agent' | 'user'; text: string }[]>([]);
+  const transcriptRef = useRef<VoiceTranscriptTurn[]>([]);
   const intentionalRef = useRef(false);
 
   // Inject animation styles once
@@ -69,13 +74,23 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     }
 
     let signedUrl: string;
+    let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
-      const res = await fetch('/api/counselor/session', { method: 'POST' });
-      const data = await res.json() as { signedUrl?: string; error?: string };
+      const res = await fetch('/api/counselor/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audience: 'member' }),
+      });
+      const data = await res.json() as {
+        signedUrl?: string;
+        dynamicVariables?: Record<string, string | number | boolean>;
+        error?: string;
+      };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Failed to start session');
       }
       signedUrl = data.signedUrl;
+      dynamicVariables = data.dynamicVariables;
     } catch (err) {
       setVoiceError(err instanceof Error ? err.message : 'Could not connect. Please try again.');
       setPhase('pre');
@@ -88,6 +103,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       const { Conversation } = await import('@elevenlabs/client');
       const conv = await Conversation.startSession({
         signedUrl,
+        ...(dynamicVariables && Object.keys(dynamicVariables).length > 0
+          ? { dynamicVariables }
+          : {}),
         onConnect: () => setPhase('active'),
         onDisconnect: (details) => {
           if (!intentionalRef.current) {
@@ -99,19 +117,9 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           intentionalRef.current = false;
         },
         onMessage: (event) => {
-          const ev = event as unknown as Record<string, unknown>;
-          if (ev.type === 'user_transcript') {
-            const text = (ev.user_transcription_event as { user_transcript: string })?.user_transcript;
-            if (text) transcriptRef.current.push({ role: 'user', text });
-          } else if (ev.type === 'agent_response') {
-            const text = (ev.agent_response_event as { agent_response: string })?.agent_response;
-            if (text) transcriptRef.current.push({ role: 'agent', text });
-          } else if (ev.type === 'agent_response_correction') {
-            // ignore partial corrections
-          }
-          // Track speaking state for visual indicator
-          if (ev.type === 'agent_response') setAgentSpeaking(true);
-          if (ev.type === 'user_transcript') setAgentSpeaking(false);
+          const turn = extractVoiceTranscriptTurn(event);
+          transcriptRef.current = appendVoiceTranscriptTurn(transcriptRef.current, turn);
+          if (turn) setAgentSpeaking(turn.role === 'agent');
         },
         onError: (msg) => {
           setVoiceError(String(msg) || 'Connection error');
@@ -192,8 +200,14 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           {firstName ? `Hi ${firstName}.` : 'Hi there.'} Ready when you are.
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '2rem', lineHeight: 1.6, fontSize: '0.95rem' }}>
-          This is a private conversation — just you and your counselor.
-          Speak naturally about where you are in your job search.
+          This is a one-on-one conversation with Lilley, your AI career coach.
+          Speak naturally about your training, job search, or next step.
+        </p>
+
+        <p id="lilley-data-use" style={{ marginBottom: '1.25rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
+          Your voice session is processed by ElevenLabs. Its transcript is analyzed by an AI provider,
+          saved to your WorkforceAP AI history and coach memory, and may be emailed to configured
+          WorkforceAP support recipients. Avoid sharing sensitive personal information.
         </p>
 
         {voiceError && (
@@ -204,6 +218,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
         <button type="button"
           onClick={startSession}
+          aria-describedby="lilley-data-use"
           style={{
             display: 'block', width: '100%', background: ACCENT, color: '#fff',
             border: 0, borderRadius: 10, padding: '1rem', fontWeight: 700,
@@ -222,7 +237,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {[
               '3–5 minute conversation at your own pace',
-              'Ask anything about your job search',
+              'Ask about training, your job search, or your next step',
               "You'll get a personalized action plan after",
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
@@ -281,7 +296,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.4rem' }}>
-            {agentSpeaking ? 'Your counselor is speaking…' : 'Listening — speak when ready'}
+            {agentSpeaking ? 'Lilley is speaking…' : 'Listening — speak when ready'}
           </div>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
@@ -326,9 +341,6 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           </button>
         </div>
 
-        <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
-          Your voice session is processed by ElevenLabs and is private to you.
-        </p>
       </div>
     );
   }

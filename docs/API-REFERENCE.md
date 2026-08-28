@@ -203,7 +203,7 @@
 | `/api/counselor/nudge` | POST | member | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |
 | `/api/counselor/placements` | GET, POST | counselor | GET /api/counselor/placements Returns all placement records. Counselor/admin only. Query params: memberId, employerName, days (recent N days |
 | `/api/counselor/remind-member` | POST | member | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |
-| `/api/counselor/session` | POST | counselor |  |
+| `/api/counselor/session` | POST | member | Returns a signed ElevenLabs URL and member-context dynamic variables for Lilley, the member AI career coach. |
 | `/api/counselor/sessions/email-packet` | POST | member | Track A - Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Member exi |
 | `/api/counselor/sessions/upload-resume` | POST | super_admin | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |
 | `/api/counselor/sessions/voice-walkthrough` | POST | member | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |

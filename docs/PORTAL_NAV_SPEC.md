@@ -49,7 +49,7 @@ The flat nav **drops ~12 pages from the bar**. Each MUST stay reachable or it's 
 | Help & Support | `/dashboard/help` | top-bar account menu / footer |
 | Member Guide | `/dashboard/guide` | top-bar account menu / footer |
 | Profile & Settings | `/dashboard/profile` | top-bar account menu (exists) |
-| AI Advisor | `/dashboard/counselor` | AI Tools page (in-content) |
+| Lilley (AI Career Coach) | `/dashboard/counselor` | AI Tools page (in-content) |
 | Voice + Career Studio | `/dashboard/ai-tools/studio` | AI Tools page (in-content) |
 
 **Acceptance:** after the change, every href above resolves from a visible link (not the removed sidebar). QA checklist = click each from a signed-in member session.

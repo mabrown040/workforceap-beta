@@ -4,7 +4,7 @@ import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface } from '@/components/portal/kit';
 
 /**
- * Member Portal — AI CAREER COUNSELOR session-detail view.
+ * Member Portal — LILLEY AI CAREER COACH session-detail view.
  *
  * Target route: app/(portal)/dashboard/counselor/[id]
  * Surface: warm (member-facing).

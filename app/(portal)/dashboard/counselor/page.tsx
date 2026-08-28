@@ -12,7 +12,7 @@ import { MemberCounselorKit } from '@/components/portal/kit/pages/member/MemberC
 const CareerCounselor = dynamic(() => import('@/components/portal/tools/CareerCounselor'), {
   loading: () => (
     <div className="wa-kit-card" style={{ padding: '2rem' }}>
-      <p style={{ margin: 0, color: 'var(--wa-muted)' }}>Loading voice counselor…</p>
+      <p style={{ margin: 0, color: 'var(--wa-muted)' }}>Loading Lilley…</p>
     </div>
   ),
 });
@@ -35,8 +35,8 @@ function parseActionPlan(output: string | null): string[] {
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Career Counselor',
-  description: 'A private voice conversation with an AI career counselor. Leave with a personalized action plan.',
+  title: 'Lilley, Your AI Career Coach',
+  description: 'Talk with Lilley about training, your job search, or your next step, then leave with a personalized action plan.',
   path: '/dashboard/counselor',
   robots: { index: false, follow: false },
 });
@@ -68,7 +68,7 @@ export default async function CounselorPage() {
   return (
     <MemberCounselorKit
       title={tCommon('aiCounselor')}
-      subtitle="Your session is private. Speak naturally — I'm here to help."
+      subtitle="Talk through your training, job search, or next step."
       pastSessionsLabel={tCounselor('pastSessions')}
       pastSessions={sessionSummaries}
       voiceSurface={

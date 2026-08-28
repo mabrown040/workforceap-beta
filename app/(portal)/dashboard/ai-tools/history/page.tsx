@@ -32,7 +32,7 @@ const TOOL_LABELS: Record<string, string> = {
   gap_analyzer: 'Gap Analyzer',
   interview_coach: 'AI Interview Coach',
   voice_interview_video: 'Mock Interview Video',
-  career_counselor: 'Career Counselor',
+  career_counselor: 'Lilley Career Coach',
   skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 

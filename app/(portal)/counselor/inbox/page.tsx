@@ -59,6 +59,7 @@ export default async function CounselorInboxZeroPage() {
           {loadError ? (
             <div
               className="wa-kit-card"
+              data-portal-error-state="counselor-inbox-queue-load"
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',

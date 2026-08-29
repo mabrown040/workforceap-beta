@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createHash } from 'node:crypto';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
+import {
+  getResumeDraftOwnerToken,
+  getResumeProfileRevision,
+} from '@/lib/resume/resumeProfileRevision';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const BUCKET = 'member-resumes';
+
+function pathRevision(path: string): string {
+  return createHash('sha256').update(path).digest('hex').slice(0, 16);
+}
 
 function storageErrorMessage(error: { message?: string } | null, action: 'sign' | 'download'): string {
   const message = error?.message ?? '';
@@ -15,7 +26,16 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
     return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
   }
   return action === 'sign' ? 'Could not create resume download link' : 'Could not load resume file';
-}export const GET = withApiGuc(async (req: NextRequest) => {
+}
+
+function extOf(p: string | null | undefined) {
+  if (!p) return null;
+  const base = p.split('/').pop() ?? '';
+  const i = base.lastIndexOf('.');
+  return i >= 0 ? base.slice(i + 1).toLowerCase() : null;
+}
+
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,24 +47,10 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
     const memberId = req.nextUrl.searchParams.get('memberId');
     const targetUserId = memberId || user.id;
   
-    // Authorize: own resume, admin, or assigned counselor
+    // Authorize: own resume or tenant-scoped staff access.
     if (targetUserId !== user.id) {
-      const [admin, counselor] = await Promise.all([
-        isAdmin(user.id),
-        isCounselor(user.id),
-      ]);
-      if (!admin && !counselor) {
+      if (!(await assertStaffCanAccessMemberRecord(user.id, targetUserId))) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-      // Counselors: verify assignment
-      if (counselor && !admin) {
-        const assignment = await prisma.$transaction((tx) => tx.counselorAssignment.findFirst({
-          where: { memberId: targetUserId, active: true },
-          include: { counselor: { select: { userId: true } } },
-        }));
-        if (!assignment || assignment.counselor.userId !== user.id) {
-          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }
       }
     }
   
@@ -55,6 +61,32 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
   
       const originalPath = profile?.resumeOriginalPath;
       const enhancedPath = profile?.resumeEnhancedPath;
+
+      if ((originalPath && !isResumeObjectPathOwnedByUser(targetUserId, originalPath))
+        || (enhancedPath && !isResumeObjectPathOwnedByUser(targetUserId, enhancedPath))) {
+        console.error('[member/resume] rejected a profile path outside the member directory', {
+          targetUserId,
+        });
+        return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
+      }
+
+      if (isReadOnlyPortalAuditHeader(req.headers)) {
+        return NextResponse.json({
+          hasOriginal: !!originalPath,
+          hasEnhanced: !!enhancedPath,
+          originalUrl: null,
+          enhancedUrl: null,
+          enhancedText: null,
+          resumePlainText: null,
+          originalExt: null,
+          enhancedExt: null,
+          resumeRevision: getResumeProfileRevision(originalPath, enhancedPath),
+          resumeDraftOwnerToken: getResumeDraftOwnerToken(targetUserId),
+          previewOriginalPath: null,
+          previewEnhancedPath: null,
+          auditSuppressed: true,
+        });
+      }
   
       const supabase = getSupabaseAdmin();
       let originalUrl: string | null = null;
@@ -87,13 +119,6 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
         enhancedText = await fileData.text();
       }
   
-      const extOf = (p: string | null | undefined) => {
-        if (!p) return null;
-        const base = p.split('/').pop() ?? '';
-        const i = base.lastIndexOf('.');
-        return i >= 0 ? base.slice(i + 1).toLowerCase() : null;
-      };
-  
       let resumePlainText: string | null = null;
       if (includePlain) {
         resumePlainText = (await getMemberResumePlainText(targetUserId, 12000)) || null;
@@ -109,9 +134,17 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
         resumePlainText,
         originalExt: extOf(originalPath),
         enhancedExt: extOf(enhancedPath),
+        /** Echo this opaque token when saving an edited draft. */
+        resumeRevision: getResumeProfileRevision(originalPath, enhancedPath),
+        /** Browser-storage scope for this target member; contains no user ID. */
+        resumeDraftOwnerToken: getResumeDraftOwnerToken(targetUserId),
         /** Same-origin URL for inline iframe preview (PDF/DOC). */
-        previewOriginalPath: originalPath ? '/api/member/resume/preview?variant=original' : null,
-        previewEnhancedPath: enhancedPath ? '/api/member/resume/preview?variant=enhanced' : null,
+        previewOriginalPath: originalPath
+          ? `/api/member/resume/preview?variant=original&v=${pathRevision(originalPath)}`
+          : null,
+        previewEnhancedPath: enhancedPath
+          ? `/api/member/resume/preview?variant=enhanced&v=${pathRevision(enhancedPath)}`
+          : null,
       });
     } catch (err) {
       console.error('[member/resume] error:', err);

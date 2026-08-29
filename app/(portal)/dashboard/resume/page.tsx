@@ -2,6 +2,7 @@ import { getMemberState } from '@/lib/member/getMemberState';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { FileText } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -9,6 +10,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
 import { DesignSurface } from '@/components/portal/kit';
@@ -45,6 +47,7 @@ export default async function DashboardResumePage() {
   const user = await getUser();
   if (!user) redirect("/login?redirectTo=/dashboard/resume");
   const t = await getTranslations('profile');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   // Single source of truth: getMemberState returns consistent profile % across
   // all surfaces. It throws "Member not found" when the app `users` row is
@@ -54,11 +57,11 @@ export default async function DashboardResumePage() {
   // withDbRetry to ride out a transient pooler blip (2026-06-30 incident).
   let memberState;
   try {
-    memberState = await withDbRetry(() => getMemberState(user.id));
+    memberState = await withDbRetry(() => getMemberState(user.id, { readOnlyAudit }));
   } catch (err) {
     if (err instanceof Error && err.message.startsWith('Member not found')) {
-      await ensureAppUserProvisioned(user);
-      memberState = await withDbRetry(() => getMemberState(user.id));
+      await ensureAppUserProvisioned(user, { readOnlyAudit });
+      memberState = await withDbRetry(() => getMemberState(user.id, { readOnlyAudit }));
     } else {
       throw err;
     }
@@ -84,6 +87,9 @@ export default async function DashboardResumePage() {
 
   return (
     <DesignSurface surface="warm">
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="resume-storage-provider-and-member-state-cache" />
+      )}
       {/* ── Mobile ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: "6rem" }}>
         <div

@@ -80,13 +80,22 @@ test('ignores ?program=<slug> when it is not one of the user\'s enrollments', ()
   assert.equal(result.activeProgramSlug, 'comptia-a-plus');
 });
 
-test('uses the first enrollment when none is marked primary (defensive fallback)', () => {
+test('treats unmarked enrollment rows as history after the active program is cleared', () => {
   const result = resolveActiveDashboardProgram({
     enrollments: [enrollment('it-support'), enrollment('pmp')],
     legacyEnrolledProgram: null,
   });
-  assert.equal(result.activeProgramSlug, 'it-support');
-  assert.equal(result.primaryProgramSlug, 'it-support');
+  assert.equal(result.activeProgramSlug, null);
+  assert.equal(result.primaryProgramSlug, null);
+});
+
+test('uses a matching legacy mirror when older enrollment rows have no primary marker', () => {
+  const result = resolveActiveDashboardProgram({
+    enrollments: [enrollment('it-support'), enrollment('pmp')],
+    legacyEnrolledProgram: 'pmp',
+  });
+  assert.equal(result.activeProgramSlug, 'pmp');
+  assert.equal(result.primaryProgramSlug, 'pmp');
 });
 
 test('does not flag a mismatch when there is no primary enrollment yet', () => {

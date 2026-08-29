@@ -3,7 +3,12 @@ import 'server-only';
 import { CourseProgressStatus } from '@prisma/client';
 
 import { getProgramBySlug } from '@/lib/content/programs';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import {
+  canonicalizeProgramSlug,
+  programSlugsEquivalent,
+} from '@/lib/content/programSlug';
+import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { deriveCareerPlanSignal, type CareerPlanSignal } from '@/lib/admin/careerPlanSignal';
 import {
@@ -43,6 +48,8 @@ export type TrainingDashboardRow = {
    * this list so multi-program learners surface under non-primary programs.
    */
   programSlugsAll: string[];
+  /** Coursera progress exists, but no WAP program has been assigned. */
+  noProgram: boolean;
 };
 
 export type TrainingDashboardData = {
@@ -67,12 +74,12 @@ export async function loadTrainingDashboardData(
     where: {
       deletedAt: null,
       ...MEMBER_ONLY_WHERE,
-      enrolledProgram: { not: null },
     },
     orderBy: { enrolledAt: 'desc' },
     take: 3000,
     select: {
       id: true,
+      organizationId: true,
       fullName: true,
       email: true,
       phone: true,
@@ -107,6 +114,7 @@ export async function loadTrainingDashboardData(
         select: { eventName: true, createdAt: true, metadata: true },
       },
       memberProgramProgress: {
+        orderBy: { lastUpdatedAt: 'desc' },
         select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
       },
       // Multi-program-aware: pulled to detect every program a member is
@@ -115,12 +123,22 @@ export async function loadTrainingDashboardData(
       // program-filter checks against this so secondary enrollees show up
       // when the dashboard is scoped to a non-primary program.
       courseEnrollments: {
-        select: { programSlug: true },
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        select: { programSlug: true, isPrimary: true, enrolledAt: true },
       },
       courseProgress: {
         where: { status: { in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED] } },
+        orderBy: [{ lastActivityAt: 'desc' }, { lastUpdatedAt: 'desc' }],
         take: 50,
-        select: { courseSlug: true, status: true, lastUpdatedAt: true },
+        select: {
+          programSlug: true,
+          courseSlug: true,
+          courseId: true,
+          status: true,
+          percentComplete: true,
+          lastActivityAt: true,
+          lastUpdatedAt: true,
+        },
       },
       partnerReferrals: {
         take: 1,
@@ -136,18 +154,69 @@ export async function loadTrainingDashboardData(
   }));
 
   const rows: TrainingDashboardRow[] = [];
+  const validatedCourseLists = new Map<
+    string,
+    Awaited<ReturnType<typeof loadValidatedProgramCourses>>['courses']
+  >();
 
   for (const m of members) {
-    if (!m.enrolledProgram) continue;
-    const program = getProgramBySlug(m.enrolledProgram);
+    const assignedProgramSlug =
+      m.courseEnrollments.find((row) => row.isPrimary)?.programSlug ??
+      m.enrolledProgram ??
+      m.courseEnrollments[0]?.programSlug ??
+      null;
+    const inferredProgramSlug =
+      m.memberProgramProgress[0]?.programSlug ??
+      m.courseProgress[0]?.programSlug ??
+      null;
+    const resolvedProgramSlug = assignedProgramSlug ?? inferredProgramSlug;
+    if (!resolvedProgramSlug) continue;
+    const enrolledProgram = canonicalizeProgramSlug(resolvedProgramSlug);
+    const program = getProgramBySlug(enrolledProgram);
     if (!program?.courses.length) continue;
 
-    const progress = computeTrainingProgress(m.enrolledProgram, null, m.memberProgramProgress);
-    const matchingRollup = m.memberProgramProgress.find((row) => row.programSlug === m.enrolledProgram) ?? null;
+    const catalogCacheKey = `${m.organizationId}:${enrolledProgram}`;
+    let validatedCourses = validatedCourseLists.get(catalogCacheKey);
+    if (!validatedCourses) {
+      try {
+        validatedCourses = (await loadValidatedProgramCourses({
+          organizationId: m.organizationId,
+          programSlug: enrolledProgram,
+          checkB4BContents: false,
+        })).courses;
+      } catch (error) {
+        console.warn(
+          '[admin/trainingDashboard] validated course list unavailable; using board catalog:',
+          error instanceof Error ? error.message : 'unknown catalog error',
+        );
+        validatedCourses = program.courses;
+      }
+      validatedCourseLists.set(catalogCacheKey, validatedCourses);
+    }
+    const matchingRollup =
+      m.memberProgramProgress.find((row) =>
+        programSlugsEquivalent(row.programSlug, enrolledProgram),
+      ) ?? null;
     let lastTrainingActivityAt = matchingRollup?.lastUpdatedAt ?? null;
-    for (const row of m.courseProgress) {
-      if (!lastTrainingActivityAt || row.lastUpdatedAt > lastTrainingActivityAt) {
-        lastTrainingActivityAt = row.lastUpdatedAt;
+    const matchingCourseProgress = m.courseProgress.filter((row) =>
+      programSlugsEquivalent(row.programSlug, enrolledProgram),
+    );
+    const reconciliation = reconcileProgramProgress({
+      validatedCourses,
+      localRows: matchingCourseProgress.map((row) => ({
+        courseSlug: row.courseSlug,
+        courseId: row.courseId,
+        percentComplete: row.percentComplete,
+        status: row.status,
+      })),
+    });
+    const activeCourseCount = reconciliation.rows.filter(
+      (row) => !row.displayCompleted && row.displayPercent > 0,
+    ).length;
+    for (const row of matchingCourseProgress) {
+      const activityAt = row.lastActivityAt ?? row.lastUpdatedAt;
+      if (!lastTrainingActivityAt || activityAt > lastTrainingActivityAt) {
+        lastTrainingActivityAt = activityAt;
       }
     }
 
@@ -157,10 +226,11 @@ export async function loadTrainingDashboardData(
     // materialisation.
     const programSlugsAll = Array.from(
       new Set<string>([
-        m.enrolledProgram,
+        enrolledProgram,
         ...m.courseEnrollments.map((row) => row.programSlug),
         ...m.memberProgramProgress.map((row) => row.programSlug),
-      ]),
+        ...m.courseProgress.map((row) => row.programSlug),
+      ].map(canonicalizeProgramSlug)),
     );
 
     rows.push({
@@ -168,13 +238,13 @@ export async function loadTrainingDashboardData(
       fullName: m.fullName ?? m.email,
       email: m.email,
       phone: m.phone,
-      enrolledProgram: m.enrolledProgram,
+      enrolledProgram,
       programTitle: program.title,
       enrolledAt: m.enrolledAt,
-      progressPercent: progress.pct,
-      completedCount: progress.completedCount,
-      totalCourses: progress.totalCourses,
-      activeCourseCount: m.courseProgress.filter((row) => row.status === CourseProgressStatus.IN_PROGRESS).length,
+      progressPercent: reconciliation.programPercent,
+      completedCount: reconciliation.completedCount,
+      totalCourses: reconciliation.totalCourses,
+      activeCourseCount,
       lastTrainingActivityAt,
       staleTrainingDetectedAt: m.staleTrainingDetectedAt,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
@@ -183,21 +253,26 @@ export async function loadTrainingDashboardData(
         careerRecommendationJson: m.careerRecommendationJson,
         applications: m.applications,
         events: m.memberEvents,
-        enrolledProgram: m.enrolledProgram,
-        activeCourseCount: m.courseProgress.filter((row) => row.status === CourseProgressStatus.IN_PROGRESS).length,
-        progressPercent: progress.pct,
+        enrolledProgram,
+        activeCourseCount,
+        progressPercent: reconciliation.programPercent,
       }),
       programSlugsAll,
+      noProgram: assignedProgramSlug == null,
     });
   }
 
-  const enrolledMembers = rows.length;
-  const completed = rows.filter((row) => row.progressPercent >= 100 || row.completedCount >= row.totalCourses).length;
+  const enrolledMembers = rows.filter((row) => !row.noProgram).length;
+  const completed = rows.filter(
+    (row) => row.totalCourses > 0 && row.completedCount === row.totalCourses,
+  ).length;
   const notStarted = rows.filter((row) => row.progressPercent <= 0 && row.completedCount === 0 && row.activeCourseCount === 0).length;
-  const activeInTraining = rows.filter((row) => row.progressPercent > 0 && row.progressPercent < 100).length;
+  const activeInTraining = rows.filter(
+    (row) => row.progressPercent > 0 && !(row.totalCourses > 0 && row.completedCount === row.totalCourses),
+  ).length;
   const stale = rows.filter((row) => isStale(row.lastTrainingActivityAt, row.enrolledAt, row.staleTrainingDetectedAt)).length;
-  const averagePercent = enrolledMembers > 0
-    ? Math.round(rows.reduce((sum, row) => sum + row.progressPercent, 0) / enrolledMembers)
+  const averagePercent = rows.length > 0
+    ? Math.round(rows.reduce((sum, row) => sum + row.progressPercent, 0) / rows.length)
     : 0;
 
   rows.sort((a, b) => {

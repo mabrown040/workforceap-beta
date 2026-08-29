@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { getEmployerForUser, isSuperAdmin, SUPER_ADMIN_EMPLOYER_COOKIE } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import EmployerPortalShell from '@/components/portal/EmployerPortalShell';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export const metadata: Metadata = {
   title: 'Employer Portal',
@@ -20,7 +21,8 @@ export default async function EmployerPortalLayout({
   if (!user) redirect('/login?redirectTo=/employer');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin, readOnlyAudit });
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
   const portalRoles = await getPortalSwitcherRoles(user.id, {
     superAdmin,
@@ -38,6 +40,7 @@ export default async function EmployerPortalLayout({
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
       portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
     >
       {children}
     </EmployerPortalShell>

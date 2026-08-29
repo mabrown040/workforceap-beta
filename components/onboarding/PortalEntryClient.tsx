@@ -37,6 +37,7 @@ type PortalEntryClientProps =
       tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
+      readOnlyAudit?: boolean;
       isSuperAdmin: boolean;
       tourSteps: TourStep[];
       wizardProps: MemberWizardProps;
@@ -47,6 +48,7 @@ type PortalEntryClientProps =
       tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
+      readOnlyAudit?: boolean;
       isSuperAdmin: boolean;
       tourSteps: TourStep[];
       wizardProps: EmployerWizardProps;
@@ -57,6 +59,7 @@ type PortalEntryClientProps =
       tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
+      readOnlyAudit?: boolean;
       isSuperAdmin: boolean;
       tourSteps: TourStep[];
       wizardProps: PartnerWizardProps;
@@ -64,15 +67,26 @@ type PortalEntryClientProps =
     };
 
 export default function PortalEntryClient(props: PortalEntryClientProps) {
-  const { portal, tourStorageUserId, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
-  const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
+  const {
+    portal,
+    tourStorageUserId,
+    showOnboardingWizard,
+    showTour,
+    readOnlyAudit = false,
+    isSuperAdmin,
+    tourSteps,
+    children,
+  } = props;
+  const effectiveShowOnboardingWizard = !readOnlyAudit && showOnboardingWizard;
+  const effectiveShowTour = !readOnlyAudit && showTour;
+  const [wizardOpen, setWizardOpen] = useState(effectiveShowOnboardingWizard);
   const router = useRouter();
   const { startTour } = useTour();
   const tourAutoStartKey = `wa:tour:auto-started:${portal}:${tourStorageUserId}`;
 
   useEffect(() => {
-    setWizardOpen(showOnboardingWizard);
-    if (!showOnboardingWizard && showTour) {
+    setWizardOpen(effectiveShowOnboardingWizard);
+    if (!effectiveShowOnboardingWizard && effectiveShowTour) {
       // Check both localStorage (persistent) and sessionStorage (legacy) so the
       // tour never fires twice — even across new browser sessions when tourCompletedAt
       // hasn't propagated from the DB yet.
@@ -90,7 +104,7 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour, tourAutoStartKey]);
+  }, [effectiveShowOnboardingWizard, effectiveShowTour, tourSteps, portal, startTour, tourAutoStartKey]);
 
   const onWizardDone = () => {
     setWizardOpen(false);
@@ -100,6 +114,9 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
 
   return (
     <>
+      {readOnlyAudit ? (
+        <span hidden data-portal-audit-suppressed={`${portal}-onboarding-persistence-and-tour`} />
+      ) : null}
       {portal === 'member' && wizardOpen ? (
         <MemberOnboardingWizard {...props.wizardProps} onComplete={onWizardDone} />
       ) : null}

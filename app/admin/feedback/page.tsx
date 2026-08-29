@@ -139,11 +139,18 @@ export default async function AdminFeedbackPage({
   // access control is preserved. FeedbackKit is a pure read table fed by real
   // prisma data loaded below.
   if (requestedUi !== 'legacy') {
+    let feedbackLoadFailed = false;
     const data = await loadFeedbackKitData(user.id).catch((err) => {
+      feedbackLoadFailed = true;
       console.error('[admin/feedback] failed to load feedback:', err);
       return EMPTY_KIT_DATA;
     });
-    return <FeedbackKit {...data} />;
+    return (
+      <>
+        {feedbackLoadFailed ? <span hidden data-portal-error-state="admin-feedback-load" /> : null}
+        <FeedbackKit {...data} />
+      </>
+    );
   }
 
   return (

@@ -21,8 +21,9 @@ export const GET = withApiGuc(async function GET(request: NextRequest) {
         'Cache-Control': 'private, max-age=15, stale-while-revalidate=30',
       },
     });
-  } catch {
-    return NextResponse.json({}, { status: 200 });
+  } catch (error) {
+    console.error('/portal/nav-badges lookup failed:', error);
+    return NextResponse.json({ error: 'Navigation counts unavailable' }, { status: 503 });
   }
 
   } catch (error) {

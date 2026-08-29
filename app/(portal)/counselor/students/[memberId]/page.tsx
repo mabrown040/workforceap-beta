@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -13,6 +14,7 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import AdvisorSessionNotesPanel from './AdvisorSessionNotesPanel';
@@ -55,6 +57,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   if (!user) redirect('/login?redirectTo=/counselor/students');
 
   if (!(await isCounselor(user.id)) && !(await isAdmin(user.id))) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const { memberId } = await params;
 
@@ -217,6 +220,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     ? Math.round(100 / (programAvg[0]._avg.averagePercent || 1) * 30)
     : null;
 
+  let counselor360LoadFailed = false;
+  const markCounselor360LoadFailure = <T,>(fallback: T) => (error: unknown): T => {
+    counselor360LoadFailed = true;
+    console.error('[counselor/students] 360 panel load failed', error);
+    return fallback;
+  };
   const [applications, aiMatches, memberPts, recentTx, pitchDeployments, latestAtRiskAlert, pendingNextBestActions] = await Promise.all([
     prisma.jobPostingApplication.findMany({
       take: MEMBER_HISTORY_CAP,
@@ -234,26 +243,26 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         job: { select: { id: true, title: true, employer: { select: { companyName: true } } } },
       },
     }),
-    getMemberPoints(memberId).catch(() => null),
+    getMemberPoints(memberId).catch(markCounselor360LoadFailure(null)),
     prisma.pointsTransaction.findMany({
       where: { userId: memberId },
       orderBy: { createdAt: 'desc' },
       take: 5,
       select: { id: true, event: true, points: true, note: true, createdAt: true },
-    }).catch(() => []),
+    }).catch(markCounselor360LoadFailure([])),
     prisma.memberEvent.findMany({
       where: { userId: memberId, eventName: 'pitch_deployed' },
       orderBy: { createdAt: 'desc' },
       take: 5,
       select: { id: true, metadata: true, createdAt: true },
-    }).catch(() => []),
+    }).catch(markCounselor360LoadFailure([])),
     // Counselor 360: latest persisted at-risk classification (nightly scan —
     // see lib/member/atRiskScoring.ts). Composition only, no rescoring here.
     prisma.atRiskAlert.findFirst({
       where: { userId: memberId },
       orderBy: { createdAt: 'desc' },
       select: { score: true, status: true, factors: true, createdAt: true },
-    }).catch(() => null),
+    }).catch(markCounselor360LoadFailure(null)),
     // Counselor 360: member's current persisted next-best-action queue
     // (same model + shape as the member dashboard's career-brief widget).
     prisma.memberNextBestAction.findMany({
@@ -261,7 +270,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
       take: 5,
       select: { id: true, title: true, description: true, ctaLabel: true, ctaHref: true, icon: true, priority: true },
-    }).catch(() => []),
+    }).catch(markCounselor360LoadFailure([])),
   ]);
 
   // Counselor 360: at-risk tier + factors (composition of the persisted alert row).
@@ -290,15 +299,19 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     ? careerRecommendation.topOccupations.slice(0, 3)
     : [];
 
-  const thread = await getOrCreateMemberCounselorThread(memberId);
-  const [messagesNewestFirst, messageTotal] = await Promise.all([
-    prisma.message.findMany({
-      take: MEMBER_HISTORY_CAP,
-      where: { threadId: thread.id },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.message.count({ where: { threadId: thread.id } }),
-  ]);
+  const thread = readOnlyAudit
+    ? await prisma.messageThread.findUnique({ where: { memberId } })
+    : await getOrCreateMemberCounselorThread(memberId);
+  const [messagesNewestFirst, messageTotal] = thread
+    ? await Promise.all([
+        prisma.message.findMany({
+          take: MEMBER_HISTORY_CAP,
+          where: { threadId: thread.id },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.message.count({ where: { threadId: thread.id } }),
+      ])
+    : [[], 0];
   const messages = messagesNewestFirst.slice().reverse();
   const authorIds = compactStringIds(messages.map((m) => m.authorId));
   const authors =
@@ -331,6 +344,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     member.email?.trim() && member.enrolledProgram
       ? await fetchLearnerProgressFromB4B(member.email, {
           programId: courseraProgramId,
+          readOnlyAudit,
         }).catch((err: unknown) => {
           console.warn('[counselor/students] B4B learner progress unavailable:', err);
           return new Map();
@@ -338,10 +352,11 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       : new Map();
 
   const trainingView = member.enrolledProgram
-    ? await loadMemberProgramTrainingView({
+      ? await loadMemberProgramTrainingView({
         userId: member.id,
         programSlug: member.enrolledProgram,
         b4bProgress,
+        readOnlyAudit,
       })
     : null;
   const completedSlugs = new Set(trainingView?.completedSlugsAuthoritative ?? []);
@@ -395,6 +410,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   return (
     <>
+      {counselor360LoadFailed ? <span hidden data-portal-error-state="counselor-member-360-load" /> : null}
+      {readOnlyAudit ? <span hidden data-portal-audit-suppressed="counselor-member-coursera-course-resolution" /> : null}
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Back nav */}
@@ -1055,12 +1072,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           </section>
 
           <section id="counselor-member-messages" style={{ marginTop: '1.5rem' }}>
+            {readOnlyAudit && <span hidden data-portal-audit-suppressed="counselor-member-message-thread-create-read-receipt-and-realtime" />}
             {messagesTruncated ? (
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
                 {messagesLabel}
               </p>
             ) : null}
-            <AdminMemberCounselorChatClient
+            {readOnlyAudit && thread ? (
+              <p>Counselor conversation is available. Live sync and read receipts are paused for this audit.</p>
+            ) : thread ? <AdminMemberCounselorChatClient
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{
                 staffUserId: user.id,
@@ -1077,7 +1097,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   authorName: getMessageAuthorName(nameById, m.authorId),
                 })),
               }}
-            />
+            /> : <p>No counselor conversation has started yet.</p>}
           </section>
 
           {/* Job Pipeline — Desktop */}

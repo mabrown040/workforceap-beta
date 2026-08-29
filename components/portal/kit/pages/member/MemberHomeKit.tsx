@@ -114,6 +114,8 @@ export interface MemberHomeKitProps {
   points?: number;
   programTitle?: string;
   programStatus?: string;
+  /** Coursera progress is saved, but staff has not assigned a WAP program. */
+  noProgram?: boolean;
   nextLesson?: string;
   nextLessonDue?: string;
   /** Next badge progress (0–100). */
@@ -545,6 +547,7 @@ export function MemberHomeKit({
   points = 0,
   programTitle,
   programStatus,
+  noProgram = false,
   nextLesson,
   nextLessonDue,
   nextBadgePercent = 0,
@@ -614,6 +617,19 @@ export function MemberHomeKit({
             ) : null
           }
         />
+
+        {noProgram ? (
+          <div
+            className="wa-kit-card wa-flex wa-items-center wa-gap-3"
+            role="status"
+            style={{ padding: '12px 14px' }}
+          >
+            <StatusTag tone="warn">No program</StatusTag>
+            <span style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)' }}>
+              Your Coursera progress is saved. A counselor still needs to enroll you in a WorkforceAP program.
+            </span>
+          </div>
+        ) : null}
 
         {/* 2. Dominant next-best-action banner. Renders nothing when there's no
             pending action (see MemberDoThisNextCard). */}

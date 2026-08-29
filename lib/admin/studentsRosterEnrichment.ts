@@ -2,6 +2,14 @@ import 'server-only';
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import {
+  PROGRAM_SLUG_ALIASES,
+  canonicalizeProgramSlug,
+  programSlugReadCandidates,
+} from '@/lib/content/programSlug';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 
 export type StudentRosterEnrichmentRow = {
@@ -11,6 +19,51 @@ export type StudentRosterEnrichmentRow = {
   courseGrade: string | null;
   lastActivityTime: Date | null;
 };
+
+type RawStudentRosterEnrichmentRow = StudentRosterEnrichmentRow & {
+  organizationId: string;
+  courseFacts: unknown;
+};
+
+type SqlCourseFact = {
+  courseSlug: string;
+  courseId: string | null;
+  percentComplete: number;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+};
+
+const CANONICAL_READ_GROUPS = Array.from(
+  new Set(Object.values(PROGRAM_SLUG_ALIASES)),
+).map((canonical) => ({
+  canonical,
+  candidates: programSlugReadCandidates(canonical),
+}));
+
+function canonicalProgramSlugSql(column: Prisma.Sql): Prisma.Sql {
+  const aliasBranches = CANONICAL_READ_GROUPS.map(({ canonical, candidates }) =>
+    Prisma.sql`WHEN LOWER(BTRIM(${column})) IN (${Prisma.join(candidates)}) THEN ${canonical}`,
+  );
+  return Prisma.sql`
+    CASE
+      ${Prisma.join(aliasBranches, ' ')}
+      ELSE LOWER(BTRIM(${column}))
+    END
+  `;
+}
+
+function parseCourseFacts(value: unknown): SqlCourseFact[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((fact): fact is SqlCourseFact => {
+    if (!fact || typeof fact !== 'object') return false;
+    const row = fact as Partial<SqlCourseFact>;
+    return (
+      typeof row.courseSlug === 'string' &&
+      (row.courseId == null || typeof row.courseId === 'string') &&
+      typeof row.percentComplete === 'number' &&
+      (row.status === 'NOT_STARTED' || row.status === 'IN_PROGRESS' || row.status === 'COMPLETED')
+    );
+  });
+}
 
 /**
  * Load one bounded enrichment row for each member already admitted to the
@@ -34,17 +87,60 @@ export async function loadStudentRosterEnrichment(args: {
     ? Prisma.empty
     : Prisma.sql`AND ccp.organization_id = ${args.organizationId}`;
 
-  const loadRows = () => prisma.$queryRaw<StudentRosterEnrichmentRow[]>(Prisma.sql`
+  const canonicalCandidateProgram = canonicalProgramSlugSql(Prisma.sql`candidate.program_slug`);
+  const canonicalEnrolledProgram = canonicalProgramSlugSql(Prisma.sql`u.enrolled_program`);
+  const canonicalProgressProgram = canonicalProgramSlugSql(Prisma.sql`progress_program.program_slug`);
+  const canonicalCourseProgram = canonicalProgramSlugSql(Prisma.sql`cp.program_slug`);
+
+  const loadRows = () => prisma.$queryRaw<RawStudentRosterEnrichmentRow[]>(Prisma.sql`
     SELECT
       u.id AS "userId",
-      mpp.program_slug AS "programSlug",
-      mpp.average_percent AS "averagePercent",
+      u.organization_id AS "organizationId",
+      progress_program.program_slug AS "programSlug",
+      NULL::integer AS "averagePercent",
+      COALESCE(local_progress.course_facts, '[]'::jsonb) AS "courseFacts",
       latest_course.course_grade AS "courseGrade",
       latest_course.last_activity_time AS "lastActivityTime"
     FROM users u
-    LEFT JOIN member_program_progress mpp
-      ON mpp.user_id = u.id
-      AND mpp.program_slug = u.enrolled_program
+    LEFT JOIN LATERAL (
+      SELECT
+        candidate.program_slug
+      FROM (
+        SELECT mpp.program_slug, mpp.last_updated_at AS activity_at
+        FROM member_program_progress mpp
+        WHERE mpp.user_id = u.id
+        UNION ALL
+        SELECT
+          cp.program_slug,
+          MAX(COALESCE(cp.last_activity_at, cp.last_updated_at)) AS activity_at
+        FROM course_progress cp
+        WHERE cp.user_id = u.id
+        GROUP BY cp.program_slug
+      ) candidate
+      WHERE (
+        u.enrolled_program IS NULL
+        OR ${canonicalCandidateProgram} = ${canonicalEnrolledProgram}
+      )
+      ORDER BY
+        CASE WHEN ${canonicalCandidateProgram} = ${canonicalEnrolledProgram} THEN 0 ELSE 1 END,
+        candidate.activity_at DESC
+      LIMIT 1
+    ) progress_program ON TRUE
+    LEFT JOIN LATERAL (
+      SELECT JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+          'courseSlug', cp.course_slug,
+          'courseId', cp.course_id,
+          'percentComplete', cp.percent_complete,
+          'status', cp.status
+        )
+        ORDER BY cp.last_updated_at DESC
+      ) AS course_facts
+      FROM course_progress cp
+      WHERE cp.user_id = u.id
+        AND progress_program.program_slug IS NOT NULL
+        AND ${canonicalCourseProgram} = ${canonicalProgressProgram}
+    ) local_progress ON TRUE
     LEFT JOIN LATERAL (
       SELECT
         ccp.course_grade,
@@ -67,5 +163,53 @@ export async function loadStudentRosterEnrichment(args: {
       ${userOrgPredicate}
   `);
 
-  return args.superAdmin ? crossTenantOK(loadRows) : loadRows();
+  const rawRows = await (args.superAdmin ? crossTenantOK(loadRows) : loadRows());
+  const validatedLists = new Map<string, Awaited<ReturnType<typeof loadValidatedProgramCourses>>['courses']>();
+
+  return Promise.all(rawRows.map(async (row): Promise<StudentRosterEnrichmentRow> => {
+    const canonicalProgramSlug = row.programSlug
+      ? canonicalizeProgramSlug(row.programSlug)
+      : null;
+    const program = canonicalProgramSlug ? getProgramBySlug(canonicalProgramSlug) : undefined;
+    if (!canonicalProgramSlug || !program) {
+      return {
+        userId: row.userId,
+        programSlug: canonicalProgramSlug,
+        averagePercent: null,
+        courseGrade: row.courseGrade,
+        lastActivityTime: row.lastActivityTime,
+      };
+    }
+
+    const cacheKey = `${row.organizationId}:${canonicalProgramSlug}`;
+    let validatedCourses = validatedLists.get(cacheKey);
+    if (!validatedCourses) {
+      try {
+        validatedCourses = (await loadValidatedProgramCourses({
+          organizationId: row.organizationId,
+          programSlug: canonicalProgramSlug,
+          checkB4BContents: false,
+        })).courses;
+      } catch (error) {
+        console.warn(
+          '[admin/studentsRosterEnrichment] validated list unavailable; using board catalog:',
+          error instanceof Error ? error.message : 'unknown catalog error',
+        );
+        validatedCourses = program.courses;
+      }
+      validatedLists.set(cacheKey, validatedCourses);
+    }
+
+    const reconciliation = reconcileProgramProgress({
+      validatedCourses,
+      localRows: parseCourseFacts(row.courseFacts),
+    });
+    return {
+      userId: row.userId,
+      programSlug: canonicalProgramSlug,
+      averagePercent: reconciliation.programPercent,
+      courseGrade: row.courseGrade,
+      lastActivityTime: row.lastActivityTime,
+    };
+  }));
 }

@@ -326,6 +326,12 @@ describe('POST /api/member/signup — member onboarding', () => {
 
   it('returns 500 when Supabase is not configured', async () => {
     vi.unstubAllEnvs();
+    // Keep this test deterministic when CI provides public placeholder values
+    // at the workflow level. This case exercises the missing-public-config
+    // branch; service-role configuration has its own production guard.
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', '');
+    vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', '');
     vi.mocked(checkSignupRateLimit).mockResolvedValue({ success: true } as any);
 
     const res = await signupPOST(makeRequest(validSignupBody));

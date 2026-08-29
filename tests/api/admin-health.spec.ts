@@ -74,6 +74,7 @@ import { GET } from '@/app/api/admin/health/route';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { Redis } from '@upstash/redis';
 
 describe('GET /api/admin/health', () => {
   beforeEach(() => {
@@ -130,6 +131,22 @@ describe('GET /api/admin/health', () => {
     expect(body.checks.aiTools.status).toBe('ok');
     expect(body.checks.email.status).toBe('ok');
     expect(body.generatedAt).toBeDefined();
+  });
+
+  it('returns an audit placeholder without consuming provider diagnostics', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+
+    const res = await GET(new Request('http://localhost:3000/api/admin/health', {
+      headers: { 'x-workforceap-read-only-audit': '1' },
+    }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      status: 'degraded',
+      auditSuppressed: true,
+    });
+    expect(prisma.$queryRaw).not.toHaveBeenCalled();
+    expect(Redis).not.toHaveBeenCalled();
   });
 
   it('returns degraded when one subsystem is degraded', async () => {

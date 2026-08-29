@@ -58,8 +58,6 @@ export default async function EmployerApplicationPage({
             select: {
               profileLinkedin: true,
               profileBio: true,
-              resumeEnhancedPath: true,
-              resumeOriginalPath: true,
             },
           },
         },
@@ -198,12 +196,12 @@ export default async function EmployerApplicationPage({
                 <p style={{ margin: '0.125rem 0 0', lineHeight: 1.5 }}>{application.student.profile.profileBio}</p>
               </div>
             )}
-            {(application.student.profile?.resumeEnhancedPath || application.student.profile?.resumeOriginalPath) && (
+            {application.resumePath && (
               <div>
                 <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Resume</span>
                 <p style={{ margin: '0.125rem 0 0' }}>
                   <a
-                    href={application.student.profile?.resumeEnhancedPath || application.student.profile?.resumeOriginalPath || '#'}
+                    href={`/api/employer/applications/${encodeURIComponent(application.id)}/resume`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: 'var(--color-accent)' }}

@@ -20,6 +20,15 @@ export type ActiveProgramView = {
   static?: StaticProgram;
 };
 
+export type ActiveProgramCatalogResult = {
+  programs: ActiveProgramView[];
+  loadFailed: boolean;
+};
+
+export type ActiveProgramCatalogOptions = {
+  readOnlyAudit?: boolean;
+};
+
 /** Same shape as DB-backed rows, built only from `lib/content/programs` (offline / empty catalog). */
 function activeProgramsFromStaticCatalog(): ActiveProgramView[] {
   return PROGRAMS.map((p, i) => ({
@@ -44,13 +53,16 @@ function activeProgramsFromStaticCatalog(): ActiveProgramView[] {
  * Falls back to static-only when the catalog is empty (first deploy) or when the database is unreachable
  * / not seeded (local dev without `DATABASE_URL`).
  */
-export async function getActivePrograms(organizationId?: string): Promise<ActiveProgramView[]> {
+export async function getActiveProgramsResult(
+  organizationId?: string,
+  options?: ActiveProgramCatalogOptions,
+): Promise<ActiveProgramCatalogResult> {
   if (shouldSkipOptionalDbQueriesAtBuild()) {
-    return activeProgramsFromStaticCatalog();
+    return { programs: activeProgramsFromStaticCatalog(), loadFailed: false };
   }
 
   try {
-    const orgId = organizationId ?? (await getDefaultOrganizationId());
+    const orgId = organizationId ?? (await getDefaultOrganizationId({ readOnlyAudit: options?.readOnlyAudit }));
 
     const rows = await prisma.organizationProgramCatalog.findMany({
       take: 5000,
@@ -59,10 +71,19 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
     });
 
     if (rows.length === 0) {
-      return activeProgramsFromStaticCatalog();
+      // An organization with explicit (but currently inactive) catalog rows
+      // has intentionally disabled its catalog. Only a truly empty catalog
+      // gets the legacy global fallback.
+      const catalogSize = await prisma.organizationProgramCatalog.count({
+        where: { organizationId: orgId },
+      });
+      return {
+        programs: catalogSize === 0 ? activeProgramsFromStaticCatalog() : [],
+        loadFailed: false,
+      };
     }
 
-    return rows.map((r) => {
+    return { programs: rows.map((r) => {
       const staticP = getProgramBySlug(r.programSlug);
       return {
         slug: r.programSlug,
@@ -79,7 +100,7 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
         featured: r.featured,
         static: staticP ?? undefined,
       };
-    });
+    }), loadFailed: false };
   } catch (err) {
     if (process.env.NODE_ENV === 'development') {
       console.warn(
@@ -87,8 +108,15 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
         err,
       );
     }
-    return activeProgramsFromStaticCatalog();
+    return { programs: activeProgramsFromStaticCatalog(), loadFailed: true };
   }
+}
+
+export async function getActivePrograms(
+  organizationId?: string,
+  options?: ActiveProgramCatalogOptions,
+): Promise<ActiveProgramView[]> {
+  return (await getActiveProgramsResult(organizationId, options)).programs;
 }
 
 export function isProgramSlugActiveInCatalog(

@@ -1,10 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { validateFileType } from '@/lib/resume/file-validation';
+import {
+  prepareResumeUpload,
+  ResumeUploadValidationError,
+} from '@/lib/resume/prepareResumeUpload';
+import {
+  AtomicResumeObjectSwapError,
+  replaceResumeObjectsAtomically,
+  type ResumeObjectUpload,
+} from '@/lib/resume/atomicResumeObjectSwap';
+import {
+  isResumeProfileConflict,
+  swapResumeProfilePathsWithCas,
+} from '@/lib/resume/resumeProfileStorage';
+import {
+  hasSubstantiveResumeText,
+  RESUME_TEXT_SAVE_ERROR,
+  sanitizeResumePlainText,
+} from '@/lib/resume/extractionQuality';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
@@ -14,7 +30,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 // Create bucket "member-resumes" in Supabase Dashboard → Storage if it does not exist
 const BUCKET = 'member-resumes';
-const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
+const MAX_ENHANCED_RESUME_CHARS = 120_000;
+export const POST = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -46,69 +63,100 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
   }
 
   const file = formData.get('resumeOriginal') as File | null;
-  const enhancedText = formData.get('resumeEnhanced') as string | null;
+  const enhancedEntry = formData.get('resumeEnhanced');
+  const enhancedText = typeof enhancedEntry === 'string' ? enhancedEntry : null;
+  const hasOriginalFile = Boolean(file && file.size > 0);
 
-  if (!file && !enhancedText) {
+  if (!hasOriginalFile && !enhancedText?.trim()) {
     return NextResponse.json({ error: 'Provide resumeOriginal file and/or resumeEnhanced text' }, { status: 400 });
   }
 
-  const supabase = getSupabaseAdmin();
-  let originalPath: string | null = null;
-  let enhancedPath: string | null = null;
+  let preparedOriginal: Awaited<ReturnType<typeof prepareResumeUpload>> | null = null;
+  if (hasOriginalFile && file) {
+    try {
+      preparedOriginal = await prepareResumeUpload(file);
+    } catch (error) {
+      if (error instanceof ResumeUploadValidationError) {
+        return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
+      }
+      throw error;
+    }
+  }
 
-  if (file && file.size > 0) {
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
+  let safeEnhancedText: string | null = null;
+  if (enhancedText?.trim()) {
+    if (enhancedText.length > MAX_ENHANCED_RESUME_CHARS) {
+      return NextResponse.json(
+        { error: 'Enhanced resume text is too large (max 120,000 characters).' },
+        { status: 413 },
+      );
     }
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
-      return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
+    safeEnhancedText = sanitizeResumePlainText(enhancedText);
+    if (!hasSubstantiveResumeText(safeEnhancedText)) {
+      return NextResponse.json(
+        { error: RESUME_TEXT_SAVE_ERROR, code: 'resume_text_unreadable' },
+        { status: 400 },
+      );
     }
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-    const RESUME_MIME: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain' };
-    const path = `${userId}/resume-original.${ext}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
-      upsert: true,
-      contentType: RESUME_MIME[ext] ?? 'application/octet-stream',
+  }
+
+  // Construct the storage client only after every supplied resume variant has
+  // passed validation. A failure above therefore preserves both profile paths
+  // and the blobs they currently reference.
+  const supabase = getSupabaseAdmin();
+  const storage = supabase.storage.from(BUCKET);
+  const uploads: ResumeObjectUpload[] = [];
+  if (preparedOriginal) {
+    uploads.push({
+      field: 'resumeOriginalPath',
+      extension: preparedOriginal.extension,
+      contentType: preparedOriginal.contentType,
+      body: preparedOriginal.arrayBuffer,
     });
-    if (error) {
-      console.error('Resume upload error:', error);
+  }
+  if (safeEnhancedText) {
+    uploads.push({
+      field: 'resumeEnhancedPath',
+      extension: 'txt',
+      contentType: 'text/plain',
+      body: safeEnhancedText,
+    });
+  }
+
+  let swapped: Awaited<ReturnType<typeof replaceResumeObjectsAtomically>>;
+  try {
+    swapped = await replaceResumeObjectsAtomically({
+      userId,
+      uploads,
+      clearFields: preparedOriginal && !safeEnhancedText ? ['resumeEnhancedPath'] : [],
+      uploadObject: (path, body, options) => storage.upload(path, body, options),
+      removeObjects: (paths) => storage.remove(paths),
+      swapProfilePaths: (nextPaths) => swapResumeProfilePathsWithCas(userId, nextPaths),
+      onCleanupError: (error, paths) => {
+        console.error('[admin/upload-resume] object cleanup failed', { error, paths });
+      },
+    });
+  } catch (error) {
+    if (error instanceof AtomicResumeObjectSwapError && error.phase === 'upload') {
+      if (error.field === 'resumeEnhancedPath') {
+        console.error('Enhanced resume upload error:', error.causeValue);
+        return NextResponse.json({ error: 'Failed to upload enhanced resume' }, { status: 500 });
+      }
+      console.error('Resume upload error:', error.causeValue);
       return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
     }
-    originalPath = path;
-  }
-
-  if (enhancedText && enhancedText.trim()) {
-    const path = `${userId}/resume-enhanced.txt`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, enhancedText.trim(), {
-      upsert: true,
-      contentType: 'text/plain',
-    });
-    if (error) {
-      console.error('Enhanced resume upload error:', error);
-      return NextResponse.json({ error: 'Failed to upload enhanced resume' }, { status: 500 });
+    if (isResumeProfileConflict(error)) {
+      return NextResponse.json(
+        { error: 'This resume changed while the upload was running. Reload and try again.' },
+        { status: 409 },
+      );
     }
-    enhancedPath = path;
+    throw error;
   }
+  const originalPath = swapped.paths.resumeOriginalPath ?? null;
+  const enhancedPath = swapped.paths.resumeEnhancedPath ?? null;
 
-  if (originalPath || enhancedPath) {
-    await prisma.$transaction((tx) => tx.profile.upsert({
-      where: { userId },
-      create: {
-        userId,
-        role: member.profile?.role ?? 'member',
-        ...(originalPath && { resumeOriginalPath: originalPath }),
-        ...(enhancedPath && { resumeEnhancedPath: enhancedPath }),
-      },
-      update: {
-        ...(originalPath && { resumeOriginalPath: originalPath }),
-        ...(enhancedPath && { resumeEnhancedPath: enhancedPath }),
-      },
-    }));
-  }
-
-  if (enhancedPath && enhancedText && enhancedText.trim().length >= 40) {
+  if (enhancedPath && safeEnhancedText && hasSubstantiveResumeText(safeEnhancedText)) {
     await completeCareerOsResumeActions(userId).catch((error) => {
       console.error('[admin/upload-resume] completeCareerOsResumeActions failed:', error);
     });
@@ -129,7 +177,15 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
     request: auditRequestMeta(request),
   }).catch((err) => console.error('[upload-resume] xAPI audit log failed:', err));
 
-  return NextResponse.json({ ok: true, originalPath, enhancedPath });
+  return NextResponse.json({
+    ok: true,
+    originalPath,
+    enhancedPath,
+    extractionWarning: preparedOriginal?.extractionWarning ?? null,
+    enhancedInvalidated: Boolean(
+      preparedOriginal && !safeEnhancedText && swapped.previousPaths.resumeEnhancedPath,
+    ),
+  });
 
   } catch (error) {
     console.error('/admin/members/[id]/upload-resume error:', error);

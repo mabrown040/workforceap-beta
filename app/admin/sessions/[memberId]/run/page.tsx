@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { notFound, redirect } from 'next/navigation';
 import { randomUUID } from 'node:crypto';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
@@ -9,6 +10,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import PageHeader from '@/components/portal/PageHeader';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 const SessionRunClient = dynamic(() => import('@/components/portal/sessions/SessionRunClient'), {
   loading: () => (
@@ -62,6 +64,7 @@ export default async function AdminSessionRunPage({
   if (!user) redirect(`/login?redirectTo=/admin/sessions/${memberId}/run`);
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const member = await withAdminPageScope(scope, (db) => db.user.findFirst({
     where: { id: memberId, deletedAt: null },
@@ -76,17 +79,27 @@ export default async function AdminSessionRunPage({
   }));
   if (!member) notFound();
 
-  const existingResume = await getMemberResumePlainText(memberId, 8000, { preferOriginal: true });
+  const existingResume = await getMemberResumePlainText(memberId, 8000, {
+    preferOriginal: true,
+    readOnlyAudit,
+  });
 
   // Session id: use one passed in URL, otherwise mint a new one and
   // round-trip so the URL always carries it.
-  const sessionId = sid && /^[0-9a-f-]{36}$/i.test(sid) ? sid : randomUUID();
-  if (sessionId !== sid) {
+  const sessionId = sid && /^[0-9a-f-]{36}$/i.test(sid)
+    ? sid
+    : readOnlyAudit
+      ? '00000000-0000-4000-8000-000000000000'
+      : randomUUID();
+  if (sessionId !== sid && !readOnlyAudit) {
     redirect(`/admin/sessions/${memberId}/run?sid=${sessionId}${fresh === '1' ? '&fresh=1' : ''}`);
   }
 
   return (
     <>
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="session-resume-coursera-provider-and-session-redirect" />
+      )}
       <PageHeader
         title={`Session with ${member.fullName ?? member.email}`}
         subtitle={
@@ -101,7 +114,7 @@ export default async function AdminSessionRunPage({
         ]}
       />
       <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
-        <CourseraProgressCard userId={member.id} />
+        <CourseraProgressCard userId={member.id} readOnlyAudit={readOnlyAudit} />
       </div>
       <SessionRunClient
         key={member.id}

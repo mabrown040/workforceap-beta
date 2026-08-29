@@ -1,7 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
@@ -32,17 +34,22 @@ export default async function WeeklyRecapPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/weekly-recap');
 
   const weekStart = getWeekStart(new Date());
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
   const { generateWeeklyRecap } = await import('@/lib/recap/generate');
   let recap: Awaited<ReturnType<typeof generateWeeklyRecap>> | null = null;
   let generationError = false;
   try {
-    recap = await generateWeeklyRecap(user.id, weekStart);
+    recap = readOnlyAudit
+      ? await prisma.weeklyRecap.findUnique({
+          where: { userId_weekStartDate: { userId: user.id, weekStartDate: weekStart } },
+        })
+      : await generateWeeklyRecap(user.id, weekStart);
   } catch (e) {
     generationError = true;
-    console.error('[WeeklyRecapPage] generateWeeklyRecap failed', e);
+    console.error('[WeeklyRecapPage] recap load failed', e);
   }
 
-  if (recap && !recap.openedAt) {
+  if (!readOnlyAudit && recap && !recap.openedAt) {
     try {
       await prisma.weeklyRecap.update({
         where: { id: recap.id },
@@ -58,13 +65,17 @@ export default async function WeeklyRecapPage() {
   return (
     <>
       <div style={{ paddingBottom: '5rem' }}>
+        {readOnlyAudit && <span hidden data-portal-audit-suppressed="weekly-recap-generate-and-open" />}
         <PageHeader
           title="Weekly Recap"
           subtitle="Celebrate your wins, see your goal progress, and get a clear plan for the week ahead."
           breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
         />
         {recap === null ? (
-          <div style={{ maxWidth: '32rem', margin: '0 auto', padding: '0 1rem' }}>
+          <div
+            {...(generationError ? { 'data-portal-error-state': 'weekly-recap-load-failed' } : {})}
+            style={{ maxWidth: '32rem', margin: '0 auto', padding: '0 1rem' }}
+          >
             <PortalEmptyState
               icon={
                 <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">

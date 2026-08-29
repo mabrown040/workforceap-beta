@@ -1,11 +1,13 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getMemberResources } from '@/lib/content/memberResources';
+import { getMemberResourcesResult } from '@/lib/content/memberResources';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import PageHeader from '@/components/portal/PageHeader';
 import ResourcesClient from '@/app/(portal)/resources/ResourcesClient';
@@ -23,11 +25,16 @@ export default async function DashboardCareerLibraryPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/career-library');
 
-  const resources = await getMemberResources();
+  const requestHeaders = await headers();
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(requestHeaders);
+  const resourcesResult = await getMemberResourcesResult({ readOnlyAudit });
+  const resources = resourcesResult.resources;
   let resourcesProgress: Awaited<ReturnType<typeof prisma.resourceProgress.findMany>> = [];
+  let progressLoadFailed = false;
   try {
     resourcesProgress = await prisma.resourceProgress.findMany({ take: 500, where: { userId: user.id } });
   } catch (e) {
+    progressLoadFailed = true;
     console.error('[career-library] progress query failed', e);
   }
   const progressByResource = Object.fromEntries(
@@ -37,6 +44,10 @@ export default async function DashboardCareerLibraryPage() {
   return (
     <>
       <div className="inner-page wa-pb-24 md:wa-pb-8">
+        {resourcesResult.loadFailed ? (
+          <span hidden data-portal-error-state="career-library-resource-catalog-load" />
+        ) : null}
+        {progressLoadFailed ? <span hidden data-portal-error-state="career-library-progress-load" /> : null}
         <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
           <PageHeader
             title="Career resource library"

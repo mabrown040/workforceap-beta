@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
-import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -45,7 +44,7 @@ async function _POST(request: Request) {
     }
 
     try {
-      const mapped = await mapCourseraIdentityAndProgress({
+      const result = await mapCourseraIdentityAndProgress({
         userId,
         organizationId,
         courseraEmail,
@@ -56,15 +55,21 @@ async function _POST(request: Request) {
         notes: 'Mapped from Coursera-only learners list',
       });
 
-      const xapiReplay = await replayUnresolvedXapiStatementsForIdentity({ courseraEmail, actorIdentifier });
+      // Deliberately do not replay historical xAPI from this identity-binding
+      // action. The existing replay pipeline can emit completion emails,
+      // points, and graduation side effects for enrolled learners. Mapping is
+      // an administrative data-repair operation: it binds lossless raw rows,
+      // promotes canonical progress through the no-downgrade merge ladder,
+      // and refreshes rollups only. Future live xAPI resolves via the mapping.
 
       void auditLog({ actorUserId: user.id, action: 'admin_coursera_learner_mapped', targetType: 'User', targetId: userId, metadata: {} }).catch(() => {});
       logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: userId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
-        mapping: mapped.mapping,
-        backfill: mapped.backfill,
-        xapiReplay,
+        mapping: result.mapping,
+        backfill: result.backfill,
+        xapiReplay: null,
+        xapiReplayDeferred: true,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to map learner';

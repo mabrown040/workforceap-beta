@@ -35,10 +35,16 @@ export default async function AdminAiToolsPage({
   if (requestedUi !== 'legacy') {
     // Lean per-tool counts (groupBy toolType + voice-session count). Degrades to
     // [] on failure, in which case cards render with "—" instead of counts.
-    const usage = await getAiToolUsageCounts(analyticsOrgId).catch(() => []);
+    let usageLoadFailed = false;
+    const usage = await getAiToolUsageCounts(analyticsOrgId).catch((error) => {
+      usageLoadFailed = true;
+      console.error('[admin/ai-tools] usage load failed', error);
+      return [];
+    });
 
     return (
       <DesignSurface surface="dense">
+        {usageLoadFailed ? <span hidden data-portal-error-state="admin-ai-tools-usage-load" /> : null}
         <AiToolsAdminKit usage={usage} />
       </DesignSurface>
     );

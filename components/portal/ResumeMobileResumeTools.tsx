@@ -3,7 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
+import {
+  RESUME_UPLOAD_ACCEPT,
+  RESUME_UPLOAD_FORMAT_LABEL,
+  uploadMemberResumeFile,
+} from '@/lib/portal/memberResumeUpload';
 
 type Props = {
   completeness: number;
@@ -31,9 +35,11 @@ export default function ResumeMobileResumeTools({
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [uploadWarning, setUploadWarning] = useState('');
   const [generateError, setGenerateError] = useState('');
   const [dragover, setDragover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadInFlightRef = useRef(false);
 
   useEffect(() => {
     fetch('/api/member/resume')
@@ -51,15 +57,18 @@ export default function ResumeMobileResumeTools({
   }, []);
 
   const handleUpload = async (file: File) => {
+    if (uploadInFlightRef.current) return;
+    uploadInFlightRef.current = true;
     setUploading(true);
     setUploadError('');
-    const result = await uploadMemberResumeFile(file);
-    if (!result.ok) {
-      setUploadError(result.error);
-      setUploading(false);
-      return;
-    }
+    setUploadWarning('');
     try {
+      const result = await uploadMemberResumeFile(file);
+      if (!result.ok) {
+        setUploadError(result.error);
+        return;
+      }
+      setUploadWarning(result.warning ?? '');
       const refetch = await fetch('/api/member/resume');
       const d = await refetch.json();
       setResumeData({
@@ -73,6 +82,7 @@ export default function ResumeMobileResumeTools({
     } catch {
       setUploadError('Could not refresh resume status');
     } finally {
+      uploadInFlightRef.current = false;
       setUploading(false);
     }
   };
@@ -111,11 +121,16 @@ export default function ResumeMobileResumeTools({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragover(false);
+    if (uploadInFlightRef.current) return;
     const file = e.dataTransfer.files?.[0];
     if (file) handleUpload(file);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (uploadInFlightRef.current) {
+      e.target.value = '';
+      return;
+    }
     const file = e.target.files?.[0];
     if (file) handleUpload(file);
     e.target.value = '';
@@ -138,21 +153,25 @@ export default function ResumeMobileResumeTools({
 
   return (
     <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
-      <section style={{ marginBottom: '1.25rem' }}>
+      <section style={{ marginBottom: '1.25rem' }} aria-busy={uploading}>
         <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>Upload</h2>
         <div
           className={`counselor-resume-upload ${dragover ? 'dragover' : ''}`}
           onDragOver={(e) => {
             e.preventDefault();
+            if (uploadInFlightRef.current) return;
             setDragover(true);
           }}
           onDragLeave={() => setDragover(false)}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (!uploadInFlightRef.current) fileInputRef.current?.click();
+          }}
           role="button"
-          tabIndex={0}
+          tabIndex={uploading ? -1 : 0}
+          aria-disabled={uploading}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (!uploadInFlightRef.current && (e.key === 'Enter' || e.key === ' ')) {
               e.preventDefault();
               fileInputRef.current?.click();
             }
@@ -161,18 +180,20 @@ export default function ResumeMobileResumeTools({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.doc,.docx"
+            accept={RESUME_UPLOAD_ACCEPT}
             onChange={handleFileInput}
+            disabled={uploading}
             style={{ display: 'none' }}
           />
-          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          <p role="status" aria-live="polite" style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
             {uploading ? 'Uploading…' : 'Tap to choose a file, or drag and drop'}
           </p>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            PDF, DOC, DOCX — max 5MB
+            {RESUME_UPLOAD_FORMAT_LABEL} — max 5MB
           </p>
         </div>
         {uploadError && <p role="alert" style={{ color: 'var(--color-error)', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{uploadError}</p>}
+        {uploadWarning && <p role="status" style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{uploadWarning}</p>}
         {hasOriginal && (
           <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
             Original resume on file.

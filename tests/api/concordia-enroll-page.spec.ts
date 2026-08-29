@@ -46,7 +46,8 @@ describe('Concordia HS enrollment page — chs2026 referral', () => {
     const block = scriptSource.match(/const PROGRAM_SLUGS = \[([\s\S]*?)\] as const/);
     expect(block).not.toBeNull();
     const slugs = [...block![1].matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]);
-    expect(slugs).toHaveLength(5);
+    expect(slugs.length).toBeGreaterThanOrEqual(5);
+    expect(new Set(slugs).size).toBe(slugs.length);
     const known = new Set(PROGRAMS.map((p) => p.slug));
     for (const slug of slugs) {
       expect(known.has(slug), `unknown program slug on Concordia catalog: ${slug}`).toBe(true);

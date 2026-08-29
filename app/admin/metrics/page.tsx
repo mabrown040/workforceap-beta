@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
@@ -11,6 +12,7 @@ import AdminAnalyticsCharts from '@/components/admin/AdminAnalyticsChartsLazy';
 import { getTranslations } from 'next-intl/server';
 import { MetricsKit } from '@/components/portal/kit/pages/admin-subviews/MetricsKit';
 import type { KpiItem, RankDatum } from '@/components/portal/kit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -32,7 +34,8 @@ export default async function AdminMetricsPage({
   if (!scope.ok) redirect('/dashboard');
 
   const orgId = await getActorOrganizationId(user.id);
-  const data = await getAdminMetrics(orgId);
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
+  const data = await getAdminMetrics(orgId, { readOnlyAudit });
   const t = await getTranslations('admin');
 
   const sp = await searchParams;
@@ -72,7 +75,11 @@ export default async function AdminMetricsPage({
     ];
 
     return (
-      <MetricsKit
+      <>
+        {readOnlyAudit && (
+          <span hidden data-portal-audit-suppressed="admin-metrics-shared-cache" />
+        )}
+        <MetricsKit
         title="Metrics"
         goal="Raw platform metrics"
         kpis={kpis}
@@ -90,12 +97,16 @@ export default async function AdminMetricsPage({
             {t('exportFunderCsv')}
           </a>
         }
-      />
+        />
+      </>
     );
   }
 
   return (
     <div>
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="admin-metrics-shared-cache" />
+      )}
       <PageHeader
         title={t('analytics')}
         subtitle={t('platformEngagement')}

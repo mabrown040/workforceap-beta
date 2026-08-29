@@ -22,19 +22,41 @@ export type MemberResource = {
   file?: string;
 };
 
+export type MemberResourcesResult = {
+  resources: MemberResource[];
+  loadFailed: boolean;
+};
+
+export type MemberResourcesOptions = {
+  readOnlyAudit?: boolean;
+};
+
 let cachedResources: MemberResource[] | null = null;
 
-export async function getMemberResources(): Promise<MemberResource[]> {
-  if (cachedResources) return cachedResources;
+export async function getMemberResourcesResult(
+  options?: MemberResourcesOptions,
+): Promise<MemberResourcesResult> {
+  const useCache = !options?.readOnlyAudit;
+  if (useCache && cachedResources) {
+    return { resources: cachedResources, loadFailed: false };
+  }
+
   try {
     const index = await import('../../content/member-resources/index.json');
     const data = index.default ?? index;
     const raw = Array.isArray(data) ? data : [];
-    cachedResources = raw as MemberResource[];
-    return cachedResources;
+    const resources = [...raw] as MemberResource[];
+    if (useCache) cachedResources = resources;
+    return { resources, loadFailed: false };
   } catch {
-    return [];
+    return { resources: [], loadFailed: true };
   }
+}
+
+export async function getMemberResources(
+  options?: MemberResourcesOptions,
+): Promise<MemberResource[]> {
+  return (await getMemberResourcesResult(options)).resources;
 }
 
 export const CATEGORIES: ResourceCategory[] = [

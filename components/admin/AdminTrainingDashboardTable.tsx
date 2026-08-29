@@ -23,7 +23,7 @@ function formatLastTouch(value: string | Date | null): string {
 }
 
 function statusFor(row: TrainingDashboardRow): { label: string; color: string; bg: string } {
-  if (row.progressPercent >= 100 || row.completedCount >= row.totalCourses) {
+  if (row.totalCourses > 0 && row.completedCount >= row.totalCourses) {
     return { label: 'Complete', color: '#166534', bg: 'rgba(22,163,74,0.12)' };
   }
   if (row.staleTrainingDetectedAt) {
@@ -129,9 +129,14 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
               header: 'Program',
               cell: (row) => (
                 <>
-                  {row.programTitle}
+                  {row.programTitle}{' '}
+                  {row.noProgram ? (
+                    <span className="portal-badge portal-badge-warning">No program</span>
+                  ) : null}
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                    Enrolled {formatDate(row.enrolledAt)}
+                    {row.noProgram
+                      ? 'Coursera progress saved; enrollment needed'
+                      : `Enrolled ${formatDate(row.enrolledAt)}`}
                   </div>
                 </>
               ),

@@ -108,7 +108,7 @@ export default function ExecutiveDashboardPage() {
 
   if (error || !data) {
     return (
-      <div style={{ padding: '2rem', color: 'var(--color-error)' }}>
+      <div data-portal-error-state="admin-metrics" style={{ padding: '2rem', color: 'var(--color-error)' }}>
         <p>Error loading metrics: {error || 'No data'}</p>
       </div>
     );
@@ -314,7 +314,7 @@ export default function ExecutiveDashboardPage() {
       <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>30-Day Trends</h2>
       <ErrorBoundary
         fallback={
-          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', textAlign: 'center' }}>
+          <div data-portal-error-state="admin-trend-charts" className="portal-card portal-card--flat" style={{ padding: '1.25rem', textAlign: 'center' }}>
             <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>Charts could not load.</p>
           </div>
         }

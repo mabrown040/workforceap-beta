@@ -43,6 +43,8 @@ export interface TrainingRow {
   courseraGrade?: number | null;
   /** False when the row is a Coursera identity with no WAP member. */
   inWap?: boolean;
+  /** Linked WAP member has Coursera progress but no assigned program. */
+  noProgram?: boolean;
 }
 
 export interface TrainingProgressKitProps {
@@ -102,7 +104,8 @@ export function TrainingProgressKit({
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {row.student}
           </span>
-          {row.inWap === false ? <Token label="Not in WAP" size="sm" color="pink" /> : null}
+          {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
+          {row.inWap !== false && row.noProgram ? <Token label="No program" size="sm" color="yellow" /> : null}
         </span>
       ),
     },
@@ -206,7 +209,11 @@ export function TrainingProgressKit({
                 </div>
                 {row.inWap === false ? (
                   <div style={{ marginTop: 4 }}>
-                    <Token label="Not in WAP" size="sm" color="pink" />
+                    <Token label="Unmatched" size="sm" color="pink" />
+                  </div>
+                ) : row.noProgram ? (
+                  <div style={{ marginTop: 4 }}>
+                    <Token label="No program" size="sm" color="yellow" />
                   </div>
                 ) : null}
                 <div

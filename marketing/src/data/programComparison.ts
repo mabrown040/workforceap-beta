@@ -131,7 +131,7 @@ export const PROGRAM_COMPARISON_TRACKS: ComparisonTrack[] = [
     categoryOrder: 2,
   },
   {
-    shortName: 'Management & BI',
+    shortName: 'Management Analyst & Business Intelligence Professional Certificate',
     slug: 'data-analytics-professional-certificate-google',
     duration: '3-5 months',
     difficulty: '★★',
@@ -144,7 +144,7 @@ export const PROGRAM_COMPARISON_TRACKS: ComparisonTrack[] = [
     categoryOrder: 2,
   },
   {
-    shortName: 'Database Administration',
+    shortName: 'Database Administrator (DBA) Professional Certificate (IBM)',
     slug: 'data-science-professional-certificate-ibm',
     duration: '3-5 months',
     difficulty: '★★★',
@@ -211,7 +211,7 @@ export const PROGRAM_COMPARISON_TRACKS: ComparisonTrack[] = [
     categoryOrder: 4,
   },
   {
-    shortName: 'UX Design',
+    shortName: 'User Experience & Interface Design Professional Certificate',
     slug: 'ux-design-professional-certificate-google',
     duration: '3-5 months',
     difficulty: '★★',

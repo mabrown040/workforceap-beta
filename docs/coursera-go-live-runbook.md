@@ -121,7 +121,10 @@ If Coursera supports REST webhooks for your contract tier:
    ```
 2. Set shared secret = `COURSERA_WEBHOOK_SECRET`.
 3. WAP validates via HMAC-SHA256 header or `x-coursera-webhook-secret`.
-4. Webhooks handle `completed` events the same way as xAPI.
+4. Send Coursera's immutable `contentId` (or `courseraCourseId`). Webhooks handle
+   explicit `completed: true` events the same way as course-level xAPI. A
+   `progressPercent` value, including 100, remains progress until Coursera sends
+   an explicit completion fact.
 
 > **Note:** xAPI and webhook can run side-by-side. WAP deduplicates by event ID so duplicates are harmless.
 

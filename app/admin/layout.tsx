@@ -11,10 +11,12 @@ import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
+import { headers } from 'next/headers';
 import { pickAdminClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import '@/css/portal.css';
 import '@/css/counselor.css';
 import '@/css/language-toggle.css';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,9 +39,10 @@ export default async function AdminLayout({
   try {
     const scope = await resolveAdminPageTenant(user.id);
     if (!scope.ok) redirect('/dashboard');
+    const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
     const [branding, portalRoles] = await Promise.all([
-      getDefaultOrgBranding(),
+      getDefaultOrgBranding({ readOnlyAudit }),
       getPortalSwitcherRoles(user.id, {
         superAdmin: scope.superAdmin,
         hasAdmin: true,
@@ -65,9 +68,18 @@ export default async function AdminLayout({
       // is Google Translate's legacy hint. Both, for compatibility.
       <NextIntlClientProvider messages={messages}>
       <div translate="no" className="notranslate">
+        {readOnlyAudit && (
+          <span hidden data-portal-audit-suppressed="admin-organization-branding-data-cache" />
+        )}
         <OrgBrandingBar branding={branding} />
         <LegacyViewNotice />
-        <AdminPortalShell superAdmin={scope.superAdmin} portalRoles={portalRoles}>{children}</AdminPortalShell>
+        <AdminPortalShell
+          superAdmin={scope.superAdmin}
+          portalRoles={portalRoles}
+          readOnlyAudit={readOnlyAudit}
+        >
+          {children}
+        </AdminPortalShell>
       </div>
       </NextIntlClientProvider>
     );
@@ -77,7 +89,7 @@ export default async function AdminLayout({
     const t = await getTranslations('admin');
     return (
       <NextIntlClientProvider messages={messages}>
-      <div className="portal-route-fallback" style={{ padding: '2rem', maxWidth: '36rem' }}>
+      <div data-portal-error-state="admin-shell" className="portal-route-fallback" style={{ padding: '2rem', maxWidth: '36rem' }}>
         <h1 className="portal-route-fallback__title">{t('adminTemporarilyUnavailable')}</h1>
         <p className="portal-route-fallback__desc">
           {t('adminUnavailableDesc')}

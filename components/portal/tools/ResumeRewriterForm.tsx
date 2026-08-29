@@ -110,6 +110,7 @@ export default function ResumeRewriterForm({
   const [output, setOutput] = useState(previewOutput ?? '');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [tone, setTone] = useState<Tone>('professional');
   const [atsOptimize, setAtsOptimize] = useState(true);
@@ -167,6 +168,7 @@ export default function ResumeRewriterForm({
     const file = e.target.files?.[0];
     if (!file || preview) return;
     setError('');
+    setExtractionWarning(null);
     setExtracting(true);
     try {
       const formData = new FormData();
@@ -178,6 +180,10 @@ export default function ResumeRewriterForm({
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
+        const warning = data.extractionWarning;
+        setExtractionWarning(
+          typeof warning === 'string' && warning.trim() ? warning.trim() : null,
+        );
       } else {
         setError(data.error ?? 'Could not extract text');
       }
@@ -279,7 +285,7 @@ export default function ResumeRewriterForm({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.docx,.doc,.txt"
+              accept=".pdf,.docx,.txt"
               onChange={handleFileUpload}
               disabled={extracting || loading}
               className="wa-sr-only"
@@ -297,7 +303,7 @@ export default function ResumeRewriterForm({
               }}
             >
               <Upload size={16} aria-hidden="true" />
-              {extracting ? 'Extracting…' : 'Upload PDF or DOCX'}
+              {extracting ? 'Extracting…' : 'Upload PDF, DOCX, or TXT'}
             </button>
           </div>
         ) : null}
@@ -316,6 +322,23 @@ export default function ResumeRewriterForm({
       <p style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', margin: '-8px 0 0', lineHeight: 1.45 }}>
         Prefills from a resume on file.
       </p>
+      {extractionWarning ? (
+        <p
+          role="status"
+          style={{
+            margin: '-0.25rem 0 0',
+            padding: '0.75rem',
+            borderRadius: 'var(--wa-radius-sm)',
+            border: '1px solid var(--wa-gold)',
+            background: 'var(--wa-gold-soft)',
+            color: 'var(--wa-text)',
+            fontSize: 'var(--wa-type-meta)',
+            lineHeight: 1.45,
+          }}
+        >
+          {extractionWarning}
+        </p>
+      ) : null}
 
       <ul
         style={{

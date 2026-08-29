@@ -45,12 +45,14 @@ export interface StudentRow {
   courseraGrade?: number | null;
   /** False when the row is a Coursera identity with no WAP member. */
   inWap?: boolean;
+  /** Linked member with Coursera progress but no assigned WAP program. */
+  noProgram?: boolean;
   /** Override the default `/admin/members/:id` row click. */
   href?: string;
 }
 
 /** Filter chips. "All" is special-cased to show everything. */
-export type StudentFilter = 'All' | 'Job-Ready' | 'At Risk' | 'In Training' | 'Not in WAP';
+export type StudentFilter = 'All' | 'Job-Ready' | 'At Risk' | 'In Training' | 'Unmatched';
 
 export interface StudentsRosterKitProps {
   students?: StudentRow[];
@@ -109,7 +111,7 @@ const DEFAULT_STUDENTS: StudentRow[] = [
   },
 ];
 
-const FILTERS: StudentFilter[] = ['All', 'Job-Ready', 'At Risk', 'In Training', 'Not in WAP'];
+const FILTERS: StudentFilter[] = ['All', 'Job-Ready', 'At Risk', 'In Training', 'Unmatched'];
 
 /** Maps the kit's semantic tone vocabulary to a real Token color. */
 const STATUS_TOKEN_COLOR: Record<StudentStatus, TokenColor> = {
@@ -122,7 +124,7 @@ const STATUS_TOKEN_COLOR: Record<StudentStatus, TokenColor> = {
 
 function matchesFilter(student: StudentRow, filter: StudentFilter): boolean {
   if (filter === 'All') return true;
-  if (filter === 'Not in WAP') return student.inWap === false;
+  if (filter === 'Unmatched') return student.inWap === false;
   if (student.inWap === false) return false;
   return student.status === filter;
 }
@@ -156,7 +158,7 @@ export function StudentsRosterKit({
     'Job-Ready': students.filter((s) => matchesFilter(s, 'Job-Ready')).length,
     'At Risk': students.filter((s) => s.status === 'At Risk' && s.inWap !== false).length,
     'In Training': students.filter((s) => s.status === 'In Training' && s.inWap !== false).length,
-    'Not in WAP': students.filter((s) => s.inWap === false).length,
+    Unmatched: students.filter((s) => s.inWap === false).length,
   };
 
   const visible = students.filter((s) => matchesFilter(s, active));
@@ -177,7 +179,8 @@ export function StudentsRosterKit({
           }}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.name}</span>
-          {row.inWap === false ? <Token label="Not in WAP" size="sm" color="pink" /> : null}
+          {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
+          {row.inWap !== false && row.noProgram ? <Token label="No program" size="sm" color="yellow" /> : null}
         </div>
         <div
           style={{

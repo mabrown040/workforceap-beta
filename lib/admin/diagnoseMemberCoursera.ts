@@ -2,7 +2,17 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import {
+  resolveAdminPageTenant,
+  withAdminPageScope,
+} from '@/lib/tenant/adminPageScope';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import {
+  reconcileProgramProgress,
+  type CourseProgressReconcileRow,
+} from '@/lib/coursera/progressReconciliation';
 
 export type CourseraDiagnoseReport = {
   ok: true;
@@ -42,6 +52,14 @@ export type CourseraDiagnoseReport = {
     courseraBadgeProgressRows: number;
     canonicalMappingsTotal: number;
   };
+  reconciliation: Array<{
+    programSlug: string;
+    completedCount: number;
+    totalCourses: number;
+    programPercent: number;
+    allComplete: boolean;
+    rows: CourseProgressReconcileRow[];
+  }>;
   verdict: Array<{
     status: 'ok' | 'warn' | 'fail';
     title: string;
@@ -75,23 +93,25 @@ export async function diagnoseMemberCoursera(
 ): Promise<CourseraDiagnoseReport> {
   const actor = await getUser();
   if (!actor) return { ok: false, error: 'Not authenticated' };
-  if (!(await isAdmin(actor.id))) return { ok: false, error: 'Forbidden' };
+  const scope = await resolveAdminPageTenant(actor.id);
+  if (!scope.ok) return { ok: false, error: 'Forbidden' };
 
-  const member = await prisma.user.findUnique({
+  const member = await withAdminPageScope(scope, (db) => db.user.findFirst({
     where: { id: memberId, deletedAt: null },
     select: {
       id: true,
       email: true,
       fullName: true,
+      organizationId: true,
       enrolledProgram: true,
       courseraEnrollmentApproved: true,
     },
-  });
+  }));
   if (!member) return { ok: false, error: 'Member not found' };
 
   const enrollmentsRaw = await prisma.courseEnrollment.findMany({
     take: 500,
-    where: { userId: memberId },
+    where: { userId: memberId, organizationId: member.organizationId },
     select: { programSlug: true, isPrimary: true, enrolledAt: true },
     orderBy: { enrolledAt: 'desc' },
   });
@@ -129,14 +149,15 @@ export async function diagnoseMemberCoursera(
         SUM(CASE WHEN completion_status NOT IN ('ignored') AND error IS NULL THEN 1 ELSE 0 END) AS processed,
         SUM(CASE WHEN error IS NOT NULL THEN 1 ELSE 0 END) AS errored
       FROM coursera_xapi_events
-      WHERE actor_email = ${member.email}
-         OR matched_user_id = ${memberId}
+      WHERE organization_id = ${member.organizationId}
+        AND (actor_email = ${member.email} OR matched_user_id = ${memberId})
     `;
     if (aggRows[0]) xapiAgg = aggRows[0];
     latestIgnored = await prisma.$queryRaw<IgnoredXapiRaw[]>`
       SELECT course_slug, verb_id, received_at
       FROM coursera_xapi_events
-      WHERE (actor_email = ${member.email} OR matched_user_id = ${memberId})
+      WHERE organization_id = ${member.organizationId}
+        AND (actor_email = ${member.email} OR matched_user_id = ${memberId})
         AND completion_status = 'ignored'
       ORDER BY received_at DESC
       LIMIT 5
@@ -154,16 +175,92 @@ export async function diagnoseMemberCoursera(
     prisma.courseProgress.count({ where: { userId: memberId } }),
     prisma.courseraCourseProgress.count({
       where: {
+        organizationId: member.organizationId,
         OR: [{ userId: memberId }, { externalEmail: member.email }],
       },
     }),
     prisma.courseraBadgeProgress.count({
       where: {
+        organizationId: member.organizationId,
         OR: [{ userId: memberId }, { externalEmail: member.email }],
       },
     }),
     prisma.courseraCanonicalCourseMapping.count(),
   ]);
+
+  const [localProgressFacts, b4bProgressFacts] = await Promise.all([
+    prisma.courseProgress.findMany({
+      take: 5000,
+      where: { userId: memberId },
+      select: {
+        programSlug: true,
+        courseSlug: true,
+        courseId: true,
+        percentComplete: true,
+        status: true,
+      },
+    }),
+    prisma.courseraCourseProgress.findMany({
+      take: 5000,
+      where: {
+        organizationId: member.organizationId,
+        OR: [{ userId: memberId }, { externalEmail: member.email }],
+      },
+      select: {
+        programSlug: true,
+        courseraCourseId: true,
+        overallProgress: true,
+        isCompleted: true,
+      },
+    }),
+  ]);
+
+  const b4bProgress = new Map(
+    b4bProgressFacts.map((row) => [
+      row.courseraCourseId,
+      {
+        overallProgress: Number(row.overallProgress),
+        isCompleted: row.isCompleted,
+      },
+    ]),
+  );
+  const programSlugs = Array.from(
+    new Set(
+      [
+        member.enrolledProgram,
+        ...enrollmentsRaw.map((row) => row.programSlug),
+        ...localProgressFacts.map((row) => row.programSlug),
+        ...b4bProgressFacts.map((row) => row.programSlug),
+      ]
+        .filter((value): value is string => Boolean(value))
+        .map((programSlug) =>
+          getProgramBySlug(programSlug)?.slug ?? canonicalizeProgramSlug(programSlug),
+        )
+        .filter((programSlug) => Boolean(getProgramBySlug(programSlug))),
+    ),
+  );
+  const reconciliation = await Promise.all(
+    programSlugs.map(async (programSlug) => {
+      const validated = await loadValidatedProgramCourses({
+        organizationId: member.organizationId,
+        programSlug,
+        checkB4BContents: false,
+      });
+      const result = reconcileProgramProgress({
+        validatedCourses: validated.courses,
+        b4bProgress,
+        localRows: localProgressFacts
+          .filter((row) => canonicalizeProgramSlug(row.programSlug) === programSlug)
+          .map((row) => ({
+            courseSlug: row.courseSlug,
+            courseId: row.courseId,
+            percentComplete: row.percentComplete,
+            status: row.status,
+          })),
+      });
+      return { programSlug, ...result };
+    }),
+  );
 
   const verdict: Array<{
     status: 'ok' | 'warn' | 'fail';
@@ -266,7 +363,13 @@ export async function diagnoseMemberCoursera(
 
   return {
     ok: true,
-    user: member,
+    user: {
+      id: member.id,
+      email: member.email,
+      fullName: member.fullName,
+      enrolledProgram: member.enrolledProgram,
+      courseraEnrollmentApproved: member.courseraEnrollmentApproved,
+    },
     identityMappings,
     enrollments: enrollmentsRaw,
     xapi: {
@@ -286,6 +389,7 @@ export async function diagnoseMemberCoursera(
       courseraBadgeProgressRows,
       canonicalMappingsTotal,
     },
+    reconciliation,
     verdict,
   };
 }

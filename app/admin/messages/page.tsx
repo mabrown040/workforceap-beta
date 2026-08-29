@@ -5,6 +5,7 @@ import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import AdminSuperMessagesClient from '@/components/admin/AdminSuperMessagesClient';
 import {
   MessagesKit,
@@ -105,11 +106,13 @@ export default async function AdminMessagesPage({
   // access control is preserved. MessagesKit is a pure read table, so it's safe
   // to promote as long as the data is real (it is — loaded from prisma below).
   if (requestedUi !== 'legacy') {
-    const threads = await loadMemberThreads().catch((err) => {
+    try {
+      const threads = await loadMemberThreads();
+      return <MessagesKit threads={threads} />;
+    } catch (err) {
       console.error('[admin/messages] failed to load member threads:', err);
-      return [] as MessageThread[];
-    });
-    return <MessagesKit threads={threads} />;
+      return <AdminDataLoadError title="Could not load messages" />;
+    }
   }
 
   return <AdminSuperMessagesClient />;

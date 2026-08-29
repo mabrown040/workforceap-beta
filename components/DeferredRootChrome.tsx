@@ -7,11 +7,11 @@ const CookieConsentBanner = dynamic(() => import('@/components/CookieConsentBann
 const ScrollAnimationsWrapper = dynamic(() => import('@/components/ScrollAnimationsWrapper'), { ssr: false });
 
 /** Analytics, cookie UI, and scroll observers — loaded after the shell (no SSR). */
-export default function DeferredRootChrome() {
+export default function DeferredRootChrome({ suppressAnalytics = false }: { suppressAnalytics?: boolean }) {
   return (
     <>
       <ScrollAnimationsWrapper />
-      <DeferredAnalytics />
+      {!suppressAnalytics ? <DeferredAnalytics /> : null}
       <CookieConsentBanner />
     </>
   );

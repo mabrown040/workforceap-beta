@@ -20,7 +20,10 @@ function makeRow(overrides: Record<string, unknown> = {}) {
   return {
     fullName: 'Alex Rivera',
     enrolledProgram: null,
+    organization: { courses: [] },
     courseEnrollments: [{ programSlug: 'it-support-professional-certificate-ibm' }],
+    courseProgress: [],
+    memberProgramProgress: [],
     memberPoints: { totalPoints: 250, currentStreak: 4, longestStreak: 9 },
     nextBestActions: [
       {
@@ -60,30 +63,24 @@ function makeRow(overrides: Record<string, unknown> = {}) {
 
 function mockDb(opts: {
   row?: ReturnType<typeof makeRow> | null;
-  completed?: number;
   missFirst?: boolean;
 }) {
   let findUniqueCalls = 0;
-  let countCalls = 0;
   let txCalls = 0;
   const findUnique = async () => {
     findUniqueCalls += 1;
     if (opts.missFirst && findUniqueCalls === 1) return null;
     return opts.row === undefined ? makeRow() : opts.row;
   };
-  const count = async () => {
-    countCalls += 1;
-    return opts.completed ?? 2;
-  };
   const db = {
-    $transaction: async <T,>(fn: (tx: { user: { findUnique: typeof findUnique }; courseProgress: { count: typeof count } }) => Promise<T>) => {
+    $transaction: async <T,>(fn: (tx: { user: { findUnique: typeof findUnique } }) => Promise<T>) => {
       txCalls += 1;
-      return fn({ user: { findUnique }, courseProgress: { count } });
+      return fn({ user: { findUnique } });
     },
   };
   return {
     db,
-    counts: () => ({ findUniqueCalls, countCalls, txCalls }),
+    counts: () => ({ findUniqueCalls, txCalls }),
   };
 }
 
@@ -157,23 +154,40 @@ test('loadMemberDashboardHome issues ≤ 2 Prisma ops and skips progress count w
   assert.ok(view.prismaOpCount <= MEMBER_DASHBOARD_HOME_PRISMA_BUDGET);
   assert.equal(counts().txCalls, 1);
   assert.equal(counts().findUniqueCalls, 1);
-  assert.equal(counts().countCalls, 0);
   assert.equal(view.firstName, 'Alex');
   assert.equal(view.coursePercent, 0);
   assert.equal(view.doThisNext?.id, 'nba-1');
 });
 
 test('loadMemberDashboardHome combines enrollment + progress into kit props', async () => {
-  const { db, counts } = mockDb({ completed: 2 });
+  const { db, counts } = mockDb({
+    row: makeRow({
+      courseProgress: [
+        {
+          programSlug: 'it-support-professional-certificate-ibm',
+          courseSlug: 'introduction-to-technical-support',
+          courseId: 'rNyuLa-pEeytqw64hz8ZCw',
+          percentComplete: 100,
+          status: 'COMPLETED',
+        },
+        {
+          programSlug: 'it-support-professional-certificate-ibm',
+          courseSlug: 'introduction-to-hardware-and-operating-systems',
+          courseId: 'wtYRSE1kEeyLIRLL9niz0w',
+          percentComplete: 100,
+          status: 'COMPLETED',
+        },
+      ],
+    }),
+  });
   const view = await loadMemberDashboardHome(
     { userId: 'member-1', fallbackDisplayName: 'Pat' },
     db,
   );
-  assert.equal(view.prismaOpCount, 2);
+  assert.equal(view.prismaOpCount, 1);
   assert.ok(view.prismaOpCount <= MEMBER_DASHBOARD_HOME_PRISMA_BUDGET);
   assert.equal(counts().txCalls, 1);
   assert.equal(counts().findUniqueCalls, 1);
-  assert.equal(counts().countCalls, 1);
   assert.equal(view.certs, 1);
   assert.equal(view.activeJobs, 2);
   assert.equal(view.points, 250);
@@ -189,8 +203,74 @@ test('loadMemberDashboardHome combines enrollment + progress into kit props', as
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
 });
 
+test('loadMemberDashboardHome shows saved progress when the member has no assigned program', async () => {
+  const { db, counts } = mockDb({
+    row: makeRow({
+      courseEnrollments: [],
+      enrolledProgram: null,
+      courseProgress: [{
+        programSlug: 'comptia-a-plus',
+        courseSlug: 'technical-support-fundamentals',
+        courseId: '7sBiclFIEeetjQ5ppGVTyA',
+        percentComplete: 93,
+        status: 'IN_PROGRESS',
+      }],
+      memberProgramProgress: [
+        {
+          programSlug: 'comptia-a-plus',
+          averagePercent: 93,
+          coursesCompleted: 0,
+        },
+      ],
+    }),
+  });
+  const view = await loadMemberDashboardHome(
+    { userId: 'member-progress-only', fallbackDisplayName: 'Pat' },
+    db,
+  );
+
+  assert.equal(view.prismaOpCount, 1);
+  assert.equal(view.noProgram, true);
+  assert.ok(view.coursePercent > 0 && view.coursePercent < 100);
+  assert.equal(view.certModulesDone, 0);
+  assert.equal(view.programStatus, 'In progress');
+  assert.match(view.programTitle ?? '', /CompTIA A\+/i);
+  assert.equal(view.coursesHref, '/dashboard/program');
+});
+
+test('loadMemberDashboardHome never reports 100% from one completed alias row in a multi-course program', async () => {
+  const { db } = mockDb({
+    row: makeRow({
+      courseEnrollments: [{ programSlug: 'comptia-a-professional-certificate' }],
+      enrolledProgram: null,
+      memberProgramProgress: [{
+        programSlug: 'comptia-a-plus',
+        averagePercent: 100,
+        coursesCompleted: 1,
+      }],
+      courseProgress: [{
+        programSlug: 'comptia-a-plus',
+        courseSlug: 'technical-support-fundamentals',
+        courseId: '7sBiclFIEeetjQ5ppGVTyA',
+        percentComplete: 100,
+        status: 'COMPLETED',
+      }],
+    }),
+  });
+
+  const view = await loadMemberDashboardHome(
+    { userId: 'member-alias-progress', fallbackDisplayName: 'Pat' },
+    db,
+  );
+
+  assert.equal(view.certModulesDone, 1);
+  assert.ok(view.certModulesTotal > 1);
+  assert.ok(view.coursePercent > 0 && view.coursePercent < 100);
+  assert.equal(view.programStatus, 'In progress');
+});
+
 test('loadMemberDashboardHome provisions an orphan then re-reads once', async () => {
-  const { db, counts } = mockDb({ missFirst: true, completed: 0 });
+  const { db, counts } = mockDb({ missFirst: true });
   let provisioned = 0;
   const view = await loadMemberDashboardHome(
     {
@@ -223,15 +303,15 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   assert.equal(view.programStatus, undefined);
 });
 
-test('loader module does not import Coursera, B4B, or getMemberState', () => {
+test('loader module imports only pure Coursera reconciliation, never providers or member-state fanout', () => {
   const src = readFileSync(path.join(ROOT, 'lib/member/loadMemberDashboardHome.ts'), 'utf8');
   const imports = src.split('\n').filter((line) => line.startsWith('import')).join('\n');
-  assert.doesNotMatch(imports, /coursera/i);
+  assert.doesNotMatch(imports, /b4b|programCourseList|learnerProgress/i);
   assert.doesNotMatch(imports, /b4b/i);
   assert.doesNotMatch(imports, /getMemberState/);
   assert.doesNotMatch(imports, /maybeAutoSync/);
   assert.doesNotMatch(imports, /getCache/);
-  assert.doesNotMatch(src, /from '@\/lib\/coursera/);
+  assert.match(src, /from '@\/lib\/coursera\/progressReconciliation/);
   assert.doesNotMatch(src, /nextLesson: 'Continue your training'/);
   assert.doesNotMatch(src, /'Up next'/);
   assert.doesNotMatch(src, /\?\? 'there'/);

@@ -71,9 +71,49 @@ describe('classifyPortalAuditRow', () => {
       consoleErrors: [],
       pageErrors: [],
       bodyText: 'Browse jobs and save favorites',
+      appReady: true,
+      h1Count: 1,
+      readOnlyCapabilityActive: true,
     });
 
     expect(result.ok).toBe(true);
     expect(result.failureReasons).toEqual([]);
+  });
+
+  it('fails when a requested query variant is silently discarded', () => {
+    const result = classifyPortalAuditRow({
+      path: '/dashboard/ai-tools/resume-studio?view=coach',
+      finalUrl: 'https://example.com/dashboard/ai-tools/resume-studio',
+      queryVariantMatched: false,
+      title: 'Resume Studio',
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      bodyText: 'Resume coach workspace and editing tools',
+      appReady: true,
+      h1Count: 1,
+      readOnlyCapabilityActive: true,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.failureReasons).toContain('query_variant_mismatch');
+  });
+
+  it('passes a healthy query variant when the exact search state is retained', () => {
+    const result = classifyPortalAuditRow({
+      path: '/dashboard/ai-tools/resume-studio?view=coach',
+      finalUrl: 'https://example.com/dashboard/ai-tools/resume-studio',
+      queryVariantMatched: true,
+      title: 'Resume Studio',
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      bodyText: 'Resume coach workspace and editing tools',
+      appReady: true,
+      h1Count: 1,
+      readOnlyCapabilityActive: true,
+    });
+
+    expect(result.ok).toBe(true);
   });
 });

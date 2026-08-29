@@ -24,6 +24,22 @@ vi.mock('@/lib/auth/roles', () => ({
   isSuperAdmin: vi.fn(),
 }));
 
+vi.mock('@/lib/tenant/adminPageScope', () => ({
+  resolveAdminPageTenant: vi.fn(),
+  withAdminPageScope: vi.fn(async (_scope: unknown, fn: (db: unknown) => Promise<unknown>) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return fn(prisma);
+  }),
+  inheritUserOrg: vi.fn(() => ({})),
+  inheritMemberOrg: vi.fn(() => ({})),
+  inheritLeaderOrg: vi.fn(() => ({})),
+  inheritInvitedByOrg: vi.fn(() => ({})),
+}));
+
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(async () => 'org-1'),
+}));
+
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
@@ -54,8 +70,8 @@ vi.mock('@/components/portal/kit/pages/admin-subviews/PartnersDirectoryKit', () 
 
 import AdminPartnersPage from '@/app/admin/partners/page';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 
 describe('AdminPartnersPage authorization', () => {
   beforeEach(() => {
@@ -64,19 +80,22 @@ describe('AdminPartnersPage authorization', () => {
 
   it('redirects authenticated non-admins before loading partner data', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(resolveAdminPageTenant).mockResolvedValue({ ok: false });
 
     await expect(AdminPartnersPage({})).rejects.toThrow('REDIRECT:/dashboard');
 
     expect(prisma.partner.findMany).not.toHaveBeenCalled();
     expect(prisma.partnerReferral.groupBy).not.toHaveBeenCalled();
-    expect(isSuperAdmin).not.toHaveBeenCalled();
+    expect(resolveAdminPageTenant).toHaveBeenCalledWith('user-1');
   });
 
   it('loads partner data for admins', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+    vi.mocked(resolveAdminPageTenant).mockResolvedValue({
+      ok: true,
+      orgId: 'org-1',
+      superAdmin: true,
+    });
     vi.mocked(prisma.partner.findMany).mockResolvedValue([]);
     vi.mocked(prisma.partner.count).mockResolvedValue(0);
     vi.mocked(prisma.partnerReferral.groupBy).mockResolvedValue([] as any);

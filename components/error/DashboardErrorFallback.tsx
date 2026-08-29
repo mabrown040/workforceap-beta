@@ -49,6 +49,7 @@ export default function DashboardErrorFallback({
   return (
     <div
       className="portal-card portal-card--flat"
+      data-portal-error-state="dashboard-section"
       style={{
         padding: '1rem 1.25rem',
         borderRadius: '0.875rem',

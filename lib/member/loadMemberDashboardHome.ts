@@ -1,6 +1,11 @@
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  canonicalizeProgramSlug,
+  programSlugsEquivalent,
+} from '@/lib/content/programSlug';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
@@ -13,7 +18,9 @@ import type { NextBestAction } from '@/lib/member/nextBestActions';
  * {@link MEMBER_DASHBOARD_HOME_PRISMA_BUDGET} operations:
  *
  *  1. `user.findUnique` with the nested relations / `_count`s the kit needs
- *  2. `courseProgress.count` for the resolved program slug (skipped when none)
+ * Course facts are included in the nested user read so the page can apply the
+ * same validated X/Y/% formula as the training detail without trusting a stale
+ * aggregate rollup.
  *
  * Coursera B4B + `maybeAutoSyncCourseraOnDashboard` stay **off this path**.
  * Hourly `coursera-training-sync` owns seeding. `getMemberState` (Redis
@@ -53,6 +60,8 @@ export type MemberDashboardHomeView = {
   firstName: string;
   coursePercent: number;
   programTitle?: string;
+  /** Coursera progress exists, but no WAP program is assigned yet. */
+  noProgram?: boolean;
   activeJobs: number;
   certs: number;
   points: number;
@@ -92,9 +101,6 @@ type DashboardHomeTx = {
   user: {
     findUnique: (args: unknown) => Promise<DashboardUserRow | null>;
   };
-  courseProgress: {
-    count: (args: unknown) => Promise<number>;
-  };
 };
 
 type DashboardHomeDb = {
@@ -104,7 +110,29 @@ type DashboardHomeDb = {
 type DashboardUserRow = {
   fullName: string | null;
   enrolledProgram: string | null;
+  organization: {
+    courses: Array<{
+      programSlug: string;
+      courseSlug: string;
+      name: string;
+      estimatedHours: number | null;
+      courseraCourseId: string | null;
+      courseraSlug: string | null;
+    }>;
+  };
   courseEnrollments: Array<{ programSlug: string }>;
+  courseProgress: Array<{
+    programSlug: string;
+    courseSlug: string;
+    courseId: string | null;
+    percentComplete: number;
+    status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+  }>;
+  memberProgramProgress: Array<{
+    programSlug: string;
+    averagePercent: number;
+    coursesCompleted: number;
+  }>;
   memberPoints: {
     totalPoints: number;
     currentStreak: number;
@@ -283,18 +311,57 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
 
 function shapeHome(args: {
   row: DashboardUserRow;
-  completedCount: number;
   fallbackDisplayName: string | null | undefined;
   prismaOpCount: number;
 }): MemberDashboardHomeView {
-  const slug = args.row.courseEnrollments[0]?.programSlug ?? args.row.enrolledProgram ?? null;
+  const assignedSlug = args.row.courseEnrollments[0]?.programSlug ?? args.row.enrolledProgram ?? null;
+  const inferredSlug =
+    args.row.memberProgramProgress[0]?.programSlug ??
+    args.row.courseProgress[0]?.programSlug ??
+    null;
+  const rawSlug = assignedSlug ?? inferredSlug;
+  const slug = rawSlug ? canonicalizeProgramSlug(rawSlug) : null;
   const program = slug ? getProgramBySlug(slug) : undefined;
-  const totalCourses = program?.courses?.length ?? 0;
-  const pct = totalCourses ? Math.round((args.completedCount / totalCourses) * 100) : 0;
+  const courseDbRows = slug
+    ? args.row.organization.courses.filter((course) =>
+        programSlugsEquivalent(course.programSlug, slug),
+      )
+    : [];
+  const validatedCourses = program?.syllabus && !program.curriculumMigrationPending
+    ? program.courses
+    : courseDbRows.length > 0
+      ? courseDbRows.map((course) => ({
+          slug: course.courseSlug,
+          name: course.name,
+          estimatedHours: course.estimatedHours ?? 10,
+          courseraCourseId: course.courseraCourseId ?? undefined,
+          courseraSlug: course.courseraSlug ?? undefined,
+        }))
+      : (program?.courses ?? []);
+  const matchingCourseProgress = slug
+    ? args.row.courseProgress.filter((row) =>
+        programSlugsEquivalent(row.programSlug, slug),
+      )
+    : [];
+  const reconciliation = reconcileProgramProgress({
+    validatedCourses,
+    localRows: matchingCourseProgress.map((row) => ({
+      courseSlug: row.courseSlug,
+      courseId: row.courseId,
+      percentComplete: row.percentComplete,
+      status: row.status,
+    })),
+  });
+  const totalCourses = reconciliation.totalCourses;
+  const completedCount = reconciliation.completedCount;
+  const pct = reconciliation.programPercent;
+  const allCoursesComplete = reconciliation.allComplete;
   const firstName = displayFirstName(args.row.fullName, args.fallbackDisplayName);
 
   const topAction = args.row.nextBestActions[0] ?? null;
-  const programHref = slug ? `/dashboard?program=${encodeURIComponent(slug)}` : '/dashboard/program';
+  const programHref = assignedSlug && slug
+    ? `/dashboard?program=${encodeURIComponent(slug)}`
+    : '/dashboard/program';
   const doThisNext: NextBestAction | null = topAction
     ? {
         id: topAction.id,
@@ -322,7 +389,8 @@ function shapeHome(args: {
     firstName,
     coursePercent: pct,
     programTitle: program?.title ?? undefined,
-    programStatus: program ? (pct >= 100 ? 'Complete' : 'In progress') : undefined,
+    noProgram: Boolean(program && !assignedSlug),
+    programStatus: program ? (allCoursesComplete ? 'Complete' : 'In progress') : undefined,
     activeJobs: args.row._count.jobApplications,
     certs: args.row._count.userCertifications,
     points: totalPoints,
@@ -334,7 +402,7 @@ function shapeHome(args: {
     nextBadgePercent: badge.nextBadgePercent,
     nextBadgeRemaining: badge.nextBadgeRemaining,
     pipeline: mapPipelineRows(args.row.jobApplications),
-    certModulesDone: args.completedCount,
+    certModulesDone: completedCount,
     certModulesTotal: totalCourses,
     pointsLedger: mapPointsLedger(recentLedger),
     pointsThisWeek: pointsThisWeek > 0 ? pointsThisWeek : undefined,
@@ -351,10 +419,46 @@ function userSelect() {
   return {
     fullName: true,
     enrolledProgram: true,
+    organization: {
+      select: {
+        courses: {
+          take: 500,
+          orderBy: [{ programSlug: 'asc' as const }, { displayOrder: 'asc' as const }],
+          select: {
+            programSlug: true,
+            courseSlug: true,
+            name: true,
+            estimatedHours: true,
+            courseraCourseId: true,
+            courseraSlug: true,
+          },
+        },
+      },
+    },
     courseEnrollments: {
       where: { isPrimary: true },
       take: 1,
       select: { programSlug: true },
+    },
+    courseProgress: {
+      orderBy: [{ lastActivityAt: 'desc' as const }, { lastUpdatedAt: 'desc' as const }],
+      take: 500,
+      select: {
+        programSlug: true,
+        courseSlug: true,
+        courseId: true,
+        percentComplete: true,
+        status: true,
+      },
+    },
+    memberProgramProgress: {
+      orderBy: { lastUpdatedAt: 'desc' as const },
+      take: 5,
+      select: {
+        programSlug: true,
+        averagePercent: true,
+        coursesCompleted: true,
+      },
     },
     memberPoints: {
       select: { totalPoints: true, currentStreak: true, longestStreak: true },
@@ -410,23 +514,25 @@ function userSelect() {
 async function fetchHomeRow(
   db: DashboardHomeDb,
   userId: string,
-): Promise<{ row: DashboardUserRow | null; completedCount: number; prismaOpCount: number }> {
+): Promise<{ row: DashboardUserRow | null; prismaOpCount: number }> {
   return db.$transaction(async (tx) => {
     const row = await tx.user.findUnique({
       where: { id: userId },
       select: userSelect(),
     });
     if (!row) {
-      return { row: null, completedCount: 0, prismaOpCount: 1 };
+      return { row: null, prismaOpCount: 1 };
     }
-    const slug = row.courseEnrollments[0]?.programSlug ?? row.enrolledProgram ?? null;
+    const slug =
+      row.courseEnrollments[0]?.programSlug ??
+      row.enrolledProgram ??
+      row.memberProgramProgress[0]?.programSlug ??
+      row.courseProgress[0]?.programSlug ??
+      null;
     if (!slug) {
-      return { row, completedCount: 0, prismaOpCount: 1 };
+      return { row, prismaOpCount: 1 };
     }
-    const completedCount = await tx.courseProgress.count({
-      where: { userId, programSlug: slug, status: 'COMPLETED' },
-    });
-    return { row, completedCount, prismaOpCount: 2 };
+    return { row, prismaOpCount: 1 };
   });
 }
 
@@ -442,11 +548,11 @@ export async function loadMemberDashboardHome(
 ): Promise<MemberDashboardHomeView> {
   const client: DashboardHomeDb = db ?? (prisma as unknown as DashboardHomeDb);
   const run = () => fetchHomeRow(client, args.userId);
-  let { row, completedCount, prismaOpCount } = await withDbRetry(run);
+  let { row, prismaOpCount } = await withDbRetry(run);
 
   if (!row && args.provisionIfMissing) {
     await args.provisionIfMissing();
-    ({ row, completedCount, prismaOpCount } = await withDbRetry(run));
+    ({ row, prismaOpCount } = await withDbRetry(run));
   }
 
   if (!row) {
@@ -455,7 +561,6 @@ export async function loadMemberDashboardHome(
 
   return shapeHome({
     row,
-    completedCount,
     fallbackDisplayName: args.fallbackDisplayName,
     prismaOpCount,
   });

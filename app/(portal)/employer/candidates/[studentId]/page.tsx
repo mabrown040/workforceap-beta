@@ -292,8 +292,7 @@ export default async function EmployerCandidateProfilePage({
                   <ul style={{ margin: '0.65rem 0 0', padding: 0, listStyle: 'none' }}>
                     {trainingProgram.courses.map((course) => {
                       const row = trainingCourseBySlug.get(course.slug);
-                      const done =
-                        row?.status === CourseProgressStatus.COMPLETED || (row?.percentComplete ?? 0) >= 100;
+                      const done = row?.status === CourseProgressStatus.COMPLETED;
                       const pct = row?.percentComplete ?? 0;
                       return (
                         <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
@@ -542,8 +541,7 @@ export default async function EmployerCandidateProfilePage({
                       <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
                         {trainingProgram.courses.map((course) => {
                           const row = trainingCourseBySlug.get(course.slug);
-                          const done =
-                            row?.status === CourseProgressStatus.COMPLETED || (row?.percentComplete ?? 0) >= 100;
+                          const done = row?.status === CourseProgressStatus.COMPLETED;
                           const pct = row?.percentComplete ?? 0;
                           return (
                             <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>

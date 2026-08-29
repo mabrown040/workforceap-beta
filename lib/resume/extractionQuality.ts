@@ -19,14 +19,19 @@ const ZIP_CONTAINER_ENTRY = /(?:\[Content_Types\]\.xml|word\/document\.xml|_rels
 const PARSER_DIAGNOSTIC =
   /(?:InvalidPDFException|Invalid PDF structure|FormatError:\s|bad XRef entry|Mammoth does not support|webpack:\/\/\/src\/pdf\.js)/i;
 const STACK_FRAME = /(?:^|\n)\s*at\s+\S+.*:\d+:\d+\)?\s*$/m;
+const MODEL_RESUME_FAILURE_NARRATIVE =
+  /(?:base resume to improve|provided resume)[\s\S]{0,320}(?:raw PDF stream|cannot be parsed for text content)|(?:raw PDF stream|unreadable (?:PDF|file))[\s\S]{0,220}(?:cannot be parsed|no (?:usable|readable) text)/i;
 const KNOWN_CONTEXT_PLACEHOLDER =
   /\{\{\s*(?:member_(?:first_name|full_name)|resume_(?:text|draft|context)|live_resume_draft|program_name)\s*\}\}/i;
 
 export const RESUME_TEXT_UPLOAD_ERROR =
-  'We could not read resume text from that file. Try a text-based PDF, DOCX, or TXT file. Your previous resume was kept.';
+  'We could not read enough resume text from that file. If it is scanned or image-only, export it with selectable text, or upload a DOCX or TXT file. Your previous resume was kept.';
 
 export const RESUME_TEXT_SAVE_ERROR =
-  'We could not save that resume draft because it contains unreadable file data. Your previous resume was kept.';
+  'We could not save that resume draft because it does not contain enough readable resume text. Paste at least a short summary, skills, or work history. Your previous resume was kept.';
+
+/** Minimum normalized prose required before a resume is persisted or sent to an agent. */
+export const MIN_SUBSTANTIVE_RESUME_TEXT_CHARS = 40;
 
 function escaped(pattern: string): string {
   return pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
@@ -59,6 +64,7 @@ export function isUnsafeResumePlainText(text: string): boolean {
   if (PARSER_DIAGNOSTIC.test(normalized) && (STACK_FRAME.test(normalized) || /\bError:\s/i.test(normalized))) {
     return true;
   }
+  if (MODEL_RESUME_FAILURE_NARRATIVE.test(normalized)) return true;
   if (KNOWN_CONTEXT_PLACEHOLDER.test(normalized)) return true;
 
   return false;
@@ -71,6 +77,11 @@ export function sanitizeResumePlainText(text: string): string {
     .replace(/^\uFEFF/, '')
     .replace(/\r\n?/g, '\n')
     .trim();
+}
+
+/** True only for safe, normalized resume prose with enough content to be useful. */
+export function hasSubstantiveResumeText(text: string): boolean {
+  return sanitizeResumePlainText(text).length >= MIN_SUBSTANTIVE_RESUME_TEXT_CHARS;
 }
 
 export function getResumeExtractionWarning(text: string): string | null {

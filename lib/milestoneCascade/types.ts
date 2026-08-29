@@ -34,7 +34,13 @@ export type MilestoneCascadeStatus = (typeof MILESTONE_CASCADE_STATUSES)[number]
  * Plain text in the DB (not a Prisma enum) so adding values doesn't require
  * a migration.
  */
-export const MILESTONE_TYPES = ['course_completed'] as const;
+export const MILESTONE_TYPES = [
+  'training_started',
+  'first_course_completed',
+  'course_completed',
+  'program_halfway',
+  'program_completed',
+] as const;
 export type MilestoneType = (typeof MILESTONE_TYPES)[number];
 
 /** TTL for the awaiting_approval step. 72h matches the spec. */

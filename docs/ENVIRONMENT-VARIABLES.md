@@ -162,7 +162,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
 
-**Note:** Most agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience, but staff counselor mode intentionally does not. Keep the member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. The retired staff/caseload ID is ignored when supplied through the member-facing key so a stale deploy value cannot route members away from Lilley.
+**Note:** Most agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience, but staff counselor mode intentionally does not. Keep the member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. Retired or unavailable agent IDs are ignored when supplied through the member-facing key so a stale deploy value cannot route members away from Lilley.
 
 ---
 
@@ -274,10 +274,14 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `PLAYWRIGHT_SCREENSHOT` | 🛠️ 🔒 | Enable screenshots | `on` | `playwright.config.ts` |
 | `PLAYWRIGHT_TRACE` | 🛠️ 🔒 | Enable traces | `on` | `playwright.config.ts` |
 | `PLAYWRIGHT_VIDEO` | 🛠️ 🔒 | Enable video | `on` | `playwright.config.ts` |
-| `PORTAL_AUDIT_SECTION` | 🛠️ 🔒 | Filter portal audit section | `all` | `tests/e2e/cross-portal-routes.spec.ts` |
+| `PORTAL_AUDIT_MODE` | 🛠️ 🔒 | Trusted target and coverage policy | `local`, `isolated_preview`, or `production_canary` | Portal audit runner and cross-portal E2E |
+| `PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN` | 🛠️ 🔒 | Exact isolated preview origin; broad Vercel wildcards are forbidden | `https://exact-preview.example` | Portal audit runner and cross-portal E2E |
+| `PORTAL_AUDIT_SECTION` | 🛠️ 🔒 | Local-only portal section filter; trusted remote policies require `all` | `all` | Portal audit runner and cross-portal E2E |
+| `PORTAL_AUDIT_OUTPUT` | 🛠️ 🔒 | Current audit result path | `test-results/portal-audit-results.json` | Portal audit runner |
+| `PORTAL_AUDIT_ROUTE_CONCURRENCY` | 🛠️ 🔒 | Bounded page concurrency (1–12) | `8` | Portal audit runner |
 | `ARTIFACTS_DIR` | 🛠️ 🔒 | E2E artifact output dir | `./test-results/artifacts` | Visual regression tests |
-| `E2E_MEMBER_EMAIL` | 🛠️ 🔒 | E2E member email | `...` | Coursera E2E |
-| `E2E_MEMBER_PASSWORD` | 🛠️ 🔒 | E2E member password | `...` | Coursera E2E |
+| `E2E_<ROLE>_EMAIL` | 🛠️ 🔒 | Dedicated identity email for member/admin/employer/partner/counselor | `member-audit@...` | Five-role portal audit and E2E |
+| `E2E_<ROLE>_PASSWORD` | 🛠️ 🔒 | Password paired only with that role identity | `...` | Five-role portal audit and E2E |
 | `E2E_ISSUE_XAPI_TOKEN` | 🛠️ 🔒 | xAPI token for E2E issue testing | `...` | Coursera E2E |
 | `SEED_TEST_ACCOUNTS` | 🛠️ 🔒 | Seed QA test accounts in DB | `true` | `prisma/seed.ts` |
 | `SEED_DEMO` | 🛠️ 🔒 | Seed demo data | `true` | `prisma/seed-demo.ts` |

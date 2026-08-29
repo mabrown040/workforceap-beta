@@ -15,6 +15,7 @@ export default function PartnerPortalShell({
   superAdmin,
   superAdminImpersonating,
   portalRoles,
+  readOnlyAudit = false,
   children,
 }: {
   partnerName: string;
@@ -25,6 +26,7 @@ export default function PartnerPortalShell({
   superAdmin?: boolean;
   superAdminImpersonating?: boolean;
   portalRoles?: PortalSwitcherRole[];
+  readOnlyAudit?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -41,6 +43,7 @@ export default function PartnerPortalShell({
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
       portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
       superAdminBackHref={superAdmin ? '/partner' : undefined}
       superAdminBackLabel="Switch partner"
       footer={<DashboardFooter />}

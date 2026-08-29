@@ -61,12 +61,14 @@ export default async function DashboardResourcesPage() {
   const categoryLabel = CATEGORY_LABELS[category] ?? category;
 
   let suggestedAiTools: Array<{ label: string; href: string }> = [];
+  let suggestedToolsLoadFailed = false;
   try {
     const briefContext = await getCareerBriefContext(user.id);
     suggestedAiTools = briefContext.recommendedActions
       .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
       .slice(0, 4);
   } catch {
+    suggestedToolsLoadFailed = true;
     suggestedAiTools = [
       { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-studio?view=rewrite' },
       { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach' },
@@ -78,6 +80,7 @@ export default async function DashboardResourcesPage() {
 
   return (
     <DesignSurface surface="warm">
+      {suggestedToolsLoadFailed ? <span hidden data-portal-error-state="member-resources-personalization-load" /> : null}
       <div style={{ maxWidth: 'var(--max-width, 60rem)', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
         <div style={{ marginTop: '1rem', marginBottom: '2rem' }}>
           <PageHeader

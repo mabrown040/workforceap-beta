@@ -97,7 +97,7 @@ Speak naturally about your training, job search, or next step.
 
 ## Technical Context
 
-- ElevenLabs agent: `Lilley - WorkforceAP Student Career Coach` (`agent_1101kqfjfm8retm8j6md467wzxdb`)
+- ElevenLabs agent: `Lilley - WorkforceAP Student Career Coach` (`agent_2001kv8wn1zhepm9x4tjfdzwm6v8`)
 - Uses `@elevenlabs/client` SDK → `Conversation.startSession({ signedUrl, dynamicVariables })`
 - API route: POST `/api/counselor/session` → returns `{ signedUrl, dynamicVariables }`
 - Post-session feedback: POST `/api/counselor/feedback` → generates `{ steps: string[] }`, saves AI history/coach memory, and may email configured WorkforceAP recipients

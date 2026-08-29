@@ -116,7 +116,11 @@ export default async function CounselorWorkQueuePage() {
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
         <DesignSurface surface="dense">
           {error ? (
-            <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+            <div
+              className="wa-kit-card"
+              data-portal-error-state="counselor-work-queue-load-failed"
+              style={{ textAlign: 'center' }}
+            >
               <AlertTriangle size={28} aria-hidden style={{ color: 'var(--wa-accent)', display: 'block', margin: '0 auto 1rem' }} />
               <h3 style={{ fontWeight: 700, fontSize: 18, marginBottom: 8, color: 'var(--wa-text)' }}>
                 {t('workQueueLoadError')}

@@ -3,37 +3,50 @@ name: Authenticated Portal Smoke
 on:
   workflow_dispatch:
     inputs:
-      base_url:
-        description: "Target URL (preview or production)"
+      audit_target:
+        description: "Trusted target and coverage policy"
         required: true
-        type: string
-      portal_audit_section:
-        description: "Optional section filter"
-        required: false
-        default: all
+        default: isolated_preview
         type: choice
         options:
-          - all
-          - member
-          - admin
-          - employer
-          - partner
-          - counselor
+          - isolated_preview
+          - production_canary
+
+permissions:
+  contents: read
+
+concurrency:
+  group: authenticated-portal-smoke-${{ inputs.audit_target }}
+  cancel-in-progress: false
 
 jobs:
   smoke:
-    name: Run authenticated portal smoke
+    name: Run trusted authenticated portal audit
+    # Secrets are only exposed to the canonical repository's trusted master workflow.
+    # Dispatching a feature-branch copy results in a skipped job.
+    if: github.repository == 'mabrown040/workforceap-beta' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
-      PORTAL_AUDIT_SECTION: ${{ inputs.portal_audit_section }}
-      E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
-      E2E_MEMBER_PASSWORD: ${{ secrets.E2E_MEMBER_PASSWORD }}
+      PORTAL_AUDIT_MODE: ${{ inputs.audit_target }}
+      PORTAL_AUDIT_SECTION: all
+      PORTAL_AUDIT_OUTPUT: test-results/portal-audit-results.json
 
     steps:
-      - name: Checkout
+      - name: Checkout trusted master
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify trusted checkout
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          remote="$(git remote get-url origin)"
+          test "$remote" = "https://github.com/mabrown040/workforceap-beta" || \
+            test "$remote" = "https://github.com/mabrown040/workforceap-beta.git"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -50,13 +63,56 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Run authenticated portal audit
-        run: pnpm audit:portal
+      - name: Verify deployed target matches trusted SHA
+        shell: bash
+        env:
+          PREVIEW_SITE_URL: ${{ inputs.audit_target == 'isolated_preview' && secrets.PREVIEW_SITE_URL || '' }}
+        run: |
+          if [ "$PORTAL_AUDIT_MODE" = "production_canary" ]; then
+            base_url="https://workforceap.org"
+          else
+            base_url="$PREVIEW_SITE_URL"
+          fi
+          case "$base_url" in https://*) ;; *) echo "Audit target must use HTTPS" >&2; exit 1 ;; esac
+          curl --fail --silent --show-error "$base_url/api/health" > health.json
+          node -e 'const fs=require("node:fs"); const h=JSON.parse(fs.readFileSync("health.json","utf8")); const sha=process.env.GITHUB_SHA; if(typeof h.version!=="string" || !sha.startsWith(h.version)){console.error("Target version does not match trusted checkout"); process.exit(1)}'
 
-      - name: Upload audit artifact
+      - name: Run full five-role isolated preview audit
+        if: inputs.audit_target == 'isolated_preview'
+        run: pnpm audit:portal
+        env:
+          PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN: ${{ secrets.PREVIEW_SITE_URL }}
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PREVIEW_SITE_URL }}
+          E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
+          E2E_MEMBER_PASSWORD: ${{ secrets.E2E_MEMBER_PASSWORD }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          E2E_EMPLOYER_EMAIL: ${{ secrets.E2E_EMPLOYER_EMAIL }}
+          E2E_EMPLOYER_PASSWORD: ${{ secrets.E2E_EMPLOYER_PASSWORD }}
+          E2E_PARTNER_EMAIL: ${{ secrets.E2E_PARTNER_EMAIL }}
+          E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
+          E2E_COUNSELOR_EMAIL: ${{ secrets.E2E_COUNSELOR_EMAIL }}
+          E2E_COUNSELOR_PASSWORD: ${{ secrets.E2E_COUNSELOR_PASSWORD }}
+          PORTAL_AUDIT_READ_ONLY_TOKEN: ${{ secrets.PORTAL_AUDIT_READ_ONLY_TOKEN }}
+
+      - name: Run non-staff production canary
+        if: inputs.audit_target == 'production_canary'
+        run: pnpm audit:portal
+        env:
+          PLAYWRIGHT_BASE_URL: https://workforceap.org
+          E2E_MEMBER_EMAIL: ${{ secrets.E2E_MEMBER_EMAIL }}
+          E2E_MEMBER_PASSWORD: ${{ secrets.E2E_MEMBER_PASSWORD }}
+          E2E_EMPLOYER_EMAIL: ${{ secrets.E2E_EMPLOYER_EMAIL }}
+          E2E_EMPLOYER_PASSWORD: ${{ secrets.E2E_EMPLOYER_PASSWORD }}
+          E2E_PARTNER_EMAIL: ${{ secrets.E2E_PARTNER_EMAIL }}
+          E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
+          PORTAL_AUDIT_READ_ONLY_TOKEN: ${{ secrets.PORTAL_AUDIT_READ_ONLY_TOKEN }}
+
+      - name: Upload current audit artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: portal-audit-results
-          path: docs/portal-audit-results.json
-          if-no-files-found: warn
+          name: portal-audit-results-${{ inputs.audit_target }}-${{ github.run_id }}
+          path: test-results/portal-audit-results.json
+          if-no-files-found: error
+          retention-days: 14

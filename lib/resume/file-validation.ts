@@ -9,6 +9,10 @@ export const ALLOWED_MIME_TYPES = new Set([
 
 export const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt']);
 
+const MAX_DOCX_ENTRIES = 8192;
+const MAX_DOCX_UNCOMPRESSED_BYTES = 25 * 1024 * 1024;
+const MAX_DOCX_COMPRESSION_RATIO = 100;
+
 // Magic bytes for allowed file types
 export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
   { ext: 'pdf', bytes: [0x25, 0x50, 0x44, 0x46] }, // %PDF
@@ -118,20 +122,31 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
     const cdEnd = cdOffset + cdSize;
     const CENTRAL_DIR_SIGNATURE = 0x02014b50;
     const HEADER_FIXED_LEN = 46;
-    // Cap entries we scan to avoid pathological inputs
-    const maxEntries = Math.min(totalEntries, 8192);
+    if (totalEntries === 0 || totalEntries > MAX_DOCX_ENTRIES) return false;
 
-    for (let i = 0; i < maxEntries; i++) {
-      if (cursor + HEADER_FIXED_LEN > cdEnd) break;
+    let totalCompressedBytes = 0;
+    let totalUncompressedBytes = 0;
+
+    for (let i = 0; i < totalEntries; i++) {
+      if (cursor + HEADER_FIXED_LEN > cdEnd) return false;
       const sig = view.getUint32(cursor, true);
-      if (sig !== CENTRAL_DIR_SIGNATURE) break;
+      if (sig !== CENTRAL_DIR_SIGNATURE) return false;
 
       const nameLen = view.getUint16(cursor + 28, true);
       const extraLen = view.getUint16(cursor + 30, true);
       const commentLen = view.getUint16(cursor + 32, true);
+      const compressedSize = view.getUint32(cursor + 20, true);
+      const uncompressedSize = view.getUint32(cursor + 24, true);
+      totalCompressedBytes += compressedSize;
+      totalUncompressedBytes += uncompressedSize;
+      if (totalUncompressedBytes > MAX_DOCX_UNCOMPRESSED_BYTES) return false;
+      if (uncompressedSize > 0 && compressedSize === 0) return false;
+      if (totalUncompressedBytes / Math.max(totalCompressedBytes, 1) > MAX_DOCX_COMPRESSION_RATIO) {
+        return false;
+      }
       const nameStart = cursor + HEADER_FIXED_LEN;
       const nameEnd = nameStart + nameLen;
-      if (nameEnd > cdEnd) break;
+      if (nameEnd > cdEnd) return false;
 
       const nameBytes = new Uint8Array(arr.buffer, arr.byteOffset + nameStart, nameLen);
       let name = '';
@@ -143,10 +158,10 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
 
       if (REQUIRED_ENTRIES.includes(name)) {
         found.add(name);
-        if (found.size === REQUIRED_ENTRIES.length) return true;
       }
 
       cursor = nameEnd + extraLen + commentLen;
+      if (cursor > cdEnd) return false;
     }
 
     return REQUIRED_ENTRIES.every((e) => found.has(e));

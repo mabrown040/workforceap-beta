@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/cache', () => ({
-  getCacheOrFetch: async (_key: string, fetcher: () => Promise<unknown>) => fetcher(),
+  getCacheOrFetch: vi.fn(async (_key: string, fetcher: () => Promise<unknown>) => fetcher()),
   invalidateCache: vi.fn(),
 }));
 
@@ -26,6 +26,9 @@ vi.mock('@/lib/member/memberProgramTrainingView', () => ({
     hasCompletedFirstCourse: true,
     allCoursesComplete: false,
     nextIncompleteCourseName: 'Interview prep',
+    completedSlugsAuthoritative: ['course-1'],
+    validatedCourseSlugs: ['course-1', 'course-2'],
+    totalCourses: 2,
   }),
 }));
 
@@ -50,6 +53,8 @@ vi.mock('@/lib/db/prisma', () => ({
 }));
 
 import { getMemberState } from './getMemberState';
+import { getCacheOrFetch } from '@/lib/cache';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
 const userRecord = {
   id: 'member-1',
@@ -100,6 +105,14 @@ describe('getMemberState', () => {
       where: { userId: 'member-1', eventName: 'career_os.interview_practice_completed' },
       select: { id: true },
     });
+  });
+
+  it('bypasses shared cache and resume storage during a read-only audit', async () => {
+    const state = await getMemberState('member-1', { readOnlyAudit: true });
+
+    expect(state.userId).toBe('member-1');
+    expect(getCacheOrFetch).not.toHaveBeenCalled();
+    expect(getMemberResumePlainText).not.toHaveBeenCalled();
   });
 
   it('returns hasCompletedInterviewPractice=true when the completion event exists', async () => {

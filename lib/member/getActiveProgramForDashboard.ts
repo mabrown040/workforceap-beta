@@ -3,6 +3,7 @@ import 'server-only';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { resolveStaffTrainingPreviewProgramSlug } from '@/lib/member/staffTrainingProgramFallback';
 import {
   resolveActiveDashboardProgram,
@@ -56,6 +57,8 @@ export type ActiveProgramForDashboard = {
    *  enrollment slug. Surfacing this lets the dashboard log the drift; we
    *  do NOT auto-reconcile (admin call). */
   legacyEnrolledProgramMismatch: boolean;
+  /** Coursera progress exists, but staff has not assigned a WAP program. */
+  noProgram: boolean;
 };
 
 export async function getActiveProgramForDashboard(args: {
@@ -77,6 +80,11 @@ export async function getActiveProgramForDashboard(args: {
         },
         orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
       },
+      courseProgress: {
+        take: 1,
+        orderBy: [{ lastActivityAt: 'desc' }, { lastUpdatedAt: 'desc' }],
+        select: { programSlug: true },
+      },
     },
   });
 
@@ -92,12 +100,25 @@ export async function getActiveProgramForDashboard(args: {
 
   let activeProgramSlug = resolvedActive;
   let primaryProgramSlug = resolvedPrimary;
+  let noProgram = false;
+
+  if (!activeProgramSlug) {
+    const progressOnlySlug = dbUser?.courseProgress?.[0]?.programSlug;
+    if (progressOnlySlug) {
+      const canonical = canonicalizeProgramSlug(progressOnlySlug);
+      if (getProgramBySlug(canonical)) {
+        activeProgramSlug = canonical;
+        noProgram = true;
+      }
+    }
+  }
 
   if (!activeProgramSlug && (await canBypassMemberAssessment(args.userId))) {
     const preview = await resolveStaffTrainingPreviewProgramSlug(args.userId);
     if (preview) {
       activeProgramSlug = preview;
       primaryProgramSlug = preview;
+      noProgram = false;
     }
   }
 
@@ -111,5 +132,6 @@ export async function getActiveProgramForDashboard(args: {
     allEnrollments: enrollments,
     programTitle,
     legacyEnrolledProgramMismatch,
+    noProgram,
   };
 }

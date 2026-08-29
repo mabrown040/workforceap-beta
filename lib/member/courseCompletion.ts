@@ -1,20 +1,34 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
-import { markCourseProgressCompleted } from '@/lib/member/courseProgress';
+import {
+  claimLiveCourseCompletionEvent,
+  markCourseProgressCompleted,
+  resolveCanonicalProgramCourseFromCourseraId,
+} from '@/lib/member/courseProgress';
 import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { createNotification } from '@/lib/notifications/create';
 import { sendCourseCompletedEmail } from '@/lib/email';
-import { trackEvent } from '@/lib/events/track';
 import { handleLearningCompletion, handleProgramCompletion } from '@/lib/workflows/careerOS';
 import { awardPoints } from '@/lib/member/points';
-import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
-import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { detectTrainingMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
+import {
+  courseCompletionMilestoneRef,
+  detectMilestoneTransitions,
+} from '@/lib/coursera/milestones';
+import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 
 export async function completeMemberCourse(args: {
   userId: string;
+  /**
+   * Program already resolved by a trusted inbound pipeline. When omitted,
+   * preserve the member/self-report behavior by falling back to the legacy
+   * User.enrolledProgram mirror.
+   */
+  resolvedProgramSlug?: string | null;
   courseSlug?: string;
   courseName?: string;
   /** Coursera's canonical courseId from xAPI context.extensions, when known.
@@ -25,96 +39,168 @@ export async function completeMemberCourse(args: {
   source: 'member' | 'coursera-webhook' | 'coursera-enterprise-sync';
   /**
    * When false, skip milestone emails and career workflows (bulk Coursera API reconciliation).
-   * Still writes courses_completed, CourseProgress, and analytics.
+   * Still writes CourseProgress; enterprise sync does not consume the first
+   * later live course-completion event.
    */
   notify?: boolean;
 }) {
   const dbUser = await prisma.user.findUnique({
     where: { id: args.userId },
-    select: { enrolledProgram: true, email: true, fullName: true },
-  });
-
-  if (!dbUser?.enrolledProgram) {
-    throw new Error('No program enrolled');
-  }
-
-  const program = getProgramBySlug(dbUser.enrolledProgram);
-  if (!program) {
-    throw new Error('Invalid program');
-  }
-
-  // Resolution order: admin-curated `coursera_canonical_course_mappings` row
-  // (DB) → static DISCOVERED_COURSERA_PROGRAMS catalog → WAP slug match →
-  // discovered fuzzy fallback. See `resolveProgramCourseWithCatalogFallback`.
-  const matchedCourse = await resolveProgramCourseWithCatalogFallback(program, {
-    courseraCourseId: args.courseraCourseId ?? null,
-    enrolledProgramSlug: dbUser.enrolledProgram,
-    courseSlug: args.courseSlug,
-    courseName: args.courseName,
-  });
-
-  if (!matchedCourse) {
-    throw new Error('Course not found in member program');
-  }
-
-  const existingCompletion = await prisma.courseProgress.findUnique({
-    where: {
-      userId_programSlug_courseSlug: {
-        userId: args.userId,
-        programSlug: dbUser.enrolledProgram,
-        courseSlug: matchedCourse.slug,
-      },
+    select: {
+      enrolledProgram: true,
+      email: true,
+      fullName: true,
+      organizationId: true,
     },
-    select: { status: true },
   });
 
-  if (existingCompletion?.status === 'COMPLETED') {
-    const discovered = getDiscoveredProgram(dbUser.enrolledProgram);
-    const discoveredMeta = discovered?.courses.find((c) => c.slug === matchedCourse.slug);
-    await markCourseProgressCompleted({
-      userId: args.userId,
-      programSlug: dbUser.enrolledProgram,
-      courseSlug: matchedCourse.slug,
-      courseId: discoveredMeta?.courseId ?? null,
-    }).catch(() => {});
+  if (!dbUser) throw new Error('Member not found');
+
+  // `undefined` means the member/self-report caller wants the legacy DB
+  // enrollment fallback. `null` is an explicit trusted signal from xAPI that
+  // there is no current enrollment; never revive stale legacy state in that
+  // case.
+  const resolvedEnrollment = args.resolvedProgramSlug === undefined
+    ? dbUser.enrolledProgram
+    : args.resolvedProgramSlug;
+  const enrollmentProgramSlug = resolvedEnrollment
+    ? canonicalizeProgramSlug(resolvedEnrollment)
+    : null;
+
+  let programSlug: string;
+  let matchedCourse: { slug: string; name: string };
+  let courseId: string | null;
+  if (enrollmentProgramSlug) {
+    const enrolledProgram = getProgramBySlug(enrollmentProgramSlug);
+    if (!enrolledProgram) throw new Error('Invalid program');
+    const enrollmentMatch = await resolveProgramCourseWithCatalogFallback(enrolledProgram, {
+      courseraCourseId: args.courseraCourseId ?? null,
+      enrolledProgramSlug: enrollmentProgramSlug,
+      courseSlug: args.courseSlug,
+      courseName: args.courseName,
+    });
+    if (!enrollmentMatch) throw new Error('Course not found');
+    programSlug = enrollmentProgramSlug;
+    matchedCourse = enrollmentMatch;
+    courseId = args.courseraCourseId
+      ?? getDiscoveredProgram(programSlug)?.courses.find(
+        (course) => course.slug === matchedCourse.slug,
+      )?.courseId
+      ?? null;
+  } else {
+    // A linked learner without an enrollment may still persist exact mapped
+    // Coursera progress. Unknown content remains a true error; never invent a
+    // program/course slug from provider display text.
+    const canonicalCourse = await resolveCanonicalProgramCourseFromCourseraId(
+      args.courseraCourseId,
+    );
+    if (!canonicalCourse) throw new Error('Course not found');
+    programSlug = canonicalCourse.programSlug;
+    matchedCourse = {
+      slug: canonicalCourse.courseSlug,
+      name: canonicalCourse.courseName,
+    };
+    courseId = canonicalCourse.courseraCourseId;
+  }
+
+  const persistedWithoutProgram = enrollmentProgramSlug === null;
+  const program = getProgramBySlug(programSlug);
+  const validatedCourses = program
+    ? (await loadValidatedProgramCourses({
+        organizationId: dbUser.organizationId,
+        programSlug,
+        checkB4BContents: false,
+      })).courses
+    : [];
+  const validatedSlugs = validatedCourses.map((course) => course.slug);
+  const shouldNotify = !persistedWithoutProgram
+    && (args.notify ?? args.source !== 'coursera-enterprise-sync');
+
+  const completionWrite = await markCourseProgressCompleted({
+    userId: args.userId,
+    programSlug,
+    courseSlug: matchedCourse.slug,
+    courseId,
+  });
+
+  const rowsAtObservation = completionWrite.previousRows;
+  const nextCompletedSlugs = Array.from(
+    new Set([
+      ...rowsAtObservation
+        .filter((row) => row.status === 'COMPLETED')
+        .map((row) => row.courseSlug),
+      matchedCourse.slug,
+    ]),
+  );
+  const completedCount = nextCompletedSlugs.filter((slug) =>
+    validatedSlugs.includes(slug),
+  ).length;
+
+  // Enterprise sync writes the durable completion fact but deliberately does
+  // not consume the live-observation event. A later xAPI/webhook delivery can
+  // therefore claim and emit the member-facing side effects once.
+  if (args.source === 'coursera-enterprise-sync') {
     return {
       ok: true,
-      alreadyCompleted: true,
+      alreadyCompleted: !completionWrite.newlyCompleted,
+      ...(persistedWithoutProgram ? { persistedWithoutProgram: true as const } : {}),
       courseSlug: matchedCourse.slug,
       courseName: matchedCourse.name,
-      programSlug: dbUser.enrolledProgram,
-      completedCount: await prisma.courseProgress.count({
-        where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
-      }),
+      programSlug,
+      completedCount,
     };
   }
 
-  const shouldNotify = args.notify ?? args.source !== 'coursera-enterprise-sync';
-
-  const discovered = getDiscoveredProgram(dbUser.enrolledProgram);
-  const discoveredMeta = discovered?.courses.find((c) => c.slug === matchedCourse.slug);
-  await markCourseProgressCompleted({
+  // Claim the MemberEvent before any external side effect. This distinguishes
+  // a historical enterprise completion from a completion already observed
+  // live, and serializes concurrent live deliveries on the same exact
+  // canonical program/course.
+  const claimedLiveObservation = await claimLiveCourseCompletionEvent({
     userId: args.userId,
-    programSlug: dbUser.enrolledProgram,
+    programSlug,
     courseSlug: matchedCourse.slug,
-    courseId: discoveredMeta?.courseId ?? null,
-  }).catch(() => {});
-
-  trackEvent({
-    userId: args.userId,
-    eventName: 'course_completed',
-    entityType: 'Course',
-    entityId: matchedCourse.slug,
-    metadata: {
+    courseName: matchedCourse.name,
+    completedCount,
+    source: args.source,
+  });
+  if (!claimedLiveObservation) {
+    return {
+      ok: true,
+      alreadyCompleted: !completionWrite.newlyCompleted,
+      ...(persistedWithoutProgram ? { persistedWithoutProgram: true as const } : {}),
+      courseSlug: matchedCourse.slug,
       courseName: matchedCourse.name,
-      programSlug: dbUser.enrolledProgram,
-      completedCount: await prisma.courseProgress.count({
-        where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
-      }),
-      source: args.source,
-    },
-  }).catch(() => {});
+      programSlug,
+      completedCount,
+    };
+  }
 
+  // If enterprise sync completed the row first, remove only the currently
+  // observed course from the previous state so the first live observation can
+  // produce its per-course transition without replaying unrelated courses.
+  const rowsBeforeCompletion = completionWrite.newlyCompleted
+    ? rowsAtObservation
+    : rowsAtObservation.filter((row) => row.courseSlug !== matchedCourse.slug);
+  const startedBeforeCompletion = rowsBeforeCompletion.some(
+    (row) =>
+      row.status !== 'NOT_STARTED' ||
+      row.percentComplete > 0 ||
+      row.lastActivityAt != null,
+  );
+  const milestoneTransitions = detectMilestoneTransitions({
+    previous: {
+      completedSlugs: rowsBeforeCompletion
+        .filter((row) => row.status === 'COMPLETED')
+        .map((row) => row.courseSlug),
+      started: startedBeforeCompletion,
+    },
+    next: {
+      completedSlugs: nextCompletedSlugs,
+      started: true,
+      validatedSlugs,
+    },
+    courseSlugJustCompleted: matchedCourse.slug,
+  });
   if (shouldNotify) {
     sendPartnerMilestoneEmail(args.userId, 'Course completed', {
       Course: matchedCourse.name,
@@ -131,7 +217,7 @@ export async function completeMemberCourse(args: {
       type: 'course_complete',
       title: 'Course completed!',
       body: `You completed ${matchedCourse.name}. Great work!`,
-      data: { courseSlug: matchedCourse.slug, courseName: matchedCourse.name },
+      data: { courseSlug: matchedCourse.slug, courseName: matchedCourse.name, programSlug },
     });
 
     const counselors = await prisma.counselorAssignment.findMany({
@@ -145,7 +231,12 @@ export async function completeMemberCourse(args: {
           type: 'course_complete',
           title: `${dbUser.fullName ?? 'Member'} completed a course`,
           body: `${dbUser.fullName ?? 'A member'} completed ${matchedCourse.name}.`,
-          data: { memberId: args.userId, courseSlug: matchedCourse.slug, courseName: matchedCourse.name },
+          data: {
+            memberId: args.userId,
+            courseSlug: matchedCourse.slug,
+            courseName: matchedCourse.name,
+            programSlug,
+          },
         });
       }
     }
@@ -154,50 +245,44 @@ export async function completeMemberCourse(args: {
       console.error('[career-os] learning completion workflow failed:', error)
     );
 
-    // Program-completion check — the graduation moment, distinct from the
-    // per-course nudge above. Fires at most once per (member, program); see
-    // handleProgramCompletion for the idempotency guard. Only covers
-    // completions that flow through THIS function (member self-report,
-    // coursera-webhook, coursera-enterprise-sync) — the separate B4B
-    // org-wide sync cron (lib/coursera/b4bSync.ts) writes CourseProgress
-    // directly and does not call completeMemberCourse, so a completion
-    // detected only by that batch job won't trigger this yet.
-    const completedSlugs = await prisma.courseProgress.findMany({
-      where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
-      select: { courseSlug: true },
-    });
-    if (memberProgramCompleted(dbUser.enrolledProgram, completedSlugs.map((c) => c.courseSlug))) {
-      handleProgramCompletion(args.userId, dbUser.enrolledProgram, program.title).catch((error) =>
+    if (program && milestoneTransitions.includes('program_completed')) {
+      handleProgramCompletion(args.userId, programSlug, program.title).catch((error) =>
         console.error('[career-os] program completion workflow failed:', error)
       );
     }
 
-    // Milestone cascade detection: insert a row in milestone_cascades for the
-    // counselor-review pipeline. Idempotent and self-contained — never throws,
-    // never blocks the completion flow. The LLM drafting + approval UI live
-    // in follow-up PRs; this call seeds the queue.
-    detectCompletionMilestone({
-      userId: args.userId,
-      courseSlug: matchedCourse.slug,
-      courseName: matchedCourse.name,
-      programSlug: dbUser.enrolledProgram,
-      completedCount: await prisma.courseProgress.count({
-        where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
-      }),
-      source: args.source,
-    }).catch((error) => console.error('[milestone-cascade] detect failed:', error));
+    for (const milestoneType of milestoneTransitions) {
+      const detection = await detectTrainingMilestone({
+        userId: args.userId,
+        milestoneType,
+        milestoneRef:
+          milestoneType === 'course_completed'
+            ? courseCompletionMilestoneRef(programSlug, matchedCourse.slug)
+            : programSlug,
+        courseSlug: matchedCourse.slug,
+        courseName: matchedCourse.name,
+        programSlug,
+        completedCount,
+        totalCourses: validatedSlugs.length,
+        source: args.source,
+      });
+      if (detection && !detection.ok) {
+        console.error('[milestone-cascade] detect failed:', detection.reason);
+      }
+    }
   }
 
-  awardPoints(args.userId, 'course_completed', matchedCourse.slug).catch(() => {});
+  if (shouldNotify) {
+    awardPoints(args.userId, 'course_completed', matchedCourse.slug).catch(() => {});
+  }
 
   return {
     ok: true,
-    alreadyCompleted: false,
+    alreadyCompleted: !completionWrite.newlyCompleted,
+    ...(persistedWithoutProgram ? { persistedWithoutProgram: true as const } : {}),
     courseSlug: matchedCourse.slug,
     courseName: matchedCourse.name,
-    programSlug: dbUser.enrolledProgram,
-    completedCount: await prisma.courseProgress.count({
-      where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
-    }),
+    programSlug,
+    completedCount,
   };
 }

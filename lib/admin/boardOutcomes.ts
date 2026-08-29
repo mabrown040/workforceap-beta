@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { prisma } from '@/lib/db/prisma';
 import { REPORT_SAMPLE_CAP, sqlCount } from '@/lib/db/scanCaps';
 import { summarizeRetentionGroups } from '@/lib/analytics/retentionOutcome';
+import { validatedProgramCompletionValuesSql } from '@/lib/reporting/programCompletion';
 
 /**
  * Aggregations for the Board / Funder outcomes portal.
@@ -213,16 +214,37 @@ export async function getBoardOutcomes(
     prisma.user.count({ where: enrolledWhere }),
     prisma.placementRecord.count({ where: placementWhere }),
     prisma.$queryRaw<Array<{ certified: bigint | number; in_training: bigint | number }>>`
+      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+        VALUES ${validatedProgramCompletionValuesSql()}
+      ), learner_training_status AS (
+        SELECT
+          u.id,
+          BOOL_OR(
+            progress_program.storage_value IS NOT NULL
+            AND mpp.courses_completed = progress_program.total_courses
+          ) AS certified,
+          BOOL_OR(
+            progress_program.storage_value IS NOT NULL
+            AND (mpp.courses_completed > 0 OR mpp.average_percent > 0)
+          ) AS started
+        FROM users u
+        INNER JOIN validated_programs enrolled_program
+          ON enrolled_program.storage_value = u.enrolled_program
+        LEFT JOIN member_program_progress mpp
+          ON mpp.user_id = u.id
+        LEFT JOIN validated_programs progress_program
+          ON progress_program.canonical_slug = enrolled_program.canonical_slug
+          AND progress_program.storage_value = mpp.program_slug
+        WHERE u.deleted_at IS NULL
+          AND u.enrolled_program IS NOT NULL
+          ${orgSql}
+          ${enrolledAtSql}
+        GROUP BY u.id
+      )
       SELECT
-        COUNT(*) FILTER (WHERE mpp.average_percent >= 100)::bigint AS certified,
-        COUNT(*) FILTER (WHERE mpp.average_percent > 0 AND mpp.average_percent < 100)::bigint AS in_training
-      FROM users u
-      LEFT JOIN member_program_progress mpp
-        ON mpp.user_id = u.id AND mpp.program_slug = u.enrolled_program
-      WHERE u.deleted_at IS NULL
-        AND u.enrolled_program IS NOT NULL
-        ${orgSql}
-        ${enrolledAtSql}
+        COUNT(*) FILTER (WHERE certified)::bigint AS certified,
+        COUNT(*) FILTER (WHERE started AND NOT certified)::bigint AS in_training
+      FROM learner_training_status
     `,
     prisma.placementRecord.aggregate({
       where: { ...placementWhere, salaryOffered: { gt: 0 } },
@@ -256,11 +278,28 @@ export async function getBoardOutcomes(
       where: { ...enrolledWhere, courseEnrollments: { none: {} } },
       _count: { _all: true },
     }),
-    prisma.memberProgramProgress.groupBy({
-      by: ['programSlug'],
-      where: { averagePercent: { gte: 100 }, user: enrolledWhere },
-      _count: { _all: true },
-    }),
+    prisma.$queryRaw<Array<{ program_slug: string; count: bigint | number }>>`
+      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+        VALUES ${validatedProgramCompletionValuesSql()}
+      )
+      SELECT
+        enrolled_program.canonical_slug AS program_slug,
+        COUNT(DISTINCT u.id)::bigint AS count
+      FROM users u
+      INNER JOIN validated_programs enrolled_program
+        ON enrolled_program.storage_value = u.enrolled_program
+      INNER JOIN member_program_progress mpp
+        ON mpp.user_id = u.id
+      INNER JOIN validated_programs progress_program
+        ON progress_program.canonical_slug = enrolled_program.canonical_slug
+        AND progress_program.storage_value = mpp.program_slug
+      WHERE u.deleted_at IS NULL
+        AND u.enrolled_program IS NOT NULL
+        AND mpp.courses_completed = progress_program.total_courses
+        ${orgSql}
+        ${enrolledAtSql}
+      GROUP BY enrolled_program.canonical_slug
+    `,
     prisma.placementRecord.groupBy({
       by: ['programSlug'],
       where: { ...placementWhere, programSlug: { not: null } },
@@ -341,7 +380,7 @@ export async function getBoardOutcomes(
   };
   for (const row of enrollmentByCourse) bump(row.programSlug, 'enrolled', row._count._all);
   for (const row of enrollmentLegacy) bump(row.enrolledProgram, 'enrolled', row._count._all);
-  for (const row of certifiedByProgram) bump(row.programSlug, 'certified', row._count._all);
+  for (const row of certifiedByProgram) bump(row.program_slug, 'certified', sqlCount(row.count));
   for (const row of placedByProgramSlug) bump(row.programSlug, 'placed', row._count._all);
   for (const row of placedByLegacyProgram) bump(row.program_slug, 'placed', sqlCount(row.count));
 
@@ -779,14 +818,24 @@ export async function getBoardSnapshot(
       GROUP BY 1
     `,
     prisma.$queryRaw<Array<{ month: string; count: bigint | number }>>`
-      SELECT to_char(date_trunc('month', u.enrolled_at), 'YYYY-MM') AS month, COUNT(*)::bigint AS count
+      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+        VALUES ${validatedProgramCompletionValuesSql()}
+      )
+      SELECT
+        to_char(date_trunc('month', u.enrolled_at), 'YYYY-MM') AS month,
+        COUNT(DISTINCT u.id)::bigint AS count
       FROM users u
+      INNER JOIN validated_programs enrolled_program
+        ON enrolled_program.storage_value = u.enrolled_program
       INNER JOIN member_program_progress mpp
-        ON mpp.user_id = u.id AND mpp.program_slug = u.enrolled_program
+        ON mpp.user_id = u.id
+      INNER JOIN validated_programs progress_program
+        ON progress_program.canonical_slug = enrolled_program.canonical_slug
+        AND progress_program.storage_value = mpp.program_slug
       WHERE u.deleted_at IS NULL
         AND u.enrolled_program IS NOT NULL
         AND u.enrolled_at IS NOT NULL
-        AND mpp.average_percent >= 100
+        AND mpp.courses_completed = progress_program.total_courses
         ${orgUserSql}
       GROUP BY 1
     `,

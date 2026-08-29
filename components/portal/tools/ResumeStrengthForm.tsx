@@ -259,7 +259,7 @@ export default function ResumeStrengthForm({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.docx,.doc,.txt"
+              accept=".pdf,.docx,.txt"
               onChange={handleFileUpload}
               disabled={extracting || loading}
               className="wa-sr-only"
@@ -277,7 +277,7 @@ export default function ResumeStrengthForm({
               }}
             >
               <Upload size={16} aria-hidden="true" />
-              {extracting ? 'Extracting…' : 'Upload PDF or DOCX'}
+              {extracting ? 'Extracting…' : 'Upload PDF, DOCX, or TXT'}
             </button>
           </div>
         ) : null}

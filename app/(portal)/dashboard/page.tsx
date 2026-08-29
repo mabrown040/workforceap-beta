@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { redirect, unstable_rethrow } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -9,6 +10,7 @@ import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPerson
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import { ensureAppUserProvisioned } from '@/lib/member/ensureAppUser';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { canBypassMemberAssessment, getProfileRole, isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatPortalDate } from '@/lib/formatDate';
@@ -112,19 +114,24 @@ export default async function DashboardPage({
   // `getActiveProgramForDashboard` (slug must be one of the user's
   // enrollments).
   const params = await searchParams;
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
   const requestedProgramSlug =
     typeof params?.program === 'string' ? params.program.trim() : null;
   const requestedTab = typeof params?.tab === 'string' ? params.tab.trim() : null;
 
   try {
-    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab, requestedUi: params?.ui ?? null });
+    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab, requestedUi: params?.ui ?? null, readOnlyAudit });
   } catch (err) {
     // redirect()/notFound() work by throwing — rethrow them so they keep
     // navigating instead of being logged and rendered as the error fallback.
     unstable_rethrow(err);
     console.error('[dashboard] unhandled render error', err);
     return (
-      <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
+      <div
+        className="portal-error-fallback"
+        data-portal-error-state="member-dashboard-render"
+        style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}
+      >
         <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>{t('errorTitle')}</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
           {t('errorBody')}
@@ -145,10 +152,11 @@ export default async function DashboardPage({
 async function renderMemberDashboard(
   user: NonNullable<Awaited<ReturnType<typeof getUser>>>,
   t: Awaited<ReturnType<typeof getTranslations>>,
-  args: { requestedProgramSlug: string | null; requestedTab?: string | null; requestedUi?: string | null } = {
+  args: { requestedProgramSlug: string | null; requestedTab?: string | null; requestedUi?: string | null; readOnlyAudit?: boolean } = {
     requestedProgramSlug: null,
     requestedTab: null,
     requestedUi: null,
+    readOnlyAudit: false,
   },
 ) {
 
@@ -159,7 +167,7 @@ async function renderMemberDashboard(
     const home = await loadMemberDashboardHome({
       userId: user.id,
       fallbackDisplayName: user.email,
-      provisionIfMissing: () => ensureAppUserProvisioned(user),
+      provisionIfMissing: () => ensureAppUserProvisioned(user, { readOnlyAudit: args.readOnlyAudit }),
     });
     return (
       <MemberHomeKit
@@ -167,6 +175,7 @@ async function renderMemberDashboard(
         coursePercent={home.coursePercent}
         programTitle={home.programTitle}
         programStatus={home.programStatus}
+        noProgram={home.noProgram}
         activeJobs={home.activeJobs}
         certs={home.certs}
         points={home.points}
@@ -247,8 +256,9 @@ async function renderMemberDashboard(
     ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgramSlug]?.courseraProgramId
     : undefined;
   const b4bProgressPromise: Promise<LearnerProgressByContent> = user.email
-    ? fetchLearnerProgressFromB4B(user.email, {
+      ? fetchLearnerProgressFromB4B(user.email, {
         programId: courseraProgramIdForEnrolled,
+        readOnlyAudit: args.readOnlyAudit,
       }).catch((err) => {
         console.warn('[dashboard] B4B learner progress unavailable:', err);
         return new Map() as LearnerProgressByContent;
@@ -276,6 +286,7 @@ async function renderMemberDashboard(
   const memberState = await getMemberState(user.id, {
     b4bProgress,
     activeProgramSlug: enrolledProgramSlug,
+    readOnlyAudit: args.readOnlyAudit,
   });
 
   // Lightweight query for presentation-layer metadata not in getMemberState
@@ -1117,6 +1128,7 @@ async function renderMemberDashboard(
         userId={user.id}
         showMemberOnboarding={showMemberOnboarding}
         showMemberTour={showMemberTour}
+        readOnlyAudit={Boolean(args.readOnlyAudit)}
         superAdmin={superAdmin}
         intakeExtra={intakeExtra}
         wizardProgramInterest={wizardProgramInterest}

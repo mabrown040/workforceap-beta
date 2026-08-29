@@ -1,15 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-async function computeAdminRouteMetricsPayload(orgId: string) {
-  const metrics = await getAdminMetrics(orgId);
+async function computeAdminRouteMetricsPayload(
+  orgId: string,
+  opts: { readOnlyAudit?: boolean } = {},
+) {
+  const metrics = await getAdminMetrics(orgId, opts);
 
   const assessmentCompleted = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count FROM users
@@ -230,7 +234,7 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       dashboardViews: weeklyDashboardViews,
     },
   };
-}export const GET = withApiGuc(async () => {
+}export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -239,11 +243,14 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
   
     try {
       const orgId = await getActorOrganizationId(user.id);
-      const body = await unstable_cache(
-        async () => computeAdminRouteMetricsPayload(orgId),
-        ['admin-api-metrics-v1', orgId],
-        { revalidate: 60 },
-      )();
+      const readOnlyAudit = isReadOnlyPortalAuditHeader(request.headers);
+      const body = readOnlyAudit
+        ? await computeAdminRouteMetricsPayload(orgId, { readOnlyAudit: true })
+        : await unstable_cache(
+            async () => computeAdminRouteMetricsPayload(orgId),
+            ['admin-api-metrics-v1', orgId],
+            { revalidate: 60 },
+          )();
       return NextResponse.json(body);
     } catch (e) {
       console.error('[admin/metrics]', e);

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
@@ -16,6 +17,8 @@ import {
   type ProgramCard,
 } from '@/components/portal/kit/pages/admin-subviews/ProgramsCatalogKit';
 import { DesignSurface } from '@/components/portal/kit';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -42,6 +45,7 @@ export default async function AdminProgramsPage({
 
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -70,15 +74,11 @@ export default async function AdminProgramsPage({
     })
     .catch((reason: unknown) => {
       console.error('[admin/programs] enrollment load failed', reason);
-      return [] as Array<{
-        programSlug: string;
-        user: {
-          id: string;
-          assessmentScorePct: number | null;
-          memberProgramProgress: Array<{ programSlug: string; coursesCompleted: number }>;
-        };
-      }>;
+      return null;
     }));
+  if (!enrollmentResult) {
+    return <AdminDataLoadError title="Could not load program enrollment data" />;
+  }
 
   const byProgram = new Map<string, { count: number; scores: number[]; completed: number }>();
   const seenLearners = new Set<string>();
@@ -251,7 +251,17 @@ export default async function AdminProgramsPage({
             Export for TX state approval (CSV)
           </a>
         </div>
-        <AdminProgramCatalogClient />
+        {readOnlyAudit ? (
+          <div
+            data-portal-audit-suppressed="admin-program-catalog-seed-and-cache"
+            className="portal-card portal-card--flat"
+            style={{ padding: '1rem' }}
+          >
+            Catalog editing is reserved for the attended admin check so the release audit cannot seed or cache program rows.
+          </div>
+        ) : (
+          <AdminProgramCatalogClient />
+        )}
       </section>
     </PortalPageFrame>
   );

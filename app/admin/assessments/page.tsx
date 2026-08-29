@@ -102,6 +102,7 @@ async function renderKit(scope: import("@/lib/tenant/adminPageScope").AdminPageT
 
   return (
     <DesignSurface surface="dense">
+      {avgResult.status === 'rejected' ? <span hidden data-portal-error-state="admin-assessments-average-load" /> : null}
       <AssessmentsKit assessments={assessments} totalCompletions={completions} />
     </DesignSurface>
   );

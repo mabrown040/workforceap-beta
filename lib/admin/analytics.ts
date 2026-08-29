@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { validatedProgramCompletionValuesSql } from '@/lib/reporting/programCompletion';
 
 /**
  * Analytics overview for non-technical admin users.
@@ -127,17 +128,25 @@ export async function getAnalyticsOverview(organizationId?: string): Promise<Ana
       _avg: { averagePercent: true },
       _count: { _all: true },
     }),
-    // ── Completed-training count: enrolled members whose progress row for
-    // their own enrolledProgram shows 100%+ or at least one completed course.
+    // ── Completed-training count: enrolled members whose exact completed
+    // course count equals the catalog denominator for their enrolled program.
     prisma.$queryRaw<Array<{ count: number }>>`
+      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+        VALUES ${validatedProgramCompletionValuesSql()}
+      )
       SELECT COUNT(DISTINCT u.id)::int AS count
       FROM users u
-      JOIN member_program_progress mpp
-        ON mpp.user_id = u.id AND mpp.program_slug = u.enrolled_program
+      INNER JOIN validated_programs enrolled_program
+        ON enrolled_program.storage_value = u.enrolled_program
+      INNER JOIN member_program_progress mpp
+        ON mpp.user_id = u.id
+      INNER JOIN validated_programs progress_program
+        ON progress_program.canonical_slug = enrolled_program.canonical_slug
+        AND progress_program.storage_value = mpp.program_slug
       WHERE u.deleted_at IS NULL
         AND u.enrolled_program IS NOT NULL
         ${orgFilterSql}
-        AND (mpp.average_percent >= 100 OR mpp.courses_completed > 0)
+        AND mpp.courses_completed = progress_program.total_courses
     `,
     // ── Drop-off: members with staleTrainingDetectedAt set ──
     prisma.user.count({

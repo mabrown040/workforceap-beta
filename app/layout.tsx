@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -87,6 +88,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(h);
 
   // Build GUC context from the user ID forwarded by middleware.
   // Middleware strips any client-supplied x-wap-user-id and only re-adds it
@@ -95,6 +97,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // here — anonymous marketing/apply first paint must not talk to GoTrue.
   const forwardedUserId = h.get(WAP_USER_ID_HEADER);
   const resolvedUserId = resolveLayoutUserId(forwardedUserId);
+  let bootstrapLoadFailed = false;
 
   // Resolve the real org for EVERY request path — authenticated or anonymous.
   // For authenticated users: org comes from the user row. For anonymous users:
@@ -119,7 +122,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // a failure must not block the render; the GUC bootstrap below still runs.
     const supabaseUser = await getUser();
     if (supabaseUser) {
-      await ensureAppUserProvisioned(supabaseUser, { headers: h }).catch((err) => {
+      await ensureAppUserProvisioned(supabaseUser, { headers: h, readOnlyAudit }).catch((err) => {
+        bootstrapLoadFailed = true;
         console.error('[layout:guc] ensureAppUserProvisioned failed; continuing', err);
       });
     }
@@ -135,6 +139,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         // root layout render (2026-06-30 incident; mirrors the organizationId
         // lookup below and resolveAuthGucContext() in lib/auth/server.ts).
         withDbRetry(() => getProfileRole(resolvedUserId)).catch((err) => {
+          bootstrapLoadFailed = true;
           console.error('[layout:guc] getProfileRole bootstrap lookup failed; defaulting to member role', err);
           return 'member';
         }),
@@ -155,6 +160,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             ),
         )
           .catch((err) => {
+            bootstrapLoadFailed = true;
             console.error('[layout:guc] organizationId bootstrap lookup failed; GUC degrades to orgId null', err);
             return null;
           }),
@@ -173,7 +179,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     gucCtx = buildGucContext({ userId: null, orgId: anonymousOrgId });
   }
 
-  const orgBranding = await getRequestOrgBranding(h);
+  const orgBranding = await getRequestOrgBranding(h, Date.now(), { readOnlyAudit });
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const htmlDir = isRtlLocale(htmlLang) ? 'rtl' : 'ltr';
@@ -183,7 +189,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
 
   return await gucContextStorage.run(gucCtx, async () => (
-    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${inter.variable}${htmlClassName ? ' ' + htmlClassName : ''}`}>
+    <html
+      lang={htmlLang}
+      dir={htmlDir}
+      suppressHydrationWarning
+      className={`${inter.variable}${htmlClassName ? ' ' + htmlClassName : ''}`}
+      data-portal-read-only-audit={readOnlyAudit ? '1' : undefined}
+    >
       <head>
         <ThemeInitScript />
         <script
@@ -197,9 +209,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="apple-mobile-web-app-title" content="WorkforceAP" />
         <meta name="theme-color" content="#ad2c4d" />
         <link rel="apple-touch-icon" href="/images/icon-192x192.png" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        {!readOnlyAudit ? (
+          <>
+            <link rel="preconnect" href="https://www.googletagmanager.com" />
+            <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+          </>
+        ) : null}
 
         <link
           rel="preload"
@@ -210,11 +226,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
         {/* Material Symbols Outlined is self-hosted via @font-face in main.css */}
         {/* Register service worker — updateViaCache:'none' ensures browser always fetches fresh sw.js */}
-        <Script id="sw-register" strategy="lazyOnload">
-          {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}`}
-        </Script>
+        {!readOnlyAudit ? (
+          <Script id="sw-register" strategy="lazyOnload">
+            {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}`}
+          </Script>
+        ) : null}
       </head>
       <body className="marketing-touch-target">
+        {bootstrapLoadFailed ? <span hidden data-portal-error-state="root-auth-org-bootstrap" /> : null}
+        {readOnlyAudit && (
+          <>
+            <span hidden data-portal-audit-suppressed="root-organization-branding-data-cache" />
+            <span hidden data-portal-audit-suppressed="root-gtm-sentry-utm-and-provider-metrics" />
+            <span hidden data-portal-audit-suppressed="root-service-worker-registration" />
+          </>
+        )}
         <OrgBrandingStyle branding={orgBranding} />
         <a href="#main-content" className="skip-link">
           Skip to main content
@@ -231,7 +257,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             Skip to navigation
           </a>
         )}
-        {GTM_ID && (
+        {GTM_ID && !readOnlyAudit && (
           <>
             <noscript>
               <iframe
@@ -270,15 +296,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             and then click through to /apply otherwise arrive without
             attribution. Suspense boundary required because UtmCapture
             uses useSearchParams. */}
-        <Suspense fallback={null}>
-          <UtmCapture />
-        </Suspense>
+        {!readOnlyAudit ? (
+          <Suspense fallback={null}>
+            <UtmCapture />
+          </Suspense>
+        ) : null}
         <NextIntlClientProvider messages={messages}>
         <ConditionalMarketingNav forceHidden={hidePaidApplyMarketingNav} />
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
-        <SentrySetUser userId={resolvedUserId} />
-        <DeferredRootChrome />
+        {!readOnlyAudit ? <SentrySetUser userId={resolvedUserId} /> : null}
+        <DeferredRootChrome suppressAnalytics={readOnlyAudit} />
       </body>
     </html>
   ));

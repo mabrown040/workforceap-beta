@@ -6,7 +6,7 @@
     "category": "Resume",
     "stage": "New to workforce",
     "tags": ["resume", "ATS", "template"],
-    "url": "/resources/ats-resume-template",
+    "url": "/dashboard/career-library/ats-resume-template",
     "type": "document",
     "file": "ats-resume-template.md"
   },
@@ -17,7 +17,7 @@
     "category": "AI Skills",
     "stage": "Mid-career pivot",
     "tags": ["AI", "resume", "prompts"],
-    "url": "/resources/ai-resume-prompts",
+    "url": "/dashboard/career-library/ai-resume-prompts",
     "type": "document",
     "file": "ai-resume-prompts.md"
   },
@@ -28,7 +28,7 @@
     "category": "Interviewing",
     "stage": "Recent graduate",
     "tags": ["interview", "questions", "behavioral"],
-    "url": "/resources/interview-question-bank",
+    "url": "/dashboard/career-library/interview-question-bank",
     "type": "document",
     "file": "interview-question-bank.md"
   },
@@ -39,7 +39,7 @@
     "category": "Interviewing",
     "stage": "New to workforce",
     "tags": ["STAR", "interview", "worksheet"],
-    "url": "/resources/star-story-worksheet",
+    "url": "/dashboard/career-library/star-story-worksheet",
     "type": "document",
     "file": "star-story-worksheet.md"
   },
@@ -50,7 +50,7 @@
     "category": "Job Search",
     "stage": "Mid-career pivot",
     "tags": ["LinkedIn", "profile", "optimization"],
-    "url": "/resources/linkedin-optimization-checklist",
+    "url": "/dashboard/career-library/linkedin-optimization-checklist",
     "type": "document",
     "file": "linkedin-optimization-checklist.md"
   },
@@ -61,7 +61,7 @@
     "category": "Job Search",
     "stage": "New to workforce",
     "tags": ["planner", "organization", "job search"],
-    "url": "/resources/job-search-weekly-planner",
+    "url": "/dashboard/career-library/job-search-weekly-planner",
     "type": "document",
     "file": "job-search-weekly-planner.md"
   },
@@ -72,7 +72,7 @@
     "category": "Career Planning",
     "stage": "Mid-career pivot",
     "tags": ["pivot", "roadmap", "planning"],
-    "url": "/resources/career-pivot-roadmap",
+    "url": "/dashboard/career-library/career-pivot-roadmap",
     "type": "document",
     "file": "career-pivot-roadmap.md"
   },
@@ -83,7 +83,7 @@
     "category": "Job Search",
     "stage": "Recent graduate",
     "tags": ["email", "templates", "networking"],
-    "url": "/resources/email-templates",
+    "url": "/dashboard/career-library/email-templates",
     "type": "document",
     "file": "email-templates.md"
   },
@@ -94,7 +94,7 @@
     "category": "Career Planning",
     "stage": "New to workforce",
     "tags": ["professionalism", "readiness", "checklist"],
-    "url": "/resources/digital-professionalism-checklist",
+    "url": "/dashboard/career-library/digital-professionalism-checklist",
     "type": "document",
     "file": "digital-professionalism-checklist.md"
   },
@@ -105,7 +105,7 @@
     "category": "AI Skills",
     "stage": "Recent graduate",
     "tags": ["AI", "ethics", "job search"],
-    "url": "/resources/ai-ethical-job-search",
+    "url": "/dashboard/career-library/ai-ethical-job-search",
     "type": "document",
     "file": "ai-ethical-job-search.md"
   }

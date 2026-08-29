@@ -12,7 +12,7 @@
  * 7. placed      — Has PlacementRecord with placedAt
  */
 
-import { getProgramBySlug } from '@/lib/content/programs';
+import { hasValidatedProgramCompletion } from '@/lib/reporting/programCompletion';
 
 export type MemberJourneyStage =
   | 'holding'
@@ -132,18 +132,15 @@ export function computeJourneyStage(member: JourneyMemberData): MemberJourneySta
   if (member.assessmentCompleted && hasResume && hasAiTool) return 'ready';
 
   // 5. Training Complete
-  if (member.enrolledProgram && member.courseEnrollments.length > 0) {
-    const program = getProgramBySlug(member.enrolledProgram);
-    if (program) {
-      const totalCourses = program.courses.length;
-      if (totalCourses > 0) {
-        const rollup = member.memberProgramProgress.find(
-          (p) => p.programSlug === member.enrolledProgram
-        );
-        const completedCount = rollup?.coursesCompleted ?? 0;
-        if (completedCount >= totalCourses) return 'complete';
-      }
-    }
+  if (
+    member.enrolledProgram
+    && member.courseEnrollments.length > 0
+    && hasValidatedProgramCompletion(
+      member.enrolledProgram,
+      member.memberProgramProgress,
+    )
+  ) {
+    return 'complete';
   }
 
   // 4. Payment Received

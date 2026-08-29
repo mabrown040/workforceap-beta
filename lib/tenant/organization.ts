@@ -9,8 +9,8 @@ export const DEFAULT_ORG_ID = '00000000-0000-4000-8000-000000000001';
 let cachedDefaultOrgId: string | null = null;
 
 /** Single-tenant default org (migration seeds slug workforceap). */
-export async function getDefaultOrganizationId(): Promise<string> {
-  if (cachedDefaultOrgId) return cachedDefaultOrgId;
+export async function getDefaultOrganizationId(options?: { readOnlyAudit?: boolean }): Promise<string> {
+  if (!options?.readOnlyAudit && cachedDefaultOrgId) return cachedDefaultOrgId;
   if (process.env.__PRISMA_PLACEHOLDER_DB === '1' || shouldSkipOptionalDbQueriesAtBuild()) {
     return DEFAULT_ORG_ID;
   }
@@ -19,7 +19,7 @@ export async function getDefaultOrganizationId(): Promise<string> {
     select: { id: true },
   });
   if (row) {
-    cachedDefaultOrgId = row.id;
+    if (!options?.readOnlyAudit) cachedDefaultOrgId = row.id;
     return row.id;
   }
   throw new Error(

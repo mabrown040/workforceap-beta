@@ -3,13 +3,17 @@
 import { useEffect, useState } from 'react';
 
 export default function MfaStatusBanner() {
-  const [mfaStatus, setMfaStatus] = useState<'checking' | 'enrolled' | 'missing'>('checking');
+  const [mfaStatus, setMfaStatus] = useState<'checking' | 'enrolled' | 'missing' | 'audit-suppressed'>('checking');
 
   useEffect(() => {
     fetch('/api/auth/check-mfa-required')
       .then(async (r) => {
         if (!r.ok) return setMfaStatus('missing');
         const data = await r.json();
+        if (data.auditSuppressed === true) {
+          setMfaStatus('audit-suppressed');
+          return;
+        }
         if (data.mfaEnforcement === false) {
           setMfaStatus('enrolled');
           return;
@@ -26,6 +30,10 @@ export default function MfaStatusBanner() {
       })
       .catch(() => setMfaStatus('missing'));
   }, []);
+
+  if (mfaStatus === 'audit-suppressed') {
+    return <span hidden data-portal-audit-suppressed="staff-mfa-rate-limit-and-auth-cookie-refresh" />;
+  }
 
   if (mfaStatus === 'checking' || mfaStatus === 'enrolled') return null;
 

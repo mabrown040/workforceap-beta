@@ -1021,6 +1021,36 @@ describe('GET /api/auth/check-mfa-required', () => {
     resetMfaMocks();
   });
 
+  it('fails closed in a read-only audit when profile-role metadata cannot load', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
+    const { getProfileRole } = await import('@/lib/auth/roles');
+    vi.mocked(getProfileRole).mockRejectedValue(new Error('role database unavailable'));
+
+    const res = await meGET(new Request('http://localhost:3000/api/auth/me', {
+      headers: { 'x-workforceap-read-only-audit': '1' },
+    }));
+
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: 'Internal server error' });
+  });
+
+  it('returns a read-only audit placeholder before rate limits, auth providers, or cookies', async () => {
+    const res = await checkMfaRequiredGET(
+      new Request('http://localhost:3000/api/auth/check-mfa-required', {
+        headers: { 'x-workforceap-read-only-audit': '1' },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      mfaRequired: false,
+      auditSuppressed: true,
+    });
+    expect(checkAuthRateLimit).not.toHaveBeenCalled();
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(cookies).not.toHaveBeenCalled();
+  });
+
   it('returns disabled when MFA enforcement is off', async () => {
     vi.mocked(isStaffMfaEnforcementEnabled).mockReturnValue(false);
 

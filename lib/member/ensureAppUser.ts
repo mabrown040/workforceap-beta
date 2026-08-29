@@ -15,6 +15,8 @@ export type EnsureAppUserOptions = {
   organizationId?: string | null;
   /** Request headers so host / x-wap-org-id can win over the default org. */
   headers?: HeadersLike;
+  /** Never provision rows during the authenticated read-only release audit. */
+  readOnlyAudit?: boolean;
 };
 
 function isUniquePkError(err: unknown): boolean {
@@ -60,6 +62,7 @@ export async function ensureAppUserProvisioned(
     }),
   );
   if (existing && existing.profile) return;
+  if (options.readOnlyAudit) return;
 
   const email = user.email?.trim() || `${user.id}@placeholder.local`;
   const fullName =

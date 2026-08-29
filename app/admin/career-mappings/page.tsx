@@ -123,12 +123,15 @@ export default async function AdminCareerMappingsPage({
       : paths.reduce((sum, p) => sum + p.employerPartners, 0);
 
   return (
-    <CareerMappingsKit
-      paths={paths}
-      totalPrograms={paths.length}
-      totalRoles={totalRoles}
-      totalPartners={totalPartners}
-    />
+    <>
+      {partnerResult.status === 'rejected' ? <span hidden data-portal-error-state="admin-career-mappings-partner-load" /> : null}
+      <CareerMappingsKit
+        paths={paths}
+        totalPrograms={paths.length}
+        totalRoles={totalRoles}
+        totalPartners={totalPartners}
+      />
+    </>
   );
 }
 

@@ -64,8 +64,8 @@ Unmatched events are stored in `coursera_xapi_events` for admin review.
 - `externalUserId` (optional — when it matches `users.id`, used as enterprise SSO bridge)
 - `email` (optional)
 - `actorIdentifier` + `actorHomePage` (optional)
-- `courseSlug` or `courseName` (required)
-- `completed` boolean or `progressPercent` number
+- Immutable `contentId` / `courseraCourseId` (preferred), or `courseSlug` / `courseName`
+- `completed: true` is the only REST completion fact; `progressPercent` records progress and never graduates a course by itself
 - `eventId` / `deliveryId` for idempotency
 
 **Auth methods (in priority order, `lib/coursera/webhookAuth.ts`):**

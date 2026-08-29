@@ -1,12 +1,16 @@
 import 'server-only';
 
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/lib/db/prisma';
-import { ANALYTICS_COHORT_DETAIL_CAP } from '@/lib/db/scanCaps';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import { ANALYTICS_COHORT_DETAIL_CAP, sqlCount } from '@/lib/db/scanCaps';
+import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
-import type { Prisma } from '@prisma/client';
+import {
+  hasValidatedProgramCompletion,
+  validatedProgramCompletionValuesSql,
+} from '@/lib/reporting/programCompletion';
 
 export type ImpactProgramRow = {
   programSlug: string;
@@ -148,7 +152,10 @@ function completionEndDate(args: {
 }): Date | null {
   if (args.lastCourseCompletedAt) return args.lastCourseCompletedAt;
   if (!args.isCompleted) return null;
-  const mpp = args.memberProgramProgress.find((p) => p.programSlug === args.programSlug);
+  const mpp = args.memberProgramProgress.find(
+    (progress) =>
+      (getProgramBySlug(progress.programSlug)?.slug ?? progress.programSlug) === args.programSlug,
+  );
   return mpp?.lastUpdatedAt ?? null;
 }
 
@@ -165,7 +172,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
       membersServed,
       enrolledCount,
       placedAmongEnrolled,
-      completedAmongEnrolled,
+      completedByProgram,
       enrolledUsers,
       employersPartnered,
       jobsPosted,
@@ -177,9 +184,30 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
       prisma.user.count({
         where: { ...memberWhere, enrolledProgram: { not: null }, placementRecord: { isNot: null } },
       }),
-      prisma.memberProgramProgress.count({
-        where: { averagePercent: { gte: 100 }, user: { ...memberWhere, enrolledProgram: { not: null } } },
-      }),
+      prisma.$queryRaw<Array<{ program_slug: string; count: bigint | number }>>`
+        WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+          VALUES ${validatedProgramCompletionValuesSql()}
+        )
+        SELECT
+          enrolled_program.canonical_slug AS program_slug,
+          COUNT(DISTINCT u.id)::bigint AS count
+        FROM users u
+        INNER JOIN profiles p
+          ON p.user_id = u.id AND p.role = 'member'
+        INNER JOIN validated_programs enrolled_program
+          ON enrolled_program.storage_value = u.enrolled_program
+        INNER JOIN member_program_progress mpp
+          ON mpp.user_id = u.id
+        INNER JOIN validated_programs progress_program
+          ON progress_program.canonical_slug = enrolled_program.canonical_slug
+          AND progress_program.storage_value = mpp.program_slug
+        WHERE u.organization_id = ${orgId}
+          AND u.deleted_at IS NULL
+          AND u.enrolled_program IS NOT NULL
+          AND u.email NOT IN (${Prisma.join([...MEMBER_ONLY_EXCLUDED_EMAILS])})
+          AND mpp.courses_completed = progress_program.total_courses
+        GROUP BY enrolled_program.canonical_slug
+      `,
       prisma.user.findMany({
         take: ANALYTICS_COHORT_DETAIL_CAP,
         orderBy: { enrolledAt: 'desc' },
@@ -189,9 +217,8 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
           enrolledProgram: true,
           enrolledAt: true,
           createdAt: true,
-          coursesCompleted: true,
           memberProgramProgress: {
-            select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
+            select: { programSlug: true, coursesCompleted: true, lastUpdatedAt: true },
           },
           placementRecord: { select: { id: true } },
         },
@@ -229,7 +256,8 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
         select: { userId: true, programSlug: true, completedAt: true },
       });
       for (const row of cps) {
-        const k = `${row.userId}\0${row.programSlug}`;
+        const canonicalProgramSlug = getProgramBySlug(row.programSlug)?.slug ?? row.programSlug;
+        const k = `${row.userId}\0${canonicalProgramSlug}`;
         const at = row.completedAt!;
         const prev = lastCompletedAtByUserProgram.get(k);
         if (!prev || at > prev) lastCompletedAtByUserProgram.set(k, at);
@@ -237,46 +265,42 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
     }
 
     const enrolledDenominator = enrolledCount;
-    const completedForRate = completedAmongEnrolled;
+    const completedForRate = completedByProgram.reduce(
+      (sum, row) => sum + sqlCount(row.count),
+      0,
+    );
     const placedForRate = placedAmongEnrolled;
 
     type ProgramAgg = { enrolled: number; completed: number; daySum: number; dayCount: number };
     const bySlug = new Map<string, ProgramAgg>();
 
-    const [enrolledByProgram, completedByProgram] = await Promise.all([
-      prisma.user.groupBy({
-        by: ['enrolledProgram'],
-        where: { ...memberWhere, enrolledProgram: { not: null } },
-        _count: { _all: true },
-      }),
-      prisma.memberProgramProgress.groupBy({
-        by: ['programSlug'],
-        where: { averagePercent: { gte: 100 }, user: { ...memberWhere, enrolledProgram: { not: null } } },
-        _count: { _all: true },
-      }),
-    ]);
+    const enrolledByProgram = await prisma.user.groupBy({
+      by: ['enrolledProgram'],
+      where: { ...memberWhere, enrolledProgram: { not: null } },
+      _count: { _all: true },
+    });
     for (const row of enrolledByProgram) {
       if (!row.enrolledProgram) continue;
-      bySlug.set(row.enrolledProgram, {
-        enrolled: row._count._all,
-        completed: 0,
-        daySum: 0,
-        dayCount: 0,
+      const canonicalProgramSlug =
+        getProgramBySlug(row.enrolledProgram)?.slug ?? row.enrolledProgram;
+      const current = bySlug.get(canonicalProgramSlug);
+      bySlug.set(canonicalProgramSlug, {
+        enrolled: (current?.enrolled ?? 0) + row._count._all,
+        completed: current?.completed ?? 0,
+        daySum: current?.daySum ?? 0,
+        dayCount: current?.dayCount ?? 0,
       });
     }
     for (const row of completedByProgram) {
-      const cur = bySlug.get(row.programSlug) ?? { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
-      cur.completed = row._count._all;
-      bySlug.set(row.programSlug, cur);
+      const cur = bySlug.get(row.program_slug) ?? { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
+      cur.completed = sqlCount(row.count);
+      bySlug.set(row.program_slug, cur);
     }
 
     for (const u of enrolledUsers) {
-      const slug = u.enrolledProgram!;
+      const slug = getProgramBySlug(u.enrolledProgram!)?.slug ?? u.enrolledProgram!;
       const agg = bySlug.get(slug) ?? { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
-      const progress = computeTrainingProgress(slug, u.coursesCompleted, u.memberProgramProgress);
-      const isCompleted =
-        progress.totalCourses > 0 &&
-        (progress.pct >= 100 || progress.completedCount >= progress.totalCourses);
+      const isCompleted = hasValidatedProgramCompletion(slug, u.memberProgramProgress);
       if (!isCompleted) continue;
       const k = `${u.id}\0${slug}`;
       const lastCp = lastCompletedAtByUserProgram.get(k);

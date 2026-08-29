@@ -211,12 +211,10 @@ export async function handleLearningCompletion(memberId: string, courseName: str
 // transition into active job search when someone actually finishes their
 // certificate — the single highest-leverage moment in the whole journey.
 //
-// This does NOT go through the LLM-drafted milestone_cascades pipeline
-// (lib/milestoneCascade/*) — that pilot is scoped to per-course celebration
-// drafts reviewed by a counselor before sending, which is a different
-// (heavier, still-evolving) design than a deterministic graduation kit. If a
-// counselor-reviewed graduation message is wanted later, add
-// 'program_completed' to MILESTONE_TYPES and a builder there instead.
+// This deterministic job-ready transition is separate from the
+// counselor-reviewed milestone_cascades draft. The cascade may also record a
+// `program_completed` milestone, but this idempotent workflow remains the
+// authority for the member's job-ready action and notifications.
 // ────────────────────────────────────────────────────────────────────────────
 
 export const PROGRAM_COMPLETION_EVENT = 'program_completed';

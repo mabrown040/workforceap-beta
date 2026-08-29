@@ -101,6 +101,16 @@ test('parseCourseActivityCsv parses Yes/No completion flags correctly', () => {
   assert.equal(rows[0].courseCertificateUrl, 'https://cert.example/abc');
 });
 
+test('parseCourseActivityCsv clamps provider percentages to 0..100', () => {
+  const csv = `${HEADER}\r
+"Low","low@example.com","","Course","low-id","low","U","","","","","-12","0","No","No","prog","Prog","","","","","","","","0","Course","","","","","","","","",""\r
+"High","high@example.com","","Course","high-id","high","U","","","","","140","0","No","No","prog","Prog","","","","","","","","0","Course","","","","","","","","",""\r
+`;
+
+  const rows = parseCourseActivityCsv(csv);
+  assert.deepEqual(rows.map((row) => row.overallProgress), [0, 100]);
+});
+
 test('parseCourseActivityCsv handles fields with embedded commas inside quotes', () => {
   const csv = `${HEADER}
 "Smith, John","john@example.com","","Project Mgmt, Advanced","cid2","slug-b","U","","","","","10","1","No","No","prog","Prog","Coll","cid","","","","","","1","Course","","","","","","","","",""
@@ -187,6 +197,16 @@ test('parseLearningPathActivityCsv handles minimal inline CSV', () => {
   assert.equal(rows[0].isCourseCompleted, true);
   assert.equal(rows[0].badgeCompleted, false);
   assert.ok(rows[0].courseCompletionTime instanceof Date);
+});
+
+test('parseLearningPathActivityCsv clamps provider percentages to 0..100', () => {
+  const csv = `${BADGE_HEADER}\r
+"Low","low@example.com","Low Badge","low-badge","","","1","-1","Course","","No","","No","","","","","","0","","","","","","","",""\r
+"High","high@example.com","High Badge","high-badge","","","1","150","Course","","No","","No","","","","","","0","","","","","","","",""\r
+`;
+
+  const rows = parseLearningPathActivityCsv(csv);
+  assert.deepEqual(rows.map((row) => row.progressPercent), [0, 100]);
 });
 
 test('parseLearningPathActivityCsv throws on unrecognized headers (wrong CSV tab)', () => {

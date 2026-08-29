@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { FALLBACK_REFERRAL_SOURCES, PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import {
+  FALLBACK_REFERRAL_SOURCES,
+  PUBLIC_REFERRAL_SOURCE_OPTIONS,
+  uniqueReferralSourceOptions,
+} from '@/lib/referralSources';
 import { isExcludedPublicPartnerName } from '@/lib/public/publicDataFilters';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -16,8 +20,9 @@ const STATIC_SOURCES = [...PUBLIC_REFERRAL_SOURCE_OPTIONS];export const GET = wi
     const partnerNames = partners
       .map((p) => p.name)
       .filter((name) => !isExcludedPublicPartnerName(name));
-    // Partners first, then static sources
-    return NextResponse.json([...partnerNames, ...STATIC_SOURCES], {
+    // Partners first, then static sources. A partner may also be promoted into
+    // the curated list, so de-duplicate the combined menu by normalized label.
+    return NextResponse.json(uniqueReferralSourceOptions([...partnerNames, ...STATIC_SOURCES]), {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
     });
   } catch {

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
+import { RESUME_TEXT_SAVE_ERROR, sanitizeResumePlainText } from '@/lib/resume/extractionQuality';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -16,7 +17,11 @@ const MAX_CHARS = 120_000;export const POST = withApiGuc(async (request: Request
 
     const body = (await request.json()) as { plainText?: unknown };
     const raw = typeof body.plainText === 'string' ? body.plainText : '';
-    const plainText = raw.length > MAX_CHARS ? raw.slice(0, MAX_CHARS) : raw;
+    const safeText = sanitizeResumePlainText(raw);
+    if (raw.trim() && !safeText) {
+      return NextResponse.json({ error: RESUME_TEXT_SAVE_ERROR }, { status: 400 });
+    }
+    const plainText = safeText.length > MAX_CHARS ? safeText.slice(0, MAX_CHARS) : safeText;
 
     const supabase = getSupabaseAdmin();
     const path = `${user.id}/resume-enhanced.txt`;

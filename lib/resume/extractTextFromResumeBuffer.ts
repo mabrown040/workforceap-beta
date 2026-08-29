@@ -1,6 +1,32 @@
 import { Buffer } from 'node:buffer';
+import { TextDecoder } from 'node:util';
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
+import { sanitizeResumePlainText } from './extractionQuality';
+
+export type ResumeTextExtractionErrorCode =
+  | 'invalid_pdf'
+  | 'invalid_docx'
+  | 'unsupported_doc'
+  | 'invalid_text_encoding'
+  | 'unsafe_extraction'
+  | 'unsupported_type';
+
+export class ResumeTextExtractionError extends Error {
+  readonly code: ResumeTextExtractionErrorCode;
+
+  constructor(code: ResumeTextExtractionErrorCode) {
+    super('Resume text could not be extracted safely.');
+    this.name = 'ResumeTextExtractionError';
+    this.code = code;
+  }
+}
+
+function safeParserOutput(text: string): string {
+  const safe = sanitizeResumePlainText(text);
+  if (text.trim() && !safe) throw new ResumeTextExtractionError('unsafe_extraction');
+  return safe;
+}
 
 /**
  * Extract plain text from a resume file buffer (same rules as `/api/ai/extract-resume-text`).
@@ -14,37 +40,36 @@ export async function extractTextFromResumeBuffer(buffer: Buffer | Uint8Array, e
   if (e === 'pdf') {
     try {
       const data = await pdfParse(buf);
-      return (data.text?.trim() || '') as string;
-    } catch (err) {
-      console.error('Error parsing PDF:', err);
-      const raw = buf.toString('binary');
-      return raw
-        .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-        .replace(/\s{3,}/g, '\n')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
+      return safeParserOutput(data.text ?? '');
+    } catch (error) {
+      if (error instanceof ResumeTextExtractionError) throw error;
+      throw new ResumeTextExtractionError('invalid_pdf');
     }
   }
 
-  if (e === 'docx' || e === 'doc') {
+  if (e === 'doc') {
+    throw new ResumeTextExtractionError('unsupported_doc');
+  }
+
+  if (e === 'docx') {
     try {
-      if (e === 'doc') throw new Error('Mammoth does not support .doc files natively');
       const result = await mammoth.extractRawText({ buffer: buf });
-      return (result.value?.trim() || '') as string;
-    } catch (err) {
-      console.error(`Error parsing ${e}:`, err);
-      const raw = buf.toString('binary');
-      return raw
-        .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-        .replace(/\s{3,}/g, '\n')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
+      return safeParserOutput(result.value ?? '');
+    } catch (error) {
+      if (error instanceof ResumeTextExtractionError) throw error;
+      throw new ResumeTextExtractionError('invalid_docx');
     }
   }
 
   if (e === 'txt' || e === 'text') {
-    return buf.toString('utf-8').trim();
+    let decoded: string;
+    try {
+      decoded = new TextDecoder('utf-8', { fatal: true }).decode(buf);
+    } catch {
+      throw new ResumeTextExtractionError('invalid_text_encoding');
+    }
+    return safeParserOutput(decoded);
   }
 
-  return buf.toString('utf-8').trim();
+  throw new ResumeTextExtractionError('unsupported_type');
 }

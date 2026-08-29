@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
@@ -8,6 +9,7 @@ import CounselorPortalShell from '@/components/portal/CounselorPortalShell';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getTranslations } from 'next-intl/server';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('counselor');
@@ -23,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CounselorLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const [allowedCounselor, allowedAdmin, superAdmin] = await Promise.all([
     isCounselor(user.id),
@@ -37,6 +40,7 @@ export default async function CounselorLayout({ children }: { children: React.Re
   });
 
   let subtitle = 'Counselor';
+  let affiliationLoadFailed = false;
   try {
     const counselor = await prisma.counselor.findFirst({
       where: { userId: user.id, active: true },
@@ -48,8 +52,19 @@ export default async function CounselorLayout({ children }: { children: React.Re
         ? 'Super admin preview'
         : 'Counselor';
   } catch (e) {
+    affiliationLoadFailed = true;
     console.error('[counselor/layout] affiliation query failed', e);
   }
 
-  return <CounselorPortalShell subtitle={subtitle} superAdmin={superAdmin} portalRoles={portalRoles}>{children}</CounselorPortalShell>;
+  return (
+    <CounselorPortalShell
+      subtitle={subtitle}
+      superAdmin={superAdmin}
+      portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
+    >
+      {affiliationLoadFailed ? <span hidden data-portal-error-state="counselor-affiliation-load" /> : null}
+      {children}
+    </CounselorPortalShell>
+  );
 }

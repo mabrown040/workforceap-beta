@@ -651,7 +651,10 @@ export default function AdminHealthPage() {
     return (
       <div>
         <PageHeader title="System Health" subtitle="Services & integrations" />
-        <div style={{ padding: '2rem', color: 'var(--color-accent)' }}>
+        <div
+          data-portal-error-state="admin-health-load-failed"
+          style={{ padding: '2rem', color: 'var(--color-accent)' }}
+        >
           <p>Error loading health data: {error || 'No data'}</p>
           <button onClick={refetch} className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }}>
             Retry
@@ -661,9 +664,14 @@ export default function AdminHealthPage() {
     );
   }
 
-  if (legacy) {
-    return <LegacyHealthView data={data} refetch={refetch} />;
-  }
-
-  return <HealthKitView data={data} refetch={refetch} />;
+  return (
+    <>
+      {data.auditSuppressed && (
+        <span hidden data-portal-audit-suppressed="admin-health-provider-diagnostics" />
+      )}
+      {legacy
+        ? <LegacyHealthView data={data} refetch={refetch} />
+        : <HealthKitView data={data} refetch={refetch} />}
+    </>
+  );
 }

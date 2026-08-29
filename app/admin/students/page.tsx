@@ -10,6 +10,7 @@ import {
   withAdminPageScope,
 } from '@/lib/tenant/adminPageScope';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import {
@@ -180,22 +181,30 @@ export default async function AdminStudentsPage({
 
   const eventAggregatesOk =
     lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
+  let studentSecondaryLoadFailed =
+    totalResult.status === 'rejected' || !eventAggregatesOk;
 
   const rosterEnrichmentRows = await loadStudentRosterEnrichment({
     organizationId: scope.orgId,
     superAdmin: scope.superAdmin,
     userIds: memberIds,
   }).catch((reason: unknown) => {
+    studentSecondaryLoadFailed = true;
     console.error('[admin/students] roster enrichment load failed', reason);
     return [];
   });
 
   const programProgressMap = new Map<string, number>();
+  const inferredProgramByUserId = new Map<string, string>();
+  const trainingActivityByUserId = new Map<string, Date>();
   const gradeByUserId = new Map<string, number>();
   for (const row of rosterEnrichmentRows) {
     if (row.programSlug && row.averagePercent != null) {
-      programProgressMap.set(`${row.userId}:${row.programSlug}`, row.averagePercent);
+      const canonicalProgramSlug = canonicalizeProgramSlug(row.programSlug);
+      programProgressMap.set(`${row.userId}:${canonicalProgramSlug}`, row.averagePercent);
+      inferredProgramByUserId.set(row.userId, canonicalProgramSlug);
     }
+    if (row.lastActivityTime) trainingActivityByUserId.set(row.userId, row.lastActivityTime);
     const grade = parseCourseGradeString(row.courseGrade);
     if (grade != null) gradeByUserId.set(row.userId, grade);
   }
@@ -213,6 +222,7 @@ export default async function AdminStudentsPage({
       },
     }),
   ).catch((reason: unknown) => {
+    studentSecondaryLoadFailed = true;
     console.error('[admin/students] counselor assignment load failed', reason);
     return [] as { memberId: string; counselor: { user: { fullName: string } } }[];
   });
@@ -226,23 +236,30 @@ export default async function AdminStudentsPage({
   const [unmatchedLearners, unmatchedCount] = await Promise.all([
     loadUnmatchedLearners(scope.orgId, ROSTER_LIMIT, { includeTestAccounts: false }).catch(
       (reason: unknown) => {
+        studentSecondaryLoadFailed = true;
         console.error('[admin/students] unmatched Coursera learners failed', reason);
         return [];
       },
     ),
     countUnmatchedLearners(scope.orgId, { includeTestAccounts: false }).catch((reason: unknown) => {
+      studentSecondaryLoadFailed = true;
       console.error('[admin/students] unmatched Coursera count failed', reason);
       return 0;
     }),
   ]);
 
   const students: StudentRow[] = members.map((m) => {
-    const programTitle = m.enrolledProgram
-      ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram
+    const storedProgramSlug = m.enrolledProgram
+      ? canonicalizeProgramSlug(m.enrolledProgram)
+      : null;
+    const inferredProgramSlug = inferredProgramByUserId.get(m.id) ?? null;
+    const displayProgramSlug = storedProgramSlug ?? inferredProgramSlug;
+    const programTitle = displayProgramSlug
+      ? getProgramBySlug(displayProgramSlug)?.title ?? displayProgramSlug
       : 'Unassigned';
 
-    const progress = m.enrolledProgram
-      ? Math.round(programProgressMap.get(`${m.id}:${m.enrolledProgram}`) ?? 0)
+    const progress = displayProgramSlug
+      ? Math.round(programProgressMap.get(`${m.id}:${displayProgramSlug}`) ?? 0)
       : 0;
 
     const readiness = m.assessmentScorePct ?? 0;
@@ -282,8 +299,11 @@ export default async function AdminStudentsPage({
       // counselor's linked User); no active assignment → "Unassigned".
       counselor: counselorNameMap.get(m.id) ?? 'Unassigned',
       status,
-      lastActive: relativeTime(m.lastLoginAt ?? m.updatedAt ?? null),
+      lastActive: relativeTime(
+        trainingActivityByUserId.get(m.id) ?? m.lastLoginAt ?? m.updatedAt ?? null,
+      ),
       inWap: true,
+      noProgram: !storedProgramSlug && Boolean(inferredProgramSlug),
       courseraGrade: gradeByUserId.get(m.id) ?? null,
       href: `/admin/members/${m.id}`,
     };
@@ -295,8 +315,8 @@ export default async function AdminStudentsPage({
       name: learner.externalName?.trim() || learner.externalEmail,
       initials: initialsFrom(learner.externalName || learner.externalEmail),
       location: learner.externalEmail,
-      program: 'Coursera (not in WAP)',
-      progress: Math.round(learner.latestProgressPercent || 0),
+      program: 'Coursera activity',
+      progress: learner.averageProgressPercent,
       readiness: 0,
       counselor: 'Unassigned',
       status: 'In Training',
@@ -313,5 +333,10 @@ export default async function AdminStudentsPage({
     });
   }
 
-  return <StudentsRosterKit students={students} total={total + unmatchedCount} />;
+  return (
+    <>
+      {studentSecondaryLoadFailed ? <span hidden data-portal-error-state="admin-students-secondary-load" /> : null}
+      <StudentsRosterKit students={students} total={total + unmatchedCount} />
+    </>
+  );
 }

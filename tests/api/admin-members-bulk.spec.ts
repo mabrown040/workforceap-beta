@@ -399,6 +399,25 @@ describe('Bulk operations', () => {
       expect(mockTx.user.updateMany).not.toHaveBeenCalled();
     });
 
+    it('requires the tenant catalog entry to be active', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(1);
+      vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], programSlug: 'global-only-program' }),
+      );
+
+      expect(res.status).toBe(400);
+      expect(prisma.organizationProgramCatalog.findFirst).toHaveBeenCalledWith({
+        where: { programSlug: 'global-only-program', status: 'active' },
+        select: { programSlug: true },
+      });
+      expect(mockTx.user.updateMany).not.toHaveBeenCalled();
+    });
+
     it('validates counselor exists when assigning', async () => {
       vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
       vi.mocked(isAdmin).mockResolvedValue(true);

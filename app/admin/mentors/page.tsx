@@ -183,7 +183,15 @@ export default async function AdminMentorsPage({
     isApproved: Boolean(m.approvedAt),
   }));
 
-  return <MentorsDirectoryKit mentors={mentors} total={total} activeCount={activeCount} />;
+  const mentorAggregateLoadFailed = [totalResult, activeResult, sessionPairsResult].some(
+    (result) => result.status === 'rejected',
+  );
+  return (
+    <>
+      {mentorAggregateLoadFailed ? <span hidden data-portal-error-state="admin-mentors-aggregate-load" /> : null}
+      <MentorsDirectoryKit mentors={mentors} total={total} activeCount={activeCount} />
+    </>
+  );
 }
 
 /** Original mentor admin workspace (table + approve/deactivate). Behind ?ui=legacy. */

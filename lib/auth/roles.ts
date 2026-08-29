@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
 import { cache } from 'react';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { hasAdminAccess, hasSuperAdminAccess } from '@/lib/auth/roleAccess';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export { hasAdminAccess, hasSuperAdminAccess } from '@/lib/auth/roleAccess';
 
@@ -175,7 +176,7 @@ async function getOrgBranding(organizationId: string): Promise<{ primaryColor: s
 
 export async function getPartnerForUser(
   userId: string,
-  options?: { isSuperAdminHint?: boolean }
+  options?: { isSuperAdminHint?: boolean; readOnlyAudit?: boolean }
 ): Promise<PartnerPortalContext | null> {
   const row = await prisma.partnerUser.findUnique({
     where: { userId },
@@ -189,6 +190,13 @@ export async function getPartnerForUser(
   }
   const superUser = options?.isSuperAdminHint ?? (await isSuperAdmin(userId));
   if (superUser) {
+    const readOnlyAudit = options?.readOnlyAudit ?? await (async () => {
+      try {
+        return isReadOnlyPortalAuditHeader(await headers());
+      } catch {
+        return false;
+      }
+    })();
     const cookieStore = await cookies();
     const fromCookie = cookieStore.get(SUPER_ADMIN_PARTNER_COOKIE)?.value;
     if (fromCookie) {
@@ -211,29 +219,31 @@ export async function getPartnerForUser(
       return { partnerId: fallbackPartner.id, partner: fallbackPartner, orgBranding, hasDirectPartnerLink: false };
     }
 
-    const actor = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { organizationId: true },
-    });
-    const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner(actor?.organizationId);
-    if (ensuredFallbackPartner) {
-      const orgBranding = await getOrgBranding(ensuredFallbackPartner.organizationId);
-      return {
-        partnerId: ensuredFallbackPartner.id,
-        partner: { ...ensuredFallbackPartner, logoUrl: null, brandColor: null },
-        orgBranding,
-        hasDirectPartnerLink: false,
-      };
-    }
+    if (!readOnlyAudit) {
+      const actor = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { organizationId: true },
+      });
+      const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner(actor?.organizationId);
+      if (ensuredFallbackPartner) {
+        const orgBranding = await getOrgBranding(ensuredFallbackPartner.organizationId);
+        return {
+          partnerId: ensuredFallbackPartner.id,
+          partner: { ...ensuredFallbackPartner, logoUrl: null, brandColor: null },
+          orgBranding,
+          hasDirectPartnerLink: false,
+        };
+      }
 
-    const anyActivePartner = await prisma.partner.findFirst({
-      where: { active: true },
-      orderBy: { createdAt: 'asc' },
-      select: PARTNER_BRANDING_SELECT,
-    });
-    if (anyActivePartner) {
-      const orgBranding = await getOrgBranding(anyActivePartner.organizationId);
-      return { partnerId: anyActivePartner.id, partner: anyActivePartner, orgBranding, hasDirectPartnerLink: false };
+      const anyActivePartner = await prisma.partner.findFirst({
+        where: { active: true },
+        orderBy: { createdAt: 'asc' },
+        select: PARTNER_BRANDING_SELECT,
+      });
+      if (anyActivePartner) {
+        const orgBranding = await getOrgBranding(anyActivePartner.organizationId);
+        return { partnerId: anyActivePartner.id, partner: anyActivePartner, orgBranding, hasDirectPartnerLink: false };
+      }
     }
 
     return null;
@@ -447,7 +457,7 @@ function mapEmployerRow(row: {
  */
 export async function getEmployerForUser(
   userId: string,
-  options?: { isSuperAdminHint?: boolean }
+  options?: { isSuperAdminHint?: boolean; readOnlyAudit?: boolean }
 ): Promise<{
   employerId: string;
   employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null; status: string };
@@ -456,6 +466,13 @@ export async function getEmployerForUser(
     options?.isSuperAdminHint !== undefined ? options.isSuperAdminHint : await isSuperAdmin(userId);
 
   if (superUser) {
+    const readOnlyAudit = options?.readOnlyAudit ?? await (async () => {
+      try {
+        return isReadOnlyPortalAuditHeader(await headers());
+      } catch {
+        return false;
+      }
+    })();
     const cookieStore = await cookies();
     const fromCookie = cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
     if (fromCookie) {
@@ -472,19 +489,21 @@ export async function getEmployerForUser(
     });
     if (fallbackEmployer) return mapEmployerRow(fallbackEmployer);
 
-    const actor = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { organizationId: true },
-    });
-    const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer(actor?.organizationId);
-    if (ensuredFallbackEmployer) return mapEmployerRow(ensuredFallbackEmployer);
+    if (!readOnlyAudit) {
+      const actor = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { organizationId: true },
+      });
+      const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer(actor?.organizationId);
+      if (ensuredFallbackEmployer) return mapEmployerRow(ensuredFallbackEmployer);
 
-    const anyActiveEmployer = await prisma.employer.findFirst({
-      where: { status: 'active' },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true, status: true },
-    });
-    if (anyActiveEmployer) return mapEmployerRow(anyActiveEmployer);
+      const anyActiveEmployer = await prisma.employer.findFirst({
+        where: { status: 'active' },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true, status: true },
+      });
+      if (anyActiveEmployer) return mapEmployerRow(anyActiveEmployer);
+    }
   }
 
   const row = await prisma.employer.findUnique({

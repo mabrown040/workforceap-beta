@@ -24,6 +24,7 @@ import {
 const PREEXISTING_HEAR_ABOUT_OPTIONS = [
   'Launch Pad Job Club',
   'Purpose Works / Job Seekers Network',
+  'Workforce Solutions',
   'Workforce Solutions Capital Area',
   'Workforce Solutions Rural Capital Area',
   'Texas Workforce Commission (TWC)',

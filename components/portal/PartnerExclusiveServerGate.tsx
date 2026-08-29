@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { withDbRetry } from '@/lib/db/withDbRetry';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 /** Paths where we skip partner→/partner redirect (dedicated shells or legacy redirects). */
 const SKIP_PREFIXES = [
@@ -25,7 +26,9 @@ const SKIP_PREFIXES = [
  * so we avoid a flash of member UI (client redirect in PortalShell is then redundant).
  */
 export default async function PartnerExclusiveServerGate() {
-  const pathname = (await headers()).get('x-pathname') ?? '';
+  const requestHeaders = await headers();
+  const pathname = requestHeaders.get('x-pathname') ?? '';
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(requestHeaders);
   if (SKIP_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return null;
   }
@@ -43,6 +46,9 @@ export default async function PartnerExclusiveServerGate() {
     }
   } catch (e) {
     console.error('[PartnerExclusiveServerGate] role lookup failed', e);
+    if (readOnlyAudit) {
+      return <span hidden data-portal-error-state="partner-exclusive-role-lookup" />;
+    }
     /* Fail open: allow member UI when DB is unavailable; partner redirect is best-effort */
   }
 

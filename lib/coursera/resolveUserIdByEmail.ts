@@ -17,15 +17,16 @@ export { mergeCourseraEmailResolutions } from '@/lib/coursera/mergeCourseraEmail
  *   2. `coursera_identity_mappings.coursera_email` → `user_id`
  *
  * Used by CSV import and B4B org sync so alt-email learners mapped in admin
- * are not left as `skippedNoUser` / orphan progress rows.
+ * are not left as unresolved / orphan progress rows.
  */
 export async function resolveUserIdByCourseraEmail(
   email: string,
+  options: { organizationId?: string } = {},
 ): Promise<string | null> {
   const lower = email.trim().toLowerCase();
   if (!lower) return null;
 
-  const map = await resolveUserIdsByCourseraEmails([lower]);
+  const map = await resolveUserIdsByCourseraEmails([lower], options);
   return map.get(lower) ?? null;
 }
 
@@ -35,6 +36,7 @@ export async function resolveUserIdByCourseraEmail(
  */
 export async function resolveUserIdsByCourseraEmails(
   emails: string[],
+  options: { organizationId?: string } = {},
 ): Promise<Map<string, string>> {
   const normalized = [
     ...new Set(
@@ -50,7 +52,11 @@ export async function resolveUserIdsByCourseraEmails(
   for (let i = 0; i < normalized.length; i += CHUNK) {
     const chunk = normalized.slice(i, i + CHUNK);
     const users = await prisma.user.findMany({
-      where: { deletedAt: null, email: { in: chunk, mode: 'insensitive' } },
+      where: {
+        deletedAt: null,
+        email: { in: chunk, mode: 'insensitive' },
+        ...(options.organizationId ? { organizationId: options.organizationId } : {}),
+      },
       select: { id: true, email: true },
       take: CHUNK,
     });
@@ -67,6 +73,9 @@ export async function resolveUserIdsByCourseraEmails(
   if (unresolved.length === 0) return directMap;
 
   const mappingHits: Array<{ email: string; userId: string }> = [];
+  const organizationFilter = options.organizationId
+    ? Prisma.sql`AND u.organization_id = ${options.organizationId}`
+    : Prisma.empty;
   for (let i = 0; i < unresolved.length; i += CHUNK) {
     const chunk = unresolved.slice(i, i + CHUNK);
     const rows = await prisma.$queryRaw<Array<{ email: string; userId: string }>>`
@@ -75,6 +84,7 @@ export async function resolveUserIdsByCourseraEmails(
       INNER JOIN users u ON u.id = cim.user_id AND u.deleted_at IS NULL
       WHERE cim.coursera_email IS NOT NULL
         AND LOWER(cim.coursera_email) IN (${Prisma.join(chunk)})
+        ${organizationFilter}
     `;
     for (const row of rows) {
       if (row.email && row.userId) {

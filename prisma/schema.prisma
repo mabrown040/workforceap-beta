@@ -2405,7 +2405,9 @@ model ReferralConversion {
 
 /// Per-learner-per-course progress imported from the Coursera "Learner activity & progress"
 /// CSV report (CourseActivity tab). Used as a backfill + ongoing-redundancy path alongside
-/// the realtime xAPI bridge. Idempotent on (externalEmail, courseraCourseId).
+/// the realtime xAPI bridge. Current writes are idempotent on
+/// (organizationId, externalEmail, courseraCourseId); NULL-organization rows
+/// are preserved as unresolved legacy evidence and are never tenant-guessed.
 model CourseraCourseProgress {
   id                   String    @id @default(uuid())
   userId               String?   @map("user_id")
@@ -2441,7 +2443,7 @@ model CourseraCourseProgress {
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@unique([externalEmail, courseraCourseId])
+  @@unique([organizationId, externalEmail, courseraCourseId], map: "coursera_course_progress_org_email_course_exact_key")
   @@index([userId])
   @@index([programSlug])
   @@index([courseraCourseId])
@@ -2510,7 +2512,9 @@ model CourseraIdentityMapping {
 /// Per-learner-per-badge (specialization) progress imported from the Coursera
 /// "Learner activity & progress" CSV report (LearningPathActivity tab). The raw
 /// CSV has one row per (learner, course-within-badge); the ingester deduplicates
-/// to one row per (learner, badgeSlug). Idempotent on (externalEmail, badgeSlug).
+/// to one row per (learner, badgeSlug). Current writes are idempotent on
+/// (organizationId, externalEmail, badgeSlug); unresolved NULL-organization
+/// legacy rows remain untouched until an explicit tenant assignment exists.
 model CourseraBadgeProgress {
   id                  String    @id @default(uuid())
   userId              String?   @map("user_id")
@@ -2538,7 +2542,7 @@ model CourseraBadgeProgress {
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@unique([externalEmail, badgeSlug])
+  @@unique([organizationId, externalEmail, badgeSlug], map: "coursera_badge_progress_org_email_badge_exact_key")
   @@index([userId])
   @@index([badgeSlug])
   @@index([organizationId, lastActivityTime])

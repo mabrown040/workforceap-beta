@@ -5,22 +5,38 @@ export const PORTAL_AUDIT_VIEWPORTS = Object.freeze([
 
 export const PORTAL_AUDIT_NAVIGATION_TIMEOUT_MS = 20_000;
 export const PORTAL_AUDIT_READY_TIMEOUT_MS = 5_000;
+export const READ_ONLY_AUDIT_ROOT_SUPPRESSION_MARKER =
+  'root-gtm-sentry-utm-and-provider-metrics';
 
-export function sanitizeAuditUrl(value) {
+export function isReadOnlyAuditCapabilityActive(inspection) {
+  return (
+    inspection?.readOnlyAuditDocument === true &&
+    Array.isArray(inspection?.auditSuppressedStates) &&
+    inspection.auditSuppressedStates.includes(READ_ONLY_AUDIT_ROOT_SUPPRESSION_MARKER)
+  );
+}
+
+export function sanitizeAuditUrl(value, dynamicPatterns = []) {
   try {
     const url = new URL(String(value));
-    const pathname = redactDynamicHrefPath(url.pathname);
+    const pathname = redactDynamicHrefPath(url.pathname, dynamicPatterns);
     const sanitized = `${url.protocol}//${url.host}${pathname}`;
     return sanitized.replace(/\/$/, pathname === '/' ? '/' : '');
   } catch {
     const pathname = String(value ?? '').split(/[?#]/, 1)[0];
-    return pathname.startsWith('/') ? redactDynamicHrefPath(pathname) : pathname;
+    return pathname.startsWith('/') ? redactDynamicHrefPath(pathname, dynamicPatterns) : pathname;
   }
 }
 
-export function sanitizeAuditDiagnostic(value) {
+export function sanitizeAuditDiagnostic(value, dynamicPatterns = []) {
   let text = String(value ?? '');
-  text = text.replace(/https?:\/\/[^\s"'<>]+/gi, (candidate) => sanitizeAuditUrl(candidate));
+  text = text.replace(/https?:\/\/[^\s"'<>]+/gi, (candidate) =>
+    sanitizeAuditUrl(candidate, dynamicPatterns)
+  );
+  text = text.replace(
+    /\/[A-Za-z0-9_%@[\].-]+(?:\/[A-Za-z0-9_%@[\].-]+)+(?:\?[^\s"'<>)]*)?/g,
+    (candidate) => redactDynamicHrefPath(candidate, dynamicPatterns)
+  );
   text = text.replace(/\bBearer\s+\S+/gi, 'Bearer [redacted]');
   text = text.replace(/\b[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\b/g, '[token-redacted]');
   text = text.replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email-redacted]');
@@ -46,11 +62,29 @@ function normalizedPathSegments(value) {
 }
 
 function matchesDynamicPattern(pathSegments, patternSegments) {
-  if (pathSegments.length !== patternSegments.length) return false;
-  return patternSegments.every((segment, index) => {
-    if (segment.startsWith('[') && segment.endsWith(']')) return true;
-    return segment === pathSegments[index];
-  });
+  let pathIndex = 0;
+  for (let patternIndex = 0; patternIndex < patternSegments.length; patternIndex += 1) {
+    const segment = patternSegments[patternIndex];
+    const optionalCatchAll = /^\[\[\.\.\.[^\]]+\]\]$/.test(segment);
+    const catchAll = /^\[\.\.\.[^\]]+\]$/.test(segment);
+    const dynamic = /^\[[^.[\]]+\]$/.test(segment);
+
+    if (optionalCatchAll) return patternIndex === patternSegments.length - 1;
+    if (catchAll) {
+      return patternIndex === patternSegments.length - 1 && pathIndex < pathSegments.length;
+    }
+    if (pathIndex >= pathSegments.length) return false;
+    if (!dynamic && segment !== pathSegments[pathIndex]) return false;
+    pathIndex += 1;
+  }
+  return pathIndex === pathSegments.length;
+}
+
+function dynamicPatternSpecificity(pattern) {
+  const segments = normalizedPathSegments(pattern);
+  const literals = segments.filter((segment) => !segment.startsWith('[')).length;
+  const catchAlls = segments.filter((segment) => segment.includes('...')).length;
+  return literals * 100 + segments.length * 10 - catchAlls;
 }
 
 /** Redact route identifiers while retaining enough structure to diagnose an unnamed link. */
@@ -58,9 +92,16 @@ export function redactDynamicHrefPath(value, dynamicPatterns = []) {
   const rawPath = String(value ?? '').split(/[?#]/, 1)[0] || '/';
   const pathSegments = normalizedPathSegments(rawPath);
 
-  for (const pattern of dynamicPatterns ?? []) {
+  const matchingPatterns = (dynamicPatterns ?? [])
+    .filter((pattern) =>
+      matchesDynamicPattern(pathSegments, normalizedPathSegments(pattern))
+    )
+    .sort(
+      (left, right) => dynamicPatternSpecificity(right) - dynamicPatternSpecificity(left)
+    );
+
+  for (const pattern of matchingPatterns) {
     const patternSegments = normalizedPathSegments(pattern);
-    if (!matchesDynamicPattern(pathSegments, patternSegments)) continue;
     return `/${patternSegments
       .map((segment, index) =>
         segment.startsWith('[') && segment.endsWith(']') ? '[redacted]' : pathSegments[index]
@@ -150,6 +191,11 @@ export async function inspectPortalPage(page, dynamicPatterns = []) {
       ),
     ].filter(isVisible);
     const unnamedControls = controls.filter((element) => !accessibleName(element));
+    const hrefPaths = controls
+      .filter((element) => element instanceof HTMLAnchorElement && element.href)
+      .map((element) => new URL(element.href, window.location.href))
+      .filter((url) => url.origin === window.location.origin)
+      .map((url) => `${url.pathname}${url.search}`);
 
     const rootWidth = Math.max(
       document.documentElement?.scrollWidth ?? 0,
@@ -157,15 +203,28 @@ export async function inspectPortalPage(page, dynamicPatterns = []) {
     );
     const viewportWidth = window.innerWidth || document.documentElement?.clientWidth || 0;
     const visibleH1Count = [...document.querySelectorAll('h1')].filter(isVisible).length;
+    const errorFallbackStates = [
+      ...document.querySelectorAll('[data-portal-error-state]'),
+    ]
+      .map((element) => element.getAttribute('data-portal-error-state') || 'unknown');
+    const auditSuppressedStates = [
+      ...document.querySelectorAll('[data-portal-audit-suppressed]'),
+    ].map((element) => element.getAttribute('data-portal-audit-suppressed') || 'unknown');
     const normalizedBodyText = (document.body?.innerText ?? '').replace(/\s+/g, ' ').trim();
 
     return {
       bodyText: document.body?.innerText ?? '',
+      readOnlyAuditDocument:
+        document.documentElement?.getAttribute('data-portal-read-only-audit') === '1',
       appReady: normalizedBodyText.length >= 20 && (visibleH1Count > 0 || controls.length > 0),
+      errorFallbackDetected: errorFallbackStates.length > 0,
+      errorFallbackStates: [...new Set(errorFallbackStates)],
+      auditSuppressedStates: [...new Set(auditSuppressedStates)],
       h1Count: visibleH1Count,
       horizontalOverflowPx: Math.max(0, Math.ceil(rootWidth - viewportWidth)),
       interactiveControlCount: controls.length,
       unnamedInteractiveControlCount: unnamedControls.length,
+      hrefPaths,
       unnamedInteractiveControls: unnamedControls.slice(0, 25).map((element) => ({
         tag: element.tagName.toLowerCase(),
         role: element.getAttribute('role') || null,
@@ -179,6 +238,11 @@ export async function inspectPortalPage(page, dynamicPatterns = []) {
 
   return {
     ...inspection,
+    // This is the deployment capability handshake. The runner-provided token
+    // is not trusted merely because it has a plausible length: middleware must
+    // accept it, forward the server-only audit header, and the root layout must
+    // render its exact suppression marker before a release row can pass.
+    readOnlyCapabilityActive: isReadOnlyAuditCapabilityActive(inspection),
     unnamedInteractiveControls: inspection.unnamedInteractiveControls.map((control) => ({
       ...control,
       hrefPath: control.hrefPath

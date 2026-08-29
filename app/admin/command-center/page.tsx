@@ -11,6 +11,7 @@ import type { ChartDatum } from '@/components/portal/kit';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminCommandCenterClient from '@/components/admin/AdminCommandCenterClient';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import {
   CommandCenterKit,
   type CommandCenterQueueItem,
@@ -46,10 +47,12 @@ export default async function AdminCommandCenterPage({
   // the real command-center loader. Re-establishes the auth GUC context (RSC
   // renders outside the root layout's gucContextStorage.run() scope, so without
   // this the queries would run with anonymous RLS credentials).
+  let commandCenterLoadFailed = false;
   const data: AdminCommandCenter = await withAuthGuc(() =>
     getAdminCommandCenter(user.id, { perSectionLimit: 8 }),
   ).catch((err) => {
     console.error('[admin/command-center] failed to load command center:', err);
+    commandCenterLoadFailed = true;
     return {
       needsReply: [],
       atRisk: [],
@@ -67,11 +70,21 @@ export default async function AdminCommandCenterPage({
     };
   });
 
+  if (commandCenterLoadFailed) {
+    return (
+      <AdminDataLoadError
+        title="Command center unavailable"
+        message="We could not load the current member queues. Try again shortly."
+      />
+    );
+  }
+
   // v2 KIT is now the DEFAULT Command Center; legacy view via ?ui=legacy.
   // Runs AFTER the auth/role guard above (access control preserved) and is fed
   // by the real loader's totals/buckets — no fabricated counts.
   if (requestedUi !== 'legacy') {
     const { totals } = data;
+    let headlineLoadFailed = false;
 
     // Headline KPIs match the mockup ("Active Students / Placements YTD /
     // Completion Rate / At Risk"). Sourced from cheap, org-scoped real queries
@@ -82,19 +95,35 @@ export default async function AdminCommandCenterPage({
       const [activeStudents, placementsYtd, placementRows] = await Promise.all([
         prisma.user
           .count({ where: { organizationId: orgId, deletedAt: null, enrolledProgram: { not: null } } })
-          .catch(() => 0),
+          .catch((error) => {
+            headlineLoadFailed = true;
+            console.error('[admin/command-center] active student headline failed', error);
+            return 0;
+          }),
         prisma.placementRecord
           .count({ where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } } })
-          .catch(() => 0),
+          .catch((error) => {
+            headlineLoadFailed = true;
+            console.error('[admin/command-center] placement count headline failed', error);
+            return 0;
+          }),
         prisma.placementRecord
           .findMany({
             where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } },
             select: { placedAt: true },
           })
-          .catch(() => [] as Array<{ placedAt: Date }>),
+          .catch((error) => {
+            headlineLoadFailed = true;
+            console.error('[admin/command-center] placement trend headline failed', error);
+            return [] as Array<{ placedAt: Date }>;
+          }),
       ]);
       return { activeStudents, placementsYtd, placementRows };
-    }).catch(() => ({ activeStudents: 0, placementsYtd: 0, placementRows: [] as Array<{ placedAt: Date }> }));
+    }).catch((error) => {
+      headlineLoadFailed = true;
+      console.error('[admin/command-center] scoped headline load failed', error);
+      return { activeStudents: 0, placementsYtd: 0, placementRows: [] as Array<{ placedAt: Date }> };
+    });
 
     // Share of enrolled, non-deleted members currently in the interviewing
     // placement bucket. Falls back to "—" when there are none.
@@ -204,15 +233,20 @@ export default async function AdminCommandCenterPage({
     }).format(new Date());
 
     return (
-      <CommandCenterKit
-        dateLabel={dateLabel}
-        kpis={kpis}
-        queueItems={queueItems}
-        programHealth={programHealth}
-        placementsByMonth={placementsByMonth}
-        placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${headline.placementsYtd} total`}
-        addStudentHref="/admin/members/new"
-      />
+      <>
+        {headlineLoadFailed ? (
+          <span hidden data-portal-error-state="admin-command-center-headline-load" />
+        ) : null}
+        <CommandCenterKit
+          dateLabel={dateLabel}
+          kpis={kpis}
+          queueItems={queueItems}
+          programHealth={programHealth}
+          placementsByMonth={placementsByMonth}
+          placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${headline.placementsYtd} total`}
+          addStudentHref="/admin/members/new"
+        />
+      </>
     );
   }
 

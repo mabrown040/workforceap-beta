@@ -8,22 +8,48 @@ import {
   validateDedicatedPortalCredentials,
 } from '../scripts/lib/portal-audit-auth.mjs';
 import {
-  pendingDynamicRoutes,
+  isReadOnlyAuditCapabilityActive,
   redactDynamicHrefPath,
   sanitizeAuditDiagnostic,
+  sanitizeAuditUrl,
 } from '../scripts/lib/portal-audit-browser.mjs';
+import {
+  applyBlockedWriteFailure,
+  classifyReadOnlyAuditRequest,
+  dataRequestQuietWindowSatisfied,
+  dynamicRoutePatternMatches,
+  evaluateAccessProbe,
+  isBlockedAuditTelemetryRequest,
+  isSuppressedAuditSideEffectGetRequest,
+  isAllowedReadOnlyNonGetRequest,
+  missingRedirectFixtureOutcome,
+  navigationTargetMatches,
+  redirectTargetMatches,
+  resolveRedirectAuditEntry,
+  resolveDynamicRouteCandidates,
+  summarizeActionCoverage,
+  summarizeRedirectCoverage,
+} from '../scripts/lib/portal-audit-actions.mjs';
 import { classifyPortalAuditRow } from '../scripts/lib/portal-audit-classify.mjs';
 import {
   auditPortalRouteInventory,
   comparePortalRouteInventory,
 } from '../scripts/lib/portal-audit-inventory.mjs';
 import {
+  ATTENDED_ACTION_GATES,
   DYNAMIC_PATHS,
+  PRODUCTION_CANARY_PATHS,
+  PRODUCTION_CANARY_ROLES,
   REDIRECT_ONLY_PATHS,
+  REQUIRED_DYNAMIC_PATHS,
   ROLE_ACCESS_MATRIX,
+  SAFE_ACTION_CONTRACTS,
   STATIC_PATHS,
 } from '../scripts/lib/portal-audit-paths.mjs';
-import { validatePortalAuditTarget } from '../scripts/lib/portal-audit-target.mjs';
+import {
+  normalizePortalAuditMode,
+  validatePortalAuditTarget,
+} from '../scripts/lib/portal-audit-target.mjs';
 
 const roles = ['member', 'admin', 'employer', 'partner', 'counselor'];
 
@@ -162,18 +188,664 @@ describe('portal route inventory gate', () => {
     expect(overlapped.ok).toBe(false);
   });
 
-  it('keeps undiscovered dynamic routes explicitly pending', () => {
-    expect(pendingDynamicRoutes(['/admin/members/[id]'])).toEqual([
+  it('resolves only visible candidates that are not checked-in static routes', () => {
+    expect(
+      resolveDynamicRouteCandidates({
+        hrefPaths: ['/employer/jobs/new', '/employer/jobs/job-123?view=summary'],
+        patterns: ['/employer/jobs/[id]'],
+        excludedPaths: ['/employer/jobs/new'],
+        sourcePath: '/employer/jobs',
+      }),
+    ).toEqual([
       {
-        pattern: '/admin/members/[id]',
-        status: 'pending',
-        reason: 'requires_discoverable_safe_fixture',
+        pattern: '/employer/jobs/[id]',
+        path: '/employer/jobs/job-123?view=summary',
+        sourcePath: '/employer/jobs',
+        sourceArtifactPath: '/employer/jobs',
       },
     ]);
+  });
+
+  it('assigns overlapping paths to the most-specific dynamic template', () => {
+    expect(dynamicRoutePatternMatches('/dashboard/[...slug]', '/dashboard/jobs/job-123')).toBe(true);
+    expect(
+      resolveDynamicRouteCandidates({
+        hrefPaths: ['/dashboard/jobs/job-123'],
+        patterns: ['/dashboard/[...slug]', '/dashboard/jobs/[id]'],
+      })[0]?.pattern,
+    ).toBe('/dashboard/jobs/[id]');
+  });
+
+  it('preserves the concrete query on a discovered dynamic fixture', () => {
+    const [candidate] = resolveDynamicRouteCandidates({
+      hrefPaths: ['/employer/jobs/job-123?view=summary'],
+      patterns: ['/employer/jobs/[id]'],
+    });
+    expect(candidate).toMatchObject({
+      pattern: '/employer/jobs/[id]',
+      path: '/employer/jobs/job-123?view=summary',
+    });
+
+    const result = classifyPortalAuditRow({
+      role: 'employer',
+      viewport: 'desktop',
+      path: candidate.pattern,
+      expectedPath: '/employer/jobs/[redacted]',
+      comparisonExpectedPath: candidate.path,
+      comparisonFinalUrl: 'https://preview.example.test/employer/jobs/job-123',
+      sectionRoot: '/employer',
+      finalUrl: 'https://preview.example.test/employer/jobs/[redacted]',
+      originMatched: true,
+      queryVariantMatched: false,
+      readOnlyCapabilityActive: true,
+      title: 'Job',
+      bodyText: 'Employer job detail and applicant information.',
+      appReady: true,
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      h1Count: 1,
+      horizontalOverflowPx: 0,
+      unnamedInteractiveControls: [],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.failureReasons).toContain('query_variant_mismatch');
+    expect(result).not.toHaveProperty('comparisonExpectedPath');
+  });
+});
+
+describe('read-only portal action contracts', () => {
+  it('declares safe required coverage and attended exclusions for every role', () => {
+    for (const role of roles) {
+      const actions = SAFE_ACTION_CONTRACTS[
+        role as keyof typeof SAFE_ACTION_CONTRACTS
+      ] as Array<{
+        kind: string;
+        sourcePath: string;
+        targetPath?: string;
+        targetPattern?: string;
+        required?: boolean;
+        requiredWhenApplicable?: boolean;
+        emptyStateText?: string;
+      }>;
+      expect(actions.length).toBeGreaterThan(0);
+      expect(actions.some((action) => action.required)).toBe(true);
+      expect(
+        actions.every((action) =>
+          ['read_only_navigation', 'read_only_discovered_navigation'].includes(action.kind),
+        ),
+      ).toBe(true);
+      expect(ATTENDED_ACTION_GATES[role as keyof typeof ATTENDED_ACTION_GATES].length).toBeGreaterThan(0);
+      for (const action of actions) {
+        expect(action.sourcePath.startsWith('/')).toBe(true);
+        expect((action.targetPath ?? action.targetPattern)?.startsWith('/')).toBe(true);
+        if (action.targetPattern) {
+          expect(DYNAMIC_PATHS[role as keyof typeof DYNAMIC_PATHS]).toContain(action.targetPattern);
+          expect(action.required || action.requiredWhenApplicable).toBe(true);
+          if (action.requiredWhenApplicable) {
+            expect(action.emptyStateText).toEqual(expect.any(String));
+          }
+        }
+      }
+    }
+    expect(REQUIRED_DYNAMIC_PATHS.member).toContain('/dashboard/career-library/[id]');
+  });
+
+  it('counts a declared empty state as satisfying only a conditional requirement', () => {
+    expect(
+      summarizeActionCoverage([
+        { required: true, status: 'passed' },
+        {
+          requiredWhenApplicable: true,
+          status: 'not_applicable',
+          reason: 'declared_empty_state_verified',
+        },
+      ]),
+    ).toMatchObject({ required: 2, satisfiedRequired: 2, failedRequired: 0 });
+    expect(
+      summarizeActionCoverage([
+        {
+          requiredWhenApplicable: true,
+          status: 'not_applicable',
+          reason: 'no_safe_visible_fixture',
+        },
+      ]).failedRequired,
+    ).toBe(1);
+  });
+
+  it('fails a read-only action whenever the page attempts a write request', () => {
+    expect(
+      applyBlockedWriteFailure(
+        {
+          status: 'passed',
+          reason: 'read_only_anchor_navigation_exercised',
+          failureReasons: [],
+          blockedWriteRequestCount: 0,
+        },
+        1,
+      ),
+    ).toMatchObject({
+      status: 'failed',
+      reason: 'write_request_blocked',
+      failureReasons: ['non_get_request_blocked'],
+      blockedWriteRequestCount: 1,
+    });
+  });
+
+  it('allows only the reviewed resume-render POSTs through the read-only guard', () => {
+    expect(
+      isAllowedReadOnlyNonGetRequest('POST', '/api/member/resume/docx-html'),
+    ).toBe(true);
+    expect(
+      isAllowedReadOnlyNonGetRequest(
+        'POST',
+        '/api/counselor/members/member-1/resume/docx-html',
+      ),
+    ).toBe(true);
+    expect(isAllowedReadOnlyNonGetRequest('POST', '/api/member/resume/generate')).toBe(
+      false,
+    );
+    expect(isAllowedReadOnlyNonGetRequest('PATCH', '/api/employer/jobs/job-1')).toBe(
+      false,
+    );
+    expect(isAllowedReadOnlyNonGetRequest('POST', '/api/auth/login')).toBe(false);
+    expect(
+      isAllowedReadOnlyNonGetRequest('POST', '/api/auth/login', {
+        allowAuthentication: true,
+      }),
+    ).toBe(true);
+    expect(isBlockedAuditTelemetryRequest('POST', '/api/events')).toBe(true);
+    expect(isBlockedAuditTelemetryRequest('GET', '/api/events')).toBe(false);
+    expect(isSuppressedAuditSideEffectGetRequest('GET', '/api/auth/check-mfa-required')).toBe(true);
+    expect(isSuppressedAuditSideEffectGetRequest('POST', '/api/auth/check-mfa-required')).toBe(false);
+  });
+
+  it('origin-binds every non-GET exception before the browser can continue it', () => {
+    const origin = 'https://trusted-preview.example.test';
+    expect(
+      classifyReadOnlyAuditRequest(
+        'POST',
+        `${origin}/api/auth/login`,
+        origin,
+        { allowAuthentication: true },
+      ),
+    ).toBe('continue');
+    expect(
+      classifyReadOnlyAuditRequest(
+        'POST',
+        'https://evil.example.test/api/auth/login',
+        origin,
+        { allowAuthentication: true },
+      ),
+    ).toBe('block');
+    expect(
+      classifyReadOnlyAuditRequest(
+        'POST',
+        'https://evil.example.test/api/member/resume/docx-html',
+        origin,
+      ),
+    ).toBe('block');
+    expect(
+      classifyReadOnlyAuditRequest('POST', `${origin}/api/events`, origin),
+    ).toBe('suppress_telemetry');
+    expect(
+      classifyReadOnlyAuditRequest('GET', `${origin}/api/auth/check-mfa-required`, origin),
+    ).toBe('suppress_side_effect_get');
+    expect(
+      classifyReadOnlyAuditRequest(
+        'GET',
+        'https://evil.example.test/api/auth/check-mfa-required',
+        origin,
+      ),
+    ).toBe('continue');
+    expect(classifyReadOnlyAuditRequest('GET', 'https://cdn.example.test/app.js', origin)).toBe(
+      'continue',
+    );
+  });
+
+  it('waits for a fresh quiet window and extends it after delayed data activity', () => {
+    expect(
+      dataRequestQuietWindowSatisfied({
+        inFlightCount: 0,
+        lastActivityAt: 100,
+        waitStartedAt: 1_000,
+        now: 1_299,
+      }),
+    ).toBe(false);
+    expect(
+      dataRequestQuietWindowSatisfied({
+        inFlightCount: 0,
+        lastActivityAt: 1_250,
+        waitStartedAt: 1_000,
+        now: 1_549,
+      }),
+    ).toBe(false);
+    expect(
+      dataRequestQuietWindowSatisfied({
+        inFlightCount: 0,
+        lastActivityAt: 1_250,
+        waitStartedAt: 1_000,
+        now: 1_550,
+      }),
+    ).toBe(true);
+    expect(
+      dataRequestQuietWindowSatisfied({
+        inFlightCount: 1,
+        lastActivityAt: 1_000,
+        waitStartedAt: 1_000,
+        now: 2_000,
+      }),
+    ).toBe(false);
+  });
+
+  it('labels production as a non-staff canary and leaves staff auth attended', () => {
+    expect(PRODUCTION_CANARY_ROLES).toEqual(['member', 'employer', 'partner']);
+    expect(Object.keys(PRODUCTION_CANARY_PATHS)).toEqual(PRODUCTION_CANARY_ROLES);
+    expect(ATTENDED_ACTION_GATES.admin).toContainEqual({
+      id: 'admin-production-authentication',
+      reason: 'requires_staff_mfa',
+    });
+    expect(ATTENDED_ACTION_GATES.counselor).toContainEqual({
+      id: 'counselor-production-authentication',
+      reason: 'requires_staff_mfa',
+    });
+  });
+
+  it('suppresses the career resource view tracker only for read-only audit requests', () => {
+    const source = readFileSync(
+      join(
+        process.cwd(),
+        'app',
+        '(portal)',
+        'dashboard',
+        'career-library',
+        '[id]',
+        'page.tsx',
+      ),
+      'utf8',
+    );
+    expect(source).toContain('isReadOnlyPortalAuditHeader(requestHeaders)');
+    expect(source).toContain('career-library-view-progress-and-download-mutations');
+    expect(source).toContain('<ResourceViewTracker resourceId={id} />');
+  });
+
+  it('suppresses onboarding and shell polling only inside the authenticated read-only audit', () => {
+    const entryClient = readFileSync(
+      join(process.cwd(), 'components', 'onboarding', 'PortalEntryClient.tsx'),
+      'utf8',
+    );
+    const workspaceShell = readFileSync(
+      join(process.cwd(), 'components', 'portal', 'WorkspaceShell.tsx'),
+      'utf8',
+    );
+    const notificationBell = readFileSync(
+      join(process.cwd(), 'components', 'portal', 'NotificationBell.tsx'),
+      'utf8',
+    );
+
+    expect(entryClient).toContain('!readOnlyAudit && showOnboardingWizard');
+    expect(entryClient).toContain('onboarding-persistence-and-tour');
+    expect(workspaceShell).toContain('workspace-nav-badges-and-notification-polling');
+    expect(workspaceShell).toContain('data-portal-error-state="workspace-nav-badges"');
+    expect(notificationBell).toContain('notification-fetch-poll-and-mutations');
+    expect(notificationBell).toContain("data-portal-error-state={fetchError ? 'notification-bell-fetch' : undefined}");
+  });
+
+  it('marks primary-data fallbacks so empty-looking 200 pages cannot green the audit', () => {
+    const sources = [
+      ['app', '(portal)', 'dashboard', 'ai-tools', 'history', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'ai-tools', 'interview-practice', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'ai-tools', 'training-bridge', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'career-library', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'career-library', '[id]', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'jobs', 'page.tsx'],
+      ['app', '(portal)', 'dashboard', 'profile', 'page.tsx'],
+    ];
+
+    for (const relativePath of sources) {
+      const source = readFileSync(join(process.cwd(), ...relativePath), 'utf8');
+      expect(source, relativePath.join('/')).toContain('data-portal-error-state=');
+    }
+  });
+
+  it('marks staff and resume/resource secondary-load fallbacks with stable audit states', () => {
+    const expectedMarkers: Array<[string[], string]> = [
+      [['app', '(portal)', 'dashboard', 'ai-tools', 'resume-studio', 'page.tsx'], 'resume-studio-resume-load'],
+      [['app', '(portal)', 'dashboard', 'resources', 'page.tsx'], 'member-resources-personalization-load'],
+      [['app', '(portal)', 'partner', 'page.tsx'], 'partner-schema-compatibility-fallback'],
+      [['app', '(portal)', 'counselor', 'inbox', 'page.tsx'], 'counselor-inbox-queue-load'],
+      [['app', '(portal)', 'counselor', 'students', '[memberId]', 'page.tsx'], 'counselor-member-360-load'],
+      [['app', 'admin', 'assessments', 'page.tsx'], 'admin-assessments-average-load'],
+      [['app', 'admin', 'career-mappings', 'page.tsx'], 'admin-career-mappings-partner-load'],
+      [['app', 'admin', 'counselors', 'page.tsx'], 'admin-counselors-assignment-load'],
+      [['app', 'admin', 'employers', 'page.tsx'], 'admin-employers-aggregate-load'],
+      [['app', 'admin', 'invites', 'page.tsx'], 'admin-invites-status-load'],
+      [['app', 'admin', 'mentors', 'page.tsx'], 'admin-mentors-aggregate-load'],
+      [['app', 'admin', 'students', 'page.tsx'], 'admin-students-secondary-load'],
+      [['app', 'admin', 'subgroups', 'page.tsx'], 'admin-subgroups-aggregate-load'],
+      [['app', 'admin', 'training-progress', 'page.tsx'], 'admin-training-progress-secondary-load'],
+    ];
+
+    for (const [relativePath, marker] of expectedMarkers) {
+      const source = readFileSync(join(process.cwd(), ...relativePath), 'utf8');
+      expect(source, relativePath.join('/')).toContain(marker);
+    }
+  });
+
+  it('suppresses root analytics, telemetry identity, and service-worker writes during audit', () => {
+    const layoutSource = readFileSync(join(process.cwd(), 'app', 'layout.tsx'), 'utf8');
+    const chromeSource = readFileSync(
+      join(process.cwd(), 'components', 'DeferredRootChrome.tsx'),
+      'utf8',
+    );
+    const sentrySource = readFileSync(join(process.cwd(), 'instrumentation-client.ts'), 'utf8');
+
+    expect(layoutSource).toContain("data-portal-read-only-audit={readOnlyAudit ? '1' : undefined}");
+    expect(layoutSource).toContain('GTM_ID && !readOnlyAudit');
+    expect(layoutSource).toContain('root-gtm-sentry-utm-and-provider-metrics');
+    expect(layoutSource).toContain('root-service-worker-registration');
+    expect(layoutSource).toContain('<DeferredRootChrome suppressAnalytics={readOnlyAudit} />');
+    expect(chromeSource).toContain('!suppressAnalytics ? <DeferredAnalytics /> : null');
+    expect(sentrySource).toContain('isReadOnlyPortalAuditDocument()');
+    expect(sentrySource).toContain('beforeSendTransaction(event)');
+  });
+
+  it('accepts the audit capability only when middleware and root suppression both agree', () => {
+    expect(
+      isReadOnlyAuditCapabilityActive({
+        readOnlyAuditDocument: true,
+        auditSuppressedStates: ['root-gtm-sentry-utm-and-provider-metrics'],
+      }),
+    ).toBe(true);
+    expect(
+      isReadOnlyAuditCapabilityActive({
+        readOnlyAuditDocument: false,
+        auditSuppressedStates: ['root-gtm-sentry-utm-and-provider-metrics'],
+      }),
+    ).toBe(false);
+    expect(
+      isReadOnlyAuditCapabilityActive({
+        readOnlyAuditDocument: true,
+        auditSuppressedStates: [],
+      }),
+    ).toBe(false);
+  });
+
+  it('keeps audited training pages off Coursera OAuth and B4B caches', () => {
+    const courseLoader = readFileSync(
+      join(process.cwd(), 'lib', 'member', 'loadProgramCourses.ts'),
+      'utf8',
+    );
+    const trainingView = readFileSync(
+      join(process.cwd(), 'lib', 'member', 'memberProgramTrainingView.ts'),
+      'utf8',
+    );
+    expect(courseLoader).toContain('const fromB4B = args.readOnlyAudit');
+    expect(trainingView).toContain('readOnlyAudit: args.readOnlyAudit');
+
+    for (const relativePath of [
+      ['app', '(portal)', 'dashboard', 'program', 'page.tsx'],
+      ['app', '(portal)', 'partner', 'referred-members', '[memberId]', 'page.tsx'],
+      ['app', '(portal)', 'counselor', 'students', '[memberId]', 'page.tsx'],
+    ]) {
+      const source = readFileSync(join(process.cwd(), ...relativePath), 'utf8');
+      expect(source, relativePath.join('/')).toContain('readOnlyAudit,');
+      expect(source, relativePath.join('/')).toContain('coursera-course-resolution');
+    }
+  });
+
+  it('marks audited role-gate and counselor legacy query failures', () => {
+    const partnerGate = readFileSync(
+      join(process.cwd(), 'components', 'portal', 'PartnerExclusiveServerGate.tsx'),
+      'utf8',
+    );
+    const counselor = readFileSync(
+      join(process.cwd(), 'app', '(portal)', 'counselor', 'page.tsx'),
+      'utf8',
+    );
+    expect(partnerGate).toContain('partner-exclusive-role-lookup');
+    expect(partnerGate).toContain('if (readOnlyAudit)');
+    expect(counselor).toContain('counselor-legacy-command-center-load');
+    expect(counselor).toContain('counselor-legacy-priority-queue-load');
+  });
+
+  it('makes member-resource catalog fallbacks observable and bypasses cache during audits', () => {
+    const catalogSource = readFileSync(
+      join(process.cwd(), 'lib', 'content', 'memberResources.ts'),
+      'utf8',
+    );
+    const indexSource = readFileSync(
+      join(process.cwd(), 'app', '(portal)', 'dashboard', 'career-library', 'page.tsx'),
+      'utf8',
+    );
+    const detailSource = readFileSync(
+      join(
+        process.cwd(),
+        'app',
+        '(portal)',
+        'dashboard',
+        'career-library',
+        '[id]',
+        'page.tsx',
+      ),
+      'utf8',
+    );
+
+    expect(catalogSource).toContain('const useCache = !options?.readOnlyAudit');
+    expect(catalogSource).toContain('loadFailed: true');
+    expect(indexSource).toContain('getMemberResourcesResult({ readOnlyAudit })');
+    expect(detailSource).toContain('getMemberResourcesResult({ readOnlyAudit })');
+    expect(indexSource).toContain('career-library-resource-catalog-load');
+    expect(detailSource).toContain('career-library-resource-catalog-load');
+  });
+
+  it('requires explicit healthy denial evidence for cross-role access probes', () => {
+    expect(
+      evaluateAccessProbe(
+        {
+          ok: false,
+          documentStatus: 500,
+          failureReasons: ['document_error_status', 'route_error_fallback'],
+        },
+        'denied',
+      ).ok,
+    ).toBe(false);
+    expect(
+      evaluateAccessProbe(
+        {
+          ok: false,
+          documentStatus: 200,
+          wrongRoleRedirect: true,
+          unexpectedRedirect: true,
+          failureReasons: ['wrong_role_redirect', 'unexpected_redirect'],
+        },
+        'denied',
+      ),
+    ).toMatchObject({ ok: true, denialEvidence: 'safe_redirect_outside_target' });
+    expect(
+      evaluateAccessProbe(
+        {
+          ok: false,
+          documentStatus: 403,
+          failureReasons: ['document_error_status', 'app_not_ready', 'missing_h1'],
+        },
+        'denied',
+      ),
+    ).toMatchObject({ ok: true, denialEvidence: 'http_403' });
+    expect(
+      evaluateAccessProbe(
+        {
+          ok: false,
+          documentStatus: 200,
+          wrongRoleRedirect: false,
+          unexpectedRedirect: true,
+          failureReasons: ['unexpected_redirect'],
+        },
+        'denied',
+      ).ok,
+    ).toBe(false);
+  });
+
+  it('matches only the resolved concrete target for dynamic navigation', () => {
+    const contract = { targetPattern: '/admin/members/[id]' };
+    expect(
+      navigationTargetMatches(
+        '/admin/members/member-a',
+        contract,
+        '/admin/members/member-a',
+      ),
+    ).toBe(true);
+    expect(
+      navigationTargetMatches(
+        '/admin/members/member-b',
+        contract,
+        '/admin/members/member-a',
+      ),
+    ).toBe(false);
+  });
+
+  it('resolves dynamic redirect aliases and verifies exact internal targets', () => {
+    const resolved = resolveRedirectAuditEntry(
+      {
+        path: '/partner/members/[id]',
+        target: '/partner/referred-members/[memberId]',
+      },
+      new Map([
+        ['/partner/referred-members/[memberId]', '/partner/referred-members/member-123'],
+      ]),
+    );
+    expect(resolved).toEqual({
+      sourcePath: '/partner/members/member-123',
+      targetPath: '/partner/referred-members/member-123',
+    });
+    expect(
+      redirectTargetMatches(
+        'https://preview.example.test/partner/referred-members/member-123',
+        resolved!.targetPath,
+        'https://preview.example.test',
+      ),
+    ).toBe(true);
+    expect(
+      redirectTargetMatches(
+        'https://preview.example.test/partner/referred-members/wrong',
+        resolved!.targetPath,
+        'https://preview.example.test',
+      ),
+    ).toBe(false);
+    expect(
+      redirectTargetMatches(
+        'https://evil.example.test/partner/referred-members/member-123',
+        resolved!.targetPath,
+        'https://preview.example.test',
+      ),
+    ).toBe(false);
+    expect(summarizeRedirectCoverage([{ status: 'passed' }, { status: 'failed' }])).toEqual({
+      total: 2,
+      passed: 1,
+      failed: 1,
+      notApplicable: 0,
+    });
+  });
+
+  it('does not fail an optional dynamic redirect when no safe fixture exists', () => {
+    expect(missingRedirectFixtureOutcome('when_discoverable')).toEqual({
+      status: 'not_applicable',
+      resultReason: 'no_safe_visible_fixture',
+      failureReasons: [],
+    });
+    expect(missingRedirectFixtureOutcome('required')).toEqual({
+      status: 'failed',
+      resultReason: 'missing_dynamic_redirect_fixture',
+      failureReasons: ['missing_dynamic_redirect_fixture'],
+    });
+    expect(REQUIRED_DYNAMIC_PATHS.partner).not.toContain(
+      '/partner/referred-members/[memberId]',
+    );
+  });
+
+  it('requires redirect query and fragment semantics to match', () => {
+    const origin = 'https://preview.example.test';
+    expect(
+      redirectTargetMatches(
+        `${origin}/dashboard/ai-tools?agent=readiness&tab=session`,
+        '/dashboard/ai-tools?tab=session&agent=readiness',
+        origin,
+      ),
+    ).toBe(true);
+    expect(
+      redirectTargetMatches(
+        `${origin}/dashboard/profile`,
+        '/dashboard/profile#settings',
+        origin,
+      ),
+    ).toBe(false);
+  });
+
+  it('asserts the final target of the chained readiness legacy redirect', () => {
+    expect(REDIRECT_ONLY_PATHS.member).toContainEqual({
+      path: '/dashboard/ai-tools/readiness-coach',
+      target: '/dashboard/ai-tools?tab=session&agent=readiness',
+      reason: 'legacy_alias',
+    });
+  });
+
+  it('keeps resolved redirect fixture identifiers out of persisted audit code', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'scripts', 'audit-portal-routes.mjs'),
+      'utf8',
+    );
+    expect(source).not.toContain('resolvedSourcePath: resolved?.sourcePath');
+    expect(source).not.toContain('resolvedTargetPath: resolved?.targetPath');
+    expect(source).toContain("entry.path.replace(/\\[[^\\]]+\\]/g, '[redacted]')");
   });
 });
 
 describe('portal row quality signals', () => {
+  it('fails a healthy-looking 200 page that rendered a stable data-load fallback', () => {
+    const result = classifyPortalAuditRow({
+      role: 'admin',
+      viewport: 'desktop',
+      path: '/admin/overview',
+      expectedPath: '/admin/overview',
+      sectionRoot: '/admin',
+      finalUrl: 'https://example.test/admin/overview',
+      originMatched: true,
+      queryVariantMatched: true,
+      readOnlyCapabilityActive: true,
+      title: 'Admin overview',
+      bodyText:
+        'Admin overview unavailable There was a problem loading data. This is often temporary. Admin home Jobs',
+      appReady: true,
+      errorFallbackDetected: true,
+      errorFallbackStates: ['admin-data-load'],
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      h1Count: 1,
+      horizontalOverflowPx: 0,
+      unnamedInteractiveControls: [],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.routeErrorFallback).toBe(true);
+    expect(result.failureReasons).toContain('route_error_fallback');
+    expect(result.errorFallbackStates).toEqual(['admin-data-load']);
+  });
+
+  it('marks every shared portal error fallback with the stable DOM contract', () => {
+    for (const relativePath of [
+      ['components', 'admin', 'AdminDataLoadError.tsx'],
+      ['components', 'error', 'RouteErrorFallback.tsx'],
+      ['components', 'error', 'DashboardErrorFallback.tsx'],
+      ['components', 'portal', 'PortalRouteFallback.tsx'],
+    ]) {
+      const source = readFileSync(join(process.cwd(), ...relativePath), 'utf8');
+      expect(source).toContain('data-portal-error-state=');
+    }
+  });
+
   it('detects wrong-role redirects, overflow, duplicate h1s, and unnamed controls', () => {
     const result = classifyPortalAuditRow({
       role: 'partner',
@@ -200,6 +872,24 @@ describe('portal row quality signals', () => {
       ])
     );
     expect(result).not.toHaveProperty('bodyText');
+    expect(result).not.toHaveProperty('title');
+  });
+
+  it('settles mount-time data requests before taking the classified DOM snapshot', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'scripts', 'audit-portal-routes.mjs'),
+      'utf8',
+    );
+    const auditRouteStart = source.indexOf('async function auditRoute(');
+    const auditRouteEnd = source.indexOf('\nasync function auditViewport(', auditRouteStart);
+    const auditRouteSource = source.slice(auditRouteStart, auditRouteEnd);
+    const settlement = auditRouteSource.indexOf('await dataRequests.waitForSettlement');
+    const inspection = auditRouteSource.indexOf('inspection = await inspectPortalPage', settlement);
+    const classification = auditRouteSource.indexOf('const row = classifyPortalAuditRow', inspection);
+    expect(auditRouteStart).toBeGreaterThanOrEqual(0);
+    expect(settlement).toBeGreaterThanOrEqual(0);
+    expect(inspection).toBeGreaterThan(settlement);
+    expect(classification).toBeGreaterThan(inspection);
   });
 
   it('fails a blank or half-hydrated 200 page', () => {
@@ -252,6 +942,155 @@ describe('portal row quality signals', () => {
     ).toBe('/partner/referred-members/[redacted]');
   });
 
+  it('redacts a dynamic destination without rewriting a reserved static sibling', () => {
+    expect(
+      sanitizeAuditUrl('https://example.test/admin/members/duplicates'),
+    ).toBe('https://example.test/admin/members/duplicates');
+    expect(
+      sanitizeAuditUrl('https://example.test/admin/members/member-123', [
+        '/admin/members/[id]',
+      ]),
+    ).toBe('https://example.test/admin/members/[redacted]');
+  });
+
+  it('classifies a redacted dynamic fixture against its redacted expected path', () => {
+    const finalUrl = sanitizeAuditUrl(
+      'https://example.test/admin/members/member-slug',
+      ['/admin/members/[id]'],
+    );
+    const result = classifyPortalAuditRow({
+      role: 'admin',
+      viewport: 'desktop',
+      path: '/admin/members/[id]',
+      expectedPath: '/admin/members/[redacted]',
+      sectionRoot: '/admin',
+      finalUrl,
+      queryVariantMatched: true,
+      readOnlyCapabilityActive: true,
+      title: 'Member record',
+      bodyText: 'Member record details are available for authorized staff.',
+      appReady: true,
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      h1Count: 1,
+      horizontalOverflowPx: 0,
+      unnamedInteractiveControls: [],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.unexpectedRedirect).toBe(false);
+  });
+
+  it('fails a same-path redirect to an external origin', () => {
+    const result = classifyPortalAuditRow({
+      role: 'admin',
+      viewport: 'desktop',
+      path: '/admin',
+      expectedPath: '/admin',
+      sectionRoot: '/admin',
+      finalUrl: 'https://evil.example/admin',
+      originMatched: false,
+      queryVariantMatched: true,
+      title: 'Admin',
+      bodyText: 'A convincing but external admin page with enough content.',
+      appReady: true,
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      h1Count: 1,
+      horizontalOverflowPx: 0,
+      unnamedInteractiveControls: [],
+    });
+    expect(result.ok).toBe(false);
+    expect(result.failureReasons).toContain('external_origin_redirect');
+  });
+
+  it('fails a healthy-looking row when the deployment did not accept the audit capability', () => {
+    const result = classifyPortalAuditRow({
+      role: 'member',
+      viewport: 'desktop',
+      path: '/dashboard',
+      expectedPath: '/dashboard',
+      sectionRoot: '/dashboard',
+      finalUrl: 'https://preview.example.test/dashboard',
+      originMatched: true,
+      queryVariantMatched: true,
+      readOnlyCapabilityActive: false,
+      auditSuppressedStates: [],
+      title: 'Dashboard',
+      bodyText: 'Member dashboard with training progress and next steps.',
+      appReady: true,
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      h1Count: 1,
+      horizontalOverflowPx: 0,
+      unnamedInteractiveControls: [],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.failureReasons).toContain('read_only_audit_capability_not_active');
+  });
+
+  it('redacts human-readable dynamic slugs inside diagnostics', () => {
+    expect(
+      sanitizeAuditDiagnostic(
+        'Navigation failed at https://example.test/admin/members/jane-doe?tab=resume',
+        ['/admin/members/[id]'],
+      ),
+    ).toBe('Navigation failed at https://example.test/admin/members/[redacted]');
+    expect(
+      sanitizeAuditDiagnostic('Failed loading /admin/members/jane-doe', [
+        '/admin/members/[id]',
+      ]),
+    ).toBe('Failed loading /admin/members/[redacted]');
+    expect(
+      sanitizeAuditUrl('https://example.test/dashboard/jobs/member-readable-slug', [
+        '/dashboard/[...slug]',
+      ]),
+    ).toBe('https://example.test/dashboard/[redacted]');
+  });
+
+  it('prefers a specific dynamic pattern over the dashboard catch-all', () => {
+    const patterns = ['/dashboard/[...slug]', '/dashboard/career-library/[id]'];
+    const expectedPath = new URL(
+      sanitizeAuditUrl(
+        'https://example.test/dashboard/career-library/career-123',
+        patterns,
+      ),
+    ).pathname;
+    const wrongFinalUrl = sanitizeAuditUrl(
+      'https://example.test/dashboard/jobs',
+      patterns,
+    );
+    expect(expectedPath).toBe('/dashboard/career-library/[redacted]');
+    expect(wrongFinalUrl).toBe('https://example.test/dashboard/[redacted]');
+
+    const result = classifyPortalAuditRow({
+      role: 'member',
+      viewport: 'desktop',
+      path: '/dashboard/career-library/[id]',
+      expectedPath,
+      comparisonExpectedPath: '/dashboard/career-library/career-123',
+      sectionRoot: '/dashboard',
+      finalUrl: wrongFinalUrl,
+      comparisonFinalUrl: 'https://example.test/dashboard/jobs',
+      queryVariantMatched: true,
+      title: 'Career resource',
+      bodyText: 'Career resource details are available for this member.',
+      appReady: true,
+      documentStatus: 200,
+      consoleErrors: [],
+      pageErrors: [],
+      h1Count: 1,
+      horizontalOverflowPx: 0,
+      unnamedInteractiveControls: [],
+    });
+    expect(result.unexpectedRedirect).toBe(true);
+    expect(result.ok).toBe(false);
+  });
+
   it('ships a machine-readable result artifact schema', () => {
     const schema = JSON.parse(
       readFileSync(join(process.cwd(), 'docs', 'portal-audit-results.schema.json'), 'utf8')
@@ -268,11 +1107,76 @@ describe('portal row quality signals', () => {
         'summary',
       ])
     );
-    expect(schema.properties.schemaVersion.const).toBe('2.0.0');
+    expect(schema.properties.schemaVersion.const).toBe('3.1.0');
+    expect(schema.required).toContain('attendedGates');
+    expect(schema.$defs.roleResult.required).toContain('actionCoverage');
+    expect(schema.$defs.roleResult.required).toContain('redirectCoverage');
+    expect(schema.$defs.roleAuth.required).toContain('blockedPostLoginWriteRequestCount');
+    expect(schema.$defs.roleAuth.required).toContain('suppressedPostLoginSideEffectRequestCount');
+    expect(schema.$defs.routeRow.required).toContain('errorFallbackDetected');
+    expect(schema.$defs.routeRow.required).toContain('auditSuppressedStates');
+    expect(schema.$defs.routeRow.required).toContain('readOnlyCapabilityActive');
+    expect(schema.$defs.routeRow.properties.readOnlyCapabilityActive.type).toBe('boolean');
+    expect(schema.$defs.routeRow.required).toContain('suppressedSideEffectRequestCount');
+    expect(schema.$defs.accessProbe.required).toContain('targetUsable');
+    expect(schema.$defs.accessProbe.required).toContain('failureReasons');
+    expect(schema.properties.executionPolicy.properties.actions.enum).toContain(
+      'root_access_only',
+    );
+    expect(schema.properties.executionPolicy.required).toContain('evidenceScope');
+    expect(schema.properties.executionPolicy.properties.evidenceScope.enum).toContain(
+      'production_nonstaff_canary',
+    );
+    expect(schema.$defs.dynamicRoute.properties.status.enum).toEqual([
+      'passed',
+      'failed',
+      'not_applicable',
+    ]);
   });
 });
 
 describe('portal target and workflow trust gate', () => {
+  it('normalizes audit modes before the crash-safe artifact is initialized', () => {
+    expect(normalizePortalAuditMode(' ISOLATED_PREVIEW ')).toBe('isolated_preview');
+    expect(normalizePortalAuditMode('garbage')).toBeNull();
+    expect(normalizePortalAuditMode(undefined)).toBeNull();
+  });
+
+  it('normalizes an unsupported mode to null for a schema-valid blocked artifact', () => {
+    expect(
+      validatePortalAuditTarget({
+        baseURL: 'https://preview.example.test',
+        mode: 'garbage',
+      }),
+    ).toMatchObject({
+      ok: false,
+      mode: null,
+      errors: ['unsupported_audit_mode'],
+    });
+  });
+
+  it('writes schema-enum-safe mode fields when an unsupported mode is executed', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'portal-audit-mode-'));
+    const output = join(directory, 'result.json');
+    const run = spawnSync(process.execPath, ['scripts/audit-portal-routes.mjs'], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        PORTAL_AUDIT_MODE: 'garbage',
+        PLAYWRIGHT_BASE_URL: 'https://preview.example.test',
+        PORTAL_AUDIT_OUTPUT: output,
+      },
+      encoding: 'utf8',
+    });
+
+    expect(run.status).toBe(1);
+    const result = JSON.parse(readFileSync(output, 'utf8'));
+    expect(result.status).toBe('blocked');
+    expect(result.targetValidation.mode).toBeNull();
+    expect(result.executionPolicy.mode).toBeNull();
+    expect(result.executionPolicy.evidenceScope).toBeNull();
+  });
+
   it('accepts only the exact configured preview origin', () => {
     expect(
       validatePortalAuditTarget({
@@ -359,6 +1263,10 @@ describe('portal target and workflow trust gate', () => {
     expect(workflow).toContain('${{ secrets.PREVIEW_SITE_URL }}');
     expect(workflow).toContain("if-no-files-found: error");
     expect(workflow).not.toMatch(/\*\.vercel\.app/);
+    const productionStep = workflow.slice(workflow.indexOf('Run non-staff production canary'));
+    expect(productionStep).toContain('E2E_MEMBER_EMAIL');
+    expect(productionStep).not.toContain('E2E_ADMIN_EMAIL');
+    expect(productionStep).not.toContain('E2E_COUNSELOR_EMAIL');
     expect(existsSync(join(process.cwd(), 'docs', 'portal-audit-results.json'))).toBe(false);
   });
 

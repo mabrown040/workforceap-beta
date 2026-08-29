@@ -19,6 +19,7 @@ export interface PromptInput {
    *  time. 1 means "this is their first cert"; the LLM should write with
    *  more energy in that case. */
   completedCount: number;
+  totalCourses?: number;
   programSlug: string | null;
   /** Optional in-house counselor messages to anchor the voice. When absent,
    *  the LLM defaults to a warm, professional tone described in the system
@@ -35,7 +36,7 @@ export interface BuiltPrompt {
   promptVersion: string;
 }
 
-export const CASCADE_PROMPT_VERSION = 'cascade-draft-v1';
+export const CASCADE_PROMPT_VERSION = 'cascade-draft-v2';
 
 const SYSTEM_PROMPT_BASE = `You draft proactive counselor outreach for a workforce-development platform that helps adult learners earn certifications and land jobs.
 
@@ -83,16 +84,32 @@ export function buildDraftPrompt(input: PromptInput): BuiltPrompt {
     SYSTEM_PROMPT_BASE + renderStyleExamples(input.styleExamples ?? []);
 
   const isFirstCompletion = input.completedCount === 1;
+  const milestoneDescription: Record<MilestoneType, string> = {
+    training_started: 'started their first validated training course',
+    first_course_completed: 'completed their first validated course',
+    course_completed: 'completed a validated course',
+    program_halfway: 'reached the halfway point of their validated program',
+    program_completed: 'completed every validated course in their program',
+  };
+  const outreachRule =
+    input.milestoneType === 'training_started' || input.milestoneType === 'program_halfway'
+      ? 'Do NOT draft a celebrate_milestone email for this milestone. Keep any action counselor-facing; there should be no automatic member spam.'
+      : 'A short celebrate_milestone draft is allowed, but it still requires counselor approval.';
 
-  const userPrompt = `A learner has just completed a course. Draft the cascade.
+  const userPrompt = `A learner has ${milestoneDescription[input.milestoneType]}. Draft the cascade.
 
+Milestone type: ${input.milestoneType}
 Learner first name: ${input.learnerFirstName}
-Course name: ${input.courseName}
-Course slug (for suggest_next_course references): ${input.courseSlug}
+Triggering course name: ${input.courseName}
+Triggering course slug: ${input.courseSlug}
 Program slug: ${input.programSlug ?? '(unknown)'}
 Courses completed in this program so far (including this one): ${input.completedCount}${
+    input.totalCourses == null ? '' : `\nValidated courses in this program: ${input.totalCourses}`
+  }${
     isFirstCompletion ? '\nNote: This is the learner\'s FIRST completion in this program. Write with appropriate energy.' : ''
   }
+
+${outreachRule}
 
 Produce the JSON object as specified.`;
 

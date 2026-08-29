@@ -6,10 +6,104 @@ import { CourseProgressStatus } from '@prisma/client';
 import {
   computeCourseProgressUpdate,
   nextEnrollmentReportStart,
-  shouldCheckProgramCompletionAfterSync,
+  normalizeB4BEnrollmentReport,
+  planB4BRowWrite,
+  selectCanonicalB4BMapping,
   type B4BProgressInput,
   type ExistingCourseProgress,
 } from './b4bSync';
+
+test('normalizes Coursera lastActivity and externalId before persistence', () => {
+  const normalized = normalizeB4BEnrollmentReport({
+    id: 'report-1',
+    programId: 'program-1',
+    externalId: ' Learner@Example.com ',
+    contentId: 'course-1',
+    contentType: 'course',
+    isCompleted: false,
+    lastActivity: 1_725_000_000_000,
+    lastActivityAt: 1_700_000_000_000,
+    enrolledAt: 0,
+    overallProgress: 93,
+    membershipState: 'MEMBER',
+    updatedAt: 1_726_000_000_000,
+    contentName: 'Course One',
+    contentSlug: 'course-one',
+    fullName: 'Learner One',
+    email: '',
+    programName: 'CompTIA A+',
+    programSlug: 'comptia-a-plus',
+  });
+
+  assert.equal(normalized.email, 'learner@example.com');
+  assert.equal(normalized.lastActivityAt, 1_725_000_000_000);
+  assert.equal(normalized.overallProgress, 93);
+});
+
+test('plans a raw row for every identified learner but canonical progress only for mapped users', () => {
+  const report = normalizeB4BEnrollmentReport({
+    id: 'report-1',
+    programId: 'program-1',
+    externalId: 'learner@example.com',
+    contentId: 'course-1',
+    contentType: 'course',
+    isCompleted: false,
+    lastActivity: 1_725_000_000_000,
+    enrolledAt: 0,
+    overallProgress: 93,
+    membershipState: 'MEMBER',
+    updatedAt: 1_726_000_000_000,
+    contentName: 'Course One',
+    contentSlug: 'course-one',
+    fullName: 'Learner One',
+    email: 'learner@example.com',
+    programName: 'CompTIA A+',
+    programSlug: 'comptia-a-plus',
+  });
+
+  const unmatched = planB4BRowWrite({ report, userId: null, canonicalMapping: null });
+  assert.equal(unmatched.writeRawProgress, true);
+  assert.equal(unmatched.canonicalProgress, null);
+
+  const linkedUnknown = planB4BRowWrite({ report, userId: 'user-1', canonicalMapping: null });
+  assert.equal(linkedUnknown.writeRawProgress, true);
+  assert.equal(linkedUnknown.canonicalProgress, null);
+
+  const linkedMapped = planB4BRowWrite({
+    report,
+    userId: 'user-1',
+    canonicalMapping: {
+      programSlug: 'comptia-a-plus',
+      courseSlug: 'course-one',
+    },
+  });
+  assert.deepEqual(linkedMapped.canonicalProgress, {
+    userId: 'user-1',
+    programSlug: 'comptia-a-professional-certificate',
+    courseSlug: 'course-one',
+  });
+});
+
+test('requires a unique static course-id mapping while allowing a DB override', () => {
+  const ambiguous = [
+    { programSlug: 'program-a', courseSlug: 'shared-course' },
+    { programSlug: 'program-b', courseSlug: 'shared-course' },
+  ];
+  assert.equal(
+    selectCanonicalB4BMapping({ dbMapping: null, staticMappings: ambiguous }),
+    null,
+  );
+  assert.deepEqual(
+    selectCanonicalB4BMapping({
+      dbMapping: { programSlug: 'comptia-a-plus', courseSlug: 'mapped-course' },
+      staticMappings: ambiguous,
+    }),
+    {
+      programSlug: 'comptia-a-professional-certificate',
+      courseSlug: 'mapped-course',
+    },
+  );
+});
 
 /**
  * Unit tests for the pure `computeCourseProgressUpdate` merge helper —
@@ -181,59 +275,4 @@ test('nextEnrollmentReportStart: advances by what arrived, not by limit', () => 
 test('nextEnrollmentReportStart: stops at total and on empty pages', () => {
   assert.equal(nextEnrollmentReportStart({ start: 400, batchLength: 500, limit: 1000, total: 900 }), null);
   assert.equal(nextEnrollmentReportStart({ start: 0, batchLength: 0, limit: 1000, total: undefined }), null);
-});
-
-/**
- * Unit tests for `shouldCheckProgramCompletionAfterSync` — the gate that
- * decides which users get the (idempotent but non-free) "did they just
- * graduate?" check after an org-wide B4B batch sync pass.
- *
- * Regression this locks in: the B4B batch sync cron upserts CourseProgress
- * directly and used to never call `handleProgramCompletion` at all, so a
- * member whose LAST course completion arrived only via the batch job never
- * got the job-ready graduation kit. The fix must only run the check for
- * users where a completion was newly recorded this run for their CURRENT
- * enrolled program — not for every synced member on every 6h cron tick.
- */
-
-test('no enrolledProgram on file → false (nothing to check against)', () => {
-  assert.equal(
-    shouldCheckProgramCompletionAfterSync({
-      enrolledProgram: null,
-      newlyCompletedProgramSlugs: ['some-program'],
-    }),
-    false,
-  );
-});
-
-test('newly completed program matches enrolledProgram → true', () => {
-  assert.equal(
-    shouldCheckProgramCompletionAfterSync({
-      enrolledProgram: 'it-support',
-      newlyCompletedProgramSlugs: ['it-support'],
-    }),
-    true,
-  );
-});
-
-test('newly completed program is a DIFFERENT program than enrolledProgram → false', () => {
-  // e.g. secondary CourseEnrollment completed, but that's not the program
-  // the member is currently enrolled in — no graduation kit for that.
-  assert.equal(
-    shouldCheckProgramCompletionAfterSync({
-      enrolledProgram: 'it-support',
-      newlyCompletedProgramSlugs: ['project-management'],
-    }),
-    false,
-  );
-});
-
-test('no newly completed programs this run → false (nothing changed)', () => {
-  assert.equal(
-    shouldCheckProgramCompletionAfterSync({
-      enrolledProgram: 'it-support',
-      newlyCompletedProgramSlugs: [],
-    }),
-    false,
-  );
 });

@@ -121,6 +121,7 @@ async function LegacyPartnersTable({ userId, scope }: { userId: string; scope: i
       {loadError ? (
         <div
           className="admin-empty-state"
+          data-portal-error-state="admin-partners-load"
           style={{ borderColor: 'rgba(185, 28, 28, 0.35)', background: 'rgba(254, 242, 242, 0.6)' }}
           role="alert"
         >

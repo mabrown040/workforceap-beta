@@ -36,7 +36,8 @@ function formatTimeLabel(iso: string): string {
 }
 
 export async function buildCounselorInboxRows(
-  memberIds: string[]
+  memberIds: string[],
+  opts: { readOnlyAudit?: boolean } = {},
 ): Promise<CounselorInboxRow[]> {
   if (memberIds.length === 0) return [];
 
@@ -63,7 +64,7 @@ export async function buildCounselorInboxRows(
   const idsNeedingThread = memberIds.filter(
     (id) => memberById.has(id) && !threadByMemberId.has(id)
   );
-  if (idsNeedingThread.length > 0) {
+  if (idsNeedingThread.length > 0 && !opts.readOnlyAudit) {
     const assignments = await prisma.counselorAssignment.findMany({
       take: 500,
       where: { memberId: { in: idsNeedingThread }, active: true },

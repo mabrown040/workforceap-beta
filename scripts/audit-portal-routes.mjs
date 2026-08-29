@@ -12,10 +12,14 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  ATTENDED_ACTION_GATES,
   DYNAMIC_PATHS,
   PRODUCTION_CANARY_PATHS,
+  PRODUCTION_CANARY_ROLES,
   REDIRECT_ONLY_PATHS,
+  REQUIRED_DYNAMIC_PATHS,
   ROLE_ACCESS_MATRIX,
+  SAFE_ACTION_CONTRACTS,
   SECTION_LOGIN_REDIRECT,
   STATIC_PATHS,
 } from './lib/portal-audit-paths.mjs';
@@ -28,28 +32,47 @@ import {
   PORTAL_AUDIT_NAVIGATION_TIMEOUT_MS,
   PORTAL_AUDIT_VIEWPORTS,
   inspectPortalPage,
-  pendingDynamicRoutes,
+  READ_ONLY_AUDIT_ROOT_SUPPRESSION_MARKER,
   sanitizeAuditDiagnostic,
   sanitizeAuditUrl,
   waitForPortalReady,
 } from './lib/portal-audit-browser.mjs';
+import {
+  applyBlockedWriteFailure,
+  classifyReadOnlyAuditRequest,
+  dataRequestQuietWindowSatisfied,
+  evaluateAccessProbe,
+  isBlockedAuditTelemetryRequest,
+  isAllowedReadOnlyNonGetRequest,
+  navigationTargetMatches,
+  missingRedirectFixtureOutcome,
+  redirectTargetMatches,
+  resolveRedirectAuditEntry,
+  resolveDynamicRouteCandidates,
+  summarizeActionCoverage,
+  summarizeRedirectCoverage,
+} from './lib/portal-audit-actions.mjs';
 import {
   auditPortalRouteInventory,
   formatPortalRouteInventoryDrift,
 } from './lib/portal-audit-inventory.mjs';
 import {
   formatPortalAuditTargetErrors,
+  normalizePortalAuditMode,
   validatePortalAuditTarget,
 } from './lib/portal-audit-target.mjs';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const root = join(scriptDirectory, '..');
 const rawBaseURL = process.env.PLAYWRIGHT_BASE_URL?.trim() || 'http://localhost:3000';
-const requestedMode =
+const rawRequestedMode =
   process.env.PORTAL_AUDIT_MODE?.trim().toLowerCase() ||
   (rawBaseURL.startsWith('http://localhost:') || rawBaseURL.startsWith('http://127.0.0.1:')
     ? 'local'
     : '');
+// Normalize before the first crash-safe artifact is written. An interrupted
+// run must never leave an enum-invalid requested mode on disk.
+const requestedMode = normalizePortalAuditMode(rawRequestedMode);
 const sectionArg = (process.env.PORTAL_AUDIT_SECTION ?? 'all').trim().toLowerCase();
 const outputPath = process.env.PORTAL_AUDIT_OUTPUT
   ? resolve(root, process.env.PORTAL_AUDIT_OUTPUT)
@@ -62,7 +85,125 @@ const runStartedAt = Date.now();
 let deadlineAt = runStartedAt + 25 * 60_000;
 let trustedOrigin = null;
 
+const READ_ONLY_AUDIT_TOKEN_HEADER_NAME = 'x-workforceap-read-only-audit-token';
+
 const allDynamicPatterns = Object.values(DYNAMIC_PATHS).flat();
+
+function sanitizePortalDiagnostic(value) {
+  return sanitizeAuditDiagnostic(value, allDynamicPatterns);
+}
+
+async function installReadOnlyRequestGuard(context, options = {}) {
+  const blockedByPage = new WeakMap();
+  const blockedTelemetryByPage = new WeakMap();
+  const suppressedSideEffectsByPage = new WeakMap();
+  let unscopedBlockedCount = 0;
+  let unscopedBlockedTelemetryCount = 0;
+  let unscopedSuppressedSideEffectCount = 0;
+
+  await context.route('**/*', async (route) => {
+    const request = route.request();
+    const disposition = classifyReadOnlyAuditRequest(
+      request.method(),
+      request.url(),
+      trustedOrigin,
+      options
+    );
+
+    if (disposition === 'suppress_telemetry') {
+      try {
+        const page = request.frame().page();
+        blockedTelemetryByPage.set(
+          page,
+          (blockedTelemetryByPage.get(page) ?? 0) + 1
+        );
+      } catch {
+        unscopedBlockedTelemetryCount += 1;
+      }
+      // Count expected mount telemetry but satisfy the caller locally so a
+      // deliberately suppressed write does not create a false console error.
+      await route.fulfill({ status: 204, body: '' });
+      return;
+    }
+
+    if (disposition === 'suppress_side_effect_get') {
+      try {
+        const page = request.frame().page();
+        suppressedSideEffectsByPage.set(
+          page,
+          (suppressedSideEffectsByPage.get(page) ?? 0) + 1
+        );
+      } catch {
+        unscopedSuppressedSideEffectCount += 1;
+      }
+      // The MFA banner only needs a non-sensitive enrolled state. Fulfilling
+      // locally avoids consuming shared Upstash rate-limit capacity.
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          mfaEnforcement: false,
+          mfaRequired: false,
+          currentAal: 'aal2',
+          nextAal: 'aal2',
+          auditSuppressed: true,
+        }),
+      });
+      return;
+    }
+
+    if (disposition === 'continue') {
+      let isTrustedRequest = false;
+      try {
+        isTrustedRequest = new URL(request.url()).origin === trustedOrigin;
+      } catch {
+        // Safe methods may continue without receiving the audit-only header.
+      }
+      if (isTrustedRequest) {
+        await route.continue({
+          headers: {
+            ...request.headers(),
+            [READ_ONLY_AUDIT_TOKEN_HEADER_NAME]: process.env.PORTAL_AUDIT_READ_ONLY_TOKEN,
+          },
+        });
+      } else {
+        await route.continue();
+      }
+      return;
+    }
+
+    try {
+      const page = request.frame().page();
+      blockedByPage.set(page, (blockedByPage.get(page) ?? 0) + 1);
+    } catch {
+      unscopedBlockedCount += 1;
+    }
+    await route.abort('blockedbyclient');
+  });
+
+  return {
+    blockedWriteCount(page) {
+      return (blockedByPage.get(page) ?? 0) + unscopedBlockedCount;
+    },
+    blockedTelemetryCount(page) {
+      return (
+        (blockedTelemetryByPage.get(page) ?? 0) + unscopedBlockedTelemetryCount
+      );
+    },
+    suppressedSideEffectCount(page) {
+      return (
+        (suppressedSideEffectsByPage.get(page) ?? 0) + unscopedSuppressedSideEffectCount
+      );
+    },
+  };
+}
+
+function discoveryExclusionsForRole(role) {
+  return [
+    ...(STATIC_PATHS[role] ?? []),
+    ...(REDIRECT_ONLY_PATHS[role] ?? []).map((entry) => entry.path),
+  ];
+}
 
 function emptyInventory() {
   return {
@@ -82,13 +223,23 @@ function emptySummary() {
     failedRoles: 0,
     totalAccessProbes: 0,
     failedAccessProbes: 0,
-    pendingDynamicRoutes: 0,
+    totalDynamicChecks: 0,
+    passedDynamicChecks: 0,
+    failedDynamicChecks: 0,
+    notApplicableDynamicRoutes: 0,
+    totalRedirectChecks: 0,
+    passedRedirectChecks: 0,
+    failedRedirectChecks: 0,
+    notApplicableRedirectChecks: 0,
+    totalRequiredActions: 0,
+    satisfiedRequiredActions: 0,
+    failedRequiredActions: 0,
   };
 }
 
 const artifact = {
   $schema: '../docs/portal-audit-results.schema.json',
-  schemaVersion: '2.0.0',
+  schemaVersion: '3.1.0',
   // A run starts failed/incomplete. Only a complete green run changes this to passed,
   // so a killed process can never leave a stale success artifact behind.
   status: 'failed',
@@ -112,12 +263,19 @@ const artifact = {
   },
   executionPolicy: {
     mode: requestedMode || null,
-    mutations: 'none',
+    evidenceScope: null,
+    mutations: 'authentication_login_only',
     authState: 'in_memory_per_role',
-    dynamicRoutes: 'pending_without_safe_discoverable_fixture',
+    dynamicRoutes: requestedMode === 'production_canary'
+      ? 'root_access_only'
+      : 'safe_visible_link_discovery',
+    actions: requestedMode === 'production_canary'
+      ? 'root_access_only'
+      : 'internal_read_only_anchor_navigation',
     routeConcurrency,
     deadlineMs: null,
   },
+  attendedGates: ATTENDED_ACTION_GATES,
   accessMatrix: {
     policy: ROLE_ACCESS_MATRIX,
     probes: [],
@@ -135,8 +293,14 @@ function writeArtifact() {
 
 function sectionsToRun(mode) {
   const roles = Object.keys(STATIC_PATHS);
-  if (mode !== 'local' && sectionArg !== 'all') {
-    throw new Error('Trusted preview and production audits must run the complete five-role matrix');
+  if (mode === 'production_canary') {
+    if (sectionArg !== 'all') {
+      throw new Error('Production canary uses its fixed non-staff role matrix');
+    }
+    return [...PRODUCTION_CANARY_ROLES];
+  }
+  if (mode === 'isolated_preview' && sectionArg !== 'all') {
+    throw new Error('Trusted preview audits must run the complete five-role matrix');
   }
   if (sectionArg === 'all') return roles;
   if (roles.includes(sectionArg)) return [sectionArg];
@@ -167,7 +331,14 @@ function queryVariantMatches(requestedPath, finalUrl) {
 }
 
 function pathIsInRole(url, role) {
-  const pathname = canonicalPathname(url);
+  let parsed;
+  try {
+    parsed = new URL(url, `${trustedOrigin}/`);
+  } catch {
+    return false;
+  }
+  if (parsed.origin !== trustedOrigin) return false;
+  const pathname = canonicalPathname(parsed.pathname);
   const rootPath = SECTION_LOGIN_REDIRECT[role];
   return pathname === rootPath || pathname.startsWith(`${rootPath}/`);
 }
@@ -221,7 +392,12 @@ async function dismissCookieBanner(page) {
 }
 
 async function captureRoleStorageState(browser, role, credential) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    serviceWorkers: 'block',
+  });
+  const guardOptions = { allowAuthentication: true };
+  const readOnlyGuard = await installReadOnlyRequestGuard(context, guardOptions);
   const page = await context.newPage();
 
   try {
@@ -238,6 +414,7 @@ async function captureRoleStorageState(browser, role, credential) {
     await page.waitForURL((url) => canonicalPathname(url.toString()) !== '/login', {
       timeout: remainingTimeout(45_000),
     });
+    guardOptions.allowAuthentication = false;
 
     if (!pathIsInRole(page.url(), role)) {
       await page.goto(routeURL(entry), {
@@ -253,6 +430,13 @@ async function captureRoleStorageState(browser, role, credential) {
       );
     }
 
+    const capabilityInspection = await inspectPortalPage(page, allDynamicPatterns);
+    if (!capabilityInspection.readOnlyCapabilityActive) {
+      throw new Error(
+        `read_only_audit_capability_not_active_for_${role}: expected ${READ_ONLY_AUDIT_ROOT_SUPPRESSION_MARKER}`
+      );
+    }
+
     const identityResponse = await page.request.get(routeURL('/api/member/profile'), {
       timeout: remainingTimeout(10_000),
       failOnStatusCode: false,
@@ -265,8 +449,11 @@ async function captureRoleStorageState(browser, role, credential) {
 
     return {
       storageState: await context.storageState(),
-      finalPathname: canonicalPathname(page.url()),
+      finalPathname: canonicalPathname(sanitizeAuditUrl(page.url(), allDynamicPatterns)),
       identityId,
+      blockedPostLoginWriteRequestCount: readOnlyGuard.blockedWriteCount(page),
+      blockedPostLoginTelemetryRequestCount: readOnlyGuard.blockedTelemetryCount(page),
+      suppressedPostLoginSideEffectRequestCount: readOnlyGuard.suppressedSideEffectCount(page),
     };
   } finally {
     await context.close();
@@ -274,15 +461,139 @@ async function captureRoleStorageState(browser, role, credential) {
 }
 
 function uniqueDiagnostics(values) {
-  return [...new Set(values.map(sanitizeAuditDiagnostic).filter(Boolean))].slice(0, 20);
+  return [...new Set(values.map(sanitizePortalDiagnostic).filter(Boolean))].slice(0, 20);
 }
 
-async function auditRoute(context, role, viewportName, path) {
+function failedSameOriginDataResponse(response) {
+  const type = response.request().resourceType();
+  if (type !== 'fetch' && type !== 'xhr') return null;
+  if (response.status() < 400) return null;
+  try {
+    if (new URL(response.url()).origin !== trustedOrigin) return null;
+  } catch {
+    return `Same-origin data request returned HTTP ${response.status()}`;
+  }
+  return `Same-origin data request returned HTTP ${response.status()} at ${sanitizeAuditUrl(
+    response.url(),
+    allDynamicPatterns
+  )}`;
+}
+
+function isSameOriginDataRequest(request) {
+  const type = request.resourceType();
+  if (type !== 'fetch' && type !== 'xhr') return false;
+  try {
+    return new URL(request.url()).origin === trustedOrigin;
+  } catch {
+    return false;
+  }
+}
+
+function failedSameOriginDataRequest(request) {
+  if (!isSameOriginDataRequest(request)) return null;
+  let pathname = '/';
+  try {
+    pathname = new URL(request.url()).pathname;
+  } catch {
+    // The same-origin predicate already rejected unparseable URLs.
+  }
+  const method = request.method().toUpperCase();
+  if (isBlockedAuditTelemetryRequest(method, pathname)) return null;
+  if (
+    method !== 'GET' &&
+    method !== 'HEAD' &&
+    method !== 'OPTIONS' &&
+    !isAllowedReadOnlyNonGetRequest(method, pathname)
+  ) {
+    // The read-only request guard records and gates intentionally blocked
+    // writes. Avoid duplicating the same evidence as a network failure.
+    return null;
+  }
+  return `Same-origin data request failed at ${sanitizeAuditUrl(
+    request.url(),
+    allDynamicPatterns
+  )}`;
+}
+
+function trackSameOriginDataRequests(page) {
+  const inFlight = new Set();
+  const errors = [];
+  let lastActivityAt = Date.now();
+
+  const handleRequest = (request) => {
+    if (!isSameOriginDataRequest(request)) return;
+    inFlight.add(request);
+    lastActivityAt = Date.now();
+  };
+  const handleResponse = (response) => {
+    const error = failedSameOriginDataResponse(response);
+    if (error) errors.push(error);
+  };
+  const handleRequestFinished = (request) => {
+    if (!inFlight.delete(request)) return;
+    lastActivityAt = Date.now();
+  };
+  const handleRequestFailed = (request) => {
+    if (inFlight.delete(request)) lastActivityAt = Date.now();
+    const error = failedSameOriginDataRequest(request);
+    if (error) errors.push(error);
+  };
+
+  page.on('request', handleRequest);
+  page.on('response', handleResponse);
+  page.on('requestfinished', handleRequestFinished);
+  page.on('requestfailed', handleRequestFailed);
+
+  return {
+    errors,
+    async waitForSettlement(timeoutMs) {
+      const boundedTimeout = Math.max(1, Math.min(timeoutMs, 5_000));
+      const waitStartedAt = Date.now();
+      const settleDeadline = Date.now() + boundedTimeout;
+      const quietWindowMs = 300;
+      while (Date.now() < settleDeadline) {
+        if (
+          dataRequestQuietWindowSatisfied({
+            inFlightCount: inFlight.size,
+            lastActivityAt,
+            waitStartedAt,
+            now: Date.now(),
+            quietWindowMs,
+          })
+        ) {
+          return;
+        }
+        await page.waitForTimeout(Math.min(50, Math.max(1, settleDeadline - Date.now())));
+      }
+      if (inFlight.size > 0) {
+        errors.push(
+          `Same-origin data requests did not settle within ${boundedTimeout}ms (${inFlight.size} pending)`
+        );
+      }
+    },
+    detach() {
+      page.off('request', handleRequest);
+      page.off('response', handleResponse);
+      page.off('requestfinished', handleRequestFinished);
+      page.off('requestfailed', handleRequestFailed);
+    },
+  };
+}
+
+async function auditRoute(
+  context,
+  role,
+  viewportName,
+  requestPath,
+  artifactPath = requestPath,
+  readOnlyGuard = null
+) {
   const page = await context.newPage();
   const startedAt = Date.now();
   const consoleErrors = [];
   const pageErrors = [];
   const documentResponses = [];
+  const dataRequests = trackSameOriginDataRequests(page);
   const handleConsole = (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   };
@@ -299,7 +610,7 @@ async function auditRoute(context, role, viewportName, path) {
 
   try {
     try {
-      await page.goto(routeURL(path), {
+      await page.goto(routeURL(requestPath), {
         waitUntil: 'domcontentloaded',
         timeout: remainingTimeout(),
       });
@@ -312,6 +623,13 @@ async function auditRoute(context, role, viewportName, path) {
       await waitForPortalReady(page, remainingTimeout(3_000)).catch(() => {});
     }
 
+    // Wait for mount-time same-origin XHR/fetch work to complete. A bounded
+    // quiet window catches slow API failures without allowing a hung endpoint
+    // to stall the release gate indefinitely. DOM inspection must happen after
+    // this settlement window so an async error boundary cannot appear after a
+    // stale, healthy-looking snapshot has already been captured.
+    await dataRequests.waitForSettlement(remainingTimeout(5_000));
+
     let inspection;
     try {
       inspection = await inspectPortalPage(page, allDynamicPatterns);
@@ -320,12 +638,22 @@ async function auditRoute(context, role, viewportName, path) {
       inspection = {
         bodyText: '',
         appReady: false,
+        errorFallbackDetected: false,
+        errorFallbackStates: [],
+        auditSuppressedStates: [],
+        readOnlyCapabilityActive: false,
         h1Count: 0,
         horizontalOverflowPx: 0,
         interactiveControlCount: 0,
         unnamedInteractiveControlCount: 0,
         unnamedInteractiveControls: [],
+        hrefPaths: [],
       };
+    }
+
+    const blockedWriteRequestCount = readOnlyGuard?.blockedWriteCount(page) ?? 0;
+    if (blockedWriteRequestCount > 0) {
+      pageErrors.push('Read-only audit policy blocked a non-GET request');
     }
 
     const finalUrl = page.url();
@@ -334,30 +662,55 @@ async function auditRoute(context, role, viewportName, path) {
       documentResponses.at(-1) ??
       null;
 
-    return classifyPortalAuditRow({
+    const row = classifyPortalAuditRow({
       role,
       viewport: viewportName,
-      path,
+      path: artifactPath,
+      expectedPath: artifactPath.includes('[')
+        ? new URL(sanitizeAuditUrl(routeURL(requestPath), allDynamicPatterns)).pathname
+        : requestPath,
+      comparisonExpectedPath: requestPath,
       sectionRoot: SECTION_LOGIN_REDIRECT[role],
-      finalUrl: sanitizeAuditUrl(finalUrl),
-      queryVariantMatched: queryVariantMatches(path, finalUrl),
-      title: sanitizeAuditDiagnostic(await page.title().catch(() => '')),
+      finalUrl: sanitizeAuditUrl(finalUrl, allDynamicPatterns),
+      comparisonFinalUrl: finalUrl,
+      originMatched: new URL(finalUrl).origin === trustedOrigin,
+      queryVariantMatched: queryVariantMatches(requestPath, finalUrl),
+      title: sanitizePortalDiagnostic(await page.title().catch(() => '')),
       bodyText: inspection.bodyText,
       appReady: inspection.appReady,
+      errorFallbackDetected: inspection.errorFallbackDetected,
+      errorFallbackStates: inspection.errorFallbackStates,
+      auditSuppressedStates: inspection.auditSuppressedStates,
+      readOnlyCapabilityActive: inspection.readOnlyCapabilityActive,
       documentStatus: finalDocument?.status ?? null,
       consoleErrors: uniqueDiagnostics(consoleErrors),
-      pageErrors: uniqueDiagnostics(pageErrors),
+      pageErrors: uniqueDiagnostics([...pageErrors, ...dataRequests.errors]),
       h1Count: inspection.h1Count,
       horizontalOverflowPx: inspection.horizontalOverflowPx,
+      blockedTelemetryRequestCount:
+        readOnlyGuard?.blockedTelemetryCount(page) ?? 0,
+      suppressedSideEffectRequestCount:
+        readOnlyGuard?.suppressedSideEffectCount(page) ?? 0,
       interactiveControlCount: inspection.interactiveControlCount,
       unnamedInteractiveControlCount: inspection.unnamedInteractiveControlCount,
       unnamedInteractiveControls: inspection.unnamedInteractiveControls,
       durationMs: Date.now() - startedAt,
     });
+    const discoveredRoutes = row.ok
+      ? resolveDynamicRouteCandidates({
+          hrefPaths: inspection.hrefPaths,
+          patterns: DYNAMIC_PATHS[role],
+          excludedPaths: discoveryExclusionsForRole(role),
+          sourcePath: requestPath,
+          sourceArtifactPath: artifactPath,
+        })
+      : [];
+    return { row, discoveredRoutes };
   } finally {
     page.off('console', handleConsole);
     page.off('pageerror', handlePageError);
     page.off('response', handleResponse);
+    dataRequests.detach();
     await page.close();
   }
 }
@@ -366,17 +719,434 @@ async function auditViewport(browser, role, storageState, viewport, paths, limit
   const context = await browser.newContext({
     storageState,
     viewport: { width: viewport.width, height: viewport.height },
+    serviceWorkers: 'block',
   });
+  const readOnlyGuard = await installReadOnlyRequestGuard(context);
   try {
-    const rows = await Promise.all(
-      paths.map((path) => limit(() => auditRoute(context, role, viewport.name, path)))
+    const audits = await Promise.all(
+      paths.map((path) =>
+        limit(() => auditRoute(context, role, viewport.name, path, path, readOnlyGuard))
+      )
     );
+    const rows = audits.map((audit) => audit.row);
     const failed = rows.filter((row) => !row.ok).length;
     return {
-      viewport,
-      summary: { total: rows.length, passed: rows.length - failed, failed },
-      rows,
+      result: {
+        viewport,
+        summary: { total: rows.length, passed: rows.length - failed, failed },
+        rows,
+      },
+      discoveredRoutes: audits.flatMap((audit) => audit.discoveredRoutes),
     };
+  } finally {
+    await context.close();
+  }
+}
+
+function addFirstResolvedCandidate(candidatesByPattern, candidates) {
+  for (const candidate of candidates ?? []) {
+    if (!candidatesByPattern.has(candidate.pattern)) {
+      candidatesByPattern.set(candidate.pattern, candidate);
+    }
+  }
+}
+
+function dynamicRouteRequirement(role, pattern) {
+  return (REQUIRED_DYNAMIC_PATHS[role] ?? []).includes(pattern)
+    ? 'required'
+    : 'when_discoverable';
+}
+
+function redirectFixtureRequirement(role, entry) {
+  return (DYNAMIC_PATHS[role] ?? []).includes(entry.target)
+    ? dynamicRouteRequirement(role, entry.target)
+    : 'required';
+}
+
+async function auditDynamicRoutes(browser, role, storageState, initialCandidates, mode) {
+  if (mode === 'production_canary') {
+    return {
+      results: (DYNAMIC_PATHS[role] ?? []).map((pattern) => ({
+        pattern,
+        requirement: dynamicRouteRequirement(role, pattern),
+        status: 'not_applicable',
+        reason: 'production_canary_root_only_policy',
+        discoveredFrom: null,
+        routeCheck: null,
+      })),
+      resolvedPaths: new Map(),
+    };
+  }
+
+  const context = await browser.newContext({
+    storageState,
+    viewport: { width: 1440, height: 900 },
+    serviceWorkers: 'block',
+  });
+  const readOnlyGuard = await installReadOnlyRequestGuard(context);
+  const candidatesByPattern = new Map();
+  const coverageByPattern = new Map();
+  const resolvedPaths = new Map();
+  addFirstResolvedCandidate(candidatesByPattern, initialCandidates);
+
+  try {
+    while (true) {
+      const next = [...candidatesByPattern.values()].find(
+        (candidate) => !coverageByPattern.has(candidate.pattern)
+      );
+      if (!next) break;
+      const audit = await auditRoute(
+        context,
+        role,
+        'desktop',
+        next.path,
+        next.pattern,
+        readOnlyGuard
+      );
+      const status = audit.row.ok ? 'passed' : 'failed';
+      coverageByPattern.set(next.pattern, {
+        pattern: next.pattern,
+        requirement: dynamicRouteRequirement(role, next.pattern),
+        status,
+        reason: status === 'passed' ? 'safe_visible_fixture_audited' : 'discovered_route_failed',
+        discoveredFrom: next.sourceArtifactPath ?? null,
+        routeCheck: audit.row,
+      });
+      if (audit.row.ok) resolvedPaths.set(next.pattern, next.path);
+      addFirstResolvedCandidate(candidatesByPattern, audit.discoveredRoutes);
+    }
+  } finally {
+    await context.close();
+  }
+
+  const results = (DYNAMIC_PATHS[role] ?? []).map(
+    (pattern) => {
+      const requirement = dynamicRouteRequirement(role, pattern);
+      return coverageByPattern.get(pattern) ?? {
+        pattern,
+        requirement,
+        status: requirement === 'required' ? 'failed' : 'not_applicable',
+        reason: requirement === 'required'
+          ? 'required_visible_fixture_not_discovered'
+          : 'no_safe_visible_fixture',
+        discoveredFrom: null,
+        routeCheck: null,
+      };
+    }
+  );
+  return { results, resolvedPaths };
+}
+
+async function auditRedirectOnlyRoutes(browser, role, storageState, resolvedPaths, mode) {
+  const entries = REDIRECT_ONLY_PATHS[role] ?? [];
+  if (mode === 'production_canary') {
+    const results = entries.map((entry) => ({
+      path: entry.path,
+      target: entry.target,
+      reason: entry.reason,
+      resolvedSourcePath: null,
+      resolvedTargetPath: null,
+      status: 'not_applicable',
+      resultReason: 'production_canary_root_only_policy',
+      finalUrl: null,
+      failureReasons: [],
+      blockedWriteRequestCount: 0,
+      blockedTelemetryRequestCount: 0,
+      suppressedSideEffectRequestCount: 0,
+    }));
+    return { results, summary: summarizeRedirectCoverage(results) };
+  }
+
+  const context = await browser.newContext({
+    storageState,
+    viewport: { width: 1440, height: 900 },
+    serviceWorkers: 'block',
+  });
+  const readOnlyGuard = await installReadOnlyRequestGuard(context);
+  const results = [];
+
+  try {
+    for (const entry of entries) {
+      const resolved = resolveRedirectAuditEntry(entry, resolvedPaths);
+      const missingFixtureOutcome = resolved
+        ? null
+        : missingRedirectFixtureOutcome(redirectFixtureRequirement(role, entry));
+      const result = {
+        path: entry.path,
+        target: entry.target,
+        reason: entry.reason,
+        // Persist checked-in templates, never concrete fixture identifiers.
+        // The raw resolved values stay in memory only for the actual probe.
+        resolvedSourcePath: resolved ? entry.path.replace(/\[[^\]]+\]/g, '[redacted]') : null,
+        resolvedTargetPath: resolved ? entry.target.replace(/\[[^\]]+\]/g, '[redacted]') : null,
+        status: resolved ? 'failed' : missingFixtureOutcome.status,
+        resultReason: resolved ? 'redirect_target_mismatch' : missingFixtureOutcome.resultReason,
+        finalUrl: null,
+        failureReasons: resolved ? [] : missingFixtureOutcome.failureReasons,
+        blockedWriteRequestCount: 0,
+        blockedTelemetryRequestCount: 0,
+        suppressedSideEffectRequestCount: 0,
+      };
+      if (!resolved) {
+        results.push(result);
+        continue;
+      }
+
+      const page = await context.newPage();
+      const dataRequests = trackSameOriginDataRequests(page);
+      try {
+        await page.goto(routeURL(resolved.sourcePath), {
+          waitUntil: 'domcontentloaded',
+          timeout: remainingTimeout(),
+        });
+        await waitForPortalReady(page, remainingTimeout(5_000));
+        await dataRequests.waitForSettlement(remainingTimeout(5_000));
+        const finalUrl = page.url();
+        result.finalUrl = sanitizeAuditUrl(finalUrl, allDynamicPatterns);
+        if (redirectTargetMatches(finalUrl, resolved.targetPath, trustedOrigin)) {
+          result.status = 'passed';
+          result.resultReason = 'exact_internal_redirect_verified';
+        } else {
+          result.failureReasons.push('redirect_target_mismatch');
+        }
+        if (dataRequests.errors.length > 0) {
+          result.failureReasons.push('same_origin_data_request_failed');
+          result.status = 'failed';
+          result.resultReason = 'redirect_target_data_failed';
+        }
+      } catch (error) {
+        result.failureReasons.push(sanitizePortalDiagnostic(error?.message ?? String(error)));
+        result.resultReason = 'redirect_probe_failed';
+      } finally {
+        result.blockedWriteRequestCount = readOnlyGuard.blockedWriteCount(page);
+        result.blockedTelemetryRequestCount = readOnlyGuard.blockedTelemetryCount(page);
+        result.suppressedSideEffectRequestCount = readOnlyGuard.suppressedSideEffectCount(page);
+        if (result.blockedWriteRequestCount > 0) {
+          result.failureReasons.push('non_get_request_blocked');
+          result.status = 'failed';
+          result.resultReason = 'write_request_blocked';
+        }
+        result.failureReasons = [...new Set(result.failureReasons)];
+        dataRequests.detach();
+        await page.close();
+      }
+      results.push(result);
+    }
+  } finally {
+    await context.close();
+  }
+
+  return { results, summary: summarizeRedirectCoverage(results) };
+}
+
+function targetArtifactPath(contract) {
+  return contract.targetPath ?? contract.targetPattern;
+}
+
+async function findVisibleActionAnchor(page, contract, resolvedDynamicPath) {
+  const anchors = page.locator('a[href]');
+  const count = await anchors.count();
+  for (let index = 0; index < count; index += 1) {
+    const anchor = anchors.nth(index);
+    if (!(await anchor.isVisible().catch(() => false))) continue;
+    const href = await anchor.getAttribute('href');
+    if (!href) continue;
+    let url;
+    try {
+      url = new URL(href, page.url());
+    } catch {
+      continue;
+    }
+    if (url.origin !== trustedOrigin) continue;
+    const concretePath = `${url.pathname}${url.search}`;
+    if (navigationTargetMatches(concretePath, contract, resolvedDynamicPath)) {
+      return { anchor, concretePath };
+    }
+  }
+  return null;
+}
+
+async function exerciseReadOnlyNavigation(
+  context,
+  role,
+  contract,
+  resolvedDynamicPath,
+  readOnlyGuard
+) {
+  const result = {
+    id: contract.id,
+    kind: contract.kind,
+    required: Boolean(contract.required),
+    requiredWhenApplicable: Boolean(contract.requiredWhenApplicable),
+    sourcePath: contract.sourcePath,
+    target: targetArtifactPath(contract),
+    status: 'failed',
+    reason: 'action_did_not_complete',
+    finalUrl: null,
+    failureReasons: [],
+    blockedWriteRequestCount: 0,
+    blockedTelemetryRequestCount: 0,
+    suppressedSideEffectRequestCount: 0,
+  };
+  const page = await context.newPage();
+  const consoleErrors = [];
+  const pageErrors = [];
+  const dataRequests = trackSameOriginDataRequests(page);
+  const handleConsole = (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  };
+  const handlePageError = (error) => pageErrors.push(error?.message ?? String(error));
+  page.on('console', handleConsole);
+  page.on('pageerror', handlePageError);
+
+  try {
+    await page.goto(routeURL(contract.sourcePath), {
+      waitUntil: 'domcontentloaded',
+      timeout: remainingTimeout(),
+    });
+    await waitForPortalReady(page, remainingTimeout(5_000));
+    await dataRequests.waitForSettlement(remainingTimeout(5_000));
+    const sourceInspection = await inspectPortalPage(page, allDynamicPatterns);
+    if (sourceInspection.errorFallbackDetected) {
+      result.reason = 'source_error_fallback';
+      result.failureReasons.push('source_error_fallback');
+      return result;
+    }
+    const match = await findVisibleActionAnchor(page, contract, resolvedDynamicPath);
+
+    if (!match) {
+      if (
+        contract.requiredWhenApplicable &&
+        contract.emptyStateText &&
+        sourceInspection.bodyText.includes(contract.emptyStateText)
+      ) {
+        result.status = 'not_applicable';
+        result.reason = 'declared_empty_state_verified';
+        return result;
+      }
+      result.reason = contract.targetPattern
+        ? 'missing_visible_dynamic_anchor_or_declared_empty_state'
+        : 'missing_visible_safe_anchor';
+      result.failureReasons.push(result.reason);
+      return result;
+    }
+
+    if (contract.kind === 'read_only_discovered_navigation') {
+      // Follow the visible link target without dispatching page onClick handlers;
+      // some record links emit analytics even though the destination is read-only.
+      await page.goto(routeURL(match.concretePath), {
+        waitUntil: 'domcontentloaded',
+        timeout: remainingTimeout(),
+      });
+    } else {
+      await match.anchor.click({ timeout: remainingTimeout() });
+    }
+    await page.waitForURL(
+      (url) =>
+        navigationTargetMatches(
+          `${url.pathname}${url.search}`,
+          contract,
+          resolvedDynamicPath
+        ),
+      { timeout: remainingTimeout(20_000) }
+    );
+    await waitForPortalReady(page, remainingTimeout(5_000));
+    await dataRequests.waitForSettlement(remainingTimeout(5_000));
+    const targetInspection = await inspectPortalPage(page, allDynamicPatterns);
+    const finalPath = `${new URL(page.url()).pathname}${new URL(page.url()).search}`;
+    if (!navigationTargetMatches(finalPath, contract, resolvedDynamicPath)) {
+      result.failureReasons.push('navigation_target_mismatch');
+    }
+    if (!pathIsInRole(page.url(), role)) result.failureReasons.push('wrong_role_redirect');
+    if (!targetInspection.appReady) result.failureReasons.push('app_not_ready');
+    if (targetInspection.errorFallbackDetected) result.failureReasons.push('route_error_fallback');
+    if (targetInspection.h1Count !== 1) result.failureReasons.push('invalid_h1_count');
+    if (targetInspection.horizontalOverflowPx > 1) {
+      result.failureReasons.push('horizontal_overflow');
+    }
+    result.failureReasons.push(
+      ...uniqueDiagnostics(consoleErrors).map(() => 'console_error'),
+      ...uniqueDiagnostics(pageErrors).map(() => 'page_error')
+    );
+    result.failureReasons = [...new Set(result.failureReasons)];
+    result.finalUrl = sanitizeAuditUrl(
+      page.url(),
+      contract.targetPattern ? allDynamicPatterns : []
+    );
+    result.status = result.failureReasons.length === 0 ? 'passed' : 'failed';
+    result.reason = result.status === 'passed'
+      ? contract.kind === 'read_only_discovered_navigation'
+        ? 'visible_fixture_navigated_without_onclick_side_effects'
+        : 'read_only_anchor_navigation_exercised'
+      : 'action_checks_failed';
+    return result;
+  } catch (error) {
+    result.failureReasons.push(sanitizePortalDiagnostic(error?.message ?? String(error)));
+    result.reason = 'action_execution_failed';
+    return result;
+  } finally {
+    applyBlockedWriteFailure(result, readOnlyGuard.blockedWriteCount(page));
+    result.blockedTelemetryRequestCount = readOnlyGuard.blockedTelemetryCount(page);
+    result.suppressedSideEffectRequestCount = readOnlyGuard.suppressedSideEffectCount(page);
+    if (dataRequests.errors.length > 0) {
+      result.failureReasons = [
+        ...new Set([...result.failureReasons, 'same_origin_data_request_failed']),
+      ];
+      result.status = 'failed';
+      result.reason = 'data_request_failed';
+    }
+    page.off('console', handleConsole);
+    page.off('pageerror', handlePageError);
+    dataRequests.detach();
+    await page.close();
+  }
+}
+
+async function auditRoleActions(browser, role, storageState, resolvedPaths, mode) {
+  const contracts = SAFE_ACTION_CONTRACTS[role] ?? [];
+  if (mode === 'production_canary') {
+    const results = contracts.map((contract) => ({
+      id: contract.id,
+      kind: contract.kind,
+      required: false,
+      requiredWhenApplicable: false,
+      sourcePath: contract.sourcePath,
+      target: targetArtifactPath(contract),
+      status: 'not_applicable',
+      reason: 'production_canary_root_only_policy',
+      finalUrl: null,
+      failureReasons: [],
+      blockedWriteRequestCount: 0,
+      blockedTelemetryRequestCount: 0,
+      suppressedSideEffectRequestCount: 0,
+    }));
+    return { results, summary: summarizeActionCoverage(results) };
+  }
+
+  const context = await browser.newContext({
+    storageState,
+    viewport: { width: 1440, height: 900 },
+    serviceWorkers: 'block',
+  });
+  const readOnlyGuard = await installReadOnlyRequestGuard(context);
+
+  try {
+    const results = [];
+    for (const contract of contracts) {
+      const resolvedDynamicPath = contract.targetPattern
+        ? resolvedPaths.get(contract.targetPattern) ?? null
+        : null;
+      results.push(
+        await exerciseReadOnlyNavigation(
+          context,
+          role,
+          contract,
+          resolvedDynamicPath,
+          readOnlyGuard
+        )
+      );
+    }
+    return { results, summary: summarizeActionCoverage(results) };
   } finally {
     await context.close();
   }
@@ -387,25 +1157,30 @@ async function probeRoleAccess(browser, sourceRole, storageState, targetRole, ex
     const context = await browser.newContext({
       storageState,
       viewport: { width: 1440, height: 900 },
+      serviceWorkers: 'block',
     });
-    const page = await context.newPage();
+    const readOnlyGuard = await installReadOnlyRequestGuard(context);
     try {
       const targetRoot = SECTION_LOGIN_REDIRECT[targetRole];
-      await page.goto(routeURL(targetRoot), {
-        waitUntil: 'domcontentloaded',
-        timeout: remainingTimeout(),
-      });
-      await waitForPortalReady(page, remainingTimeout(5_000));
-      const finalPathname = canonicalPathname(page.url());
-      const insideTarget = pathIsInRole(page.url(), targetRole);
-      const ok = expectation === 'allowed' ? insideTarget : !insideTarget;
+      const audit = await auditRoute(
+        context,
+        targetRole,
+        'desktop',
+        targetRoot,
+        targetRoot,
+        readOnlyGuard
+      );
+      const outcome = evaluateAccessProbe(audit.row, expectation);
       return {
         sourceRole,
         targetRole,
         expectation,
         requestedPath: targetRoot,
-        finalPathname,
-        ok,
+        finalPathname: audit.row.finalPathname,
+        targetUsable: outcome.targetUsable,
+        denialEvidence: outcome.denialEvidence,
+        failureReasons: audit.row.failureReasons,
+        ok: outcome.ok,
       };
     } catch (error) {
       return {
@@ -414,8 +1189,11 @@ async function probeRoleAccess(browser, sourceRole, storageState, targetRole, ex
         expectation,
         requestedPath: SECTION_LOGIN_REDIRECT[targetRole],
         finalPathname: null,
+        targetUsable: false,
+        denialEvidence: null,
+        failureReasons: ['access_probe_execution_failed'],
         ok: false,
-        error: sanitizeAuditDiagnostic(error?.message ?? String(error)),
+        error: sanitizePortalDiagnostic(error?.message ?? String(error)),
       };
     } finally {
       await context.close();
@@ -428,7 +1206,17 @@ function summarize() {
   let passed = 0;
   let failed = 0;
   let failedRoles = 0;
-  let pendingDynamicRoutes = 0;
+  let totalDynamicChecks = 0;
+  let passedDynamicChecks = 0;
+  let failedDynamicChecks = 0;
+  let notApplicableDynamicRoutes = 0;
+  let totalRedirectChecks = 0;
+  let passedRedirectChecks = 0;
+  let failedRedirectChecks = 0;
+  let notApplicableRedirectChecks = 0;
+  let totalRequiredActions = 0;
+  let satisfiedRequiredActions = 0;
+  let failedRequiredActions = 0;
   for (const role of Object.values(artifact.roles)) {
     if (role.status !== 'passed') failedRoles += 1;
     for (const viewport of Object.values(role.viewports ?? {})) {
@@ -436,7 +1224,18 @@ function summarize() {
       passed += viewport.summary.passed;
       failed += viewport.summary.failed;
     }
-    pendingDynamicRoutes += role.dynamicRoutes?.filter((route) => route.status === 'pending').length ?? 0;
+    totalDynamicChecks += role.dynamicRoutes?.length ?? 0;
+    passedDynamicChecks += role.dynamicRoutes?.filter((route) => route.status === 'passed').length ?? 0;
+    failedDynamicChecks += role.dynamicRoutes?.filter((route) => route.status === 'failed').length ?? 0;
+    notApplicableDynamicRoutes +=
+      role.dynamicRoutes?.filter((route) => route.status === 'not_applicable').length ?? 0;
+    totalRedirectChecks += role.redirectCoverage?.summary.total ?? 0;
+    passedRedirectChecks += role.redirectCoverage?.summary.passed ?? 0;
+    failedRedirectChecks += role.redirectCoverage?.summary.failed ?? 0;
+    notApplicableRedirectChecks += role.redirectCoverage?.summary.notApplicable ?? 0;
+    totalRequiredActions += role.actionCoverage?.summary.required ?? 0;
+    satisfiedRequiredActions += role.actionCoverage?.summary.satisfiedRequired ?? 0;
+    failedRequiredActions += role.actionCoverage?.summary.failedRequired ?? 0;
   }
   return {
     totalStaticChecks: total,
@@ -445,7 +1244,17 @@ function summarize() {
     failedRoles,
     totalAccessProbes: artifact.accessMatrix.summary.total,
     failedAccessProbes: artifact.accessMatrix.summary.failed,
-    pendingDynamicRoutes,
+    totalDynamicChecks,
+    passedDynamicChecks,
+    failedDynamicChecks,
+    notApplicableDynamicRoutes,
+    totalRedirectChecks,
+    passedRedirectChecks,
+    failedRedirectChecks,
+    notApplicableRedirectChecks,
+    totalRequiredActions,
+    satisfiedRequiredActions,
+    failedRequiredActions,
   };
 }
 
@@ -460,7 +1269,7 @@ async function run() {
   try {
     const targetValidation = validatePortalAuditTarget({
       baseURL: rawBaseURL,
-      mode: requestedMode,
+      mode: rawRequestedMode,
       trustedPreviewOrigin: process.env.PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN,
     });
     artifact.targetValidation = {
@@ -477,11 +1286,27 @@ async function run() {
     }
 
     trustedOrigin = targetValidation.origin;
+    // Target trust is established. It is now safe to load the capability
+    // token and role credentials from the local audit-only environment file.
+    loadPortalAuditEnvFile(join(root, '.env.e2e.local'));
+    const readOnlyAuditToken = process.env.PORTAL_AUDIT_READ_ONLY_TOKEN?.trim() ?? '';
+    if (readOnlyAuditToken.length < 32) {
+      artifact.targetValidation.ok = false;
+      artifact.targetValidation.errors.push('read_only_audit_token_missing_or_too_short');
+      artifact.status = 'blocked';
+      throw new Error('read_only_audit_capability_invalid');
+    }
     deadlineAt =
       runStartedAt + (targetValidation.mode === 'production_canary' ? 6 * 60_000 : 25 * 60_000);
     artifact.executionPolicy.deadlineMs = deadlineAt - runStartedAt;
     const sections = sectionsToRun(targetValidation.mode);
     const viewports = viewportsForMode(targetValidation.mode);
+    artifact.executionPolicy.evidenceScope =
+      targetValidation.mode === 'production_canary'
+        ? 'production_nonstaff_canary'
+        : targetValidation.mode === 'isolated_preview' || sections.length === Object.keys(STATIC_PATHS).length
+          ? 'complete_five_role_matrix'
+          : 'local_requested_sections';
     artifact.requestedSections = sections;
     artifact.viewports = viewports;
 
@@ -505,8 +1330,7 @@ async function run() {
       return;
     }
 
-    // Target trust is established. It is now safe to load and resolve credentials.
-    loadPortalAuditEnvFile(join(root, '.env.e2e.local'));
+    // Target trust and the audit capability are established. Resolve credentials.
     const validation = validateDedicatedPortalCredentials(sections, process.env);
     artifact.credentialValidation = {
       ok: validation.ok,
@@ -610,8 +1434,22 @@ async function run() {
               storageState: 'captured_in_memory',
               loginFinalPathname: authByRole[role].finalPathname,
               identityVerification: 'server_user_id_distinct',
+              blockedPostLoginWriteRequestCount:
+                authByRole[role].blockedPostLoginWriteRequestCount,
+              blockedPostLoginTelemetryRequestCount:
+                authByRole[role].blockedPostLoginTelemetryRequestCount,
+              suppressedPostLoginSideEffectRequestCount:
+                authByRole[role].suppressedPostLoginSideEffectRequestCount,
             },
-            dynamicRoutes: pendingDynamicRoutes(DYNAMIC_PATHS[role]),
+            dynamicRoutes: [],
+            redirectCoverage: {
+              results: [],
+              summary: summarizeRedirectCoverage([]),
+            },
+            actionCoverage: {
+              results: [],
+              summary: summarizeActionCoverage([]),
+            },
             accessProbeFailures: failedProbes.filter((probe) => probe.sourceRole === role).length,
             viewports: {},
             error: null,
@@ -623,7 +1461,7 @@ async function run() {
             console.error(
               `Auditing ${role}: ${paths.length} routes x ${viewports.length} viewport(s)`
             );
-            const viewportResults = await Promise.all(
+            const viewportAudits = await Promise.all(
               viewports.map(async (viewport) => [
                 viewport.name,
                 await auditViewport(
@@ -636,15 +1474,46 @@ async function run() {
                 ),
               ])
             );
-            roleResult.viewports = Object.fromEntries(viewportResults);
+            roleResult.viewports = Object.fromEntries(
+              viewportAudits.map(([name, audit]) => [name, audit.result])
+            );
+            const initialDynamicCandidates = viewportAudits.flatMap(
+              ([, audit]) => audit.discoveredRoutes
+            );
+            const dynamicCoverage = await auditDynamicRoutes(
+              browser,
+              role,
+              authByRole[role].storageState,
+              initialDynamicCandidates,
+              targetValidation.mode
+            );
+            roleResult.dynamicRoutes = dynamicCoverage.results;
+            roleResult.redirectCoverage = await auditRedirectOnlyRoutes(
+              browser,
+              role,
+              authByRole[role].storageState,
+              dynamicCoverage.resolvedPaths,
+              targetValidation.mode
+            );
+            roleResult.actionCoverage = await auditRoleActions(
+              browser,
+              role,
+              authByRole[role].storageState,
+              dynamicCoverage.resolvedPaths,
+              targetValidation.mode
+            );
             roleResult.status =
               roleResult.accessProbeFailures === 0 &&
-              Object.values(roleResult.viewports).every((entry) => entry.summary.failed === 0)
+              roleResult.auth.blockedPostLoginWriteRequestCount === 0 &&
+              Object.values(roleResult.viewports).every((entry) => entry.summary.failed === 0) &&
+              roleResult.dynamicRoutes.every((entry) => entry.status !== 'failed') &&
+              roleResult.redirectCoverage.summary.failed === 0 &&
+              roleResult.actionCoverage.summary.failedRequired === 0
                 ? 'passed'
                 : 'failed';
           } catch (error) {
             roleResult.status = 'failed';
-            roleResult.error = sanitizeAuditDiagnostic(error?.message ?? String(error));
+            roleResult.error = sanitizePortalDiagnostic(error?.message ?? String(error));
           } finally {
             checkpoint();
           }
@@ -655,23 +1524,20 @@ async function run() {
     }
 
     artifact.summary = summarize();
-    const staticAndAccessPassed =
+    const allRequiredChecksPassed =
       artifact.summary.failedRoles === 0 &&
       artifact.summary.failedStaticChecks === 0 &&
-      artifact.summary.failedAccessProbes === 0;
-    artifact.status = !staticAndAccessPassed
-      ? 'failed'
-      : artifact.summary.pendingDynamicRoutes > 0
-        ? 'partial'
-        : 'passed';
+      artifact.summary.failedAccessProbes === 0 &&
+      artifact.summary.failedDynamicChecks === 0 &&
+      artifact.summary.failedRedirectChecks === 0 &&
+      artifact.summary.failedRequiredActions === 0;
+    artifact.status = allRequiredChecksPassed ? 'passed' : 'failed';
     artifact.fatalError = artifact.status === 'passed'
       ? null
-      : artifact.status === 'partial'
-        ? 'dynamic_action_coverage_pending'
-        : 'portal_audit_checks_failed';
+      : 'portal_audit_checks_failed';
   } catch (error) {
     if (artifact.status !== 'blocked') artifact.status = 'failed';
-    artifact.fatalError = sanitizeAuditDiagnostic(error?.message ?? String(error));
+    artifact.fatalError = sanitizePortalDiagnostic(error?.message ?? String(error));
     console.error(artifact.fatalError);
   } finally {
     artifact.completedAt = new Date().toISOString();

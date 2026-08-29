@@ -58,8 +58,10 @@ const REASON_LABEL: Record<Suggestion['matchReason'], string> = {
 /**
  * Per-suggestion "Map to this user" action. Calls
  * `POST /api/admin/coursera/mappings` which upserts a
- * `coursera_identity_mappings` row AND reprocesses unmatched events for the
- * user. On success, refreshes the page so the unmatched count drops.
+ * `coursera_identity_mappings` row and promotes reviewed raw CSV facts. It
+ * deliberately defers historical xAPI replay so the mapping action cannot
+ * trigger old rewards or notifications. On success, refreshes the page so
+ * the unmatched count drops.
  */
 export default function MapToUserActions({
   externalEmail,
@@ -72,7 +74,7 @@ export default function MapToUserActions({
   const router = useRouter();
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<{ userId: string; reprocessed: number } | null>(null);
+  const [success, setSuccess] = useState<{ userId: string; promoted: number } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   async function map(userId: string) {
@@ -85,11 +87,10 @@ export default function MapToUserActions({
       //   2. backfillUserIdForCourseraEmail — sets user_id on any existing
       //      coursera_course_progress / coursera_badge_progress rows so the
       //      learner drops out of the unmatched CSV count immediately
-      //   3. replayUnresolvedXapiStatementsForIdentity — replays xAPI
-      //      statements (including ones already marked processed as
-      //      unmatched/error) so live training progress flows in
+      //   3. canonical progress promotion through the B4B merge ladder,
+      //      preserving any existing COMPLETED/xAPI-ahead local row
       //
-      // The /mappings endpoint only does (1) and a partial (3); using it
+      // The /mappings endpoint only does (1) and a separate xAPI repair; using it
       // here would leave CSV rows orphaned, per Codex P1 review on #1033.
       const body: Record<string, string> = { userId };
       if (keyType === 'email') {
@@ -128,15 +129,15 @@ export default function MapToUserActions({
 
       const data = (await res.json()) as {
         ok: boolean;
-        backfill?: { courseRowsUpdated?: number; badgeRowsUpdated?: number };
-        xapiReplay?: { matched?: number; processed?: number };
+        backfill?: {
+          courseRowsUpdated?: number;
+          badgeRowsUpdated?: number;
+          promotion?: { upserted?: number };
+        };
       };
-      const backfilled =
-        (data.backfill?.courseRowsUpdated ?? 0) + (data.backfill?.badgeRowsUpdated ?? 0);
-      const replayMatched = data.xapiReplay?.matched ?? 0;
       setSuccess({
         userId,
-        reprocessed: backfilled + replayMatched,
+        promoted: data.backfill?.promotion?.upserted ?? 0,
       });
       // ack ref to externalName so unused-prop lint stays happy when notes
       // aren't sent on actor-identifier mappings
@@ -189,7 +190,8 @@ export default function MapToUserActions({
             fontSize: '0.85rem',
           }}
         >
-          Mapped successfully. {success.reprocessed} unmatched event(s) reprocessed and bound.
+          Mapped successfully. {success.promoted} canonical course row(s) promoted without
+          triggering learner notifications.
         </p>
       ) : null}
 

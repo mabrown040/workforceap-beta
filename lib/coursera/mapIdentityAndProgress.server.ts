@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { Prisma } from '@prisma/client';
-
 import { prisma } from '@/lib/db/prisma';
 import {
   attachRawCourseraProgressToUser,
@@ -144,8 +143,9 @@ export async function mapCourseraIdentityAndProgressInTransaction(
 
 /**
  * Commit one reviewed identity decision across the mapping and both legacy raw
- * progress tables. The canonical projection is monotonic and retryable, so it
- * runs only after the ownership transaction commits.
+ * progress tables atomically. Canonical course promotion is a monotonic,
+ * retryable post-commit projection;
+ * it never sends historical xAPI notifications or learner rewards.
  */
 export async function mapCourseraIdentityAndProgress(
   args: MapCourseraIdentityAndProgressArgs,
@@ -160,9 +160,19 @@ export async function mapCourseraIdentityAndProgress(
     mapCourseraIdentityAndProgressInTransaction(normalized, tx),
   );
 
-  if (normalized.courseraEmail) {
-    await promoteCsvProgressToCanonical({ userId: normalized.userId });
-  }
+  const promotion = normalized.courseraEmail
+    ? await promoteCsvProgressToCanonical({
+        organizationId: normalized.organizationId,
+        userId: normalized.userId,
+        courseraEmail: normalized.courseraEmail,
+      })
+    : { upserted: 0, unmapped: 0, rollupsRefreshed: 0, errors: 0 };
 
-  return committed;
+  return {
+    mapping: committed.mapping,
+    backfill: {
+      ...committed.backfill,
+      promotion,
+    },
+  };
 }

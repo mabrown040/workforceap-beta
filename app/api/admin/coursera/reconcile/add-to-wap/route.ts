@@ -254,7 +254,6 @@ const bodySchema = z.object({
             actorIdentifier: externalIdToUse,
             actorHomePage: 'coursera.org',
           });
-
           const enrolledAt = new Date();
           const createdUser = await tx.user.create({
             data: {
@@ -316,8 +315,13 @@ const bodySchema = z.object({
       );
 
       // Ownership is already committed with the mapping above. Canonical
-      // projection is monotonic and retryable, so it runs post-commit.
-      await promoteCsvProgressToCanonical({ userId: result.id });
+      // projection is monotonic, tenant-scoped, and retryable, so it runs
+      // post-commit without replaying historical xAPI side effects.
+      await promoteCsvProgressToCanonical({
+        organizationId: actorOrgId,
+        userId: result.id,
+        courseraEmail: email,
+      });
 
       // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
       if (result.enrollmentId && programSlug) {

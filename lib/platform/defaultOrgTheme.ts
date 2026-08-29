@@ -44,11 +44,19 @@ async function loadDefaultOrgBranding(): Promise<OrgBranding> {
 }
 
 /** Cached 1h to avoid a Prisma read on every root layout render. */
-export const getDefaultOrgBranding = unstable_cache(
+const getDefaultOrgBrandingCached = unstable_cache(
   loadDefaultOrgBranding,
   ['default-org-branding'],
   { revalidate: ORG_BRANDING_CACHE_TTL_SECONDS },
 );
+
+export function getDefaultOrgBranding(
+  opts: { readOnlyAudit?: boolean } = {},
+): Promise<OrgBranding> {
+  return opts.readOnlyAudit
+    ? Promise.resolve({ primaryColor: null, logo: null })
+    : getDefaultOrgBrandingCached();
+}
 
 function getOrgBrandingFromDataCache(orgId: string): Promise<OrgBranding> {
   return unstable_cache(
@@ -63,7 +71,12 @@ function getOrgBrandingFromDataCache(orgId: string): Promise<OrgBranding> {
  * `unstable_cache` (1h, tagged) so custom-domain HTML does not Prisma-read
  * primaryColor/logo on every request.
  */
-export async function getOrgBrandingById(orgId: string, now = Date.now()): Promise<OrgBranding> {
+export async function getOrgBrandingById(
+  orgId: string,
+  now = Date.now(),
+  opts: { readOnlyAudit?: boolean } = {},
+): Promise<OrgBranding> {
+  if (opts.readOnlyAudit) return { primaryColor: null, logo: null };
   return cachedOrgBranding(orgId, () => getOrgBrandingFromDataCache(orgId), now);
 }
 
@@ -75,10 +88,11 @@ export async function getOrgBrandingById(orgId: string, now = Date.now()): Promi
 export async function getRequestOrgBranding(
   headers: { get(name: string): string | null },
   now = Date.now(),
+  opts: { readOnlyAudit?: boolean } = {},
 ): Promise<OrgBranding> {
   const orgId = headers.get('x-wap-org-id');
-  if (!orgId) return getDefaultOrgBranding();
-  return getOrgBrandingById(orgId, now);
+  if (!orgId) return getDefaultOrgBranding(opts);
+  return getOrgBrandingById(orgId, now, opts);
 }
 
 /** Validated custom accent only; callers that need CSS vars should use OrgBrandingStyle. */

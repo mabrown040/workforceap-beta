@@ -91,6 +91,18 @@ test('orphan provision writes the injected org, not a hardcoded default', async 
   assert.deepEqual(state.upserts[0].update, {});
 });
 
+test('read-only portal audit never provisions an orphaned user', async (t) => {
+  const state = installProvisionMocks(t);
+  state.findUniqueResult = null;
+
+  await ensureAppUserProvisioned(
+    { id: 'u-audit', email: 'audit@example.com' },
+    { organizationId: ORG_A, readOnlyAudit: true },
+  );
+
+  assert.equal(state.upserts.length, 0);
+});
+
 test('existing user without profile is not moved to another org', async (t) => {
   const state = installProvisionMocks(t);
   state.findUniqueResult = { id: 'u1', profile: null };

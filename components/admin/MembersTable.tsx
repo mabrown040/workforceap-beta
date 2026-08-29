@@ -66,6 +66,8 @@ type MembersTableProps = {
   endDateFilter: string;
   /** Org-wide partner list so the dropdown is not limited to the loaded page. */
   allPartnerOptions: Array<{ id: string; name: string }>;
+  /** Tenant-catalog program list for assignment, independent of this member page. */
+  allAssignablePrograms: Array<{ slug: string; title: string }>;
 };
 
 function FitScoreBadge({ score }: { score: number }) {
@@ -272,6 +274,7 @@ export default function MembersTable({
   startDateFilter,
   endDateFilter,
   allPartnerOptions,
+  allAssignablePrograms,
 }: MembersTableProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -1141,7 +1144,7 @@ export default function MembersTable({
       <BulkUpdateModal
         open={showUpdateModal}
         memberIds={selectedRows.map((m) => m.id)}
-        programs={programs}
+        programs={allAssignablePrograms}
         onClose={() => setShowUpdateModal(false)}
         onUpdated={(result) => {
           const hint = `Updated ${result.updated}/${result.total} members${result.errors.length > 0 ? ` (${result.errors.length} failed)` : ''}${result.warnings?.length ? ` (${result.warnings.length} follow-up warning${result.warnings.length === 1 ? '' : 's'})` : ''}`;

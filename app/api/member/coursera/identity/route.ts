@@ -129,7 +129,11 @@ export const POST = withApiGuc(async (request: Request) => {
         throw new Error('Member organization is unavailable');
       }
 
-      const mapped = await mapCourseraIdentityAndProgress({
+      // The identity mapping and all existing raw Coursera course/badge rows
+      // must change ownership in one transaction. If any row is already tied
+      // to another member, fail the request instead of committing a split-
+      // brain mapping and returning success.
+      const linked = await mapCourseraIdentityAndProgress({
         userId: user.id,
         organizationId,
         courseraEmail,
@@ -140,10 +144,16 @@ export const POST = withApiGuc(async (request: Request) => {
 
       return NextResponse.json({
         ok: true,
-        courseraEmail: mapped.mapping?.courseraEmail ?? courseraEmail,
+        courseraEmail: linked.mapping?.courseraEmail ?? courseraEmail,
       });
     } catch (error) {
       console.error('[member/coursera/identity] failed to save Coursera email:', error);
+      if (error instanceof Error && error.message.includes('different WAP user')) {
+        return NextResponse.json(
+          { error: 'This Coursera email is already linked to another account.' },
+          { status: 409 },
+        );
+      }
       return NextResponse.json({ error: 'Unable to save your Coursera email right now.' }, { status: 500 });
     }
   } catch (error) {

@@ -189,8 +189,8 @@ function makeGetResumeRequest(search?: string) {
   return new NextRequest(`http://localhost:3000/api/member/resume${search ?? ''}`);
 }
 
-function makeCounselorRequest(memberId: string) {
-  return new NextRequest(`http://localhost:3000/api/counselor/members/${memberId}/resume`);
+function makeCounselorRequest(memberId: string, init?: ConstructorParameters<typeof NextRequest>[1]) {
+  return new NextRequest(`http://localhost:3000/api/counselor/members/${memberId}/resume`, init);
 }
 
 // ─────────────────────────────────────────────
@@ -682,6 +682,41 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
     expect(body.hasOriginal).toBe(true);
     expect(body.hasEnhanced).toBe(true);
     expect(body.enhancedText).toContain('Counselor View');
+  });
+
+  it('does not mint provider URLs or download content during a read-only audit', async () => {
+    vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      ...mockProfile(),
+      resumeOriginalPath: `${UUIDS.user}/resume-original.pdf`,
+      resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
+    } as any);
+    const storage = {
+      createSignedUrl: vi.fn(),
+      download: vi.fn(),
+    };
+    mockSupabaseAdmin(() => storage);
+
+    const res = await getCounselorMemberResume(
+      makeCounselorRequest(UUIDS.user, {
+        headers: { 'x-workforceap-read-only-audit': '1' },
+      }),
+      { params: Promise.resolve({ memberId: UUIDS.user }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      hasOriginal: true,
+      hasEnhanced: true,
+      originalUrl: null,
+      enhancedUrl: null,
+      previewOriginalPath: null,
+      previewEnhancedPath: null,
+      auditSuppressed: true,
+    });
+    expect(storage.createSignedUrl).not.toHaveBeenCalled();
+    expect(storage.download).not.toHaveBeenCalled();
   });
 
   it('returns 403 for unassigned counselor', async () => {

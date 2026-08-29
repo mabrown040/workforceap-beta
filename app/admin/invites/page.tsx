@@ -165,13 +165,16 @@ export default async function AdminInvitesPage({
   );
 
   return (
-    <InvitesKit
-      invites={invites}
-      sent={sent}
-      accepted={accepted}
-      pending={pending}
-      rate={rate}
-      action={action}
-    />
+    <>
+      {byStatusResult.status === 'rejected' ? <span hidden data-portal-error-state="admin-invites-status-load" /> : null}
+      <InvitesKit
+        invites={invites}
+        sent={sent}
+        accepted={accepted}
+        pending={pending}
+        rate={rate}
+        action={action}
+      />
+    </>
   );
 }

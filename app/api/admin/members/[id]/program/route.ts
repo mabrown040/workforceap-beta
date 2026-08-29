@@ -77,7 +77,7 @@ export const PATCH = withApiGuc(async (
     }),
     prisma.organizationProgramCatalog.count({ where: { organizationId: orgId } }),
     prisma.organizationProgramCatalog.findFirst({
-      where: { organizationId: orgId, programSlug },
+      where: { organizationId: orgId, programSlug, status: 'active' },
       select: { programSlug: true },
     }),
   ]);

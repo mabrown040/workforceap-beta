@@ -53,6 +53,7 @@ export default async function JobsPage({
     createdAt: Date;
     status: 'SAVED' | 'APPLIED' | 'PHONE_SCREEN' | 'INTERVIEWING' | 'OFFER' | 'ACCEPTED' | 'REJECTED';
   }> = [];
+  let pipelineLoadFailed = false;
   const needsPipeline = requestedUi !== 'legacy' && !!user;
 
   if (user) {
@@ -114,6 +115,7 @@ export default async function JobsPage({
         .filter((id): id is string => id !== null);
     } /* non-critical — badge just will not show */
 
+    pipelineLoadFailed = needsPipeline && pipelineResult.status === 'rejected';
     pipelineRows = pipelineResult.status === 'fulfilled' ? pipelineResult.value : [];
   }
 
@@ -268,6 +270,7 @@ export default async function JobsPage({
     // scores (already run by the admin/employer match pipeline) over the
     // generic "newest live jobs" fallback, so the % badge reflects an actual
     // score instead of a fabricated "New" label.
+    let recommendationLoadFailed = false;
     const aiMatches = await prisma.aIJobMatch.findMany({
       where: {
         studentId: user!.id,
@@ -291,7 +294,11 @@ export default async function JobsPage({
           },
         },
       },
-    }).catch(() => []);
+    }).catch((err: unknown) => {
+      recommendationLoadFailed = true;
+      console.error('[dashboard/jobs] recommendations unavailable', err);
+      return [];
+    });
 
     const formatSalary = (min: number | null, max: number | null) =>
       min && max ? `$${Math.round(min / 1000)}k–${Math.round(max / 1000)}k` : null;
@@ -307,7 +314,16 @@ export default async function JobsPage({
     }));
 
     return (
-      <MemberJobsKit
+      <div
+        data-portal-error-state={
+          pipelineLoadFailed
+            ? 'member-jobs-pipeline-load'
+            : recommendationLoadFailed
+              ? 'member-jobs-recommendations-load'
+              : undefined
+        }
+      >
+        <MemberJobsKit
         saved={savedCount}
         applied={appliedCount}
         interviewing={interviewingCount}
@@ -317,8 +333,9 @@ export default async function JobsPage({
         profileHref="/dashboard/profile"
         // Pass the member's REAL rows (DataTable renders its own empty state).
         applications={applications}
-        recommended={recommended}
-      />
+          recommended={recommended}
+        />
+      </div>
     );
   }
 

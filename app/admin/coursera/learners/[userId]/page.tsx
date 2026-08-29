@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadata } from '@/app/seo';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { isSuperAdmin } from '@/lib/auth/roles';
@@ -20,6 +21,7 @@ import {
   type LearnerBadgeRow,
   type LearnerCourseRow,
 } from '@/lib/coursera/progressQueries';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera learner detail',
@@ -84,6 +86,7 @@ export default async function AdminCourseraLearnerPage({
   if (!actor) redirect(`/login?redirectTo=/admin/coursera/learners/${userId}`);
   const scope = await resolveAdminPageTenant(actor.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const actorOrgId = await getActorOrganizationId(actor.id);
   const isSuper = await isSuperAdmin(actor.id);
@@ -163,7 +166,7 @@ export default async function AdminCourseraLearnerPage({
       </section>
 
       <div style={{ marginBottom: '1rem' }}>
-        <CourseraProgressCard userId={member.id} />
+        <CourseraProgressCard userId={member.id} readOnlyAudit={readOnlyAudit} />
       </div>
 
       {csvProgress && csvProgress.courses.length > 0 ? (

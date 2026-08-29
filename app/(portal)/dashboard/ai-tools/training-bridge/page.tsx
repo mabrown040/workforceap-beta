@@ -55,6 +55,7 @@ export default async function TrainingBridgePage() {
   const t = await getTranslations('trainingBridge');
 
   let assessment: SavedAssessment | null = null;
+  let assessmentLoadFailed = false;
   try {
     // Most recent Skill Mapper occupation lookup (skips Interest Profiler and
     // resume-extraction rows, which use other inputSummary prefixes).
@@ -69,12 +70,16 @@ export default async function TrainingBridgePage() {
     });
     assessment = parseAssessment(row);
   } catch (err) {
+    assessmentLoadFailed = true;
     console.error('[training-bridge page] assessment lookup failed', err);
   }
 
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '1.25rem 1rem 3rem' }} className="wa-space-y-5">
+        {assessmentLoadFailed ? (
+          <span hidden data-portal-error-state="training-bridge-assessment-load" />
+        ) : null}
         <PortalBreadcrumb
           items={[
             { label: 'Career Toolkit', href: '/dashboard/ai-tools' },

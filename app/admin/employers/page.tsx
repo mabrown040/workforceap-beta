@@ -157,6 +157,14 @@ export default async function AdminEmployersPage({
     }
 
     const directory = directoryResult.value;
+    let employerAggregateLoadFailed = [
+      partnerCountResult,
+      activeCountResult,
+      openRolesGroupResult,
+      openRolesTotalResult,
+      hiresGroupResult,
+      hiresTotalResult,
+    ].some((result) => result.status === 'rejected');
 
     const openRolesByEmployer = new Map<string, number>();
     if (openRolesGroupResult.status === 'fulfilled') {
@@ -173,6 +181,7 @@ export default async function AdminEmployersPage({
       const jobOwners = await withAdminPageScope(scope, (db) =>
         db.job.findMany({ where: { id: { in: jobIds } }, select: { id: true, employerId: true } }),
       ).catch((reason: unknown) => {
+        employerAggregateLoadFailed = true;
         console.error('[admin/employers] hire job-owner lookup failed', reason);
         return [] as { id: string; employerId: string }[];
       });
@@ -211,6 +220,7 @@ export default async function AdminEmployersPage({
 
     return (
       <DesignSurface surface="dense">
+        {employerAggregateLoadFailed ? <span hidden data-portal-error-state="admin-employers-aggregate-load" /> : null}
         <EmployersDirectoryKit
           employers={employers}
           totalPartners={totalPartners}

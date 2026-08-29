@@ -165,12 +165,14 @@ async function resolveProgramIds(opts: { programId?: string }): Promise<string[]
  *                        a `listPrograms` round-trip.
  * @param opts.skipCache  When true, bypass the Redis cache and refetch.
  *                        Used by the manual "Refresh from Coursera" button.
+ * @param opts.readOnlyAudit  Return the local-fallback signal without OAuth,
+ *                            Coursera, or Redis side effects during release QA.
  */
 export async function fetchLearnerProgressFromB4B(
   email: string,
-  opts: { programId?: string; skipCache?: boolean } = {},
+  opts: { programId?: string; skipCache?: boolean; readOnlyAudit?: boolean } = {},
 ): Promise<LearnerProgressByContent> {
-  if (!email || typeof email !== 'string') return new Map();
+  if (!email || typeof email !== 'string' || opts.readOnlyAudit) return new Map();
 
   const cacheKey = `coursera:learner:${learnerCacheKey(email, opts.programId)}`;
 

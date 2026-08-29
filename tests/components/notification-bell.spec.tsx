@@ -23,6 +23,19 @@ describe('NotificationBell', () => {
     expect(screen.getByLabelText('Notifications')).toBeInTheDocument();
   });
 
+  it('suppresses provider polling and exposes an audit marker in read-only audit mode', async () => {
+    const mockFetch = vi.fn();
+    global.fetch = mockFetch;
+
+    const { container } = render(<NotificationBell readOnlyAudit />);
+
+    await Promise.resolve();
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(
+      container.querySelector('[data-portal-audit-suppressed="notification-fetch-poll-and-mutations"]'),
+    ).toBeInTheDocument();
+  });
+
   it('shows unread badge when notifications exist', async () => {
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,

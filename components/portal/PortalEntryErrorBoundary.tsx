@@ -27,7 +27,7 @@ export default class PortalEntryErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="portal-card portal-card--flat" style={{ maxWidth: 900, margin: '1rem auto', padding: '1.25rem' }} role="status">
+        <div data-portal-error-state="portal-entry" className="portal-card portal-card--flat" style={{ maxWidth: 900, margin: '1rem auto', padding: '1.25rem' }} role="status">
           <p style={{ margin: '0 0 0.75rem', fontWeight: 600 }}>Part of this page could not load</p>
           <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
             Onboarding or the guided tour hit an error. You can still use the rest of the member portal — try refreshing,

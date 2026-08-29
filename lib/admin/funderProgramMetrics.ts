@@ -6,7 +6,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { THRESHOLDS } from '@/lib/member/atRiskScoring';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import { hasValidatedProgramCompletion } from '@/lib/reporting/programCompletion';
 
 const EXPORT_LIMIT = 10_000;
 
@@ -38,7 +38,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
           id: true,
           enrolledProgram: true,
           memberProgramProgress: {
-            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+            select: { programSlug: true, coursesCompleted: true },
           },
           placementRecord: { select: { id: true, startDateVerified: true } },
         },
@@ -91,11 +91,9 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
     agg.totalEnrolled += 1;
     if (active30dSet.has(u.id)) agg.activeLast30d += 1;
 
-    const progress = computeTrainingProgress(slug, null, u.memberProgramProgress);
-    const isCompleted =
-      progress.totalCourses > 0 &&
-      (progress.pct >= 100 || progress.completedCount >= progress.totalCourses);
-    if (isCompleted) agg.completed += 1;
+    if (hasValidatedProgramCompletion(slug, u.memberProgramProgress)) {
+      agg.completed += 1;
+    }
 
     // Only staff-verified placements count toward funder-reported placement totals.
     if (u.placementRecord?.startDateVerified) agg.placed += 1;

@@ -13,9 +13,11 @@ import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry } from '@/lib/db/withDbRetry';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
-export const GET = withApiGuc(async () => {
+export const GET = withApiGuc(async (request: Request) => {
   try {
+    const readOnlyAudit = isReadOnlyPortalAuditHeader(request.headers);
     if (!hasSupabaseServerEnv()) {
       return NextResponse.json(
         {
@@ -48,10 +50,12 @@ export const GET = withApiGuc(async () => {
     }
 
     const role = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {
+      if (readOnlyAudit) throw err;
       console.error('[api:auth-me] profileRole lookup failed; degrading to member', err);
       return 'member';
     });
     const superAdmin = await withDbRetry(() => isSuperAdmin(user.id)).catch((err) => {
+      if (readOnlyAudit) throw err;
       console.error('[api:auth-me] isSuperAdmin lookup failed; falling back to profile role', err);
       return role === 'super_admin';
     });

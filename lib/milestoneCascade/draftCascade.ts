@@ -8,6 +8,7 @@ import { claudeChat } from '@/lib/ai/anthropicChat';
 
 import { buildDraftPrompt } from './buildDraftPrompt';
 import { parseDraftResponse } from './parseDraftResponse';
+import { filterMilestoneActions } from './milestoneActionPolicy';
 
 /**
  * Process a single `pending_draft` cascade:
@@ -22,15 +23,19 @@ import { parseDraftResponse } from './parseDraftResponse';
  * to `expired`) and transient failures (status stays `pending_draft`).
  */
 
-const COURSE_COMPLETION_SNAPSHOT_SCHEMA = z.object({
-  courseSlug: z.string().min(1),
-  courseName: z.string().min(1),
+const TRAINING_MILESTONE_SNAPSHOT_SCHEMA = z.object({
+  // Program-scoped milestones (training_started / halfway / completed) do
+  // not require a triggering course. Course-scoped milestones still carry
+  // both fields from their builder.
+  courseSlug: z.string().min(1).optional(),
+  courseName: z.string().min(1).optional(),
   programSlug: z.string().nullable(),
   completedCount: z.number().int().min(0),
+  totalCourses: z.number().int().positive().optional(),
   source: z.enum(['member', 'coursera-webhook', 'coursera-enterprise-sync']),
   detectedAt: z.string(),
 });
-type CourseCompletionSnapshot = z.infer<typeof COURSE_COMPLETION_SNAPSHOT_SCHEMA>;
+type TrainingMilestoneSnapshot = z.infer<typeof TRAINING_MILESTONE_SNAPSHOT_SCHEMA>;
 
 export type DraftCascadeResult =
   | { ok: true; cascadeId: string; promptVersion: string }
@@ -57,9 +62,9 @@ export async function draftCascade(
   >,
 ): Promise<DraftCascadeResult> {
   // 1. Validate snapshot before we spend an LLM token.
-  let snapshot: CourseCompletionSnapshot;
+  let snapshot: TrainingMilestoneSnapshot;
   try {
-    snapshot = COURSE_COMPLETION_SNAPSHOT_SCHEMA.parse(cascade.contextSnapshot);
+    snapshot = TRAINING_MILESTONE_SNAPSHOT_SCHEMA.parse(cascade.contextSnapshot);
   } catch (err) {
     return {
       ok: false,
@@ -87,7 +92,13 @@ export async function draftCascade(
   }
 
   // 3. Build prompt.
-  if (cascade.milestoneType !== 'course_completed') {
+  if (![
+    'training_started',
+    'first_course_completed',
+    'course_completed',
+    'program_halfway',
+    'program_completed',
+  ].includes(cascade.milestoneType)) {
     return {
       ok: false,
       cascadeId: cascade.id,
@@ -97,11 +108,12 @@ export async function draftCascade(
   }
 
   const { systemPrompt, userPrompt, promptVersion } = buildDraftPrompt({
-    milestoneType: 'course_completed',
+    milestoneType: cascade.milestoneType as import('./types').MilestoneType,
     learnerFirstName: firstNameFromFullName(user.fullName),
-    courseName: snapshot.courseName,
-    courseSlug: snapshot.courseSlug,
+    courseName: snapshot.courseName ?? 'Program progress milestone',
+    courseSlug: snapshot.courseSlug ?? snapshot.programSlug ?? 'program-milestone',
     completedCount: snapshot.completedCount,
+    totalCourses: snapshot.totalCourses,
     programSlug: snapshot.programSlug,
     // styleExamples: omitted for pilot — falls back to baseline. Real
     // counselor-authored examples land in a follow-up PR.
@@ -143,6 +155,18 @@ export async function draftCascade(
       retryable: true,
     };
   }
+  const safeActions = filterMilestoneActions(
+    cascade.milestoneType as import('./types').MilestoneType,
+    parsed.value.actions,
+  );
+  if (safeActions.length === 0) {
+    return {
+      ok: false,
+      cascadeId: cascade.id,
+      reason: 'draft contained only member outreach for a counselor-only milestone',
+      retryable: true,
+    };
+  }
 
   // 6. Atomic transition: only update if still pending_draft (concurrency
   //    guard — if another tick beat us to it, we silently no-op).
@@ -151,7 +175,7 @@ export async function draftCascade(
     data: {
       status: 'awaiting_approval',
       counselorBrief: parsed.value.counselorBrief,
-      drafts: parsed.value.actions as unknown as object, // zod-validated above
+      drafts: safeActions as unknown as object, // zod-validated and milestone-filtered above
       draftModel: 'claude-haiku-4-5',
       draftPromptVersion: promptVersion,
       draftedAt: new Date(),

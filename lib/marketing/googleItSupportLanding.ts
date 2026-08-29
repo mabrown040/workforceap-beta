@@ -1,9 +1,15 @@
 import 'server-only';
 
-import type { PrismaClient } from '@prisma/client';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { Prisma, type PrismaClient } from '@prisma/client';
+import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
+import { sqlCount } from '@/lib/db/scanCaps';
+import {
+  getValidatedProgramCompletionSpec,
+  validatedProgramCompletionValuesSql,
+  type ValidatedProgramCompletionSpec,
+} from '@/lib/reporting/programCompletion';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 export const GOOGLE_IT_LANDING_SLUG = 'google-it-support';
@@ -16,6 +22,24 @@ export const GOOGLE_IT_PROGRAM_SLUGS = [
   'it-support-and-entry-level-cyber-security-certificate',
   'comptia-a-professional-certificate',
 ] as const;
+
+const GOOGLE_IT_VALIDATED_COMPLETION_SPECS = Array.from(
+  new Map(
+    GOOGLE_IT_PROGRAM_SLUGS
+      .map((programSlug) => getValidatedProgramCompletionSpec(programSlug))
+      .filter((spec): spec is ValidatedProgramCompletionSpec => spec !== null)
+      .map((spec) => [spec.canonicalSlug, spec] as const),
+  ).values(),
+);
+const GOOGLE_IT_VALIDATED_CANONICAL_SLUGS = GOOGLE_IT_VALIDATED_COMPLETION_SPECS.map(
+  (spec) => spec.canonicalSlug,
+);
+const GOOGLE_IT_PROGRAM_STORAGE_VALUES = Array.from(
+  new Set([
+    ...GOOGLE_IT_PROGRAM_SLUGS,
+    ...GOOGLE_IT_VALIDATED_COMPLETION_SPECS.flatMap((spec) => spec.storageValues),
+  ]),
+);
 
 export const GOOGLE_IT_PRIMARY_HANDOFF_PROGRAM_SLUG = 'it-support-professional-certificate-ibm';
 
@@ -94,7 +118,7 @@ export async function getGoogleItLandingMetrics(
   try {
     const enrolledWhere = {
       organizationId: orgId,
-      programSlug: { in: [...GOOGLE_IT_PROGRAM_SLUGS] },
+      programSlug: { in: GOOGLE_IT_PROGRAM_STORAGE_VALUES },
     };
     const memberWhere = {
       organizationId: orgId,
@@ -102,25 +126,42 @@ export async function getGoogleItLandingMetrics(
       ...MEMBER_ONLY_WHERE,
     };
 
-    const [enrollmentCount, completionCount, placementCount] = await Promise.all([
+    const completionRowsPromise = GOOGLE_IT_VALIDATED_CANONICAL_SLUGS.length > 0
+      ? db.$queryRaw<Array<{ count: bigint | number }>>`
+          WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+            VALUES ${validatedProgramCompletionValuesSql()}
+          )
+          SELECT
+            COUNT(DISTINCT (mpp.user_id, progress_program.canonical_slug))::bigint AS count
+          FROM member_program_progress mpp
+          INNER JOIN validated_programs progress_program
+            ON progress_program.storage_value = mpp.program_slug
+          INNER JOIN users u
+            ON u.id = mpp.user_id
+          INNER JOIN profiles p
+            ON p.user_id = u.id AND p.role = 'member'
+          WHERE u.organization_id = ${orgId}
+            AND u.deleted_at IS NULL
+            AND u.email NOT IN (${Prisma.join([...MEMBER_ONLY_EXCLUDED_EMAILS])})
+            AND progress_program.canonical_slug IN (${Prisma.join(GOOGLE_IT_VALIDATED_CANONICAL_SLUGS)})
+            AND mpp.courses_completed = progress_program.total_courses
+        `
+      : Promise.resolve([]);
+
+    const [enrollmentCount, completionRows, placementCount] = await Promise.all([
       db.courseEnrollment.count({ where: enrolledWhere }),
-      db.memberProgramProgress.count({
-        where: {
-          programSlug: { in: [...GOOGLE_IT_PROGRAM_SLUGS] },
-          averagePercent: { gte: 100 },
-          user: memberWhere,
-        },
-      }),
+      completionRowsPromise,
       db.placementRecord.count({
         where: {
           user: memberWhere,
           OR: [
-            { programSlug: { in: [...GOOGLE_IT_PROGRAM_SLUGS] } },
-            { user: { courseEnrollments: { some: { programSlug: { in: [...GOOGLE_IT_PROGRAM_SLUGS] } } } } },
+            { programSlug: { in: GOOGLE_IT_PROGRAM_STORAGE_VALUES } },
+            { user: { courseEnrollments: { some: { programSlug: { in: GOOGLE_IT_PROGRAM_STORAGE_VALUES } } } } },
           ],
         },
       }),
     ]);
+    const completionCount = sqlCount(completionRows[0]?.count ?? 0);
 
     return {
       enrollmentCount,

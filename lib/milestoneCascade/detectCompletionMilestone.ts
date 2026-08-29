@@ -6,8 +6,10 @@ import { prisma } from '@/lib/db/prisma';
 import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 import {
+  buildCascadeFromMilestone,
   buildCascadeFromCompletion,
   type CompletionMilestoneInput,
+  type TrainingMilestoneInput,
 } from './buildCascadeFromCompletion';
 
 /**
@@ -30,17 +32,9 @@ export type DetectCompletionResult =
  * side-channel and a failure here must not break the surrounding
  * completion flow. Errors are logged and returned as `{ ok: false }`.
  */
-export async function detectCompletionMilestone(
-  input: CompletionMilestoneInput,
+async function insertMilestoneCascade(
+  decision: ReturnType<typeof buildCascadeFromMilestone>,
 ): Promise<DetectCompletionResult> {
-  // Runtime kill switch. Mirrors the cron-toggle pattern used elsewhere so
-  // ops can disable cascade detection without a deploy.
-  const enabled = await isCronEnabled(MILESTONE_CASCADE_WORKFLOW_KEY).catch(() => true);
-  if (!enabled) {
-    return { ok: true, created: false, cascadeId: null, reason: 'detection disabled by toggle' };
-  }
-
-  const decision = buildCascadeFromCompletion(input);
   if (!decision.shouldCreate) {
     return { ok: true, created: false, cascadeId: null, reason: decision.reason };
   }
@@ -55,14 +49,11 @@ export async function detectCompletionMilestone(
         contextSnapshot: decision.row.contextSnapshot as Prisma.InputJsonValue,
         sourceEventId: decision.row.sourceEventId,
         expiresAt: decision.row.expiresAt,
-        // status defaults to 'pending_draft' at the DB level
       },
       select: { id: true },
     });
     return { ok: true, created: true, cascadeId: created.id };
   } catch (error) {
-    // P2002 = unique constraint violation. Idempotent re-fire for the same
-    // milestone — the row already exists, which is the desired outcome.
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
@@ -74,7 +65,30 @@ export async function detectCompletionMilestone(
         reason: 'cascade already exists for this milestone',
       };
     }
-    console.error('[milestone-cascade] detectCompletionMilestone failed:', error);
+    console.error('[milestone-cascade] insert failed:', error);
     return { ok: false, reason: 'insert failed', error };
   }
+}
+
+export async function detectTrainingMilestone(
+  input: TrainingMilestoneInput,
+): Promise<DetectCompletionResult> {
+  // Runtime kill switch. Mirrors the cron-toggle pattern used elsewhere so
+  // ops can disable cascade detection without a deploy.
+  const enabled = await isCronEnabled(MILESTONE_CASCADE_WORKFLOW_KEY).catch(() => true);
+  if (!enabled) {
+    return { ok: true, created: false, cascadeId: null, reason: 'detection disabled by toggle' };
+  }
+
+  return insertMilestoneCascade(buildCascadeFromMilestone(input));
+}
+
+export async function detectCompletionMilestone(
+  input: CompletionMilestoneInput,
+): Promise<DetectCompletionResult> {
+  const enabled = await isCronEnabled(MILESTONE_CASCADE_WORKFLOW_KEY).catch(() => true);
+  if (!enabled) {
+    return { ok: true, created: false, cascadeId: null, reason: 'detection disabled by toggle' };
+  }
+  return insertMilestoneCascade(buildCascadeFromCompletion(input));
 }

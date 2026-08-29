@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -8,6 +9,7 @@ import { getUser } from '@/lib/auth/server';
 import { getCareerBriefs, getCareerBriefContent } from '@/lib/content/careerBriefs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import { generatePersonalizedBriefSection } from '@/lib/ai/careerBriefAI';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -35,14 +37,20 @@ export default async function CareerBriefDetailPage({ params }: Props) {
   const brief = briefs.find((b) => b.slug === slug);
 
   const context = await getCareerBriefContext(user.id);
-  const aiSection = await generatePersonalizedBriefSection(
-    context,
-    brief?.title ?? 'Weekly Career Brief'
-  );
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
+  const aiSection = readOnlyAudit
+    ? ''
+    : await generatePersonalizedBriefSection(
+        context,
+        brief?.title ?? 'Weekly Career Brief'
+      );
 
   return (
     <>
-    <div className="inner-page">
+    <div
+      className="inner-page"
+      {...(readOnlyAudit ? { 'data-portal-audit-suppressed': 'career-brief-personalized-llm' } : {})}
+    >
       <section className="page-hero">
         <div className="page-hero-content">
           <Link href="/dashboard/career-brief" className="resource-back-link">

@@ -37,6 +37,11 @@ import {
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 import { WAP_USER_ID_HEADER } from '@/lib/auth/layoutUserId';
 import { hasSupabaseAuthCookies, shouldTalkToGoTrue } from '@/lib/auth/supabaseAuthCookie';
+import {
+  READ_ONLY_PORTAL_AUDIT_HEADER,
+  READ_ONLY_PORTAL_AUDIT_TOKEN_HEADER,
+  isValidReadOnlyPortalAuditToken,
+} from '@/lib/audit/readOnlyPortalAudit';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
 const WAP_ORG_ID_HEADER = 'x-wap-org-id';
@@ -145,6 +150,12 @@ export async function middleware(request: NextRequest) {
   requestHeaders.delete(WAP_ORG_ID_HEADER);
   requestHeaders.delete(WAP_HOST_HEADER);
   requestHeaders.delete(WAP_USER_ID_HEADER);
+  const validReadOnlyAuditToken = isValidReadOnlyPortalAuditToken(
+    request.headers.get(READ_ONLY_PORTAL_AUDIT_TOKEN_HEADER),
+    process.env.PORTAL_AUDIT_READ_ONLY_TOKEN,
+  );
+  requestHeaders.delete(READ_ONLY_PORTAL_AUDIT_HEADER);
+  requestHeaders.delete(READ_ONLY_PORTAL_AUDIT_TOKEN_HEADER);
 
   // Mint or forward an `x-request-id` for end-to-end correlation. We set
   // this on BOTH the forwarded request headers (so server components, API
@@ -336,6 +347,9 @@ export async function middleware(request: NextRequest) {
   // Supabase session cookies).
   if (user?.id) {
     requestHeaders.set(WAP_USER_ID_HEADER, user.id);
+    if (validReadOnlyAuditToken) {
+      requestHeaders.set(READ_ONLY_PORTAL_AUDIT_HEADER, '1');
+    }
     const rebuilt = rewriteUrl
       ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
       : NextResponse.next({ request: { headers: requestHeaders } });

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://workforceap.org/schemas/portal-audit-results.schema.json",
-  "title": "WorkforceAP five-role portal audit result",
+  "title": "WorkforceAP authenticated portal audit result",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -17,6 +17,7 @@
     "inventory",
     "credentialValidation",
     "executionPolicy",
+    "attendedGates",
     "accessMatrix",
     "roles",
     "summary",
@@ -24,7 +25,7 @@
   ],
   "properties": {
     "$schema": { "type": "string" },
-    "schemaVersion": { "const": "2.0.0" },
+    "schemaVersion": { "const": "3.1.0" },
     "status": { "enum": ["passed", "partial", "failed", "blocked"] },
     "baseURL": { "type": ["string", "null"] },
     "generatedAt": { "type": "string", "format": "date-time" },
@@ -65,14 +66,24 @@
     },
     "executionPolicy": {
       "type": "object",
-      "required": ["mode", "mutations", "authState", "dynamicRoutes", "routeConcurrency", "deadlineMs"],
+      "required": ["mode", "evidenceScope", "mutations", "authState", "dynamicRoutes", "actions", "routeConcurrency", "deadlineMs"],
       "properties": {
         "mode": { "enum": ["local", "isolated_preview", "production_canary", null] },
-        "mutations": { "const": "none" },
+        "evidenceScope": { "enum": ["complete_five_role_matrix", "production_nonstaff_canary", "local_requested_sections", null] },
+        "mutations": { "const": "authentication_login_only" },
         "authState": { "const": "in_memory_per_role" },
-        "dynamicRoutes": { "const": "pending_without_safe_discoverable_fixture" },
+        "dynamicRoutes": { "enum": ["safe_visible_link_discovery", "root_access_only"] },
+        "actions": { "enum": ["internal_read_only_anchor_navigation", "root_access_only"] },
         "routeConcurrency": { "type": "integer", "minimum": 1, "maximum": 12 },
         "deadlineMs": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "attendedGates": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/roleName" },
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "#/$defs/attendedGate" }
       }
     },
     "accessMatrix": { "$ref": "#/$defs/accessMatrix" },
@@ -86,7 +97,7 @@
         { "type": "null" },
         {
           "type": "object",
-          "required": ["totalStaticChecks", "passedStaticChecks", "failedStaticChecks", "failedRoles", "totalAccessProbes", "failedAccessProbes", "pendingDynamicRoutes"],
+          "required": ["totalStaticChecks", "passedStaticChecks", "failedStaticChecks", "failedRoles", "totalAccessProbes", "failedAccessProbes", "totalDynamicChecks", "passedDynamicChecks", "failedDynamicChecks", "notApplicableDynamicRoutes", "totalRedirectChecks", "passedRedirectChecks", "failedRedirectChecks", "notApplicableRedirectChecks", "totalRequiredActions", "satisfiedRequiredActions", "failedRequiredActions"],
           "properties": {
             "totalStaticChecks": { "type": "integer", "minimum": 0 },
             "passedStaticChecks": { "type": "integer", "minimum": 0 },
@@ -94,7 +105,17 @@
             "failedRoles": { "type": "integer", "minimum": 0 },
             "totalAccessProbes": { "type": "integer", "minimum": 0 },
             "failedAccessProbes": { "type": "integer", "minimum": 0 },
-            "pendingDynamicRoutes": { "type": "integer", "minimum": 0 }
+            "totalDynamicChecks": { "type": "integer", "minimum": 0 },
+            "passedDynamicChecks": { "type": "integer", "minimum": 0 },
+            "failedDynamicChecks": { "type": "integer", "minimum": 0 },
+            "notApplicableDynamicRoutes": { "type": "integer", "minimum": 0 },
+            "totalRedirectChecks": { "type": "integer", "minimum": 0 },
+            "passedRedirectChecks": { "type": "integer", "minimum": 0 },
+            "failedRedirectChecks": { "type": "integer", "minimum": 0 },
+            "notApplicableRedirectChecks": { "type": "integer", "minimum": 0 },
+            "totalRequiredActions": { "type": "integer", "minimum": 0 },
+            "satisfiedRequiredActions": { "type": "integer", "minimum": 0 },
+            "failedRequiredActions": { "type": "integer", "minimum": 0 }
           }
         }
       ]
@@ -103,6 +124,15 @@
   },
   "$defs": {
     "roleName": { "enum": ["member", "admin", "employer", "partner", "counselor"] },
+    "attendedGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason"],
+      "properties": {
+        "id": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    },
     "viewport": {
       "type": "object",
       "additionalProperties": false,
@@ -147,22 +177,29 @@
     },
     "dynamicRoute": {
       "type": "object",
-      "required": ["pattern", "status", "reason"],
+      "additionalProperties": false,
+      "required": ["pattern", "requirement", "status", "reason", "discoveredFrom", "routeCheck"],
       "properties": {
         "pattern": { "type": "string" },
-        "status": { "const": "pending" },
-        "reason": { "const": "requires_discoverable_safe_fixture" }
+        "requirement": { "enum": ["required", "when_discoverable"] },
+        "status": { "enum": ["passed", "failed", "not_applicable"] },
+        "reason": { "type": "string" },
+        "discoveredFrom": { "type": ["string", "null"] },
+        "routeCheck": { "anyOf": [{ "$ref": "#/$defs/routeRow" }, { "type": "null" }] }
       }
     },
     "accessProbe": {
       "type": "object",
-      "required": ["sourceRole", "targetRole", "expectation", "requestedPath", "finalPathname", "ok"],
+      "required": ["sourceRole", "targetRole", "expectation", "requestedPath", "finalPathname", "targetUsable", "denialEvidence", "failureReasons", "ok"],
       "properties": {
         "sourceRole": { "$ref": "#/$defs/roleName" },
         "targetRole": { "$ref": "#/$defs/roleName" },
         "expectation": { "enum": ["allowed", "denied"] },
         "requestedPath": { "type": "string" },
         "finalPathname": { "type": ["string", "null"] },
+        "targetUsable": { "type": "boolean" },
+        "denialEvidence": { "type": ["string", "null"] },
+        "failureReasons": { "type": "array", "items": { "type": "string" } },
         "ok": { "type": "boolean" },
         "error": { "type": "string" }
       }
@@ -190,26 +227,42 @@
         "role",
         "viewport",
         "path",
+        "expectedPath",
         "finalUrl",
+        "originMatched",
         "queryVariantMatched",
         "documentStatus",
         "failureReasons",
         "ok",
         "h1Count",
         "horizontalOverflowPx",
+        "errorFallbackDetected",
+        "errorFallbackStates",
+        "auditSuppressedStates",
+        "readOnlyCapabilityActive",
+        "blockedTelemetryRequestCount",
+        "suppressedSideEffectRequestCount",
         "unnamedInteractiveControls"
       ],
       "properties": {
         "role": { "$ref": "#/$defs/roleName" },
         "viewport": { "enum": ["desktop", "mobile"] },
         "path": { "type": "string" },
+        "expectedPath": { "type": "string" },
         "finalUrl": { "type": "string" },
+        "originMatched": { "type": "boolean" },
         "queryVariantMatched": { "type": "boolean" },
         "documentStatus": { "type": ["integer", "null"] },
         "failureReasons": { "type": "array", "items": { "type": "string" } },
         "ok": { "type": "boolean" },
         "h1Count": { "type": "integer", "minimum": 0 },
         "horizontalOverflowPx": { "type": "number", "minimum": 0 },
+        "errorFallbackDetected": { "type": "boolean" },
+        "errorFallbackStates": { "type": "array", "items": { "type": "string" }, "maxItems": 10 },
+        "auditSuppressedStates": { "type": "array", "items": { "type": "string" }, "maxItems": 20 },
+        "readOnlyCapabilityActive": { "type": "boolean" },
+        "blockedTelemetryRequestCount": { "type": "integer", "minimum": 0 },
+        "suppressedSideEffectRequestCount": { "type": "integer", "minimum": 0 },
         "unnamedInteractiveControls": { "type": "array", "items": { "type": "object" } }
       }
     },
@@ -230,20 +283,116 @@
         "rows": { "type": "array", "items": { "$ref": "#/$defs/routeRow" } }
       }
     },
+    "actionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "required", "requiredWhenApplicable", "sourcePath", "target", "status", "reason", "finalUrl", "failureReasons", "blockedWriteRequestCount", "blockedTelemetryRequestCount", "suppressedSideEffectRequestCount"],
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "enum": ["read_only_navigation", "read_only_discovered_navigation"] },
+        "required": { "type": "boolean" },
+        "requiredWhenApplicable": { "type": "boolean" },
+        "sourcePath": { "type": "string" },
+        "target": { "type": "string" },
+        "status": { "enum": ["passed", "failed", "not_applicable"] },
+        "reason": { "type": "string" },
+        "finalUrl": { "type": ["string", "null"] },
+        "failureReasons": { "type": "array", "items": { "type": "string" } },
+        "blockedWriteRequestCount": { "type": "integer", "minimum": 0 },
+        "blockedTelemetryRequestCount": { "type": "integer", "minimum": 0 },
+        "suppressedSideEffectRequestCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "actionCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["results", "summary"],
+      "properties": {
+        "results": { "type": "array", "items": { "$ref": "#/$defs/actionResult" } },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total", "passed", "failed", "notApplicable", "required", "satisfiedRequired", "failedRequired"],
+          "properties": {
+            "total": { "type": "integer", "minimum": 0 },
+            "passed": { "type": "integer", "minimum": 0 },
+            "failed": { "type": "integer", "minimum": 0 },
+            "notApplicable": { "type": "integer", "minimum": 0 },
+            "required": { "type": "integer", "minimum": 0 },
+            "satisfiedRequired": { "type": "integer", "minimum": 0 },
+            "failedRequired": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "redirectResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "target", "reason", "resolvedSourcePath", "resolvedTargetPath", "status", "resultReason", "finalUrl", "failureReasons", "blockedWriteRequestCount", "blockedTelemetryRequestCount", "suppressedSideEffectRequestCount"],
+      "properties": {
+        "path": { "type": "string" },
+        "target": { "type": "string" },
+        "reason": { "type": "string" },
+        "resolvedSourcePath": { "type": ["string", "null"] },
+        "resolvedTargetPath": { "type": ["string", "null"] },
+        "status": { "enum": ["passed", "failed", "not_applicable"] },
+        "resultReason": { "type": "string" },
+        "finalUrl": { "type": ["string", "null"] },
+        "failureReasons": { "type": "array", "items": { "type": "string" } },
+        "blockedWriteRequestCount": { "type": "integer", "minimum": 0 },
+        "blockedTelemetryRequestCount": { "type": "integer", "minimum": 0 },
+        "suppressedSideEffectRequestCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "redirectCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["results", "summary"],
+      "properties": {
+        "results": { "type": "array", "items": { "$ref": "#/$defs/redirectResult" } },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total", "passed", "failed", "notApplicable"],
+          "properties": {
+            "total": { "type": "integer", "minimum": 0 },
+            "passed": { "type": "integer", "minimum": 0 },
+            "failed": { "type": "integer", "minimum": 0 },
+            "notApplicable": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
     "roleResult": {
       "type": "object",
-      "required": ["status", "loginRedirect", "auth", "dynamicRoutes", "accessProbeFailures", "viewports", "error"],
+      "required": ["status", "loginRedirect", "auth", "dynamicRoutes", "redirectCoverage", "actionCoverage", "accessProbeFailures", "viewports", "error"],
       "properties": {
         "status": { "enum": ["running", "passed", "failed"] },
         "loginRedirect": { "type": "string" },
-        "auth": { "type": "object" },
+        "auth": { "$ref": "#/$defs/roleAuth" },
         "dynamicRoutes": { "type": "array", "items": { "$ref": "#/$defs/dynamicRoute" } },
+        "redirectCoverage": { "$ref": "#/$defs/redirectCoverage" },
+        "actionCoverage": { "$ref": "#/$defs/actionCoverage" },
         "accessProbeFailures": { "type": "integer", "minimum": 0 },
         "viewports": {
           "type": "object",
           "additionalProperties": { "$ref": "#/$defs/viewportResult" }
         },
         "error": { "type": ["string", "null"] }
+      }
+    },
+    "roleAuth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["credentialSource", "storageState", "loginFinalPathname", "identityVerification", "blockedPostLoginWriteRequestCount", "blockedPostLoginTelemetryRequestCount", "suppressedPostLoginSideEffectRequestCount"],
+      "properties": {
+        "credentialSource": { "enum": ["canonical", "legacy"] },
+        "storageState": { "const": "captured_in_memory" },
+        "loginFinalPathname": { "type": "string" },
+        "identityVerification": { "const": "server_user_id_distinct" },
+        "blockedPostLoginWriteRequestCount": { "type": "integer", "minimum": 0 },
+        "blockedPostLoginTelemetryRequestCount": { "type": "integer", "minimum": 0 },
+        "suppressedPostLoginSideEffectRequestCount": { "type": "integer", "minimum": 0 }
       }
     }
   }

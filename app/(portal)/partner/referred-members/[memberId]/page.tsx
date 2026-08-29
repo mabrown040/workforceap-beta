@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { CheckCircle } from 'lucide-react';
 
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -13,6 +14,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
@@ -52,6 +54,7 @@ function sectionHeading(title: string) {
 export default async function PartnerReferredMemberDetailPage({ params }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner/referred-members');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
@@ -127,6 +130,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
     member.email?.trim() && member.enrolledProgram
       ? await fetchLearnerProgressFromB4B(member.email, {
           programId: courseraProgramId,
+          readOnlyAudit,
         }).catch((err: unknown) => {
           console.warn('[partner/referred-members] B4B learner progress unavailable:', err);
           return new Map();
@@ -134,10 +138,11 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       : new Map();
 
   const trainingView = member.enrolledProgram
-    ? await loadMemberProgramTrainingView({
+      ? await loadMemberProgramTrainingView({
         userId: member.id,
         programSlug: member.enrolledProgram,
         b4bProgress,
+        readOnlyAudit,
       })
     : null;
 
@@ -210,6 +215,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   return (
     <PortalPageFrame>
+      {readOnlyAudit ? <span hidden data-portal-audit-suppressed="partner-member-coursera-course-resolution" /> : null}
       <div style={{ paddingBottom: '6rem' }}>
         <Link href="/partner/referred-members" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
           ← Back to referred members

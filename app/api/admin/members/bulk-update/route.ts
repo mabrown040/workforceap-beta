@@ -73,7 +73,7 @@ async function _POST(request: NextRequest) {
         Promise.all([
           db.organizationProgramCatalog.count(),
           db.organizationProgramCatalog.findFirst({
-            where: { programSlug },
+            where: { programSlug, status: 'active' },
             select: { programSlug: true },
           }),
         ]),

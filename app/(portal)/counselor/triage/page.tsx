@@ -119,7 +119,11 @@ export default async function CounselorTriagePage() {
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
         <DesignSurface surface="dense">
           {loadError ? (
-            <div className="wa-kit-card" style={{ textAlign: 'center' }}>
+            <div
+              className="wa-kit-card"
+              data-portal-error-state="counselor-triage-load-failed"
+              style={{ textAlign: 'center' }}
+            >
               <TriangleAlert
                 size={28}
                 aria-hidden

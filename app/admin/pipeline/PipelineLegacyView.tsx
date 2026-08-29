@@ -71,6 +71,7 @@ export default function PipelineLegacyView() {
       {loadError ? (
         <div
           role="alert"
+          data-portal-error-state="admin-pipeline-partial-load"
           style={{
             padding: '0.75rem 1rem',
             marginBottom: '1.5rem',

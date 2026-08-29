@@ -6,10 +6,12 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
   PRODUCTION_CANARY_PATHS,
+  PRODUCTION_CANARY_ROLES,
   ROLE_ACCESS_MATRIX,
   SECTION_LOGIN_REDIRECT,
   STATIC_PATHS,
 } from '../../scripts/lib/portal-audit-paths.mjs';
+import { classifyReadOnlyAuditRequest } from '../../scripts/lib/portal-audit-actions.mjs';
 import {
   resolvePortalRoleCredentials,
   validateDedicatedPortalCredentials,
@@ -25,12 +27,22 @@ const requestedMode =
   (rawBaseURL.startsWith('http://localhost:') || rawBaseURL.startsWith('http://127.0.0.1:')
     ? 'local'
     : '');
+const readOnlyAuditToken = process.env.PORTAL_AUDIT_READ_ONLY_TOKEN?.trim() ?? '';
 
 type Section = keyof typeof STATIC_PATHS;
 type Credential = { email: string; password: string; source: string };
 
 function sectionsToRun(): Section[] {
   const keys = Object.keys(STATIC_PATHS) as Section[];
+  if (requestedMode === 'production_canary') {
+    if (sectionArg !== 'all') {
+      throw new Error('Production canary uses its fixed non-staff role matrix');
+    }
+    return [...PRODUCTION_CANARY_ROLES] as Section[];
+  }
+  if (requestedMode === 'isolated_preview' && sectionArg !== 'all') {
+    throw new Error('Trusted preview audits must run the complete five-role matrix');
+  }
   if (sectionArg === 'all') return keys;
   if (keys.includes(sectionArg as Section)) return [sectionArg as Section];
   throw new Error(`Unknown PORTAL_AUDIT_SECTION: ${sectionArg}`);
@@ -94,7 +106,9 @@ const anyCredentialsConfigured = sections.some((role) => {
 
 test.describe('cross-portal static routes and role isolation', () => {
   test.describe.configure({ mode: 'serial' });
+  test.use({ serviceWorkers: 'block' });
   test.skip(!anyCredentialsConfigured, 'Dedicated portal E2E credentials are not configured');
+  test.skip(readOnlyAuditToken.length < 32, 'Read-only audit capability is not configured');
 
   let trustedOrigin = '';
   let credentials: Record<string, Credential> = {};
@@ -120,7 +134,45 @@ test.describe('cross-portal static routes and role isolation', () => {
 
   for (const section of sections) {
     test(`${section} account sees only the allowed portal roots`, async ({ page }) => {
+      let blockedWriteRequestCount = 0;
+      let allowAuthentication = true;
+      await page.route('**/*', async (route) => {
+        const request = route.request();
+        const disposition = classifyReadOnlyAuditRequest(
+          request.method(),
+          request.url(),
+          trustedOrigin,
+          { allowAuthentication },
+        );
+        if (disposition === 'continue') {
+          let isTrustedRequest = false;
+          try {
+            isTrustedRequest = new URL(request.url()).origin === trustedOrigin;
+          } catch {
+            // Safe external methods continue without the audit-only header.
+          }
+          if (isTrustedRequest) {
+            await route.continue({
+              headers: {
+                ...request.headers(),
+                'x-workforceap-read-only-audit-token': readOnlyAuditToken,
+              },
+            });
+          } else {
+            await route.continue();
+          }
+          return;
+        }
+        if (disposition === 'suppress_telemetry') {
+          await route.fulfill({ status: 204, body: '' });
+          return;
+        }
+        blockedWriteRequestCount += 1;
+        await route.abort('blockedbyclient');
+      });
+
       const identityId = await loginRole(page, section, credentials[section], trustedOrigin);
+      allowAuthentication = false;
       const previousOwner = authenticatedIdentityOwners.get(identityId);
       expect(
         previousOwner,
@@ -144,10 +196,9 @@ test.describe('cross-portal static routes and role isolation', () => {
         ).toBe(false);
       }
 
-      const paths =
-        requestedMode === 'production_canary'
-          ? PRODUCTION_CANARY_PATHS[section]
-          : STATIC_PATHS[section];
+      const paths = requestedMode === 'production_canary'
+        ? PRODUCTION_CANARY_PATHS[section as keyof typeof PRODUCTION_CANARY_PATHS]
+        : STATIC_PATHS[section];
       for (const path of paths) {
         await goAllowingAbort(page, routeURL(trustedOrigin, path));
         expect(
@@ -155,6 +206,7 @@ test.describe('cross-portal static routes and role isolation', () => {
           `${section} route ${path} redirected outside ${SECTION_LOGIN_REDIRECT[section]}: ${canonicalPathname(page.url())}`,
         ).toBe(true);
       }
+      expect(blockedWriteRequestCount, 'Read-only browser pass attempted a non-login write').toBe(0);
     });
   }
 });

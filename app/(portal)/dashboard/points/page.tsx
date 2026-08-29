@@ -2,12 +2,14 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { Sprout, Hammer, Star, Trophy, Flame } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { getMemberPoints } from '@/lib/member/points';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import ReferralShareCard from './ReferralShareCard';
 import {
   DesignSurface,
@@ -119,6 +121,7 @@ const EARN_ACTIONS: Array<{
 export default async function DashboardPointsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/points');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const memberPoints = await getMemberPoints(user.id);
   const total = memberPoints.total;
@@ -193,6 +196,7 @@ export default async function DashboardPointsPage() {
         subtitle="Earn points as you make progress. Each milestone moves you toward the next level."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Your Points' }]}
       />
+      {readOnlyAudit && <span hidden data-portal-audit-suppressed="member-referral-code-mint" />}
 
       <DesignSurface surface="warm">
         <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 1.25rem 4rem' }} className="wa-space-y-4">
@@ -209,7 +213,7 @@ export default async function DashboardPointsPage() {
           </div>
 
           {/* ── Invite a friend (referral) ── */}
-          <ReferralShareCard />
+          {!readOnlyAudit && <ReferralShareCard />}
 
           {/* ── Current points summary + level progress ── */}
           <section className="wa-kit-card">

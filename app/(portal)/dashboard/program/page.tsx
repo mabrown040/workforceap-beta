@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { GraduationCap } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -11,7 +12,7 @@ import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCa
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
-import { getActivePrograms } from '@/lib/platform/programCatalog';
+import { getActiveProgramsResult } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -23,6 +24,7 @@ import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatDate } from '@/lib/i18n/date';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -43,12 +45,7 @@ export default async function ProgramPage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
-
-  const activeViews = await getActivePrograms();
-  let pickerPrograms = activeViews
-    .map((v) => v.static)
-    .filter((p): p is NonNullable<typeof p> => !!p);
-  if (pickerPrograms.length === 0) pickerPrograms = PROGRAMS;
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const [dbUser, activeProgramView] = await Promise.all([
     prisma.user.findUnique({
@@ -74,6 +71,11 @@ export default async function ProgramPage({
     }),
     getActiveProgramForDashboard({ userId: user.id }),
   ]);
+  const catalogResult = await getActiveProgramsResult(dbUser?.organizationId, { readOnlyAudit });
+  let pickerPrograms = catalogResult.programs
+    .map((v) => v.static)
+    .filter((p): p is NonNullable<typeof p> => !!p);
+  if (pickerPrograms.length === 0) pickerPrograms = PROGRAMS;
 
   // Match the launch handler's enrollment resolution. The legacy User field can
   // drift from the primary CourseEnrollment and must not render a different course.
@@ -96,6 +98,7 @@ export default async function ProgramPage({
     return (
       <DesignSurface surface="warm">
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--wa-pad-sm)' }} className="wa-space-y-6">
+          {catalogResult.loadFailed ? <span hidden data-portal-error-state="member-program-catalog-load" /> : null}
           {staffViewer && <StaffViewBanner page="program" />}
           <PageOpener
             kicker="Program"
@@ -139,6 +142,7 @@ export default async function ProgramPage({
     user.email && enrolledSlug
       ? await fetchLearnerProgressFromB4B(user.email, {
           programId: courseraProgramId,
+          readOnlyAudit,
         }).catch((err: unknown) => {
           console.warn('[dashboard/program] B4B learner progress unavailable:', err);
           return new Map();
@@ -149,6 +153,7 @@ export default async function ProgramPage({
     userId: user.id,
     programSlug: enrolledSlug,
     b4bProgress,
+    readOnlyAudit,
   });
   const completedSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
   const completedCount = trainingView?.completedCount ?? 0;
@@ -192,6 +197,15 @@ export default async function ProgramPage({
       .reduce((sum, c) => sum + (c.estimatedHours ?? 0), 0);
 
     return (
+      <>
+      {readOnlyAudit ? <span hidden data-portal-audit-suppressed="member-program-coursera-course-resolution" /> : null}
+      {catalogResult.loadFailed ? <span hidden data-portal-error-state="member-program-catalog-load" /> : null}
+      {activeProgramView.noProgram ? (
+        <div className="wa-kit-card wa-mb-4" role="status">
+          <strong>Your Coursera progress is saved.</strong>{' '}
+          A counselor still needs to enroll you in a WorkforceAP program.
+        </div>
+      ) : null}
       <MemberProgramKit
         programTitle={program.title}
         progressPercent={progressPercent}
@@ -205,12 +219,20 @@ export default async function ProgramPage({
         // defaults and point the missions CTA at the live missions page.
         missionsHref="/dashboard/missions"
       />
+      </>
     );
   }
 
   return (
     <>
+      {catalogResult.loadFailed ? <span hidden data-portal-error-state="member-program-catalog-load" /> : null}
       <div className="portal-pad-x" style={{ paddingBottom: '6rem' }}>
+        {activeProgramView.noProgram ? (
+          <div className="wa-kit-card wa-mb-4" role="status">
+            <strong>Your Coursera progress is saved.</strong>{' '}
+            A counselor still needs to enroll you in a WorkforceAP program.
+          </div>
+        ) : null}
         {staffViewer && <StaffViewBanner page="program" />}
         <PageHeader
           title="My Program"

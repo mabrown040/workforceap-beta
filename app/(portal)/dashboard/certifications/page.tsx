@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -19,6 +20,7 @@ import {
 } from '@/components/portal/CertificationVaultActions';
 import CertificationAddForm from '@/components/portal/CertificationAddForm';
 import { MemberCertificatesKit } from '@/components/portal/kit/pages/member/MemberCertificatesKit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -35,6 +37,7 @@ export default async function DashboardCertificationsPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const locale = await getRequestLocale();
   const params = await searchParams;
@@ -45,7 +48,7 @@ export default async function DashboardCertificationsPage({
   // off rather than rendering a default IT Support / Digital Literacy pathway.
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true },
+    select: { enrolledProgram: true, organizationId: true },
   });
   const primaryPathway = getPathwayForProgram(dbUser?.enrolledProgram ?? null);
 
@@ -773,7 +776,10 @@ export default async function DashboardCertificationsPage({
               Industry-recognized credentials across IT, healthcare, and skilled trades. Check off certificates as you earn them.
             </p>
 
-            <CertificationReferenceSection />
+            <CertificationReferenceSection
+              organizationId={dbUser?.organizationId}
+              readOnlyAudit={readOnlyAudit}
+            />
 
             <div style={{ maxWidth: '860px' }}>
               <CertificationRoadmap />

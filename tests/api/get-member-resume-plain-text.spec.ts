@@ -47,6 +47,15 @@ describe('getMemberResumePlainText substantive text gate', () => {
     await expect(getMemberResumePlainText('member-1')).resolves.toBe('');
   });
 
+  it('does not query metadata or storage during a read-only audit', async () => {
+    await expect(
+      getMemberResumePlainText('member-1', 8000, { readOnlyAudit: true }),
+    ).resolves.toBe('');
+
+    expect(mocks.findProfile).not.toHaveBeenCalled();
+    expect(mocks.download).not.toHaveBeenCalled();
+  });
+
   it('surfaces a safe stored extraction at the shared 40-character boundary', async () => {
     mocks.extract.mockResolvedValue('x'.repeat(40));
 

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  buildCascadeFromMilestone,
   buildCascadeFromCompletion,
   type CompletionMilestoneInput,
 } from './buildCascadeFromCompletion';
@@ -36,7 +37,10 @@ test('happy path: webhook completion produces a cascade row with the canonical i
 
   assert.equal(result.row.userId, 'user-drew');
   assert.equal(result.row.milestoneType, 'course_completed');
-  assert.equal(result.row.milestoneRef, baseInput.courseSlug);
+  assert.equal(
+    result.row.milestoneRef,
+    'pmp-certificate::project-management-fundamentals-microsoft',
+  );
   assert.equal(result.row.programSlug, 'pmp-certificate');
   assert.equal(result.row.sourceEventId, 'xapi-stmt-abc-123');
 });
@@ -98,7 +102,7 @@ test('null programSlug + null sourceEventId both round-trip cleanly', () => {
   assert.equal(result.row.sourceEventId, null);
 });
 
-test('idempotency key is stable across calls with the same (userId, courseSlug)', () => {
+test('idempotency key is stable across calls with the same (userId, programSlug, courseSlug)', () => {
   // Two calls with identical milestone identity must produce the same key,
   // even if surrounding context (completedCount, sourceEventId) differs.
   const first = buildCascadeFromCompletion(baseInput);
@@ -113,4 +117,85 @@ test('idempotency key is stable across calls with the same (userId, courseSlug)'
   assert.equal(first.row.userId, second.row.userId);
   assert.equal(first.row.milestoneType, second.row.milestoneType);
   assert.equal(first.row.milestoneRef, second.row.milestoneRef);
+});
+
+test('the same course slug in two programs produces two independent idempotency keys', () => {
+  const first = buildCascadeFromCompletion(baseInput);
+  const second = buildCascadeFromCompletion({
+    ...baseInput,
+    programSlug: 'another-program',
+  });
+  assert.equal(first.shouldCreate, true);
+  assert.equal(second.shouldCreate, true);
+  if (!first.shouldCreate || !second.shouldCreate) return;
+  assert.notEqual(first.row.milestoneRef, second.row.milestoneRef);
+  assert.equal(
+    second.row.milestoneRef,
+    'another-program::project-management-fundamentals-microsoft',
+  );
+});
+
+test('program aliases collapse to the same course-completion idempotency key', () => {
+  const alias = buildCascadeFromCompletion({
+    ...baseInput,
+    programSlug: 'comptia-a-plus',
+    courseSlug: 'technical-support-fundamentals',
+  });
+  const canonical = buildCascadeFromCompletion({
+    ...baseInput,
+    programSlug: 'comptia-a-professional-certificate',
+    courseSlug: 'technical-support-fundamentals',
+  });
+  assert.equal(alias.shouldCreate, true);
+  assert.equal(canonical.shouldCreate, true);
+  if (!alias.shouldCreate || !canonical.shouldCreate) return;
+  assert.equal(alias.row.milestoneRef, canonical.row.milestoneRef);
+});
+
+test('program milestones use the program slug as their stable idempotency reference', () => {
+  const result = buildCascadeFromMilestone({
+    userId: 'user-drew',
+    milestoneType: 'program_halfway',
+    milestoneRef: 'pmp-certificate',
+    programSlug: 'pmp-certificate',
+    completedCount: 2,
+    totalCourses: 4,
+    source: 'coursera-webhook',
+    now: FIXED_NOW,
+  });
+  assert.equal(result.shouldCreate, true);
+  if (!result.shouldCreate) return;
+  assert.equal(result.row.milestoneType, 'program_halfway');
+  assert.equal(result.row.milestoneRef, 'pmp-certificate');
+  assert.equal(result.row.contextSnapshot.totalCourses, 4);
+});
+
+test('enterprise sync creates no celebration cascade for program completion', () => {
+  const result = buildCascadeFromMilestone({
+    userId: 'user-drew',
+    milestoneType: 'program_completed',
+    milestoneRef: 'pmp-certificate',
+    programSlug: 'pmp-certificate',
+    completedCount: 4,
+    totalCourses: 4,
+    source: 'coursera-enterprise-sync',
+  });
+  assert.equal(result.shouldCreate, false);
+  if (result.shouldCreate) return;
+  assert.match(result.reason, /enterprise-sync/);
+});
+
+test('enterprise sync may create counselor-only halfway tracking without member celebration', () => {
+  const result = buildCascadeFromMilestone({
+    userId: 'user-drew',
+    milestoneType: 'program_halfway',
+    milestoneRef: 'pmp-certificate',
+    programSlug: 'pmp-certificate',
+    completedCount: 2,
+    totalCourses: 4,
+    source: 'coursera-enterprise-sync',
+  });
+  assert.equal(result.shouldCreate, true);
+  if (!result.shouldCreate) return;
+  assert.equal(result.row.milestoneType, 'program_halfway');
 });

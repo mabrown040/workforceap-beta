@@ -805,8 +805,8 @@ export async function upsertCourseraIdentityMapping(args: {
     : Prisma.empty;
 
   const actorMatch = actorIdentifier
-    ? await db.$queryRaw<Array<{ id: string }>>`
-        SELECT id
+    ? await db.$queryRaw<Array<{ id: string; userId: string }>>`
+        SELECT id, user_id AS "userId"
         FROM coursera_identity_mappings
         WHERE actor_identifier = ${actorIdentifier}::text
           AND COALESCE(actor_home_page, '') = COALESCE(${actorHomePage}::text, '')
@@ -816,8 +816,8 @@ export async function upsertCourseraIdentityMapping(args: {
     : [];
 
   const emailMatch = !actorMatch[0] && courseraEmail
-    ? await db.$queryRaw<Array<{ id: string }>>`
-        SELECT id
+    ? await db.$queryRaw<Array<{ id: string; userId: string }>>`
+        SELECT id, user_id AS "userId"
         FROM coursera_identity_mappings
         WHERE LOWER(coursera_email) = ${courseraEmail}::text
           ${expectedOrgFilter}
@@ -825,7 +825,12 @@ export async function upsertCourseraIdentityMapping(args: {
       `
     : [];
 
-  const existingId = actorMatch[0]?.id || emailMatch[0]?.id || null;
+  const existingMatch = actorMatch[0] ?? emailMatch[0] ?? null;
+  const existingId = existingMatch?.id ?? null;
+
+  if (existingMatch && existingMatch.userId !== args.userId) {
+    throw new Error('Coursera identity is already mapped to a different WAP user');
+  }
 
   if (existingId) {
     const updated = await db.$queryRaw<Array<{ id: string }>>`

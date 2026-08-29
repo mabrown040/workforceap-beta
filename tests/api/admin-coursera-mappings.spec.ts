@@ -31,14 +31,6 @@ vi.mock('@/lib/coursera/mapIdentityAndProgress.server', () => ({
   mapCourseraIdentityAndProgress: vi.fn(),
 }));
 
-vi.mock('@/lib/xapi/reprocess', () => ({
-  reprocessUnmatchedXapiEvents: vi.fn(),
-}));
-
-vi.mock('@/lib/coursera/replayPendingXapi', () => ({
-  replayUnresolvedXapiStatementsForIdentity: vi.fn(),
-}));
-
 // ─── Imports after mocks ───
 import { GET, POST } from '@/app/api/admin/coursera/mappings/route';
 import { getUser } from '@/lib/auth/server';
@@ -49,8 +41,6 @@ import {
   listRecentUnmatchedXapiEvents,
 } from '@/lib/xapi/mappings';
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
-import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
-import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 
 const postReq = (body: unknown) =>
   new Request('http://localhost:3000/api/admin/coursera/mappings', {
@@ -186,7 +176,7 @@ describe('POST /api/admin/coursera/mappings', () => {
     });
   });
 
-  it('creates mapping with courseraEmail and reprocesses events', async () => {
+  it('atomically maps email progress and defers historical xAPI replay', async () => {
     mockAdmin();
     vi.mocked(mapCourseraIdentityAndProgress).mockResolvedValue({
       mapping: {
@@ -194,17 +184,11 @@ describe('POST /api/admin/coursera/mappings', () => {
         userId: 'u1',
         courseraEmail: 'c@example.com',
       },
-      backfill: { courseRowsUpdated: 2, badgeRowsUpdated: 1 },
-    } as any);
-    vi.mocked(reprocessUnmatchedXapiEvents).mockResolvedValue({
-      processed: 5,
-      matched: 3,
-      errors: 0,
-      details: [],
-    } as any);
-    vi.mocked(replayUnresolvedXapiStatementsForIdentity).mockResolvedValue({
-      replayed: 2,
-      matched: 1,
+      backfill: {
+        courseRowsUpdated: 2,
+        badgeRowsUpdated: 1,
+        promotion: { upserted: 2, unmapped: 0, rollupsRefreshed: 1, errors: 0 },
+      },
     } as any);
 
     const res = await POST(postReq({ userId: 'u1', courseraEmail: 'c@example.com' }));
@@ -212,8 +196,9 @@ describe('POST /api/admin/coursera/mappings', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.mapping).toMatchObject({ userId: 'u1', courseraEmail: 'c@example.com' });
-    expect(body.reprocessed).toMatchObject({ processed: 5, matched: 3 });
-    expect(body.xapiReplay).toMatchObject({ replayed: 2, matched: 1 });
+    expect(body.reprocessed).toBeNull();
+    expect(body.xapiReplay).toBeNull();
+    expect(body.xapiReplayDeferred).toBe(true);
     expect(mapCourseraIdentityAndProgress).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'u1',
@@ -223,7 +208,11 @@ describe('POST /api/admin/coursera/mappings', () => {
         source: 'manual-admin-api',
       })
     );
-    expect(body.backfill).toEqual({ courseRowsUpdated: 2, badgeRowsUpdated: 1 });
+    expect(body.backfill).toEqual({
+      courseRowsUpdated: 2,
+      badgeRowsUpdated: 1,
+      promotion: { upserted: 2, unmapped: 0, rollupsRefreshed: 1, errors: 0 },
+    });
   });
 
   it('creates mapping with actorIdentifier instead of courseraEmail', async () => {
@@ -234,15 +223,12 @@ describe('POST /api/admin/coursera/mappings', () => {
         userId: 'u1',
         actorIdentifier: 'actor-123',
       },
-      backfill: { courseRowsUpdated: 0, badgeRowsUpdated: 0 },
+      backfill: {
+        courseRowsUpdated: 0,
+        badgeRowsUpdated: 0,
+        promotion: { upserted: 0, unmapped: 0, rollupsRefreshed: 0, errors: 0 },
+      },
     } as any);
-    vi.mocked(reprocessUnmatchedXapiEvents).mockResolvedValue({
-      processed: 0,
-      matched: 0,
-      errors: 0,
-      details: [],
-    } as any);
-    vi.mocked(replayUnresolvedXapiStatementsForIdentity).mockResolvedValue(null as any);
 
     const res = await POST(
       postReq({ userId: 'u1', actorIdentifier: 'actor-123', actorHomePage: 'https://coursera.org' })
@@ -265,25 +251,26 @@ describe('POST /api/admin/coursera/mappings', () => {
     const res = await POST(postReq({ userId: 'u1', courseraEmail: 'c@example.com' }));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Duplicate mapping' });
-    expect(reprocessUnmatchedXapiEvents).not.toHaveBeenCalled();
-    expect(replayUnresolvedXapiStatementsForIdentity).not.toHaveBeenCalled();
   });
 
-  it('survives reprocess failure and still returns success', async () => {
+  it('returns the atomic mapping result without running historical replay', async () => {
     mockAdmin();
     vi.mocked(mapCourseraIdentityAndProgress).mockResolvedValue({
       mapping: { id: 'map-1' },
-      backfill: { courseRowsUpdated: 0, badgeRowsUpdated: 0 },
+      backfill: {
+        courseRowsUpdated: 0,
+        badgeRowsUpdated: 0,
+        promotion: { upserted: 0, unmapped: 0, rollupsRefreshed: 0, errors: 0 },
+      },
     } as any);
-    vi.mocked(reprocessUnmatchedXapiEvents).mockRejectedValue(new Error('Reprocess crash'));
-    vi.mocked(replayUnresolvedXapiStatementsForIdentity).mockRejectedValue(new Error('Replay crash'));
 
     const res = await POST(postReq({ userId: 'u1', courseraEmail: 'c@example.com' }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
-    expect(body.reprocessed).toMatchObject({ processed: 0, matched: 0, errors: 0, details: [] });
+    expect(body.reprocessed).toBeNull();
     expect(body.xapiReplay).toBeNull();
+    expect(body.xapiReplayDeferred).toBe(true);
   });
 
   it('returns 500 on unexpected outer error', async () => {

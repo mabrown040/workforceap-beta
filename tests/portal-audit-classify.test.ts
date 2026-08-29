@@ -73,6 +73,7 @@ describe('classifyPortalAuditRow', () => {
       bodyText: 'Browse jobs and save favorites',
       appReady: true,
       h1Count: 1,
+      readOnlyCapabilityActive: true,
     });
 
     expect(result.ok).toBe(true);
@@ -91,6 +92,7 @@ describe('classifyPortalAuditRow', () => {
       bodyText: 'Resume coach workspace and editing tools',
       appReady: true,
       h1Count: 1,
+      readOnlyCapabilityActive: true,
     });
 
     expect(result.ok).toBe(false);
@@ -109,6 +111,7 @@ describe('classifyPortalAuditRow', () => {
       bodyText: 'Resume coach workspace and editing tools',
       appReady: true,
       h1Count: 1,
+      readOnlyCapabilityActive: true,
     });
 
     expect(result.ok).toBe(true);

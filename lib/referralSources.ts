@@ -4,6 +4,9 @@ export const REFERRAL_SOURCE_COMMUNITY_AMBASSADOR = 'Community Ambassador (write
 export const CENTRAL_TEXAS_REFERRAL_SOURCES = [
   'Launch Pad Job Club',
   'Purpose Works / Job Seekers Network',
+  // Preserve the pre-existing generic choice alongside the two specific
+  // boards. They are distinct answers, not display duplicates.
+  'Workforce Solutions',
   'Workforce Solutions Capital Area',
   'Workforce Solutions Rural Capital Area',
   REFERRAL_SOURCE_OTHER_PARTNER,

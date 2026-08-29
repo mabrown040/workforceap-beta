@@ -9,6 +9,12 @@ export const PRODUCTION_PORTAL_ORIGINS = Object.freeze([
   'https://www.workforceap.org',
 ]);
 
+/** Return only schema-supported audit modes; all other input is represented as null. */
+export function normalizePortalAuditMode(mode) {
+  const normalizedMode = typeof mode === 'string' ? mode.trim().toLowerCase() : '';
+  return PORTAL_AUDIT_MODES.includes(normalizedMode) ? normalizedMode : null;
+}
+
 function parseOriginOnly(value, label) {
   const raw = typeof value === 'string' ? value.trim() : '';
   if (!raw) return { ok: false, error: `${label}_missing` };
@@ -43,10 +49,10 @@ export function validatePortalAuditTarget({
   mode,
   trustedPreviewOrigin = '',
 }) {
-  const normalizedMode = typeof mode === 'string' ? mode.trim().toLowerCase() : '';
+  const validatedMode = normalizePortalAuditMode(mode);
   const errors = [];
 
-  if (!PORTAL_AUDIT_MODES.includes(normalizedMode)) {
+  if (!validatedMode) {
     errors.push('unsupported_audit_mode');
   }
 
@@ -54,7 +60,7 @@ export function validatePortalAuditTarget({
   if (!target.ok) errors.push(target.error);
 
   let targetClass = null;
-  if (target.ok && normalizedMode === 'local') {
+  if (target.ok && validatedMode === 'local') {
     if (!isLoopbackHost(target.url.hostname)) errors.push('local_target_must_be_loopback');
     if (!['http:', 'https:'].includes(target.url.protocol)) {
       errors.push('local_target_protocol_not_allowed');
@@ -62,7 +68,7 @@ export function validatePortalAuditTarget({
     targetClass = 'local_loopback';
   }
 
-  if (target.ok && normalizedMode === 'isolated_preview') {
+  if (target.ok && validatedMode === 'isolated_preview') {
     const trusted = parseOriginOnly(trustedPreviewOrigin, 'trusted_preview');
     if (!trusted.ok) {
       errors.push(trusted.error);
@@ -77,7 +83,7 @@ export function validatePortalAuditTarget({
     targetClass = 'isolated_preview';
   }
 
-  if (target.ok && normalizedMode === 'production_canary') {
+  if (target.ok && validatedMode === 'production_canary') {
     if (!PRODUCTION_PORTAL_ORIGINS.includes(target.origin)) {
       errors.push('production_target_not_allowlisted');
     }
@@ -86,7 +92,7 @@ export function validatePortalAuditTarget({
 
   return {
     ok: errors.length === 0,
-    mode: normalizedMode || null,
+    mode: validatedMode,
     origin: target.ok ? target.origin : null,
     targetClass,
     errors: [...new Set(errors)],

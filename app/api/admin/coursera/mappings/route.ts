@@ -5,8 +5,6 @@ import {
   listCourseraIdentityMappings,
   listRecentUnmatchedXapiEvents,
 } from '@/lib/xapi/mappings';
-import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
-import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
@@ -93,7 +91,7 @@ async function _POST(request: Request) {
     }
   
     try {
-      const mapped = await mapCourseraIdentityAndProgress({
+      const result = await mapCourseraIdentityAndProgress({
         userId: body.userId.trim(),
         organizationId: ctx.organizationId,
         courseraEmail: body.courseraEmail,
@@ -103,52 +101,20 @@ async function _POST(request: Request) {
         createdByUserId: ctx.user.id,
         source: 'manual-admin-api',
       });
-  
-      // Re-process unmatched xAPI events that might now match this mapping.
-      // Two pipelines run in parallel because each catches a different failure
-      // mode the other misses:
-      //   - `reprocessUnmatchedXapiEvents` walks `coursera_xapi_events` rows
-      //     stored as 'unmatched' / 'error' (events that hit ingest before
-      //     the mapping existed)
-      //   - `replayUnresolvedXapiStatementsForIdentity` walks
-      //     `xapi_statements` directly, which catches statements whose
-      //     pipeline run never wrote a `coursera_xapi_events` row (early
-      //     failures) and statements that were already marked processed.
-      // Without the second pass, saving a mapping for a learner whose
-      // historical events were short-circuited before `recordXapiEvent`
-      // would not credit any progress.
-      let reprocessResult;
-      try {
-        reprocessResult = await reprocessUnmatchedXapiEvents({
-          userId: body.userId.trim(),
-          courseraEmail: body.courseraEmail,
-          actorIdentifier: body.actorIdentifier,
-          limit: 50,
-        });
-      } catch (reprocessError) {
-        console.error('[admin/coursera/mappings] reprocess failed:', reprocessError);
-        reprocessResult = { processed: 0, matched: 0, errors: 0, details: [] };
-      }
-  
-      let xapiReplay;
-      try {
-        xapiReplay = await replayUnresolvedXapiStatementsForIdentity({
-          courseraEmail: body.courseraEmail,
-          actorIdentifier: body.actorIdentifier,
-        });
-      } catch (replayError) {
-        console.error('[admin/coursera/mappings] xapi replay failed:', replayError);
-        xapiReplay = null;
-      }
+      // Historical xAPI replay is intentionally deferred. Mapping is an
+      // identity/data-repair action and must not emit old rewards, completion
+      // emails, or graduation workflows. Future live xAPI resolves through
+      // the mapping; raw CSV/B4B facts are promoted monotonically above.
   
       void auditLog({ actorUserId: ctx.user.id, action: 'admin_coursera_mapping_saved', targetType: 'User', targetId: body.userId?.trim() ?? ctx.user.id, metadata: {} }).catch(() => {});
       logAuditEvent({ user: { id: ctx.user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: body.userId?.trim() ?? ctx.user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
-        mapping: mapped.mapping,
-        backfill: mapped.backfill,
-        reprocessed: reprocessResult,
-        xapiReplay,
+        mapping: result.mapping,
+        backfill: result.backfill,
+        reprocessed: null,
+        xapiReplay: null,
+        xapiReplayDeferred: true,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to save Coursera mapping';

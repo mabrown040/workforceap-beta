@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { notFound, redirect } from 'next/navigation';
 import { randomUUID } from 'node:crypto';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
@@ -11,6 +12,7 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import PageHeader from '@/components/portal/PageHeader';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 const SessionRunClient = dynamic(() => import('@/components/portal/sessions/SessionRunClient'), {
   loading: () => (
@@ -58,6 +60,7 @@ export default async function SessionRunPage({
 
   const user = await getUser();
   if (!user) redirect(`/login?redirectTo=/counselor/sessions/${memberId}/run`);
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const [counselorRole, adminRole, superAdminRole] = await Promise.all([
     isCounselor(user.id),
@@ -94,17 +97,27 @@ export default async function SessionRunPage({
   if (!member) notFound();
 
   // Hydrate existing resume text if any (empty string for walk-ins).
-  const existingResume = await getMemberResumePlainText(memberId, 8000, { preferOriginal: true });
+  const existingResume = await getMemberResumePlainText(memberId, 8000, {
+    preferOriginal: true,
+    readOnlyAudit,
+  });
 
   // Session id: use one passed in URL, otherwise mint a new one. Either way
   // the client will keep using whatever is in the URL.
-  const sessionId = sid && /^[0-9a-f-]{36}$/i.test(sid) ? sid : randomUUID();
-  if (sessionId !== sid) {
+  const sessionId = sid && /^[0-9a-f-]{36}$/i.test(sid)
+    ? sid
+    : readOnlyAudit
+      ? '00000000-0000-4000-8000-000000000000'
+      : randomUUID();
+  if (sessionId !== sid && !readOnlyAudit) {
     redirect(`/counselor/sessions/${memberId}/run?sid=${sessionId}${fresh === '1' ? '&fresh=1' : ''}`);
   }
 
   return (
     <>
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="session-resume-coursera-provider-and-session-redirect" />
+      )}
       <PageHeader
         title={`Session with ${member.fullName ?? member.email}`}
         subtitle={
@@ -119,7 +132,7 @@ export default async function SessionRunPage({
         ]}
       />
       <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
-        <CourseraProgressCard userId={member.id} />
+        <CourseraProgressCard userId={member.id} readOnlyAudit={readOnlyAudit} />
       </div>
       <SessionRunClient
         key={member.id}

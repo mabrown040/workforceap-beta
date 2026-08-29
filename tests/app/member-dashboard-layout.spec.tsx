@@ -6,6 +6,10 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 
+vi.mock('next/headers', () => ({
+  headers: vi.fn(async () => new Headers()),
+}));
+
 vi.mock('next-intl/server', () => ({
   getTranslations: vi.fn(async () => (key: string) => key),
 }));

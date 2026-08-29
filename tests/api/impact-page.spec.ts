@@ -48,6 +48,7 @@ import {
 } from '@/lib/marketing/publicImpactStats';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 const ORG_ID = 'org-test-123';
 
@@ -86,7 +87,6 @@ function mockImpactQueries(options: {
   enrolledUsers?: EnrolledUser[];
   enrolledCount?: number;
   placedAmongEnrolled?: number;
-  completedAmongEnrolled?: number;
   employersPartnered?: number;
   jobsPosted?: number;
   hiresMade?: number;
@@ -98,15 +98,17 @@ function mockImpactQueries(options: {
   const enrolledCount = options.enrolledCount ?? enrolledUsers.length;
   const placedAmongEnrolled =
     options.placedAmongEnrolled ?? enrolledUsers.filter((user) => user.placementRecord).length;
-  const completedAmongEnrolled =
-    options.completedAmongEnrolled ??
-    enrolledUsers.filter((user) => user.memberProgramProgress[0]?.averagePercent >= 100).length;
-
   const enrolledBySlug = new Map<string, number>();
   const completedBySlug = new Map<string, number>();
   for (const user of enrolledUsers) {
     enrolledBySlug.set(user.enrolledProgram, (enrolledBySlug.get(user.enrolledProgram) ?? 0) + 1);
-    if (user.memberProgramProgress[0]?.averagePercent >= 100) {
+    const expectedCourses = getProgramBySlug(user.enrolledProgram)?.courses.length ?? 0;
+    if (
+      expectedCourses > 0 &&
+      user.memberProgramProgress.some(
+        (progress) => progress.coursesCompleted === expectedCourses,
+      )
+    ) {
       completedBySlug.set(user.enrolledProgram, (completedBySlug.get(user.enrolledProgram) ?? 0) + 1);
     }
   }
@@ -115,7 +117,6 @@ function mockImpactQueries(options: {
     .mockResolvedValueOnce(options.membersServed ?? enrolledUsers.length)
     .mockResolvedValueOnce(enrolledCount)
     .mockResolvedValueOnce(placedAmongEnrolled);
-  (prisma.memberProgramProgress.count as any).mockResolvedValue(completedAmongEnrolled);
   (prisma.user.findMany as any).mockResolvedValue(enrolledUsers);
   (prisma.user.groupBy as any).mockResolvedValue(
     [...enrolledBySlug].map(([enrolledProgram, count]) => ({
@@ -132,12 +133,16 @@ function mockImpactQueries(options: {
   (prisma.employer.count as any).mockResolvedValue(options.employersPartnered ?? 0);
   (prisma.job.count as any).mockResolvedValue(options.jobsPosted ?? 0);
   (prisma.placementRecord.count as any).mockResolvedValue(options.hiresMade ?? placedAmongEnrolled);
-  (prisma.$queryRaw as any).mockResolvedValue([
-    {
-      avg_delta: options.avgSalaryIncreaseDollars ?? null,
-      n: options.salaryIncreaseSampleSize ?? 0,
-    },
-  ]);
+  (prisma.$queryRaw as any)
+    .mockResolvedValueOnce(
+      [...completedBySlug].map(([program_slug, count]) => ({ program_slug, count })),
+    )
+    .mockResolvedValueOnce([
+      {
+        avg_delta: options.avgSalaryIncreaseDollars ?? null,
+        n: options.salaryIncreaseSampleSize ?? 0,
+      },
+    ]);
   (prisma.courseProgress.findMany as any).mockResolvedValue(options.courseProgress ?? []);
 }
 
@@ -339,7 +344,14 @@ describe('Impact Page — getPublicImpactStats', () => {
         makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: false }),
         makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: false }),
         makeEnrolledUser({ id: 'u3', programSlug: 'digital-literacy-empowerment-class', avgPercent: 50, coursesCompleted: 3, hasPlacement: false }),
-        makeEnrolledUser({ id: 'u4', programSlug: 'it-support-professional-certificate-ibm', avgPercent: 100, coursesCompleted: 7, hasPlacement: false }),
+        makeEnrolledUser({
+          id: 'u4',
+          programSlug: 'it-support-professional-certificate-ibm',
+          avgPercent: 100,
+          coursesCompleted:
+            getProgramBySlug('it-support-professional-certificate-ibm')?.courses.length ?? 0,
+          hasPlacement: false,
+        }),
       ];
 
       mockImpactQueries({ membersServed: 4, enrolledUsers: enrolled });
@@ -356,6 +368,24 @@ describe('Impact Page — getPublicImpactStats', () => {
       expect(itProgram).toBeDefined();
       expect(itProgram!.enrolled).toBe(1);
       expect(itProgram!.completed).toBe(1);
+    });
+
+    it('does not publish a stale 100 percent rollup as program completion', async () => {
+      const enrolled = [
+        makeEnrolledUser({
+          id: 'u-stale',
+          programSlug: 'it-support-professional-certificate-ibm',
+          avgPercent: 100,
+          coursesCompleted: 1,
+          hasPlacement: false,
+        }),
+      ];
+
+      mockImpactQueries({ membersServed: 1, enrolledUsers: enrolled });
+
+      const stats = await getPublicImpactStats(ORG_ID);
+      expect(stats.completionRatePct).toBe(0);
+      expect(stats.programs[0]?.completed).toBe(0);
     });
 
     it('completion rate is 0 when no enrolled members', async () => {

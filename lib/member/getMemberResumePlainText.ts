@@ -24,8 +24,9 @@ function extFromPath(path: string): string {
 export async function getMemberResumePlainText(
   userId: string,
   maxChars = 8000,
-  opts?: { preferOriginal?: boolean }
+  opts?: { preferOriginal?: boolean; readOnlyAudit?: boolean }
 ): Promise<string> {
+  if (opts?.readOnlyAudit) return '';
   const profile = await prisma.profile.findUnique({
     where: { userId },
   });

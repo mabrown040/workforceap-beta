@@ -39,6 +39,17 @@ test('memberProgramCompleted prefers live rollup completion state', () => {
   );
 });
 
+test('memberProgramCompleted never graduates from a percent-only shortcut', () => {
+  assert.equal(
+    memberProgramCompleted(sampleProgram.slug, [], {
+      programSlug: sampleProgram.slug,
+      averagePercent: 100,
+      coursesCompleted: 1,
+    }),
+    false
+  );
+});
+
 test('memberProgramCompleted falls back to legacy completed slugs', () => {
   assert.equal(memberProgramCompleted(sampleProgram.slug, slugs), true);
   assert.equal(memberProgramCompleted(sampleProgram.slug, slugs.slice(0, 1)), false);

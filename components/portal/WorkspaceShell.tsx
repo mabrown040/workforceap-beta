@@ -63,6 +63,7 @@ export default function WorkspaceShell({
   marketingSiteLabel,
   navHrefMap,
   showResumeUploadHint,
+  readOnlyAudit = false,
   portalRoles,
   attributionLabel,
   partnerAccentColor,
@@ -94,6 +95,8 @@ export default function WorkspaceShell({
   navHrefMap?: Record<string, string>;
   /** Member: prompt to upload resume when none on file */
   showResumeUploadHint?: boolean;
+  /** Authenticated audit capability: render the shell without polling providers or mutable notification state. */
+  readOnlyAudit?: boolean;
   /** Optional set of role-switch targets for authenticated multi-role users */
   portalRoles?: PortalSwitcherRole[];
   /**
@@ -142,6 +145,7 @@ export default function WorkspaceShell({
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
+  const [badgeFetchError, setBadgeFetchError] = useState(false);
   const isCollapsedDesktop = collapsed && wide;
   const isMobileDrawer = drawerOpen && !wide;
   const fetchedIsSuperAdmin = useIsSuperAdmin();
@@ -277,19 +281,27 @@ export default function WorkspaceShell({
   }, [collapseKey]);
 
   useEffect(() => {
+    if (readOnlyAudit) {
+      setBadgeFetchError(false);
+      return;
+    }
     let cancelled = false;
     const load = async () => {
       try {
+        setBadgeFetchError(false);
         const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(portalRole)}`, {
           credentials: 'include',
         });
-        if (!r.ok) return;
+        if (!r.ok) {
+          if (!cancelled) setBadgeFetchError(true);
+          return;
+        }
         const data = (await r.json()) as Partial<Record<NavBadgeKey, number>>;
         if (!cancelled) {
           startTransition(() => setBadges(data));
         }
       } catch {
-        /* ignore */
+        if (!cancelled) setBadgeFetchError(true);
       }
     };
 
@@ -304,7 +316,7 @@ export default function WorkspaceShell({
       window.clearTimeout(deferId);
       window.removeEventListener('wa-nav-badges-refresh', onRefresh);
     };
-  }, [portalRole]);
+  }, [portalRole, readOnlyAudit]);
 
   const toggleCollapse = () => {
     setCollapsed((c) => {
@@ -360,6 +372,10 @@ export default function WorkspaceShell({
 
   return (
     <div className="workspace-shell-root" style={rootStyle}>
+      {readOnlyAudit ? (
+        <span hidden data-portal-audit-suppressed="workspace-nav-badges-and-notification-polling" />
+      ) : null}
+      {badgeFetchError ? <span hidden data-portal-error-state="workspace-nav-badges" /> : null}
       <header
         ref={headerRef}
         className={`workspace-shell-header${minimalMobileHeader ? ' workspace-shell-header--minimal-mobile' : ''}`}
@@ -431,7 +447,11 @@ export default function WorkspaceShell({
           ) : null}
           {/* Global search for admin now lives in the command rail (see
               workspace-sidebar-search below), matching the admin-full mockup. */}
-          <PortalHeaderActions badges={badges} hidePublicSite={Boolean(marketingSiteHref)} />
+          <PortalHeaderActions
+            badges={badges}
+            hidePublicSite={Boolean(marketingSiteHref)}
+            readOnlyAudit={readOnlyAudit}
+          />
           {attributionLabel ? (
             <span
               className="workspace-shell-attribution"

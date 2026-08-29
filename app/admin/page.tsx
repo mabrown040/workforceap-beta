@@ -59,11 +59,74 @@ export default async function AdminTodayPage({
   // Legacy "Today" view via ?ui=legacy.
   if (requestedUi !== 'legacy') {
     const yearStart = new Date(new Date().getUTCFullYear(), 0, 1);
+    let adminHomeLoadFailed = false;
 
     const { data, headline } = await withAuthGuc(async () => {
       const orgId = await getActorOrganizationId(user.id);
       const [center, activeStudents, placementRows, recentCronErrors, slaBreaches48h] = await Promise.all([
-        getAdminCommandCenter(user.id, { perSectionLimit: 8 }).catch((): AdminCommandCenter => ({
+        getAdminCommandCenter(user.id, { perSectionLimit: 8 }).catch((error): AdminCommandCenter => {
+          adminHomeLoadFailed = true;
+          console.error('[admin/page] command center load failed', error);
+          return {
+            needsReply: [],
+            atRisk: [],
+            interviewing: [],
+            applicationsPending: [],
+            programHealth: [],
+            totals: {
+              needsReplyCount: 0,
+              atRiskCount: 0,
+              interviewingCount: 0,
+              applicationsPendingCount: 0,
+              certificationsPendingCount: 0,
+              oldestPendingApplicationDays: null,
+            },
+          };
+        }),
+        prisma.user
+          .count({ where: { organizationId: orgId, deletedAt: null, enrolledProgram: { not: null } } })
+          .catch((error) => {
+            adminHomeLoadFailed = true;
+            console.error('[admin/page] active student count failed', error);
+            return 0;
+          }),
+        prisma.placementRecord
+          .findMany({
+            where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } },
+            select: { placedAt: true },
+          })
+          .catch((error) => {
+            adminHomeLoadFailed = true;
+            console.error('[admin/page] placement headline load failed', error);
+            return [] as Array<{ placedAt: Date }>;
+          }),
+        // "System health" signals — same cheap patterns app/admin/overview/page.tsx
+        // already runs after its own auth guard (one count + one existing helper,
+        // no new expensive queries).
+        prisma.workflowDiagnostic
+          .count({
+            where: {
+              status: { in: ['error', 'errored'] },
+              createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+            },
+          })
+          .catch((error) => {
+            adminHomeLoadFailed = true;
+            console.error('[admin/page] workflow diagnostic count failed', error);
+            return 0;
+          }),
+        countThreadsWithSlaBreach(48).catch((error) => {
+          adminHomeLoadFailed = true;
+          console.error('[admin/page] message SLA count failed', error);
+          return 0;
+        }),
+      ]);
+      return { data: center, headline: { activeStudents, placementRows, recentCronErrors, slaBreaches48h } };
+    }).catch((error) => {
+      adminHomeLoadFailed = true;
+      console.error('[admin/page] scoped command center load failed', error);
+      return {
+        data: {
           needsReply: [],
           atRisk: [],
           interviewing: [],
@@ -77,53 +140,15 @@ export default async function AdminTodayPage({
             certificationsPendingCount: 0,
             oldestPendingApplicationDays: null,
           },
-        })),
-        prisma.user
-          .count({ where: { organizationId: orgId, deletedAt: null, enrolledProgram: { not: null } } })
-          .catch(() => 0),
-        prisma.placementRecord
-          .findMany({
-            where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } },
-            select: { placedAt: true },
-          })
-          .catch(() => [] as Array<{ placedAt: Date }>),
-        // "System health" signals — same cheap patterns app/admin/overview/page.tsx
-        // already runs after its own auth guard (one count + one existing helper,
-        // no new expensive queries).
-        prisma.workflowDiagnostic
-          .count({
-            where: {
-              status: { in: ['error', 'errored'] },
-              createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-            },
-          })
-          .catch(() => 0),
-        countThreadsWithSlaBreach(48).catch(() => 0),
-      ]);
-      return { data: center, headline: { activeStudents, placementRows, recentCronErrors, slaBreaches48h } };
-    }).catch(() => ({
-      data: {
-        needsReply: [],
-        atRisk: [],
-        interviewing: [],
-        applicationsPending: [],
-        programHealth: [],
-        totals: {
-          needsReplyCount: 0,
-          atRiskCount: 0,
-          interviewingCount: 0,
-          applicationsPendingCount: 0,
-          certificationsPendingCount: 0,
-          oldestPendingApplicationDays: null,
+        } as AdminCommandCenter,
+        headline: {
+          activeStudents: 0,
+          placementRows: [] as Array<{ placedAt: Date }>,
+          recentCronErrors: 0,
+          slaBreaches48h: 0,
         },
-      } as AdminCommandCenter,
-      headline: {
-        activeStudents: 0,
-        placementRows: [] as Array<{ placedAt: Date }>,
-        recentCronErrors: 0,
-        slaBreaches48h: 0,
-      },
-    }));
+      };
+    });
 
     const { totals } = data;
 
@@ -261,16 +286,19 @@ export default async function AdminTodayPage({
     }).format(new Date());
 
     return (
-      <CommandCenterKit
-        dateLabel={dateLabel}
-        kpis={kpis}
-        queueItems={queueItems}
-        programHealth={programHealth}
-        placementsByMonth={placementsByMonth}
-        placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${placementsYtd} total`}
-        addStudentHref="/admin/members/new"
-        systemHealth={systemHealth}
-      />
+      <>
+        {adminHomeLoadFailed ? <span hidden data-portal-error-state="admin-command-center-load" /> : null}
+        <CommandCenterKit
+          dateLabel={dateLabel}
+          kpis={kpis}
+          queueItems={queueItems}
+          programHealth={programHealth}
+          placementsByMonth={placementsByMonth}
+          placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${placementsYtd} total`}
+          addStudentHref="/admin/members/new"
+          systemHealth={systemHealth}
+        />
+      </>
     );
   }
 

@@ -11,11 +11,13 @@ export default function CounselorPortalShell({
   subtitle,
   superAdmin,
   portalRoles,
+  readOnlyAudit = false,
 }: {
   children: React.ReactNode;
   subtitle: string;
   superAdmin?: boolean;
   portalRoles?: PortalSwitcherRole[];
+  readOnlyAudit?: boolean;
 }) {
   return (
     <WorkspaceShell
@@ -25,6 +27,7 @@ export default function CounselorPortalShell({
       contextLabel={subtitle}
       superAdmin={superAdmin}
       portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
       footer={<DashboardFooter />}
     >
       {children}

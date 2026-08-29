@@ -127,4 +127,20 @@ describe('PATCH /api/admin/members/[id]/program', () => {
     });
     expect(invalidateMemberState).toHaveBeenCalledWith(MEMBER_ID);
   });
+
+  it('rejects an inactive program from an explicit tenant catalog', async () => {
+    vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(1);
+    vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
+
+    const res = await PATCH(makeRequest({ programSlug: 'data-analytics' }), {
+      params: Promise.resolve({ id: MEMBER_ID }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(prisma.organizationProgramCatalog.findFirst).toHaveBeenCalledWith({
+      where: { organizationId: ORG_ID, programSlug: 'data-analytics', status: 'active' },
+      select: { programSlug: true },
+    });
+    expect((prisma as any).__tx.user.updateMany).not.toHaveBeenCalled();
+  });
 });

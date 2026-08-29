@@ -1,9 +1,9 @@
 /**
  * Checked-in manifest for the five authenticated portal surfaces.
  *
- * Static paths are visited at desktop and mobile viewports. Dynamic paths stay
- * explicitly pending until the harness can discover a safe fixture from a list
- * page; a literal route pattern is never counted as browser coverage.
+ * Static paths are visited at desktop and mobile viewports. Dynamic paths are
+ * exercised only through visible same-origin fixtures; patterns listed in
+ * REQUIRED_DYNAMIC_PATHS fail the audit when no fixture is discoverable.
  *
  * Redirect-only pages are inventoried separately so route discovery remains
  * complete without pretending a legacy alias is an independently rendered UI.
@@ -177,6 +177,7 @@ export const STATIC_PATHS = {
 
   counselor: [
     '/counselor',
+    '/counselor?ui=legacy',
     '/counselor/at-risk',
     '/counselor/guide',
     '/counselor/inactive-members',
@@ -231,6 +232,140 @@ export const DYNAMIC_PATHS = {
   counselor: ['/counselor/sessions/[memberId]/run', '/counselor/students/[memberId]'],
 };
 
+/** Checked-in fixtures make these dynamic routes mandatory on isolated targets. */
+export const REQUIRED_DYNAMIC_PATHS = {
+  member: ['/dashboard/career-library/[id]'],
+  admin: [],
+  employer: [],
+  partner: [],
+  counselor: [],
+};
+
+/**
+ * Safe click-level coverage. The runner only accepts internal anchors and GET
+ * navigation; buttons, forms, downloads, voice sessions, and write APIs are
+ * structurally outside this manifest.
+ */
+export const SAFE_ACTION_CONTRACTS = {
+  member: [
+    {
+      id: 'member-open-program',
+      kind: 'read_only_navigation',
+      sourcePath: '/dashboard',
+      targetPath: '/dashboard/program',
+      required: true,
+    },
+    {
+      id: 'member-open-resume',
+      kind: 'read_only_navigation',
+      sourcePath: '/dashboard',
+      targetPath: '/dashboard/resume',
+      required: true,
+    },
+    {
+      id: 'member-open-career-library-resource',
+      kind: 'read_only_discovered_navigation',
+      sourcePath: '/dashboard/career-library',
+      targetPattern: '/dashboard/career-library/[id]',
+      required: true,
+    },
+  ],
+  admin: [
+    {
+      id: 'admin-open-student-roster',
+      kind: 'read_only_navigation',
+      sourcePath: '/admin',
+      targetPath: '/admin/students',
+      required: true,
+    },
+    {
+      id: 'admin-open-student-record',
+      kind: 'read_only_discovered_navigation',
+      sourcePath: '/admin/members',
+      targetPattern: '/admin/members/[id]',
+      requiredWhenApplicable: true,
+      emptyStateText: 'No members yet',
+    },
+  ],
+  employer: [
+    {
+      id: 'employer-open-jobs',
+      kind: 'read_only_navigation',
+      sourcePath: '/employer',
+      targetPath: '/employer/jobs',
+      required: true,
+    },
+    {
+      id: 'employer-open-job-record',
+      kind: 'read_only_discovered_navigation',
+      sourcePath: '/employer/jobs',
+      targetPattern: '/employer/jobs/[id]',
+      requiredWhenApplicable: true,
+      emptyStateText: 'No jobs yet',
+    },
+  ],
+  partner: [
+    {
+      id: 'partner-open-referred-members',
+      kind: 'read_only_navigation',
+      sourcePath: '/partner',
+      targetPath: '/partner/referred-members',
+      required: true,
+    },
+    {
+      id: 'partner-open-referred-member-record',
+      kind: 'read_only_discovered_navigation',
+      sourcePath: '/partner/referred-members',
+      targetPattern: '/partner/referred-members/[memberId]',
+      requiredWhenApplicable: true,
+      emptyStateText: "You haven't referred any members yet",
+    },
+  ],
+  counselor: [
+    {
+      id: 'counselor-open-students',
+      kind: 'read_only_navigation',
+      sourcePath: '/counselor',
+      targetPath: '/counselor/students',
+      required: true,
+    },
+    {
+      id: 'counselor-open-student-record',
+      kind: 'read_only_discovered_navigation',
+      sourcePath: '/counselor?ui=legacy',
+      targetPattern: '/counselor/students/[memberId]',
+      requiredWhenApplicable: true,
+      emptyStateText: 'No members assigned yet',
+    },
+  ],
+};
+
+/** Honest exclusions: these need an attended or mutating test and never count green here. */
+export const ATTENDED_ACTION_GATES = {
+  member: [
+    { id: 'member-resume-upload', reason: 'mutates_member_resume_fixture' },
+    { id: 'member-lilley-spoken-session', reason: 'requires_microphone_and_audio' },
+    { id: 'member-submit-job-application', reason: 'submits_external_application' },
+  ],
+  admin: [
+    { id: 'admin-production-authentication', reason: 'requires_staff_mfa' },
+    { id: 'admin-change-program-enrollment', reason: 'mutates_enrollment' },
+    { id: 'admin-send-member-email', reason: 'sends_email' },
+  ],
+  employer: [
+    { id: 'employer-post-or-edit-job', reason: 'mutates_job_record' },
+    { id: 'employer-change-applicant-status', reason: 'mutates_application' },
+  ],
+  partner: [
+    { id: 'partner-invite-member', reason: 'sends_invitation' },
+  ],
+  counselor: [
+    { id: 'counselor-production-authentication', reason: 'requires_staff_mfa' },
+    { id: 'counselor-send-message-or-nudge', reason: 'sends_member_message' },
+    { id: 'counselor-run-session', reason: 'mutates_session_record' },
+  ],
+};
+
 /**
  * App Router pages that intentionally redirect and therefore are inventory
  * entries, not browser-audited destinations. Every entry must name the
@@ -245,7 +380,10 @@ export const REDIRECT_ONLY_PATHS = {
     },
     {
       path: '/dashboard/ai-tools/readiness-coach',
-      target: '/dashboard/ai-tools/studio?tab=session&agent=readiness',
+      // The legacy page redirects through /dashboard/ai-tools/studio, whose
+      // server page immediately canonicalizes to the consolidated AI tools
+      // surface. Playwright follows both hops, so assert the final URL.
+      target: '/dashboard/ai-tools?tab=session&agent=readiness',
       reason: 'legacy_alias',
     },
     {
@@ -321,14 +459,20 @@ export const REDIRECT_ONLY_PATHS = {
   counselor: [],
 };
 
-/** Small, read-only production coverage. Exhaustive coverage belongs on the isolated preview. */
+/**
+ * Small, read-only production coverage for roles that do not require an
+ * attended MFA ceremony. Staff coverage remains an explicit attended gate in
+ * production; exhaustive five-role evidence belongs on the isolated preview.
+ */
 export const PRODUCTION_CANARY_PATHS = {
   member: ['/dashboard'],
-  admin: ['/admin'],
   employer: ['/employer'],
   partner: ['/partner'],
-  counselor: ['/counselor'],
 };
+
+export const PRODUCTION_CANARY_ROLES = Object.freeze(
+  Object.keys(PRODUCTION_CANARY_PATHS)
+);
 
 export const SECTION_LOGIN_REDIRECT = {
   member: '/dashboard',

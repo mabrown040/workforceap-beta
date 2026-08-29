@@ -23,6 +23,7 @@ export default async function InterviewPracticePage({ searchParams }: { searchPa
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/interview-practice');
 
   let savedResults: { id: string; inputSummary: string | null; output: string | null; createdAt: Date }[] = [];
+  let savedResultsLoadFailed = false;
   try {
     savedResults = await prisma.aIToolResult.findMany({
       where: { userId: user.id, toolType: 'interview_practice' },
@@ -30,8 +31,9 @@ export default async function InterviewPracticePage({ searchParams }: { searchPa
       take: 10,
       select: { id: true, inputSummary: true, output: true, createdAt: true },
     });
-  } catch {
-    // Non-fatal — page renders with empty saved results
+  } catch (error) {
+    savedResultsLoadFailed = true;
+    console.error('[interview-practice page] saved results query failed', error);
   }
 
   const sp = await searchParams;
@@ -49,5 +51,12 @@ export default async function InterviewPracticePage({ searchParams }: { searchPa
     initialData = { ...(initialData ?? { experienceLevel: 'mid', resumeContext: '' }), role: sp.role };
   }
 
-  return <InterviewPracticeKit memberId={user.id} initialData={initialData} savedResults={savedResults} />;
+  return (
+    <>
+      {savedResultsLoadFailed ? (
+        <span hidden data-portal-error-state="interview-practice-results-load" />
+      ) : null}
+      <InterviewPracticeKit memberId={user.id} initialData={initialData} savedResults={savedResults} />
+    </>
+  );
 }

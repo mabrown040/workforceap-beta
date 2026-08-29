@@ -10,6 +10,7 @@ import {
   getResumeDraftOwnerToken,
   getResumeProfileRevision,
 } from '@/lib/resume/resumeProfileRevision';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -25,7 +26,16 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
     return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
   }
   return action === 'sign' ? 'Could not create resume download link' : 'Could not load resume file';
-}export const GET = withApiGuc(async (req: NextRequest) => {
+}
+
+function extOf(p: string | null | undefined) {
+  if (!p) return null;
+  const base = p.split('/').pop() ?? '';
+  const i = base.lastIndexOf('.');
+  return i >= 0 ? base.slice(i + 1).toLowerCase() : null;
+}
+
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -59,6 +69,24 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
         });
         return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
       }
+
+      if (isReadOnlyPortalAuditHeader(req.headers)) {
+        return NextResponse.json({
+          hasOriginal: !!originalPath,
+          hasEnhanced: !!enhancedPath,
+          originalUrl: null,
+          enhancedUrl: null,
+          enhancedText: null,
+          resumePlainText: null,
+          originalExt: null,
+          enhancedExt: null,
+          resumeRevision: getResumeProfileRevision(originalPath, enhancedPath),
+          resumeDraftOwnerToken: getResumeDraftOwnerToken(targetUserId),
+          previewOriginalPath: null,
+          previewEnhancedPath: null,
+          auditSuppressed: true,
+        });
+      }
   
       const supabase = getSupabaseAdmin();
       let originalUrl: string | null = null;
@@ -90,13 +118,6 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
         }
         enhancedText = await fileData.text();
       }
-  
-      const extOf = (p: string | null | undefined) => {
-        if (!p) return null;
-        const base = p.split('/').pop() ?? '';
-        const i = base.lastIndexOf('.');
-        return i >= 0 ? base.slice(i + 1).toLowerCase() : null;
-      };
   
       let resumePlainText: string | null = null;
       if (includePlain) {

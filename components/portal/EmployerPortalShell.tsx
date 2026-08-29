@@ -13,6 +13,7 @@ export default function EmployerPortalShell({
   superAdmin,
   superAdminImpersonating,
   portalRoles,
+  readOnlyAudit = false,
   children,
 }: {
   companyName: string;
@@ -21,6 +22,7 @@ export default function EmployerPortalShell({
   superAdmin?: boolean;
   superAdminImpersonating?: boolean;
   portalRoles?: PortalSwitcherRole[];
+  readOnlyAudit?: boolean;
   children: React.ReactNode;
 }) {
   const headerBadge = employerTier === 'partner' ? 'Hiring Partner' : undefined;
@@ -35,6 +37,7 @@ export default function EmployerPortalShell({
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
       portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
       superAdminBackHref={superAdmin ? '/employer' : undefined}
       superAdminBackLabel="Switch company"
       footer={<DashboardFooter />}

@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -12,6 +13,7 @@ import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
 import { prisma } from '@/lib/db/prisma';
 import IgnoredXapiSummaryCard from '@/components/admin/IgnoredXapiSummaryCard';
 import { auditCourseraLinkHealth } from '@/lib/coursera/linkHealth';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -632,6 +634,26 @@ export default async function AdminCourseraHealthPage() {
   if (!user) redirect('/login?redirectTo=/admin/coursera/health');
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
+  if (readOnlyAudit) {
+    return (
+      <PortalPageFrame>
+        <div data-portal-audit-suppressed="admin-coursera-health-ddl-and-external-sync">
+          <PageHeader
+            title="Coursera health"
+            subtitle="xAPI, mapping, and Business-program diagnostics"
+          />
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+            <p style={{ marginTop: 0 }}>
+              The route and admin access shell are verified here. DDL probes and Coursera API calls are reserved for the
+              attended Coursera health check.
+            </p>
+            <Link href="/admin/coursera" className="btn btn-outline btn-sm">Coursera admin</Link>
+          </div>
+        </div>
+      </PortalPageFrame>
+    );
+  }
 
   const now = new Date();
 
@@ -655,13 +677,15 @@ export default async function AdminCourseraHealthPage() {
     loadRecentCronRuns(),
     loadTopIgnoredSlugs(now),
     loadTopUnmatchedActors(now),
-    loadB4BProgramsSafe(),
+    readOnlyAudit ? Promise.resolve([]) : loadB4BProgramsSafe(),
     loadB4BvsOursDrift(),
     loadSyncDriftPairs(),
-    auditCourseraLinkHealth().catch((error) => {
-      console.error('[admin/coursera/health] link health failed:', error);
-      return null;
-    }),
+    readOnlyAudit
+      ? Promise.resolve(null)
+      : auditCourseraLinkHealth().catch((error) => {
+          console.error('[admin/coursera/health] link health failed:', error);
+          return null;
+        }),
   ]);
 
   // Build the B4B course-slug index used by the out-of-catalog and wrong-

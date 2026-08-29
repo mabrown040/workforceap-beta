@@ -7,6 +7,8 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
+import { buildAssignableProgramOptions } from '@/lib/admin/assignableProgramOptions';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { buildStatusWhere, type StudentStatus } from '@/lib/admin/studentStatus';
@@ -113,7 +115,7 @@ export default async function AdminMembersPage({
   // deferred until we know which userIds are on this page — that turns 4
   // full-table scans into <=50-key index lookups with identical output, and
   // skips them entirely when the member list itself fails to load.
-  const [membersResult, totalCountResult, partnerOptionsResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
+  const [membersResult, totalCountResult, partnerOptionsResult, activeProgramsResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
     db.user.findMany({
       where: whereClause,
       orderBy: { updatedAt: 'desc' },
@@ -168,6 +170,9 @@ export default async function AdminMembersPage({
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     }),
+    // The bulk-program picker must reflect the tenant's active catalog, not
+    // only programs represented by the current <=50-member page.
+    getActivePrograms(scope.orgId),
   ]));
 
   if (membersResult.status === 'rejected') {
@@ -181,6 +186,12 @@ export default async function AdminMembersPage({
 
   const members = membersResult.value;
   const pageMemberIds = members.map((m) => m.id);
+  const assignableProgramOptions = activeProgramsResult.status === 'fulfilled'
+    ? buildAssignableProgramOptions(activeProgramsResult.value)
+    : [];
+  if (activeProgramsResult.status === 'rejected') {
+    console.error('[admin/members] active program catalog load failed', activeProgramsResult.reason);
+  }
 
   // Phase 2: decorating aggregates, scoped to just this page's members.
   // Full-table `memberEvent` groupBy can time out or fail under load;
@@ -382,6 +393,7 @@ export default async function AdminMembersPage({
         startDateFilter={startDateFilter}
         endDateFilter={endDateFilter}
         allPartnerOptions={partnerOptionsResult.status === 'fulfilled' ? partnerOptionsResult.value : []}
+        allAssignablePrograms={assignableProgramOptions}
       />
     </PortalPageFrame>
   );

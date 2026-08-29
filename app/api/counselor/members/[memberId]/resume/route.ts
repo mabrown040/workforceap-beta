@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -29,7 +30,7 @@ function extOf(p: string | null | undefined) {
   return i >= 0 ? base.slice(i + 1).toLowerCase() : null;
 }
 
-type Props = { params: Promise<{ memberId: string }> };export const GET = withApiGuc(async (_req: NextRequest, { params }: Props) => {
+type Props = { params: Promise<{ memberId: string }> };export const GET = withApiGuc(async (req: NextRequest, { params }: Props) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -52,6 +53,21 @@ type Props = { params: Promise<{ memberId: string }> };export const GET = withAp
       if ((originalPath && !isResumeObjectPathOwnedByUser(memberId, originalPath))
         || (enhancedPath && !isResumeObjectPathOwnedByUser(memberId, enhancedPath))) {
         return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
+      }
+
+      if (isReadOnlyPortalAuditHeader(req.headers)) {
+        return NextResponse.json({
+          hasOriginal: !!originalPath,
+          hasEnhanced: !!enhancedPath,
+          originalUrl: null,
+          enhancedUrl: null,
+          enhancedText: null,
+          originalExt: null,
+          enhancedExt: null,
+          previewOriginalPath: null,
+          previewEnhancedPath: null,
+          auditSuppressed: true,
+        });
       }
   
       const supabase = getSupabaseAdmin();

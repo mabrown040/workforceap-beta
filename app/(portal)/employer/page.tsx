@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
@@ -29,6 +30,7 @@ import {
   type EmployerCandidateRow,
   type EmployerOpenRoleItem,
 } from '@/components/portal/kit/pages/employer/EmployerHomeKit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -48,8 +50,9 @@ export default async function EmployerDashboardPage({
   if (!user) redirect('/login?redirectTo=/employer');
 
   const superAdmin = await isSuperAdmin(user.id);
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
-  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin, readOnlyAudit });
   if (!ctx) {
     redirect(await unlinkedEmployerHref(user.id));
   }
@@ -346,6 +349,7 @@ export default async function EmployerDashboardPage({
       tourStorageUserId={user.id}
       showOnboardingWizard={showEmployerOnboarding}
       showTour={showEmployerTour}
+      readOnlyAudit={readOnlyAudit}
       isSuperAdmin={superAdmin}
       tourSteps={EMPLOYER_PORTAL_TOUR_STEPS}
       wizardProps={{

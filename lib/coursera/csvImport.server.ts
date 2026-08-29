@@ -4,6 +4,21 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 import { resolveUserIdByCourseraEmail } from '@/lib/coursera/resolveUserIdByEmail';
+import { loadCanonicalMappingsForCourseraIds } from '@/lib/coursera/canonicalMapping';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
+import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
+import { planCourseraProgressPromotion } from '@/lib/coursera/progressPromotion';
+import {
+  ensureBadgeProgressTenantKeys,
+  ensureCourseProgressTenantKeys,
+} from '@/lib/coursera/rawProgressTenantKeys';
+import {
+  adoptLegacyRawBadgeProgressRows,
+  adoptLegacyRawCourseProgressRows,
+  lockLegacyRawCourseraEmails,
+} from '@/lib/coursera/legacyRawProgressAdoption.server';
 
 import type {
   BadgeIngestResult,
@@ -12,17 +27,12 @@ import type {
   ParsedCourseActivityRow,
 } from './csvImport';
 
-async function resolveUserIdByEmail(email: string): Promise<string | null> {
-  return resolveUserIdByCourseraEmail(email);
+async function resolveUserIdByEmail(
+  email: string,
+  organizationId: string,
+): Promise<string | null> {
+  return resolveUserIdByCourseraEmail(email, { organizationId });
 }
-
-/**
- * Idempotency: ensures the unique expression index on (lower(external_email),
- * coursera_course_id) exists. The CREATE INDEX in the migration already covers this,
- * but in the same spirit as ensureCourseraMappingTables (runtime DDL fallback) we
- * keep this defensive create here so the upsert ON CONFLICT target always resolves.
- */
-let ensureProgressIndexPromise: Promise<void> | null = null;
 
 const CSV_UPSERT_CHUNK = 100;
 
@@ -30,39 +40,6 @@ function chunkCsvRows<T>(arr: T[], size = CSV_UPSERT_CHUNK): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
   return chunks;
-}
-
-/**
- * Serialize legacy global raw-progress identities by normalized email.
- *
- * Stage A deliberately keeps the existing global conflict targets so the
- * currently serving deployment remains compatible. The next tenant-key
- * release uses this exact lock key/order while it adopts historical rows.
- */
-export async function lockLegacyRawCourseraEmails(
-  db: Pick<Prisma.TransactionClient, '$queryRaw'>,
-  emails: string[],
-): Promise<void> {
-  const lockKeys = [...new Set(
-    emails
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean)
-      .map((email) => `coursera:raw-email:${email}`),
-  )].sort();
-  if (lockKeys.length === 0) return;
-
-  const tuples = lockKeys.map((lockKey) => Prisma.sql`(${lockKey}::text)`);
-  await db.$queryRaw(Prisma.sql`
-    SELECT pg_advisory_xact_lock(hashtextextended(ordered.lock_key, 0))
-    FROM (
-      SELECT input.lock_key
-      FROM (VALUES ${Prisma.join(tuples, ', ')}) AS input(lock_key)
-      GROUP BY input.lock_key
-      ORDER BY input.lock_key
-      OFFSET 0
-    ) AS ordered
-    ORDER BY ordered.lock_key
-  `);
 }
 
 async function assertRawWriterUsersBelongToOrganization(
@@ -92,21 +69,6 @@ async function assertRawWriterUsersBelongToOrganization(
   }
 }
 
-async function ensureProgressIndex() {
-  if (!ensureProgressIndexPromise) {
-    ensureProgressIndexPromise = (async () => {
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS coursera_course_progress_email_course_key
-        ON coursera_course_progress (LOWER(external_email), coursera_course_id)
-      `);
-    })().catch((error) => {
-      ensureProgressIndexPromise = null;
-      throw error;
-    });
-  }
-  await ensureProgressIndexPromise;
-}
-
 async function bulkUpsertCourseProgressChunk(
   items: Array<{
     row: ParsedCourseActivityRow;
@@ -125,41 +87,45 @@ async function bulkUpsertCourseProgressChunk(
   const tuples = items.map(({ row, lowerEmail, userId, source }) =>
     Prisma.sql`(
       gen_random_uuid(),
-      ${userId},
-      ${normalizedOrganizationId},
-      ${lowerEmail},
-      ${row.name || null},
-      ${row.courseId},
-      ${row.courseSlug},
-      ${row.course},
-      ${row.university},
-      ${row.collectionName},
-      ${row.collectionId},
-      ${row.programSlug},
-      ${row.programName},
-      ${row.enrollmentTime},
-      ${row.classStartTime},
-      ${row.classEndTime},
-      ${row.lastActivityTime},
-      ${row.completionTime},
-      ${row.overallProgress},
-      ${row.learningHours},
-      ${row.completed},
-      ${row.removedFromProgram},
-      ${row.courseGrade},
-      ${row.courseCertificateUrl},
-      ${row.contractName},
-      ${row.isEnterpriseContractActive},
-      ${source},
+      ${userId}::text,
+      ${normalizedOrganizationId}::text,
+      ${lowerEmail}::text,
+      ${row.name || null}::text,
+      ${row.courseId}::text,
+      ${row.courseSlug}::text,
+      ${row.course}::text,
+      ${row.university}::text,
+      ${row.collectionName}::text,
+      ${row.collectionId}::text,
+      ${row.programSlug}::text,
+      ${row.programName}::text,
+      ${row.enrollmentTime}::timestamptz,
+      ${row.classStartTime}::timestamptz,
+      ${row.classEndTime}::timestamptz,
+      ${row.lastActivityTime}::timestamptz,
+      ${row.completionTime}::timestamptz,
+      ${row.overallProgress}::numeric,
+      ${row.learningHours}::numeric,
+      ${row.completed}::boolean,
+      ${row.removedFromProgram}::boolean,
+      ${row.courseGrade}::text,
+      ${row.courseCertificateUrl}::text,
+      ${row.contractName}::text,
+      ${row.isEnterpriseContractActive}::boolean,
+      ${source}::text,
       now()
     )`,
   );
 
   return prisma.$transaction(async (tx) => {
-    await lockLegacyRawCourseraEmails(
-      tx,
-      items.map((item) => item.lowerEmail),
-    );
+    await adoptLegacyRawCourseProgressRows(tx, {
+      organizationId: normalizedOrganizationId,
+      identities: items.map(({ row, lowerEmail, userId }) => ({
+        externalEmail: lowerEmail,
+        courseraCourseId: row.courseId,
+        userId,
+      })),
+    });
     await assertRawWriterUsersBelongToOrganization(
       tx,
       normalizedOrganizationId,
@@ -167,7 +133,7 @@ async function bulkUpsertCourseProgressChunk(
     );
 
     const rows = await tx.$queryRaw<Array<{ inserted: boolean }>>`
-      INSERT INTO coursera_course_progress (
+    INSERT INTO coursera_course_progress (
       id,
       user_id,
       organization_id,
@@ -196,74 +162,137 @@ async function bulkUpsertCourseProgressChunk(
       contract_active,
       source,
       last_synced_at
-      ) VALUES ${Prisma.join(tuples, ', ')}
-      ON CONFLICT (LOWER(external_email), coursera_course_id) DO UPDATE SET
+    )
+    SELECT
+      incoming.id,
+      incoming.user_id,
+      incoming.organization_id,
+      incoming.external_email,
+      incoming.external_name,
+      incoming.coursera_course_id,
+      incoming.coursera_course_slug,
+      incoming.course_name,
+      incoming.university,
+      incoming.collection_name,
+      incoming.collection_id,
+      incoming.program_slug,
+      incoming.program_name,
+      incoming.enrollment_time,
+      incoming.class_start_time,
+      incoming.class_end_time,
+      incoming.last_activity_time,
+      incoming.completion_time,
+      incoming.overall_progress,
+      incoming.learning_hours,
+      incoming.is_completed,
+      incoming.is_removed_from_program,
+      incoming.course_grade,
+      incoming.certificate_url,
+      incoming.contract_name,
+      incoming.contract_active,
+      incoming.source,
+      incoming.last_synced_at
+    FROM (VALUES ${Prisma.join(tuples, ', ')}) AS incoming (
+      id,
+      user_id,
+      organization_id,
+      external_email,
+      external_name,
+      coursera_course_id,
+      coursera_course_slug,
+      course_name,
+      university,
+      collection_name,
+      collection_id,
+      program_slug,
+      program_name,
+      enrollment_time,
+      class_start_time,
+      class_end_time,
+      last_activity_time,
+      completion_time,
+      overall_progress,
+      learning_hours,
+      is_completed,
+      is_removed_from_program,
+      course_grade,
+      certificate_url,
+      contract_name,
+      contract_active,
+      source,
+      last_synced_at
+    )
+    WHERE incoming.user_id IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM users incoming_insert_user
+        WHERE incoming_insert_user.id = incoming.user_id
+          AND incoming_insert_user.organization_id = incoming.organization_id
+          AND incoming_insert_user.deleted_at IS NULL
+      )
+    ON CONFLICT (
+      organization_id,
+      LOWER(external_email),
+      coursera_course_id
+    ) WHERE organization_id IS NOT NULL DO UPDATE SET
       user_id = COALESCE(coursera_course_progress.user_id, EXCLUDED.user_id),
-      organization_id = COALESCE(coursera_course_progress.organization_id, EXCLUDED.organization_id),
-      external_name = EXCLUDED.external_name,
-      coursera_course_slug = EXCLUDED.coursera_course_slug,
+      external_name = COALESCE(EXCLUDED.external_name, coursera_course_progress.external_name),
+      coursera_course_slug = COALESCE(EXCLUDED.coursera_course_slug, coursera_course_progress.coursera_course_slug),
       course_name = EXCLUDED.course_name,
-      university = EXCLUDED.university,
-      collection_name = EXCLUDED.collection_name,
-      collection_id = EXCLUDED.collection_id,
+      university = COALESCE(EXCLUDED.university, coursera_course_progress.university),
+      collection_name = COALESCE(EXCLUDED.collection_name, coursera_course_progress.collection_name),
+      collection_id = COALESCE(EXCLUDED.collection_id, coursera_course_progress.collection_id),
       program_slug = EXCLUDED.program_slug,
-      program_name = EXCLUDED.program_name,
-      enrollment_time = EXCLUDED.enrollment_time,
-      class_start_time = EXCLUDED.class_start_time,
-      class_end_time = EXCLUDED.class_end_time,
-      last_activity_time = COALESCE(
-        GREATEST(coursera_course_progress.last_activity_time, EXCLUDED.last_activity_time),
-        coursera_course_progress.last_activity_time,
-        EXCLUDED.last_activity_time
-      ),
-      completion_time = COALESCE(
-        coursera_course_progress.completion_time,
-        EXCLUDED.completion_time
-      ),
-      overall_progress = GREATEST(
-        coursera_course_progress.overall_progress,
-        EXCLUDED.overall_progress
-      ),
-      learning_hours = GREATEST(
-        coursera_course_progress.learning_hours,
-        EXCLUDED.learning_hours
-      ),
-      is_completed = coursera_course_progress.is_completed OR EXCLUDED.is_completed,
+      program_name = COALESCE(EXCLUDED.program_name, coursera_course_progress.program_name),
+      enrollment_time = COALESCE(coursera_course_progress.enrollment_time, EXCLUDED.enrollment_time),
+      class_start_time = COALESCE(coursera_course_progress.class_start_time, EXCLUDED.class_start_time),
+      class_end_time = COALESCE(EXCLUDED.class_end_time, coursera_course_progress.class_end_time),
+      last_activity_time = CASE
+        WHEN coursera_course_progress.last_activity_time IS NULL THEN EXCLUDED.last_activity_time
+        WHEN EXCLUDED.last_activity_time IS NULL THEN coursera_course_progress.last_activity_time
+        ELSE GREATEST(coursera_course_progress.last_activity_time, EXCLUDED.last_activity_time)
+      END,
+      completion_time = COALESCE(coursera_course_progress.completion_time, EXCLUDED.completion_time),
+      overall_progress = GREATEST(coursera_course_progress.overall_progress, EXCLUDED.overall_progress),
+      learning_hours = GREATEST(coursera_course_progress.learning_hours, EXCLUDED.learning_hours),
+      is_completed = (coursera_course_progress.is_completed OR EXCLUDED.is_completed),
       is_removed_from_program = EXCLUDED.is_removed_from_program,
       course_grade = COALESCE(EXCLUDED.course_grade, coursera_course_progress.course_grade),
-      certificate_url = COALESCE(
-        coursera_course_progress.certificate_url,
-        EXCLUDED.certificate_url
-      ),
-      contract_name = EXCLUDED.contract_name,
+      certificate_url = COALESCE(EXCLUDED.certificate_url, coursera_course_progress.certificate_url),
+      contract_name = COALESCE(EXCLUDED.contract_name, coursera_course_progress.contract_name),
       contract_active = EXCLUDED.contract_active,
       source = EXCLUDED.source,
       last_synced_at = now()
-      WHERE
-        (
-          coursera_course_progress.organization_id IS NULL
-          OR coursera_course_progress.organization_id = EXCLUDED.organization_id
+    WHERE (
+        coursera_course_progress.user_id IS NULL
+        OR EXCLUDED.user_id IS NULL
+        OR coursera_course_progress.user_id = EXCLUDED.user_id
+      )
+      AND (
+        coursera_course_progress.user_id IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM users linked_user
+          WHERE linked_user.id = coursera_course_progress.user_id
+            AND linked_user.organization_id = coursera_course_progress.organization_id
+            AND linked_user.deleted_at IS NULL
         )
-        AND (
-          coursera_course_progress.user_id IS NULL
-          OR EXCLUDED.user_id IS NULL
-          OR coursera_course_progress.user_id = EXCLUDED.user_id
+      )
+      AND (
+        EXCLUDED.user_id IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM users incoming_user
+          WHERE incoming_user.id = EXCLUDED.user_id
+            AND incoming_user.organization_id = EXCLUDED.organization_id
+            AND incoming_user.deleted_at IS NULL
         )
-        AND (
-          coursera_course_progress.user_id IS NULL
-          OR EXISTS (
-            SELECT 1
-            FROM users AS linked_user
-            WHERE linked_user.id = coursera_course_progress.user_id
-              AND linked_user.organization_id = EXCLUDED.organization_id
-              AND linked_user.deleted_at IS NULL
-          )
-        )
-      RETURNING (xmax = 0) AS inserted
-    `;
+      )
+    RETURNING (xmax = 0) AS inserted
+  `;
 
     if (rows.length !== items.length) {
-      throw new Error('Coursera raw course progress ownership conflict');
+      throw new Error('Coursera course identity conflicts with an existing linked learner');
     }
 
     let inserted = 0;
@@ -280,8 +309,8 @@ async function bulkUpsertCourseProgressChunk(
  * Upsert each parsed row into `coursera_course_progress`. Resolves `user_id`
  * by direct email match first, then falls back to coursera_identity_mappings.
  *
- * Idempotent on (lower(external_email), coursera_course_id) — re-running the
- * same CSV updates the existing row rather than duplicating.
+ * Idempotent inside the reviewed tenant on
+ * (organization_id, lower(external_email), coursera_course_id).
  */
 export async function ingestCourseActivityRows(
   rows: ParsedCourseActivityRow[],
@@ -289,7 +318,7 @@ export async function ingestCourseActivityRows(
 ): Promise<IngestResult> {
   // Ensure the identity mapping tables exist (xAPI module manages those at runtime).
   await ensureCourseraMappingTables();
-  await ensureProgressIndex();
+  await ensureCourseProgressTenantKeys();
 
   const source = options.source?.trim() || 'csv_import';
   const organizationId = options.organizationId;
@@ -322,7 +351,7 @@ export async function ingestCourseActivityRows(
       userId = userIdCache.get(lowerEmail) ?? null;
     } else {
       try {
-        userId = await resolveUserIdByEmail(row.email);
+        userId = await resolveUserIdByEmail(row.email, organizationId);
       } catch (error) {
         userId = null;
         errors.push(
@@ -371,7 +400,7 @@ export async function ingestCourseActivityRows(
     await upsertPreparedChunk(chunk);
   }
 
-  const promotion = await promoteCsvProgressToCanonical();
+  const promotion = await promoteCsvProgressToCanonical({ organizationId });
   if (promotion.errors > 0) {
     errors.push(`Promotion to course_progress failed for ${promotion.errors} batch — see server logs`);
   }
@@ -385,27 +414,6 @@ export async function ingestCourseActivityRows(
     promoted: promotion.upserted,
     promotionErrors: promotion.errors,
   };
-}
-
-/**
- * Idempotency: ensures the unique expression index on (lower(external_email),
- * badge_slug) exists. Mirrors ensureProgressIndex above for the badge table.
- */
-let ensureBadgeProgressIndexPromise: Promise<void> | null = null;
-
-async function ensureBadgeProgressIndex() {
-  if (!ensureBadgeProgressIndexPromise) {
-    ensureBadgeProgressIndexPromise = (async () => {
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS coursera_badge_progress_email_badge_key
-        ON coursera_badge_progress (LOWER(external_email), badge_slug)
-      `);
-    })().catch((error) => {
-      ensureBadgeProgressIndexPromise = null;
-      throw error;
-    });
-  }
-  await ensureBadgeProgressIndexPromise;
 }
 
 type BadgeAggregate = {
@@ -444,33 +452,37 @@ async function bulkUpsertBadgeProgressChunk(
   const tuples = items.map(({ row, lowerEmail, userId, source }) =>
     Prisma.sql`(
       gen_random_uuid(),
-      ${userId},
-      ${normalizedOrganizationId},
-      ${lowerEmail},
-      ${row.name || null},
-      ${row.badgeSlug},
-      ${row.badgeTitle},
-      ${row.badgeLink},
-      ${row.numberOfCourses},
-      ${row.progressPercent},
-      ${row.coursesCompleted},
-      ${row.currentCourseName},
-      ${row.badgeCompleted},
-      ${row.badgeCompletionTime},
-      ${row.lastActivityTime},
-      ${row.totalLearningHours},
-      ${row.collectionId},
-      ${row.collectionName},
-      ${source},
+      ${userId}::text,
+      ${normalizedOrganizationId}::text,
+      ${lowerEmail}::text,
+      ${row.name || null}::text,
+      ${row.badgeSlug}::text,
+      ${row.badgeTitle}::text,
+      ${row.badgeLink}::text,
+      ${row.numberOfCourses}::integer,
+      ${row.progressPercent}::numeric,
+      ${row.coursesCompleted}::integer,
+      ${row.currentCourseName}::text,
+      ${row.badgeCompleted}::boolean,
+      ${row.badgeCompletionTime}::timestamptz,
+      ${row.lastActivityTime}::timestamptz,
+      ${row.totalLearningHours}::numeric,
+      ${row.collectionId}::text,
+      ${row.collectionName}::text,
+      ${source}::text,
       now()
     )`,
   );
 
   return prisma.$transaction(async (tx) => {
-    await lockLegacyRawCourseraEmails(
-      tx,
-      items.map((item) => item.lowerEmail),
-    );
+    await adoptLegacyRawBadgeProgressRows(tx, {
+      organizationId: normalizedOrganizationId,
+      identities: items.map(({ row, lowerEmail, userId }) => ({
+        externalEmail: lowerEmail,
+        badgeSlug: row.badgeSlug,
+        userId,
+      })),
+    });
     await assertRawWriterUsersBelongToOrganization(
       tx,
       normalizedOrganizationId,
@@ -478,7 +490,7 @@ async function bulkUpsertBadgeProgressChunk(
     );
 
     const upsertRows = await tx.$queryRaw<Array<{ inserted: boolean }>>`
-      INSERT INTO coursera_badge_progress (
+    INSERT INTO coursera_badge_progress (
       id,
       user_id,
       organization_id,
@@ -499,69 +511,119 @@ async function bulkUpsertBadgeProgressChunk(
       collection_name,
       source,
       last_synced_at
-      ) VALUES ${Prisma.join(tuples, ', ')}
-      ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET
+    )
+    SELECT
+      incoming.id,
+      incoming.user_id,
+      incoming.organization_id,
+      incoming.external_email,
+      incoming.external_name,
+      incoming.badge_slug,
+      incoming.badge_title,
+      incoming.badge_link,
+      incoming.number_of_courses,
+      incoming.progress_percent,
+      incoming.courses_completed,
+      incoming.current_course_name,
+      incoming.badge_completed,
+      incoming.badge_completion_time,
+      incoming.last_activity_time,
+      incoming.total_learning_hours,
+      incoming.collection_id,
+      incoming.collection_name,
+      incoming.source,
+      incoming.last_synced_at
+    FROM (VALUES ${Prisma.join(tuples, ', ')}) AS incoming (
+      id,
+      user_id,
+      organization_id,
+      external_email,
+      external_name,
+      badge_slug,
+      badge_title,
+      badge_link,
+      number_of_courses,
+      progress_percent,
+      courses_completed,
+      current_course_name,
+      badge_completed,
+      badge_completion_time,
+      last_activity_time,
+      total_learning_hours,
+      collection_id,
+      collection_name,
+      source,
+      last_synced_at
+    )
+    WHERE incoming.user_id IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM users incoming_insert_user
+        WHERE incoming_insert_user.id = incoming.user_id
+          AND incoming_insert_user.organization_id = incoming.organization_id
+          AND incoming_insert_user.deleted_at IS NULL
+      )
+    ON CONFLICT (
+      organization_id,
+      LOWER(external_email),
+      badge_slug
+    ) WHERE organization_id IS NOT NULL DO UPDATE SET
       user_id = COALESCE(coursera_badge_progress.user_id, EXCLUDED.user_id),
-      organization_id = COALESCE(coursera_badge_progress.organization_id, EXCLUDED.organization_id),
-      external_name = EXCLUDED.external_name,
+      external_name = COALESCE(EXCLUDED.external_name, coursera_badge_progress.external_name),
       badge_title = EXCLUDED.badge_title,
-      badge_link = COALESCE(coursera_badge_progress.badge_link, EXCLUDED.badge_link),
-      number_of_courses = GREATEST(
-        coursera_badge_progress.number_of_courses,
-        EXCLUDED.number_of_courses
-      ),
-      progress_percent = GREATEST(
-        coursera_badge_progress.progress_percent,
-        EXCLUDED.progress_percent
-      ),
-      courses_completed = GREATEST(
-        coursera_badge_progress.courses_completed,
-        EXCLUDED.courses_completed
-      ),
-      current_course_name = EXCLUDED.current_course_name,
-      badge_completed = coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed,
+      badge_link = COALESCE(EXCLUDED.badge_link, coursera_badge_progress.badge_link),
+      number_of_courses = EXCLUDED.number_of_courses,
+      progress_percent = GREATEST(coursera_badge_progress.progress_percent, EXCLUDED.progress_percent),
+      courses_completed = GREATEST(coursera_badge_progress.courses_completed, EXCLUDED.courses_completed),
+      current_course_name = COALESCE(EXCLUDED.current_course_name, coursera_badge_progress.current_course_name),
+      badge_completed = (coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed),
       badge_completion_time = COALESCE(
         coursera_badge_progress.badge_completion_time,
         EXCLUDED.badge_completion_time
       ),
-      last_activity_time = COALESCE(
-        GREATEST(coursera_badge_progress.last_activity_time, EXCLUDED.last_activity_time),
-        coursera_badge_progress.last_activity_time,
-        EXCLUDED.last_activity_time
-      ),
+      last_activity_time = CASE
+        WHEN coursera_badge_progress.last_activity_time IS NULL THEN EXCLUDED.last_activity_time
+        WHEN EXCLUDED.last_activity_time IS NULL THEN coursera_badge_progress.last_activity_time
+        ELSE GREATEST(coursera_badge_progress.last_activity_time, EXCLUDED.last_activity_time)
+      END,
       total_learning_hours = GREATEST(
         coursera_badge_progress.total_learning_hours,
         EXCLUDED.total_learning_hours
       ),
-      collection_id = EXCLUDED.collection_id,
-      collection_name = EXCLUDED.collection_name,
+      collection_id = COALESCE(EXCLUDED.collection_id, coursera_badge_progress.collection_id),
+      collection_name = COALESCE(EXCLUDED.collection_name, coursera_badge_progress.collection_name),
       source = EXCLUDED.source,
       last_synced_at = now()
-      WHERE
-        (
-          coursera_badge_progress.organization_id IS NULL
-          OR coursera_badge_progress.organization_id = EXCLUDED.organization_id
+    WHERE (
+        coursera_badge_progress.user_id IS NULL
+        OR EXCLUDED.user_id IS NULL
+        OR coursera_badge_progress.user_id = EXCLUDED.user_id
+      )
+      AND (
+        coursera_badge_progress.user_id IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM users linked_user
+          WHERE linked_user.id = coursera_badge_progress.user_id
+            AND linked_user.organization_id = coursera_badge_progress.organization_id
+            AND linked_user.deleted_at IS NULL
         )
-        AND (
-          coursera_badge_progress.user_id IS NULL
-          OR EXCLUDED.user_id IS NULL
-          OR coursera_badge_progress.user_id = EXCLUDED.user_id
+      )
+      AND (
+        EXCLUDED.user_id IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM users incoming_user
+          WHERE incoming_user.id = EXCLUDED.user_id
+            AND incoming_user.organization_id = EXCLUDED.organization_id
+            AND incoming_user.deleted_at IS NULL
         )
-        AND (
-          coursera_badge_progress.user_id IS NULL
-          OR EXISTS (
-            SELECT 1
-            FROM users AS linked_user
-            WHERE linked_user.id = coursera_badge_progress.user_id
-              AND linked_user.organization_id = EXCLUDED.organization_id
-              AND linked_user.deleted_at IS NULL
-          )
-        )
-      RETURNING (xmax = 0) AS inserted
-    `;
+      )
+    RETURNING (xmax = 0) AS inserted
+  `;
 
     if (upsertRows.length !== items.length) {
-      throw new Error('Coursera raw badge progress ownership conflict');
+      throw new Error('Coursera badge identity conflicts with an existing linked learner');
     }
 
     let inserted = 0;
@@ -660,15 +722,15 @@ function aggregateBadgeRows(rows: ParsedBadgeRow[]): BadgeAggregate[] {
  * Resolves `user_id` by direct email match first, then falls back to
  * coursera_identity_mappings.
  *
- * Idempotent on (lower(external_email), badge_slug) — re-running the same CSV
- * updates the existing row rather than duplicating.
+ * Idempotent inside the reviewed tenant on
+ * (organization_id, lower(external_email), badge_slug).
  */
 export async function ingestLearningPathActivityRows(
   rows: ParsedBadgeRow[],
   options: { source?: string; organizationId: string }
 ): Promise<BadgeIngestResult> {
   await ensureCourseraMappingTables();
-  await ensureBadgeProgressIndex();
+  await ensureBadgeProgressTenantKeys();
 
   const source = options.source?.trim() || 'csv_import';
   const organizationId = options.organizationId;
@@ -701,7 +763,7 @@ export async function ingestLearningPathActivityRows(
       userId = userIdCache.get(lowerEmail) ?? null;
     } else {
       try {
-        userId = await resolveUserIdByEmail(row.email);
+        userId = await resolveUserIdByEmail(row.email, organizationId);
       } catch (error) {
         userId = null;
         errors.push(
@@ -801,7 +863,8 @@ export async function lockCourseraIdentityForAttachment(
 /**
  * Attach every raw course and badge row for one email inside the caller's
  * transaction. The target user is locked FOR SHARE, so organization/deletion
- * changes cannot race the ownership decision before commit.
+ * changes cannot race the ownership decision before commit. Canonical
+ * promotion happens only after this ownership transaction commits.
  */
 export async function attachRawCourseraProgressToUser(
   args: {
@@ -914,31 +977,49 @@ export async function attachRawCourseraProgressToUser(
   };
 }
 
-/**
- * Transactional retry path used by scoped orphan repair. Route-level mapping
- * flows use mapCourseraIdentityAndProgress so the mapping and attachment share
- * the same transaction.
- */
 export async function backfillUserIdForCourseraEmail(
   courseraEmail: string,
   userId: string,
   expectedOrganizationId: string,
-): Promise<CourseraRawProgressAttachment> {
+): Promise<{
+  courseRowsUpdated: number;
+  badgeRowsUpdated: number;
+  promotion: CourseraProgressPromotionResult;
+}> {
   const lower = courseraEmail.trim().toLowerCase();
-  if (!lower) return { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
+  if (!lower) {
+    return {
+      courseRowsUpdated: 0,
+      badgeRowsUpdated: 0,
+      promotion: emptyCourseraProgressPromotionResult(),
+    };
+  }
 
-  const result = await prisma.$transaction((tx) =>
-    attachRawCourseraProgressToUser(
+  const attachment = await prisma.$transaction(async (tx) => {
+    await lockCourseraIdentityForAttachment(tx, {
+      organizationId: expectedOrganizationId,
+      courseraEmail: lower,
+    });
+    return attachRawCourseraProgressToUser(
       { courseraEmail: lower, userId, expectedOrganizationId },
       tx,
-    ),
-  );
+    );
+  });
 
-  // Immediately promote the newly-linked rows into course_progress so the
-  // member dashboard reflects the historical CSV data without waiting for xAPI.
-  await promoteCsvProgressToCanonical({ userId });
+  // Process every raw row for this identity through the same read-before-write
+  // merge ladder as live B4B sync. Scoping by email is important: a WAP user
+  // can have more than one historic provider identity, and this action may
+  // only promote the identity the admin just reviewed.
+  const promotion = await promoteCsvProgressToCanonical({
+    organizationId: expectedOrganizationId,
+    userId,
+    courseraEmail: lower,
+  });
 
-  return result;
+  return {
+    ...attachment,
+    promotion,
+  };
 }
 
 /**
@@ -1018,102 +1099,237 @@ export async function backfillAllOrphanedCourseraProgress(
  * Promote all `coursera_course_progress` rows that have a resolved `user_id`
  * into the canonical `course_progress` table that feeds the member training
  * dashboard. Idempotent — safe to call on every CSV import and after every
- * identity mapping. Uses GREATEST/COALESCE so it never downgrades existing
- * xAPI-sourced progress.
+ * identity mapping. Every write goes through `computeCourseProgressUpdate`
+ * (via `planCourseraProgressPromotion`) and `upsertMergedCourseProgress`, so
+ * an existing COMPLETED/xAPI-ahead row is never demoted by a delayed report.
  *
- * @param options.userId - When provided, only promotes rows for that member
- *   (used after a new identity mapping is saved).
+ * Unknown provider courses remain losslessly available in
+ * `coursera_course_progress`; they are not promoted under guessed/sluggified
+ * curriculum keys. A DB-curated mapping wins, followed by a unique static
+ * Coursera-id mapping. Ambiguous static ids remain raw-only until staff map
+ * them.
  */
-export async function promoteCsvProgressToCanonical(
-  options: { userId?: string } = {}
-): Promise<{ upserted: number; errors: number }> {
-  const userFilter = options.userId
-    ? Prisma.sql`AND ccp.user_id = ${options.userId}`
-    : Prisma.sql``;
+const COURSERA_PROMOTION_BATCH_SIZE = 500;
 
-  // Resolution order for the (program_slug, course_slug) we write to
-  // course_progress:
-  //   1. Admin-curated mapping in coursera_canonical_course_mappings
-  //      (overrides everything; this is the row created by the inline
-  //      "Map this" action on /admin/training-progress).
-  //   2. Raw Coursera (program_slug, coursera_course_slug) — the legacy
-  //      behavior. This works for courses where the Coursera slug happens
-  //      to match a canonical curriculum slug, and is harmless for others
-  //      (the dashboard simply won't render the row).
-  //
-  // Without #1 the dashboard misses real progress for any course whose
-  // Coursera slug differs from its canonical curriculum slug — which is
-  // why a learner enrolled in `introduction-to-artificial-intelligence-ai`
-  // shows 0/16 against the canonical AI Practitioner Certificate
-  // curriculum until an admin maps the course.
-  try {
-    const upserted = await prisma.$executeRaw`
-      INSERT INTO course_progress (
-        id,
-        user_id,
-        program_slug,
-        course_slug,
-        course_id,
-        status,
-        percent_complete,
-        score_scaled,
-        started_at,
-        completed_at
-      )
-      SELECT
-        gen_random_uuid(),
-        ccp.user_id,
-        COALESCE(m.canonical_program_slug, ccp.program_slug),
-        COALESCE(m.canonical_course_slug,  ccp.coursera_course_slug),
-        ccp.coursera_course_id,
-        CASE
-          WHEN ccp.is_completed          THEN 'COMPLETED'::"CourseProgressStatus"
-          WHEN ccp.overall_progress > 0  THEN 'IN_PROGRESS'::"CourseProgressStatus"
-          ELSE                                'NOT_STARTED'::"CourseProgressStatus"
-        END,
-        LEAST(ROUND(ccp.overall_progress::numeric)::int, 100),
-        CASE
-          WHEN ccp.course_grade IS NOT NULL
-               AND TRIM(ccp.course_grade) ~ '^[0-9]+(\.[0-9]+)?\s*%?\s*$'
-          THEN LEAST(
-                1.0::double precision,
-                GREATEST(
-                  0.0::double precision,
-                  CASE
-                    WHEN regexp_replace(TRIM(ccp.course_grade), '%$', '')::double precision > 1
-                    THEN regexp_replace(TRIM(ccp.course_grade), '%$', '')::double precision / 100.0
-                    ELSE regexp_replace(TRIM(ccp.course_grade), '%$', '')::double precision
-                  END
-                )
-              )
-          ELSE NULL
-        END,
-        COALESCE(ccp.class_start_time, ccp.enrollment_time),
-        ccp.completion_time
-      FROM coursera_course_progress ccp
-      LEFT JOIN coursera_canonical_course_mappings m
-        ON m.coursera_course_id = ccp.coursera_course_id
-      WHERE ccp.user_id IS NOT NULL
-        AND COALESCE(m.canonical_course_slug, ccp.coursera_course_slug) IS NOT NULL
-        AND ccp.is_removed_from_program = false
-        ${userFilter}
-      ON CONFLICT (user_id, program_slug, course_slug) DO UPDATE SET
-        status          = CASE
-                            WHEN EXCLUDED.status = 'COMPLETED'::"CourseProgressStatus"
-                              THEN 'COMPLETED'::"CourseProgressStatus"
-                            WHEN course_progress.status = 'COMPLETED'::"CourseProgressStatus"
-                              THEN 'COMPLETED'::"CourseProgressStatus"
-                            ELSE EXCLUDED.status
-                          END,
-        percent_complete = GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete),
-        score_scaled     = COALESCE(course_progress.score_scaled, EXCLUDED.score_scaled),
-        started_at       = COALESCE(course_progress.started_at, EXCLUDED.started_at),
-        completed_at     = COALESCE(EXCLUDED.completed_at, course_progress.completed_at),
-        course_id        = COALESCE(EXCLUDED.course_id, course_progress.course_id)
-    `;
-    return { upserted: Number(upserted) || 0, errors: 0 };
-  } catch (error) {
-    console.error('[promoteCsvProgressToCanonical] failed', error);
-    return { upserted: 0, errors: 1 };
+export type CourseraProgressPromotionResult = {
+  upserted: number;
+  unmapped: number;
+  rollupsRefreshed: number;
+  errors: number;
+};
+
+function emptyCourseraProgressPromotionResult(): CourseraProgressPromotionResult {
+  return { upserted: 0, unmapped: 0, rollupsRefreshed: 0, errors: 0 };
+}
+
+type CanonicalPair = { programSlug: string; courseSlug: string };
+
+let staticMappingsByCourseId: Map<string, CanonicalPair[]> | null = null;
+
+function getStaticMappingsByCourseId(): Map<string, CanonicalPair[]> {
+  if (staticMappingsByCourseId) return staticMappingsByCourseId;
+
+  const result = new Map<string, CanonicalPair[]>();
+  for (const [programSlug, discovered] of Object.entries(DISCOVERED_COURSERA_PROGRAMS)) {
+    const canonicalProgram = getProgramBySlug(programSlug);
+    if (!canonicalProgram) continue;
+
+    for (const course of discovered.courses) {
+      const current = result.get(course.courseId) ?? [];
+      current.push({ programSlug: canonicalProgram.slug, courseSlug: course.slug });
+      result.set(course.courseId, current);
+    }
   }
+  staticMappingsByCourseId = result;
+  return result;
+}
+
+function uniqueStaticMappingForCourseId(courseId: string): CanonicalPair | null {
+  const candidates = getStaticMappingsByCourseId().get(courseId) ?? [];
+  const distinct = Array.from(
+    new Map(candidates.map((candidate) => [
+      `${candidate.programSlug}|${candidate.courseSlug}`,
+      candidate,
+    ])).values(),
+  );
+  return distinct.length === 1 ? distinct[0] : null;
+}
+
+export async function promoteCsvProgressToCanonical(
+  options: { organizationId: string; userId?: string; courseraEmail?: string },
+): Promise<CourseraProgressPromotionResult> {
+  const result = emptyCourseraProgressPromotionResult();
+  const affectedRollups = new Set<string>();
+  const normalizedEmail = options.courseraEmail?.trim().toLowerCase() || null;
+  let cursor: string | undefined;
+
+  for (;;) {
+    let rows;
+    try {
+      rows = await prisma.courseraCourseProgress.findMany({
+        take: COURSERA_PROMOTION_BATCH_SIZE,
+        ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        where: {
+          organizationId: options.organizationId,
+          userId: options.userId ?? { not: null },
+          isRemovedFromProgram: false,
+          ...(normalizedEmail
+            ? { externalEmail: { equals: normalizedEmail, mode: 'insensitive' as const } }
+            : {}),
+        },
+        orderBy: { id: 'asc' },
+        select: {
+          id: true,
+          userId: true,
+          courseraCourseId: true,
+          overallProgress: true,
+          isCompleted: true,
+          enrollmentTime: true,
+          classStartTime: true,
+          lastActivityTime: true,
+          completionTime: true,
+          courseGrade: true,
+        },
+      });
+    } catch (error) {
+      console.error('[promoteCsvProgressToCanonical] raw progress read failed', error);
+      result.errors += 1;
+      break;
+    }
+
+    if (rows.length === 0) break;
+    cursor = rows[rows.length - 1].id;
+
+    const rawUserIds = Array.from(
+      new Set(rows.map((row) => row.userId).filter((id): id is string => Boolean(id))),
+    );
+    const activeUsers = rawUserIds.length > 0
+      ? await prisma.user.findMany({
+          where: {
+            id: { in: rawUserIds },
+            organizationId: options.organizationId,
+            deletedAt: null,
+          },
+          select: { id: true },
+          take: COURSERA_PROMOTION_BATCH_SIZE,
+        })
+      : [];
+    const activeUserIds = new Set(activeUsers.map((user) => user.id));
+
+    const mappingIndex = await loadCanonicalMappingsForCourseraIds(
+      rows.map((row) => row.courseraCourseId),
+    );
+    const promotable = rows.flatMap((row) => {
+      if (!row.userId) return [];
+      if (!activeUserIds.has(row.userId)) {
+        result.errors += 1;
+        console.error(
+          `[promoteCsvProgressToCanonical] raw row ${row.id} is linked outside organization ${options.organizationId}`,
+        );
+        return [];
+      }
+      const mapping = mappingIndex.byCourseraCourseId.get(row.courseraCourseId)
+        ?? uniqueStaticMappingForCourseId(row.courseraCourseId);
+      if (!mapping) {
+        result.unmapped += 1;
+        return [];
+      }
+      return [{ row, mapping }];
+    });
+
+    const existingRows = promotable.length > 0
+      ? await prisma.courseProgress.findMany({
+          take: COURSERA_PROMOTION_BATCH_SIZE,
+          where: {
+            OR: promotable.map(({ row, mapping }) => ({
+              userId: row.userId!,
+              programSlug: getProgramBySlug(mapping.programSlug)?.slug ?? mapping.programSlug,
+              courseSlug: mapping.courseSlug,
+            })),
+          },
+          select: {
+            userId: true,
+            programSlug: true,
+            courseSlug: true,
+            status: true,
+            percentComplete: true,
+            lastActivityAt: true,
+          },
+        })
+      : [];
+    const existingByKey = new Map(
+      existingRows.map((row) => [
+        `${row.userId}|${row.programSlug}|${row.courseSlug}`,
+        row,
+      ]),
+    );
+
+    for (const { row, mapping } of promotable) {
+      const userId = row.userId!;
+      try {
+        const canonicalProgramSlug = getProgramBySlug(mapping.programSlug)?.slug ?? mapping.programSlug;
+        const key = `${userId}|${canonicalProgramSlug}|${mapping.courseSlug}`;
+        const existing = existingByKey.get(key) ?? null;
+        const planned = planCourseraProgressPromotion({
+          row: {
+            ...row,
+            overallProgress: Number(row.overallProgress),
+          },
+          mapping,
+          existing,
+        });
+
+        await upsertMergedCourseProgress(prisma, {
+          userId,
+          programSlug: planned.programSlug,
+          courseSlug: planned.courseSlug,
+          courseId: planned.courseId,
+          merged: planned.merged,
+          existing: planned.existing,
+          completedAt: planned.completedAt,
+          scoreScaled: planned.scoreScaled,
+          startedAt: planned.startedAt,
+          updateStartedAt: planned.updateStartedAt,
+        });
+
+        // A second raw Coursera id may map to the same canonical course. Feed
+        // the first merge back into the in-memory ladder so the later row can
+        // never undo it within this promotion pass.
+        existingByKey.set(key, {
+          userId,
+          programSlug: planned.programSlug,
+          courseSlug: planned.courseSlug,
+          ...planned.merged,
+        });
+        affectedRollups.add(`${userId}|${planned.programSlug}`);
+        result.upserted += 1;
+      } catch (error) {
+        result.errors += 1;
+        console.error(
+          `[promoteCsvProgressToCanonical] row ${row.id} (${row.courseraCourseId}) failed`,
+          error,
+        );
+      }
+    }
+
+    if (rows.length < COURSERA_PROMOTION_BATCH_SIZE) break;
+  }
+
+  for (const key of affectedRollups) {
+    const separator = key.indexOf('|');
+    const userId = key.slice(0, separator);
+    const programSlug = key.slice(separator + 1);
+    try {
+      await refreshMemberProgramProgressRollup(userId, programSlug);
+      result.rollupsRefreshed += 1;
+    } catch (error) {
+      result.errors += 1;
+      console.error(
+        `[promoteCsvProgressToCanonical] rollup failed for ${userId}/${programSlug}`,
+        error,
+      );
+    }
+  }
+
+  return result;
 }

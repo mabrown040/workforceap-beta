@@ -19,8 +19,6 @@ const toggleSchema = z.object({
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await ensureUserInDb(user);
-
   const certs = await prisma.$transaction((tx) => tx.userCertification.findMany({
     where: { userId: user.id },
     select: { certName: true, earnedAt: true },

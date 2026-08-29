@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
@@ -11,6 +12,7 @@ import {
   CertificationsQueueKit,
   type CertSubmission,
 } from '@/components/portal/kit/pages/admin-subviews/CertificationsQueueKit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -29,6 +31,7 @@ export default async function AdminCertificationsAnalyticsPage({
   if (!user) redirect('/login?redirectTo=/admin/certifications');
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
@@ -58,11 +61,11 @@ export default async function AdminCertificationsAnalyticsPage({
     // path. Mint short-lived signed URLs at render time (same pattern as
     // /api/admin/members/[id]/resume-urls). Sign best-effort — a failure for
     // one file shouldn't blank the whole queue.
-    const supabase = getSupabaseAdmin();
+    const supabase = readOnlyAudit ? null : getSupabaseAdmin();
     const submissions: CertSubmission[] = await Promise.all(
       pending.map(async (c) => {
         let proofHref: string | undefined;
-        if (c.proofUrl) {
+        if (c.proofUrl && supabase) {
           try {
             const { data } = await supabase.storage
               .from('member-files')
@@ -86,12 +89,16 @@ export default async function AdminCertificationsAnalyticsPage({
     );
 
     return (
-      <CertificationsQueueKit
-        submissions={submissions}
-        awaitingCount={submissions.length}
-        actionsEnabled
-        subtitle="Member-submitted credential proof awaiting review. Approve to count toward outcomes, or reject to send back."
-      />
+      <div {...(readOnlyAudit ? { 'data-portal-audit-suppressed': 'certification-proof-signed-urls' } : {})}>
+        <CertificationsQueueKit
+          submissions={submissions}
+          awaitingCount={submissions.length}
+          actionsEnabled={!readOnlyAudit}
+          subtitle={readOnlyAudit
+            ? 'Queue access is verified without minting signed proof links or enabling review actions during the release audit.'
+            : 'Member-submitted credential proof awaiting review. Approve to count toward outcomes, or reject to send back.'}
+        />
+      </div>
     );
   }
 

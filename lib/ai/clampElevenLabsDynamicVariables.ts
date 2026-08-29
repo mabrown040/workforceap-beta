@@ -1,4 +1,7 @@
-import { sanitizeResumePlainText } from '@/lib/resume/extractionQuality';
+import {
+  hasSubstantiveResumeText,
+  sanitizeResumePlainText,
+} from '@/lib/resume/extractionQuality';
 
 /**
  * ElevenLabs ConvAI dynamic variables must be strings with bounded size.
@@ -6,7 +9,6 @@ import { sanitizeResumePlainText } from '@/lib/resume/extractionQuality';
  */
 const MAX_KEY_LEN = 120;
 const MAX_VALUE_LEN = 4000;
-const MIN_USABLE_RESUME_CHARS = 40;
 const RESUME_TEXT_KEYS = new Set(['resume_text', 'resume_draft', 'resume_context', 'live_resume_draft']);
 
 export function clampElevenLabsDynamicVariables(
@@ -27,7 +29,7 @@ export function clampElevenLabsDynamicVariables(
 
   if (sawResumeTextKey && out.has_resume === 'true') {
     const hasUsableResume = [...RESUME_TEXT_KEYS].some(
-      (key) => (out[key]?.trim().length ?? 0) >= MIN_USABLE_RESUME_CHARS,
+      (key) => hasSubstantiveResumeText(out[key] ?? ''),
     );
     if (!hasUsableResume) out.has_resume = 'false';
   }

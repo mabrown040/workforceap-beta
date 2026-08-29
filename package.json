@@ -38,6 +38,7 @@
     "test:vitest": "vitest run --reporter=default",
     "deadcode": "knip",
     "elevenlabs:apply-patches": "node scripts/elevenlabs/apply-agent-patches.mjs",
+    "elevenlabs:verify-agents": "node scripts/elevenlabs/apply-agent-patches.mjs --check --all",
     "coursera:test": "tsx scripts/coursera-integration-test.ts",
     "coursera:audit-links": "node scripts/prisma-env.js npx tsx scripts/audit-coursera-links.ts",
     "coursera:prove-b4b-link": "node scripts/prisma-env.js npx tsx scripts/prove-b4b-identity-link.ts",

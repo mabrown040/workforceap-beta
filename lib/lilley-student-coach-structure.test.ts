@@ -25,7 +25,7 @@ const voiceStudioPath = join(root, 'components/portal/kit/pages/VoiceStudioKit.t
 const historyPagePath = join(root, 'app/(portal)/dashboard/ai-tools/history/page.tsx');
 const livePatchPath = join(
   root,
-  'scripts/elevenlabs/patches/agent_1101kqfjfm8retm8j6md467wzxdb.patch.json'
+  'scripts/elevenlabs/patches/agent_2001kv8wn1zhepm9x4tjfdzwm6v8.patch.json'
 );
 test('voice session policy keeps member Lilley and authorized staff contexts separate', () => {
   assert.deepEqual(resolveCounselorVoiceSessionPlan('member', false), {
@@ -128,17 +128,20 @@ test('Lilley has a member fallback while staff mode requires a configured agent'
   delete process.env.ELEVENLABS_COUNSELOR_AGENT_ID;
   delete process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
 
-  assert.equal(getElevenLabsAgentId('counselor'), 'agent_1101kqfjfm8retm8j6md467wzxdb');
+  assert.equal(getElevenLabsAgentId('counselor'), 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8');
   assert.equal(getElevenLabsAgentId('counselor_staff'), undefined);
+
+  process.env.ELEVENLABS_COUNSELOR_AGENT_ID = 'agent_1101kqfjfm8retm8j6md467wzxdb';
+  assert.equal(getElevenLabsAgentId('counselor'), 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8');
 
   process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID = 'agent_configured_staff';
   assert.equal(getElevenLabsAgentId('counselor_staff'), 'agent_configured_staff');
 
   const src = readFileSync(agentsPath, 'utf8');
 
-  assert.match(src, /counselor: 'agent_1101kqfjfm8retm8j6md467wzxdb'/);
+  assert.match(src, /counselor: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8'/);
   assert.doesNotMatch(src, /counselor_staff:\s*'agent_/);
-  assert.match(src, /RETIRED_COUNSELOR_AGENT_IDS\.has\(fromEnv\)/);
+  assert.match(src, /UNUSABLE_MEMBER_COUNSELOR_AGENT_IDS\.has\(fromEnv\)/);
 });
 
 test('the active ElevenLabs patch is student-facing and cannot restore the staff prompt', () => {

@@ -40,6 +40,7 @@ export default function GapAnalyzerForm({
   const [output, setOutput] = useState(previewOutput ?? '');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
@@ -90,6 +91,7 @@ export default function GapAnalyzerForm({
       return;
     }
     setError('');
+    setExtractionWarning(null);
     setExtracting(true);
     try {
       const formData = new FormData();
@@ -100,6 +102,10 @@ export default function GapAnalyzerForm({
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
+        const warning = data.extractionWarning;
+        setExtractionWarning(
+          typeof warning === 'string' && warning.trim() ? warning.trim() : null,
+        );
       } else {
         setError(data.error ?? 'Could not extract text');
       }
@@ -113,7 +119,7 @@ export default function GapAnalyzerForm({
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <FormField label="Your resume (paste or upload PDF/DOCX)" id="resume">
+      <FormField label="Your resume (paste or upload PDF, DOCX, or TXT)" id="resume">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
           <label
             htmlFor="resume-file-input"
@@ -130,7 +136,7 @@ export default function GapAnalyzerForm({
             ref={fileInputRef}
             id="resume-file-input"
             type="file"
-            accept=".pdf,.docx,.doc,.txt"
+            accept=".pdf,.docx,.txt"
             onChange={handleFileUpload}
             disabled={extracting || loading}
             className="sr-only"
@@ -154,6 +160,24 @@ export default function GapAnalyzerForm({
           style={textareaStyle}
         />
       </FormField>
+
+      {extractionWarning ? (
+        <p
+          role="status"
+          style={{
+            margin: '-0.25rem 0 0',
+            padding: '0.75rem',
+            borderRadius: 'var(--wa-radius-sm)',
+            border: '1px solid var(--wa-gold)',
+            background: 'var(--wa-gold-soft)',
+            color: 'var(--wa-text)',
+            fontSize: 'var(--wa-type-meta)',
+            lineHeight: 1.45,
+          }}
+        >
+          {extractionWarning}
+        </p>
+      ) : null}
 
       {error ? <AiToolError error={error} /> : null}
 

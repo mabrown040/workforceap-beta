@@ -8,6 +8,15 @@ import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
 import { awardPoints } from '@/lib/member/points';
 import { handleApiError, ApiError } from '@/lib/api/errors';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import {
+  isResumeObjectPathOwnedByUser,
+  removeResumeObjectsWithRetry,
+} from '@/lib/resume/atomicResumeObjectSwap';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { randomUUID } from 'node:crypto';
+import { captureApiError } from '@/lib/observability/captureApiError';
+
+const RESUME_BUCKET = 'member-resumes';
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -67,25 +76,102 @@ async function _POST(
     });
     if (existing) throw ApiError.conflict('Already applied');
 
-    const resumePath = parsed.data.shareResume
+    const currentResumePath = parsed.data.shareResume
       ? (profile?.resumeEnhancedPath || profile?.resumeOriginalPath)
       : undefined;
+    if (parsed.data.shareResume && !currentResumePath) {
+      throw ApiError.badRequest('Upload a resume before sharing it with an employer');
+    }
+    if (currentResumePath && !isResumeObjectPathOwnedByUser(authUser.id, currentResumePath)) {
+      throw ApiError.conflict('Your saved resume record is invalid. Upload it again before applying.');
+    }
 
-    const app = await prisma.jobPostingApplication.create({
-      data: {
-        jobId: id,
-        studentId: authUser.id,
-        coverLetter: parsed.data.coverLetter,
-        resumeUrl: parsed.data.resumeUrl,
-        resumePath: resumePath,
-        profileShared: true,
-      },
-    });
+    const applicationId = randomUUID();
+    let snapshotPath: string | undefined;
+    const storage = currentResumePath
+      ? getSupabaseAdmin().storage.from(RESUME_BUCKET)
+      : null;
+    if (currentResumePath && storage) {
+      const extension = currentResumePath.split('.').pop()?.toLowerCase();
+      if (!extension || !['pdf', 'docx', 'txt'].includes(extension)) {
+        throw ApiError.conflict('Your saved resume format is invalid. Upload it again before applying.');
+      }
+      snapshotPath = `${authUser.id}/application-${applicationId}-resume.${extension}`;
+      const { error: copyError } = await storage.copy(currentResumePath, snapshotPath);
+      if (copyError) {
+        console.error('[apply] resume snapshot copy failed', copyError);
+        throw ApiError.unavailable('Could not attach your resume. Your application was not submitted; please try again.');
+      }
+    }
 
-    await prisma.job.update({
-      where: { id },
-      data: { applicationsCount: { increment: 1 } },
-    });
+    let app: { id: string };
+    try {
+      app = await prisma.$transaction(async (tx) => {
+        const created = await tx.jobPostingApplication.create({
+          data: {
+            id: applicationId,
+            jobId: id,
+            studentId: authUser.id,
+            coverLetter: parsed.data.coverLetter,
+            resumeUrl: parsed.data.resumeUrl,
+            resumePath: snapshotPath,
+            profileShared: true,
+          },
+          select: { id: true },
+        });
+        await tx.job.update({
+          where: { id },
+          data: { applicationsCount: { increment: 1 } },
+        });
+        return created;
+      });
+    } catch (error) {
+      let committedApplication: { id: string } | null;
+      try {
+        committedApplication = await prisma.jobPostingApplication.findFirst({
+          where: {
+            id: applicationId,
+            jobId: id,
+            studentId: authUser.id,
+            resumePath: snapshotPath ?? null,
+          },
+          select: { id: true },
+        });
+      } catch (verificationError) {
+        captureApiError(verificationError, {
+          route: 'POST /api/jobs/[id]/apply commit verification',
+          userId: authUser.id,
+          extra: { applicationId, snapshotRetained: Boolean(snapshotPath) },
+        });
+        throw ApiError.unavailable(
+          'Could not confirm whether your application was submitted. Check My Applications before retrying.',
+        );
+      }
+
+      if (committedApplication) {
+        app = committedApplication;
+        captureApiError(error, {
+          route: 'POST /api/jobs/[id]/apply commit acknowledgement recovered',
+          userId: authUser.id,
+          extra: { applicationId },
+        });
+      } else {
+        if (snapshotPath && storage) {
+          await removeResumeObjectsWithRetry({
+            paths: [snapshotPath],
+            removeObjects: (paths) => storage.remove(paths),
+            onCleanupError: (cleanupError, paths) => {
+              captureApiError(cleanupError, {
+                route: 'POST /api/jobs/[id]/apply resume snapshot rollback',
+                userId: authUser.id,
+                extra: { applicationId, orphanedObjectCount: paths.length },
+              });
+            },
+          });
+        }
+        throw error;
+      }
+    }
 
     await sendNewJobApplicationEmail({
       to: job.employer.contactEmail,
@@ -93,7 +179,7 @@ async function _POST(
       applicantName: dbUser.fullName ?? dbUser.email ?? 'Applicant',
       applicantEmail: dbUser.email,
       applicationId: app.id,
-    });
+    }).catch((error) => console.error('[apply] application email failed after commit', error));
 
     await trackEvent({
       userId: authUser.id,
@@ -102,7 +188,7 @@ async function _POST(
       entityId: app.id,
       metadata: { jobId: id, jobTitle: job.title },
       sourcePage: `/dashboard/jobs/${id}`,
-    });
+    }).catch((error) => console.error('[apply] application event failed after commit', error));
 
     // Award points (idempotent on application id)
     awardPoints(authUser.id, 'job_application', app.id).catch(() => {});

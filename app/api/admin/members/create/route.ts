@@ -8,7 +8,7 @@ import {
   CURRICULUM_MIGRATION_PENDING_MESSAGE,
   getProgramBySlug,
 } from '@/lib/content/programs';
-import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import { ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
@@ -23,7 +23,7 @@ const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Emp
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
 const INCOME_OPTIONS = ['Under $20K', '$20K–$40K', '$40K–$60K', 'Over $60K'];
 const EDUCATION_OPTIONS = ['Less than HS', 'HS Diploma or GED', 'Some College', "Associate's", "Bachelor's", 'Graduate'];
-const REFERRAL_OPTIONS: string[] = [...ADMIN_REFERRAL_SOURCE_OPTIONS];
+const REFERRAL_OPTIONS: string[] = [...ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES];
 const ETHNICITY_OPTIONS = [
   'Hispanic/Latino',
   'White',
@@ -66,8 +66,6 @@ const ETHNICITY_OPTIONS = [
     const ethnicity = typeof o.ethnicity === 'string' && ETHNICITY_OPTIONS.includes(o.ethnicity) ? o.ethnicity : undefined;
     const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
     const programNotes = typeof o.programNotes === 'string' ? o.programNotes.trim() : undefined;
-    const resumeOriginalPath = typeof o.resumeOriginalPath === 'string' ? o.resumeOriginalPath : undefined;
-    const resumeEnhancedPath = typeof o.resumeEnhancedPath === 'string' ? o.resumeEnhancedPath : undefined;
     const partnerId =
       typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim()) ? o.partnerId.trim() : undefined;
     const subgroupId =
@@ -124,6 +122,7 @@ const ETHNICITY_OPTIONS = [
   
     // Try invite first (sends set-password email). Fall back to createUser if invite not supported.
     let authUser: { id: string; email?: string } | null = null;
+    let welcomeEmailSent = false;
   
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${siteUrl}/dashboard`,
@@ -132,6 +131,7 @@ const ETHNICITY_OPTIONS = [
   
     if (!inviteError && inviteData.user) {
       authUser = inviteData.user;
+      welcomeEmailSent = true;
     } else if (inviteError?.message?.includes('already') || inviteError?.code === 'user_already_exists') {
       return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 400 });
     } else {
@@ -154,7 +154,15 @@ const ETHNICITY_OPTIONS = [
       // Optionally trigger password reset so user can set their own.
       // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
       // member's tenant domain instead of the platform default.
-      await sendPasswordResetEmail(email, '/reset-password', { orgId: organizationId });
+      try {
+        const resetResult = await sendPasswordResetEmail(email, '/reset-password', { orgId: organizationId });
+        welcomeEmailSent = !resetResult.error;
+        if (resetResult.error) {
+          console.error('Admin create member password-reset email failed:', resetResult.error);
+        }
+      } catch (emailError) {
+        console.error('Admin create member password-reset email failed:', emailError);
+      }
     }
   
     if (!authUser) {
@@ -210,8 +218,6 @@ const ETHNICITY_OPTIONS = [
             hasDisability,
             ethnicity: ethnicity || null,
             counselorNotes: notes || null,
-            resumeOriginalPath: resumeOriginalPath || null,
-            resumeEnhancedPath: resumeEnhancedPath || null,
             role: 'member',
           },
         });
@@ -295,28 +301,26 @@ const ETHNICITY_OPTIONS = [
       );
     }
   
-    // Track enrollment for funnel analytics
-    await trackEvent({
-      userId: authUser.id,
-      eventName: 'program_enrolled',
-      entityType: 'course_enrollment',
-      metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
-      sourcePage: '/admin/members/create',
-    });
-  
-    await auditLog({
-      actorUserId: user.id,
-      action: 'admin_member_create',
-      targetType: 'user',
-      targetId: authUser.id,
-      metadata: { email, programSlug, partnerId: partnerId ?? null, subgroupId: subgroupId ?? null, organizationId },
-    });
+    // Post-commit telemetry must never turn a successful account creation into
+    // a 500 that invites the admin to create the member a second time.
+    after(() =>
+      trackEvent({
+        userId: authUser.id,
+        eventName: 'program_enrolled',
+        entityType: 'course_enrollment',
+        metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
+        sourcePage: '/admin/members/create',
+      }).catch((err) => console.error('[analytics] admin member enrollment:', err))
+    );
 
     return NextResponse.json({
       ok: true,
       userId: authUser.id,
       email,
-      message: `Member created. Welcome email sent to ${email}.`,
+      welcomeEmailSent,
+      message: welcomeEmailSent
+        ? `Member created. Welcome email sent to ${email}.`
+        : `Member created for ${email}, but the welcome email could not be confirmed. Send a password reset from the member record.`,
     });
   } catch (error) {
     console.error('/admin/members/create:', error);

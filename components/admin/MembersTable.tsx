@@ -1144,10 +1144,10 @@ export default function MembersTable({
         programs={programs}
         onClose={() => setShowUpdateModal(false)}
         onUpdated={(result) => {
-          const hint = `Updated ${result.updated}/${result.total} members${result.errors.length > 0 ? ` (${result.errors.length} failed)` : ''}`;
+          const hint = `Updated ${result.updated}/${result.total} members${result.errors.length > 0 ? ` (${result.errors.length} failed)` : ''}${result.warnings?.length ? ` (${result.warnings.length} follow-up warning${result.warnings.length === 1 ? '' : 's'})` : ''}`;
           setBulkHint(hint);
           window.setTimeout(() => setBulkHint(null), 5000);
-          setSelectedIds(new Set());
+          if (result.errors.length === 0) setSelectedIds(new Set());
           router.refresh();
         }}
       />

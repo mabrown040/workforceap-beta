@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { mapSkillsToRadarAxes } from '@/lib/ai/onetSkills';
 import type { OnetSkill } from '@/lib/ai/onetSkills';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { getResumeProfileRevision } from '@/lib/resume/resumeProfileRevision';
 import { riasecToRadarAxes } from '@/lib/content/quizIpMerge';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -257,7 +258,7 @@ function mergeProfiles(
     })),
     prisma.$transaction((tx) => tx.profile.findUnique({
       where: { userId: user.id },
-      select: { resumeOriginalPath: true, resumeEnhancedPath: true },
+      select: { resumeOriginalPath: true, resumeEnhancedPath: true, updatedAt: true },
     })),
   ]);
 
@@ -272,27 +273,15 @@ function mergeProfiles(
   const resumePath = profile?.resumeEnhancedPath ?? profile?.resumeOriginalPath;
   if (resumePath) {
     try {
-      // Prefer the last Resume Rewriter result (already extracted text, no storage fetch needed)
-      const lastRewrite = await prisma.$transaction((tx) => tx.aIToolResult.findFirst({
-        where: { userId: user.id, toolType: 'resume_rewriter' },
-        orderBy: { createdAt: 'desc' },
-        select: { output: true },
-      }));
-
-      if (lastRewrite?.output) {
-        const extracted = extractResumeSkillProfile(lastRewrite.output);
+      // Always derive the keyword fallback from the resume pointer that is
+      // current now. Historical rewriter results have no source-version
+      // lineage and must not override a newly uploaded original.
+      const rawText = await getMemberResumePlainText(user.id, 12000);
+      if (rawText) {
+        const extracted = extractResumeSkillProfile(rawText);
         resumeProfile = extracted.profile;
         resumeMatchedKeywords = extracted.matched;
         resumeSkillsAvailable = resumeProfile.some((p) => p.value > 0);
-      } else {
-        // Fallback: read the raw uploaded resume file directly from storage
-        const rawText = await getMemberResumePlainText(user.id, 12000);
-        if (rawText) {
-          const extracted = extractResumeSkillProfile(rawText);
-          resumeProfile = extracted.profile;
-          resumeMatchedKeywords = extracted.matched;
-          resumeSkillsAvailable = resumeProfile.some((p) => p.value > 0);
-        }
       }
     } catch {
       // Resume extraction failure is non-fatal
@@ -306,6 +295,10 @@ function mergeProfiles(
   let aiResumeEvidence: Record<string, string[]> = {};
   let hasInterestProfiler = false;
   let hasAiResumeExtraction = false;
+  const currentResumeRevision = getResumeProfileRevision(
+    profile?.resumeOriginalPath,
+    profile?.resumeEnhancedPath,
+  );
 
   try {
     const assessments = await prisma.$transaction((tx) => tx.aIToolResult.findMany({
@@ -320,6 +313,7 @@ function mergeProfiles(
       try {
         const parsed = JSON.parse(row.output) as {
           source?: string;
+          resumeRevision?: string;
           radarAxes?: Array<{ axis: string; value: number; maxValue?: number }>;
           axes?: Array<{ axis: string; score: number; evidence?: string[] }>;
           riasec?: {
@@ -329,7 +323,10 @@ function mergeProfiles(
         };
 
         // AI resume skill extraction
-        if (parsed.source === 'ai_resume_extraction' && parsed.axes?.length && !aiResumeProfile) {
+        if (parsed.source === 'ai_resume_extraction'
+          && parsed.axes?.length
+          && !aiResumeProfile
+          && parsed.resumeRevision === currentResumeRevision) {
           hasAiResumeExtraction = true;
           aiResumeProfile = parsed.axes.map((a) => ({
             axis: a.axis,

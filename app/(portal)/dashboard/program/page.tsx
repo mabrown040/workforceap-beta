@@ -126,6 +126,12 @@ export default async function ProgramPage({
     ...(DISCOVERED_COURSERA_PROGRAMS[enrolledSlug]?.courses
       .filter((course) => Boolean(course.courseId?.trim()))
       .map((course) => course.slug) ?? []),
+    // Board-approved syllabus courses carry verified public Coursera slugs.
+    // Keep those launchable while the Enterprise discovery snapshot catches
+    // up; the launch route resolves them before any index-based legacy map.
+    ...program.courses
+      .filter((course) => Boolean(course.courseraSlug?.trim()))
+      .map((course) => course.slug),
   ]);
 
   const courseraProgramId = DISCOVERED_COURSERA_PROGRAMS[enrolledSlug]?.courseraProgramId;

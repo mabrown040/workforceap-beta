@@ -77,6 +77,7 @@ vi.mock('@/lib/ai/postProcess', () => ({
 
 vi.mock('@/lib/rate-limit', () => ({
   checkAIToolRateLimit: vi.fn(),
+  checkResumeDraftSaveRateLimit: vi.fn(() => Promise.resolve({ success: true })),
 }));
 
 vi.mock('@/lib/member/getMemberResumePlainText', () => ({
@@ -87,12 +88,21 @@ vi.mock('@/lib/workflows/completeCareerOsActions', () => ({
   completeCareerOsResumeActions: vi.fn(),
 }));
 
+vi.mock('@/lib/resume/resumeProfileStorage', () => ({
+  saveEnhancedResumeText: vi.fn(),
+  isResumeProfileConflict: vi.fn(),
+}));
+
+vi.mock('@/lib/counselor/staffMemberAccess', () => ({
+  assertStaffCanAccessMemberRecord: vi.fn(),
+}));
+
 // ─── Imports after mocks ───
 import { POST as generateResume } from '@/app/api/member/resume/generate/route';
+import { POST as savePlainResume } from '@/app/api/member/resume/plain-text/route';
 import { GET as getResume } from '@/app/api/member/resume/route';
 import { GET as getCounselorMemberResume } from '@/app/api/counselor/members/[memberId]/resume/route';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -101,6 +111,12 @@ import { claudeChat, isAnthropicConfigured } from '@/lib/ai/anthropicChat';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
+import {
+  isResumeProfileConflict,
+  saveEnhancedResumeText,
+} from '@/lib/resume/resumeProfileStorage';
+import { getResumeProfileRevision } from '@/lib/resume/resumeProfileRevision';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { NextRequest } from 'next/server';
 
 const UUIDS = {
@@ -161,6 +177,14 @@ function makeGenerateRequest(body?: object): any {
   });
 }
 
+function makePlainResumeRequest(body: object): Request {
+  return new Request('http://localhost:3000/api/member/resume/plain-text', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
 function makeGetResumeRequest(search?: string) {
   return new NextRequest(`http://localhost:3000/api/member/resume${search ?? ''}`);
 }
@@ -181,6 +205,9 @@ describe('POST /api/member/resume/generate', () => {
     vi.mocked(getMemberResumePlainText).mockResolvedValue('');
     vi.mocked(getProgramBySlug).mockReturnValue(mockProgram() as any);
     vi.mocked(completeCareerOsResumeActions).mockResolvedValue({ completedCount: 0, actionIds: [] });
+    vi.mocked(saveEnhancedResumeText).mockResolvedValue(`${UUIDS.user}/resume-enhanced-version.txt`);
+    vi.mocked(isResumeProfileConflict).mockReturnValue(false);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
     mockSupabaseAdmin();
   });
 
@@ -217,11 +244,17 @@ describe('POST /api/member/resume/generate', () => {
     expect(body.ok).toBe(true);
     expect(body.resume).toContain('Test Member');
     expect(body.fallbackUsed).toBe(false);
-    expect(body.path).toBe(`${UUIDS.user}/resume-enhanced.txt`);
+    expect(body.path).toBe(`${UUIDS.user}/resume-enhanced-version.txt`);
     expect(claudeChat).toHaveBeenCalledWith(
       expect.stringContaining('expert resume writer'),
       expect.stringContaining('Name: Test Member'),
       expect.objectContaining({ maxTokens: 2000 })
+    );
+    expect(checkAIToolRateLimit).toHaveBeenCalledWith(UUIDS.user);
+    expect(saveEnhancedResumeText).toHaveBeenCalledWith(
+      UUIDS.user,
+      expect.stringContaining('Test Member'),
+      { resumeOriginalPath: null, resumeEnhancedPath: null },
     );
   });
 
@@ -244,23 +277,20 @@ describe('POST /api/member/resume/generate', () => {
     expect(chatCompletion).toHaveBeenCalled();
   });
 
-  it('uses fallback resume when AI is not configured', async () => {
+  it('keeps the existing resume when AI is not configured', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser() as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       ...mockUser(),
       profile: mockProfile(),
     } as any);
-    vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
-
     const res = await generateResume(makeGenerateRequest());
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.ok).toBe(true);
-    expect(body.fallbackUsed).toBe(true);
-    expect(body.resume).toContain('Test Member');
+    expect(body.error).toContain('temporarily unavailable');
+    expect(saveEnhancedResumeText).not.toHaveBeenCalled();
   });
 
-  it('uses fallback resume when AI returns empty response', async () => {
+  it('keeps the existing resume when AI returns empty response', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser() as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       ...mockUser(),
@@ -271,44 +301,39 @@ describe('POST /api/member/resume/generate', () => {
     vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
 
     const res = await generateResume(makeGenerateRequest());
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(422);
     const body = await res.json();
-    expect(body.fallbackUsed).toBe(true);
+    expect(body.error).toContain('not readable');
+    expect(saveEnhancedResumeText).not.toHaveBeenCalled();
   });
 
-  it('uses fallback resume when Groq rate limit is exceeded', async () => {
+  it('rate-limits every configured provider before generation', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser() as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       ...mockUser(),
       profile: mockProfile(),
     } as any);
-    vi.mocked(isAnthropicConfigured).mockReturnValue(false);
-    vi.mocked(isAIConfigured).mockReturnValue(true);
+    vi.mocked(isAnthropicConfigured).mockReturnValue(true);
     vi.mocked(checkAIToolRateLimit).mockResolvedValue({ success: false });
-    vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
 
     const res = await generateResume(makeGenerateRequest());
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(429);
     const body = await res.json();
-    expect(body.fallbackUsed).toBe(true);
+    expect(body.error).toContain('limit reached');
+    expect(claudeChat).not.toHaveBeenCalled();
+    expect(saveEnhancedResumeText).not.toHaveBeenCalled();
   });
 
-  it('handles missing profile data gracefully with fallback resume', async () => {
+  it('keeps the existing resume when profile-only generation has no provider', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser() as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       ...mockUser(),
       profile: null,
     } as any);
-    vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
-
     const res = await generateResume(makeGenerateRequest());
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.ok).toBe(true);
-    expect(body.fallbackUsed).toBe(true);
-    // Fallback uses dbUser.fullName when available; 'WorkforceAP Member' only when fullName is null
-    expect(body.resume).toContain('Test Member');
-    expect(body.resume).toContain('Commercial Driver Training');
+    expect(body.error).toContain('temporarily unavailable');
   });
 
   it('uses resumeBase from request body when provided', async () => {
@@ -318,10 +343,12 @@ describe('POST /api/member/resume/generate', () => {
       profile: mockProfile(),
     } as any);
     vi.mocked(isAnthropicConfigured).mockReturnValue(true);
-    vi.mocked(claudeChat).mockResolvedValue('# Enhanced Resume');
-    vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
+    vi.mocked(claudeChat).mockResolvedValue('# Enhanced Resume\n\nProfessional summary with verified experience and skills.');
 
-    const res = await generateResume(makeGenerateRequest({ resumeBase: 'My original resume content' }));
+    const res = await generateResume(makeGenerateRequest({
+      resumeBase: 'My original resume content with enough verified work history to improve safely.',
+      resumeRevision: getResumeProfileRevision(null, null),
+    }));
     expect(res.status).toBe(200);
     expect(claudeChat).toHaveBeenCalledWith(
       expect.any(String),
@@ -336,9 +363,9 @@ describe('POST /api/member/resume/generate', () => {
       ...mockUser(),
       profile: mockProfile(),
     } as any);
-    const storage = mockSupabaseAdmin(() => ({
-      upload: vi.fn(() => ({ error: { message: 'Storage error' } })),
-    }));
+    vi.mocked(isAnthropicConfigured).mockReturnValue(true);
+    vi.mocked(claudeChat).mockResolvedValue('# Resume\n\nVerified professional experience and skills for this member.');
+    vi.mocked(saveEnhancedResumeText).mockRejectedValue(new Error('Storage error'));
 
     const res = await generateResume(makeGenerateRequest());
     expect(res.status).toBe(500);
@@ -351,10 +378,112 @@ describe('POST /api/member/resume/generate', () => {
       ...mockUser(),
       profile: mockProfile(),
     } as any);
-    vi.mocked(prisma.profile.upsert).mockResolvedValue({} as any);
+    vi.mocked(isAnthropicConfigured).mockReturnValue(true);
+    vi.mocked(claudeChat).mockResolvedValue('# Resume\n\nVerified professional experience and skills for this member.');
 
     await generateResume(makeGenerateRequest());
     expect(completeCareerOsResumeActions).toHaveBeenCalledWith(UUIDS.user);
+  });
+
+  it('returns 409 when a newer original lands while AI generation is in flight', async () => {
+    vi.mocked(getUser).mockResolvedValue(mockUser() as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      ...mockUser(),
+      profile: mockProfile({
+        resumeOriginalPath: `${UUIDS.user}/resume-original-a.pdf`,
+        resumeEnhancedPath: `${UUIDS.user}/resume-enhanced-a.txt`,
+      }),
+    } as any);
+    vi.mocked(isAnthropicConfigured).mockReturnValue(true);
+    vi.mocked(claudeChat).mockResolvedValue('# Resume\n\nVerified professional experience and skills for this member.');
+    const conflict = new Error('stale lineage');
+    vi.mocked(saveEnhancedResumeText).mockRejectedValue(conflict);
+    vi.mocked(isResumeProfileConflict).mockImplementation((error) => error === conflict);
+
+    const res = await generateResume(makeGenerateRequest());
+
+    expect(res.status).toBe(409);
+    expect(saveEnhancedResumeText).toHaveBeenCalledWith(
+      UUIDS.user,
+      expect.any(String),
+      {
+        resumeOriginalPath: `${UUIDS.user}/resume-original-a.pdf`,
+        resumeEnhancedPath: `${UUIDS.user}/resume-enhanced-a.txt`,
+      },
+    );
+    expect(completeCareerOsResumeActions).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /api/member/resume/plain-text lineage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getUser).mockResolvedValue(mockUser() as any);
+    vi.mocked(saveEnhancedResumeText).mockResolvedValue(`${UUIDS.user}/resume-enhanced-b.txt`);
+    vi.mocked(isResumeProfileConflict).mockReturnValue(false);
+    vi.mocked(completeCareerOsResumeActions).mockResolvedValue({ completedCount: 0, actionIds: [] });
+  });
+
+  it('rejects a stale editor after a newer original resume is uploaded', async () => {
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockProfile({
+      resumeOriginalPath: `${UUIDS.user}/resume-original-b.pdf`,
+      resumeEnhancedPath: null,
+    }) as any);
+
+    const res = await savePlainResume(makePlainResumeRequest({
+      plainText: 'Verified work experience and education from the older resume draft.',
+      resumeRevision: getResumeProfileRevision(`${UUIDS.user}/resume-original-a.pdf`, null),
+    }));
+
+    expect(res.status).toBe(409);
+    expect(saveEnhancedResumeText).not.toHaveBeenCalled();
+  });
+
+  it('saves against both captured pointers and returns the next opaque revision', async () => {
+    const originalPath = `${UUIDS.user}/resume-original-a.pdf`;
+    const enhancedPath = `${UUIDS.user}/resume-enhanced-a.txt`;
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockProfile({
+      resumeOriginalPath: originalPath,
+      resumeEnhancedPath: enhancedPath,
+    }) as any);
+
+    const res = await savePlainResume(makePlainResumeRequest({
+      plainText: 'Verified work experience and education for the current resume draft.',
+      resumeRevision: getResumeProfileRevision(originalPath, enhancedPath),
+    }));
+
+    expect(res.status).toBe(200);
+    expect(saveEnhancedResumeText).toHaveBeenCalledWith(
+      UUIDS.user,
+      expect.stringContaining('Verified work experience'),
+      { resumeOriginalPath: originalPath, resumeEnhancedPath: enhancedPath },
+    );
+    expect(await res.json()).toMatchObject({
+      ok: true,
+      resumeRevision: getResumeProfileRevision(
+        originalPath,
+        `${UUIDS.user}/resume-enhanced-b.txt`,
+      ),
+    });
+  });
+
+  it('returns 409 when the profile changes between revision validation and CAS', async () => {
+    const originalPath = `${UUIDS.user}/resume-original-a.pdf`;
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockProfile({
+      resumeOriginalPath: originalPath,
+      resumeEnhancedPath: null,
+    }) as any);
+    const conflict = new Error('concurrent replacement');
+    vi.mocked(saveEnhancedResumeText).mockRejectedValue(conflict);
+    vi.mocked(isResumeProfileConflict).mockImplementation((error) => error === conflict);
+
+    const res = await savePlainResume(makePlainResumeRequest({
+      plainText: 'Verified work experience and education for the current resume draft.',
+      resumeRevision: getResumeProfileRevision(originalPath, null),
+    }));
+
+    expect(res.status).toBe(409);
+    expect(completeCareerOsResumeActions).not.toHaveBeenCalled();
   });
 });
 
@@ -365,6 +494,7 @@ describe('GET /api/member/resume', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getMemberResumePlainText).mockResolvedValue('');
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
     mockSupabaseAdmin();
   });
 
@@ -401,6 +531,10 @@ describe('GET /api/member/resume', () => {
     expect(body.enhancedText).toContain('Core Skills');
     expect(body.originalExt).toBe('pdf');
     expect(body.enhancedExt).toBe('txt');
+    expect(body.resumeRevision).toBe(getResumeProfileRevision(
+      `${UUIDS.user}/resume-original.pdf`,
+      `${UUIDS.user}/resume-enhanced.txt`,
+    ));
   });
 
   it('returns empty metadata when no resume exists', async () => {
@@ -419,8 +553,7 @@ describe('GET /api/member/resume', () => {
 
   it('returns 403 when non-staff tries to access another member resume', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: 'other-user' }) as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
-    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
 
     const res = await getResume(makeGetResumeRequest('?memberId=' + UUIDS.user));
     expect(res.status).toBe(403);
@@ -429,8 +562,7 @@ describe('GET /api/member/resume', () => {
 
   it('allows admin to access any member resume', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.admin }) as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
@@ -448,11 +580,7 @@ describe('GET /api/member/resume', () => {
 
   it('allows assigned counselor to access member resume', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
-    vi.mocked(isCounselor).mockResolvedValue(true);
-    vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
-      counselor: { userId: UUIDS.counselor },
-    } as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
@@ -470,11 +598,7 @@ describe('GET /api/member/resume', () => {
 
   it('returns 403 when counselor is not assigned to member', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
-    vi.mocked(isCounselor).mockResolvedValue(true);
-    vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
-      counselor: { userId: 'different-counselor' },
-    } as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
 
     const res = await getResume(makeGetResumeRequest('?memberId=' + UUIDS.user));
     expect(res.status).toBe(403);
@@ -522,6 +646,7 @@ describe('GET /api/member/resume', () => {
 describe('GET /api/counselor/members/[memberId]/resume', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
     mockSupabaseAdmin();
   });
 
@@ -535,6 +660,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
 
   it('returns resume for assigned counselor', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeOriginalPath: `${UUIDS.user}/resume-original.pdf`,
@@ -569,6 +695,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
 
   it('returns empty metadata when member has no resume', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({ organizationId: 'org-1' } as any);
     vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
       counselor: { userId: UUIDS.counselor },
@@ -584,6 +711,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
 
   it('returns 502 when storage download fails', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser({ id: UUIDS.counselor }) as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({ organizationId: 'org-1' } as any);
     vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
       counselor: { userId: UUIDS.counselor },

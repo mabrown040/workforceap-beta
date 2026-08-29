@@ -50,6 +50,7 @@ vi.mock('next/server', () => {
   }
 
   return {
+    after: vi.fn((callback: () => unknown) => callback()),
     NextRequest: MockNextRequest,
     NextResponse: MockNextResponse,
   };

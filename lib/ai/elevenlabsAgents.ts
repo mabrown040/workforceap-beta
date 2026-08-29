@@ -29,7 +29,9 @@ const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
   career_business: 'ELEVENLABS_CAREER_BUSINESS_AGENT_ID',
 };
 
-const RETIRED_COUNSELOR_AGENT_IDS = new Set([
+const UNUSABLE_MEMBER_COUNSELOR_AGENT_IDS = new Set([
+  // This migrated ID is not present in the live WorkforceAP ElevenLabs workspace.
+  'agent_1101kqfjfm8retm8j6md467wzxdb',
   'agent_2801kmznvsemfmms06r0e02es1b9',
 ]);
 
@@ -40,13 +42,13 @@ const RETIRED_COUNSELOR_AGENT_IDS = new Set([
 const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   interview: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
   // Legacy key name; this agent is Lilley, the member-facing student career coach.
-  counselor: 'agent_1101kqfjfm8retm8j6md467wzxdb',
+  counselor: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8',
   employer: 'agent_0901kmznx45vf19s9psjrctqr6x5',
   partner: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
   readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
   resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
   wioa_prequal: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
-  /** Dedicated Career & Business coach agent. */
+  /** Lilley also serves the legacy member career-business entry point. */
   career_business: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8',
 };
 
@@ -100,11 +102,11 @@ export function resolveCounselorVoiceSessionPlan(
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {
   const fromEnv = process.env[ENV_KEYS[key]]?.trim();
-  if (fromEnv && (key !== 'counselor' || !RETIRED_COUNSELOR_AGENT_IDS.has(fromEnv))) {
+  if (fromEnv && (key !== 'counselor' || !UNUSABLE_MEMBER_COUNSELOR_AGENT_IDS.has(fromEnv))) {
     return fromEnv;
   }
   if (fromEnv) {
-    console.warn(`[elevenlabs] Ignoring retired counselor agent ID from ${ENV_KEYS[key]}.`);
+    console.warn(`[elevenlabs] Ignoring unavailable member coach ID from ${ENV_KEYS[key]}.`);
   }
   return FALLBACK_AGENT_IDS[key];
 }

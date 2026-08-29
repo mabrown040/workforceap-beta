@@ -73,6 +73,23 @@ export function parseMemberStoragePath(value: string | null | undefined): string
   return normalizeObjectPath(trimmed);
 }
 
+export function isMemberOwnedStoragePath(
+  userId: string,
+  bucket: string,
+  path: string,
+): boolean {
+  if (!isSafeUserId(userId) || !path || path.includes('\\') || path.includes('..')) return false;
+  const normalized = normalizeObjectPath(path);
+  if (bucket === MEMBER_RESUME_BUCKET) {
+    return normalized.startsWith(`${userId}/`) && normalized.length > userId.length + 1;
+  }
+  if (bucket === MEMBER_FILES_BUCKET) {
+    const prefix = `cert-files/${userId}/`;
+    return normalized.startsWith(prefix) && normalized.length > prefix.length;
+  }
+  return false;
+}
+
 async function listPrefix(
   api: StorageBucketApi,
   prefix: string,
@@ -170,7 +187,7 @@ export async function deleteUserStorageObjects(
 
   for (const extra of options?.extraPaths ?? []) {
     const path = parseMemberStoragePath(extra.path);
-    if (!path) continue;
+    if (!path || !isMemberOwnedStoragePath(userId, extra.bucket, path)) continue;
     const set = byBucket.get(extra.bucket) ?? new Set<string>();
     set.add(path);
     byBucket.set(extra.bucket, set);

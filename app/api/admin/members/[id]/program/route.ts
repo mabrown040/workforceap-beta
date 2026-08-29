@@ -16,6 +16,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
+class MemberProgramScopeChangedError extends Error {}
+
 export const PATCH = withApiGuc(async (
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -94,30 +96,31 @@ export const PATCH = withApiGuc(async (
 
   const now = new Date();
   await prisma.$transaction(async (tx) => {
-    await tx.courseProgress.deleteMany({ where: { userId: id, programSlug } });
-    await tx.memberProgramProgress.deleteMany({ where: { userId: id, programSlug } });
-
-    const member = await tx.user.update({
-      where: { id },
+    const memberUpdate = await tx.user.updateMany({
+      where: { id, organizationId: orgId, deletedAt: null },
       data: {
         enrolledProgram: programSlug,
         programChangedAt: now,
-        coursesCompleted: [], // compatibility mirror only; canonical rows were reset above
         enrolledAt: now,
       },
-      select: { organizationId: true },
     });
+    if (memberUpdate.count !== 1) throw new MemberProgramScopeChangedError();
     // Multi-program: admin "set program" picks the user's primary
     // enrollment. Demote any other primary first to satisfy the partial
     // unique index, then upsert this program's row as primary.
     await tx.courseEnrollment.updateMany({
-      where: { userId: id, isPrimary: true, programSlug: { not: programSlug } },
+      where: {
+        organizationId: orgId,
+        userId: id,
+        isPrimary: true,
+        programSlug: { not: programSlug },
+      },
       data: { isPrimary: false },
     });
     await tx.courseEnrollment.upsert({
       where: { userId_programSlug: { userId: id, programSlug } },
       create: {
-        organizationId: member.organizationId,
+        organizationId: orgId,
         userId: id,
         programSlug,
         isPrimary: true,
@@ -152,6 +155,9 @@ export const PATCH = withApiGuc(async (
   return NextResponse.json({ ok: true });
 
   } catch (error) {
+    if (error instanceof MemberProgramScopeChangedError) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
     console.error('/admin/members/[id]/program error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

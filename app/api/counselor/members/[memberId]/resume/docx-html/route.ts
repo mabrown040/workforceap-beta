@@ -4,7 +4,9 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
-import mammoth from 'mammoth';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
+import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
+import { resumePlainTextPreviewHtml } from '@/lib/resume/resumePreviewHtml';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -33,6 +35,9 @@ type Props = { params: Promise<{ memberId: string }> };export const POST = withA
   if (!path) {
     return NextResponse.json({ error: 'No file for this variant' }, { status: 404 });
   }
+  if (!isResumeObjectPathOwnedByUser(memberId, path)) {
+    return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
+  }
 
   const lower = path.toLowerCase();
   if (!lower.endsWith('.docx') && !lower.endsWith('.doc')) {
@@ -47,9 +52,9 @@ type Props = { params: Promise<{ memberId: string }> };export const POST = withA
 
   const buf = Buffer.from(await data.arrayBuffer());
   try {
-    const { value: html } = await mammoth.convertToHtml({ buffer: buf });
+    const text = await extractTextFromResumeBuffer(buf, lower.endsWith('.docx') ? 'docx' : 'doc');
     return NextResponse.json({
-      html: `<div class="mammoth-doc">${html}</div>`,
+      html: resumePlainTextPreviewHtml(text),
     });
   } catch {
     return NextResponse.json(

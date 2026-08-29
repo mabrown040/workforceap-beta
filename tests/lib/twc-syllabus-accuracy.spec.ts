@@ -9,11 +9,14 @@ import {
   SUPPORTED_PROGRAM_STORAGE_VALUES,
 } from '@/lib/content/programs';
 import { PROGRAM_INTEREST_OPTIONS } from '@/lib/validation/member';
+import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
+import { TRAINING_BRIDGE_OCCUPATIONS } from '@/lib/content/trainingBridge';
 import { PROGRAM_SYLLABI } from '../../shared/programSyllabi';
 import {
   PROGRAMS as MARKETING_PROGRAMS,
   partnerBadge,
 } from '../../marketing/src/data/programs';
+import { PROGRAM_COMPARISON_TRACKS as MARKETING_COMPARISON_TRACKS } from '../../marketing/src/data/programComparison';
 
 const EXPECTED_SYLLABI = {
   'it-support-professional-certificate-ibm': ['IT Support Professional Certificate (IBM)', 160, 10],
@@ -200,6 +203,69 @@ describe('TWC syllabus source lock', () => {
       expect(getProgramBySlug(legacyTitle)).toBeDefined();
       expect(PROGRAM_INTEREST_OPTIONS).not.toContain(legacyTitle);
     }
+  });
+
+  it('uses each amended approved title on both comparison surfaces', () => {
+    const approvedTitlesBySlug = {
+      'data-analytics-professional-certificate-google':
+        'Management Analyst & Business Intelligence Professional Certificate',
+      'data-science-professional-certificate-ibm':
+        'Database Administrator (DBA) Professional Certificate (IBM)',
+      'ux-design-professional-certificate-google':
+        'User Experience & Interface Design Professional Certificate',
+    } as const;
+    const appTracks = getProgramComparisonTracks();
+
+    for (const [slug, approvedTitle] of Object.entries(approvedTitlesBySlug)) {
+      expect(appTracks.find((track) => track.slug === slug)?.shortName).toBe(approvedTitle);
+      expect(MARKETING_COMPARISON_TRACKS.find((track) => track.slug === slug)?.shortName).toBe(
+        approvedTitle,
+      );
+    }
+  });
+
+  it('uses the approved occupations in recommendations and training bridges', () => {
+    const managementBridge = TRAINING_BRIDGE_OCCUPATIONS.find(
+      (occupation) => occupation.programSlug === 'data-analytics-professional-certificate-google',
+    );
+    const dbaBridge = TRAINING_BRIDGE_OCCUPATIONS.find(
+      (occupation) => occupation.programSlug === 'data-science-professional-certificate-ibm',
+    );
+
+    expect(managementBridge).toMatchObject({
+      occupationTitle: 'Management Analyst',
+      onetCodePrefixes: ['13-1111'],
+      boardClassification: {
+        primaryOnetSocCode: '13-1111.00',
+        secondaryOnetSocCodes: ['13-1161.00'],
+      },
+    });
+    expect(dbaBridge).toMatchObject({
+      occupationTitle: 'Database Administrator',
+      onetCodePrefixes: ['15-1242', '15-1245', '15-1243'],
+      boardClassification: {
+        primaryOnetSocCode: '15-1245.00',
+        secondaryOnetSocCodes: ['15-1243.00'],
+      },
+    });
+
+    const seedSource = readFileSync(
+      join(process.cwd(), 'prisma/seed-onet-career.ts'),
+      'utf8',
+    );
+    expect(seedSource).toContain('DBA_ALIGNMENT.operational.primaryOnetSocCode');
+    expect(seedSource).toContain('OBSOLETE_REVISED_PROGRAM_MAPPINGS');
+    expect(seedSource).toContain('careerProgramMapping.deleteMany');
+  });
+
+  it('keeps verified syllabus Coursera slugs launchable from My Program', () => {
+    const programPage = readFileSync(
+      join(process.cwd(), 'app/(portal)/dashboard/program/page.tsx'),
+      'utf8',
+    );
+    expect(programPage).toContain('...program.courses');
+    expect(programPage).toContain("Boolean(course.courseraSlug?.trim())");
+    expect(programPage).toContain('/api/member/coursera/launch?course=');
   });
 
   it('renders syllabus facts and removes the generic course placeholder', () => {

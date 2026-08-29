@@ -13,8 +13,12 @@ import {
   normalizeYesNo,
 } from './eligibilityExtendedFields';
 import {
+  ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES,
+  ADMIN_REFERRAL_SOURCE_OPTIONS,
   REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
   REFERRAL_SOURCE_OTHER_PARTNER,
+  normalizedReferralSourceKey,
+  uniqueReferralSourceOptions,
 } from '../referralSources';
 
 const PREEXISTING_HEAR_ABOUT_OPTIONS = [
@@ -69,6 +73,39 @@ test('hear-about dropdown preserves every existing choice and adds new choices o
   );
   assert.equal(APPLY_HEAR_ABOUT_OPTIONS.length, PREEXISTING_HEAR_ABOUT_OPTIONS.length + 2);
   assert.equal(new Set(APPLY_HEAR_ABOUT_OPTIONS).size, APPLY_HEAR_ABOUT_OPTIONS.length);
+});
+
+test('admin referral dropdown removes normalized duplicates but accepts historical values', () => {
+  const normalizedOptions = ADMIN_REFERRAL_SOURCE_OPTIONS.map(normalizedReferralSourceKey);
+  assert.equal(new Set(normalizedOptions).size, normalizedOptions.length);
+
+  assert.ok(ADMIN_REFERRAL_SOURCE_OPTIONS.includes(REFERRAL_SOURCE_OTHER_PARTNER));
+  assert.ok(ADMIN_REFERRAL_SOURCE_OPTIONS.includes(REFERRAL_SOURCE_COMMUNITY_AMBASSADOR));
+  assert.ok(!ADMIN_REFERRAL_SOURCE_OPTIONS.includes('WorkforceAP Counselor'));
+  assert.ok(!ADMIN_REFERRAL_SOURCE_OPTIONS.includes('Church'));
+  assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('WorkforceAP Counselor'));
+  assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('Church'));
+  assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('Workforce Solutions'));
+  assert.ok(ADMIN_REFERRAL_SOURCE_OPTIONS.includes('Workforce Solutions'));
+
+  for (const historicalValue of ['Community Organization', 'Flyer or Brochure', 'Social Media']) {
+    assert.ok((ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES as readonly string[]).includes(historicalValue));
+  }
+});
+
+test('public referral menu removes database/static duplicates without dropping new choices', () => {
+  const combined = uniqueReferralSourceOptions([
+    'Launch Pad Job Club',
+    ' launch   pad job club ',
+    'Purpose Works / Job Seekers Network',
+    'New Community Partner',
+  ]);
+
+  assert.deepEqual(combined, [
+    'Launch Pad Job Club',
+    'Purpose Works / Job Seekers Network',
+    'New Community Partner',
+  ]);
 });
 
 test('detects other + ambassador hear-about cases', () => {

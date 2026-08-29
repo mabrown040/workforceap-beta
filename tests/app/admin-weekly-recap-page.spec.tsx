@@ -24,6 +24,18 @@ vi.mock('@/lib/tenant/organization', () => ({
   getActorOrganizationId: vi.fn(),
 }));
 
+vi.mock('@/lib/tenant/adminPageScope', () => ({
+  resolveAdminPageTenant: vi.fn(),
+  withAdminPageScope: vi.fn(async (_scope: unknown, fn: (db: unknown) => Promise<unknown>) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return fn(prisma);
+  }),
+  inheritUserOrg: vi.fn(() => ({})),
+  inheritMemberOrg: vi.fn(() => ({})),
+  inheritLeaderOrg: vi.fn(() => ({})),
+  inheritInvitedByOrg: vi.fn(() => ({})),
+}));
+
 vi.mock('@/lib/admin/cohortAnalytics', () => ({
   getWeeklyRecapCohortStats: vi.fn(),
   getWeeklyScoreboardStats: vi.fn(),
@@ -48,9 +60,9 @@ vi.mock('@/components/portal/ui/DataTable', () => ({
 
 import AdminWeeklyRecapAnalyticsPage from '@/app/admin/weekly-recap/page';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getWeeklyRecapCohortStats } from '@/lib/admin/cohortAnalytics';
 import { prisma } from '@/lib/db/prisma';
+import { resolveAdminPageTenant } from '@/lib/tenant/adminPageScope';
 
 describe('AdminWeeklyRecapAnalyticsPage authorization', () => {
   beforeEach(() => {
@@ -64,24 +76,27 @@ describe('AdminWeeklyRecapAnalyticsPage authorization', () => {
       'REDIRECT:/login?redirectTo=/admin/weekly-recap',
     );
 
-    expect(isAdmin).not.toHaveBeenCalled();
+    expect(resolveAdminPageTenant).not.toHaveBeenCalled();
     expect(getWeeklyRecapCohortStats).not.toHaveBeenCalled();
   });
 
   it('redirects authenticated non-admins before loading analytics', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(resolveAdminPageTenant).mockResolvedValue({ ok: false });
 
     await expect(AdminWeeklyRecapAnalyticsPage({})).rejects.toThrow('REDIRECT:/dashboard');
 
-    expect(isAdmin).toHaveBeenCalledWith('user-1');
+    expect(resolveAdminPageTenant).toHaveBeenCalledWith('user-1');
     expect(getWeeklyRecapCohortStats).not.toHaveBeenCalled();
   });
 
   it('loads weekly recap analytics for admins', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+    vi.mocked(resolveAdminPageTenant).mockResolvedValue({
+      ok: true,
+      orgId: 'org-1',
+      superAdmin: true,
+    });
     vi.mocked(prisma.user.count).mockResolvedValue(0 as any);
     vi.mocked(prisma.placementRecord.count).mockResolvedValue(0 as any);
     vi.mocked(prisma.userCertification.count).mockResolvedValue(0 as any);

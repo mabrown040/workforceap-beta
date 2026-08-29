@@ -8,6 +8,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import PageHeader from '@/components/portal/PageHeader';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 
@@ -75,6 +76,10 @@ export default async function SessionRunPage({
     redirect('/dashboard');
   }
 
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
+    redirect('/counselor/students?error=not-assigned-to-member');
+  }
+
   const member = await prisma.user.findUnique({
     where: { id: memberId, deletedAt: null },
     select: {
@@ -87,23 +92,6 @@ export default async function SessionRunPage({
     },
   });
   if (!member) notFound();
-
-  // Counselor (not admin/super) must have an active assignment to this member
-  if (counselorRole && !adminRole && !superAdminRole) {
-    const counselor = await prisma.counselor.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-    const assignment = counselor
-      ? await prisma.counselorAssignment.findFirst({
-          where: { counselorId: counselor.id, memberId, active: true },
-          select: { id: true },
-        })
-      : null;
-    if (!assignment) {
-      redirect('/counselor/students?error=not-assigned-to-member');
-    }
-  }
 
   // Hydrate existing resume text if any (empty string for walk-ins).
   const existingResume = await getMemberResumePlainText(memberId, 8000, { preferOriginal: true });

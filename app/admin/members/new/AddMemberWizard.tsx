@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { formatPhone } from '@/lib/formatPhone';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
+import {
+  getResumeUploadFileError,
+  RESUME_UPLOAD_ACCEPT,
+  RESUME_UPLOAD_FORMAT_LABEL,
+} from '@/lib/portal/memberResumeUpload';
+import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
 import { User, BookOpen, FileText, CheckCircle, Handshake, Wallet } from 'lucide-react';
 
 const FUNDING_SOURCE_OPTIONS = [
@@ -90,12 +96,31 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
   const [resumeText, setResumeText] = useState('');
   const [enhancedResume, setEnhancedResume] = useState('');
   const [improvementSummary, setImprovementSummary] = useState<string[]>([]);
+  const [resumeWarning, setResumeWarning] = useState('');
+  const [contactSuggestions, setContactSuggestions] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+  } | null>(null);
   const [loading, setLoading] = useState<'parse' | 'enhance' | 'create' | null>(null);
   const [error, setError] = useState('');
+  const enhancementGenerationRef = useRef(0);
+
+  const invalidateEnhancedResume = () => {
+    enhancementGenerationRef.current += 1;
+    setEnhancedResume('');
+    setImprovementSummary([]);
+    setLoading((current) => current === 'enhance' ? null : current);
+  };
 
   const update = (k: keyof FormData, v: FormData[keyof FormData]) => {
     setForm((f) => ({ ...f, [k]: v }));
     setError('');
+  };
+
+  const selectProgram = (programSlug: string) => {
+    if (programSlug !== form.programSlug) invalidateEnhancedResume();
+    update('programSlug', programSlug);
   };
 
   const downloadResumeOriginal = () => {
@@ -130,6 +155,18 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
   };
 
   const handleFile = async (file: File) => {
+    invalidateEnhancedResume();
+    setResumeText('');
+    setResumeWarning('');
+    setContactSuggestions(null);
+
+    const validationError = getResumeUploadFileError(file);
+    if (validationError) {
+      setResumeFile(null);
+      setError(validationError);
+      return;
+    }
+
     setResumeFile(file);
     setError('');
     setLoading('parse');
@@ -137,24 +174,48 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       const fd = new FormData();
       fd.append('file', file);
       const res = await fetch('/api/ai/extract-resume-text', { method: 'POST', body: fd });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.text) {
         setResumeText(data.text);
-        const parseRes = await fetch('/api/admin/members/parse-resume', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ resume: data.text }),
-        });
-        const parseData = await parseRes.json();
-        if (parseRes.ok && parseData.extracted) {
-          const ex = parseData.extracted as Record<string, unknown>;
-          if (ex.extracted_name) update('firstName', (ex.extracted_name as string).split(' ')[0] || '');
-          if (ex.extracted_name) update('lastName', (ex.extracted_name as string).split(' ').slice(1).join(' ') || '');
-          if (ex.extracted_email) update('email', ex.extracted_email as string);
-          if (ex.extracted_phone) update('phone', ex.extracted_phone as string);
+        setResumeWarning(getResumeExtractionWarning(data.text) ?? '');
+        try {
+          const parseRes = await fetch('/api/admin/members/parse-resume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resume: data.text }),
+          });
+          const parseData = await parseRes.json().catch(() => ({}));
+          if (parseRes.ok && parseData.extracted) {
+            const ex = parseData.extracted as Record<string, unknown>;
+            setContactSuggestions({
+              name: typeof ex.extracted_name === 'string' ? ex.extracted_name : '',
+              email: typeof ex.extracted_email === 'string' ? ex.extracted_email : '',
+              phone: typeof ex.extracted_phone === 'string' ? ex.extracted_phone : '',
+            });
+          } else {
+            setResumeWarning((current) => [
+              current,
+              'Resume attached. Contact suggestions were unavailable; review member details manually.',
+            ].filter(Boolean).join(' '));
+          }
+        } catch {
+          setResumeWarning((current) => [
+            current,
+            'Resume attached. Contact suggestions were unavailable; review member details manually.',
+          ].filter(Boolean).join(' '));
         }
-      } else setError(data.error ?? 'Could not extract text');
+      } else {
+        setResumeFile(null);
+        setResumeText('');
+        setEnhancedResume('');
+        setImprovementSummary([]);
+        setError(data.error ?? 'Could not extract text');
+      }
     } catch {
+      setResumeFile(null);
+      setResumeText('');
+      setEnhancedResume('');
+      setImprovementSummary([]);
       setError('Upload failed');
     } finally {
       setLoading(null);
@@ -163,24 +224,34 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
 
   const handleEnhance = async () => {
     if (!resumeText || !form.programSlug) return;
+    const requestGeneration = enhancementGenerationRef.current + 1;
+    enhancementGenerationRef.current = requestGeneration;
+    const sourceResume = resumeText;
+    const sourceProgramSlug = form.programSlug;
+
+    setEnhancedResume('');
+    setImprovementSummary([]);
     setLoading('enhance');
     setError('');
     try {
-      const program = programs.find((p) => p.slug === form.programSlug);
+      const program = programs.find((p) => p.slug === sourceProgramSlug);
       const res = await fetch('/api/admin/members/enhance-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume: resumeText, programTitle: program?.title ?? form.programSlug }),
+        body: JSON.stringify({ resume: sourceResume, programTitle: program?.title ?? sourceProgramSlug }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (requestGeneration !== enhancementGenerationRef.current) return;
       if (res.ok) {
         setEnhancedResume(data.enhancedResume ?? '');
         setImprovementSummary(data.improvementSummary ?? []);
       } else setError(data.error ?? 'Enhancement failed');
     } catch {
-      setError('Enhancement failed');
+      if (requestGeneration === enhancementGenerationRef.current) setError('Enhancement failed');
     } finally {
-      setLoading(null);
+      if (requestGeneration === enhancementGenerationRef.current) {
+        setLoading((current) => current === 'enhance' ? null : current);
+      }
     }
   };
 
@@ -217,27 +288,61 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
         setLoading(null);
         return;
       }
-      const userId = data.userId;
-      if (userId && (resumeFile || enhancedResume)) {
-        const fd = new FormData();
-        if (resumeFile) fd.append('resumeOriginal', resumeFile);
-        if (enhancedResume) fd.append('resumeEnhanced', enhancedResume);
-        await fetch(`/api/admin/members/${userId}/upload-resume`, { method: 'POST', body: fd });
+      const userId = typeof data.userId === 'string' ? data.userId : '';
+      if (!userId) {
+        setError('The member may have been created, but the server did not return their profile link. Search Members before trying again to avoid a duplicate account.');
+        setLoading(null);
+        return;
       }
+
+      let resumeUploadError = '';
+      if (userId && (resumeFile || enhancedResume)) {
+        try {
+          const fd = new FormData();
+          if (resumeFile) fd.append('resumeOriginal', resumeFile);
+          if (enhancedResume) fd.append('resumeEnhanced', enhancedResume);
+          const uploadRes = await fetch(`/api/admin/members/${userId}/upload-resume`, { method: 'POST', body: fd });
+          if (!uploadRes.ok) {
+            const uploadData = await uploadRes.json().catch(() => ({}));
+            resumeUploadError = typeof uploadData.error === 'string'
+              ? uploadData.error
+              : 'Resume upload failed.';
+          }
+        } catch {
+          resumeUploadError = 'Resume upload failed because the server could not be reached.';
+        }
+      }
+
+      let fundingSetupError = '';
       if (userId && (form.fundingSource || form.workspaceEmail)) {
-        await fetch(`/api/admin/members/${userId}/enrollment-funding`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fundingSource: form.fundingSource || null,
-            fundingNotes: form.fundingNotes.trim() || null,
-            workspaceEmail: form.workspaceEmail.trim() || null,
-            workspaceEmailProvisioned: false,
-          }),
-        });
+        try {
+          const fundingRes = await fetch(`/api/admin/members/${userId}/enrollment-funding`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fundingSource: form.fundingSource || null,
+              fundingNotes: form.fundingNotes.trim() || null,
+              workspaceEmail: form.workspaceEmail.trim() || null,
+              workspaceEmailProvisioned: false,
+            }),
+          });
+          if (!fundingRes.ok) fundingSetupError = 'Funding or workspace setup did not finish.';
+        } catch {
+          fundingSetupError = 'Funding or workspace setup did not finish because the server could not be reached.';
+        }
       }
       const email = data.email ?? form.email;
-      router.push(`/admin/members/${userId}?toast=created&email=${encodeURIComponent(email)}`);
+      const welcomeEmailError = data.welcomeEmailSent === false
+        ? 'Welcome email could not be confirmed. Send a password reset from this member record.'
+        : '';
+      const params = new URLSearchParams({
+        toast: resumeUploadError || fundingSetupError || welcomeEmailError ? 'created-with-warnings' : 'created',
+        email,
+      });
+      if (resumeUploadError) params.set('resumeError', resumeUploadError.slice(0, 300));
+      if (fundingSetupError) params.set('setupError', fundingSetupError.slice(0, 300));
+      if (welcomeEmailError) params.set('welcomeError', welcomeEmailError);
+      router.push(`/admin/members/${userId}?${params.toString()}`);
       router.refresh();
     } catch {
       setError('Failed to create member');
@@ -248,7 +353,8 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
 
   const canProceedStep1 = form.firstName && form.email && form.employmentStatus && form.educationLevel &&
     form.usCitizen && form.authorizedToWork;
-  const canProceedStep2 = !!form.programSlug;
+  const selectedProgram = programs.find((program) => program.slug === form.programSlug);
+  const canProceedStep2 = Boolean(form.programSlug && !selectedProgram?.curriculumMigrationPending);
   const maxStep = 6;
 
   const stepLabels = [
@@ -402,16 +508,28 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
           <p className="wizard-desc">Select the program for this member.</p>
           <div className="wizard-program-grid">
             {programs.map((p) => (
-              <div
+              <button
+                type="button"
                 key={p.slug}
-                onClick={() => update('programSlug', p.slug)}
-                className={`wizard-program-card ${form.programSlug === p.slug ? 'selected' : ''}`}
+                onClick={() => selectProgram(p.slug)}
+                disabled={p.curriculumMigrationPending}
+                aria-describedby={p.curriculumMigrationPending ? `program-${p.slug}-status` : undefined}
+                className={`wizard-program-card ${form.programSlug === p.slug ? 'selected' : ''} ${p.curriculumMigrationPending ? 'disabled' : ''}`}
+                style={{ textAlign: 'left', width: '100%' }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.25rem' }}><ProgramIcon program={p} size={24} /></div>
                 <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{p.title}</h3>
                 <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{p.duration}</div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>{p.salary}</div>
-              </div>
+                {p.curriculumMigrationPending ? (
+                  <p
+                    id={`program-${p.slug}-status`}
+                    style={{ margin: '0.65rem 0 0', fontSize: '0.8rem', color: 'var(--color-error)', fontWeight: 700 }}
+                  >
+                    Enrollment temporarily paused while the revised Coursera curriculum mapping is verified. Existing members keep access.
+                  </p>
+                ) : null}
+              </button>
             ))}
           </div>
           <div className="wizard-field wizard-field-full">
@@ -477,22 +595,60 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
           <p className="wizard-desc">Optional. You can upload a resume later.</p>
           <div
             className={`counselor-resume-upload ${loading === 'parse' ? 'loading' : ''}`}
-            onClick={() => document.getElementById('wizard-resume-input')?.click()}
-            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
+            aria-busy={loading === 'parse' || loading === 'enhance'}
+            aria-disabled={loading !== null}
+            onClick={() => {
+              if (!loading) document.getElementById('wizard-resume-input')?.click();
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (loading) {
+                e.dataTransfer.dropEffect = 'none';
+                return;
+              }
+              e.currentTarget.classList.add('dragover');
+            }}
             onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
             onDrop={(e) => {
               e.preventDefault();
               e.currentTarget.classList.remove('dragover');
+              if (loading) return;
               const file = e.dataTransfer.files?.[0];
-              const ext = file?.name.split('.').pop()?.toLowerCase();
-              if (file && ['pdf', 'doc', 'docx', 'txt'].includes(ext || '')) {
-                void handleFile(file);
-              }
+              if (file) void handleFile(file);
             }}
           >
-            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
-            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, DOCX, or TXT here (max 5MB)<br />or click to browse</span>}
+            <input id="wizard-resume-input" type="file" accept={RESUME_UPLOAD_ACCEPT} onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
+            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop {RESUME_UPLOAD_FORMAT_LABEL} here (max 5MB)<br />or click to browse</span>}
           </div>
+          {resumeWarning && <p role="status" className="wizard-desc" style={{ marginTop: '0.5rem' }}>{resumeWarning}</p>}
+          {contactSuggestions && (contactSuggestions.name || contactSuggestions.email || contactSuggestions.phone) && (
+            <div className="wizard-improvement-summary" role="status">
+              <strong>Review contact suggestions from the resume:</strong>
+              <ul>
+                {contactSuggestions.name && <li>Name: {contactSuggestions.name}</li>}
+                {contactSuggestions.email && <li>Email: {contactSuggestions.email}</li>}
+                {contactSuggestions.phone && <li>Phone: {contactSuggestions.phone}</li>}
+              </ul>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  const parts = contactSuggestions.name.trim().split(/\s+/).filter(Boolean);
+                  setForm((current) => ({
+                    ...current,
+                    firstName: parts[0] || current.firstName,
+                    lastName: parts.slice(1).join(' ') || current.lastName,
+                    email: contactSuggestions.email || current.email,
+                    phone: contactSuggestions.phone || current.phone,
+                  }));
+                  setContactSuggestions(null);
+                  setResumeWarning('Contact suggestions applied. Review Step 1 before creating the member.');
+                }}
+              >
+                Apply reviewed suggestions
+              </button>
+            </div>
+          )}
           {!resumeFile && (
             <button type="button" className="wizard-skip-link" onClick={() => setStep(5)}>
               Skip — you can upload a resume later

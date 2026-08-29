@@ -19,16 +19,17 @@ set PLAYWRIGHT_PORTAL_PASSWORD=your-password
 npm run audit:member-pages
 ```
 
-**All portal surfaces (member + admin + employer + partner + counselor)** share path data in `scripts/lib/portal-audit-paths.mjs`:
+**All portal surfaces (member + admin + employer + partner + counselor)** use the hardened five-role harness. It requires a trusted target policy plus a distinct `E2E_<ROLE>_*` pair for every selected role:
 
 ```bash
-npm run audit:portal
-# Optional: one section only
+set PORTAL_AUDIT_MODE=local
+set PLAYWRIGHT_BASE_URL=http://localhost:3000
+# Optional locally: one section only
 set PORTAL_AUDIT_SECTION=admin
 npm run audit:portal
 ```
 
-Writes **`docs/portal-audit-results.json`**. See [`CROSS-PORTAL-AUDIT-PLAN.md`](./CROSS-PORTAL-AUDIT-PLAN.md).
+Writes a fresh success or failure artifact to **`test-results/portal-audit-results.json`**. See [`CROSS-PORTAL-AUDIT-PLAN.md`](./CROSS-PORTAL-AUDIT-PLAN.md).
 
 Playwright (same env vars; skips if unset):
 
@@ -54,7 +55,7 @@ npx playwright test tests/e2e/cross-portal-routes.spec.ts
 | `/resources/[id]` | `/dashboard/career-library/[id]` | Server `redirect()` |
 | `/certifications` | `/dashboard/certifications` | Server `redirect()` |
 | `/profile` | `/dashboard/profile` | Server `redirect()` |
-| `/dashboard/assessments` | `/dashboard/skills-assessment` | Server `redirect()` |
+| `/dashboard/assessments` | `/dashboard/assessment` | Server `redirect()` |
 | `/dashboard/settings` | `/dashboard/profile#settings` | Server `redirect()` |
 | `/dashboard/ai-tools/application-tracker` | `/dashboard/job-applications` | Server `redirect()` |
 

@@ -55,8 +55,14 @@ vi.mock('@/lib/email/escapeHtml', () => ({
 vi.mock('@/lib/messages/counselorThread', () => ({
   getOrCreateMemberCounselorThread: vi.fn(async (memberId: string) => ({ id: `thread-${memberId}`, memberId })),
 }));
+vi.mock('@/lib/member/getMemberState', () => ({
+  invalidateMemberState: vi.fn(),
+}));
 vi.mock('@/lib/content/programs', () => ({
   getProgramBySlug: vi.fn((slug: string) => (slug ? { title: slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) } : null)),
+  isCurriculumMigrationPending: vi.fn(() => false),
+  CURRICULUM_MIGRATION_PENDING_CODE: 'CURRICULUM_MIGRATION_PENDING',
+  CURRICULUM_MIGRATION_PENDING_MESSAGE: 'Training assignment paused.',
 }));
 vi.mock('@/lib/formatPhone', () => ({ formatPhone: vi.fn((p: string) => p) }));
 
@@ -67,6 +73,12 @@ vi.mock('@/lib/notifications/create', () => ({
 
 // ─── Prisma mock ───
 const mockTx = {
+  user: { updateMany: vi.fn() },
+  courseEnrollment: {
+    updateMany: vi.fn(),
+    upsert: vi.fn(),
+    deleteMany: vi.fn(),
+  },
   message: { create: vi.fn() },
   messageThread: { update: vi.fn() },
   counselorAssignment: {
@@ -99,6 +111,10 @@ vi.mock('@/lib/db/prisma', () => ({
     counselor: {
       findFirst: vi.fn(),
     },
+    organizationProgramCatalog: {
+      count: vi.fn(),
+      findFirst: vi.fn(),
+    },
     memberProgramProgress: {
       findMany: vi.fn(),
     },
@@ -122,6 +138,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getResend } from '@/lib/email';
 import { prisma } from '@/lib/db/prisma';
 import { createNotification } from '@/lib/notifications/create';
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 
 const uid = (n: number) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`;
 
@@ -133,7 +150,16 @@ const makeRequest = (body: unknown) =>
   });
 
 describe('Bulk operations', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockTx.user.updateMany.mockResolvedValue({ count: 1 });
+    mockTx.courseEnrollment.updateMany.mockResolvedValue({ count: 1 });
+    mockTx.courseEnrollment.upsert.mockResolvedValue({ id: 'enrollment-1' });
+    mockTx.courseEnrollment.deleteMany.mockResolvedValue({ count: 1 });
+    vi.mocked(invalidateMemberState).mockResolvedValue(undefined);
+    vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(0);
+    vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
+  });
 
   // ─── Bulk Email ───
   describe('POST /api/admin/members/bulk-email', () => {
@@ -274,6 +300,103 @@ describe('Bulk operations', () => {
       const body = await res.json();
       expect(body.updated).toBe(1);
       expect(body.total).toBe(1);
+      expect(invalidateMemberState).toHaveBeenCalledWith(uid(1));
+    });
+
+    it('keeps a successful bulk mutation successful when cache invalidation fails', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: null, pipelineBoardStage: 'applied' },
+      ] as any);
+      vi.mocked(invalidateMemberState).mockRejectedValue(new Error('Redis unavailable'));
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], pipelineStage: 'enrolled' }),
+      );
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.updated).toBe(1);
+      expect(body.errors).toEqual([]);
+      expect(body.warnings).toEqual([
+        'Alice: member updated, but cached portal data may take a few minutes to refresh.',
+      ]);
+    });
+
+    it('updates the user and primary CourseEnrollment in one transaction', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'old-program', pipelineBoardStage: 'enrolled' },
+      ] as any);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], programSlug: 'new-program' }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(mockTx.user.updateMany).toHaveBeenCalledWith({
+        where: { id: uid(1), organizationId: 'org-1', deletedAt: null },
+        data: expect.objectContaining({ enrolledProgram: 'new-program' }),
+      });
+      expect(mockTx.courseEnrollment.updateMany).toHaveBeenCalledWith({
+        where: {
+          organizationId: 'org-1',
+          userId: uid(1),
+          isPrimary: true,
+          programSlug: { not: 'new-program' },
+        },
+        data: { isPrimary: false },
+      });
+      expect(mockTx.courseEnrollment.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId_programSlug: { userId: uid(1), programSlug: 'new-program' } },
+          create: expect.objectContaining({ organizationId: 'org-1', userId: uid(1), isPrimary: true }),
+        }),
+      );
+      expect(prisma.user.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('preserves enrollment provenance when the active program is cleared', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'old-program', pipelineBoardStage: 'enrolled' },
+      ] as any);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], programSlug: null }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(mockTx.courseEnrollment.updateMany).toHaveBeenCalledWith({
+        where: { organizationId: 'org-1', userId: uid(1), isPrimary: true },
+        data: { isPrimary: false },
+      });
+      expect(mockTx.courseEnrollment.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('rejects a global program that is outside an explicit tenant catalog', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(2);
+      vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], programSlug: 'global-only-program' }),
+      );
+
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({
+        error: "Program is not available for this organization's catalog.",
+      });
+      expect(prisma.user.findMany).not.toHaveBeenCalled();
+      expect(mockTx.user.updateMany).not.toHaveBeenCalled();
     });
 
     it('validates counselor exists when assigning', async () => {
@@ -291,6 +414,58 @@ describe('Bulk operations', () => {
 
       expect(res.status).toBe(400);
       expect(await res.json()).toEqual({ error: 'Counselor not found or inactive' });
+    });
+
+    it('assigns a counselor in the same transaction when no program change is requested', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: null, pipelineBoardStage: null },
+      ] as any);
+      vi.mocked(prisma.counselor.findFirst).mockResolvedValue({
+        id: 'counselor-1',
+        user: { id: uid(88), fullName: 'Case Manager' },
+      } as any);
+      mockTx.counselorAssignment.findUnique.mockResolvedValue(null);
+      mockTx.counselorAssignment.create.mockResolvedValue({ id: 'assignment-1' });
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], counselorUserId: uid(88) }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(mockTx.user.updateMany).toHaveBeenCalledTimes(1);
+      expect(mockTx.courseEnrollment.updateMany).not.toHaveBeenCalled();
+      expect(mockTx.counselorAssignment.updateMany).toHaveBeenCalledWith({
+        where: { memberId: uid(1), active: true },
+        data: { active: false },
+      });
+      expect(mockTx.counselorAssignment.create).toHaveBeenCalledWith({
+        data: { counselorId: 'counselor-1', memberId: uid(1), active: true },
+      });
+    });
+
+    it('unassigns a counselor in the same transaction when no program change is requested', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: null, pipelineBoardStage: null },
+      ] as any);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], counselorUserId: null }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(mockTx.user.updateMany).toHaveBeenCalledTimes(1);
+      expect(mockTx.courseEnrollment.updateMany).not.toHaveBeenCalled();
+      expect(mockTx.counselorAssignment.updateMany).toHaveBeenCalledWith({
+        where: { memberId: uid(1), active: true },
+        data: { active: false },
+      });
+      expect(mockTx.counselorAssignment.create).not.toHaveBeenCalled();
     });
   });
 

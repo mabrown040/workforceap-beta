@@ -19,13 +19,13 @@ This plan coordinates **route coverage**, **automation**, **manual UX**, and **r
 
 | Surface | Static paths (automated) | Dynamic paths (manual / spot-check) |
 |---------|--------------------------|-------------------------------------|
-| Member | 41 | 4 patterns |
-| Admin | 33 | 9 patterns |
-| Employer | 12 | 2 patterns |
-| Partner | 12 | 2 patterns |
-| Counselor | 5 | 1 pattern |
+| Member | 53 | 6 patterns |
+| Admin | 74 | 16 patterns |
+| Employer | 16 | 5 patterns |
+| Partner | 10 | 1 pattern |
+| Counselor | 14 | 2 patterns |
 
-**Source of truth:** `scripts/lib/portal-audit-paths.mjs` — update when adding `page.tsx` routes.
+**Source of truth:** `scripts/lib/portal-audit-paths.mjs` — rendered pages belong in `STATIC_PATHS`; intentional redirect aliases belong in `REDIRECT_ONLY_PATHS` with their target and reason. Route discovery compares `app/**/page.tsx` against both manifests, but the browser never counts redirect-only aliases as rendered-page coverage.
 
 **Subagent verification (2026-04-08):** Parallel codebase walks confirmed admin JSON array and employer/partner/counselor path sets align with `app/admin` and `app/(portal)/{employer,partner,counselor}`.
 
@@ -35,15 +35,14 @@ This plan coordinates **route coverage**, **automation**, **manual UX**, and **r
 
 ### Phase A — Automated static route pass (required each release)
 
-1. Set environment variables (same pattern as Playwright e2e):
-   - `PLAYWRIGHT_BASE_URL` — e.g. `https://workforceap-beta.vercel.app` or `http://localhost:3000`
-   - `PLAYWRIGHT_MEMBER_EMAIL`
-   - `PLAYWRIGHT_PORTAL_PASSWORD`
-2. Run **`npm run audit:portal`** (all sections) or restrict with `PORTAL_AUDIT_SECTION=admin` (etc.).
-3. Inspect **`docs/portal-audit-results.json`**: any `stuckLogin: true` means that path bounced to login — investigate role gating vs middleware.
-4. Optional: **`npx playwright test tests/e2e/cross-portal-routes.spec.ts`** with the same env (skips if unset).
-
-**Account note:** A **super-admin** test user exercises every surface in one run. For **realistic** checks, repeat Phase A with **single-role** accounts (member-only, employer-only, …) and expect some rows to redirect or show access messaging — document those as expected.
+1. Use five distinct, single-purpose identity pairs: `E2E_<ROLE>_EMAIL` and `E2E_<ROLE>_PASSWORD` for member, admin, employer, partner, and counselor.
+2. Use one of the target policies:
+   - `isolated_preview`: `PLAYWRIGHT_BASE_URL` must exactly equal the origin in `PORTAL_AUDIT_TRUSTED_PREVIEW_ORIGIN`; this runs every rendered route at desktop and mobile widths.
+   - `production_canary`: the target must be exactly `https://workforceap.org` or `https://www.workforceap.org`; this runs only the five read-only portal roots at desktop width.
+   - `local`: only a loopback origin is accepted; `PORTAL_AUDIT_SECTION` may narrow the run while developing.
+3. Run **`npm run audit:portal`**. The target is validated before the credential file is read or Playwright starts.
+4. Inspect **`test-results/portal-audit-results.json`**. The artifact includes route results, actual authenticated-identity distinctness, and every allowed/denied access-matrix probe. A fresh failed/incomplete artifact is written before browser work starts.
+5. Optional: **`npx playwright test tests/e2e/cross-portal-routes.spec.ts`** with the same trusted-target and credential variables.
 
 ### Phase B — Dynamic routes (manual checklist)
 
@@ -63,10 +62,12 @@ Per surface, at **390px** and **1280px** width:
 
 Use [`PORTAL-PRE-PR-AUDIT.md`](./PORTAL-PRE-PR-AUDIT.md) for shell-specific checks.
 
-### Phase D — CI integration (optional)
+### Phase D — trusted manual workflow
 
-- Add a **scheduled** or **manual** workflow that sets GitHub secrets for `PLAYWRIGHT_*` and runs `npm run audit:portal` against staging.
-- Do **not** block PRs on full portal audit unless secrets and stable test users are guaranteed.
+- `.github/workflows/authenticated-portal-smoke.yml` exposes only the `isolated_preview` and `production_canary` choices; it has no arbitrary URL input.
+- The job runs only from the canonical repository's `master` ref and checks out trusted `master` before any credentialed browser step.
+- `PREVIEW_SITE_URL` is the exact isolated-preview origin. Never replace this with a broad `*.vercel.app` allow rule.
+- Artifact upload uses `if-no-files-found: error`; a missing result is a failed audit, not a warning.
 
 ---
 
@@ -74,8 +75,8 @@ Use [`PORTAL-PRE-PR-AUDIT.md`](./PORTAL-PRE-PR-AUDIT.md) for shell-specific chec
 
 | Command | Purpose |
 |---------|---------|
-| `npm run audit:portal` | All static paths, all sections → `docs/portal-audit-results.json` |
-| `PORTAL_AUDIT_SECTION=admin npm run audit:portal` | Admin only (PowerShell: `$env:PORTAL_AUDIT_SECTION='admin'; npm run audit:portal`) |
+| `npm run audit:portal` | Policy-selected routes plus access matrix → `test-results/portal-audit-results.json` |
+| `PORTAL_AUDIT_MODE=local PORTAL_AUDIT_SECTION=admin npm run audit:portal` | Local admin-only development run; remote policies require all five roles |
 | `npm run audit:member-pages` | Member only → `docs/member-pages-live-results.json` |
 | `npx playwright test tests/e2e/cross-portal-routes.spec.ts` | Same coverage as audit script, Playwright runner |
 
@@ -98,7 +99,7 @@ Use **parallel explore** subagents to:
 - [x] Member script refactored to reuse shared member paths
 - [x] Playwright: `tests/e2e/cross-portal-routes.spec.ts`
 - [x] Summary doc: `docs/CROSS-PORTAL-PAGES-AUDIT.md`
-- [ ] Run `npm run audit:portal` in CI or locally with secrets and commit `portal-audit-results.json` when stable
+- [x] Manual trusted-target workflow uploads the current result; generated run artifacts are never committed
 
 ---
 
@@ -106,4 +107,5 @@ Use **parallel explore** subagents to:
 
 | Date | Change |
 |------|--------|
+| 2026-08-29 | Hardened target trust, five-account isolation, negative role probes, redirect-only inventory, deterministic readiness, and current failure artifacts. |
 | 2026-04-08 | Initial cross-portal plan, unified audit runner, subagent route verification. |

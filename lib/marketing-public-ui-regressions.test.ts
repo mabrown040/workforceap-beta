@@ -37,3 +37,12 @@ test('closed mobile navigation backdrop is hidden from assistive technology', ()
   assert.match(backdrop, /aria-hidden=\{!mobileOpen\}/);
   assert.match(backdrop, /tabIndex=\{mobileOpen \? 0 : -1\}/);
 });
+
+test('localized signup opens root legal documents without Next prefetch requests', () => {
+  const signup = source('app/(auth)/signup/SignupForm.tsx');
+  const consentBlock = signup.slice(signup.indexOf('{/* Consent checkboxes */}'), signup.indexOf('{/* Error banner */}'));
+
+  assert.match(consentBlock, /<a href="\/terms" target="_blank" rel="noopener noreferrer"/);
+  assert.match(consentBlock, /<a href="\/privacy" target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(consentBlock, /<LocalizedLink href="\/(?:terms|privacy)"/);
+});

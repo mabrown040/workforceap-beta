@@ -83,29 +83,29 @@ describe('autoMatchOccupationToPrograms', () => {
 
   it('technology skills boost score', () => {
     const baseOcc = mockOcc({
-      title: 'Database Administrator',
-      description: 'Manage data systems',
-      skills: [{ skillName: 'SQL' }],
-      tasks: [{ taskText: 'Optimize queries' }],
+      title: 'Software Developer',
+      description: 'Build applications',
+      skills: [{ skillName: 'JavaScript' }],
+      tasks: [{ taskText: 'Develop production software' }],
     });
 
     const boostedOcc = mockOcc({
-      title: 'Database Administrator',
-      description: 'Manage data systems',
-      skills: [{ skillName: 'SQL' }],
-      tasks: [{ taskText: 'Optimize queries' }],
-      technologies: [{ technologyName: 'Tableau' }, { technologyName: 'Python' }],
+      title: 'Software Developer',
+      description: 'Build applications',
+      skills: [{ skillName: 'JavaScript' }],
+      tasks: [{ taskText: 'Develop production software' }],
+      technologies: [{ technologyName: 'React' }, { technologyName: 'Python' }],
     });
 
     const baseResults = autoMatchOccupationToPrograms(baseOcc, PROGRAMS);
     const boostedResults = autoMatchOccupationToPrograms(boostedOcc, PROGRAMS);
 
-    // Find the Data Analytics program in both result sets
+    // Find the AI and Software Developer program in both result sets.
     const baseData = baseResults.find(
-      (r) => r.programSlug === 'data-analytics-professional-certificate-google'
+      (r) => r.programSlug === 'software-developer-professional-certificate-ibm'
     );
     const boostedData = boostedResults.find(
-      (r) => r.programSlug === 'data-analytics-professional-certificate-google'
+      (r) => r.programSlug === 'software-developer-professional-certificate-ibm'
     );
 
     expect(baseData).toBeDefined();

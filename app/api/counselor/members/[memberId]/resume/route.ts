@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createHash } from 'node:crypto';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const BUCKET = 'member-resumes';
+
+function pathRevision(path: string): string {
+  return createHash('sha256').update(path).digest('hex').slice(0, 16);
+}
 
 function storageErrorMessage(error: { message?: string } | null, action: 'sign' | 'download'): string {
   const message = error?.message ?? '';
@@ -43,6 +49,10 @@ type Props = { params: Promise<{ memberId: string }> };export const GET = withAp
   
       const originalPath = profile?.resumeOriginalPath ?? null;
       const enhancedPath = profile?.resumeEnhancedPath ?? null;
+      if ((originalPath && !isResumeObjectPathOwnedByUser(memberId, originalPath))
+        || (enhancedPath && !isResumeObjectPathOwnedByUser(memberId, enhancedPath))) {
+        return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
+      }
   
       const supabase = getSupabaseAdmin();
       let originalUrl: string | null = null;
@@ -85,8 +95,12 @@ type Props = { params: Promise<{ memberId: string }> };export const GET = withAp
         enhancedText,
         originalExt: extOf(originalPath),
         enhancedExt: extOf(enhancedPath),
-        previewOriginalPath: originalPath ? `${base}/preview?variant=original` : null,
-        previewEnhancedPath: enhancedPath ? `${base}/preview?variant=enhanced` : null,
+        previewOriginalPath: originalPath
+          ? `${base}/preview?variant=original&v=${pathRevision(originalPath)}`
+          : null,
+        previewEnhancedPath: enhancedPath
+          ? `${base}/preview?variant=enhanced&v=${pathRevision(enhancedPath)}`
+          : null,
       });
     } catch (err) {
       console.error('[counselor/members/.../resume]', err);

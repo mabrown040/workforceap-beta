@@ -8,6 +8,7 @@ import { utcDateKey } from '@/lib/member/dailyStudyPoints';
 import { awardPoints } from '@/lib/member/points';
 import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
+import { resolveInboundProgramSlug } from '@/lib/xapi/resolveInboundProgram';
 import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/statements';
 import { markXapiStatementProcessed } from '@/lib/xapi/storage';
 
@@ -70,9 +71,18 @@ export async function handleInboundParsedStatement(
 
   const dbUser = await prisma.user.findUnique({
     where: { id: resolvedUser.userId },
-    select: { enrolledProgram: true, courseEnrollments: { select: { programSlug: true }, orderBy: { enrolledAt: 'desc' }, take: 1 } },
+    select: {
+      enrolledProgram: true,
+      courseEnrollments: {
+        where: options.organizationId ? { organizationId: options.organizationId } : undefined,
+        select: { programSlug: true, isPrimary: true },
+      },
+    },
   });
-  let enrolledProgram = dbUser?.courseEnrollments[0]?.programSlug ?? dbUser?.enrolledProgram ?? null;
+  let enrolledProgram = resolveInboundProgramSlug({
+    enrollments: dbUser?.courseEnrollments ?? [],
+    legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
+  });
 
   if (!enrolledProgram && (await isAdmin(resolvedUser.userId))) {
     enrolledProgram = await resolveStaffTrainingPreviewProgramSlug(resolvedUser.userId);

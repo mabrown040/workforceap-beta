@@ -13,7 +13,7 @@ vi.mock('next/server', () => ({
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
-    memberEvent: { groupBy: vi.fn() },
+    memberEvent: { create: vi.fn().mockResolvedValue({}) },
     user: { findMany: vi.fn() },
     // Shared 7-day nudge cooldown (lib/cron/nudgeThrottle.ts): empty log ⇒
     // every candidate stays eligible, matching these tests' expectations.
@@ -54,6 +54,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
 
 describe('GET /api/cron/inactive-nudge', () => {
   beforeEach(() => {
@@ -61,10 +62,6 @@ describe('GET /api/cron/inactive-nudge', () => {
   });
 
   it('sends nudges to inactive eligible members and excludes recently active', async () => {
-    (prisma.memberEvent.groupBy as any).mockResolvedValue([
-      { userId: 'active-1' },
-      { userId: 'active-2' },
-    ]);
     (prisma.user.findMany as any).mockResolvedValue([
       { id: 'inactive-1', email: 'a@example.com', fullName: 'A' },
       { id: 'inactive-2', email: 'b@example.com', fullName: 'B' },
@@ -75,19 +72,30 @@ describe('GET /api/cron/inactive-nudge', () => {
     const json = await res.json();
 
     expect(json.ok).toBe(true);
-    expect(json.recentlyActiveCount).toBe(2);
+    expect(json.candidateCount).toBe(2);
+    expect(json.eligibleCount).toBe(2);
     expect(json.inactiveEmailsSent).toBe(2);
     expect(sendInactiveNudgeEmail).toHaveBeenCalledTimes(2);
 
     const findManyArgs = (prisma.user.findMany as any).mock.calls[0][0];
     expect(findManyArgs.where.notificationsReminders).toBe(true);
     expect(findManyArgs.where.deletedAt).toBeNull();
-    expect(findManyArgs.where.id.notIn).toEqual(expect.arrayContaining(['active-1', 'active-2']));
-    expect(findManyArgs.take).toBe(1000);
+    expect(findManyArgs.where.AND).toEqual([
+      { memberEvents: { none: { createdAt: { gte: expect.any(Date) } } } },
+      {
+        memberEvents: {
+          none: {
+            eventName: 'inactive_nudge_sent',
+            createdAt: { gte: expect.any(Date) },
+          },
+        },
+      },
+    ]);
+    expect(findManyArgs.take).toBe(CRON_NUDGE_CANDIDATE_CAP);
+    expect(prisma.memberEvent.create).toHaveBeenCalledTimes(2);
   });
 
   it('counts only successful sends', async () => {
-    (prisma.memberEvent.groupBy as any).mockResolvedValue([]);
     (prisma.user.findMany as any).mockResolvedValue([
       { id: '1', email: 'a@x.com', fullName: 'A' },
       { id: '2', email: 'b@x.com', fullName: 'B' },
@@ -105,7 +113,6 @@ describe('GET /api/cron/inactive-nudge', () => {
   });
 
   it('continues when sendInactiveNudgeEmail throws', async () => {
-    (prisma.memberEvent.groupBy as any).mockResolvedValue([]);
     (prisma.user.findMany as any).mockResolvedValue([
       { id: '1', email: 'a@x.com', fullName: 'A' },
       { id: '2', email: 'b@x.com', fullName: 'B' },
@@ -121,7 +128,6 @@ describe('GET /api/cron/inactive-nudge', () => {
   });
 
   it('logs run results', async () => {
-    (prisma.memberEvent.groupBy as any).mockResolvedValue([]);
     (prisma.user.findMany as any).mockResolvedValue([]);
 
     await GET(new Request('http://localhost/api/cron/inactive-nudge'));

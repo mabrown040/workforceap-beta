@@ -1,4 +1,22 @@
 import type { PrismaClient } from '@prisma/client';
+import { REVISED_PROGRAM_OCCUPATION_ALIGNMENT } from '../lib/content/programOccupationAlignment';
+
+const MANAGEMENT_ALIGNMENT = REVISED_PROGRAM_OCCUPATION_ALIGNMENT.managementAnalyst;
+const DBA_ALIGNMENT = REVISED_PROGRAM_OCCUPATION_ALIGNMENT.databaseAdministrator;
+
+/**
+ * Exact seed-owned mappings superseded by the amended board submissions.
+ * Scope every deletion by both stable program slug and code so a seed cannot
+ * remove mappings belonging to another program or unrelated admin curation.
+ */
+export const OBSOLETE_REVISED_PROGRAM_MAPPINGS = [
+  { programSlug: MANAGEMENT_ALIGNMENT.programSlug, onetCode: '15-1221.00' },
+  { programSlug: MANAGEMENT_ALIGNMENT.programSlug, onetCode: '15-2051.00' },
+  { programSlug: DBA_ALIGNMENT.programSlug, onetCode: '15-1221.00' },
+  { programSlug: DBA_ALIGNMENT.programSlug, onetCode: '15-2051.00' },
+  // 15-1245.00 remains in board metadata, but current O*NET uses 15-1242.00.
+  { programSlug: DBA_ALIGNMENT.programSlug, onetCode: '15-1245.00' },
+] as const;
 
 /**
  * Comprehensive O*NET occupation + program mapping seed data.
@@ -57,12 +75,12 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       description: 'Analyze data processing problems and develop solutions using computer systems and procedures.',
     },
     {
-      code: '15-1242.00',
+      code: DBA_ALIGNMENT.operational.primaryOnetSocCode,
       title: 'Database Administrators',
       description: 'Administer, secure, back up, and tune relational databases so organizational data stays available, reliable, and performant.',
     },
     {
-      code: '15-1243.00',
+      code: DBA_ALIGNMENT.operational.secondaryOnetSocCodes[0],
       title: 'Database Architects',
       description: 'Design and build data structures and database systems, planning how data is stored, integrated, and accessed across an organization.',
     },
@@ -289,68 +307,36 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       whyRecommended: 'Builds DevOps and automation skills for systems engineering roles.',
     },
 
-    // ── Data Analytics (Google) ──
+    // ── Management Analyst & Business Intelligence ──
     {
-      onetCode: '15-1221.00',
-      programSlug: 'data-analytics-professional-certificate-google',
-      priority: 1,
-      experienceBand: 'beginner',
-      recommendationType: 'primary',
-      whyRecommended: 'Teaches SQL, spreadsheets, R, and Tableau — core business analyst skills.',
-    },
-    {
-      onetCode: '15-2051.00',
-      programSlug: 'data-analytics-professional-certificate-google',
-      priority: 2,
-      experienceBand: 'some_experience',
-      recommendationType: 'bridge',
-      whyRecommended: 'Provides data analysis and visualization foundation for data science growth.',
-    },
-    {
-      onetCode: '13-1111.00',
-      programSlug: 'data-analytics-professional-certificate-google',
+      onetCode: MANAGEMENT_ALIGNMENT.operational.primaryOnetSocCode,
+      programSlug: MANAGEMENT_ALIGNMENT.programSlug,
       priority: 1,
       experienceBand: 'beginner',
       recommendationType: 'primary',
       whyRecommended: 'Management consulting and business analysis coursework maps directly to entry-level management analyst roles.',
     },
     {
-      onetCode: '13-1161.00',
-      programSlug: 'data-analytics-professional-certificate-google',
+      onetCode: MANAGEMENT_ALIGNMENT.operational.secondaryOnetSocCodes[0],
+      programSlug: MANAGEMENT_ALIGNMENT.programSlug,
       priority: 2,
       experienceBand: 'some_experience',
       recommendationType: 'bridge',
       whyRecommended: 'Data collection, cleaning, analysis, and visualization skills transfer directly to market research analysis.',
     },
 
-    // ── Data Science (IBM) ──
+    // ── Database Administrator (IBM) ──
     {
-      onetCode: '15-2051.00',
-      programSlug: 'data-science-professional-certificate-ibm',
-      priority: 1,
-      experienceBand: 'some_experience',
-      recommendationType: 'primary',
-      whyRecommended: 'Covers Python, SQL, machine learning, and Jupyter — directly aligned with data science roles.',
-    },
-    {
-      onetCode: '15-1221.00',
-      programSlug: 'data-science-professional-certificate-ibm',
-      priority: 2,
-      experienceBand: 'experienced',
-      recommendationType: 'bridge',
-      whyRecommended: 'Data analysis and machine learning skills applicable to analyst roles.',
-    },
-    {
-      onetCode: '15-1242.00',
-      programSlug: 'data-science-professional-certificate-ibm',
+      onetCode: DBA_ALIGNMENT.operational.primaryOnetSocCode,
+      programSlug: DBA_ALIGNMENT.programSlug,
       priority: 1,
       experienceBand: 'some_experience',
       recommendationType: 'primary',
       whyRecommended: 'The DBA track covers access control, backup and recovery, monitoring, and performance tuning across MySQL, PostgreSQL, and IBM Db2 — core database administrator skills.',
     },
     {
-      onetCode: '15-1243.00',
-      programSlug: 'data-science-professional-certificate-ibm',
+      onetCode: DBA_ALIGNMENT.operational.secondaryOnetSocCodes[0],
+      programSlug: DBA_ALIGNMENT.programSlug,
       priority: 2,
       experienceBand: 'experienced',
       recommendationType: 'stretch',
@@ -580,38 +566,49 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
     },
   ];
 
-  for (const m of mappings) {
-    const existing = await prisma.careerProgramMapping.findFirst({
+  await prisma.$transaction(async (tx) => {
+    await tx.careerProgramMapping.deleteMany({
       where: {
-        onetCode: m.onetCode,
-        programSlug: m.programSlug,
-        experienceBand: m.experienceBand,
+        OR: OBSOLETE_REVISED_PROGRAM_MAPPINGS.map(({ programSlug, onetCode }) => ({
+          programSlug,
+          onetCode,
+        })),
       },
     });
-    if (existing) {
-      await prisma.careerProgramMapping.update({
-        where: { id: existing.id },
-        data: {
-          priority: m.priority,
-          recommendationType: m.recommendationType,
-          whyRecommended: m.whyRecommended,
-          isActive: true,
-        },
-      });
-    } else {
-      await prisma.careerProgramMapping.create({
-        data: {
+
+    for (const m of mappings) {
+      const existing = await tx.careerProgramMapping.findFirst({
+        where: {
           onetCode: m.onetCode,
           programSlug: m.programSlug,
-          priority: m.priority,
           experienceBand: m.experienceBand,
-          recommendationType: m.recommendationType,
-          whyRecommended: m.whyRecommended,
-          isActive: true,
         },
       });
+      if (existing) {
+        await tx.careerProgramMapping.update({
+          where: { id: existing.id },
+          data: {
+            priority: m.priority,
+            recommendationType: m.recommendationType,
+            whyRecommended: m.whyRecommended,
+            isActive: true,
+          },
+        });
+      } else {
+        await tx.careerProgramMapping.create({
+          data: {
+            onetCode: m.onetCode,
+            programSlug: m.programSlug,
+            priority: m.priority,
+            experienceBand: m.experienceBand,
+            recommendationType: m.recommendationType,
+            whyRecommended: m.whyRecommended,
+            isActive: true,
+          },
+        });
+      }
     }
-  }
+  });
 
   // ─── Quiz boost rules ──────────────────────────────────────────
   const quizRules: {

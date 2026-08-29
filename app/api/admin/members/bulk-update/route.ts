@@ -8,11 +8,13 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 import type { PipelineBoardStage, MemberStatus } from '@prisma/client';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import {
   CURRICULUM_MIGRATION_PENDING_CODE,
   CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  getProgramBySlug,
   isCurriculumMigrationPending,
 } from '@/lib/content/programs';
 
@@ -63,6 +65,26 @@ async function _POST(request: NextRequest) {
         { status: 409 },
       );
     }
+    if (programSlug && !getProgramBySlug(programSlug)) {
+      return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+    }
+    if (programSlug) {
+      const [catalogSize, catalogEntry] = await withTenantScope(orgId, (db) =>
+        Promise.all([
+          db.organizationProgramCatalog.count(),
+          db.organizationProgramCatalog.findFirst({
+            where: { programSlug },
+            select: { programSlug: true },
+          }),
+        ]),
+      );
+      if (catalogSize > 0 && !catalogEntry) {
+        return NextResponse.json(
+          { error: "Program is not available for this organization's catalog." },
+          { status: 400 },
+        );
+      }
+    }
 
     // Fetch members within tenant scope
     const members = await withTenantScope(orgId, (db) =>
@@ -105,6 +127,7 @@ async function _POST(request: NextRequest) {
 
     let updatedCount = 0;
     const errors: string[] = [];
+    const warnings: string[] = [];
 
     for (const member of members) {
       try {
@@ -113,6 +136,7 @@ async function _POST(request: NextRequest) {
           memberStatus?: MemberStatus | null;
           enrolledProgram?: string | null;
           enrolledAt?: Date | null;
+          programChangedAt?: Date;
           updatedAt?: Date;
         } = {};
 
@@ -124,40 +148,72 @@ async function _POST(request: NextRequest) {
         }
         if (programSlug !== undefined) {
           updates.enrolledProgram = programSlug;
-          if (programSlug && !member.enrolledProgram) {
-            updates.enrolledAt = new Date();
-          }
+          updates.programChangedAt = new Date();
+          updates.enrolledAt = programSlug ? new Date() : null;
         }
         updates.updatedAt = new Date();
 
-        await withTenantScope(orgId, (db) =>
-          db.user.updateMany({
-            where: { id: member.id },
+        await prisma.$transaction(async (tx) => {
+          const updated = await tx.user.updateMany({
+            where: { id: member.id, organizationId: orgId, deletedAt: null },
             data: updates,
-          }),
-        );
+          });
+          if (updated.count !== 1) {
+            throw new Error('Member is no longer available in this organization.');
+          }
 
-        // Handle counselor assignment
-        if (counselorUserId !== undefined) {
-          if (counselorUserId === null) {
-            // Unassign: deactivate all active assignments
-            await prisma.counselorAssignment.updateMany({
-              where: { memberId: member.id, active: true },
-              data: { active: false },
-            });
-            const thread = await getOrCreateMemberCounselorThread(member.id);
-            await prisma.messageThread.update({
-              where: { id: thread.id },
-              data: { counselorUserId: null },
-            });
-          } else if (counselor) {
-            const existingPair = await prisma.counselorAssignment.findUnique({
-              where: {
-                counselorId_memberId: { counselorId: counselor.id, memberId: member.id },
-              },
-            });
-
-            await prisma.$transaction(async (tx) => {
+          if (programSlug !== undefined) {
+            if (programSlug === null) {
+              // Preserve funding, sponsorship, workspace-email, and enrollment
+              // provenance. With the User mirror cleared and no primary row,
+              // dashboard and xAPI resolution treat these rows as historical.
+              await tx.courseEnrollment.updateMany({
+                where: { organizationId: orgId, userId: member.id, isPrimary: true },
+                data: { isPrimary: false },
+              });
+            } else {
+              const enrolledAt = updates.enrolledAt ?? new Date();
+              await tx.courseEnrollment.updateMany({
+                where: {
+                  organizationId: orgId,
+                  userId: member.id,
+                  isPrimary: true,
+                  programSlug: { not: programSlug },
+                },
+                data: { isPrimary: false },
+              });
+              await tx.courseEnrollment.upsert({
+                where: {
+                  userId_programSlug: { userId: member.id, programSlug },
+                },
+                create: {
+                  organizationId: orgId,
+                  userId: member.id,
+                  programSlug,
+                  isPrimary: true,
+                  enrolledAt,
+                  enrolledByAdminId: user.id,
+                },
+                update: {
+                  isPrimary: true,
+                  enrolledAt,
+                  enrolledByAdminId: user.id,
+                },
+              });
+            }
+          }
+          if (counselorUserId !== undefined) {
+            if (counselorUserId === null) {
+              await tx.counselorAssignment.updateMany({
+                where: { memberId: member.id, active: true },
+                data: { active: false },
+              });
+            } else if (counselor) {
+              const existingPair = await tx.counselorAssignment.findUnique({
+                where: {
+                  counselorId_memberId: { counselorId: counselor.id, memberId: member.id },
+                },
+              });
               await tx.counselorAssignment.updateMany({
                 where: { memberId: member.id, active: true },
                 data: { active: false },
@@ -176,17 +232,36 @@ async function _POST(request: NextRequest) {
                   },
                 });
               }
-            });
+            }
+          }
+        });
 
+        updatedCount++;
+
+        // Cache invalidation, thread routing, and audit writes are important
+        // post-commit work. Report a warning instead of lying to the UI that
+        // the already-committed member mutation failed.
+        try {
+          await invalidateMemberState(member.id);
+        } catch (cacheError) {
+          console.error(`[bulk-update] member-state cache invalidation failed for ${member.id}:`, cacheError);
+          warnings.push(`${member.fullName}: member updated, but cached portal data may take a few minutes to refresh.`);
+        }
+
+        if (counselorUserId !== undefined) {
+          try {
             const thread = await getOrCreateMemberCounselorThread(member.id);
             await prisma.messageThread.update({
               where: { id: thread.id },
-              data: { counselorUserId: counselor.user.id },
+              data: { counselorUserId: counselorUserId === null ? null : counselor?.user.id ?? null },
             });
+          } catch (threadError) {
+            console.error(`[bulk-update] counselor thread sync failed for ${member.id}:`, threadError);
+            warnings.push(`${member.fullName}: member updated, but counselor chat routing needs review.`);
           }
         }
 
-        await auditLog({
+        const auditResults = await Promise.allSettled([auditLog({
           actorUserId: user.id,
           action: 'bulk_update_member',
           targetType: 'user',
@@ -199,8 +274,7 @@ async function _POST(request: NextRequest) {
             previousProgram: member.enrolledProgram,
             previousStage: member.pipelineBoardStage,
           },
-        });
-        await logAuditEvent({
+        }), logAuditEvent({
           user: { id: user.id, role: 'admin' },
           verb: 'updated',
           object: { type: 'MemberBulkUpdate', id: member.id },
@@ -218,9 +292,11 @@ async function _POST(request: NextRequest) {
           },
           request: auditRequestMeta(request),
           orgId,
-        });
-
-        updatedCount++;
+        })]);
+        if (auditResults.some((result) => result.status === 'rejected')) {
+          console.error(`[bulk-update] audit follow-up failed for ${member.id}`);
+          warnings.push(`${member.fullName}: member updated, but audit follow-up needs review.`);
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         errors.push(`${member.fullName} (${member.email}): ${msg}`);
@@ -232,7 +308,8 @@ async function _POST(request: NextRequest) {
       updated: updatedCount,
       total: members.length,
       errors,
-    });
+      warnings,
+    }, { status: errors.length > 0 ? 207 : 200 });
   } catch (error) {
     console.error('/admin/members/bulk-update error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

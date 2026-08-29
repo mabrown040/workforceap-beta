@@ -4,13 +4,15 @@ import { prisma } from '@/lib/db/prisma';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import {
+  hasSubstantiveResumeText,
+  sanitizeResumePlainText,
+} from '@/lib/resume/extractionQuality';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const FILE_RESUME_MAX = 6000;
 const LIVE_DRAFT_MAX = 6000;
-/** Align with `getMemberResumePlainText` (substantive extract). Below this, treat as no usable resume text for voice branching. */
-const MIN_USABLE_RESUME_CHARS = 40;
 
 async function getResumeCoachDynamicVariables(
   userId: string,
@@ -28,15 +30,17 @@ async function getResumeCoachDynamicVariables(
       return {};
     }
 
-    const fileResume = (await getMemberResumePlainText(userId, FILE_RESUME_MAX)) ?? '';
-    const draft = opts.liveResumeDraft?.trim() ?? '';
+    const fileResume = sanitizeResumePlainText(
+      (await getMemberResumePlainText(userId, FILE_RESUME_MAX)) ?? '',
+    );
+    const draft = sanitizeResumePlainText(opts.liveResumeDraft ?? '');
 
     const resumeFileOnProfile = !!(
       dbUser.profile?.resumeOriginalPath || dbUser.profile?.resumeEnhancedPath
     );
 
-    const hasUsableFileText = fileResume.trim().length >= MIN_USABLE_RESUME_CHARS;
-    const hasUsableDraft = draft.length >= MIN_USABLE_RESUME_CHARS;
+    const hasUsableFileText = hasSubstantiveResumeText(fileResume);
+    const hasUsableDraft = hasSubstantiveResumeText(draft);
     const hasUsableResume = hasUsableFileText || hasUsableDraft;
 
     return {
@@ -69,10 +73,18 @@ async function getResumeCoachDynamicVariables(
   
     try {
       const dynamicVariables = await getResumeCoachDynamicVariables(user.id, { liveResumeDraft });
-      const { signedUrl, expiresAt } = await startElevenLabsPortalSession('resume_coach', {
+      const {
+        signedUrl,
+        expiresAt,
+        dynamicVariables: clampedDynamicVariables,
+      } = await startElevenLabsPortalSession('resume_coach', {
         dynamicVariables,
       });
-      return NextResponse.json({ signedUrl, expiresAt, dynamicVariables });
+      return NextResponse.json({
+        signedUrl,
+        expiresAt,
+        dynamicVariables: clampedDynamicVariables ?? {},
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       console.error('[member/resume-coach/session]', msg);

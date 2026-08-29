@@ -12,9 +12,11 @@ vi.mock('@/lib/db/optionalBuildDb', () => ({
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
+    $queryRaw: vi.fn(),
     user: {
       count: vi.fn(),
       findMany: vi.fn(),
+      groupBy: vi.fn(),
     },
     employer: {
       count: vi.fn(),
@@ -24,7 +26,10 @@ vi.mock('@/lib/db/prisma', () => ({
     },
     placementRecord: {
       count: vi.fn(),
-      findMany: vi.fn(),
+    },
+    memberProgramProgress: {
+      count: vi.fn(),
+      groupBy: vi.fn(),
     },
     courseProgress: {
       findMany: vi.fn(),
@@ -72,6 +77,68 @@ function makeEnrolledUser(overrides: {
     ],
     placementRecord: overrides.hasPlacement ? { id: `placement-${overrides.id}` } : null,
   };
+}
+
+type EnrolledUser = ReturnType<typeof makeEnrolledUser>;
+
+function mockImpactQueries(options: {
+  membersServed?: number;
+  enrolledUsers?: EnrolledUser[];
+  enrolledCount?: number;
+  placedAmongEnrolled?: number;
+  completedAmongEnrolled?: number;
+  employersPartnered?: number;
+  jobsPosted?: number;
+  hiresMade?: number;
+  avgSalaryIncreaseDollars?: number | null;
+  salaryIncreaseSampleSize?: number;
+  courseProgress?: Array<{ userId: string; programSlug: string; completedAt: Date }>;
+} = {}) {
+  const enrolledUsers = options.enrolledUsers ?? [];
+  const enrolledCount = options.enrolledCount ?? enrolledUsers.length;
+  const placedAmongEnrolled =
+    options.placedAmongEnrolled ?? enrolledUsers.filter((user) => user.placementRecord).length;
+  const completedAmongEnrolled =
+    options.completedAmongEnrolled ??
+    enrolledUsers.filter((user) => user.memberProgramProgress[0]?.averagePercent >= 100).length;
+
+  const enrolledBySlug = new Map<string, number>();
+  const completedBySlug = new Map<string, number>();
+  for (const user of enrolledUsers) {
+    enrolledBySlug.set(user.enrolledProgram, (enrolledBySlug.get(user.enrolledProgram) ?? 0) + 1);
+    if (user.memberProgramProgress[0]?.averagePercent >= 100) {
+      completedBySlug.set(user.enrolledProgram, (completedBySlug.get(user.enrolledProgram) ?? 0) + 1);
+    }
+  }
+
+  (prisma.user.count as any)
+    .mockResolvedValueOnce(options.membersServed ?? enrolledUsers.length)
+    .mockResolvedValueOnce(enrolledCount)
+    .mockResolvedValueOnce(placedAmongEnrolled);
+  (prisma.memberProgramProgress.count as any).mockResolvedValue(completedAmongEnrolled);
+  (prisma.user.findMany as any).mockResolvedValue(enrolledUsers);
+  (prisma.user.groupBy as any).mockResolvedValue(
+    [...enrolledBySlug].map(([enrolledProgram, count]) => ({
+      enrolledProgram,
+      _count: { _all: count },
+    })),
+  );
+  (prisma.memberProgramProgress.groupBy as any).mockResolvedValue(
+    [...completedBySlug].map(([programSlug, count]) => ({
+      programSlug,
+      _count: { _all: count },
+    })),
+  );
+  (prisma.employer.count as any).mockResolvedValue(options.employersPartnered ?? 0);
+  (prisma.job.count as any).mockResolvedValue(options.jobsPosted ?? 0);
+  (prisma.placementRecord.count as any).mockResolvedValue(options.hiresMade ?? placedAmongEnrolled);
+  (prisma.$queryRaw as any).mockResolvedValue([
+    {
+      avg_delta: options.avgSalaryIncreaseDollars ?? null,
+      n: options.salaryIncreaseSampleSize ?? 0,
+    },
+  ]);
+  (prisma.courseProgress.findMany as any).mockResolvedValue(options.courseProgress ?? []);
 }
 
 describe('Impact Page — getPublicImpactStats', () => {
@@ -171,13 +238,7 @@ describe('Impact Page — getPublicImpactStats', () => {
 
   describe('live stats shape', () => {
     it('returns all expected public impact stat fields', async () => {
-      (prisma.user.count as any).mockResolvedValue(10);
-      (prisma.user.findMany as any).mockResolvedValue([]);
-      (prisma.employer.count as any).mockResolvedValue(5);
-      (prisma.job.count as any).mockResolvedValue(20);
-      (prisma.placementRecord.count as any).mockResolvedValue(3);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({ membersServed: 10, employersPartnered: 5, jobsPosted: 20, hiresMade: 3 });
 
       const stats = await getPublicImpactStats(ORG_ID);
 
@@ -202,16 +263,15 @@ describe('Impact Page — getPublicImpactStats', () => {
         makeEnrolledUser({ id: 'u3', programSlug: 'it-support-professional-certificate-ibm', avgPercent: 50, coursesCompleted: 3, hasPlacement: false }),
       ];
 
-      (prisma.user.count as any).mockResolvedValue(5); // 2 non-enrolled + 3 enrolled
-      (prisma.user.findMany as any).mockResolvedValue(enrolled);
-      (prisma.employer.count as any).mockResolvedValue(4);
-      (prisma.job.count as any).mockResolvedValue(12);
-      (prisma.placementRecord.count as any).mockResolvedValue(2);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([
-        { salaryOffered: 40000, wageAtFollowUp: 55000 },
-        { salaryOffered: 50000, wageAtFollowUp: 65000 },
-      ]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({
+        membersServed: 5, // 2 non-enrolled + 3 enrolled
+        enrolledUsers: enrolled,
+        employersPartnered: 4,
+        jobsPosted: 12,
+        hiresMade: 2,
+        avgSalaryIncreaseDollars: 15000,
+        salaryIncreaseSampleSize: 2,
+      });
 
       const stats = await getPublicImpactStats(ORG_ID);
 
@@ -228,13 +288,7 @@ describe('Impact Page — getPublicImpactStats', () => {
 
   describe('data accuracy', () => {
     it('membersServed matches prisma.user.count with member-only filter', async () => {
-      (prisma.user.count as any).mockResolvedValue(42);
-      (prisma.user.findMany as any).mockResolvedValue([]);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({ membersServed: 42 });
 
       const stats = await getPublicImpactStats(ORG_ID);
       expect(stats.membersServed).toBe(42);
@@ -254,13 +308,7 @@ describe('Impact Page — getPublicImpactStats', () => {
         makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: false }),
       ];
 
-      (prisma.user.count as any).mockResolvedValue(2);
-      (prisma.user.findMany as any).mockResolvedValue(enrolled);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(1);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({ membersServed: 2, enrolledUsers: enrolled, hiresMade: 1 });
 
       const stats = await getPublicImpactStats(ORG_ID);
       expect(stats.hiresMade).toBe(1);
@@ -272,17 +320,13 @@ describe('Impact Page — getPublicImpactStats', () => {
         makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
       ];
 
-      (prisma.user.count as any).mockResolvedValue(1);
-      (prisma.user.findMany as any).mockResolvedValue(enrolled);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(1);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([
-        { salaryOffered: 38000, wageAtFollowUp: 52000 },
-        { salaryOffered: 45000, wageAtFollowUp: 60000 },
-        { salaryOffered: 50000, wageAtFollowUp: 50000 }, // zero increase
-      ]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({
+        membersServed: 1,
+        enrolledUsers: enrolled,
+        hiresMade: 1,
+        avgSalaryIncreaseDollars: (14000 + 15000 + 0) / 3,
+        salaryIncreaseSampleSize: 3,
+      });
 
       const stats = await getPublicImpactStats(ORG_ID);
       // (14000 + 15000 + 0) / 3 = 9666.666...
@@ -298,13 +342,7 @@ describe('Impact Page — getPublicImpactStats', () => {
         makeEnrolledUser({ id: 'u4', programSlug: 'it-support-professional-certificate-ibm', avgPercent: 100, coursesCompleted: 7, hasPlacement: false }),
       ];
 
-      (prisma.user.count as any).mockResolvedValue(4);
-      (prisma.user.findMany as any).mockResolvedValue(enrolled);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({ membersServed: 4, enrolledUsers: enrolled });
 
       const stats = await getPublicImpactStats(ORG_ID);
 
@@ -321,13 +359,7 @@ describe('Impact Page — getPublicImpactStats', () => {
     });
 
     it('completion rate is 0 when no enrolled members', async () => {
-      (prisma.user.count as any).mockResolvedValue(0);
-      (prisma.user.findMany as any).mockResolvedValue([]);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries();
 
       const stats = await getPublicImpactStats(ORG_ID);
       expect(stats.completionRatePct).toBe(0);
@@ -368,13 +400,7 @@ describe('Impact Page — getPublicImpactStats', () => {
 
     it('handles members with no enrolled program', async () => {
       // user.count returns all active members; findMany filters to enrolled only
-      (prisma.user.count as any).mockResolvedValue(1);
-      (prisma.user.findMany as any).mockResolvedValue([]);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({ membersServed: 1 });
 
       const stats = await getPublicImpactStats(ORG_ID);
       expect(stats.membersServed).toBe(1);
@@ -388,13 +414,7 @@ describe('Impact Page — getPublicImpactStats', () => {
         makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
       ];
 
-      (prisma.user.count as any).mockResolvedValue(1);
-      (prisma.user.findMany as any).mockResolvedValue(enrolled);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(1);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([]);
+      mockImpactQueries({ membersServed: 1, enrolledUsers: enrolled, hiresMade: 1 });
 
       const stats = await getPublicImpactStats(ORG_ID);
       expect(stats.avgSalaryIncreaseDollars).toBeNull();
@@ -417,15 +437,13 @@ describe('Impact Page — getPublicImpactStats', () => {
         }),
       ];
 
-      (prisma.user.count as any).mockResolvedValue(1);
-      (prisma.user.findMany as any).mockResolvedValue(enrolled);
-      (prisma.employer.count as any).mockResolvedValue(0);
-      (prisma.job.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.count as any).mockResolvedValue(0);
-      (prisma.placementRecord.findMany as any).mockResolvedValue([]);
-      (prisma.courseProgress.findMany as any).mockResolvedValue([
-        { userId: 'u1', programSlug: 'digital-literacy-empowerment-class', completedAt },
-      ]);
+      mockImpactQueries({
+        membersServed: 1,
+        enrolledUsers: enrolled,
+        courseProgress: [
+          { userId: 'u1', programSlug: 'digital-literacy-empowerment-class', completedAt },
+        ],
+      });
 
       const stats = await getPublicImpactStats(ORG_ID);
       const program = stats.programs.find((p) => p.programSlug === 'digital-literacy-empowerment-class');

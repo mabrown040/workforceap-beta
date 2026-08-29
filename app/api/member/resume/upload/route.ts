@@ -1,23 +1,35 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { validateFileType } from '@/lib/resume/file-validation';
-import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
-import { RESUME_TEXT_UPLOAD_ERROR } from '@/lib/resume/extractionQuality';
+import {
+  prepareResumeUpload,
+  ResumeUploadValidationError,
+} from '@/lib/resume/prepareResumeUpload';
+import {
+  AtomicResumeObjectSwapError,
+  replaceResumeObjectsAtomically,
+} from '@/lib/resume/atomicResumeObjectSwap';
+import {
+  isResumeProfileConflict,
+  swapResumeProfilePathsWithCas,
+} from '@/lib/resume/resumeProfileStorage';
 import { awardPoints } from '@/lib/member/points';
-import { Buffer } from 'node:buffer';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { checkResumeUploadRateLimit } from '@/lib/rate-limit';
 
 /** Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */
 const BUCKET = 'member-resumes';
-const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { success: withinUploadLimit } = await checkResumeUploadRateLimit(user.id);
+    if (!withinUploadLimit) {
+      return NextResponse.json({ error: 'Too many resume uploads. Please try again later.' }, { status: 429 });
+    }
 
     let formData: FormData;
     try {
@@ -31,53 +43,54 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
       return NextResponse.json({ error: 'Provide a file' }, { status: 400 });
     }
 
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
-    }
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
-      return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
-    }
-
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-
-    // Prove the new file is readable before the upsert. Failed extraction must
-    // not overwrite a member's prior valid resume with an unreadable container.
+    let prepared: Awaited<ReturnType<typeof prepareResumeUpload>>;
     try {
-      const extractedText = await extractTextFromResumeBuffer(buffer, ext);
-      if (!extractedText) {
-        return NextResponse.json({ error: RESUME_TEXT_UPLOAD_ERROR }, { status: 400 });
+      prepared = await prepareResumeUpload(file);
+    } catch (error) {
+      if (error instanceof ResumeUploadValidationError) {
+        return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
       }
-    } catch {
-      return NextResponse.json({ error: RESUME_TEXT_UPLOAD_ERROR }, { status: 400 });
+      throw error;
     }
 
-    const RESUME_MIME: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain' };
-    const path = `${user.id}/resume-original.${ext}`;
     const supabase = getSupabaseAdmin();
-
-    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
-      upsert: true,
-      contentType: RESUME_MIME[ext] ?? 'application/octet-stream',
-    });
-
-    if (error) {
-      console.error('Resume upload error:', error);
-      const m = error.message ?? '';
-      if (/not found|does not exist|Bucket/i.test(m)) {
-        return NextResponse.json({ error: 'Storage is not configured. Create the member-resumes bucket in Supabase (Storage).' }, { status: 500 });
+    const storage = supabase.storage.from(BUCKET);
+    let swapped: Awaited<ReturnType<typeof replaceResumeObjectsAtomically>>;
+    try {
+      swapped = await replaceResumeObjectsAtomically({
+        userId: user.id,
+        uploads: [{
+          field: 'resumeOriginalPath',
+          extension: prepared.extension,
+          contentType: prepared.contentType,
+          body: prepared.arrayBuffer,
+        }],
+        clearFields: ['resumeEnhancedPath'],
+        uploadObject: (path, body, options) => storage.upload(path, body, options),
+        removeObjects: (paths) => storage.remove(paths),
+        swapProfilePaths: (nextPaths) => swapResumeProfilePathsWithCas(user.id, nextPaths),
+        onCleanupError: (error, paths) => {
+          console.error('[member/resume/upload] object cleanup failed', { error, paths });
+        },
+      });
+    } catch (error) {
+      if (error instanceof AtomicResumeObjectSwapError && error.phase === 'upload') {
+        console.error('Resume upload error:', error.causeValue);
+        if (/not found|does not exist|Bucket/i.test(error.message)) {
+          return NextResponse.json({ error: 'Storage is not configured. Create the member-resumes bucket in Supabase (Storage).' }, { status: 500 });
+        }
+        return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
       }
-      return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
+      if (isResumeProfileConflict(error)) {
+        return NextResponse.json(
+          { error: 'Your resume changed in another session. Reload and try again.' },
+          { status: 409 },
+        );
+      }
+      throw error;
     }
-
-    await prisma.$transaction((tx) => tx.profile.upsert({
-      where: { userId: user.id },
-      create: { userId: user.id, resumeOriginalPath: path, role: 'member' },
-      update: { resumeOriginalPath: path },
-    }));
+    const path = swapped.paths.resumeOriginalPath;
+    if (!path) throw new Error('Resume profile swap did not return an original path');
 
     // Award points for first resume upload (idempotent — fixed entityId means
     // re-uploading the same or a new resume only awards once).
@@ -85,7 +98,12 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
 
     auditLog({ actorUserId: user.id, action: 'member.resume.upload', targetType: 'Resume', targetId: user.id }).catch(() => {});
     logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'Resume', id: user.id }, result: { success: true } }).catch(() => {});
-    return NextResponse.json({ ok: true, path });
+    return NextResponse.json({
+      ok: true,
+      path,
+      extractionWarning: prepared.extractionWarning,
+      enhancedInvalidated: Boolean(swapped.previousPaths.resumeEnhancedPath),
+    });
   } catch (e) {
     console.error('Resume upload route error:', e);
     const msg =

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { purgePendingResumeDrafts } from '@/lib/resume/pendingResumeDraft';
 
 type SignOutButtonProps = {
   className?: string;
@@ -16,7 +17,14 @@ export function SignOutButton({ className, children, onSignOutStart }: SignOutBu
 
   const handleSignOut = async () => {
     onSignOutStart?.();
-    await fetch('/api/auth/logout', { method: 'POST' });
+    const response = await fetch('/api/auth/logout', { method: 'POST' });
+    if (response.ok) {
+      try {
+        purgePendingResumeDrafts(sessionStorage);
+      } catch {
+        // Logout still succeeded; unavailable browser storage needs no retry.
+      }
+    }
     router.push('/');
     router.refresh();
   };

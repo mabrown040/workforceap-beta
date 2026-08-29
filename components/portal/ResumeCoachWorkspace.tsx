@@ -8,9 +8,58 @@ import GoogleDocsStyleResumeEditor from '@/components/portal/GoogleDocsStyleResu
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
 import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
-import { sanitizeResumePlainText } from '@/lib/resume/extractionQuality';
+import {
+  hasSubstantiveResumeText,
+  sanitizeResumePlainText,
+} from '@/lib/resume/extractionQuality';
+import {
+  PENDING_RESUME_DRAFT_KEY_PREFIX,
+  parsePendingResumeDraft,
+  serializePendingResumeDraft,
+} from '@/lib/resume/pendingResumeDraft';
 
 type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
+function pendingResumeDraftKey(ownerToken: string): string {
+  return `${PENDING_RESUME_DRAFT_KEY_PREFIX}${ownerToken}`;
+}
+
+function readPendingResumeDraft(ownerToken: string, resumeRevision: string) {
+  try {
+    const key = pendingResumeDraftKey(ownerToken);
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const draft = parsePendingResumeDraft(raw, ownerToken, resumeRevision);
+    if (!draft) sessionStorage.removeItem(key);
+    return draft;
+  } catch {
+    return null;
+  }
+}
+
+function writePendingResumeDraft(
+  text: string,
+  resumeRevision: string | null,
+  ownerToken: string | null,
+): void {
+  if (!resumeRevision || !ownerToken) return;
+  try {
+    sessionStorage.setItem(
+      pendingResumeDraftKey(ownerToken),
+      serializePendingResumeDraft({ text, resumeRevision, ownerToken }),
+    );
+  } catch {
+    // Ephemeral recovery is best-effort; the explicit Save button remains available.
+  }
+}
+
+function clearPendingResumeDraft(ownerToken: string | null): void {
+  if (!ownerToken) return;
+  try {
+    sessionStorage.removeItem(pendingResumeDraftKey(ownerToken));
+  } catch {
+    // Ignore unavailable/disabled session storage.
+  }
+}
 
 function CopyDraftButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -202,19 +251,102 @@ export default function ResumeCoachWorkspace() {
   const lastLiveSuggestionSignatureRef = useRef('');
   const lastSavedTextRef = useRef<string | null>(null);
   const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingSaveTextRef = useRef<string | null>(null);
+  const saveInFlightRef = useRef(false);
+  const mountedRef = useRef(true);
+  const latestResumeTextRef = useRef('');
+  const resumeRevisionRef = useRef<string | null>(null);
+  const resumeDraftOwnerRef = useRef<string | null>(null);
+
+  const drainSaveQueue = useCallback(async () => {
+    if (saveInFlightRef.current) return;
+    saveInFlightRef.current = true;
+    try {
+      while (pendingSaveTextRef.current !== null) {
+        const text = pendingSaveTextRef.current;
+        pendingSaveTextRef.current = null;
+        if (text === lastSavedTextRef.current) continue;
+        if (mountedRef.current) setSaveStatus('saving');
+        const requestBody = JSON.stringify({
+          plainText: text,
+          resumeRevision: resumeRevisionRef.current,
+        });
+        const response = await fetch('/api/member/resume/plain-text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: requestBody,
+          keepalive: new Blob([requestBody]).size < 60_000,
+        });
+        if (!response.ok) {
+          if (mountedRef.current) setSaveStatus('error');
+          // Do not overwrite an external session after a CAS conflict. A later
+          // local edit or explicit retry will enqueue the latest text again.
+          break;
+        }
+        const result = await response.json().catch(() => ({})) as { resumeRevision?: string };
+        if (typeof result.resumeRevision === 'string') {
+          resumeRevisionRef.current = result.resumeRevision;
+        }
+        lastSavedTextRef.current = text;
+        if (latestResumeTextRef.current === text) {
+          clearPendingResumeDraft(resumeDraftOwnerRef.current);
+        } else {
+          writePendingResumeDraft(
+            latestResumeTextRef.current,
+            resumeRevisionRef.current,
+            resumeDraftOwnerRef.current,
+          );
+        }
+        if (mountedRef.current) setSaveStatus('saved');
+      }
+    } catch {
+      if (mountedRef.current) setSaveStatus('error');
+    } finally {
+      saveInFlightRef.current = false;
+      if (pendingSaveTextRef.current !== null) void drainSaveQueue();
+    }
+  }, []);
+
+  const queueLatestResumeSave = useCallback((rawText: string) => {
+    const text = sanitizeResumePlainText(rawText);
+    if (!hasSubstantiveResumeText(text)) {
+      if (rawText.trim() && mountedRef.current) setSaveStatus('error');
+      return;
+    }
+    if (text === lastSavedTextRef.current) return;
+    pendingSaveTextRef.current = text;
+    void drainSaveQueue();
+  }, [drainSaveQueue]);
 
   // Hydrate editor from stored resume on mount
   useEffect(() => {
     let cancelled = false;
     fetch('/api/member/resume?includePlainText=1')
       .then((r) => r.json())
-      .then((d: { resumePlainText?: string | null }) => {
+      .then((d: {
+        resumePlainText?: string | null;
+        resumeRevision?: string;
+        resumeDraftOwnerToken?: string;
+      }) => {
         if (cancelled) return;
+        resumeRevisionRef.current = typeof d.resumeRevision === 'string' ? d.resumeRevision : null;
+        resumeDraftOwnerRef.current = typeof d.resumeDraftOwnerToken === 'string'
+          ? d.resumeDraftOwnerToken
+          : null;
         const t = sanitizeResumePlainText(d.resumePlainText ?? '');
-        if (t) {
+        const pendingDraft = resumeDraftOwnerRef.current && resumeRevisionRef.current
+          ? readPendingResumeDraft(resumeDraftOwnerRef.current, resumeRevisionRef.current)
+          : null;
+        const recoveredText = pendingDraft?.text ?? '';
+        if (recoveredText) {
+          setResumeText(recoveredText);
+          latestResumeTextRef.current = recoveredText;
+          lastSavedTextRef.current = t;
+        } else if (t) {
           setResumeText((prev) => {
             const merged = mergeHydratedResume(prev, t);
             lastSavedTextRef.current = merged;
+            latestResumeTextRef.current = merged;
             return merged;
           });
         } else {
@@ -233,37 +365,43 @@ export default function ResumeCoachWorkspace() {
     };
   }, []);
 
-  // Debounced persist of plain text (matches coach draft to profile storage)
+  // Debounced, serialized latest-wins persist of plain text.
   useEffect(() => {
     if (!hydrated) return;
+    latestResumeTextRef.current = resumeText;
+    if (resumeText !== lastSavedTextRef.current && hasSubstantiveResumeText(resumeText)) {
+      writePendingResumeDraft(
+        resumeText,
+        resumeRevisionRef.current,
+        resumeDraftOwnerRef.current,
+      );
+    }
     if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
     saveDebounceRef.current = setTimeout(() => {
       saveDebounceRef.current = null;
-      const text = sanitizeResumePlainText(resumeText);
-      if (resumeText.trim() && !text) {
-        // Keep the last valid saved resume instead of persisting container bytes,
-        // parser diagnostics, or unresolved agent placeholders.
-        setSaveStatus('error');
-        return;
-      }
-      if (text === lastSavedTextRef.current) return;
-      setSaveStatus('saving');
-      fetch('/api/member/resume/plain-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plainText: text }),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error('save failed');
-          lastSavedTextRef.current = text;
-          setSaveStatus('saved');
-        })
-        .catch(() => setSaveStatus('error'));
+      queueLatestResumeSave(resumeText);
     }, 1800);
     return () => {
       if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
     };
-  }, [resumeText, hydrated]);
+  }, [resumeText, hydrated, queueLatestResumeSave]);
+
+  useEffect(() => {
+    const flush = () => {
+      queueLatestResumeSave(latestResumeTextRef.current);
+    };
+    const flushWhenHidden = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    document.addEventListener('visibilitychange', flushWhenHidden);
+    window.addEventListener('pagehide', flush);
+    return () => {
+      document.removeEventListener('visibilitychange', flushWhenHidden);
+      window.removeEventListener('pagehide', flush);
+      mountedRef.current = false;
+      flush();
+    };
+  }, [queueLatestResumeSave]);
 
   useEffect(() => {
     if (saveStatus !== 'saved') return;
@@ -460,6 +598,24 @@ export default function ResumeCoachWorkspace() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               {hydrated && resumeText.trim() && (
                 <CopyDraftButton text={resumeText} />
+              )}
+              {hydrated && resumeText.trim() && (
+                <button
+                  type="button"
+                  onClick={() => queueLatestResumeSave(resumeText)}
+                  disabled={saveStatus === 'saving'}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    padding: 0,
+                    color: 'var(--color-accent)',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    cursor: saveStatus === 'saving' ? 'wait' : 'pointer',
+                  }}
+                >
+                  Save now
+                </button>
               )}
               {hydrated && saveStatus !== 'idle' ? (
               <span

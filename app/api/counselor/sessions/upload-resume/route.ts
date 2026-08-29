@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
-import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
-import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { validateFileType } from '@/lib/resume/file-validation';
-import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
+import {
+  prepareResumeUpload,
+  ResumeUploadValidationError,
+} from '@/lib/resume/prepareResumeUpload';
+import {
+  AtomicResumeObjectSwapError,
+  replaceResumeObjectsAtomically,
+} from '@/lib/resume/atomicResumeObjectSwap';
+import {
+  isResumeProfileConflict,
+  swapResumeProfilePathsWithCas,
+} from '@/lib/resume/resumeProfileStorage';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
@@ -27,7 +35,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  */
 
 const BUCKET = 'member-resumes';
-const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -72,42 +80,52 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
   
     const file = formData.get('file') as File | null;
     if (!file) return NextResponse.json({ error: 'Provide a file' }, { status: 400 });
-    if (file.size > MAX_SIZE) return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
-  
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-  
-    if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
-      return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
-    }
-  
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-    const RESUME_MIME: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain' };
-    const path = `${authorizedMemberId}/resume-original.${ext}`;
-    const supabase = getSupabaseAdmin();
 
-    const { error: storageError } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
-      upsert: true,
-      contentType: RESUME_MIME[ext] ?? 'application/octet-stream',
-    });
-  
-    if (storageError) {
-      console.error('[upload-resume] storage error', storageError);
-      return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
-    }
-  
-    await prisma.$transaction((tx) => tx.profile.upsert({
-      where: { userId: authorizedMemberId },
-      create: { userId: authorizedMemberId, resumeOriginalPath: path },
-      update: { resumeOriginalPath: path },
-    }));
-  
-    let text = '';
+    let prepared: Awaited<ReturnType<typeof prepareResumeUpload>>;
     try {
-      text = await extractTextFromResumeBuffer(buffer, ext);
-    } catch (err) {
-      console.error('[upload-resume] text extraction failed', err);
+      prepared = await prepareResumeUpload(file);
+    } catch (error) {
+      if (error instanceof ResumeUploadValidationError) {
+        return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
+      }
+      throw error;
     }
+
+    const supabase = getSupabaseAdmin();
+    const storage = supabase.storage.from(BUCKET);
+    let swapped: Awaited<ReturnType<typeof replaceResumeObjectsAtomically>>;
+    try {
+      swapped = await replaceResumeObjectsAtomically({
+        userId: authorizedMemberId,
+        uploads: [{
+          field: 'resumeOriginalPath',
+          extension: prepared.extension,
+          contentType: prepared.contentType,
+          body: prepared.arrayBuffer,
+        }],
+        clearFields: ['resumeEnhancedPath'],
+        uploadObject: (path, body, options) => storage.upload(path, body, options),
+        removeObjects: (paths) => storage.remove(paths),
+        swapProfilePaths: (nextPaths) => swapResumeProfilePathsWithCas(authorizedMemberId, nextPaths),
+        onCleanupError: (error, paths) => {
+          console.error('[upload-resume] object cleanup failed', { error, paths });
+        },
+      });
+    } catch (error) {
+      if (error instanceof AtomicResumeObjectSwapError && error.phase === 'upload') {
+        console.error('[upload-resume] storage error', error.causeValue);
+        return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
+      }
+      if (isResumeProfileConflict(error)) {
+        return NextResponse.json(
+          { error: 'This resume changed while the upload was running. Reload and try again.' },
+          { status: 409 },
+        );
+      }
+      throw error;
+    }
+    const path = swapped.paths.resumeOriginalPath;
+    if (!path) throw new Error('Resume profile swap did not return an original path');
   
     auditLog({
       actorUserId: user.id,
@@ -124,7 +142,12 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
       orgId,
     }).catch(() => {});
 
-    return NextResponse.json({ ok: true, text: text.slice(0, 8000) });
+    return NextResponse.json({
+      ok: true,
+      text: prepared.text.slice(0, 8000),
+      extractionWarning: prepared.extractionWarning,
+      enhancedInvalidated: Boolean(swapped.previousPaths.resumeEnhancedPath),
+    });
   } catch (error) {
     console.error('/counselor/sessions/upload-resume:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

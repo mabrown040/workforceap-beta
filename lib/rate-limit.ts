@@ -65,6 +65,8 @@ let authIpRateLimiter: Ratelimit | null = null;
 // real owners, which is an email-bombing surface for a known address).
 let signupEmailRateLimiter: Ratelimit | null = null;
 let aiToolRateLimiter: Ratelimit | null = null;
+let resumeUploadRateLimiter: Ratelimit | null = null;
+let resumeDraftSaveRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
 // Per-admin limiter on /api/admin/members/bulk-email. The route can
@@ -253,6 +255,18 @@ if (redisUrl && redisToken) {
     // Launch softening: members can hit several AI tools in one session.
     limiter: Ratelimit.slidingWindow(25, '1 h'),
     prefix: 'ratelimit:ai-tool',
+  });
+  resumeUploadRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(30, '1 h'),
+    prefix: 'ratelimit:resume-upload',
+  });
+  resumeDraftSaveRateLimiter = new Ratelimit({
+    redis,
+    // Autosave is intentionally generous but bounded against authenticated
+    // storage/write amplification. Normal editing stays well below 5/minute.
+    limiter: Ratelimit.slidingWindow(300, '1 h'),
+    prefix: 'ratelimit:resume-draft-save',
   });
   contactRateLimiter = new Ratelimit({
     redis,
@@ -456,6 +470,18 @@ export async function checkSignupEmailRateLimit(email: string, request?: Request
 export async function checkAIToolRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
   if (!aiToolRateLimiter) return { success: true };
   const result = await aiToolRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
+}
+
+export async function checkResumeUploadRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!resumeUploadRateLimiter) return { success: true };
+  const result = await resumeUploadRateLimiter.limit(`resume-upload:${userId}`);
+  return { success: result.success, remaining: result.remaining };
+}
+
+export async function checkResumeDraftSaveRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!resumeDraftSaveRateLimiter) return { success: true };
+  const result = await resumeDraftSaveRateLimiter.limit(`resume-draft-save:${userId}`);
   return { success: result.success, remaining: result.remaining };
 }
 

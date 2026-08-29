@@ -21,7 +21,7 @@ Short reference for endpoints that are **not** “signed-in member only” in th
 | Route | Notes |
 |-------|--------|
 | `POST /api/counselor/feedback` | Any logged-in portal user may post (readiness / AI career coach completion on `/dashboard/counselor`). Not restricted to staff `isCounselor`. |
-| `POST /api/counselor/session` | Any logged-in member may mint a Lilley voice session with their member/program context. This is a member AI career-coaching route, not staff or caseload tooling. |
+| `POST /api/counselor/session` | Any logged-in user may mint the default member-facing Lilley session with their member/program context. An explicit `{ "audience": "staff" }` request is limited to counselor/admin roles, requires `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID`, and returns 503 while that dedicated agent is not configured. |
 
 ## Subgroup leader APIs
 

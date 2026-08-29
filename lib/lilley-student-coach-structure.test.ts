@@ -116,7 +116,7 @@ test('Lilley action plans and saved history stay student-facing', () => {
   assert.doesNotMatch(src, /Career readiness voice coach|Career counselor action-plan/);
 });
 
-test('Lilley and staff counselor fallbacks target separate ElevenLabs agents', (t) => {
+test('Lilley has a member fallback while staff mode requires a configured agent', (t) => {
   const previousMember = process.env.ELEVENLABS_COUNSELOR_AGENT_ID;
   const previousStaff = process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
   t.after(() => {
@@ -129,12 +129,15 @@ test('Lilley and staff counselor fallbacks target separate ElevenLabs agents', (
   delete process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
 
   assert.equal(getElevenLabsAgentId('counselor'), 'agent_1101kqfjfm8retm8j6md467wzxdb');
-  assert.equal(getElevenLabsAgentId('counselor_staff'), 'agent_2801kmznvsemfmms06r0e02es1b9');
+  assert.equal(getElevenLabsAgentId('counselor_staff'), undefined);
+
+  process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID = 'agent_configured_staff';
+  assert.equal(getElevenLabsAgentId('counselor_staff'), 'agent_configured_staff');
 
   const src = readFileSync(agentsPath, 'utf8');
 
   assert.match(src, /counselor: 'agent_1101kqfjfm8retm8j6md467wzxdb'/);
-  assert.match(src, /counselor_staff: 'agent_2801kmznvsemfmms06r0e02es1b9'/);
+  assert.doesNotMatch(src, /counselor_staff:\s*'agent_/);
   assert.match(src, /RETIRED_COUNSELOR_AGENT_IDS\.has\(fromEnv\)/);
 });
 
@@ -143,12 +146,14 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
     name?: string;
     conversation_config?: {
       agent?: { first_message?: string; prompt?: { prompt?: string } };
+      tts?: { voice_id?: string };
     };
   };
   const firstMessage = patch.conversation_config?.agent?.first_message ?? '';
   const prompt = patch.conversation_config?.agent?.prompt?.prompt ?? '';
 
   assert.equal(patch.name, 'Lilley - WorkforceAP Student Career Coach');
+  assert.equal(patch.conversation_config?.tts?.voice_id, 'XrExE9yKIg1WjnnlVkGX');
   assert.match(firstMessage, /I'm Lilley, your WorkforceAP AI career coach/);
   assert.match(prompt, /student-facing AI Career Coach/);
   assert.match(prompt, /You do not assist counselors with caseloads/);

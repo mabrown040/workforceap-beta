@@ -153,7 +153,7 @@ Source of truth: `.env.example` + `docs/ENVIRONMENT-VARIABLES.md`. Confirm **Pro
 | [ ] Donate (public) | Zeffy URL is hardcoded in `marketing/src/pages/donate.astro` — **not Stripe** | AGENTS.md “Donate needs Stripe” is stale |
 | [ ] Employer / org billing | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CONNECT_WEBHOOK_SECRET` | Employer webhook / Connect / org onboard |
 | [ ] Career quiz / profiler | `ONET_API_KEY` | UI renders; scoring “not configured” |
-| [ ] Voice | `ELEVENLABS_API_KEY` + agent IDs | Voice mint fails |
+| [ ] Voice | `ELEVENLABS_API_KEY`; optional `ELEVENLABS_*_AGENT_ID` overrides | Mint fails without the API key. Before go-live, verify `/api/counselor/session` resolves to active Lilley, returns member context, and passes an authenticated spoken/on-glass smoke. |
 | [ ] Coursera | `COURSERA_*` / B4B — **prod-only**; keep off Preview | Dashboard cron / B4B degrade |
 | [ ] Sentry | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | Errors only in Vercel logs |
 | [ ] Analytics | `NEXT_PUBLIC_GTM_ID` — layout falls back to **`GTM-53JCT6WN`** if unset | Confirm that container is *ours* |

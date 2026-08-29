@@ -1,8 +1,13 @@
+export const REFERRAL_SOURCE_OTHER_PARTNER = 'Other Partner (write in)';
+export const REFERRAL_SOURCE_COMMUNITY_AMBASSADOR = 'Community Ambassador (write in)';
+
 export const CENTRAL_TEXAS_REFERRAL_SOURCES = [
   'Launch Pad Job Club',
   'Purpose Works / Job Seekers Network',
   'Workforce Solutions Capital Area',
   'Workforce Solutions Rural Capital Area',
+  REFERRAL_SOURCE_OTHER_PARTNER,
+  REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
   'Texas Workforce Commission (TWC)',
   'Austin Area Urban League',
   'African American Youth Harvest Foundation',

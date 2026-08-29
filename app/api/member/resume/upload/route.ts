@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
+import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
+import { RESUME_TEXT_UPLOAD_ERROR } from '@/lib/resume/extractionQuality';
 import { awardPoints } from '@/lib/member/points';
 import { Buffer } from 'node:buffer';
 
@@ -41,6 +43,18 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+
+    // Prove the new file is readable before the upsert. Failed extraction must
+    // not overwrite a member's prior valid resume with an unreadable container.
+    try {
+      const extractedText = await extractTextFromResumeBuffer(buffer, ext);
+      if (!extractedText) {
+        return NextResponse.json({ error: RESUME_TEXT_UPLOAD_ERROR }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: RESUME_TEXT_UPLOAD_ERROR }, { status: 400 });
+    }
+
     const RESUME_MIME: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain' };
     const path = `${user.id}/resume-original.${ext}`;
     const supabase = getSupabaseAdmin();

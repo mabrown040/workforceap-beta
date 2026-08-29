@@ -63,7 +63,7 @@ export default function WioaQualificationClient({
 }) {
   const isPublic = mode === 'public';
   const [snapshot, setSnapshot] = useState<WioaQualificationSnapshot | null>(initialSnapshot);
-  const [entryMode, setEntryMode] = useState<'voice' | 'form'>('voice');
+  const [entryMode, setEntryMode] = useState<'voice' | 'form'>('form');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -204,8 +204,8 @@ export default function WioaQualificationClient({
         title="Choose how to complete it"
         subtitle={
           isPublic
-            ? 'Use voice for a quick walkthrough, or switch to the form to send your qualification assessment to WorkforceAP.'
-            : 'Use voice for a guided qualification check, or switch to the form any time.'
+            ? 'The assessment form sends your answers to WorkforceAP. Voice is available to help you prepare.'
+            : 'The assessment form saves your answers for staff review. Voice is available to help you prepare.'
         }
       >
         <div
@@ -237,7 +237,7 @@ export default function WioaQualificationClient({
             onClick={() => setEntryMode('voice')}
             className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-muted'}
           >
-            Voice qualification check
+            Voice preparation only
           </button>
           <button
             type="button"
@@ -249,14 +249,14 @@ export default function WioaQualificationClient({
             onClick={() => setEntryMode('form')}
             className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-muted'}
           >
-            Fill out the assessment form
+            Assessment form
           </button>
         </div>
 
         <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, fontSize: '0.93rem' }}>
           {isPublic
-            ? 'The voice option is a quick guided conversation. The form is what sends a structured qualification assessment to WorkforceAP for follow-up.'
-            : 'The voice option is meant to feel like a quick guided intake. If you would rather type, switch to the form and we will save the same qualification details for staff review.'}
+            ? 'Submit the assessment form to send your answers to WorkforceAP for follow-up. Voice is preparation only and does not save or send your answers.'
+            : 'Submit the assessment form to save your answers for staff review. Voice is preparation only and does not save or send your answers.'}
         </p>
 
         <div
@@ -298,12 +298,12 @@ export default function WioaQualificationClient({
               </div>
             ) : null}
             <VoiceAgentSurface
-              badge="Voice qualification check"
-              headline="WIOA Qualification guide"
+              badge="Voice preparation only"
+              headline="Practice the WIOA conversation"
               subtext={
                 isPublic
-                  ? 'Talk through a quick walkthrough, then use the form to send the structured qualification assessment to our team.'
-                  : 'Talk through your goals, barriers, and likely qualification before staff reviews the details.'
+                  ? 'Practice talking through your goals and barriers, then return to the form to send your answers to our team.'
+                  : 'Practice talking through your goals and barriers, then return to the form to save your answers for staff review.'
               }
               icon={<Mic size={22} aria-hidden="true" />}
               glowColor="#2b7bb9"
@@ -312,8 +312,8 @@ export default function WioaQualificationClient({
               <PortalVoiceSessionLazy
                 sessionEndpoint={voiceSessionEndpoint}
                 sessionPayload={voicePayload}
-                title="WIOA Qualification Assessment"
-                description="Talk through your work goals, barriers, and likely qualification before the formal review."
+                title="WIOA conversation practice"
+                description="Practice talking through your work goals and barriers before completing the assessment form."
                 accent="#2b7bb9"
                 accentDark="#1f5a87"
                 speakingLabel="Guide is speaking…"

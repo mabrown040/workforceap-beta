@@ -59,7 +59,7 @@ Once accepted:
 - If you forgot your password, click "Forgot password?"
 
 ### Dashboard Overview
-Your dashboard has 10 sections accessible from the left sidebar:
+Your member portal includes these key destinations. Navigation placement adapts between desktop and mobile:
 
 #### 1. Home
 - Welcome message
@@ -88,6 +88,7 @@ Career preparation tools:
 - **LinkedIn Headline/About** — Optimize your profile
 - **Salary Negotiation Script** — Prepare for offer discussions
 - **Application Tracker** — Track jobs you've applied to
+- **Lilley Career Coach** — Talk through training or your job search and receive a saved three-step action plan
 
 #### 5. Resources
 - Loaner laptop program info

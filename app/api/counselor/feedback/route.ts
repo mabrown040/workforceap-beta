@@ -40,7 +40,7 @@ function normalizeTranscript(transcript: { role: 'agent' | 'user'; text: string 
 
 function buildHistoryOutput(transcript: TranscriptTurn[], steps: string[]) {
   const lines: string[] = [];
-  lines.push('Career readiness voice coach transcript');
+  lines.push('Lilley career-coaching transcript');
   lines.push('');
   if (steps.length > 0) {
     lines.push('Action plan');
@@ -60,10 +60,10 @@ function buildHistoryOutput(transcript: TranscriptTurn[], steps: string[]) {
 
 async function generateActionPlan(transcript: { role: 'agent' | 'user'; text: string }[]): Promise<string[]> {
   const conversation = transcript
-    .map((t) => `${t.role === 'agent' ? 'Counselor' : 'Member'}: ${t.text}`)
+    .map((t) => `${t.role === 'agent' ? 'Lilley' : 'Member'}: ${t.text}`)
     .join('\n');
 
-  const systemPrompt = `You are a career counselor who just finished a voice session with a job seeker.
+  const systemPrompt = `You are Lilley, a student-facing AI career coach who just finished a voice session with a WorkforceAP member.
 Based on the conversation, generate exactly 3 concrete, specific action steps the member can take TODAY or THIS WEEK.
 Each step should be actionable and directly tied to what they shared.
 Be warm, specific, and encouraging — not generic.
@@ -112,7 +112,7 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
           steps = generatedSteps;
         }
       } catch (planErr) {
-        console.error('Career counselor action-plan generation failed, using fallback steps:', planErr);
+        console.error('Lilley action-plan generation failed, using fallback steps:', planErr);
       }
   
       const output = buildHistoryOutput(transcript, steps);
@@ -121,7 +121,7 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
       const resultId = await saveAIToolResult(
         user.id,
         'career_counselor',
-        'Career readiness voice coach session',
+        'Lilley career-coaching session',
         output
       );
   
@@ -146,18 +146,18 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
             to: recipients,
             memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
             memberEmail: dbUser?.email?.trim() || user.email || null,
-            coachLabel: 'Career Readiness Coach',
+            coachLabel: 'Lilley Career Coach',
             transcriptTurns: transcript,
             highlights: steps,
           });
         }
       } catch (emailErr) {
-        console.error('Career counselor transcript email error:', emailErr);
+        console.error('Lilley transcript email error:', emailErr);
       }
   
       return NextResponse.json({ steps });
     } catch (err) {
-      console.error('Career counselor feedback persistence error:', err);
+      console.error('Lilley feedback persistence error:', err);
       return NextResponse.json({ error: 'Failed to save transcript' }, { status: 500 });
     }
   } catch (error) {

@@ -474,6 +474,18 @@ const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
     'data-science-professional-certificate-ibm',
 };
 
+/**
+ * Every value that can be stored on a supported production enrollment.
+ * Rollups intentionally retain the stored value, so SQL cohort queries must
+ * include canonical slugs, full titles, and compatibility aliases.
+ */
+export const SUPPORTED_PROGRAM_STORAGE_VALUES = Array.from(
+  new Set([
+    ...PROGRAMS.flatMap((program) => [program.slug, program.title]),
+    ...Object.keys(PROGRAM_SLUG_ALIASES),
+  ]),
+);
+
 /** Resolve program from stored interest (slug or full title from apply/signup lists). */
 export function getProgramByInterestValue(interest: string): Program | undefined {
   const trimmed = interest.trim();

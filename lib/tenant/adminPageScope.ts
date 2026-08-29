@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { cache } from 'react';
 import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -32,7 +33,9 @@ export type AdminPageTenant = { ok: false } | AdminPageTenantOk;
 type ScopedFn<T> = Parameters<typeof withTenantScope>[1];
 type AdminDb = Parameters<ScopedFn<unknown>>[0];
 
-export async function resolveAdminPageTenant(userId: string): Promise<AdminPageTenant> {
+export const resolveAdminPageTenant = cache(async function resolveAdminPageTenant(
+  userId: string,
+): Promise<AdminPageTenant> {
   try {
     const orgId = await getActorOrganizationId(userId);
     if (!(await isAdminInOrg(userId, orgId))) return { ok: false };
@@ -41,7 +44,7 @@ export async function resolveAdminPageTenant(userId: string): Promise<AdminPageT
     console.error('[admin-page-scope] failed to resolve actor org', err);
     return { ok: false };
   }
-}
+});
 
 /**
  * Super-admins keep the unscoped Prisma client (cross-tenant support/ops).

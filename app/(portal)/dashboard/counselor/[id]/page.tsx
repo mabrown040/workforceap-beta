@@ -9,7 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Session Details',
-  description: 'View your past AI Career Counselor session.',
+  description: 'View your past Lilley career-coaching session.',
   path: '/dashboard/counselor',
   robots: { index: false, follow: false },
 });

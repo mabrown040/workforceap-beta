@@ -42,6 +42,7 @@ import {
   Users,
   UsersRound,
 } from 'lucide-react';
+import { isWioaPortalAvailable } from '@/lib/wioa/wioaAvailability';
 
 export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' | 'counselor';
 
@@ -141,7 +142,7 @@ export const GROUP_ORDER: NavGroup[] = [
   'advanced',
 ];
 
-const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
+const WIOA_AVAILABLE = isWioaPortalAvailable(process.env.NEXT_PUBLIC_WIOA_ENABLED);
 
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Home tab ──

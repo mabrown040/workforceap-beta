@@ -149,7 +149,8 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 |------|-------|-------------|---------|---------|
 | `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
-| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: counselor | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: Lilley, the member-facing student career coach | `agent_...` | `/api/counselor/session` member/default mode |
+| `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` | 🔴 🔒 | Required to enable the separate counselor/admin caseload, outreach, and staff portal voice agent; no code fallback | `agent_...` | `/api/counselor/session` explicit staff mode; unset returns 503 |
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | 🟢 🔒 | ConvAI agent: employer coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_READINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: readiness coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | 🟢 🔒 | ConvAI agent: resume coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
@@ -157,11 +158,11 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | 🟢 🔒 | ConvAI agent: WIOA prequal | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_CAREER_BUSINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: career & business | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `NEXT_PUBLIC_ELEVENLABS_WIOA_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: WIOA | `Sarah` | Portal voice surfaces |
-| `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: counselor | `...` | Portal voice surfaces |
+| `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID` | 🟢 👁️ | Legacy fallback for the WIOA guide when `NEXT_PUBLIC_ELEVENLABS_WIOA_VOICE_ID` is unset; does not control Lilley or staff ConvAI voices | `...` | `lib/portal/counselorVoice.ts` |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
 
-**Note:** Agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience. Override with env vars per deploy.
+**Note:** Most agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience, but staff counselor mode intentionally does not. Keep the member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. The retired staff/caseload ID is ignored when supplied through the member-facing key so a stale deploy value cannot route members away from Lilley.
 
 ---
 
@@ -235,7 +236,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 
 | Name | Badge | Description | Example | Used In |
 |------|-------|-------------|---------|---------|
-| `NEXT_PUBLIC_WIOA_ENABLED` | 🟡 👁️ | Enable WIOA program features | `1` | Portal nav, learning hub |
+| `NEXT_PUBLIC_WIOA_ENABLED` | 🟡 👁️ | Show WIOA discovery links (`0` hides nav/cards; direct page and APIs remain available) | `1` | Portal nav, learning hub |
 | `WIOA_SCREENING_NOTIFY_EMAIL` | 🟢 🔒 | WIOA screening notifications | `info@workforceap.org` | `lib/wioa/wioaNotification.ts` |
 
 ---
@@ -366,7 +367,6 @@ These are referenced in the application but absent from `.env.example`. New deve
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
 - `GROQ_MODEL`
-- `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`
 - `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID`
 - `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID`
 

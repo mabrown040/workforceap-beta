@@ -54,8 +54,8 @@ export const counselorStaffVoiceSurface: Surface = {
 };
 
 export const studentCounselorVoiceSurface: Surface = {
-  badge: 'COUNSELOR',
-  subtext: 'Private voice session — then your personalized action plan.',
+  badge: 'LILLEY',
+  subtext: 'Student career coaching — then your personalized action plan.',
   icon: icon(Headphones),
   glowColor: BLUE,
   gradient: `linear-gradient(135deg, ${BLUE}, ${BLUE_DARK})`,

@@ -13,6 +13,7 @@ export default function CounselorPortalVoiceBlock() {
     <VoiceAgentSurface {...counselorStaffVoiceSurface}>
       <PortalVoiceSessionLazy
         sessionEndpoint="/api/counselor/session"
+        sessionPayload={{ audience: 'staff' }}
         title="Counselor voice assistant"
         titleAs="h2"
         description="Talk through member support, outreach, or how to use this portal."

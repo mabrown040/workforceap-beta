@@ -8,6 +8,7 @@ import GoogleDocsStyleResumeEditor from '@/components/portal/GoogleDocsStyleResu
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
 import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
+import { sanitizeResumePlainText } from '@/lib/resume/extractionQuality';
 
 type LiveSuggestion = ResumeSuggestion & { id: string; source?: 'live' | 'post' };
 
@@ -209,7 +210,7 @@ export default function ResumeCoachWorkspace() {
       .then((r) => r.json())
       .then((d: { resumePlainText?: string | null }) => {
         if (cancelled) return;
-        const t = d.resumePlainText?.trim() ?? '';
+        const t = sanitizeResumePlainText(d.resumePlainText ?? '');
         if (t) {
           setResumeText((prev) => {
             const merged = mergeHydratedResume(prev, t);
@@ -238,7 +239,13 @@ export default function ResumeCoachWorkspace() {
     if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
     saveDebounceRef.current = setTimeout(() => {
       saveDebounceRef.current = null;
-      const text = resumeText;
+      const text = sanitizeResumePlainText(resumeText);
+      if (resumeText.trim() && !text) {
+        // Keep the last valid saved resume instead of persisting container bytes,
+        // parser diagnostics, or unresolved agent placeholders.
+        setSaveStatus('error');
+        return;
+      }
       if (text === lastSavedTextRef.current) return;
       setSaveStatus('saving');
       fetch('/api/member/resume/plain-text', {
@@ -265,7 +272,10 @@ export default function ResumeCoachWorkspace() {
   }, [saveStatus]);
 
   // Pass live draft to the coach session as context
-  const sessionPayload = useMemo(() => ({ liveResumeDraft: resumeText }), [resumeText]);
+  const sessionPayload = useMemo(
+    () => ({ liveResumeDraft: sanitizeResumePlainText(resumeText) }),
+    [resumeText],
+  );
 
   const handleAccept = useCallback((s: ResumeSuggestion) => {
     setResumeText((prev) => {

@@ -3,6 +3,8 @@
 **File:** `.env.local` (for local dev) or Vercel Environment Variables (for production)  
 **Last Updated:** 2026-04-24
 
+> **Superseded deployment reference:** use [`docs/ENVIRONMENT-VARIABLES.md`](docs/ENVIRONMENT-VARIABLES.md) as the canonical inventory. This legacy snapshot describes expected configuration, not proof of current Vercel Production state; re-verify live values before a release.
+
 ---
 
 ## Required Variables
@@ -43,7 +45,7 @@
 | `ELEVENLABS_API_KEY` | (set in Vercel) | (set in .env) | ElevenLabs Dashboard |
 | `ELEVENLABS_READINESS_AGENT_ID` | `agent_5801kmznwny0e8gtmb726aaeevnt` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | `agent_9001kmy4g522e5ttvj88k5z1ygem` | (same) | ElevenLabs ConvAI |
-| `ELEVENLABS_COUNSELOR_AGENT_ID` | `agent_2801kmznvsemfmms06r0e02es1b9` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | `agent_1101kqfjfm8retm8j6md467wzxdb` | (same) | ElevenLabs ConvAI (Lilley student career coach) |
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | `agent_0901kmznx45vf19s9psjrctqr6x5` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_PARTNER_AGENT_ID` | `agent_7601kntxhqx3e0mvznpwk9bqj5yw` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | `agent_6601kmznw90ffxkbk7mpbym73vh9` | (same) | ElevenLabs ConvAI |
@@ -85,9 +87,9 @@
 
 ---
 
-## Current Vercel Production Status
+## Historical Vercel Production Status Snapshot
 
-**Checked:** 2026-04-24
+**Checked:** 2026-04-24 — re-verification is required before the next production cutover.
 
 **Present:**
 - ✅ `RESEND_API_KEY` — Email service functional

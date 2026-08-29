@@ -614,11 +614,11 @@ export default function FindYourPathQuiz() {
 
         <div className="fyp-next">
           <p>
-            On the comparison page, check up to four tracks to see them side-by-side — time, difficulty,
-            salary band, and best-for notes. Then use the salary guide for the same published ranges.
+            Use the comparison page to review published tracks side-by-side — time, difficulty, salary band,
+            and best-for notes. Then use the salary guide for the same published ranges.
           </p>
           <div className="fyp-next__links">
-            <a href="/programs">Compare programs</a>
+            <a href="/program-comparison">Compare programs</a>
           </div>
         </div>
 

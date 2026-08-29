@@ -5,7 +5,7 @@ import { Card } from '@astryxdesign/core/Card';
 import { DesignSurface } from '@/components/portal/kit';
 
 /**
- * Member Portal — AI CAREER COUNSELOR view.
+ * Member Portal — LILLEY AI CAREER COACH view.
  * Elevates the bespoke `.portal-card--flat` history list around the existing
  * VoiceAgentSurface widget to the Command Center kit language.
  *
@@ -47,7 +47,7 @@ export function MemberCounselorKit({ title, subtitle, voiceSurface, pastSessions
             }}
           >
             <MessagesSquare size={13} aria-hidden="true" />
-            <span>AI counselor</span>
+            <span>AI career coach</span>
           </div>
           <h1
             className="h-font"

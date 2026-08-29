@@ -3,6 +3,7 @@
 import { Play, Check, Lock, CalendarDays, Target, ArrowRight, GraduationCap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface, ProgressRing, PageOpener } from '@/components/portal/kit';
+import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 
 /**
  * Member Portal — program / certification path (kit ProgressRing + modules +
@@ -16,12 +17,12 @@ interface ProgramModule {
   title: string;
   state: ModuleState;
   /**
-   * Course slug, when known. Enables deep-linking the row's CTA to the
-   * matching course card on the Learning Hub (`#course-{slug}` anchor,
-   * matching the `id` TrainingCourseList sets on each card) instead of a
-   * single generic "Resume Module" button up top.
+   * Course slug, when known. Used for course-level launch analytics and as
+   * the Learning Hub anchor fallback when no Coursera launch URL is supplied.
    */
   slug?: string;
+  /** WorkforceAP launch endpoint that resolves and redirects to Coursera. */
+  launchHref?: string;
 }
 
 export interface MemberProgramKitProps {
@@ -31,7 +32,10 @@ export interface MemberProgramKitProps {
   modulesComplete?: number;
   modulesTotal?: number;
   estRemaining?: string;
+  /** Internal Learning Hub destination, kept separate from Coursera launch actions. */
   resumeHref?: string;
+  /** WorkforceAP launch endpoint for the next incomplete Coursera course. */
+  courseraLaunchHref?: string;
   modules?: ProgramModule[];
   /** Next live session title. Card is hidden unless this is provided. */
   liveSessionTitle?: string;
@@ -87,6 +91,7 @@ export function MemberProgramKit({
   modulesTotal = 0,
   estRemaining,
   resumeHref = '/dashboard/learning',
+  courseraLaunchHref,
   modules = DEFAULT_MODULES,
   liveSessionTitle,
   liveSessionWhen,
@@ -101,6 +106,7 @@ export function MemberProgramKit({
   const hasLiveSession = Boolean(liveSessionTitle);
   const sessionStart = liveSessionStart != null ? new Date(liveSessionStart) : null;
   const hasValidStart = sessionStart != null && !Number.isNaN(sessionStart.getTime());
+  const activeCourseSlug = modules.find((module) => module.state === 'active')?.slug ?? null;
 
   const handleAddToCalendar = () => {
     if (!liveSessionTitle) return;
@@ -164,43 +170,59 @@ export function MemberProgramKit({
               {estRemaining ? ` · ${estRemaining}` : ''}
             </p>
           </div>
-          <a
-            href={resumeHref}
-            className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-            style={{
-              background: 'var(--wa-on-accent)',
-              color: 'var(--wa-accent)',
-              fontWeight: 700,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Resume module <Play size={14} aria-hidden="true" />
-          </a>
+          {courseraLaunchHref ? (
+            <TrackedCourseraLaunchLink
+              href={courseraLaunchHref}
+              courseSlug={activeCourseSlug}
+              className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+              style={{
+                background: 'var(--wa-on-accent)',
+                color: 'var(--wa-accent)',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Resume in Coursera <Play size={14} aria-hidden="true" />
+            </TrackedCourseraLaunchLink>
+          ) : (
+            <a
+              href={resumeHref}
+              className="wa-kit-cta wa-kit-focus hover:wa-opacity-90 active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
+              style={{
+                background: 'var(--wa-on-accent)',
+                color: 'var(--wa-accent)',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Open Learning Hub <Play size={14} aria-hidden="true" />
+            </a>
+          )}
         </div>
 
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Modules list (2-wide) */}
           <div className="wa-kit-card lg:wa-col-span-2">
-            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16, textWrap: 'balance' }}>Modules</h3>
+            <div className="wa-flex wa-items-center wa-justify-between wa-gap-3" style={{ marginBottom: 16 }}>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', textWrap: 'balance' }}>Modules</h3>
+              <a
+                href={resumeHref}
+                className="wa-page-action wa-kit-focus hover:wa-opacity-80 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+              >
+                Learning Hub <ArrowRight size={14} aria-hidden="true" />
+              </a>
+            </div>
             <div className="wa-space-y-2">
               {modules.length === 0 ? (
-                <p className="wa-kit-lede" style={{ margin: 0 }}>
-                  No modules on this path yet.{' '}
-                  <a href={resumeHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
-                    Open learning
-                  </a>
-                </p>
+                <p className="wa-kit-lede" style={{ margin: 0 }}>No modules on this path yet.</p>
               ) : null}
               {modules.map((m) => {
                 const meta = MODULE_META[m.state];
                 const Icon = meta.icon;
                 const dim = m.state === 'locked';
                 const isActive = m.state === 'active';
-                // Deep-link to the matching course card on the Learning Hub
-                // when we know its slug (anchor scroll via the `id` set on
-                // each TrainingCourseList card); otherwise fall back to the
-                // hub page itself rather than a dead link.
-                const moduleHref = m.slug ? `${resumeHref}#course-${m.slug}` : resumeHref;
+                const moduleHref =
+                  m.launchHref ?? (m.slug ? `${resumeHref}#course-${m.slug}` : resumeHref);
                 return (
                   <div
                     key={m.title}
@@ -232,13 +254,24 @@ export function MemberProgramKit({
                       {m.title}
                     </span>
                     {isActive ? (
-                      <a
-                        href={moduleHref}
-                        className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
-                        style={{ whiteSpace: 'nowrap' }}
-                      >
-                        Continue <ArrowRight size={14} aria-hidden="true" />
-                      </a>
+                      m.launchHref ? (
+                        <TrackedCourseraLaunchLink
+                          href={moduleHref}
+                          courseSlug={m.slug}
+                          className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          Continue in Coursera <ArrowRight size={14} aria-hidden="true" />
+                        </TrackedCourseraLaunchLink>
+                      ) : (
+                        <a
+                          href={moduleHref}
+                          className="wa-page-action wa-kit-focus hover:wa-opacity-90 wa-transition-opacity wa-duration-150 motion-reduce:wa-transition-none"
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          Continue <ArrowRight size={14} aria-hidden="true" />
+                        </a>
+                      )
                     ) : (
                       <span className="wa-kit-meta" style={{ fontWeight: 700, color: meta.color }}>
                         {meta.label}

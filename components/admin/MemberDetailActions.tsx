@@ -6,6 +6,13 @@ import { PROGRAMS } from '@/lib/content/programs';
 
 export type ProgramOption = { slug: string; name: string; status?: string };
 
+type ActionFeedback = { kind: 'success' | 'error'; text: string };
+
+async function responseError(response: Response, fallback: string): Promise<string> {
+  const payload = (await response.json().catch(() => ({}))) as { error?: unknown };
+  return typeof payload.error === 'string' && payload.error.trim() ? payload.error : fallback;
+}
+
 type MemberDetailActionsProps = {
   userId: string;
   memberName: string;
@@ -27,6 +34,7 @@ export default function MemberDetailActions({
   const [programSlug, setProgramSlug] = useState(currentProgramSlug ?? '');
   const [loading, setLoading] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
 
   const options =
     programOptions.length > 0
@@ -44,13 +52,24 @@ export default function MemberDetailActions({
       if (!ok) return;
     }
     setLoading('program');
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/members/${userId}/program`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ programSlug }),
       });
-      if (res.ok) router.refresh();
+      if (!res.ok) {
+        setFeedback({
+          kind: 'error',
+          text: await responseError(res, 'Could not change this member\'s program.'),
+        });
+        return;
+      }
+      setFeedback({ kind: 'success', text: `${memberName} is now assigned to ${label}.` });
+      router.refresh();
+    } catch {
+      setFeedback({ kind: 'error', text: 'Could not reach the server.' });
     } finally {
       setLoading('');
     }
@@ -58,9 +77,20 @@ export default function MemberDetailActions({
 
   const handleResetAssessment = async () => {
     setLoading('assessment');
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/members/${userId}/reset-assessment`, { method: 'POST' });
-      if (res.ok) router.refresh();
+      if (!res.ok) {
+        setFeedback({
+          kind: 'error',
+          text: await responseError(res, 'Could not reset this assessment.'),
+        });
+        return;
+      }
+      setFeedback({ kind: 'success', text: 'Assessment reset.' });
+      router.refresh();
+    } catch {
+      setFeedback({ kind: 'error', text: 'Could not reach the server.' });
     } finally {
       setLoading('');
     }
@@ -69,9 +99,19 @@ export default function MemberDetailActions({
   const handleDelete = async () => {
     if (!confirmDelete) return;
     setLoading('delete');
+    setFeedback(null);
     try {
       const res = await fetch(`/api/admin/members/${userId}/delete`, { method: 'POST' });
-      if (res.ok) window.location.href = '/admin/members';
+      if (!res.ok) {
+        setFeedback({
+          kind: 'error',
+          text: await responseError(res, 'Could not delete this account.'),
+        });
+        return;
+      }
+      window.location.href = '/admin/members';
+    } catch {
+      setFeedback({ kind: 'error', text: 'Could not reach the server.' });
     } finally {
       setLoading('');
     }
@@ -85,11 +125,16 @@ export default function MemberDetailActions({
         </p>
       )}
       <div>
-        <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Change program (admin only)</label>
+        <label htmlFor="admin-member-program" style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Change program (admin only)</label>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <select
+            id="admin-member-program"
             value={programSlug}
-            onChange={(e) => setProgramSlug(e.target.value)}
+            onChange={(e) => {
+              setProgramSlug(e.target.value);
+              setFeedback(null);
+            }}
+            disabled={!!loading}
             style={{ flex: 1, maxWidth: '300px', padding: '0.5rem' }}
           >
             <option value="">— Select —</option>
@@ -104,12 +149,29 @@ export default function MemberDetailActions({
             type="button"
             className="btn btn-outline"
             onClick={() => void handleChangeProgram()}
-            disabled={!programSlug || loading === 'program'}
+            disabled={!programSlug || !!loading}
           >
             {loading === 'program' ? '...' : 'Save'}
           </button>
         </div>
       </div>
+
+      {feedback ? (
+        <p
+          role={feedback.kind === 'error' ? 'alert' : 'status'}
+          aria-live="polite"
+          style={{
+            margin: 0,
+            fontSize: '0.9rem',
+            color:
+              feedback.kind === 'error'
+                ? 'var(--color-error, #c00)'
+                : 'var(--color-success, #166534)',
+          }}
+        >
+          {feedback.text}
+        </p>
+      ) : null}
 
       {assessmentCompleted && (
         <button

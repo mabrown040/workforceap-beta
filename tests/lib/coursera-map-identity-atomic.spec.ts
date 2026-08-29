@@ -5,7 +5,9 @@ const mocks = vi.hoisted(() => ({
   lock: vi.fn(),
   attach: vi.fn(),
   promote: vi.fn(),
+  ensureTables: vi.fn(),
   upsertMapping: vi.fn(),
+  queryRaw: vi.fn(),
 }));
 
 vi.mock('server-only', () => ({}));
@@ -18,20 +20,25 @@ vi.mock('@/lib/coursera/csvImport.server', () => ({
   promoteCsvProgressToCanonical: mocks.promote,
 }));
 vi.mock('@/lib/xapi/mappings', () => ({
+  ensureCourseraMappingTables: mocks.ensureTables,
   upsertCourseraIdentityMapping: mocks.upsertMapping,
 }));
 
 import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 
 describe('mapCourseraIdentityAndProgress', () => {
-  const tx = { id: 'tx-1' };
+  const tx = { id: 'tx-1', $queryRaw: mocks.queryRaw };
 
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.transaction.mockImplementation(async (callback) => callback(tx));
+    mocks.ensureTables.mockResolvedValue(undefined);
     mocks.lock.mockResolvedValue(undefined);
     mocks.attach.mockResolvedValue({ courseRowsUpdated: 2, badgeRowsUpdated: 1 });
     mocks.upsertMapping.mockResolvedValue({ id: 'mapping-1', userId: 'user-1' });
+    mocks.queryRaw
+      .mockResolvedValueOnce([{ id: 'user-1' }])
+      .mockResolvedValueOnce([]);
     mocks.promote.mockResolvedValue({
       upserted: 2,
       unmapped: 0,
@@ -55,6 +62,27 @@ describe('mapCourseraIdentityAndProgress', () => {
       actorIdentifier: null,
       actorHomePage: null,
     });
+    expect(mocks.ensureTables).toHaveBeenCalledTimes(1);
+    expect(mocks.ensureTables.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.transaction.mock.invocationCallOrder[0],
+    );
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(2);
+    const targetUserQuery = mocks.queryRaw.mock.calls[0]?.[0] as {
+      sql: string;
+      values: unknown[];
+    };
+    expect(targetUserQuery.sql).toContain('FOR SHARE');
+    expect(targetUserQuery.values).toEqual(
+      expect.arrayContaining(['user-1', 'org-1']),
+    );
+    const conflictQuery = mocks.queryRaw.mock.calls[1]?.[0] as {
+      sql: string;
+      values: unknown[];
+    };
+    expect(conflictQuery.sql).toContain('FROM coursera_identity_mappings');
+    expect(conflictQuery.values).toEqual(
+      expect.arrayContaining(['user-1', 'org-1', 'learner@example.com']),
+    );
     expect(mocks.attach).toHaveBeenCalledWith(
       {
         courseraEmail: 'learner@example.com',
@@ -76,6 +104,11 @@ describe('mapCourseraIdentityAndProgress', () => {
     expect(mocks.upsertMapping.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.promote.mock.invocationCallOrder[0],
     );
+    expect(mocks.promote).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      userId: 'user-1',
+      courseraEmail: 'learner@example.com',
+    });
     expect(result.backfill).toMatchObject({
       courseRowsUpdated: 2,
       badgeRowsUpdated: 1,

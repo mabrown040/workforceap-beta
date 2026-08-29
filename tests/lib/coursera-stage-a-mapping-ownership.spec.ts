@@ -49,11 +49,17 @@ describe('Stage A Coursera mapping ownership', () => {
         },
         db,
       ),
-    ).rejects.toThrow('already linked to a different WAP user or organization');
+    ).rejects.toThrow('already mapped to a different WAP user');
 
     expect(executeRaw).not.toHaveBeenCalled();
-    const guardedUpdate = queryRaw.mock.calls[1]?.[0] as TemplateStringsArray;
-    expect(guardedUpdate.join('')).toContain('user_id =');
-    expect(guardedUpdate.join('')).toContain('RETURNING id');
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+    const ownershipLookup = queryRaw.mock.calls[0]?.[0] as TemplateStringsArray;
+    expect(ownershipLookup.join('')).toContain('LIMIT 1');
+    const tenantFilter = queryRaw.mock.calls[0]?.[2] as {
+      strings: readonly string[];
+      values: readonly unknown[];
+    };
+    expect(tenantFilter.strings.join('')).toContain('organization_id =');
+    expect(tenantFilter.values).toContain('org-1');
   });
 });

@@ -57,6 +57,10 @@ describe('Stage A identity mapping transaction', () => {
     });
 
     expect(mocks.transaction).toHaveBeenCalledTimes(1);
+    expect(mocks.ensureTables).toHaveBeenCalledTimes(1);
+    expect(mocks.ensureTables.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.transaction.mock.invocationCallOrder[0],
+    );
     expect(mocks.lockIdentity).toHaveBeenCalledWith(
       tx,
       expect.objectContaining({
@@ -75,8 +79,33 @@ describe('Stage A identity mapping transaction', () => {
       expect.objectContaining({ expectedOrganizationId: 'org-1' }),
       tx,
     );
-    expect(mocks.promote).toHaveBeenCalledWith({ userId: 'user-1' });
-    expect(result.backfill).toEqual({ courseRowsUpdated: 2, badgeRowsUpdated: 1 });
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(2);
+    const targetUserQuery = mocks.queryRaw.mock.calls[0]?.[0] as {
+      sql: string;
+      values: unknown[];
+    };
+    expect(targetUserQuery.sql).toContain('FOR SHARE');
+    expect(targetUserQuery.values).toEqual(
+      expect.arrayContaining(['user-1', 'org-1']),
+    );
+    const conflictQuery = mocks.queryRaw.mock.calls[1]?.[0] as {
+      sql: string;
+      values: unknown[];
+    };
+    expect(conflictQuery.sql).toContain('FROM coursera_identity_mappings');
+    expect(conflictQuery.values).toEqual(
+      expect.arrayContaining(['user-1', 'org-1', 'learner@example.com']),
+    );
+    expect(mocks.promote).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      userId: 'user-1',
+      courseraEmail: 'learner@example.com',
+    });
+    expect(result.backfill).toEqual({
+      courseRowsUpdated: 2,
+      badgeRowsUpdated: 1,
+      promotion: { upserted: 2, errors: 0 },
+    });
   });
 
   it('does not write the mapping or project progress after an adoption conflict', async () => {

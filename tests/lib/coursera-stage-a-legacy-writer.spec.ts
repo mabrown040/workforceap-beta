@@ -13,6 +13,9 @@ const xapiMappingsSource = readSource('lib/xapi/mappings.ts');
 const xapiReprocessSource = readSource('lib/xapi/reprocess.ts');
 const memberMergeSource = readSource('lib/admin/memberMerge.ts');
 const auditSource = readSource('scripts/audit-coursera-links.ts');
+const legacyAdoptionSource = readSource(
+  'lib/coursera/legacyRawProgressAdoption.server.ts',
+);
 
 const atomicMappingRoutes = [
   'app/api/admin/coursera/map-unmatched/route.ts',
@@ -21,21 +24,34 @@ const atomicMappingRoutes = [
 ];
 
 describe('Coursera Stage A legacy-writer compatibility', () => {
-  it('retains both old global conflict targets for the serving deployment', () => {
-    expect(csvSource).toContain(
-      'ON CONFLICT (LOWER(external_email), coursera_course_id) DO UPDATE SET',
+  it('writes through tenant-scoped conflict targets after guarded legacy adoption', () => {
+    expect(csvSource).toMatch(
+      /ON CONFLICT \(\s*organization_id,\s*LOWER\(external_email\),\s*coursera_course_id\s*\) WHERE organization_id IS NOT NULL DO UPDATE SET/,
     );
-    expect(csvSource).toContain(
-      'ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET',
+    expect(csvSource).toMatch(
+      /ON CONFLICT \(\s*organization_id,\s*LOWER\(external_email\),\s*badge_slug\s*\) WHERE organization_id IS NOT NULL DO UPDATE SET/,
     );
+    expect(csvSource).not.toContain(
+      'ON CONFLICT (LOWER(external_email), coursera_course_id)',
+    );
+    expect(csvSource).not.toContain(
+      'ON CONFLICT (LOWER(external_email), badge_slug)',
+    );
+    expect(csvSource).toContain('adoptLegacyRawCourseProgressRows(tx, {');
+    expect(csvSource).toContain('adoptLegacyRawBadgeProgressRows(tx, {');
   });
 
-  it('uses the Stage B-compatible sorted global email advisory lock', () => {
-    expect(csvSource).toContain('coursera:raw-email:${email}');
-    expect(csvSource).toContain('pg_advisory_xact_lock');
-    expect(csvSource).toContain('hashtextextended(ordered.lock_key, 0)');
-    expect(csvSource).toContain(')].sort();');
-    expect(csvSource.match(/await lockLegacyRawCourseraEmails\(/g)?.length).toBeGreaterThanOrEqual(4);
+  it('keeps the Stage A-compatible sorted global email advisory lock around adoption', () => {
+    expect(legacyAdoptionSource).toContain('coursera:raw-email:${email}');
+    expect(legacyAdoptionSource).toContain('pg_advisory_xact_lock');
+    expect(legacyAdoptionSource).toContain(
+      'hashtextextended(ordered.lock_key, 0)',
+    );
+    expect(legacyAdoptionSource).toContain(')].sort();');
+    expect(
+      legacyAdoptionSource.match(/await lockLegacyRawCourseraEmails\(/g)?.length,
+    ).toBeGreaterThanOrEqual(2);
+    expect(csvSource).toContain('await lockLegacyRawCourseraEmails(db, [lower]);');
   });
 
   it('row-locks every incoming user before a raw insert can stamp a tenant', () => {
@@ -54,7 +70,7 @@ describe('Coursera Stage A legacy-writer compatibility', () => {
     );
     expect(csvSource).toContain('overall_progress = GREATEST(');
     expect(csvSource).toContain(
-      'is_completed = coursera_course_progress.is_completed OR EXCLUDED.is_completed',
+      'is_completed = (coursera_course_progress.is_completed OR EXCLUDED.is_completed)',
     );
     expect(csvSource).toContain(
       'user_id = COALESCE(coursera_badge_progress.user_id, EXCLUDED.user_id)',
@@ -62,16 +78,25 @@ describe('Coursera Stage A legacy-writer compatibility', () => {
     expect(csvSource).toContain('progress_percent = GREATEST(');
     expect(csvSource).toContain('courses_completed = GREATEST(');
     expect(csvSource).toContain(
-      'badge_completed = coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed',
+      'badge_completed = (coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed)',
     );
   });
 
   it('fails closed when an existing raw row belongs to another tenant or user', () => {
-    expect(csvSource).toContain(
-      'OR coursera_course_progress.organization_id = EXCLUDED.organization_id',
+    expect(legacyAdoptionSource).toContain(
+      "THEN 'foreign-organization'",
     );
-    expect(csvSource).toContain(
-      'OR coursera_badge_progress.organization_id = EXCLUDED.organization_id',
+    expect(legacyAdoptionSource).toContain(
+      "THEN 'existing-user-outside-organization'",
+    );
+    expect(legacyAdoptionSource).toContain(
+      "THEN 'different-linked-user'",
+    );
+    expect(legacyAdoptionSource).toContain(
+      'LEFT JOIN coursera_course_progress existing',
+    );
+    expect(legacyAdoptionSource).toContain(
+      'LEFT JOIN coursera_badge_progress existing',
     );
     expect(csvSource).toContain(
       'OR coursera_course_progress.user_id = EXCLUDED.user_id',

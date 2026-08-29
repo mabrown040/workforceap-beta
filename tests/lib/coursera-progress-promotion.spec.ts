@@ -92,7 +92,7 @@ describe('promoteCsvProgressToCanonical', () => {
     mocks.rawFindFirst.mockResolvedValue(null);
     mocks.badgeFindFirst.mockResolvedValue(null);
     mocks.executeRaw.mockResolvedValue(0);
-    mocks.queryRaw.mockResolvedValue([{}]);
+    mocks.queryRaw.mockReset();
     mocks.transaction.mockImplementation(async (callback) => {
       const { prisma } = await import('@/lib/db/prisma');
       return callback(prisma as never);
@@ -182,6 +182,11 @@ describe('promoteCsvProgressToCanonical', () => {
 
   it('adopts NULL-org raw rows only for the reviewed organization and user', async () => {
     mocks.rawFindMany.mockReset().mockResolvedValue([]);
+    mocks.queryRaw
+      .mockResolvedValueOnce([]) // reviewed identity global lock
+      .mockResolvedValueOnce([]) // attachment global lock
+      .mockResolvedValueOnce([{ id: 'user-1' }]) // active target, FOR SHARE
+      .mockResolvedValueOnce([]); // no foreign raw ownership
     mocks.executeRaw.mockResolvedValueOnce(2).mockResolvedValueOnce(1);
 
     const result = await backfillUserIdForCourseraEmail(
@@ -192,11 +197,43 @@ describe('promoteCsvProgressToCanonical', () => {
 
     expect(result.courseRowsUpdated).toBe(2);
     expect(result.badgeRowsUpdated).toBe(1);
-    expect(mocks.rawFindFirst).toHaveBeenCalledWith(
+    expect(result.promotion).toEqual({
+      upserted: 0,
+      unmapped: 0,
+      rollupsRefreshed: 0,
+      errors: 0,
+    });
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(4);
+    for (const lockCall of mocks.queryRaw.mock.calls.slice(0, 2)) {
+      const lock = lockCall[0] as { sql: string; values: unknown[] };
+      expect(lock.sql).toContain('pg_advisory_xact_lock');
+      expect(lock.values).toContain('coursera:raw-email:learner@example.com');
+    }
+    const targetUserQuery = mocks.queryRaw.mock.calls[2]?.[0] as {
+      sql: string;
+      values: unknown[];
+    };
+    expect(targetUserQuery.sql).toContain('FOR SHARE');
+    expect(targetUserQuery.values).toEqual(
+      expect.arrayContaining(['user-1', 'org-1']),
+    );
+    const conflictQuery = mocks.queryRaw.mock.calls[3]?.[0] as {
+      sql: string;
+      values: unknown[];
+    };
+    expect(conflictQuery.sql).toContain('FROM coursera_course_progress');
+    expect(conflictQuery.sql).toContain('UNION ALL');
+    expect(conflictQuery.sql).toContain('FROM coursera_badge_progress');
+    expect(conflictQuery.values).toEqual(
+      expect.arrayContaining(['learner@example.com', 'user-1', 'org-1']),
+    );
+    expect(mocks.rawFindMany).toHaveBeenNthCalledWith(
+      1,
       expect.objectContaining({
         where: expect.objectContaining({
+          organizationId: 'org-1',
+          userId: 'user-1',
           externalEmail: { equals: 'learner@example.com', mode: 'insensitive' },
-          OR: expect.any(Array),
         }),
       }),
     );
@@ -212,20 +249,31 @@ describe('promoteCsvProgressToCanonical', () => {
 
   it('rejects reviewed attachment when the email has raw progress owned elsewhere', async () => {
     mocks.rawFindMany.mockReset().mockResolvedValue([]);
-    mocks.rawFindFirst.mockResolvedValue({ id: 'foreign-course-row' });
+    mocks.queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'user-1' }])
+      .mockResolvedValueOnce([{ source: 'course' }]);
 
     await expect(
       backfillUserIdForCourseraEmail('learner@example.com', 'user-1', 'org-1'),
-    ).rejects.toThrow('another user or organization');
+    ).rejects.toThrow('different user or organization');
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(4);
     expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(mocks.rawFindMany).not.toHaveBeenCalled();
   });
 
   it('rejects a map target outside the reviewed organization before any raw write', async () => {
-    mocks.userFindFirst.mockResolvedValue(null);
+    mocks.queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
 
     await expect(
       backfillUserIdForCourseraEmail('learner@example.com', 'foreign-user', 'org-1'),
-    ).rejects.toThrow('expected organization');
+    ).rejects.toThrow('active member of the expected organization');
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(3);
     expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(mocks.rawFindMany).not.toHaveBeenCalled();
   });
 });

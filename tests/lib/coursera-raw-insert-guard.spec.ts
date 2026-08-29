@@ -30,7 +30,7 @@ describe('bulk Coursera raw insert tenant guards', () => {
     expect(importSource).toContain('await adoptLegacyRawCourseProgressRows(tx, {');
     expect(importSource).toContain('await adoptLegacyRawBadgeProgressRows(tx, {');
     expect(importSource.match(/return prisma\.\$transaction\(async \(tx\) =>/g)).toHaveLength(2);
-    expect(importSource).toContain('await lockLegacyRawCourseraEmails(db, [email]);');
+    expect(importSource).toContain('await lockLegacyRawCourseraEmails(db, [courseraEmail]);');
     expect(importSource).toContain('await lockLegacyRawCourseraEmails(db, [lower]);');
 
     expect(adoptionSource).toContain('coursera:raw-email:${email}');

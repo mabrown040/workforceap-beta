@@ -83,4 +83,81 @@ describe('Stage A direct-email xAPI resolution', () => {
       }),
     );
   });
+
+  it('fails closed when an explicit actor mapping conflicts with the active portal email owner', async () => {
+    mocks.queryRaw.mockReset()
+      .mockResolvedValueOnce([
+        {
+          id: 'mapping-1',
+          userId: 'mapped-user',
+          organizationId: 'org-1',
+          courseraEmail: 'learner@example.com',
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+          source: 'manual',
+          notes: null,
+          lastSeenAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userEmail: 'mapped@example.com',
+          userFullName: 'Mapped User',
+        },
+      ])
+      .mockResolvedValueOnce([]);
+    mocks.findFirst.mockResolvedValue({
+      id: 'direct-user',
+      email: 'learner@example.com',
+      fullName: 'Direct User',
+      organizationId: 'org-1',
+    });
+
+    await expect(
+      resolveXapiUser(
+        {
+          email: 'learner@example.com',
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+        },
+        { organizationId: 'org-1' },
+      ),
+    ).resolves.toBeNull();
+
+    expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(mocks.mapIdentityAndProgress).not.toHaveBeenCalled();
+  });
+
+  it('fails closed when actor and email mappings resolve to different users', async () => {
+    const mapping = (id: string, userId: string) => ({
+      id,
+      userId,
+      organizationId: 'org-1',
+      courseraEmail: 'learner@example.com',
+      actorIdentifier: 'actor-1',
+      actorHomePage: 'https://coursera.example',
+      source: 'manual',
+      notes: null,
+      lastSeenAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userEmail: `${userId}@example.com`,
+      userFullName: userId,
+    });
+    mocks.queryRaw.mockReset()
+      .mockResolvedValueOnce([mapping('actor-mapping', 'actor-user')])
+      .mockResolvedValueOnce([mapping('email-mapping', 'email-user')]);
+
+    await expect(
+      resolveXapiUser(
+        {
+          email: 'learner@example.com',
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+        },
+        { organizationId: 'org-1' },
+      ),
+    ).resolves.toBeNull();
+
+    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.executeRaw).not.toHaveBeenCalled();
+  });
 });

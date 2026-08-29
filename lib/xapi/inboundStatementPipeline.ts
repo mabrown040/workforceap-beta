@@ -24,7 +24,12 @@ export type InboundStatementRunResult = {
  */
 export async function handleInboundParsedStatement(
   parsed: ParsedXapiStatement,
-  options: { organizationId?: string | null; statementHash?: string | null } = {},
+  options: {
+    organizationId?: string | null;
+    statementHash?: string | null;
+    expectedUserId?: string | null;
+    requireOrganizationId?: boolean;
+  } = {},
 ): Promise<InboundStatementRunResult> {
   const completions: Array<Record<string, unknown>> = [];
 
@@ -61,10 +66,25 @@ export async function handleInboundParsedStatement(
     return { completions };
   };
 
-  const resolvedUser = await resolveXapiUser(identity, { organizationId: options.organizationId });
+  const expectedOrganizationId = options.organizationId?.trim() || null;
+  if (options.requireOrganizationId && !expectedOrganizationId) {
+    return finishUnmatched('Persisted xAPI statement has no trustworthy organization');
+  }
+
+  const resolvedUser = await resolveXapiUser(identity, { organizationId: expectedOrganizationId });
 
   if (!resolvedUser) {
     return finishUnmatched('No matching member identity found');
+  }
+
+  const expectedUserId = options.expectedUserId?.trim() || null;
+  if (expectedUserId && resolvedUser.userId !== expectedUserId) {
+    console.warn('[inboundStatementPipeline] rejected unexpected replay target', {
+      resolvedUserId: resolvedUser.userId,
+      expectedUserId,
+      expectedOrganizationId,
+    });
+    return finishUnmatched('Resolved member does not match the expected replay target');
   }
 
   const dbUser = await prisma.user.findUnique({
@@ -79,7 +99,6 @@ export async function handleInboundParsedStatement(
       },
     },
   });
-  const expectedOrganizationId = options.organizationId?.trim() || null;
   if (
     !dbUser
     || dbUser.deletedAt

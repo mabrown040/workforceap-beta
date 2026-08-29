@@ -41,6 +41,13 @@ type TenantScopeOptions = {
 
 type CourseraMappingDb = typeof prisma | Prisma.TransactionClient;
 
+type DirectXapiEmailUser = {
+  id: string;
+  email: string;
+  fullName: string;
+  organizationId: string;
+};
+
 let ensureTablesPromise: Promise<void> | null = null;
 
 function normalizeEmail(value: string | null | undefined) {
@@ -318,6 +325,26 @@ async function getMappingByEmailInOrg(
   return rows[0] ?? null;
 }
 
+async function getDirectXapiEmailUser(
+  identity: XapiIdentity,
+  organizationId: string | null,
+): Promise<DirectXapiEmailUser | null> {
+  const email = normalizeEmail(identity.email);
+  if (!email) return null;
+
+  return prisma.user.findFirst({
+    where: {
+      ...(organizationId ? { organizationId } : {}),
+      deletedAt: null,
+      email: {
+        equals: email,
+        mode: 'insensitive',
+      },
+    },
+    select: { id: true, email: true, fullName: true, organizationId: true },
+  });
+}
+
 export async function resolveXapiUser(
   identity: XapiIdentity,
   options: TenantScopeOptions = {},
@@ -326,6 +353,21 @@ export async function resolveXapiUser(
   const organizationId = normalizeOrganizationId(options.organizationId);
 
   const actorMapping = await getMappingByActorInOrg(identity, organizationId);
+  const emailMapping = await getMappingByEmailInOrg(identity, organizationId);
+  if (actorMapping && emailMapping && actorMapping.userId !== emailMapping.userId) {
+    console.warn('[resolveXapiUser] actor and email mappings resolve to different users');
+    return null;
+  }
+
+  const selectedMapping = actorMapping ?? emailMapping;
+  const directUser = selectedMapping
+    ? await getDirectXapiEmailUser(identity, organizationId)
+    : null;
+  if (selectedMapping && directUser && directUser.id !== selectedMapping.userId) {
+    console.warn('[resolveXapiUser] explicit mapping conflicts with active portal email owner');
+    return null;
+  }
+
   if (actorMapping) {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
@@ -342,7 +384,6 @@ export async function resolveXapiUser(
     };
   }
 
-  const emailMapping = await getMappingByEmailInOrg(identity, organizationId);
   if (emailMapping) {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
@@ -364,17 +405,7 @@ export async function resolveXapiUser(
 
   // Direct portal email match — no profile/role filter: super_admin and other
   // platform accounts resolve the same way as members for xAPI ingest.
-  const user = await prisma.user.findFirst({
-    where: {
-      ...(organizationId ? { organizationId } : {}),
-      deletedAt: null,
-      email: {
-        equals: email,
-        mode: 'insensitive',
-      },
-    },
-    select: { id: true, email: true, fullName: true, organizationId: true },
-  });
+  const user = await getDirectXapiEmailUser(identity, organizationId);
 
   if (!user) return null;
 
@@ -797,10 +828,16 @@ export async function upsertCourseraIdentityMapping(args: {
 
   const user = await db.user.findUnique({
     where: { id: args.userId },
-    select: { id: true, email: true, fullName: true, organizationId: true },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      organizationId: true,
+      deletedAt: true,
+    },
   });
 
-  if (!user) throw new Error('User not found');
+  if (!user || user.deletedAt) throw new Error('Active user not found');
   const expectedOrganizationId = normalizeOrganizationId(args.expectedOrganizationId);
   if (expectedOrganizationId && user.organizationId !== expectedOrganizationId) {
     throw new Error('User is outside your organization');
@@ -808,6 +845,23 @@ export async function upsertCourseraIdentityMapping(args: {
   const expectedOrgFilter = expectedOrganizationId
     ? Prisma.sql`AND (organization_id = ${expectedOrganizationId}::text OR organization_id IS NULL)`
     : Prisma.empty;
+
+  // A Coursera email that is also an active portal login belongs to that
+  // portal user. Mapping it to anyone else would make B4B/CSV and xAPI choose
+  // different learners, so lock the direct owner and fail closed.
+  const directEmailOwners = courseraEmail
+    ? await db.$queryRaw<Array<{ id: string }>>`
+        SELECT direct_user.id
+        FROM users AS direct_user
+        WHERE direct_user.deleted_at IS NULL
+          AND LOWER(direct_user.email) = ${courseraEmail}::text
+        ORDER BY direct_user.id
+        FOR SHARE
+      `
+    : [];
+  if (directEmailOwners.some((directUser) => directUser.id !== args.userId)) {
+    throw new Error('Coursera email belongs to a different active WAP user');
+  }
 
   const actorMatch = actorIdentifier
     ? await db.$queryRaw<Array<{ id: string; userId: string }>>`

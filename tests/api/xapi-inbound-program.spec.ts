@@ -268,4 +268,54 @@ describe('handleInboundParsedStatement program resolution', () => {
       'hash-cross-tenant',
     );
   });
+
+  it('fails closed when replay resolves a different user than the reviewed target', async () => {
+    const result = await handleInboundParsedStatement(
+      {
+        email: 'member@example.com',
+        courseSlug: 'course-one',
+        courseName: 'Course One',
+        statementId: 'statement-wrong-target',
+        verbId: 'http://adlnet.gov/expapi/verbs/completed',
+        rawStatement: {},
+      },
+      {
+        organizationId: 'org-1',
+        expectedUserId: 'member-2',
+        requireOrganizationId: true,
+      },
+    );
+
+    expect(result.completions).toEqual([
+      expect.objectContaining({ ok: false, error: 'Member not found' }),
+    ]);
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(completeMemberCourse).not.toHaveBeenCalled();
+    expect(recordXapiEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        completionStatus: 'unmatched',
+        organizationId: 'org-1',
+      }),
+    );
+  });
+
+  it('does not resolve an unscoped persisted replay', async () => {
+    await handleInboundParsedStatement(
+      {
+        email: 'member@example.com',
+        courseSlug: 'course-one',
+        courseName: 'Course One',
+        statementId: 'statement-missing-org',
+        verbId: 'http://adlnet.gov/expapi/verbs/completed',
+        rawStatement: {},
+      },
+      { requireOrganizationId: true },
+    );
+
+    expect(resolveXapiUser).not.toHaveBeenCalled();
+    expect(completeMemberCourse).not.toHaveBeenCalled();
+    expect(recordXapiEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ completionStatus: 'unmatched' }),
+    );
+  });
 });

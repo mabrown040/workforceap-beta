@@ -641,6 +641,8 @@ export async function syncUserFromB4B(args: {
     const replay = await replayUnresolvedXapiStatementsForIdentity({
       courseraEmail: email,
       actorIdentifier: null,
+      organizationId: args.orgId,
+      expectedUserId: args.wapUserId,
     });
     xapiReplayed = replay.replayed;
     xapiCredited = replay.breakdown.completedOk + replay.breakdown.ignored;

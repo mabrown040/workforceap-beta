@@ -56,4 +56,21 @@ describe('Coursera email mapping tenant ownership', () => {
     expect(organizationFilter.strings.join('')).toContain('u.organization_id =');
     expect(organizationFilter.values).toEqual(['org-1', 'org-1']);
   });
+
+  it('fails closed when the direct portal owner and explicit mapping disagree', async () => {
+    mocks.findMany.mockResolvedValue([
+      { id: 'direct-user', email: 'learner@example.com' },
+    ]);
+    mocks.queryRaw.mockResolvedValue([
+      { email: 'learner@example.com', userId: 'mapped-user' },
+    ]);
+
+    await expect(
+      resolveUserIdsByCourseraEmails(['learner@example.com'], {
+        organizationId: 'org-1',
+      }),
+    ).resolves.toEqual(new Map());
+
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(1);
+  });
 });

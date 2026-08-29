@@ -68,14 +68,20 @@ describe('Coursera Stage A legacy-writer compatibility', () => {
     expect(csvSource).toContain(
       'user_id = COALESCE(coursera_course_progress.user_id, EXCLUDED.user_id)',
     );
-    expect(csvSource).toContain('overall_progress = GREATEST(');
+    expect(csvSource).toContain('overall_progress = LEAST(');
+    expect(csvSource).toContain(
+      'GREATEST(0, coursera_course_progress.overall_progress, EXCLUDED.overall_progress)',
+    );
     expect(csvSource).toContain(
       'is_completed = (coursera_course_progress.is_completed OR EXCLUDED.is_completed)',
     );
     expect(csvSource).toContain(
       'user_id = COALESCE(coursera_badge_progress.user_id, EXCLUDED.user_id)',
     );
-    expect(csvSource).toContain('progress_percent = GREATEST(');
+    expect(csvSource).toContain('progress_percent = LEAST(');
+    expect(csvSource).toContain(
+      'GREATEST(0, coursera_badge_progress.progress_percent, EXCLUDED.progress_percent)',
+    );
     expect(csvSource).toContain('courses_completed = GREATEST(');
     expect(csvSource).toContain(
       'badge_completed = (coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed)',

@@ -255,6 +255,15 @@ function parseNumberOrZero(value: string | undefined | null): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+export function clampCourseraPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(100, Math.max(0, value));
+}
+
+function parsePercentOrZero(value: string | undefined | null): number {
+  return clampCourseraPercent(parseNumberOrZero(value));
+}
+
 function nullable(value: string | undefined | null): string | null {
   const v = value?.trim();
   return v ? v : null;
@@ -338,7 +347,7 @@ export function parseCourseActivityCsv(content: string): ParsedCourseActivityRow
       classStartTime: parseDateOrNull(fields[idx.classStartTime]),
       classEndTime: parseDateOrNull(fields[idx.classEndTime]),
       lastActivityTime: parseDateOrNull(fields[idx.lastActivityTime]),
-      overallProgress: parseNumberOrZero(fields[idx.overallProgress]),
+      overallProgress: parsePercentOrZero(fields[idx.overallProgress]),
       totalEstimatedLearningHours: parseNumberOrZero(fields[idx.totalEstimatedLearningHours]),
       completed: parseYesNo(fields[idx.completed]),
       removedFromProgram: parseYesNo(fields[idx.removedFromProgram]),
@@ -439,7 +448,7 @@ export function parseLearningPathActivityCsv(content: string): ParsedBadgeRow[] 
       badgeLink: nullable(fields[idx.badgeLink]),
       badgeLastTransactionTime: parseDateOrNull(fields[idx.badgeLastTransactionTimestamp]),
       numberOfCourses: parseNumberOrZero(fields[idx.numberOfCourses]),
-      progressPercent: parseNumberOrZero(fields[idx.progressPercent]),
+      progressPercent: parsePercentOrZero(fields[idx.progressPercent]),
       courseName: nullable(fields[idx.courseName]),
       courseEnrollmentDate: parseDateOrNull(fields[idx.courseEnrollmentDate]),
       isCourseCompleted: parseYesNo(fields[idx.isCourseCompleted]),

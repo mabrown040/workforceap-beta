@@ -7,13 +7,20 @@ export function mergeCourseraEmailResolutions(args: {
   mappingHits: Array<{ email: string; userId: string }>;
 }): Map<string, string> {
   const out = new Map<string, string>();
-  for (const hit of args.directHits) {
+  const conflicts = new Set<string>();
+
+  for (const hit of [...args.directHits, ...args.mappingHits]) {
     const email = hit.email.trim().toLowerCase();
-    if (email && hit.userId) out.set(email, hit.userId);
-  }
-  for (const hit of args.mappingHits) {
-    const email = hit.email.trim().toLowerCase();
-    if (email && hit.userId && !out.has(email)) out.set(email, hit.userId);
+    const userId = hit.userId.trim();
+    if (!email || !userId || conflicts.has(email)) continue;
+
+    const existing = out.get(email);
+    if (existing && existing !== userId) {
+      out.delete(email);
+      conflicts.add(email);
+      continue;
+    }
+    out.set(email, userId);
   }
   return out;
 }

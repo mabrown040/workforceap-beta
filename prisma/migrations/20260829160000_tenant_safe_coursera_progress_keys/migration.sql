@@ -167,3 +167,33 @@ BEGIN
   END LOOP;
 END
 $migration$;
+
+-- Enforce the percentage domain for all future raw-progress writes without
+-- rewriting or claiming to validate historical provider data. NOT VALID still
+-- checks every new/updated row; a separately approved cleanup can validate the
+-- constraints after any legacy outliers are reviewed.
+DO $percent_constraints$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'coursera_course_progress_percent_range_check'
+      AND conrelid = 'public.coursera_course_progress'::regclass
+  ) THEN
+    ALTER TABLE public.coursera_course_progress
+      ADD CONSTRAINT coursera_course_progress_percent_range_check
+      CHECK (overall_progress >= 0 AND overall_progress <= 100) NOT VALID;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'coursera_badge_progress_percent_range_check'
+      AND conrelid = 'public.coursera_badge_progress'::regclass
+  ) THEN
+    ALTER TABLE public.coursera_badge_progress
+      ADD CONSTRAINT coursera_badge_progress_percent_range_check
+      CHECK (progress_percent >= 0 AND progress_percent <= 100) NOT VALID;
+  END IF;
+END
+$percent_constraints$;

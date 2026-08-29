@@ -20,11 +20,12 @@ import {
   lockLegacyRawCourseraEmails,
 } from '@/lib/coursera/legacyRawProgressAdoption.server';
 
-import type {
-  BadgeIngestResult,
-  IngestResult,
-  ParsedBadgeRow,
-  ParsedCourseActivityRow,
+import {
+  clampCourseraPercent,
+  type BadgeIngestResult,
+  type IngestResult,
+  type ParsedBadgeRow,
+  type ParsedCourseActivityRow,
 } from './csvImport';
 
 async function resolveUserIdByEmail(
@@ -104,7 +105,7 @@ async function bulkUpsertCourseProgressChunk(
       ${row.classEndTime}::timestamptz,
       ${row.lastActivityTime}::timestamptz,
       ${row.completionTime}::timestamptz,
-      ${row.overallProgress}::numeric,
+      ${clampCourseraPercent(row.overallProgress)}::numeric,
       ${row.learningHours}::numeric,
       ${row.completed}::boolean,
       ${row.removedFromProgram}::boolean,
@@ -253,7 +254,10 @@ async function bulkUpsertCourseProgressChunk(
         ELSE GREATEST(coursera_course_progress.last_activity_time, EXCLUDED.last_activity_time)
       END,
       completion_time = COALESCE(coursera_course_progress.completion_time, EXCLUDED.completion_time),
-      overall_progress = GREATEST(coursera_course_progress.overall_progress, EXCLUDED.overall_progress),
+      overall_progress = LEAST(
+        100,
+        GREATEST(0, coursera_course_progress.overall_progress, EXCLUDED.overall_progress)
+      ),
       learning_hours = GREATEST(coursera_course_progress.learning_hours, EXCLUDED.learning_hours),
       is_completed = (coursera_course_progress.is_completed OR EXCLUDED.is_completed),
       is_removed_from_program = EXCLUDED.is_removed_from_program,
@@ -307,7 +311,8 @@ async function bulkUpsertCourseProgressChunk(
 
 /**
  * Upsert each parsed row into `coursera_course_progress`. Resolves `user_id`
- * by direct email match first, then falls back to coursera_identity_mappings.
+ * from agreeing direct-email and explicit-mapping evidence, failing closed on
+ * an ownership conflict.
  *
  * Idempotent inside the reviewed tenant on
  * (organization_id, lower(external_email), coursera_course_id).
@@ -460,7 +465,7 @@ async function bulkUpsertBadgeProgressChunk(
       ${row.badgeTitle}::text,
       ${row.badgeLink}::text,
       ${row.numberOfCourses}::integer,
-      ${row.progressPercent}::numeric,
+      ${clampCourseraPercent(row.progressPercent)}::numeric,
       ${row.coursesCompleted}::integer,
       ${row.currentCourseName}::text,
       ${row.badgeCompleted}::boolean,
@@ -573,7 +578,10 @@ async function bulkUpsertBadgeProgressChunk(
       badge_title = EXCLUDED.badge_title,
       badge_link = COALESCE(EXCLUDED.badge_link, coursera_badge_progress.badge_link),
       number_of_courses = EXCLUDED.number_of_courses,
-      progress_percent = GREATEST(coursera_badge_progress.progress_percent, EXCLUDED.progress_percent),
+      progress_percent = LEAST(
+        100,
+        GREATEST(0, coursera_badge_progress.progress_percent, EXCLUDED.progress_percent)
+      ),
       courses_completed = GREATEST(coursera_badge_progress.courses_completed, EXCLUDED.courses_completed),
       current_course_name = COALESCE(EXCLUDED.current_course_name, coursera_badge_progress.current_course_name),
       badge_completed = (coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed),

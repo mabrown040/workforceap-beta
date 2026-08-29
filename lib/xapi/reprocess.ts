@@ -8,6 +8,15 @@ import {
   replayPendingXapiStatements,
   type ReplayPendingXapiResult,
 } from '@/lib/coursera/replayPendingXapi';
+import { normalizePersistedXapiOrganizationId } from '@/lib/xapi/persistedOrganization';
+
+type PersistedXapiEvent = {
+  statement_id: string | null;
+  actor_email: string | null;
+  actor_identifier: string | null;
+  organization_id: string | null;
+  raw_payload: unknown;
+};
 
 export type ReprocessResult = {
   processed: number;
@@ -44,18 +53,12 @@ export async function reprocessUnmatchedXapiEvents(args: {
   const normalizedActor = args.actorIdentifier?.trim() || null;
 
   // Find unmatched coursera_xapi_events that have raw_payload
-  const unmatchedEvents = await prisma.$queryRaw<
-    Array<{
-      statement_id: string | null;
-      actor_email: string | null;
-      actor_identifier: string | null;
-      raw_payload: unknown;
-    }>
-  >`
+  const unmatchedEvents = await prisma.$queryRaw<PersistedXapiEvent[]>`
     SELECT
       statement_id,
       actor_email,
       actor_identifier,
+      organization_id,
       raw_payload
     FROM coursera_xapi_events
     WHERE completion_status IN ('unmatched', 'error')
@@ -100,18 +103,12 @@ export async function reprocessUnmatchedXapiEvents(args: {
  * of the "needs attention" queue.
  */
 export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<ReprocessResult> {
-  const events = await prisma.$queryRaw<
-    Array<{
-      statement_id: string | null;
-      actor_email: string | null;
-      actor_identifier: string | null;
-      raw_payload: unknown;
-    }>
-  >`
+  const events = await prisma.$queryRaw<PersistedXapiEvent[]>`
     SELECT
       cxe.statement_id,
       cxe.actor_email,
       cxe.actor_identifier,
+      cxe.organization_id,
       cxe.raw_payload
     FROM coursera_xapi_events cxe
     WHERE cxe.completion_status IN ('unmatched', 'error')
@@ -146,6 +143,18 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
         continue;
       }
 
+      const organizationId = normalizePersistedXapiOrganizationId(event.organization_id);
+      if (!organizationId) {
+        result.details.push({
+          statementId: event.statement_id,
+          actorEmail: event.actor_email,
+          result: 'error',
+          error: 'Persisted xAPI event has no trustworthy organization',
+        });
+        result.errors += 1;
+        continue;
+      }
+
       // If we have an actor email but the saved mapping table has no row
       // for it, optimistically auto-link any matching portal user so the
       // pipeline's direct-email branch resolves on the first try. (The
@@ -156,6 +165,7 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
       if (actorEmail) {
         const directUser = await prisma.user.findFirst({
           where: {
+            organizationId,
             deletedAt: null,
             email: { equals: actorEmail, mode: 'insensitive' },
           },
@@ -164,7 +174,7 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
         if (directUser) {
           await mapCourseraIdentityAndProgress({
             userId: directUser.id,
-            organizationId: directUser.organizationId,
+            organizationId,
             courseraEmail: actorEmail,
             actorIdentifier: parsed.actorIdentifier ?? event.actor_identifier ?? null,
             actorHomePage: parsed.actorHomePage ?? null,
@@ -173,7 +183,10 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
         }
       }
 
-      const { completions } = await handleInboundParsedStatement(parsed);
+      const { completions } = await handleInboundParsedStatement(parsed, {
+        organizationId,
+        requireOrganizationId: true,
+      });
       result.processed += 1;
 
       // After replay, read the canonical event status to decide whether the
@@ -259,18 +272,12 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
 export async function reprocessIgnoredXapiEventsWithMappings(
   limit = 100,
 ): Promise<ReprocessResult> {
-  const events = await prisma.$queryRaw<
-    Array<{
-      statement_id: string | null;
-      actor_email: string | null;
-      actor_identifier: string | null;
-      raw_payload: unknown;
-    }>
-  >`
+  const events = await prisma.$queryRaw<PersistedXapiEvent[]>`
     SELECT
       cxe.statement_id,
       cxe.actor_email,
       cxe.actor_identifier,
+      cxe.organization_id,
       cxe.raw_payload
     FROM coursera_xapi_events cxe
     WHERE cxe.completion_status = 'ignored'
@@ -290,12 +297,7 @@ export async function reprocessIgnoredXapiEventsWithMappings(
 }
 
 async function runReprocessPipeline(
-  events: Array<{
-    statement_id: string | null;
-    actor_email: string | null;
-    actor_identifier: string | null;
-    raw_payload: unknown;
-  }>,
+  events: PersistedXapiEvent[],
   expectedUserId?: string
 ): Promise<ReprocessResult> {
   const result: ReprocessResult = {
@@ -333,17 +335,23 @@ async function runReprocessPipeline(
         continue;
       }
 
-      // Verify the resolved user matches expected if provided
-      if (expectedUserId) {
-        const identity = {
-          email: parsed.email,
-          actorIdentifier: parsed.actorIdentifier,
-          actorHomePage: parsed.actorHomePage,
-        };
-        // Quick check: we'll let the pipeline resolve and verify after
+      const organizationId = normalizePersistedXapiOrganizationId(event.organization_id);
+      if (!organizationId) {
+        result.details.push({
+          statementId,
+          actorEmail: event.actor_email,
+          result: 'error',
+          error: 'Persisted xAPI event has no trustworthy organization',
+        });
+        result.errors += 1;
+        continue;
       }
 
-      const { completions } = await handleInboundParsedStatement(parsed);
+      const { completions } = await handleInboundParsedStatement(parsed, {
+        organizationId,
+        expectedUserId,
+        requireOrganizationId: true,
+      });
       result.processed += 1;
 
       const wasMatched = completions.some((c) => (c as { ok?: boolean }).ok === true);

@@ -48,14 +48,16 @@ describe('bulk Coursera raw insert tenant guards', () => {
       'utf8',
     );
 
-    expect(source).toContain(
-      'overall_progress = GREATEST(coursera_course_progress.overall_progress, EXCLUDED.overall_progress)',
+    expect(source).toContain('clampCourseraPercent(row.overallProgress)');
+    expect(source).toMatch(
+      /overall_progress = LEAST\(\s*100,\s*GREATEST\(0, coursera_course_progress\.overall_progress, EXCLUDED\.overall_progress\)\s*\)/,
     );
     expect(source).toContain(
       'is_completed = (coursera_course_progress.is_completed OR EXCLUDED.is_completed)',
     );
-    expect(source).toContain(
-      'progress_percent = GREATEST(coursera_badge_progress.progress_percent, EXCLUDED.progress_percent)',
+    expect(source).toContain('clampCourseraPercent(row.progressPercent)');
+    expect(source).toMatch(
+      /progress_percent = LEAST\(\s*100,\s*GREATEST\(0, coursera_badge_progress\.progress_percent, EXCLUDED\.progress_percent\)\s*\)/,
     );
     expect(source).toContain(
       'badge_completed = (coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed)',

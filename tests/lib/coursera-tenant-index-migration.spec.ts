@@ -47,6 +47,18 @@ describe('tenant-safe Coursera index rollout', () => {
     );
   });
 
+  it('adds future-write percent bounds without rewriting historical rows', () => {
+    expect(migration).toContain('coursera_course_progress_percent_range_check');
+    expect(migration).toContain('coursera_badge_progress_percent_range_check');
+    expect(migration).toContain(
+      'CHECK (overall_progress >= 0 AND overall_progress <= 100) NOT VALID',
+    );
+    expect(migration).toContain(
+      'CHECK (progress_percent >= 0 AND progress_percent <= 100) NOT VALID',
+    );
+    expect(migration).not.toMatch(/UPDATE\s+(?:public\.)?coursera_(?:course|badge)_progress/i);
+  });
+
   it('provides an attended, identity-free preflight and exact-definition verifier', () => {
     expect(precreateScript).toContain("process.argv.includes('--apply')");
     expect(precreateScript).toContain("WAP_ALLOW_COURSERA_INDEX_PRECREATE !== '1'");

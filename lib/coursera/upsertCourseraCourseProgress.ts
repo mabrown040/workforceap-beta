@@ -57,20 +57,11 @@ export async function upsertCourseraCourseProgress(
   await ensureCourseProgressTenantKeys();
 
   await prisma.$transaction(async (tx) => {
-    if (input.userId) {
-      const inputUser = await tx.user.findFirst({
-        where: { id: input.userId, deletedAt: null },
-        select: { organizationId: true },
-      });
-      if (!inputUser || inputUser.organizationId !== organizationId) {
-        throw new Error('Coursera progress user does not belong to the expected organization');
-      }
-    }
-
     // The still-serving schema also has a global lower(email)+course unique
-    // index. Under the same transaction, serialize that global identity and
-    // move a safely-owned legacy NULL-org row into this authenticated tenant
-    // before the tenant-local upsert runs.
+    // index. The adoption helper serializes that global identity, locks every
+    // incoming/existing linked user FOR SHARE through commit, and moves only a
+    // safely-owned legacy NULL-org row into this authenticated tenant before
+    // the tenant-local upsert runs.
     await adoptLegacyRawCourseProgressRows(tx, {
       organizationId,
       identities: [
@@ -102,16 +93,6 @@ export async function upsertCourseraCourseProgress(
 
     if (existing?.userId && input.userId && existing.userId !== input.userId) {
       throw new Error('Coursera progress identity conflict for existing linked row');
-    }
-
-    if (existing?.userId) {
-      const existingUser = await tx.user.findFirst({
-        where: { id: existing.userId, deletedAt: null },
-        select: { organizationId: true },
-      });
-      if (!existingUser || existingUser.organizationId !== organizationId) {
-        throw new Error('Existing Coursera progress is linked outside the expected organization');
-      }
     }
 
     const effectiveUserId = existing?.userId ?? input.userId;

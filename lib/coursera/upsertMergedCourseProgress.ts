@@ -55,6 +55,11 @@ export async function upsertMergedCourseProgress(
     updateStartedAt,
     statementCountIncrement = 0,
   } = args;
+  const boundedPercentComplete = merged.status === CourseProgressStatus.COMPLETED
+    ? 100
+    : Number.isFinite(merged.percentComplete)
+      ? Math.max(0, Math.min(100, merged.percentComplete))
+      : 0;
 
   const runAtomicUpsert = async (
     tx: Pick<Prisma.TransactionClient, '$queryRaw'>,
@@ -101,8 +106,8 @@ export async function upsertMergedCourseProgress(
       ${courseSlug},
       ${courseId},
       ${merged.status}::"course_progress_status",
-      ${merged.percentComplete},
-      ${merged.percentComplete},
+      ${boundedPercentComplete},
+      ${boundedPercentComplete},
       ${scoreScaled ?? null},
       ${scoreRaw ?? null},
       ${startedAt ?? null},
@@ -127,13 +132,19 @@ export async function upsertMergedCourseProgress(
         WHEN course_progress.status = 'COMPLETED'::"course_progress_status"
           OR EXCLUDED.status = 'COMPLETED'::"course_progress_status"
           THEN 100
-        ELSE GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete)
+        ELSE LEAST(
+          100,
+          GREATEST(0, course_progress.percent_complete, EXCLUDED.percent_complete)
+        )
       END,
       progress_pct = CASE
         WHEN course_progress.status = 'COMPLETED'::"course_progress_status"
           OR EXCLUDED.status = 'COMPLETED'::"course_progress_status"
           THEN 100
-        ELSE GREATEST(course_progress.progress_pct, EXCLUDED.progress_pct)
+        ELSE LEAST(
+          100,
+          GREATEST(0, course_progress.progress_pct, EXCLUDED.progress_pct)
+        )
       END,
       score_scaled = CASE
         WHEN EXCLUDED.score_scaled IS NULL THEN course_progress.score_scaled

@@ -65,5 +65,22 @@ describe('Stage A direct-email xAPI resolution', () => {
       actorHomePage: 'https://coursera.example',
       source: 'auto-direct-email',
     });
+
+    for (const mappingQuery of mocks.queryRaw.mock.calls.slice(0, 2)) {
+      const sql = Array.from(mappingQuery[0] as unknown as readonly string[]).join('');
+      expect(sql).toContain('u.deleted_at IS NULL');
+      expect(sql).toContain('cim.organization_id = u.organization_id');
+      const tenantScope = mappingQuery.at(-1) as { sql?: string; values?: unknown[] };
+      expect(tenantScope.sql).toContain("NULLIF(u.organization_id, '')");
+      expect(tenantScope.values).toContain('org-1');
+    }
+    expect(mocks.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          organizationId: 'org-1',
+          deletedAt: null,
+        }),
+      }),
+    );
   });
 });

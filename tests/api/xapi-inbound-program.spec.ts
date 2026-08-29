@@ -67,6 +67,8 @@ describe('handleInboundParsedStatement program resolution', () => {
 
   it('persists a linked course completion without enrollment instead of returning No program enrolled', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      organizationId: 'org-1',
+      deletedAt: null,
       enrolledProgram: 'stale-program',
       courseEnrollments: [
         { programSlug: 'historical-program', isPrimary: false },
@@ -126,6 +128,8 @@ describe('handleInboundParsedStatement program resolution', () => {
 
   it('threads the resolved primary program through one progress upsert and completion orchestration', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      organizationId: 'org-1',
+      deletedAt: null,
       enrolledProgram: 'legacy-program',
       courseEnrollments: [
         { programSlug: 'legacy-program', isPrimary: false },
@@ -163,6 +167,7 @@ describe('handleInboundParsedStatement program resolution', () => {
     vi.mocked(isXapiCompletionVerb).mockReturnValue(false);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       organizationId: 'org-1',
+      deletedAt: null,
       enrolledProgram: null,
       courseEnrollments: [],
     } as never);
@@ -221,6 +226,46 @@ describe('handleInboundParsedStatement program resolution', () => {
         milestoneRef: 'canonical-program',
         source: 'coursera-webhook',
       }),
+    );
+  });
+
+  it('fails closed before progress or rewards when a resolved mapping points outside the request tenant', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      organizationId: 'org-2',
+      deletedAt: null,
+      enrolledProgram: 'other-program',
+      courseEnrollments: [],
+    } as never);
+
+    const result = await handleInboundParsedStatement(
+      {
+        email: 'member@example.com',
+        courseSlug: 'course-one',
+        courseName: 'Course One',
+        courseraCourseId: 'coursera-course-1',
+        activityType: 'course',
+        statementId: 'statement-cross-tenant',
+        verbId: 'http://adlnet.gov/expapi/verbs/completed',
+        rawStatement: {},
+      },
+      { organizationId: 'org-1', statementHash: 'hash-cross-tenant' },
+    );
+
+    expect(result.completions).toEqual([
+      expect.objectContaining({ ok: false, error: 'Member not found' }),
+    ]);
+    expect(completeMemberCourse).not.toHaveBeenCalled();
+    expect(upsertCourseProgressFromXapiStatement).not.toHaveBeenCalled();
+    expect(awardPoints).not.toHaveBeenCalled();
+    expect(recordXapiEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        completionStatus: 'unmatched',
+        organizationId: 'org-1',
+      }),
+    );
+    expect(markXapiStatementProcessed).toHaveBeenCalledWith(
+      'statement-cross-tenant',
+      'hash-cross-tenant',
     );
   });
 });

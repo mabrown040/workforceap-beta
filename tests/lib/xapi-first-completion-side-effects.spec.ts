@@ -71,6 +71,7 @@ vi.mock('@/lib/db/prisma', () => ({
         email: 'member@example.com',
         fullName: 'Member One',
         organizationId: 'org-1',
+        deletedAt: null,
         enrolledProgram: 'program-one',
         courseEnrollments: [{ programSlug: 'program-one', isPrimary: true }],
       })),

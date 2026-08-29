@@ -34,9 +34,7 @@ export async function handleInboundParsedStatement(
     actorHomePage: parsed.actorHomePage,
   };
 
-  const resolvedUser = await resolveXapiUser(identity, { organizationId: options.organizationId });
-
-  if (!resolvedUser) {
+  const finishUnmatched = async (error: string): Promise<InboundStatementRunResult> => {
     await recordXapiEvent({
       statementId: parsed.statementId,
       identity,
@@ -45,7 +43,7 @@ export async function handleInboundParsedStatement(
       courseName: parsed.courseName,
       verbId: parsed.verbId,
       completionStatus: 'unmatched',
-      error: 'No matching member identity found',
+      error,
       rawPayload: parsed.rawStatement,
     });
 
@@ -61,12 +59,19 @@ export async function handleInboundParsedStatement(
 
     await markXapiStatementProcessed(parsed.statementId, options.statementHash);
     return { completions };
+  };
+
+  const resolvedUser = await resolveXapiUser(identity, { organizationId: options.organizationId });
+
+  if (!resolvedUser) {
+    return finishUnmatched('No matching member identity found');
   }
 
   const dbUser = await prisma.user.findUnique({
     where: { id: resolvedUser.userId },
     select: {
       organizationId: true,
+      deletedAt: true,
       enrolledProgram: true,
       courseEnrollments: {
         where: options.organizationId ? { organizationId: options.organizationId } : undefined,
@@ -74,9 +79,23 @@ export async function handleInboundParsedStatement(
       },
     },
   });
+  const expectedOrganizationId = options.organizationId?.trim() || null;
+  if (
+    !dbUser
+    || dbUser.deletedAt
+    || (expectedOrganizationId && dbUser.organizationId !== expectedOrganizationId)
+  ) {
+    console.warn('[inboundStatementPipeline] rejected stale or cross-tenant xAPI identity', {
+      userId: resolvedUser.userId,
+      expectedOrganizationId,
+      memberOrganizationId: dbUser?.organizationId ?? null,
+      deleted: Boolean(dbUser?.deletedAt),
+    });
+    return finishUnmatched('Resolved member is not active in the expected organization');
+  }
   let enrolledProgram = resolveInboundProgramSlug({
-    enrollments: dbUser?.courseEnrollments ?? [],
-    legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
+    enrollments: dbUser.courseEnrollments,
+    legacyEnrolledProgram: dbUser.enrolledProgram,
   });
 
   if (!enrolledProgram && (await isAdmin(resolvedUser.userId))) {

@@ -76,10 +76,49 @@ describe('upsertMergedCourseProgress atomic merge ladder', () => {
       );
       expect(sql).toContain('THEN 100');
       expect(sql).toContain(
-        'GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete)',
+        'GREATEST(0, course_progress.percent_complete, EXCLUDED.percent_complete)',
       );
+      expect(sql).toContain('LEAST(\n          100,');
       expect(sql).toContain('GREATEST(course_progress.score_raw, EXCLUDED.score_raw)');
       expect(sql).toContain('statement_count = course_progress.statement_count +');
     }
+  });
+
+  it('bounds malformed provider percentages before insert and at the conflict ladder', async () => {
+    const statements: Array<{ sql: string; values: unknown[] }> = [];
+    const db = {
+      $queryRaw: vi.fn(async (statement: { sql: string; values: unknown[] }) => {
+        statements.push(statement);
+        if (statement.sql.includes('pg_advisory_xact_lock')) return [{}];
+        if (statement.sql.includes('SELECT status')) return [];
+        return [{ status: CourseProgressStatus.IN_PROGRESS, inserted: true }];
+      }),
+    };
+
+    await upsertMergedCourseProgress(db as never, {
+      userId: 'user-1',
+      programSlug: 'program-one',
+      courseSlug: 'course-one',
+      courseId: 'provider-course-1',
+      merged: {
+        status: CourseProgressStatus.IN_PROGRESS,
+        percentComplete: 150,
+        lastActivityAt: null,
+      },
+      existing: null,
+      completedAt: null,
+    });
+
+    const write = statements.find((statement) =>
+      statement.sql.includes('INSERT INTO course_progress'),
+    );
+    expect(write?.values.filter((value) => value === 100)).toHaveLength(2);
+    expect(write?.values).not.toContain(150);
+    expect(write?.sql).toContain(
+      'GREATEST(0, course_progress.percent_complete, EXCLUDED.percent_complete)',
+    );
+    expect(write?.sql).toContain(
+      'GREATEST(0, course_progress.progress_pct, EXCLUDED.progress_pct)',
+    );
   });
 });

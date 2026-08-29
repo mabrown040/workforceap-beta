@@ -249,7 +249,7 @@ async function getMappingByActorInOrg(
   const actorIdentifier = normalizeActorValue(identity.actorIdentifier);
   if (!actorIdentifier) return null;
   const actorHomePage = normalizeActorValue(identity.actorHomePage) || '';
-  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, organizationId);
+  const orgFilter = orgScopeSql(Prisma.sql`u.organization_id`, organizationId);
 
   const rows = await prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -270,6 +270,8 @@ async function getMappingByActorInOrg(
     JOIN users u ON u.id = cim.user_id
     WHERE cim.actor_identifier = ${actorIdentifier}
       AND COALESCE(cim.actor_home_page, '') = ${actorHomePage}
+      AND u.deleted_at IS NULL
+      AND cim.organization_id = u.organization_id
       ${orgFilter}
     LIMIT 1
   `;
@@ -287,7 +289,7 @@ async function getMappingByEmailInOrg(
 ): Promise<MappingRow | null> {
   const email = normalizeEmail(identity.email);
   if (!email) return null;
-  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, organizationId);
+  const orgFilter = orgScopeSql(Prisma.sql`u.organization_id`, organizationId);
 
   const rows = await prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -307,6 +309,8 @@ async function getMappingByEmailInOrg(
     FROM coursera_identity_mappings cim
     JOIN users u ON u.id = cim.user_id
     WHERE LOWER(cim.coursera_email) = ${email}
+      AND u.deleted_at IS NULL
+      AND cim.organization_id = u.organization_id
       ${orgFilter}
     LIMIT 1
   `;
@@ -363,6 +367,7 @@ export async function resolveXapiUser(
   const user = await prisma.user.findFirst({
     where: {
       ...(organizationId ? { organizationId } : {}),
+      deletedAt: null,
       email: {
         equals: email,
         mode: 'insensitive',

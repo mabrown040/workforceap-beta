@@ -107,7 +107,7 @@ describe('xAPI canonical progress without enrollment', () => {
       "WHEN course_progress.status = 'COMPLETED'::\"course_progress_status\"",
     );
     expect(write?.sql).toContain(
-      'GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete)',
+      'GREATEST(0, course_progress.percent_complete, EXCLUDED.percent_complete)',
     );
     expect(write?.sql).toContain(
       'statement_count = course_progress.statement_count +',

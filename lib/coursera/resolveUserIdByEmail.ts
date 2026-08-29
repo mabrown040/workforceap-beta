@@ -74,14 +74,20 @@ export async function resolveUserIdsByCourseraEmails(
 
   const mappingHits: Array<{ email: string; userId: string }> = [];
   const organizationFilter = options.organizationId
-    ? Prisma.sql`AND u.organization_id = ${options.organizationId}`
+    ? Prisma.sql`
+        AND cim.organization_id = ${options.organizationId}
+        AND u.organization_id = ${options.organizationId}
+      `
     : Prisma.empty;
   for (let i = 0; i < unresolved.length; i += CHUNK) {
     const chunk = unresolved.slice(i, i + CHUNK);
     const rows = await prisma.$queryRaw<Array<{ email: string; userId: string }>>`
       SELECT LOWER(cim.coursera_email) AS email, cim.user_id AS "userId"
       FROM coursera_identity_mappings cim
-      INNER JOIN users u ON u.id = cim.user_id AND u.deleted_at IS NULL
+      INNER JOIN users u
+        ON u.id = cim.user_id
+       AND u.deleted_at IS NULL
+       AND u.organization_id = cim.organization_id
       WHERE cim.coursera_email IS NOT NULL
         AND LOWER(cim.coursera_email) IN (${Prisma.join(chunk)})
         ${organizationFilter}

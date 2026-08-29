@@ -30,6 +30,14 @@ type RawIdentityConflict = {
   externalKey: string;
 };
 
+type RawLinkedUser = {
+  userId: string;
+};
+
+type LockedUser = {
+  id: string;
+};
+
 function normalizeIdentityRows<T extends { externalEmail: string; userId: string | null }>(
   rows: T[],
   getExternalKey: (row: T) => string,
@@ -89,6 +97,56 @@ export async function lockLegacyRawCourseraEmails(
 }
 
 /**
+ * Hold every user row that can authorize a raw-progress adoption until the
+ * caller-owned transaction commits. Organization transfers and soft deletes
+ * update the same rows, so FOR SHARE closes the validation-to-mutation race.
+ *
+ * The email advisory locks must always be acquired before this helper. User
+ * IDs are sorted so batches that overlap on users take row locks in one order.
+ */
+async function lockActiveRawProgressUsers(
+  db: Pick<Prisma.TransactionClient, '$queryRaw'>,
+  args: {
+    organizationId: string;
+    userIds: Array<string | null>;
+    identityKind: 'course' | 'badge';
+  },
+): Promise<string[]> {
+  const userIds = [...new Set(
+    args.userIds
+      .map((userId) => userId?.trim() || '')
+      .filter(Boolean),
+  )].sort();
+  if (userIds.length === 0) return [];
+
+  const lockedUsers = await db.$queryRaw<LockedUser[]>(Prisma.sql`
+    SELECT candidate_user.id
+    FROM users AS candidate_user
+    WHERE candidate_user.id IN (${Prisma.join(userIds)})
+      AND candidate_user.organization_id = ${args.organizationId}
+      AND candidate_user.deleted_at IS NULL
+    ORDER BY candidate_user.id
+    FOR SHARE
+  `);
+  const lockedUserIds = [...new Set(
+    lockedUsers
+      .map((user) => user.id?.trim() || '')
+      .filter(Boolean),
+  )].sort();
+
+  if (
+    lockedUserIds.length !== userIds.length
+    || lockedUserIds.some((userId, index) => userId !== userIds[index])
+  ) {
+    throw new Error(
+      `Coursera ${args.identityKind} identity conflict (linked-user-outside-organization)`,
+    );
+  }
+
+  return lockedUserIds;
+}
+
+/**
  * Adopt only exact legacy course identities whose tenant is still unknown.
  * Existing tenant ownership and both existing/incoming linked users are
  * validated before the NULL organization_id is changed.
@@ -119,6 +177,30 @@ export async function adoptLegacyRawCourseProgressRows(
     ${identity.courseraCourseId.trim()}::text,
     ${identity.userId}::text
   )`);
+
+  const existingLinkedUsers = await db.$queryRaw<RawLinkedUser[]>(Prisma.sql`
+    WITH incoming(external_email, external_key, user_id) AS (
+      VALUES ${Prisma.join(tuples, ', ')}
+    )
+    SELECT DISTINCT existing.user_id AS "userId"
+    FROM incoming
+    INNER JOIN coursera_course_progress existing
+      ON LOWER(existing.external_email) = incoming.external_email
+      AND existing.coursera_course_id = incoming.external_key
+    WHERE existing.user_id IS NOT NULL
+    ORDER BY existing.user_id
+  `);
+  const lockedUserIds = await lockActiveRawProgressUsers(db, {
+    organizationId,
+    userIds: [
+      ...identities.map((identity) => identity.userId),
+      ...existingLinkedUsers.map((row) => row.userId),
+    ],
+    identityKind: 'course',
+  });
+  const existingUserWasLocked = lockedUserIds.length > 0
+    ? Prisma.sql`existing.user_id IN (${Prisma.join(lockedUserIds)})`
+    : Prisma.sql`FALSE`;
 
   const conflicts = await db.$queryRaw<RawIdentityConflict[]>(Prisma.sql`
     WITH incoming(external_email, external_key, user_id) AS (
@@ -192,12 +274,15 @@ export async function adoptLegacyRawCourseProgressRows(
       AND existing.coursera_course_id = incoming.external_key
       AND (
         existing.user_id IS NULL
-        OR EXISTS (
-          SELECT 1
-          FROM users linked_user
-          WHERE linked_user.id = existing.user_id
-            AND linked_user.organization_id = ${organizationId}::text
-            AND linked_user.deleted_at IS NULL
+        OR (
+          ${existingUserWasLocked}
+          AND EXISTS (
+            SELECT 1
+            FROM users linked_user
+            WHERE linked_user.id = existing.user_id
+              AND linked_user.organization_id = ${organizationId}::text
+              AND linked_user.deleted_at IS NULL
+          )
         )
       )
   `)) || 0;
@@ -227,6 +312,30 @@ export async function adoptLegacyRawBadgeProgressRows(
     ${identity.badgeSlug.trim()}::text,
     ${identity.userId}::text
   )`);
+
+  const existingLinkedUsers = await db.$queryRaw<RawLinkedUser[]>(Prisma.sql`
+    WITH incoming(external_email, external_key, user_id) AS (
+      VALUES ${Prisma.join(tuples, ', ')}
+    )
+    SELECT DISTINCT existing.user_id AS "userId"
+    FROM incoming
+    INNER JOIN coursera_badge_progress existing
+      ON LOWER(existing.external_email) = incoming.external_email
+      AND existing.badge_slug = incoming.external_key
+    WHERE existing.user_id IS NOT NULL
+    ORDER BY existing.user_id
+  `);
+  const lockedUserIds = await lockActiveRawProgressUsers(db, {
+    organizationId,
+    userIds: [
+      ...identities.map((identity) => identity.userId),
+      ...existingLinkedUsers.map((row) => row.userId),
+    ],
+    identityKind: 'badge',
+  });
+  const existingUserWasLocked = lockedUserIds.length > 0
+    ? Prisma.sql`existing.user_id IN (${Prisma.join(lockedUserIds)})`
+    : Prisma.sql`FALSE`;
 
   const conflicts = await db.$queryRaw<RawIdentityConflict[]>(Prisma.sql`
     WITH incoming(external_email, external_key, user_id) AS (
@@ -300,12 +409,15 @@ export async function adoptLegacyRawBadgeProgressRows(
       AND existing.badge_slug = incoming.external_key
       AND (
         existing.user_id IS NULL
-        OR EXISTS (
-          SELECT 1
-          FROM users linked_user
-          WHERE linked_user.id = existing.user_id
-            AND linked_user.organization_id = ${organizationId}::text
-            AND linked_user.deleted_at IS NULL
+        OR (
+          ${existingUserWasLocked}
+          AND EXISTS (
+            SELECT 1
+            FROM users linked_user
+            WHERE linked_user.id = existing.user_id
+              AND linked_user.organization_id = ${organizationId}::text
+              AND linked_user.deleted_at IS NULL
+          )
         )
       )
   `)) || 0;

@@ -4,11 +4,10 @@ import { isAdmin } from '@/lib/auth/roles';
 import {
   listCourseraIdentityMappings,
   listRecentUnmatchedXapiEvents,
-  upsertCourseraIdentityMapping,
 } from '@/lib/xapi/mappings';
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
-import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -94,15 +93,15 @@ async function _POST(request: Request) {
     }
   
     try {
-      const mapping = await upsertCourseraIdentityMapping({
+      const mapped = await mapCourseraIdentityAndProgress({
         userId: body.userId.trim(),
+        organizationId: ctx.organizationId,
         courseraEmail: body.courseraEmail,
         actorIdentifier: body.actorIdentifier,
         actorHomePage: body.actorHomePage,
         notes: body.notes,
         createdByUserId: ctx.user.id,
         source: 'manual-admin-api',
-        expectedOrganizationId: ctx.organizationId,
       });
   
       // Re-process unmatched xAPI events that might now match this mapping.
@@ -119,16 +118,6 @@ async function _POST(request: Request) {
       // historical events were short-circuited before `recordXapiEvent`
       // would not credit any progress.
       let reprocessResult;
-      let backfill;
-      try {
-        backfill = body.courseraEmail
-          ? await backfillUserIdForCourseraEmail(body.courseraEmail.trim(), body.userId.trim())
-          : { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
-      } catch (backfillError) {
-        console.error('[admin/coursera/mappings] backfill failed:', backfillError);
-        backfill = { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
-      }
-
       try {
         reprocessResult = await reprocessUnmatchedXapiEvents({
           userId: body.userId.trim(),
@@ -156,8 +145,8 @@ async function _POST(request: Request) {
       logAuditEvent({ user: { id: ctx.user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: body.userId?.trim() ?? ctx.user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
-        mapping,
-        backfill,
+        mapping: mapped.mapping,
+        backfill: mapped.backfill,
         reprocessed: reprocessResult,
         xapiReplay,
       });

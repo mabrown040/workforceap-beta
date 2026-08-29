@@ -3,7 +3,7 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import { parseXapiStatement } from '@/lib/xapi/statements';
-import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
+import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import {
   replayPendingXapiStatements,
   type ReplayPendingXapiResult,
@@ -159,20 +159,17 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
             deletedAt: null,
             email: { equals: actorEmail, mode: 'insensitive' },
           },
-          select: { id: true },
+          select: { id: true, organizationId: true },
         });
         if (directUser) {
-          try {
-            await upsertCourseraIdentityMapping({
-              userId: directUser.id,
-              courseraEmail: actorEmail,
-              actorIdentifier: event.actor_identifier ?? null,
-              source: 'auto-healed',
-            });
-          } catch (mappingError) {
-            // Non-fatal: the pipeline will still resolve via direct email.
-            console.warn('[autoHeal] mapping upsert failed:', mappingError);
-          }
+          await mapCourseraIdentityAndProgress({
+            userId: directUser.id,
+            organizationId: directUser.organizationId,
+            courseraEmail: actorEmail,
+            actorIdentifier: parsed.actorIdentifier ?? event.actor_identifier ?? null,
+            actorHomePage: parsed.actorHomePage ?? null,
+            source: 'auto-healed',
+          });
         }
       }
 

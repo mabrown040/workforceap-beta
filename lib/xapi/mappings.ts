@@ -37,6 +37,7 @@ type MappingRow = {
 
 type TenantScopeOptions = {
   organizationId?: string | null;
+  expectedUserId?: string | null;
 };
 
 type CourseraMappingDb = typeof prisma | Prisma.TransactionClient;
@@ -351,6 +352,7 @@ export async function resolveXapiUser(
 ): Promise<ResolvedXapiUser | null> {
   await ensureCourseraMappingTables();
   const organizationId = normalizeOrganizationId(options.organizationId);
+  const expectedUserId = options.expectedUserId?.trim() || null;
 
   const actorMapping = await getMappingByActorInOrg(identity, organizationId);
   const emailMapping = await getMappingByEmailInOrg(identity, organizationId);
@@ -360,6 +362,11 @@ export async function resolveXapiUser(
   }
 
   const selectedMapping = actorMapping ?? emailMapping;
+  if (selectedMapping && expectedUserId && selectedMapping.userId !== expectedUserId) {
+    console.warn('[resolveXapiUser] mapped identity does not match expected replay target');
+    return null;
+  }
+
   const directUser = selectedMapping
     ? await getDirectXapiEmailUser(identity, organizationId)
     : null;
@@ -408,6 +415,10 @@ export async function resolveXapiUser(
   const user = await getDirectXapiEmailUser(identity, organizationId);
 
   if (!user) return null;
+  if (expectedUserId && user.id !== expectedUserId) {
+    console.warn('[resolveXapiUser] direct email owner does not match expected replay target');
+    return null;
+  }
 
   // Auto-save through the guarded mapping transaction so historical raw rows
   // are adopted atomically and an existing identity can never be stolen.

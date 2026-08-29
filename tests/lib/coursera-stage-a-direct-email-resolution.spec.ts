@@ -160,4 +160,57 @@ describe('Stage A direct-email xAPI resolution', () => {
     expect(mocks.findFirst).not.toHaveBeenCalled();
     expect(mocks.executeRaw).not.toHaveBeenCalled();
   });
+
+  it('does not auto-map or promote a direct-email owner outside the expected replay target', async () => {
+    await expect(
+      resolveXapiUser(
+        {
+          email: 'learner@example.com',
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+        },
+        { organizationId: 'org-1', expectedUserId: 'reviewed-user' },
+      ),
+    ).resolves.toBeNull();
+
+    expect(mocks.findFirst).toHaveBeenCalled();
+    expect(mocks.mapIdentityAndProgress).not.toHaveBeenCalled();
+    expect(mocks.executeRaw).not.toHaveBeenCalled();
+  });
+
+  it('does not update mapping last-seen outside the expected replay target', async () => {
+    mocks.queryRaw.mockReset()
+      .mockResolvedValueOnce([
+        {
+          id: 'mapping-1',
+          userId: 'mapped-user',
+          organizationId: 'org-1',
+          courseraEmail: null,
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+          source: 'manual',
+          notes: null,
+          lastSeenAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userEmail: 'mapped@example.com',
+          userFullName: 'Mapped User',
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    await expect(
+      resolveXapiUser(
+        {
+          actorIdentifier: 'actor-1',
+          actorHomePage: 'https://coursera.example',
+        },
+        { organizationId: 'org-1', expectedUserId: 'reviewed-user' },
+      ),
+    ).resolves.toBeNull();
+
+    expect(mocks.findFirst).not.toHaveBeenCalled();
+    expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(mocks.mapIdentityAndProgress).not.toHaveBeenCalled();
+  });
 });

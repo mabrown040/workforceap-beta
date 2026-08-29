@@ -71,13 +71,16 @@ export async function handleInboundParsedStatement(
     return finishUnmatched('Persisted xAPI statement has no trustworthy organization');
   }
 
-  const resolvedUser = await resolveXapiUser(identity, { organizationId: expectedOrganizationId });
+  const expectedUserId = options.expectedUserId?.trim() || null;
+  const resolvedUser = await resolveXapiUser(identity, {
+    organizationId: expectedOrganizationId,
+    expectedUserId,
+  });
 
   if (!resolvedUser) {
     return finishUnmatched('No matching member identity found');
   }
 
-  const expectedUserId = options.expectedUserId?.trim() || null;
   if (expectedUserId && resolvedUser.userId !== expectedUserId) {
     console.warn('[inboundStatementPipeline] rejected unexpected replay target', {
       resolvedUserId: resolvedUser.userId,

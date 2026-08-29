@@ -16,6 +16,9 @@ const auditSource = readSource('scripts/audit-coursera-links.ts');
 const legacyAdoptionSource = readSource(
   'lib/coursera/legacyRawProgressAdoption.server.ts',
 );
+const b4bRawCourseWriterSource = readSource(
+  'lib/coursera/upsertCourseraCourseProgress.ts',
+);
 
 const atomicMappingRoutes = [
   'app/api/admin/coursera/map-unmatched/route.ts',
@@ -85,6 +88,9 @@ describe('Coursera Stage A legacy-writer compatibility', () => {
     expect(csvSource).toContain('courses_completed = GREATEST(');
     expect(csvSource).toContain(
       'badge_completed = (coursera_badge_progress.badge_completed OR EXCLUDED.badge_completed)',
+    );
+    expect(b4bRawCourseWriterSource).toMatch(
+      /overall_progress = LEAST\(\s*100,\s*GREATEST\(\s*0,\s*coursera_course_progress\.overall_progress,\s*EXCLUDED\.overall_progress\s*\)\s*\)/,
     );
   });
 

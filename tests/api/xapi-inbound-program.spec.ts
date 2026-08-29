@@ -289,6 +289,10 @@ describe('handleInboundParsedStatement program resolution', () => {
     expect(result.completions).toEqual([
       expect.objectContaining({ ok: false, error: 'Member not found' }),
     ]);
+    expect(resolveXapiUser).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'member@example.com' }),
+      { organizationId: 'org-1', expectedUserId: 'member-2' },
+    );
     expect(prisma.user.findUnique).not.toHaveBeenCalled();
     expect(completeMemberCourse).not.toHaveBeenCalled();
     expect(recordXapiEvent).toHaveBeenCalledWith(

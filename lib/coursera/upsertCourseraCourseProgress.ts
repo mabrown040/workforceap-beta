@@ -216,9 +216,13 @@ export async function upsertCourseraCourseProgress(
           coursera_course_progress.completion_time,
           EXCLUDED.completion_time
         ),
-        overall_progress = GREATEST(
-          coursera_course_progress.overall_progress,
-          EXCLUDED.overall_progress
+        overall_progress = LEAST(
+          100,
+          GREATEST(
+            0,
+            coursera_course_progress.overall_progress,
+            EXCLUDED.overall_progress
+          )
         ),
         is_completed = (
           coursera_course_progress.is_completed OR EXCLUDED.is_completed

@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import {
+  getProgramBySlug,
+  isCurriculumMigrationPending,
+  LEGACY_PROGRAM_TITLE_VALUES,
+  PROGRAMS,
+  SUPPORTED_PROGRAM_STORAGE_VALUES,
+} from '@/lib/content/programs';
+import { PROGRAM_INTEREST_OPTIONS } from '@/lib/validation/member';
 import { PROGRAM_SYLLABI } from '../../shared/programSyllabi';
 import {
   PROGRAMS as MARKETING_PROGRAMS,
@@ -14,7 +21,7 @@ const EXPECTED_SYLLABI = {
   'cybersecurity-professional-certificate-google': ['Networking and Cybersecurity Professional Certificate (Net+, Sec+)', 160, 14],
   'project-management-professional-certificate-microsoft': ['Project Management Professional Certificate (Microsoft)', 160, 10],
   'ai-practitioner-professional-certificate-aws': ['AI Practitioner Professional Certificate (AWS)', 160, 17],
-  'data-analytics-professional-certificate-google': ['Management Analyst & Business Intelligence Professional Certificate', 160, 13],
+  'data-analytics-professional-certificate-google': ['Management Analyst & Business Intelligence Professional Certificate', 160, 11],
   'data-science-professional-certificate-ibm': ['Database Administrator (DBA) Professional Certificate (IBM)', 160, 9],
   'aws-cloud-technology-amazon': ['AWS Cloud Technology Professional Certificate (AWS)', 160, 10],
   'ux-design-professional-certificate-google': ['User Experience & Interface Design Professional Certificate', 160, 8],
@@ -51,7 +58,16 @@ describe('TWC syllabus source lock', () => {
         expect(program?.title).toBe(syllabus.title);
         expect(program?.description).toBe(syllabus.description);
         expect(program?.syllabus).toEqual(syllabus);
-        expect(program?.courses.map(({ name, estimatedHours, description }) => ({ name, estimatedHours, description }))).toEqual(
+      }
+      expect(marketingProgram?.courses.map(({ name, estimatedHours, description }) => ({ name, estimatedHours, description }))).toEqual(
+        syllabus.courses.map((course) => ({
+          name: course.name,
+          estimatedHours: course.hours,
+          description: course.description,
+        })),
+      );
+      if (!nextProgram?.curriculumMigrationPending) {
+        expect(nextProgram?.courses.map(({ name, estimatedHours, description }) => ({ name, estimatedHours, description }))).toEqual(
           syllabus.courses.map((course) => ({
             name: course.name,
             estimatedHours: course.hours,
@@ -60,6 +76,95 @@ describe('TWC syllabus source lock', () => {
         );
       }
       expect(partnerBadge(marketingProgram!)).toBe(syllabus.providers);
+    },
+  );
+
+  it('keeps existing-enrollee operational course keys stable for repurposed slugs', () => {
+    const management = getProgramBySlug('data-analytics-professional-certificate-google');
+    const dba = getProgramBySlug('data-science-professional-certificate-ibm');
+
+    expect(management?.curriculumMigrationPending).toBe(true);
+    expect(management?.courses).toHaveLength(13);
+    expect(management?.courses[0]).toMatchObject({
+      slug: 'data-analytics-professional-certificate-google-course-1',
+      name: 'Introduction to Management Consulting',
+      estimatedHours: 5,
+    });
+    expect(dba?.curriculumMigrationPending).toBe(true);
+    expect(dba?.courses).toHaveLength(9);
+    expect(dba?.courses[0]).toMatchObject({ slug: 'what-is-datascience', name: 'What is Data Science?' });
+    expect(dba?.courses[7]).toMatchObject({
+      slug: 'data-science-professional-certificate-ibm-course-8',
+      name: 'Relational Database Administration (DBA)',
+    });
+  });
+
+  it('locks exact amended provider and readiness copy from the approved PDFs', () => {
+    const management = PROGRAM_SYLLABI['data-analytics-professional-certificate-google'];
+    const ux = PROGRAM_SYLLABI['ux-design-professional-certificate-google'];
+
+    expect(management.providers).toBe('Google & IBM via Coursera');
+    expect(management.providerLine).toContain('Google & IBM via Coursera');
+    expect(ux.courses[7]?.description).toBe(
+      'Hands-on labs, project work, and test preparation supporting all program competencies and career readiness.',
+    );
+  });
+
+  it('accepts applications but guards every direct training-enrollment writer during migration', () => {
+    expect(isCurriculumMigrationPending('data-analytics-professional-certificate-google')).toBe(true);
+    expect(isCurriculumMigrationPending('Database Administrator (DBA) Professional Certificate (IBM)')).toBe(true);
+    expect(isCurriculumMigrationPending('ux-design-professional-certificate-google')).toBe(false);
+
+    // B4B sync is intentionally excluded: it imports observed activity from
+    // the retired Enterprise paths for legacy learners. Every user/admin path
+    // that creates a fresh enrollment must either defer or reject assignment.
+    const directEnrollmentWriters = [
+      'app/api/apply/signup/route.ts',
+      'app/api/member/enroll/route.ts',
+      'app/api/admin/members/create/route.ts',
+      'app/api/admin/members/bulk-update/route.ts',
+      'app/api/admin/members/[id]/program/route.ts',
+      'app/api/admin/program-change-requests/[id]/route.ts',
+      'app/api/admin/coursera/reconcile/add-to-wap/route.ts',
+      'app/api/invite/accept/route.ts',
+    ];
+
+    for (const relativePath of directEnrollmentWriters) {
+      const source = readFileSync(join(process.cwd(), relativePath), 'utf8');
+      expect(source).toMatch(/curriculumMigrationPending|isCurriculumMigrationPending/);
+    }
+  });
+
+  it.each([
+    [
+      'data-analytics-professional-certificate-google',
+      '6-Management Analyst & Business Intelligence Professional Certificate (IBM).pdf',
+      '49079c1479a516089f3a374dbcbc35dc2b0b267eb99c22b22db93ea9777a41af',
+      10,
+    ],
+    [
+      'data-science-professional-certificate-ibm',
+      '7-Database Administrator (DBA) Professional Certificate (IBM).pdf',
+      'f1c3f8eb3838bc76bc7863b72ab7245ca5f632131cde28775f1b212037a1289f',
+      9,
+    ],
+    [
+      'ux-design-professional-certificate-google',
+      '9-User Experience & Interface Design Professional Certificate (Google).pdf',
+      '6ac3ac7d95b30786356fbc702245ac0ea42d5410594aa6add3629bdf2385ff08',
+      7,
+    ],
+  ] as const)(
+    '%s is locked to the approved PDF and preserves its official Coursera links',
+    (slug, sourceDocument, sourceSha256, linkedCourseCount) => {
+      const syllabus = PROGRAM_SYLLABI[slug];
+      expect(syllabus.sourceDocument).toBe(sourceDocument);
+      expect(syllabus.sourceSha256).toBe(sourceSha256);
+      expect(
+        syllabus.courses.filter(
+          (course) => 'courseraSlug' in course && Boolean(course.courseraSlug),
+        ).length,
+      ).toBe(linkedCourseCount);
     },
   );
 
@@ -78,6 +183,23 @@ describe('TWC syllabus source lock', () => {
     ],
   ] as const)('keeps the previous title %s resolvable', (previousTitle, canonicalSlug) => {
     expect(getProgramBySlug(previousTitle)?.slug).toBe(canonicalSlug);
+  });
+
+  it('shows each approved title once while retaining exact historical storage values', () => {
+    const approvedTitles = [
+      'Management Analyst & Business Intelligence Professional Certificate',
+      'Database Administrator (DBA) Professional Certificate (IBM)',
+      'User Experience & Interface Design Professional Certificate',
+    ];
+
+    for (const title of approvedTitles) {
+      expect(PROGRAM_INTEREST_OPTIONS.filter((option) => option === title)).toHaveLength(1);
+    }
+    for (const legacyTitle of LEGACY_PROGRAM_TITLE_VALUES) {
+      expect(SUPPORTED_PROGRAM_STORAGE_VALUES).toContain(legacyTitle);
+      expect(getProgramBySlug(legacyTitle)).toBeDefined();
+      expect(PROGRAM_INTEREST_OPTIONS).not.toContain(legacyTitle);
+    }
   });
 
   it('renders syllabus facts and removes the generic course placeholder', () => {

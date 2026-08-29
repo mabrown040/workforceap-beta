@@ -14,7 +14,7 @@ const REASON_BY_ANSWER: Record<string, Partial<Record<string, string>>> = {
     health: 'You want to help people with their health - our healthcare track fits that focus.',
     building: 'You like building and making things - manufacturing and trades programs match.',
     managing: 'You enjoy coordinating and leading - project management and business tracks are a strong fit.',
-    data: "You're drawn to data and numbers - cloud, analytics, and data science programs align.",
+    data: "You're drawn to data and numbers - cloud, management intelligence, and database programs align.",
     not_sure: "You're exploring - this program is a solid option based on your other answers.",
   },
   q2: {

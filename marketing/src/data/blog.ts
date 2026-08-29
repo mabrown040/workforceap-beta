@@ -107,9 +107,9 @@ The gold standard for IT support and help desk roles. Two exams covering hardwar
 3–5 months | Starting salary $95K–$145K
 Cloud is everywhere. This program covers AWS architecture, DevOps, Python, and data analytics — and Amazon's name on your resume opens doors.
 
-**4. IBM Data Science Professional Certificate**
+**4. Database Administrator (DBA) Professional Certificate (IBM)**
 3–5 months | Starting salary $88K–$130K
-Python, SQL, machine learning, and Jupyter notebooks. Data science skills are in demand across every industry.
+SQL, Python, Linux, ETL, database security, backup and recovery, and performance tuning for database-administration careers.
 
 **5. Google Project Management Certificate**
 3–5 months | Starting salary $82K–$112K

@@ -62,16 +62,16 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     rampNote: 'Assumes basic computer comfort. Strong employer demand and higher salary ceiling than most entry tracks.',
   },
   'data-analytics-professional-certificate-google': {
-    bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',
-    jobOutcomes: ['Data Analyst', 'Business Analyst', 'Marketing Analyst'],
+    bestFor: 'Learners who want to turn business problems and data into recommendations for management.',
+    jobOutcomes: ['Management Analyst', 'Business Intelligence Analyst', 'Market Research Analyst'],
     difficulty: 2,
-    rampNote: 'Spreadsheets first, then SQL and R. No prior data experience required.',
+    rampNote: 'No prior consulting background required. Builds from business analysis and strategy into dashboards, applied AI, and a consulting capstone.',
   },
   'data-science-professional-certificate-ibm': {
-    bestFor: 'Strong interest in data + programming. Python, ML, Jupyter.',
-    jobOutcomes: ['Data Scientist', 'ML Engineer', 'Analytics Engineer', 'Database Administrator'],
+    bestFor: 'Learners who want to operate, secure, automate, and improve production database systems.',
+    jobOutcomes: ['Database Administrator', 'Junior Database Administrator', 'Database Operations Specialist', 'Database Architect (adjacent path)'],
     difficulty: 3,
-    rampNote: 'Involves Python and machine learning — best with some coding comfort.',
+    rampNote: 'Technical track with SQL, Python, Linux, ETL, backup and recovery, security, and performance tuning.',
   },
   'project-management-professional-certificate-microsoft': {
     bestFor: 'Organizers and coordinators. Agile, Scrum — transferable across industries.',

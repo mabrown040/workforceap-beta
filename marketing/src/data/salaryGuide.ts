@@ -267,7 +267,7 @@ export const salaryInsights: SalaryInsight[] = [
   {
     icon: 'lightbulb',
     title: 'Higher ranges = deeper programs',
-    desc: 'Cloud, AI engineering, and data science tracks sit at the top of the range for a reason — more depth, more commitment. Worth it if you will finish.',
+    desc: 'Cloud, AI engineering, and database administration tracks sit at the top of the range for a reason — more depth, more commitment. Worth it if you will finish.',
   },
   {
     icon: 'check-circle',

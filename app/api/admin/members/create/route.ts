@@ -3,7 +3,11 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  getProgramBySlug,
+} from '@/lib/content/programs';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -86,6 +90,15 @@ const ETHNICITY_OPTIONS = [
     const program = getProgramBySlug(programSlug);
     if (!program) {
       return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+    }
+    if (program.curriculumMigrationPending) {
+      return NextResponse.json(
+        {
+          error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+          code: CURRICULUM_MIGRATION_PENDING_CODE,
+        },
+        { status: 409 },
+      );
     }
 
     // Fetch org early so FK lookups can be tenant-scoped (AUDIT §C-T8).

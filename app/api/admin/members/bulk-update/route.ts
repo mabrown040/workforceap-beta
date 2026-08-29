@@ -10,6 +10,11 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import type { PipelineBoardStage, MemberStatus } from '@prisma/client';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  isCurriculumMigrationPending,
+} from '@/lib/content/programs';
 
 const MAX_MEMBERS = 100;
 
@@ -48,6 +53,15 @@ async function _POST(request: NextRequest) {
     // Validate that at least one field is being updated
     if (pipelineStage === undefined && memberStatus === undefined && counselorUserId === undefined && programSlug === undefined) {
       return NextResponse.json({ error: 'No updates specified' }, { status: 400 });
+    }
+    if (programSlug && isCurriculumMigrationPending(programSlug)) {
+      return NextResponse.json(
+        {
+          error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+          code: CURRICULUM_MIGRATION_PENDING_CODE,
+        },
+        { status: 409 },
+      );
     }
 
     // Fetch members within tenant scope

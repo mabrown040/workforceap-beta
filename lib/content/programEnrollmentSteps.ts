@@ -93,15 +93,15 @@ const STEPS_BY_SLUG: Record<string, ProgramEnrollmentStep[]> = {
     DEFAULT_STEPS[0],
     {
       id: 'staff_assign',
-      title: 'Staff assigns Google Data Analytics Professional Certificate',
-      description: 'You will work through the Coursera specialization; capstone and optional external assessments are explained in Training.',
+      title: 'Staff assigns the Management Analyst & Business Intelligence pathway',
+      description: 'Your curated Google and IBM Coursera courses, WorkforceAP lab, consulting capstone, and completion requirements are explained in Training.',
     },
     DEFAULT_STEPS[2],
     {
       id: 'exam',
       title: 'Credentials after the program',
       description:
-        'Google professional certificates are earned through Coursera completion. Some learners pursue additional vendor exams later — your counselor can discuss options.',
+        'Individual Coursera course certificates may be available. This curated pathway has its own WorkforceAP completion requirements; your counselor can explain any optional credentials.',
     },
     DEFAULT_STEPS[4],
   ],

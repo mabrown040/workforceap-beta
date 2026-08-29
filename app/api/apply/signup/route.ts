@@ -244,6 +244,12 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     if (!program) {
       return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
     }
+    // Keep accepting applications for newly approved programs while their
+    // Enterprise Coursera curricula are activated. The application records
+    // the exact preference, but enrollment is deliberately deferred so a new
+    // student is never assigned the retired curriculum retained for existing
+    // progress.
+    const curriculumAssignmentPending = program.curriculumMigrationPending === true;
     const secondaryTitles = programRankedSlugs
       .slice(1)
       .map((s) => getProgramBySlug(s)?.title)
@@ -439,7 +445,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         // other signup. Count funded seats BEFORE the enrollment upsert so
         // this signup does not count itself against the cap.
         let stampSponsorship = false;
-        if (sponsorPartner) {
+        if (sponsorPartner && !curriculumAssignmentPending) {
           // Scoped to the sponsorship WINDOW, not lifetime: `sponsoredByPartnerId`
           // is never cleared, so an unscoped count would still read last term's
           // total after a rollover and leave every new student unfunded.
@@ -458,16 +464,20 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             email: user.email!,
             fullName,
             phone,
-            enrolledProgram: programSlug,
-            enrolledAt: new Date(),
+            enrolledProgram: curriculumAssignmentPending ? null : programSlug,
+            enrolledAt: curriculumAssignmentPending ? null : new Date(),
             needsComputerSupportFollowUp: needsComputerSupportFollowUp === true,
             careerRecommendationJson: careerRecommendationJson ?? undefined,
           },
           update: {
             fullName,
             phone,
-            enrolledProgram: programSlug,
-            ...(priorUser && !priorUser.enrolledAt ? { enrolledAt: new Date() } : {}),
+            ...(!curriculumAssignmentPending
+              ? {
+                  enrolledProgram: programSlug,
+                  ...(priorUser && !priorUser.enrolledAt ? { enrolledAt: new Date() } : {}),
+                }
+              : {}),
             ...(needsComputerSupportFollowUp === true ? { needsComputerSupportFollowUp: true } : {}),
             ...(careerRecommendationJson !== undefined && careerRecommendationJson !== null
               ? { careerRecommendationJson }
@@ -478,7 +488,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
         // Self-serve enroll (POST /api/member/enroll) and admin create both do this.
         // Signup must do the same so inactivity crons and reporting see consistent state.
-        if (programSlug) {
+        if (programSlug && !curriculumAssignmentPending) {
           // Multi-program: signup creates the user's first enrollment, mark
           // it primary. Composite-keyed upsert ensures retries don't create
           // duplicate (userId, programSlug) rows.
@@ -678,6 +688,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         metadata: {
           smsOptIn: smsOptIn ?? false,
           program_ranked_slugs: programRankedSlugs,
+          curriculum_assignment_pending: curriculumAssignmentPending,
           ...getConversionValuePayload('apply_signup_completed'),
           ...attributionMetadata,
         },
@@ -877,6 +888,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({
         success: true,
         redirectTo: `/apply/confirmation${schoolQuery}${minorQuery}`,
+        curriculumAssignmentPending,
       });
     }
   
@@ -884,6 +896,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       success: true,
       message: 'Please verify your email, then log in to view your dashboard and next steps.',
       redirectTo: '/login',
+      curriculumAssignmentPending,
     });
   } catch (error) {
     logger.error('/apply/signup', { err: error });

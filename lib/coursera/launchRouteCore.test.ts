@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createCourseraLaunchHandler, type CourseraLaunchDependencies } from './launchRouteCore';
 
 type RedirectResult = { redirectedTo: string };
-type TestProgram = { courses: Array<{ slug: string }> };
+type TestProgram = { courses: Array<{ slug: string; courseraSlug?: string }> };
 
 const redirect = (url: URL | string): RedirectResult => ({ redirectedTo: String(url) });
 
@@ -79,6 +79,33 @@ test('Coursera launch route passes discovered course slug to the org-scoped reso
     'second-course',
   ]);
   assert.equal(res.redirectedTo, 'https://www.coursera.org/learn/second-course');
+});
+
+test('Coursera launch route uses an approved syllabus slug before a stale index mapping', async () => {
+  const handler = createCourseraLaunchHandler(makeDeps({
+    getProgramBySlug: () => ({
+      courses: [
+        {
+          slug: 'introduction-to-management-consulting',
+          courseraSlug: 'introduction-to-management-consulting',
+        },
+      ],
+    }),
+    getCourseraConfig: () => ({
+      courseIdMap: {
+        'it-support-professional-certificate-ibm': ['retired-course-at-the-same-index'],
+      },
+    }),
+  }));
+
+  const res = await handler(new Request(
+    'https://workforceap.test/api/member/coursera/launch?course=introduction-to-management-consulting',
+  ));
+
+  assert.equal(
+    res.redirectedTo,
+    'https://www.coursera.org/learn/introduction-to-management-consulting',
+  );
 });
 
 test('Coursera launch route uses configured course mapping for a requested course', async () => {

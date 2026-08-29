@@ -17,6 +17,11 @@ import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server'
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  isCurriculumMigrationPending,
+} from '@/lib/content/programs';
 
 /**
  * POST /api/admin/coursera/reconcile/add-to-wap
@@ -101,6 +106,15 @@ const bodySchema = z.object({
     const courseraExternalId = parsed.data.courseraExternalId.trim();
     const programId = parsed.data.programId.trim();
     const programSlug = parsed.data.programSlug?.trim() || null;
+    if (isCurriculumMigrationPending(programSlug)) {
+      return NextResponse.json(
+        {
+          error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+          code: CURRICULUM_MIGRATION_PENDING_CODE,
+        },
+        { status: 409 },
+      );
+    }
   
     // Step 1: verify the learner is in Coursera's roster.
     // We intentionally drain the full roster (rather than hit a per-user

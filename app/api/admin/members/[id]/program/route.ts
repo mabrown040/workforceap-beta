@@ -4,7 +4,11 @@ import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { canAdminActInSubjectOrganization } from '@/lib/tenant/adminSubjectAccess';
-import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  getProgramBySlug,
+} from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 
@@ -39,6 +43,15 @@ export const PATCH = withApiGuc(async (
   const program = getProgramBySlug(programSlug);
   if (!program) {
     return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+  }
+  if (program.curriculumMigrationPending) {
+    return NextResponse.json(
+      {
+        error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+        code: CURRICULUM_MIGRATION_PENDING_CODE,
+      },
+      { status: 409 },
+    );
   }
 
   // Org admins stay inside their own tenant. Platform super-admins may act on

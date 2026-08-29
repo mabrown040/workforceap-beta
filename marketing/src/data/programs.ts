@@ -32,6 +32,7 @@ export interface ProgramCourse {
   name: string;
   estimatedHours: number;
   description?: string;
+  courseraSlug?: string;
 }
 
 export interface ProgramExtra {
@@ -222,46 +223,46 @@ const BASE_PROGRAMS: Program[] = [
   },
   {
     slug: 'data-analytics-professional-certificate-google',
-    title: 'Management and Data Analyst Professional Certificate (Google/IBM)',
+    title: 'Management Analyst & Business Intelligence Professional Certificate',
     category: 'cloud-data',
     categoryLabel: 'Cloud & Data',
     categoryColor: '#2b7bb9',
     icon: '📊',
     duration: '3-5 months, 10 hrs/week',
     salary: 'Starting salary: $72K-$102K',
-    skills: ['Spreadsheets', 'SQL', 'R', 'Tableau', 'Data viz'],
-    courses: courses('data-analytics-professional-certificate-google', ['Foundations: Data, Data, Everywhere', 'Ask Questions to Make Data-Driven Decisions', 'Prepare Data for Exploration', 'Process Data from Dirty to Clean', 'Analyze Data to Answer Questions', 'Share Data Through the Art of Visualization', 'Data Analysis with R Programming', 'Google Data Analytics Capstone']),
-    partner: 'Google',
+    skills: ['Management consulting', 'Business analysis', 'Strategy', 'Financial analysis', 'Data-driven decisions'],
+    courses: courses('data-analytics-professional-certificate-google', ['Introduction to Management Consulting', 'Introduction to Business Analysis', 'Project, Stakeholder, and Requirements Management Fundamentals', 'Business Strategy: Creating Competitive Advantage', 'Financial Analysis and Modeling', 'Foundations: Data, Data, Everywhere', 'Ask Questions to Make Data-Driven Decisions', 'Data Visualization and Dashboards with Excel and Cognos', 'Generative AI: Transform Your Management Consulting', 'Capstone: Integrated Management Consulting Project', 'Management & Data Analytics Lab and Workforce Readiness']),
+    partner: 'Google & IBM',
     fundingSource: 'WIOA',
     languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
-    description: 'This program is a strong fit for members who like patterns, numbers, and practical problem-solving. Over three to five months you will move from spreadsheets into SQL, data cleaning, dashboards, and visualization so you can explain what the numbers mean, not just collect them. Members who complete this track are preparing for data analyst, reporting, and business analyst roles where clear thinking and communication matter as much as technical skill.',
+    description: 'This 160-hour professional certificate prepares learners for careers as management analysts and business intelligence professionals. Learners build management consulting, business analysis, strategy, financial analysis, data analytics, and dashboarding skills, then apply them in an integrated consulting capstone and professional portfolio.',
     extra: {
-      bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',
-      jobOutcomes: ['Data Analyst', 'Business Analyst', 'Marketing Analyst'],
+      bestFor: 'Learners who want to turn business problems and data into recommendations for management.',
+      jobOutcomes: ['Management Analyst', 'Business Intelligence Analyst', 'Market Research Analyst'],
       difficulty: 2,
-      rampNote: 'Spreadsheets first, then SQL and R. No prior data experience required.',
+      rampNote: 'No prior consulting background required. Builds from business analysis and strategy into dashboards, applied AI, and a consulting capstone.',
     },
   },
   {
     slug: 'data-science-professional-certificate-ibm',
-    title: 'Data Science and Database Administrator (DBA) Professional Certificate (IBM)',
+    title: 'Database Administrator (DBA) Professional Certificate (IBM)',
     category: 'cloud-data',
     categoryLabel: 'Cloud & Data',
     categoryColor: '#2b7bb9',
     icon: '📊',
     duration: '3-5 months, 10 hrs/week',
     salary: 'Starting salary: $88K-$130K',
-    skills: ['Python', 'SQL', 'Machine Learning', 'Jupyter'],
-    courses: courses('data-science-professional-certificate-ibm', ['What is Data Science?', 'Tools for Data Science', 'Data Science Methodology', 'Python for Data Science, AI & Development', 'Python Project for Data Science', 'Databases and SQL for Data Science with Python', 'Data Analysis with Python', 'Data Visualization with Python', 'Machine Learning with Python', 'Applied Data Science Capstone']),
+    skills: ['SQL', 'Database administration', 'Data engineering', 'Backup & recovery'],
+    courses: courses('data-science-professional-certificate-ibm', ['Introduction to Data Engineering', 'Introduction to Relational Databases (RDBMS)', 'Databases and SQL for Data Science with Python', 'Python for Data Science, AI & Development', 'Hands-on Introduction to Linux Commands and Shell Scripting', 'ETL and Data Pipelines with Shell, Airflow and Kafka', 'Data Warehouse Fundamentals', 'Relational Database Administration (DBA)', 'Relational Database Administration Capstone Project']),
     partner: 'IBM',
     fundingSource: 'WIOA',
     languagesSupported: { es: 'ai-subtitles', pt: 'full', fr: 'ai-subtitles' },
-    description: 'This program is for members who want to go beyond reporting and into deeper analytical and technical work. Over three to five months you will build Python, SQL, machine learning, and notebook-based workflow skills that support modern data teams. It is a higher-ramp pathway, but it opens doors to data science, machine learning support, and advanced analytics roles for members willing to stay consistent.',
+    description: 'This 160-hour professional certificate prepares learners for database-administration careers. Learners build relational database, SQL, Python, Linux, ETL, warehousing, security, backup and recovery, monitoring, performance-tuning, and automation skills before completing a portfolio-ready DBA capstone.',
     extra: {
-      bestFor: 'Strong interest in data + programming. Python, ML, Jupyter.',
-      jobOutcomes: ['Data Scientist', 'ML Engineer', 'Analytics Engineer'],
+      bestFor: 'Learners who want to operate, secure, automate, and improve production database systems.',
+      jobOutcomes: ['Database Administrator', 'Junior Database Administrator', 'Database Operations Specialist', 'Database Architect (adjacent path)'],
       difficulty: 3,
-      rampNote: 'Involves Python and machine learning — best with some coding comfort.',
+      rampNote: 'Technical track with SQL, Python, Linux, ETL, backup and recovery, security, and performance tuning.',
     },
   },
   {
@@ -438,7 +439,7 @@ const BASE_PROGRAMS: Program[] = [
   },
   {
     slug: 'ux-design-professional-certificate-google',
-    title: 'UX Design Professional Certificate (Google)',
+    title: 'User Experience & Interface Design Professional Certificate',
     category: 'business',
     categoryLabel: 'Business',
     categoryColor: '#a47f38',
@@ -446,7 +447,7 @@ const BASE_PROGRAMS: Program[] = [
     duration: '3-5 months, 10 hrs/week',
     salary: 'Starting salary: $88K-$120K',
     skills: ['User research', 'Wireframing', 'Figma', 'Prototyping'],
-    courses: courses('ux-design-professional-certificate-google', ['Foundations of User Experience (UX) Design', 'Start the UX Design Process: Empathize, Define, and Ideate', 'Build Wireframes and Low-Fidelity Prototypes', 'Conduct UX Research and Test Early Concepts', 'Create High-Fidelity Designs and Prototypes in Figma', 'Responsive Web Design in Adobe XD', 'Design a User Experience for Social Good & Prepare for Jobs']),
+    courses: courses('ux-design-professional-certificate-google', ['Foundations of User Experience (UX) Design', 'Start the UX Design Process: Empathize, Define, and Ideate', 'Build Wireframes and Low-Fidelity Prototypes', 'Conduct UX Research and Test Early Concepts', 'Create High-Fidelity Designs and Prototypes in Figma', 'Build Dynamic User Interfaces (UI) for Websites', 'Design a User Experience for Social Good & Prepare for Jobs', 'Lab, Project, and Test Preparation']),
     partner: 'Google',
     fundingSource: 'WIOA',
     languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
@@ -564,10 +565,11 @@ function applySyllabus(program: Program): Program {
       (candidate) => normalizeCourseName(candidate.name) === normalizeCourseName(course.name),
     );
     return {
-      slug: existing?.slug ?? `${program.slug}-course-${index + 1}`,
+      slug: existing?.slug ?? course.courseraSlug ?? `${program.slug}-course-${index + 1}`,
       name: course.name,
       estimatedHours: course.hours,
       description: course.description,
+      courseraSlug: course.courseraSlug,
     };
   });
 

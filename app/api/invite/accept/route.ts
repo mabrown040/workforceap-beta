@@ -17,6 +17,11 @@ import {
   claimPendingInvitationForAccept,
   InvitationClaimError,
 } from './_invitationClaim';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  isCurriculumMigrationPending,
+} from '@/lib/content/programs';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -336,6 +341,18 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
           data: { status: 'expired' },
         }));
         return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
+      }
+      if (
+        invitation.role === 'member'
+        && isCurriculumMigrationPending(invitation.programSlug)
+      ) {
+        return NextResponse.json(
+          {
+            error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+            code: CURRICULUM_MIGRATION_PENDING_CODE,
+          },
+          { status: 409 },
+        );
       }
   
       // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:

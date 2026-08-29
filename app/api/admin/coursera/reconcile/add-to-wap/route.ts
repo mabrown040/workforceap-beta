@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { listAllUsers } from '@/lib/coursera/b4bClient';
-import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { prisma } from '@/lib/db/prisma';
@@ -12,7 +11,11 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
-import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import {
+  lockCourseraIdentityForAttachment,
+  promoteCsvProgressToCanonical,
+} from '@/lib/coursera/csvImport.server';
+import { mapCourseraIdentityAndProgressInTransaction } from '@/lib/coursera/mapIdentityAndProgress.server';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -245,6 +248,13 @@ const bodySchema = z.object({
     try {
       const result = await crossTenantOK(() =>
         prisma.$transaction(async (tx) => {
+          await lockCourseraIdentityForAttachment(tx, {
+            organizationId: actorOrgId,
+            courseraEmail: email,
+            actorIdentifier: externalIdToUse,
+            actorHomePage: 'coursera.org',
+          });
+
           const enrolledAt = new Date();
           const createdUser = await tx.user.create({
             data: {
@@ -287,30 +297,27 @@ const bodySchema = z.object({
             enrollmentId = newEnrollment.id;
           }
 
-          await upsertCourseraIdentityMapping({
-            userId: createdUser.id,
-            courseraEmail: email,
-            actorIdentifier: externalIdToUse,
-            actorHomePage: 'coursera.org',
-            createdByUserId: user.id,
-            source: 'coursera-reconcile-add-to-wap',
-            notes: `Added via Coursera reconcile UI. Coursera programId=${programId}.`,
-          }, tx);
+          await mapCourseraIdentityAndProgressInTransaction(
+            {
+              userId: createdUser.id,
+              organizationId: actorOrgId,
+              courseraEmail: email,
+              actorIdentifier: externalIdToUse,
+              actorHomePage: 'coursera.org',
+              createdByUserId: user.id,
+              source: 'coursera-reconcile-add-to-wap',
+              notes: `Added via Coursera reconcile UI. Coursera programId=${programId}.`,
+            },
+            tx,
+          );
 
           return { ...createdUser, enrollmentId };
         }),
       );
 
-      // Backfill any historical CSV rows for this Coursera email that were
-      // orphaned before the mapping existed.
-      try {
-        await backfillUserIdForCourseraEmail(email, result.id);
-      } catch (backfillError) {
-        captureApiError(backfillError, {
-          route: 'admin/coursera/reconcile/add-to-wap',
-          extra: { stage: 'csv-backfill', email, userId: result.id },
-        });
-      }
+      // Ownership is already committed with the mapping above. Canonical
+      // projection is monotonic and retryable, so it runs post-commit.
+      await promoteCsvProgressToCanonical({ userId: result.id });
 
       // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
       if (result.enrollmentId && programSlug) {

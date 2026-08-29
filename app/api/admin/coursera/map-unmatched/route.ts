@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
-import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
@@ -46,20 +45,16 @@ async function _POST(request: Request) {
     }
 
     try {
-      const mapping = await upsertCourseraIdentityMapping({
+      const mapped = await mapCourseraIdentityAndProgress({
         userId,
+        organizationId,
         courseraEmail,
         actorIdentifier,
         actorHomePage,
         createdByUserId: user.id,
         source: 'manual-admin-unmatched',
         notes: 'Mapped from Coursera-only learners list',
-        expectedOrganizationId: organizationId,
       });
-
-      const backfill = courseraEmail
-        ? await backfillUserIdForCourseraEmail(courseraEmail, userId)
-        : { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
 
       const xapiReplay = await replayUnresolvedXapiStatementsForIdentity({ courseraEmail, actorIdentifier });
 
@@ -67,8 +62,8 @@ async function _POST(request: Request) {
       logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: userId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
-        mapping,
-        backfill,
+        mapping: mapped.mapping,
+        backfill: mapped.backfill,
         xapiReplay,
       });
     } catch (error) {

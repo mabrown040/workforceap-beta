@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { backfillAllOrphanedCourseraProgress } from '@/lib/coursera/csvImport.server';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -32,7 +33,8 @@ export const POST = withApiGuc(async () => {
     const admin = await requireAdminUser();
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const result = await backfillAllOrphanedCourseraProgress();
+    const organizationId = await getActorOrganizationId(admin.id);
+    const result = await backfillAllOrphanedCourseraProgress(organizationId);
 
     void auditLog({ actorUserId: admin.id, action: 'admin_coursera_backfill_orphans', targetType: 'User', targetId: admin.id, metadata: {} }).catch(() => {});
     logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraBackfillOrphans', id: admin.id }, result: { success: true } }).catch(() => {});

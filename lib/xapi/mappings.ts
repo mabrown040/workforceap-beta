@@ -368,24 +368,30 @@ export async function resolveXapiUser(
         mode: 'insensitive',
       },
     },
-    select: { id: true, email: true, fullName: true },
+    select: { id: true, email: true, fullName: true, organizationId: true },
   });
 
   if (!user) return null;
 
-  // Auto-save a mapping so future xAPI events resolve via the fast path
+  // Auto-save through the guarded mapping transaction so historical raw rows
+  // are adopted atomically and an existing identity can never be stolen.
   try {
-    await upsertCourseraIdentityMapping({
+    const { mapCourseraIdentityAndProgress } = await import(
+      '@/lib/coursera/mapIdentityAndProgress.server'
+    );
+    await mapCourseraIdentityAndProgress({
       userId: user.id,
+      organizationId: user.organizationId,
       courseraEmail: email,
       actorIdentifier: identity.actorIdentifier ?? null,
       actorHomePage: identity.actorHomePage ?? null,
       source: 'auto-direct-email',
-      expectedOrganizationId: organizationId,
     });
   } catch (mappingError) {
-    // Non-fatal: direct match still works even if mapping save fails
+    // Fail closed: without the guarded mapping/adoption transaction succeeding,
+    // crediting this event could assign an identity owned by another member.
     console.warn('[resolveXapiUser] auto-mapping failed:', mappingError);
+    return null;
   }
 
   return {
@@ -822,7 +828,7 @@ export async function upsertCourseraIdentityMapping(args: {
   const existingId = actorMatch[0]?.id || emailMatch[0]?.id || null;
 
   if (existingId) {
-    await db.$executeRaw`
+    const updated = await db.$queryRaw<Array<{ id: string }>>`
       UPDATE coursera_identity_mappings
       SET
         user_id = ${args.userId}::text,
@@ -836,7 +842,18 @@ export async function upsertCourseraIdentityMapping(args: {
         updated_at = now(),
         last_seen_at = COALESCE(last_seen_at, now())
       WHERE id = ${existingId}::uuid
+        AND user_id = ${args.userId}::text
+        AND (
+          NULLIF(organization_id, '') IS NULL
+          OR organization_id = ${user.organizationId}::text
+        )
+      RETURNING id
     `;
+    if (updated.length !== 1) {
+      throw new Error(
+        'Coursera identity is already linked to a different WAP user or organization',
+      );
+    }
   } else {
     await db.$executeRaw`
       INSERT INTO coursera_identity_mappings (

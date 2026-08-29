@@ -25,7 +25,10 @@ vi.mock('@/lib/tenant/organization', () => ({ getActorOrganizationId: vi.fn() })
 vi.mock('@/lib/xapi/mappings', () => ({
   listCourseraIdentityMappings: vi.fn(),
   listRecentUnmatchedXapiEvents: vi.fn(),
-  upsertCourseraIdentityMapping: vi.fn(),
+}));
+
+vi.mock('@/lib/coursera/mapIdentityAndProgress.server', () => ({
+  mapCourseraIdentityAndProgress: vi.fn(),
 }));
 
 vi.mock('@/lib/xapi/reprocess', () => ({
@@ -44,8 +47,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   listCourseraIdentityMappings,
   listRecentUnmatchedXapiEvents,
-  upsertCourseraIdentityMapping,
 } from '@/lib/xapi/mappings';
+import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 
@@ -185,10 +188,13 @@ describe('POST /api/admin/coursera/mappings', () => {
 
   it('creates mapping with courseraEmail and reprocesses events', async () => {
     mockAdmin();
-    vi.mocked(upsertCourseraIdentityMapping).mockResolvedValue({
-      id: 'map-1',
-      userId: 'u1',
-      courseraEmail: 'c@example.com',
+    vi.mocked(mapCourseraIdentityAndProgress).mockResolvedValue({
+      mapping: {
+        id: 'map-1',
+        userId: 'u1',
+        courseraEmail: 'c@example.com',
+      },
+      backfill: { courseRowsUpdated: 2, badgeRowsUpdated: 1 },
     } as any);
     vi.mocked(reprocessUnmatchedXapiEvents).mockResolvedValue({
       processed: 5,
@@ -208,23 +214,27 @@ describe('POST /api/admin/coursera/mappings', () => {
     expect(body.mapping).toMatchObject({ userId: 'u1', courseraEmail: 'c@example.com' });
     expect(body.reprocessed).toMatchObject({ processed: 5, matched: 3 });
     expect(body.xapiReplay).toMatchObject({ replayed: 2, matched: 1 });
-    expect(upsertCourseraIdentityMapping).toHaveBeenCalledWith(
+    expect(mapCourseraIdentityAndProgress).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'u1',
+        organizationId: 'org-1',
         courseraEmail: 'c@example.com',
         createdByUserId: 'admin-1',
         source: 'manual-admin-api',
-        expectedOrganizationId: 'org-1',
       })
     );
+    expect(body.backfill).toEqual({ courseRowsUpdated: 2, badgeRowsUpdated: 1 });
   });
 
   it('creates mapping with actorIdentifier instead of courseraEmail', async () => {
     mockAdmin();
-    vi.mocked(upsertCourseraIdentityMapping).mockResolvedValue({
-      id: 'map-2',
-      userId: 'u1',
-      actorIdentifier: 'actor-123',
+    vi.mocked(mapCourseraIdentityAndProgress).mockResolvedValue({
+      mapping: {
+        id: 'map-2',
+        userId: 'u1',
+        actorIdentifier: 'actor-123',
+      },
+      backfill: { courseRowsUpdated: 0, badgeRowsUpdated: 0 },
     } as any);
     vi.mocked(reprocessUnmatchedXapiEvents).mockResolvedValue({
       processed: 0,
@@ -238,27 +248,33 @@ describe('POST /api/admin/coursera/mappings', () => {
       postReq({ userId: 'u1', actorIdentifier: 'actor-123', actorHomePage: 'https://coursera.org' })
     );
     expect(res.status).toBe(200);
-    expect(upsertCourseraIdentityMapping).toHaveBeenCalledWith(
+    expect(mapCourseraIdentityAndProgress).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'u1',
+        organizationId: 'org-1',
         actorIdentifier: 'actor-123',
         actorHomePage: 'https://coursera.org',
       })
     );
   });
 
-  it('returns 400 when upsert throws', async () => {
+  it('returns 400 without replay when atomic mapping or adoption throws', async () => {
     mockAdmin();
-    vi.mocked(upsertCourseraIdentityMapping).mockRejectedValue(new Error('Duplicate mapping'));
+    vi.mocked(mapCourseraIdentityAndProgress).mockRejectedValue(new Error('Duplicate mapping'));
 
     const res = await POST(postReq({ userId: 'u1', courseraEmail: 'c@example.com' }));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Duplicate mapping' });
+    expect(reprocessUnmatchedXapiEvents).not.toHaveBeenCalled();
+    expect(replayUnresolvedXapiStatementsForIdentity).not.toHaveBeenCalled();
   });
 
   it('survives reprocess failure and still returns success', async () => {
     mockAdmin();
-    vi.mocked(upsertCourseraIdentityMapping).mockResolvedValue({ id: 'map-1' } as any);
+    vi.mocked(mapCourseraIdentityAndProgress).mockResolvedValue({
+      mapping: { id: 'map-1' },
+      backfill: { courseRowsUpdated: 0, badgeRowsUpdated: 0 },
+    } as any);
     vi.mocked(reprocessUnmatchedXapiEvents).mockRejectedValue(new Error('Reprocess crash'));
     vi.mocked(replayUnresolvedXapiStatementsForIdentity).mockRejectedValue(new Error('Replay crash'));
 

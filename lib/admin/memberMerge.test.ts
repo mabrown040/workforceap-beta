@@ -7,6 +7,7 @@ function makeMockUser(overrides: Partial<Record<string, unknown>> = {}) {
     id: 'user-1',
     email: 'a@example.com',
     fullName: 'Alice',
+    organizationId: 'org-1',
     phone: null,
     enrolledProgram: null,
     assessmentCompleted: false,
@@ -54,6 +55,18 @@ function makeMockTx() {
 
   return {
     calls,
+    $queryRaw: async (query: { sql?: string[]; values?: unknown[] }) => {
+      const sql = query.sql?.join('') ?? '';
+      logCall('$queryRaw', sql);
+      if (sql.includes('FOR UPDATE')) {
+        const ids = (query.values ?? []).filter((value): value is string => typeof value === 'string');
+        return [
+          { id: ids[0] ?? 'primary', organizationId: 'org-1', deletedAt: null },
+          { id: ids[1] ?? 'secondary', organizationId: 'org-1', deletedAt: null },
+        ];
+      }
+      return [];
+    },
     user: {
       findUnique: async ({ where }: { where: Record<string, unknown> }) => {
         logCall('user.findUnique', where);
@@ -217,6 +230,27 @@ describe('executeMemberMerge', () => {
   it('throws when conflicts exist', async () => {
     const tx = makeMockTx();
     await expect(executeMemberMerge(tx, 'primary', 'conflict-secondary', 'admin-1')).rejects.toThrow('Merge blocked by 1 conflict');
+  });
+
+  it('fails closed before merge mutations when the secondary owns Coursera data', async () => {
+    const tx = makeMockTx();
+    let queryCount = 0;
+    (tx as any).$queryRaw = async () => {
+      queryCount += 1;
+      return queryCount === 1
+        ? [
+            { id: 'primary', organizationId: 'org-1', deletedAt: null },
+            { id: 'secondary', organizationId: 'org-1', deletedAt: null },
+          ]
+        : [{ source: 'course' }];
+    };
+
+    await expect(
+      executeMemberMerge(tx, 'primary', 'secondary', 'admin-1'),
+    ).rejects.toThrow('secondary member has Coursera progress or identity mappings');
+
+    const calls = (tx as unknown as MockTxExtras & { calls: string[] }).calls;
+    expect(calls.some((call) => call.startsWith('user.update'))).toBe(false);
   });
 
   it('soft-deletes secondary and logs merge', async () => {

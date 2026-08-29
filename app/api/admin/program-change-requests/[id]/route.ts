@@ -8,6 +8,11 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  isCurriculumMigrationPending,
+} from '@/lib/content/programs';
 
 const patchSchema = z.object({
   status: z.enum(['APPROVED', 'DENIED']),
@@ -52,6 +57,18 @@ export const PATCH = withApiGuc(async (
 
   const nextStatus = parsed.data.status;
   const orgId = existing.user.organizationId;
+  if (
+    nextStatus === 'APPROVED'
+    && isCurriculumMigrationPending(existing.requestedProgramSlug)
+  ) {
+    return NextResponse.json(
+      {
+        error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+        code: CURRICULUM_MIGRATION_PENDING_CODE,
+      },
+      { status: 409 },
+    );
+  }
 
   const review = await prisma.$transaction(async (tx) => {
     const claim = await tx.programChangeRequest.updateMany({

@@ -12,6 +12,11 @@ import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { cookies } from 'next/headers';
 import { MEMBER_REFERRAL_COOKIE, rewardReferralOnEnrollment } from '@/lib/member/referrals';
 import { auditLog } from '@/lib/audit';
+import {
+  CURRICULUM_MIGRATION_PENDING_CODE,
+  CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  isCurriculumMigrationPending,
+} from '@/lib/content/programs';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -40,6 +45,15 @@ export const POST = withApiGuc(async (request: Request) => {
   }
   const programView = activePrograms.find((p) => p.slug === slug)!;
   const programTitle = programView.static?.title ?? programView.name;
+  if (isCurriculumMigrationPending(slug)) {
+    return NextResponse.json(
+      {
+        error: CURRICULUM_MIGRATION_PENDING_MESSAGE,
+        code: CURRICULUM_MIGRATION_PENDING_CODE,
+      },
+      { status: 409 },
+    );
+  }
 
   const existing = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },

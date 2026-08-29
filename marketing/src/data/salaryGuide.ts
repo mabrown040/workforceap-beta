@@ -65,7 +65,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'data-science-professional-certificate-ibm',
-    program: 'Data Science and Database Administrator (DBA) Professional Certificate (IBM)',
+    program: 'Database Administrator (DBA) Professional Certificate (IBM)',
     duration: '3-5 months',
     salary: '$88K–$130K',
     level: 'High',
@@ -75,7 +75,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'ux-design-professional-certificate-google',
-    program: 'UX Design Professional Certificate (Google)',
+    program: 'User Experience & Interface Design Professional Certificate',
     duration: '3-5 months',
     salary: '$88K–$120K',
     level: 'High',
@@ -125,7 +125,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'data-analytics-professional-certificate-google',
-    program: 'Management and Data Analyst Professional Certificate (Google/IBM)',
+    program: 'Management Analyst & Business Intelligence Professional Certificate',
     duration: '3-5 months',
     salary: '$72K–$102K',
     level: 'Mid-High',
@@ -267,7 +267,7 @@ export const salaryInsights: SalaryInsight[] = [
   {
     icon: 'lightbulb',
     title: 'Higher ranges = deeper programs',
-    desc: 'Cloud, AI engineering, and data science tracks sit at the top of the range for a reason — more depth, more commitment. Worth it if you will finish.',
+    desc: 'Cloud, AI engineering, and database administration tracks sit at the top of the range for a reason — more depth, more commitment. Worth it if you will finish.',
   },
   {
     icon: 'check-circle',

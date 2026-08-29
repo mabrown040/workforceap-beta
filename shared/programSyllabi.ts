@@ -1,5 +1,6 @@
 /**
- * Canonical transcription of the 12 TWC program syllabi supplied July 2026.
+ * Canonical transcription of the 12 TWC program syllabi supplied July 2026,
+ * including the three EDvera-approved amendments received August 27, 2026.
  *
  * This module is dependency-free so both the Next portal and Astro marketing
  * build consume the same regulatory source. Preserve source wording exactly;
@@ -10,6 +11,8 @@ export interface ProgramSyllabusCourse {
   name: string;
   hours: number;
   description: string;
+  /** Official Coursera /learn slug from the approved syllabus, when present. */
+  courseraSlug?: string;
 }
 
 export interface ProgramSyllabus {
@@ -438,90 +441,94 @@ export const PROGRAM_SYLLABI = {
   },
   "data-analytics-professional-certificate-google": {
     "slug": "data-analytics-professional-certificate-google",
-    "title": "Management and Data Analyst Professional Certificate (Google/IBM)",
-    "providers": "Google and IBM via Coursera",
-    "providerLine": "Powered by Google and IBM via Coursera   |   Delivery Format: Hybrid, Self-Paced",
+    "title": "Management Analyst & Business Intelligence Professional Certificate",
+    "providers": "Google & IBM via Coursera",
+    "providerLine": "Powered by Google & IBM via Coursera   |   Delivery Format: Hybrid, Self-Paced",
     "deliveryFormat": "Hybrid, Self-Paced",
     "totalHours": 160,
-    "totalHoursLabel": "160 Hours= 147 Clock Hours + 13 Lab Hours",
+    "totalHoursLabel": "160 Hours",
     "clockHours": 147,
     "labHours": 13,
     "costLabel": "$7500 = $7500 tuition and fees",
     "tuitionAndFees": 7500,
-    "description": "Data analytics is the collection, transformation, and organization of data to draw conclusions, make predictions, and drive informed decision making. You'll learn from Google employees whose foundations in data analytics served as launchpads for their own careers.",
+    "description": "This 160-hour professional certificate prepares learners for careers as management analysts and business intelligence professionals. Learners build the core competencies of management consulting and business analysis - problem scoping, stakeholder and requirements management, business strategy, and financial analysis - and combine them with data analytics, visualization, and dashboarding to turn data into recommendations that help organizations operate more efficiently and effectively, culminating in an integrated consulting capstone and a professional portfolio.",
     "courses": [
       {
         "name": "Introduction to Management Consulting",
-        "hours": 5,
-        "description": "What management consultants do and how to implement these skills in an organizational setting."
+        "hours": 13,
+        "description": "Introduces what management consultants do, the consulting lifecycle, engagement types, and the core skills used to advise organizations.",
+        "courseraSlug": "introduction-to-management-consulting"
       },
       {
         "name": "Introduction to Business Analysis",
-        "hours": 13,
-        "description": "Learn the fundamentals of business analysis and its significance within organizations."
+        "hours": 14,
+        "description": "Covers the fundamentals of business analysis and its role in organizations, including analyzing needs and recommending solutions.",
+        "courseraSlug": "introduction-to-business-analysis"
       },
       {
-        "name": "Introduction to Data Analytics",
+        "name": "Project, Stakeholder, and Requirements Management Fundamentals",
         "hours": 11,
-        "description": "Understand the fundamentals of the management and data process, including gathering, cleaning, analyzing, and sharing data."
+        "description": "Builds skills in managing projects, stakeholders, and requirements - eliciting, documenting, prioritizing, and tracking business needs.",
+        "courseraSlug": "project-stakeholder-and-requirements-management-fundamentals"
+      },
+      {
+        "name": "Business Strategy: Creating Competitive Advantage",
+        "hours": 13,
+        "description": "Applies strategic analysis frameworks and tools to assess competitive position and shape future-oriented business strategy.",
+        "courseraSlug": "business-strategy-creating-competitive-advantage"
+      },
+      {
+        "name": "Financial Analysis and Modeling",
+        "hours": 19,
+        "description": "Develops financial analysis and modeling skills to evaluate performance, costs, and options that inform management decisions.",
+        "courseraSlug": "financial-analysis-and-modeling"
       },
       {
         "name": "Foundations: Data, Data, Everywhere",
         "hours": 12,
-        "description": "Introduction to the world of data analytics through hands-on curriculum developed by Google."
+        "description": "Introduces the world of data analytics - the analyst mindset, tools, and the data lifecycle used to support decision-making.",
+        "courseraSlug": "foundations-data"
       },
       {
         "name": "Ask Questions to Make Data-Driven Decisions",
         "hours": 15,
-        "description": "Build on your understanding of data analytics — ask effective questions, make data-driven decisions, and meet stakeholders' needs."
+        "description": "Builds skills to ask effective questions, work with stakeholders, and use data to make sound, evidence-based decisions.",
+        "courseraSlug": "ask-questions-make-decisions"
       },
       {
-        "name": "Prepare Data for Exploration",
-        "hours": 18,
-        "description": "Use tools like spreadsheets and SQL to extract and use the right data, and learn how to organize and protect data."
-      },
-      {
-        "name": "Retrieve and prep data",
-        "hours": 1,
-        "description": "Retrieve and prepare data for analysis using structured tools and workflows."
-      },
-      {
-        "name": "Process Data from Dirty to Clean",
+        "name": "Data Visualization and Dashboards with Excel and Cognos",
         "hours": 16,
-        "description": "Check and clean your data using spreadsheets and SQL, and verify and report your data cleaning results."
+        "description": "Creates business visualizations and interactive dashboards with Excel and IBM Cognos to communicate insights to stakeholders.",
+        "courseraSlug": "data-visualization-dashboards-excel-cognos"
       },
       {
-        "name": "Analyze Data to Answer Questions",
-        "hours": 25,
-        "description": "Apply everything you've learned to make sense of the data you've collected."
+        "name": "Generative AI: Transform Your Management Consulting",
+        "hours": 15,
+        "description": "Applies generative AI tools and techniques to accelerate research, analysis, and deliverables across consulting engagements.",
+        "courseraSlug": "generative-ai-transform-your-management-consulting"
       },
       {
-        "name": "Share Data through the Art of Visualization",
-        "hours": 18,
-        "description": "Visualize and present your data findings — including how visual dashboards bring data to life."
+        "name": "Capstone: Integrated Management Consulting Project",
+        "hours": 19,
+        "description": "Delivers an end-to-end consulting engagement from problem scoping to executive presentation and implementation planning.",
+        "courseraSlug": "capstone-integrated-management-consulting-project"
       },
       {
-        "name": "Google Data Analytics Capstone: Complete a Case Study",
-        "hours": 10,
-        "description": "Complete a case study to prepare for your data analytics job hunt — commonly used by employers to assess analytical skills."
-      },
-      {
-        "name": "Business Analysis: Preparation Exam for ECBA Certification",
-        "hours": 3,
-        "description": "Prepare for the Entry Certificate in Business Analysis (ECBA) exam offered by the IIBA."
-      },
-      {
-        "name": "Management and Data Analytics Lab and workforce readiness",
+        "name": "Management & Data Analytics Lab and Workforce Readiness",
         "hours": 13,
-        "description": "Applied lab, project work, and workforce-readiness preparation to consolidate management and data analytics skills."
+        "description": "Hands-on applied lab plus career-readiness activities: resume alignment, portfolio presentation, and interview preparation."
       }
     ],
-    "sourceDocument": "6-Management_and_Data_Analyst_Professional_Certificate_Google_IBM.pdf",
-    "sourceSha256": "66c22d099dba8e33d8d3fe2e7292a3a1314905beb65386e1e54213993da058c3"
+    "sourceDocument": "6-Management Analyst & Business Intelligence Professional Certificate (IBM).pdf",
+    "sourceSha256": "49079c1479a516089f3a374dbcbc35dc2b0b267eb99c22b22db93ea9777a41af",
+    "sourceNotes": [
+      "Approved EDvera resubmission: O*NET 13-1111 Management Analysts (primary), O*NET 13-1161 Market Research Analysts and Marketing Specialists (secondary), and CIP 52.1301 Management Science, General.",
+      "WorkforceAP-curated pathway using selected Google and IBM courses; completion does not by itself confer the separate full IBM Management Consultant or Google Data Analytics professional certificates."
+    ]
   },
   "data-science-professional-certificate-ibm": {
     "slug": "data-science-professional-certificate-ibm",
-    "title": "Data Science and Database Administrator (DBA) Professional Certificate (IBM)",
+    "title": "Database Administrator (DBA) Professional Certificate (IBM)",
     "providers": "IBM via Coursera",
     "providerLine": "Powered by IBM via Coursera   |   Delivery Format: Online, Self-Paced",
     "deliveryFormat": "Online, Self-Paced",
@@ -531,58 +538,68 @@ export const PROGRAM_SYLLABI = {
     "labHours": 0,
     "costLabel": "$7500 = $7500 tuition and fees",
     "tuitionAndFees": 7500,
-    "description": "This 160-hour professional certificate combines core data science competencies with practical relational database administration. Learners progress from data and data-engineering foundations into Python, SQL, data analysis, visualization, and machine learning, then apply database operations skills in security, backup and recovery, performance optimization, automation, and a portfolio-ready DBA capstone.",
+    "description": "This 160-hour professional certificate prepares learners for careers as database administrators. Learners first build relational database and SQL foundations, then develop the operational skills at the center of database administration: installation and configuration, user access and security, backup and recovery, monitoring and performance tuning, automation with Linux and shell scripting, data movement through ETL pipelines, and data warehouse management, culminating in a portfolio-ready database administration capstone.",
     "courses": [
-      {
-        "name": "What is Data Science?",
-        "hours": 12,
-        "description": "Introduces the field of data science, explaining its significance in today's data-driven world."
-      },
       {
         "name": "Introduction to Data Engineering",
         "hours": 14,
-        "description": "Foundations of data engineering — the data-engineering lifecycle, data platforms and pipelines, and choosing the right data store for the job."
+        "description": "Introduces the data engineering lifecycle, data stores, relational and NoSQL systems, ETL/ELT, data pipelines, security, governance, and compliance.",
+        "courseraSlug": "introduction-to-data-engineering"
       },
       {
-        "name": "Python for Data Science, AI & Development",
-        "hours": 24,
-        "description": "Develop core Python skills used by data scientists, AI engineers, and developers."
+        "name": "Introduction to Relational Databases (RDBMS)",
+        "hours": 16,
+        "description": "Covers relational database concepts, information and data models, entity-relationship diagrams, schema design and normalization, tables, keys, and getting started with MySQL, PostgreSQL, and IBM Db2.",
+        "courseraSlug": "introduction-to-relational-databases"
       },
       {
         "name": "Databases and SQL for Data Science with Python",
         "hours": 18,
-        "description": "Comprehensive intro to SQL (Structured Query Language) and its application in data science."
+        "description": "Covers relational database creation and SQL with DDL/DML, joins, views, transactions, stored procedures, and accessing databases from Python.",
+        "courseraSlug": "sql-data-science"
       },
       {
-        "name": "Data Analysis with Python",
+        "name": "Python for Data Science, AI & Development",
+        "hours": 24,
+        "description": "Builds Python skills in syntax, data structures, functions, and libraries used to script, automate, and interact with databases and data pipelines.",
+        "courseraSlug": "python-for-applied-data-science-ai"
+      },
+      {
+        "name": "Hands-on Introduction to Linux Commands and Shell Scripting",
+        "hours": 17,
+        "description": "Develops Linux and Unix command-line skills and Bash shell scripting to schedule, automate, and manage database and system administration tasks.",
+        "courseraSlug": "hands-on-introduction-to-linux-commands-and-shell-scripting"
+      },
+      {
+        "name": "ETL and Data Pipelines with Shell, Airflow and Kafka",
+        "hours": 18,
+        "description": "Builds ETL and ELT data pipelines using Bash, Apache Airflow, and Apache Kafka for batch and streaming data movement into databases and warehouses.",
+        "courseraSlug": "etl-and-data-pipelines-shell-airflow-kafka"
+      },
+      {
+        "name": "Data Warehouse Fundamentals",
         "hours": 16,
-        "description": "Essential skills for analyzing data using Python, aimed at aspiring Data Scientists and Analysts."
-      },
-      {
-        "name": "Data Visualization with Python",
-        "hours": 19,
-        "description": "Focuses on the essential skill of visualizing data to tell compelling stories."
-      },
-      {
-        "name": "Machine Learning with Python",
-        "hours": 20,
-        "description": "Equips learners with essential skills in machine learning using Python."
+        "description": "Covers data warehouse design and implementation, star and snowflake schemas, staging, populating a warehouse, and building analytics-ready data structures.",
+        "courseraSlug": "data-warehouse-fundamentals"
       },
       {
         "name": "Relational Database Administration (DBA)",
         "hours": 21,
-        "description": "Administer relational databases — access control and security, backup and recovery, monitoring, automation, and performance tuning across MySQL, PostgreSQL, and IBM Db2."
+        "description": "Builds operational DBA skills in configuration, backup and restore, roles and permissions, performance monitoring, troubleshooting, and automation.",
+        "courseraSlug": "relational-database-administration"
       },
       {
         "name": "Relational Database Administration Capstone Project",
         "hours": 16,
-        "description": "Apply database administration skills end to end in a portfolio-ready capstone — design, ETL, security, optimization, and day-to-day database operations."
+        "description": "Integrates OLTP and warehouse design, MySQL/PostgreSQL, ETL with Airflow, backup and recovery, access control, encryption, and query optimization.",
+        "courseraSlug": "relational-database-administration-capstone-project"
       }
     ],
-    "sourceDocument": "7-Data_Science_and_Database_Administrator_Professional_Certificate.pdf",
-    "sourceSha256": "1ea9bdc781ffeb261879b46e1f22504eea624bc4fd5e4bf35ade2f7f516d3994",
+    "sourceDocument": "7-Database Administrator (DBA) Professional Certificate (IBM).pdf",
+    "sourceSha256": "f1c3f8eb3838bc76bc7863b72ab7245ca5f632131cde28775f1b212037a1289f",
     "sourceNotes": [
-      "WorkforceAP-curated 160-hour pathway using selected IBM courses delivered through Coursera; it does not by itself confer the full IBM Data Science Professional Certificate or the IBM Relational Database Administrator certificate. Course hours are Coursera estimates reviewed August 4, 2026."
+      "Approved EDvera resubmission: O*NET 15-1245 Database Administrators (primary), O*NET 15-1243 Database Architects (secondary), and CIP 11.0802 Data Modeling/Warehousing and Database Administration.",
+      "WorkforceAP-curated pathway using selected IBM courses; completion does not by itself confer the separate full IBM Relational Database Administrator with GenAI professional certificate."
     ]
   },
   "aws-cloud-technology-amazon": {
@@ -655,7 +672,7 @@ export const PROGRAM_SYLLABI = {
   },
   "ux-design-professional-certificate-google": {
     "slug": "ux-design-professional-certificate-google",
-    "title": "UX Design Professional Certificate (Google)",
+    "title": "User Experience & Interface Design Professional Certificate",
     "providers": "Google via Coursera",
     "providerLine": "Powered by Google via Coursera   |   Delivery Format: Hybrid, Self-Paced",
     "deliveryFormat": "Hybrid, Self-Paced",
@@ -665,51 +682,62 @@ export const PROGRAM_SYLLABI = {
     "labHours": 59,
     "costLabel": "$7500 = $7500 tuition and fees",
     "tuitionAndFees": 7500,
-    "description": "Prepare for a career in the high-growth field of UX design — no experience or degree required. With professional training designed by Google, get on the fast-track to a competitively paid job. There are over 138,000 open jobs in UX design with a median entry-level salary of $112,000. UX designers focus on the interaction users have with products such as websites, apps, and physical objects.",
+    "description": "This 160-hour professional certificate prepares learners for entry-level careers in user experience (UX) and user interface (UI) design. Built on Google's UX Design curriculum, learners move through the complete design process - empathizing with users, defining problems, ideating, building wireframes and low- and high-fidelity prototypes in Figma, conducting UX research and usability testing, and designing responsive, accessible interfaces for websites and mobile apps - and finish with portfolio-ready projects and job-search preparation.",
     "courses": [
       {
         "name": "Foundations of User Experience (UX) Design",
         "hours": 11,
-        "description": "Introduces the essential skills and concepts needed for entry-level positions in user experience design. Focuses on how UX designers enhance user interactions with products such as websites and mobile apps."
+        "description": "Introduces the essential skills and concepts for entry-level UX design and how UX designers improve user interactions with products such as websites and mobile apps.",
+        "courseraSlug": "foundations-user-experience-design"
       },
       {
         "name": "Start the UX Design Process: Empathize, Define, and Ideate",
         "hours": 20,
-        "description": "Learn how to empathize with users and understand their pain points, define user needs using problem statements, and generate ideas for solutions to user problems."
+        "description": "Empathize with users to understand pain points, define user needs with problem statements, and generate ideas for solutions.",
+        "courseraSlug": "start-ux-design-process"
       },
       {
         "name": "Build Wireframes and Low-Fidelity Prototypes",
         "hours": 10,
-        "description": "Begin by creating storyboards and getting familiar with the basics of drawing. Then create paper wireframes and digital wireframes using the design tool Figma."
+        "description": "Create storyboards, paper and digital wireframes, and low-fidelity prototypes using the design tool Figma.",
+        "courseraSlug": "wireframes-low-fidelity-prototypes"
       },
       {
         "name": "Conduct UX Research and Test Early Concepts",
         "hours": 13,
-        "description": "Plan and conduct a usability study to gather feedback about designs, then modify low-fidelity designs based on insights from your research."
+        "description": "Plan and conduct usability studies to gather feedback, then refine low-fidelity designs based on research insights.",
+        "courseraSlug": "conduct-ux-research"
       },
       {
         "name": "Create High-Fidelity Designs and Prototypes in Figma",
         "hours": 18,
-        "description": "Follow step-by-step tutorials to create high-fidelity designs. Conduct research to collect feedback and refine your designs accordingly."
+        "description": "Build high-fidelity designs and interactive prototypes in Figma, collect feedback, and refine designs accordingly.",
+        "courseraSlug": "high-fidelity-designs-prototype"
       },
       {
         "name": "Build Dynamic User Interfaces (UI) for Websites",
         "hours": 14,
-        "description": "Plan a website design, create wireframes and prototypes, and test designs to gather feedback. Learn to give and receive feedback in design critique sessions."
+        "description": "Plan a website design, create wireframes and prototypes, build responsive UI, and participate in design critique sessions.",
+        "courseraSlug": "responsive-web-design-adobe-xd"
       },
       {
         "name": "Design a User Experience for Social Good & Prepare for Jobs",
         "hours": 15,
-        "description": "Design a dedicated mobile app and a responsive website focused on social good, producing a cross-platform project for your professional UX portfolio."
+        "description": "Design a mobile app and a responsive website focused on social good, producing a cross-platform capstone for your UX portfolio.",
+        "courseraSlug": "ux-design-jobs"
       },
       {
         "name": "Lab, Project, and Test Preparation",
         "hours": 59,
-        "description": "Hands-on labs, project work, and test preparation supporting all program competencies."
+        "description": "Hands-on labs, project work, and test preparation supporting all program competencies and career readiness."
       }
     ],
-    "sourceDocument": "9-UX_Design_Professional_Certificate_Google.docx",
-    "sourceSha256": "6aa6f5826e0f44a2e5c43914c1c43aac4acc7dbe4dc3b7bf30841bb9633c15b7"
+    "sourceDocument": "9-User Experience & Interface Design Professional Certificate (Google).pdf",
+    "sourceSha256": "6ac3ac7d95b30786356fbc702245ac0ea42d5410594aa6add3629bdf2385ff08",
+    "sourceNotes": [
+      "Approved EDvera resubmission: O*NET 15-1134 Web Developers and O*NET 15-1255.00 Web and Digital Interface Designers, with CIP 11.0105 Human-Centered Technology Design.",
+      "Google UX content and the 160-hour total remain unchanged; the display title reflects the approved User Experience & Interface Design name."
+    ]
   },
   "digital-marketing-e-commerce-google": {
     "slug": "digital-marketing-e-commerce-google",

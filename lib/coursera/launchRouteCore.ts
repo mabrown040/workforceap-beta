@@ -10,7 +10,7 @@ type DbUser = {
 } | null;
 
 type ProgramWithCourses = {
-  courses: Array<{ slug: string }>;
+  courses: Array<{ slug: string; courseraSlug?: string }>;
 };
 
 type CourseOverride = {
@@ -100,6 +100,7 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
       dbUser?.enrolledProgram ?? null,
     );
     const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
+    const program = enrolledProgram ? deps.getProgramBySlug(enrolledProgram) : null;
 
     if (requestedSlug && enrolledProgram) {
       if (dbUser?.organizationId) {
@@ -128,9 +129,18 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
           return deps.redirect(orgScoped);
         }
       }
-    }
 
-    const program = enrolledProgram ? deps.getProgramBySlug(enrolledProgram) : null;
+      // A board-approved syllabus can replace a legacy Coursera collection
+      // before the Enterprise discovery snapshot is refreshed. In that gap,
+      // use the exact official /learn slug carried by the approved syllabus.
+      // This must run before the index-based ID fallback so a new course at an
+      // old index can never launch the retired course that previously occupied
+      // that slot.
+      const approvedCourse = program?.courses.find((course) => course.slug === requestedSlug);
+      if (approvedCourse?.courseraSlug) {
+        return deps.redirect(deps.localFallbackUrl(approvedCourse.courseraSlug, 'course'));
+      }
+    }
     const completedSlugs = enrolledProgram
       ? dbUser?.courseProgress
           .filter((row) => row.programSlug === enrolledProgram)

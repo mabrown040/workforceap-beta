@@ -32,6 +32,9 @@ describe('upsertMergedCourseProgress atomic merge ladder', () => {
         },
         existing: null,
         completedAt: new Date('2026-08-29T12:00:00.000Z'),
+        scoreScaled: 0.9,
+        scoreRaw: 90,
+        statementCountIncrement: 1,
       }),
       upsertMergedCourseProgress(db as never, {
         userId: 'user-1',
@@ -75,6 +78,8 @@ describe('upsertMergedCourseProgress atomic merge ladder', () => {
       expect(sql).toContain(
         'GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete)',
       );
+      expect(sql).toContain('GREATEST(course_progress.score_raw, EXCLUDED.score_raw)');
+      expect(sql).toContain('statement_count = course_progress.statement_count +');
     }
   });
 });

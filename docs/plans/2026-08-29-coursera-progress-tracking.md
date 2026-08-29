@@ -240,7 +240,7 @@ Do **not** mix Astryx primitives inside kit components. Roster tokens already us
 
 - [ ] Coursera key is lowercase email (`externalId` / `actor.mbox`). Actor `account.name` without email still lands in `coursera_xapi_events`; progress % still needs B4B email to attach.
 - [ ] `coursera_identity_mappings` is attach-only. Auto-heal matching 0/82 forever is acceptable if unmatched rows already show B4B %.
-- [ ] Three live unmatched prod emails (`godfavorsme099@`, `akinje.twins@`, `toukervang@`) become roster rows with progress once B4B stops skipping them — **if** they appear in `enrollmentReports`. If they only emit xAPI, show activity + unmatched badge with % unknown until B4B has a row.
+- [ ] Three unmatched production learners become roster rows with progress once B4B stops skipping them — **if** they appear in `enrollmentReports`. If they only emit xAPI, show activity + unmatched badge with % unknown until B4B has a row.
 - [ ] Linking later: existing map-unmatched must promote `coursera_course_progress` → `course_progress` via `upsertMergedCourseProgress` / `computeCourseProgressUpdate` (never a blind overwrite).
 
 ### Course list accuracy

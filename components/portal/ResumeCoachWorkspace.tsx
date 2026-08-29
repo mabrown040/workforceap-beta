@@ -7,6 +7,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import GoogleDocsStyleResumeEditor from '@/components/portal/GoogleDocsStyleResumeEditor';
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
+import { RESUME_COACH_DATA_USE_NOTICE } from '@/lib/ai/resumeCoachDataContract';
 import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
 import {
   hasSubstantiveResumeText,
@@ -569,6 +570,7 @@ export default function ResumeCoachWorkspace() {
             onPostSessionParsingChange={setPostSessionParsing}
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
+            dataUseNotice={RESUME_COACH_DATA_USE_NOTICE}
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — describe your background"
             onAcceptSuggestion={handleAccept}

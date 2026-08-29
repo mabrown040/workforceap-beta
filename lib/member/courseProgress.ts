@@ -17,6 +17,7 @@ import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCou
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { courseCompletionMilestoneRef } from '@/lib/coursera/milestones';
+import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
@@ -472,41 +473,32 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       ? (existing?.completedAt ?? now)
       : existing?.completedAt ?? null;
 
-  await prisma.courseProgress.upsert({
-    where: {
-      userId_programSlug_courseSlug: {
-        userId,
-        programSlug,
-        courseSlug: matched.slug,
-      },
-    },
-    create: {
-      userId,
-      programSlug,
-      courseSlug: matched.slug,
-      courseId,
+  // The read above gives us the best candidate value, but it can be stale by
+  // the time this write runs. The shared SQL ladder re-checks the row at the
+  // conflict point so a concurrent completion/B4B fact cannot be demoted by a
+  // delayed IN_PROGRESS statement or lower percentage.
+  await upsertMergedCourseProgress(prisma, {
+    userId,
+    programSlug,
+    courseSlug: matched.slug,
+    courseId,
+    merged: {
       status,
       percentComplete,
-      scoreScaled: incomingScoreScaled,
-      scoreRaw: incomingScoreRaw,
-      startedAt: startedAt ?? undefined,
-      completedAt: completedAt ?? undefined,
       lastActivityAt: now,
-      statementCount: 1,
-      progressPct: percentComplete,
     },
-    update: {
-      courseId: courseId ?? undefined,
-      status,
-      percentComplete,
-      progressPct: percentComplete,
-      ...(incomingScoreScaled != null ? { scoreScaled: incomingScoreScaled } : {}),
-      ...(incomingScoreRaw != null ? { scoreRaw: incomingScoreRaw } : {}),
-      startedAt: startedAt ?? undefined,
-      completedAt: completedAt ?? undefined,
-      lastActivityAt: now,
-      statementCount: { increment: 1 },
-    },
+    existing: existing
+      ? {
+          status: existing.status,
+          percentComplete: existing.percentComplete,
+          lastActivityAt: existing.lastActivityAt,
+        }
+      : null,
+    completedAt,
+    scoreScaled: incomingScoreScaled,
+    scoreRaw: incomingScoreRaw,
+    startedAt,
+    statementCountIncrement: 1,
   });
 
   await refreshMemberProgramProgressRollup(userId, programSlug);

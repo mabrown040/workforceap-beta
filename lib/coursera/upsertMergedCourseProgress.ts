@@ -12,15 +12,18 @@ export type UpsertMergedCourseProgressArgs = {
   userId: string;
   programSlug: string;
   courseSlug: string;
-  courseId: string;
+  courseId: string | null;
   merged: MergedCourseProgress;
   existing: ExistingCourseProgress | null;
   /** Stamped on create when merged is COMPLETED; on update only when transitioning into COMPLETED. */
   completedAt: Date | null;
   scoreScaled?: number | null;
+  scoreRaw?: number | null;
   startedAt?: Date | null;
   /** When set, applied on update only (B4B enrolledAt re-sync). */
   updateStartedAt?: Date | null;
+  /** xAPI/webhook facts increment the observation counter; batch snapshots do not. */
+  statementCountIncrement?: number;
 };
 
 export type UpsertMergedCourseProgressResult = {
@@ -47,8 +50,10 @@ export async function upsertMergedCourseProgress(
     merged,
     completedAt,
     scoreScaled,
+    scoreRaw,
     startedAt,
     updateStartedAt,
+    statementCountIncrement = 0,
   } = args;
 
   const runAtomicUpsert = async (
@@ -82,6 +87,7 @@ export async function upsertMergedCourseProgress(
       percent_complete,
       progress_pct,
       score_scaled,
+      score_raw,
       started_at,
       completed_at,
       last_activity_at,
@@ -98,10 +104,11 @@ export async function upsertMergedCourseProgress(
       ${merged.percentComplete},
       ${merged.percentComplete},
       ${scoreScaled ?? null},
+      ${scoreRaw ?? null},
       ${startedAt ?? null},
       ${merged.status === CourseProgressStatus.COMPLETED ? completedAt : null},
       ${merged.lastActivityAt},
-      0,
+      ${statementCountIncrement},
       now(),
       now()
     )
@@ -133,6 +140,11 @@ export async function upsertMergedCourseProgress(
         WHEN course_progress.score_scaled IS NULL THEN EXCLUDED.score_scaled
         ELSE GREATEST(course_progress.score_scaled, EXCLUDED.score_scaled)
       END,
+      score_raw = CASE
+        WHEN EXCLUDED.score_raw IS NULL THEN course_progress.score_raw
+        WHEN course_progress.score_raw IS NULL THEN EXCLUDED.score_raw
+        ELSE GREATEST(course_progress.score_raw, EXCLUDED.score_raw)
+      END,
       started_at = CASE
         WHEN course_progress.started_at IS NULL
           THEN COALESCE(${updateStartedAt ?? null}, EXCLUDED.started_at)
@@ -155,6 +167,7 @@ export async function upsertMergedCourseProgress(
         WHEN EXCLUDED.last_activity_at IS NULL THEN course_progress.last_activity_at
         ELSE GREATEST(course_progress.last_activity_at, EXCLUDED.last_activity_at)
       END,
+      statement_count = course_progress.statement_count + ${statementCountIncrement},
       last_updated_at = now()
     RETURNING status, (xmax = 0) AS inserted
   `);

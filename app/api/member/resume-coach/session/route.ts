@@ -8,11 +8,12 @@ import {
   hasSubstantiveResumeText,
   sanitizeResumePlainText,
 } from '@/lib/resume/extractionQuality';
+import { RESUME_COACH_INITIAL_TEXT_MAX_CHARS } from '@/lib/ai/resumeCoachDataContract';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-const FILE_RESUME_MAX = 6000;
-const LIVE_DRAFT_MAX = 6000;
+const FILE_RESUME_MAX = RESUME_COACH_INITIAL_TEXT_MAX_CHARS;
+const LIVE_DRAFT_MAX = RESUME_COACH_INITIAL_TEXT_MAX_CHARS;
 
 async function getResumeCoachDynamicVariables(
   userId: string,

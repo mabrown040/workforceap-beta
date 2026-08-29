@@ -85,6 +85,7 @@ describe('Coursera REST webhook completion contract', () => {
     mocks.findUser.mockResolvedValue({
       organizationId: 'org-1',
       enrolledProgram: null,
+      courseEnrollments: [],
     });
     mocks.claim.mockResolvedValue('claimed');
     mocks.markProcessed.mockResolvedValue(undefined);
@@ -165,6 +166,34 @@ describe('Coursera REST webhook completion contract', () => {
     expect(await response.json()).toEqual(expect.objectContaining({
       progressRecorded: true,
       completed: false,
+    }));
+  });
+
+  it('uses the primary enrollment instead of a stale legacy program', async () => {
+    mocks.findUser.mockResolvedValueOnce({
+      organizationId: 'org-1',
+      enrolledProgram: 'legacy-program',
+      courseEnrollments: [
+        { programSlug: 'secondary-program', isPrimary: false },
+        { programSlug: 'primary-program', isPrimary: true },
+      ],
+    });
+
+    const response = await POST(request({
+      email: 'member@example.com',
+      contentId: 'coursera-course-1',
+      completed: true,
+      eventId: 'event-primary-program',
+    }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.completeCourse).toHaveBeenCalledWith(expect.objectContaining({
+      userId: 'member-1',
+      resolvedProgramSlug: 'primary-program',
+    }));
+    expect(mocks.upsertProgress).toHaveBeenCalledWith(expect.objectContaining({
+      userId: 'member-1',
+      enrolledProgramSlug: 'primary-program',
     }));
   });
 });

@@ -86,3 +86,14 @@ test('computeTrainingProgress: 93 percent remains in progress without explicit a
   assert.equal(r.pct, 93);
   assert.equal(r.allComplete, false);
 });
+
+test('computeTrainingProgress: overcounted rollup stays display-clamped without completing', () => {
+  const r = computeTrainingProgress(sampleProgram.slug, [], {
+    programSlug: sampleProgram.slug,
+    coursesCompleted: sampleProgram.courses.length + 1,
+    averagePercent: 100,
+  });
+
+  assert.equal(r.completedCount, sampleProgram.courses.length);
+  assert.equal(r.allComplete, false);
+});

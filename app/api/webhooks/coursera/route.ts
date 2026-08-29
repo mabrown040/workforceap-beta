@@ -11,6 +11,7 @@ import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
+import { resolveInboundProgramSlug } from '@/lib/xapi/resolveInboundProgram';
 import { isXapiCompletionVerb } from '@/lib/xapi/statements';
 import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@/lib/xapi/storage';
 
@@ -183,11 +184,22 @@ export async function POST(request: Request) {
     // equal the header-derived one before applying any completion/progress
     // write; treat a mismatch identically to "unmatched" so a spoofed or
     // misconfigured tenant header cannot cross-apply course completions.
-    let dbUser: { organizationId: string; enrolledProgram: string | null } | null = null;
+    let dbUser: {
+      organizationId: string;
+      enrolledProgram: string | null;
+      courseEnrollments: Array<{ programSlug: string; isPrimary: boolean }>;
+    } | null = null;
     if (memberId) {
       dbUser = await prisma.user.findUnique({
         where: { id: memberId },
-        select: { organizationId: true, enrolledProgram: true },
+        select: {
+          organizationId: true,
+          enrolledProgram: true,
+          courseEnrollments: {
+            where: { organizationId },
+            select: { programSlug: true, isPrimary: true },
+          },
+        },
       });
       if (!dbUser || dbUser.organizationId !== organizationId) {
         console.warn('[webhooks/coursera] organizationId mismatch for matched member', {
@@ -229,7 +241,10 @@ export async function POST(request: Request) {
       });
     }
 
-    const enrolledProgram = dbUser?.enrolledProgram ?? null;
+    const enrolledProgram = resolveInboundProgramSlug({
+      enrollments: dbUser?.courseEnrollments ?? [],
+      legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
+    });
   
     const synthetic = buildCourseraRestSyntheticStatement(data, resolvedEmail, rawAudit);
     const shouldComplete = isXapiCompletionVerb(synthetic);

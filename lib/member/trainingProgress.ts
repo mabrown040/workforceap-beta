@@ -50,8 +50,15 @@ export function computeTrainingProgress(
 
   const rollup = findLiveProgress(enrolledProgram, liveProgress);
   if (rollup) {
-    const completedCount = Math.max(0, Math.min(totalCourses, rollup.coursesCompleted));
-    const allComplete = completedCount === totalCourses;
+    const rawCompletedCount = rollup.coursesCompleted;
+    const hasValidCompletedCount = Number.isFinite(rawCompletedCount)
+      && Number.isInteger(rawCompletedCount)
+      && rawCompletedCount >= 0;
+    const completedCount = Math.max(
+      0,
+      Math.min(totalCourses, hasValidCompletedCount ? rawCompletedCount : 0),
+    );
+    const allComplete = hasValidCompletedCount && rawCompletedCount === totalCourses;
     const reportedPercent = Math.max(0, Math.min(100, Math.round(rollup.averagePercent)));
     // A pre-validation rollup can contain a 100% aggregate from one course
     // while the catalog denominator has several courses. Never let that stale

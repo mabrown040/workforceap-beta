@@ -39,7 +39,7 @@ const UNUSABLE_MEMBER_COUNSELOR_AGENT_IDS = new Set([
  * Defaults if env is unset — production should set `ELEVENLABS_*_AGENT_ID` per deploy.
  * IDs match WorkforceAP agents in the ElevenLabs workspace (ConvAI).
  */
-const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
+export const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   interview: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
   // Legacy key name; this agent is Lilley, the member-facing student career coach.
   counselor: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8',
@@ -51,6 +51,10 @@ const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   /** Lilley also serves the legacy member career-business entry point. */
   career_business: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8',
 };
+
+const REVIEWED_RESUME_COACH_AGENT_IDS = new Set([
+  'agent_6601kmznw90ffxkbk7mpbym73vh9',
+]);
 
 export type CounselorVoiceSessionPlan =
   | {
@@ -102,11 +106,20 @@ export function resolveCounselorVoiceSessionPlan(
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {
   const fromEnv = process.env[ENV_KEYS[key]]?.trim();
-  if (fromEnv && (key !== 'counselor' || !UNUSABLE_MEMBER_COUNSELOR_AGENT_IDS.has(fromEnv))) {
+  const unavailableCounselor = key === 'counselor' && fromEnv
+    ? UNUSABLE_MEMBER_COUNSELOR_AGENT_IDS.has(fromEnv)
+    : false;
+  const unreviewedResumeCoach = key === 'resume_coach' && fromEnv
+    ? !REVIEWED_RESUME_COACH_AGENT_IDS.has(fromEnv)
+    : false;
+  if (fromEnv && !unavailableCounselor && !unreviewedResumeCoach) {
     return fromEnv;
   }
-  if (fromEnv) {
+  if (unavailableCounselor) {
     console.warn(`[elevenlabs] Ignoring unavailable member coach ID from ${ENV_KEYS[key]}.`);
+  }
+  if (unreviewedResumeCoach) {
+    console.warn(`[elevenlabs] Ignoring unreviewed resume coach ID from ${ENV_KEYS[key]}.`);
   }
   return FALLBACK_AGENT_IDS[key];
 }

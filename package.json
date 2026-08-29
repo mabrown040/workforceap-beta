@@ -43,6 +43,7 @@
     "coursera:audit-links": "node scripts/prisma-env.js npx tsx scripts/audit-coursera-links.ts",
     "coursera:prove-b4b-link": "node scripts/prisma-env.js npx tsx scripts/prove-b4b-identity-link.ts",
     "coursera:backfill-catalog": "node scripts/backfill-coursera-courseids.cjs",
+    "coursera:precreate-tenant-indexes": "node scripts/prisma-env.js npx tsx scripts/precreate-coursera-tenant-indexes.ts",
     "email": "email dev -p 3001",
     "analyze": "ANALYZE=true npm run build",
     "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh",

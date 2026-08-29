@@ -74,13 +74,13 @@ export default function EmployerOutcomesDashboard() {
 
   if (error) {
     return (
-      <div className="wa-rounded-lg wa-bg-red-50 wa-border wa-border-red-200 wa-p-4 wa-text-red-700">
+      <div data-portal-error-state="employer-outcomes-load" className="wa-rounded-lg wa-bg-red-50 wa-border wa-border-red-200 wa-p-4 wa-text-red-700">
         {error}
       </div>
     );
   }
 
-  if (!data) return null;
+  if (!data) return <div data-portal-error-state="employer-outcomes-empty-response" />;
 
   const { employer, metrics, jobs, programStats } = data;
 

@@ -50,26 +50,31 @@ vi.mock('@/lib/member/getMemberResumePlainText', () => ({
   getMemberResumePlainText: vi.fn(),
 }));
 
+vi.mock('@/lib/counselor/staffMemberAccess', () => ({
+  assertStaffCanAccessMemberRecord: vi.fn(),
+}));
+
 // ─── Imports after mocks ───
 import { GET as resumeGET } from '@/app/api/member/resume/route';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
-function makeReq(url: string) {
+function makeReq(url: string, init?: RequestInit) {
   class MockNextRequest extends Request {
     get nextUrl() {
       return new URL(this.url);
     }
   }
-  return new MockNextRequest(url);
+  return new MockNextRequest(url, init);
 }
 
 describe('GET /api/member/resume', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
   });
 
   it('returns 401 when not authenticated', async () => {
@@ -124,6 +129,33 @@ describe('GET /api/member/resume', () => {
     expect(json.enhancedText).toBe('enhanced text');
   });
 
+  it('returns local metadata without signing or downloading files during a read-only audit', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-123',
+      resumeOriginalPath: 'user-123/original.pdf',
+      resumeEnhancedPath: 'user-123/enhanced.docx',
+    } as any);
+
+    const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume?includePlainText=1', {
+      headers: { 'x-workforceap-read-only-audit': '1' },
+    }) as any);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      hasOriginal: true,
+      hasEnhanced: true,
+      originalUrl: null,
+      enhancedUrl: null,
+      resumePlainText: null,
+      previewOriginalPath: null,
+      previewEnhancedPath: null,
+      auditSuppressed: true,
+    });
+    expect(getSupabaseAdmin).not.toHaveBeenCalled();
+    expect(getMemberResumePlainText).not.toHaveBeenCalled();
+  });
+
   it('includes plain text when includePlainText=1', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
@@ -148,8 +180,7 @@ describe('GET /api/member/resume', () => {
 
   it('returns 403 when requesting another member as non-admin/non-counselor', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
-    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
 
     const res = await resumeGET(
       makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any
@@ -160,8 +191,7 @@ describe('GET /api/member/resume', () => {
 
   it('allows admin to access any member resume', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       userId: 'user-456',
       resumeOriginalPath: null,
@@ -179,13 +209,7 @@ describe('GET /api/member/resume', () => {
 
   it('allows counselor to access assigned member resume', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'counselor-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
-    vi.mocked(isCounselor).mockResolvedValue(true);
-    vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
-      memberId: 'user-456',
-      active: true,
-      counselor: { userId: 'counselor-1' },
-    } as any);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       userId: 'user-456',
       resumeOriginalPath: null,
@@ -196,18 +220,12 @@ describe('GET /api/member/resume', () => {
       makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any
     );
     expect(res.status).toBe(200);
-    expect(prisma.counselorAssignment.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { memberId: 'user-456', active: true },
-      })
-    );
+    expect(assertStaffCanAccessMemberRecord).toHaveBeenCalledWith('counselor-1', 'user-456');
   });
 
   it('returns 403 when counselor accesses unassigned member', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'counselor-1' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(false);
-    vi.mocked(isCounselor).mockResolvedValue(true);
-    vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue(null);
+    vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(false);
 
     const res = await resumeGET(
       makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any

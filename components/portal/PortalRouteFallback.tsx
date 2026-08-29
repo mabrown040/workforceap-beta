@@ -11,7 +11,7 @@ type PortalRouteFallbackProps = {
  */
 export default function PortalRouteFallback({ title, description, children }: PortalRouteFallbackProps) {
   return (
-    <div className="portal-route-fallback">
+    <div className="portal-route-fallback" data-portal-error-state="portal-route-fallback">
       <h1 className="portal-route-fallback__title">{title}</h1>
       <p className="portal-route-fallback__desc">{description}</p>
       <nav className="portal-route-fallback__nav" aria-label="Helpful links">

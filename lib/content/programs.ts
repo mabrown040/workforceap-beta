@@ -10,6 +10,11 @@ import {
 } from '@/lib/content/courseraDiscoveredCatalog';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import {
+  PROGRAM_SLUG_ALIASES,
+  canonicalizeProgramSlug,
+} from '@/lib/content/programSlug';
+export { PROGRAM_SLUG_ALIASES } from '@/lib/content/programSlug';
+import {
   getProgramSyllabus,
   type ProgramSyllabus,
 } from '../../shared/programSyllabi';
@@ -544,31 +549,6 @@ export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
  * static catalog. Keep them resolvable until the data backfill has shipped and
  * compatibility has been retained for at least one release.
  */
-const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
-  'ai-practitioner-professional-certificate': 'ai-practitioner-professional-certificate-aws',
-  'ai-professional-practitioner-certificate': 'ai-practitioner-professional-certificate-aws',
-  // Pre-2026-07 combined AI track slug (split into AWS Practitioner + IBM Software Dev).
-  'ai-professional-developer-certificate-ibm': 'ai-practitioner-professional-certificate-aws',
-  'ai-and-software-development-professional-certificate-ibm': 'software-developer-professional-certificate-ibm',
-  'construction-readiness-certificate-osha-10': 'core-construction-training-certificate',
-  'logistics-and-supply-chain-certificate-clt': 'certified-logistics-technician-clt',
-  'production-technology-certificate-cpt': 'certified-production-technician-cpt',
-  'medical-billing-coding-and-health-information-technology': 'health-information-technology-mchit',
-  // Retired duplicate catalog entry (Coursera-only); keep slug resolving for legacy enrollments.
-  'medical-billing-and-coding-certificate': 'health-information-technology-mchit',
-  // Apply-form interest options whose labels never matched a catalog title:
-  // the option says "Professional Certificate" but the catalog program is
-  // titled "IT Automation with Python Certificate (Google)".
-  'it-automation-with-python-professional-certificate-google': 'it-automation-with-python-google',
-  'comptia-a-plus': 'comptia-a-professional-certificate',
-  // Program titles approved in the 2026-08-27 EDvera resubmission. Preserve
-  // earlier full-title values already stored on applications and enrollments.
-  'management-and-data-analyst-professional-certificate-google-ibm':
-    'data-analytics-professional-certificate-google',
-  'data-science-and-database-administrator-dba-professional-certificate-ibm':
-    'data-science-professional-certificate-ibm',
-};
-
 /** Exact historical labels already stored before the August 2026 rename. */
 export const LEGACY_PROGRAM_TITLE_VALUES = [
   'Management and Data Analyst Professional Certificate (Google/IBM)',
@@ -610,7 +590,7 @@ export function isCurriculumMigrationPending(programValue: string | null | undef
 export function getProgramByInterestValue(interest: string): Program | undefined {
   const trimmed = interest.trim();
   if (!trimmed) return undefined;
-  const bySlug = PROGRAMS.find((p) => p.slug === trimmed);
+  const bySlug = PROGRAMS.find((p) => p.slug === canonicalizeProgramSlug(trimmed));
   if (bySlug) return bySlug;
   const slugGuess = slugify(trimmed);
   const bySlugGuess = PROGRAMS.find((p) => p.slug === slugGuess);

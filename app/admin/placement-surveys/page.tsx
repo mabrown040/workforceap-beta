@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PlacementSurveysWhatsThis from '@/components/admin/PlacementSurveysWhatsThis';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { ClipboardCheck, Star, Users, MessageSquare, TrendingUp, Clock } from 'lucide-react';
 import {
   PlacementSurveysKit,
@@ -123,6 +124,9 @@ export default async function PlacementSurveysPage({
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
   const data = await loadSurveyStats(scope);
+  if (!data) {
+    return <AdminDataLoadError title="Could not load placement surveys" />;
+  }
   const stats = data?.stats;
   const surveys = data?.surveys ?? [];
 

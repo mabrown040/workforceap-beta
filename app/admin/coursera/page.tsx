@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -17,13 +18,19 @@ import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
 import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
 import CourseraInspectByEmailCard from '@/components/admin/CourseraInspectByEmailCard';
 import DataTable from '@/components/portal/ui/DataTable';
+import { StatusTag } from '@/components/portal/kit';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import {
+  loadValidatedProgramCatalog,
+  type ValidatedProgramCatalogEntry,
+} from '@/lib/coursera/programCourseList';
 import {
   getCourseraSyncStatus,
   listXapiStatementsNeedingAttention,
@@ -291,6 +298,156 @@ function fmtDateTime(value: Date | null): string {
   return value.toLocaleString();
 }
 
+function CatalogIssueList({
+  label,
+  items,
+}: {
+  label: string;
+  items: string[];
+}) {
+  if (items.length === 0) return <span aria-label={`No ${label.toLowerCase()}`}>—</span>;
+  return (
+    <details>
+      <summary style={{ cursor: 'pointer', fontWeight: 700 }}>
+        {items.length} {label.toLowerCase()}
+      </summary>
+      <ul style={{ margin: '0.4rem 0 0', paddingLeft: '1rem', fontSize: '0.8rem' }}>
+        {items.map((item) => <li key={item}>{item}</li>)}
+      </ul>
+    </details>
+  );
+}
+
+function CourseraCatalogHealthSection({
+  rows,
+  loadFailed,
+}: {
+  rows: ValidatedProgramCatalogEntry[];
+  loadFailed: boolean;
+}) {
+  return (
+    <section className="content-card" style={{ padding: '1rem 1.1rem', margin: '1rem 0' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+          marginBottom: '0.75rem',
+        }}
+      >
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Catalog health</h2>
+          <p style={{ margin: '0.25rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+            Board syllabus courses define Y. Coursera confirms bound IDs and reports off-syllabus activity without
+            changing the denominator.
+          </p>
+        </div>
+        {loadFailed ? <StatusTag tone="alert">Unavailable</StatusTag> : null}
+      </div>
+
+      {loadFailed ? (
+        <p role="alert" style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+          The tenant catalog audit could not be loaded. Enrollment and progress data remain unchanged.
+        </p>
+      ) : (
+        <DataTable
+          density="compact"
+          rows={rows}
+          rowKey={(row) => row.programSlug}
+          columns={[
+            {
+              key: 'program',
+              header: 'Program',
+              cell: (row) => (
+                <>
+                  <strong>{row.programTitle}</strong>
+                  <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem' }}>
+                    {row.programSlug}
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: 'mapped',
+              header: 'Mapped / Y',
+              align: 'right',
+              cell: (row) => (
+                <div style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
+                  <strong>
+                    {row.catalogHealth.mappedCount} / {row.catalogHealth.syllabusCount}
+                  </strong>
+                  {row.catalogHealth.validProviderCourseCount != null ? (
+                    <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem' }}>
+                      {row.catalogHealth.validProviderCourseCount} provider-valid
+                    </div>
+                  ) : null}
+                </div>
+              ),
+            },
+            {
+              key: 'provider',
+              header: 'Provider',
+              cell: (row) => {
+                const health = row.catalogHealth;
+                if (health.providerStatus === 'unavailable') {
+                  return <StatusTag tone="alert">Unavailable</StatusTag>;
+                }
+                if (health.providerStatus === 'not_checked') {
+                  return <StatusTag tone="muted">Not checked</StatusTag>;
+                }
+                if (health.providerCourseCount === 0) {
+                  return <StatusTag tone="ok">Available · healthy empty</StatusTag>;
+                }
+                return <StatusTag tone="ok">Available · {health.providerCourseCount} courses</StatusTag>;
+              },
+            },
+            {
+              key: 'unmapped',
+              header: 'Unmapped',
+              cell: (row) => (
+                <CatalogIssueList label="Unmapped" items={row.unmappedSlugs} />
+              ),
+            },
+            {
+              key: 'stale',
+              header: 'Stale IDs',
+              cell: (row) => (
+                <CatalogIssueList label="Stale IDs" items={row.staleCourseraIds} />
+              ),
+            },
+            {
+              key: 'invalid',
+              header: 'Wrong type',
+              cell: (row) => (
+                <CatalogIssueList
+                  label="Wrong type"
+                  items={row.catalogHealth.invalidContentTypeIds.map(
+                    (item) => `${item.id} (${item.contentType})`,
+                  )}
+                />
+              ),
+            },
+            {
+              key: 'additional',
+              header: 'Additional Coursera activity',
+              cell: (row) => (
+                <CatalogIssueList
+                  label="Additional"
+                  items={row.catalogHealth.additionalCourseraContents.map(
+                    (item) => `${item.name ?? item.slug ?? item.id} · ${item.contentType} · ${item.id}`,
+                  )}
+                />
+              ),
+            },
+          ]}
+        />
+      )}
+    </section>
+  );
+}
+
 // Shared styles for collapsible section headers on this page. Each section
 // is wrapped in a <details> with a <summary> bar so the page is short and
 // scannable by default. Sections can be expanded individually.
@@ -353,17 +510,42 @@ export default async function AdminCourseraPage({
   if (!user) redirect('/login?redirectTo=/admin/coursera');
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  if (isReadOnlyPortalAuditHeader(await headers())) {
+    return (
+      <PortalPageFrame>
+        <div data-portal-audit-suppressed="admin-coursera-schema-and-external-sync">
+          <PageHeader
+            title="Coursera"
+            subtitle="Identity mapping, xAPI health, and enrollment operations"
+          />
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+            <p style={{ marginTop: 0 }}>
+              The route and admin access shell are verified here. Schema checks, OAuth calls, and live sync operations are
+              reserved for the attended Coursera release check.
+            </p>
+            <Link href="/admin" className="btn btn-outline btn-sm">Admin home</Link>
+          </div>
+        </div>
+      </PortalPageFrame>
+    );
+  }
   const organizationId = await getActorOrganizationId(user.id);
+  const catalogHealthPromise = loadValidatedProgramCatalog({ organizationId: scope.orgId })
+    .then((rows) => ({ rows, loadFailed: false }))
+    .catch((error: unknown) => {
+      console.error('[admin/coursera] catalog health load failed:', error);
+      return { rows: [] as ValidatedProgramCatalogEntry[], loadFailed: true };
+    });
 
   const sp = (await searchParams) ?? {};
   const requestedUi = typeof sp.ui === 'string' ? sp.ui : null;
 
   // --- DEFAULT: design-kit treatment (lean) ---
   // A focused Sync Status card + Unmatched Learners list, mirroring the
-  // "coursera" mockup view. Only the lean queries run here; the full mapping /
-  // audit / CSV tooling (and the interactive Force Sync + Link bindings) live
-  // under ?ui=legacy. B4B is off in preview (creds prod-only) so B4B latency is
-  // honestly reported as unavailable — never fabricated.
+  // "coursera" mockup view. The full mapping / CSV tooling lives under
+  // ?ui=legacy. One batched contents audit powers catalog health; when B4B
+  // credentials are unavailable (for example in preview), that state is shown
+  // explicitly instead of treating an unavailable provider as an empty list.
   if (requestedUi !== 'legacy') {
     let kitSyncStatus = {
       lastXapiReceivedAt: null as Date | null,
@@ -469,6 +651,7 @@ export default async function AdminCourseraPage({
         : health === 'idle'
           ? 'Awaiting events'
           : 'Healthy';
+    const catalogHealth = await catalogHealthPromise;
 
     return (
       <PortalPageFrame>
@@ -477,9 +660,8 @@ export default async function AdminCourseraPage({
           healthLabel={healthLabel}
           lastSync={kitSyncOk ? fmtRelative(kitSyncStatus.lastXapiReceivedAt) : '—'}
           learnersSynced={kitSyncOk ? String(kitSyncStatus.distinctMembersWithCourseProgress) : '—'}
-          // B4B credentials are prod-only; preview has no live latency probe and
-          // we don't run a heavy B4B HTTP call at render. Honest null → the kit
-          // renders "unavailable in preview".
+          // Catalog health verifies contents, but it is not a latency probe.
+          // Honest null keeps the sync card from fabricating a duration.
           b4bLatency={null}
           errors={kitSyncOk ? String(kitSyncStatus.attentionStatementCount) : '—'}
           unmatched={unmatchedRows}
@@ -504,6 +686,7 @@ export default async function AdminCourseraPage({
             </div>
           }
         />
+        <CourseraCatalogHealthSection {...catalogHealth} />
       </PortalPageFrame>
     );
   }
@@ -609,6 +792,7 @@ export default async function AdminCourseraPage({
     workspaceEmailProvisioned:
       member.courseEnrollments[0]?.workspaceEmailProvisioned ?? member.workspaceEmailProvisioned,
   }));
+  const catalogHealth = await catalogHealthPromise;
 
   return (
     <PortalPageFrame>
@@ -623,6 +807,8 @@ export default async function AdminCourseraPage({
           ← Back to Coursera sync overview
         </Link>
       </div>
+
+      <CourseraCatalogHealthSection {...catalogHealth} />
 
       {unmatchedActorAlerts.distinctUnmatchedActorEmails > 0 ? (
         <div

@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Redis } from '@upstash/redis';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,7 @@ export type HealthResponse = {
   status: HealthStatus;
   checks: HealthChecks;
   generatedAt: string;
+  auditSuppressed?: boolean;
 };
 
 export type HealthHistoryPoint = {
@@ -267,7 +269,7 @@ async function checkEmail(): Promise<EmailHealth> {
 
 /* ─── Route handlers ─── */
 
-async function _GET() {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -278,6 +280,27 @@ async function _GET() {
     }
 
     const startedAt = new Date();
+    if (isReadOnlyPortalAuditHeader(request.headers)) {
+      const suppressed = { status: 'degraded' as const, note: 'Provider check suppressed during read-only audit' };
+      const body: HealthResponse = {
+        status: 'degraded',
+        checks: {
+          database: suppressed,
+          redis: suppressed,
+          prisma: suppressed,
+          cronJobs: suppressed,
+          webhooks: suppressed,
+          xapi: suppressed,
+          aiTools: suppressed,
+          email: suppressed,
+        },
+        generatedAt: startedAt.toISOString(),
+        auditSuppressed: true,
+      };
+      return NextResponse.json(body, {
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
 
     const [
       database,

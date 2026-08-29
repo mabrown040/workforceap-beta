@@ -1,15 +1,23 @@
 import 'server-only';
 
-import { CourseProgressStatus } from '@prisma/client';
+import { CourseProgressStatus, Prisma } from '@prisma/client';
 
+import { findCanonicalMappingForCourseraCourse } from '@/lib/coursera/canonicalMapping';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import {
+  canonicalizeProgramSlug,
+  programSlugReadCandidates,
+} from '@/lib/content/programSlug';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
 import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
 import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
-import { loadProgramCourseCount } from '@/lib/member/loadProgramCourses';
+import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
+import { courseCompletionMilestoneRef } from '@/lib/coursera/milestones';
+import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
@@ -34,43 +42,113 @@ function mergePercent(current: number, incoming: number | null | undefined): num
   return Math.max(current, clamped);
 }
 
+export type CanonicalProgramCourse = {
+  programSlug: string;
+  courseSlug: string;
+  courseName: string;
+  courseraCourseId: string;
+  /** True only when this write moved the program from no observed activity. */
+  trainingStartedTransition?: boolean;
+};
+
+/** Resolve an exact Coursera course id without enrollment/name heuristics. */
+export async function resolveCanonicalProgramCourseFromCourseraId(
+  rawCourseraCourseId: string | null | undefined,
+): Promise<CanonicalProgramCourse | null> {
+  const courseraCourseId = rawCourseraCourseId?.trim() || '';
+  if (!courseraCourseId) return null;
+
+  const dbMapping = await findCanonicalMappingForCourseraCourse({ courseraCourseId });
+  if (dbMapping) {
+    const programSlug = canonicalizeProgramSlug(dbMapping.programSlug);
+    const catalogCourse = getProgramBySlug(programSlug)?.courses.find(
+      (course) => course.slug === dbMapping.courseSlug,
+    );
+    const discoveredCourse = DISCOVERED_COURSERA_PROGRAMS[programSlug]?.courses.find(
+      (course) => course.slug === dbMapping.courseSlug,
+    );
+    return {
+      programSlug,
+      courseSlug: dbMapping.courseSlug,
+      courseName: catalogCourse?.name ?? discoveredCourse?.name ?? dbMapping.courseSlug,
+      courseraCourseId,
+    };
+  }
+
+  // Some provider ids are shared across two real WAP curricula. Only a
+  // single distinct static pair is safe to promote without an admin mapping.
+  const candidates = new Map<string, CanonicalProgramCourse>();
+  for (const [rawProgramSlug, discoveredProgram] of Object.entries(
+    DISCOVERED_COURSERA_PROGRAMS,
+  )) {
+    const wapProgram = getProgramBySlug(rawProgramSlug);
+    if (!wapProgram) continue;
+    for (const course of discoveredProgram.courses) {
+      if (course.courseId !== courseraCourseId) continue;
+      const programSlug = wapProgram.slug;
+      const candidate = {
+        programSlug,
+        courseSlug: course.slug,
+        courseName: course.name,
+        courseraCourseId,
+      };
+      candidates.set(`${programSlug}|${course.slug}`, candidate);
+    }
+  }
+
+  return candidates.size === 1 ? Array.from(candidates.values())[0] : null;
+}
+
 export async function refreshMemberProgramProgressRollup(userId: string, programSlug: string) {
-  // Denominator authority order: B4B live → Course DB → static catalog.
-  // Same chain the dashboard renders, so the rollup's averagePercent is
-  // computed against the same total the user sees on screen — no more
-  // divergence between rollup and dashboard. We resolve the user's org
-  // first because Course DB rows are tenant-scoped.
+  const program = getProgramBySlug(programSlug);
+  const canonicalProgramSlug = program?.slug ?? programSlug;
+  const programSlugs = programSlugReadCandidates(canonicalProgramSlug);
+
+  // The validated WAP list defines Y; the shared B4B umbrella never does.
+  // A rollup mutation also has no reason to warm the provider contents cache,
+  // so this path binds from syllabus/Course DB/static only.
   const userRow = await prisma.user.findUnique({
     where: { id: userId },
     select: { organizationId: true },
   });
-  const totalCourses = userRow?.organizationId
-    ? await loadProgramCourseCount({
+  const validatedCourses = userRow?.organizationId
+    ? (await loadValidatedProgramCourses({
         organizationId: userRow.organizationId,
-        programSlug,
-      })
-    : (getProgramBySlug(programSlug)?.courses.length
-        ?? DISCOVERED_COURSERA_PROGRAMS[programSlug]?.courses.length
-        ?? 0);
+        programSlug: canonicalProgramSlug,
+        checkB4BContents: false,
+      })).courses
+    : (program?.courses ?? DISCOVERED_COURSERA_PROGRAMS[canonicalProgramSlug]?.courses.map((course) => ({
+        slug: course.slug,
+        name: course.name,
+        estimatedHours: 10,
+        courseraCourseId: course.courseId,
+      })) ?? []);
 
   const rows = await prisma.courseProgress.findMany({
     take: 500,
-    where: { userId, programSlug },
-    select: { status: true, percentComplete: true, courseSlug: true },
+    where: { userId, programSlug: { in: programSlugs } },
+    select: { status: true, percentComplete: true, courseSlug: true, courseId: true },
   });
 
-  const completedRows = rows.filter((r) => r.status === CourseProgressStatus.COMPLETED);
-  const completed = completedRows.length;
-  const sumPercent = rows.reduce((acc, r) => acc + r.percentComplete, 0);
-  const averagePercent = totalCourses > 0 ? Math.round(sumPercent / totalCourses) : 0;
+  const reconciliation = reconcileProgramProgress({
+    validatedCourses,
+    localRows: rows.map((row) => ({
+      courseSlug: row.courseSlug,
+      courseId: row.courseId,
+      percentComplete: row.percentComplete,
+      status: row.status,
+    })),
+  });
+  const completed = reconciliation.completedCount;
+  const averagePercent = reconciliation.programPercent;
 
   await prisma.memberProgramProgress.upsert({
     where: {
-      userId_programSlug: { userId, programSlug },
+      userId_programSlug: { userId, programSlug: canonicalProgramSlug },
     },
     create: {
       userId,
-      programSlug,
+      programSlug: canonicalProgramSlug,
       coursesCompleted: completed,
       averagePercent,
     },
@@ -86,7 +164,9 @@ export async function refreshMemberProgramProgressRollup(userId: string, program
   // member would show different completion counts on different portals. Union
   // with existing JSON to preserve any slugs added before CourseProgress
   // existed.
-  const completedFromCourseProgress = completedRows.map((r) => r.courseSlug);
+  const completedFromCourseProgress = reconciliation.rows
+    .filter((row) => row.displayCompleted)
+    .map((row) => row.courseSlug);
   const existingUser = await prisma.user.findUnique({
     where: { id: userId },
     select: { coursesCompleted: true },
@@ -113,44 +193,159 @@ export async function markCourseProgressCompleted(args: {
   courseId?: string | null;
 }) {
   const now = new Date();
-  const meta = discoveredMetaForSlug(args.programSlug, args.courseSlug);
+  const programSlug = canonicalizeProgramSlug(args.programSlug);
+  const programSlugCandidates = programSlugReadCandidates(programSlug);
+  const meta = discoveredMetaForSlug(programSlug, args.courseSlug);
   const courseId = args.courseId ?? meta?.courseId ?? null;
 
-  await prisma.courseProgress.upsert({
-    where: {
-      userId_programSlug_courseSlug: {
-        userId: args.userId,
-        programSlug: args.programSlug,
-        courseSlug: args.courseSlug,
+  const result = await prisma.$transaction(async (tx) => {
+    // Serialize every course-completion transition for this member/program.
+    // This prevents concurrent xAPI deliveries for the same course from both
+    // observing an incomplete row and firing duplicate mail, points, or
+    // milestones. The program-level key also keeps future transition logic
+    // from missing a halfway crossing when two courses finish together.
+    const lockKey = `course-completion:${args.userId}:${programSlug}`;
+    await tx.$queryRaw(Prisma.sql`
+      SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))
+    `);
+
+    const existingRows = await tx.$queryRaw<
+      Array<{
+        courseSlug: string;
+        status: CourseProgressStatus;
+        percentComplete: number;
+        lastActivityAt: Date | null;
+      }>
+    >(Prisma.sql`
+      SELECT
+        course_slug AS "courseSlug",
+        status,
+        percent_complete AS "percentComplete",
+        last_activity_at AS "lastActivityAt"
+      FROM course_progress
+      WHERE user_id = ${args.userId}
+        AND program_slug IN (${Prisma.join(programSlugCandidates)})
+      FOR UPDATE
+    `);
+
+    const alreadyCompleted = existingRows.some(
+      (row) =>
+        row.courseSlug === args.courseSlug &&
+        row.status === CourseProgressStatus.COMPLETED,
+    );
+    if (alreadyCompleted) {
+      return { newlyCompleted: false, previousRows: existingRows };
+    }
+
+    await tx.courseProgress.upsert({
+      where: {
+        userId_programSlug_courseSlug: {
+          userId: args.userId,
+          programSlug,
+          courseSlug: args.courseSlug,
+        },
       },
-    },
-    create: {
-      userId: args.userId,
-      programSlug: args.programSlug,
-      courseSlug: args.courseSlug,
-      courseId,
-      status: CourseProgressStatus.COMPLETED,
-      percentComplete: 100,
-      scoreScaled: null,
-      scoreRaw: null,
-      startedAt: now,
-      completedAt: now,
-      lastActivityAt: now,
-      statementCount: 1,
-      progressPct: 100,
-    },
-    update: {
-      courseId: courseId ?? undefined,
-      status: CourseProgressStatus.COMPLETED,
-      percentComplete: 100,
-      progressPct: 100,
-      completedAt: now,
-      lastActivityAt: now,
-      statementCount: { increment: 1 },
-    },
+      create: {
+        userId: args.userId,
+        programSlug,
+        courseSlug: args.courseSlug,
+        courseId,
+        status: CourseProgressStatus.COMPLETED,
+        percentComplete: 100,
+        scoreScaled: null,
+        scoreRaw: null,
+        startedAt: now,
+        completedAt: now,
+        lastActivityAt: now,
+        statementCount: 1,
+        progressPct: 100,
+      },
+      update: {
+        courseId: courseId ?? undefined,
+        status: CourseProgressStatus.COMPLETED,
+        percentComplete: 100,
+        progressPct: 100,
+        completedAt: now,
+        lastActivityAt: now,
+        statementCount: { increment: 1 },
+      },
+    });
+
+    return { newlyCompleted: true, previousRows: existingRows };
   });
 
-  await refreshMemberProgramProgressRollup(args.userId, args.programSlug);
+  if (result.newlyCompleted) {
+    await refreshMemberProgramProgressRollup(args.userId, programSlug);
+  }
+  return result;
+}
+
+/**
+ * Atomically claim the one live-observation event that authorizes completion
+ * side effects. B4B enterprise sync intentionally does not call this helper:
+ * it persists historical progress without consuming the first later xAPI or
+ * webhook observation.
+ *
+ * A Postgres advisory transaction lock provides the uniqueness guarantee
+ * that MemberEvent itself does not have. Legacy events are recognized by
+ * their course slug plus canonical/alias program metadata; new events also
+ * carry the explicit composite key for cheap future lookups.
+ */
+export async function claimLiveCourseCompletionEvent(args: {
+  userId: string;
+  programSlug: string;
+  courseSlug: string;
+  courseName: string;
+  completedCount: number;
+  source: 'member' | 'coursera-webhook';
+}): Promise<boolean> {
+  const programSlug = canonicalizeProgramSlug(args.programSlug);
+  const courseSlug = args.courseSlug.trim().toLowerCase();
+  const programSlugCandidates = programSlugReadCandidates(programSlug);
+  const completionKey = courseCompletionMilestoneRef(programSlug, courseSlug);
+
+  return prisma.$transaction(async (tx) => {
+    const lockKey = `course-completion-event:${args.userId}:${completionKey}`;
+    await tx.$queryRaw(Prisma.sql`
+      SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))
+    `);
+
+    const existing = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      SELECT id
+      FROM member_events
+      WHERE user_id = ${args.userId}
+        AND event_name = 'course_completed'
+        AND (
+          metadata->>'courseCompletionKey' = ${completionKey}
+          OR (
+            entity_type = 'Course'
+            AND entity_id = ${courseSlug}
+            AND lower(COALESCE(metadata->>'programSlug', ''))
+              IN (${Prisma.join(programSlugCandidates)})
+          )
+        )
+      LIMIT 1
+    `);
+    if (existing.length > 0) return false;
+
+    await tx.memberEvent.create({
+      data: {
+        userId: args.userId,
+        eventName: 'course_completed',
+        entityType: 'Course',
+        entityId: courseSlug,
+        metadata: {
+          courseName: args.courseName,
+          programSlug,
+          courseCompletionKey: completionKey,
+          completedCount: args.completedCount,
+          source: args.source,
+        },
+      },
+      select: { id: true },
+    });
+    return true;
+  });
 }
 
 /**
@@ -158,34 +353,51 @@ export async function markCourseProgressCompleted(args: {
  */
 export async function upsertCourseProgressFromXapiStatement(args: {
   userId: string;
-  enrolledProgramSlug: string;
+  enrolledProgramSlug: string | null;
   parsed: ParsedXapiStatement;
-}): Promise<void> {
-  const { userId, enrolledProgramSlug, parsed } = args;
+}): Promise<CanonicalProgramCourse | null> {
+  const { userId, parsed } = args;
 
-  if (!isXapiCourseProgressVerb(parsed)) return;
+  if (!isXapiCourseProgressVerb(parsed)) return null;
 
-  const program = getProgramBySlug(enrolledProgramSlug);
-  if (!program) return;
+  let programSlug: string;
+  let matched: { slug: string; name: string };
+  let courseId: string | null;
 
-  const slugFromObject = matchCourseSlugFromObjectId(enrolledProgramSlug, parsed.courseObjectId);
-  // Resolution order: admin-curated `coursera_canonical_course_mappings` row
-  // (DB) → static DISCOVERED_COURSERA_PROGRAMS catalog → WAP slug match →
-  // discovered fuzzy fallback. See `resolveProgramCourseWithCatalogFallback`.
-  const matched = await resolveProgramCourseWithCatalogFallback(program, {
-    courseraCourseId: parsed.courseraCourseId ?? null,
-    enrolledProgramSlug,
-    courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
-    courseName: parsed.courseName,
-  });
+  if (args.enrolledProgramSlug) {
+    programSlug = canonicalizeProgramSlug(args.enrolledProgramSlug);
+    const program = getProgramBySlug(programSlug);
+    if (!program) return null;
 
-  if (!matched) return;
+    const slugFromObject = matchCourseSlugFromObjectId(programSlug, parsed.courseObjectId);
+    const enrolledMatch = await resolveProgramCourseWithCatalogFallback(program, {
+      courseraCourseId: parsed.courseraCourseId ?? null,
+      enrolledProgramSlug: programSlug,
+      courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
+      courseName: parsed.courseName,
+    });
+    if (!enrolledMatch) return null;
+    matched = enrolledMatch;
+    courseId = parsed.courseraCourseId
+      ?? discoveredMetaForSlug(programSlug, matched.slug)?.courseId
+      ?? null;
+  } else {
+    // No enrollment means no safe scope for slug/name heuristics. An exact
+    // canonical Coursera course-id mapping is required.
+    const canonicalByCourseId = await resolveCanonicalProgramCourseFromCourseraId(
+      parsed.courseraCourseId,
+    );
+    if (!canonicalByCourseId) return null;
+    programSlug = canonicalByCourseId.programSlug;
+    matched = {
+      slug: canonicalByCourseId.courseSlug,
+      name: canonicalByCourseId.courseName,
+    };
+    courseId = canonicalByCourseId.courseraCourseId;
+  }
 
   const nextStatus = inferCourseProgressStatusFromXapiVerb(parsed);
-  if (!nextStatus) return;
-
-  const meta = discoveredMetaForSlug(enrolledProgramSlug, matched.slug);
-  const courseId = meta?.courseId ?? null;
+  if (!nextStatus) return null;
 
   // Only course-level events (object.definition.type = activities/course)
   // carry the rolled-up % for the whole course; item-level events report
@@ -221,10 +433,22 @@ export async function upsertCourseProgressFromXapiStatement(args: {
     where: {
       userId_programSlug_courseSlug: {
         userId,
-        programSlug: enrolledProgramSlug,
+        programSlug,
         courseSlug: matched.slug,
       },
     },
+  });
+  const programWasStarted = await prisma.courseProgress.findFirst({
+    where: {
+      userId,
+      programSlug,
+      OR: [
+        { status: { in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED] } },
+        { percentComplete: { gt: 0 } },
+        { lastActivityAt: { not: null } },
+      ],
+    },
+    select: { id: true },
   });
 
   let status = nextStatus;
@@ -249,42 +473,40 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       ? (existing?.completedAt ?? now)
       : existing?.completedAt ?? null;
 
-  await prisma.courseProgress.upsert({
-    where: {
-      userId_programSlug_courseSlug: {
-        userId,
-        programSlug: enrolledProgramSlug,
-        courseSlug: matched.slug,
-      },
-    },
-    create: {
-      userId,
-      programSlug: enrolledProgramSlug,
-      courseSlug: matched.slug,
-      courseId,
+  // The read above gives us the best candidate value, but it can be stale by
+  // the time this write runs. The shared SQL ladder re-checks the row at the
+  // conflict point so a concurrent completion/B4B fact cannot be demoted by a
+  // delayed IN_PROGRESS statement or lower percentage.
+  await upsertMergedCourseProgress(prisma, {
+    userId,
+    programSlug,
+    courseSlug: matched.slug,
+    courseId,
+    merged: {
       status,
       percentComplete,
-      scoreScaled: incomingScoreScaled,
-      scoreRaw: incomingScoreRaw,
-      startedAt: startedAt ?? undefined,
-      completedAt: completedAt ?? undefined,
       lastActivityAt: now,
-      statementCount: 1,
-      progressPct: percentComplete,
     },
-    update: {
-      courseId: courseId ?? undefined,
-      status,
-      percentComplete,
-      progressPct: percentComplete,
-      ...(incomingScoreScaled != null ? { scoreScaled: incomingScoreScaled } : {}),
-      ...(incomingScoreRaw != null ? { scoreRaw: incomingScoreRaw } : {}),
-      startedAt: startedAt ?? undefined,
-      completedAt: completedAt ?? undefined,
-      lastActivityAt: now,
-      statementCount: { increment: 1 },
-    },
+    existing: existing
+      ? {
+          status: existing.status,
+          percentComplete: existing.percentComplete,
+          lastActivityAt: existing.lastActivityAt,
+        }
+      : null,
+    completedAt,
+    scoreScaled: incomingScoreScaled,
+    scoreRaw: incomingScoreRaw,
+    startedAt,
+    statementCountIncrement: 1,
   });
 
-  await refreshMemberProgramProgressRollup(userId, enrolledProgramSlug);
+  await refreshMemberProgramProgressRollup(userId, programSlug);
+  return {
+    programSlug,
+    courseSlug: matched.slug,
+    courseName: matched.name,
+    courseraCourseId: courseId ?? parsed.courseraCourseId ?? '',
+    trainingStartedTransition: !programWasStarted,
+  };
 }

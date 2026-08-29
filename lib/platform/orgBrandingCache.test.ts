@@ -60,4 +60,6 @@ test('getRequestOrgBranding caches custom-domain orgs instead of raw Prisma', ()
   assert.match(src, /getOrgBrandingById/);
   assert.match(src, /org-branding/);
   assert.match(src, /revalidate:\s*ORG_BRANDING_CACHE_TTL_SECONDS/);
+  assert.match(src, /opts\.readOnlyAudit[\s\S]*Promise\.resolve\(\{ primaryColor: null, logo: null \}\)/);
+  assert.match(src, /if \(opts\.readOnlyAudit\) return \{ primaryColor: null, logo: null \}/);
 });

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -11,6 +12,7 @@ import { serializeMessage } from '@/lib/messages/counselorThread';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { ChevronRight } from 'lucide-react';
 import { DesignSurface, SectionHeader, Avatar } from '@/components/portal/kit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -30,7 +32,38 @@ export default async function PartnerMessagesPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  const thread = await getOrCreatePartnerMessageThread(ctx.partnerId);
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
+  const thread = readOnlyAudit
+    ? await prisma.messageThread.findUnique({ where: { partnerId: ctx.partnerId } })
+    : await getOrCreatePartnerMessageThread(ctx.partnerId);
+  if (!thread) {
+    return (
+      <PortalPageFrame maxWidth="80rem">
+        {readOnlyAudit && <span hidden data-portal-audit-suppressed="partner-message-thread-provisioning" />}
+        <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
+          <SectionHeader kicker="Partner Portal" title="Messages" goal={MESSAGES_SUBTITLE} />
+          <div className="wa-kit-card">
+            <h2 style={{ marginTop: 0 }}>No messages yet</h2>
+            <p style={{ marginBottom: 0 }}>Your WorkforceAP partnership conversation will appear here after the first message.</p>
+          </div>
+        </DesignSurface>
+      </PortalPageFrame>
+    );
+  }
+
+  if (readOnlyAudit) {
+    return (
+      <PortalPageFrame maxWidth="80rem">
+        <span hidden data-portal-audit-suppressed="partner-message-read-receipt-realtime-and-content" />
+        <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
+          <SectionHeader kicker="Partner Portal" title="Messages" goal={MESSAGES_SUBTITLE} />
+          <div className="wa-kit-card">
+            Messaging access is available. Message content, read receipts, and realtime sync are paused for this audit.
+          </div>
+        </DesignSurface>
+      </PortalPageFrame>
+    );
+  }
 
   const messages = await prisma.message.findMany({
     take: 200,

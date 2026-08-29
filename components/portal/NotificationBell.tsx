@@ -104,7 +104,13 @@ function formatTimeAgo(iso: string): string {
   return `${days}d ago`;
 }
 
-export default function NotificationBell({ badges: externalBadges }: { badges?: Partial<Record<NavBadgeKey, number>> }) {
+export default function NotificationBell({
+  badges: externalBadges,
+  readOnlyAudit = false,
+}: {
+  badges?: Partial<Record<NavBadgeKey, number>>;
+  readOnlyAudit?: boolean;
+}) {
   const pathname = usePathname() ?? '';
   const role = getRole(pathname);
   const [selfBadges, setSelfBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
@@ -123,7 +129,7 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
   const badges = externalBadges ?? selfBadges;
 
   const fetchDbNotifications = useCallback(async () => {
-    if (role !== 'member') return;
+    if (readOnlyAudit || role !== 'member') return;
     try {
       setLoading(true);
       setFetchError(null);
@@ -133,19 +139,19 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
         setDbNotifications(data.notifications);
         setDbUnreadCount(data.unreadCount);
         setLastFetch(Date.now());
-      } else if (r.status === 429) {
+      } else {
         const msg = await getErrorMessageFromResponse(r);
         setFetchError(msg);
       }
     } catch {
-      /* non-fatal */
+      setFetchError('Notifications are temporarily unavailable.');
     } finally {
       setLoading(false);
     }
-  }, [role]);
+  }, [readOnlyAudit, role]);
 
   const fetchBadges = useCallback(async () => {
-    if (externalBadges || role === 'member') return;
+    if (readOnlyAudit || externalBadges || role === 'member') return;
     try {
       setFetchError(null);
       const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(role)}`, { credentials: 'include' });
@@ -153,16 +159,17 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
         const data = await r.json() as Partial<Record<NavBadgeKey, number>>;
         setSelfBadges(data);
         setLastFetch(Date.now());
-      } else if (r.status === 429) {
+      } else {
         const msg = await getErrorMessageFromResponse(r);
         setFetchError(msg);
       }
     } catch {
-      /* non-fatal */
+      setFetchError('Notification counts are temporarily unavailable.');
     }
-  }, [role, externalBadges]);
+  }, [readOnlyAudit, role, externalBadges]);
 
   const markRead = useCallback(async (id: string) => {
+    if (readOnlyAudit) return;
     try {
       const r = await fetch(`/api/member/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
       if (r.ok) {
@@ -174,9 +181,10 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     } catch {
       /* non-fatal */
     }
-  }, []);
+  }, [readOnlyAudit]);
 
   const markAllRead = useCallback(async () => {
+    if (readOnlyAudit) return;
     try {
       const r = await fetch('/api/member/notifications/read-all', { method: 'POST', credentials: 'include' });
       if (r.ok) {
@@ -186,9 +194,10 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     } catch {
       /* non-fatal */
     }
-  }, []);
+  }, [readOnlyAudit]);
 
   const dismiss = useCallback(async (id: string) => {
+    if (readOnlyAudit) return;
     try {
       const r = await fetch(`/api/member/notifications/${id}`, { method: 'DELETE', credentials: 'include' });
       if (r.ok) {
@@ -206,10 +215,11 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     } catch {
       /* non-fatal */
     }
-  }, []);
+  }, [readOnlyAudit]);
 
   // Initial load + poll every 45s
   useEffect(() => {
+    if (readOnlyAudit) return;
     if (role === 'member') {
       void fetchDbNotifications();
       const id = setInterval(() => void fetchDbNotifications(), 45_000);
@@ -219,17 +229,18 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
       const id = setInterval(() => void fetchBadges(), 45_000);
       return () => clearInterval(id);
     }
-  }, [fetchDbNotifications, fetchBadges, role]);
+  }, [fetchDbNotifications, fetchBadges, readOnlyAudit, role]);
 
   // Refresh on wa-nav-badges-refresh event
   useEffect(() => {
+    if (readOnlyAudit) return;
     const handler = () => {
       if (role === 'member') void fetchDbNotifications();
       else void fetchBadges();
     };
     window.addEventListener('wa-nav-badges-refresh', handler);
     return () => window.removeEventListener('wa-nav-badges-refresh', handler);
-  }, [fetchDbNotifications, fetchBadges, role]);
+  }, [fetchDbNotifications, fetchBadges, readOnlyAudit, role]);
 
   // Close on outside click
   useEffect(() => {
@@ -247,7 +258,12 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
   const isDbMode = role === 'member';
 
   return (
-    <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }}>
+    <div
+      ref={dropRef}
+      data-portal-audit-suppressed={readOnlyAudit ? 'notification-fetch-poll-and-mutations' : undefined}
+      data-portal-error-state={fetchError ? 'notification-bell-fetch' : undefined}
+      style={{ position: 'relative', flexShrink: 0 }}
+    >
       <button
         type="button"
         className="portal-icon-btn"
@@ -257,7 +273,7 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
           if (willOpen) {
             // NOTE: opening does NOT auto-mark notifications read — use the
             // "Mark all read" action in the dropdown header instead.
-            if (Date.now() - lastFetch > 10_000) {
+            if (!readOnlyAudit && Date.now() - lastFetch > 10_000) {
               if (role === 'member') void fetchDbNotifications();
               else void fetchBadges();
             }

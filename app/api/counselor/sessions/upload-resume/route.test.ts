@@ -10,17 +10,21 @@ test('upload-resume authorizes act-on-behalf before tenant lookup or writes', ()
   const guardIndex = routeSource.indexOf('if (!onBehalf.ok)');
   const subjectIndex = routeSource.indexOf('const authorizedMemberId = onBehalf.subjectUserId');
   const orgIndex = routeSource.indexOf('await getSubjectOrganizationId(authorizedMemberId)');
-  const storagePathIndex = routeSource.indexOf('const path = `${authorizedMemberId}/resume-original.${ext}`');
+  const preparationIndex = routeSource.indexOf('await prepareResumeUpload(file)');
+  const atomicSwapIndex = routeSource.indexOf('await replaceResumeObjectsAtomically({');
+  const uploadIndex = routeSource.indexOf('storage.upload(path, body, options)');
   const profileWhereIndex = routeSource.indexOf('where: { userId: authorizedMemberId }');
-  const profileCreateIndex = routeSource.indexOf('create: { userId: authorizedMemberId, resumeOriginalPath: path }');
+  const profileMutationIndex = routeSource.indexOf('await tx.profile.upsert({');
 
   assert.notEqual(authIndex, -1);
   assert.notEqual(guardIndex, -1);
   assert.notEqual(subjectIndex, -1);
   assert.notEqual(orgIndex, -1);
-  assert.notEqual(storagePathIndex, -1);
+  assert.notEqual(preparationIndex, -1);
+  assert.notEqual(atomicSwapIndex, -1);
+  assert.notEqual(uploadIndex, -1);
   assert.notEqual(profileWhereIndex, -1);
-  assert.notEqual(profileCreateIndex, -1);
+  assert.notEqual(profileMutationIndex, -1);
 
   assert.equal(routeSource.includes('await getSubjectOrganizationId(memberId)'), false);
   assert.equal(routeSource.includes('const path = `${memberId}/resume-original.${ext}`'), false);
@@ -29,7 +33,10 @@ test('upload-resume authorizes act-on-behalf before tenant lookup or writes', ()
   assert.ok(authIndex < guardIndex);
   assert.ok(guardIndex < subjectIndex);
   assert.ok(subjectIndex < orgIndex);
-  assert.ok(subjectIndex < storagePathIndex);
+  assert.ok(orgIndex < preparationIndex);
+  assert.ok(preparationIndex < atomicSwapIndex);
+  assert.ok(preparationIndex < uploadIndex);
+  assert.ok(subjectIndex < atomicSwapIndex);
   assert.ok(subjectIndex < profileWhereIndex);
-  assert.ok(subjectIndex < profileCreateIndex);
+  assert.ok(subjectIndex < profileMutationIndex);
 });

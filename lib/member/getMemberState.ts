@@ -9,6 +9,7 @@ import { getMemberEngagementSignals, type MemberEngagementSignals } from './memb
 import { getMemberResumePlainText } from './getMemberResumePlainText';
 import type { CareerMatchResult } from '@/lib/onet/types';
 import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
+import { deriveTrainingMilestoneTruth } from '@/lib/coursera/milestones';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -139,9 +140,14 @@ async function loadEngagement(userId: string): Promise<MemberEngagementSignals> 
   return getMemberEngagementSignals(userId);
 }
 
-async function loadLatestResumeText(userId: string): Promise<string | null> {
-  const fromFile = await getMemberResumePlainText(userId, 8000, { preferOriginal: true });
-  if (fromFile && fromFile.trim().length > 40) return fromFile.trim();
+async function loadLatestResumeText(
+  userId: string,
+  opts: { readOnlyAudit?: boolean } = {},
+): Promise<string | null> {
+  if (!opts.readOnlyAudit) {
+    const fromFile = await getMemberResumePlainText(userId, 8000, { preferOriginal: true });
+    if (fromFile && fromFile.trim().length > 40) return fromFile.trim();
+  }
 
   const aiResult = await prisma.$transaction((tx) =>
     tx.aIToolResult.findFirst({
@@ -231,17 +237,21 @@ function deriveStateLetter(args: {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
+export type GetMemberStateOptions = {
+  b4bProgress?: LearnerProgressByContent;
+  activeProgramSlug?: string | null;
+  /** Avoid shared caches and external resume-storage reads during release audits. */
+  readOnlyAudit?: boolean;
+};
+
 async function _getMemberStateUncached(
   userId: string,
-  opts: {
-    b4bProgress?: LearnerProgressByContent;
-    activeProgramSlug?: string | null;
-  } = {},
+  opts: GetMemberStateOptions = {},
 ): Promise<MemberState> {
   const [user, engagement, latestResumeText, hasCompletedInterviewPractice, placementForActions] = await Promise.all([
     loadMemberCore(userId),
     loadEngagement(userId),
-    loadLatestResumeText(userId),
+    loadLatestResumeText(userId, { readOnlyAudit: opts.readOnlyAudit }),
     loadHasCompletedInterviewPractice(userId),
     loadPlacementForActions(userId),
   ]);
@@ -264,6 +274,7 @@ async function _getMemberStateUncached(
         userId: user.id,
         programSlug: programSlugForTraining,
         b4bProgress: opts.b4bProgress,
+        readOnlyAudit: opts.readOnlyAudit,
       })
     : null;
 
@@ -312,6 +323,11 @@ async function _getMemberStateUncached(
 
   const completedCount = trainingView?.completedCount ?? 0;
   const totalCourses = trainingView?.totalCourses ?? 0;
+  const milestoneTruth = deriveTrainingMilestoneTruth({
+    completedSlugs: trainingView?.completedSlugsAuthoritative ?? [],
+    started: trainingView?.hasStartedTraining ?? false,
+    validatedSlugs: trainingView?.validatedCourseSlugs ?? [],
+  });
 
   // ── First-cert milestone progress ──
   // Blends assessment completion + course progress toward the first cert.
@@ -341,8 +357,8 @@ async function _getMemberStateUncached(
     createAccount: true,
     chooseProgram: !!user.enrolledProgram,
     completeAssessment: user.assessmentCompleted,
-    startFirstCourse: trainingView ? trainingView.hasStartedTraining : completedCount >= 1,
-    completeFirstCourse: trainingView ? trainingView.hasCompletedFirstCourse : completedCount >= 1,
+    startFirstCourse: trainingView ? milestoneTruth.trainingStarted : completedCount >= 1,
+    completeFirstCourse: trainingView ? milestoneTruth.firstCourseCompleted : completedCount >= 1,
   };
 
   const actionsCtx: NextBestActionsContext = {
@@ -406,13 +422,11 @@ async function _getMemberStateUncached(
 
 export async function getMemberState(
   userId: string,
-  opts: {
-    b4bProgress?: LearnerProgressByContent;
-    activeProgramSlug?: string | null;
-  } = {},
+  opts: GetMemberStateOptions = {},
 ): Promise<MemberState> {
-  // Skip cache when b4bProgress is supplied (dynamic external data).
-  if (opts.b4bProgress) {
+  // Skip cache when dynamic external data is supplied or when an authenticated
+  // release audit must not write fixture-derived state into shared Redis.
+  if (opts.b4bProgress || opts.readOnlyAudit) {
     return _getMemberStateUncached(userId, opts);
   }
   const cacheKey = `member:state:${userId}:${opts.activeProgramSlug || 'default'}`;
@@ -424,9 +438,12 @@ export async function invalidateMemberState(userId: string): Promise<void> {
   await invalidateCache(`member:state:${userId}:*`);
 }
 
-export async function getMemberStateFull(userId: string): Promise<MemberStateFull> {
+export async function getMemberStateFull(
+  userId: string,
+  opts: GetMemberStateOptions = {},
+): Promise<MemberStateFull> {
   const [base, fullData] = await Promise.all([
-    getMemberState(userId),
+    getMemberState(userId, opts),
     loadMemberFullContext(userId),
   ]);
 

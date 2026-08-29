@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { replayPendingXapiStatements } from '@/lib/coursera/replayPendingXapi';
 import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
 import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -21,17 +21,20 @@ async function requireAdminUser() {
   try {
   const admin = await requireAdminUser();
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const organizationId = await getActorOrganizationId(admin.id);
 
-  // Phase 1: drain unprocessed xAPI statements
-  const xapi = await replayPendingXapiStatements(500);
+  // Tenant admins must never drain the global xAPI queue. The secured system
+  // cron owns replay; this action only promotes facts already scoped to the
+  // actor's organization and refreshes that organization's rollups.
+  const xapi = { replayed: 0, deferredToSystemCron: true };
 
   // Phase 2: promote all CSV-imported Coursera progress into course_progress
   // so member dashboards reflect CSV data even when no xAPI statements arrived
-  const csvPromotion = await promoteCsvProgressToCanonical();
+  const csvPromotion = await promoteCsvProgressToCanonical({ organizationId });
 
   // Phase 3: backfill rollup for all members with existing CourseProgress rows
   const membersWithProgress = await prisma.$transaction((tx) => tx.courseProgress.findMany({
-    where: { userId: { not: undefined } },
+    where: { user: { organizationId } },
     select: { userId: true, programSlug: true },
     distinct: ['userId', 'programSlug'],
     take: 100,

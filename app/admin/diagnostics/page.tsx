@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { FUNNEL_DEFINITIONS } from '@/lib/events/catalog';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
 import {
@@ -176,13 +178,16 @@ export default async function AdminDiagnosticsPage({
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
 
-  await recordWorkflowDiagnostic({
-    workflow: 'admin_diagnostics',
-    status: 'inspection',
-    actorUserId: user.id,
-    summary: 'Admin opened diagnostics view',
-    method: 'page_load',
-  });
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
+  if (!readOnlyAudit) {
+    await recordWorkflowDiagnostic({
+      workflow: 'admin_diagnostics',
+      status: 'inspection',
+      actorUserId: user.id,
+      summary: 'Admin opened diagnostics view',
+      method: 'page_load',
+    });
+  }
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;

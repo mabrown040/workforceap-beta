@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -30,6 +31,9 @@ function storageErrorMessage(error: { message?: string } | null): string {
     variant === 'enhanced' ? profile?.resumeEnhancedPath : profile?.resumeOriginalPath;
   if (!path) {
     return NextResponse.json({ error: 'No file for this variant' }, { status: 404 });
+  }
+  if (!isResumeObjectPathOwnedByUser(user.id, path)) {
+    return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
   }
 
   const supabase = getSupabaseAdmin();

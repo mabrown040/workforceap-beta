@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -31,6 +33,7 @@ export default async function MemberMessagesPage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const t = await getTranslations('messages');
 
@@ -53,7 +56,19 @@ export default async function MemberMessagesPage({
     );
   }
 
-  const thread = await getOrCreateMemberCounselorThread(user.id);
+  const thread = readOnlyAudit
+    ? await prisma.messageThread.findUnique({ where: { memberId: user.id } })
+    : await getOrCreateMemberCounselorThread(user.id);
+  if (!thread) {
+    return (
+      <MemberMessagesEmpty
+        title="No messages yet"
+        description="Your counselor conversation will appear here after the first message."
+        actionLabel="Back to dashboard"
+        actionHref="/dashboard"
+      />
+    );
+  }
 
   // If memberLastReadAt is null, the member has never explicitly read the thread.
   // Counting every message as unread is misleading and inflates the badge.

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getScoreBreakdownSafe } from '@/lib/readiness/score';
+import { getScoreBreakdownSafe, getScoreBreakdownSafeResult } from '@/lib/readiness/score';
 import PageHeader from '@/components/portal/PageHeader';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
@@ -82,13 +82,15 @@ export default async function DashboardReadinessPage({
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
 
-  const [breakdown, checklistSections] = await Promise.all([
-    getScoreBreakdownSafe(user.id),
+  const [scoreResult, checklistSections] = await Promise.all([
+    getScoreBreakdownSafeResult(user.id),
     getMemberReadinessSections(user.id).catch((e) => {
       console.error('[dashboard/readiness] checklist load failed', e);
       return null;
     }),
   ]);
+  const breakdown = scoreResult.breakdown;
+  const readinessDataLoadFailed = scoreResult.loadFailed || checklistSections === null;
   const overallScore = Math.min(100, Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0));
   const categories = buildCategories(breakdown);
   const priorityAction = getPriorityAction(breakdown);
@@ -132,17 +134,23 @@ export default async function DashboardReadinessPage({
       : 'Every category is complete.';
 
     return (
-      <MemberProgressKit
-        readinessScore={overallScore}
-        readinessNote={readinessNote}
-        weekStats={weekStats}
-        milestones={milestones}
-      />
+      <>
+        {readinessDataLoadFailed ? (
+          <span hidden data-portal-error-state="member-readiness-load" />
+        ) : null}
+        <MemberProgressKit
+          readinessScore={overallScore}
+          readinessNote={readinessNote}
+          weekStats={weekStats}
+          milestones={milestones}
+        />
+      </>
     );
   }
 
   return (
     <>
+      {readinessDataLoadFailed ? <span hidden data-portal-error-state="member-readiness-load" /> : null}
       <PageHeader
         title="Career Readiness"
         subtitle={

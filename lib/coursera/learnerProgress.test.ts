@@ -73,6 +73,16 @@ describe('learnerProgress', () => {
     teardownTestEnv();
   });
 
+  it('returns the local-fallback signal without cache or network work in a read-only audit', async () => {
+    const result = await fetchLearnerProgressFromB4B('member@example.com', {
+      programId: 'PRG-1',
+      readOnlyAudit: true,
+    });
+
+    expect(result.size).toBe(0);
+    expect(mockCache.getCacheOrFetch).not.toHaveBeenCalled();
+  });
+
   it('returns a map keyed by contentId with normalized fields', async () => {
     _setFetchForTesting(async (url) => {
       if (url.includes('/oauth2/')) {

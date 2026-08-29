@@ -564,9 +564,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 />
                 <span>
                   {tAuth('signup.agreeToThe')}{' '}
-                  <LocalizedLink href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>{tAuth('signup.termsOfService')}</LocalizedLink>{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>{tAuth('signup.termsOfService')}</a>{' '}
                   {tAuth('signup.and')}{' '}
-                  <LocalizedLink href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>{tAuth('signup.privacyPolicy')}</LocalizedLink> *
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>{tAuth('signup.privacyPolicy')}</a> *
                 </span>
               </label>
               {errors.consentTerms && <span id="consentTerms-error" role="alert" style={s.fieldError}>{errors.consentTerms.message}</span>}

@@ -26,10 +26,17 @@ vi.mock('@/lib/auth/roles', () => ({
 
 vi.mock('@/lib/tenant/organization', () => ({
   getActorOrganizationId: vi.fn(),
+  getSubjectOrganizationId: vi.fn(),
+}));
+
+vi.mock('@/lib/tenant/adminSubjectAccess', () => ({
+  canAdminActInSubjectOrganization: vi.fn(() => true),
 }));
 
 vi.mock('@/lib/content/programs', () => ({
   getProgramBySlug: vi.fn(),
+  CURRICULUM_MIGRATION_PENDING_CODE: 'CURRICULUM_MIGRATION_PENDING',
+  CURRICULUM_MIGRATION_PENDING_MESSAGE: 'Training assignment paused.',
 }));
 
 vi.mock('@/lib/notifications/partner-notify', () => ({
@@ -44,7 +51,7 @@ vi.mock('@/lib/db/prisma', () => {
   const tx = {
     courseProgress: { deleteMany: vi.fn() },
     memberProgramProgress: { deleteMany: vi.fn() },
-    user: { update: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn() },
+    user: { updateMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn() },
     courseEnrollment: {
       updateMany: vi.fn(),
       upsert: vi.fn(),
@@ -52,6 +59,10 @@ vi.mock('@/lib/db/prisma', () => {
   };
   const prisma = {
     user: tx.user,
+    organizationProgramCatalog: {
+      count: vi.fn(),
+      findFirst: vi.fn(),
+    },
     $transaction: vi.fn(async (fn: (txClient: typeof tx) => Promise<unknown>) => fn(tx)),
     __tx: tx,
   };
@@ -62,7 +73,7 @@ import { PATCH } from '@/app/api/admin/members/[id]/program/route';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
@@ -85,31 +96,51 @@ describe('PATCH /api/admin/members/[id]/program', () => {
     vi.mocked(getUser).mockResolvedValue({ id: ADMIN_ID } as any);
     vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
     vi.mocked(getActorOrganizationId).mockResolvedValue(ORG_ID);
+    vi.mocked(getSubjectOrganizationId).mockResolvedValue(ORG_ID);
     vi.mocked(getProgramBySlug).mockReturnValue({ slug: 'data-analytics', title: 'Data Analytics' } as any);
     vi.mocked(prisma.user.findFirst).mockResolvedValue({ id: MEMBER_ID } as any);
-    (prisma as any).__tx.user.update.mockResolvedValue({ organizationId: ORG_ID });
+    vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(0);
+    vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
+    (prisma as any).__tx.user.updateMany.mockResolvedValue({ count: 1 });
   });
 
-  it('resets progress only for the selected program', async () => {
+  it('changes the primary program without deleting historical progress', async () => {
     const res = await PATCH(makeRequest({ programSlug: 'data-analytics' }), {
       params: Promise.resolve({ id: MEMBER_ID }),
     });
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    expect((prisma as any).__tx.courseProgress.deleteMany).toHaveBeenCalledWith({
-      where: { userId: MEMBER_ID, programSlug: 'data-analytics' },
-    });
-    expect((prisma as any).__tx.memberProgramProgress.deleteMany).toHaveBeenCalledWith({
-      where: { userId: MEMBER_ID, programSlug: 'data-analytics' },
-    });
+    expect((prisma as any).__tx.courseProgress.deleteMany).not.toHaveBeenCalled();
+    expect((prisma as any).__tx.memberProgramProgress.deleteMany).not.toHaveBeenCalled();
     expect((prisma as any).__tx.courseEnrollment.updateMany).toHaveBeenCalledWith({
-      where: { userId: MEMBER_ID, isPrimary: true, programSlug: { not: 'data-analytics' } },
+      where: {
+        organizationId: ORG_ID,
+        userId: MEMBER_ID,
+        isPrimary: true,
+        programSlug: { not: 'data-analytics' },
+      },
       data: { isPrimary: false },
     });
     expect(sendPartnerMilestoneEmail).toHaveBeenCalledWith(MEMBER_ID, 'Program enrollment', {
       Program: 'Data Analytics',
     });
     expect(invalidateMemberState).toHaveBeenCalledWith(MEMBER_ID);
+  });
+
+  it('rejects an inactive program from an explicit tenant catalog', async () => {
+    vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(1);
+    vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
+
+    const res = await PATCH(makeRequest({ programSlug: 'data-analytics' }), {
+      params: Promise.resolve({ id: MEMBER_ID }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(prisma.organizationProgramCatalog.findFirst).toHaveBeenCalledWith({
+      where: { organizationId: ORG_ID, programSlug: 'data-analytics', status: 'active' },
+      select: { programSlug: true },
+    });
+    expect((prisma as any).__tx.user.updateMany).not.toHaveBeenCalled();
   });
 });

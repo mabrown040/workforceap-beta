@@ -80,3 +80,15 @@ test('null programSlug renders as "(unknown)"', () => {
   const built = buildDraftPrompt({ ...base, programSlug: null });
   assert.match(built.userPrompt, /\(unknown\)/);
 });
+
+test('halfway drafts explicitly prohibit member celebration spam', () => {
+  const built = buildDraftPrompt({
+    ...base,
+    milestoneType: 'program_halfway',
+    completedCount: 2,
+    totalCourses: 4,
+  });
+  assert.match(built.userPrompt, /halfway point/);
+  assert.match(built.userPrompt, /Do NOT draft a celebrate_milestone/);
+  assert.match(built.userPrompt, /Validated courses in this program: 4/);
+});

@@ -1,6 +1,6 @@
 /**
  * Prove B4B org-wide sync attaches Coursera alt-email reports to a portal user
- * via coursera_identity_mappings — the path that previously stayed skippedNoUser.
+ * via coursera_identity_mappings — the path that previously stayed unresolved.
  *
  * Usage:
  *   node scripts/prisma-env.js npx tsx scripts/prove-b4b-identity-link.ts
@@ -105,8 +105,8 @@ async function main() {
     const result = await syncCourseraB4BEnrollmentReports();
     console.log('SYNC RESULT:', JSON.stringify(result, null, 2));
 
-    if (result.skippedNoUser !== 0) {
-      failures.push(`expected skippedNoUser=0, got ${result.skippedNoUser}`);
+    if (result.skippedNoEmail !== 0) {
+      failures.push(`expected skippedNoEmail=0, got ${result.skippedNoEmail}`);
     }
     if (result.upserted < 1) {
       failures.push(`expected upserted>=1, got ${result.upserted}`);

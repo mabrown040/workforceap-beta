@@ -11,7 +11,10 @@ export default function AdminDataLoadError({
   message?: string;
 }) {
   return (
-    <div style={{ padding: '2rem 1.5rem', maxWidth: '32rem' }}>
+    <div
+      data-portal-error-state="admin-data-load"
+      style={{ padding: '2rem 1.5rem', maxWidth: '32rem' }}
+    >
       <h1 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>{title}</h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.5 }}>{message}</p>
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
@@ -11,6 +12,7 @@ import {
   type ResumeStudioIssue,
   type VoiceStudioAgentKey,
 } from '@/components/portal/kit/pages/VoiceStudioKit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 /**
  * Career Studio — the canonical voice-first career-tools workspace.
@@ -37,6 +39,7 @@ export default async function CareerStudioPage({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const params = await searchParams;
   const requestedTab = typeof params?.tab === 'string' ? params.tab : '';
@@ -51,9 +54,18 @@ export default async function CareerStudioPage({
     : undefined;
 
   const resumeStudio =
-    initialTab === 'studio' ? await loadResumeStudioData(user.id) : { hasResume: false };
+    initialTab === 'studio'
+      ? await loadResumeStudioData(user.id, readOnlyAudit)
+      : { hasResume: false };
 
-  return <VoiceStudioKit initialTab={initialTab} initialAgent={initialAgent} resumeStudio={resumeStudio} />;
+  return (
+    <>
+      {readOnlyAudit && initialTab === 'studio' && (
+        <span hidden data-portal-audit-suppressed="career-studio-resume-storage-provider" />
+      )}
+      <VoiceStudioKit initialTab={initialTab} initialAgent={initialAgent} resumeStudio={resumeStudio} />
+    </>
+  );
 }
 
 /** Human labels for each structural dimension surfaced as a "top fix". */
@@ -71,9 +83,14 @@ const DIMENSION_LABEL: Record<string, string> = {
  * real issue notes from the weakest dimensions. Returns hasResume:false when
  * there's nothing on file. Never throws — the tab degrades to the empty state.
  */
-async function loadResumeStudioData(userId: string): Promise<ResumeStudioData> {
+async function loadResumeStudioData(
+  userId: string,
+  readOnlyAudit = false,
+): Promise<ResumeStudioData> {
   try {
-    const text = await withDbRetry(() => getMemberResumePlainText(userId, 8000));
+    const text = await withDbRetry(() =>
+      getMemberResumePlainText(userId, 8000, { readOnlyAudit }),
+    );
     if (text.trim().length === 0) return { hasResume: false };
 
     const structural = scoreStructural(text);

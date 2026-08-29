@@ -1,6 +1,10 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import {
+  getValidatedProgramCompletionSpec,
+  isValidatedProgramComplete,
+} from '@/lib/reporting/programCompletion';
 
 const STALE_DAYS = 7;
 
@@ -37,37 +41,59 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
     return { enrollmentsChecked: 0, newlyFlagged: 0, cleared: 0, unchangedStale: 0, reStamped: 0 };
   }
 
-  // Batch 1: all rollups for enrolled (userId, programSlug) pairs
-  const rollups = await prisma.memberProgramProgress.findMany({
-    where: {
-      OR: enrollments.map((e) => ({
-        userId: e.userId,
-        programSlug: e.programSlug,
-      })),
-    },
-    select: { userId: true, programSlug: true, averagePercent: true },
-  });
-  const rollupMap = new Map(
-    rollups.map((r) => [`${r.userId}:${r.programSlug}`, r.averagePercent]),
+  const enrollmentScopes = Array.from(
+    new Map(
+      enrollments.map((enrollment) => {
+        const spec = getValidatedProgramCompletionSpec(enrollment.programSlug);
+        const canonicalProgramSlug = spec?.canonicalSlug ?? enrollment.programSlug;
+        return [
+          `${enrollment.userId}:${canonicalProgramSlug}`,
+          {
+            userId: enrollment.userId,
+            canonicalProgramSlug,
+            storageValues: spec?.storageValues ?? [enrollment.programSlug],
+          },
+        ] as const;
+      }),
+    ).values(),
   );
+  const enrolledProgramWhere = enrollmentScopes.map((scope) => ({
+    userId: scope.userId,
+    programSlug: { in: [...scope.storageValues] },
+  }));
 
-  // Batch 2: max lastUpdatedAt per (userId, programSlug) from courseProgress
+  // Batch 1: all rollups for enrolled (userId, canonical program) pairs,
+  // including historical storage aliases for the same validated curriculum.
+  const rollups = await prisma.memberProgramProgress.findMany({
+    where: { OR: enrolledProgramWhere },
+    select: { userId: true, programSlug: true, coursesCompleted: true },
+  });
+  const completedProgramKeys = new Set<string>();
+  for (const rollup of rollups) {
+    const spec = getValidatedProgramCompletionSpec(rollup.programSlug);
+    if (spec && isValidatedProgramComplete(rollup.programSlug, rollup.coursesCompleted)) {
+      completedProgramKeys.add(`${rollup.userId}:${spec.canonicalSlug}`);
+    }
+  }
+
+  // Batch 2: max lastUpdatedAt per (userId, stored program value) from courseProgress.
+  // Fold aliases back onto their canonical key so a historical slug cannot
+  // make otherwise-current activity look stale.
   const progressAgg = await prisma.courseProgress.groupBy({
     by: ['userId', 'programSlug'],
-    where: {
-      OR: enrollments.map((e) => ({
-        userId: e.userId,
-        programSlug: e.programSlug,
-      })),
-    },
+    where: { OR: enrolledProgramWhere },
     _max: { lastUpdatedAt: true },
   });
-  const progressMap = new Map(
-    progressAgg.map((g) => [
-      `${g.userId}:${g.programSlug}`,
-      g._max.lastUpdatedAt,
-    ]),
-  );
+  const progressMap = new Map<string, Date>();
+  for (const progress of progressAgg) {
+    const canonicalProgramSlug =
+      getValidatedProgramCompletionSpec(progress.programSlug)?.canonicalSlug ?? progress.programSlug;
+    const lastUpdatedAt = progress._max.lastUpdatedAt;
+    if (!lastUpdatedAt) continue;
+    const key = `${progress.userId}:${canonicalProgramSlug}`;
+    const prior = progressMap.get(key);
+    if (!prior || lastUpdatedAt > prior) progressMap.set(key, lastUpdatedAt);
+  }
 
   // Batch 3: staleTrainingDetectedAt for all enrolled users
   const userIds = [...new Set(enrollments.map((e) => e.userId))];
@@ -89,9 +115,9 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
   const toReStamp: string[] = [];
 
   for (const { userId, programSlug } of enrollments) {
-    const key = `${userId}:${programSlug}`;
-    const averagePercent = rollupMap.get(key);
-    const programComplete = averagePercent != null && averagePercent >= 100;
+    const spec = getValidatedProgramCompletionSpec(programSlug);
+    const key = `${userId}:${spec?.canonicalSlug ?? programSlug}`;
+    const programComplete = spec ? completedProgramKeys.has(key) : false;
 
     if (programComplete) {
       toClear.push(userId);

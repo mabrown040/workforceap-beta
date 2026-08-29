@@ -16,6 +16,7 @@ import {
   serializeMessage,
 } from '@/lib/messages/counselorThread';
 import { createNotification } from '@/lib/notifications/create';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -35,7 +36,9 @@ type Props = { params: Promise<{ memberId: string }> };
 async function canUseCounselorMessaging(userId: string): Promise<boolean> {
   if (await isAdmin(userId)) return true;
   return isCounselor(userId);
-}async function _GET(_request: NextRequest, { params }: Props) {
+}
+
+async function _GET(request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -52,7 +55,18 @@ async function canUseCounselorMessaging(userId: string): Promise<boolean> {
   );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
-  const thread = await getOrCreateMemberCounselorThread(memberId);
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(request.headers);
+  const thread = readOnlyAudit
+    ? await prisma.messageThread.findFirst({ where: { memberId } })
+    : await getOrCreateMemberCounselorThread(memberId);
+  if (!thread) {
+    return NextResponse.json({
+      member: { id: member.id, fullName: member.fullName },
+      thread: null,
+      messages: [],
+      auditSuppressed: readOnlyAudit,
+    });
+  }
   const access = await assertStaffCanAccessThread(user.id, thread.id);
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

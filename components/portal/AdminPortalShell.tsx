@@ -11,10 +11,12 @@ export default function AdminPortalShell({
   children,
   superAdmin = false,
   portalRoles,
+  readOnlyAudit = false,
 }: {
   children: React.ReactNode;
   superAdmin?: boolean;
   portalRoles?: PortalSwitcherRole[];
+  readOnlyAudit?: boolean;
 }) {
   const navItems = useMemo(
     () => ADMIN_PORTAL_NAV_ITEMS.filter((item) => !item.requiresSuperAdminContext || superAdmin),
@@ -29,6 +31,7 @@ export default function AdminPortalShell({
       contextLabel="Administrator"
       superAdmin={superAdmin}
       portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
       footer={<AdminFooter />}
     >
       {children}

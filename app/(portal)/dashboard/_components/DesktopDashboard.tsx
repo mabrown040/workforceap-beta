@@ -43,6 +43,7 @@ export default function DesktopDashboard({
   userId,
   showMemberOnboarding,
   showMemberTour,
+  readOnlyAudit,
   superAdmin,
   intakeExtra,
   wizardProgramInterest,
@@ -97,6 +98,7 @@ export default function DesktopDashboard({
               tourStorageUserId={userId}
               showOnboardingWizard={showMemberOnboarding}
               showTour={showMemberTour}
+              readOnlyAudit={readOnlyAudit}
               isSuperAdmin={superAdmin}
               tourSteps={MEMBER_PORTAL_TOUR_STEPS}
               wizardProps={{

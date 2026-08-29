@@ -28,9 +28,13 @@ export function resolveActiveDashboardProgram(args: {
   requestedProgramSlug?: string | null;
 }): ResolvedActiveDashboardProgram {
   const { enrollments, legacyEnrolledProgram } = args;
-  const primaryEnrollment = enrollments.find((e) => e.isPrimary) ?? enrollments[0] ?? null;
+  const primaryEnrollment =
+    enrollments.find((e) => e.isPrimary) ??
+    (legacyEnrolledProgram
+      ? enrollments.find((e) => e.programSlug === legacyEnrolledProgram) ?? null
+      : null);
   const requested = args.requestedProgramSlug?.trim() ?? '';
-  const matchingRequested = requested
+  const matchingRequested = requested && primaryEnrollment
     ? enrollments.find((e) => e.programSlug === requested)
     : null;
 

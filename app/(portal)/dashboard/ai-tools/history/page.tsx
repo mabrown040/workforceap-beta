@@ -57,14 +57,16 @@ export default async function AIHistoryPage({ searchParams }: Props) {
   const { tool } = await searchParams;
 
   let results: Awaited<ReturnType<typeof prisma.aIToolResult.findMany>> = [];
+  let historyLoadFailed = false;
   try {
     results = await prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
-  } catch {
-    // Non-fatal — renders empty state
+  } catch (error) {
+    historyLoadFailed = true;
+    console.error('[ai-tools/history] saved results query failed', error);
   }
 
   const withLabels = results.map((r) => ({
@@ -75,6 +77,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
   return (
     <DesignSurface surface="warm">
       <div style={{ background: 'var(--wa-bg)', minHeight: '100vh' }}>
+        {historyLoadFailed ? <span hidden data-portal-error-state="ai-tools-history-load" /> : null}
         <div
           style={{
             padding: '1.25rem 2rem 1.5rem',

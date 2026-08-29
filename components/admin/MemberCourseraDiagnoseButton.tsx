@@ -5,6 +5,7 @@ import {
   diagnoseMemberCoursera,
   type CourseraDiagnoseReport,
 } from '@/lib/admin/diagnoseMemberCoursera';
+import DataTable from '@/components/portal/ui/DataTable';
 
 // Colors match the semantic success/warning/error palette used elsewhere in
 // the Coursera admin surface (e.g. StatusBadge success = rgb(22,163,74)).
@@ -145,6 +146,56 @@ export default function MemberCourseraDiagnoseButton({ memberId }: { memberId: s
                     </li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+
+            {report.reconciliation.length > 0 ? (
+              <div style={{ marginTop: '0.75rem', display: 'grid', gap: '0.75rem' }}>
+                <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                  Validated Coursera reconciliation
+                </p>
+                {report.reconciliation.map((program) => (
+                  <div key={program.programSlug} style={{ overflowX: 'auto' }}>
+                    <p style={{ margin: '0 0 0.3rem', fontSize: '0.78rem', fontWeight: 700 }}>
+                      {program.programSlug}: {program.completedCount}/{program.totalCourses} · {program.programPercent}%
+                    </p>
+                    <DataTable
+                      rows={program.rows}
+                      rowKey={(row) => row.courseSlug}
+                      density="compact"
+                      columns={[
+                        {
+                          key: 'course',
+                          header: 'Course',
+                          cell: (row) => <code>{row.courseSlug}</code>,
+                        },
+                        {
+                          key: 'b4b',
+                          header: 'B4B',
+                          align: 'right',
+                          cell: (row) => row.b4bPercent == null ? '—' : `${row.b4bPercent}%`,
+                        },
+                        {
+                          key: 'local',
+                          header: 'Local',
+                          align: 'right',
+                          cell: (row) => row.localPercent == null ? '—' : `${row.localPercent}%`,
+                        },
+                        {
+                          key: 'display',
+                          header: 'Display',
+                          align: 'right',
+                          cell: (row) => `${row.displayPercent}%${row.displayCompleted ? ' ✓' : ''}`,
+                        },
+                        {
+                          key: 'drift',
+                          header: 'Drift',
+                          cell: (row) => row.drift,
+                        },
+                      ]}
+                    />
+                  </div>
+                ))}
               </div>
             ) : null}
           </details>

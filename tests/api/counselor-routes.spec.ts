@@ -632,6 +632,34 @@ describe('GET /api/counselor/members/[memberId]/messages', () => {
     expect(body.messages[1].body).toBe('Hi Jane!');
   });
 
+  it('does not provision a missing thread during a read-only audit', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser, email: 'counselor@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(getSubjectOrganizationId).mockResolvedValue(UUIDS.orgId);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({
+      id: UUIDS.memberUser,
+      fullName: 'Jane Doe',
+    } as any);
+    vi.mocked(prisma.messageThread.findFirst).mockResolvedValue(null);
+
+    const res = await getMessages(
+      makeRequest(
+        'http://localhost:3000/api/counselor/members/' + UUIDS.memberUser + '/messages',
+        { headers: { 'x-workforceap-read-only-audit': '1' } },
+      ),
+      { params: Promise.resolve({ memberId: UUIDS.memberUser }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      thread: null,
+      messages: [],
+      auditSuppressed: true,
+    });
+    expect(getOrCreateMemberCounselorThread).not.toHaveBeenCalled();
+  });
+
   it('returns 401 when not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 

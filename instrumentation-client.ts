@@ -3,6 +3,16 @@ const APP_LOCALES = ['en', 'es', 'fr', 'pt'];
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const isProduction = process.env.NODE_ENV === 'production';
 
+function isReadOnlyPortalAuditDocument(): boolean {
+  if (typeof document === 'undefined') return false;
+  return (
+    document.documentElement.dataset.portalReadOnlyAudit === '1' ||
+    document.querySelector(
+      '[data-portal-audit-suppressed="root-gtm-sentry-utm-and-provider-metrics"]',
+    ) !== null
+  );
+}
+
 function stripLocalePrefix(pathname: string): string {
   const parts = pathname.split('/').filter(Boolean);
   if (parts.length > 0 && APP_LOCALES.includes(parts[0]!)) {
@@ -66,7 +76,7 @@ function scrubUrlForBreadcrumb(value: string): string {
 }
 
 async function initSentry() {
-  if (!dsn || !isProduction) return;
+  if (!dsn || !isProduction || isReadOnlyPortalAuditDocument()) return;
 
   const Sentry = await import('@sentry/nextjs');
 
@@ -102,6 +112,12 @@ async function initSentry() {
         blockAllMedia: true,
       }),
     ],
+    beforeSend(event) {
+      return isReadOnlyPortalAuditDocument() ? null : event;
+    },
+    beforeSendTransaction(event) {
+      return isReadOnlyPortalAuditDocument() ? null : event;
+    },
     // Strip PII from breadcrumb URLs before they're stored on Sentry.
     // Auto-captured fetch/navigation breadcrumbs include the full URL,
     // so /forgot-password?email=…, /invite?token=…, etc. would otherwise
@@ -130,6 +146,7 @@ async function initSentry() {
 }
 
 function maybeInitSentry(href?: string) {
+  if (isReadOnlyPortalAuditDocument()) return;
   if (initPromise) return;
   const pathname = href ?? (typeof window !== 'undefined' ? window.location.pathname : '');
   if (!isPortalRoute(pathname)) return;
@@ -139,6 +156,7 @@ function maybeInitSentry(href?: string) {
 /** Required by @sentry/nextjs for App Router navigation tracing.
  *  Lazily loads Sentry so marketing pages don't pay the 420KB chunk cost. */
 export const onRouterTransitionStart = (href: string) => {
+  if (isReadOnlyPortalAuditDocument()) return;
   maybeInitSentry(href);
   captureRouterTransitionStart?.(href, 'push');
 };
@@ -157,7 +175,7 @@ maybeInitSentry();
  * so this never forces the ~420KB chunk to load on marketing pages.
  */
 export async function setSentryUser(userId: string | null): Promise<void> {
-  if (!dsn || !isProduction) return;
+  if (!dsn || !isProduction || isReadOnlyPortalAuditDocument()) return;
   // If init is already in flight (or about to start on a portal route),
   // wait for it so setUser lands on an initialized client instead of a
   // no-op / racing against Sentry.init.

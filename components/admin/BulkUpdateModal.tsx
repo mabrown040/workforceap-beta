@@ -29,7 +29,7 @@ type Props = {
   memberIds: string[];
   programs: Program[];
   onClose: () => void;
-  onUpdated: (result: { updated: number; total: number; errors: string[] }) => void;
+  onUpdated: (result: { updated: number; total: number; errors: string[]; warnings?: string[] }) => void;
 };
 
 export default function BulkUpdateModal({ open, memberIds, programs, onClose, onUpdated }: Props) {
@@ -97,6 +97,12 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
         return;
       }
       onUpdated(data);
+      const partialErrors = Array.isArray(data.errors) ? data.errors.filter((value: unknown) => typeof value === 'string') : [];
+      if (partialErrors.length > 0 || Number(data.updated) < Number(data.total)) {
+        const firstFailure = partialErrors[0] ?? 'One or more members could not be updated.';
+        setError(`Updated ${Number(data.updated) || 0} of ${Number(data.total) || memberIds.length}. ${firstFailure}`);
+        return;
+      }
       onClose();
     } catch {
       setError('Network error. Please try again.');

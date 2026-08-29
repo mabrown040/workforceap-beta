@@ -9,7 +9,12 @@ vi.mock('next/server', () => {
       });
     }
   }
-  return { NextResponse: MockNextResponse };
+  return {
+    NextResponse: MockNextResponse,
+    after: vi.fn((callback: () => unknown) => {
+      void Promise.resolve(callback()).catch(() => undefined);
+    }),
+  };
 });
 
 vi.mock('@/lib/auth/server', () => ({

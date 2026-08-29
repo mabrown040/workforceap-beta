@@ -5,12 +5,14 @@ import { checkWebhookRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 import { getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
+import { buildCourseraRestSyntheticStatement } from '@/lib/coursera/restWebhookStatement';
 import { verifyCourseraRestWebhookAuth } from '@/lib/coursera/webhookAuth';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
-import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/statements';
+import { resolveInboundProgramSlug } from '@/lib/xapi/resolveInboundProgram';
+import { isXapiCompletionVerb } from '@/lib/xapi/statements';
 import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@/lib/xapi/storage';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
@@ -36,6 +38,12 @@ const webhookSchema = z
     email: z.string().email().optional(),
     actorIdentifier: z.string().trim().min(1).optional(),
     actorHomePage: z.string().trim().min(1).optional(),
+    /** Coursera's immutable content id. Required for a linked learner who has
+     *  no WorkforceAP program assignment because slug/name matching is not a
+     *  safe cross-program identity. `contentId` is accepted for native B4B
+     *  payloads; `courseraCourseId` is the existing WAP integration name. */
+    courseraCourseId: z.string().trim().min(1).optional(),
+    contentId: z.string().trim().min(1).optional(),
     courseSlug: z.string().trim().min(1).optional(),
     courseName: z.string().trim().min(1).optional(),
     completed: z.boolean().optional(),
@@ -51,10 +59,17 @@ const webhookSchema = z
       || Boolean(value.actorIdentifier),
     { message: 'externalUserId, email, or actorIdentifier is required', path: ['externalUserId'] }
   )
-  .refine((value) => value.courseSlug || value.courseName, {
-    message: 'courseSlug or courseName is required',
-    path: ['courseSlug'],
-  });
+  .refine(
+    (value) =>
+      Boolean(value.courseraCourseId)
+      || Boolean(value.contentId)
+      || Boolean(value.courseSlug)
+      || Boolean(value.courseName),
+    {
+      message: 'courseraCourseId, contentId, courseSlug, or courseName is required',
+      path: ['courseraCourseId'],
+    },
+  );
 
 function buildDedupeStatementId(data: z.infer<typeof webhookSchema>, rawBody: string): string {
   const stable = data.eventId?.trim() || data.deliveryId?.trim();
@@ -65,29 +80,6 @@ function buildDedupeStatementId(data: z.infer<typeof webhookSchema>, rawBody: st
 function redactBodyForAudit(body: Record<string, unknown>): Record<string, unknown> {
   const { secret: _omit, ...rest } = body;
   return rest;
-}
-
-function buildSyntheticParsed(
-  data: z.infer<typeof webhookSchema>,
-  resolvedEmail: string | undefined,
-  rawForAudit: Record<string, unknown>
-): ParsedXapiStatement {
-  const shouldComplete = data.completed === true || data.progressPercent === 100;
-  return {
-    email: resolvedEmail || data.email?.trim().toLowerCase(),
-    actorIdentifier: data.actorIdentifier?.trim(),
-    actorHomePage: data.actorHomePage?.trim(),
-    courseName: data.courseName?.trim(),
-    courseSlug: data.courseSlug?.trim(),
-    verbId: shouldComplete
-      ? 'http://adlnet.gov/expapi/verbs/completed'
-      : 'http://adlnet.gov/expapi/verbs/progressed',
-    courseObjectId: null,
-    resultCompletion: shouldComplete ? true : null,
-    resultSuccess: null,
-    resultProgressPercent: data.progressPercent ?? null,
-    rawStatement: rawForAudit,
-  };
 }
 
 // Same withSystemGuc-misuse fix as Stripe + learning-completion webhooks.
@@ -192,11 +184,22 @@ export async function POST(request: Request) {
     // equal the header-derived one before applying any completion/progress
     // write; treat a mismatch identically to "unmatched" so a spoofed or
     // misconfigured tenant header cannot cross-apply course completions.
-    let dbUser: { organizationId: string; enrolledProgram: string | null } | null = null;
+    let dbUser: {
+      organizationId: string;
+      enrolledProgram: string | null;
+      courseEnrollments: Array<{ programSlug: string; isPrimary: boolean }>;
+    } | null = null;
     if (memberId) {
       dbUser = await prisma.user.findUnique({
         where: { id: memberId },
-        select: { organizationId: true, enrolledProgram: true },
+        select: {
+          organizationId: true,
+          enrolledProgram: true,
+          courseEnrollments: {
+            where: { organizationId },
+            select: { programSlug: true, isPrimary: true },
+          },
+        },
       });
       if (!dbUser || dbUser.organizationId !== organizationId) {
         console.warn('[webhooks/coursera] organizationId mismatch for matched member', {
@@ -238,55 +241,24 @@ export async function POST(request: Request) {
       });
     }
 
-    const enrolledProgram = dbUser?.enrolledProgram ?? null;
+    const enrolledProgram = resolveInboundProgramSlug({
+      enrollments: dbUser?.courseEnrollments ?? [],
+      legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
+    });
   
-    const synthetic = buildSyntheticParsed(data, resolvedEmail, rawAudit);
+    const synthetic = buildCourseraRestSyntheticStatement(data, resolvedEmail, rawAudit);
     const shouldComplete = isXapiCompletionVerb(synthetic);
   
     try {
-      if (!enrolledProgram) {
-        await recordXapiEvent({
-          statementId: dedupeKey,
-          identity,
-          courseSlug: data.courseSlug,
-          courseName: data.courseName,
-          matchedUserId: memberId,
-          organizationId,
-          mappingMethod,
-          completionStatus: shouldComplete ? 'error' : 'ignored',
-          error: shouldComplete ? 'No program enrolled' : undefined,
-          rawPayload: rawAudit,
-        });
-        await markXapiStatementProcessed(dedupeKey);
-        if (shouldComplete) {
-          return NextResponse.json(
-            {
-              received: true,
-              matched: true,
-              userId: memberId,
-              ok: false,
-              error: 'No program enrolled',
-              dedupeKey,
-            },
-            { status: 422 }
-          );
-        }
-        return NextResponse.json({
-          received: true,
-          matched: true,
-          userId: memberId,
-          progressRecorded: false,
-          dedupeKey,
-        });
-      }
-  
-      await upsertCourseProgressFromXapiStatement({
-        userId: memberId,
-        enrolledProgramSlug: enrolledProgram,
-        parsed: synthetic,
-      });
-  
       if (!shouldComplete) {
+        const progress = await upsertCourseProgressFromXapiStatement({
+          userId: memberId,
+          enrolledProgramSlug: enrolledProgram,
+          parsed: synthetic,
+        });
+        if (!progress) {
+          throw new Error('Course not found');
+        }
         await recordXapiEvent({
           statementId: dedupeKey,
           identity,
@@ -311,9 +283,21 @@ export async function POST(request: Request) {
   
       const result = await completeMemberCourse({
         userId: memberId,
+        resolvedProgramSlug: enrolledProgram,
         courseSlug: data.courseSlug,
         courseName: data.courseName,
+        courseraCourseId: synthetic.courseraCourseId ?? null,
         source: 'coursera-webhook',
+        notify: enrolledProgram ? undefined : false,
+      });
+
+      // Completion orchestration must observe the pre-completion row so the
+      // first delivery can fire its one-time enrolled-member side effects.
+      // Add the detailed REST progress fact only after the atomic completion.
+      await upsertCourseProgressFromXapiStatement({
+        userId: memberId,
+        enrolledProgramSlug: enrolledProgram,
+        parsed: synthetic,
       });
   
       await recordXapiEvent({
@@ -355,6 +339,7 @@ export async function POST(request: Request) {
   
       const permanentClientFailure =
         message.includes('Course not found in member program')
+        || message === 'Course not found'
         || message.includes('Invalid program')
         || message.includes('No program enrolled');
   

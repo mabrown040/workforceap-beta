@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import {
@@ -13,6 +14,7 @@ import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import JobsTableClient from '@/components/admin/JobsTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { statusColor } from '@/lib/ui/statusColors';
 import { DesignSurface } from '@/components/portal/kit';
@@ -109,23 +111,26 @@ export default async function AdminJobsPage({
   if (!scope.ok) redirect('/dashboard');
 
   const { filter, ui, page } = await searchParams;
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   // --- DEFAULT: design-kit jobs board wired into real (lean) job data ---
   if (ui !== 'legacy') {
-    return renderKit({ actorUserId: user.id, scope });
+    return renderKit({ actorUserId: user.id, scope, readOnlyAudit });
   }
 
   // --- LEGACY (?ui=legacy): the proven review-queue workspace, unchanged ---
-  return renderLegacy({ filter, page, actorUserId: user.id, scope });
+  return renderLegacy({ filter, page, actorUserId: user.id, scope, readOnlyAudit });
 }
 
 /** Design-kit default: dense roster of open roles → <JobsBoardKit/>. */
 async function renderKit({
   actorUserId,
   scope,
+  readOnlyAudit,
 }: {
   actorUserId: string;
   scope: Extract<AdminPageTenant, { ok: true }>;
+  readOnlyAudit: boolean;
 }) {
   // Open roles = live + approved (publicly visible/active postings). Lean board
   // page + count + distinct-employer count, all in parallel; aggregate failures
@@ -178,14 +183,16 @@ async function renderKit({
       ? employerGroupResult.value.length
       : new Set(jobsResult.value.map((j) => j.employer?.companyName)).size;
 
-  void recordWorkflowDiagnostic({
-    workflow: 'admin_review_queue',
-    status: 'inspection',
-    actorUserId,
-    summary: `Admin opened jobs board (kit)`,
-    method: 'page_load',
-    metadata: { view: 'kit', openRoles, employers, shown: jobRows.length },
-  }).catch(() => {});
+  if (!readOnlyAudit) {
+    void recordWorkflowDiagnostic({
+      workflow: 'admin_review_queue',
+      status: 'inspection',
+      actorUserId,
+      summary: `Admin opened jobs board (kit)`,
+      method: 'page_load',
+      metadata: { view: 'kit', openRoles, employers, shown: jobRows.length },
+    }).catch(() => {});
+  }
 
   return (
     <DesignSurface surface="dense">
@@ -200,11 +207,13 @@ async function renderLegacy({
   page,
   actorUserId,
   scope,
+  readOnlyAudit,
 }: {
   filter?: string;
   page?: string;
   actorUserId: string;
   scope: Extract<AdminPageTenant, { ok: true }>;
+  readOnlyAudit: boolean;
 }) {
   const currentFilter = filter && ['all', 'pending', 'live', 'draft', 'filled', 'approved'].includes(filter)
     ? filter
@@ -277,20 +286,23 @@ async function renderLegacy({
       { value: 'filled', label: 'Filled / Closed', count: countByStatus['filled'] ?? 0 },
     ];
 
-    await recordWorkflowDiagnostic({
-      workflow: 'admin_review_queue',
-      status: 'inspection',
-      actorUserId,
-      summary: `Admin opened jobs review queue (${currentFilter})`,
-      method: 'page_load',
-      metadata: { filter: currentFilter, queueCount: jobs.length },
-    });
+    if (!readOnlyAudit) {
+      await recordWorkflowDiagnostic({
+        workflow: 'admin_review_queue',
+        status: 'inspection',
+        actorUserId,
+        summary: `Admin opened jobs review queue (${currentFilter})`,
+        method: 'page_load',
+        metadata: { filter: currentFilter, queueCount: jobs.length },
+      });
+    }
   } catch (error) {
     captureApiError(error, { route: 'admin/jobs' });
     return (
       <div>
         <PageHeader title="Jobs" subtitle="Employer submits → Admin reviews → Approve/Reject → Live. Manage job postings." />
         <div
+          data-portal-error-state="admin-jobs-load"
           role="alert"
           style={{
             margin: '1.5rem',

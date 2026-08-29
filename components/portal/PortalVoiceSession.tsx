@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Check, X, AlertTriangle } from 'lucide-react';
 import type { BaseSessionConfig, Conversation } from '@elevenlabs/client';
+import { RESUME_COACH_LIVE_DRAFT_MAX_CHARS } from '@/lib/ai/resumeCoachDataContract';
 import { VoiceOrb } from './kit/VoiceOrb';
 
 type VoiceDisconnectDetails = {
@@ -96,6 +97,8 @@ export type PortalVoiceSessionProps = {
    */
   titleAs?: 'h2' | 'h3';
   description: string;
+  /** Visible before Start; describes the third-party voice data transfer. */
+  dataUseNotice?: string;
   accent?: string;
   accentDark?: string;
   speakingLabel?: string;
@@ -171,10 +174,10 @@ const PULSE_STYLE = `
 .pvs-focus-dark:focus-visible { outline: none; box-shadow: 0 0 0 2px #121212, 0 0 0 4px #ad2c4d; }
 `;
 
-/** Sent with `sendContextualUpdate`; keep in sync with resume-coach session body limits (~6000). */
+/** Sent with `sendContextualUpdate`; bounded by the shared resume-coach disclosure contract. */
 const LIVE_RESUME_CONTEXT_PREFIX =
   '[Live resume draft updated — treat this as the current draft; the member may have edited text or accepted suggestions.]\n';
-const LIVE_RESUME_CONTEXT_MAX_BODY = 5800;
+const LIVE_RESUME_CONTEXT_MAX_BODY = RESUME_COACH_LIVE_DRAFT_MAX_CHARS;
 
 function logVoice(event: string, detail?: unknown) {
   if (process.env.NODE_ENV === 'development') {
@@ -188,6 +191,7 @@ export default function PortalVoiceSession({
   title,
   titleAs = 'h3',
   description,
+  dataUseNotice = 'By starting, you send microphone audio, the live transcript, and this tool\'s session context to ElevenLabs, our voice provider. Do not share passwords, Social Security numbers, or financial account details.',
   accent = '#ad2c4d',
   accentDark = '#8b1f38',
   speakingLabel = 'Assistant is speaking…',
@@ -801,6 +805,20 @@ export default function PortalVoiceSession({
         )}
         <p style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', marginBottom: '1.25rem', lineHeight: 1.55, fontSize: '0.9rem' }}>
           {description}
+        </p>
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.72)',
+            margin: '0 0 1rem',
+            lineHeight: 1.5,
+            fontSize: '0.78rem',
+            textAlign: 'center',
+          }}
+        >
+          {dataUseNotice}{' '}
+          <a href="/privacy" style={{ color: '#fff', textDecoration: 'underline' }}>
+            Privacy details
+          </a>
         </p>
         {voiceError ? (
           <div

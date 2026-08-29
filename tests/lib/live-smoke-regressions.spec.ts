@@ -25,7 +25,13 @@ describe('production portal smoke regressions', () => {
   it('audits canonical portal routes instead of redirect-only aliases', () => {
     const paths = source('scripts/lib/portal-audit-paths.mjs');
 
-    expect(paths).not.toContain("'/dashboard/assessment',");
-    expect(paths).not.toContain("'/partner/members',");
+    const staticManifest = paths.slice(
+      paths.indexOf('export const STATIC_PATHS'),
+      paths.indexOf('export const DYNAMIC_PATHS'),
+    );
+    expect(staticManifest).toContain("'/dashboard/assessment',");
+    expect(staticManifest).not.toContain("'/dashboard/assessments',");
+    expect(staticManifest).not.toContain("'/partner/members',");
+    expect(paths).toContain('export const REDIRECT_ONLY_PATHS');
   });
 });

@@ -276,6 +276,7 @@ export default function JobMatchScorerForm({
   const [loading, setLoading] = useState(false);
   const [scrapingUrl, setScrapingUrl] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
   const [error, setError] = useState(previewError);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -347,6 +348,7 @@ export default function JobMatchScorerForm({
     const file = e.target.files?.[0];
     if (!file) return;
     setError('');
+    setExtractionWarning(null);
     setExtracting(true);
     try {
       const formData = new FormData();
@@ -357,6 +359,10 @@ export default function JobMatchScorerForm({
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
+        const warning = data.extractionWarning;
+        setExtractionWarning(
+          typeof warning === 'string' && warning.trim() ? warning.trim() : null,
+        );
       } else {
         setError(data.error ?? 'Could not extract text');
       }
@@ -424,7 +430,7 @@ export default function JobMatchScorerForm({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.docx,.doc,.txt"
+              accept=".pdf,.docx,.txt"
               onChange={handleFileUpload}
               disabled={extracting || loading}
               style={{ fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)' }}
@@ -434,6 +440,23 @@ export default function JobMatchScorerForm({
             ) : null}
           </div>
         )}
+        {extractionWarning ? (
+          <p
+            role="status"
+            style={{
+              margin: 0,
+              padding: '0.75rem',
+              borderRadius: 'var(--wa-radius-sm)',
+              border: '1px solid var(--wa-gold)',
+              background: 'var(--wa-gold-soft)',
+              color: 'var(--wa-text)',
+              fontSize: 'var(--wa-type-meta)',
+              lineHeight: 1.45,
+            }}
+          >
+            {extractionWarning}
+          </p>
+        ) : null}
       </div>
 
       {error ? (

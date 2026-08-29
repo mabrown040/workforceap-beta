@@ -50,6 +50,10 @@ vi.mock('@/lib/ai/groq', () => ({
   isAIConfigured: vi.fn(() => true),
 }));
 
+vi.mock('@/lib/ai/coachContextBlock', () => ({
+  loadCoachContextBlock: vi.fn(async () => ''),
+}));
+
 // ─── Imports after mocks ───
 import { POST as startInterview } from '@/app/api/ai/interview/start/route';
 import { POST as interviewResponse } from '@/app/api/ai/interview/response/route';

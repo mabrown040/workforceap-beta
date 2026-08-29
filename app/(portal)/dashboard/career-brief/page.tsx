@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -9,6 +10,7 @@ import { getMemberState, getMemberStateFull } from '@/lib/member/getMemberState'
 import { getProgramBySlug } from '@/lib/content/programs';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PageHeader from '@/components/portal/PageHeader';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -25,11 +27,12 @@ export default async function CareerBriefPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/career-brief');
   const t = await getTranslations('dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   // ── Single source of truth: member state (training, profile, next actions, etc.)
   const [memberState, memberStateFull] = await Promise.all([
-    getMemberState(user.id),
-    getMemberStateFull(user.id),
+    getMemberState(user.id, { readOnlyAudit }),
+    getMemberStateFull(user.id, { readOnlyAudit }),
   ]);
 
   // ── Additional targeted queries ──
@@ -114,6 +117,9 @@ export default async function CareerBriefPage() {
 
   return (
     <div className="portal-page-container">
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="member-state-cache-and-resume-storage" />
+      )}
       <PageHeader
         title={t('careerBrief') ?? 'Career Brief'}
         subtitle={t('careerBriefSubtitle') ?? 'Your career readiness at a glance.'}

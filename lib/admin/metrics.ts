@@ -354,7 +354,11 @@ async function getAiToolStats(orgId: string, days: number) {
   };
 }
 
-export async function getAdminMetrics(orgId: string) {
+export async function getAdminMetrics(
+  orgId: string,
+  opts: { readOnlyAudit?: boolean } = {},
+) {
+  if (opts.readOnlyAudit) return _getAdminMetricsUncached(orgId);
   return getCacheOrFetch(`admin:metrics:${orgId}`, () => _getAdminMetricsUncached(orgId), 300);
 }
 

@@ -1,11 +1,10 @@
-import { Buffer } from 'node:buffer';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
-import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
-import { validateFileType } from '@/lib/resume/file-validation';
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+import {
+  prepareResumeUpload,
+  ResumeUploadValidationError,
+} from '@/lib/resume/prepareResumeUpload';
 
 export async function POST(request: Request) {
   try {
@@ -24,35 +23,20 @@ export async function POST(request: Request) {
   
     const file = formData.get('file') as File | null;
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-  
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
-    }
-  
-    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-  
+
     try {
-      const buffer = Buffer.from(await file.arrayBuffer());
-  
-      if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
-        return NextResponse.json(
-          { error: 'Invalid file type. Use PDF, DOC, DOCX, or TXT.' },
-          { status: 400 }
-        );
-      }
-  
-      const text = await extractTextFromResumeBuffer(buffer, ext);
-      if (ext === 'pdf' && !text) {
-        return NextResponse.json(
-          {
-            error:
-              'Could not extract text from this PDF. It may be a scanned image. Try pasting your resume text instead.',
-          },
-          { status: 400 }
-        );
-      }
-      return NextResponse.json({ text });
+      const prepared = await prepareResumeUpload(file);
+      return NextResponse.json({
+        text: prepared.text,
+        extractionWarning: prepared.extractionWarning,
+      });
     } catch (err) {
+      if (err instanceof ResumeUploadValidationError) {
+        return NextResponse.json(
+          { error: err.message, code: err.code },
+          { status: 400 },
+        );
+      }
       console.error('Extract resume text error:', err);
       return NextResponse.json(
         { error: 'Could not extract text from file. Try pasting instead.' },

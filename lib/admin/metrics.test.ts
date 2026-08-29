@@ -89,4 +89,11 @@ describe('admin metrics caching', () => {
       300,
     );
   });
+
+  it('bypasses shared cache during a read-only audit', async () => {
+    const result = await getAdminMetrics('org-audit', { readOnlyAudit: true });
+
+    expect(result.totalMembers).toBe(0);
+    expect(mockCache.getCacheOrFetch).not.toHaveBeenCalled();
+  });
 });

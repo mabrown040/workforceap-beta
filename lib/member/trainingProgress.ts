@@ -1,9 +1,11 @@
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 
 export type TrainingProgress = {
   totalCourses: number;
   completedCount: number;
   pct: number;
+  allComplete: boolean;
 };
 
 export type LiveTrainingProgressSummary = {
@@ -18,8 +20,10 @@ function findLiveProgress(
 ) {
   if (!enrolledProgram) return null;
   return Array.isArray(liveProgress)
-    ? liveProgress.find((row) => row?.programSlug === enrolledProgram) ?? null
-    : liveProgress?.programSlug === enrolledProgram
+    ? liveProgress.find(
+        (row) => row && programSlugsEquivalent(row.programSlug, enrolledProgram),
+      ) ?? null
+    : liveProgress && programSlugsEquivalent(liveProgress.programSlug, enrolledProgram)
       ? liveProgress
       : null;
 }
@@ -40,14 +44,34 @@ export function computeTrainingProgress(
 ): TrainingProgress {
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const totalCourses = program?.courses.length ?? 0;
-  if (totalCourses === 0) return { totalCourses: 0, completedCount: 0, pct: 0 };
+  if (totalCourses === 0) {
+    return { totalCourses: 0, completedCount: 0, pct: 0, allComplete: false };
+  }
 
   const rollup = findLiveProgress(enrolledProgram, liveProgress);
   if (rollup) {
+    const rawCompletedCount = rollup.coursesCompleted;
+    const hasValidCompletedCount = Number.isFinite(rawCompletedCount)
+      && Number.isInteger(rawCompletedCount)
+      && rawCompletedCount >= 0;
+    const completedCount = Math.max(
+      0,
+      Math.min(totalCourses, hasValidCompletedCount ? rawCompletedCount : 0),
+    );
+    const allComplete = hasValidCompletedCount && rawCompletedCount === totalCourses;
+    const reportedPercent = Math.max(0, Math.min(100, Math.round(rollup.averagePercent)));
+    // A pre-validation rollup can contain a 100% aggregate from one course
+    // while the catalog denominator has several courses. Never let that stale
+    // aggregate imply program completion; fall back to the only defensible
+    // aggregate available from this legacy shape.
+    const pct = reportedPercent === 100 && !allComplete
+      ? Math.round((completedCount / totalCourses) * 100)
+      : reportedPercent;
     return {
       totalCourses,
-      completedCount: Math.max(0, Math.min(totalCourses, rollup.coursesCompleted)),
-      pct: Math.max(0, Math.min(100, Math.round(rollup.averagePercent))),
+      completedCount,
+      pct,
+      allComplete,
     };
   }
 
@@ -55,7 +79,12 @@ export function computeTrainingProgress(
   const completedSlugs = new Set(list.filter((s): s is string => typeof s === 'string'));
   const completedCount = program!.courses.filter((c) => completedSlugs.has(c.slug)).length;
   const pct = Math.round((completedCount / totalCourses) * 100);
-  return { totalCourses, completedCount, pct };
+  return {
+    totalCourses,
+    completedCount,
+    pct,
+    allComplete: completedCount === totalCourses,
+  };
 }
 
 /**

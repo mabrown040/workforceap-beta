@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -31,6 +32,9 @@ type Props = { params: Promise<{ memberId: string }> };export const GET = withAp
     variant === 'enhanced' ? profile?.resumeEnhancedPath : profile?.resumeOriginalPath;
   if (!path) {
     return NextResponse.json({ error: 'No file for this variant' }, { status: 404 });
+  }
+  if (!isResumeObjectPathOwnedByUser(memberId, path)) {
+    return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
   }
 
   const supabase = getSupabaseAdmin();

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { Prisma } from '@prisma/client';
 import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
@@ -31,6 +32,7 @@ import { getWorkspaceEmailAvailability } from '@/lib/workspace-email/provider';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { AlertTriangle, ClipboardList, CheckCircle } from 'lucide-react';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
@@ -87,6 +89,7 @@ export default async function AdminMemberDetailPage({
 
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const { id } = await params;
 
@@ -405,15 +408,19 @@ export default async function AdminMemberDetailPage({
     certsComplete: adminAllCoursesComplete,
     employed: !!placedOutcomeRow,
   };
-  const chatThread = await getOrCreateMemberCounselorThread(member.id);
-  const [chatMsgsNewestFirst, chatMessageTotal] = await Promise.all([
-    prisma.message.findMany({
-      take: MEMBER_HISTORY_CAP,
-      where: { threadId: chatThread.id },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.message.count({ where: { threadId: chatThread.id } }),
-  ]);
+  const chatThread = readOnlyAudit
+    ? await prisma.messageThread.findUnique({ where: { memberId: member.id } })
+    : await getOrCreateMemberCounselorThread(member.id);
+  const [chatMsgsNewestFirst, chatMessageTotal] = chatThread
+    ? await Promise.all([
+        prisma.message.findMany({
+          take: MEMBER_HISTORY_CAP,
+          where: { threadId: chatThread.id },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.message.count({ where: { threadId: chatThread.id } }),
+      ])
+    : [[], 0];
   const chatMsgs = chatMsgsNewestFirst.slice().reverse();
   const chatAuthorIds = compactStringIds(chatMsgs.map((m) => m.authorId));
   const chatAuthors =
@@ -482,7 +489,7 @@ export default async function AdminMemberDetailPage({
   const orgAvgDaysToPlacement =
     orgAvgWeeksToPlacement === null ? null : Math.round(orgAvgWeeksToPlacement * 7);
 
-  const counselorChatInitial = {
+  const counselorChatInitial = chatThread ? {
     staffUserId: user.id,
     member: { id: member.id, fullName: member.fullName },
     thread: {
@@ -496,7 +503,7 @@ export default async function AdminMemberDetailPage({
       ...serializeMessage(m),
       authorName: getMessageAuthorName(chatNameById, m.authorId),
     })),
-  };
+  } : null;
 
   return (
     <div>
@@ -1084,7 +1091,14 @@ export default async function AdminMemberDetailPage({
         </section>
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-          <AdminMemberCounselorChatClient initial={counselorChatInitial} messagingSurface="admin" />
+          {readOnlyAudit && <span hidden data-portal-audit-suppressed="admin-member-message-thread-create-read-receipt-and-realtime" />}
+          {readOnlyAudit && counselorChatInitial ? (
+            <p style={{ margin: 0 }}>Counselor conversation is available. Live sync and read receipts are paused for this audit.</p>
+          ) : counselorChatInitial ? (
+            <AdminMemberCounselorChatClient initial={counselorChatInitial} messagingSurface="admin" />
+          ) : (
+            <p style={{ margin: 0 }}>No counselor conversation has started yet.</p>
+          )}
         </section>
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>

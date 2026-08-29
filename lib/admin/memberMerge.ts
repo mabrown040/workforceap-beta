@@ -1,5 +1,4 @@
-import type { PrismaClient, CourseProgressStatus, User } from '@prisma/client';
-import type { Prisma } from '@prisma/client';
+import { Prisma, type CourseProgressStatus, type User } from '@prisma/client';
 
 type TxClient = Prisma.TransactionClient;
 
@@ -30,6 +29,72 @@ const STATUS_RANK: Record<CourseProgressStatus, number> = {
   IN_PROGRESS: 1,
   COMPLETED: 2,
 };
+
+/**
+ * Stage A deliberately blocks merging a member that owns any Coursera raw or
+ * identity rows. Raw writers and guarded mapping flows take FOR SHARE on the
+ * target user after their identity advisory lock; this deterministic FOR
+ * UPDATE lock therefore makes the absence check stable until the merge
+ * transaction soft-deletes the secondary member.
+ */
+export async function assertNoCourseraOwnershipForMemberMerge(
+  tx: TxClient,
+  primaryId: string,
+  secondaryId: string,
+  expectedOrganizationId: string,
+): Promise<void> {
+  const lockedUsers = await tx.$queryRaw<Array<{
+    id: string;
+    organizationId: string;
+    deletedAt: Date | null;
+  }>>(Prisma.sql`
+    SELECT
+      merge_user.id,
+      merge_user.organization_id AS "organizationId",
+      merge_user.deleted_at AS "deletedAt"
+    FROM users AS merge_user
+    WHERE merge_user.id IN (${Prisma.join([primaryId, secondaryId])})
+    ORDER BY merge_user.id
+    FOR UPDATE
+  `);
+
+  const expectedUserIds = new Set([primaryId, secondaryId]);
+  if (
+    lockedUsers.length !== 2
+    || lockedUsers.some(
+      (user) =>
+        !expectedUserIds.has(user.id)
+        || user.deletedAt !== null
+        || user.organizationId !== expectedOrganizationId,
+    )
+  ) {
+    throw new Error('Member merge users changed or are outside the expected organization');
+  }
+
+  const ownership = await tx.$queryRaw<Array<{ source: string }>>(Prisma.sql`
+    SELECT ownership.source
+    FROM (
+      SELECT 'course'::text AS source
+      FROM coursera_course_progress
+      WHERE user_id = ${secondaryId}
+      UNION ALL
+      SELECT 'badge'::text AS source
+      FROM coursera_badge_progress
+      WHERE user_id = ${secondaryId}
+      UNION ALL
+      SELECT 'mapping'::text AS source
+      FROM coursera_identity_mappings
+      WHERE user_id = ${secondaryId}
+    ) AS ownership
+    LIMIT 1
+  `);
+
+  if (ownership.length > 0) {
+    throw new Error(
+      'Member merge blocked: secondary member has Coursera progress or identity mappings',
+    );
+  }
+}
 
 /**
  * Check for unresolvable conflicts before merging.
@@ -274,6 +339,16 @@ export async function executeMemberMerge(
   if (primary.deletedAt || secondary.deletedAt) {
     throw new Error('Cannot merge deleted members');
   }
+  if (primary.organizationId !== secondary.organizationId) {
+    throw new Error('Cannot merge members from different organizations');
+  }
+
+  await assertNoCourseraOwnershipForMemberMerge(
+    tx,
+    primaryId,
+    secondaryId,
+    primary.organizationId,
+  );
 
   const conflicts = await checkMergeConflicts(tx, primaryId, secondaryId);
   if (conflicts.length > 0) {
@@ -353,10 +428,7 @@ export async function executeMemberMerge(
   await repoint('placementSurvey', 'userId');
   await repoint('testimonial', 'memberId');
   await repoint('testimonial', 'reviewedBy');
-  await repoint('courseraCourseProgress', 'userId');
-  await repoint('courseraBadgeProgress', 'userId');
   await repoint('courseraSkillsetProgress', 'userId');
-  await repoint('courseraIdentityMapping', 'userId');
 
   // Subgroup leader / creator (unique constraints on leaderId / createdBy are not unique per se,
   // but a Subgroup can only have one leader. Repoint is safe unless primary already leads the same

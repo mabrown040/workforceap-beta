@@ -63,3 +63,37 @@ test('computeTrainingProgress: live rollup wins over stale legacy JSON', () => {
   assert.equal(r.completedCount, 2);
   assert.equal(r.pct, 50);
 });
+
+test('computeTrainingProgress: one of many cannot inherit a stale 100 percent rollup', () => {
+  const r = computeTrainingProgress(sampleProgram.slug, [], {
+    programSlug: sampleProgram.slug,
+    coursesCompleted: 1,
+    averagePercent: 100,
+  });
+
+  assert.equal(r.completedCount, 1);
+  assert.equal(r.pct, Math.round((1 / sampleProgram.courses.length) * 100));
+  assert.equal(r.allComplete, false);
+});
+
+test('computeTrainingProgress: 93 percent remains in progress without explicit all-course completion', () => {
+  const r = computeTrainingProgress(sampleProgram.slug, [], {
+    programSlug: sampleProgram.slug,
+    coursesCompleted: sampleProgram.courses.length - 1,
+    averagePercent: 93,
+  });
+
+  assert.equal(r.pct, 93);
+  assert.equal(r.allComplete, false);
+});
+
+test('computeTrainingProgress: overcounted rollup stays display-clamped without completing', () => {
+  const r = computeTrainingProgress(sampleProgram.slug, [], {
+    programSlug: sampleProgram.slug,
+    coursesCompleted: sampleProgram.courses.length + 1,
+    averagePercent: 100,
+  });
+
+  assert.equal(r.completedCount, sampleProgram.courses.length);
+  assert.equal(r.allComplete, false);
+});

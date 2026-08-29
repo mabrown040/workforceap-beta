@@ -59,6 +59,7 @@ export type DesktopDashboardProps = {
   userId: string;
   showMemberOnboarding: boolean;
   showMemberTour: boolean;
+  readOnlyAudit: boolean;
   superAdmin: boolean;
   intakeExtra: {
     fullName: string | null;

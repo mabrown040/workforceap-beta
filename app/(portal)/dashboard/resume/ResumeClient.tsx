@@ -16,7 +16,11 @@ import {
 } from 'lucide-react';
 
 const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
-import { uploadMemberResumeFile } from "@/lib/portal/memberResumeUpload";
+import {
+  RESUME_UPLOAD_ACCEPT,
+  RESUME_UPLOAD_FORMAT_LABEL,
+  uploadMemberResumeFile,
+} from "@/lib/portal/memberResumeUpload";
 import { trackFunnelEvent } from "@/lib/analytics/events";
 import { CardHead, ProgressBar, StatusTag } from '@/components/portal/kit';
 
@@ -62,11 +66,21 @@ export default function ResumeClient({
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [uploadWarning, setUploadWarning] = useState("");
   const [generateError, setGenerateError] = useState("");
   const [dragover, setDragover] = useState(false);
   const [originalPdfFailed, setOriginalPdfFailed] = useState(false);
   const [enhancedPdfFailed, setEnhancedPdfFailed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadInFlightRef = useRef(false);
+
+  useEffect(() => {
+    setOriginalPdfFailed(false);
+  }, [resumeData?.previewOriginalPath]);
+
+  useEffect(() => {
+    setEnhancedPdfFailed(false);
+  }, [resumeData?.previewEnhancedPath]);
 
   useEffect(() => {
     trackFunnelEvent("member_signup", "resume_page_viewed");
@@ -92,16 +106,19 @@ export default function ResumeClient({
   }, []);
 
   const handleUpload = async (file: File) => {
+    if (uploadInFlightRef.current) return;
+    uploadInFlightRef.current = true;
     setUploading(true);
     setUploadError("");
-    const result = await uploadMemberResumeFile(file);
-    if (!result.ok) {
-      setUploadError(result.error);
-      setUploading(false);
-      return;
-    }
-    trackFunnelEvent("member_signup", "resume_uploaded");
+    setUploadWarning("");
     try {
+      const result = await uploadMemberResumeFile(file);
+      if (!result.ok) {
+        setUploadError(result.error);
+        return;
+      }
+      setUploadWarning(result.warning ?? "");
+      trackFunnelEvent("member_signup", "resume_uploaded");
       const refetch = await fetch("/api/member/resume");
       const d = await refetch.json();
       setResumeData({
@@ -118,6 +135,7 @@ export default function ResumeClient({
     } catch {
       setUploadError("Could not refresh resume status");
     } finally {
+      uploadInFlightRef.current = false;
       setUploading(false);
     }
   };
@@ -164,11 +182,16 @@ export default function ResumeClient({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragover(false);
+    if (uploadInFlightRef.current) return;
     const file = e.dataTransfer.files?.[0];
     if (file) handleUpload(file);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (uploadInFlightRef.current) {
+      e.target.value = "";
+      return;
+    }
     const file = e.target.files?.[0];
     if (file) handleUpload(file);
     e.target.value = "";
@@ -181,8 +204,13 @@ export default function ResumeClient({
       return;
     }
     let cancelled = false;
-    fetch("/api/member/resume/docx-html?variant=original", { method: "POST" })
-      .then((r) => r.json())
+    setOriginalDocHtml(null);
+    const revision = resumeData.previewOriginalPath ?? '';
+    fetch(`/api/member/resume/docx-html?variant=original&v=${encodeURIComponent(revision)}`, { method: "POST", cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Could not prepare original resume preview");
+        return r.json();
+      })
       .then((d) => {
         if (!cancelled && d.html) setOriginalDocHtml(d.html as string);
       })
@@ -192,7 +220,7 @@ export default function ResumeClient({
     return () => {
       cancelled = true;
     };
-  }, [resumeData?.originalExt, resumeData?.hasOriginal]);
+  }, [resumeData?.originalExt, resumeData?.hasOriginal, resumeData?.previewOriginalPath]);
 
   useEffect(() => {
     const ext = resumeData?.enhancedExt;
@@ -201,8 +229,13 @@ export default function ResumeClient({
       return;
     }
     let cancelled = false;
-    fetch("/api/member/resume/docx-html?variant=enhanced", { method: "POST" })
-      .then((r) => r.json())
+    setEnhancedDocHtml(null);
+    const revision = resumeData.previewEnhancedPath ?? '';
+    fetch(`/api/member/resume/docx-html?variant=enhanced&v=${encodeURIComponent(revision)}`, { method: "POST", cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Could not prepare enhanced resume preview");
+        return r.json();
+      })
       .then((d) => {
         if (!cancelled && d.html) setEnhancedDocHtml(d.html as string);
       })
@@ -212,7 +245,7 @@ export default function ResumeClient({
     return () => {
       cancelled = true;
     };
-  }, [resumeData?.enhancedExt, resumeData?.hasEnhanced]);
+  }, [resumeData?.enhancedExt, resumeData?.hasEnhanced, resumeData?.previewEnhancedPath]);
 
   if (loading && !resumeData) {
     const controlsSkeleton = (
@@ -250,11 +283,12 @@ export default function ResumeClient({
   // ── Section elements ──────────────────────────────────────────────────────
 
   const uploadSection = (
-    <section className="wa-kit-card" style={{ marginBottom: "1.25rem" }}>
+    <section className="wa-kit-card" style={{ marginBottom: "1.25rem" }} aria-busy={uploading}>
       <CardHead title="Upload resume" />
       <div
         onDragOver={(e) => {
           e.preventDefault();
+          if (uploadInFlightRef.current) return;
           setDragover(true);
         }}
         onDragLeave={() => setDragover(false)}
@@ -271,15 +305,17 @@ export default function ResumeClient({
           ref={fileInputRef}
           id="resume-upload-input"
           type="file"
-          accept=".pdf,.doc,.docx,.txt"
+          accept={RESUME_UPLOAD_ACCEPT}
           onChange={handleFileInput}
+          disabled={uploading}
           className="sr-only"
         />
         <label
           htmlFor="resume-upload-input"
           className="wa-kit-focus"
+          aria-disabled={uploading}
           style={{
-            cursor: "pointer",
+            cursor: uploading ? "not-allowed" : "pointer",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -288,7 +324,7 @@ export default function ResumeClient({
           }}
         >
           <UploadCloud size={22} color="var(--wa-accent)" aria-hidden="true" />
-          <p style={{ margin: 0, color: "var(--wa-text)", fontWeight: 600, fontSize: "0.9rem" }}>
+          <p role="status" aria-live="polite" style={{ margin: 0, color: "var(--wa-text)", fontWeight: 600, fontSize: "0.9rem" }}>
             {uploading
               ? "Uploading…"
               : "Drag and drop your resume here, or click to choose a file"}
@@ -300,12 +336,17 @@ export default function ResumeClient({
               color: "var(--wa-muted)",
             }}
           >
-            PDF, DOC, DOCX, TXT — max 5MB
+            {RESUME_UPLOAD_FORMAT_LABEL} — max 5MB
           </p>
         </label>
       </div>
       {uploadError && (
         <p role="alert" style={{ color: "var(--wa-danger)", marginTop: "0.75rem", fontSize: "0.85rem" }}>{uploadError}</p>
+      )}
+      {uploadWarning && (
+        <p role="status" style={{ color: "var(--wa-warning-text, var(--wa-muted))", marginTop: "0.75rem", fontSize: "0.85rem" }}>
+          {uploadWarning}
+        </p>
       )}
     </section>
   );
@@ -429,13 +470,18 @@ export default function ResumeClient({
                   File unavailable —{" "}
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                      if (!uploadInFlightRef.current) fileInputRef.current?.click();
+                    }}
+                    disabled={uploading}
+                    aria-busy={uploading}
                     style={{
                       background: "none",
                       border: "none",
                       color: "var(--wa-accent)",
                       fontWeight: 600,
-                      cursor: "pointer",
+                      cursor: uploading ? "not-allowed" : "pointer",
+                      opacity: uploading ? 0.6 : 1,
                       padding: 0,
                       fontSize: "inherit",
                     }}

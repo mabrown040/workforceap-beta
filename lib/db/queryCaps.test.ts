@@ -57,6 +57,7 @@ const PORTAL_AND_ADMIN_SSR = [
   'app/admin/members/interview-ready/page.tsx',
   'app/admin/program-change-requests/page.tsx',
   'app/admin/students/page.tsx',
+  'app/admin/training-progress/page.tsx',
   'app/admin/subgroups/legacy.tsx',
   'app/admin/subgroups/new/page.tsx',
   'app/admin/subgroups/[id]/edit/page.tsx',

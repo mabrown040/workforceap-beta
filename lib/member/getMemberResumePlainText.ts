@@ -2,6 +2,11 @@ import { Buffer } from 'node:buffer';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
+import {
+  hasSubstantiveResumeText,
+  sanitizeResumePlainText,
+} from '@/lib/resume/extractionQuality';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
 
 const BUCKET = 'member-resumes';
 
@@ -19,8 +24,9 @@ function extFromPath(path: string): string {
 export async function getMemberResumePlainText(
   userId: string,
   maxChars = 8000,
-  opts?: { preferOriginal?: boolean }
+  opts?: { preferOriginal?: boolean; readOnlyAudit?: boolean }
 ): Promise<string> {
+  if (opts?.readOnlyAudit) return '';
   const profile = await prisma.profile.findUnique({
     where: { userId },
   });
@@ -29,7 +35,7 @@ export async function getMemberResumePlainText(
   const paths = (opts?.preferOriginal
     ? [profile.resumeOriginalPath, profile.resumeEnhancedPath]
     : [profile.resumeEnhancedPath, profile.resumeOriginalPath]
-  ).filter((p): p is string => !!p);
+  ).filter((p): p is string => Boolean(p) && isResumeObjectPathOwnedByUser(userId, p as string));
   if (paths.length === 0) return '';
 
   const supabase = getSupabaseAdmin();
@@ -41,10 +47,9 @@ export async function getMemberResumePlainText(
     const buf = Buffer.from(await data.arrayBuffer());
     const ext = extFromPath(path);
     try {
-      const text = await extractTextFromResumeBuffer(buf, ext);
-      const t = text.trim();
-      if (t.length > 40) {
-        return t.slice(0, maxChars);
+      const text = sanitizeResumePlainText(await extractTextFromResumeBuffer(buf, ext));
+      if (hasSubstantiveResumeText(text)) {
+        return text.slice(0, maxChars);
       }
     } catch (err) {
       console.warn('[getMemberResumePlainText] extract failed', path, err);

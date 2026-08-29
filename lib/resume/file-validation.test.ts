@@ -81,6 +81,26 @@ function buildZip(entries: Array<{ name: string; data?: Buffer }>): Buffer {
     return Buffer.concat([...localParts, centralBuf, eocd]);
 }
 
+function findSignature(buffer: Buffer, signature: number, start = 0): number {
+    for (let i = start; i <= buffer.length - 4; i++) {
+        if (buffer.readUInt32LE(i) === signature) return i;
+    }
+    return -1;
+}
+
+function patchCentralSizes(buffer: Buffer, entryIndex: number, compressed: number, uncompressed: number): Buffer {
+    const copy = Buffer.from(buffer);
+    let cursor = 0;
+    for (let i = 0; i <= entryIndex; i++) {
+        cursor = findSignature(copy, 0x02014b50, cursor);
+        assert.notEqual(cursor, -1);
+        if (i < entryIndex) cursor += 46;
+    }
+    copy.writeUInt32LE(compressed, cursor + 20);
+    copy.writeUInt32LE(uncompressed, cursor + 24);
+    return copy;
+}
+
 test('validates valid docx (contains [Content_Types].xml and word/document.xml)', () => {
     const buf = buildZip([
         { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
@@ -117,6 +137,66 @@ test('rejects docx missing [Content_Types].xml (H-S17)', () => {
         { name: 'word/document.xml', data: Buffer.from('<xml/>') },
     ]);
     assert.equal(validateFileType(buf, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'partial.docx'), false);
+});
+
+test('rejects DOCX archives whose declared expansion exceeds 25MB', () => {
+    const base = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    const bomb = patchCentralSizes(base, 1, 1024 * 1024, 26 * 1024 * 1024);
+    assert.equal(validateFileType(bomb, 'application/zip', 'bomb.docx'), false);
+});
+
+test('rejects DOCX archives with a cumulative compression ratio above 100', () => {
+    const base = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    const bomb = patchCentralSizes(base, 1, 1_000, 200_000);
+    assert.equal(validateFileType(bomb, 'application/zip', 'ratio-bomb.docx'), false);
+});
+
+test('rejects non-empty DOCX entries declaring zero compressed bytes', () => {
+    const base = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    const bomb = patchCentralSizes(base, 1, 0, 100);
+    assert.equal(validateFileType(bomb, 'application/zip', 'zero-compressed.docx'), false);
+});
+
+test('rejects DOCX archives declaring more than 8192 entries', () => {
+    const bomb = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    const eocd = findSignature(bomb, 0x06054b50);
+    assert.notEqual(eocd, -1);
+    bomb.writeUInt16LE(8193, eocd + 8);
+    bomb.writeUInt16LE(8193, eocd + 10);
+    assert.equal(validateFileType(bomb, 'application/zip', 'too-many.docx'), false);
+});
+
+test('rejects a malformed DOCX central-directory cursor after required entries', () => {
+    const malformed = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    const second = findSignature(malformed, 0x02014b50, findSignature(malformed, 0x02014b50) + 4);
+    assert.notEqual(second, -1);
+    malformed.writeUInt16LE(0xffff, second + 28);
+    assert.equal(validateFileType(malformed, 'application/zip', 'malformed.docx'), false);
+});
+
+test('accepts a structurally normal compressed-size DOCX within safety limits', () => {
+    let normal = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<document/>') },
+    ]);
+    normal = patchCentralSizes(normal, 0, 20, 200);
+    normal = patchCentralSizes(normal, 1, 30, 300);
+    assert.equal(validateFileType(normal, 'application/zip', 'normal.docx'), true);
 });
 
 test('validates valid pdf with UTF-8 BOM', () => {

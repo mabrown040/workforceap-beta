@@ -10,6 +10,10 @@
  * already covered vs. still missing.
  */
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
+import {
+  REVISED_PROGRAM_OCCUPATION_ALIGNMENT,
+  type ProgramOccupationAlignment,
+} from '@/lib/content/programOccupationAlignment';
 
 export type BridgeSkill = {
   /** Plain-language skill name shown to members (8th-grade reading level). */
@@ -27,6 +31,8 @@ export type BridgeOccupation = {
   occupationTitle: string;
   /** O*NET-SOC code prefixes that map to this target job (e.g. "15-1232"). */
   onetCodePrefixes: string[];
+  /** Board-submitted codes, retained separately from live O*NET routing. */
+  boardClassification?: ProgramOccupationAlignment['board'];
   /** Lowercase keywords matched against a saved occupation title. */
   titleKeywords: string[];
   /** Skills employers expect for this job. */
@@ -38,6 +44,9 @@ export type BridgeOccupation = {
 };
 
 const skill = (name: string, matchTerms: string[]): BridgeSkill => ({ name, matchTerms });
+
+const MANAGEMENT_ALIGNMENT = REVISED_PROGRAM_OCCUPATION_ALIGNMENT.managementAnalyst;
+const DBA_ALIGNMENT = REVISED_PROGRAM_OCCUPATION_ALIGNMENT.databaseAdministrator;
 
 export const TRAINING_BRIDGE_OCCUPATIONS: BridgeOccupation[] = [
   {
@@ -71,19 +80,61 @@ export const TRAINING_BRIDGE_OCCUPATIONS: BridgeOccupation[] = [
     pathwayCovers: ['Network security', 'Incident response', 'Linux basics', 'Networking basics', 'Risk awareness'],
   },
   {
-    id: 'data-analyst',
-    occupationTitle: 'Data Analyst',
-    onetCodePrefixes: ['15-2051', '15-2041'],
-    titleKeywords: ['data analyst', 'data analytics', 'business intelligence', 'statistician', 'data scientist'],
+    id: 'management-analyst',
+    occupationTitle: 'Management Analyst',
+    // 13-1161 is the board-approved secondary outcome, but operationally it
+    // belongs to the Digital Marketing bridge below. A bridge chooses one
+    // pathway, so keeping it here would route marketing specialists to the
+    // Management Analyst program simply because this entry appears first.
+    onetCodePrefixes: ['13-1111'],
+    boardClassification: MANAGEMENT_ALIGNMENT.board,
+    titleKeywords: [
+      'management analyst',
+      'management consultant',
+      'business analyst',
+      'business intelligence',
+    ],
     requiredSkills: [
-      skill('Spreadsheets', ['spreadsheet', 'excel']),
-      skill('SQL', ['sql', 'database', 'query']),
-      skill('Data visualization', ['visualization', 'tableau', 'chart', 'dashboard']),
-      skill('Data cleaning', ['data cleaning', 'data processing', 'data analysis', 'mathematics']),
-      skill('Presenting findings', ['present', 'speaking', 'writing', 'communicat']),
+      skill('Management consulting', ['management consulting', 'consultant', 'problem solving']),
+      skill('Business analysis', ['business analysis', 'requirements', 'process improvement']),
+      skill('Business strategy', ['business strategy', 'competitive analysis', 'strategic planning']),
+      skill('Financial analysis', ['financial analysis', 'financial modeling', 'cost analysis', 'excel']),
+      skill('Data-driven recommendations', ['data analysis', 'dashboard', 'visualization', 'recommendation']),
     ],
     programSlug: 'data-analytics-professional-certificate-google',
-    pathwayCovers: ['Spreadsheets', 'SQL', 'Data visualization', 'Data cleaning', 'Presenting findings'],
+    pathwayCovers: [
+      'Management consulting',
+      'Business analysis',
+      'Business strategy',
+      'Financial analysis',
+      'Data-driven recommendations',
+    ],
+  },
+  {
+    id: 'database-administrator',
+    occupationTitle: 'Database Administrator',
+    // Accept current O*NET (15-1242), the exact board submission (15-1245),
+    // and the board-approved Database Architects secondary outcome.
+    onetCodePrefixes: ['15-1242', '15-1245', '15-1243'],
+    boardClassification: DBA_ALIGNMENT.board,
+    titleKeywords: ['database administrator', 'database architect', 'database operations', 'dba'],
+    requiredSkills: [
+      skill('Relational databases and SQL', ['relational database', 'sql', 'mysql', 'postgresql', 'db2']),
+      skill('Database security', ['database security', 'access control', 'permissions', 'rbac']),
+      skill('Backup and recovery', ['backup', 'recovery', 'restore']),
+      skill('Monitoring and performance tuning', ['monitoring', 'performance tuning', 'query optimization']),
+      skill('Database automation', ['linux', 'shell scripting', 'bash', 'python', 'automation']),
+      skill('ETL and data warehousing', ['etl', 'data pipeline', 'data warehouse', 'airflow', 'kafka']),
+    ],
+    programSlug: 'data-science-professional-certificate-ibm',
+    pathwayCovers: [
+      'Relational databases and SQL',
+      'Database security',
+      'Backup and recovery',
+      'Monitoring and performance tuning',
+      'Database automation',
+      'ETL and data warehousing',
+    ],
   },
   {
     id: 'software-developer',

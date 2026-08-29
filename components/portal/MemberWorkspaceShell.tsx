@@ -14,12 +14,14 @@ export default function MemberWorkspaceShell({
   hasResume = true,
   superAdmin,
   portalRoles,
+  readOnlyAudit = false,
   children,
 }: {
   /** Member has an original or enhanced resume on file */
   hasResume?: boolean;
   superAdmin?: boolean;
   portalRoles?: PortalSwitcherRole[];
+  readOnlyAudit?: boolean;
   children: React.ReactNode;
 }) {
   const searchParams = useSearchParams();
@@ -27,6 +29,7 @@ export default function MemberWorkspaceShell({
   const pathname = usePathname();
 
   useEffect(() => {
+    if (readOnlyAudit) return;
     if (searchParams?.get('verified') === '1') {
       trackFunnelEvent('member_signup', 'email_verified');
       trackFunnelEvent('member_signup', 'dashboard_first_visit');
@@ -36,7 +39,7 @@ export default function MemberWorkspaceShell({
       const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
       if (newUrl) router.replace(newUrl);
     }
-  }, [searchParams, pathname, router]);
+  }, [readOnlyAudit, searchParams, pathname, router]);
 
   return (
     <WorkspaceShell
@@ -50,6 +53,7 @@ export default function MemberWorkspaceShell({
       showResumeUploadHint={hasResume === false}
       superAdmin={superAdmin}
       portalRoles={portalRoles}
+      readOnlyAudit={readOnlyAudit}
       footer={<DashboardFooter />}
     >
       <DashboardPageErrorBoundary>{children}</DashboardPageErrorBoundary>

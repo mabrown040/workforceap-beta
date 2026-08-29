@@ -24,7 +24,7 @@ function hasMarker(bodyText, markers) {
   return markers.some((marker) => bodyText.includes(marker));
 }
 
-function canonicalPathname(urlOrPath) {
+export function canonicalPathname(urlOrPath) {
   const candidate = typeof urlOrPath === 'string' ? urlOrPath : '';
   let pathname = candidate;
 
@@ -49,33 +49,103 @@ export function classifyPortalAuditRow(row) {
   const documentStatus = Number.isFinite(row.documentStatus) ? row.documentStatus : null;
   const failureReasons = [];
 
-  const stuckLogin = row.finalUrl.includes('/login');
-  const unexpectedRedirect = canonicalPathname(row.finalUrl) !== canonicalPathname(row.path);
+  const finalPathname = canonicalPathname(row.finalUrl);
+  const requestedPathname = canonicalPathname(row.path);
+  const expectedPathname = canonicalPathname(row.expectedPath ?? row.path);
+  const comparisonFinalPathname = canonicalPathname(row.comparisonFinalUrl ?? row.finalUrl);
+  const comparisonExpectedPathname = canonicalPathname(
+    row.comparisonExpectedPath ?? row.expectedPath ?? row.path,
+  );
+  const sectionRoot = canonicalPathname(row.sectionRoot ?? '/');
+  const stuckLogin = finalPathname === '/login' || finalPathname.startsWith('/login/');
+  const wrongRoleRedirect =
+    sectionRoot !== '/' &&
+    finalPathname !== sectionRoot &&
+    !finalPathname.startsWith(`${sectionRoot}/`);
+  const unexpectedRedirect = comparisonFinalPathname !== comparisonExpectedPathname;
+  // Dynamic route artifacts persist a redacted template in `path`, while the
+  // concrete in-memory request (including its query) lives in
+  // `comparisonExpectedPath`. Always enforce the concrete request semantics.
+  const concreteRequestedPath = row.comparisonExpectedPath ?? row.path;
+  const requestedQueryVariant =
+    typeof concreteRequestedPath === 'string' && concreteRequestedPath.includes('?');
+  const queryVariantMismatch = requestedQueryVariant && row.queryVariantMatched !== true;
+  const readOnlyCapabilityActive = row.readOnlyCapabilityActive === true;
+  const errorFallbackStates = Array.isArray(row.errorFallbackStates)
+    ? row.errorFallbackStates.filter((value) => typeof value === 'string').slice(0, 10)
+    : [];
+  const errorFallbackDetected = row.errorFallbackDetected === true || errorFallbackStates.length > 0;
   const routeErrorFallback =
-    hasMarker(normalizedBody, ROUTE_ERROR_MARKERS) || hasMarker(normalizedTitle, ROUTE_ERROR_MARKERS);
+    errorFallbackDetected ||
+    hasMarker(normalizedBody, ROUTE_ERROR_MARKERS) ||
+    hasMarker(normalizedTitle, ROUTE_ERROR_MARKERS);
   const notFoundFallback =
     hasMarker(normalizedBody, NOT_FOUND_MARKERS) || hasMarker(normalizedTitle, NOT_FOUND_MARKERS);
-  const consoleErrorCount = row.consoleErrors.length;
-  const pageErrorCount = row.pageErrors.length;
+  const consoleErrorCount = row.consoleErrors?.length ?? 0;
+  const pageErrorCount = row.pageErrors?.length ?? 0;
   const hasDocumentErrorStatus = documentStatus !== null && documentStatus >= 400;
+  const h1Count = Number.isFinite(row.h1Count) ? row.h1Count : 0;
+  const appReady = row.appReady === true;
+  const originMatched = row.originMatched !== false;
+  const horizontalOverflowPx = Number.isFinite(row.horizontalOverflowPx)
+    ? Math.max(0, row.horizontalOverflowPx)
+    : 0;
+  const unnamedInteractiveControls = Array.isArray(row.unnamedInteractiveControls)
+    ? row.unnamedInteractiveControls
+    : [];
 
   if (stuckLogin) failureReasons.push('login_redirect');
+  if (!originMatched) failureReasons.push('external_origin_redirect');
+  if (wrongRoleRedirect) failureReasons.push('wrong_role_redirect');
   if (unexpectedRedirect) failureReasons.push('unexpected_redirect');
+  if (queryVariantMismatch) failureReasons.push('query_variant_mismatch');
+  if (!readOnlyCapabilityActive) {
+    failureReasons.push('read_only_audit_capability_not_active');
+  }
   if (hasDocumentErrorStatus) failureReasons.push('document_error_status');
   if (routeErrorFallback) failureReasons.push('route_error_fallback');
   if (notFoundFallback) failureReasons.push('not_found_fallback');
   if (consoleErrorCount > 0) failureReasons.push('console_errors');
   if (pageErrorCount > 0) failureReasons.push('page_errors');
+  if (horizontalOverflowPx > 1) failureReasons.push('horizontal_overflow');
+  if (!appReady) failureReasons.push('app_not_ready');
+  if (h1Count === 0) failureReasons.push('missing_h1');
+  if (h1Count > 1) failureReasons.push('multiple_h1');
+  if (unnamedInteractiveControls.length > 0) {
+    failureReasons.push('unnamed_interactive_controls');
+  }
+
+  const {
+    bodyText: _bodyText,
+    title: _title,
+    comparisonFinalUrl: _comparisonFinalUrl,
+    comparisonExpectedPath: _comparisonExpectedPath,
+    ...safeRow
+  } = row;
 
   return {
-    ...row,
+    ...safeRow,
     documentStatus,
+    finalPathname,
+    requestedPathname,
+    expectedPathname,
     stuckLogin,
+    wrongRoleRedirect,
     unexpectedRedirect,
+    queryVariantMatched: row.queryVariantMatched === true,
+    queryVariantMismatch,
+    readOnlyCapabilityActive,
     routeErrorFallback,
+    errorFallbackDetected,
+    errorFallbackStates,
     notFoundFallback,
     consoleErrorCount,
     pageErrorCount,
+    appReady,
+    originMatched,
+    h1Count,
+    horizontalOverflowPx,
+    unnamedInteractiveControls,
     ok: failureReasons.length === 0,
     failureReasons,
   };

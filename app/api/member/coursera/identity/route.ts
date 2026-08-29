@@ -3,8 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { checkCourseraIdentityRateLimit } from '@/lib/rate-limit';
-import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
-import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import { mapCourseraIdentityAndProgress } from '@/lib/coursera/mapIdentityAndProgress.server';
 import { auditLog } from '@/lib/audit';
 import { createNotification } from '@/lib/notifications/create';
 
@@ -60,7 +59,7 @@ export const POST = withApiGuc(async (request: Request) => {
       // AUDIT: member self-claims of a Coursera identity are an outcome-
       // integrity risk for WIOA reporting when the claimed email doesn't
       // belong to the member — a claim would immediately inherit that
-      // learner's historical progress via `backfillUserIdForCourseraEmail`.
+      // learner's historical progress through the atomic mapping service.
       // Same-account-email claims (the common case: linking your own
       // Coursera inbox) proceed unchanged. A claim for a DIFFERENT email
       // does NOT create the mapping or run the backfill; it's queued for a
@@ -125,24 +124,36 @@ export const POST = withApiGuc(async (request: Request) => {
         );
       }
 
-      const mapping = await upsertCourseraIdentityMapping({
+      const organizationId = wapUser?.organizationId?.trim();
+      if (!organizationId) {
+        throw new Error('Member organization is unavailable');
+      }
+
+      // The identity mapping and all existing raw Coursera course/badge rows
+      // must change ownership in one transaction. If any row is already tied
+      // to another member, fail the request instead of committing a split-
+      // brain mapping and returning success.
+      const linked = await mapCourseraIdentityAndProgress({
         userId: user.id,
+        organizationId,
         courseraEmail,
         createdByUserId: user.id,
         source: 'member_self_link',
         notes: 'Saved by member from Training page',
       });
 
-      // Backfill historical CSV rows that were orphaned before this mapping existed.
-      try {
-        await backfillUserIdForCourseraEmail(courseraEmail, user.id);
-      } catch (backfillError) {
-        console.error('[member/coursera/identity] backfill failed:', backfillError);
-      }
-
-      return NextResponse.json({ ok: true, courseraEmail: mapping?.courseraEmail ?? courseraEmail });
+      return NextResponse.json({
+        ok: true,
+        courseraEmail: linked.mapping?.courseraEmail ?? courseraEmail,
+      });
     } catch (error) {
       console.error('[member/coursera/identity] failed to save Coursera email:', error);
+      if (error instanceof Error && error.message.includes('different WAP user')) {
+        return NextResponse.json(
+          { error: 'This Coursera email is already linked to another account.' },
+          { status: 409 },
+        );
+      }
       return NextResponse.json({ error: 'Unable to save your Coursera email right now.' }, { status: 500 });
     }
   } catch (error) {

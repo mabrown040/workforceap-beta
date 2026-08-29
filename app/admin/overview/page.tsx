@@ -127,6 +127,7 @@ export default async function AdminOverviewPage() {
   let programsEnrolled: number;
   let programsCompleted: number;
   let pendingPlacements: PendingPlacementWithUser[];
+  let adminOverviewLoadFailed = false;
 
   function logPrismaReason(label: string, reason: unknown) {
     const msg = reason instanceof Error ? reason.message : String(reason);
@@ -206,6 +207,7 @@ export default async function AdminOverviewPage() {
     recentUsers = recentUsersResult.value;
 
     if (recentPlacementsResult.status === 'rejected') {
+      adminOverviewLoadFailed = true;
       logPrismaReason('placementRecord.findMany', recentPlacementsResult.reason);
       recentPlacements = [];
     } else {
@@ -213,6 +215,7 @@ export default async function AdminOverviewPage() {
     }
 
     if (pendingApplicationsResult.status === 'rejected') {
+      adminOverviewLoadFailed = true;
       logPrismaReason('application.count', pendingApplicationsResult.reason);
       pendingApplications = 0;
     } else {
@@ -220,6 +223,7 @@ export default async function AdminOverviewPage() {
     }
 
     if (pendingPlacementsResult.status === 'rejected') {
+      adminOverviewLoadFailed = true;
       logPrismaReason('placementRecord.pendingReview', pendingPlacementsResult.reason);
       pendingPlacements = [];
     } else {
@@ -229,6 +233,7 @@ export default async function AdminOverviewPage() {
     const [trainingDashboardResult] = await Promise.allSettled([loadTrainingDashboardData(scope)]);
 
     if (trainingDashboardResult.status === 'rejected') {
+      adminOverviewLoadFailed = true;
       logPrismaReason('trainingDashboardMetrics', trainingDashboardResult.reason);
       activeInTraining = 0;
       programsEnrolled = 0;
@@ -239,7 +244,7 @@ export default async function AdminOverviewPage() {
       programsEnrolled = new Set(training.rows.map((row) => row.enrolledProgram)).size;
       programsCompleted = new Set(
         training.rows
-          .filter((row) => row.progressPercent >= 100 || row.completedCount >= row.totalCourses)
+          .filter((row) => row.totalCourses > 0 && row.completedCount === row.totalCourses)
           .map((row) => row.enrolledProgram)
       ).size;
     }
@@ -279,14 +284,23 @@ export default async function AdminOverviewPage() {
   }
 
   const [slaBreaches48h, recentCronErrors, triageDigest] = await Promise.all([
-    countThreadsWithSlaBreach(48).catch(() => 0),
+    countThreadsWithSlaBreach(48).catch((error) => {
+      adminOverviewLoadFailed = true;
+      logPrismaReason('message SLA count', error);
+      return 0;
+    }),
     prisma.workflowDiagnostic.count({
       where: {
         status: { in: ['error', 'errored'] },
         createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       },
-    }).catch(() => 0),
+    }).catch((error) => {
+      adminOverviewLoadFailed = true;
+      logPrismaReason('workflow diagnostic count', error);
+      return 0;
+    }),
     getTriageDigest(scope).catch((reason): TriageDigest => {
+      adminOverviewLoadFailed = true;
       logPrismaReason('triageDigest', reason);
       return { buckets: [], allClear: true };
     }),
@@ -294,6 +308,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <PortalPageFrame>
+      {adminOverviewLoadFailed ? <span hidden data-portal-error-state="admin-overview-load" /> : null}
       <PageHeader
         title="Admin overview"
         subtitle="See who's signing up, how training is going, and where members are getting placed."

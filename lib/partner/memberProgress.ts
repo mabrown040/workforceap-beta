@@ -17,5 +17,5 @@ export function memberProgramCompleted(
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   if (!program?.courses.length) return false;
   const progress = computeTrainingProgress(enrolledProgram, coursesCompleted, liveProgress);
-  return progress.completedCount >= program.courses.length || progress.pct >= 100;
+  return progress.allComplete;
 }

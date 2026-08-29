@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
-import { getActivePrograms } from '@/lib/platform/programCatalog';
+import { getActiveProgramsResult } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import JobApplicantsClient from '@/components/employer/JobApplicantsClient';
 import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
@@ -16,6 +17,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
 import { getTranslations } from 'next-intl/server';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -50,8 +52,9 @@ function formatSalary(salaryMin: number | null, salaryMax: number | null) {
 export default async function EmployerJobDetailPage({ params }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/jobs');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
-  const ctx = await getEmployerForUser(user.id);
+  const ctx = await getEmployerForUser(user.id, { readOnlyAudit });
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const t = await getTranslations('employer');
@@ -65,11 +68,11 @@ export default async function EmployerJobDetailPage({ params }: Props) {
 
   const employer = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
-    select: { companyName: true },
+    select: { companyName: true, organizationId: true },
   });
 
-  const active = await getActivePrograms();
-  const programSlugs = active.map((p) => p.slug);
+  const catalogResult = await getActiveProgramsResult(employer?.organizationId, { readOnlyAudit });
+  const programSlugs = catalogResult.programs.map((p) => p.slug);
 
   const applicants = await prisma.jobPostingApplication.findMany({
     where: { jobId: id },
@@ -112,6 +115,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
 
   return (
     <>
+      {catalogResult.loadFailed ? <span hidden data-portal-error-state="employer-program-catalog-load" /> : null}
       <article className="employer-job-edit wa-pb-24 md:wa-pb-0">
         <PortalPageFrame>
           <PageHeader

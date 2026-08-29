@@ -61,6 +61,7 @@ export default async function CounselorPortalPage({
   // $transaction, no external calls, no unbounded scans.
   // v2 kit is the DEFAULT counselor overview; legacy via ?ui=legacy.
   if (requestedUi !== 'legacy') {
+    const kitLoadErrors: string[] = [];
     const kitIsAdmin = await isAdmin(user.id);
     const kitCounselor = await prisma.counselor.findFirst({
       where: { userId: user.id, active: true },
@@ -80,6 +81,7 @@ export default async function CounselorPortalPage({
         perSectionLimit: 5,
       });
     } catch {
+      kitLoadErrors.push('counselor-command-center-load-failed');
       kitCenter = {
         needsReply: [],
         atRisk: [],
@@ -96,6 +98,7 @@ export default async function CounselorPortalPage({
       kitQueue = await getCounselorPriorityQueue(user.id, { isAdmin: kitIsAdmin && !kitCounselor });
     } catch (err) {
       console.error('[counselor:kit] priority queue failed:', err);
+      kitLoadErrors.push('counselor-priority-queue-load-failed');
     }
 
     const kitQueueRows: CounselorQueueRow[] = kitQueue.rows.slice(0, 12).map((row) => ({
@@ -116,7 +119,11 @@ export default async function CounselorPortalPage({
     }));
 
     return (
-      <CounselorHomeKit
+      <>
+        {kitLoadErrors.map((state) => (
+          <span key={state} hidden data-portal-error-state={state} />
+        ))}
+        <CounselorHomeKit
         assignedCount={assignedCount}
         atRiskCount={kitQueue.totals.critical + kitQueue.totals.warning}
         needsReplyCount={kitCenter.totals.needsReplyCount}
@@ -130,7 +137,8 @@ export default async function CounselorPortalPage({
           warning: kitQueue.totals.warning,
           ontrack: kitQueue.totals.ontrack,
         }}
-      />
+        />
+      </>
     );
   }
 
@@ -232,6 +240,7 @@ export default async function CounselorPortalPage({
 
   // Today's priorities — needs-reply, at-risk, and interviewing rows.
   const isAdminUser = await isAdmin(user.id);
+  let commandCenterLoadFailed = false;
   let commandCenter;
   try {
     commandCenter = await getCounselorCommandCenter(user.id, {
@@ -239,6 +248,7 @@ export default async function CounselorPortalPage({
       perSectionLimit: 5,
     });
   } catch {
+    commandCenterLoadFailed = true;
     // Graceful fallback if the command center query fails (e.g. schema drift)
     commandCenter = { needsReply: [], atRisk: [], interviewing: [], totals: { needsReplyCount: 0, atRiskCount: 0, interviewingCount: 0, slaBreachCount: 0 } };
   }
@@ -250,11 +260,13 @@ export default async function CounselorPortalPage({
     rows: [],
     totals: { critical: 0, warning: 0, ontrack: 0, total: 0 },
   };
+  let priorityQueueLoadFailed = false;
   try {
     priorityQueue = await getCounselorPriorityQueue(user.id, {
       isAdmin: isAdminUser && !counselor,
     });
   } catch (err) {
+    priorityQueueLoadFailed = true;
     console.error('[counselor] priority queue failed:', err);
   }
 
@@ -267,6 +279,8 @@ export default async function CounselorPortalPage({
 
   return (
     <PortalPageFrame maxWidth="76rem">
+      {commandCenterLoadFailed ? <span hidden data-portal-error-state="counselor-legacy-command-center-load" /> : null}
+      {priorityQueueLoadFailed ? <span hidden data-portal-error-state="counselor-legacy-priority-queue-load" /> : null}
       <h1 className="wa-sr-only">
         {t('counselorDashboard')} — {firstName}
       </h1>

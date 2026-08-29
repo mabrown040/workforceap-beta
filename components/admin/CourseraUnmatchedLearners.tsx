@@ -90,30 +90,16 @@ export default function CourseraUnmatchedLearners({
         }
         const courses = payload?.backfill?.courseRowsUpdated ?? 0;
         const badges = payload?.backfill?.badgeRowsUpdated ?? 0;
-        const xapi = payload?.xapiReplay as
-          | {
-              replayed?: number;
-              breakdown?: { completedOk?: number; errored?: number; ignored?: number; unmatched?: number };
-            }
-          | undefined;
-        const xapiSummary = (() => {
-          if (!xapi || !xapi.replayed) return '';
-          const b = xapi.breakdown;
-          if (!b) return ` Replayed ${xapi.replayed} xAPI event(s).`;
-          const parts: string[] = [];
-          if ((b.completedOk ?? 0) > 0) parts.push(`${b.completedOk} completed`);
-          if ((b.errored ?? 0) > 0) parts.push(`${b.errored} errored`);
-          if ((b.ignored ?? 0) > 0) parts.push(`${b.ignored} progress`);
-          if ((b.unmatched ?? 0) > 0) parts.push(`${b.unmatched} unmatched`);
-          return parts.length
-            ? ` Replayed ${xapi.replayed}: ${parts.join(', ')}.`
-            : ` Replayed ${xapi.replayed} xAPI event(s).`;
-        })();
+        const promoted = payload?.backfill?.promotion?.upserted ?? 0;
+        const unmapped = payload?.backfill?.promotion?.unmapped ?? 0;
+        const unmappedSummary = unmapped > 0
+          ? ` ${unmapped} provider course(s) remain visible as unmapped.`
+          : '';
         setFeedback((prev) => ({
           ...prev,
           [externalEmail]: {
             kind: 'success',
-            text: `Mapped — backfilled ${courses} course row(s), ${badges} badge row(s).${xapiSummary}`,
+            text: `Mapped — linked ${courses} course row(s), ${badges} badge row(s), and promoted ${promoted} canonical course row(s).${unmappedSummary}`,
           },
         }));
         router.refresh();
@@ -142,7 +128,7 @@ export default function CourseraUnmatchedLearners({
       <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera activity not tied to members</h2>
       <p style={{ margin: '0.4rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
         These learners have Coursera CSV progress or unresolved xAPI activity but are not fully bound to a WAP member. Map each to a WAP member
-        — the action creates a <code>coursera_identity_mappings</code> row, backfills CSV rows, and replays unresolved xAPI for that learner.
+        — the action creates a <code>coursera_identity_mappings</code> row and backfills the reviewed organization&apos;s CSV rows. Historical xAPI replay is deferred so mapping cannot trigger old rewards or notifications.
       </p>
 
       <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0, marginTop: '1rem', WebkitOverflowScrolling: 'touch' }}>

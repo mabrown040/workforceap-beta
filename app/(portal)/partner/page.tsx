@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
@@ -50,6 +51,7 @@ import {
   PartnerPayoutLedger,
   type PartnerPayoutLedgerRow,
 } from '@/components/portal/kit/pages/PartnerOverviewKit';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -73,8 +75,9 @@ export default async function PartnerDashboardPage({
   if (!user) redirect('/login?redirectTo=/partner');
 
   const superAdmin = await isSuperAdmin(user.id);
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
-  const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
+  const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin, readOnlyAudit });
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   let partnerRow:
@@ -93,6 +96,7 @@ export default async function PartnerDashboardPage({
         status: string | null;
       }
     | null = null;
+  let partnerSchemaCompatibilityFallback = false;
 
   try {
     partnerRow = await prisma.partner.findUnique({
@@ -121,6 +125,7 @@ export default async function PartnerDashboardPage({
       'code' in error &&
       error.code === 'P2022'
     ) {
+      partnerSchemaCompatibilityFallback = true;
       const fallbackRow = await prisma.partner.findUnique({
         where: { id: ctx.partnerId },
         select: {
@@ -328,6 +333,7 @@ export default async function PartnerDashboardPage({
 
     return (
       <PortalPageFrame maxWidth="80rem">
+        {partnerSchemaCompatibilityFallback ? <span hidden data-portal-error-state="partner-schema-compatibility-fallback" /> : null}
         <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
           <h1 className="wa-sr-only">Partner overview</h1>
           {isPendingApproval && <PendingApprovalBanner />}
@@ -709,6 +715,7 @@ export default async function PartnerDashboardPage({
       tourStorageUserId={user.id}
       showOnboardingWizard={showPartnerOnboarding}
       showTour={showPartnerTour}
+      readOnlyAudit={readOnlyAudit}
       isSuperAdmin={superAdmin}
       tourSteps={PARTNER_PORTAL_TOUR_STEPS}
       wizardProps={{
@@ -721,6 +728,7 @@ export default async function PartnerDashboardPage({
       }}
     >
     <PortalPageFrame maxWidth="80rem">
+      {partnerSchemaCompatibilityFallback ? <span hidden data-portal-error-state="partner-schema-compatibility-fallback" /> : null}
       <h1 className="wa-sr-only">
         {t('partnerOverview')} — {ctx.partner.name}
       </h1>

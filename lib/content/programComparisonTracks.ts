@@ -94,7 +94,7 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
   },
   {
     slug: 'data-analytics-professional-certificate-google',
-    shortName: 'Management & BI',
+    shortName: 'Management Analyst & Business Intelligence Professional Certificate',
     demand: 'Very High',
     certs: 'Google/IBM Management Analysis & BI pathway',
     categoryLabel: 'Cloud & Data',
@@ -102,7 +102,7 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
   },
   {
     slug: 'data-science-professional-certificate-ibm',
-    shortName: 'Database Administration',
+    shortName: 'Database Administrator (DBA) Professional Certificate (IBM)',
     demand: 'Very High',
     certs: 'IBM Database Administration pathway',
     categoryLabel: 'Cloud & Data',
@@ -144,7 +144,7 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
   },
   {
     slug: 'ux-design-professional-certificate-google',
-    shortName: 'UX Design',
+    shortName: 'User Experience & Interface Design Professional Certificate',
     demand: 'High',
     certs: 'Google UX Design',
     categoryLabel: 'Business',

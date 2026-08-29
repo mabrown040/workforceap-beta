@@ -37,9 +37,17 @@ type MappingRow = {
 
 type TenantScopeOptions = {
   organizationId?: string | null;
+  expectedUserId?: string | null;
 };
 
 type CourseraMappingDb = typeof prisma | Prisma.TransactionClient;
+
+type DirectXapiEmailUser = {
+  id: string;
+  email: string;
+  fullName: string;
+  organizationId: string;
+};
 
 let ensureTablesPromise: Promise<void> | null = null;
 
@@ -249,7 +257,7 @@ async function getMappingByActorInOrg(
   const actorIdentifier = normalizeActorValue(identity.actorIdentifier);
   if (!actorIdentifier) return null;
   const actorHomePage = normalizeActorValue(identity.actorHomePage) || '';
-  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, organizationId);
+  const orgFilter = orgScopeSql(Prisma.sql`u.organization_id`, organizationId);
 
   const rows = await prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -270,6 +278,8 @@ async function getMappingByActorInOrg(
     JOIN users u ON u.id = cim.user_id
     WHERE cim.actor_identifier = ${actorIdentifier}
       AND COALESCE(cim.actor_home_page, '') = ${actorHomePage}
+      AND u.deleted_at IS NULL
+      AND cim.organization_id = u.organization_id
       ${orgFilter}
     LIMIT 1
   `;
@@ -287,7 +297,7 @@ async function getMappingByEmailInOrg(
 ): Promise<MappingRow | null> {
   const email = normalizeEmail(identity.email);
   if (!email) return null;
-  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, organizationId);
+  const orgFilter = orgScopeSql(Prisma.sql`u.organization_id`, organizationId);
 
   const rows = await prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -307,11 +317,33 @@ async function getMappingByEmailInOrg(
     FROM coursera_identity_mappings cim
     JOIN users u ON u.id = cim.user_id
     WHERE LOWER(cim.coursera_email) = ${email}
+      AND u.deleted_at IS NULL
+      AND cim.organization_id = u.organization_id
       ${orgFilter}
     LIMIT 1
   `;
 
   return rows[0] ?? null;
+}
+
+async function getDirectXapiEmailUser(
+  identity: XapiIdentity,
+  organizationId: string | null,
+): Promise<DirectXapiEmailUser | null> {
+  const email = normalizeEmail(identity.email);
+  if (!email) return null;
+
+  return prisma.user.findFirst({
+    where: {
+      ...(organizationId ? { organizationId } : {}),
+      deletedAt: null,
+      email: {
+        equals: email,
+        mode: 'insensitive',
+      },
+    },
+    select: { id: true, email: true, fullName: true, organizationId: true },
+  });
 }
 
 export async function resolveXapiUser(
@@ -320,8 +352,29 @@ export async function resolveXapiUser(
 ): Promise<ResolvedXapiUser | null> {
   await ensureCourseraMappingTables();
   const organizationId = normalizeOrganizationId(options.organizationId);
+  const expectedUserId = options.expectedUserId?.trim() || null;
 
   const actorMapping = await getMappingByActorInOrg(identity, organizationId);
+  const emailMapping = await getMappingByEmailInOrg(identity, organizationId);
+  if (actorMapping && emailMapping && actorMapping.userId !== emailMapping.userId) {
+    console.warn('[resolveXapiUser] actor and email mappings resolve to different users');
+    return null;
+  }
+
+  const selectedMapping = actorMapping ?? emailMapping;
+  if (selectedMapping && expectedUserId && selectedMapping.userId !== expectedUserId) {
+    console.warn('[resolveXapiUser] mapped identity does not match expected replay target');
+    return null;
+  }
+
+  const directUser = selectedMapping
+    ? await getDirectXapiEmailUser(identity, organizationId)
+    : null;
+  if (selectedMapping && directUser && directUser.id !== selectedMapping.userId) {
+    console.warn('[resolveXapiUser] explicit mapping conflicts with active portal email owner');
+    return null;
+  }
+
   if (actorMapping) {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
@@ -338,7 +391,6 @@ export async function resolveXapiUser(
     };
   }
 
-  const emailMapping = await getMappingByEmailInOrg(identity, organizationId);
   if (emailMapping) {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
@@ -360,32 +412,33 @@ export async function resolveXapiUser(
 
   // Direct portal email match — no profile/role filter: super_admin and other
   // platform accounts resolve the same way as members for xAPI ingest.
-  const user = await prisma.user.findFirst({
-    where: {
-      ...(organizationId ? { organizationId } : {}),
-      email: {
-        equals: email,
-        mode: 'insensitive',
-      },
-    },
-    select: { id: true, email: true, fullName: true },
-  });
+  const user = await getDirectXapiEmailUser(identity, organizationId);
 
   if (!user) return null;
+  if (expectedUserId && user.id !== expectedUserId) {
+    console.warn('[resolveXapiUser] direct email owner does not match expected replay target');
+    return null;
+  }
 
-  // Auto-save a mapping so future xAPI events resolve via the fast path
+  // Auto-save through the guarded mapping transaction so historical raw rows
+  // are adopted atomically and an existing identity can never be stolen.
   try {
-    await upsertCourseraIdentityMapping({
+    const { mapCourseraIdentityAndProgress } = await import(
+      '@/lib/coursera/mapIdentityAndProgress.server'
+    );
+    await mapCourseraIdentityAndProgress({
       userId: user.id,
+      organizationId: user.organizationId,
       courseraEmail: email,
       actorIdentifier: identity.actorIdentifier ?? null,
       actorHomePage: identity.actorHomePage ?? null,
       source: 'auto-direct-email',
-      expectedOrganizationId: organizationId,
     });
   } catch (mappingError) {
-    // Non-fatal: direct match still works even if mapping save fails
+    // Fail closed: without the guarded mapping/adoption transaction succeeding,
+    // crediting this event could assign an identity owned by another member.
     console.warn('[resolveXapiUser] auto-mapping failed:', mappingError);
+    return null;
   }
 
   return {
@@ -786,10 +839,16 @@ export async function upsertCourseraIdentityMapping(args: {
 
   const user = await db.user.findUnique({
     where: { id: args.userId },
-    select: { id: true, email: true, fullName: true, organizationId: true },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      organizationId: true,
+      deletedAt: true,
+    },
   });
 
-  if (!user) throw new Error('User not found');
+  if (!user || user.deletedAt) throw new Error('Active user not found');
   const expectedOrganizationId = normalizeOrganizationId(args.expectedOrganizationId);
   if (expectedOrganizationId && user.organizationId !== expectedOrganizationId) {
     throw new Error('User is outside your organization');
@@ -798,9 +857,26 @@ export async function upsertCourseraIdentityMapping(args: {
     ? Prisma.sql`AND (organization_id = ${expectedOrganizationId}::text OR organization_id IS NULL)`
     : Prisma.empty;
 
-  const actorMatch = actorIdentifier
+  // A Coursera email that is also an active portal login belongs to that
+  // portal user. Mapping it to anyone else would make B4B/CSV and xAPI choose
+  // different learners, so lock the direct owner and fail closed.
+  const directEmailOwners = courseraEmail
     ? await db.$queryRaw<Array<{ id: string }>>`
-        SELECT id
+        SELECT direct_user.id
+        FROM users AS direct_user
+        WHERE direct_user.deleted_at IS NULL
+          AND LOWER(direct_user.email) = ${courseraEmail}::text
+        ORDER BY direct_user.id
+        FOR SHARE
+      `
+    : [];
+  if (directEmailOwners.some((directUser) => directUser.id !== args.userId)) {
+    throw new Error('Coursera email belongs to a different active WAP user');
+  }
+
+  const actorMatch = actorIdentifier
+    ? await db.$queryRaw<Array<{ id: string; userId: string }>>`
+        SELECT id, user_id AS "userId"
         FROM coursera_identity_mappings
         WHERE actor_identifier = ${actorIdentifier}::text
           AND COALESCE(actor_home_page, '') = COALESCE(${actorHomePage}::text, '')
@@ -810,8 +886,8 @@ export async function upsertCourseraIdentityMapping(args: {
     : [];
 
   const emailMatch = !actorMatch[0] && courseraEmail
-    ? await db.$queryRaw<Array<{ id: string }>>`
-        SELECT id
+    ? await db.$queryRaw<Array<{ id: string; userId: string }>>`
+        SELECT id, user_id AS "userId"
         FROM coursera_identity_mappings
         WHERE LOWER(coursera_email) = ${courseraEmail}::text
           ${expectedOrgFilter}
@@ -819,10 +895,15 @@ export async function upsertCourseraIdentityMapping(args: {
       `
     : [];
 
-  const existingId = actorMatch[0]?.id || emailMatch[0]?.id || null;
+  const existingMatch = actorMatch[0] ?? emailMatch[0] ?? null;
+  const existingId = existingMatch?.id ?? null;
+
+  if (existingMatch && existingMatch.userId !== args.userId) {
+    throw new Error('Coursera identity is already mapped to a different WAP user');
+  }
 
   if (existingId) {
-    await db.$executeRaw`
+    const updated = await db.$queryRaw<Array<{ id: string }>>`
       UPDATE coursera_identity_mappings
       SET
         user_id = ${args.userId}::text,
@@ -836,7 +917,18 @@ export async function upsertCourseraIdentityMapping(args: {
         updated_at = now(),
         last_seen_at = COALESCE(last_seen_at, now())
       WHERE id = ${existingId}::uuid
+        AND user_id = ${args.userId}::text
+        AND (
+          NULLIF(organization_id, '') IS NULL
+          OR organization_id = ${user.organizationId}::text
+        )
+      RETURNING id
     `;
+    if (updated.length !== 1) {
+      throw new Error(
+        'Coursera identity is already linked to a different WAP user or organization',
+      );
+    }
   } else {
     await db.$executeRaw`
       INSERT INTO coursera_identity_mappings (

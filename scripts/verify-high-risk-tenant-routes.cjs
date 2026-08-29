@@ -30,6 +30,14 @@ function assertContains(rel, needles, label) {
   }
 }
 
+/** @param {string} rel @param {RegExp} pattern */
+function assertMatches(rel, pattern, label) {
+  const src = read(rel);
+  if (!pattern.test(src)) {
+    fail(`${rel} missing required structure for ${label}: expected ${pattern}`);
+  }
+}
+
 assertContains(
   'app/api/admin/members/route.ts',
   ['getActorOrganizationId', 'withTenantScope'],
@@ -42,11 +50,12 @@ assertContains(
   'admin metrics API (per-org cache + scoped compute)',
 );
 
-assertContains(
+assertMatches(
   'lib/admin/metrics.ts',
-  ['export async function getAdminMetrics(orgId: string)', 'memberInOrg'],
-  'scoped getAdminMetrics',
+  /export\s+async\s+function\s+getAdminMetrics\s*\(\s*orgId:\s*string,\s*opts:\s*\{\s*readOnlyAudit\?:\s*boolean\s*\}\s*=\s*\{\s*\},?\s*\)/,
+  'scoped getAdminMetrics signature',
 );
+assertContains('lib/admin/metrics.ts', ['memberInOrg'], 'scoped getAdminMetrics query');
 
 assertContains(
   'app/api/counselor/inactive-members/route.ts',

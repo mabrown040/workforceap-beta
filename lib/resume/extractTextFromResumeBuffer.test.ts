@@ -7,12 +7,44 @@ import { dirname, join } from 'node:path';
 import { clampElevenLabsDynamicVariables } from '@/lib/ai/clampElevenLabsDynamicVariables';
 import { extractTextFromResumeBuffer } from './extractTextFromResumeBuffer';
 import { isUnsafeResumePlainText, sanitizeResumePlainText } from './extractionQuality';
+import { validateFileType } from './file-validation';
 
 const require = createRequire(import.meta.url);
 
 async function mammothDocxFixture(): Promise<Buffer> {
   const packagePath = require.resolve('mammoth/package.json');
   return readFile(join(dirname(packagePath), 'test', 'test-data', 'single-paragraph.docx'));
+}
+
+async function compressedDocx(documentXml: string): Promise<Buffer> {
+  const mammothPackagePath = require.resolve('mammoth/package.json');
+  const jsZipPath = require.resolve('jszip', { paths: [dirname(mammothPackagePath)] });
+  const JSZip = require(jsZipPath) as new () => {
+    file(name: string, value: string): void;
+    generateAsync(options: unknown): Promise<Buffer>;
+  };
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>');
+  zip.file('word/document.xml', documentXml);
+  return zip.generateAsync({
+    type: 'nodebuffer',
+    compression: 'DEFLATE',
+    compressionOptions: { level: 9 },
+  });
+}
+
+function forgeCentralUncompressedSize(buffer: Buffer, entryName: string, size: number): Buffer {
+  const copy = Buffer.from(buffer);
+  for (let cursor = 0; cursor <= copy.length - 46; cursor += 1) {
+    if (copy.readUInt32LE(cursor) !== 0x02014b50) continue;
+    const nameLength = copy.readUInt16LE(cursor + 28);
+    const name = copy.subarray(cursor + 46, cursor + 46 + nameLength).toString('utf8');
+    if (name === entryName) {
+      copy.writeUInt32LE(size, cursor + 24);
+      return copy;
+    }
+  }
+  throw new Error(`Missing ZIP entry: ${entryName}`);
 }
 
 test('extractTextFromResumeBuffer: UTF-8 .txt', async () => {
@@ -68,6 +100,12 @@ test('resume text safety guard rejects containers, parser output, and agent plac
   assert.equal(isUnsafeResumePlainText(zipContainer), true);
   assert.equal(sanitizeResumePlainText('Candidate: {{member_full_name}}\nExperience'), '');
   assert.equal(
+    sanitizeResumePlainText(
+      'Given the provided information, the "base resume to improve" is a raw PDF stream that cannot be parsed for text content. Therefore, the enhanced resume will focus on contact information only.',
+    ),
+    '',
+  );
+  assert.equal(
     sanitizeResumePlainText('Jane Doe\r\nExperience\r\nStreamlined PDF workflows for staff.'),
     'Jane Doe\nExperience\nStreamlined PDF workflows for staff.',
   );
@@ -91,6 +129,38 @@ test('ElevenLabs boundary drops poisoned resume variables and reconciles has_res
   const valid = clampElevenLabsDynamicVariables({ resume_text: validResume, has_resume: true });
   assert.equal(valid.resume_text, validResume);
   assert.equal(valid.has_resume, 'true');
+
+  const short = clampElevenLabsDynamicVariables({ resume_text: 'x'.repeat(39), has_resume: true });
+  const boundary = clampElevenLabsDynamicVariables({ resume_text: 'x'.repeat(40), has_resume: true });
+  assert.equal(short.has_resume, 'false');
+  assert.equal(boundary.has_resume, 'true');
+});
+
+test('DOCX extraction hard-stops actual inflation when central sizes are forged', async () => {
+  const xml = `<w:document xmlns:w="urn:test"><w:body><w:p><w:r><w:t>${'A'.repeat(9 * 1024 * 1024)}</w:t></w:r></w:p></w:body></w:document>`;
+  const forged = forgeCentralUncompressedSize(
+    await compressedDocx(xml),
+    'word/document.xml',
+    1024,
+  );
+  assert.equal(validateFileType(forged, 'application/zip', 'forged.docx'), true);
+  await assert.rejects(
+    () => extractTextFromResumeBuffer(forged, 'docx'),
+    (error: unknown) => error instanceof Error && 'code' in error
+      && (error as { code: string }).code === 'unsafe_extraction',
+  );
+});
+
+test('DOCX XML token floods and unmatched text tags fail closed in bounded work', async () => {
+  const flooded = await compressedDocx(
+    `<w:document xmlns:w="urn:test"><w:body>${'<w:t></w:t>'.repeat(100_001)}</w:body></w:document>`,
+  );
+  await assert.rejects(() => extractTextFromResumeBuffer(flooded, 'docx'));
+
+  const unmatched = await compressedDocx(
+    `<w:document xmlns:w="urn:test"><w:body>${'<w:t>'.repeat(50_000)}</w:body></w:document>`,
+  );
+  await assert.rejects(() => extractTextFromResumeBuffer(unmatched, 'docx'));
 });
 
 test('plain-text save route rejects poisoned resume data before storage', async () => {
@@ -99,10 +169,12 @@ test('plain-text save route rejects poisoned resume data before storage', async 
     'utf-8',
   );
   const sanitizeIndex = route.indexOf('sanitizeResumePlainText(raw)');
-  const rejectionIndex = route.indexOf('if (raw.trim() && !safeText)');
-  const uploadIndex = route.indexOf('.upload(path, plainText');
+  const rejectionIndex = route.indexOf('if (!hasSubstantiveResumeText(plainText))');
+  const uploadIndex = route.indexOf('await saveEnhancedResumeText(user.id, plainText, expectedPaths)');
 
   assert.ok(sanitizeIndex >= 0);
   assert.ok(rejectionIndex > sanitizeIndex);
   assert.ok(uploadIndex > rejectionIndex);
+  assert.match(route, /body\.resumeRevision !== currentRevision/);
+  assert.match(route, /resumeOriginalPath:\s*profile\?\.resumeOriginalPath \?\? null/);
 });

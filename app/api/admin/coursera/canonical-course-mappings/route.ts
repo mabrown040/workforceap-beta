@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -17,6 +18,7 @@ async function requireAdminUser() {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const organizationId = await getActorOrganizationId(user.id);
 
   let body: unknown;
   try {
@@ -92,7 +94,7 @@ async function requireAdminUser() {
   // import or B4B refresh — admins expect the dashboard to update right
   // after they hit "Save mapping".
   const affectedUsers = await prisma.$transaction((tx) => tx.courseraCourseProgress.findMany({
-    where: { courseraCourseId, userId: { not: null } },
+    where: { courseraCourseId, organizationId, userId: { not: null } },
     select: { userId: true },
     distinct: ['userId'],
     take: 100,
@@ -100,7 +102,7 @@ async function requireAdminUser() {
   let promoted = 0;
   for (const { userId } of affectedUsers) {
     if (!userId) continue;
-    const result = await promoteCsvProgressToCanonical({ userId });
+    const result = await promoteCsvProgressToCanonical({ organizationId, userId });
     promoted += result.upserted;
   }
 

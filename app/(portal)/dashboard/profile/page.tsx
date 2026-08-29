@@ -3,12 +3,13 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import type { Prisma } from "@prisma/client";
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/db/prisma";
 import { getProgramBySlug } from "@/lib/content/programs";
-import { getScoreBreakdownSafe } from "@/lib/readiness/score";
+import { getScoreBreakdownSafeResult } from "@/lib/readiness/score";
 // Use the client-safe questions file. This page doesn't need the answer
 // key (only renders question text + member's recorded answer), so we
 // avoid pulling the server-only answer-key module into this server
@@ -31,6 +32,7 @@ import {
   getStarterProfileFieldLabels,
 } from "@/lib/member/starterProfileReview";
 import { MemberProfileKit } from "@/components/portal/kit/pages/member/MemberProfileKit";
+import { isReadOnlyPortalAuditHeader } from "@/lib/audit/readOnlyPortalAudit";
 
 const chunkLoadingCard = (
   label: string,
@@ -77,6 +79,7 @@ export default async function DashboardProfilePage({
 }) {
   const user = await getUser();
   if (!user) redirect("/login?redirectTo=/dashboard/profile");
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === "string" ? params.ui : null;
@@ -136,6 +139,7 @@ export default async function DashboardProfilePage({
   };
 
   let dbUser: DashboardProfileUser | DashboardProfileUserFallback | null = null;
+  let profileLoadFailed = false;
 
   try {
     dbUser = await prisma.user.findUnique({
@@ -143,6 +147,7 @@ export default async function DashboardProfilePage({
       select: userSelect,
     });
   } catch (error) {
+    profileLoadFailed = true;
     console.error(
       "[dashboard/profile] user+profile query failed, retrying without profile relation:",
       error,
@@ -201,7 +206,7 @@ export default async function DashboardProfilePage({
     : "??";
 
   // Single source of truth: getMemberState returns consistent profile % across all surfaces.
-  const memberState = await getMemberState(user.id);
+  const memberState = await getMemberState(user.id, { readOnlyAudit });
   const profilePct = memberState.profileCompletenessPct;
   const completeness = profilePct;
   const witData = {
@@ -248,14 +253,15 @@ export default async function DashboardProfilePage({
     //   • Daily streak    → MemberPoints.currentStreak (single denormalized row).
     // Each badge is only shown when its value is meaningful (> 0), so a brand-new
     // member with no signal doesn't see "0 Certs / 0 Readiness / 0-day streak".
-    const [certCount, readinessBreakdown, pointsRow] = await Promise.all([
+    const [certCount, readinessResult, pointsRow] = await Promise.all([
       prisma.userCertification.count({ where: { userId: user.id } }),
-      getScoreBreakdownSafe(user.id),
+      getScoreBreakdownSafeResult(user.id),
       prisma.memberPoints.findUnique({
         where: { userId: user.id },
         select: { currentStreak: true },
       }),
     ]);
+    const readinessBreakdown = readinessResult.breakdown;
     const readinessScore = Math.min(
       100,
       Object.values(readinessBreakdown).reduce((sum, b) => sum + b.earned, 0),
@@ -286,7 +292,15 @@ export default async function DashboardProfilePage({
     }
 
     return (
-      <MemberProfileKit
+      <>
+        {profileLoadFailed ? <span hidden data-portal-error-state="member-profile-load" /> : null}
+        {readinessResult.loadFailed ? (
+          <span hidden data-portal-error-state="member-profile-readiness-load" />
+        ) : null}
+        {readOnlyAudit && (
+          <span hidden data-portal-audit-suppressed="resume-storage-provider-and-member-state-cache" />
+        )}
+        <MemberProfileKit
         live
         name={dbUser.fullName ?? ""}
         initials={initials}
@@ -324,12 +338,17 @@ export default async function DashboardProfilePage({
           barrierTypes: dbUser.profile?.barrierTypes ?? [],
           employmentStatusAtEnroll: dbUser.profile?.employmentStatusAtEnroll ?? null,
         }}
-      />
+        />
+      </>
     );
   }
 
   return (
     <>
+      {profileLoadFailed ? <span hidden data-portal-error-state="member-profile-load" /> : null}
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="resume-storage-provider-and-member-state-cache" />
+      )}
       <h1 className="wa-sr-only">My Profile</h1>
       <div className="portal-profile-page" style={{ paddingBottom: "2rem" }}>
         {/* Profile hero banner */}

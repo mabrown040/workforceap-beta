@@ -34,6 +34,8 @@ type CourseraProgressCardProps = {
    * from the rows otherwise loaded.
    */
   programSlug?: string;
+  /** Suppress Coursera/Redis provider calls during authenticated release audits. */
+  readOnlyAudit?: boolean;
 };
 
 function slugToDiscoveredCourse(slug: string, programSlug: string | null) {
@@ -60,6 +62,7 @@ export default async function CourseraProgressCard({
   userId,
   launchHref = '/api/member/coursera/launch',
   programSlug,
+  readOnlyAudit = false,
 }: CourseraProgressCardProps) {
   const [csvRows, canonicalRows, progressUser] = await Promise.all([
     prisma.courseraCourseProgress.findMany({
@@ -97,7 +100,7 @@ export default async function CourseraProgressCard({
 
   let b4bProgress: LearnerProgressByContent = new Map();
   const learnerEmail = progressUser?.email?.trim();
-  if (learnerEmail) {
+  if (learnerEmail && !readOnlyAudit) {
     b4bProgress = await fetchLearnerProgressFromB4B(learnerEmail, {
       programId: courseraProgramId,
     }).catch((err: unknown) => {
@@ -114,7 +117,9 @@ export default async function CourseraProgressCard({
   // when no enrollment has been recorded yet.
   const primaryProgramSlug =
     programSlug ?? csvRows[0]?.programSlug ?? canonicalRows[0]?.programSlug ?? null;
-  const programHomeUrl: string | null = primaryProgramSlug
+  const programHomeUrl: string | null = readOnlyAudit
+    ? null
+    : primaryProgramSlug
     ? await getOrgScopedProgramUrl(primaryProgramSlug)
     : (getCourseraConfig().programHomeUrl || null);
 
@@ -150,7 +155,7 @@ export default async function CourseraProgressCard({
         isCompleted: locallyCompleted || b4b?.isCompleted === true,
         certificateUrl: row.certificateUrl ?? null,
         lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
-        viewUrl: row.programSlug
+        viewUrl: !readOnlyAudit && row.programSlug
           ? await getOrgScopedCourseUrl(
               row.programSlug,
               row.courseraCourseId,
@@ -179,8 +184,9 @@ export default async function CourseraProgressCard({
     const locallyCompleted = c.status === 'COMPLETED';
     const overallProgress =
       locallyCompleted || b4b?.isCompleted ? 100 : b4b != null ? b4b.overallProgress : localPct;
-    const viewUrl =
-      c.programSlug && discovered?.courseId
+    const viewUrl = readOnlyAudit
+      ? null
+      : c.programSlug && discovered?.courseId
         ? await getOrgScopedCourseUrl(c.programSlug, discovered.courseId, discovered.slug)
         : c.programSlug
           ? await getOrgScopedProgramUrl(c.programSlug)
@@ -211,10 +217,15 @@ export default async function CourseraProgressCard({
   });
 
   return (
-    <CourseraProgressCardView
-      rows={viewRows}
-      programHomeUrl={programHomeUrl}
-      launchUrl={launchHref}
-    />
+    <>
+      {readOnlyAudit && (
+        <span hidden data-portal-audit-suppressed="coursera-progress-provider-and-cache" />
+      )}
+      <CourseraProgressCardView
+        rows={viewRows}
+        programHomeUrl={programHomeUrl}
+        launchUrl={launchHref}
+      />
+    </>
   );
 }

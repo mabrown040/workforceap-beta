@@ -110,6 +110,9 @@ export default async function AdminSubgroupsPage({
 
   return (
     <DesignSurface surface="dense">
+      {totalResult.status === 'rejected' || memberAggResult.status === 'rejected' ? (
+        <span hidden data-portal-error-state="admin-subgroups-aggregate-load" />
+      ) : null}
       <SubgroupsDirectoryKit
         subgroups={subgroups}
         totalSubgroups={totalSubgroups}

@@ -46,12 +46,17 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        return (
+          <div data-portal-error-state="component-boundary" style={{ display: 'contents' }}>
+            {this.props.fallback}
+          </div>
+        );
       }
 
       return (
         <div
           className="portal-card portal-card--flat"
+          data-portal-error-state="component-boundary"
           style={{
             maxWidth: 520,
             margin: '1.5rem auto',

@@ -8,10 +8,23 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { getSupabaseEnv } from '@/lib/supabase/env';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async (request: Request) => {
   try {
+  if (isReadOnlyPortalAuditHeader(request.headers)) {
+    return NextResponse.json({
+      mfaRequired: false,
+      mfaEnforcement: true,
+      currentAal: 'audit-suppressed',
+      nextAal: 'audit-suppressed',
+      auditSuppressed: true,
+    }, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
+
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkAuthRateLimit(`check-mfa-required:${ip}`);
   if (!withinLimit) {

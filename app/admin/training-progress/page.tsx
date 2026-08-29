@@ -1,14 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
+import { ADMIN_SSR_LIST_CAP, showingFirstLabel } from '@/lib/db/queryCaps';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 import { parseCourseGradeString, scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
+import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { humanizeCourseraCourseTitle } from '@/lib/coursera/courseTitle';
-import { loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
+import { countUnmatchedLearners, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
+import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
@@ -44,6 +50,7 @@ export default async function AdminTrainingProgressPage({
   if (!user) redirect('/login?redirectTo=/admin/training-progress');
   const scope = await resolveAdminPageTenant(user.id);
   if (!scope.ok) redirect('/dashboard');
+  const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
@@ -56,41 +63,56 @@ export default async function AdminTrainingProgressPage({
   // ─── DEFAULT: lean per-learner pace roster (design kit) ───
   // One pass over members + their primary enrollment + canonical course
   // progress. All lean (findMany take:N / count); no $transaction, no HTTP.
-  const [learnersResult, enrollmentsResult, progressResult] = await Promise.allSettled([
-    withAdminPageScope(scope, (db) => db.user.findMany({
-      take: 5000,
-      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-      orderBy: [{ fullName: 'asc' }],
-      select: { id: true, fullName: true, enrolledProgram: true },
-    })),
+  let learners: Array<{
+    id: string;
+    fullName: string | null;
+    enrolledProgram: string | null;
+  }>;
+  let learnerTotal = 0;
+  try {
+    [learners, learnerTotal] = await Promise.all([
+      withAdminPageScope(scope, (db) => db.user.findMany({
+        take: ADMIN_SSR_LIST_CAP,
+        where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+        orderBy: [{ fullName: 'asc' }],
+        select: { id: true, fullName: true, enrolledProgram: true },
+      })),
+      withAdminPageScope(scope, (db) => db.user.count({
+        where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+      })),
+    ]);
+  } catch (error) {
+    console.error('[admin/training-progress] learner load failed', error);
+    redirect('/admin/training-progress?ui=legacy');
+  }
+
+  // Resolve the tenant-owned learner set before loading progress. A global
+  // take cap is not a tenant boundary: another organization's rows could
+  // otherwise consume the cap or appear in this admin roster.
+  const learnerIds = learners.map((learner) => learner.id);
+  const [enrollmentsResult, progressResult] = await Promise.allSettled([
     // Primary program per learner drives the single pace row we show.
     withAdminPageScope(scope, (db) => db.courseEnrollment.findMany({
-      take: 5000,
-      where: { isPrimary: true },
+      where: { isPrimary: true, userId: { in: learnerIds } },
       select: { userId: true, programSlug: true },
     })),
     prisma.courseProgress.findMany({
-      take: 20000,
+      where: { userId: { in: learnerIds } },
       select: {
         userId: true,
         programSlug: true,
         courseSlug: true,
+        courseId: true,
         status: true,
         percentComplete: true,
         scoreScaled: true,
         lastActivityAt: true,
+        lastUpdatedAt: true,
       },
     }),
   ]);
 
-  // If we can't load learners we degrade to the proven legacy view rather than
-  // render a fake/empty kit.
-  if (learnersResult.status === 'rejected') {
-    console.error('[admin/training-progress] learner load failed', learnersResult.reason);
-    redirect('/admin/training-progress?ui=legacy');
-  }
-
-  const learners = learnersResult.value;
+  let trainingSecondaryLoadFailed = false;
 
   // Primary program per learner (falls back to legacy User.enrolledProgram
   // when no CourseEnrollment row exists yet — e.g. seeded users).
@@ -100,32 +122,61 @@ export default async function AdminTrainingProgressPage({
       if (!primaryByUser.has(e.userId)) primaryByUser.set(e.userId, e.programSlug);
     }
   } else {
+    trainingSecondaryLoadFailed = true;
     console.error(
       '[admin/training-progress] enrollment load failed',
       enrollmentsResult.reason,
     );
   }
 
-  // Progress keyed by user+program+course; tracks the most recent activity per
-  // (user, program) for the Stalled heuristic.
-  const progressByKey = new Map<
-    string,
-    { status: string; percentComplete: number }
-  >();
+  // Canonical program buckets feed the same reconciliation helper used by
+  // the member portal. Missing joins remain observable facts instead of an
+  // inline `?? 0` shortcut with a different formula.
+  type AdminLocalProgressRow = {
+    courseSlug: string;
+    courseId: string | null;
+    status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+    percentComplete: number;
+  };
+  const progressByUserProgram = new Map<string, AdminLocalProgressRow[]>();
   const lastActivityByUserProgram = new Map<string, Date>();
+  const inferredProgramByUser = new Map<
+    string,
+    { programSlug: string; activityMs: number; percentComplete: number }
+  >();
   const gradeByUserId = new Map<string, number>();
   if (progressResult.status === 'fulfilled') {
     for (const p of progressResult.value) {
-      progressByKey.set(`${p.userId}:${p.programSlug}:${p.courseSlug}`, {
+      const canonicalProgramSlug =
+        getProgramBySlug(p.programSlug)?.slug ?? canonicalizeProgramSlug(p.programSlug);
+      const userProgramKey = `${p.userId}:${canonicalProgramSlug}`;
+      const bucket = progressByUserProgram.get(userProgramKey) ?? [];
+      bucket.push({
+        courseSlug: p.courseSlug,
+        courseId: p.courseId,
         status: p.status,
         percentComplete: p.percentComplete,
       });
-      if (p.lastActivityAt) {
-        const upKey = `${p.userId}:${p.programSlug}`;
-        const cur = lastActivityByUserProgram.get(upKey);
-        if (!cur || p.lastActivityAt > cur) {
-          lastActivityByUserProgram.set(upKey, p.lastActivityAt);
+      progressByUserProgram.set(userProgramKey, bucket);
+      const activityAt = p.lastActivityAt ?? p.lastUpdatedAt;
+      if (activityAt) {
+        const cur = lastActivityByUserProgram.get(userProgramKey);
+        if (!cur || activityAt > cur) {
+          lastActivityByUserProgram.set(userProgramKey, activityAt);
         }
+      }
+      const inferred = inferredProgramByUser.get(p.userId);
+      const activityMs = activityAt?.getTime() ?? 0;
+      if (
+        !inferred ||
+        activityMs > inferred.activityMs ||
+        (activityMs === inferred.activityMs && p.percentComplete > inferred.percentComplete)
+      ) {
+        inferredProgramByUser.set(p.userId, {
+          programSlug: canonicalProgramSlug,
+          activityMs,
+          percentComplete: p.percentComplete,
+        });
       }
       if (!gradeByUserId.has(p.userId)) {
         const pct = scoreScaledToDisplayPercent(p.scoreScaled);
@@ -133,11 +184,40 @@ export default async function AdminTrainingProgressPage({
       }
     }
   } else {
+    trainingSecondaryLoadFailed = true;
     console.error(
       '[admin/training-progress] progress load failed',
       progressResult.reason,
     );
   }
+
+  const programSlugs = Array.from(
+    new Set(
+      learners
+        .map(
+          (learner) =>
+            primaryByUser.get(learner.id) ??
+            learner.enrolledProgram ??
+            inferredProgramByUser.get(learner.id)?.programSlug,
+        )
+        .filter((value): value is string => Boolean(value))
+        .map((programSlug) => getProgramBySlug(programSlug)?.slug)
+        .filter((programSlug): programSlug is string => Boolean(programSlug)),
+    ),
+  );
+  const validatedCourseLists = new Map(
+    await Promise.all(
+      programSlugs.map(async (programSlug) => {
+        const result = await loadValidatedProgramCourses({
+          organizationId: scope.orgId,
+          programSlug,
+          readOnlyAudit,
+          checkB4BContents: false,
+        });
+        return [programSlug, result.courses] as const;
+      }),
+    ),
+  );
 
   const idleCutoff = new Date();
   idleCutoff.setDate(idleCutoff.getDate() - STALLED_IDLE_DAYS);
@@ -159,32 +239,31 @@ export default async function AdminTrainingProgressPage({
 
   const rows: TrainingRow[] = [];
   for (const learner of learners) {
-    const programSlug = primaryByUser.get(learner.id) ?? learner.enrolledProgram;
-    if (!programSlug) continue; // not enrolled in anything we can chart
-    const program = getProgramBySlug(programSlug);
+    const storedProgramSlug = primaryByUser.get(learner.id) ?? learner.enrolledProgram;
+    const inferredProgramSlug = inferredProgramByUser.get(learner.id)?.programSlug;
+    const displayProgramSlug = storedProgramSlug ?? inferredProgramSlug;
+    if (!displayProgramSlug) continue;
+    const program = getProgramBySlug(displayProgramSlug);
     if (!program || program.courses.length === 0) continue;
-
-    const total = program.courses.length;
-    let done = 0;
-    let percentSum = 0;
-    for (const course of program.courses) {
-      const prog = progressByKey.get(`${learner.id}:${programSlug}:${course.slug}`);
-      if (prog?.status === 'COMPLETED') done += 1;
-      percentSum += prog?.percentComplete ?? 0;
-    }
-    const percentComplete = Math.round(percentSum / total);
-
+    const programSlug = program.slug;
+    const validatedCourses = validatedCourseLists.get(programSlug) ?? program.courses;
+    const reconciliation = reconcileProgramProgress({
+      validatedCourses,
+      localRows: progressByUserProgram.get(`${learner.id}:${programSlug}`) ?? [],
+    });
+    const percentComplete = reconciliation.programPercent;
     const lastActivity = lastActivityByUserProgram.get(`${learner.id}:${programSlug}`);
 
     rows.push({
       id: `${learner.id}:${programSlug}`,
       student: learner.fullName?.trim() || 'Unnamed learner',
       program: program.title,
-      modulesDone: done,
-      modulesTotal: total,
+      modulesDone: reconciliation.completedCount,
+      modulesTotal: reconciliation.totalCourses,
       percentComplete,
       pace: derivePace(percentComplete, lastActivity),
       inWap: true,
+      noProgram: !storedProgramSlug,
       courseraGrade: gradeByUserId.get(learner.id) ?? null,
     });
   }
@@ -192,21 +271,35 @@ export default async function AdminTrainingProgressPage({
   // Sort most-complete first so the live, healthy learners lead.
   rows.sort((a, b) => b.percentComplete - a.percentComplete);
 
-  const unmatchedLearners = await loadUnmatchedLearners(scope.orgId, 2000, {
-    includeTestAccounts: false,
-  }).catch((reason: unknown) => {
-    console.error('[admin/training-progress] unmatched Coursera learners failed', reason);
-    return [];
-  });
+  const [unmatchedLearners, unmatchedLearnerTotal] = await Promise.all([
+    loadUnmatchedLearners(scope.orgId, ADMIN_SSR_LIST_CAP, {
+      includeTestAccounts: false,
+    }).catch((reason: unknown) => {
+      trainingSecondaryLoadFailed = true;
+      console.error('[admin/training-progress] unmatched Coursera learners failed', reason);
+      return [];
+    }),
+    countUnmatchedLearners(scope.orgId, { includeTestAccounts: false }).catch(
+      (reason: unknown) => {
+        trainingSecondaryLoadFailed = true;
+        console.error('[admin/training-progress] unmatched Coursera count failed', reason);
+        return 0;
+      },
+    ),
+  ]);
   for (const learner of unmatchedLearners) {
+    const lastActivity = learner.lastActivityTime
+      ? new Date(learner.lastActivityTime)
+      : undefined;
+    const percentComplete = learner.averageProgressPercent;
     rows.push({
       id: `coursera:${learner.externalEmail}`,
       student: learner.externalName?.trim() || learner.externalEmail,
-      program: 'Coursera (not in WAP)',
-      modulesDone: 0,
+      program: 'Coursera activity',
+      modulesDone: learner.completedCourseCount,
       modulesTotal: learner.courseCount || 0,
-      percentComplete: Math.round(learner.latestProgressPercent || 0),
-      pace: 'Stalled',
+      percentComplete,
+      pace: derivePace(percentComplete, lastActivity),
       inWap: false,
       courseraGrade: learner.latestGradePercent,
     });
@@ -221,36 +314,53 @@ export default async function AdminTrainingProgressPage({
       : 0;
 
   return (
-    <TrainingProgressKit
-      rows={rows}
-      onTrack={onTrack}
-      behind={behind}
-      stalled={stalled}
-      avgPercent={avgPercent}
-    />
+    <>
+      {trainingSecondaryLoadFailed ? (
+        <span hidden data-portal-error-state="admin-training-progress-secondary-load" />
+      ) : null}
+      <TrainingProgressKit
+        rows={rows}
+        onTrack={onTrack}
+        behind={behind}
+        stalled={stalled}
+        avgPercent={avgPercent}
+        showingLabel={[
+          showingFirstLabel(learners.length, learnerTotal, 'member records'),
+          showingFirstLabel(
+            unmatchedLearners.length,
+            unmatchedLearnerTotal,
+            'unmatched Coursera learners',
+          ),
+        ].join(' · ')}
+      />
+    </>
   );
 }
 
 /** Original sortable dual-table view (canonical curriculum + raw Coursera). */
 async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPageTenantOk) {
-  const learners = await withAdminPageScope(scope, (db) => db.user.findMany({
-    take: 5000,
-    where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-    orderBy: [{ fullName: 'asc' }],
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      enrolledProgram: true,
-      profile: { select: { role: true } },
-    },
-  }));
+  const [learners, learnerTotal] = await Promise.all([
+    withAdminPageScope(scope, (db) => db.user.findMany({
+      take: ADMIN_SSR_LIST_CAP,
+      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+      orderBy: [{ fullName: 'asc' }],
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        enrolledProgram: true,
+        profile: { select: { role: true } },
+      },
+    })),
+    withAdminPageScope(scope, (db) => db.user.count({
+      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+    })),
+  ]);
 
   const learnerIds = learners.map((l) => l.id);
 
-  const [canonicalProgressRows, rawCourseraRows, dbMappings, courseEnrollmentRows] = await Promise.all([
+  const [canonicalProgressRows, rawCourseraRows, rawCourseraTotal, courseEnrollmentRows] = await Promise.all([
     prisma.courseProgress.findMany({
-      take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
         userId: true,
@@ -265,12 +375,14 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
       },
     }),
     prisma.courseraCourseProgress.findMany({
-      take: 5000,
-      // Intentionally NOT filtered by `userId in learnerIds`. We want to
-      // surface every Coursera enrollment the org has — including rows whose
+      take: ADMIN_SSR_LIST_CAP,
+      // Intentionally not filtered only by `userId in learnerIds`: we want to
+      // surface every Coursera enrollment in this tenant — including rows whose
       // courseraEmail never matched a WAP user. Those orphans are exactly the
       // ones an admin needs to reconcile (matching `/admin/coursera`'s
-      // unmatched-learners panel). The UI flags them as `(unmapped user)`.
+      // unmatched-learners panel). The organization predicate is mandatory;
+      // raw rows contain learner PII and must never cross tenant boundaries.
+      where: { organizationId: scope.orgId },
       orderBy: [{ lastActivityTime: 'desc' }],
       select: {
         userId: true,
@@ -291,20 +403,14 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
         completionTime: true,
       },
     }),
-    prisma.courseraCanonicalCourseMapping.findMany({
-      take: 5000,
-      select: {
-        courseraCourseId: true,
-        canonicalProgramSlug: true,
-        canonicalCourseSlug: true,
-      },
+    prisma.courseraCourseProgress.count({
+      where: { organizationId: scope.orgId },
     }),
     // Multi-program: drive the curriculum view from EVERY enrollment row
     // (primary + secondary), not just `User.enrolledProgram`. The legacy
     // single-program field stays as a fallback below for users without any
     // CourseEnrollment rows yet (seeded test users).
     withAdminPageScope(scope, (db) => db.courseEnrollment.findMany({
-      take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
         userId: true,
@@ -314,13 +420,56 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
     })),
   ]);
 
+  const rawCourseraIds = Array.from(
+    new Set(rawCourseraRows.map((row) => row.courseraCourseId).filter(Boolean)),
+  );
+  const dbMappings = rawCourseraIds.length > 0
+    ? await prisma.courseraCanonicalCourseMapping.findMany({
+        where: { courseraCourseId: { in: rawCourseraIds } },
+        select: {
+          courseraCourseId: true,
+          canonicalProgramSlug: true,
+          canonicalCourseSlug: true,
+        },
+      })
+    : [];
+
   const dbMappingByCourseraId = new Map(
     dbMappings.map((m) => [m.courseraCourseId, m]),
   );
 
-  const canonicalByKey = new Map(
-    canonicalProgressRows.map((r) => [`${r.userId}:${r.programSlug}:${r.courseSlug}`, r]),
-  );
+  const canonicalByKey = new Map<string, (typeof canonicalProgressRows)[number]>();
+  const statusRank = { NOT_STARTED: 0, IN_PROGRESS: 1, COMPLETED: 2 } as const;
+  for (const row of canonicalProgressRows) {
+    const canonicalProgramSlug = canonicalizeProgramSlug(row.programSlug);
+    const key = `${row.userId}:${canonicalProgramSlug}:${row.courseSlug}`;
+    const current = canonicalByKey.get(key);
+    if (!current) {
+      canonicalByKey.set(key, row);
+      continue;
+    }
+    const status = statusRank[current.status] >= statusRank[row.status]
+      ? current.status
+      : row.status;
+    const stronger = statusRank[current.status] >= statusRank[row.status] ? current : row;
+    canonicalByKey.set(key, {
+      ...stronger,
+      programSlug: canonicalProgramSlug,
+      status,
+      percentComplete:
+        status === 'COMPLETED'
+          ? 100
+          : Math.max(current.percentComplete, row.percentComplete),
+      courseId: current.courseId ?? row.courseId,
+      lastActivityAt:
+        !current.lastActivityAt || (row.lastActivityAt && row.lastActivityAt > current.lastActivityAt)
+          ? row.lastActivityAt
+          : current.lastActivityAt,
+      lastUpdatedAt: row.lastUpdatedAt > current.lastUpdatedAt
+        ? row.lastUpdatedAt
+        : current.lastUpdatedAt,
+    });
+  }
 
   // Multi-program: bucket every CourseEnrollment row by user so we can
   // emit curriculum rows for primary + secondary programs in one pass.
@@ -371,15 +520,16 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
     for (const { programSlug, programRole } of programsToEmit) {
       const program = getProgramBySlug(programSlug);
       if (!program) continue;
+      const canonicalProgramSlug = program.slug;
       for (const course of program.courses) {
-        const progress = canonicalByKey.get(`${learner.id}:${programSlug}:${course.slug}`);
+        const progress = canonicalByKey.get(`${learner.id}:${canonicalProgramSlug}:${course.slug}`);
         curriculumRows.push({
-          key: `${learner.id}:${programSlug}:${course.slug}`,
+          key: `${learner.id}:${canonicalProgramSlug}:${course.slug}`,
           learnerId: learner.id,
           learnerName: learner.fullName ?? '',
           learnerEmail: learner.email ?? '',
           learnerRole: learner.profile?.role ?? 'member',
-          programSlug,
+          programSlug: canonicalProgramSlug,
           programTitle: program.title,
           programRole,
           courseSlug: course.slug,
@@ -474,6 +624,10 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
         title="Training progress"
         subtitle="All learners across both canonical curriculum (DB course_progress) and raw Coursera enrollments (coursera_course_progress). Sort any column."
       />
+      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+        {showingFirstLabel(learners.length, learnerTotal, 'member records')} ·{' '}
+        {showingFirstLabel(rawCourseraRows.length, rawCourseraTotal, 'raw Coursera rows')}
+      </p>
       <TrainingProgressClient
         curriculumRows={curriculumRows}
         rawRows={rawRows}

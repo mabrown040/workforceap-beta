@@ -70,25 +70,16 @@ jobs:
       - name: Unit tests
         run: npm run test:unit
 
-      # Lint — report-only for now. AGENTS.md and AUDIT-2026-05-16 §H-CI4
-      # note 5 known errors in the codebase (bare <table> in 3 admin
-      # components, 1 missing alt). Surfaces lint output on every PR so
-      # new errors are visible. Flip to required (drop continue-on-error)
-      # after the known errors are fixed.
-      - name: Lint (report-only)
+      # Lint is release-blocking so Vercel cannot strand production on an
+      # ESLint error after GitHub CI has already reported success.
+      - name: Lint
         run: npm run lint
-        continue-on-error: true
         timeout-minutes: 5
 
-      # Vitest — re-enabled 2026-07-02 as report-only. The suite is fully
-      # green (1179 tests / 108 files) after the mock/assertion repair and
-      # the vitest.config.ts exclude fix (Playwright e2e + node:test files
-      # are no longer collected, which is also what was hanging the earlier
-      # runs at 0%). Flip to required (drop continue-on-error) after a few
-      # stable runs.
-      - name: Vitest (report-only)
-        run: timeout 480 npm run test:vitest || true
-        continue-on-error: true
+      # Vitest is release-blocking. Playwright e2e and node:test files are
+      # excluded by vitest.config.ts and run in their own lanes.
+      - name: Vitest
+        run: timeout 480 npm run test:vitest
         timeout-minutes: 10
 
       # Dead-code detection — report-only. No knip/ts-prune/depcheck config

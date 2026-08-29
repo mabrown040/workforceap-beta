@@ -137,6 +137,7 @@ export default function RouteErrorFallback({
   return (
     <div
       className="route-error-fallback"
+      data-portal-error-state="route-boundary"
       style={{
         minHeight: '100dvh',
         display: 'flex',

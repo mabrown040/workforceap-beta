@@ -199,14 +199,30 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
   );
 }
 
-/** Same as getScoreBreakdown but returns a zeroed breakdown if Prisma fails (flaky DB, timeouts). */
-export async function getScoreBreakdownSafe(userId: string): Promise<ScoreBreakdown> {
+export type ScoreBreakdownSafeResult = {
+  breakdown: ScoreBreakdown;
+  loadFailed: boolean;
+};
+
+/**
+ * Preserve the graceful zero-state fallback while carrying an explicit error
+ * bit so a database outage cannot look like a genuinely new member.
+ */
+export async function getScoreBreakdownSafeResult(userId: string): Promise<ScoreBreakdownSafeResult> {
   try {
-    return await getScoreBreakdown(userId);
+    return { breakdown: await getScoreBreakdown(userId), loadFailed: false };
   } catch (e) {
     console.error('[getScoreBreakdownSafe]', userId, e);
-    return buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], false, null);
+    return {
+      breakdown: buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], false, null),
+      loadFailed: true,
+    };
   }
+}
+
+/** Backwards-compatible breakdown-only helper for non-audited aggregate consumers. */
+export async function getScoreBreakdownSafe(userId: string): Promise<ScoreBreakdown> {
+  return (await getScoreBreakdownSafeResult(userId)).breakdown;
 }
 
 /** Batch version of getScoreBreakdown. Fetches all data in ~11 queries total. */

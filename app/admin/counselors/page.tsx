@@ -122,6 +122,7 @@ export default async function AdminCounselorsPage({
   }
 
   const counselorRecords = counselorsResult.value;
+  const counselorAssignmentsLoadFailed = assignmentsResult.status === 'rejected';
 
   // Aggregate caseload / at-risk / placements per counselor from the active
   // assignments. A failed aggregate degrades to zeros (roster still renders).
@@ -193,12 +194,15 @@ export default async function AdminCounselorsPage({
     .sort((a, b) => b.caseload - a.caseload);
 
   return (
-    <CounselorsRosterKit
-      counselors={counselors}
-      total={total}
-      avgCaseload={avgCaseload}
-      atRiskOwned={atRiskOwned}
-      avgResponse="—"
-    />
+    <>
+      {counselorAssignmentsLoadFailed ? <span hidden data-portal-error-state="admin-counselors-assignment-load" /> : null}
+      <CounselorsRosterKit
+        counselors={counselors}
+        total={total}
+        avgCaseload={avgCaseload}
+        atRiskOwned={atRiskOwned}
+        avgResponse="—"
+      />
+    </>
   );
 }

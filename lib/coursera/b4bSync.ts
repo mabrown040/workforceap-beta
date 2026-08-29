@@ -11,6 +11,10 @@
 import { CourseProgressStatus } from '@prisma/client';
 
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import {
+  canonicalizeProgramSlug,
+  programSlugReadCandidates,
+} from '@/lib/content/programSlug';
 import { prisma } from '@/lib/db/prisma';
 import { COURSERA_B4B_REPORT_CAP, COURSERA_B4B_USER_LOOKUP_CAP } from '@/lib/db/scanCaps';
 import {
@@ -21,9 +25,13 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
 import { fetchCourseraWithTransientRetry } from '@/lib/coursera/b4bClient';
-import { getProgramBySlug } from '@/lib/content/programs';
-import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { resolveUserIdsByCourseraEmails } from '@/lib/coursera/resolveUserIdByEmail';
+import { upsertCourseraCourseProgress } from '@/lib/coursera/upsertCourseraCourseProgress';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import {
+  courseCompletionMilestoneRef,
+  hasValidatedTrainingStarted,
+} from '@/lib/coursera/milestones';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -54,12 +62,17 @@ export type B4BEnrollmentReport = {
   collectionName?: string | null;
 };
 
+export type RawB4BEnrollmentReport = Partial<B4BEnrollmentReport> & {
+  lastActivity?: number | null;
+};
+
 export type B4BSyncResult = {
   scanned: number;
   upserted: number;
   upsertedKnown: number;
   upsertedUnknown: number;
-  skippedNoUser: number;
+  upsertedUnmatched: number;
+  skippedNoEmail: number;
   errors: number;
   byUser: Record<string, { courses: number; unknownCourses: number; error?: string }>;
   /**
@@ -70,6 +83,60 @@ export type B4BSyncResult = {
   nextStart: number | null;
   capped: boolean;
 };
+
+function finiteNumber(value: unknown, fallback = 0): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+/** Normalize the enrollmentReports wire shape before any dedupe or merge. */
+export function normalizeB4BEnrollmentReport(
+  raw: RawB4BEnrollmentReport,
+): B4BEnrollmentReport {
+  const email = (raw.email || raw.externalId || '').trim().toLowerCase();
+  return {
+    id: raw.id?.trim() || '',
+    programId: raw.programId?.trim() || '',
+    externalId: (raw.externalId || raw.email || '').trim(),
+    contentId: raw.contentId?.trim() || '',
+    contentType: raw.contentType?.trim() || '',
+    isCompleted: raw.isCompleted === true,
+    lastActivityAt: finiteNumber(raw.lastActivity, finiteNumber(raw.lastActivityAt)),
+    enrolledAt: finiteNumber(raw.enrolledAt),
+    overallProgress: finiteNumber(raw.overallProgress),
+    membershipState: raw.membershipState?.trim() || '',
+    updatedAt: finiteNumber(raw.updatedAt),
+    contentName: raw.contentName?.trim() || raw.contentId?.trim() || 'Unknown Coursera course',
+    contentSlug: raw.contentSlug?.trim() || '',
+    fullName: raw.fullName?.trim() || '',
+    email,
+    programName: raw.programName?.trim() || '',
+    programSlug: raw.programSlug?.trim() || raw.programId?.trim() || 'coursera-unmapped',
+    collectionId: raw.collectionId?.trim() || null,
+    collectionName: raw.collectionName?.trim() || null,
+  };
+}
+
+export function planB4BRowWrite(args: {
+  report: B4BEnrollmentReport;
+  userId: string | null;
+  canonicalMapping: { programSlug: string; courseSlug: string } | null;
+}): {
+  writeRawProgress: true;
+  canonicalProgress: {
+    userId: string;
+    programSlug: string;
+    courseSlug: string;
+  } | null;
+} {
+  const canonicalProgress = args.userId && args.canonicalMapping
+    ? {
+        userId: args.userId,
+        programSlug: canonicalizeProgramSlug(args.canonicalMapping.programSlug),
+        courseSlug: args.canonicalMapping.courseSlug,
+      }
+    : null;
+  return { writeRawProgress: true, canonicalProgress };
+}
 
 /* ------------------------------------------------------------------ */
 /*  Auth                                                               */
@@ -170,11 +237,11 @@ async function fetchEnrollmentReports(
     }
 
     const json = (await resp.json()) as {
-      elements?: B4BEnrollmentReport[];
+      elements?: RawB4BEnrollmentReport[];
       paging?: { next?: number; total?: number };
     };
 
-    const batch = json.elements ?? [];
+    const batch = (json.elements ?? []).map(normalizeB4BEnrollmentReport);
     results.push(...batch);
 
     const next = nextEnrollmentReportStart({
@@ -196,18 +263,6 @@ async function fetchEnrollmentReports(
 /*  Catalog mapping helpers                                            */
 /* ------------------------------------------------------------------ */
 
-/** Reverse map: coursera programId → list of WAP program slugs */
-function buildProgramIdToSlugsMap(): Record<string, string[]> {
-  const map: Record<string, string[]> = {};
-  for (const [slug, data] of Object.entries(DISCOVERED_COURSERA_PROGRAMS)) {
-    const cid = data.courseraProgramId;
-    if (!cid) continue;
-    if (!map[cid]) map[cid] = [];
-    map[cid].push(slug);
-  }
-  return map;
-}
-
 /** Reverse map: coursera courseId → { programSlug, courseSlug, name } */
 function buildCourseIdToMetaMap(): Record<
   string,
@@ -227,13 +282,28 @@ function buildCourseIdToMetaMap(): Record<
   return map;
 }
 
-/** Slugify any string into a valid course slug */
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .substring(0, 80);
+export function selectCanonicalB4BMapping(args: {
+  dbMapping: { programSlug: string; courseSlug: string } | null;
+  staticMappings: ReadonlyArray<{ programSlug: string; courseSlug: string }>;
+}): { programSlug: string; courseSlug: string } | null {
+  if (args.dbMapping) {
+    return {
+      programSlug: canonicalizeProgramSlug(args.dbMapping.programSlug),
+      courseSlug: args.dbMapping.courseSlug,
+    };
+  }
+  const distinct = Array.from(
+    new Map(
+      args.staticMappings.map((mapping) => {
+        const canonical = {
+          programSlug: canonicalizeProgramSlug(mapping.programSlug),
+          courseSlug: mapping.courseSlug,
+        };
+        return [`${canonical.programSlug}|${canonical.courseSlug}`, canonical] as const;
+      }),
+    ).values(),
+  );
+  return distinct.length === 1 ? distinct[0] : null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -477,81 +547,6 @@ export function decideEnrolledProgramSync(args: {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Program-completion ("graduation") gate — pure, unit-tested          */
-/* ------------------------------------------------------------------ */
-
-/**
- * Decide whether the org-wide B4B batch sync should run the (idempotent but
- * non-free — it does a `courseProgress.findMany` plus, on a real completion,
- * writes a MemberNextBestAction + notifications) program-completion check
- * for a given user after this sync pass.
- *
- * AUDIT fix: `completeMemberCourse` (member self-report / webhook / xAPI)
- * already calls `handleProgramCompletion` — the "you're job-ready" moment —
- * right after a course completion. But the org-wide B4B sync cron upserts
- * `CourseProgress` directly and never went through that function, so a
- * member whose FINAL course completion arrived only via the batch sync
- * never got the graduation kit. `handleProgramCompletion` is idempotent per
- * (memberId, programSlug) via a MemberEvent guard, so double-firing is
- * harmless — but this run should only be attempted for users where a
- * completion was newly recorded against their CURRENT enrolled program in
- * THIS run, not for every synced member on every 6-hour cron tick.
- */
-export function shouldCheckProgramCompletionAfterSync(args: {
-  enrolledProgram: string | null;
-  newlyCompletedProgramSlugs: readonly string[];
-}): boolean {
-  if (!args.enrolledProgram) return false;
-  return args.newlyCompletedProgramSlugs.includes(args.enrolledProgram);
-}
-
-/**
- * Fail-soft "did this user just finish their whole program?" check, called
- * only for users flagged by `shouldCheckProgramCompletionAfterSync`.
- *
- * Dynamically imports `lib/workflows/careerOS` rather than a static import:
- * that module (via `lib/notifications/create.ts`) pulls in `'server-only'`,
- * which has no resolution shim under the `node --test` runner this file's
- * pure helpers are unit-tested with (see the file-level doc-comment). A
- * dynamic import only resolves when this function actually runs, which
- * never happens from the unit tests — they only exercise the pure exports.
- *
- * Never throws — errors are captured and swallowed so a graduation-kit
- * hiccup can never fail the batch sync run.
- */
-async function maybeFireProgramCompletionForUser(args: {
-  userId: string;
-  programSlug: string;
-}): Promise<void> {
-  try {
-    const completedRows = await prisma.courseProgress.findMany({
-      where: {
-        userId: args.userId,
-        programSlug: args.programSlug,
-        status: CourseProgressStatus.COMPLETED,
-      },
-      select: { courseSlug: true },
-    });
-    const isProgramComplete = memberProgramCompleted(
-      args.programSlug,
-      completedRows.map((r) => r.courseSlug),
-    );
-    if (!isProgramComplete) return;
-
-    const program = getProgramBySlug(args.programSlug);
-    if (!program) return;
-
-    const { handleProgramCompletion } = await import('@/lib/workflows/careerOS');
-    await handleProgramCompletion(args.userId, args.programSlug, program.title);
-  } catch (err) {
-    captureApiError(err, {
-      route: 'coursera/b4b-sync',
-      extra: { step: 'program-completion-check', userId: args.userId, programSlug: args.programSlug },
-    });
-  }
-}
-
-/* ------------------------------------------------------------------ */
 /*  Main sync                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -563,12 +558,12 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   const resumeStart = await readB4BResumeStart();
   const { reports, nextStart, capped } = await fetchEnrollmentReports(token, orgId, resumeStart);
 
-  const programIdToSlugs = buildProgramIdToSlugsMap();
   const courseIdToMeta = buildCourseIdToMetaMap();
+  const defaultOrganizationId = await getDefaultOrganizationId();
 
   // Resolve only emails in this incremental window. Direct portal email first,
   // then coursera_identity_mappings — otherwise alt-email learners stay
-  // skippedNoUser forever on the org-wide cron (per-user syncUserFromB4B
+  // unresolved forever on the org-wide cron (per-user syncUserFromB4B
   // already accepts an explicit wapUserId). Never hydrate the whole user
   // table — next cron continues from `nextStart`.
   const reportEmails = [
@@ -578,14 +573,32 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
         .filter((email): email is string => Boolean(email)),
     ),
   ];
-  const userByEmail = await resolveUserIdsByCourseraEmails(reportEmails);
+  const userByEmail = await resolveUserIdsByCourseraEmails(reportEmails, {
+    organizationId: defaultOrganizationId,
+  });
+  const resolvedUserIds = Array.from(new Set(userByEmail.values()));
+  const resolvedUsers = resolvedUserIds.length > 0
+    ? await prisma.user.findMany({
+        where: {
+          id: { in: resolvedUserIds },
+          organizationId: defaultOrganizationId,
+          deletedAt: null,
+        },
+        select: { id: true, organizationId: true },
+        take: COURSERA_B4B_USER_LOOKUP_CAP,
+      })
+    : [];
+  const organizationByUserId = new Map(
+    resolvedUsers.map((user) => [user.id, user.organizationId] as const),
+  );
 
   const result: B4BSyncResult = {
     scanned: reports.length,
     upserted: 0,
     upsertedKnown: 0,
     upsertedUnknown: 0,
-    skippedNoUser: 0,
+    upsertedUnmatched: 0,
+    skippedNoEmail: 0,
     errors: 0,
     byUser: {},
     nextStart,
@@ -598,7 +611,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     // email is optional on B4B report rows; one malformed row must not
     // TypeError the whole sync run before the per-row error handling below.
     if (!r.email) {
-      result.skippedNoUser += 1;
+      result.skippedNoEmail += 1;
       continue;
     }
     const key = `${r.email.toLowerCase()}|${r.contentId}`;
@@ -620,13 +633,6 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       Array.from(deduped.values()).map((r) => r.contentId),
     );
 
-  // Tracks, per userId, which programSlugs had a NEW completion (transition
-  // into COMPLETED) recorded during THIS run. Feeds the program-completion
-  // ("graduation") check below — see `shouldCheckProgramCompletionAfterSync`.
-  // Only users who show up here get the extra check; this cron runs every
-  // 6h over the whole org, so re-checking everyone unconditionally would be
-  // gratuitous work for the (idempotent, guarded) handleProgramCompletion call.
-  const newlyCompletedProgramSlugsByUser = new Map<string, Set<string>>();
   const affectedUserIds = new Set<string>();
 
   // NOTE: gradebook merging now lives in `syncUserFromB4B` (the single-user
@@ -640,49 +646,76 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   // `mergeB4BProgressSignals` for the merge logic.
   for (const report of deduped.values()) {
     const email = report.email.trim().toLowerCase();
-    const userId = userByEmail.get(email);
-
-    if (!userId) {
-      result.skippedNoUser += 1;
-      continue;
-    }
+    const userId = userByEmail.get(email) ?? null;
 
     // Resolution order for (programSlug, courseSlug):
     //   1. Admin-curated row in `coursera_canonical_course_mappings` keyed by
     //      contentId — overrides everything (lets admins fix unmapped courses
     //      without a redeploy; same source-of-truth as the JOIN in
     //      `csvImport.server.ts:promoteCsvProgressToCanonical`).
-    //   2. Static DISCOVERED_COURSERA_PROGRAMS catalog.
-    //   3. Coursera programId → WAP program reverse map.
-    //   4. Slugify the raw Coursera fields (generic fallback).
-    let programSlug: string;
-    let courseSlug: string;
-    let isKnown = false;
-
+    //   2. A unique static catalog mapping by Coursera course id.
+    // Ambiguous static ids are intentionally left raw-only. Four live
+    // Coursera ids currently occur in more than one real WAP program; taking
+    // the first hit would credit an arbitrary curriculum.
     const dbMapping = canonicalMappings.byCourseraCourseId.get(report.contentId) ?? null;
-    const knownMetas = courseIdToMeta[report.contentId];
-    const programSlugsFromId = programIdToSlugs[report.programId];
-
-    if (dbMapping) {
-      programSlug = dbMapping.programSlug;
-      courseSlug = dbMapping.courseSlug;
-      isKnown = true;
-    } else if (knownMetas && knownMetas.length > 0) {
-      programSlug = knownMetas[0].programSlug;
-      courseSlug = knownMetas[0].courseSlug;
-      isKnown = true;
-    } else {
-      if (programSlugsFromId && programSlugsFromId.length > 0) {
-        programSlug = programSlugsFromId[0];
-      } else {
-        // Fallback: use Coursera's programSlug or a generic bucket
-        programSlug = slugify(report.programSlug || report.programName || 'coursera-unknown');
-      }
-      courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
-    }
+    const canonicalMapping = selectCanonicalB4BMapping({
+      dbMapping,
+      staticMappings: courseIdToMeta[report.contentId] ?? [],
+    });
+    const plan = planB4BRowWrite({ report, userId, canonicalMapping });
 
     let newlyCompletedThisRow = false;
+    let currentCourseWasStarted = false;
+    let currentCourseIsStarted = false;
     try {
+      const linkedOrganizationId = userId ? organizationByUserId.get(userId) : null;
+      if (userId && !linkedOrganizationId) {
+        throw new Error('Resolved Coursera user is missing an active organization');
+      }
+
+      // Raw progress is the lossless landing zone. It is written for linked,
+      // unmatched, mapped, and unmapped rows alike; only a missing identity
+      // string above is skipped.
+      await upsertCourseraCourseProgress({
+        externalEmail: email,
+        externalName: report.fullName,
+        courseraCourseId: report.contentId,
+        courseraCourseSlug: report.contentSlug,
+        courseName: report.contentName,
+        collectionName: report.collectionName,
+        collectionId: report.collectionId,
+        programSlug:
+          plan.canonicalProgress?.programSlug ??
+          canonicalizeProgramSlug(
+            report.programSlug || report.programId || 'coursera-unmapped',
+          ),
+        programName: report.programName,
+        enrollmentAt: report.enrolledAt,
+        lastActivityAt: report.lastActivityAt,
+        updatedAt: report.updatedAt,
+        overallProgress: report.overallProgress,
+        isCompleted: report.isCompleted,
+        userId,
+        organizationId: linkedOrganizationId ?? defaultOrganizationId,
+        source: 'b4b_sync',
+      });
+
+      result.upserted += 1;
+      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
+      userEntry.courses += 1;
+      if (!canonicalMapping) userEntry.unknownCourses += 1;
+      result.byUser[email] = userEntry;
+
+      if (!userId) {
+        result.upsertedUnmatched += 1;
+        continue;
+      }
+      if (!plan.canonicalProgress) {
+        result.upsertedUnknown += 1;
+        continue;
+      }
+
+      const { programSlug, courseSlug } = plan.canonicalProgress;
       // Read-before-write so we never downgrade an xAPI-credited COMPLETED
       // back to IN_PROGRESS, and never lower percentComplete when B4B's
       // coarse course-level rollup briefly trails the per-item xAPI signal.
@@ -718,6 +751,18 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
             ? new Date(report.updatedAt || Date.now())
             : null;
 
+        currentCourseWasStarted = Boolean(
+          existing && (
+            existing.status !== CourseProgressStatus.NOT_STARTED ||
+            existing.percentComplete > 0 ||
+            existing.lastActivityAt != null
+          ),
+        );
+        currentCourseIsStarted = Boolean(
+          merged.status !== CourseProgressStatus.NOT_STARTED ||
+          merged.percentComplete > 0 ||
+          merged.lastActivityAt != null,
+        );
         const { newlyCompleted } = await upsertMergedCourseProgress(tx, {
           userId,
           programSlug,
@@ -729,28 +774,112 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
           updateStartedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
         });
-
         newlyCompletedThisRow = newlyCompleted;
+
       });
 
-      result.upserted += 1;
       affectedUserIds.add(userId);
-      if (isKnown) {
-        result.upsertedKnown += 1;
-      } else {
-        result.upsertedUnknown += 1;
+      result.upsertedKnown += 1;
+
+      const newlyStartedThisRow =
+        currentCourseIsStarted && !currentCourseWasStarted;
+      if (newlyCompletedThisRow || newlyStartedThisRow) {
+        // Batch sync may create counselor-only operational milestones, but it
+        // must never send historical completion celebrations, award points,
+        // or trigger the job-ready workflow. The cascade builder rejects the
+        // celebration types for enterprise-sync sources.
+        try {
+          const currentRows = await prisma.courseProgress.findMany({
+            take: COURSERA_B4B_REPORT_CAP,
+            where: {
+              userId,
+              programSlug: { in: programSlugReadCandidates(programSlug) },
+            },
+            select: {
+              courseSlug: true,
+              status: true,
+              percentComplete: true,
+              lastActivityAt: true,
+            },
+          });
+          const { loadValidatedProgramCourses } = await import(
+            '@/lib/coursera/programCourseList'
+          );
+          const { detectMilestoneTransitions } = await import(
+            '@/lib/coursera/milestones'
+          );
+          const { detectTrainingMilestone } = await import(
+            '@/lib/milestoneCascade/detectCompletionMilestone'
+          );
+          const validated = await loadValidatedProgramCourses({
+            organizationId: linkedOrganizationId!,
+            programSlug,
+            checkB4BContents: false,
+          });
+          const nextCompletedSlugs = currentRows
+            .filter((row) => row.status === CourseProgressStatus.COMPLETED)
+            .map((row) => row.courseSlug);
+          const validatedSlugs = validated.courses.map((course) => course.slug);
+          const currentCourseIsValidated = validatedSlugs.includes(courseSlug);
+          const otherRowsWereStarted = hasValidatedTrainingStarted({
+            rows: currentRows.filter((row) => row.courseSlug !== courseSlug),
+            validatedSlugs,
+          });
+          const transitions = detectMilestoneTransitions({
+            previous: {
+              completedSlugs: nextCompletedSlugs.filter(
+                (slug) => slug !== courseSlug,
+              ),
+              started:
+                (currentCourseIsValidated && currentCourseWasStarted) ||
+                otherRowsWereStarted,
+            },
+            next: {
+              completedSlugs: nextCompletedSlugs,
+              started:
+                (currentCourseIsValidated && currentCourseIsStarted) ||
+                otherRowsWereStarted,
+              validatedSlugs,
+            },
+            courseSlugJustCompleted: newlyCompletedThisRow
+              ? courseSlug
+              : undefined,
+          });
+          const completedCount = nextCompletedSlugs.filter((slug) =>
+            validatedSlugs.includes(slug),
+          ).length;
+          for (const milestoneType of transitions) {
+            await detectTrainingMilestone({
+              userId,
+              milestoneType,
+              milestoneRef:
+                milestoneType === 'course_completed'
+                  ? courseCompletionMilestoneRef(programSlug, courseSlug)
+                  : programSlug,
+              courseSlug,
+              courseName: report.contentName,
+              programSlug,
+              completedCount,
+              totalCourses: validated.courses.length,
+              source: 'coursera-enterprise-sync',
+            });
+          }
+        } catch (milestoneError) {
+          // Progress is the source of truth. A downstream drafting/cascade
+          // failure is observable and retryable, but must not turn a durable
+          // B4B progress write into a misleading row-level sync failure.
+          captureApiError(milestoneError, {
+            route: 'coursera/b4b-sync',
+            extra: {
+              step: 'training-milestone',
+              userId,
+              programSlug,
+              courseSlug,
+            },
+          });
+        }
       }
 
-      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
-      userEntry.courses += 1;
-      if (!isKnown) userEntry.unknownCourses += 1;
-      result.byUser[email] = userEntry;
-
-      if (newlyCompletedThisRow) {
-        const slugs = newlyCompletedProgramSlugsByUser.get(userId) ?? new Set<string>();
-        slugs.add(programSlug);
-        newlyCompletedProgramSlugsByUser.set(userId, slugs);
-      }
     } catch (err) {
       result.errors += 1;
       const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
@@ -784,46 +913,6 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     invalidateLearnerProgressCacheForEmail(emailKey);
   }
 
-  // Graduation-moment gap fix: only for users where this run newly recorded
-  // a completion, check whether it finished their current program and, if
-  // so, fire the same `handleProgramCompletion` workflow `completeMemberCourse`
-  // uses for member self-report / webhook / xAPI completions. Fail-soft and
-  // best-effort — never allowed to fail the sync run.
-  if (newlyCompletedProgramSlugsByUser.size > 0) {
-    try {
-      const candidateUserIds = Array.from(newlyCompletedProgramSlugsByUser.keys());
-      const candidateUsers = await prisma.user.findMany({
-        where: { id: { in: candidateUserIds } },
-        select: { id: true, enrolledProgram: true },
-      });
-      for (const candidate of candidateUsers) {
-        const newlyCompletedSlugs = Array.from(
-          newlyCompletedProgramSlugsByUser.get(candidate.id) ?? [],
-        );
-        if (
-          shouldCheckProgramCompletionAfterSync({
-            enrolledProgram: candidate.enrolledProgram,
-            newlyCompletedProgramSlugs: newlyCompletedSlugs,
-          })
-        ) {
-          await maybeFireProgramCompletionForUser({
-            userId: candidate.id,
-            programSlug: candidate.enrolledProgram!,
-          }).catch(() => {
-            // maybeFireProgramCompletionForUser already fail-softs internally;
-            // this catch is a last-resort guard so a rejection can never
-            // escape and fail the batch sync run.
-          });
-        }
-      }
-    } catch (err) {
-      captureApiError(err, {
-        route: 'coursera/b4b-sync',
-        extra: { step: 'program-completion-check-batch' },
-      });
-    }
-  }
-
   return result;
 }
 
@@ -833,67 +922,38 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
 async function updateRollups(userIds: string[]) {
   if (userIds.length === 0) return;
-  const { affectedUsers, allRows } = await prisma.$transaction(async (tx) => {
-    const affectedUsers = await tx.user.findMany({
-      take: COURSERA_B4B_USER_LOOKUP_CAP,
-      where: { id: { in: userIds }, deletedAt: null },
-      select: { id: true, email: true },
-    });
-
-    const allUserIds = affectedUsers.map((u) => u.id);
-    const allRows = allUserIds.length
-      ? await tx.courseProgress.findMany({
-          take: COURSERA_B4B_REPORT_CAP,
-          where: { userId: { in: allUserIds } },
-          select: { userId: true, programSlug: true, status: true, percentComplete: true },
-        })
-      : [];
-
-    return { affectedUsers, allRows };
+  // Keep this server-only dependency behind the runtime boundary so the pure
+  // mapping/merge helpers in this module remain executable under node:test.
+  const { refreshMemberProgramProgressRollup } = await import(
+    '@/lib/member/courseProgress'
+  );
+  const rows = await prisma.courseProgress.findMany({
+    take: COURSERA_B4B_REPORT_CAP,
+    where: { userId: { in: userIds }, user: { deletedAt: null } },
+    select: { userId: true, programSlug: true },
+    distinct: ['userId', 'programSlug'],
   });
+  const pairs = Array.from(
+    new Set(
+      rows.map((row) =>
+        `${row.userId}|${canonicalizeProgramSlug(row.programSlug)}`,
+      ),
+    ),
+  );
 
-  const rowsByUser = new Map<string, typeof allRows>();
-  for (const row of allRows) {
-    const list = rowsByUser.get(row.userId) ?? [];
-    list.push(row);
-    rowsByUser.set(row.userId, list);
-  }
-
-  for (const user of affectedUsers) {
+  for (const pair of pairs) {
+    const separator = pair.indexOf('|');
+    const userId = pair.slice(0, separator);
+    const programSlug = pair.slice(separator + 1);
     try {
-      const rows = rowsByUser.get(user.id) ?? [];
-
-      const byProgram = new Map<string, { total: number; completed: number; sumPct: number }>();
-      for (const r of rows) {
-        const p = byProgram.get(r.programSlug) ?? { total: 0, completed: 0, sumPct: 0 };
-        p.total += 1;
-        if (r.status === CourseProgressStatus.COMPLETED) p.completed += 1;
-        p.sumPct += r.percentComplete;
-        byProgram.set(r.programSlug, p);
-      }
-
-      for (const [programSlug, stats] of byProgram) {
-        const avg = stats.total > 0 ? Math.round(stats.sumPct / stats.total) : 0;
-        await prisma.$transaction((tx) =>
-          tx.memberProgramProgress.upsert({
-            where: { userId_programSlug: { userId: user.id, programSlug } },
-            create: {
-              userId: user.id,
-              programSlug,
-              coursesCompleted: stats.completed,
-              averagePercent: avg,
-            },
-            update: {
-              coursesCompleted: stats.completed,
-              averagePercent: avg,
-            },
-          }),
-        );
-      }
+      // The shared rollup helper reconciles against the validated syllabus,
+      // so one completed row in a seven-course program is 1/7 rather than a
+      // false 100% aggregate over only rows that happened to exist.
+      await refreshMemberProgramProgressRollup(userId, programSlug);
     } catch (err) {
       captureApiError(err, {
         route: 'coursera/b4b-sync',
-        extra: { step: 'member-program-rollup', userId: user.id },
+        extra: { step: 'member-program-rollup', userId, programSlug },
       });
     }
   }

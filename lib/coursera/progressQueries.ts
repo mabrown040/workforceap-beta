@@ -122,6 +122,10 @@ export type UnmatchedLearner = {
   latestGradePercent: number | null;
   /** Latest Coursera course overall progress 0–100. */
   latestProgressPercent: number;
+  /** Completed Coursera course rows reported by B4B for this identity. */
+  completedCourseCount: number;
+  /** Mean B4B overall progress across the identity's Coursera course rows. */
+  averageProgressPercent: number;
 };
 
 export type LoadUnmatchedLearnersOptions = {
@@ -285,6 +289,7 @@ export async function loadUnmatchedLearners(
         externalEmail: string;
         courseGrade: string | null;
         overallProgress: string | number | null;
+        isCompleted: boolean;
         lastActivityTime: Date | null;
       }>
     >`
@@ -292,6 +297,7 @@ export async function loadUnmatchedLearners(
         LOWER(external_email) AS "externalEmail",
         course_grade AS "courseGrade",
         overall_progress AS "overallProgress",
+        is_completed AS "isCompleted",
         last_activity_time AS "lastActivityTime"
       FROM coursera_course_progress
       WHERE user_id IS NULL
@@ -302,30 +308,45 @@ export async function loadUnmatchedLearners(
 
     const gradeByEmail = new Map<string, number>();
     const progressByEmail = new Map<string, number>();
+    const progressTotalsByEmail = new Map<string, { total: number; count: number; completed: number }>();
     for (const row of gradeRows) {
       const email = row.externalEmail;
+      const normalizedProgress = Math.max(0, Math.min(100, Number(row.overallProgress) || 0));
       if (!progressByEmail.has(email)) {
-        progressByEmail.set(email, Number(row.overallProgress) || 0);
+        progressByEmail.set(email, normalizedProgress);
       }
+      const aggregate = progressTotalsByEmail.get(email) ?? { total: 0, count: 0, completed: 0 };
+      aggregate.total += normalizedProgress;
+      aggregate.count += 1;
+      if (row.isCompleted) aggregate.completed += 1;
+      progressTotalsByEmail.set(email, aggregate);
       if (!gradeByEmail.has(email)) {
         const pct = parseCourseGradeString(row.courseGrade);
         if (pct != null) gradeByEmail.set(email, pct);
       }
     }
 
-    return learners.map((row) => ({
-      externalEmail: row.externalEmail,
-      externalName: row.externalName,
-      actorIdentifier: row.actorIdentifier,
-      actorHomePage: row.actorHomePage,
-      badges: badgesByEmail.get(row.externalEmail) ?? [],
-      courseCount: Number(row.courseCount) || 0,
-      badgeCount: Number(row.badgeCount) || 0,
-      xapiCount: Number(row.xapiCount) || 0,
-      lastActivityTime: row.lastActivityTime,
-      latestGradePercent: gradeByEmail.get(row.externalEmail) ?? null,
-      latestProgressPercent: progressByEmail.get(row.externalEmail) ?? 0,
-    }));
+    return learners.map((row) => {
+      const progressAggregate = progressTotalsByEmail.get(row.externalEmail);
+      return {
+        externalEmail: row.externalEmail,
+        externalName: row.externalName,
+        actorIdentifier: row.actorIdentifier,
+        actorHomePage: row.actorHomePage,
+        badges: badgesByEmail.get(row.externalEmail) ?? [],
+        courseCount: Number(row.courseCount) || 0,
+        badgeCount: Number(row.badgeCount) || 0,
+        xapiCount: Number(row.xapiCount) || 0,
+        lastActivityTime: row.lastActivityTime,
+        latestGradePercent: gradeByEmail.get(row.externalEmail) ?? null,
+        latestProgressPercent: progressByEmail.get(row.externalEmail) ?? 0,
+        completedCourseCount: progressAggregate?.completed ?? 0,
+        averageProgressPercent:
+          progressAggregate && progressAggregate.count > 0
+            ? Math.round(progressAggregate.total / progressAggregate.count)
+            : 0,
+      };
+    });
   } catch (error) {
     console.error('[admin/coursera] failed to load unmatched learners:', error);
     return [];

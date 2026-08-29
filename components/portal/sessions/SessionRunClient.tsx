@@ -125,6 +125,7 @@ export default function SessionRunClient({
   // Resume upload state
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadResumeError, setUploadResumeError] = useState<string | null>(null);
+  const [uploadResumeWarning, setUploadResumeWarning] = useState<string | null>(null);
 
   // Wrap-up state
   const [endingSession, setEndingSession] = useState(false);
@@ -191,6 +192,7 @@ export default function SessionRunClient({
     e.target.value = '';
     setUploadingResume(true);
     setUploadResumeError(null);
+    setUploadResumeWarning(null);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('memberId', memberId);
@@ -201,6 +203,12 @@ export default function SessionRunClient({
         setUploadResumeError(data.error ?? 'Upload failed');
       } else if (data.text) {
         setResumeText(data.text);
+        setUploadResumeWarning([
+          typeof data.extractionWarning === 'string' ? data.extractionWarning.trim() : '',
+          data.enhancedInvalidated
+            ? 'The prior enhanced draft was archived because the source resume changed.'
+            : '',
+        ].filter(Boolean).join(' ') || null);
       }
     } catch {
       setUploadResumeError('Network error uploading file');
@@ -660,7 +668,7 @@ export default function SessionRunClient({
               {uploadingResume ? 'Uploading…' : 'Upload file'}
               <input
                 type="file"
-                accept=".pdf,.doc,.docx,.txt"
+                accept=".pdf,.docx,.txt"
                 style={{ display: 'none' }}
                 disabled={uploadingResume || resumeState.status === 'running'}
                 onChange={handleResumeUpload}
@@ -669,6 +677,9 @@ export default function SessionRunClient({
           </div>
           {uploadResumeError ? (
             <p role="alert" style={{ margin: '0 0 0.35rem', fontSize: '0.8125rem', color: 'var(--color-accent)' }}>{uploadResumeError}</p>
+          ) : null}
+          {uploadResumeWarning ? (
+            <p role="status" style={{ margin: '0 0 0.35rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{uploadResumeWarning}</p>
           ) : null}
           <textarea
             id="session-resume-text"

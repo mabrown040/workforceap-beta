@@ -21,7 +21,7 @@ test('super-admin switcher uses server-provided state where available', () => {
   assert.match(memberShell, /superAdmin=\{superAdmin\}/);
   assert.match(counselorShell, /superAdmin=\{superAdmin\}/);
   assert.match(memberLayout, /isSuperAdmin\(user\.id\)/);
-  assert.match(memberLayout, /<MemberWorkspaceShell hasResume=\{hasResume\} superAdmin=\{superAdmin\} portalRoles=\{portalRoles\}>/);
+  assert.match(memberLayout, /<MemberWorkspaceShell[\s\S]*superAdmin=\{superAdmin\}[\s\S]*portalRoles=\{portalRoles\}/);
   assert.match(counselorLayout, /isSuperAdmin\(user\.id\)/);
-  assert.match(counselorLayout, /<CounselorPortalShell subtitle=\{subtitle\} superAdmin=\{superAdmin\} portalRoles=\{portalRoles\}>/);
+  assert.match(counselorLayout, /<CounselorPortalShell[\s\S]*superAdmin=\{superAdmin\}[\s\S]*portalRoles=\{portalRoles\}/);
 });

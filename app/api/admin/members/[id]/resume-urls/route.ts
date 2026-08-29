@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { isResumeObjectPathOwnedByUser } from '@/lib/resume/atomicResumeObjectSwap';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -45,6 +46,10 @@ function storageErrorMessage(error: { message?: string } | null): string {
 
     const originalPath = profile?.resumeOriginalPath;
     const enhancedPath = profile?.resumeEnhancedPath;
+    if ((originalPath && !isResumeObjectPathOwnedByUser(memberId, originalPath))
+      || (enhancedPath && !isResumeObjectPathOwnedByUser(memberId, enhancedPath))) {
+      return NextResponse.json({ error: 'Resume record is invalid' }, { status: 409 });
+    }
 
     const supabase = getSupabaseAdmin();
     let originalUrl: string | null = null;

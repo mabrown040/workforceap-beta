@@ -4,12 +4,12 @@ import { describe, it } from 'node:test';
 import { mergeCourseraEmailResolutions } from './mergeCourseraEmailResolutions';
 
 describe('mergeCourseraEmailResolutions', () => {
-  it('lets direct portal email win over identity mapping', () => {
+  it('fails closed when direct portal email and identity mapping disagree', () => {
     const map = mergeCourseraEmailResolutions({
       directHits: [{ email: 'Same@Org.com', userId: 'portal-user' }],
       mappingHits: [{ email: 'same@org.com', userId: 'mapped-other' }],
     });
-    assert.equal(map.get('same@org.com'), 'portal-user');
+    assert.equal(map.has('same@org.com'), false);
   });
 
   it('fills alt Coursera emails from identity mappings', () => {

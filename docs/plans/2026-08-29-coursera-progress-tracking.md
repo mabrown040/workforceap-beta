@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Every Coursera learner — linked WAP member or unmatched Coursera identity — has truthful course-level progress in WorkforceAP, visible on admin/counselor surfaces with a kit badge, without requiring an identity mapping first.
+**Goal:** Every Coursera learner — linked WAP member or unmatched Coursera identity — has a **validated course list**, a **defensible completion percent**, and **key milestones that fire only from those facts**, visible on admin/counselor surfaces with a kit badge, without requiring an identity mapping first.
 
-**Architecture:** Coursera B4B `enrollmentReports` (`overallProgress`, `isCompleted`) is the progress source of truth. xAPI is the event stream (activity, item-level, completion side-effects). Unmatched learners stay first-class rows keyed by Coursera email, stored in `coursera_course_progress` (`user_id` already nullable), badged `Unmatched` — not fake `users` rows. Linked members write the same numbers into canonical `course_progress` under the WAP program slug. Mapping an email later is an attach, not a prerequisite for tracking.
+**Architecture:** Split authority. The **course list** (what “Y” is in “X of Y”) is the WAP syllabus/catalog plus `coursera_canonical_course_mappings` — never the B4B umbrella `listPrograms` dump. **Per-course % and `isCompleted`** come from B4B `enrollmentReports`. xAPI is the event stream. Unmatched learners stay first-class on `coursera_course_progress`. Milestones are derived from the validated list + those percents, not from enrollment or self-report. Mapping an email later is an attach, not a prerequisite.
 
 **Tech Stack:** Next.js 15 App Router, Prisma/`course_progress` + `coursera_course_progress`, Coursera B4B REST (`lib/coursera/b4bClient.ts`, `b4bSync.ts`), xAPI ingest (`lib/xapi/inboundStatementPipeline.ts`), portal kit `StatusTag` / Astryx `Token` (`inWap` already exists on training + students kits).
 
@@ -21,6 +21,9 @@
 - **Kit badge:** unmatched → Astryx `Token` / kit `StatusTag` tone `alert` (needs a look), label **Unmatched**. Linked member with progress but no `CourseEnrollment` / `enrolledProgram` → tone `warn`, label **No program**. Do not invent a third status vocabulary (`docs/KIT_GUIDE.md` §4). Existing copy **"Not in WAP"** on `TrainingProgressKit` / `StudentsRosterKit` becomes **Unmatched**.
 - **Portal kit tokens only** (`--wa-*`). No raw hex. Dense admin surface.
 - **Dashboard progress semantics** stake: member-facing copy stays truthful (`in progress`, not “complete” at 93%).
+- **Course list ≠ B4B umbrella.** `mkProgram` stamps every catalog program with the same `courseraB4BProgramId` (`TpIlAogTQ8-SJQKIE8PP9w`). `loadProgramCourses` prefers B4B live by that id first — if that call returns contents, **every WAP program would share one org-wide course list**. Validated list = syllabus/static courses + canonical Coursera ids. B4B `listContents` / `enrollmentReports` **audit and score** those ids; they do not redefine the curriculum.
+- **One percent formula, everywhere.** Per-course % = B4B `overallProgress` (0–100) for that `contentId`, else local `course_progress.percentComplete`. Program % = mean of per-course % over the **validated list only**. Completed count = courses on that list with `isCompleted` or `COMPLETED`. Do not average over extra Coursera enrollments, specializations not on the syllabus, or alias-slug orphans.
+- **Milestones fire only from validated facts.** First-class types below. No celebration on item-level xAPI, enterprise-sync backfill, unmatched Gmail, or “% looks high.”
 
 ---
 
@@ -40,6 +43,14 @@ Queried production Supabase `jqddnyuszufndwwezdwp`:
 | Skillset cron | permanent `{ skipped: "no_skillsets_configured" }` |
 
 The API is up. Completions exist. Joins drop them. Unmatched emails are a **display class**, not the reason progress is wrong.
+
+**Accuracy holes already in code (must validate, not just persist):**
+
+1. **Shared B4B program id** — `lib/content/programs.ts` `mkProgram` sets `courseraB4BProgramId: 'TpIlAogTQ8-SJQKIE8PP9w'` on every program. `loadProgramCourses` (`lib/member/loadProgramCourses.ts`) asks B4B for that id first. Seed code already admits the org is one umbrella (`seedCanonicalMappingsFromB4B.ts`). If live contents come back non-empty, the member “X of Y” denominator is the whole org catalog.
+2. **Canonical seed: 35 unmatched Coursera contents** — those ids never join the syllabus. Progress for them must not inflate or replace Y.
+3. **Admin training %** (`app/admin/training-progress/page.tsx`) sums `percentComplete ?? 0` across `program.courses`. A slug miss looks like 0% and pulls the mean down. That is not “Coursera said 0.”
+4. **`memberProgramCompleted`** (`lib/partner/memberProgress.ts`) treats `pct >= 100` as program-complete. A bad denominator or a single 100% row averaged wrong can false-graduate.
+5. **Milestones: 0 `milestone_cascades` in prod**, 1 `course_completed` event. `MILESTONE_TYPES` is only `course_completed`, and `completeMemberCourse` never ran for the July finishes (no enrollment). Key milestones are undefined and unfired.
 
 ---
 
@@ -87,6 +98,111 @@ Rules:
 
 ---
 
+## Accuracy contract: course list, percent, milestones
+
+These three must be independently auditable. If any one is wrong, dashboards lie.
+
+### A. Validated course list (what Y is)
+
+**Authority order for “courses in this WAP program”:**
+
+1. **Board / TWC syllabus** (`shared/programSyllabi.ts` + `Program.courses` after syllabus overlay) — order, titles, hours for regulated programs. Do not silently replace this with Coursera discovery (`docs/plans/2026-07-15-twc-syllabus-accuracy.md`).
+2. **Canonical id bind** — each syllabus course must have a real Coursera `courseId` via `coursera_canonical_course_mappings` and/or `DISCOVERED_COURSERA_PROGRAMS` (not `TODO_courseId_*`).
+3. **B4B `listContents`** — prove those ids still exist and capture type (`Course` vs `Specialization`). Flag extras and missing ids. **Do not** replace the syllabus with `listPrograms().contents` for the umbrella id.
+4. **`Course` DB** — org-scoped cache of the bound list (display order = syllabus order). Used when B4B is down.
+5. **Static catalog** — last resort, same slugs as (1).
+
+**Validation rules (fail the audit, do not guess):**
+
+| Check | Pass | Fail |
+|---|---|---|
+| Every syllabus course has a non-`TODO_` Coursera id | bind exists | row on `/admin/coursera` “unmapped course” |
+| Every bound id exists in latest `listContents` | id present | “stale id — Coursera retired/replatformed” |
+| `contentType` is `Course` (or explicitly allowed Specialization on syllabus) | type ok | do not count Specialization as one syllabus module unless the syllabus says so |
+| Extra B4B enrollments (learner took something off-syllabus) | shown as **Additional Coursera activity**, not in Y | never add to denominator |
+| Alias slugs (`comptia-a-plus` vs canonical) | one stored slug | two lists, broken X of Y |
+| `loadProgramCourses` B4B-first by shared umbrella id | **must stop** | same Y for every program |
+
+**Implement:** `lib/coursera/programCourseList.ts` → `loadValidatedProgramCourses({ organizationId, programSlug })` that **does not** call `loadProgramCoursesFromB4B` with the shared umbrella id. Keep `loadProgramCoursesFromB4B` only when `Program.courseraB4BProgramId` is a **per-program** id that is not the org umbrella (today it never is — treat the shared id as unset).
+
+**Admin surface:** `/admin/coursera` (or a slim “Catalog health” card) shows per program: `mapped / syllabusCount`, unmatched B4B contents (the 35), stale ids. This is how we *know* the list is accurate — not a one-time spreadsheet.
+
+### B. Validated completion percent (what X and % are)
+
+**Two numbers, never mixed:**
+
+| Name | Formula | Use |
+|---|---|---|
+| **Course %** | B4B `overallProgress` for that `contentId`, else local `percentComplete` | course row, “93% in progress” |
+| **Program %** | `round(mean(course % over validated list))` | hero ring, admin pace, counselor |
+| **Completed count (X)** | count of validated courses where B4B `isCompleted` **or** local `COMPLETED` | “3 of 7”, milestones |
+| **Program complete** | `X === Y` (every validated course complete) | graduation only — **delete** the `pct >= 100` shortcut in `memberProgramCompleted` |
+
+**Keep:** `averageProgramProgressFromB4B` all-or-nothing (null if any validated id missing from the B4B map) so we do not blend B4B 80% + implied 0% for a course Coursera has not materialized.
+
+**Do not:**
+
+- Treat 93% as complete (stake).
+- Average admin `%` with `?? 0` for unmatched slugs (that is a join bug, not 0% progress).
+- Use skillset % or gradebook % as the program ring.
+- Count off-syllabus Coursera courses in X or Y.
+
+**Reconciliation (how we know % is accurate):**
+
+`lib/coursera/progressReconciliation.ts` builds, per learner × validated course:
+
+```ts
+export type CourseProgressReconcileRow = {
+  courseraCourseId: string;
+  courseSlug: string;
+  b4bPercent: number | null;
+  b4bCompleted: boolean | null;
+  localPercent: number | null;
+  localStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | null;
+  displayPercent: number;
+  displayCompleted: boolean;
+  drift: 'ok' | 'local_ahead' | 'b4b_ahead' | 'missing_b4b' | 'missing_local' | 'slug_mismatch';
+};
+```
+
+`drift` rules: `local_ahead` is OK (xAPI beat B4B; merge ladder). `b4b_ahead` means local write failed — heal. `slug_mismatch` means canonical bind is wrong — catalog ticket, not a learner problem.
+
+Admin member Coursera diagnose (`lib/admin/diagnoseMemberCoursera.ts`) already exists — extend it to render this table. Nightly optional: count `b4b_ahead` + `slug_mismatch` into workflow diagnostics.
+
+**Spot-check set (prod, from the 2026-08-29 audit):** after implementation, these must match Coursera’s own UI within 1% or an explicit `isCompleted` flag:
+
+- Linked PM learners at 93% and 87% Fundamentals — still **in progress**, X=0 for that course.
+- July completers (5 + 1 course-level xAPI) — those courses **COMPLETED**, listed under inferred program, badge **No program**.
+- Unmatched emails — course rows from B4B if present; % unknown labeled “No Coursera report yet” if only xAPI.
+
+### C. Key milestones (what we celebrate and report)
+
+Lock the allow-list. Extend `MILESTONE_TYPES` in `lib/milestoneCascade/types.ts`. Each type has a **detector** (pure, unit-tested) that reads only validated list + reconcile rows.
+
+| Milestone | When it becomes true | Detector | Side effects (linked + enrolled only) |
+|---|---|---|---|
+| **`training_started`** | First validated course has `IN_PROGRESS` or `lastActivityAt` or course % > 0 | once per (user, program) | checklist `startFirstCourse`; no email |
+| **`first_course_completed`** | X goes from 0 → ≥1 | once per (user, program) | cascade + course-complete email + points |
+| **`course_completed`** | Each additional validated course `isCompleted` | once per (user, courseSlug) | cascade (existing); email |
+| **`program_halfway`** | X ≥ ceil(Y/2) and Y ≥ 2 | once per (user, program) | cascade only (counselor brief), no member spam |
+| **`program_completed`** | X === Y and Y > 0 | once per (user, program) | `handleProgramCompletion` / job-ready path |
+| **`training_stale`** | `lastActivityAt` older than 14 days and not program-complete | existing stale cron; not a cascade | counselor at-risk, not a celebration |
+
+**Derived, not milestones:** `JOB_READY_TRAINING_PCT` (70% program %) stays a queue threshold (`lib/member/trainingProgress.ts`). Do not emit a cascade at 70% — that is not Coursera-complete.
+
+**Who gets milestones:**
+
+- Linked + enrolled → full side effects.
+- Linked + no program → persist progress + **detect** `training_started` / course completes for admin; **no** member email until enrolled (same as plan side-effects rule).
+- Unmatched → **no** milestone rows on a user id. Optional later: org-level “unmatched first completion” admin ping. Not v1.
+- `source === 'coursera-enterprise-sync'` → persist progress, **skip** celebration cascades (existing `buildCascadeFromCompletion` rule). First live xAPI/webhook still may fire if it is the first time we *observe* it live — do not double-email if a `MemberEvent` `course_completed` already exists.
+
+**Member checklist** (`getMemberState`) must read the same detectors (`hasStartedTraining`, `hasCompletedFirstCourse`, `allCoursesComplete`) so dashboard milestones and admin cascades cannot disagree.
+
+**Validation fixture (Y=4):** start course 1 → `training_started`. Complete 1 → `first_course_completed` + `course_completed`. Complete 2 → `course_completed` + `program_halfway` (`X >= ceil(Y/2)`). Complete 3 (course 3 still 40% does not count) → another `course_completed` only. Complete 4 → `course_completed` + `program_completed`. Never graduate on mean % alone.
+
+---
+
 ## File map
 
 | File | Responsibility |
@@ -105,7 +221,14 @@ Rules:
 | `components/portal/kit/pages/admin-subviews/TrainingProgressKit.tsx` | Token label `Unmatched`; optional `No program` |
 | `components/portal/kit/pages/admin-subviews/StudentsRosterKit.tsx` | Same |
 | `lib/coursera/progressQueries.ts` | `loadUnmatchedLearners` must include B4B-backed `coursera_course_progress` rows (not only CSV/xAPI union as today) |
-| Tests | `lib/content/programSlug.test.ts`, `lib/coursera/b4bSync.test.ts` unmatched path, `courseCompletion` no-enrollment persist |
+| `lib/coursera/programCourseList.ts` (new) | `loadValidatedProgramCourses` — syllabus + canonical ids; ignore shared umbrella B4B program id |
+| `lib/coursera/progressReconciliation.ts` (new) | per-course drift table; program X/Y/% from validated list only |
+| `lib/coursera/milestones.ts` (new) | pure detectors for the six key milestones |
+| `lib/member/loadProgramCourses.ts` | stop treating shared `TpIlAogTQ8-SJQKIE8PP9w` as a live course-list source |
+| `lib/partner/memberProgress.ts` | program complete = X === Y only |
+| `lib/milestoneCascade/types.ts` | extend `MILESTONE_TYPES` |
+| `lib/admin/diagnoseMemberCoursera.ts` | render reconcile rows |
+| Tests | `lib/content/programSlug.test.ts`, `lib/coursera/b4bSync.test.ts` unmatched path, `courseCompletion` no-enrollment persist, `programCourseList.test.ts`, `progressReconciliation.test.ts`, `milestones.test.ts` |
 
 Do **not** mix Astryx primitives inside kit components. Roster tokens already use Astryx `Token` on those kit pages — keep that existing pattern; do not add Astryx inside `components/portal/kit/**` primitives.
 
@@ -120,12 +243,28 @@ Do **not** mix Astryx primitives inside kit components. Roster tokens already us
 - [ ] Three live unmatched prod emails (`godfavorsme099@`, `akinje.twins@`, `toukervang@`) become roster rows with progress once B4B stops skipping them — **if** they appear in `enrollmentReports`. If they only emit xAPI, show activity + unmatched badge with % unknown until B4B has a row.
 - [ ] Linking later: existing map-unmatched must promote `coursera_course_progress` → `course_progress` via `upsertMergedCourseProgress` / `computeCourseProgressUpdate` (never a blind overwrite).
 
+### Course list accuracy
+
+- [ ] Shared umbrella `courseraB4BProgramId` is not a per-program catalog. `loadValidatedProgramCourses` ignores it.
+- [ ] Y = syllabus/catalog length after dropping courses with no bind only from **display of %**, not from secretly shrinking the program — unmapped syllabus courses still count in Y and show “Not linked to Coursera” so staff see the hole.
+- [ ] Off-syllabus Coursera activity is a separate list, never mixed into X/Y.
+- [ ] Catalog health card: mapped/syllabus, 35 unmatched contents, stale ids.
+
 ### Progress semantics
 
 - [ ] Course-level only in member “X of Y complete”. Item-level xAPI updates `IN_PROGRESS` / last activity, not `percentComplete` (already guarded in `upsertCourseProgressFromXapiStatement`).
 - [ ] B4B `overallProgress` rounds to 0 on early activity — keep `lastActivityAt` promotion to `IN_PROGRESS` (already in `computeCourseProgressUpdate`). Org-wide cron must actually pass `lastActivity` (API field name), not `lastActivityAt`.
+- [ ] Program % = mean of validated course %; missing B4B row → fall back to local, do not coerce to 0 unless the course is truly not started.
+- [ ] Program complete ⇔ X === Y. Remove `pct >= 100` in `memberProgramCompleted`.
 - [ ] Grades (`score_scaled`, gradebook) are optional overlay, not the completion bit.
 - [ ] CSV import remains a manual backfill, not the live path (prod has 3 rows).
+- [ ] Reconcile table explains WAP vs Coursera per course (`ok` / `local_ahead` / `b4b_ahead` / `slug_mismatch`).
+
+### Key milestones
+
+- [ ] Allow-list: `training_started`, `first_course_completed`, `course_completed`, `program_halfway`, `program_completed`, plus existing stale signal (not a celebration).
+- [ ] Detectors are pure functions over validated list + reconcile rows; checklist and cascades call the same functions.
+- [ ] No milestone email to unmatched; no cascade on enterprise-sync backfill; no cascade at 70% job-ready threshold.
 
 ### Enrollment vs progress
 
@@ -320,7 +459,7 @@ Behavior:
 
 - [ ] **Step 2: Implement join** in `loadMemberProgramTrainingView` using canonical slug for `bySlug` lookup
 
-- [ ] **Step 3: Manual check** `/admin/training-progress` and `/admin/students` show unmatched % ≠ 0 when `coursera_course_progress` has rows; linked completers with null enrollment appear with **No program**
+- [ ] **Step 3: Manual check** `/admin/training-progress` and `/admin/students` show unmatched % ≠ 0 when `coursera_course_progress` has rows; linked completers with null enrollment appear with **No program**; program % uses Task 8 helper once it lands (land Task 7–8 before trusting X/Y on this page)
 
 - [ ] **Step 4: Commit** `fix(coursera): show unmatched and no-program progress on admin rosters`
 
@@ -356,6 +495,96 @@ Collision rule: if both `comptia-a-plus` and `comptia-a-professional-certificate
 
 ---
 
+### Task 7: Validated course list (stop umbrella B4B as Y)
+
+**Files:**
+- Create: `lib/coursera/programCourseList.ts`
+- Create: `lib/coursera/programCourseList.test.ts`
+- Modify: `lib/member/loadProgramCourses.ts` — if `courseraB4BProgramId` equals the org umbrella (`TpIlAogTQ8-SJQKIE8PP9w` or `process.env.COURSERA_ORG_PROGRAM_ID`), skip B4B-live list; go Course DB → static
+- Modify: `lib/member/memberProgramTrainingView.ts` and rollup to call `loadValidatedProgramCourses`
+
+**Interfaces:**
+- Produces: `loadValidatedProgramCourses(args) => { courses: ProgramCourse[]; source: 'syllabus' | 'course_db' | 'static'; unmappedSlugs: string[]; staleCourseraIds: string[] }`
+- Consumes: `getProgramBySlug`, canonical mappings, optional `loadB4BContents` for stale-id check (not for replacing the list)
+
+```ts
+export const COURSERA_UMBRELLA_PROGRAM_ID = 'TpIlAogTQ8-SJQKIE8PP9w';
+
+export function isUmbrellaB4BProgramId(id: string | null | undefined): boolean {
+  return (id?.trim() ?? '') === COURSERA_UMBRELLA_PROGRAM_ID;
+}
+```
+
+- [ ] **Step 1: Failing tests** — `isUmbrellaB4BProgramId` true for the shared id; `loadValidatedProgramCourses` for two different program slugs returns **different** Y (IT Support vs PM) even if a mock B4B umbrella returns 80 contents
+- [ ] **Step 2: Run tests** — expect FAIL
+- [ ] **Step 3: Implement skip-umbrella + validated loader**; wire `loadProgramCourses` to use it
+- [ ] **Step 4: Tests pass**
+- [ ] **Step 5: Commit** `fix(coursera): do not use B4B umbrella contents as every program's course list`
+
+---
+
+### Task 8: Percent formula + reconciliation
+
+**Files:**
+- Create: `lib/coursera/progressReconciliation.ts`
+- Create: `lib/coursera/progressReconciliation.test.ts`
+- Modify: `lib/partner/memberProgress.ts` — `memberProgramCompleted` is `completedCount >= totalCourses && totalCourses > 0` only
+- Modify: `app/admin/training-progress/page.tsx` — do not `?? 0` for missing join; treat missing as “no fact” and exclude from mean **or** show em-dash (prefer exclude from mean, still count in Y for X/Y)
+- Modify: `lib/admin/diagnoseMemberCoursera.ts` — append reconcile rows
+- Modify: `lib/member/memberProgramTrainingView.ts` — program % from reconcile helper
+
+**Interfaces:**
+- Produces: `reconcileProgramProgress({ validatedCourses, b4bProgress, localRows }) => { rows, completedCount, totalCourses, programPercent, allComplete }`
+
+- [ ] **Step 1: Tests**
+  - 4-course list, B4B 100/100/40/missing-local 0 → X=2, % = round((100+100+40+0)/4)=60, `allComplete` false
+  - slug miss on local only → `drift: 'slug_mismatch'` or `missing_local`, not silent 0 in X
+  - `memberProgramCompleted` false when % is 100 from a single course and Y=7
+- [ ] **Step 2: Run tests** — FAIL
+- [ ] **Step 3: Implement + switch training view and admin mean to the helper**
+- [ ] **Step 4: Tests pass**
+- [ ] **Step 5: Commit** `fix(coursera): one X/Y/% formula and per-course Coursera reconcile`
+
+---
+
+### Task 9: Key milestone detectors
+
+**Files:**
+- Create: `lib/coursera/milestones.ts`
+- Create: `lib/coursera/milestones.test.ts`
+- Modify: `lib/milestoneCascade/types.ts` — add `training_started`, `first_course_completed`, `program_halfway`, `program_completed` (keep `course_completed`)
+- Modify: `lib/milestoneCascade/buildCascadeFromCompletion.ts` — dispatch by type; keep enterprise-sync skip for celebration types
+- Modify: `lib/member/courseCompletion.ts` / B4B newly-completed path — call detectors after persist (linked users)
+- Modify: `lib/member/getMemberState.ts` — checklist from same detectors
+
+**Interfaces:**
+- Produces:
+
+```ts
+export type MilestoneKey =
+  | 'training_started'
+  | 'first_course_completed'
+  | 'course_completed'
+  | 'program_halfway'
+  | 'program_completed';
+
+export function detectMilestoneTransitions(args: {
+  previous: { completedSlugs: string[]; started: boolean };
+  next: { completedSlugs: string[]; started: boolean; validatedSlugs: string[] };
+  courseSlugJustCompleted?: string;
+}): MilestoneKey[];
+```
+
+Halfway: `next.completedSlugs.length >= Math.ceil(validatedSlugs.length / 2)` and `validatedSlugs.length >= 2`, and previous was below that threshold.
+
+- [ ] **Step 1: Fixture Y=4** — start course 1 → `training_started`; complete 1 → `first_course_completed` + `course_completed`; complete 2 → `course_completed` + `program_halfway`; complete 3 → `course_completed` only; complete 4 → `course_completed` + `program_completed`. Enterprise-sync source does not return celebration keys to the cascade builder.
+- [ ] **Step 2: Run tests** — FAIL
+- [ ] **Step 3: Implement detectors; wire complete + B4B newlyCompleted; checklist uses `started` / `completedSlugs.length`**
+- [ ] **Step 4: Tests pass**
+- [ ] **Step 5: Commit** `feat(coursera): key training milestones from validated progress`
+
+---
+
 ## Out of scope (explicit)
 
 - SAML / SCIM / auto-invite (`docs/COURSERA-INVITE-ON-JOIN.md`)
@@ -364,15 +593,20 @@ Collision rule: if both `comptia-a-plus` and `comptia-a-professional-certificate
 - Treating 93% as complete
 - Partner weekly digest including unmatched
 - Full `app/admin/coursera/page.tsx` split (thermo audit 2026-07-08) — only touch what this progress path needs
+- Rewriting TWC syllabus copy (already governed by `docs/plans/2026-07-15-twc-syllabus-accuracy.md`) — this plan only **binds** those courses to Coursera ids
+- Unmatched-learner celebration emails
+- Cascade LLM draft quality (inbox UX stays as-is; we only emit the right milestone types)
 
 ## Verification (after implementation)
 
-- Unit: slug helper, B4B unmatched plan, completeMemberCourse without enrollment, merge ladder
+- Unit: slug helper, B4B unmatched plan, completeMemberCourse without enrollment, merge ladder, **validated list (two programs ≠ umbrella Y)**, **reconcile X/Y/%**, **milestone transitions on Y=4 fixture**
 - `npm run typecheck` + targeted `node --test` files above
 - Prod-shaped SQL: unmatched `coursera_course_progress` count rises after a B4B run; `course_progress` alias slugs trend to 0 after backfill
-- Admin UI: training-progress shows Unmatched rows with real %, linked July completers visible with No program
-- Member UI (linked): CompTIA enrollment sees CompTIA course % (slug join)
+- Catalog health: IT Support Y stays 7 (or syllabus length), not the org content count; 35 unmatched contents listed as extras
+- Admin UI: training-progress shows Unmatched rows with real %, linked July completers visible with No program; diagnose page shows per-course Coursera vs WAP
+- Member UI (linked): CompTIA enrollment sees CompTIA course % (slug join); “3 of 7” uses validated Y
 - Stake: no dashboard copy that says complete at < Coursera `isCompleted`
+- Milestones: completing the first validated course creates `first_course_completed` + `course_completed` for a linked enrolled user; unmatched creates none; `program_completed` only at X === Y
 
 ## Approval
 

@@ -4,25 +4,44 @@ import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { clampElevenLabsDynamicVariables } from '@/lib/ai/clampElevenLabsDynamicVariables';
 import { extractTextFromResumeBuffer } from './extractTextFromResumeBuffer';
 import { isUnsafeResumePlainText, sanitizeResumePlainText } from './extractionQuality';
 
 const require = createRequire(import.meta.url);
 
-async function validPdfResume(): Promise<Buffer> {
-  const document = await PDFDocument.create();
-  const page = document.addPage([612, 792]);
-  const font = await document.embedFont(StandardFonts.Helvetica);
-  page.drawText('Jane Doe Resume', { x: 48, y: 730, size: 18, font });
-  page.drawText('Experience: Database administrator using SQL and PostgreSQL.', {
-    x: 48,
-    y: 695,
-    size: 11,
-    font,
-  });
-  return Buffer.from(await document.save());
+function validPdfResume(): Buffer {
+  // Keep this fixture uncompressed and PDF 1.4-compatible so the repository's
+  // legacy pdf-parse engine reads it identically on Windows and Linux.
+  const content = [
+    'BT',
+    '/F1 18 Tf',
+    '48 730 Td',
+    '(Jane Doe Resume) Tj',
+    '0 -35 Td',
+    '/F1 11 Tf',
+    '(Experience: Database administrator using SQL and PostgreSQL.) Tj',
+    'ET',
+  ].join('\n');
+  const objects = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+    '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>\nendobj\n',
+    `4 0 obj\n<< /Length ${Buffer.byteLength(content, 'latin1')} >>\nstream\n${content}\nendstream\nendobj\n`,
+    '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
+  ];
+
+  let pdf = '%PDF-1.4\n';
+  const offsets: number[] = [];
+  for (const object of objects) {
+    offsets.push(Buffer.byteLength(pdf, 'latin1'));
+    pdf += object;
+  }
+  const xrefOffset = Buffer.byteLength(pdf, 'latin1');
+  pdf += 'xref\n0 6\n0000000000 65535 f \n';
+  for (const offset of offsets) pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
+  pdf += `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.from(pdf, 'latin1');
 }
 
 async function mammothDocxFixture(): Promise<Buffer> {
@@ -37,7 +56,7 @@ test('extractTextFromResumeBuffer: UTF-8 .txt', async () => {
 });
 
 test('extractTextFromResumeBuffer: extracts a real text PDF', async () => {
-  const text = await extractTextFromResumeBuffer(await validPdfResume(), 'pdf');
+  const text = await extractTextFromResumeBuffer(validPdfResume(), 'pdf');
   assert.match(text, /Jane Doe Resume/);
   assert.match(text, /Database administrator/);
 });

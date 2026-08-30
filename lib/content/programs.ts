@@ -19,6 +19,10 @@ import {
   type ProgramSyllabus,
 } from '../../shared/programSyllabi';
 import {
+  getProgramCurriculum,
+  type ProgramCurriculum,
+} from '../../shared/programCurricula';
+import {
   getProgramCurriculumManifest,
   isApprovedCurriculumReadyForAssignment,
 } from './programCurriculumManifest';
@@ -103,6 +107,11 @@ export interface Program {
   languagesSupported?: LanguageSupport;
   /** Exact TWC syllabus transcription when one has been supplied. */
   syllabus?: ProgramSyllabus;
+  /**
+   * WorkforceAP-authored class content for programs outside the TWC
+   * submission (CPT, CLT). Never set at the same time as `syllabus`.
+   */
+  curriculum?: ProgramCurriculum;
   /** Exact syllabus description for regulated programs. */
   description?: string;
   /**
@@ -249,6 +258,10 @@ function mkProgram(
       }));
 
   const syllabus = getProgramSyllabus(slug);
+  // A program is either a TWC transcription or an in-house curriculum, never
+  // both: the syllabus is the regulated source and always wins. The frozen
+  // operational snapshot outranks both — see LEGACY_OPERATIONAL_COURSES.
+  const curriculum = syllabus ? undefined : getProgramCurriculum(slug);
   const legacyOperationalCourses = LEGACY_OPERATIONAL_COURSES[slug];
   const operationalCourses = legacyOperationalCourses ?? syllabus?.courses;
   const normalizeCourseName = (name: string) =>
@@ -279,7 +292,19 @@ function mkProgram(
           courseraSlug: discovered?.slug ?? officialCourseraSlug,
         };
       })
-    : catalogCourses;
+    : curriculum
+      ? curriculum.courses.map((course, index) => {
+          return {
+            // In-house curricula use stable local keys even if a provider
+            // discovery row later happens to share the same display name.
+            slug: `${slug}-course-${index + 1}`,
+            name: course.name,
+            estimatedHours: course.hours,
+            description: course.description,
+            kind: course.kind,
+          };
+        })
+      : catalogCourses;
   return {
     slug,
     title: syllabus?.title ?? title,
@@ -288,7 +313,13 @@ function mkProgram(
     categoryColor: canonicalCategoryColor,
     borderColor: canonicalCategoryColor,
     icon,
-    duration: syllabus ? `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}` : duration,
+    duration: syllabus
+      ? `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}`
+      : curriculum
+        ? curriculum.status === 'owner-verified'
+          ? `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`
+          : 'Hours and delivery format pending owner verification'
+        : duration,
     salary,
     skills,
     courses,
@@ -297,6 +328,7 @@ function mkProgram(
     courseraB4BProgramId: 'TpIlAogTQ8-SJQKIE8PP9w',
     languagesSupported,
     syllabus,
+    curriculum,
     description: syllabus?.description,
     // Every regulated program with a frozen approved manifest stays dormant
     // until its exact external Coursera track is validated. This must not

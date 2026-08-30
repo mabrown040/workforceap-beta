@@ -201,6 +201,7 @@ export const DYNAMIC_PATHS = {
     '/dashboard/career-library/[id]',
     '/dashboard/counselor/[id]',
     '/dashboard/jobs/[id]',
+    '/dashboard/learning/modules/[courseSlug]',
     '/dashboard/mentors/[mentorId]',
   ],
   admin: [

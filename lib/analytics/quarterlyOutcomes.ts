@@ -10,6 +10,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_COHORT_DETAIL_CAP, REPORT_SAMPLE_CAP } from '@/lib/db/scanCaps';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { resolveTrainingProgressCurriculumVersion } from '@/lib/member/trainingProgress';
 import { summarizeRetentionGroups, type RetentionSummary } from './retentionOutcome';
 
 export interface QuarterSpec {
@@ -121,7 +122,12 @@ interface EnrolledMemberRow {
   enrolledAt: Date | null;
   enrolledProgram: string | null;
   deletedAt: Date | null;
-  courseEnrollments: { programSlug: string; enrolledAt: Date }[];
+  courseEnrollments: {
+    programSlug: string;
+    curriculumVersion: string;
+    isPrimary: boolean;
+    enrolledAt: Date;
+  }[];
   courseProgress: { percentComplete: number; completedAt: Date | null; programSlug: string; courseSlug: string }[];
 }
 
@@ -141,7 +147,12 @@ async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Prom
       enrolledProgram: true,
       deletedAt: true,
       courseEnrollments: {
-        select: { programSlug: true, enrolledAt: true },
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+          enrolledAt: true,
+        },
       },
       // Unfiltered by date on purpose — completion is a point-in-time state
       // ("has this cohort member finished their program as of NOW"), not an
@@ -184,7 +195,14 @@ function buildCompletionRows(members: ReadonlyArray<EnrolledMemberRow>): Complet
       ? Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug).concat(m.enrolledProgram)))
       : Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug)));
     for (const slug of slugs) {
-      if (memberProgramCompleted(slug, completedSlugsForProgram(m, slug))) {
+      if (memberProgramCompleted({
+        enrolledProgram: slug,
+        curriculumVersion: resolveTrainingProgressCurriculumVersion(
+          slug,
+          m.courseEnrollments,
+        ),
+        coursesCompleted: completedSlugsForProgram(m, slug),
+      })) {
         rows.push({ userId: m.id, programSlug: slug });
       }
     }
@@ -214,7 +232,12 @@ async function fetchPlacements(orgId: string, start: Date, end: Date) {
           enrolledAt: true,
           enrolledProgram: true,
           courseEnrollments: {
-            select: { programSlug: true, enrolledAt: true },
+            select: {
+              programSlug: true,
+              curriculumVersion: true,
+              isPrimary: true,
+              enrolledAt: true,
+            },
           },
         },
       },

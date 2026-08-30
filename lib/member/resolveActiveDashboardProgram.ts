@@ -9,6 +9,7 @@
 export type DashboardEnrollment = {
   id: string;
   programSlug: string;
+  curriculumVersion?: string;
   isPrimary: boolean;
   enrolledAt: Date;
 };

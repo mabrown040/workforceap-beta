@@ -8,6 +8,12 @@ import {
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
 import { COURSERA_TITLE_LOOSE_MIN_LEN, normalizeTitleForMatch } from '@/lib/member/courseraSkillsetMerge';
+import {
+  APPROVED_CURRICULUM_VERSION,
+  normalizeCourseraCourseId,
+} from '@/lib/content/programCurriculumManifest';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveCurriculumMappingsForCourse } from '@/lib/coursera/curriculumMapping';
 
 // Re-export so existing call sites (`@/lib/member/programCourseMatch`)
 // continue to find these names. The actual implementation lives in
@@ -52,9 +58,17 @@ export function resolveProgramCourse(
   }
 ): { slug: string; name: string } | null {
   if (args.courseraCourseId && args.enrolledProgramSlug) {
+    const normalizedCourseId = normalizeCourseraCourseId(args.courseraCourseId);
+    const assignedCourse = program.courses.find(
+      (course) => normalizeCourseraCourseId(course.courseraCourseId) === normalizedCourseId,
+    );
+    if (assignedCourse) return { slug: assignedCourse.slug, name: assignedCourse.name };
+
     const disc = DISCOVERED_COURSERA_PROGRAMS[args.enrolledProgramSlug];
-    const needle = args.courseraCourseId.trim();
-    const byCourseraId = disc?.courses.find((c) => c.courseId === needle);
+    const needle = normalizedCourseId;
+    const byCourseraId = disc?.courses.find(
+      (course) => normalizeCourseraCourseId(course.courseId) === needle,
+    );
     if (byCourseraId) {
       // Confirm the matched slug exists in the WAP program catalog before
       // returning — keeps the contract that a returned course is a real entry
@@ -144,8 +158,40 @@ export async function resolveProgramCourseWithCatalogFallback(
     /** Pre-loaded mapping index (for batched callers). When omitted we fall
      *  back to a single per-call DB lookup. */
     canonicalMappings?: CanonicalMappingIndex;
+    curriculumVersion?: string | null;
   },
 ): Promise<{ slug: string; name: string } | null> {
+  const curriculumVersion = options?.curriculumVersion?.trim() || null;
+  const assignedProgram = curriculumVersion
+    ? {
+        ...program,
+        courses: getProgramCoursesForCurriculumVersion(program, curriculumVersion),
+      }
+    : program;
+
+  if (curriculumVersion === APPROVED_CURRICULUM_VERSION) {
+    const exactProviderId = normalizeCourseraCourseId(args.courseraCourseId);
+    const versioned = await resolveCurriculumMappingsForCourse({
+      courseraCourseId: exactProviderId,
+      courseraCourseSlug: args.courseSlug,
+      assignments: [{ programSlug: program.slug, curriculumVersion }],
+    });
+    const target = versioned.targets.find((candidate) => candidate.programSlug === program.slug);
+    if (target) {
+      const assignedCourse = assignedProgram.courses.find(
+        (course) => course.slug === target.courseSlug,
+      );
+      if (assignedCourse) return { slug: assignedCourse.slug, name: assignedCourse.name };
+    }
+
+    // Approved curricula are pinned to exact provider ids. If Coursera sent
+    // an id and that id did not resolve inside this program/version, do not
+    // credit it through a coincidentally matching slug, title, or fuzzy name.
+    // Slug/name fallback remains available only for WorkforceAP-authored
+    // manual completions, which intentionally carry no provider id.
+    if (exactProviderId) return null;
+  }
+
   // Step 1: admin-curated DB mapping wins outright. This is what makes the
   // inline "Map this" admin action take effect for xAPI/B4B traffic without
   // a redeploy. Same source-of-truth as the SQL JOIN in
@@ -153,14 +199,17 @@ export async function resolveProgramCourseWithCatalogFallback(
   const courseraCourseId = args.courseraCourseId?.trim() || null;
   const courseraCourseSlug = args.courseSlug?.trim() || null;
   let dbHit: CanonicalMappingHit | null = null;
-  if (options?.canonicalMappings) {
+  if (curriculumVersion !== APPROVED_CURRICULUM_VERSION && options?.canonicalMappings) {
     if (courseraCourseId) {
       dbHit = options.canonicalMappings.byCourseraCourseId.get(courseraCourseId) ?? null;
     }
     if (!dbHit && courseraCourseSlug) {
       dbHit = options.canonicalMappings.byCourseraCourseSlug.get(courseraCourseSlug) ?? null;
     }
-  } else if (courseraCourseId || courseraCourseSlug) {
+  } else if (
+    curriculumVersion !== APPROVED_CURRICULUM_VERSION &&
+    (courseraCourseId || courseraCourseSlug)
+  ) {
     dbHit = await findCanonicalMappingForCourseraCourse({
       courseraCourseId,
       courseraCourseSlug,
@@ -190,8 +239,12 @@ export async function resolveProgramCourseWithCatalogFallback(
   }
 
   // Step 2 + 3: existing portal/discovered/slug behavior.
-  const fromProgram = resolveProgramCourse(program, args);
+  const fromProgram = resolveProgramCourse(assignedProgram, args);
   if (fromProgram) return fromProgram;
+
+  // A pinned approved curriculum is closed over its manifest. Never revive a
+  // retired discovered course through fuzzy matching.
+  if (curriculumVersion === APPROVED_CURRICULUM_VERSION) return null;
 
   // Step 4: per-program discovered-catalog fuzzy fallback.
   const discovered = DISCOVERED_COURSERA_PROGRAMS[program.slug];

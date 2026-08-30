@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async () => {
@@ -16,6 +19,16 @@ export const GET = withApiGuc(async () => {
     select: {
       enrolledProgram: true,
       fullName: true,
+      courseEnrollments: {
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        select: {
+          id: true,
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+          enrolledAt: true,
+        },
+      },
       courseProgress: {
         where: { status: 'COMPLETED' },
         select: { programSlug: true, courseSlug: true },
@@ -23,10 +36,29 @@ export const GET = withApiGuc(async () => {
     },
   }));
 
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  const { activeProgramSlug: enrolledProgram } = resolveActiveDashboardProgram({
+    enrollments: dbUser?.courseEnrollments ?? [],
+    legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
+  });
+  const activeEnrollment = dbUser?.courseEnrollments.find((row) =>
+    enrolledProgram ? programSlugsEquivalent(row.programSlug, enrolledProgram) : false,
+  );
+  const curriculumVersion = activeEnrollment?.curriculumVersion ?? 'legacy-v1';
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const assignedCourses = program
+    ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
+    : [];
+  const assignedCourseSlugs = new Set(assignedCourses.map((course) => course.slug));
   const completedCount = program && enrolledProgram
-    ? dbUser?.courseProgress.filter((row) => row.programSlug === enrolledProgram && program.courses.some((course) => course.slug === row.courseSlug)).length ?? 0
+    ? new Set(
+        dbUser?.courseProgress
+          .filter(
+            (row) =>
+              programSlugsEquivalent(row.programSlug, enrolledProgram) &&
+              assignedCourseSlugs.has(row.courseSlug),
+          )
+          .map((row) => row.courseSlug) ?? [],
+      ).size
     : 0;
 
   const readiness = getCourseraReadiness(enrolledProgram);
@@ -47,7 +79,8 @@ export const GET = withApiGuc(async () => {
           slug: program.slug,
           title: program.title,
           partner: program.partner,
-          totalCourses: program.courses.length,
+          curriculumVersion,
+          totalCourses: assignedCourses.length,
           completedCourses: completedCount,
         }
       : null,

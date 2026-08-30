@@ -9,6 +9,7 @@ import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
 import { prisma } from '@/lib/db/prisma';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 /** Days without training activity before we surface counselor escalation on the dashboard. */
 export const STALE_TRAINING_ACTIVITY_DAYS = 14;
@@ -52,23 +53,44 @@ export async function loadMemberProgramTrainingView(args: {
   b4bProgress?: LearnerProgressByContent;
   readOnlyAudit?: boolean;
 }): Promise<MemberProgramTrainingView | null> {
-  const program = getProgramBySlug(args.programSlug);
+  // CourseEnrollment is authoritative. Load the complete assignment set before
+  // choosing a program: filtering by the caller/User slug first would turn a
+  // stale legacy pointer into an empty result and incorrectly infer legacy-v1.
+  const userRow = await prisma.user.findUnique({
+    where: { id: args.userId },
+    select: {
+      organizationId: true,
+      courseEnrollments: {
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+        },
+      },
+    },
+  });
+
+  const assignment = resolveTrainingProgressAssignment(
+    args.programSlug,
+    userRow?.courseEnrollments ?? [],
+  );
+  if (!assignment.programSlug || !assignment.curriculumVersion) return null;
+
+  const program = getProgramBySlug(assignment.programSlug);
   if (!program) return null;
   const programSlugs = programSlugReadCandidates(program.slug);
 
   // Resolve the user's organization once so the regulated syllabus/course DB
   // can define Y. The shared Coursera B4B umbrella is only used to validate
   // already-bound ids; it can never replace this per-program list.
-  const userRow = await prisma.user.findUnique({
-    where: { id: args.userId },
-    select: { organizationId: true },
-  });
   const validatedCourseList = userRow?.organizationId
     ? await loadValidatedProgramCourses({
         organizationId: userRow.organizationId,
         programSlug: program.slug,
         readOnlyAudit: args.readOnlyAudit,
         checkB4BContents: false,
+        curriculumVersion: assignment.curriculumVersion,
       })
     : null;
   const courseList = validatedCourseList?.courses ?? program.courses;

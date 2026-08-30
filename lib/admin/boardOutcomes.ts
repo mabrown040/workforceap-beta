@@ -3,7 +3,10 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { prisma } from '@/lib/db/prisma';
 import { REPORT_SAMPLE_CAP, sqlCount } from '@/lib/db/scanCaps';
 import { summarizeRetentionGroups } from '@/lib/analytics/retentionOutcome';
-import { validatedProgramCompletionValuesSql } from '@/lib/reporting/programCompletion';
+import {
+  validatedProgramAssignmentRowsSql,
+  validatedProgramCompletionValuesSql,
+} from '@/lib/reporting/programCompletion';
 
 /**
  * Aggregations for the Board / Funder outcomes portal.
@@ -214,8 +217,10 @@ export async function getBoardOutcomes(
     prisma.user.count({ where: enrolledWhere }),
     prisma.placementRecord.count({ where: placementWhere }),
     prisma.$queryRaw<Array<{ certified: bigint | number; in_training: bigint | number }>>`
-      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+      WITH validated_programs(canonical_slug, storage_value, curriculum_version, total_courses) AS (
         VALUES ${validatedProgramCompletionValuesSql()}
+      ), learner_program_assignments(user_id, program_slug, curriculum_version) AS (
+        ${validatedProgramAssignmentRowsSql()}
       ), learner_training_status AS (
         SELECT
           u.id,
@@ -228,13 +233,17 @@ export async function getBoardOutcomes(
             AND (mpp.courses_completed > 0 OR mpp.average_percent > 0)
           ) AS started
         FROM users u
+        INNER JOIN learner_program_assignments ce
+          ON ce.user_id = u.id
         INNER JOIN validated_programs enrolled_program
-          ON enrolled_program.storage_value = u.enrolled_program
+          ON enrolled_program.storage_value = ce.program_slug
+          AND enrolled_program.curriculum_version = ce.curriculum_version
         LEFT JOIN member_program_progress mpp
           ON mpp.user_id = u.id
         LEFT JOIN validated_programs progress_program
           ON progress_program.canonical_slug = enrolled_program.canonical_slug
           AND progress_program.storage_value = mpp.program_slug
+          AND progress_program.curriculum_version = ce.curriculum_version
         WHERE u.deleted_at IS NULL
           AND u.enrolled_program IS NOT NULL
           ${orgSql}
@@ -279,20 +288,26 @@ export async function getBoardOutcomes(
       _count: { _all: true },
     }),
     prisma.$queryRaw<Array<{ program_slug: string; count: bigint | number }>>`
-      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+      WITH validated_programs(canonical_slug, storage_value, curriculum_version, total_courses) AS (
         VALUES ${validatedProgramCompletionValuesSql()}
+      ), learner_program_assignments(user_id, program_slug, curriculum_version) AS (
+        ${validatedProgramAssignmentRowsSql()}
       )
       SELECT
         enrolled_program.canonical_slug AS program_slug,
         COUNT(DISTINCT u.id)::bigint AS count
       FROM users u
+      INNER JOIN learner_program_assignments ce
+        ON ce.user_id = u.id
       INNER JOIN validated_programs enrolled_program
-        ON enrolled_program.storage_value = u.enrolled_program
+        ON enrolled_program.storage_value = ce.program_slug
+        AND enrolled_program.curriculum_version = ce.curriculum_version
       INNER JOIN member_program_progress mpp
         ON mpp.user_id = u.id
       INNER JOIN validated_programs progress_program
         ON progress_program.canonical_slug = enrolled_program.canonical_slug
         AND progress_program.storage_value = mpp.program_slug
+        AND progress_program.curriculum_version = ce.curriculum_version
       WHERE u.deleted_at IS NULL
         AND u.enrolled_program IS NOT NULL
         AND mpp.courses_completed = progress_program.total_courses
@@ -818,20 +833,26 @@ export async function getBoardSnapshot(
       GROUP BY 1
     `,
     prisma.$queryRaw<Array<{ month: string; count: bigint | number }>>`
-      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+      WITH validated_programs(canonical_slug, storage_value, curriculum_version, total_courses) AS (
         VALUES ${validatedProgramCompletionValuesSql()}
+      ), learner_program_assignments(user_id, program_slug, curriculum_version) AS (
+        ${validatedProgramAssignmentRowsSql()}
       )
       SELECT
         to_char(date_trunc('month', u.enrolled_at), 'YYYY-MM') AS month,
         COUNT(DISTINCT u.id)::bigint AS count
       FROM users u
+      INNER JOIN learner_program_assignments ce
+        ON ce.user_id = u.id
       INNER JOIN validated_programs enrolled_program
-        ON enrolled_program.storage_value = u.enrolled_program
+        ON enrolled_program.storage_value = ce.program_slug
+        AND enrolled_program.curriculum_version = ce.curriculum_version
       INNER JOIN member_program_progress mpp
         ON mpp.user_id = u.id
       INNER JOIN validated_programs progress_program
         ON progress_program.canonical_slug = enrolled_program.canonical_slug
         AND progress_program.storage_value = mpp.program_slug
+        AND progress_program.curriculum_version = ce.curriculum_version
       WHERE u.deleted_at IS NULL
         AND u.enrolled_program IS NOT NULL
         AND u.enrolled_at IS NOT NULL

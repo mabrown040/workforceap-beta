@@ -6,11 +6,17 @@ export type CourseraLaunchUser = {
 type DbUser = {
   enrolledProgram: string | null;
   organizationId: string | null;
+  courseEnrollments?: Array<{ programSlug: string; curriculumVersion: string }>;
   courseProgress: Array<{ programSlug: string; courseSlug: string }>;
 } | null;
 
 type ProgramWithCourses = {
-  courses: Array<{ slug: string; courseraSlug?: string }>;
+  courses: Array<{
+    slug: string;
+    kind?: 'coursera' | 'workforceap';
+    courseraSlug?: string;
+    courseraCourseId?: string;
+  }>;
 };
 
 type CourseOverride = {
@@ -20,6 +26,12 @@ type CourseOverride = {
 
 type DiscoveredProgram = {
   courses: Array<{ slug: string; courseId: string }>;
+} | null;
+
+type ApprovedCurriculumTrack = {
+  status: 'pending' | 'validated';
+  collectionId: string | null;
+  assignmentMode: 'disabled' | 'canary' | 'enabled';
 } | null;
 
 export type CourseraLaunchDependencies<ResponseLike, ProgramType extends ProgramWithCourses> = {
@@ -35,7 +47,11 @@ export type CourseraLaunchDependencies<ResponseLike, ProgramType extends Program
     organizationId: string;
     programSlug: string;
   }) => Promise<CourseOverride>;
-  getProgramBySlug: (programSlug: string) => ProgramType | null;
+  getProgramBySlug: (programSlug: string, curriculumVersion?: string) => ProgramType | null;
+  getApprovedCurriculumTrack: (
+    programSlug: string,
+    curriculumVersion: string,
+  ) => ApprovedCurriculumTrack;
   getFirstIncompleteCourseIndex: (program: ProgramType, completedSlugs: string[]) => number | undefined;
   getCourseraConfig: () => { courseIdMap: Record<string, string[] | undefined> };
   buildCourseraLaunchUrl: (args: {
@@ -50,8 +66,12 @@ export type CourseraLaunchDependencies<ResponseLike, ProgramType extends Program
     programSlug: string,
     courseId: string,
     courseSlug: string,
-  ) => Promise<string>;
-  getOrgScopedProgramUrl: (programSlug: string) => Promise<string | null>;
+    preferredProgramId?: string | null,
+  ) => Promise<string | null>;
+  getOrgScopedProgramUrl: (
+    programSlug: string,
+    preferredProgramId?: string | null,
+  ) => Promise<string | null>;
   localFallbackUrl: (slug: string, kind: 'course' | 'specialization') => string;
   redirect: (url: URL | string) => ResponseLike;
 };
@@ -100,7 +120,61 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
       dbUser?.enrolledProgram ?? null,
     );
     const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
-    const program = enrolledProgram ? deps.getProgramBySlug(enrolledProgram) : null;
+    const curriculumVersion = enrolledProgram
+      ? dbUser?.courseEnrollments?.find(
+          (enrollment) => enrollment.programSlug === enrolledProgram,
+        )?.curriculumVersion ?? 'legacy-v1'
+      : 'legacy-v1';
+    const program = enrolledProgram
+      ? deps.getProgramBySlug(enrolledProgram, curriculumVersion)
+      : null;
+
+    const approvedTrack = enrolledProgram && curriculumVersion === APPROVED_CURRICULUM_VERSION
+      ? deps.getApprovedCurriculumTrack(enrolledProgram, curriculumVersion)
+      : null;
+    const approvedCollectionId = approvedTrack?.collectionId?.trim() || null;
+    if (enrolledProgram && curriculumVersion === APPROVED_CURRICULUM_VERSION) {
+      if (!isExternalCurriculumTrackReady(approvedTrack)) {
+        const errorUrl = new URL('/dashboard/training', request.url);
+        errorUrl.searchParams.set('error', 'curriculum_track_pending');
+        return deps.redirect(errorUrl);
+      }
+    }
+
+    // A URL can be hand-edited. Never launch a Course DB/discovered entry that
+    // is outside the learner's immutable curriculum assignment.
+    if (requestedSlug && (!program || !program.courses.some((course) => course.slug === requestedSlug))) {
+      const errorUrl = new URL('/dashboard/training', request.url);
+      errorUrl.searchParams.set('error', 'course_not_assigned');
+      return deps.redirect(errorUrl);
+    }
+
+    const requestedCourse = requestedSlug
+      ? program?.courses.find((course) => course.slug === requestedSlug)
+      : null;
+    if (requestedCourse && isWorkforceApCourse(requestedCourse)) {
+      return deps.redirect(new URL(
+        workforceApCourseHref(requestedCourse.slug, enrolledProgram ?? ''),
+        request.url,
+      ));
+    }
+    if (
+      requestedCourse?.courseraCourseId
+      && requestedCourse.courseraSlug
+      && enrolledProgram
+      && approvedCollectionId
+    ) {
+      const approvedCourseUrl = await deps.getOrgScopedCourseUrl(
+        enrolledProgram,
+        requestedCourse.courseraCourseId,
+        requestedCourse.courseraSlug,
+        approvedCollectionId,
+      );
+      if (approvedCourseUrl) return deps.redirect(approvedCourseUrl);
+      const errorUrl = new URL('/dashboard/training', request.url);
+      errorUrl.searchParams.set('error', 'launch_failed');
+      return deps.redirect(errorUrl);
+    }
 
     if (requestedSlug && enrolledProgram) {
       if (dbUser?.organizationId) {
@@ -126,7 +200,7 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
             discoveredCourse.courseId,
             discoveredCourse.slug,
           );
-          return deps.redirect(orgScoped);
+          if (orgScoped) return deps.redirect(orgScoped);
         }
       }
 
@@ -158,16 +232,27 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
     const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
     const courseIdMap = enrolledProgram ? deps.getCourseraConfig().courseIdMap[enrolledProgram] : undefined;
-    const currentCourseId =
-      courseIdMap && currentCourseIndex != null && currentCourseIndex >= 0
-        ? courseIdMap[currentCourseIndex]
-        : undefined;
+    const currentCourse = currentCourseIndex != null && currentCourseIndex >= 0
+      ? program?.courses[currentCourseIndex]
+      : undefined;
+    if (currentCourse && isWorkforceApCourse(currentCourse)) {
+      return deps.redirect(new URL(
+        workforceApCourseHref(currentCourse.slug, enrolledProgram ?? ''),
+        request.url,
+      ));
+    }
+    const currentCourseId = currentCourseIndex != null && currentCourseIndex >= 0
+      ? currentCourse?.courseraCourseId ?? courseIdMap?.[currentCourseIndex]
+      : undefined;
 
     if (requestedSlug) {
       if (enrolledProgram && currentCourseId) {
-        return deps.redirect(
-          await deps.getOrgScopedCourseUrl(enrolledProgram, currentCourseId, requestedSlug),
+        const orgScoped = await deps.getOrgScopedCourseUrl(
+          enrolledProgram,
+          currentCourseId,
+          requestedSlug,
         );
+        if (orgScoped) return deps.redirect(orgScoped);
       }
 
       const errorUrl = new URL('/dashboard/training', request.url);
@@ -176,7 +261,7 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
     }
 
     const orgScopedProgramUrl = enrolledProgram
-      ? await deps.getOrgScopedProgramUrl(enrolledProgram)
+      ? await deps.getOrgScopedProgramUrl(enrolledProgram, approvedCollectionId)
       : null;
 
     const configuredLaunchUrl = deps.buildCourseraLaunchUrl({
@@ -187,11 +272,12 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
       currentCourseId,
     });
 
-    const resolvedUrl =
-      (isProgramSpecificLaunchUrl(configuredLaunchUrl) ? configuredLaunchUrl : null) ??
-      orgScopedProgramUrl ??
-      configuredLaunchUrl ??
-      null;
+    const resolvedUrl = approvedCollectionId
+      ? orgScopedProgramUrl
+      : (isProgramSpecificLaunchUrl(configuredLaunchUrl) ? configuredLaunchUrl : null) ??
+        orgScopedProgramUrl ??
+        configuredLaunchUrl ??
+        null;
 
     let safeUrl = resolvedUrl;
     if (isUselessProgramFallback(safeUrl) && enrolledProgram && dbUser?.organizationId) {
@@ -217,3 +303,8 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
     return deps.redirect(safeUrl);
   };
 }
+import { isWorkforceApCourse, workforceApCourseHref } from '@/lib/content/courseDelivery';
+import {
+  APPROVED_CURRICULUM_VERSION,
+  isExternalCurriculumTrackReady,
+} from '@/lib/content/programCurriculumManifest';

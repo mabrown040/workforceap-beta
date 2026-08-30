@@ -13,6 +13,7 @@ import { EMPLOYER_LIST_CAP, isListTruncated, showingFirstLabel } from '@/lib/db/
 import PageHeader from '@/components/portal/PageHeader';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import {
@@ -20,7 +21,8 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 
 type Props = {
   params: Promise<{ studentId: string }>;
@@ -111,14 +113,22 @@ export default async function EmployerCandidateProfilePage({
         assessmentCompleted: true,
         // Multi-program-aware: pull every enrollment + progress data
         courseEnrollments: {
-          select: { programSlug: true, isPrimary: true, enrolledAt: true },
+          select: {
+            programSlug: true,
+            curriculumVersion: true,
+            isPrimary: true,
+            enrolledAt: true,
+          },
           orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
         },
-        memberProgramProgress: {
-          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-        },
         courseProgress: {
-          select: { programSlug: true, courseSlug: true, status: true, percentComplete: true },
+          select: {
+            programSlug: true,
+            courseSlug: true,
+            courseId: true,
+            status: true,
+            percentComplete: true,
+          },
         },
         profile: {
           select: {
@@ -153,13 +163,41 @@ export default async function EmployerCandidateProfilePage({
     : enrolledProgramTitle ?? '—';
 
   // Training progress from CourseProgress + MemberProgramProgress
-  const trainingProgramSlug = student.enrolledProgram;
+  const activeEnrollment =
+    student.courseEnrollments.find((row) => row.isPrimary) ??
+    (student.enrolledProgram
+      ? student.courseEnrollments.find((row) =>
+          programSlugsEquivalent(row.programSlug, student.enrolledProgram as string),
+        )
+      : null) ??
+    student.courseEnrollments[0] ??
+    null;
+  const trainingProgramSlug = activeEnrollment?.programSlug ?? student.enrolledProgram;
   const trainingProgram = trainingProgramSlug ? getProgramBySlug(trainingProgramSlug) : null;
-  const trainingRollupPct = memberProgramProgressPct(trainingProgramSlug, null, student.memberProgramProgress);
+  const trainingCourses = trainingProgram
+    ? getProgramCoursesForCurriculumVersion(
+        trainingProgram,
+        activeEnrollment?.curriculumVersion ?? 'legacy-v1',
+      )
+    : [];
   const trainingCourseRows = trainingProgramSlug
-    ? student.courseProgress.filter((r) => r.programSlug === trainingProgramSlug)
+    ? student.courseProgress.filter((r) =>
+        programSlugsEquivalent(r.programSlug, trainingProgramSlug),
+      )
     : [];
   const trainingCourseBySlug = new Map(trainingCourseRows.map((r) => [r.courseSlug, r]));
+  const trainingReconciliation = trainingProgram
+    ? reconcileProgramProgress({
+        validatedCourses: trainingCourses,
+        localRows: trainingCourseRows.map((row) => ({
+          courseSlug: row.courseSlug,
+          courseId: row.courseId,
+          status: row.status,
+          percentComplete: row.percentComplete,
+        })),
+      })
+    : null;
+  const trainingRollupPct = trainingReconciliation?.programPercent ?? 0;
 
   const selectedMatch = (highlightJobId ? matches.find((match) => match.jobId === highlightJobId) : null) ?? matches[0] ?? null;
   const topMatchPct = selectedMatch ? matchScoreAsPercent(selectedMatch.matchScore) : null;
@@ -290,7 +328,7 @@ export default async function EmployerCandidateProfilePage({
                 </div>
                 {trainingProgram ? (
                   <ul style={{ margin: '0.65rem 0 0', padding: 0, listStyle: 'none' }}>
-                    {trainingProgram.courses.map((course) => {
+                    {trainingCourses.map((course) => {
                       const row = trainingCourseBySlug.get(course.slug);
                       const done = row?.status === CourseProgressStatus.COMPLETED;
                       const pct = row?.percentComplete ?? 0;
@@ -539,7 +577,7 @@ export default async function EmployerCandidateProfilePage({
                     </div>
                     {trainingProgram ? (
                       <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
-                        {trainingProgram.courses.map((course) => {
+                        {trainingCourses.map((course) => {
                           const row = trainingCourseBySlug.get(course.slug);
                           const done = row?.status === CourseProgressStatus.COMPLETED;
                           const pct = row?.percentComplete ?? 0;

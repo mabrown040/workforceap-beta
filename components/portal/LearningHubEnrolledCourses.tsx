@@ -6,6 +6,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import type { LanguageSupport, ProgramCourse } from '@/lib/content/programs';
 
 type LearningHubEnrolledCoursesProps = {
+  programSlug: string | null;
   programTitle: string | null;
   courses: ProgramCourse[];
   completedSlugs: string[];
@@ -39,6 +40,7 @@ function buildLanguageSupportLine(languagesSupported?: LanguageSupport): string 
 }
 
 export default function LearningHubEnrolledCourses({
+  programSlug,
   programTitle,
   courses,
   completedSlugs,
@@ -52,7 +54,7 @@ export default function LearningHubEnrolledCourses({
     ? { margin: '0 1.5rem 1.5rem' }
     : { marginBottom: 'var(--space-8)' };
 
-  if (!programTitle || courses.length === 0) {
+  if (!programSlug || !programTitle || courses.length === 0) {
     return (
       <section style={wrapStyle}>
         <PortalEmptyState
@@ -195,6 +197,7 @@ export default function LearningHubEnrolledCourses({
         ) : null}
 
         <TrainingCourseList
+          programSlug={programSlug}
           courses={courses}
           completedSlugs={completedSlugs}
           eligibilityApproved={eligibilityApproved}

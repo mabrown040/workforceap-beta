@@ -9,6 +9,13 @@ import { EnrollStateError, runEnrollStateMachine } from '@/lib/coursera/enrollSt
 import { buildB4BPort, writeEnrollAudit } from '@/lib/coursera/enrollPort';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import {
+  getProgramCurriculumManifest,
+  normalizeCourseraCourseId,
+} from '@/lib/content/programCurriculumManifest';
 
 /**
  * POST /api/member/coursera/enroll-in-course
@@ -60,8 +67,9 @@ async function _POST(request: Request) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
     const o = body as Record<string, unknown>;
-    const courseraCourseId =
-      typeof o.courseraCourseId === 'string' ? o.courseraCourseId.trim() : '';
+    const courseraCourseId = normalizeCourseraCourseId(
+      typeof o.courseraCourseId === 'string' ? o.courseraCourseId : '',
+    );
     if (!courseraCourseId) {
       return NextResponse.json({ error: 'courseraCourseId required' }, { status: 400 });
     }
@@ -85,6 +93,16 @@ async function _POST(request: Request) {
           fullName: true,
           enrolledProgram: true,
           courseraEnrollmentApproved: true,
+          courseEnrollments: {
+            select: {
+              id: true,
+              programSlug: true,
+              curriculumVersion: true,
+              isPrimary: true,
+              enrolledAt: true,
+            },
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          },
         },
       }),
     );
@@ -106,7 +124,11 @@ async function _POST(request: Request) {
     }
   
     // Gate 2: enrolled program.
-    if (!dbUser.enrolledProgram) {
+    const { activeProgramSlug: enrolledProgram } = resolveActiveDashboardProgram({
+      enrollments: dbUser.courseEnrollments,
+      legacyEnrolledProgram: dbUser.enrolledProgram,
+    });
+    if (!enrolledProgram) {
       return NextResponse.json(
         {
           error: 'Choose a program first',
@@ -117,15 +139,21 @@ async function _POST(request: Request) {
     }
   
     // Gate 3: course belongs to the user's program.
-    const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[dbUser.enrolledProgram];
-    if (!discoveredProgram) {
+    const enrollment = dbUser.courseEnrollments.find(
+      (row) => row.programSlug === enrolledProgram,
+    );
+    const curriculumVersion = enrollment?.curriculumVersion ?? 'legacy-v1';
+    const program = getProgramBySlug(enrolledProgram);
+    const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
+    if (!program || !discoveredProgram) {
       return NextResponse.json(
         { error: 'Program not in Coursera catalog', code: 'PROGRAM_NOT_MAPPED' },
         { status: 400 },
       );
     }
-    const courseInProgram = discoveredProgram.courses.find(
-      (c) => c.courseId === courseraCourseId,
+    const assignedCourses = getProgramCoursesForCurriculumVersion(program, curriculumVersion);
+    const courseInProgram = assignedCourses.find(
+      (course) => normalizeCourseraCourseId(course.courseraCourseId) === courseraCourseId,
     );
     if (!courseInProgram) {
       return NextResponse.json(
@@ -141,7 +169,17 @@ async function _POST(request: Request) {
     // short-TTL cache, plus the invite/membership/enroll write bindings —
     // identical machinery to the admin one-click route.
     const b4bOrgId = getB4BOrgId();
-    const programId = discoveredProgram.courseraProgramId;
+    const approvedTrack = getProgramCurriculumManifest(enrolledProgram, curriculumVersion)?.externalTrack;
+    if (approvedTrack && (approvedTrack.status !== 'validated' || !approvedTrack.collectionId)) {
+      return NextResponse.json(
+        {
+          error: 'This approved Coursera learning path is still being validated.',
+          code: 'CURRICULUM_TRACK_PENDING',
+        },
+        { status: 409 },
+      );
+    }
+    const programId = approvedTrack?.collectionId ?? discoveredProgram.courseraProgramId;
 
     const externalId = user.email.trim().toLowerCase();
     let result;
@@ -209,7 +247,7 @@ async function _POST(request: Request) {
         wapUserId: user.id,
         orgId,
         email: user.email,
-        enrolledProgram: dbUser.enrolledProgram,
+        enrolledProgram,
       }).catch(() => {
         /* swallow — auto-sync is fire-and-forget */
       });

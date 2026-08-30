@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
-import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
 import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
 import {
   claimLiveCourseCompletionEvent,
@@ -51,6 +51,9 @@ export async function completeMemberCourse(args: {
       email: true,
       fullName: true,
       organizationId: true,
+      courseEnrollments: {
+        select: { programSlug: true, curriculumVersion: true },
+      },
     },
   });
 
@@ -70,15 +73,19 @@ export async function completeMemberCourse(args: {
   let programSlug: string;
   let matchedCourse: { slug: string; name: string };
   let courseId: string | null;
+  let resolvedCurriculumVersion = 'legacy-v1';
   if (enrollmentProgramSlug) {
     const enrolledProgram = getProgramBySlug(enrollmentProgramSlug);
     if (!enrolledProgram) throw new Error('Invalid program');
+    resolvedCurriculumVersion = dbUser.courseEnrollments?.find((enrollment) =>
+      programSlugsEquivalent(enrollment.programSlug, enrollmentProgramSlug),
+    )?.curriculumVersion ?? 'legacy-v1';
     const enrollmentMatch = await resolveProgramCourseWithCatalogFallback(enrolledProgram, {
       courseraCourseId: args.courseraCourseId ?? null,
       enrolledProgramSlug: enrollmentProgramSlug,
       courseSlug: args.courseSlug,
       courseName: args.courseName,
-    });
+    }, { curriculumVersion: resolvedCurriculumVersion });
     if (!enrollmentMatch) throw new Error('Course not found');
     programSlug = enrollmentProgramSlug;
     matchedCourse = enrollmentMatch;
@@ -110,6 +117,7 @@ export async function completeMemberCourse(args: {
         organizationId: dbUser.organizationId,
         programSlug,
         checkB4BContents: false,
+        curriculumVersion: resolvedCurriculumVersion,
       })).courses
     : [];
   const validatedSlugs = validatedCourses.map((course) => course.slug);

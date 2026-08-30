@@ -1,21 +1,17 @@
-import { getProgramBySlug } from '@/lib/content/programs';
-import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
+import {
+  computeTrainingProgress,
+  type ComputeTrainingProgressArgs,
+} from '@/lib/member/trainingProgress';
 
 export function memberProgramProgressPct(
-  enrolledProgram: string | null,
-  coursesCompleted: unknown,
-  liveProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[]
+  args: ComputeTrainingProgressArgs,
 ): number {
-  return computeTrainingProgress(enrolledProgram, coursesCompleted, liveProgress).pct;
+  return computeTrainingProgress(args).pct;
 }
 
 export function memberProgramCompleted(
-  enrolledProgram: string | null,
-  coursesCompleted: unknown,
-  liveProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[]
+  args: ComputeTrainingProgressArgs,
 ): boolean {
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  if (!program?.courses.length) return false;
-  const progress = computeTrainingProgress(enrolledProgram, coursesCompleted, liveProgress);
+  const progress = computeTrainingProgress(args);
   return progress.allComplete;
 }

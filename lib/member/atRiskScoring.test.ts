@@ -38,6 +38,7 @@ function baseUser() {
     id: 'u1',
     email: 'member@example.com',
     enrolledProgram: 'cna',
+    courseEnrollments: [],
     assessmentCompleted: true,
     lastCourseraAutoSyncAt: null,
     createdAt: new Date('2026-01-01'),
@@ -102,4 +103,5 @@ describe('calculateAtRiskScore — course activity gap', () => {
     const result = await calculateAtRiskScore('u1');
     expect(result.factors.find((f) => f.name.startsWith('NO_COURSE_ACTIVITY'))).toBeUndefined();
   });
+
 });

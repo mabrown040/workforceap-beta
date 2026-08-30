@@ -27,7 +27,7 @@ export type B4BProgramWithContents = {
   slug: string | null;
   name: string;
   url: string | null;
-  courses: Array<{ id: string; slug: string; name: string }>;
+  courses: Array<{ id: string; slug: string; name: string; contentType: string }>;
 };
 
 type B4BProgramWithUrl = B4BProgram & { url?: string };
@@ -55,12 +55,14 @@ function slugifyName(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
-function normalizeContent(raw: B4BContent): { id: string; slug: string; name: string } | null {
+function normalizeContent(
+  raw: B4BContent,
+): { id: string; slug: string; name: string; contentType: string } | null {
   if (!raw.id) return null;
   const name = (raw.name ?? '').trim();
   if (!name) return null;
   const slug = raw.slug?.trim() || slugifyName(name);
-  return { id: raw.id, slug, name };
+  return { id: raw.id, slug, name, contentType: raw.contentType?.trim() || 'Unknown' };
 }
 
 async function fetchPrograms(): Promise<B4BProgramWithContents[]> {
@@ -74,7 +76,10 @@ async function fetchPrograms(): Promise<B4BProgramWithContents[]> {
       courses: Array.isArray(p.contents)
         ? (p.contents as B4BContent[])
             .map(normalizeContent)
-            .filter((c): c is { id: string; slug: string; name: string } => c !== null)
+            .filter(
+              (c): c is { id: string; slug: string; name: string; contentType: string } =>
+                c !== null,
+            )
         : [],
     }));
   } catch (error) {

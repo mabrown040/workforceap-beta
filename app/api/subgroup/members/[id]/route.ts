@@ -3,8 +3,10 @@ import { getUser } from '@/lib/auth/server';
 import { getSubgroupsForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async (
@@ -39,6 +41,10 @@ export const GET = withApiGuc(async (
           email: true,
           phone: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          },
           enrolledAt: true,
           updatedAt: true,
           deletedAt: true,
@@ -66,13 +72,23 @@ export const GET = withApiGuc(async (
   }
 
   const m = memberSubgroup.member;
-  const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-  const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+  const assignment = resolveTrainingProgressAssignment(
+    m.enrolledProgram,
+    m.courseEnrollments,
+  );
+  const program = assignment.programSlug ? getProgramBySlug(assignment.programSlug) : null;
+  const pct = memberProgramProgressPct({
+    enrolledProgram: assignment.programSlug,
+    curriculumVersion: assignment.curriculumVersion,
+    coursesCompleted: null,
+    liveProgress: m.memberProgramProgress,
+  });
   const student: PipelineStudent = {
     id: m.id,
     fullName: m.fullName,
     email: m.email,
-    enrolledProgram: m.enrolledProgram,
+    enrolledProgram: assignment.programSlug,
+    curriculumVersion: assignment.curriculumVersion,
     enrolledAt: m.enrolledAt,
     assessmentCompleted: m.assessmentCompleted,
     deletedAt: m.deletedAt,
@@ -82,9 +98,12 @@ export const GET = withApiGuc(async (
     memberProgramProgress: m.memberProgramProgress,
   };
   const stage = getPipelineStage(student);
-  const coursesCompleted = m.enrolledProgram
+  const completedProgramSlug = assignment.programSlug;
+  const coursesCompleted = completedProgramSlug
     ? m.courseProgress
-        .filter((row) => row.programSlug === m.enrolledProgram)
+        .filter((row) =>
+          programSlugsEquivalent(row.programSlug, completedProgramSlug),
+        )
         .map((row) => row.courseSlug)
     : [];
 
@@ -94,7 +113,7 @@ export const GET = withApiGuc(async (
     email: m.email,
     phone: m.phone,
     linkedIn: m.profile?.profileLinkedin,
-    enrolledProgram: program?.title ?? m.enrolledProgram,
+    enrolledProgram: program?.title ?? assignment.programSlug,
     enrolledAt: m.enrolledAt,
     progressPct: pct,
     stage: PIPELINE_STAGE_LABELS[stage],

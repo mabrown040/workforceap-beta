@@ -3,6 +3,7 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 /**
  * Admin Coursera Enrollment Command Center (`/admin/coursera/enrollment`).
@@ -92,6 +93,10 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
       fullName: true,
       email: true,
       enrolledProgram: true,
+      courseEnrollments: {
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+      },
       coursesCompleted: true,
       courseraEnrollmentApproved: true,
       courseraEnrollmentApprovedAt: true,
@@ -143,7 +148,11 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
   const programSet = new Map<string, string>();
 
   const rows: EnrollmentPipelineRow[] = members.map((m) => {
-    const programSlug = m.enrolledProgram as string;
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
+    const programSlug = assignment.programSlug ?? (m.enrolledProgram as string);
     const programTitle = getProgramBySlug(programSlug)?.title ?? programSlug;
     programSet.set(programSlug, programTitle);
 
@@ -163,7 +172,12 @@ export async function loadCourseraEnrollmentPipeline(organizationId: string): Pr
         ? new Date(Math.max(...lastActivityCandidates.map((d) => d.getTime())))
         : null;
 
-    const completed = memberProgramCompleted(programSlug, m.coursesCompleted, m.memberProgramProgress);
+    const completed = memberProgramCompleted({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: m.coursesCompleted,
+      liveProgress: m.memberProgramProgress,
+    });
 
     let signal: EnrollmentSignal;
     if (completed) {

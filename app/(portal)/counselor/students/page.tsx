@@ -14,6 +14,7 @@ import ProgressDistributionChart from '@/components/portal/counselor/ProgressDis
 import AtRiskMemberList from '@/components/portal/counselor/AtRiskMemberList';
 import RecentActivityFeed from '@/components/portal/counselor/RecentActivityFeed';
 import styles from './students.module.css';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 const UPCOMING_SESSION_DAYS = 7;
@@ -55,6 +56,10 @@ export default async function CounselorStudentsPage({
               fullName: true,
               email: true,
               enrolledProgram: true,
+              courseEnrollments: {
+                orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+                select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+              },
               programInterest: true,
               assessmentScorePct: true,
               wioaReviewStatus: true,
@@ -84,12 +89,17 @@ export default async function CounselorStudentsPage({
 
   const rosterRows = rosterAssignments.map((a) => {
     const meta = activityRiskByMember.get(a.memberId);
+    const assignment = resolveTrainingProgressAssignment(
+      a.member.enrolledProgram,
+      a.member.courseEnrollments,
+    );
     return {
       assignmentId: a.id,
       memberId: a.member.id,
       fullName: a.member.fullName,
       email: a.member.email,
-      enrolledProgram: a.member.enrolledProgram,
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
       programInterest: a.member.programInterest,
       assessmentScorePct: a.member.assessmentScorePct,
       wioaReviewStatus: a.member.wioaReviewStatus,

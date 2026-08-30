@@ -10,7 +10,6 @@
 
 import { CourseProgressStatus } from '@prisma/client';
 
-import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import {
   canonicalizeProgramSlug,
   programSlugReadCandidates,
@@ -21,6 +20,10 @@ import {
   loadCanonicalMappingsForCourseraIds,
   type CanonicalMappingIndex,
 } from '@/lib/coursera/canonicalMapping';
+import {
+  loadCurriculumMappingsForCourseraIds,
+  resolveProviderCourseMappings,
+} from '@/lib/coursera/curriculumMapping';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
@@ -32,6 +35,7 @@ import {
   courseCompletionMilestoneRef,
   hasValidatedTrainingStarted,
 } from '@/lib/coursera/milestones';
+import type { CurriculumAssignment } from '@/lib/member/curriculumAssignment';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -262,25 +266,6 @@ async function fetchEnrollmentReports(
 /* ------------------------------------------------------------------ */
 /*  Catalog mapping helpers                                            */
 /* ------------------------------------------------------------------ */
-
-/** Reverse map: coursera courseId → { programSlug, courseSlug, name } */
-function buildCourseIdToMetaMap(): Record<
-  string,
-  { programSlug: string; courseSlug: string; name: string }[]
-> {
-  const map: Record<string, { programSlug: string; courseSlug: string; name: string }[]> = {};
-  for (const [programSlug, data] of Object.entries(DISCOVERED_COURSERA_PROGRAMS)) {
-    for (const course of data.courses) {
-      if (!map[course.courseId]) map[course.courseId] = [];
-      map[course.courseId].push({
-        programSlug,
-        courseSlug: course.slug,
-        name: course.name,
-      });
-    }
-  }
-  return map;
-}
 
 export function selectCanonicalB4BMapping(args: {
   dbMapping: { programSlug: string; courseSlug: string } | null;
@@ -558,7 +543,6 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   const resumeStart = await readB4BResumeStart();
   const { reports, nextStart, capped } = await fetchEnrollmentReports(token, orgId, resumeStart);
 
-  const courseIdToMeta = buildCourseIdToMetaMap();
   const defaultOrganizationId = await getDefaultOrganizationId();
 
   // Resolve only emails in this incremental window. Direct portal email first,
@@ -621,17 +605,48 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     }
   }
 
-  // Pre-load all admin-curated mappings from `coursera_canonical_course_mappings`
-  // for the contentIds we're about to write. This is the same source of truth
-  // the CSV promote path JOINs against — without it an admin who maps a course
-  // via /admin/training-progress will see CSV imports updated immediately, but
-  // this cron-style B4B sync would still bypass the override and stamp the
-  // wrong (programSlug, courseSlug). One IN-list query keeps the loop O(N+M)
-  // instead of O(N) round-trips.
-  const canonicalMappings: CanonicalMappingIndex =
-    await loadCanonicalMappingsForCourseraIds(
-      Array.from(deduped.values()).map((r) => r.contentId),
-    );
+  const reportContentIds = Array.from(deduped.values()).map((report) => report.contentId);
+
+  // Pre-load both mapping generations and every immutable learner assignment
+  // for this capped provider window. Never query CourseEnrollment inside the
+  // report loop: that would turn the org sync into an assignment N+1.
+  const [canonicalMappings, curriculumMappings, assignmentRows]: [
+    CanonicalMappingIndex,
+    Awaited<ReturnType<typeof loadCurriculumMappingsForCourseraIds>>,
+    Array<{
+      userId: string;
+      programSlug: string;
+      curriculumVersion: string;
+      isPrimary: boolean;
+    }>,
+  ] = await Promise.all([
+    loadCanonicalMappingsForCourseraIds(reportContentIds),
+    loadCurriculumMappingsForCourseraIds(reportContentIds),
+    resolvedUserIds.length > 0
+      ? prisma.courseEnrollment.findMany({
+          where: {
+            userId: { in: resolvedUserIds },
+            organizationId: defaultOrganizationId,
+          },
+          select: {
+            userId: true,
+            programSlug: true,
+            curriculumVersion: true,
+            isPrimary: true,
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+  const assignmentsByUserId = new Map<string, CurriculumAssignment[]>();
+  for (const row of assignmentRows) {
+    const assignments = assignmentsByUserId.get(row.userId) ?? [];
+    assignments.push({
+      programSlug: row.programSlug,
+      curriculumVersion: row.curriculumVersion,
+      isPrimary: row.isPrimary,
+    });
+    assignmentsByUserId.set(row.userId, assignments);
+  }
 
   const affectedUserIds = new Set<string>();
 
@@ -648,25 +663,19 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     const email = report.email.trim().toLowerCase();
     const userId = userByEmail.get(email) ?? null;
 
-    // Resolution order for (programSlug, courseSlug):
-    //   1. Admin-curated row in `coursera_canonical_course_mappings` keyed by
-    //      contentId — overrides everything (lets admins fix unmapped courses
-    //      without a redeploy; same source-of-truth as the JOIN in
-    //      `csvImport.server.ts:promoteCsvProgressToCanonical`).
-    //   2. A unique static catalog mapping by Coursera course id.
-    // Ambiguous static ids are intentionally left raw-only. Four live
-    // Coursera ids currently occur in more than one real WAP program; taking
-    // the first hit would credit an arbitrary curriculum.
-    const dbMapping = canonicalMappings.byCourseraCourseId.get(report.contentId) ?? null;
-    const canonicalMapping = selectCanonicalB4BMapping({
-      dbMapping,
-      staticMappings: courseIdToMeta[report.contentId] ?? [],
-    });
-    const plan = planB4BRowWrite({ report, userId, canonicalMapping });
+    const assignments = userId ? assignmentsByUserId.get(userId) ?? [] : [];
+    const mappingResolution = userId
+      ? await resolveProviderCourseMappings({
+          courseraCourseId: report.contentId,
+          courseraCourseSlug: report.contentSlug,
+          assignments,
+          curriculumIndex: curriculumMappings,
+          canonicalIndex: canonicalMappings,
+          allowLegacyDiscovery: true,
+        })
+      : { targets: [], status: 'unmapped' };
+    const progressTargets = userId ? mappingResolution.targets : [];
 
-    let newlyCompletedThisRow = false;
-    let currentCourseWasStarted = false;
-    let currentCourseIsStarted = false;
     try {
       const linkedOrganizationId = userId ? organizationByUserId.get(userId) : null;
       if (userId && !linkedOrganizationId) {
@@ -685,7 +694,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
         collectionName: report.collectionName,
         collectionId: report.collectionId,
         programSlug:
-          plan.canonicalProgress?.programSlug ??
+          progressTargets[0]?.programSlug ??
           canonicalizeProgramSlug(
             report.programSlug || report.programId || 'coursera-unmapped',
           ),
@@ -703,19 +712,22 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       result.upserted += 1;
       const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
       userEntry.courses += 1;
-      if (!canonicalMapping) userEntry.unknownCourses += 1;
+      if (progressTargets.length === 0) userEntry.unknownCourses += 1;
       result.byUser[email] = userEntry;
 
       if (!userId) {
         result.upsertedUnmatched += 1;
         continue;
       }
-      if (!plan.canonicalProgress) {
+      if (progressTargets.length === 0) {
         result.upsertedUnknown += 1;
         continue;
       }
 
-      const { programSlug, courseSlug } = plan.canonicalProgress;
+      for (const { programSlug, courseSlug, curriculumVersion } of progressTargets) {
+        let newlyCompletedThisRow = false;
+        let currentCourseWasStarted = false;
+        let currentCourseIsStarted = false;
       // Read-before-write so we never downgrade an xAPI-credited COMPLETED
       // back to IN_PROGRESS, and never lower percentComplete when B4B's
       // coarse course-level rollup briefly trails the per-item xAPI signal.
@@ -779,7 +791,6 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       });
 
       affectedUserIds.add(userId);
-      result.upsertedKnown += 1;
 
       const newlyStartedThisRow =
         currentCourseIsStarted && !currentCourseWasStarted;
@@ -815,6 +826,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
             organizationId: linkedOrganizationId!,
             programSlug,
             checkB4BContents: false,
+            curriculumVersion,
           });
           const nextCompletedSlugs = currentRows
             .filter((row) => row.status === CourseProgressStatus.COMPLETED)
@@ -879,6 +891,8 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           });
         }
       }
+      }
+      result.upsertedKnown += 1;
 
     } catch (err) {
       result.errors += 1;

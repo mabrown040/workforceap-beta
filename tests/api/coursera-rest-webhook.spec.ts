@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   recordEvent: vi.fn(),
   completeCourse: vi.fn(),
   upsertProgress: vi.fn(),
+  resolveScopes: vi.fn(),
 }));
 
 vi.mock('next/server', () => ({
@@ -55,6 +56,9 @@ vi.mock('@/lib/member/courseCompletion', () => ({
 }));
 vi.mock('@/lib/member/courseProgress', () => ({
   upsertCourseProgressFromXapiStatement: mocks.upsertProgress,
+}));
+vi.mock('@/lib/xapi/resolveInboundCourseScopes', () => ({
+  resolveInboundCourseScopes: mocks.resolveScopes,
 }));
 
 import { POST } from '@/app/api/webhooks/coursera/route';
@@ -105,6 +109,14 @@ describe('Coursera REST webhook completion contract', () => {
       courseName: 'Course One',
       courseraCourseId: 'coursera-course-1',
     });
+    mocks.resolveScopes.mockImplementation(async (args: {
+      fallbackProgramSlug: string | null;
+      fallbackCurriculumVersion: string;
+    }) => [{
+      programSlug: args.fallbackProgramSlug,
+      curriculumVersion: args.fallbackCurriculumVersion,
+      assignmentMatched: Boolean(args.fallbackProgramSlug),
+    }]);
   });
 
   it('keeps 100 percent in progress without an explicit completion flag', () => {
@@ -195,5 +207,74 @@ describe('Coursera REST webhook completion contract', () => {
       userId: 'member-1',
       enrolledProgramSlug: 'primary-program',
     }));
+  });
+
+  it('fans a shared exact provider id into every assigned program scope', async () => {
+    mocks.findUser.mockResolvedValueOnce({
+      organizationId: 'org-1',
+      enrolledProgram: 'program-a',
+      courseEnrollments: [
+        { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', isPrimary: true },
+        { programSlug: 'program-b', curriculumVersion: 'legacy-v1', isPrimary: false },
+      ],
+    });
+    mocks.resolveScopes.mockResolvedValueOnce([
+      { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', assignmentMatched: true },
+      { programSlug: 'program-b', curriculumVersion: 'legacy-v1', assignmentMatched: true },
+    ]);
+
+    const response = await POST(request({
+      email: 'member@example.com',
+      contentId: 'shared-provider-course',
+      completed: true,
+      eventId: 'event-shared-programs',
+    }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.completeCourse).toHaveBeenCalledTimes(2);
+    expect(mocks.completeCourse.mock.calls.map(([call]) => call.resolvedProgramSlug))
+      .toEqual(['program-a', 'program-b']);
+    expect(mocks.upsertProgress).toHaveBeenCalledTimes(2);
+    expect(await response.json()).toEqual(expect.objectContaining({
+      completionTargets: 2,
+    }));
+  });
+
+  it('does not consume a shared event when its second target fails, then succeeds on retry', async () => {
+    mocks.findUser.mockResolvedValue({
+      organizationId: 'org-1',
+      enrolledProgram: 'program-a',
+      courseEnrollments: [
+        { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', isPrimary: true },
+        { programSlug: 'program-b', curriculumVersion: 'legacy-v1', isPrimary: false },
+      ],
+    });
+    mocks.resolveScopes.mockResolvedValue([
+      { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', assignmentMatched: true },
+      { programSlug: 'program-b', curriculumVersion: 'legacy-v1', assignmentMatched: true },
+    ]);
+    mocks.completeCourse
+      .mockResolvedValueOnce({ ok: true, programSlug: 'program-a' })
+      .mockRejectedValueOnce(new Error('second target temporarily unavailable'));
+    const body = {
+      email: 'member@example.com',
+      contentId: 'shared-provider-course',
+      completed: true,
+      eventId: 'event-shared-retry',
+    };
+
+    const first = await POST(request(body));
+    expect(first.status).toBe(500);
+    expect(mocks.markProcessed).not.toHaveBeenCalled();
+
+    mocks.completeCourse.mockReset();
+    mocks.completeCourse
+      .mockResolvedValueOnce({ ok: true, alreadyCompleted: true, programSlug: 'program-a' })
+      .mockResolvedValueOnce({ ok: true, programSlug: 'program-b' });
+
+    const retry = await POST(request(body));
+    expect(retry.status).toBe(200);
+    expect(mocks.completeCourse).toHaveBeenCalledTimes(2);
+    expect(mocks.markProcessed).toHaveBeenCalledWith('wh:rest:event-shared-retry');
   });
 });

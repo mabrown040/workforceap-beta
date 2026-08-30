@@ -15,6 +15,9 @@ import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
 
 class MemberProgramScopeChangedError extends Error {}
 
@@ -36,7 +39,9 @@ export const PATCH = withApiGuc(async (
   }
 
   const o = body as Record<string, unknown>;
-  const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
+  const programSlug = typeof o.programSlug === 'string'
+    ? canonicalizeProgramSlug(o.programSlug)
+    : '';
 
   if (!programSlug) {
     return NextResponse.json({ error: 'programSlug required' }, { status: 400 });
@@ -73,7 +78,7 @@ export const PATCH = withApiGuc(async (
   const [target, catalogSize, catalogEntry] = await Promise.all([
     prisma.user.findFirst({
       where: { id, organizationId: orgId },
-      select: { id: true },
+      select: { id: true, enrolledProgram: true },
     }),
     prisma.organizationProgramCatalog.count({ where: { organizationId: orgId } }),
     prisma.organizationProgramCatalog.findFirst({
@@ -117,12 +122,16 @@ export const PATCH = withApiGuc(async (
       },
       data: { isPrimary: false },
     });
-    await tx.courseEnrollment.upsert({
-      where: { userId_programSlug: { userId: id, programSlug } },
+    await upsertEquivalentCourseEnrollment(tx, {
+      userId: id,
+      programSlug,
+      preserveLegacyAssignment: Boolean(
+        target.enrolledProgram
+        && programSlugsEquivalent(target.enrolledProgram, programSlug),
+      ),
       create: {
         organizationId: orgId,
-        userId: id,
-        programSlug,
+        curriculumVersion: activeCurriculumVersion(programSlug),
         isPrimary: true,
         enrolledAt: now,
         enrolledByAdminId: user.id,

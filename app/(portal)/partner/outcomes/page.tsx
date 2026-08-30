@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 import { Award, CheckCircle2, Clock, GraduationCap, Trophy, Users } from 'lucide-react';
@@ -69,7 +70,16 @@ export default async function PartnerOutcomesPage() {
   ).length;
 
   const completions = pipelineMembers.filter((p) => {
-    return memberProgramCompleted(p.member.enrolledProgram, null, p.member.memberProgramProgress);
+    const assignment = resolveTrainingProgressAssignment(
+      p.member.enrolledProgram,
+      p.member.courseEnrollments,
+    );
+    return memberProgramCompleted({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: p.member.memberProgramProgress,
+    });
   }).length;
 
   const memberNameById = new Map(members.map((m) => [m.id, m.fullName]));

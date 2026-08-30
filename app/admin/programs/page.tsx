@@ -8,7 +8,8 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { prisma } from '@/lib/db/prisma';
 import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 
-import { PROGRAMS } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { getValidatedProgramCompletionSpec } from '@/lib/reporting/programCompletion';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminProgramCatalogClient from '@/components/admin/AdminProgramCatalogClient';
@@ -61,6 +62,7 @@ export default async function AdminProgramsPage({
       where: { user: { deletedAt: null } },
       select: {
         programSlug: true,
+        curriculumVersion: true,
         user: {
           select: {
             id: true,
@@ -80,26 +82,49 @@ export default async function AdminProgramsPage({
     return <AdminDataLoadError title="Could not load program enrollment data" />;
   }
 
-  const byProgram = new Map<string, { count: number; scores: number[]; completed: number }>();
+  const byProgram = new Map<
+    string,
+    { count: number; scores: number[]; completed: number; totalCourseSlots: number }
+  >();
   const seenLearners = new Set<string>();
   for (const e of enrollmentResult) {
-    const slug = e.programSlug;
-    const prog = byProgram.get(slug) ?? { count: 0, scores: [], completed: 0 };
+    const completionSpec = getValidatedProgramCompletionSpec(
+      e.programSlug,
+      e.curriculumVersion,
+    );
+    const slug =
+      completionSpec?.canonicalSlug
+      ?? getProgramBySlug(e.programSlug)?.slug
+      ?? e.programSlug;
+    const prog = byProgram.get(slug) ?? {
+      count: 0,
+      scores: [],
+      completed: 0,
+      totalCourseSlots: 0,
+    };
     prog.count++;
     if (e.user.assessmentScorePct != null) prog.scores.push(e.user.assessmentScorePct);
-    const completed = e.user.memberProgramProgress.find((row) => row.programSlug === slug)?.coursesCompleted ?? 0;
+    const completed = e.user.memberProgramProgress.find(
+      (row) => (getProgramBySlug(row.programSlug)?.slug ?? row.programSlug) === slug,
+    )?.coursesCompleted ?? 0;
     prog.completed += completed;
+    prog.totalCourseSlots += completionSpec?.totalCourses ?? 0;
     byProgram.set(slug, prog);
     seenLearners.add(e.user.id);
   }
 
   const totalEnrollments = seenLearners.size;
   const programStats = PROGRAMS.map((program) => {
-    const stats = byProgram.get(program.slug) ?? { count: 0, scores: [], completed: 0 };
+    const stats = byProgram.get(program.slug) ?? {
+      count: 0,
+      scores: [],
+      completed: 0,
+      totalCourseSlots: 0,
+    };
     const avgScore = stats.scores.length > 0
       ? Math.round(stats.scores.reduce((sum, score) => sum + score, 0) / stats.scores.length)
       : null;
-    const totalCourseSlots = stats.count * (program.courses.length || 1);
+    const totalCourseSlots = stats.totalCourseSlots;
     const progressPct = totalCourseSlots > 0 && stats.completed > 0
       ? Math.min(100, Math.round((stats.completed / totalCourseSlots) * 100))
       : 0;

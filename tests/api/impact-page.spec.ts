@@ -67,6 +67,7 @@ function makeEnrolledUser(overrides: {
     enrolledProgram: overrides.programSlug,
     enrolledAt: overrides.enrolledAt ?? new Date('2024-01-01'),
     createdAt: overrides.createdAt ?? new Date('2024-01-01'),
+    courseEnrollments: [],
     coursesCompleted: [],
     memberProgramProgress: [
       {

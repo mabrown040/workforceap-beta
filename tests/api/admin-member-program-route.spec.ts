@@ -53,6 +53,7 @@ vi.mock('@/lib/db/prisma', () => {
     memberProgramProgress: { deleteMany: vi.fn() },
     user: { updateMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn() },
     courseEnrollment: {
+      findMany: vi.fn(),
       updateMany: vi.fn(),
       upsert: vi.fn(),
     },
@@ -102,6 +103,8 @@ describe('PATCH /api/admin/members/[id]/program', () => {
     vi.mocked(prisma.organizationProgramCatalog.count).mockResolvedValue(0);
     vi.mocked(prisma.organizationProgramCatalog.findFirst).mockResolvedValue(null);
     (prisma as any).__tx.user.updateMany.mockResolvedValue({ count: 1 });
+    (prisma as any).__tx.courseEnrollment.findMany.mockResolvedValue([]);
+    (prisma as any).__tx.courseEnrollment.upsert.mockResolvedValue({ id: 'enrollment-1' });
   });
 
   it('changes the primary program without deleting historical progress', async () => {

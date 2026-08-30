@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import type { CourseProgressStatus } from '@prisma/client';
 import type { ProgramCourse } from '@/lib/content/programs';
+import { isWorkforceApCourse, workforceApCourseHref } from '@/lib/content/courseDelivery';
 
 export type CourseProgressUi = {
   status: CourseProgressStatus;
@@ -17,7 +18,7 @@ export type CourseProgressUi = {
 type TrainingCourseListProps = {
   courses: ProgramCourse[];
   completedSlugs: string[];
-  programSlug?: string;
+  programSlug: string;
   /** When set, overrides status/percent from `completedSlugs` alone (xAPI + stored progress). */
   progressBySlug?: Record<string, CourseProgressUi>;
   /**
@@ -50,6 +51,7 @@ function formatGradeLine(pct: number): string {
 export default function TrainingCourseList({
   courses,
   completedSlugs,
+  programSlug,
   progressBySlug,
   eligibilityApproved = false,
   enrolledCourseraCourseIds = [],
@@ -145,7 +147,7 @@ export default function TrainingCourseList({
       const res = await fetch('/api/member/courses/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ courseSlug: slug }),
+        body: JSON.stringify({ courseSlug: slug, programSlug }),
       });
       if (res.ok) {
         router.refresh();
@@ -298,6 +300,7 @@ export default function TrainingCourseList({
         const pct = progressBySlug?.[c.slug]?.percentComplete;
         const gradePct = progressBySlug?.[c.slug]?.gradePercent;
         const showBar = !isComplete && pct != null && pct > 0 && pct < 100;
+        const workforceApModule = isWorkforceApCourse(c);
         const primaryCta =
           isUpNext || status === 'in_progress' ? 'Continue in Coursera' : 'Open in Coursera';
 
@@ -378,7 +381,7 @@ export default function TrainingCourseList({
                   </div>
                 </>
               )}
-              {gradePct != null && Number.isFinite(gradePct) ? (
+              {!workforceApModule && gradePct != null && Number.isFinite(gradePct) ? (
                 <p
                   style={{
                     fontSize: '0.78rem',
@@ -410,7 +413,15 @@ export default function TrainingCourseList({
                        progress as enrolled for UI purposes.
                   Already-complete courses skip all of this — they get the
                   existing "Open in Coursera" review link. */}
-              {!isComplete &&
+              {workforceApModule ? (
+                <Link
+                  href={workforceApCourseHref(c.slug, programSlug)}
+                  className="btn btn-primary training-course-cta-primary"
+                  aria-label={`Open WorkforceAP module: ${c.name}`}
+                >
+                  Open lab instructions
+                </Link>
+              ) : !isComplete &&
               c.courseraCourseId &&
               !enrolledCourseraSet.has(c.courseraCourseId) &&
               status === 'not_started' &&

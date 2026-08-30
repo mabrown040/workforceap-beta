@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -20,6 +21,8 @@ import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import { readinessVoiceSurface } from '@/lib/portal/voice';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -52,6 +55,16 @@ export default async function LearningPage() {
         enrolledProgram: true,
         assessmentCompleted: true,
         courseraEnrollmentApproved: true,
+        courseEnrollments: {
+          select: {
+            id: true,
+            programSlug: true,
+            curriculumVersion: true,
+            isPrimary: true,
+            enrolledAt: true,
+          },
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        },
         courseProgress: {
           where: { status: 'COMPLETED' },
           select: { programSlug: true, courseSlug: true },
@@ -59,16 +72,28 @@ export default async function LearningPage() {
       },
     }),
   ]);
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  const courseEnrollments = dbUser?.courseEnrollments ?? [];
+  const { activeProgramSlug: enrolledProgram } = resolveActiveDashboardProgram({
+    enrollments: courseEnrollments,
+    legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
+  });
+  const activeEnrollment = courseEnrollments.find(
+    (enrollment) => enrollment.programSlug === enrolledProgram,
+  ) ?? null;
+  const curriculumVersion = activeEnrollment?.curriculumVersion ?? 'legacy-v1';
   // Resolve the member's pathway from their enrolled program. Returns null
   // when the member has no enrolled program — we render an enroll-prompt
   // empty state instead of a default IT Support / Digital Literacy pathway.
-  const ACTIVE_PATHWAY = getPathwayForProgram(enrolledProgram);
+  const ACTIVE_PATHWAY = getPathwayForProgram(enrolledProgram, curriculumVersion);
   const programMeta = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const coursesForMember = programMeta?.courses ?? [];
+  // CourseEnrollment.curriculumVersion is immutable for the member. Only
+  // members without a CourseEnrollment retain the legacy public-catalog view.
+  const coursesForMember = programMeta
+    ? getProgramCoursesForCurriculumVersion(programMeta, curriculumVersion)
+    : [];
   const coursesCompletedSlugs = enrolledProgram
     ? dbUser?.courseProgress
-        .filter((row) => row.programSlug === enrolledProgram)
+        .filter((row) => programSlugsEquivalent(row.programSlug, enrolledProgram))
         .map((row) => row.courseSlug) ?? []
     : [];
   const [skillMissionSummary, memberSkillsetProgress] = await Promise.all([
@@ -139,6 +164,7 @@ export default async function LearningPage() {
 
       <LearningHubEnrolledCourses
         variant="mobile"
+        programSlug={enrolledProgram}
         programTitle={programMeta?.title ?? null}
         courses={coursesForMember}
         completedSlugs={coursesCompletedSlugs}
@@ -324,6 +350,7 @@ export default async function LearningPage() {
 
       <LearningHubEnrolledCourses
         variant="desktop"
+        programSlug={enrolledProgram}
         programTitle={programMeta?.title ?? null}
         courses={coursesForMember}
         completedSlugs={coursesCompletedSlugs}

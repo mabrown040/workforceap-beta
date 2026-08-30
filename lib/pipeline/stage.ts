@@ -21,6 +21,7 @@ export interface PipelineStudent {
   fullName: string;
   email: string;
   enrolledProgram: string | null;
+  curriculumVersion: string | null;
   enrolledAt: Date | null;
   assessmentCompleted: boolean;
   coursesCompleted?: unknown; // legacy JSON array of course slugs; canonical callers should pass memberProgramProgress
@@ -48,11 +49,12 @@ export function getPipelineStage(student: PipelineStudent): PipelineStage {
   if (student.userCertifications && student.userCertifications.length > 0) return 'certified';
 
   // In training (enrolled + has completed at least one course)
-  const progress = computeTrainingProgress(
-    student.enrolledProgram,
-    student.coursesCompleted,
-    student.memberProgramProgress
-  );
+  const progress = computeTrainingProgress({
+    enrolledProgram: student.enrolledProgram,
+    curriculumVersion: student.curriculumVersion,
+    coursesCompleted: student.coursesCompleted,
+    liveProgress: student.memberProgramProgress,
+  });
   if (student.enrolledAt && progress.completedCount > 0) return 'in_training';
 
   // Enrolled (approved application + enrolled in a program)

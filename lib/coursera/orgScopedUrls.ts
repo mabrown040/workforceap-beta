@@ -158,9 +158,21 @@ async function getProgramIndex(): Promise<ProgramIndex> {
  *
  * Always returns a string so call sites can use it directly in `<a href>`.
  */
-export async function getOrgScopedProgramUrl(programSlug: string): Promise<string> {
+export async function getOrgScopedProgramUrl(
+  programSlug: string,
+  preferredProgramId?: string | null,
+): Promise<string | null> {
   const slug = programSlug?.trim();
-  if (!slug) return localFallbackUrl('', 'program');
+  if (!slug) return preferredProgramId?.trim() ? null : localFallbackUrl('', 'program');
+
+  const preferredId = preferredProgramId?.trim();
+  if (preferredId) {
+    const idx = await getProgramIndex();
+    // A validated approved track is an exact identity, not a hint. Missing
+    // it must fail closed rather than leaking the learner onto a public
+    // /learn page or a legacy umbrella that cannot prove entitlement.
+    return idx.byId.get(preferredId) ?? null;
+  }
 
   const fromCatalog = resolveCourseraPublicProgramUrl(slug);
   if (fromCatalog) return fromCatalog;
@@ -199,16 +211,18 @@ export async function getOrgScopedCourseUrl(
   programSlug: string,
   courseraCourseId: string,
   courseraCourseSlug: string | null | undefined,
-): Promise<string> {
+  preferredProgramId?: string | null,
+): Promise<string | null> {
   const courseSlug = courseraCourseSlug?.trim();
   const courseFallback = courseSlug ? localFallbackUrl(courseSlug, 'course') : null;
 
-  let programUrl: string;
+  let programUrl: string | null;
   try {
-    programUrl = await getOrgScopedProgramUrl(programSlug);
+    programUrl = await getOrgScopedProgramUrl(programSlug, preferredProgramId);
   } catch {
-    return courseFallback ?? PLATFORM_URL;
+    return preferredProgramId?.trim() ? null : courseFallback ?? PLATFORM_URL;
   }
+  if (!programUrl) return preferredProgramId?.trim() ? null : courseFallback ?? PLATFORM_URL;
 
   // A course id only has meaning inside a real org-scoped /programs/... URL.
   // Appending it to the platform root produces a 200 page that never opens
@@ -225,7 +239,7 @@ export async function getOrgScopedCourseUrl(
   }
 
   if (!isOrgScopedProgramUrl) {
-    return courseFallback ?? programUrl;
+    return preferredProgramId?.trim() ? null : courseFallback ?? programUrl;
   }
 
   const id = courseraCourseId?.trim();

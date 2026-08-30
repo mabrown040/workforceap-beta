@@ -7,7 +7,7 @@ import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread
 import { getMemberPoints } from '@/lib/member/points';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
@@ -56,10 +56,11 @@ export const GET = withApiGuc(async (
         courseEnrollments: {
           select: {
             programSlug: true,
+            curriculumVersion: true,
             isPrimary: true,
             enrolledAt: true,
           },
-          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
         },
         profile: {
           select: {
@@ -157,16 +158,17 @@ export const GET = withApiGuc(async (
     }));
 
     // ── 4. Training progress (conditional, single call) ──
+    const trainingAssignment = resolveTrainingProgressAssignment(
+      member.enrolledProgram,
+      member.courseEnrollments,
+    );
+    const activeProgramSlug = trainingAssignment.programSlug;
     let trainingView = null;
-    if (member.enrolledProgram) {
-      const programMeta = getProgramBySlug(member.enrolledProgram);
+    if (activeProgramSlug) {
       const courseraProgramId =
-        member.enrolledProgram != null
-          ? DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram]
-              ?.courseraProgramId
-          : undefined;
+        DISCOVERED_COURSERA_PROGRAMS[activeProgramSlug]?.courseraProgramId;
       const b4bProgress =
-        member.email?.trim() && member.enrolledProgram
+        member.email?.trim()
           ? await fetchLearnerProgressFromB4B(member.email, {
               programId: courseraProgramId,
             }).catch(() => new Map())
@@ -174,7 +176,7 @@ export const GET = withApiGuc(async (
 
       trainingView = await loadMemberProgramTrainingView({
         userId: member.id,
-        programSlug: member.enrolledProgram,
+        programSlug: activeProgramSlug,
         b4bProgress,
       });
     }
@@ -199,7 +201,7 @@ export const GET = withApiGuc(async (
         id: member.id,
         fullName: member.fullName,
         email: member.email,
-        enrolledProgram: member.enrolledProgram,
+        enrolledProgram: activeProgramSlug,
         programInterest: member.programInterest,
         assessmentScorePct: member.assessmentScorePct,
         wioaQualificationJson: member.wioaQualificationJson,

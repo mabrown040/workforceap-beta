@@ -6,6 +6,7 @@ import { StatTile } from './StatTile';
 import { cx } from './base';
 
 import { JobListingRow } from './JobListingRow';
+import { QueueRow } from './QueueRow';
 
 describe('KitBaseProps contract', () => {
   it('cx joins truthy classes in order (consumer last)', () => {
@@ -58,5 +59,22 @@ describe('KitBaseProps contract', () => {
     expect(screen.getByText('Cloud Support Engineer')).toBeTruthy();
     expect(screen.getByText('92% match')).toBeTruthy();
     expect(screen.getByText('Applied')).toBeTruthy();
+  });
+
+  it('QueueRow exposes responsive copy and action hooks', () => {
+    render(
+      <QueueRow
+        tone="red"
+        title="5 students inactive 14+ days"
+        meta="Cloud & IT cohort"
+        action={<button type="button">Assign outreach</button>}
+      />,
+    );
+
+    expect(screen.getByText('5 students inactive 14+ days').closest('.wa-kit-queue-row__copy')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Assign outreach' }).parentElement).toHaveClass(
+      'wa-kit-queue-row__action',
+    );
+    expect(screen.getByRole('button', { name: 'Assign outreach' }).closest('.wa-kit-queue-row')).toBeTruthy();
   });
 });

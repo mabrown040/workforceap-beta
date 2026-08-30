@@ -284,6 +284,29 @@ html.dark [data-surface] .wa-kit-card,
   box-shadow: 0 0 0 2px var(--wa-sidebar-bg), 0 0 0 4px var(--wa-accent);
 }
 
+/* Queue actions stay beside the copy on roomy screens. On narrow phones the
+   action gets a dedicated row aligned with the copy so long triage labels do
+   not collapse underneath or collide with the button. */
+.wa-kit-queue-row__action {
+  flex-shrink: 0;
+}
+@media (max-width: 480px) {
+  .wa-kit-queue-row {
+    flex-wrap: wrap;
+    align-items: flex-start !important;
+  }
+  .wa-kit-queue-row__action {
+    box-sizing: border-box;
+    flex: 0 0 calc(100% - 50px);
+    margin-left: 50px;
+  }
+  .wa-kit-queue-row__action > *,
+  .wa-kit-queue-row__action .astryx-link,
+  .wa-kit-queue-row__action .astryx-button {
+    width: 100%;
+  }
+}
+
 /* DataTable (dense desktop). Mobile falls back to stacked cards in the component. */
 .wa-kit-table-wrap {
   background: var(--wa-surface);

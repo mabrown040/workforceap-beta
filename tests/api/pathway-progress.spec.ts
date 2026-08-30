@@ -36,6 +36,9 @@ vi.mock('@/lib/db/prisma', () => ({
       findMany: vi.fn(),
       upsert: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
     memberEvent: {
       create: vi.fn(),
     },
@@ -55,6 +58,7 @@ vi.mock('@/lib/member/points', () => ({
 
 vi.mock('@/lib/content/learningPathways', () => ({
   findPathwayById: vi.fn(),
+  getPathwayForProgram: vi.fn(),
 }));
 
 // ─── Imports after mocks ───
@@ -63,7 +67,7 @@ import { POST as completeStep } from '@/app/api/member/pathway-steps/[pathwayId]
 import { GET as getLearningProgress } from '@/app/api/member/learning-progress/route';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
-import { findPathwayById } from '@/lib/content/learningPathways';
+import { findPathwayById, getPathwayForProgram } from '@/lib/content/learningPathways';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { trackEvent } from '@/lib/events/track';
 import { awardPoints } from '@/lib/member/points';
@@ -364,6 +368,170 @@ describe('POST /api/member/pathway-steps/[pathwayId]/[stepIndex]/complete', () =
         }),
       })
     );
+  });
+
+  it('uses the pinned approved curriculum denominator for the displayed final step', async () => {
+    const pathwayId = 'data-analytics-professional-certificate-google';
+    vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      enrolledProgram: pathwayId,
+      courseEnrollments: [{
+        programSlug: pathwayId,
+        curriculumVersion: '2026-approved-v2',
+      }],
+    } as any);
+    vi.mocked(getPathwayForProgram).mockReturnValue({
+      id: pathwayId,
+      title: 'Management Analyst & Business Intelligence Professional Certificate',
+      description: 'Approved curriculum',
+      category: 'Cloud & Data',
+      steps: Array.from({ length: 11 }, (_, index) => `Approved step ${index + 1}`),
+      estimatedWeeks: 20,
+    });
+    vi.mocked(prisma.pathwayStepProgress.upsert).mockResolvedValue({ status: 'completed' } as any);
+    vi.mocked(prisma.learningProgress.upsert).mockResolvedValue({ completed: true, progress: 100 } as any);
+    vi.mocked(prisma.pathwayStepProgress.count).mockResolvedValue(11);
+
+    const res = await completeStep(
+      new Request(`http://localhost:3000/api/member/pathway-steps/${pathwayId}/10/complete`, {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ pathwayId, stepIndex: '10' }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(getPathwayForProgram).toHaveBeenCalledWith(pathwayId, '2026-approved-v2');
+    expect(prisma.learningProgress.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ progress: 100, completed: true }),
+        update: expect.objectContaining({ progress: 100, completed: true }),
+      }),
+    );
+    expect(trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventName: 'pathway_step_completed',
+        metadata: expect.objectContaining({
+          curriculumVersion: '2026-approved-v2',
+          stepIndex: 10,
+          totalSteps: 11,
+        }),
+      }),
+    );
+  });
+
+  it('keeps the same index non-final for a pinned legacy curriculum', async () => {
+    const pathwayId = 'data-analytics-professional-certificate-google';
+    vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      enrolledProgram: pathwayId,
+      courseEnrollments: [{
+        programSlug: pathwayId,
+        curriculumVersion: 'legacy-v1',
+      }],
+    } as any);
+    vi.mocked(getPathwayForProgram).mockReturnValue({
+      id: pathwayId,
+      title: 'Data Analytics Professional Certificate',
+      description: 'Legacy curriculum',
+      category: 'Cloud & Data',
+      steps: Array.from({ length: 13 }, (_, index) => `Legacy step ${index + 1}`),
+      estimatedWeeks: 20,
+    });
+    vi.mocked(prisma.pathwayStepProgress.upsert).mockResolvedValue({ status: 'completed' } as any);
+    vi.mocked(prisma.learningProgress.upsert).mockResolvedValue({ completed: false, progress: 85 } as any);
+
+    const res = await completeStep(
+      new Request(`http://localhost:3000/api/member/pathway-steps/${pathwayId}/10/complete`, {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ pathwayId, stepIndex: '10' }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(prisma.learningProgress.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({ progress: 85, completed: false }),
+      }),
+    );
+  });
+
+  it('rejects hidden legacy indices for an approved curriculum before writing', async () => {
+    const pathwayId = 'data-analytics-professional-certificate-google';
+    vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      enrolledProgram: pathwayId,
+      courseEnrollments: [{
+        programSlug: pathwayId,
+        curriculumVersion: '2026-approved-v2',
+      }],
+    } as any);
+    vi.mocked(getPathwayForProgram).mockReturnValue({
+      id: pathwayId,
+      title: 'Approved curriculum',
+      description: 'Approved curriculum',
+      category: 'Cloud & Data',
+      steps: Array.from({ length: 11 }, (_, index) => `Approved step ${index + 1}`),
+      estimatedWeeks: 20,
+    });
+
+    const res = await completeStep(
+      new Request(`http://localhost:3000/api/member/pathway-steps/${pathwayId}/11/complete`, {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ pathwayId, stepIndex: '11' }) },
+    );
+
+    expect(res.status).toBe(404);
+    expect(prisma.pathwayStepProgress.upsert).not.toHaveBeenCalled();
+    expect(prisma.learningProgress.upsert).not.toHaveBeenCalled();
+    expect(trackEvent).not.toHaveBeenCalled();
+    expect(awardPoints).not.toHaveBeenCalled();
+  });
+
+  it('rejects an unassigned program pathway before writing', async () => {
+    const pathwayId = 'data-analytics-professional-certificate-google';
+    vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      enrolledProgram: 'ux-design-professional-certificate-google',
+      courseEnrollments: [{
+        programSlug: 'ux-design-professional-certificate-google',
+        curriculumVersion: '2026-approved-v2',
+      }],
+    } as any);
+
+    const res = await completeStep(
+      new Request(`http://localhost:3000/api/member/pathway-steps/${pathwayId}/0/complete`, {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ pathwayId, stepIndex: '0' }) },
+    );
+
+    expect(res.status).toBe(403);
+    expect(getPathwayForProgram).not.toHaveBeenCalled();
+    expect(prisma.pathwayStepProgress.upsert).not.toHaveBeenCalled();
+  });
+
+  it('rejects an unknown assigned curriculum version before writing', async () => {
+    const pathwayId = 'data-analytics-professional-certificate-google';
+    vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      enrolledProgram: pathwayId,
+      courseEnrollments: [{
+        programSlug: pathwayId,
+        curriculumVersion: 'future-unapproved-v3',
+      }],
+    } as any);
+
+    const res = await completeStep(
+      new Request(`http://localhost:3000/api/member/pathway-steps/${pathwayId}/0/complete`, {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ pathwayId, stepIndex: '0' }) },
+    );
+
+    expect(res.status).toBe(409);
+    expect(getPathwayForProgram).not.toHaveBeenCalled();
+    expect(prisma.pathwayStepProgress.upsert).not.toHaveBeenCalled();
   });
 
   it('tracks event and awards points on completion', async () => {

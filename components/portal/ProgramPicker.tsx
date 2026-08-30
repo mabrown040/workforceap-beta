@@ -44,6 +44,9 @@ const kitGhostBtn: CSSProperties = {
   cursor: 'pointer',
 };
 
+const CURRICULUM_ACTIVATION_NOTICE =
+  'Applications are open, but fresh training assignment is paused while the updated Coursera curriculum is activated.';
+
 function formatSubmittedDate(value: Date | string): string {
   const date = typeof value === 'string' ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return '';
@@ -145,6 +148,10 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
   const handleConfirm = async () => {
     if (!selectedProgram) return;
     setEnrollError(null);
+    if (selectedProgram.curriculumMigrationPending) {
+      setEnrollError({ type: 'generic', message: CURRICULUM_ACTIVATION_NOTICE });
+      return;
+    }
     if (preview) {
       setPreviewDone(true);
       return;
@@ -236,12 +243,15 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
       >
         {programs.map((p) => {
           const isSelected = selectedSlug === p.slug;
+          const assignmentPaused = p.curriculumMigrationPending === true;
+          const activationNoticeId = `program-${p.slug}-activation-notice`;
           return (
             <div
               key={p.slug}
               className="wa-kit-card"
               style={{
-                border: isSelected ? '2px solid var(--wa-accent)' : undefined,
+                outline: isSelected ? '2px solid var(--wa-accent)' : undefined,
+                outlineOffset: isSelected ? -2 : undefined,
                 borderTop: `3px solid ${p.borderColor}`,
               }}
             >
@@ -272,19 +282,50 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
                 </div>
                 <div style={{ color: 'var(--wa-accent)', fontWeight: 600, marginTop: 4 }}>{p.salary}</div>
               </div>
+              {assignmentPaused ? (
+                <p
+                  id={activationNoticeId}
+                  role="status"
+                  style={{
+                    margin: '0 0 12px',
+                    padding: '8px 10px',
+                    borderRadius: 'var(--wa-radius-sm)',
+                    background: 'var(--wa-info-soft)',
+                    color: 'var(--wa-info)',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    lineHeight: 1.45,
+                  }}
+                >
+                  Training activation pending. Applications remain open.
+                </p>
+              ) : null}
               <button
                 type="button"
                 className="wa-kit-focus hover:wa-opacity-90"
-                style={{ ...kitPrimaryBtn, width: '100%' }}
+                style={{
+                  ...kitPrimaryBtn,
+                  width: '100%',
+                  cursor: assignmentPaused ? 'not-allowed' : kitPrimaryBtn.cursor,
+                  opacity: assignmentPaused ? 0.65 : 1,
+                }}
                 onClick={() => {
+                  if (assignmentPaused) return;
                   setSelectedSlug(p.slug);
                   setPreviewDone(false);
                   setEnrollError(null);
                 }}
-                disabled={!!loading}
+                disabled={!!loading || assignmentPaused}
                 aria-busy={loading === p.slug}
+                aria-describedby={assignmentPaused ? activationNoticeId : undefined}
               >
-                <span aria-live="polite">{isSelected ? 'Ready to confirm above' : 'Review selection'}</span>
+                <span aria-live="polite">
+                  {assignmentPaused
+                    ? 'Training activation pending'
+                    : isSelected
+                      ? 'Ready to confirm above'
+                      : 'Review selection'}
+                </span>
               </button>
             </div>
           );

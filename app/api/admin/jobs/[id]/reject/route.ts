@@ -63,15 +63,27 @@ async function _POST(
       return NextResponse.json({ error: 'Job is no longer pending' }, { status: 409 });
     }
 
-    await sendJobRejectedEmail({
-      to: job.employer.contactEmail,
-      jobTitle: job.title,
-      companyName: job.employer.companyName,
-      reason: parsed.data.reason,
-      orgId,
-    });
+    let notificationEmailSent = false;
+    try {
+      const emailResult = await sendJobRejectedEmail({
+        to: job.employer.contactEmail,
+        jobTitle: job.title,
+        companyName: job.employer.companyName,
+        reason: parsed.data.reason,
+        orgId,
+      });
+      notificationEmailSent = emailResult.ok;
+    } catch (emailError) {
+      console.error('[admin/jobs/reject] rejection committed but email failed', emailError);
+    }
 
-    await invalidateJobListings();
+    let cacheInvalidated = true;
+    try {
+      await invalidateJobListings();
+    } catch (cacheError) {
+      cacheInvalidated = false;
+      console.error('[admin/jobs/reject] rejection committed but cache invalidation failed', cacheError);
+    }
 
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
@@ -83,7 +95,17 @@ async function _POST(
     }).catch((err) => console.error('[audit] reject_job:', err));
     auditLog({ actorUserId: user.id, action: 'admin_job_rejected', targetType: 'Job', targetId: id, metadata: { reason: parsed.data.reason, orgId } }).catch(() => {});
 
-    return NextResponse.json({ ok: true });
+    const warnings = [
+      notificationEmailSent ? null : 'Employer notification email was not sent.',
+      cacheInvalidated ? null : 'Job cache refresh could not be confirmed.',
+    ].filter((warning): warning is string => Boolean(warning));
+
+    return NextResponse.json({
+      ok: true,
+      notificationEmailSent,
+      cacheInvalidated,
+      warning: warnings.length > 0 ? `Job rejected. ${warnings.join(' ')}` : undefined,
+    });
   } catch (error) {
     console.error('[admin/jobs/[id]/reject POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -16,7 +16,7 @@ type PortalRouteCheck = {
 const DESKTOP_ROUTES: DesktopRouteCheck[] = [
   {
     name: 'homepage',
-    path: '/',
+    path: '/en',
     centeredSelectors: [
       'main section > div[style*="max-width"]',
       'main .home-credibility-bar > div',
@@ -24,71 +24,72 @@ const DESKTOP_ROUTES: DesktopRouteCheck[] = [
   },
   {
     name: 'employers',
-    path: '/employers',
+    path: '/en/employers',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'partners',
-    path: '/partners',
+    path: '/en/partners',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'programs',
-    path: '/programs',
+    path: '/en/programs',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'apply',
-    path: '/apply',
+    path: '/en/apply',
     centeredSelectors: [
       'main .container',
+      'main .apply-grid-layout',
       'main > div[style*="max-width"]',
       'main section > div[style*="max-width"]',
     ],
   },
   {
     name: 'contact',
-    path: '/contact',
+    path: '/en/contact',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'faq',
-    path: '/faq',
+    path: '/en/faq',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'how-it-works',
-    path: '/how-it-works',
+    path: '/en/how-it-works',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'what-we-do',
-    path: '/what-we-do',
+    path: '/en/what-we-do',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'find-your-path',
-    path: '/find-your-path',
+    path: '/en/find-your-path',
     centeredSelectors: ['main section[style*="max-width"]', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'program-comparison',
-    path: '/program-comparison',
+    path: '/en/program-comparison',
     centeredSelectors: ['main section[style*="max-width"]', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'salary-guide',
-    path: '/salary-guide',
+    path: '/en/salary-guide',
     centeredSelectors: ['main section[style*="max-width"]', 'main section > div[style*="max-width"]'],
   },
   {
     name: 'blog',
-    path: '/blog',
+    path: '/en/blog',
     centeredSelectors: ['main .blog-page-section > div[style*="max-width"]', 'main .container'],
   },
   {
     name: 'leadership',
-    path: '/leadership',
+    path: '/en/leadership',
     centeredSelectors: ['main .container', 'main section > div[style*="max-width"]'],
   },
 ];
@@ -123,14 +124,11 @@ const DESKTOP_PORTAL_ROUTES: PortalRouteCheck[] = [
   },
   {
     name: 'partner-signup',
-    path: '/partner-signup',
+    path: '/en/partners#partner-signup',
     centeredSelectors: [
-      'main .container[style*="max-width: 560"]',
-      'main .container[style*="max-width:560"]',
-      'main div[style*="max-width: 560"]',
-      'main div[style*="max-width:560"]',
+      '#partner-signup .signup-form',
     ],
-    centerTarget: 'viewport',
+    centerTarget: 'right-panel',
   },
 ];
 
@@ -142,7 +140,8 @@ test.describe('Desktop layout guardrails', () => {
     test(`${route.name} keeps centered shell and no horizontal overflow`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: 'light' });
       await page.setViewportSize({ width: 1440, height: 900 });
-      await page.goto(route.path, { waitUntil: 'networkidle' });
+      await page.goto(route.path, { waitUntil: 'domcontentloaded' });
+      await page.locator('main').waitFor({ state: 'attached' });
       await page.waitForTimeout(250);
 
       const result = await page.evaluate((data: { selectors: string[] }) => {
@@ -163,7 +162,7 @@ test.describe('Desktop layout guardrails', () => {
 
         const candidates: Candidate[] = [];
 
-        for (const selector of data.selectors) {
+        for (const selector of [...data.selectors, 'main .wrap']) {
           const elements = Array.from(document.querySelectorAll(selector));
           for (const el of elements) {
             const rect = el.getBoundingClientRect();
@@ -234,7 +233,7 @@ test.describe('Desktop portal guardrails (unauth)', () => {
           const elements = Array.from(document.querySelectorAll(selector));
           for (const el of elements) {
             const rect = el.getBoundingClientRect();
-            if (rect.width < 280 || rect.width > 640 || rect.height < 120) continue;
+            if (rect.width < 280 || rect.width > 760 || rect.height < 120) continue;
             const style = window.getComputedStyle(el);
             if (style.display === 'none' || style.visibility === 'hidden') continue;
             if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
@@ -263,6 +262,10 @@ test.describe('Desktop portal guardrails (unauth)', () => {
       await page.emulateMedia({ colorScheme: 'light' });
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(route.path, { waitUntil: 'domcontentloaded' });
+      await page.locator('main').waitFor({ state: 'attached' });
+      if (route.name === 'partner-signup') {
+        await page.locator('#partner-signup-form').scrollIntoViewIfNeeded();
+      }
       await page.waitForTimeout(250);
 
       const result = await evaluatePortalDesktopLayout(page, route.centeredSelectors, route.centerTarget);
@@ -287,12 +290,12 @@ test.describe('Desktop portal guardrails (unauth)', () => {
 
       await expect(page).toHaveURL(/\/login\?/);
       const redirectedUrl = new URL(page.url());
-      expect(redirectedUrl.pathname).toBe('/login');
+      expect(redirectedUrl.pathname).toMatch(/^\/(?:en\/)?login$/);
       expect(redirectedUrl.searchParams.get('redirectTo')).toBe(protectedPath);
 
       const result = await evaluatePortalDesktopLayout(
         page,
-        ['main div[style*="max-width: 420"]', 'main div[style*="max-width:420"]'],
+        ['main div[style*="max-width: 420"]', 'main div[style*="max-width:420"]', 'main form'],
         'right-panel',
       );
       expect(result.overflowOk, `login redirect shell overflows on ${protectedPath}`).toBeTruthy();

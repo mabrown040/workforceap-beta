@@ -11,6 +11,7 @@ import type {
   AdminInterviewingRow,
   AdminNeedsReplyRow,
 } from '@/lib/admin/commandCenter';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 type ReviewStatus = 'APPROVED' | 'NEEDS_INFO' | 'DENIED';
 
@@ -296,7 +297,9 @@ function AtRiskCard({ row }: { row: AdminAtRiskRow }) {
     <ActionCard
       name={row.memberName}
       meta={`${row.daysInactive} days without activity`}
-      detail={row.enrolledProgram ? `Program: ${row.enrolledProgram}` : 'Enrolled, no program label'}
+      detail={row.enrolledProgram
+        ? `Program: ${getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram}`
+        : 'Enrolled, no program label'}
       href={`/admin/members/${row.memberId}`}
       action="Check in"
       urgent={row.daysInactive >= 21}

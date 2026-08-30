@@ -57,4 +57,13 @@ describe('Career Studio consolidation', () => {
     expect(home).not.toContain("toolkitHref = '/dashboard/toolkit'");
     expect(loader).not.toContain("toolkitHref: '/dashboard/toolkit'");
   });
+
+  it('does not claim local voice transcripts are saved or drop personalized context', () => {
+    const studio = source('components/portal/kit/pages/VoiceStudioKit.tsx');
+
+    expect(studio).toContain("phase === 'ended' ? 'NOT SAVED'");
+    expect(studio).not.toContain("phase === 'ended' ? 'SAVED'");
+    expect(studio).not.toContain('Retry once without dynamic variables');
+    expect(studio).toContain('Your personalized coach context could not be attached');
+  });
 });

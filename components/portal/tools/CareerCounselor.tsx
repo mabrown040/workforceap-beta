@@ -12,6 +12,17 @@ import ToolFollowThrough from './ToolFollowThrough';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
+type FeedbackResponse = {
+  saved?: boolean;
+  steps?: string[];
+  error?: string;
+};
+
+const FEEDBACK_SAVE_WARNING =
+  'Your transcript could not be saved, so no action plan was created. Please start a new session and try again.';
+const EMPTY_TRANSCRIPT_WARNING =
+  'No conversation transcript was captured, so nothing was saved. Please start a new session and try again.';
+
 // Supporting blue lane for student career-coaching conversations.
 const ACCENT = '#2b7bb9';
 const ACCENT_DARK = '#1f5a87';
@@ -112,7 +123,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             if ((details as { reason?: string })?.reason === 'error') {
               setVoiceError((details as { message?: string })?.message ?? 'Connection lost');
             }
-            getFeedback();
+            void getFeedback();
           }
           intentionalRef.current = false;
         },
@@ -137,30 +148,42 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     intentionalRef.current = true;
     setPhase('ending');
     convRef.current?.endSession();
-    getFeedback();
+    void getFeedback();
   }
 
   async function getFeedback() {
     setPhase('ending');
+    setVoiceError('');
+    setSteps([]);
+    setChecked([]);
+
+    if (transcriptRef.current.length === 0) {
+      setVoiceError(EMPTY_TRANSCRIPT_WARNING);
+      setPhase('pre');
+      return;
+    }
+
     try {
       const res = await fetch('/api/counselor/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transcript: transcriptRef.current }),
       });
-      const data = await res.json() as { steps?: string[]; error?: string };
+      const data = await res.json() as FeedbackResponse;
+      if (!res.ok || data.saved !== true) {
+        throw new Error(data.error ?? FEEDBACK_SAVE_WARNING);
+      }
       const actionSteps = data.steps ?? [];
+      if (actionSteps.length === 0) {
+        throw new Error('Your transcript was saved, but an action plan could not be created. Please start a new session and try again.');
+      }
       setSteps(actionSteps);
       setChecked(actionSteps.map(() => false));
-    } catch {
-      setSteps([
-        'Update your resume with your most recent experience',
-        'Research job listings that match your background',
-        'Reach out to one person in your network this week',
-      ]);
-      setChecked([false, false, false]);
+      setPhase('plan');
+    } catch (error) {
+      setVoiceError(error instanceof Error && error.message ? error.message : FEEDBACK_SAVE_WARNING);
+      setPhase('pre');
     }
-    setPhase('plan');
   }
 
   function reset() {

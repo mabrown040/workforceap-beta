@@ -51,6 +51,16 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     select: { id: true },
   }));
 
+  const hasEnrollmentFundingInput = Boolean(
+    d.fundingSource || d.fundingNotes?.trim(),
+  );
+  if (!enrollment && hasEnrollmentFundingInput) {
+    return NextResponse.json(
+      { error: 'Create a primary program enrollment before saving funding details.' },
+      { status: 409 },
+    );
+  }
+
   if (enrollment) {
     await prisma.$transaction((tx) => tx.courseEnrollment.update({
       where: { id: enrollment.id },
@@ -80,7 +90,11 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     metadata: { fundingSource: d.fundingSource ?? null, workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false, orgId },
   }).catch((err) => console.error('[audit] admin_enrollment_funding_update:', err));
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+    enrollmentFundingSaved: Boolean(enrollment),
+    workspaceSaved: true,
+  });
 
   } catch (error) {
     console.error('/admin/members/[id]/enrollment-funding error:', error);

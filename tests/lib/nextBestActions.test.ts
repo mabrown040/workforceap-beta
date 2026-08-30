@@ -162,6 +162,8 @@ describe('buildNextBestActions', () => {
     expect(actions.some((a) => a.id === 'continue_training')).toBe(true);
     const ct = actions.find((a) => a.id === 'continue_training');
     expect(ct?.title).toContain('Cybersecurity Basics');
+    expect(ct?.href).toBe('/dashboard/training');
+    expect(ct?.href).not.toBe('/dashboard');
   });
 
   it('shows launch_first_course and see_training_plan when 0 courses completed', () => {

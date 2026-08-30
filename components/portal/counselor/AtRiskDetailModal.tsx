@@ -301,7 +301,7 @@ export default function AtRiskDetailModal({ member, onClose, onStatusChange }: P
               Full profile
             </Link>
             <Link
-              href={`/dashboard/messages?to=${encodeURIComponent(member.userId)}`}
+              href={`/counselor/messages?memberId=${encodeURIComponent(member.userId)}`}
               className="btn btn-outline btn-sm"
               style={{ fontSize: '0.8rem' }}
             >

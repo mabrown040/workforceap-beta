@@ -41,7 +41,9 @@ test.describe('Sprint P2 — xAPI & Coursera smoke', () => {
   }) => {
     await page.goto('/api/member/coursera/launch');
     await expect(page).toHaveURL(/\/login/);
-    expect(page.url()).toMatch(/redirectTo=.*coursera/);
+    const loginUrl = new URL(page.url());
+    expect(loginUrl.pathname).toMatch(/\/(?:[a-z]{2}\/)?login$/);
+    expect(loginUrl.searchParams.get('redirectTo')).toBe('/dashboard/training');
   });
 
   test('GET /api/admin/coursera/mappings without session returns 401', async ({ request }) => {

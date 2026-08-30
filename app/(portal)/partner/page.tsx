@@ -682,10 +682,10 @@ export default async function PartnerDashboardPage({
     : pendingPlacementCount > 0
       ? { label: t('nextActionReviewPlacements', { count: pendingPlacementCount }), href: '/partner/outcomes', tip: t('nextActionReviewPlacementsTip') }
       : placements === 0 && inTraining > 0
-        ? { label: t('nextActionEncourageTraining', { count: inTraining }), href: '/partner', tip: t('nextActionEncourageTrainingTip') }
+        ? { label: t('nextActionEncourageTraining', { count: inTraining }), href: '/partner/attention?tier=all', tip: t('nextActionEncourageTrainingTip') }
         : placements > 0
           ? { label: t('nextActionCelebrate'), href: '/partner/guide', tip: t('nextActionCelebrateTip') }
-          : { label: t('nextActionReviewProgress'), href: '/partner', tip: t('nextActionReviewProgressTip') };
+          : { label: t('nextActionReviewProgress'), href: '/partner/referred-members', tip: t('nextActionReviewProgressTip') };
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 

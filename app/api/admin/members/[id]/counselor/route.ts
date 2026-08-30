@@ -91,12 +91,18 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     data: { counselorUserId: counselor.userId },
   }));
 
-  await sendCounselorAssignedEmail({
-    to: member.email,
-    memberFullName: member.fullName,
-    counselorFullName: counselor.user.fullName,
-    orgId: member.organizationId,
-  });
+  let notificationEmailSent = false;
+  try {
+    const emailResult = await sendCounselorAssignedEmail({
+      to: member.email,
+      memberFullName: member.fullName,
+      counselorFullName: counselor.user.fullName,
+      orgId: member.organizationId,
+    });
+    notificationEmailSent = emailResult.ok;
+  } catch (emailError) {
+    console.error('[admin/member/counselor] assignment committed but email failed', emailError);
+  }
 
   void createNotification({
     userId: memberId,
@@ -111,6 +117,10 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   return NextResponse.json({
     ok: true,
     counselorName: counselor.user.fullName,
+    notificationEmailSent,
+    warning: notificationEmailSent
+      ? undefined
+      : 'Counselor assigned, but the member notification email was not sent.',
   });
 
   } catch (error) {

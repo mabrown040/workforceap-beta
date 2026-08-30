@@ -10,8 +10,16 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
+import { resolveAuthorizedCounselorMessageContext } from '@/lib/messages/contextSelection';
 
-export default async function CounselorMessagesHubPage() {
+type Props = {
+  searchParams?: Promise<{
+    thread?: string | string[];
+    memberId?: string | string[];
+  }>;
+};
+
+export default async function CounselorMessagesHubPage({ searchParams }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor/messages');
 
@@ -34,6 +42,11 @@ export default async function CounselorMessagesHubPage() {
 
   const memberIds = assignments.map((a) => a.member.id);
   const rows = await buildCounselorInboxRows(memberIds, { readOnlyAudit });
+  const query = await searchParams;
+  const initialContext = resolveAuthorizedCounselorMessageContext(rows, {
+    threadId: query?.thread,
+    memberId: query?.memberId,
+  });
 
   const t = await getTranslations('counselor');
 
@@ -56,17 +69,15 @@ export default async function CounselorMessagesHubPage() {
           Messaging inbox access is available. Live threads, read receipts, and realtime sync are paused for this audit.
         </div>
       ) : <>
-        {/* Mobile View */}
-        <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+        <div className="wa-max-w-full wa-overflow-x-hidden wa-pb-24 md:wa-overflow-x-visible md:wa-pb-0">
           <div style={{ minHeight: '50vh' }}>
-            <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
+            <CounselorMessagesInboxClient
+              staffUserId={user.id}
+              rows={rows}
+              initialMemberId={initialContext?.memberId}
+            />
           </div>
-        </div>
-
-        {/* Desktop View */}
-        <div className="wa-hidden md:wa-block">
-          <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
-          <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
+          <p className="wa-hidden md:wa-block" style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
             <Link href="/counselor/students" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               {t('browseAllMembers')}
             </Link>

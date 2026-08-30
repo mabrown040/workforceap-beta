@@ -98,13 +98,12 @@ export default function EmployerJobPostForm() {
         setErrorMsg(typeof data.error === 'string' ? data.error : 'Could not post job.');
         return;
       }
+      setStatus('idle');
       setPhase('success');
       form.reset();
     } catch {
       setStatus('error');
       setErrorMsg('Network error. Check your connection and try again.');
-    } finally {
-      setStatus('idle');
     }
   }
 

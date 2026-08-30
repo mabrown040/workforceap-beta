@@ -59,16 +59,28 @@ async function _POST(
       return NextResponse.json({ error: 'Job is no longer pending approval' }, { status: 409 });
     }
 
-    await sendJobApprovedEmail({
-      to: job.employer.contactEmail,
-      jobTitle: job.title,
-      companyName: job.employer.companyName,
-      orgId,
-    });
+    let notificationEmailSent = false;
+    try {
+      const emailResult = await sendJobApprovedEmail({
+        to: job.employer.contactEmail,
+        jobTitle: job.title,
+        companyName: job.employer.companyName,
+        orgId,
+      });
+      notificationEmailSent = emailResult.ok;
+    } catch (emailError) {
+      console.error('[admin/jobs/approve] approval committed but email failed', emailError);
+    }
 
     after(() => runAiMatchForLiveJob(id));
 
-    await invalidateJobListings();
+    let cacheInvalidated = true;
+    try {
+      await invalidateJobListings();
+    } catch (cacheError) {
+      cacheInvalidated = false;
+      console.error('[admin/jobs/approve] approval committed but cache invalidation failed', cacheError);
+    }
 
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
@@ -80,7 +92,17 @@ async function _POST(
     }).catch((err) => console.error('[audit] approve_job:', err));
     auditLog({ actorUserId: user.id, action: 'admin_job_approved', targetType: 'Job', targetId: id, metadata: { orgId } }).catch(() => {});
 
-    return NextResponse.json({ ok: true });
+    const warnings = [
+      notificationEmailSent ? null : 'Employer notification email was not sent.',
+      cacheInvalidated ? null : 'Job cache refresh could not be confirmed.',
+    ].filter((warning): warning is string => Boolean(warning));
+
+    return NextResponse.json({
+      ok: true,
+      notificationEmailSent,
+      cacheInvalidated,
+      warning: warnings.length > 0 ? `Job approved. ${warnings.join(' ')}` : undefined,
+    });
   } catch (error) {
     console.error('[admin/jobs/[id]/approve POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

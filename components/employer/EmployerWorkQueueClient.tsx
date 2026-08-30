@@ -82,6 +82,39 @@ function pillButton({
   );
 }
 
+function pillLink({
+  href,
+  label,
+  variant = 'accent',
+}: {
+  href: string;
+  label: string;
+  variant?: 'accent' | 'outline';
+}) {
+  const base = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '8px 14px',
+    minHeight: 36,
+    fontWeight: 700,
+    fontSize: 12,
+    borderRadius: 999,
+    textDecoration: 'none',
+    border: '1px solid transparent',
+  } as const;
+  const style =
+    variant === 'accent'
+      ? { ...base, background: 'var(--wa-accent)', color: 'var(--wa-on-accent)' }
+      : { ...base, background: 'var(--wa-surface)', color: 'var(--wa-text)', borderColor: 'var(--wa-border)' };
+
+  return (
+    <Link href={href} className="wa-kit-focus" style={style}>
+      {label}
+    </Link>
+  );
+}
+
 export default function EmployerWorkQueueClient({
   needsReviewTodayApps,
   jobsAwaitingPublish,
@@ -217,11 +250,7 @@ export default function EmployerWorkQueueClient({
                 urgent
                 title={j.title}
                 detail={`Status: ${statusLabel(j.status)} · Updated ${new Date(j.updatedAt).toLocaleDateString()}`}
-                action={
-                  <Link href={`/employer/jobs/${j.id}`} style={{ textDecoration: 'none' }}>
-                    {pillButton({ label: 'Open job' })}
-                  </Link>
-                }
+                action={pillLink({ label: 'Open job', href: `/employer/jobs/${encodeURIComponent(j.id)}` })}
               />
             ))}
 
@@ -240,9 +269,7 @@ export default function EmployerWorkQueueClient({
                       style={{ minWidth: 0, flexShrink: 1, justifyContent: 'flex-end' }}
                     >
                       <StatusTag tone={SECTION_STATUS_TONE[sec.id]}>{statusLabel(a.status)}</StatusTag>
-                      <Link href="/employer/applications" style={{ textDecoration: 'none' }}>
-                        {pillButton({ label: 'Table view', variant: 'outline' })}
-                      </Link>
+                      {pillLink({ label: 'Table view', href: '/employer/applications', variant: 'outline' })}
                       {sec.id === 'review' && a.status === 'pending'
                         ? pillButton({
                             label: 'Start review',

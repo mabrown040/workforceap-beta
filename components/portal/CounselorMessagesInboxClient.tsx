@@ -40,12 +40,15 @@ type ChatPayload = {
 type Props = {
   staffUserId: string;
   rows: CounselorInboxRow[];
+  /** Server-authorized member selected from a contextual deep link. */
+  initialMemberId?: string | null;
 };
 
 type InboxFilter = 'all' | 'needs_reply' | 'unread';
 
-function pickInitialSelection(rs: CounselorInboxRow[]): string | null {
+function pickInitialSelection(rs: CounselorInboxRow[], initialMemberId?: string | null): string | null {
   if (rs.length === 0) return null;
+  if (initialMemberId && rs.some((row) => row.memberId === initialMemberId)) return initialMemberId;
   const needs = rs.find((r) => r.needsReply);
   if (needs) return needs.memberId;
   const unread = rs.find((r) => r.unreadCount > 0);
@@ -180,21 +183,31 @@ function MemberContextAside({ row }: { row: CounselorInboxRow }) {
   );
 }
 
-export default function CounselorMessagesInboxClient({ staffUserId, rows }: Props) {
+export default function CounselorMessagesInboxClient({ staffUserId, rows, initialMemberId }: Props) {
+  const hasInitialSelection = Boolean(
+    initialMemberId && rows.some((row) => row.memberId === initialMemberId),
+  );
   const [search, setSearch] = useState('');
   const [inboxFilter, setInboxFilter] = useState<InboxFilter>('all');
-  const [selectedId, setSelectedId] = useState<string | null>(() => pickInitialSelection(rows));
-  const [mobileList, setMobileList] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(() => pickInitialSelection(rows, initialMemberId));
+  const [mobileList, setMobileList] = useState(() => !hasInitialSelection);
   const [chat, setChat] = useState<ChatPayload | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setSelectedId((prev) => {
       if (rows.length === 0) return null;
+      if (initialMemberId && rows.some((r) => r.memberId === initialMemberId)) return initialMemberId;
       if (prev && rows.some((r) => r.memberId === prev)) return prev;
-      return pickInitialSelection(rows);
+      return pickInitialSelection(rows, initialMemberId);
     });
-  }, [rows]);
+  }, [rows, initialMemberId]);
+
+  useEffect(() => {
+    if (initialMemberId && rows.some((row) => row.memberId === initialMemberId)) {
+      setMobileList(false);
+    }
+  }, [rows, initialMemberId]);
 
   const loadChat = useCallback(async (memberId: string) => {
     setLoading(true);

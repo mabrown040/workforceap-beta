@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { CheckCircle2, Clock, MessageSquare, TriangleAlert } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { getProgramBySlug } from '@/lib/content/programs';
 import {
   listFollowUpTemplates,
   templateMatchesPriorities,
@@ -380,7 +381,9 @@ function PriorityRow({
           </span>
         </div>
         <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
-          {row.enrolledProgram ?? t('priorityQueueNoProgram')}
+          {row.enrolledProgram
+            ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram
+            : t('priorityQueueNoProgram')}
         </div>
         <div style={{ fontSize: 12, color: 'var(--wa-text)', marginTop: 4 }}>{row.blockerReason}</div>
         <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>
@@ -389,7 +392,7 @@ function PriorityRow({
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
         <Link
-          href={row.threadId ? `/counselor/messages?thread=${row.threadId}` : `/counselor/students/${row.memberId}`}
+          href={row.threadId ? `/counselor/messages?thread=${encodeURIComponent(row.threadId)}` : `/counselor/students/${row.memberId}`}
           className="btn btn-primary btn-sm"
           style={{ fontSize: 12, minHeight: 36 }}
         >

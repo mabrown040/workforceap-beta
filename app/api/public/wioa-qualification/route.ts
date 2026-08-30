@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { Prisma } from '@prisma/client';
 import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 import { checkPublicWioaQualificationRateLimit } from '@/lib/rate-limit';
@@ -17,75 +16,95 @@ const publicLeadSchema = z.object({
 
 async function _POST(request: NextRequest) {
   try {
-  const ip = getClientIpFromRequest(request);
-  const { success: withinLimit } = await checkPublicWioaQualificationRateLimit(ip);
-  if (!withinLimit) {
-    return NextResponse.json(
-      { error: 'Too many submissions. Please try again later.' },
-      { status: 429, headers: { 'Retry-After': '3600' } }
-    );
-  }
+    const ip = getClientIpFromRequest(request);
+    const { success: withinLimit } = await checkPublicWioaQualificationRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
+    }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
 
-  const contact = publicLeadSchema.safeParse((body as Record<string, unknown> | null)?.contact ?? null);
-  if (!contact.success) {
-    return NextResponse.json({ error: contact.error.errors[0]?.message ?? 'Invalid contact info' }, { status: 400 });
-  }
+    const contact = publicLeadSchema.safeParse((body as Record<string, unknown> | null)?.contact ?? null);
+    if (!contact.success) {
+      return NextResponse.json({ error: contact.error.errors[0]?.message ?? 'Invalid contact info' }, { status: 400 });
+    }
 
-  const answers = parseWioaAnswers(body);
-  if (!answers) {
-    return NextResponse.json({ error: 'Invalid answers' }, { status: 400 });
-  }
+    const answers = parseWioaAnswers(body);
+    if (!answers) {
+      return NextResponse.json({ error: 'Invalid answers' }, { status: 400 });
+    }
 
-  const { signal, reasons } = computeWioaSignal(answers);
-  const snapshot: WioaQualificationSnapshot = {
-    version: 1,
-    submittedAt: new Date().toISOString(),
-    answers,
-    signal,
-    reasons,
-  };
+    const { signal, reasons } = computeWioaSignal(answers);
+    const snapshot: WioaQualificationSnapshot = {
+      version: 1,
+      submittedAt: new Date().toISOString(),
+      answers,
+      signal,
+      reasons,
+    };
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
+    // A successful response means the screening is durably available to staff.
+    // Persist before sending email so provider delivery can never mask a failed write.
+    let screeningId: string;
+    try {
+      const organizationId = await getDefaultOrganizationId();
+      const screening = await prisma.publicWioaScreening.create({
+        data: {
+          organizationId,
+          fullName: contact.data.fullName,
+          email: contact.data.email,
+          phone: contact.data.phone || null,
+          snapshot,
+          emailSent: false,
+        },
+        select: { id: true },
+      });
+      screeningId = screening.id;
+    } catch (dbErr) {
+      console.error('PublicWioaScreening persist error:', dbErr);
+      return NextResponse.json(
+        { error: 'We could not save your screening. Please try again.' },
+        { status: 503 }
+      );
+    }
 
-  const emailSent = await sendWioaScreeningNotification({
-    source: 'public_page',
-    contact: {
-      fullName: contact.data.fullName,
-      email: contact.data.email,
-      phone: contact.data.phone || null,
-    },
-    snapshot,
-    adminUrl: `${siteUrl}/admin/wioa-screening`,
-  });
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
 
-  // Persist screening for analytics and counselor follow-up.
-  try {
-    const organizationId = await getDefaultOrganizationId();
-    await prisma.publicWioaScreening.create({
-      data: {
-        organizationId,
+    const emailSent = await sendWioaScreeningNotification({
+      source: 'public_page',
+      contact: {
         fullName: contact.data.fullName,
         email: contact.data.email,
         phone: contact.data.phone || null,
-        snapshot,
-        emailSent,
       },
+      snapshot,
+      adminUrl: `${siteUrl}/admin/wioa-screening`,
     });
-  } catch (dbErr) {
-    console.error('PublicWioaScreening persist error:', dbErr);
-  }
 
-  return NextResponse.json({ ok: true, snapshot, emailSent });
+    if (emailSent) {
+      try {
+        await prisma.publicWioaScreening.update({
+          where: { id: screeningId },
+          data: { emailSent: true },
+        });
+      } catch (dbErr) {
+        // The screening is already durable and the provider confirmed delivery.
+        // Keep the user-facing truth while logging the bookkeeping failure.
+        console.error('PublicWioaScreening email status update error:', dbErr);
+      }
+    }
 
+    return NextResponse.json({ ok: true, snapshot, emailSent });
   } catch (error) {
     console.error('/public/wioa-qualification error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

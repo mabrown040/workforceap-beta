@@ -13,6 +13,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { ChevronRight } from 'lucide-react';
 import { DesignSurface, SectionHeader, Avatar } from '@/components/portal/kit';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
+import { resolveAuthorizedPartnerMessageMember } from '@/lib/messages/contextSelection';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,7 +26,11 @@ export async function generateMetadata(): Promise<Metadata> {
 const MESSAGES_SUBTITLE =
   'Direct line to your WorkforceAP partnership team — referrals, milestones, and resources.';
 
-export default async function PartnerMessagesPage() {
+type Props = {
+  searchParams?: Promise<{ memberId?: string | string[] }>;
+};
+
+export default async function PartnerMessagesPage({ searchParams }: Props) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner/messages');
 
@@ -33,9 +38,28 @@ export default async function PartnerMessagesPage() {
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
-  const thread = readOnlyAudit
-    ? await prisma.messageThread.findUnique({ where: { partnerId: ctx.partnerId } })
-    : await getOrCreatePartnerMessageThread(ctx.partnerId);
+  const query = await searchParams;
+  const [thread, permittedReferrals] = await Promise.all([
+    readOnlyAudit
+      ? prisma.messageThread.findUnique({ where: { partnerId: ctx.partnerId } })
+      : getOrCreatePartnerMessageThread(ctx.partnerId),
+    query?.memberId
+      ? prisma.partnerReferral.findMany({
+          take: 500,
+          where: {
+            partnerId: ctx.partnerId,
+            partner: { organizationId: ctx.partner.organizationId },
+            member: { organizationId: ctx.partner.organizationId, deletedAt: null },
+          },
+          select: { member: { select: { id: true, fullName: true } } },
+          orderBy: { referredAt: 'desc' },
+        })
+      : Promise.resolve([]),
+  ]);
+  const selectedMember = resolveAuthorizedPartnerMessageMember(
+    permittedReferrals.map((referral) => referral.member),
+    query?.memberId,
+  );
   if (!thread) {
     return (
       <PortalPageFrame maxWidth="80rem">
@@ -81,8 +105,8 @@ export default async function PartnerMessagesPage() {
       <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
         <SectionHeader kicker="Partner Portal" title="Messages" goal={MESSAGES_SUBTITLE} />
 
-        <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
-          <div className="wa-mb-4">
+        <div className="wa-max-w-full wa-overflow-x-hidden wa-pb-24 md:wa-overflow-x-visible md:wa-pb-0">
+          <div className="wa-mb-4 md:wa-hidden">
             <div
               className="wa-kit-card wa-kit-card--sm"
               style={{ display: 'flex', alignItems: 'center', gap: 12 }}
@@ -107,6 +131,7 @@ export default async function PartnerMessagesPage() {
           </div>
 
           <PortalTeamChatClient
+            key={`partner-chat-${selectedMember?.id ?? 'general'}`}
             surfaceVariant="partner"
             apiPath="/api/partner/messages"
             initial={{
@@ -119,23 +144,8 @@ export default async function PartnerMessagesPage() {
             }}
             subtitle="We typically reply within one business day."
             emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
-          />
-        </div>
-
-        <div className="wa-hidden md:wa-block">
-          <PortalTeamChatClient
-            surfaceVariant="partner"
-            apiPath="/api/partner/messages"
-            initial={{
-              thread: {
-                id: thread.id,
-                portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
-              },
-              messages: serializedMessages,
-              portalUserId: user.id,
-            }}
-            subtitle="We typically reply within one business day."
-            emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
+            contextLabel={selectedMember ? `Regarding ${selectedMember.fullName}` : undefined}
+            initialDraft={selectedMember ? `Regarding ${selectedMember.fullName}: ` : undefined}
           />
         </div>
       </DesignSurface>

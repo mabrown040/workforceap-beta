@@ -366,7 +366,10 @@ export default async function CounselorPortalPage({
               />
             ) : (
               assignments.map((a) => {
-                const prog = a.member.enrolledProgram ?? a.member.programInterest ?? t('unknownProgram');
+                const rawProgram = a.member.enrolledProgram ?? a.member.programInterest;
+                const prog = rawProgram
+                  ? getProgramBySlug(rawProgram)?.title ?? rawProgram
+                  : t('unknownProgram');
                 const enrolledSlug = a.member.enrolledProgram ?? null;
                 const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
                 const progress = computeTrainingProgress(enrolledSlug, null, a.member.memberProgramProgress);
@@ -505,7 +508,10 @@ export default async function CounselorPortalPage({
                               {assignment.member.fullName}
                             </h4>
                             <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {assignment.member.enrolledProgram ?? assignment.member.programInterest ?? t('noProgram')} · {assignment.member.email}
+                              {(() => {
+                                const rawProgram = assignment.member.enrolledProgram ?? assignment.member.programInterest;
+                                return rawProgram ? getProgramBySlug(rawProgram)?.title ?? rawProgram : t('noProgram');
+                              })()} · {assignment.member.email}
                             </p>
                           </div>
                         </div>

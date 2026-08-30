@@ -66,6 +66,7 @@ export default function WioaQualificationClient({
   const [entryMode, setEntryMode] = useState<'voice' | 'form'>('form');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [staffNotificationSent, setStaffNotificationSent] = useState<boolean | null>(null);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -124,12 +125,17 @@ export default function WioaQualificationClient({
             : {}),
         }),
       });
-      const data = (await res.json()) as { snapshot?: WioaQualificationSnapshot; error?: string };
+      const data = (await res.json()) as {
+        snapshot?: WioaQualificationSnapshot;
+        emailSent?: boolean;
+        error?: string;
+      };
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong');
         return;
       }
       if (data.snapshot) setSnapshot(data.snapshot);
+      setStaffNotificationSent(data.emailSent === true);
       setEntryMode('form');
     } catch {
       setError('Network error, try again.');
@@ -176,6 +182,15 @@ export default function WioaQualificationClient({
               <li key={idx}>{reason}</li>
             ))}
           </ul>
+          {staffNotificationSent === true ? (
+            <p role="status" style={{ margin: '1rem 0 0', color: 'var(--color-success, #166534)', fontSize: '0.9rem', fontWeight: 600 }}>
+              Your screening was saved and the WorkforceAP team was notified.
+            </p>
+          ) : staffNotificationSent === false ? (
+            <p role="alert" style={{ margin: '1rem 0 0', color: 'var(--color-warning-dark, #92400e)', fontSize: '0.9rem', fontWeight: 600 }}>
+              Your screening was saved, but staff email delivery could not be confirmed. The team can still review it in the portal.
+            </p>
+          ) : null}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
             {isPublic ? (
               <>

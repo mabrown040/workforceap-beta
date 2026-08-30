@@ -356,3 +356,25 @@
   color: var(--wa-muted);
   line-height: 1.5;
 }
+
+.notificationSent,
+.notificationWarning {
+  width: min(100%, 34rem);
+  margin: 0 auto var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.notificationSent {
+  color: var(--color-success-dark, #166534);
+  background: color-mix(in srgb, var(--color-success, #16a34a) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success, #16a34a) 35%, transparent);
+}
+
+.notificationWarning {
+  color: var(--color-warning-dark, #92400e);
+  background: color-mix(in srgb, var(--color-warning, #d97706) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning, #d97706) 35%, transparent);
+}

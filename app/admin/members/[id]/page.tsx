@@ -10,6 +10,7 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { prisma } from '@/lib/db/prisma';
 import { LOOKUP_LIST_CAP, MEMBER_HISTORY_CAP, isListTruncated } from '@/lib/db/queryCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { buildMemberProgramOptions } from '@/lib/admin/assignableProgramOptions';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
 // Use the client-safe questions file — the "Full Q&A" details list only
@@ -369,7 +370,16 @@ export default async function AdminMemberDetailPage({
   });
   const programOptions =
     catalogPrograms.length > 0
-      ? catalogPrograms.map((r) => ({ slug: r.programSlug, name: r.name, status: r.status }))
+      ? buildMemberProgramOptions(
+          catalogPrograms.map((row) => ({
+            slug: row.programSlug,
+            name: row.name,
+            status: row.status,
+          })),
+          member.enrolledProgram
+            ? getProgramBySlug(member.enrolledProgram)?.slug ?? member.enrolledProgram
+            : null,
+        )
       : null;
 
   const gate = isMemberWioaVerified({
@@ -753,7 +763,11 @@ export default async function AdminMemberDetailPage({
             userId={member.id}
             memberName={member.fullName}
             enrollmentGateBlocked={enrollmentGateBlocked}
-            currentProgramSlug={member.enrolledProgram}
+            currentProgramSlug={
+              member.enrolledProgram
+                ? getProgramBySlug(member.enrolledProgram)?.slug ?? member.enrolledProgram
+                : null
+            }
             assessmentCompleted={member.assessmentCompleted}
             programOptions={programOptions ?? []}
           />
@@ -1071,6 +1085,7 @@ export default async function AdminMemberDetailPage({
           )}
           <AdminMemberEnrollmentFundingForm
             memberId={member.id}
+            hasPrimaryEnrollment={Boolean(courseEnrollment)}
             initial={
               courseEnrollment
                 ? {

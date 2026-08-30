@@ -88,11 +88,12 @@ Before changing any manifest `externalTrack.status` to `validated`:
    set/order instead; catalog validation alone does not prove path membership.
 4. Record the exact collection ID in the manifest and set
    `assignmentMode: canary`; do not set `enabled` yet.
-5. Make Skill Missions and pathway-step completion resolve the learner's
-   immutable curriculum version. Their current static legacy course lists are
-   safe while every v2 track is disabled, but they are hard blockers to a v2
-   canary because removed legacy missions can remain locked and displayed v2
-   pathway indices can otherwise be recorded against the legacy denominator.
+5. Complete and verify the version-aware Skill Missions and pathway-step
+   completion guards. The implementation filters missions against the
+   learner's immutable assigned course list, versions non-legacy mission
+   events, rejects unassigned mission mutations, and records displayed pathway
+   indices against the pinned denominator. Until that code is merged and
+   deployed, this remains a hard blocker to a v2 canary.
 6. Deploy the completed version-aware portal code and migrate the additive
    tables.
 7. Assign one clean, explicitly authorized canary learner through a reviewed

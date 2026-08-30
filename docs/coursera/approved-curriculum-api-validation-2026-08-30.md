@@ -3,6 +3,10 @@
 Status: **blocked for external-track activation**. Portal mappings are safe to
 deploy dormant; do not assign `2026-approved-v2` yet.
 
+Licensing handoff: see
+`docs/coursera/missing-course-licensing-packet-2026-08-30.md` for the concise,
+copy-ready request covering all 11 missing provider IDs.
+
 The production WorkforceAP Coursera B4B credentials were used read-only to
 compare the immutable approved manifest with the organization-wide Coursera
 content catalog. The validator drained the provider pagination contract and
@@ -14,6 +18,13 @@ Command:
 ```powershell
 pnpm coursera:validate-approved-catalog
 ```
+
+Activation-lane refresh note: a repeat run from the isolated activation
+worktree on 2026-08-30 stopped before the first Coursera request because
+`COURSERA_B4B_CLIENT_ID` and `COURSERA_B4B_CLIENT_SECRET` were not available in
+the process or a local environment file. No credential value was printed and
+no provider state changed. The 15/26 result below remains the latest verified
+full-pagination snapshot; it is not represented as a fresh API read.
 
 ## Result
 
@@ -61,9 +72,11 @@ artifact.
 3. Build three new learning paths without editing the current learner paths.
 4. Validate each path's exact set and order. The organization catalog API proves
    course availability; it does not by itself prove learning-path membership.
-5. Make Skill Missions and pathway-step completion curriculum-version-aware.
-   Both currently consume static legacy course lists and therefore remain
-   explicit canary blockers even after the provider catalog reaches 26/26.
+5. Merge and deploy the curriculum-version-aware Skill Missions and pathway
+   completion guards. The implementation now filters missions against the
+   immutable assigned course list, versions non-legacy mission events, and
+   resolves pathway completion against the pinned denominator; deployment is
+   still required before a canary.
 6. Only then set each manifest track to `validated`, record its collection ID,
    set `assignmentMode: canary`, and run one explicitly authorized v2 canary.
    Broad enrollment remains closed until every proof passes and the mode is

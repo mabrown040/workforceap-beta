@@ -15,6 +15,10 @@ import {
   getProgramSyllabus,
   type ProgramSyllabus,
 } from '../../../shared/programSyllabi';
+import {
+  getProgramCurriculum,
+  type ProgramCurriculum,
+} from '../../../shared/programCurricula';
 
 export type LanguageSupportLevel = 'full' | 'subtitles' | 'ai-subtitles' | 'none';
 export interface LanguageSupport {
@@ -28,6 +32,7 @@ export interface ProgramCourse {
   name: string;
   estimatedHours: number;
   description?: string;
+  kind?: 'coursera' | 'workforceap';
   courseraSlug?: string;
 }
 
@@ -58,6 +63,11 @@ export interface Program {
   extra?: ProgramExtra;
   /** Exact TWC syllabus transcription when one has been supplied. */
   syllabus?: ProgramSyllabus;
+  /**
+   * WorkforceAP-authored class content for programs outside the TWC
+   * submission (CPT, CLT). Never set at the same time as `syllabus`.
+   */
+  curriculum?: ProgramCurriculum;
 }
 
 // ── External partners whose credential gets a "<Partner> certified" badge ──
@@ -66,6 +76,7 @@ const EXTERNAL_PARTNERS = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 
 
 export function partnerBadge(program: Program): string {
   if (program.syllabus) return program.syllabus.providers;
+  if (program.curriculum) return program.curriculum.providers;
   return EXTERNAL_PARTNERS.includes(program.partner)
     ? `${program.partner} certified`
     : program.partner;
@@ -573,7 +584,39 @@ function applySyllabus(program: Program): Program {
   };
 }
 
-export const PROGRAMS: Program[] = BASE_PROGRAMS.map(applySyllabus);
+/**
+ * Overlay in-house class content (CPT, CLT). Unlike `applySyllabus` this
+ * deliberately leaves `title` and `description` alone — those are truth-locked
+ * member-facing copy, not a regulated transcription. Draft hours remain in
+ * the internal curriculum record but are not presented as verified public
+ * duration/contact-hour facts until the owner verifies the record.
+ */
+function applyCurriculum(program: Program): Program {
+  if (program.syllabus) return program;
+  const curriculum = getProgramCurriculum(program.slug);
+  if (!curriculum) return program;
+
+  const curriculumCourses = curriculum.courses.map((course, index) => {
+    return {
+      slug: `${program.slug}-course-${index + 1}`,
+      name: course.name,
+      estimatedHours: course.hours,
+      description: course.description,
+      kind: course.kind,
+    };
+  });
+
+  return {
+    ...program,
+    duration: curriculum.status === 'owner-verified'
+      ? `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`
+      : 'Hours and delivery format pending owner verification',
+    courses: curriculumCourses,
+    curriculum,
+  };
+}
+
+export const PROGRAMS: Program[] = BASE_PROGRAMS.map(applySyllabus).map(applyCurriculum);
 
 export function getProgramBySlug(slug: string): Program | undefined {
   return PROGRAMS.find((p) => p.slug === slug);

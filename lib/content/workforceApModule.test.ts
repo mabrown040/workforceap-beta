@@ -3,7 +3,9 @@ import { describe, it } from 'node:test';
 import {
   APPROVED_CURRICULUM_VERSION,
   APPROVED_PROGRAM_CURRICULA,
+  LEGACY_CURRICULUM_VERSION,
 } from './programCurriculumManifest';
+import { getProgramBySlug } from './programs';
 import { resolveWorkforceApModule } from './workforceApModule';
 
 describe('WorkforceAP approved modules', () => {
@@ -44,5 +46,26 @@ describe('WorkforceAP approved modules', () => {
       }),
       null,
     );
+  });
+
+  it('resolves every CPT and CLT course behind its generated local module URL', () => {
+    for (const programSlug of [
+      'certified-production-technician-cpt',
+      'certified-logistics-technician-clt',
+    ]) {
+      const program = getProgramBySlug(programSlug);
+      assert.ok(program);
+
+      for (const course of program.courses) {
+        assert.deepEqual(
+          resolveWorkforceApModule({
+            programSlug,
+            curriculumVersion: LEGACY_CURRICULUM_VERSION,
+            courseSlug: course.slug,
+          }),
+          course,
+        );
+      }
+    }
   });
 });

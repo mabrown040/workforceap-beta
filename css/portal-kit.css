@@ -262,6 +262,15 @@ html.dark [data-surface] .wa-kit-card,
   background: light-dark(var(--wa-border), rgba(255, 255, 255, 0.08));
 }
 
+/* Astryx's neutral Token uses dark text by default. Voice-coach cards place
+   that token on saturated gold/crimson surfaces, so give those badges an
+   explicit on-color treatment instead of inheriting a low-contrast gray. */
+.wa-voice-coach-badge--on-color {
+  color: var(--wa-on-accent) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
 .wa-kit-bar-track {
   height: 8px;
   border-radius: 999px;

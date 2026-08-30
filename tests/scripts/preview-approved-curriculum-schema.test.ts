@@ -18,6 +18,10 @@ const PROD_POOLER =
   'postgresql://postgres.jqddnyuszufndwwezdwp:prod-secret@aws-0-us-east-1.pooler.supabase.com:6543/postgres';
 const PROD_DIRECT =
   'postgresql://postgres:prod-secret@db.jqddnyuszufndwwezdwp.supabase.co:5432/postgres';
+const PROD_VERCEL_POOLER =
+  'postgres://postgres:prod-secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=require&options=reference%3Djqddnyuszufndwwezdwp';
+const PROD_VERCEL_SESSION =
+  'postgres://postgres:prod-secret@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require&options=reference%3Djqddnyuszufndwwezdwp';
 
 function vercelEnv(
   scope: 'preview' | 'development' | 'production',
@@ -86,6 +90,50 @@ describe('Supabase project guard', () => {
       { requireVercel: true, requireDirectUrl: true }
     );
     expect(result.ok).toBe(false);
+  });
+
+  it('recognizes Vercel Supabase pooler URLs routed by the exact options reference', () => {
+    expect(guard.projectForUrl(PROD_VERCEL_POOLER)).toBe('prod');
+    expect(guard.projectForUrl(PROD_VERCEL_SESSION)).toBe('prod');
+
+    const result = guard.inspectSupabaseEnvironment(
+      {
+        ...vercelEnv('production', 'prod'),
+        POSTGRES_PRISMA_URL: PROD_VERCEL_POOLER,
+        POSTGRES_URL_NON_POOLING: PROD_VERCEL_SESSION,
+      },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it('rejects options references on attacker hosts, other roles, or duplicate markers', () => {
+    const attacker =
+      'postgres://postgres:secret@evil.example:6543/postgres?options=reference%3Djqddnyuszufndwwezdwp';
+    const otherRole =
+      'postgres://app:secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?options=reference%3Djqddnyuszufndwwezdwp';
+    const duplicateReference =
+      'postgres://postgres:secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?options=reference%3Djqddnyuszufndwwezdwp%26reference%3Desbdrgaonplpvzmtrdhw';
+    const duplicateOptions =
+      'postgres://postgres:secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?options=reference%3Djqddnyuszufndwwezdwp&options=reference%3Desbdrgaonplpvzmtrdhw';
+
+    expect(guard.projectForUrl(attacker)).toBe('unknown');
+    expect(guard.projectForUrl(otherRole)).toBe('unknown');
+    expect(guard.projectForUrl(duplicateReference)).toBe('unknown');
+    expect(guard.projectForUrl(duplicateOptions)).toBe('unknown');
+  });
+
+  it('rejects conflicting options references before trusting a legacy dotted username', () => {
+    const prodUserDemoReference =
+      'postgres://postgres.jqddnyuszufndwwezdwp:secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?options=reference%3Desbdrgaonplpvzmtrdhw';
+    const demoUserProdReference =
+      'postgres://postgres.esbdrgaonplpvzmtrdhw:secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?options=reference%3Djqddnyuszufndwwezdwp';
+    const referenceInSecondOptions =
+      'postgres://postgres.jqddnyuszufndwwezdwp:secret@aws-1-us-east-1.pooler.supabase.com:6543/postgres?options=application_name%3Dworkforceap&options=reference%3Desbdrgaonplpvzmtrdhw';
+
+    expect(guard.projectForUrl(prodUserDemoReference)).toBe('unknown');
+    expect(guard.projectForUrl(demoUserProdReference)).toBe('unknown');
+    expect(guard.projectForUrl(referenceInSecondOptions)).toBe('unknown');
   });
 
   it('ignores an unused DATABASE_URL when both explicit Prisma targets are safe', () => {

@@ -75,6 +75,7 @@ vi.mock('@/lib/notifications/create', () => ({
 const mockTx = {
   user: { updateMany: vi.fn() },
   courseEnrollment: {
+    findMany: vi.fn(),
     updateMany: vi.fn(),
     upsert: vi.fn(),
     deleteMany: vi.fn(),
@@ -154,6 +155,7 @@ describe('Bulk operations', () => {
     vi.clearAllMocks();
     mockTx.user.updateMany.mockResolvedValue({ count: 1 });
     mockTx.courseEnrollment.updateMany.mockResolvedValue({ count: 1 });
+    mockTx.courseEnrollment.findMany.mockResolvedValue([]);
     mockTx.courseEnrollment.upsert.mockResolvedValue({ id: 'enrollment-1' });
     mockTx.courseEnrollment.deleteMany.mockResolvedValue({ count: 1 });
     vi.mocked(invalidateMemberState).mockResolvedValue(undefined);

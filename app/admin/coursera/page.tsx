@@ -371,7 +371,7 @@ function CourseraCatalogHealthSection({
             },
             {
               key: 'mapped',
-              header: 'Mapped / Y',
+              header: 'Coursera mapped',
               align: 'right',
               cell: (row) => (
                 <div style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
@@ -381,6 +381,11 @@ function CourseraCatalogHealthSection({
                   {row.catalogHealth.validProviderCourseCount != null ? (
                     <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem' }}>
                       {row.catalogHealth.validProviderCourseCount} provider-valid
+                    </div>
+                  ) : null}
+                  {row.catalogHealth.localCourseCount > 0 ? (
+                    <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem' }}>
+                      + {row.catalogHealth.localCourseCount} WorkforceAP {row.catalogHealth.localCourseCount === 1 ? 'lab' : 'labs'}
                     </div>
                   ) : null}
                 </div>
@@ -776,7 +781,11 @@ export default async function AdminCourseraPage({
 
   if (auditEmailRaw.trim().length > 0) {
     try {
-      progressAudit = await loadMemberProgressAuditByEmail(auditEmailRaw);
+      progressAudit = await loadMemberProgressAuditByEmail(auditEmailRaw, {
+        // Cross-tenant lookup is a deliberate platform-super-admin support
+        // capability only. Ordinary org admins are pinned to their tenant.
+        organizationId: scope.superAdmin ? null : scope.orgId,
+      });
     } catch (error) {
       progressAuditError = error instanceof Error ? error.message : 'Unable to load progress audit.';
       console.error('[admin/coursera] progress audit failed:', error);

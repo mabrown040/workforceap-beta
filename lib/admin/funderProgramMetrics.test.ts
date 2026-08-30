@@ -21,6 +21,7 @@ function mockUser(opts: { id: string; hasPlacement: boolean; startDateVerified?:
   return {
     id: opts.id,
     enrolledProgram: 'cna',
+    courseEnrollments: [],
     memberProgramProgress: [],
     placementRecord: opts.hasPlacement
       ? { id: `placement-${opts.id}`, startDateVerified: opts.startDateVerified ?? false }

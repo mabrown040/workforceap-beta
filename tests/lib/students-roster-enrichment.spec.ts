@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const mocks = vi.hoisted(() => ({ queryRaw: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  queryRaw: vi.fn(),
+  loadValidatedProgramCourses: vi.fn(),
+}));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: { $queryRaw: mocks.queryRaw },
@@ -23,24 +26,35 @@ vi.mock('@/lib/content/programs', () => ({
 }));
 
 vi.mock('@/lib/coursera/programCourseList', () => ({
-  loadValidatedProgramCourses: vi.fn(async () => ({
+  loadValidatedProgramCourses: mocks.loadValidatedProgramCourses,
+}));
+
+vi.mock('@/lib/member/curriculumAssignment', () => ({
+  getProgramCoursesForCurriculumVersion: vi.fn(() => [
+    { slug: 'course-1', name: 'Course 1', estimatedHours: 10, courseraCourseId: 'id-1' },
+    { slug: 'course-2', name: 'Course 2', estimatedHours: 10, courseraCourseId: 'id-2' },
+  ]),
+}));
+
+const validatedCourses = {
     courses: [
       { slug: 'course-1', name: 'Course 1', estimatedHours: 10, courseraCourseId: 'id-1' },
       { slug: 'course-2', name: 'Course 2', estimatedHours: 10, courseraCourseId: 'id-2' },
     ],
-  })),
-}));
+};
 
 import { loadStudentRosterEnrichment } from '@/lib/admin/studentsRosterEnrichment';
 
 describe('loadStudentRosterEnrichment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.loadValidatedProgramCourses.mockResolvedValue(validatedCourses);
     mocks.queryRaw.mockResolvedValue([
       {
         userId: 'member-1',
         organizationId: 'org-1',
         programSlug: 'comptia-a-plus',
+        curriculumVersion: '2026-approved-v2',
         averagePercent: 100,
         courseGrade: '93%',
         lastActivityTime: new Date('2026-08-29T12:00:00.000Z'),
@@ -65,5 +79,11 @@ describe('loadStudentRosterEnrichment', () => {
 
     expect(row.programSlug).toBe('comptia-a-professional-certificate');
     expect(row.averagePercent).toBe(50);
+    expect(mocks.loadValidatedProgramCourses).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      programSlug: 'comptia-a-professional-certificate',
+      curriculumVersion: '2026-approved-v2',
+      checkB4BContents: false,
+    });
   });
 });

@@ -7,6 +7,14 @@ import {
 } from '@/lib/reporting/programCompletion';
 
 const STALE_DAYS = 7;
+const ENROLLMENT_PAGE_SIZE = 500;
+
+type StaleTrainingEnrollment = {
+  id: string;
+  userId: string;
+  programSlug: string;
+  curriculumVersion: string;
+};
 
 export type StaleTrainingCronResult = {
   enrollmentsChecked: number;
@@ -15,6 +23,34 @@ export type StaleTrainingCronResult = {
   unchangedStale: number;
   reStamped: number;
 };
+
+async function loadActiveCourseEnrollments() {
+  const enrollments: StaleTrainingEnrollment[] = [];
+  let cursorId: string | null = null;
+
+  for (;;) {
+    const page: StaleTrainingEnrollment[] = await prisma.courseEnrollment.findMany({
+      take: ENROLLMENT_PAGE_SIZE,
+      orderBy: { id: 'asc' },
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+      where: { user: { deletedAt: null } },
+      select: {
+        id: true,
+        userId: true,
+        programSlug: true,
+        curriculumVersion: true,
+      },
+    });
+    enrollments.push(...page);
+
+    if (page.length < ENROLLMENT_PAGE_SIZE) break;
+    const nextCursorId: string | undefined = page.at(-1)?.id;
+    if (!nextCursorId || nextCursorId === cursorId) break;
+    cursorId = nextCursorId;
+  }
+
+  return enrollments;
+}
 
 /**
  * Members with `CourseEnrollment` whose per-program `CourseProgress` has not
@@ -28,14 +64,7 @@ export type StaleTrainingCronResult = {
 export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCronResult> {
   const cutoff = new Date(Date.now() - STALE_DAYS * 86_400_000);
 
-  const enrollments = await prisma.courseEnrollment.findMany({
-    take: 500,
-    where: { user: { deletedAt: null } },
-    select: {
-      userId: true,
-      programSlug: true,
-    },
-  });
+  const enrollments = await loadActiveCourseEnrollments();
 
   if (enrollments.length === 0) {
     return { enrollmentsChecked: 0, newlyFlagged: 0, cleared: 0, unchangedStale: 0, reStamped: 0 };
@@ -44,13 +73,17 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
   const enrollmentScopes = Array.from(
     new Map(
       enrollments.map((enrollment) => {
-        const spec = getValidatedProgramCompletionSpec(enrollment.programSlug);
+        const spec = getValidatedProgramCompletionSpec(
+          enrollment.programSlug,
+          enrollment.curriculumVersion,
+        );
         const canonicalProgramSlug = spec?.canonicalSlug ?? enrollment.programSlug;
         return [
-          `${enrollment.userId}:${canonicalProgramSlug}`,
+          `${enrollment.userId}:${canonicalProgramSlug}:${enrollment.curriculumVersion}`,
           {
             userId: enrollment.userId,
             canonicalProgramSlug,
+            curriculumVersion: enrollment.curriculumVersion,
             storageValues: spec?.storageValues ?? [enrollment.programSlug],
           },
         ] as const;
@@ -69,10 +102,21 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
     select: { userId: true, programSlug: true, coursesCompleted: true },
   });
   const completedProgramKeys = new Set<string>();
-  for (const rollup of rollups) {
-    const spec = getValidatedProgramCompletionSpec(rollup.programSlug);
-    if (spec && isValidatedProgramComplete(rollup.programSlug, rollup.coursesCompleted)) {
-      completedProgramKeys.add(`${rollup.userId}:${spec.canonicalSlug}`);
+  for (const scope of enrollmentScopes) {
+    const completedRollup = rollups.find(
+      (rollup) =>
+        rollup.userId === scope.userId
+        && scope.storageValues.includes(rollup.programSlug)
+        && isValidatedProgramComplete(
+          rollup.programSlug,
+          scope.curriculumVersion,
+          rollup.coursesCompleted,
+        ),
+    );
+    if (completedRollup) {
+      completedProgramKeys.add(
+        `${scope.userId}:${scope.canonicalProgramSlug}:${scope.curriculumVersion}`,
+      );
     }
   }
 
@@ -85,14 +129,20 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
     _max: { lastUpdatedAt: true },
   });
   const progressMap = new Map<string, Date>();
-  for (const progress of progressAgg) {
-    const canonicalProgramSlug =
-      getValidatedProgramCompletionSpec(progress.programSlug)?.canonicalSlug ?? progress.programSlug;
-    const lastUpdatedAt = progress._max.lastUpdatedAt;
-    if (!lastUpdatedAt) continue;
-    const key = `${progress.userId}:${canonicalProgramSlug}`;
-    const prior = progressMap.get(key);
-    if (!prior || lastUpdatedAt > prior) progressMap.set(key, lastUpdatedAt);
+  for (const scope of enrollmentScopes) {
+    const key = `${scope.userId}:${scope.canonicalProgramSlug}:${scope.curriculumVersion}`;
+    for (const progress of progressAgg) {
+      if (
+        progress.userId !== scope.userId
+        || !scope.storageValues.includes(progress.programSlug)
+      ) {
+        continue;
+      }
+      const lastUpdatedAt = progress._max.lastUpdatedAt;
+      if (!lastUpdatedAt) continue;
+      const prior = progressMap.get(key);
+      if (!prior || lastUpdatedAt > prior) progressMap.set(key, lastUpdatedAt);
+    }
   }
 
   // Batch 3: staleTrainingDetectedAt for all enrolled users
@@ -108,67 +158,69 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
   let unchangedStale = 0;
   let reStamped = 0;
 
-  const toClear: string[] = [];
-  const toFlag: string[] = [];
+  const toClear = new Set<string>();
+  const toFlag = new Set<string>();
   // Members already flagged as stale who are still stale: re-stamp so the
   // re-sync cron sees them as pending on every check cycle.
-  const toReStamp: string[] = [];
+  const toReStamp = new Set<string>();
+  const usersWithStaleIncompleteEnrollment = new Set<string>();
 
-  for (const { userId, programSlug } of enrollments) {
-    const spec = getValidatedProgramCompletionSpec(programSlug);
-    const key = `${userId}:${spec?.canonicalSlug ?? programSlug}`;
+  for (const { userId, programSlug, curriculumVersion } of enrollments) {
+    const spec = getValidatedProgramCompletionSpec(programSlug, curriculumVersion);
+    const key = `${userId}:${spec?.canonicalSlug ?? programSlug}:${curriculumVersion}`;
     const programComplete = spec ? completedProgramKeys.has(key) : false;
 
-    if (programComplete) {
-      toClear.push(userId);
-      continue;
-    }
+    if (programComplete) continue;
 
     const last = progressMap.get(key);
     const isStale = !last || last < cutoff;
+    if (isStale) usersWithStaleIncompleteEnrollment.add(userId);
+  }
 
-    if (!isStale) {
-      toClear.push(userId);
+  // User.staleTrainingDetectedAt is user-level state. Resolve every program
+  // first, then choose exactly one action for the member. Any stale incomplete
+  // enrollment wins over another enrollment that is fresh or complete.
+  for (const userId of userIds) {
+    const shouldBeStale = usersWithStaleIncompleteEnrollment.has(userId);
+    const alreadyStale = userMap.get(userId);
+    if (!shouldBeStale) {
+      if (alreadyStale) toClear.add(userId);
       continue;
     }
 
-    const alreadyStale = userMap.get(userId);
     if (alreadyStale) {
       // Member is still stale — re-stamp staleTrainingDetectedAt so the
       // downstream re-sync cron keeps picking them up for another sync attempt.
       unchangedStale += 1;
-      toReStamp.push(userId);
+      toReStamp.add(userId);
       continue;
     }
 
-    toFlag.push(userId);
+    toFlag.add(userId);
   }
 
   // Batch 4: clear stale flag where needed
-  if (toClear.length > 0) {
-    const uniqueToClear = [...new Set(toClear)];
+  if (toClear.size > 0) {
     const clearRes = await prisma.user.updateMany({
-      where: { id: { in: uniqueToClear }, staleTrainingDetectedAt: { not: null } },
+      where: { id: { in: [...toClear] }, staleTrainingDetectedAt: { not: null } },
       data: { staleTrainingDetectedAt: null },
     });
     cleared = clearRes.count;
   }
 
   // Batch 5: set stale flag for newly-stale members (only where not yet set)
-  if (toFlag.length > 0) {
-    const uniqueToFlag = [...new Set(toFlag)];
+  if (toFlag.size > 0) {
     const flagRes = await prisma.user.updateMany({
-      where: { id: { in: uniqueToFlag }, staleTrainingDetectedAt: null },
+      where: { id: { in: [...toFlag] }, staleTrainingDetectedAt: null },
       data: { staleTrainingDetectedAt: new Date() },
     });
     newlyFlagged = flagRes.count;
   }
 
   // Batch 6: re-stamp already-stale members so re-sync cron picks them up again
-  if (toReStamp.length > 0) {
-    const uniqueToReStamp = [...new Set(toReStamp)];
+  if (toReStamp.size > 0) {
     const reStampRes = await prisma.user.updateMany({
-      where: { id: { in: uniqueToReStamp }, staleTrainingDetectedAt: { not: null } },
+      where: { id: { in: [...toReStamp] }, staleTrainingDetectedAt: { not: null } },
       data: { staleTrainingDetectedAt: new Date() },
     });
     reStamped = reStampRes.count;

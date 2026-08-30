@@ -1,5 +1,7 @@
 import { getProgramBySlug } from '@/lib/content/programs';
 import { programSlugsEquivalent } from '@/lib/content/programSlug';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 export type TrainingProgress = {
   totalCourses: number;
@@ -13,6 +15,77 @@ export type LiveTrainingProgressSummary = {
   averagePercent: number;
   coursesCompleted: number;
 } | null | undefined;
+
+export type TrainingProgressEnrollment = {
+  programSlug: string;
+  curriculumVersion: string;
+  isPrimary: boolean;
+};
+
+export type TrainingProgressAssignment = {
+  programSlug: string | null;
+  curriculumVersion: string | null;
+};
+
+/** Resolve the immutable version for one explicitly selected program. */
+export function resolveTrainingProgressCurriculumVersion(
+  programSlug: string | null | undefined,
+  enrollments: readonly TrainingProgressEnrollment[],
+): string | null {
+  if (!programSlug) return null;
+  const equivalentEnrollments = enrollments.filter((candidate) =>
+    programSlugsEquivalent(candidate.programSlug, programSlug),
+  );
+  const enrollment =
+    equivalentEnrollments.find((candidate) => candidate.isPrimary) ??
+    equivalentEnrollments[0];
+  if (enrollment) return enrollment.curriculumVersion;
+  return enrollments.length === 0 ? LEGACY_CURRICULUM_VERSION : null;
+}
+
+export type ComputeTrainingProgressArgs = {
+  enrolledProgram: string | null | undefined;
+  curriculumVersion: string | null | undefined;
+  coursesCompleted: unknown;
+  liveProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[];
+};
+
+/**
+ * Resolve the immutable curriculum assignment used by rollup-only readers.
+ * A primary CourseEnrollment wins; older unmarked rows may match the legacy
+ * User.enrolledProgram through canonical/alias equivalence. Legacy v1 is used
+ * only when the learner has no CourseEnrollment rows at all.
+ */
+export function resolveTrainingProgressAssignment(
+  enrolledProgram: string | null | undefined,
+  enrollments: readonly TrainingProgressEnrollment[],
+): TrainingProgressAssignment {
+  const primary = enrollments.find((enrollment) => enrollment.isPrimary) ?? null;
+  const equivalent = enrolledProgram
+    ? enrollments.find((enrollment) =>
+        programSlugsEquivalent(enrollment.programSlug, enrolledProgram),
+      ) ?? null
+    : null;
+  const enrollment = primary ?? equivalent;
+
+  if (enrollment) {
+    return {
+      programSlug: enrollment.programSlug,
+      curriculumVersion: enrollment.curriculumVersion,
+    };
+  }
+
+  if (enrollments.length === 0) {
+    return {
+      programSlug: enrolledProgram ?? null,
+      curriculumVersion: LEGACY_CURRICULUM_VERSION,
+    };
+  }
+
+  // Enrollment rows exist, but none can be identified as the active program.
+  // Do not silently reinterpret one of those immutable assignments as legacy.
+  return { programSlug: null, curriculumVersion: null };
+}
 
 function findLiveProgress(
   enrolledProgram: string | null | undefined,
@@ -37,13 +110,19 @@ function findLiveProgress(
  * slugs that belong to the enrolled program — stale entries from a prior
  * program do not inflate the percentage.
  */
-export function computeTrainingProgress(
-  enrolledProgram: string | null | undefined,
-  coursesCompleted: unknown,
-  liveProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[]
-): TrainingProgress {
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const totalCourses = program?.courses.length ?? 0;
+export function computeTrainingProgress({
+  enrolledProgram,
+  curriculumVersion,
+  coursesCompleted,
+  liveProgress,
+}: ComputeTrainingProgressArgs): TrainingProgress {
+  const program = enrolledProgram && curriculumVersion
+    ? getProgramBySlug(enrolledProgram)
+    : null;
+  const courses = program
+    ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
+    : [];
+  const totalCourses = courses.length;
   if (totalCourses === 0) {
     return { totalCourses: 0, completedCount: 0, pct: 0, allComplete: false };
   }
@@ -77,7 +156,7 @@ export function computeTrainingProgress(
 
   const list = Array.isArray(coursesCompleted) ? (coursesCompleted as unknown[]) : [];
   const completedSlugs = new Set(list.filter((s): s is string => typeof s === 'string'));
-  const completedCount = program!.courses.filter((c) => completedSlugs.has(c.slug)).length;
+  const completedCount = courses.filter((c) => completedSlugs.has(c.slug)).length;
   const pct = Math.round((completedCount / totalCourses) * 100);
   return {
     totalCourses,

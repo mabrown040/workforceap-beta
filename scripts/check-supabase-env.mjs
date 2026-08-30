@@ -11,12 +11,22 @@
  * Exit 0 = ok, 1 = misconfigured (block the deploy).
  */
 
-const DEMO_REF = 'esbdrgaonplpvzmtrdhw'; // workforceap-demo
-const PROD_REF = 'jqddnyuszufndwwezdwp'; // real project
+import guard from './lib/supabase-project-guard.cjs';
+
+const {
+  DEMO_REF,
+  PROD_REF,
+  inspectSupabaseEnvironment,
+  projectForUrl,
+} = guard;
 
 // VERCEL_ENV is 'production' | 'preview' | 'development'. Fall back to NODE_ENV.
-// CI uses stub DB URLs — guard only applies to real Vercel deploys and local dev.
-if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+// CI uses stub DB URLs, but Vercel also sets CI=1. A real Vercel deployment
+// must never bypass this guard before a database-mutating build command.
+if (
+  process.env.VERCEL !== '1' &&
+  (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true')
+) {
   console.log('[supabase-env-guard] CI — skipping project ref check');
   process.exit(0);
 }
@@ -30,18 +40,12 @@ const urls = {
   DATABASE_URL: process.env.DATABASE_URL || '',
 };
 
-function refIn(value) {
-  if (value.includes(DEMO_REF)) return 'demo';
-  if (value.includes(PROD_REF)) return 'prod';
-  return value ? 'unknown' : 'unset';
-}
-
 const expected = env === 'production' ? 'prod' : 'demo';
 const errors = [];
 const seen = {};
 
 for (const [name, value] of Object.entries(urls)) {
-  const ref = refIn(value);
+  const ref = projectForUrl(value, name === 'NEXT_PUBLIC_SUPABASE_URL' ? 'public' : 'database');
   seen[name] = ref;
   if (ref === 'unset' || ref === 'unknown') continue; // don't fail on unset here
   if (ref !== expected) {
@@ -49,6 +53,14 @@ for (const [name, value] of Object.entries(urls)) {
       `  ✗ ${name} points at the ${ref.toUpperCase()} project, but VERCEL_ENV="${env}" must use ${expected.toUpperCase()}.`
     );
   }
+}
+
+if (process.env.VERCEL === '1') {
+  const strict = inspectSupabaseEnvironment(process.env, {
+    requireVercel: true,
+    requireDirectUrl: true,
+  });
+  errors.push(...strict.errors.map((message) => `  ✗ ${message}`));
 }
 
 console.log(`[supabase-env-guard] env=${env} expected=${expected} →`, seen);

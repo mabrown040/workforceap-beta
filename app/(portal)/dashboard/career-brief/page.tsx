@@ -8,7 +8,10 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getMemberState, getMemberStateFull } from '@/lib/member/getMemberState';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import {
+  computeTrainingProgress,
+  resolveTrainingProgressAssignment,
+} from '@/lib/member/trainingProgress';
 import PageHeader from '@/components/portal/PageHeader';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
@@ -57,6 +60,14 @@ export default async function CareerBriefPage() {
       select: {
         assessmentScorePct: true,
         assessmentScore: true,
+        courseEnrollments: {
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          select: {
+            programSlug: true,
+            curriculumVersion: true,
+            isPrimary: true,
+          },
+        },
         profile: {
           select: {
             resumeOriginalPath: true,
@@ -78,12 +89,17 @@ export default async function CareerBriefPage() {
 
   // ── Training progress ──
   const trainingView = memberState.trainingView;
-  const enrolledProgram = memberState.enrolledProgram;
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const trainingProgress = computeTrainingProgress(
-    enrolledProgram,
-    trainingView?.completedSlugsAuthoritative ?? [],
+  const assignment = resolveTrainingProgressAssignment(
+    memberState.enrolledProgram,
+    dbUser?.courseEnrollments ?? [],
   );
+  const enrolledProgram = assignment.programSlug;
+  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const trainingProgress = computeTrainingProgress({
+    enrolledProgram,
+    curriculumVersion: assignment.curriculumVersion,
+    coursesCompleted: trainingView?.completedSlugsAuthoritative ?? [],
+  });
 
   // ── Skills / assessment ──
   const assessmentScorePct = dbUser?.assessmentScorePct ?? dbUser?.assessmentScore ?? null;

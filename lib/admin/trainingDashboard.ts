@@ -9,6 +9,7 @@ import {
 } from '@/lib/content/programSlug';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { deriveCareerPlanSignal, type CareerPlanSignal } from '@/lib/admin/careerPlanSignal';
 import {
@@ -124,7 +125,12 @@ export async function loadTrainingDashboardData(
       // when the dashboard is scoped to a non-primary program.
       courseEnrollments: {
         orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
-        select: { programSlug: true, isPrimary: true, enrolledAt: true },
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+          enrolledAt: true,
+        },
       },
       courseProgress: {
         where: { status: { in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED] } },
@@ -160,10 +166,18 @@ export async function loadTrainingDashboardData(
   >();
 
   for (const m of members) {
+    const assignedEnrollment =
+      m.courseEnrollments.find((row) => row.isPrimary) ??
+      (m.enrolledProgram
+        ? m.courseEnrollments.find((row) =>
+            programSlugsEquivalent(row.programSlug, m.enrolledProgram as string),
+          )
+        : null) ??
+      m.courseEnrollments[0] ??
+      null;
     const assignedProgramSlug =
-      m.courseEnrollments.find((row) => row.isPrimary)?.programSlug ??
+      assignedEnrollment?.programSlug ??
       m.enrolledProgram ??
-      m.courseEnrollments[0]?.programSlug ??
       null;
     const inferredProgramSlug =
       m.memberProgramProgress[0]?.programSlug ??
@@ -173,15 +187,26 @@ export async function loadTrainingDashboardData(
     if (!resolvedProgramSlug) continue;
     const enrolledProgram = canonicalizeProgramSlug(resolvedProgramSlug);
     const program = getProgramBySlug(enrolledProgram);
-    if (!program?.courses.length) continue;
+    if (!program) continue;
+    const curriculumVersion =
+      assignedEnrollment &&
+      programSlugsEquivalent(assignedEnrollment.programSlug, enrolledProgram)
+        ? assignedEnrollment.curriculumVersion
+        : 'legacy-v1';
+    const assignedCourses = getProgramCoursesForCurriculumVersion(
+      program,
+      curriculumVersion,
+    );
+    if (assignedCourses.length === 0) continue;
 
-    const catalogCacheKey = `${m.organizationId}:${enrolledProgram}`;
+    const catalogCacheKey = `${m.organizationId}:${enrolledProgram}:${curriculumVersion}`;
     let validatedCourses = validatedCourseLists.get(catalogCacheKey);
     if (!validatedCourses) {
       try {
         validatedCourses = (await loadValidatedProgramCourses({
           organizationId: m.organizationId,
           programSlug: enrolledProgram,
+          curriculumVersion,
           checkB4BContents: false,
         })).courses;
       } catch (error) {
@@ -189,7 +214,7 @@ export async function loadTrainingDashboardData(
           '[admin/trainingDashboard] validated course list unavailable; using board catalog:',
           error instanceof Error ? error.message : 'unknown catalog error',
         );
-        validatedCourses = program.courses;
+        validatedCourses = assignedCourses;
       }
       validatedCourseLists.set(catalogCacheKey, validatedCourses);
     }

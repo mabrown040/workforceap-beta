@@ -330,6 +330,7 @@ describe('Trigger: course_complete', () => {
     expect(resolveProgramCourseWithCatalogFallback).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ enrolledProgramSlug: 'primary-program' }),
+      expect.objectContaining({ curriculumVersion: 'legacy-v1' }),
     );
     expect(markCourseProgressCompleted).toHaveBeenCalledWith(
       expect.objectContaining({ programSlug: 'primary-program' }),

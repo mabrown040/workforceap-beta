@@ -25,6 +25,7 @@ import { formatDate } from '@/lib/i18n/date';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -60,6 +61,7 @@ export default async function ProgramPage({
           select: {
             id: true,
             programSlug: true,
+            curriculumVersion: true,
             isPrimary: true,
             workspaceEmail: true,
             workspaceEmailProvisioned: true,
@@ -112,6 +114,11 @@ export default async function ProgramPage({
     );
   }
 
+  const curriculumCourses = getProgramCoursesForCurriculumVersion(
+    program,
+    activeEnrollment?.curriculumVersion ?? 'legacy-v1',
+  );
+
   const tenantCourseMappings = dbUser?.organizationId
     ? await prisma.course.findMany({
         where: {
@@ -132,7 +139,7 @@ export default async function ProgramPage({
     // Board-approved syllabus courses carry verified public Coursera slugs.
     // Keep those launchable while the Enterprise discovery snapshot catches
     // up; the launch route resolves them before any index-based legacy map.
-    ...program.courses
+    ...curriculumCourses
       .filter((course) => Boolean(course.courseraSlug?.trim()))
       .map((course) => course.slug),
   ]);
@@ -159,7 +166,7 @@ export default async function ProgramPage({
   const completedCount = trainingView?.completedCount ?? 0;
   const nextCourseSlug =
     trainingView?.nextIncompleteCourseSlug ??
-    program.courses.find((c) => !completedSet.has(c.slug))?.slug ??
+    curriculumCourses.find((c) => !completedSet.has(c.slug))?.slug ??
     null;
 
   // ── v2 KIT is the DEFAULT for the My Program page (real data); legacy view
@@ -167,7 +174,7 @@ export default async function ProgramPage({
   // loaded above. Renders only when a program is actually enrolled — the
   // unenrolled "choose your program" picker above keeps its own legacy UI.
   if (requestedUi !== 'legacy') {
-    const totalCourses = program.courses.length;
+    const totalCourses = curriculumCourses.length;
     const progressPercent =
       trainingView?.progressPercentDisplay ??
       (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
@@ -177,7 +184,7 @@ export default async function ProgramPage({
 
     // Per-course state: completed → done, the resolved "next" course → active,
     // everything else → locked. Mirrors the legacy course-list logic below.
-    const modules = program.courses.map((c) => {
+    const modules = curriculumCourses.map((c) => {
       const done = completedSet.has(c.slug);
       const isNext = !done && c.slug === nextCourseSlug;
       return {
@@ -192,7 +199,7 @@ export default async function ProgramPage({
 
     // Remaining effort estimate from the static catalog hours on not-yet-done
     // courses (readily available; no extra query).
-    const hoursRemaining = program.courses
+    const hoursRemaining = curriculumCourses
       .filter((c) => !completedSet.has(c.slug))
       .reduce((sum, c) => sum + (c.estimatedHours ?? 0), 0);
 
@@ -292,7 +299,7 @@ export default async function ProgramPage({
               <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-              Progress: {completedCount} of {program.courses.length} courses complete
+              Progress: {completedCount} of {curriculumCourses.length} courses complete
             </p>
             <div
               style={{
@@ -306,7 +313,7 @@ export default async function ProgramPage({
               <div
                 style={{
                   height: '100%',
-                  width: `${program.courses.length > 0 ? (completedCount / program.courses.length) * 100 : 0}%`,
+                  width: `${curriculumCourses.length > 0 ? (completedCount / curriculumCourses.length) * 100 : 0}%`,
                   background: program.categoryColor,
                   borderRadius: '3px',
                 }}
@@ -316,7 +323,7 @@ export default async function ProgramPage({
               Course list
             </h3>
             <ul className="dashboard-program-course-list">
-              {program.courses.map((c) => {
+              {curriculumCourses.map((c) => {
                 const done = completedSet.has(c.slug);
                 const isNext = !done && c.slug === nextCourseSlug;
                 const isLocked = !done && !isNext;

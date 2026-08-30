@@ -19,7 +19,10 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import {
+  computeTrainingProgress,
+  resolveTrainingProgressAssignment,
+} from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import {
   CounselorHomeKit,
@@ -168,6 +171,14 @@ export default async function CounselorPortalPage({
               email: true,
               programInterest: true,
               enrolledProgram: true,
+              courseEnrollments: {
+                orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+                select: {
+                  programSlug: true,
+                  curriculumVersion: true,
+                  isPrimary: true,
+                },
+              },
               assessmentScorePct: true,
               memberProgramProgress: {
                 select: { programSlug: true, averagePercent: true, coursesCompleted: true },
@@ -366,21 +377,30 @@ export default async function CounselorPortalPage({
               />
             ) : (
               assignments.map((a) => {
-                const rawProgram = a.member.enrolledProgram ?? a.member.programInterest;
+                const assignment = resolveTrainingProgressAssignment(
+                  a.member.enrolledProgram,
+                  a.member.courseEnrollments,
+                );
+                const rawProgram = assignment.programSlug ?? a.member.programInterest;
                 const prog = rawProgram
                   ? getProgramBySlug(rawProgram)?.title ?? rawProgram
                   : t('unknownProgram');
-                const enrolledSlug = a.member.enrolledProgram ?? null;
+                const enrolledSlug = assignment.programSlug;
                 const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
-                const progress = computeTrainingProgress(enrolledSlug, null, a.member.memberProgramProgress);
+                const progress = computeTrainingProgress({
+                  enrolledProgram: enrolledSlug,
+                  curriculumVersion: assignment.curriculumVersion,
+                  coursesCompleted: null,
+                  liveProgress: a.member.memberProgramProgress,
+                });
                 const trainingProgressPct = program && progress.totalCourses > 0 ? progress.pct : null;
                 const rosterBadge = counselorStudentStatusBadge({
-                  enrolledProgram: a.member.enrolledProgram,
+                  enrolledProgram: enrolledSlug,
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 const statusLabel = rosterBadge.label;
                 const badgeVariant = counselorStudentStatusBadgeVariant({
-                  enrolledProgram: a.member.enrolledProgram,
+                  enrolledProgram: enrolledSlug,
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 return (

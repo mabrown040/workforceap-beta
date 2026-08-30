@@ -8,13 +8,14 @@ import { prisma } from '@/lib/db/prisma';
 import { ADMIN_SSR_LIST_CAP, showingFirstLabel } from '@/lib/db/queryCaps';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
-import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
 import { parseCourseGradeString, scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { humanizeCourseraCourseTitle } from '@/lib/coursera/courseTitle';
 import { countUnmatchedLearners, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
@@ -94,7 +95,8 @@ export default async function AdminTrainingProgressPage({
     // Primary program per learner drives the single pace row we show.
     withAdminPageScope(scope, (db) => db.courseEnrollment.findMany({
       where: { isPrimary: true, userId: { in: learnerIds } },
-      select: { userId: true, programSlug: true },
+      orderBy: { enrolledAt: 'desc' },
+      select: { userId: true, programSlug: true, curriculumVersion: true },
     })),
     prisma.courseProgress.findMany({
       where: { userId: { in: learnerIds } },
@@ -116,10 +118,18 @@ export default async function AdminTrainingProgressPage({
 
   // Primary program per learner (falls back to legacy User.enrolledProgram
   // when no CourseEnrollment row exists yet — e.g. seeded users).
-  const primaryByUser = new Map<string, string>();
+  const primaryByUser = new Map<
+    string,
+    { programSlug: string; curriculumVersion: string }
+  >();
   if (enrollmentsResult.status === 'fulfilled') {
     for (const e of enrollmentsResult.value) {
-      if (!primaryByUser.has(e.userId)) primaryByUser.set(e.userId, e.programSlug);
+      if (!primaryByUser.has(e.userId)) {
+        primaryByUser.set(e.userId, {
+          programSlug: e.programSlug,
+          curriculumVersion: e.curriculumVersion,
+        });
+      }
     }
   } else {
     trainingSecondaryLoadFailed = true;
@@ -191,30 +201,38 @@ export default async function AdminTrainingProgressPage({
     );
   }
 
-  const programSlugs = Array.from(
-    new Set(
-      learners
-        .map(
-          (learner) =>
-            primaryByUser.get(learner.id) ??
-            learner.enrolledProgram ??
-            inferredProgramByUser.get(learner.id)?.programSlug,
-        )
-        .filter((value): value is string => Boolean(value))
-        .map((programSlug) => getProgramBySlug(programSlug)?.slug)
-        .filter((programSlug): programSlug is string => Boolean(programSlug)),
-    ),
-  );
+  const curriculumAssignments = new Map<
+    string,
+    { programSlug: string; curriculumVersion: string }
+  >();
+  for (const learner of learners) {
+    const enrollment = primaryByUser.get(learner.id);
+    const requestedProgramSlug =
+      enrollment?.programSlug ??
+      learner.enrolledProgram ??
+      inferredProgramByUser.get(learner.id)?.programSlug;
+    const program = requestedProgramSlug ? getProgramBySlug(requestedProgramSlug) : null;
+    if (!program) continue;
+    const curriculumVersion =
+      enrollment && programSlugsEquivalent(enrollment.programSlug, program.slug)
+        ? enrollment.curriculumVersion
+        : 'legacy-v1';
+    curriculumAssignments.set(`${program.slug}:${curriculumVersion}`, {
+      programSlug: program.slug,
+      curriculumVersion,
+    });
+  }
   const validatedCourseLists = new Map(
     await Promise.all(
-      programSlugs.map(async (programSlug) => {
+      Array.from(curriculumAssignments.entries()).map(async ([cacheKey, assignment]) => {
         const result = await loadValidatedProgramCourses({
           organizationId: scope.orgId,
-          programSlug,
+          programSlug: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
           readOnlyAudit,
           checkB4BContents: false,
         });
-        return [programSlug, result.courses] as const;
+        return [cacheKey, result.courses] as const;
       }),
     ),
   );
@@ -239,14 +257,25 @@ export default async function AdminTrainingProgressPage({
 
   const rows: TrainingRow[] = [];
   for (const learner of learners) {
-    const storedProgramSlug = primaryByUser.get(learner.id) ?? learner.enrolledProgram;
+    const primaryEnrollment = primaryByUser.get(learner.id);
+    const storedProgramSlug = primaryEnrollment?.programSlug ?? learner.enrolledProgram;
     const inferredProgramSlug = inferredProgramByUser.get(learner.id)?.programSlug;
     const displayProgramSlug = storedProgramSlug ?? inferredProgramSlug;
     if (!displayProgramSlug) continue;
     const program = getProgramBySlug(displayProgramSlug);
-    if (!program || program.courses.length === 0) continue;
+    if (!program) continue;
     const programSlug = program.slug;
-    const validatedCourses = validatedCourseLists.get(programSlug) ?? program.courses;
+    const curriculumVersion =
+      primaryEnrollment && programSlugsEquivalent(primaryEnrollment.programSlug, programSlug)
+        ? primaryEnrollment.curriculumVersion
+        : 'legacy-v1';
+    const assignedCourses = getProgramCoursesForCurriculumVersion(
+      program,
+      curriculumVersion,
+    );
+    if (assignedCourses.length === 0) continue;
+    const validatedCourses =
+      validatedCourseLists.get(`${programSlug}:${curriculumVersion}`) ?? assignedCourses;
     const reconciliation = reconcileProgramProgress({
       validatedCourses,
       localRows: progressByUserProgram.get(`${learner.id}:${programSlug}`) ?? [],
@@ -412,9 +441,11 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
     // CourseEnrollment rows yet (seeded test users).
     withAdminPageScope(scope, (db) => db.courseEnrollment.findMany({
       where: { userId: { in: learnerIds } },
+      orderBy: [{ userId: 'asc' }, { isPrimary: 'desc' }, { enrolledAt: 'desc' }],
       select: {
         userId: true,
         programSlug: true,
+        curriculumVersion: true,
         isPrimary: true,
       },
     })),
@@ -494,7 +525,11 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
     // secondaries alpha by program title). Otherwise fall back to the
     // legacy `User.enrolledProgram` so seeded users without a backfilled
     // enrollment row still get a curriculum block (treated as primary).
-    type ProgramEmit = { programSlug: string; programRole: 'primary' | 'secondary' };
+    type ProgramEmit = {
+      programSlug: string;
+      curriculumVersion: string;
+      programRole: 'primary' | 'secondary';
+    };
     let programsToEmit: ProgramEmit[] = [];
 
     if (learnerEnrollments.length > 0) {
@@ -503,25 +538,42 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
         .filter((e) => e !== primary)
         .map((e) => ({
           programSlug: e.programSlug,
+          curriculumVersion: e.curriculumVersion,
           programTitle: getProgramBySlug(e.programSlug)?.title ?? e.programSlug,
         }))
         .sort((a, b) => a.programTitle.localeCompare(b.programTitle));
 
       if (primary) {
-        programsToEmit.push({ programSlug: primary.programSlug, programRole: 'primary' });
+        programsToEmit.push({
+          programSlug: primary.programSlug,
+          curriculumVersion: primary.curriculumVersion,
+          programRole: 'primary',
+        });
       }
       for (const s of secondaries) {
-        programsToEmit.push({ programSlug: s.programSlug, programRole: 'secondary' });
+        programsToEmit.push({
+          programSlug: s.programSlug,
+          curriculumVersion: s.curriculumVersion,
+          programRole: 'secondary',
+        });
       }
     } else if (learner.enrolledProgram) {
-      programsToEmit = [{ programSlug: learner.enrolledProgram, programRole: 'primary' }];
+      programsToEmit = [{
+        programSlug: learner.enrolledProgram,
+        curriculumVersion: 'legacy-v1',
+        programRole: 'primary',
+      }];
     }
 
-    for (const { programSlug, programRole } of programsToEmit) {
+    for (const { programSlug, curriculumVersion, programRole } of programsToEmit) {
       const program = getProgramBySlug(programSlug);
       if (!program) continue;
       const canonicalProgramSlug = program.slug;
-      for (const course of program.courses) {
+      const assignedCourses = getProgramCoursesForCurriculumVersion(
+        program,
+        curriculumVersion,
+      );
+      for (const course of assignedCourses) {
         const progress = canonicalByKey.get(`${learner.id}:${canonicalProgramSlug}:${course.slug}`);
         curriculumRows.push({
           key: `${learner.id}:${canonicalProgramSlug}:${course.slug}`,
@@ -553,6 +605,17 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
   const learnersById = new Map(learners.map((l) => [l.id, l]));
   const rawRows: RawCourseraRow[] = rawCourseraRows.map((row) => {
     const learner = row.userId ? learnersById.get(row.userId) : null;
+    const learnerEnrollments = row.userId ? enrollmentsByUser.get(row.userId) ?? [] : [];
+    const activeEnrollment =
+      learnerEnrollments.find((enrollment) => enrollment.isPrimary) ??
+      (learner?.enrolledProgram
+        ? learnerEnrollments.find((enrollment) =>
+            programSlugsEquivalent(enrollment.programSlug, learner.enrolledProgram as string),
+          )
+        : null) ??
+      learnerEnrollments[0] ??
+      null;
+    const suggestedProgramSlug = activeEnrollment?.programSlug ?? learner?.enrolledProgram ?? null;
     let mappedProgramSlug: string | null = null;
     let mappedCourseSlug: string | null = null;
     let mappingSource: 'db' | 'static' | null = null;
@@ -562,15 +625,23 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
       mappedProgramSlug = dbMatch.canonicalProgramSlug;
       mappedCourseSlug = dbMatch.canonicalCourseSlug;
       mappingSource = 'db';
-    } else if (learner?.enrolledProgram) {
-      const program = getProgramBySlug(learner.enrolledProgram);
-      const match = program?.courses.find(
+    } else if (suggestedProgramSlug) {
+      const program = getProgramBySlug(suggestedProgramSlug);
+      const curriculumVersion =
+        activeEnrollment &&
+        programSlugsEquivalent(activeEnrollment.programSlug, suggestedProgramSlug)
+          ? activeEnrollment.curriculumVersion
+          : 'legacy-v1';
+      const assignedCourses = program
+        ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
+        : [];
+      const match = assignedCourses.find(
         (c) =>
           (c.courseraCourseId && c.courseraCourseId === row.courseraCourseId) ||
           (row.courseraCourseSlug && c.slug === row.courseraCourseSlug),
       );
       if (match) {
-        mappedProgramSlug = learner.enrolledProgram;
+        mappedProgramSlug = program?.slug ?? suggestedProgramSlug;
         mappedCourseSlug = match.slug;
         mappingSource = 'static';
       }
@@ -594,7 +665,7 @@ async function renderLegacy(scope: import("@/lib/tenant/adminPageScope").AdminPa
       mappedProgramSlug,
       mappedCourseSlug,
       mappingSource,
-      suggestedProgramSlug: learner?.enrolledProgram ?? null,
+      suggestedProgramSlug,
       percentComplete: Number(row.overallProgress),
       gradePercent: parseCourseGradeString(row.courseGrade),
       learningHours: Number(row.learningHours),

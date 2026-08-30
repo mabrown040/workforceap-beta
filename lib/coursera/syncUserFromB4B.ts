@@ -22,6 +22,12 @@ import {
   loadCanonicalMappingsForCourseraIds,
   type CanonicalMappingIndex,
 } from '@/lib/coursera/canonicalMapping';
+import {
+  loadCurriculumMappingsForCourseraIds,
+  resolveProviderCourseMappings,
+  type CurriculumMappingIndex,
+} from '@/lib/coursera/curriculumMapping';
+import type { CurriculumAssignment } from '@/lib/member/curriculumAssignment';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { auditLog } from '@/lib/audit';
@@ -31,6 +37,7 @@ import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress'
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 import { getMilestonesCrossed, trackLearningMilestoneServer } from '@/lib/analytics/track';
 import { extractGradebookCourseScoreScaled } from '@/lib/coursera/courseGradeDisplay';
+import { programSlugReadCandidates } from '@/lib/content/programSlug';
 
 /**
  * Shared core for "pull a learner's enrollment + progress from Coursera For
@@ -68,6 +75,11 @@ export type ResolvedCourse = {
   overallProgress: number | null;
   lastActivityAt: number | null;
 };
+
+type ResolvedCourseTarget = Pick<
+  ResolvedCourse,
+  'wapProgramSlug' | 'wapCourseSlug' | 'courseraProgramId'
+>;
 
 export type SyncUserFromB4BResult = {
   ok: boolean;
@@ -146,17 +158,27 @@ export function resolveContentIdToWapCourse(
     };
   }
 
+  const staticMatches = new Map<
+    string,
+    {
+      wapProgramSlug: string;
+      wapCourseSlug: string;
+      courseraProgramId: string | null;
+    }
+  >();
   for (const [wapProgramSlug, prog] of Object.entries(DISCOVERED_COURSERA_PROGRAMS)) {
-    const course = prog.courses.find((c) => c.courseId === needle);
-    if (course) {
-      return {
+    for (const course of prog.courses) {
+      if (course.courseId !== needle) continue;
+      staticMatches.set(`${wapProgramSlug}|${course.slug}`, {
         wapProgramSlug,
         wapCourseSlug: course.slug,
         courseraProgramId: prog.courseraProgramId,
-      };
+      });
     }
   }
-  return null;
+  return staticMatches.size === 1
+    ? Array.from(staticMatches.values())[0]!
+    : null;
 }
 
 /**
@@ -253,18 +275,57 @@ export async function syncUserFromB4B(args: {
     B4BGradebookReport[],
   ] = await Promise.all([enrollmentReportsPromise, gradebookReportsPromise]);
 
-  // Pre-load admin-curated mappings from `coursera_canonical_course_mappings`
-  // for every contentId we're about to resolve (both enrollment and gradebook
-  // sides). This is the SAME source of truth the CSV promote path JOINs
-  // against — without it an admin who maps a course via /admin/training-progress
-  // would see CSV imports updated immediately, but this per-user sync would
-  // still bypass the override and stamp the wrong (programSlug, courseSlug).
-  // One IN-list query instead of one round-trip per row.
-  const canonicalMappings: CanonicalMappingIndex =
-    await loadCanonicalMappingsForCourseraIds([
-      ...enrollmentReports.map((r) => r.contentId),
-      ...gradebookReports.map((r) => r.courseId ?? null),
-    ]);
+  const providerCourseIds = [
+    ...enrollmentReports.map((r) => r.contentId),
+    ...gradebookReports.map((r) => r.courseId ?? null),
+  ];
+
+  // Load both mapping generations and the learner's immutable curriculum
+  // assignments once. The approved mapping table is intentionally
+  // many-to-many: one Coursera course may legitimately belong to two WAP
+  // curricula, so it can only be resolved by intersecting the candidates
+  // with this learner's pinned (programSlug, curriculumVersion) pairs.
+  //
+  // The legacy table remains the fallback for learners with legacy-v1 rows
+  // and for raw provider discovery. Keeping all three reads batched prevents
+  // an O(N) mapping query loop across enrollment + gradebook reports.
+  const [canonicalMappings, curriculumMappings, curriculumAssignments]: [
+    CanonicalMappingIndex,
+    CurriculumMappingIndex,
+    CurriculumAssignment[],
+  ] = await Promise.all([
+    loadCanonicalMappingsForCourseraIds(providerCourseIds),
+    loadCurriculumMappingsForCourseraIds(providerCourseIds),
+    withTenantScope(args.orgId, (db) =>
+      db.courseEnrollment.findMany({
+        where: { userId: args.wapUserId },
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+        },
+      }),
+    ),
+  ]);
+
+  /** Resolve one provider course through the shared approved+legacy union. */
+  const resolveProviderCourseTargets = async (
+    contentId: string,
+  ): Promise<ResolvedCourseTarget[]> => {
+    const resolution = await resolveProviderCourseMappings({
+      courseraCourseId: contentId,
+      assignments: curriculumAssignments,
+      curriculumIndex: curriculumMappings,
+      canonicalIndex: canonicalMappings,
+      allowLegacyDiscovery: true,
+    });
+    return resolution.targets.map((target) => ({
+      wapProgramSlug: target.programSlug,
+      wapCourseSlug: target.courseSlug,
+      courseraProgramId:
+        DISCOVERED_COURSERA_PROGRAMS[target.programSlug]?.courseraProgramId ?? null,
+    }));
+  };
 
   // Index gradebook rows by courseId for O(1) lookup during the per-course
   // merge below. If Coursera returns multiple gradebook rows for the same
@@ -293,39 +354,51 @@ export async function syncUserFromB4B(args: {
   }
 
   // ────────── 2. Map Coursera contentIds → WAP (programSlug, courseSlug) ──────
-  const resolved: ResolvedCourse[] = [];
+  const resolvedByTarget = new Map<string, ResolvedCourse>();
   const droppedNoMapping: DroppedItem[] = [];
   const seenDropped = new Set<string>();
 
   for (const report of enrollmentReports) {
     const contentId = (report.contentId ?? '').trim();
     if (!contentId) continue;
-    // Resolution order: admin-curated `coursera_canonical_course_mappings`
-    // row (DB) → static DISCOVERED_COURSERA_PROGRAMS catalog → null.
-    const match = resolveContentIdToWapCourse(contentId, canonicalMappings);
-    if (!match) {
+    const matches = await resolveProviderCourseTargets(contentId);
+    if (matches.length === 0) {
       if (!seenDropped.has(contentId)) {
         seenDropped.add(contentId);
         droppedNoMapping.push({
           courseraContentId: contentId,
           reason:
-            'No coursera_canonical_course_mappings row or DISCOVERED_COURSERA_PROGRAMS entry has a course with this courseId (likely a TODO_courseId_* placeholder or unmapped catalog entry).',
+            'No learner-assigned approved curriculum target, coursera_canonical_course_mappings row, or DISCOVERED_COURSERA_PROGRAMS entry has this courseId.',
         });
       }
       continue;
     }
-    resolved.push({
-      courseraContentId: contentId,
-      wapProgramSlug: match.wapProgramSlug,
-      wapCourseSlug: match.wapCourseSlug,
-      courseraProgramId: match.courseraProgramId,
-      isCompleted: Boolean(report.isCompleted),
-      overallProgress:
-        typeof report.overallProgress === 'number' ? report.overallProgress : null,
-      lastActivityAt:
-        typeof report.lastActivity === 'number' ? report.lastActivity : null,
-    });
+    for (const match of matches) {
+      const key = `${contentId}|${match.wapProgramSlug}|${match.wapCourseSlug}`;
+      const existing = resolvedByTarget.get(key);
+      const reportProgress =
+        typeof report.overallProgress === 'number' ? report.overallProgress : null;
+      const reportActivity =
+        typeof report.lastActivity === 'number' ? report.lastActivity : null;
+      resolvedByTarget.set(key, {
+        courseraContentId: contentId,
+        wapProgramSlug: match.wapProgramSlug,
+        wapCourseSlug: match.wapCourseSlug,
+        courseraProgramId: match.courseraProgramId,
+        isCompleted: Boolean(report.isCompleted) || Boolean(existing?.isCompleted),
+        overallProgress:
+          reportProgress == null
+            ? existing?.overallProgress ?? null
+            : Math.max(reportProgress, existing?.overallProgress ?? 0),
+        lastActivityAt:
+          reportActivity == null
+            ? existing?.lastActivityAt ?? null
+            : Math.max(reportActivity, existing?.lastActivityAt ?? 0),
+      });
+    }
   }
+
+  const resolved = Array.from(resolvedByTarget.values());
 
   // Group by wapProgramSlug to score primary-enrollment candidates.
   const programGroups = new Map<
@@ -383,12 +456,21 @@ export async function syncUserFromB4B(args: {
     for (const [slug] of candidates) {
       enrolledProgramSlugs.push(slug);
       const isPrimary = slug === chosenProgramSlug;
-      const existingRow = await withTenantScope(args.orgId, (db) =>
-        db.courseEnrollment.findUnique({
-          where: { userId_programSlug: { userId: args.wapUserId, programSlug: slug } },
-          select: { id: true },
-        }),
-      );
+        const equivalentRows = await withTenantScope(args.orgId, (db) =>
+          db.courseEnrollment.findMany({
+            where: {
+              userId: args.wapUserId,
+              programSlug: { in: programSlugReadCandidates(slug) },
+            },
+            select: { id: true, programSlug: true, isPrimary: true },
+          }),
+        );
+        const existingRow = equivalentRows.sort((a, b) => {
+          const aCanonical = a.programSlug === slug ? 1 : 0;
+          const bCanonical = b.programSlug === slug ? 1 : 0;
+          if (aCanonical !== bCanonical) return bCanonical - aCanonical;
+          return Number(b.isPrimary) - Number(a.isPrimary);
+        })[0];
 
       if (!existingRow) {
         await withTenantScope(args.orgId, (db) =>
@@ -397,6 +479,9 @@ export async function syncUserFromB4B(args: {
               organizationId: args.orgId,
               userId: args.wapUserId,
               programSlug: slug,
+              // A raw provider course signal cannot prove which immutable
+              // learning-path version the learner was assigned to.
+              curriculumVersion: 'legacy-v1',
               isPrimary,
               enrolledAt,
               enrolledByAdminId: args.enrolledByAdmin,
@@ -405,9 +490,9 @@ export async function syncUserFromB4B(args: {
         );
         seededEnrollments += 1;
       } else {
-        await withTenantScope(args.orgId, (db) =>
-          db.courseEnrollment.update({
-            where: { userId_programSlug: { userId: args.wapUserId, programSlug: slug } },
+          await withTenantScope(args.orgId, (db) =>
+            db.courseEnrollment.update({
+              where: { id: existingRow.id },
             data: {
               isPrimary,
               // Only stamp enrolledByAdminId when an admin is explicitly
@@ -523,46 +608,67 @@ export async function syncUserFromB4B(args: {
   };
   const perCourse = new Map<string, PerCourseSignal>();
 
+  const perCourseKey = (args: {
+    contentId: string;
+    wapProgramSlug: string;
+    wapCourseSlug: string;
+  }) => `${args.contentId}|${args.wapProgramSlug}|${args.wapCourseSlug}`;
+
   for (const row of resolved) {
-    perCourse.set(row.courseraContentId, {
-      contentId: row.courseraContentId,
-      wapProgramSlug: row.wapProgramSlug,
-      wapCourseSlug: row.wapCourseSlug,
-      enrollment: {
-        isCompleted: row.isCompleted,
-        overallProgress: row.overallProgress,
-        lastActivityAt: row.lastActivityAt,
+    perCourse.set(
+      perCourseKey({
+        contentId: row.courseraContentId,
+        wapProgramSlug: row.wapProgramSlug,
+        wapCourseSlug: row.wapCourseSlug,
+      }),
+      {
+        contentId: row.courseraContentId,
+        wapProgramSlug: row.wapProgramSlug,
+        wapCourseSlug: row.wapCourseSlug,
+        enrollment: {
+          isCompleted: row.isCompleted,
+          overallProgress: row.overallProgress,
+          lastActivityAt: row.lastActivityAt,
+        },
+        gradebook: null,
       },
-      gradebook: null,
-    });
+    );
   }
 
   for (const [courseId, gbRow] of gradebookByCourseId.entries()) {
-    const existing = perCourse.get(courseId);
     const gbSignal = {
       overallProgress:
         typeof gbRow.overallProgress === 'number' ? gbRow.overallProgress : null,
       lastActivityAt:
         typeof gbRow.lastActivityAt === 'number' ? gbRow.lastActivityAt : null,
     };
-    if (existing) {
-      existing.gradebook = gbSignal;
+    const existingSignals = Array.from(perCourse.values()).filter(
+      (signal) => signal.contentId === courseId,
+    );
+    if (existingSignals.length > 0) {
+      for (const signal of existingSignals) signal.gradebook = gbSignal;
       continue;
     }
-    // Gradebook-only course — try to resolve through the same DB-first
-    // canonical mapping → static catalog ladder. If it doesn't resolve we
-    // silently skip (gradebook can return courses outside the WAP catalog
-    // when learners self-enroll in adjacent Coursera content the program
-    // doesn't track).
-    const match = resolveContentIdToWapCourse(courseId, canonicalMappings);
-    if (!match) continue;
-    perCourse.set(courseId, {
-      contentId: courseId,
-      wapProgramSlug: match.wapProgramSlug,
-      wapCourseSlug: match.wapCourseSlug,
-      enrollment: null,
-      gradebook: gbSignal,
-    });
+    // Gradebook-only course — use the same assignment-first resolver. This
+    // preserves fan-out for a shared provider course even when Coursera's
+    // enrollment report has not caught up yet.
+    const matches = await resolveProviderCourseTargets(courseId);
+    for (const match of matches) {
+      perCourse.set(
+        perCourseKey({
+          contentId: courseId,
+          wapProgramSlug: match.wapProgramSlug,
+          wapCourseSlug: match.wapCourseSlug,
+        }),
+        {
+          contentId: courseId,
+          wapProgramSlug: match.wapProgramSlug,
+          wapCourseSlug: match.wapCourseSlug,
+          enrollment: null,
+          gradebook: gbSignal,
+        },
+      );
+    }
   }
 
   for (const signal of perCourse.values()) {

@@ -4,6 +4,9 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/lib/pipeline/stage';
 import { buildCsv, csvDate } from '@/lib/csv';
 import { buildMemberExportWhere, fetchMembersForExport, MEMBER_EXPORT_LIMIT } from './_membersExportQuery';
@@ -93,19 +96,46 @@ async function _GET(req: NextRequest) {
   ];
 
   const csvRows = rows.map((u) => {
-    const stage = getPipelineStage(u as Parameters<typeof getPipelineStage>[0]);
+    const assignment = resolveTrainingProgressAssignment(
+      u.enrolledProgram,
+      u.courseEnrollments,
+    );
+    const stage = getPipelineStage({
+      ...u,
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+    });
     const stageLabel = PIPELINE_STAGE_LABELS[stage as PipelineStage] ?? stage;
 
-    const program = u.enrolledProgram ? getProgramBySlug(u.enrolledProgram) : null;
-    const programTitle = program?.title ?? u.enrolledProgram ?? '';
-    const totalCourses = program?.courses.length ?? 0;
-    const completed = u.enrolledProgram
-      ? u.courseProgress
-          .filter((row) => row.programSlug === u.enrolledProgram)
-          .map((row) => row.courseSlug)
+    const selectedProgramSlug = assignment.programSlug;
+    const enrollment = selectedProgramSlug
+      ? u.courseEnrollments.find(
+          (row) =>
+            row.isPrimary || programSlugsEquivalent(row.programSlug, selectedProgramSlug),
+        ) ?? null
+      : null;
+    const programSlug = selectedProgramSlug;
+    const curriculumVersion = assignment.curriculumVersion;
+    const program = programSlug ? getProgramBySlug(programSlug) : null;
+    const assignedCourses = program
+      ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
       : [];
-    const rollup = u.enrolledProgram
-      ? u.memberProgramProgress.find((row) => row.programSlug === u.enrolledProgram) ?? null
+    const programTitle = program?.title ?? programSlug ?? '';
+    const totalCourses = assignedCourses.length;
+    const completedSlugSet = new Set(
+      programSlug
+        ? u.courseProgress
+            .filter((row) => programSlugsEquivalent(row.programSlug, programSlug))
+            .map((row) => row.courseSlug)
+        : [],
+    );
+    const completed = assignedCourses
+      .filter((course) => completedSlugSet.has(course.slug))
+      .map((course) => course.slug);
+    const rollup = programSlug
+      ? u.memberProgramProgress.find((row) =>
+          programSlugsEquivalent(row.programSlug, programSlug),
+        ) ?? null
       : null;
     const completionPct = totalCourses > 0
       ? Math.max(0, Math.min(100, rollup?.averagePercent ?? Math.round((completed.length / totalCourses) * 100)))
@@ -114,7 +144,7 @@ async function _GET(req: NextRequest) {
     // Map completed slugs to course names from canonical CourseProgress rows.
     const completedNames = program
       ? completed
-          .map((slug) => program.courses.find((c) => c.slug === slug)?.name ?? slug)
+          .map((slug) => assignedCourses.find((c) => c.slug === slug)?.name ?? slug)
           .join('; ')
       : completed.join('; ');
 
@@ -124,7 +154,6 @@ async function _GET(req: NextRequest) {
     const wioa = u.wioaQualificationJson as { signal?: string } | null;
     const wioaSignal = wioa?.signal ?? '';
 
-    const enrollment = u.courseEnrollments[0] ?? null;
     const fundingSource = enrollment?.fundingSource ?? '';
 
     const certs = u.userCertifications.map((c) => c.certName).join('; ');
@@ -148,7 +177,7 @@ async function _GET(req: NextRequest) {
       csvDate(u.createdAt),
       stageLabel,
       programTitle,
-      csvDate(u.enrolledAt),
+      csvDate(enrollment?.enrolledAt ?? u.enrolledAt),
       fundingSource,
       completed.length,
       totalCourses,

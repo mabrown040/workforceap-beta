@@ -17,6 +17,9 @@ import {
   getProgramBySlug,
   isCurriculumMigrationPending,
 } from '@/lib/content/programs';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
 
 const MAX_MEMBERS = 100;
 
@@ -49,7 +52,16 @@ async function _POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid input', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { memberIds, pipelineStage, memberStatus, counselorUserId, programSlug } = parsed.data;
+    const {
+      memberIds,
+      pipelineStage,
+      memberStatus,
+      counselorUserId,
+      programSlug: requestedProgramSlug,
+    } = parsed.data;
+    const programSlug = typeof requestedProgramSlug === 'string'
+      ? canonicalizeProgramSlug(requestedProgramSlug)
+      : requestedProgramSlug;
     const orgId = await getActorOrganizationId(user.id);
 
     // Validate that at least one field is being updated
@@ -182,14 +194,16 @@ async function _POST(request: NextRequest) {
                 },
                 data: { isPrimary: false },
               });
-              await tx.courseEnrollment.upsert({
-                where: {
-                  userId_programSlug: { userId: member.id, programSlug },
-                },
+              await upsertEquivalentCourseEnrollment(tx, {
+                userId: member.id,
+                programSlug,
+                preserveLegacyAssignment: Boolean(
+                  member.enrolledProgram
+                  && programSlugsEquivalent(member.enrolledProgram, programSlug),
+                ),
                 create: {
                   organizationId: orgId,
-                  userId: member.id,
-                  programSlug,
+                  curriculumVersion: activeCurriculumVersion(programSlug),
                   isPrimary: true,
                   enrolledAt,
                   enrolledByAdminId: user.id,

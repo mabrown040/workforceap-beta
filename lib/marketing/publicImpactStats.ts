@@ -6,9 +6,11 @@ import { prisma } from '@/lib/db/prisma';
 import { ANALYTICS_COHORT_DETAIL_CAP, sqlCount } from '@/lib/db/scanCaps';
 import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import {
   hasValidatedProgramCompletion,
+  validatedProgramAssignmentRowsSql,
   validatedProgramCompletionValuesSql,
 } from '@/lib/reporting/programCompletion';
 
@@ -185,8 +187,10 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
         where: { ...memberWhere, enrolledProgram: { not: null }, placementRecord: { isNot: null } },
       }),
       prisma.$queryRaw<Array<{ program_slug: string; count: bigint | number }>>`
-        WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+        WITH validated_programs(canonical_slug, storage_value, curriculum_version, total_courses) AS (
           VALUES ${validatedProgramCompletionValuesSql()}
+        ), learner_program_assignments(user_id, program_slug, curriculum_version) AS (
+          ${validatedProgramAssignmentRowsSql()}
         )
         SELECT
           enrolled_program.canonical_slug AS program_slug,
@@ -194,17 +198,27 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
         FROM users u
         INNER JOIN profiles p
           ON p.user_id = u.id AND p.role = 'member'
+        INNER JOIN learner_program_assignments ce
+          ON ce.user_id = u.id
         INNER JOIN validated_programs enrolled_program
-          ON enrolled_program.storage_value = u.enrolled_program
+          ON enrolled_program.storage_value = ce.program_slug
+          AND enrolled_program.curriculum_version = ce.curriculum_version
         INNER JOIN member_program_progress mpp
           ON mpp.user_id = u.id
         INNER JOIN validated_programs progress_program
           ON progress_program.canonical_slug = enrolled_program.canonical_slug
           AND progress_program.storage_value = mpp.program_slug
+          AND progress_program.curriculum_version = ce.curriculum_version
         WHERE u.organization_id = ${orgId}
           AND u.deleted_at IS NULL
           AND u.enrolled_program IS NOT NULL
           AND u.email NOT IN (${Prisma.join([...MEMBER_ONLY_EXCLUDED_EMAILS])})
+          AND EXISTS (
+            SELECT 1
+            FROM validated_programs user_program
+            WHERE user_program.storage_value = u.enrolled_program
+              AND user_program.canonical_slug = enrolled_program.canonical_slug
+          )
           AND mpp.courses_completed = progress_program.total_courses
         GROUP BY enrolled_program.canonical_slug
       `,
@@ -217,6 +231,9 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
           enrolledProgram: true,
           enrolledAt: true,
           createdAt: true,
+          courseEnrollments: {
+            select: { programSlug: true, curriculumVersion: true },
+          },
           memberProgramProgress: {
             select: { programSlug: true, coursesCompleted: true, lastUpdatedAt: true },
           },
@@ -300,7 +317,16 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
     for (const u of enrolledUsers) {
       const slug = getProgramBySlug(u.enrolledProgram!)?.slug ?? u.enrolledProgram!;
       const agg = bySlug.get(slug) ?? { enrolled: 0, completed: 0, daySum: 0, dayCount: 0 };
-      const isCompleted = hasValidatedProgramCompletion(slug, u.memberProgramProgress);
+      const assignment = u.courseEnrollments.find(
+        (enrollment) =>
+          (getProgramBySlug(enrollment.programSlug)?.slug ?? enrollment.programSlug) === slug,
+      );
+      const isCompleted = hasValidatedProgramCompletion(
+        assignment?.programSlug ?? slug,
+        assignment?.curriculumVersion
+          ?? (u.courseEnrollments.length === 0 ? LEGACY_CURRICULUM_VERSION : null),
+        u.memberProgramProgress,
+      );
       if (!isCompleted) continue;
       const k = `${u.id}\0${slug}`;
       const lastCp = lastCompletedAtByUserProgram.get(k);

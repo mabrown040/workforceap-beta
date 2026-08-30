@@ -48,6 +48,8 @@ describe('getOrgScopedCourseUrl', () => {
       'technical-support-fundamentals',
     );
 
+    expect(resolved).not.toBeNull();
+    if (!resolved) throw new Error('expected an org-scoped course URL');
     const url = new URL(resolved);
     expect(url.pathname).toBe('/programs/workforce-advancement-project-8a3f0');
     expect(url.searchParams.get('productId')).toBe('course-id-1');
@@ -111,5 +113,16 @@ describe('getOrgScopedCourseUrl', () => {
     );
 
     expect(resolved).toBe('https://www.coursera.org/learn/technical-support-fundamentals');
+  });
+
+  it('fails closed when an exact approved collection id is absent', async () => {
+    const resolved = await getOrgScopedCourseUrl(
+      'data-analytics-professional-certificate-google',
+      'approved-provider-id',
+      'introduction-to-management-consulting',
+      'missing-approved-collection',
+    );
+
+    expect(resolved).toBeNull();
   });
 });

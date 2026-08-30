@@ -13,6 +13,9 @@ import {
   CURRICULUM_MIGRATION_PENDING_MESSAGE,
   isCurriculumMigrationPending,
 } from '@/lib/content/programs';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
 
 const patchSchema = z.object({
   status: z.enum(['APPROVED', 'DENIED']),
@@ -54,12 +57,13 @@ export const PATCH = withApiGuc(async (
   if (existing.status !== 'PENDING') {
     return NextResponse.json({ error: 'Request is no longer pending' }, { status: 409 });
   }
+  const requestedProgramSlug = canonicalizeProgramSlug(existing.requestedProgramSlug);
 
   const nextStatus = parsed.data.status;
   const orgId = existing.user.organizationId;
   if (
     nextStatus === 'APPROVED'
-    && isCurriculumMigrationPending(existing.requestedProgramSlug)
+    && isCurriculumMigrationPending(requestedProgramSlug)
   ) {
     return NextResponse.json(
       {
@@ -94,7 +98,7 @@ export const PATCH = withApiGuc(async (
       await tx.user.update({
         where: { id: existing.userId },
         data: {
-          enrolledProgram: existing.requestedProgramSlug,
+          enrolledProgram: requestedProgramSlug,
           courseraEnrollmentApproved: true,
           courseraEnrollmentApprovedAt: new Date(),
           courseraEnrollmentApprovedById: user.id,
@@ -117,21 +121,23 @@ export const PATCH = withApiGuc(async (
           where: {
             userId: existing.userId,
             isPrimary: true,
-            programSlug: { not: existing.requestedProgramSlug },
+            programSlug: { not: requestedProgramSlug },
           },
           data: { isPrimary: false },
         });
-        await tx.courseEnrollment.upsert({
-          where: {
-            userId_programSlug: {
-              userId: existing.userId,
-              programSlug: existing.requestedProgramSlug,
-            },
-          },
+        await upsertEquivalentCourseEnrollment(tx, {
+          userId: existing.userId,
+          programSlug: requestedProgramSlug,
+          preserveLegacyAssignment: Boolean(
+            existing.user.enrolledProgram
+            && programSlugsEquivalent(
+              existing.user.enrolledProgram,
+              requestedProgramSlug,
+            ),
+          ),
           create: {
             organizationId: memberForOrg.organizationId,
-            userId: existing.userId,
-            programSlug: existing.requestedProgramSlug,
+            curriculumVersion: activeCurriculumVersion(requestedProgramSlug),
             isPrimary: true,
             enrolledAt: new Date(),
             enrolledByAdminId: user.id,
@@ -159,7 +165,7 @@ export const PATCH = withApiGuc(async (
       entityId: id,
       metadata: {
         from: existing.currentProgramSlug,
-        to: existing.requestedProgramSlug,
+        to: requestedProgramSlug,
         approvedBy: user.id,
       },
     }).catch(() => {});
@@ -175,7 +181,7 @@ export const PATCH = withApiGuc(async (
       metadata: {
         source: 'program_change_request_approved',
         programChangeRequestId: id,
-        programSlug: existing.requestedProgramSlug,
+        programSlug: requestedProgramSlug,
       },
     }).catch(() => {});
   }
@@ -191,7 +197,7 @@ export const PATCH = withApiGuc(async (
         previousStatus: existing.status,
         newStatus: nextStatus,
         userId: existing.userId,
-        requestedProgramSlug: existing.requestedProgramSlug,
+        requestedProgramSlug,
       },
     },
     request: auditRequestMeta(req),

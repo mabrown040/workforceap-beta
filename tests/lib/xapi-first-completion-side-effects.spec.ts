@@ -73,7 +73,11 @@ vi.mock('@/lib/db/prisma', () => ({
         organizationId: 'org-1',
         deletedAt: null,
         enrolledProgram: 'program-one',
-        courseEnrollments: [{ programSlug: 'program-one', isPrimary: true }],
+        courseEnrollments: [{
+          programSlug: 'program-one',
+          curriculumVersion: 'legacy-v1',
+          isPrimary: true,
+        }],
       })),
     },
     courseProgress: {
@@ -83,6 +87,15 @@ vi.mock('@/lib/db/prisma', () => ({
       findMany: vi.fn(async () => []),
       count: vi.fn(async () => (mocks.completionStatus ? 1 : 0)),
     },
+    courseraCanonicalCourseMapping: {
+      findMany: vi.fn(async () => [{
+        courseraCourseId: 'coursera-course-1',
+        courseraCourseSlug: null,
+        canonicalProgramSlug: 'program-one',
+        canonicalCourseSlug: 'course-one',
+      }]),
+    },
+    courseraCurriculumCourseMapping: { findMany: vi.fn(async () => []) },
     counselorAssignment: { findMany: vi.fn(async () => []) },
   },
 }));

@@ -20,6 +20,9 @@ import {
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { logAuditEvent } from '@/lib/audit/log';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
+import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
 export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
@@ -33,7 +36,9 @@ export const POST = withApiGuc(async (request: Request) => {
   }
 
   const o = body as Record<string, unknown>;
-  const slug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
+  const slug = typeof o.programSlug === 'string'
+    ? canonicalizeProgramSlug(o.programSlug)
+    : '';
 
   if (!slug) {
     return NextResponse.json({ error: 'programSlug is required' }, { status: 400 });
@@ -110,12 +115,13 @@ export const POST = withApiGuc(async (request: Request) => {
     // duplicate (userId, programSlug) rows if the request retries.
     // Code above this transaction blocks if existing.enrolledProgram is
     // already set, so there shouldn't be a competing primary row.
-    const enrollment = await tx.courseEnrollment.upsert({
-      where: { userId_programSlug: { userId: user.id, programSlug: slug } },
+    const enrollment = await upsertEquivalentCourseEnrollment(tx, {
+      userId: user.id,
+      programSlug: slug,
+      preserveLegacyAssignment: Boolean(existing?.enrolledProgram),
       create: {
         organizationId: u.organizationId,
-        userId: user.id,
-        programSlug: slug,
+        curriculumVersion: activeCurriculumVersion(slug),
         isPrimary: true,
         enrolledAt: now,
         enrolledByAdminId: null,
@@ -125,7 +131,6 @@ export const POST = withApiGuc(async (request: Request) => {
         enrolledAt: now,
         enrolledByAdminId: null,
       },
-      select: { id: true },
     });
     return { user: u, enrollmentId: enrollment.id };
   });

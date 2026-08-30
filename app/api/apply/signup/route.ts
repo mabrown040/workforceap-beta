@@ -4,6 +4,9 @@ import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
+import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
 import { z } from 'zod';
 import { checkApplySignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
@@ -239,7 +242,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];
     const profileAddress = profileAddressParts.length > 0 ? profileAddressParts.join(', ') : null;
   
-    const programSlug = programRankedSlugs[0];
+    const programSlug = canonicalizeProgramSlug(programRankedSlugs[0]);
     const program = getProgramBySlug(programSlug);
     if (!program) {
       return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
@@ -424,7 +427,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
 
     const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
-      select: { enrolledAt: true },
+      select: { enrolledAt: true, enrolledProgram: true },
     })));
 
     let createdApplicationId: string | null = null;
@@ -492,12 +495,16 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           // Multi-program: signup creates the user's first enrollment, mark
           // it primary. Composite-keyed upsert ensures retries don't create
           // duplicate (userId, programSlug) rows.
-          await tx.courseEnrollment.upsert({
-            where: { userId_programSlug: { userId: user.id, programSlug } },
+          await upsertEquivalentCourseEnrollment(tx, {
+            userId: user.id,
+            programSlug,
+            preserveLegacyAssignment: Boolean(
+              priorUser?.enrolledProgram
+              && programSlugsEquivalent(priorUser.enrolledProgram, programSlug),
+            ),
             create: {
               organizationId,
-              userId: user.id,
-              programSlug,
+              curriculumVersion: activeCurriculumVersion(programSlug),
               isPrimary: true,
               enrolledAt: new Date(),
               ...(stampSponsorship && sponsorPartner

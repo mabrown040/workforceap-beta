@@ -8,6 +8,16 @@ vi.mock('server-only', () => ({}));
 
 vi.mock('@/lib/coursera/canonicalMapping', () => ({
   findCanonicalMappingForCourseraCourse: vi.fn(),
+  loadCanonicalMappingsForCourseraIds: vi.fn(async () => ({
+    byCourseraCourseId: new Map([[
+      'coursera-course-1',
+      {
+        programSlug: 'comptia-a-plus',
+        courseSlug: 'technical-support-fundamentals',
+      },
+    ]]),
+    byCourseraCourseSlug: new Map(),
+  })),
 }));
 vi.mock('@/lib/content/courseraDiscoveredCatalog', () => ({
   DISCOVERED_COURSERA_PROGRAMS: {},

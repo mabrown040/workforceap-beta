@@ -11,6 +11,7 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
@@ -19,6 +20,8 @@ import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainin
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 type Props = {
   params: Promise<{ memberId: string }>;
@@ -75,6 +78,15 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       email: true,
       enrolledProgram: true,
       enrolledAt: true,
+      courseEnrollments: {
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+          enrolledAt: true,
+        },
+      },
       courseProgress: {
         where: { status: 'COMPLETED' },
         select: { programSlug: true, courseSlug: true },
@@ -122,12 +134,30 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
     }),
   ]);
 
+  const trainingAssignment = resolveTrainingProgressAssignment(
+    member.enrolledProgram,
+    member.courseEnrollments,
+  );
+  const activeProgramSlug = trainingAssignment.programSlug;
+  const activeEnrollment = activeProgramSlug
+    ? member.courseEnrollments.find((row) =>
+        programSlugsEquivalent(row.programSlug, activeProgramSlug),
+      ) ?? null
+    : null;
+  const curriculumVersion = trainingAssignment.curriculumVersion;
+  const program = activeProgramSlug ? getProgramBySlug(activeProgramSlug) : null;
+  const curriculumCourses = program && curriculumVersion
+    ? getProgramCoursesForCurriculumVersion(
+        program,
+        curriculumVersion,
+      )
+    : [];
   const courseraProgramId =
-    member.enrolledProgram != null
-      ? DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram]?.courseraProgramId
+    program != null
+      ? DISCOVERED_COURSERA_PROGRAMS[program.slug]?.courseraProgramId
       : undefined;
   const b4bProgress =
-    member.email?.trim() && member.enrolledProgram
+    member.email?.trim() && activeProgramSlug
       ? await fetchLearnerProgressFromB4B(member.email, {
           programId: courseraProgramId,
           readOnlyAudit,
@@ -137,24 +167,28 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
         })
       : new Map();
 
-  const trainingView = member.enrolledProgram
+  const trainingView = activeProgramSlug
       ? await loadMemberProgramTrainingView({
         userId: member.id,
-        programSlug: member.enrolledProgram,
+        programSlug: activeProgramSlug,
         b4bProgress,
         readOnlyAudit,
       })
     : null;
 
-  const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
-  const coursesDone = member.enrolledProgram
+  const coursesDone = activeProgramSlug
     ? member.courseProgress
-        .filter((row) => row.programSlug === member.enrolledProgram)
+        .filter((row) => programSlugsEquivalent(row.programSlug, activeProgramSlug))
         .map((row) => row.courseSlug)
     : [];
   const progressPct =
     trainingView?.progressPercentDisplay ??
-    memberProgramProgressPct(member.enrolledProgram, null, member.memberProgramProgress);
+    memberProgramProgressPct({
+      enrolledProgram: activeProgramSlug,
+      curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: member.memberProgramProgress,
+    });
   const skillsetProgress = await loadMemberSkillsetProgress(memberId);
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
@@ -166,7 +200,12 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
   const allCoursesDone =
     trainingView?.allCoursesComplete ??
-    memberProgramCompleted(member.enrolledProgram, null, member.memberProgramProgress);
+    memberProgramCompleted({
+      enrolledProgram: activeProgramSlug,
+      curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: member.memberProgramProgress,
+    });
   const certPhaseLabel = certificateCount > 0 || allCoursesDone ? 'In progress or complete' : 'Pending';
 
   const journey = [
@@ -175,8 +214,8 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       key: 'training',
       label: 'Training',
       detail: program?.title ?? 'Program',
-      date: member.enrolledAt,
-      done: !!member.enrolledAt,
+      date: activeEnrollment?.enrolledAt ?? member.enrolledAt,
+      done: !!(activeEnrollment?.enrolledAt ?? member.enrolledAt),
     },
     {
       key: 'cert',
@@ -330,7 +369,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
               <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
                 {sectionHeading('Course completions')}
                 <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
-                  {program.courses.map((course) => {
+                  {curriculumCourses.map((course) => {
                     const done = coursesDone.includes(course.slug);
                     return (
                       <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>

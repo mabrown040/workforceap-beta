@@ -48,9 +48,22 @@ export default async function DashboardCertificationsPage({
   // off rather than rendering a default IT Support / Digital Literacy pathway.
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, organizationId: true },
+    select: {
+      enrolledProgram: true,
+      organizationId: true,
+      courseEnrollments: {
+        where: { isPrimary: true },
+        orderBy: { enrolledAt: 'desc' },
+        take: 1,
+        select: { programSlug: true, curriculumVersion: true },
+      },
+    },
   });
-  const primaryPathway = getPathwayForProgram(dbUser?.enrolledProgram ?? null);
+  const primaryEnrollment = dbUser?.courseEnrollments[0] ?? null;
+  const primaryPathway = getPathwayForProgram(
+    primaryEnrollment?.programSlug ?? dbUser?.enrolledProgram ?? null,
+    primaryEnrollment?.curriculumVersion ?? 'legacy-v1',
+  );
 
   const [certs, pathwayRows] = await Promise.all([
     prisma.userCertification.findMany({

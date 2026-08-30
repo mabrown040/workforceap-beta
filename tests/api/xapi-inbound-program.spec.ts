@@ -23,6 +23,9 @@ vi.mock('@/lib/xapi/mappings', () => ({
 }));
 vi.mock('@/lib/xapi/statements', () => ({ isXapiCompletionVerb: vi.fn() }));
 vi.mock('@/lib/xapi/storage', () => ({ markXapiStatementProcessed: vi.fn() }));
+vi.mock('@/lib/xapi/resolveInboundCourseScopes', () => ({
+  resolveInboundCourseScopes: vi.fn(),
+}));
 
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -35,6 +38,7 @@ import { isXapiCompletionVerb } from '@/lib/xapi/statements';
 import { markXapiStatementProcessed } from '@/lib/xapi/storage';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { detectTrainingMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
+import { resolveInboundCourseScopes } from '@/lib/xapi/resolveInboundCourseScopes';
 
 describe('handleInboundParsedStatement program resolution', () => {
   beforeEach(() => {
@@ -63,6 +67,11 @@ describe('handleInboundParsedStatement program resolution', () => {
     });
     vi.mocked(recordXapiEvent).mockResolvedValue(undefined);
     vi.mocked(markXapiStatementProcessed).mockResolvedValue(undefined);
+    vi.mocked(resolveInboundCourseScopes).mockImplementation(async (args) => [{
+      programSlug: args.fallbackProgramSlug,
+      curriculumVersion: args.fallbackCurriculumVersion ?? 'legacy-v1',
+      assignmentMatched: Boolean(args.fallbackProgramSlug),
+    }]);
   });
 
   it('persists a linked course completion without enrollment instead of returning No program enrolled', async () => {
@@ -104,6 +113,7 @@ describe('handleInboundParsedStatement program resolution', () => {
     expect(upsertCourseProgressFromXapiStatement).toHaveBeenCalledWith({
       userId: 'member-1',
       enrolledProgramSlug: null,
+      curriculumVersion: 'legacy-v1',
       parsed: expect.objectContaining({ statementId: 'statement-1' }),
     });
     expect(completeMemberCourse).toHaveBeenCalledWith(
@@ -163,6 +173,133 @@ describe('handleInboundParsedStatement program resolution', () => {
     );
   });
 
+  it('routes an exact provider id to an assigned secondary v2 program', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      organizationId: 'org-1',
+      deletedAt: null,
+      enrolledProgram: 'primary-program',
+      courseEnrollments: [
+        { programSlug: 'primary-program', curriculumVersion: 'legacy-v1', isPrimary: true },
+        { programSlug: 'secondary-program', curriculumVersion: '2026-approved-v2', isPrimary: false },
+      ],
+    } as never);
+    vi.mocked(resolveInboundCourseScopes).mockResolvedValueOnce([{
+      programSlug: 'secondary-program',
+      curriculumVersion: '2026-approved-v2',
+      assignmentMatched: true,
+    }]);
+
+    await handleInboundParsedStatement(
+      {
+        email: 'member@example.com',
+        courseraCourseId: 'secondary-provider-course',
+        activityType: 'course',
+        statementId: 'statement-secondary',
+        verbId: 'http://adlnet.gov/expapi/verbs/completed',
+        rawStatement: {},
+      },
+      { organizationId: 'org-1', statementHash: 'hash-secondary' },
+    );
+
+    expect(completeMemberCourse).toHaveBeenCalledTimes(1);
+    expect(completeMemberCourse).toHaveBeenCalledWith(expect.objectContaining({
+      resolvedProgramSlug: 'secondary-program',
+      courseraCourseId: 'secondary-provider-course',
+    }));
+    expect(upsertCourseProgressFromXapiStatement).toHaveBeenCalledWith(expect.objectContaining({
+      enrolledProgramSlug: 'secondary-program',
+      curriculumVersion: '2026-approved-v2',
+    }));
+  });
+
+  it('fans a shared provider completion into both exact assigned curricula', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      organizationId: 'org-1',
+      deletedAt: null,
+      enrolledProgram: 'program-a',
+      courseEnrollments: [
+        { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', isPrimary: true },
+        { programSlug: 'program-b', curriculumVersion: 'legacy-v1', isPrimary: false },
+      ],
+    } as never);
+    vi.mocked(resolveInboundCourseScopes).mockResolvedValueOnce([
+      { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', assignmentMatched: true },
+      { programSlug: 'program-b', curriculumVersion: 'legacy-v1', assignmentMatched: true },
+    ]);
+
+    await handleInboundParsedStatement(
+      {
+        email: 'member@example.com',
+        courseraCourseId: 'shared-provider-course',
+        activityType: 'course',
+        statementId: 'statement-shared',
+        verbId: 'http://adlnet.gov/expapi/verbs/completed',
+        rawStatement: {},
+      },
+      { organizationId: 'org-1', statementHash: 'hash-shared' },
+    );
+
+    expect(completeMemberCourse).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(completeMemberCourse).mock.calls.map(([call]) => call.resolvedProgramSlug))
+      .toEqual(['program-a', 'program-b']);
+    expect(upsertCourseProgressFromXapiStatement).toHaveBeenCalledTimes(2);
+  });
+
+  it('leaves a shared statement retryable when the second target fails, then completes on retry', async () => {
+    const member = {
+      organizationId: 'org-1',
+      deletedAt: null,
+      enrolledProgram: 'program-a',
+      courseEnrollments: [
+        { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', isPrimary: true },
+        { programSlug: 'program-b', curriculumVersion: 'legacy-v1', isPrimary: false },
+      ],
+    };
+    const scopes = [
+      { programSlug: 'program-a', curriculumVersion: '2026-approved-v2', assignmentMatched: true },
+      { programSlug: 'program-b', curriculumVersion: 'legacy-v1', assignmentMatched: true },
+    ];
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(member as never);
+    vi.mocked(resolveInboundCourseScopes).mockResolvedValue(scopes);
+    vi.mocked(completeMemberCourse)
+      .mockResolvedValueOnce({ ok: true, programSlug: 'program-a' } as never)
+      .mockRejectedValueOnce(new Error('second target temporarily unavailable'));
+
+    const statement = {
+      email: 'member@example.com',
+      courseraCourseId: 'shared-provider-course',
+      activityType: 'course' as const,
+      statementId: 'statement-shared-retry',
+      verbId: 'http://adlnet.gov/expapi/verbs/completed',
+      rawStatement: {},
+    };
+    await expect(handleInboundParsedStatement(
+      statement,
+      { organizationId: 'org-1', statementHash: 'hash-shared-retry' },
+    )).rejects.toThrow('second target temporarily unavailable');
+
+    expect(markXapiStatementProcessed).not.toHaveBeenCalled();
+
+    vi.mocked(completeMemberCourse).mockReset();
+    vi.mocked(completeMemberCourse)
+      .mockResolvedValueOnce({ ok: true, alreadyCompleted: true, programSlug: 'program-a' } as never)
+      .mockResolvedValueOnce({ ok: true, programSlug: 'program-b' } as never);
+
+    const retry = await handleInboundParsedStatement(
+      statement,
+      { organizationId: 'org-1', statementHash: 'hash-shared-retry' },
+    );
+
+    expect(retry.completions).toEqual([
+      expect.objectContaining({ ok: true, programSlug: 'program-a' }),
+      expect.objectContaining({ ok: true, programSlug: 'program-b' }),
+    ]);
+    expect(markXapiStatementProcessed).toHaveBeenCalledWith(
+      'statement-shared-retry',
+      'hash-shared-retry',
+    );
+  });
+
   it('threads detached linked progress through exact-id persistence without rewards', async () => {
     vi.mocked(isXapiCompletionVerb).mockReturnValue(false);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
@@ -213,6 +350,7 @@ describe('handleInboundParsedStatement program resolution', () => {
     expect(upsertCourseProgressFromXapiStatement).toHaveBeenCalledWith({
       userId: 'member-1',
       enrolledProgramSlug: null,
+      curriculumVersion: 'legacy-v1',
       parsed: expect.objectContaining({ courseraCourseId: 'coursera-course-1' }),
     });
     expect(completeMemberCourse).not.toHaveBeenCalled();
@@ -220,13 +358,7 @@ describe('handleInboundParsedStatement program resolution', () => {
     expect(recordXapiEvent).toHaveBeenCalledWith(
       expect.objectContaining({ completionStatus: 'ignored', matchedUserId: 'member-1' }),
     );
-    expect(detectTrainingMilestone).toHaveBeenCalledWith(
-      expect.objectContaining({
-        milestoneType: 'training_started',
-        milestoneRef: 'canonical-program',
-        source: 'coursera-webhook',
-      }),
-    );
+    expect(detectTrainingMilestone).not.toHaveBeenCalled();
   });
 
   it('fails closed before progress or rewards when a resolved mapping points outside the request tenant', async () => {

@@ -22,6 +22,9 @@ import {
   CURRICULUM_MIGRATION_PENDING_MESSAGE,
   isCurriculumMigrationPending,
 } from '@/lib/content/programs';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { canonicalizeProgramSlug, programSlugsEquivalent } from '@/lib/content/programSlug';
+import { upsertEquivalentCourseEnrollment } from '@/lib/member/courseEnrollmentAssignment';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -223,17 +226,20 @@ async function ensureCourseEnrollmentForInvite(
   userId: string,
   organizationId: string,
   programSlug: string,
-  adminId?: string | null
+  adminId?: string | null,
+  preserveLegacyAssignment = false,
 ) {
+  const canonicalProgramSlug = canonicalizeProgramSlug(programSlug);
   // Multi-program: invite-accept creates the invited user's first row,
   // mark it primary. Composite-keyed upsert prevents duplicate
   // (userId, programSlug) rows on retry.
-  await tx.courseEnrollment.upsert({
-    where: { userId_programSlug: { userId, programSlug } },
+  await upsertEquivalentCourseEnrollment(tx, {
+    userId,
+    programSlug: canonicalProgramSlug,
+    preserveLegacyAssignment,
     create: {
       organizationId,
-      userId,
-      programSlug,
+      curriculumVersion: activeCurriculumVersion(canonicalProgramSlug),
       isPrimary: true,
       enrolledAt: new Date(),
       enrolledByAdminId: adminId ?? null,
@@ -360,7 +366,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
       const inviteEmail = String(invitation.email).trim().toLowerCase();
       const existingUser = await prisma.$transaction((tx) => tx.user.findFirst({
         where: { email: inviteEmail },
-        select: { id: true, fullName: true, email: true },
+        select: { id: true, fullName: true, email: true, enrolledProgram: true },
       }));
   
       if (existingUser) {
@@ -394,7 +400,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
 });
 
 async function acceptExistingUser(
-  user: { id: string; fullName: string; email: string },
+  user: { id: string; fullName: string; email: string; enrolledProgram: string | null },
   invitation: AcceptInvitation,
   fullName: string,
   _request: NextRequest
@@ -455,7 +461,7 @@ async function acceptExistingUser(
         await tx.user.update({
           where: { id: user.id },
           data: {
-            enrolledProgram: invitation.programSlug,
+            enrolledProgram: canonicalizeProgramSlug(invitation.programSlug),
             enrolledAt: new Date(),
             programChangedAt: new Date(),
           },
@@ -468,7 +474,15 @@ async function acceptExistingUser(
         });
         if (existingUserOrg) {
           await ensureCourseEnrollmentForInvite(
-            tx, user.id, existingUserOrg.organizationId, invitation.programSlug, invitation.invitedById
+            tx,
+            user.id,
+            existingUserOrg.organizationId,
+            invitation.programSlug,
+            invitation.invitedById,
+            Boolean(
+              user.enrolledProgram
+              && programSlugsEquivalent(user.enrolledProgram, invitation.programSlug),
+            ),
           );
         }
       }
@@ -570,7 +584,7 @@ async function createNewUserAndAccept(
       // Check if a DB record exists for this email
       const existing = await prisma.$transaction((tx) => tx.user.findFirst({
         where: { email: inviteEmail },
-        select: { id: true, fullName: true, email: true },
+        select: { id: true, fullName: true, email: true, enrolledProgram: true },
       }));
       if (existing) {
         return acceptExistingUser(existing, invitation, fullName, request);
@@ -665,7 +679,10 @@ async function finishNewUserDbSetup(
         email: inviteEmailNorm,
         fullName,
         phone,
-        enrolledProgram: invitation.role === 'member' ? invitation.programSlug : null,
+        enrolledProgram:
+          invitation.role === 'member' && invitation.programSlug
+            ? canonicalizeProgramSlug(invitation.programSlug)
+            : null,
         enrolledAt: invitation.role === 'member' ? new Date() : null,
       });
 

@@ -4,6 +4,7 @@ import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import type { MemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 // ─── Scoring Configuration ────────────────────────────────────────────────────
 
@@ -67,6 +68,14 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
         id: true,
         email: true,
         enrolledProgram: true,
+        courseEnrollments: {
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          select: {
+            programSlug: true,
+            curriculumVersion: true,
+            isPrimary: true,
+          },
+        },
         assessmentCompleted: true,
         lastCourseraAutoSyncAt: true,
         createdAt: true,
@@ -107,9 +116,15 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
   }
 
   // Enrollment + training progress (prefer live B4B enrollmentReports when configured).
-  if (user.enrolledProgram) {
+  // CourseEnrollment is authoritative over the transitional User pointer.
+  const trainingAssignment = resolveTrainingProgressAssignment(
+    user.enrolledProgram,
+    user.courseEnrollments,
+  );
+  const activeProgramSlug = trainingAssignment.programSlug;
+  if (activeProgramSlug) {
     const courseraProgramId =
-      DISCOVERED_COURSERA_PROGRAMS[user.enrolledProgram]?.courseraProgramId;
+      DISCOVERED_COURSERA_PROGRAMS[activeProgramSlug]?.courseraProgramId;
     const b4bProgress =
       user.email?.trim()
         ? await fetchLearnerProgressFromB4B(user.email, {
@@ -119,7 +134,7 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
 
     const trainingView = await loadMemberProgramTrainingView({
       userId,
-      programSlug: user.enrolledProgram,
+      programSlug: activeProgramSlug,
       b4bProgress,
     });
 
@@ -360,6 +375,14 @@ export async function buildMemberClassificationInput(
         id: true,
         email: true,
         enrolledProgram: true,
+        courseEnrollments: {
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          select: {
+            programSlug: true,
+            curriculumVersion: true,
+            isPrimary: true,
+          },
+        },
         staleTrainingDetectedAt: true,
         userCertifications: {
           orderBy: { earnedAt: 'asc' },
@@ -379,9 +402,14 @@ export async function buildMemberClassificationInput(
   let lastTrainingActivityAt: Date | null = null;
   let allCoursesComplete = false;
 
-  if (user.enrolledProgram) {
+  const trainingAssignment = resolveTrainingProgressAssignment(
+    user.enrolledProgram,
+    user.courseEnrollments,
+  );
+  const activeProgramSlug = trainingAssignment.programSlug;
+  if (activeProgramSlug) {
     const courseraProgramId =
-      DISCOVERED_COURSERA_PROGRAMS[user.enrolledProgram]?.courseraProgramId;
+      DISCOVERED_COURSERA_PROGRAMS[activeProgramSlug]?.courseraProgramId;
     const b4bProgress = user.email?.trim()
       ? await fetchLearnerProgressFromB4B(user.email, {
           programId: courseraProgramId,
@@ -389,7 +417,7 @@ export async function buildMemberClassificationInput(
       : new Map();
     const trainingView = await loadMemberProgramTrainingView({
       userId,
-      programSlug: user.enrolledProgram,
+      programSlug: activeProgramSlug,
       b4bProgress,
     });
     if (trainingView) {

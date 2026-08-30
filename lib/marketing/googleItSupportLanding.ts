@@ -6,9 +6,9 @@ import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { sqlCount } from '@/lib/db/scanCaps';
 import {
-  getValidatedProgramCompletionSpec,
+  VALIDATED_PROGRAM_COMPLETION_SPECS,
+  validatedProgramAssignmentRowsSql,
   validatedProgramCompletionValuesSql,
-  type ValidatedProgramCompletionSpec,
 } from '@/lib/reporting/programCompletion';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
@@ -25,10 +25,13 @@ export const GOOGLE_IT_PROGRAM_SLUGS = [
 
 const GOOGLE_IT_VALIDATED_COMPLETION_SPECS = Array.from(
   new Map(
-    GOOGLE_IT_PROGRAM_SLUGS
-      .map((programSlug) => getValidatedProgramCompletionSpec(programSlug))
-      .filter((spec): spec is ValidatedProgramCompletionSpec => spec !== null)
-      .map((spec) => [spec.canonicalSlug, spec] as const),
+    VALIDATED_PROGRAM_COMPLETION_SPECS
+      .filter((spec) =>
+        spec.storageValues.some((value) =>
+          (GOOGLE_IT_PROGRAM_SLUGS as readonly string[]).includes(value),
+        ),
+      )
+      .map((spec) => [`${spec.canonicalSlug}\0${spec.curriculumVersion}`, spec] as const),
   ).values(),
 );
 const GOOGLE_IT_VALIDATED_CANONICAL_SLUGS = GOOGLE_IT_VALIDATED_COMPLETION_SPECS.map(
@@ -128,14 +131,23 @@ export async function getGoogleItLandingMetrics(
 
     const completionRowsPromise = GOOGLE_IT_VALIDATED_CANONICAL_SLUGS.length > 0
       ? db.$queryRaw<Array<{ count: bigint | number }>>`
-          WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+          WITH validated_programs(canonical_slug, storage_value, curriculum_version, total_courses) AS (
             VALUES ${validatedProgramCompletionValuesSql()}
+          ), learner_program_assignments(user_id, program_slug, curriculum_version) AS (
+            ${validatedProgramAssignmentRowsSql()}
           )
           SELECT
             COUNT(DISTINCT (mpp.user_id, progress_program.canonical_slug))::bigint AS count
-          FROM member_program_progress mpp
+          FROM learner_program_assignments ce
+          INNER JOIN validated_programs enrolled_program
+            ON enrolled_program.storage_value = ce.program_slug
+            AND enrolled_program.curriculum_version = ce.curriculum_version
+          INNER JOIN member_program_progress mpp
+            ON mpp.user_id = ce.user_id
           INNER JOIN validated_programs progress_program
-            ON progress_program.storage_value = mpp.program_slug
+            ON progress_program.canonical_slug = enrolled_program.canonical_slug
+            AND progress_program.storage_value = mpp.program_slug
+            AND progress_program.curriculum_version = ce.curriculum_version
           INNER JOIN users u
             ON u.id = mpp.user_id
           INNER JOIN profiles p

@@ -13,6 +13,7 @@
  */
 
 import { hasValidatedProgramCompletion } from '@/lib/reporting/programCompletion';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 export type MemberJourneyStage =
   | 'holding'
@@ -81,6 +82,7 @@ export interface JourneyMemberData {
   } | null;
   courseEnrollments: {
     programSlug: string;
+    curriculumVersion: string;
     fundingSource: string | null;
     enrolledAt: Date;
   }[];
@@ -132,11 +134,21 @@ export function computeJourneyStage(member: JourneyMemberData): MemberJourneySta
   if (member.assessmentCompleted && hasResume && hasAiTool) return 'ready';
 
   // 5. Training Complete
+  const enrolledCanonicalSlug = member.enrolledProgram
+    ? getProgramBySlug(member.enrolledProgram)?.slug ?? member.enrolledProgram
+    : null;
+  const enrolledAssignment = enrolledCanonicalSlug
+    ? member.courseEnrollments.find(
+        (enrollment) =>
+          (getProgramBySlug(enrollment.programSlug)?.slug ?? enrollment.programSlug)
+            === enrolledCanonicalSlug,
+      )
+    : null;
   if (
-    member.enrolledProgram
-    && member.courseEnrollments.length > 0
+    enrolledAssignment
     && hasValidatedProgramCompletion(
-      member.enrolledProgram,
+      enrolledAssignment.programSlug,
+      enrolledAssignment.curriculumVersion,
       member.memberProgramProgress,
     )
   ) {

@@ -1,6 +1,9 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import { validatedProgramCompletionValuesSql } from '@/lib/reporting/programCompletion';
+import {
+  validatedProgramAssignmentRowsSql,
+  validatedProgramCompletionValuesSql,
+} from '@/lib/reporting/programCompletion';
 
 /**
  * Analytics overview for non-technical admin users.
@@ -129,22 +132,33 @@ export async function getAnalyticsOverview(organizationId?: string): Promise<Ana
       _count: { _all: true },
     }),
     // ── Completed-training count: enrolled members whose exact completed
-    // course count equals the catalog denominator for their enrolled program.
+    // course count equals their immutable curriculum-version denominator.
     prisma.$queryRaw<Array<{ count: number }>>`
-      WITH validated_programs(canonical_slug, storage_value, total_courses) AS (
+      WITH validated_programs(canonical_slug, storage_value, curriculum_version, total_courses) AS (
         VALUES ${validatedProgramCompletionValuesSql()}
+      ), learner_program_assignments(user_id, program_slug, curriculum_version) AS (
+        ${validatedProgramAssignmentRowsSql()}
       )
       SELECT COUNT(DISTINCT u.id)::int AS count
       FROM users u
+      INNER JOIN learner_program_assignments ce
+        ON ce.user_id = u.id
       INNER JOIN validated_programs enrolled_program
-        ON enrolled_program.storage_value = u.enrolled_program
+        ON enrolled_program.storage_value = ce.program_slug
+        AND enrolled_program.curriculum_version = ce.curriculum_version
       INNER JOIN member_program_progress mpp
         ON mpp.user_id = u.id
       INNER JOIN validated_programs progress_program
         ON progress_program.canonical_slug = enrolled_program.canonical_slug
         AND progress_program.storage_value = mpp.program_slug
+        AND progress_program.curriculum_version = ce.curriculum_version
       WHERE u.deleted_at IS NULL
-        AND u.enrolled_program IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM validated_programs user_program
+          WHERE user_program.storage_value = u.enrolled_program
+            AND user_program.canonical_slug = enrolled_program.canonical_slug
+        )
         ${orgFilterSql}
         AND mpp.courses_completed = progress_program.total_courses
     `,

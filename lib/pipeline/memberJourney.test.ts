@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { PROGRAMS } from '@/lib/content/programs';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
 import {
   computeJourneyStage,
   type JourneyMemberData,
@@ -27,6 +28,7 @@ function memberWithCompletedCount(coursesCompleted: number): JourneyMemberData {
     profile: null,
     courseEnrollments: [{
       programSlug: programFixture.slug,
+      curriculumVersion: LEGACY_CURRICULUM_VERSION,
       fundingSource: null,
       enrolledAt: new Date('2026-01-02T00:00:00.000Z'),
     }],

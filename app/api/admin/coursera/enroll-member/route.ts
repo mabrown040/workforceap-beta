@@ -13,6 +13,12 @@ import { EnrollStateError, runEnrollStateMachine } from '@/lib/coursera/enrollSt
 import { buildB4BPort, writeEnrollAudit } from '@/lib/coursera/enrollPort';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { resolveActiveDashboardProgram } from '@/lib/member/resolveActiveDashboardProgram';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import {
+  getProgramCurriculumManifest,
+  normalizeCourseraCourseId,
+} from '@/lib/content/programCurriculumManifest';
 
 /**
  * POST /api/admin/coursera/enroll-member
@@ -83,6 +89,7 @@ async function _POST(request: Request) {
             select: {
               id: true,
               programSlug: true,
+              curriculumVersion: true,
               isPrimary: true,
               enrolledAt: true,
             },
@@ -117,18 +124,27 @@ async function _POST(request: Request) {
         { status: 409 },
       );
     }
+    const enrollment = member.courseEnrollments.find(
+      (row) => row.programSlug === enrolledProgram,
+    );
+    const curriculumVersion = enrollment?.curriculumVersion ?? 'legacy-v1';
+    const program = getProgramBySlug(enrolledProgram);
     const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
-    if (!discoveredProgram || discoveredProgram.courses.length === 0) {
+    if (!program || !discoveredProgram) {
       return NextResponse.json(
         { error: 'Program not in Coursera catalog.', code: 'PROGRAM_NOT_MAPPED' },
         { status: 409 },
       );
     }
 
-    const requestedCourseId = parsed.data.courseraCourseId;
+    const assignedCourses = getProgramCoursesForCurriculumVersion(program, curriculumVersion);
+    const requestedCourseId = normalizeCourseraCourseId(parsed.data.courseraCourseId);
     const course = requestedCourseId
-      ? discoveredProgram.courses.find((c) => c.courseId === requestedCourseId)
-      : discoveredProgram.courses[0];
+      ? assignedCourses.find(
+          (candidate) =>
+            normalizeCourseraCourseId(candidate.courseraCourseId) === requestedCourseId,
+        )
+      : assignedCourses.find((candidate) => Boolean(candidate.courseraCourseId));
     if (!course) {
       return NextResponse.json(
         { error: "Course not in the member's program.", code: 'COURSE_NOT_IN_PROGRAM' },
@@ -136,13 +152,23 @@ async function _POST(request: Request) {
       );
     }
 
+    const approvedTrack = getProgramCurriculumManifest(enrolledProgram, curriculumVersion)?.externalTrack;
+    if (approvedTrack && (approvedTrack.status !== 'validated' || !approvedTrack.collectionId)) {
+      return NextResponse.json(
+        {
+          error: 'The approved Coursera learning path is still pending exact-set validation.',
+          code: 'CURRICULUM_TRACK_PENDING',
+        },
+        { status: 409 },
+      );
+    }
     const externalId = member.email.trim().toLowerCase();
     let result;
     try {
       result = await runEnrollStateMachine(buildB4BPort(), {
         orgId: getB4BOrgId(),
-        programId: discoveredProgram.courseraProgramId,
-        courseraCourseId: course.courseId,
+        programId: approvedTrack?.collectionId ?? discoveredProgram.courseraProgramId,
+        courseraCourseId: course.courseraCourseId!,
         externalId,
         email: member.email,
         fullName: member.fullName ?? member.email,

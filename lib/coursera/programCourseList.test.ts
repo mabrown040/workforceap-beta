@@ -9,6 +9,10 @@ import {
   type ProgramCourseListDependencies,
 } from './programCourseList';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  APPROVED_CURRICULUM_VERSION,
+  LEGACY_CURRICULUM_VERSION,
+} from '@/lib/content/programCurriculumManifest';
 
 test('identifies both the shipped and configured organization umbrella ids', () => {
   const previous = process.env.COURSERA_ORG_PROGRAM_ID;
@@ -21,6 +25,91 @@ test('identifies both the shipped and configured organization umbrella ids', () 
     if (previous === undefined) delete process.env.COURSERA_ORG_PROGRAM_ID;
     else process.env.COURSERA_ORG_PROGRAM_ID = previous;
   }
+});
+
+test('learner-scoped curriculum versions preserve legacy and approved denominators', async () => {
+  const dependencies: ProgramCourseListDependencies = {
+    async loadCourseDbRows() {
+      return [];
+    },
+    async loadCanonicalMappingRows() {
+      return [];
+    },
+    async loadCourseraContents() {
+      return { status: 'unavailable', contents: [] };
+    },
+  };
+
+  const cases = [
+    ['ux-design-professional-certificate-google', 8, 8],
+    ['data-science-professional-certificate-ibm', 9, 9],
+    ['data-analytics-professional-certificate-google', 13, 11],
+  ] as const;
+  for (const [programSlug, legacyCount, approvedCount] of cases) {
+    const legacy = await loadValidatedProgramCourses(
+      {
+        organizationId: 'org-1',
+        programSlug,
+        curriculumVersion: LEGACY_CURRICULUM_VERSION,
+        checkB4BContents: false,
+      },
+      dependencies,
+    );
+    const approved = await loadValidatedProgramCourses(
+      {
+        organizationId: 'org-1',
+        programSlug,
+        curriculumVersion: APPROVED_CURRICULUM_VERSION,
+        checkB4BContents: false,
+      },
+      dependencies,
+    );
+    assert.equal(legacy.source, 'curriculum_assignment');
+    assert.equal(approved.source, 'curriculum_assignment');
+    assert.equal(legacy.courses.length, legacyCount);
+    assert.equal(approved.courses.length, approvedCount);
+  }
+});
+
+test('approved WorkforceAP labs never inherit stale provider ids or slugs', async () => {
+  const programSlug = 'data-analytics-professional-certificate-google';
+  const localSlug = 'management-data-analytics-lab-workforce-readiness';
+  const result = await loadValidatedProgramCourses(
+    {
+      organizationId: 'org-1',
+      programSlug,
+      curriculumVersion: APPROVED_CURRICULUM_VERSION,
+      checkB4BContents: false,
+    },
+    {
+      async loadCourseDbRows() {
+        return [{
+          programSlug,
+          courseSlug: localSlug,
+          name: 'Stale legacy provider row',
+          estimatedHours: 10,
+          courseraCourseId: 'legacy-provider-id',
+          courseraSlug: 'legacy-provider-slug',
+        }];
+      },
+      async loadCanonicalMappingRows() {
+        return [];
+      },
+      async loadCourseraContents() {
+        return { status: 'unavailable', contents: [] };
+      },
+    },
+  );
+
+  const localCourse = result.courses.find((course) => course.slug === localSlug);
+  assert.ok(localCourse);
+  assert.equal(localCourse.kind, 'workforceap');
+  assert.equal(localCourse.courseraCourseId, undefined);
+  assert.equal(localCourse.courseraSlug, undefined);
+  assert.ok(!result.unmappedSlugs.includes(localSlug));
+  assert.equal(result.catalogHealth.localCourseCount, 1);
+  assert.equal(result.catalogHealth.syllabusCount, 10);
+  assert.equal(result.catalogHealth.mappedCount, 10);
 });
 
 test('two WAP programs keep different validated denominators despite one umbrella catalog', async () => {
@@ -120,6 +209,48 @@ test('admin mapping binds a syllabus course and a non-empty provider catalog rep
   assert.equal(result.courses[0]?.courseraCourseId, 'mapped-course-id');
   assert.equal(result.unmappedSlugs.includes(firstCourse.slug), false);
   assert.deepEqual(result.staleCourseraIds, ['mapped-course-id']);
+});
+
+test('an explicit legacy assignment preserves admin-corrected provider identity', async () => {
+  const programSlug = 'digital-literacy-empowerment-class';
+  const firstCourse = getProgramBySlug(programSlug)?.courses[0];
+  assert.ok(firstCourse);
+
+  const result = await loadValidatedProgramCourses(
+    {
+      organizationId: 'org-1',
+      programSlug,
+      curriculumVersion: LEGACY_CURRICULUM_VERSION,
+      checkB4BContents: false,
+    },
+    {
+      async loadCourseDbRows() {
+        return [{
+          programSlug,
+          courseSlug: firstCourse.slug,
+          name: firstCourse.name,
+          estimatedHours: firstCourse.estimatedHours ?? 10,
+          courseraCourseId: 'tenant-course-id',
+          courseraSlug: 'tenant-course-slug',
+        }];
+      },
+      async loadCanonicalMappingRows() {
+        return [{
+          courseraCourseId: 'admin-corrected-id',
+          canonicalProgramSlug: programSlug,
+          canonicalCourseSlug: firstCourse.slug,
+        }];
+      },
+      async loadCourseraContents() {
+        return { status: 'unavailable', contents: [] };
+      },
+    },
+  );
+
+  assert.equal(result.source, 'curriculum_assignment');
+  assert.equal(result.courses.length, getProgramBySlug(programSlug)?.courses.length);
+  assert.equal(result.courses[0]?.courseraCourseId, 'admin-corrected-id');
+  assert.equal(result.unmappedSlugs.includes(firstCourse.slug), false);
 });
 
 test('canonical program reads query every reverse alias for Course DB and mappings', async () => {

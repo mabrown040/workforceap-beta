@@ -3,7 +3,14 @@ import assert from 'node:assert/strict';
 import { createCourseraLaunchHandler, type CourseraLaunchDependencies } from './launchRouteCore';
 
 type RedirectResult = { redirectedTo: string };
-type TestProgram = { courses: Array<{ slug: string; courseraSlug?: string }> };
+type TestProgram = {
+  courses: Array<{
+    slug: string;
+    kind?: 'coursera' | 'workforceap';
+    courseraSlug?: string;
+    courseraCourseId?: string;
+  }>;
+};
 
 const redirect = (url: URL | string): RedirectResult => ({ redirectedTo: String(url) });
 
@@ -26,6 +33,7 @@ function makeDeps(
         { slug: 'second-course' },
       ],
     }),
+    getApprovedCurriculumTrack: () => null,
     getFirstIncompleteCourseIndex: () => 0,
     getCourseraConfig: () => ({
       courseIdMap: { 'it-support-professional-certificate-ibm': ['course-id-1', 'course-id-2'] },
@@ -129,6 +137,206 @@ test('Coursera launch route keeps an unmapped requested course inside WorkforceA
   const res = await handler(new Request('https://workforceap.test/api/member/coursera/launch?course=second-course'));
 
   assert.equal(res.redirectedTo, 'https://workforceap.test/dashboard/training?error=launch_failed');
+});
+
+test('Coursera launch route rejects a hand-edited course outside the assigned curriculum', async () => {
+  let courseLookupCalled = false;
+  const handler = createCourseraLaunchHandler(makeDeps({
+    findCourse: async () => {
+      courseLookupCalled = true;
+      return { courseraSlug: 'retired-course' };
+    },
+  }));
+
+  const res = await handler(new Request(
+    'https://workforceap.test/api/member/coursera/launch?course=retired-course',
+  ));
+
+  assert.equal(courseLookupCalled, false);
+  assert.equal(
+    res.redirectedTo,
+    'https://workforceap.test/dashboard/training?error=course_not_assigned',
+  );
+});
+
+test('Coursera launch route keeps an assigned WorkforceAP lab inside the portal', async () => {
+  let providerLookupCalled = false;
+  const handler = createCourseraLaunchHandler(makeDeps({
+    getProgramBySlug: () => ({
+      courses: [{ slug: 'local-lab', kind: 'workforceap' }],
+    }),
+    getCourseraConfig: () => ({
+      courseIdMap: { 'it-support-professional-certificate-ibm': ['stale-provider-id'] },
+    }),
+    getOrgScopedCourseUrl: async () => {
+      providerLookupCalled = true;
+      return 'https://www.coursera.org/learn/wrong-course';
+    },
+  }));
+
+  const res = await handler(new Request(
+    'https://workforceap.test/api/member/coursera/launch?course=local-lab',
+  ));
+
+  assert.equal(providerLookupCalled, false);
+  assert.equal(
+    res.redirectedTo,
+    'https://workforceap.test/dashboard/learning/modules/local-lab?program=it-support-professional-certificate-ibm',
+  );
+});
+
+test('Coursera launch route blocks a dormant approved curriculum before provider lookup', async () => {
+  let providerLookupCalled = false;
+  const programSlug = 'data-analytics-professional-certificate-google';
+  const handler = createCourseraLaunchHandler(makeDeps({
+    findUser: async () => ({
+      enrolledProgram: programSlug,
+      organizationId: 'org-1',
+      courseEnrollments: [{
+        programSlug,
+        curriculumVersion: '2026-approved-v2',
+      }],
+      courseProgress: [],
+    }),
+    resolveActiveProgram: async () => programSlug,
+    getProgramBySlug: () => ({
+      courses: [{
+        slug: 'introduction-to-management-consulting',
+        kind: 'coursera',
+        courseraCourseId: 'provider-id',
+      }],
+    }),
+    getApprovedCurriculumTrack: () => ({
+      status: 'pending',
+      collectionId: null,
+      assignmentMode: 'disabled',
+    }),
+    findCourse: async () => {
+      providerLookupCalled = true;
+      return { courseraSlug: 'wrong-course' };
+    },
+  }));
+
+  const res = await handler(new Request(
+    'https://workforceap.test/api/member/coursera/launch?course=introduction-to-management-consulting',
+  ));
+
+  assert.equal(providerLookupCalled, false);
+  assert.equal(
+    res.redirectedTo,
+    'https://workforceap.test/dashboard/training?error=curriculum_track_pending',
+  );
+});
+
+test('Coursera launch route pins an approved course to its validated collection id', async () => {
+  const programSlug = 'data-analytics-professional-certificate-google';
+  let launchArgs: [string, string, string, (string | null)?] | null = null;
+  const handler = createCourseraLaunchHandler(makeDeps({
+    findUser: async () => ({
+      enrolledProgram: programSlug,
+      organizationId: 'org-1',
+      courseEnrollments: [{
+        programSlug,
+        curriculumVersion: '2026-approved-v2',
+      }],
+      courseProgress: [],
+    }),
+    resolveActiveProgram: async () => programSlug,
+    getApprovedCurriculumTrack: () => ({
+      status: 'validated',
+      collectionId: 'approved-collection-id',
+      assignmentMode: 'disabled',
+    }),
+    getProgramBySlug: () => ({
+      courses: [{
+        slug: 'introduction-to-management-consulting',
+        kind: 'coursera',
+        courseraCourseId: 'approved-provider-id',
+        courseraSlug: 'introduction-to-management-consulting',
+      }],
+    }),
+    getOrgScopedCourseUrl: async (...args) => {
+      launchArgs = args;
+      return 'https://www.coursera.org/programs/approved-track/learn/course';
+    },
+  }));
+
+  const res = await handler(new Request(
+    'https://workforceap.test/api/member/coursera/launch?course=introduction-to-management-consulting',
+  ));
+
+  assert.deepEqual(launchArgs, [
+    programSlug,
+    'approved-provider-id',
+    'introduction-to-management-consulting',
+    'approved-collection-id',
+  ]);
+  assert.equal(
+    res.redirectedTo,
+    'https://www.coursera.org/programs/approved-track/learn/course',
+  );
+});
+
+test('Coursera launch route fails closed when a validated collection disappears', async () => {
+  const programSlug = 'data-analytics-professional-certificate-google';
+  const handler = createCourseraLaunchHandler(makeDeps({
+    findUser: async () => ({
+      enrolledProgram: programSlug,
+      organizationId: 'org-1',
+      courseEnrollments: [{
+        programSlug,
+        curriculumVersion: '2026-approved-v2',
+      }],
+      courseProgress: [],
+    }),
+    resolveActiveProgram: async () => programSlug,
+    getApprovedCurriculumTrack: () => ({
+      status: 'validated',
+      collectionId: 'missing-approved-collection',
+      assignmentMode: 'disabled',
+    }),
+    getProgramBySlug: () => ({
+      courses: [{
+        slug: 'introduction-to-management-consulting',
+        kind: 'coursera',
+        courseraCourseId: 'approved-provider-id',
+        courseraSlug: 'introduction-to-management-consulting',
+      }],
+    }),
+    getOrgScopedCourseUrl: async () => null,
+    getOrgScopedProgramUrl: async () => null,
+  }));
+
+  const res = await handler(new Request(
+    'https://workforceap.test/api/member/coursera/launch?course=introduction-to-management-consulting',
+  ));
+
+  assert.equal(
+    res.redirectedTo,
+    'https://workforceap.test/dashboard/training?error=launch_failed',
+  );
+});
+
+test('Coursera launch route prefers the assigned curriculum provider id over an index map', async () => {
+  const handler = createCourseraLaunchHandler(makeDeps({
+    getProgramBySlug: () => ({
+      courses: [{ slug: 'first-course', courseraCourseId: 'approved-provider-id' }],
+    }),
+    getCourseraConfig: () => ({
+      courseIdMap: {
+        'it-support-professional-certificate-ibm': ['retired-index-id'],
+      },
+    }),
+    buildCourseraLaunchUrl: ({ currentCourseId }) =>
+      `https://www.coursera.org/programs/org/learn/${currentCourseId}`,
+  }));
+
+  const res = await handler(new Request('https://workforceap.test/api/member/coursera/launch'));
+
+  assert.equal(
+    res.redirectedTo,
+    'https://www.coursera.org/programs/org/learn/approved-provider-id',
+  );
 });
 
 test('Coursera launch route uses active dashboard program instead of legacy enrolledProgram', async () => {

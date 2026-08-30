@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
@@ -19,7 +20,12 @@ const referralMemberSelect = {
   // generated client rejects — so sort below in JS instead (1-2 rows per
   // learner, no perf concern).
   courseEnrollments: {
-    select: { programSlug: true, isPrimary: true, enrolledAt: true },
+    select: {
+      programSlug: true,
+      curriculumVersion: true,
+      isPrimary: true,
+      enrolledAt: true,
+    },
   },
   placementRecord: {
     select: {
@@ -58,7 +64,12 @@ export type ReferralMember = {
   updatedAt: Date;
   deletedAt: Date | null;
   assessmentCompleted: boolean;
-  courseEnrollments: { programSlug: string; isPrimary: boolean; enrolledAt: Date }[];
+  courseEnrollments: {
+    programSlug: string;
+    curriculumVersion: string;
+    isPrimary: boolean;
+    enrolledAt: Date;
+  }[];
   placementRecord: {
     employerName: string;
     jobTitle: string;
@@ -157,12 +168,19 @@ export async function loadPartnerReferralBundle(partnerId: string, tenantOrganiz
 
   for (const r of referrals) {
     const m = r.member as ReferralMember;
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
+    const program = assignment.programSlug
+      ? getProgramBySlug(assignment.programSlug)
+      : null;
     const student: PipelineStudent = {
       id: m.id,
       fullName: m.fullName,
       email: '',
-      enrolledProgram: m.enrolledProgram,
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: m.assessmentCompleted,
       deletedAt: m.deletedAt,
@@ -204,7 +222,12 @@ export async function loadPartnerReferralBundle(partnerId: string, tenantOrganiz
       // Progress still reflects the primary program — that's the headline
       // % partners see today. Multi-program partners can read
       // `allProgramTitles.length > 1` to know there's more.
-      progress: memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress),
+      progress: memberProgramProgressPct({
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
+        coursesCompleted: null,
+        liveProgress: m.memberProgramProgress,
+      }),
       programTitle: allProgramTitles.length > 0 ? allProgramTitles.join(' · ') : '—',
       allProgramTitles,
     });

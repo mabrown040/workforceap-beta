@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getSubgroupsForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -31,6 +32,10 @@ export const GET = withApiGuc(async () => {
           id: true,
           fullName: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          },
           enrolledAt: true,
           deletedAt: true,
           placementRecord: { select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true } },
@@ -57,11 +62,16 @@ export const GET = withApiGuc(async () => {
 
     total++;
     const m = ms.member;
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
     const student: PipelineStudent = {
       id: m.id,
       fullName: m.fullName,
       email: '',
-      enrolledProgram: m.enrolledProgram,
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: false,
       deletedAt: m.deletedAt,
@@ -72,8 +82,13 @@ export const GET = withApiGuc(async () => {
     };
     const stage = getPipelineStage(student);
 
-    if (m.enrolledAt && m.enrolledProgram) enrolled++;
-    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) completed++;
+    if (m.enrolledAt && assignment.programSlug) enrolled++;
+    if (memberProgramCompleted({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: m.memberProgramProgress,
+    })) completed++;
     if (m.placementRecord) placed++;
   }
 

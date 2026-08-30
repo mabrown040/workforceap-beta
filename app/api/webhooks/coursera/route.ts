@@ -12,6 +12,7 @@ import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgre
 import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
 import { resolveInboundProgramSlug } from '@/lib/xapi/resolveInboundProgram';
+import { resolveInboundCourseScopes } from '@/lib/xapi/resolveInboundCourseScopes';
 import { isXapiCompletionVerb } from '@/lib/xapi/statements';
 import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@/lib/xapi/storage';
 
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
   
     const expectedSecret = getCourseraConfig().webhookSecret;
   
+    let attemptedTarget = false;
     try {
       rawBody = await request.text();
     } catch {
@@ -187,7 +189,11 @@ export async function POST(request: Request) {
     let dbUser: {
       organizationId: string;
       enrolledProgram: string | null;
-      courseEnrollments: Array<{ programSlug: string; isPrimary: boolean }>;
+      courseEnrollments: Array<{
+        programSlug: string;
+        curriculumVersion: string;
+        isPrimary: boolean;
+      }>;
     } | null = null;
     if (memberId) {
       dbUser = await prisma.user.findUnique({
@@ -197,7 +203,7 @@ export async function POST(request: Request) {
           enrolledProgram: true,
           courseEnrollments: {
             where: { organizationId },
-            select: { programSlug: true, isPrimary: true },
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
           },
         },
       });
@@ -245,18 +251,35 @@ export async function POST(request: Request) {
       enrollments: dbUser?.courseEnrollments ?? [],
       legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
     });
+    const curriculumVersion = enrolledProgram
+      ? dbUser?.courseEnrollments.find(
+          (enrollment) => enrollment.programSlug === enrolledProgram,
+        )?.curriculumVersion ?? 'legacy-v1'
+      : 'legacy-v1';
   
     const synthetic = buildCourseraRestSyntheticStatement(data, resolvedEmail, rawAudit);
+    const inboundScopes = await resolveInboundCourseScopes({
+      courseraCourseId: synthetic.courseraCourseId,
+      assignments: dbUser?.courseEnrollments ?? [],
+      fallbackProgramSlug: enrolledProgram,
+      fallbackCurriculumVersion: curriculumVersion,
+    });
     const shouldComplete = isXapiCompletionVerb(synthetic);
   
     try {
       if (!shouldComplete) {
-        const progress = await upsertCourseProgressFromXapiStatement({
-          userId: memberId,
-          enrolledProgramSlug: enrolledProgram,
-          parsed: synthetic,
-        });
-        if (!progress) {
+        let progressRecorded = 0;
+        for (const scope of inboundScopes) {
+          attemptedTarget = true;
+          const progress = await upsertCourseProgressFromXapiStatement({
+            userId: memberId,
+            enrolledProgramSlug: scope.programSlug,
+            curriculumVersion: scope.curriculumVersion,
+            parsed: synthetic,
+          });
+          if (progress) progressRecorded += 1;
+        }
+        if (progressRecorded === 0) {
           throw new Error('Course not found');
         }
         await recordXapiEvent({
@@ -276,29 +299,37 @@ export async function POST(request: Request) {
           matched: true,
           userId: memberId,
           progressRecorded: true,
+          progressTargets: progressRecorded,
           completed: false,
           dedupeKey,
         });
       }
   
-      const result = await completeMemberCourse({
-        userId: memberId,
-        resolvedProgramSlug: enrolledProgram,
-        courseSlug: data.courseSlug,
-        courseName: data.courseName,
-        courseraCourseId: synthetic.courseraCourseId ?? null,
-        source: 'coursera-webhook',
-        notify: enrolledProgram ? undefined : false,
-      });
+      if (inboundScopes.length === 0) throw new Error('Course not found');
+      const results: Array<Record<string, unknown>> = [];
+      for (const scope of inboundScopes) {
+        attemptedTarget = true;
+        const result = await completeMemberCourse({
+          userId: memberId,
+          resolvedProgramSlug: scope.programSlug,
+          courseSlug: data.courseSlug,
+          courseName: data.courseName,
+          courseraCourseId: synthetic.courseraCourseId ?? null,
+          source: 'coursera-webhook',
+          notify: scope.assignmentMatched ? undefined : false,
+        });
 
-      // Completion orchestration must observe the pre-completion row so the
-      // first delivery can fire its one-time enrolled-member side effects.
-      // Add the detailed REST progress fact only after the atomic completion.
-      await upsertCourseProgressFromXapiStatement({
-        userId: memberId,
-        enrolledProgramSlug: enrolledProgram,
-        parsed: synthetic,
-      });
+        // Completion orchestration must observe the pre-completion row so the
+        // first delivery can fire its one-time enrolled-member side effects.
+        // Add the detailed REST progress fact only after the atomic completion.
+        await upsertCourseProgressFromXapiStatement({
+          userId: memberId,
+          enrolledProgramSlug: scope.programSlug,
+          curriculumVersion: scope.curriculumVersion,
+          parsed: synthetic,
+        });
+        results.push(result as Record<string, unknown>);
+      }
   
       await recordXapiEvent({
         statementId: dedupeKey,
@@ -320,7 +351,9 @@ export async function POST(request: Request) {
         completed: true,
         authMethod: auth.method,
         dedupeKey,
-        ...result,
+        ...(results[0] ?? {}),
+        completionTargets: results.length,
+        ...(results.length > 1 ? { results } : {}),
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to process Coursera webhook';
@@ -343,7 +376,7 @@ export async function POST(request: Request) {
         || message.includes('Invalid program')
         || message.includes('No program enrolled');
   
-      if (permanentClientFailure) {
+      if (permanentClientFailure && !attemptedTarget) {
         await markXapiStatementProcessed(dedupeKey);
         return NextResponse.json({ received: true, matched: true, userId: memberId, ok: false, error: message, dedupeKey }, { status: 422 });
       }

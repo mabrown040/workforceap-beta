@@ -232,7 +232,7 @@ export async function POST(request: Request) {
       processed: statementsHandled,
       completions,
       ...(ingestErrors.length > 0 ? { errors: ingestErrors } : {}),
-    }, { status: 201 });
+    }, { status: ingestErrors.length > 0 ? 500 : 201 });
   } catch (error) {
     console.error('/xapi/statements:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

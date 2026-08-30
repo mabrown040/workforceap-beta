@@ -22,6 +22,10 @@ import {
   getProgramCurriculum,
   type ProgramCurriculum,
 } from '../../shared/programCurricula';
+import {
+  getProgramCurriculumManifest,
+  isApprovedCurriculumReadyForAssignment,
+} from './programCurriculumManifest';
 
 export const FUNDING_SOURCES = [
   'WIOA',
@@ -66,6 +70,8 @@ export interface ProgramCourse {
   name: string;
   estimatedHours: number;
   description?: string;
+  /** Explicit delivery boundary for versioned curricula. Undefined legacy rows are provider-backed by default. */
+  kind?: 'coursera' | 'workforceap';
   courseraCourseId?: string;
   /** Official Coursera /learn slug supplied by the approved syllabus. */
   courseraSlug?: string;
@@ -111,7 +117,8 @@ export interface Program {
   /**
    * True when the approved public syllabus has changed but existing member
    * progress still belongs to the previously assigned Coursera curriculum.
-   * Keep the operational course keys stable until a versioned migration ships.
+   * Keep new assignments dormant until the exact versioned external track is
+   * validated; existing enrollments retain their immutable legacy version.
    */
   curriculumMigrationPending?: boolean;
 }
@@ -322,7 +329,14 @@ function mkProgram(
     syllabus,
     curriculum,
     description: syllabus?.description,
-    curriculumMigrationPending: Boolean(legacyOperationalCourses),
+    // Every regulated program with a frozen approved manifest stays dormant
+    // until its exact external Coursera track is validated. This must not
+    // depend on whether its legacy course keys happened to change: UX keeps
+    // stable keys but still cannot accept new assignments while its approved
+    // provider set is incomplete.
+    curriculumMigrationPending:
+      Boolean(getProgramCurriculumManifest(slug))
+      && !isApprovedCurriculumReadyForAssignment(slug),
   };
 }
 

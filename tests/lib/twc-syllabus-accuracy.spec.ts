@@ -116,7 +116,7 @@ describe('TWC syllabus source lock', () => {
   it('accepts applications but guards every direct training-enrollment writer during migration', () => {
     expect(isCurriculumMigrationPending('data-analytics-professional-certificate-google')).toBe(true);
     expect(isCurriculumMigrationPending('Database Administrator (DBA) Professional Certificate (IBM)')).toBe(true);
-    expect(isCurriculumMigrationPending('ux-design-professional-certificate-google')).toBe(false);
+    expect(isCurriculumMigrationPending('ux-design-professional-certificate-google')).toBe(true);
 
     // B4B sync is intentionally excluded: it imports observed activity from
     // the retired Enterprise paths for legacy learners. Every user/admin path
@@ -263,7 +263,7 @@ describe('TWC syllabus source lock', () => {
       join(process.cwd(), 'app/(portal)/dashboard/program/page.tsx'),
       'utf8',
     );
-    expect(programPage).toContain('...program.courses');
+    expect(programPage).toContain('...curriculumCourses');
     expect(programPage).toContain("Boolean(course.courseraSlug?.trim())");
     expect(programPage).toContain('/api/member/coursera/launch?course=');
   });

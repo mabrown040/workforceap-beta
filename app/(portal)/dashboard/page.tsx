@@ -71,6 +71,7 @@ import SkillMissionTeaserCard, {
   type SkillMissionTeaserData,
 } from '@/components/portal/SkillMissionTeaserCard';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 const MemberCareerPathSection = dynamic(
   () => import('@/components/portal/MemberCareerPathSection'),
@@ -514,6 +515,15 @@ async function renderMemberDashboard(
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const activeEnrollment = activeProgramView.allEnrollments.find(
+    (enrollment) => enrollment.programSlug === enrolledProgram,
+  );
+  const curriculumCourses = program
+    ? getProgramCoursesForCurriculumVersion(
+        program,
+        activeEnrollment?.curriculumVersion ?? 'legacy-v1',
+      )
+    : [];
 
   // Multi-program: build the dropdown options for the dashboard hero.
   // Single-enrollment users see no chip — keeps the existing layout
@@ -530,7 +540,7 @@ async function renderMemberDashboard(
   // ── Training state ── (from memberState, single source of truth)
   const trainingView = memberState.trainingView;
   const completedCount = trainingView?.completedCount ?? 0;
-  const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
+  const totalCourses = trainingView?.totalCourses ?? curriculumCourses.length;
   const allCoursesComplete = trainingView?.allCoursesComplete ?? false;
   const progressPercentDisplay = trainingView?.progressPercentDisplay ?? 0;
 
@@ -706,9 +716,11 @@ async function renderMemberDashboard(
 
   const nextIncompleteCourse =
     program && trainingView?.nextIncompleteCourseSlug
-      ? program.courses.find((c) => c.slug === trainingView.nextIncompleteCourseSlug) ?? null
+      ? curriculumCourses.find((c) => c.slug === trainingView.nextIncompleteCourseSlug) ?? null
       : program && trainingView
-        ? program.courses.find((c) => !trainingView.completedSlugsAuthoritative.includes(c.slug)) ?? null
+        ? curriculumCourses.find((c) =>
+            !trainingView.completedSlugsAuthoritative.includes(c.slug),
+          ) ?? null
         : null;
   const careerPlanTrainingNextStep = program
     ? {

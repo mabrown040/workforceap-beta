@@ -5,9 +5,11 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -101,6 +103,11 @@ export default async function MemberGuidePage() {
       fullName: true,
       enrolledProgram: true,
       assessmentCompleted: true,
+      courseEnrollments: {
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        take: 1,
+        select: { programSlug: true, curriculumVersion: true },
+      },
       courseProgress: {
         where: { status: 'COMPLETED' },
         select: { programSlug: true, courseSlug: true },
@@ -110,10 +117,26 @@ export default async function MemberGuidePage() {
   });
   if (!dbUser) redirect('/login');
 
-  const enrolledProgram = dbUser.enrolledProgram ?? null;
+  const activeEnrollment = dbUser.courseEnrollments[0] ?? null;
+  const enrolledProgram = activeEnrollment?.programSlug ?? dbUser.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const curriculumCourses = program
+    ? getProgramCoursesForCurriculumVersion(
+        program,
+        activeEnrollment?.curriculumVersion ?? 'legacy-v1',
+      )
+    : [];
+  const curriculumCourseSlugs = new Set(curriculumCourses.map((course) => course.slug));
   const completedCourses = program && enrolledProgram
-    ? dbUser.courseProgress.filter((row) => row.programSlug === enrolledProgram && program.courses.some((course) => course.slug === row.courseSlug)).length
+    ? new Set(
+        dbUser.courseProgress
+          .filter(
+            (row) =>
+              programSlugsEquivalent(row.programSlug, enrolledProgram) &&
+              curriculumCourseSlugs.has(row.courseSlug),
+          )
+          .map((row) => row.courseSlug),
+      ).size
     : 0;
 
   // Determine which step the member is on (0-indexed)

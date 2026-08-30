@@ -6,6 +6,9 @@ import {
   programSlugReadCandidates,
 } from '@/lib/content/programSlug';
 import { LOOKUP_LIST_CAP } from '@/lib/db/queryCaps';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { isWorkforceApCourse } from '@/lib/content/courseDelivery';
+import { getProgramCurriculumManifest } from '@/lib/content/programCurriculumManifest';
 
 export const COURSERA_UMBRELLA_PROGRAM_ID = 'TpIlAogTQ8-SJQKIE8PP9w';
 
@@ -47,8 +50,10 @@ export type CourseraContentCatalogResult =
 
 export type ProgramCatalogHealth = {
   providerStatus: 'not_checked' | 'available' | 'unavailable';
+  /** Coursera-delivered courses only; local WorkforceAP labs are reported separately. */
   syllabusCount: number;
   mappedCount: number;
+  localCourseCount: number;
   providerCourseCount: number | null;
   validProviderCourseCount: number | null;
   invalidContentTypeIds: Array<{ id: string; contentType: string }>;
@@ -57,7 +62,7 @@ export type ProgramCatalogHealth = {
 
 export type ValidatedProgramCourseList = {
   courses: ProgramCourse[];
-  source: 'syllabus' | 'course_db' | 'static';
+  source: 'curriculum_assignment' | 'syllabus' | 'course_db' | 'static';
   unmappedSlugs: string[];
   staleCourseraIds: string[];
   catalogHealth: ProgramCatalogHealth;
@@ -183,6 +188,7 @@ function buildValidatedProgramCourseList(args: {
   mappingRows: CanonicalMappingRow[];
   courseraCatalog: CourseraContentCatalogResult;
   shouldCheckB4B: boolean;
+  curriculumVersion?: string | null;
 }): ValidatedProgramCourseList {
   const {
     canonicalProgramSlug,
@@ -191,17 +197,26 @@ function buildValidatedProgramCourseList(args: {
     mappingRows,
     courseraCatalog,
     shouldCheckB4B,
+    curriculumVersion,
   } = args;
 
+  const hasPinnedCurriculum = Boolean(curriculumVersion?.trim());
+  const hasImmutableCurriculumManifest = hasPinnedCurriculum && Boolean(
+    getProgramCurriculumManifest(canonicalProgramSlug, curriculumVersion),
+  );
   const useSyllabus = Boolean(program.syllabus) && !program.curriculumMigrationPending;
-  const source: ValidatedProgramCourseList['source'] = useSyllabus
-    ? 'syllabus'
-    : courseDbRows.length > 0
-      ? 'course_db'
-      : 'static';
+  const source: ValidatedProgramCourseList['source'] = hasPinnedCurriculum
+    ? 'curriculum_assignment'
+    : useSyllabus
+      ? 'syllabus'
+      : courseDbRows.length > 0
+        ? 'course_db'
+        : 'static';
 
   const baseCourses: ProgramCourse[] =
-    source === 'course_db'
+    source === 'curriculum_assignment'
+      ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
+      : source === 'course_db'
       ? courseDbRows.map((row) => ({
           slug: row.courseSlug,
           name: row.name,
@@ -212,7 +227,7 @@ function buildValidatedProgramCourseList(args: {
       : program.courses;
 
   const mappingByCourseSlug = new Map(
-    mappingRows
+    (hasImmutableCurriculumManifest ? [] : mappingRows)
       .filter(
         (row) => canonicalizeProgramSlug(row.canonicalProgramSlug) === canonicalProgramSlug,
       )
@@ -230,25 +245,31 @@ function buildValidatedProgramCourseList(args: {
     const discovered =
       discoveredBySlug.get(course.slug) ?? discoveredByName.get(normalizeCourseName(course.name));
     const mappedId = mappingByCourseSlug.get(course.slug);
-    const courseraCourseId = [
-      mappedId,
-      course.courseraCourseId,
-      dbRow?.courseraCourseId,
-      discovered?.courseId,
-    ].find(isMappedCourseraId)?.trim();
+    const workforceApCourse = isWorkforceApCourse(course);
+    const courseraCourseId = workforceApCourse
+      ? undefined
+      : (
+          hasImmutableCurriculumManifest
+            ? [course.courseraCourseId, mappedId, dbRow?.courseraCourseId, discovered?.courseId]
+            : [mappedId, course.courseraCourseId, dbRow?.courseraCourseId, discovered?.courseId]
+        ).find(isMappedCourseraId)?.trim();
 
     return {
       ...course,
       courseraCourseId,
-      courseraSlug: course.courseraSlug ?? dbRow?.courseraSlug ?? discovered?.slug,
+      courseraSlug: workforceApCourse
+        ? undefined
+        : course.courseraSlug ?? dbRow?.courseraSlug ?? discovered?.slug,
     };
   });
 
-  const unmappedSlugs = courses
+  const providerCourses = courses.filter((course) => !isWorkforceApCourse(course));
+  const localCourseCount = courses.length - providerCourses.length;
+  const unmappedSlugs = providerCourses
     .filter((course) => !isMappedCourseraId(course.courseraCourseId))
     .map((course) => course.slug);
 
-  const mappedCourses = courses.filter((course) => isMappedCourseraId(course.courseraCourseId));
+  const mappedCourses = providerCourses.filter((course) => isMappedCourseraId(course.courseraCourseId));
   const mappedIds = new Set(mappedCourses.map((course) => course.courseraCourseId as string));
   const providerStatus: ProgramCatalogHealth['providerStatus'] = !shouldCheckB4B
     ? 'not_checked'
@@ -291,8 +312,9 @@ function buildValidatedProgramCourseList(args: {
     staleCourseraIds,
     catalogHealth: {
       providerStatus,
-      syllabusCount: courses.length,
+      syllabusCount: providerCourses.length,
       mappedCount: mappedCourses.length,
+      localCourseCount,
       providerCourseCount:
         providerStatus === 'available'
           ? courseraContents.filter(
@@ -317,6 +339,7 @@ export async function loadValidatedProgramCourses(
     programSlug: string;
     readOnlyAudit?: boolean;
     checkB4BContents?: boolean;
+    curriculumVersion?: string | null;
   },
   dependencies: ProgramCourseListDependencies = defaultDependencies,
 ): Promise<ValidatedProgramCourseList> {
@@ -347,6 +370,7 @@ export async function loadValidatedProgramCourses(
     mappingRows,
     courseraCatalog,
     shouldCheckB4B,
+    curriculumVersion: args.curriculumVersion,
   });
 }
 
@@ -361,6 +385,7 @@ export async function loadValidatedProgramCatalog(
     programSlugs?: readonly string[];
     readOnlyAudit?: boolean;
     checkB4BContents?: boolean;
+    curriculumVersionsByProgram?: Readonly<Record<string, string | null | undefined>>;
   },
   dependencies: ProgramCourseListDependencies = defaultDependencies,
 ): Promise<ValidatedProgramCatalogEntry[]> {
@@ -405,6 +430,7 @@ export async function loadValidatedProgramCatalog(
       ),
       courseraCatalog,
       shouldCheckB4B,
+      curriculumVersion: args.curriculumVersionsByProgram?.[program.slug],
     });
     return {
       ...validated,

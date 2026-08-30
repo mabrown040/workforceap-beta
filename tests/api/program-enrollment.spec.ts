@@ -108,6 +108,7 @@ function makeGetRequest(url: string) {
 describe('POST /api/member/enroll', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(prisma.courseEnrollment.findMany).mockResolvedValue([]);
   });
 
   it('enrolls member in program', async () => {

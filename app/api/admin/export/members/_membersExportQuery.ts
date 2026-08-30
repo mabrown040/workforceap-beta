@@ -1,6 +1,7 @@
 import type { Prisma, TrainingAccessStatus } from '@prisma/client';
 import { getPipelineStage } from '@/lib/pipeline/stage';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 export const MEMBER_EXPORT_LIMIT = 10_000;
 const MEMBER_EXPORT_PAGE_SIZE = 1_000;
@@ -62,18 +63,19 @@ const memberExportSelect = {
   applications: {
     select: { status: true, submittedAt: true },
   },
-  // Multi-program: export uses the primary enrollment for the funding
-  // / programSlug column. Secondary enrollments are intentionally not
-  // exported here (a separate report would list all enrollments).
+  // Multi-program: export resolves the primary enrollment for the funding /
+  // programSlug column, with an equivalent legacy-row fallback when older
+  // data has no primary marker. Secondary enrollments are not exported.
   courseEnrollments: {
-    where: { isPrimary: true },
+    orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
     select: {
       programSlug: true,
+      curriculumVersion: true,
+      isPrimary: true,
       fundingSource: true,
       fundingNotes: true,
       enrolledAt: true,
     },
-    take: 1,
   },
   trainingAccessRequests: {
     select: { providerKey: true, status: true, activatedAt: true },
@@ -165,7 +167,15 @@ export async function fetchMembersForExport(
     cursor = { id: users[users.length - 1].id };
 
     for (const u of users) {
-      const stage = getPipelineStage(u as Parameters<typeof getPipelineStage>[0]);
+      const assignment = resolveTrainingProgressAssignment(
+        u.enrolledProgram,
+        u.courseEnrollments,
+      );
+      const stage = getPipelineStage({
+        ...u,
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
+      });
       if (filterStage && stage !== filterStage) continue;
 
       rows.push(u);

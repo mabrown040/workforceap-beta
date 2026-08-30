@@ -62,6 +62,53 @@ export function isLocaleableMarketingPath(pathname: string): boolean {
   return false;
 }
 
+/**
+ * Public routes served by the separate Astro deployment.
+ *
+ * Next-rendered pages must use document navigation for these destinations.
+ * A Next `Link` otherwise issues an RSC request that the Astro deployment
+ * cannot answer, producing a false 404 before the browser falls back to the
+ * working document URL.
+ */
+const ASTRO_MARKETING_EXACT_PATHS = new Set([
+  '/',
+  '/about',
+  '/accessibility',
+  '/blog',
+  '/career-quiz',
+  '/careers',
+  '/careers/thank-you',
+  '/contact',
+  '/donate',
+  '/employers',
+  '/faq',
+  '/find-your-path',
+  '/how-it-works',
+  '/impact',
+  '/interest-profiler',
+  '/leadership',
+  '/lp/google-it-automation',
+  '/mentor',
+  '/partners',
+  '/partners/thank-you',
+  '/privacy',
+  '/program-comparison',
+  '/programs',
+  '/salary-guide',
+  '/terms',
+  '/what-we-do',
+]);
+
+const ASTRO_MARKETING_NESTED_PREFIXES = ['/blog/', '/leadership/', '/programs/'] as const;
+
+export function isAstroMarketingPath(pathname: string): boolean {
+  const { pathnameWithoutLocale } = splitLocalePrefix(pathname);
+  return (
+    ASTRO_MARKETING_EXACT_PATHS.has(pathnameWithoutLocale) ||
+    ASTRO_MARKETING_NESTED_PREFIXES.some((prefix) => pathnameWithoutLocale.startsWith(prefix))
+  );
+}
+
 /** Paths that never get a /{locale}/ redirect (API, assets, app shells). */
 export function isLocaleBypassPath(pathname: string): boolean {
   if (pathname.startsWith('/api')) return true;

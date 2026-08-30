@@ -32,6 +32,7 @@ export interface ProgramCourse {
   name: string;
   estimatedHours: number;
   description?: string;
+  kind?: 'coursera' | 'workforceap';
   courseraSlug?: string;
 }
 
@@ -586,37 +587,30 @@ function applySyllabus(program: Program): Program {
 /**
  * Overlay in-house class content (CPT, CLT). Unlike `applySyllabus` this
  * deliberately leaves `title` and `description` alone — those are truth-locked
- * member-facing copy, not a regulated transcription. Only the class content
- * (course hours, course descriptions) and the derived duration come from the
- * curriculum.
+ * member-facing copy, not a regulated transcription. Draft hours remain in
+ * the internal curriculum record but are not presented as verified public
+ * duration/contact-hour facts until the owner verifies the record.
  */
 function applyCurriculum(program: Program): Program {
   if (program.syllabus) return program;
   const curriculum = getProgramCurriculum(program.slug);
   if (!curriculum) return program;
 
-  const normalizeCourseName = (name: string) =>
-    name
-      .toLowerCase()
-      .replace(/&/g, ' and ')
-      .replace(/\bw\//g, 'with ')
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
   const curriculumCourses = curriculum.courses.map((course, index) => {
-    const existing = program.courses.find(
-      (candidate) => normalizeCourseName(candidate.name) === normalizeCourseName(course.name),
-    );
     return {
-      slug: existing?.slug ?? `${program.slug}-course-${index + 1}`,
+      slug: `${program.slug}-course-${index + 1}`,
       name: course.name,
       estimatedHours: course.hours,
       description: course.description,
+      kind: course.kind,
     };
   });
 
   return {
     ...program,
-    duration: `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`,
+    duration: curriculum.status === 'owner-verified'
+      ? `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`
+      : 'Hours and delivery format pending owner verification',
     courses: curriculumCourses,
     curriculum,
   };

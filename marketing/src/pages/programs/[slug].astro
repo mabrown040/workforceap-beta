@@ -18,6 +18,7 @@ const display = program.title;
 const range = salaryRangeDisplay(program);
 const badge = partnerBadge(program);
 const extra = program.extra;
+const curriculumOwnerVerified = program.curriculum?.status === 'owner-verified';
 
 // Difficulty copy (verbatim from the Next ProgramDetailClient / detail page logic)
 const difficultyCopy =
@@ -153,31 +154,57 @@ const metaDescription = `Training in ${display} offered at no cost for members w
 
       {program.curriculum && (
         <div class="card">
-          <p class="eyebrow">Program curriculum</p>
+          <p class="eyebrow">WorkforceAP-authored curriculum</p>
           <h2 class="card-h">Training details</h2>
-          <div class="quad">
-            <div>
-              <h3>Delivery format</h3>
-              <p>{program.curriculum.deliveryFormat}</p>
+          {curriculumOwnerVerified ? (
+            <div class="quad">
+              <div>
+                <h3>Delivery format</h3>
+                <p>{program.curriculum.deliveryFormat}</p>
+              </div>
+              <div>
+                <h3>Total hours</h3>
+                <p>{program.curriculum.totalHoursLabel}</p>
+              </div>
+              <div>
+                <h3>Certification this training prepares you to pursue.</h3>
+                <p>{program.curriculum.credential}</p>
+              </div>
+              <div>
+                <h3>Published tuition and fees</h3>
+                <p>${program.curriculum.tuitionAndFees.toLocaleString('en-US')}</p>
+                <p>Qualifying WorkforceAP members are not billed for covered training.</p>
+              </div>
             </div>
-            <div>
-              <h3>Total hours</h3>
-              <p>{program.curriculum.totalHoursLabel}</p>
-            </div>
-            <div>
-              <h3>Credential you earn</h3>
-              <p>{program.curriculum.credential}</p>
-            </div>
-            <div>
-              <h3>Published tuition and fees</h3>
-              <p>${program.curriculum.tuitionAndFees.toLocaleString('en-US')}</p>
-              <p>Qualifying WorkforceAP members are not billed for covered training.</p>
-            </div>
-          </div>
+          ) : (
+            <>
+              <p class="muted">
+                <strong>No program-owner-supplied syllabus is on file for this program.</strong>{' '}
+                The course outline below is authored by WorkforceAP. Hours, delivery format,
+                and tuition and fees remain pending program-owner verification and are not
+                published here as verified program facts.
+              </p>
+              <div class="quad">
+                <div>
+                  <h3>Certification this training prepares you to pursue.</h3>
+                  <p>{program.curriculum.credential}</p>
+                </div>
+              </div>
+            </>
+          )}
           <h3 class="cert-h">What the certification assesses</h3>
           <div class="chiprow">
             {program.curriculum.certificationTargets.map((t) => <span class="skill">{t}</span>)}
           </div>
+          {program.curriculum.certificationReference && (
+            <p class="muted">
+              Assessment source:{' '}
+              <a href={program.curriculum.certificationReference.url}>
+                {program.curriculum.certificationReference.title}
+              </a>{' '}
+              (verified {program.curriculum.certificationReference.verifiedOn}).
+            </p>
+          )}
         </div>
       )}
 
@@ -238,7 +265,9 @@ const metaDescription = `Training in ${display} offered at no cost for members w
               <summary>
                 <span class="cnum">{i + 1}.</span>
                 <span class="cname">{c.name}</span>
-                <span class="chrs">~{c.estimatedHours} hrs</span>
+                {(!program.curriculum || curriculumOwnerVerified) && (
+                  <span class="chrs">~{c.estimatedHours} hrs</span>
+                )}
                 <span class="cmark" aria-hidden="true">+</span>
               </summary>
               {(c.description || courseAlignment.get(normalizeCourseName(c.name))?.length) && (

@@ -3,13 +3,14 @@ import Layout from '../../layouts/Layout.astro';
 import { PROGRAMS } from '../../data/programs';
 
 // ── ETPL / WIOA program price list ──
-// TWC (ETPL review) requires the price and contact hours of each program to be
-// verifiable on the provider website. Contact hours are the sum of the course
-// hours published on each program's detail page. Max cost matches the Max Cost
-// declared on each EdVera Program Details Form.
+// TWC (ETPL review) requires published price and contact-hour facts to be
+// verifiable. A draft curriculum must never enter this official document:
+// owner-pending records stay explicitly withheld until their source facts are
+// verified and the record is promoted to `owner-verified`.
 const MAX_PROGRAM_COST = '$7,500';
 
 const rows = PROGRAMS
+  .filter((p) => !p.curriculum || p.curriculum.status === 'owner-verified')
   .map((p) => ({
     slug: p.slug,
     title: p.title,
@@ -18,13 +19,17 @@ const rows = PROGRAMS
     funding: p.fundingSource ?? 'WIOA',
   }))
   .sort((a, b) => a.title.localeCompare(b.title));
+const ownerPendingPrograms = PROGRAMS
+  .filter((p) => p.curriculum?.status === 'draft-pending-owner-verification')
+  .map((p) => p.title)
+  .sort((a, b) => a.localeCompare(b));
 
 // Hardcoded rather than `new Date()` — this is a content-verified date, not
 // a build date. `new Date()` would silently re-date the document on every
 // build even when nothing changed. Update this string when program pricing
 // or contact hours change (and re-verify the table below against the
 // syllabus at the same time).
-const CONTENT_VERIFIED = 'August 28, 2026';
+const CONTENT_VERIFIED = 'August 30, 2026';
 const pageTitle = 'Program Price List — Workforce Advancement Project';
 const metaDescription =
   'Official Workforce Advancement Project program price list: program names, contact hours, and maximum program cost for workforce boards and funding partners.';
@@ -56,8 +61,17 @@ const metaDescription =
         <strong>no cost to qualifying members</strong> — programs are funded through grants,
         scholarships, partnerships, and donations. The maximum program cost below is the amount
         billed to workforce boards and other funding partners (WIOA/ETPL), never to members.
-        Contact hours match each program's published syllabus.
+        Only records eligible for publication are included below. A draft curriculum is
+        withheld until its hours and tuition are owner-verified.
       </p>
+      {ownerPendingPrograms.length > 0 && (
+        <p class="withheld">
+          <strong>Withheld pending program-owner verification:</strong>{' '}
+          {ownerPendingPrograms.join('; ')}. No program-owner-supplied syllabus is on file
+          for these programs. Their hours, delivery format, and tuition and fees are not
+          published as official price-list facts.
+        </p>
+      )}
       <p class="updated">Last updated: {CONTENT_VERIFIED}</p>
       <button class="printbtn print-hide" onclick="window.print()">Print or save as PDF</button>
     </div>
@@ -113,6 +127,7 @@ const metaDescription =
   .sub{font-size:14px;color:var(--muted);margin-bottom:16px}
   .sub a{color:var(--crimson)}
   .note{font-size:14.5px;line-height:1.6;color:var(--text);max-width:60em;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:12px}
+  .withheld{font-size:14px;line-height:1.6;color:var(--text);max-width:60em;border-left:4px solid var(--crimson);padding:10px 14px;margin:0 0 12px;background:var(--surface-2)}
   .updated{font-size:13px;color:var(--muted);margin-bottom:14px}
   .printbtn{background:var(--crimson);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer}
   .printbtn:hover{opacity:.92}

@@ -13,9 +13,11 @@ of those is a verbatim transcription carrying the SHA-256 of its source document
 `tests/lib/twc-syllabus-accuracy.spec.ts`.
 
 Certified Production Technician (CPT) and Certified Logistics Technician (CLT) were
-**not** part of that submission. No source document exists for either, so this
-curriculum is **authored in-house by the WorkforceAP program team** rather than
-transcribed. It lives in a separate module (`shared/programCurricula.ts`) with
+**not** part of that submission. No program-owner-supplied syllabus is on file for
+either record, so this curriculum is **authored in-house by the WorkforceAP program
+team** rather than transcribed. This statement is limited to the source set supplied
+to WorkforceAP; it does not claim that no syllabus exists elsewhere. The curriculum
+lives in a separate module (`shared/programCurricula.ts`) with
 `authoredBy` / `status` provenance instead of `sourceDocument` / `sourceSha256`, so
 in-house class content can never be mistaken for a regulated transcription.
 
@@ -31,11 +33,17 @@ so the two must never both exist for one slug.
 | `certified-production-technician-cpt` | MSSC Certified Production Technician (CPT) | 160 (104 clock + 56 lab) | 8 | Draft — owner verification pending |
 | `certified-logistics-technician-clt` | MSSC Certified Logistics Technician (CLT) | 160 (110 clock + 50 lab) | 8 | Draft — owner verification pending |
 
+The numeric values above are retained as internal draft planning data. While a record
+has `draft-pending-owner-verification` status, the public program detail page labels it
+as WorkforceAP-authored and withholds hours, delivery format, and tuition. The official
+price list omits the record entirely and names the verification gate.
+
 ## Needs program-owner sign-off before the next EdVera / TWC submission
 
-These three figures reach funders through `/programs/price-list`, which is shared with
-TWC and Workforce Solutions as an EdVera attachment. They are program-design decisions,
-not transcribed facts, and are **drafts** until the program owner confirms them:
+These three figures would reach funders through `/programs/price-list`, which is shared
+with TWC and Workforce Solutions as an EdVera attachment, if they were published. They
+are program-design decisions, not transcribed facts, and remain **internal drafts**
+until the program owner confirms them:
 
 1. **Hour allocation per course** (both programs total 160 hours, matching the twelve
    submitted programs; previously each course carried the catalog's 10-hour placeholder
@@ -45,8 +53,8 @@ not transcribed facts, and are **drafts** until the program owner confirms them:
    published for every other program on the price list.
 
 Once confirmed, change `status` to `owner-verified` in `shared/programCurricula.ts`,
-drop the draft note, and re-date `CONTENT_VERIFIED` in
-`marketing/src/pages/programs/price-list.astro`.
+drop the draft note, re-verify the detail and price-list output, and re-date
+`CONTENT_VERIFIED` in `marketing/src/pages/programs/price-list.astro`.
 
 ## Certification alignment
 
@@ -58,7 +66,20 @@ Alignment is published per course on the program detail page.
   four to hold the full CPT credential.
 - **CLT** — two tiers: the Certified Logistics Associate (CLA) covers foundational areas
   and is the prerequisite for the Certified Logistics Technician (CLT). The sequence
-  prepares members for both.
+  prepares members for both. The assessment-domain manifest was verified on
+  **2026-08-30** against the official MSSC
+  [CLT Key Activities PDF](https://www.msscusa.org/wp-content/uploads/2015/11/CLT-Key-Activities.pdf).
+  `shared/programCurricula.ts` carries the same URL and verification date.
+
+The exact CLA domains are: Global supply chain logistics life cycle; Logistics
+environment; Material handling equipment; Safety principles; Safe material handling
+and equipment operation; Quality control principles; Workplace communications;
+Teamwork and workplace behavior to solve problems; Using computers.
+
+The exact CLT domains are: Product receiving; Product storage; Order processing;
+Packaging and shipment; Inventory control; Safe handling of hazmat materials;
+Evaluation of transportation modes; Dispatch and tracking; Measurements and metric
+conversions.
 
 ## Course names are a join key — do not rename
 

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { createCourseraLaunchHandler, type CourseraLaunchDependencies } from './launchRouteCore';
 
 type RedirectResult = { redirectedTo: string };
@@ -184,6 +185,45 @@ test('Coursera launch route keeps an assigned WorkforceAP lab inside the portal'
     'https://workforceap.test/dashboard/learning/modules/local-lab?program=it-support-professional-certificate-ibm',
   );
 });
+
+for (const programSlug of [
+  'certified-production-technician-cpt',
+  'certified-logistics-technician-clt',
+]) {
+  test(`Coursera launch route keeps every ${programSlug} course local`, async () => {
+    const catalogProgram = getProgramBySlug(programSlug);
+    assert.ok(catalogProgram);
+    let providerLookupCount = 0;
+    const providerLookup = async () => {
+      providerLookupCount += 1;
+      return 'https://www.coursera.org/learn/wrong-course';
+    };
+    const handler = createCourseraLaunchHandler(makeDeps({
+      findUser: async () => ({
+        enrolledProgram: programSlug,
+        organizationId: 'org-1',
+        courseProgress: [],
+      }),
+      resolveActiveProgram: async () => programSlug,
+      getProgramBySlug: () => ({ courses: catalogProgram.courses }),
+      getOrgScopedCourseUrl: providerLookup,
+      getOrgScopedProgramUrl: providerLookup,
+      buildCourseraLaunchUrl: () => 'https://www.coursera.org/learn/wrong-course',
+    }));
+
+    for (const course of catalogProgram.courses) {
+      const res = await handler(new Request(
+        `https://workforceap.test/api/member/coursera/launch?course=${course.slug}`,
+      ));
+      assert.equal(
+        res.redirectedTo,
+        `https://workforceap.test/dashboard/learning/modules/${course.slug}?program=${programSlug}`,
+      );
+      assert.doesNotMatch(res.redirectedTo, /coursera/i);
+    }
+    assert.equal(providerLookupCount, 0);
+  });
+}
 
 test('Coursera launch route blocks a dormant approved curriculum before provider lookup', async () => {
   let providerLookupCalled = false;

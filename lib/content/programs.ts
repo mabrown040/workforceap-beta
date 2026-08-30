@@ -294,15 +294,14 @@ function mkProgram(
       })
     : curriculum
       ? curriculum.courses.map((course, index) => {
-          const existing = catalogCourses.find(
-            (candidate) => normalizeCourseName(candidate.name) === normalizeCourseName(course.name),
-          );
           return {
-            slug: existing?.slug ?? `${slug}-course-${index + 1}`,
+            // In-house curricula use stable local keys even if a provider
+            // discovery row later happens to share the same display name.
+            slug: `${slug}-course-${index + 1}`,
             name: course.name,
             estimatedHours: course.hours,
             description: course.description,
-            courseraCourseId: existing?.courseraCourseId,
+            kind: course.kind,
           };
         })
       : catalogCourses;
@@ -317,7 +316,9 @@ function mkProgram(
     duration: syllabus
       ? `${syllabus.totalHours} hours • ${syllabus.deliveryFormat}`
       : curriculum
-        ? `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`
+        ? curriculum.status === 'owner-verified'
+          ? `${curriculum.totalHours} hours • ${curriculum.deliveryFormat}`
+          : 'Hours and delivery format pending owner verification'
         : duration,
     salary,
     skills,

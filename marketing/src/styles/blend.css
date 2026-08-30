@@ -42,7 +42,7 @@
   nav.top{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
   nav.top{--_h:72px}
   nav.top .row{display:flex;align-items:center;justify-content:space-between;height:72px}
-  .brand{display:flex;align-items:center;gap:11px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px}
+  .brand{display:flex;align-items:center;gap:11px;min-height:44px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px}
   .brand .mark{width:38px;height:38px;border-radius:11px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:18px}
   .brand b{color:var(--crimson)}
   /* real brand lockup (from the original site) */
@@ -229,7 +229,12 @@
   .fseal{display:inline-flex;align-items:center;gap:7px;margin-top:16px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--gold-dark);background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.28);padding:7px 13px;border-radius:999px}
   .fseal svg{flex-shrink:0}
   .fbottom{border-top:1px solid var(--border);padding-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px}
-  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}.fbrand{grid-column:1/-1}}
+  @media(max-width:760px){
+    .fgrid{grid-template-columns:1fr 1fr}
+    .fbrand{grid-column:1/-1}
+    footer li{margin-bottom:0}
+    footer li a,.flegal a{display:inline-flex;align-items:center;min-width:44px;min-height:44px;padding:8px 0}
+  }
 
   /* ============================================================
      UI-MAX elevation layer (premium polish, applied globally)

@@ -1,6 +1,7 @@
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { splitLocalePrefix } from '@/lib/i18n/config';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
@@ -39,7 +40,7 @@ const PROBES: Probe[] = [
     path: '/programs',
     name: 'programs',
     kind: 'public-page',
-    bodyMarker: 'Find the right program for your goals',
+    bodyMarker: 'Find the right program',
   },
   { path: '/dashboard', name: 'dashboard', kind: 'protected-redirect' },
   { path: '/admin', name: 'admin', kind: 'protected-redirect' },
@@ -50,11 +51,12 @@ function normalizeBaseUrl(raw: string): string {
   return raw.replace(/\/$/, '');
 }
 
-function protectedRedirectMatches(finalUrl: URL, probePath: string): boolean {
-  const expectedRedirect = probePath;
+function protectedRedirectMatches(finalUrl: URL, probePath: string, baseUrl: string): boolean {
+  const { pathnameWithoutLocale } = splitLocalePrefix(finalUrl.pathname);
   return (
-    finalUrl.pathname.endsWith('/login') &&
-    finalUrl.searchParams.get('redirectTo') === expectedRedirect
+    finalUrl.origin === new URL(baseUrl).origin &&
+    pathnameWithoutLocale === '/login' &&
+    finalUrl.searchParams.get('redirectTo') === probePath
   );
 }
 
@@ -90,8 +92,8 @@ async function runProbe(baseUrl: string, probe: Probe): Promise<ProbeResult> {
         reason = 'invalid health JSON';
       }
     } else if (probe.kind === 'protected-redirect') {
-      if (!protectedRedirectMatches(finalUrl, probe.path)) {
-        reason = `unexpected redirect target ${finalUrl.pathname}${finalUrl.search}`;
+      if (!protectedRedirectMatches(finalUrl, probe.path, baseUrl)) {
+        reason = `unexpected redirect target ${finalUrl.origin}${finalUrl.pathname}${finalUrl.search}`;
       }
     } else if (probe.bodyMarker && !body.includes(probe.bodyMarker)) {
       reason = `missing page marker: ${probe.bodyMarker}`;

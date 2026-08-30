@@ -48,7 +48,11 @@ describe('GET /api/cron/smoke-test', () => {
       return {
         status: 200,
         url,
-        text: vi.fn().mockResolvedValue('Find the right program for your goals'),
+        text: vi
+          .fn()
+          .mockResolvedValue(
+            '<h1>Find the right program <span class="shimmer">for your goals</span></h1>',
+          ),
       };
     }
     return {
@@ -69,6 +73,7 @@ describe('GET /api/cron/smoke-test', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllEnvs();
     global.fetch = originalFetch;
   });
@@ -126,6 +131,68 @@ describe('GET /api/cron/smoke-test', () => {
     const json = await res.json();
     expect(json.failed).toEqual(['dashboard']);
     expect(json.results.dashboard.reason).toContain('unexpected redirect target');
+  });
+
+  it.each([
+    [
+      'an off-origin login',
+      'https://evil.example/en/login?redirectTo=%2Fdashboard',
+    ],
+    [
+      'a same-origin nested login path',
+      'https://test.workforceap.org/fake/login?redirectTo=%2Fdashboard',
+    ],
+  ])('rejects %s as a protected portal redirect', async (_description, finalUrl) => {
+    global.fetch = vi.fn().mockImplementation((input: string | URL | Request) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.endsWith('/dashboard')) {
+        return Promise.resolve({
+          status: 200,
+          url: finalUrl,
+          text: () => Promise.resolve('<title>Sign In</title>'),
+        });
+      }
+      return Promise.resolve(successfulProbe(url));
+    });
+
+    const res = await smokeGET(new Request('http://localhost:3000/api/cron/smoke-test'));
+    expect(res.status).toBe(503);
+    const json = await res.json();
+    expect(json.failed).toEqual(['dashboard']);
+    expect(json.results.dashboard.reason).toContain('unexpected redirect target');
+  });
+
+  it('aborts probes that exceed the timeout', async () => {
+    vi.useFakeTimers();
+    global.fetch = vi.fn().mockImplementation((_input: string | URL | Request, init?: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener(
+          'abort',
+          () => {
+            const error = new Error('Aborted');
+            error.name = 'AbortError';
+            reject(error);
+          },
+          { once: true },
+        );
+      }),
+    );
+
+    const responsePromise = smokeGET(
+      new Request('http://localhost:3000/api/cron/smoke-test'),
+    );
+    await vi.advanceTimersByTimeAsync(12_000);
+
+    const res = await responsePromise;
+    expect(res.status).toBe(503);
+    const json = await res.json();
+    expect(json.failed).toHaveLength(7);
+    expect(json.results.liveness).toMatchObject({
+      ok: false,
+      status: 0,
+      durationMs: 12_000,
+      reason: 'timed out after 12000ms',
+    });
   });
 
   it('handles network errors gracefully', async () => {

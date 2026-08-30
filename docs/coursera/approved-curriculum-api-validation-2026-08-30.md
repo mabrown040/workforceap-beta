@@ -1,7 +1,7 @@
 # Approved Coursera curriculum API validation — 2026-08-30
 
-Status: **blocked for external-track activation**. Portal mappings are safe to
-deploy dormant; do not assign `2026-approved-v2` yet.
+Status: **blocked for external-track activation**. Portal mappings are deployed
+dormant; do not assign `2026-approved-v2` yet.
 
 Licensing handoff: see the
 [missing-course licensing packet](missing-course-licensing-packet-2026-08-30.md)
@@ -25,6 +25,22 @@ worktree on 2026-08-30 stopped before the first Coursera request because
 the process or a local environment file. No credential value was printed and
 no provider state changed. The 15/26 result below remains the latest verified
 full-pagination snapshot; it is not represented as a fresh API read.
+
+## Platform gate status
+
+The WorkforceAP-side platform gate is closed. PR #2220 deployed the
+curriculum-version-aware Skill Missions, pathway completion guards, and
+additive schema on production commit
+`226921d890d67063ee3d1950da849393e447c5cc`. The exact-sha GitHub CI and Vercel
+deployment passed, and production liveness/readiness reported version
+`226921d` with healthy database and organization checks.
+
+The production migration is intentionally stricter than a schema-presence
+check: it aborts unless all 26 immutable WorkforceAP provider-binding rows are
+present and exact. Those 26 local mapping rows describe the approved target;
+they do **not** prove that Coursera has licensed the corresponding content to
+the WorkforceAP organization. The provider-catalog result below remains the
+external authority for that separate gate.
 
 ## Result
 
@@ -72,12 +88,7 @@ artifact.
 3. Build three new learning paths without editing the current learner paths.
 4. Validate each path's exact set and order. The organization catalog API proves
    course availability; it does not by itself prove learning-path membership.
-5. Merge and deploy the curriculum-version-aware Skill Missions and pathway
-   completion guards. The implementation now filters missions against the
-   immutable assigned course list, versions non-legacy mission events, and
-   resolves pathway completion against the pinned denominator; deployment is
-   still required before a canary.
-6. Only then set each manifest track to `validated`, record its collection ID,
+5. Only then set each manifest track to `validated`, record its collection ID,
    set `assignmentMode: canary`, and run one explicitly authorized v2 canary.
    Broad enrollment remains closed until every proof passes and the mode is
    deliberately changed to `enabled`.

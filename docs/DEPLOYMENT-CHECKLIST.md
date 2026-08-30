@@ -1,6 +1,6 @@
 # WorkforceAP Production Deployment Checklist
 
-**Repo:** `wap-repo` | **Branch:** `master` | **Last Updated:** 2026-05-13
+**Repo:** `workforceap-beta` | **Branch:** `master` | **Last Updated:** 2026-08-30
 
 Use this checklist for every production deploy. Do not skip steps.
 

@@ -20,10 +20,11 @@ Open `http://localhost:3000` in a browser.
 
 ### Project structure
 
-- `app/` — Next.js App Router pages (10 routes)
-  - `layout.tsx` — root layout with TopBanner, MainNav, ScrollAnimations, and global CSS
-  - `page.tsx` — homepage
-  - `apply/`, `programs/`, `what-we-do/`, `how-it-works/`, `faq/`, `contact/`, `leadership/`, `salary-guide/`, `program-comparison/` — inner pages
+- `app/` — full Next.js App Router application: public/apply journeys, member and staff portals, admin tools, and API routes
+  - `layout.tsx` — root layout and tenant-aware application shell
+  - `(portal)/` — authenticated member, counselor, employer, and partner surfaces
+  - `admin/` — staff administration surfaces
+  - `api/` — application, integration, health, and cron route handlers
 - `components/` — shared React components (TopBanner, MainNav, Footer, PageHero, PhotoHighlight, ScrollAnimations)
 - `css/main.css` — all styles (imported globally via layout.tsx)
 - `public/images/` — static image assets
@@ -43,7 +44,8 @@ Skill: `.agents/skills/blast-radius-audit/SKILL.md`. On-disk graph: `graph/`. Ra
 ```bash
 npm run lint          # ESLint (~~5 known errors~~ — Burned down 2026-05-20, gate flipped)
 npm run typecheck     # TypeScript type-checking (tsc --noEmit)
-npm run test:unit     # Node.js test runner (lib/**/*.test.ts) — 424 pass, 3 pre-existing failures
+npm run test:unit     # Node.js test runner (lib/**/*.test.ts)
+npm run test:vitest   # Vitest component/API suites
 npm run build         # Full production build (Prisma generate + next build)
 ```
 

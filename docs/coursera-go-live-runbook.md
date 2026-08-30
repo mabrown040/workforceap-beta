@@ -238,8 +238,8 @@ Currently only admins see unmatched learners. A future improvement is to show co
 - Training page shows live progress from xAPI/CSV/webhook in the course list.
 - `CourseraProgressCard` now falls back to canonical `course_progress` if CSV data is missing.
 
-### ⚠️ Still Requires Coursera Contract / Admin Console Action
-- **Program enrollment:** Someone (Mike/Dad/counselor or member themselves) must ensure the member is added to the correct Coursera Enterprise program. There is **no WAP API call** that enrolls a member in a Coursera program.
+### ⚠️ Still Requires Coursera Contract, Credentials, or Approval
+- **Program/course enrollment:** WAP has member and admin enrollment routes backed by the Coursera B4B API. A paid enrollment still requires valid B4B credentials, a verified catalog binding, explicit WAP approval, and an available license; see [`COURSERA-ENROLLMENT-FLOW.md`](./COURSERA-ENROLLMENT-FLOW.md). Do not use a manual Coursera console enrollment as an untracked bypass.
 - **xAPI credential setup:** Coursera admin must enter WAP's xAPI endpoint and OAuth details.
 - **Webhook subscription:** Coursera admin must subscribe the webhook URL.
 - **Skillset ID discovery:** Must be provided by Coursera account manager; no public API docs.

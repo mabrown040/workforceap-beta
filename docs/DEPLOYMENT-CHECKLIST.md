@@ -121,7 +121,7 @@ Use this checklist for every production deploy. Do not skip steps.
     - `smoke-test` (hourly)
     - `deploy-health` (hourly)
     - `coursera-training-sync` (hourly)
-    - `at-risk-check` (daily 6am CT)
+    - `at-risk-check` (daily at 06:00 UTC, per `vercel.json`)
   - If `cron_executions` table exists, query:
     ```sql
     SELECT job_name, status, started_at

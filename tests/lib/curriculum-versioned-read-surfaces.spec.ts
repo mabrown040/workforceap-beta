@@ -94,8 +94,19 @@ describe('curriculum-versioned portal reads', () => {
     expect(learningHub).toContain(
       'getPathwayForProgram(enrolledProgram, curriculumVersion)',
     );
+    expect(learningHub).toContain(
+      'programSlugsEquivalent(enrollment.programSlug, enrolledProgram)',
+    );
     expect(learningHub).not.toContain('programMeta.courses');
     expect(certifications).toContain('primaryEnrollment?.curriculumVersion');
+  });
+
+  it('resolves dashboard curriculum assignments across historical program aliases', () => {
+    const dashboard = readRepo('app/(portal)/dashboard/page.tsx');
+
+    expect(dashboard).toContain(
+      'programSlugsEquivalent(enrollment.programSlug, enrolledProgram)',
+    );
   });
 
   it('keeps staff views and exports on the learner assigned denominator', () => {

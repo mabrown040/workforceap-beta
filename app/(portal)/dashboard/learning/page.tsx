@@ -77,8 +77,10 @@ export default async function LearningPage() {
     enrollments: courseEnrollments,
     legacyEnrolledProgram: dbUser?.enrolledProgram ?? null,
   });
-  const activeEnrollment = courseEnrollments.find(
-    (enrollment) => enrollment.programSlug === enrolledProgram,
+  const activeEnrollment = courseEnrollments.find((enrollment) =>
+    enrolledProgram
+      ? programSlugsEquivalent(enrollment.programSlug, enrolledProgram)
+      : false,
   ) ?? null;
   const curriculumVersion = activeEnrollment?.curriculumVersion ?? 'legacy-v1';
   // Resolve the member's pathway from their enrolled program. Returns null

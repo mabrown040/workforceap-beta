@@ -8,11 +8,12 @@ import {
 
 function enrollment(
   slug: string,
-  opts: { isPrimary?: boolean; id?: string } = {},
+  opts: { isPrimary?: boolean; id?: string; curriculumVersion?: string } = {},
 ): DashboardEnrollment {
   return {
     id: opts.id ?? `enr-${slug}`,
     programSlug: slug,
+    curriculumVersion: opts.curriculumVersion,
     isPrimary: opts.isPrimary ?? false,
     enrolledAt: new Date('2026-04-01T00:00:00Z'),
   };
@@ -96,6 +97,27 @@ test('uses a matching legacy mirror when older enrollment rows have no primary m
   });
   assert.equal(result.activeProgramSlug, 'pmp');
   assert.equal(result.primaryProgramSlug, 'pmp');
+});
+
+test('matches a historical alias to the canonical legacy pointer when no row is primary', () => {
+  const enrollments = [
+    enrollment('comptia-a-plus', {
+      curriculumVersion: '2026-approved-v2',
+    }),
+  ];
+  const result = resolveActiveDashboardProgram({
+    enrollments,
+    legacyEnrolledProgram: 'comptia-a-professional-certificate',
+  });
+
+  assert.equal(result.activeProgramSlug, 'comptia-a-plus');
+  assert.equal(result.primaryProgramSlug, 'comptia-a-plus');
+  assert.equal(result.legacyEnrolledProgramMismatch, false);
+  assert.equal(
+    enrollments.find((row) => row.programSlug === result.activeProgramSlug)
+      ?.curriculumVersion,
+    '2026-approved-v2',
+  );
 });
 
 test('does not flag a mismatch when there is no primary enrollment yet', () => {

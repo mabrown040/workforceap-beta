@@ -24,15 +24,34 @@ function projectForUrl(value, kind = 'database') {
   const username = decodeURIComponent(parsed.username || '').toLowerCase();
   const isSupabasePooler =
     hostname === 'pooler.supabase.com' || hostname.endsWith('.pooler.supabase.com');
+  const rawPoolerOptions = parsed.searchParams.getAll('options');
+  const optionReferences = rawPoolerOptions.flatMap((value) =>
+    new URLSearchParams(value).getAll('reference')
+  );
 
   for (const [project, ref] of Object.entries(REFS)) {
     const exactPublicHost = hostname === `${ref}.supabase.co`;
     const exactDatabaseHost = hostname === `db.${ref}.supabase.co`;
-    const exactPoolerUser = isSupabasePooler && username === `postgres.${ref}`;
+    // Supavisor resolves options.reference before the legacy dotted username.
+    // Only trust the dotted form when no reference marker is present anywhere.
+    const exactPoolerUser =
+      isSupabasePooler && username === `postgres.${ref}` && optionReferences.length === 0;
+    // Vercel's current Supabase integration can keep the shared-pooler user as
+    // `postgres` and route the tenant through `options=reference=<project-ref>`.
+    // Require the real Supabase pooler host, the exact role, and exactly one
+    // reference marker so an unrelated URL cannot merely mention an allowlisted
+    // ref and pass this guard.
+    const exactPoolerOptionReference =
+      isSupabasePooler &&
+      username === 'postgres' &&
+      rawPoolerOptions.length === 1 &&
+      optionReferences.length === 1 &&
+      optionReferences[0] === ref;
 
     if (
       (kind === 'public' && exactPublicHost) ||
-      (kind === 'database' && (exactDatabaseHost || exactPoolerUser))
+      (kind === 'database' &&
+        (exactDatabaseHost || exactPoolerUser || exactPoolerOptionReference))
     ) {
       return project;
     }

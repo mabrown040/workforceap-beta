@@ -43,6 +43,7 @@ export type CounselorRosterClientRow = {
   fullName: string | null;
   email: string;
   enrolledProgram: string | null;
+  curriculumVersion: string | null;
   programInterest: string | null;
   assessmentScorePct: number | null;
   wioaReviewStatus: string | null;
@@ -217,7 +218,12 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
 
   function rowProgress(row: Row): number | null {
     const enrolledSlug = row.enrolledProgram ?? null;
-    const progress = computeTrainingProgress(enrolledSlug, null, row.memberProgramProgress);
+    const progress = computeTrainingProgress({
+      enrolledProgram: enrolledSlug,
+      curriculumVersion: row.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: row.memberProgramProgress,
+    });
     return progress.totalCourses > 0 ? progress.pct : null;
   }
 

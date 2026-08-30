@@ -63,7 +63,7 @@ if (result.status === 0) {
 }
 
 // Healthy / already-resolved migrations must not fail the build (P3012).
-if (isBenignMigrateResolveError(result.stdout, result.stderr)) {
+if (isBenignMigrateResolveError(result.stdout, result.stderr, '--rolled-back')) {
   console.log(
     `resolve-failed-migration: ${FAILED_MIGRATION} is not in a failed state (already resolved, applied, or never failed). Skipping.`,
   );

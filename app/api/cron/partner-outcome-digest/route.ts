@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendPartnerWeeklyDigestEmail } from '@/lib/email';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
@@ -58,6 +59,10 @@ async function handle(_request: Request) {
           fullName: true,
           email: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          },
           enrolledAt: true,
           assessmentCompleted: true,
           deletedAt: true,
@@ -100,11 +105,16 @@ async function handle(_request: Request) {
 
     for (const r of referrals) {
       const m = r.member;
+      const assignment = resolveTrainingProgressAssignment(
+        m.enrolledProgram,
+        m.courseEnrollments,
+      );
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,
         email: m.email ?? '',
-        enrolledProgram: m.enrolledProgram,
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
         enrolledAt: m.enrolledAt,
         assessmentCompleted: m.assessmentCompleted,
         deletedAt: m.deletedAt,

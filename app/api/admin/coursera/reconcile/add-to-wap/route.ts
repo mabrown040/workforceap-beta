@@ -23,6 +23,7 @@ import { logAuditEvent } from '@/lib/audit/log';
 import {
   CURRICULUM_MIGRATION_PENDING_CODE,
   CURRICULUM_MIGRATION_PENDING_MESSAGE,
+  getProgramBySlug,
   isCurriculumMigrationPending,
 } from '@/lib/content/programs';
 
@@ -108,7 +109,14 @@ const bodySchema = z.object({
     const fullName = parsed.data.fullName?.trim() || email;
     const courseraExternalId = parsed.data.courseraExternalId.trim();
     const programId = parsed.data.programId.trim();
-    const programSlug = parsed.data.programSlug?.trim() || null;
+    const requestedProgramSlug = parsed.data.programSlug?.trim() || null;
+    const requestedProgram = requestedProgramSlug
+      ? getProgramBySlug(requestedProgramSlug)
+      : null;
+    if (requestedProgramSlug && !requestedProgram) {
+      return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+    }
+    const programSlug = requestedProgram?.slug ?? null;
     if (isCurriculumMigrationPending(programSlug)) {
       return NextResponse.json(
         {
@@ -287,6 +295,9 @@ const bodySchema = z.object({
                 organizationId: actorOrgId,
                 userId: createdUser.id,
                 programSlug,
+                // Provider-discovered historical learners fail closed until
+                // their exact Coursera collection can prove a v2 assignment.
+                curriculumVersion: 'legacy-v1',
                 isPrimary: true,
                 enrolledAt,
                 enrolledByAdminId: user.id,

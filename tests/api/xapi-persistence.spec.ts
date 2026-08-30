@@ -252,7 +252,7 @@ describe('POST /api/xapi/statements', () => {
     vi.mocked(captureApiError).mockImplementation(() => {});
 
     const first = await POST(makeRequest(sampleStatement, { token: validToken }));
-    expect(first.status).toBe(201);
+    expect(first.status).toBe(500);
     expect((await first.json()).errors[0].message).toBe('Pipeline boom');
 
     const retry = await POST(makeRequest(sampleStatement, { token: validToken }));
@@ -321,12 +321,12 @@ describe('POST /api/xapi/statements', () => {
     expect(call.data.itemType).toBe('ITEM_TYPE_LECTURE');
   });
 
-  it('returns 201 with ingest errors when Prisma throws an unexpected error', async () => {
+  it('returns 500 with ingest errors when Prisma throws an unexpected error', async () => {
     vi.mocked(prisma.xapiStatement.create).mockRejectedValue(new Error('Connection lost'));
     vi.mocked(captureApiError).mockImplementation(() => {});
 
     const res = await POST(makeRequest(sampleStatement, { token: validToken }));
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.processed).toBe(0);
     expect(body.errors).toHaveLength(1);
@@ -335,12 +335,12 @@ describe('POST /api/xapi/statements', () => {
     expect(captureApiError).toHaveBeenCalled();
   });
 
-  it('returns 201 with ingest errors when statement pipeline throws unexpectedly', async () => {
+  it('returns 500 so Coursera retries when statement pipeline throws unexpectedly', async () => {
     vi.mocked(handleInboundParsedStatement).mockRejectedValue(new Error('Pipeline boom'));
     vi.mocked(captureApiError).mockImplementation(() => {});
 
     const res = await POST(makeRequest(sampleStatement, { token: validToken }));
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.processed).toBe(0);
     expect(body.errors).toHaveLength(1);
@@ -356,7 +356,7 @@ describe('POST /api/xapi/statements', () => {
     vi.mocked(captureApiError).mockImplementation(() => {});
 
     const res = await POST(makeRequest(badStatement, { token: validToken }));
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errors).toHaveLength(1);
     expect(body.errors[0].statementId).toBe('urn:uuid:bad-persist');

@@ -5,7 +5,10 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import PageHeader from '@/components/portal/PageHeader';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer screening',
@@ -23,23 +26,49 @@ export default async function EmployerScreeningMemberPage() {
     where: { id: user.id },
     select: {
       enrolledProgram: true,
-      memberProgramProgress: {
-        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      courseEnrollments: {
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        take: 1,
+        select: { programSlug: true, curriculumVersion: true },
       },
       courseProgress: {
-        where: { status: 'COMPLETED' },
-        select: { programSlug: true, courseSlug: true },
+        select: {
+          programSlug: true,
+          courseSlug: true,
+          courseId: true,
+          status: true,
+          percentComplete: true,
+        },
       },
     },
   });
-  const slug = dbUser?.enrolledProgram;
+  if (!dbUser) redirect('/dashboard/program');
+  const activeEnrollment = dbUser.courseEnrollments[0] ?? null;
+  const slug = activeEnrollment?.programSlug ?? dbUser.enrolledProgram;
   if (!slug) redirect('/dashboard/program');
 
   const program = getProgramBySlug(slug);
-  const rollup = dbUser.memberProgramProgress.find((row) => row.programSlug === slug) ?? null;
-  const total = program?.courses.length ?? 0;
-  const done = rollup?.coursesCompleted ?? (program ? program.courses.filter((c) => dbUser.courseProgress.some((row) => row.programSlug === slug && row.courseSlug === c.slug)).length : 0);
-  const nearComplete = total > 0 && ((rollup?.averagePercent ?? Math.round((done / total) * 100)) >= 85);
+  const curriculumCourses = program
+    ? getProgramCoursesForCurriculumVersion(
+        program,
+        activeEnrollment?.curriculumVersion ?? 'legacy-v1',
+      )
+    : [];
+  const progressRows = dbUser.courseProgress.filter((row) =>
+    programSlugsEquivalent(row.programSlug, slug),
+  );
+  const reconciliation = reconcileProgramProgress({
+    validatedCourses: curriculumCourses,
+    localRows: progressRows.map((row) => ({
+      courseSlug: row.courseSlug,
+      courseId: row.courseId,
+      status: row.status,
+      percentComplete: row.percentComplete,
+    })),
+  });
+  const total = reconciliation.totalCourses;
+  const done = reconciliation.completedCount;
+  const nearComplete = total > 0 && reconciliation.programPercent >= 85;
 
   const pack = await prisma.employerScreeningPack.findFirst({
     where: { programSlug: slug, isActive: true },

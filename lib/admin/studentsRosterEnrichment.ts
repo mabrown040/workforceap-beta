@@ -10,6 +10,7 @@ import {
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 
 export type StudentRosterEnrichmentRow = {
@@ -22,6 +23,7 @@ export type StudentRosterEnrichmentRow = {
 
 type RawStudentRosterEnrichmentRow = StudentRosterEnrichmentRow & {
   organizationId: string;
+  curriculumVersion: string;
   courseFacts: unknown;
 };
 
@@ -91,12 +93,14 @@ export async function loadStudentRosterEnrichment(args: {
   const canonicalEnrolledProgram = canonicalProgramSlugSql(Prisma.sql`u.enrolled_program`);
   const canonicalProgressProgram = canonicalProgramSlugSql(Prisma.sql`progress_program.program_slug`);
   const canonicalCourseProgram = canonicalProgramSlugSql(Prisma.sql`cp.program_slug`);
+  const canonicalEnrollmentProgram = canonicalProgramSlugSql(Prisma.sql`ce.program_slug`);
 
   const loadRows = () => prisma.$queryRaw<RawStudentRosterEnrichmentRow[]>(Prisma.sql`
     SELECT
       u.id AS "userId",
       u.organization_id AS "organizationId",
       progress_program.program_slug AS "programSlug",
+      COALESCE(enrollment_assignment.curriculum_version, 'legacy-v1') AS "curriculumVersion",
       NULL::integer AS "averagePercent",
       COALESCE(local_progress.course_facts, '[]'::jsonb) AS "courseFacts",
       latest_course.course_grade AS "courseGrade",
@@ -126,6 +130,15 @@ export async function loadStudentRosterEnrichment(args: {
         candidate.activity_at DESC
       LIMIT 1
     ) progress_program ON TRUE
+    LEFT JOIN LATERAL (
+      SELECT ce.curriculum_version
+      FROM course_enrollments ce
+      WHERE ce.user_id = u.id
+        AND progress_program.program_slug IS NOT NULL
+        AND ${canonicalEnrollmentProgram} = ${canonicalProgressProgram}
+      ORDER BY ce.is_primary DESC, ce.enrolled_at DESC, ce.id DESC
+      LIMIT 1
+    ) enrollment_assignment ON TRUE
     LEFT JOIN LATERAL (
       SELECT JSONB_AGG(
         JSONB_BUILD_OBJECT(
@@ -181,13 +194,15 @@ export async function loadStudentRosterEnrichment(args: {
       };
     }
 
-    const cacheKey = `${row.organizationId}:${canonicalProgramSlug}`;
+    const curriculumVersion = row.curriculumVersion || 'legacy-v1';
+    const cacheKey = `${row.organizationId}:${canonicalProgramSlug}:${curriculumVersion}`;
     let validatedCourses = validatedLists.get(cacheKey);
     if (!validatedCourses) {
       try {
         validatedCourses = (await loadValidatedProgramCourses({
           organizationId: row.organizationId,
           programSlug: canonicalProgramSlug,
+          curriculumVersion,
           checkB4BContents: false,
         })).courses;
       } catch (error) {
@@ -195,7 +210,10 @@ export async function loadStudentRosterEnrichment(args: {
           '[admin/studentsRosterEnrichment] validated list unavailable; using board catalog:',
           error instanceof Error ? error.message : 'unknown catalog error',
         );
-        validatedCourses = program.courses;
+        validatedCourses = getProgramCoursesForCurriculumVersion(
+          program,
+          curriculumVersion,
+        );
       }
       validatedLists.set(cacheKey, validatedCourses);
     }

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async () => {
@@ -33,6 +34,10 @@ export const GET = withApiGuc(async () => {
           fullName: true,
           email: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          },
           enrolledAt: true,
           updatedAt: true,
           deletedAt: true,
@@ -56,13 +61,23 @@ export const GET = withApiGuc(async () => {
     .map((ms) => {
       seen.add(ms.member.id);
       const m = ms.member;
-      const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-      const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+      const assignment = resolveTrainingProgressAssignment(
+        m.enrolledProgram,
+        m.courseEnrollments,
+      );
+      const program = assignment.programSlug ? getProgramBySlug(assignment.programSlug) : null;
+      const pct = memberProgramProgressPct({
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
+        coursesCompleted: null,
+        liveProgress: m.memberProgramProgress,
+      });
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,
         email: m.email,
-        enrolledProgram: m.enrolledProgram,
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
         enrolledAt: m.enrolledAt,
         assessmentCompleted: m.assessmentCompleted,
           deletedAt: m.deletedAt,
@@ -76,7 +91,7 @@ export const GET = withApiGuc(async () => {
         id: m.id,
         fullName: m.fullName,
         email: m.email,
-        enrolledProgram: program?.title ?? m.enrolledProgram,
+        enrolledProgram: program?.title ?? assignment.programSlug,
         enrolledAt: m.enrolledAt,
         progressPct: pct,
         stage: PIPELINE_STAGE_LABELS[stage],

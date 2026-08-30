@@ -13,6 +13,8 @@ import {
 import { createCourseraLaunchHandler } from '@/lib/coursera/launchRouteCore';
 import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { getProgramCurriculumManifest } from '@/lib/content/programCurriculumManifest';
 
 const courseraLaunchHandler = createCourseraLaunchHandler({
   getUser,
@@ -21,6 +23,9 @@ const courseraLaunchHandler = createCourseraLaunchHandler({
     select: {
       enrolledProgram: true,
       organizationId: true,
+      courseEnrollments: {
+        select: { programSlug: true, curriculumVersion: true },
+      },
       courseProgress: {
         where: { status: 'COMPLETED' },
         select: { programSlug: true, courseSlug: true },
@@ -50,7 +55,20 @@ const courseraLaunchHandler = createCourseraLaunchHandler({
     orderBy: { displayOrder: 'asc' },
     select: { courseraSlug: true, courseraUrlType: true },
   }),
-  getProgramBySlug: (programSlug: string) => getCatalogProgramBySlug(programSlug) ?? null,
+  getProgramBySlug: (programSlug: string, curriculumVersion?: string) => {
+    const program = getCatalogProgramBySlug(programSlug);
+    return program
+      ? {
+          ...program,
+          courses: getProgramCoursesForCurriculumVersion(
+            program,
+            curriculumVersion ?? 'legacy-v1',
+          ),
+        }
+      : null;
+  },
+  getApprovedCurriculumTrack: (programSlug: string, curriculumVersion: string) =>
+    getProgramCurriculumManifest(programSlug, curriculumVersion)?.externalTrack ?? null,
   getFirstIncompleteCourseIndex,
   getCourseraConfig,
   buildCourseraLaunchUrl,

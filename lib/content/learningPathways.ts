@@ -1,4 +1,5 @@
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 export type LearningPathway = {
   id: string;
@@ -63,13 +64,16 @@ function deriveEstimatedWeeks(duration: string): number {
 }
 
 /** Build a pathway directly from a program's metadata — id is the program slug. */
-function buildProgramPathway(program: Program): LearningPathway {
+function buildProgramPathway(
+  program: Program,
+  courses: Program['courses'] = program.courses,
+): LearningPathway {
   return {
     id: program.slug,
     title: program.title,
     description: `${program.categoryLabel} pathway · ${program.partner}`,
     category: program.categoryLabel,
-    steps: program.courses.map((c) => c.name),
+    steps: courses.map((c) => c.name),
     estimatedWeeks: deriveEstimatedWeeks(program.duration),
   };
 }
@@ -80,11 +84,16 @@ function buildProgramPathway(program: Program): LearningPathway {
  * must render an empty/enroll-prompt state rather than a default pathway,
  * since a default would mislead members into a path they did not choose.
  */
-export function getPathwayForProgram(programSlug: string | null): LearningPathway | null {
+export function getPathwayForProgram(
+  programSlug: string | null,
+  curriculumVersion: string | null | undefined,
+): LearningPathway | null {
   if (!programSlug) return null;
   const program = getProgramBySlug(programSlug);
-  if (!program || program.courses.length === 0) return null;
-  return buildProgramPathway(program);
+  if (!program) return null;
+  const courses = getProgramCoursesForCurriculumVersion(program, curriculumVersion);
+  if (courses.length === 0) return null;
+  return buildProgramPathway(program, courses);
 }
 
 /** Look up a pathway by id — checks both program-derived and category pathways. */

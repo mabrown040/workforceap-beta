@@ -8,7 +8,11 @@ import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminJobReadyTable, { type JobReadyRow } from '@/components/admin/AdminJobReadyTable';
 import MembersListNav from '@/components/admin/MembersListNav';
-import { computeTrainingProgress, JOB_READY_TRAINING_PCT } from '@/lib/member/trainingProgress';
+import {
+  computeTrainingProgress,
+  JOB_READY_TRAINING_PCT,
+  resolveTrainingProgressAssignment,
+} from '@/lib/member/trainingProgress';
 import { loadJobReadyProgressPage } from '@/lib/admin/jobReadyCandidates';
 import { SUPPORTED_PROGRAM_STORAGE_VALUES } from '@/lib/content/programs';
 
@@ -53,6 +57,10 @@ export default async function AdminJobReadyPage({
           email: true,
           phone: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          },
           interviewEligible: true,
         },
       }))
@@ -63,13 +71,22 @@ export default async function AdminJobReadyPage({
     .flatMap((progressRow) => {
       const c = candidateById.get(progressRow.userId);
       if (!c) return [];
-      const progress = computeTrainingProgress(c.enrolledProgram, null, progressRow);
+      const assignment = resolveTrainingProgressAssignment(
+        c.enrolledProgram,
+        c.courseEnrollments,
+      );
+      const progress = computeTrainingProgress({
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
+        coursesCompleted: null,
+        liveProgress: progressRow,
+      });
       return {
         id: c.id,
         fullName: c.fullName ?? c.email,
         email: c.email,
         phone: c.phone,
-        enrolledProgram: c.enrolledProgram,
+        enrolledProgram: assignment.programSlug ?? c.enrolledProgram,
         trainingPct: progress.pct,
         completedCount: progress.completedCount,
         totalCourses: progress.totalCourses,

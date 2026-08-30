@@ -7,6 +7,9 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { buildAssignableProgramOptions } from '@/lib/admin/assignableProgramOptions';
 import { calculateFitScore } from '@/lib/admin/fitScore';
@@ -141,7 +144,7 @@ export default async function AdminMembersPage({
         // on `enrolledProgram`) and so filtering by program matches
         // secondary-enrolled members too.
         courseEnrollments: {
-          select: { programSlug: true, isPrimary: true },
+          select: { programSlug: true, curriculumVersion: true, isPrimary: true },
         },
         profile: {
           select: {
@@ -218,7 +221,7 @@ export default async function AdminMembersPage({
     })),
     // Canonical completed-course count from `course_progress` (includes CSV-promoted Coursera rows).
     prisma.courseProgress.groupBy({
-      by: ['userId'],
+      by: ['userId', 'programSlug'],
       where: { userId: { in: pageMemberIds }, status: 'COMPLETED' },
       _count: { _all: true },
     }),
@@ -264,7 +267,11 @@ export default async function AdminMembersPage({
   const canonicalCompletionMap: Map<string, number> = new Map();
   if (canonicalCompletionsResult.status === 'fulfilled') {
     for (const row of canonicalCompletionsResult.value) {
-      canonicalCompletionMap.set(row.userId, row._count._all);
+      const key = `${row.userId}:${canonicalizeProgramSlug(row.programSlug)}`;
+      canonicalCompletionMap.set(
+        key,
+        Math.max(canonicalCompletionMap.get(key) ?? 0, row._count._all),
+      );
     }
   } else {
     console.error('[admin/members] canonical course_progress count failed', canonicalCompletionsResult.reason);
@@ -273,7 +280,10 @@ export default async function AdminMembersPage({
   const programProgressMap: Map<string, { averagePercent: number; coursesCompleted: number; lastUpdatedAt: Date }> = new Map();
   if (programProgressResult.status === 'fulfilled') {
     for (const row of programProgressResult.value) {
-      programProgressMap.set(`${row.userId}:${row.programSlug}`, {
+      const key = `${row.userId}:${canonicalizeProgramSlug(row.programSlug)}`;
+      const existing = programProgressMap.get(key);
+      if (existing && existing.lastUpdatedAt >= row.lastUpdatedAt) continue;
+      programProgressMap.set(key, {
         averagePercent: row.averagePercent,
         coursesCompleted: row.coursesCompleted,
         lastUpdatedAt: row.lastUpdatedAt,
@@ -311,13 +321,30 @@ export default async function AdminMembersPage({
         })
       : undefined;
 
-    const canonicalCount = canonicalCompletionMap.get(m.id) ?? 0;
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
+    const activeProgramSlug = assignment.programSlug;
+    const curriculumVersion = assignment.curriculumVersion;
+    const canonicalCount = activeProgramSlug
+      ? canonicalCompletionMap.get(
+          `${m.id}:${canonicalizeProgramSlug(activeProgramSlug)}`,
+        ) ?? 0
+      : 0;
     // The table only uses .length when no live rollup exists, so a length-stub list is sufficient.
     const coursesCompletedDisplay = new Array(canonicalCount).fill('') as string[];
 
-    const programTitle = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null;
-    const totalCourses = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0;
-    const liveProgress = m.enrolledProgram ? programProgressMap.get(`${m.id}:${m.enrolledProgram}`) ?? null : null;
+    const activeProgram = activeProgramSlug ? getProgramBySlug(activeProgramSlug) : null;
+    const programTitle = activeProgram?.title ?? null;
+    const totalCourses = activeProgram && curriculumVersion
+      ? getProgramCoursesForCurriculumVersion(activeProgram, curriculumVersion).length
+      : 0;
+    const liveProgress = activeProgramSlug
+      ? programProgressMap.get(
+          `${m.id}:${canonicalizeProgramSlug(activeProgramSlug)}`,
+        ) ?? null
+      : null;
     const activeCourses = activeCourseCountMap.get(m.id) ?? 0;
 
     // Multi-program-aware: surface every program slug the learner has an

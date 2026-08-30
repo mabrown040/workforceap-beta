@@ -9,6 +9,7 @@ import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation'
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { EVENT_LABELS, getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 
 /**
  * Kit-default `/dashboard` home loader (SCALE Phase 2).
@@ -121,7 +122,7 @@ type DashboardUserRow = {
       courseraSlug: string | null;
     }>;
   };
-  courseEnrollments: Array<{ programSlug: string }>;
+  courseEnrollments: Array<{ programSlug: string; curriculumVersion?: string }>;
   courseProgress: Array<{
     programSlug: string;
     courseSlug: string;
@@ -329,17 +330,20 @@ function shapeHome(args: {
         programSlugsEquivalent(course.programSlug, slug),
       )
     : [];
-  const validatedCourses = program?.syllabus && !program.curriculumMigrationPending
-    ? program.courses
-    : courseDbRows.length > 0
-      ? courseDbRows.map((course) => ({
-          slug: course.courseSlug,
-          name: course.name,
-          estimatedHours: course.estimatedHours ?? 10,
-          courseraCourseId: course.courseraCourseId ?? undefined,
-          courseraSlug: course.courseraSlug ?? undefined,
-        }))
-      : (program?.courses ?? []);
+  const pinnedCurriculumVersion = args.row.courseEnrollments[0]?.curriculumVersion;
+  const validatedCourses = program && pinnedCurriculumVersion
+    ? getProgramCoursesForCurriculumVersion(program, pinnedCurriculumVersion)
+    : program?.syllabus && !program.curriculumMigrationPending
+      ? program.courses
+      : courseDbRows.length > 0
+        ? courseDbRows.map((course) => ({
+            slug: course.courseSlug,
+            name: course.name,
+            estimatedHours: course.estimatedHours ?? 10,
+            courseraCourseId: course.courseraCourseId ?? undefined,
+            courseraSlug: course.courseraSlug ?? undefined,
+          }))
+        : (program?.courses ?? []);
   const matchingCourseProgress = slug
     ? args.row.courseProgress.filter((row) =>
         programSlugsEquivalent(row.programSlug, slug),
@@ -440,7 +444,7 @@ function userSelect() {
     courseEnrollments: {
       where: { isPrimary: true },
       take: 1,
-      select: { programSlug: true },
+      select: { programSlug: true, curriculumVersion: true },
     },
     courseProgress: {
       orderBy: [{ lastActivityAt: 'desc' as const }, { lastUpdatedAt: 'desc' as const }],

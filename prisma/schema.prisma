@@ -1748,6 +1748,11 @@ model CourseEnrollment {
   organizationId    String   @map("organization_id")
   userId            String   @map("user_id")
   programSlug       String   @map("program_slug")
+  /// Immutable curriculum assignment for this learner/program enrollment.
+  /// Existing and provider-discovered rows fail closed to legacy-v1; normal
+  /// assignment code stamps a newer version only after its external track is
+  /// validated. Never change this field as part of an enrollment retry/upsert.
+  curriculumVersion String   @default("legacy-v1") @map("curriculum_version")
   /// At most one row per user has `isPrimary = true` (enforced by partial
   /// unique index `course_enrollments_user_primary_uidx`). Mirrors what
   /// /dashboard/training defaults to. xAPI ingest resolves program slug from
@@ -1776,6 +1781,7 @@ model CourseEnrollment {
   @@unique([userId, programSlug])
   @@index([organizationId])
   @@index([programSlug])
+  @@index([programSlug, curriculumVersion])
   @@index([userId, isPrimary])
   @@index([enrolledByAdminId])
   @@index([sponsoredByPartnerId])
@@ -2459,8 +2465,9 @@ model CourseraCourseProgress {
 ///
 /// Resolution order at read time is: this table first (most-recently-edited
 /// row per courseraCourseId wins), then the static `courseraCourseId` field
-/// on the program-def fallback. So an admin can override a static mapping
-/// without redeploying.
+/// on the program-def fallback. This legacy table remains one-to-one for
+/// backward compatibility; new immutable curricula use the versioned table
+/// below.
 model CourseraCanonicalCourseMapping {
   id                   String   @id @default(uuid())
   courseraCourseId     String   @unique @map("coursera_course_id")
@@ -2478,6 +2485,28 @@ model CourseraCanonicalCourseMapping {
   @@index([canonicalCourseSlug])
   @@index([createdById])
   @@map("coursera_canonical_course_mappings")
+}
+
+/// Immutable provider bindings for a specific WorkforceAP curriculum.
+/// Unlike the legacy admin mapping table above, one provider ID can safely
+/// belong to multiple programs and versions. Selection must be intersected
+/// with the learner's CourseEnrollment curriculum assignment.
+model CourseraCurriculumCourseMapping {
+  id                   String   @id @default(uuid()) @db.Uuid
+  courseraCourseId     String   @map("coursera_course_id")
+  courseraCourseSlug   String?  @map("coursera_course_slug")
+  canonicalProgramSlug String   @map("canonical_program_slug")
+  curriculumVersion    String   @map("curriculum_version")
+  canonicalCourseSlug  String   @map("canonical_course_slug")
+  notes                String?  @map("notes")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@unique([courseraCourseId, canonicalProgramSlug, curriculumVersion], map: "coursera_curriculum_mapping_id_program_version_key")
+  @@index([courseraCourseId])
+  @@index([canonicalProgramSlug, curriculumVersion])
+  @@index([canonicalCourseSlug])
+  @@map("coursera_curriculum_course_mappings")
 }
 
 /// Identity bridge from a Coursera learner (by Coursera email or xAPI actor)

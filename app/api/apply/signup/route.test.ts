@@ -99,6 +99,7 @@ vi.mock('@/lib/db/prisma', () => {
       findUnique: vi.fn(async () => null),
     },
     courseEnrollment: {
+      findMany: vi.fn(async () => []),
       upsert: vi.fn(async (args: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
         state.enrollmentUpserts.push(args);
         return {};

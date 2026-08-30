@@ -1,6 +1,7 @@
 import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import type { FunderProgramSummaryRow } from '@/lib/admin/funderProgramSummaryCsv';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
 import { Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/db/prisma';
@@ -37,6 +38,9 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
         select: {
           id: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            select: { programSlug: true, curriculumVersion: true },
+          },
           memberProgramProgress: {
             select: { programSlug: true, coursesCompleted: true },
           },
@@ -91,7 +95,22 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
     agg.totalEnrolled += 1;
     if (active30dSet.has(u.id)) agg.activeLast30d += 1;
 
-    if (hasValidatedProgramCompletion(slug, u.memberProgramProgress)) {
+    const canonicalSlug = getProgramBySlug(slug)?.slug ?? slug;
+    const assignment = u.courseEnrollments.find(
+      (enrollment) =>
+        (getProgramBySlug(enrollment.programSlug)?.slug ?? enrollment.programSlug)
+          === canonicalSlug,
+    );
+    const completionProgramSlug = assignment?.programSlug ?? slug;
+    const completionCurriculumVersion = assignment?.curriculumVersion
+      ?? (u.courseEnrollments.length === 0 ? LEGACY_CURRICULUM_VERSION : null);
+    if (
+      hasValidatedProgramCompletion(
+        completionProgramSlug,
+        completionCurriculumVersion,
+        u.memberProgramProgress,
+      )
+    ) {
       agg.completed += 1;
     }
 

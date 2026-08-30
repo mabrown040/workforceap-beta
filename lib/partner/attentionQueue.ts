@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 
 export type RiskTier = 'high' | 'medium' | 'low' | 'watch';
 
@@ -52,6 +53,10 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
           id: true,
           fullName: true,
           enrolledProgram: true,
+          courseEnrollments: {
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          },
           enrolledAt: true,
           updatedAt: true,
           deletedAt: true,
@@ -94,11 +99,16 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
 
   for (const r of referrals) {
     const m = r.member;
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
     const student: PipelineStudent = {
       id: m.id,
       fullName: m.fullName,
       email: '',
-      enrolledProgram: m.enrolledProgram,
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: m.assessmentCompleted,
       deletedAt: m.deletedAt,
@@ -112,7 +122,7 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
 
     const staleDays = staleDaysSince(m.updatedAt);
     const riskTier = computeRiskTier(staleDays);
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
+    const program = assignment.programSlug ? getProgramBySlug(assignment.programSlug) : null;
 
     rows.push({
       memberId: m.id,

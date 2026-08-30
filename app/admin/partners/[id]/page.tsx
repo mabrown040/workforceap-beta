@@ -14,6 +14,7 @@ import PartnerSchoolConfigCard from '@/components/admin/PartnerSchoolConfigCard'
 import { isSchoolManagedPartner } from '@/lib/partner/adminSchoolPartner';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
 import PartnerPayoutsPanel, { type PayoutRow } from '@/components/admin/PartnerPayoutsPanel';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
@@ -75,6 +76,10 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
               fullName: true,
               email: true,
               enrolledProgram: true,
+              courseEnrollments: {
+                orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+                select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+              },
               enrolledAt: true,
               assessmentCompleted: true,
               deletedAt: true,
@@ -160,9 +165,18 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   let placements = 0;
   let active = 0;
   for (const m of members) {
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
     if (m.placementRecord) placements++;
     else active++;
-    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) {
+    if (memberProgramCompleted({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: m.memberProgramProgress,
+    })) {
       completions++;
     }
   }
@@ -192,7 +206,11 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       header: 'Program',
       render: (ref) => {
         const m = ref.member;
-        const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
+        const assignment = resolveTrainingProgressAssignment(
+          m.enrolledProgram,
+          m.courseEnrollments,
+        );
+        const program = assignment.programSlug ? getProgramBySlug(assignment.programSlug) : null;
         return program?.title ?? '—';
       },
     },
@@ -201,7 +219,16 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       header: 'Progress',
       render: (ref) => {
         const m = ref.member;
-        const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+        const assignment = resolveTrainingProgressAssignment(
+          m.enrolledProgram,
+          m.courseEnrollments,
+        );
+        const pct = memberProgramProgressPct({
+          enrolledProgram: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
+          coursesCompleted: null,
+          liveProgress: m.memberProgramProgress,
+        });
         return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{pct}%</span>;
       },
     },
@@ -210,11 +237,16 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       header: 'Status',
       render: (ref) => {
         const m = ref.member;
+        const assignment = resolveTrainingProgressAssignment(
+          m.enrolledProgram,
+          m.courseEnrollments,
+        );
         const student: PipelineStudent = {
           id: m.id,
           fullName: m.fullName,
           email: m.email,
-          enrolledProgram: m.enrolledProgram,
+          enrolledProgram: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
           enrolledAt: m.enrolledAt,
           assessmentCompleted: m.assessmentCompleted,
           deletedAt: m.deletedAt,

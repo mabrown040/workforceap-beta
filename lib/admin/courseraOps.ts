@@ -2,9 +2,13 @@ import 'server-only';
 
 import { CourseProgressStatus } from '@prisma/client';
 
-import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  canonicalizeProgramSlug,
+  programSlugsEquivalent,
+} from '@/lib/content/programSlug';
 import { prisma } from '@/lib/db/prisma';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 
 export type XapiStatementAttentionRow = {
@@ -164,6 +168,7 @@ export type CourseProgressAuditRow = {
 export type ProgramProgressAuditRollup = {
   programSlug: string;
   programTitle: string | null;
+  curriculumVersion: string;
   catalogCourseCount: number;
   coursesCompleted: number;
   averagePercent: number;
@@ -182,39 +187,64 @@ export type MemberProgressAuditResult =
       rollups: ProgramProgressAuditRollup[];
     };
 
-function catalogCourseCountForProgram(programSlug: string): number {
-  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
-  const program = getProgramBySlug(programSlug);
-  return disc?.courses.length ?? program?.courses.length ?? 0;
-}
-
 function rollupFromCourseRows(
   programSlug: string,
+  curriculumVersion: string,
   rows: CourseProgressAuditRow[]
 ): Omit<ProgramProgressAuditRollup, 'programSlug' | 'programTitle' | 'fromMemberProgramProgress'> {
-  const totalCourses = catalogCourseCountForProgram(programSlug);
-  const inProgram = rows.filter((r) => r.programSlug === programSlug);
+  const program = getProgramBySlug(programSlug);
+  const assignedCourses = program
+    ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
+    : [];
+  const assignedCourseSlugs = new Set(assignedCourses.map((course) => course.slug));
+  const totalCourses = assignedCourses.length;
+  const inProgram = rows.filter((r) =>
+    programSlugsEquivalent(r.programSlug, programSlug)
+    && assignedCourseSlugs.has(r.courseSlug),
+  );
   const completed = inProgram.filter((r) => r.status === CourseProgressStatus.COMPLETED).length;
   const sumPercent = inProgram.reduce((acc, r) => acc + r.percentComplete, 0);
   const averagePercent = totalCourses > 0 ? Math.round(sumPercent / totalCourses) : 0;
   return {
+    curriculumVersion,
     catalogCourseCount: totalCourses,
     coursesCompleted: completed,
     averagePercent,
   };
 }
 
-export async function loadMemberProgressAuditByEmail(email: string): Promise<MemberProgressAuditResult> {
+export async function loadMemberProgressAuditByEmail(
+  email: string,
+  options: {
+    /**
+     * Org admins must supply their tenant. `null` is an explicit platform
+     * super-admin support scope; callers may not accidentally omit the
+     * tenant filter.
+     */
+    organizationId: string | null;
+  },
+): Promise<MemberProgressAuditResult> {
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { found: false };
 
   const user = await prisma.user.findFirst({
-    where: { deletedAt: null, email: { equals: normalized, mode: 'insensitive' } },
+    where: {
+      deletedAt: null,
+      email: { equals: normalized, mode: 'insensitive' },
+      ...(options.organizationId ? { organizationId: options.organizationId } : {}),
+    },
     select: {
       id: true,
       email: true,
       fullName: true,
       enrolledProgram: true,
+      courseEnrollments: {
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+        },
+      },
     },
   });
 
@@ -243,6 +273,7 @@ export async function loadMemberProgressAuditByEmail(email: string): Promise<Mem
         programSlug: true,
         coursesCompleted: true,
         averagePercent: true,
+        lastUpdatedAt: true,
       },
     }),
   ]);
@@ -258,17 +289,35 @@ export async function loadMemberProgressAuditByEmail(email: string): Promise<Mem
   }));
 
   const programSlugs = new Set<string>();
-  for (const r of courseRows) programSlugs.add(r.programSlug);
-  for (const r of storedRollups) programSlugs.add(r.programSlug);
+  for (const r of courseRows) programSlugs.add(canonicalizeProgramSlug(r.programSlug));
+  for (const r of storedRollups) programSlugs.add(canonicalizeProgramSlug(r.programSlug));
 
   const rollups: ProgramProgressAuditRollup[] = [...programSlugs].sort().map((programSlug) => {
     const program = getProgramBySlug(programSlug);
-    const stored = storedRollups.find((s) => s.programSlug === programSlug);
-    const computed = rollupFromCourseRows(programSlug, courseRows);
+    const enrollment = user.courseEnrollments
+      .filter((row) => programSlugsEquivalent(row.programSlug, programSlug))
+      .sort((a, b) => {
+        const primaryPreference = Number(b.isPrimary) - Number(a.isPrimary);
+        if (primaryPreference !== 0) return primaryPreference;
+        return Number(b.programSlug === programSlug) - Number(a.programSlug === programSlug);
+      })[0] ?? null;
+    // Users predating CourseEnrollment remain explicitly pinned to legacy-v1;
+    // the audit must never infer an approved curriculum from progress counts.
+    const curriculumVersion = enrollment?.curriculumVersion ?? 'legacy-v1';
+    const stored = storedRollups
+      .filter((row) => programSlugsEquivalent(row.programSlug, programSlug))
+      .sort((a, b) => {
+        const canonicalPreference = Number(b.programSlug === programSlug)
+          - Number(a.programSlug === programSlug);
+        if (canonicalPreference !== 0) return canonicalPreference;
+        return b.lastUpdatedAt.getTime() - a.lastUpdatedAt.getTime();
+      })[0];
+    const computed = rollupFromCourseRows(programSlug, curriculumVersion, courseRows);
     if (stored) {
       return {
         programSlug,
         programTitle: program?.title ?? programSlug,
+        curriculumVersion,
         catalogCourseCount: computed.catalogCourseCount,
         coursesCompleted: stored.coursesCompleted,
         averagePercent: stored.averagePercent,
@@ -278,6 +327,7 @@ export async function loadMemberProgressAuditByEmail(email: string): Promise<Mem
     return {
       programSlug,
       programTitle: program?.title ?? programSlug,
+      curriculumVersion,
       catalogCourseCount: computed.catalogCourseCount,
       coursesCompleted: computed.coursesCompleted,
       averagePercent: computed.averagePercent,

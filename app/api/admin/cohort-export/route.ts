@@ -3,6 +3,12 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import {
+  getValidatedProgramCompletionSpec,
+  VALIDATED_PROGRAM_COMPLETION_SPECS,
+} from '@/lib/reporting/programCompletion';
 import { buildCsv, csvDate } from '@/lib/csv';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { auditLog } from '@/lib/audit';
@@ -35,6 +41,14 @@ export const GET = withApiGuc(async (req: NextRequest) => {
     );
   }
 
+  const programStorageValues = Array.from(
+    new Set(
+      VALIDATED_PROGRAM_COMPLETION_SPECS
+        .filter((spec) => spec.canonicalSlug === program.slug)
+        .flatMap((spec) => spec.storageValues),
+    ),
+  );
+
   try {
   const EXPORT_LIMIT = 10_000;
   // Strict member filter: WIOA / funder cohort exports must never include
@@ -43,7 +57,13 @@ export const GET = withApiGuc(async (req: NextRequest) => {
   const users = await prisma.$transaction((tx) => tx.user.findMany({
     where: {
       deletedAt: null,
-      enrolledProgram: slug,
+      OR: [
+        { courseEnrollments: { some: { programSlug: { in: programStorageValues } } } },
+        {
+          enrolledProgram: { in: programStorageValues },
+          courseEnrollments: { none: {} },
+        },
+      ],
       ...(orgId ? { organizationId: orgId } : {}),
       ...MEMBER_ONLY_WHERE,
     },
@@ -55,12 +75,19 @@ export const GET = withApiGuc(async (req: NextRequest) => {
       email: true,
       enrolledAt: true,
       assessmentCompleted: true,
+      courseEnrollments: {
+        where: { programSlug: { in: programStorageValues } },
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        take: 1,
+        select: { programSlug: true, curriculumVersion: true, enrolledAt: true },
+      },
       memberProgramProgress: {
-        where: { programSlug: slug },
-        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+        where: { programSlug: { in: programStorageValues } },
+        orderBy: { lastUpdatedAt: 'desc' },
+        select: { programSlug: true, coursesCompleted: true },
       },
       courseProgress: {
-        where: { programSlug: slug, status: 'COMPLETED' },
+        where: { programSlug: { in: programStorageValues }, status: 'COMPLETED' },
         select: { courseSlug: true },
       },
       assessmentScorePct: true,
@@ -89,8 +116,6 @@ export const GET = withApiGuc(async (req: NextRequest) => {
     },
   }));
 
-  const totalCourses = program.courses.length;
-
   const csvColumns = [
     'Member Name',
     'Email',
@@ -114,9 +139,30 @@ export const GET = withApiGuc(async (req: NextRequest) => {
 
   const csvRows = users.map((u) => {
     const completed = u.courseProgress.map((row) => row.courseSlug);
-    const rollup = u.memberProgramProgress[0] ?? null;
+    const enrollment = u.courseEnrollments[0] ?? null;
+    const rollup =
+      u.memberProgramProgress.find(
+        (row) => row.programSlug === enrollment?.programSlug,
+      )
+      ?? u.memberProgramProgress[0]
+      ?? null;
+    const completionSpec = getValidatedProgramCompletionSpec(
+      enrollment?.programSlug ?? program.slug,
+      enrollment?.curriculumVersion ?? LEGACY_CURRICULUM_VERSION,
+    );
+    const totalCourses = completionSpec?.totalCourses ?? 0;
+    const assignedCourseSlugs = new Set(
+      getProgramCoursesForCurriculumVersion(
+        program,
+        enrollment?.curriculumVersion ?? LEGACY_CURRICULUM_VERSION,
+      ).map((course) => course.slug),
+    );
+    const completedAssignedCourses = new Set(
+      completed.filter((courseSlug) => assignedCourseSlugs.has(courseSlug)),
+    ).size;
+    const coursesCompleted = rollup?.coursesCompleted ?? completedAssignedCourses;
     const completionPct = totalCourses > 0
-      ? Math.max(0, Math.min(100, rollup?.averagePercent ?? Math.round((completed.length / totalCourses) * 100)))
+      ? Math.max(0, Math.min(100, Math.round((coursesCompleted / totalCourses) * 100)))
       : 0;
 
     const p = u.placementRecord;
@@ -145,9 +191,9 @@ export const GET = withApiGuc(async (req: NextRequest) => {
     return [
       u.fullName,
       u.email,
-      csvDate(u.enrolledAt),
+      csvDate(enrollment?.enrolledAt ?? u.enrolledAt),
       slug,
-      completed.length,
+      coursesCompleted,
       totalCourses,
       totalCourses > 0 ? `${completionPct}%` : '',
       u.assessmentCompleted ? 'Yes' : 'No',

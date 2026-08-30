@@ -16,6 +16,8 @@ import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { activeCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { canonicalizeProgramSlug } from '@/lib/content/programSlug';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -64,7 +66,9 @@ const ETHNICITY_OPTIONS = [
     const authorizedToWork = o.authorizedToWork === true || o.authorizedToWork === 'true';
     const hasDisability = o.hasDisability === true || o.hasDisability === 'true';
     const ethnicity = typeof o.ethnicity === 'string' && ETHNICITY_OPTIONS.includes(o.ethnicity) ? o.ethnicity : undefined;
-    const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
+    const programSlug = typeof o.programSlug === 'string'
+      ? canonicalizeProgramSlug(o.programSlug)
+      : '';
     const programNotes = typeof o.programNotes === 'string' ? o.programNotes.trim() : undefined;
     const partnerId =
       typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim()) ? o.partnerId.trim() : undefined;
@@ -194,6 +198,7 @@ const ETHNICITY_OPTIONS = [
             organizationId,
             userId: authUser.id,
             programSlug,
+            curriculumVersion: activeCurriculumVersion(programSlug),
             isPrimary: true,
             enrolledAt,
             enrolledByAdminId: user.id,

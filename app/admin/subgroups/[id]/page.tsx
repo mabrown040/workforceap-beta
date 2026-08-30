@@ -7,6 +7,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import SubgroupMembersTable from '@/components/admin/SubgroupMembersTable';
 
 type Props = { params: Promise<{ id: string }> };
@@ -31,6 +32,10 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
               fullName: true,
               email: true,
               enrolledProgram: true,
+              courseEnrollments: {
+                orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+                select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+              },
               enrolledAt: true,
               deletedAt: true,
               assessmentCompleted: true,
@@ -57,13 +62,23 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
     .filter((ms) => !ms.member.deletedAt)
     .map((ms) => {
       const m = ms.member;
-      const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-      const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+      const assignment = resolveTrainingProgressAssignment(
+        m.enrolledProgram,
+        m.courseEnrollments,
+      );
+      const program = assignment.programSlug ? getProgramBySlug(assignment.programSlug) : null;
+      const pct = memberProgramProgressPct({
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
+        coursesCompleted: null,
+        liveProgress: m.memberProgramProgress,
+      });
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,
         email: m.email,
-        enrolledProgram: m.enrolledProgram,
+        enrolledProgram: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
         enrolledAt: m.enrolledAt,
         assessmentCompleted: m.assessmentCompleted,
         deletedAt: m.deletedAt,
@@ -77,7 +92,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
         id: m.id,
         fullName: m.fullName,
         email: m.email,
-        enrolledProgram: program?.title ?? m.enrolledProgram,
+        enrolledProgram: program?.title ?? assignment.programSlug,
         enrolledAt: m.enrolledAt,
         progressPct: pct,
         stage: PIPELINE_STAGE_LABELS[stage],
@@ -92,7 +107,16 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
   for (const m of subgroup.members.map((ms) => ms.member)) {
     if (m.deletedAt) continue;
     if (m.placementRecord) placements++;
-    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) completions++;
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
+    if (memberProgramCompleted({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: m.memberProgramProgress,
+    })) completions++;
   }
 
   return (

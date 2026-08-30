@@ -11,7 +11,9 @@ test('admin Coursera renders org-scoped catalog health and its accuracy classes'
 
   assert.match(page, /loadValidatedProgramCatalog\(\{ organizationId: scope\.orgId \}\)/);
   assert.match(page, /<CourseraCatalogHealthSection/);
-  assert.match(page, /Mapped \/ Y/);
+  assert.match(page, /header: 'Coursera mapped'/);
+  assert.match(page, /provider-valid/);
+  assert.match(page, /WorkforceAP \{row\.catalogHealth\.localCourseCount === 1 \? 'lab' : 'labs'\}/);
   assert.match(page, /healthy empty/);
   assert.match(page, /Stale IDs/);
   assert.match(page, /Wrong type/);

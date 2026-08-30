@@ -63,3 +63,27 @@ test('paid admin enrollment follows the primary CourseEnrollment', () => {
   assert.match(source, /triggerAutoSyncBestEffort\(\{[\s\S]{0,220}enrolledProgram,/);
   assert.doesNotMatch(source, /DISCOVERED_COURSERA_PROGRAMS\[member\.enrolledProgram\]/);
 });
+
+test('legacy Coursera progress audit cannot cross tenants for an org admin', () => {
+  const pageSource = readFileSync(
+    join(process.cwd(), 'app/admin/coursera/page.tsx'),
+    'utf8',
+  );
+  const helperSource = readFileSync(
+    join(process.cwd(), 'lib/admin/courseraOps.ts'),
+    'utf8',
+  );
+
+  assert.match(
+    pageSource,
+    /loadMemberProgressAuditByEmail\(auditEmailRaw,\s*\{[\s\S]{0,240}organizationId:\s*scope\.superAdmin\s*\?\s*null\s*:\s*scope\.orgId/,
+  );
+  assert.match(
+    helperSource,
+    /options:\s*\{[\s\S]{0,220}organizationId:\s*string\s*\|\s*null/,
+  );
+  assert.match(
+    helperSource,
+    /\.\.\.\(options\.organizationId\s*\?\s*\{\s*organizationId:\s*options\.organizationId\s*\}\s*:\s*\{\}\)/,
+  );
+});

@@ -75,6 +75,7 @@ export async function getActiveProgramForDashboard(args: {
         select: {
           id: true,
           programSlug: true,
+          curriculumVersion: true,
           isPrimary: true,
           enrolledAt: true,
         },

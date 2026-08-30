@@ -16,6 +16,10 @@ import {
   memberProgramProgressPct,
 } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import {
+  resolveTrainingProgressAssignment,
+  resolveTrainingProgressCurriculumVersion,
+} from '@/lib/member/trainingProgress';
 import { summarizeRetentionGroups, type RetentionSummary } from './retentionOutcome';
 
 export interface QuarterSpec {
@@ -207,7 +211,12 @@ export async function generatePartnerQuarterlyOutcomes(
               select: { programSlug: true, averagePercent: true, coursesCompleted: true },
             },
             courseEnrollments: {
-              select: { programSlug: true, enrolledAt: true },
+              select: {
+                programSlug: true,
+                curriculumVersion: true,
+                isPrimary: true,
+                enrolledAt: true,
+              },
             },
             courseProgress: {
               select: { percentComplete: true, completedAt: true },
@@ -237,7 +246,16 @@ export async function generatePartnerQuarterlyOutcomes(
   // Determine completions
   let completions = 0;
   for (const m of members) {
-    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) {
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
+    if (memberProgramCompleted({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: m.memberProgramProgress,
+    })) {
       completions++;
     }
   }
@@ -248,18 +266,38 @@ export async function generatePartnerQuarterlyOutcomes(
 
   // Active = enrolled, not placed, not completed, has started training
   const activeMembers = members.filter(
-    (m) =>
-      m.placementRecord == null &&
-      !memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress) &&
-      m.courseProgress.some((cp) => cp.percentComplete > 0)
+    (m) => {
+      const assignment = resolveTrainingProgressAssignment(
+        m.enrolledProgram,
+        m.courseEnrollments,
+      );
+      return m.placementRecord == null &&
+        !memberProgramCompleted({
+          enrolledProgram: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
+          coursesCompleted: null,
+          liveProgress: m.memberProgramProgress,
+        }) &&
+        m.courseProgress.some((cp) => cp.percentComplete > 0);
+    }
   );
 
   // Drop-off = enrolled, not placed, not completed, and never started training
   const dropOffMembers = members.filter(
-    (m) =>
-      m.placementRecord == null &&
-      !memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress) &&
-      !m.courseProgress.some((cp) => cp.percentComplete > 0)
+    (m) => {
+      const assignment = resolveTrainingProgressAssignment(
+        m.enrolledProgram,
+        m.courseEnrollments,
+      );
+      return m.placementRecord == null &&
+        !memberProgramCompleted({
+          enrolledProgram: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
+          coursesCompleted: null,
+          liveProgress: m.memberProgramProgress,
+        }) &&
+        !m.courseProgress.some((cp) => cp.percentComplete > 0);
+    }
   );
 
   // Salary stats
@@ -302,14 +340,22 @@ export async function generatePartnerQuarterlyOutcomes(
   }
 
   for (const m of members) {
-    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) {
-      const slugs =
-        m.courseEnrollments.length > 0
-          ? Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug)))
-          : m.enrolledProgram
-            ? [m.enrolledProgram]
-            : [];
-      for (const slug of slugs) {
+    const slugs =
+      m.courseEnrollments.length > 0
+        ? Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug)))
+        : m.enrolledProgram
+          ? [m.enrolledProgram]
+          : [];
+    for (const slug of slugs) {
+      if (memberProgramCompleted({
+        enrolledProgram: slug,
+        curriculumVersion: resolveTrainingProgressCurriculumVersion(
+          slug,
+          m.courseEnrollments,
+        ),
+        coursesCompleted: null,
+        liveProgress: m.memberProgramProgress,
+      })) {
         const cur = programMap.get(slug) ?? {
           programSlug: slug,
           enrolled: 0,
@@ -345,11 +391,16 @@ export async function generatePartnerQuarterlyOutcomes(
 
   // Members list with status
   const membersList = members.map((m) => {
+    const assignment = resolveTrainingProgressAssignment(
+      m.enrolledProgram,
+      m.courseEnrollments,
+    );
     const student: PipelineStudent = {
       id: m.id,
       fullName: m.fullName,
       email: m.email,
-      enrolledProgram: m.enrolledProgram,
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: m.assessmentCompleted,
       deletedAt: m.deletedAt,
@@ -361,11 +412,12 @@ export async function generatePartnerQuarterlyOutcomes(
     const stage = getPipelineStage(student);
     const stageLabel = PIPELINE_STAGE_LABELS[stage];
 
-    const progress = memberProgramProgressPct(
-      m.enrolledProgram,
-      null,
-      m.memberProgramProgress
-    );
+    const progress = memberProgramProgressPct({
+      enrolledProgram: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      coursesCompleted: null,
+      liveProgress: m.memberProgramProgress,
+    });
 
     const daysToPlace =
       m.enrolledAt && m.placementRecord?.placedAt
@@ -380,7 +432,9 @@ export async function generatePartnerQuarterlyOutcomes(
       fullName: m.fullName,
       email: m.email,
       enrolledAt: m.enrolledAt ? formatDate(m.enrolledAt) : null,
-      program: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null,
+      program: assignment.programSlug
+        ? getProgramBySlug(assignment.programSlug)?.title ?? assignment.programSlug
+        : null,
       status: stageLabel,
       progress,
       placedAt: m.placementRecord?.placedAt ? formatDate(m.placementRecord.placedAt) : null,

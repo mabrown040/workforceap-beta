@@ -36,7 +36,9 @@ Verify after: each scope shows the correct project ref in the var values.
 ## The guard (make-sure-it-happens)
 
 `scripts/check-supabase-env.mjs` reads `VERCEL_ENV` + the Supabase URLs and **fails the
-build (exit 1)** if a scope is wired to the wrong project:
+build (exit 1)** if a scope is wired to the wrong project. On Vercel, the public,
+pooled, and non-pooled URLs are required, unrecognized targets fail closed, and
+`CI=1` cannot bypass the check:
 - Preview/Development pointing at `jqddnyuszufndwwezdwp` → blocked
 - Production pointing at `esbdrgaonplpvzmtrdhw` → blocked
 
@@ -51,9 +53,32 @@ the build (or run in CI before deploy):
 
 Run locally any time:
 ```bash
-VERCEL_ENV=preview npm run --silent || true   # or:
 node scripts/check-supabase-env.mjs
 ```
+
+## Migration routing
+
+`vercel.json` delegates to `npm run build:vercel`; the checked-in orchestrator
+builds/copies the marketing bundle, then chooses exactly one application path.
+
+- Production runs the complete Prisma migration chain through
+  `npm run build:with-migrate`.
+- Preview normally uses the demo database. While that shared demo project's
+  historical migration ledger is repaired, the Vercel preview build executes
+  only `20260830123000_versioned_approved_coursera_curricula` before the normal
+  application build. This is intentionally narrow; it must not be generalized
+  to arbitrary migrations.
+- `scripts/apply-preview-approved-curriculum-schema.cjs` repeats the project
+  guard, requires `VERCEL_ENV=preview`, uses only the non-pooled demo URL, and
+  never accepts production, local, missing, or unknown targets.
+- The targeted migration is transactional, takes a migration-specific advisory
+  lock, and checks its schema and exact 26-row seed before commit. A second
+  post-commit query fails the build if those invariants are not present.
+
+The targeted preview execution intentionally does not mark Prisma's migration
+ledger. After the demo ledger is repaired, restore previews to the full
+`migrate deploy` path; do not mark old failed migrations applied without first
+proving their intended schema.
 
 ## Verify preview is actually hitting demo
 After the first preview deploy, confirm the running app reports the demo ref (e.g. a

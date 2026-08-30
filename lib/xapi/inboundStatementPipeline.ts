@@ -13,6 +13,7 @@ import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/state
 import { markXapiStatementProcessed } from '@/lib/xapi/storage';
 import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { detectTrainingMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
+import { resolveInboundCourseScopes } from '@/lib/xapi/resolveInboundCourseScopes';
 
 export type InboundStatementRunResult = {
   completions: Array<Record<string, unknown>>;
@@ -98,7 +99,7 @@ export async function handleInboundParsedStatement(
       enrolledProgram: true,
       courseEnrollments: {
         where: options.organizationId ? { organizationId: options.organizationId } : undefined,
-        select: { programSlug: true, isPrimary: true },
+        select: { programSlug: true, curriculumVersion: true, isPrimary: true },
       },
     },
   });
@@ -123,6 +124,17 @@ export async function handleInboundParsedStatement(
   if (!enrolledProgram && (await isAdmin(resolvedUser.userId))) {
     enrolledProgram = await resolveStaffTrainingPreviewProgramSlug(resolvedUser.userId);
   }
+  const enrolledCurriculumVersion = enrolledProgram
+    ? dbUser.courseEnrollments.find(
+        (enrollment) => enrollment.programSlug === enrolledProgram,
+      )?.curriculumVersion ?? 'legacy-v1'
+    : 'legacy-v1';
+  const inboundScopes = await resolveInboundCourseScopes({
+    courseraCourseId: parsed.courseraCourseId,
+    assignments: dbUser.courseEnrollments,
+    fallbackProgramSlug: enrolledProgram,
+    fallbackCurriculumVersion: enrolledCurriculumVersion,
+  });
 
   // Enrollment gates rewards, not persistence. Detached linked learners still
   // keep exact mapped progress below, but must not receive a daily-study point
@@ -134,31 +146,39 @@ export async function handleInboundParsedStatement(
   }
 
   if (!isXapiCompletionVerb(parsed)) {
-    const progress = await upsertCourseProgressFromXapiStatement({
-      userId: resolvedUser.userId,
-      enrolledProgramSlug: enrolledProgram,
-      parsed,
-    });
-    if (progress?.trainingStartedTransition && dbUser?.organizationId) {
-      const validated = await loadValidatedProgramCourses({
-        organizationId: dbUser.organizationId,
-        programSlug: progress.programSlug,
-        checkB4BContents: false,
-      });
-      await detectTrainingMilestone({
+    for (const scope of inboundScopes) {
+      const progress = await upsertCourseProgressFromXapiStatement({
         userId: resolvedUser.userId,
-        milestoneType: 'training_started',
-        milestoneRef: progress.programSlug,
-        programSlug: progress.programSlug,
-        courseSlug: progress.courseSlug,
-        courseName: progress.courseName,
-        completedCount: 0,
-        totalCourses: validated.courses.length,
-        source: 'coursera-webhook',
-        sourceEventId: parsed.statementId,
-      }).catch((error) => {
-        console.warn('[inboundStatementPipeline] training_started detection failed:', error);
+        enrolledProgramSlug: scope.programSlug,
+        curriculumVersion: scope.curriculumVersion,
+        parsed,
       });
+      if (
+        scope.assignmentMatched
+        && progress?.trainingStartedTransition
+        && dbUser.organizationId
+      ) {
+        const validated = await loadValidatedProgramCourses({
+          organizationId: dbUser.organizationId,
+          programSlug: progress.programSlug,
+          checkB4BContents: false,
+          curriculumVersion: scope.curriculumVersion,
+        });
+        await detectTrainingMilestone({
+          userId: resolvedUser.userId,
+          milestoneType: 'training_started',
+          milestoneRef: progress.programSlug,
+          programSlug: progress.programSlug,
+          courseSlug: progress.courseSlug,
+          courseName: progress.courseName,
+          completedCount: 0,
+          totalCourses: validated.courses.length,
+          source: 'coursera-webhook',
+          sourceEventId: parsed.statementId,
+        }).catch((error) => {
+          console.warn('[inboundStatementPipeline] training_started detection failed:', error);
+        });
+      }
     }
     await recordXapiEvent({
       statementId: parsed.statementId,
@@ -176,27 +196,44 @@ export async function handleInboundParsedStatement(
     return { completions };
   }
 
+  let attemptedCompletionTarget = false;
+  let completionFailed = false;
+  let retryableCompletionError: Error | null = null;
   try {
     // Completion orchestration must observe the pre-completion row. Persisting
     // the xAPI statement first would set COMPLETED, trigger the orchestrator's
     // idempotent early return, and silently skip the first completion's
     // email/points/milestone transitions. The orchestrator writes the durable
     // completion first; the xAPI upsert then adds statement/score detail.
-    const result = await completeMemberCourse({
-      userId: resolvedUser.userId,
-      resolvedProgramSlug: enrolledProgram,
-      courseSlug: parsed.courseSlug,
-      courseName: parsed.courseName,
-      courseraCourseId: parsed.courseraCourseId ?? null,
-      source: 'coursera-webhook',
-      notify: enrolledProgram ? undefined : false,
-    });
+    if (inboundScopes.length === 0) throw new Error('Course not found');
+    for (const scope of inboundScopes) {
+      attemptedCompletionTarget = true;
+      const result = await completeMemberCourse({
+        userId: resolvedUser.userId,
+        resolvedProgramSlug: scope.programSlug,
+        courseSlug: parsed.courseSlug,
+        courseName: parsed.courseName,
+        courseraCourseId: parsed.courseraCourseId ?? null,
+        source: 'coursera-webhook',
+        notify: scope.assignmentMatched ? undefined : false,
+      });
 
-    await upsertCourseProgressFromXapiStatement({
-      userId: resolvedUser.userId,
-      enrolledProgramSlug: enrolledProgram,
-      parsed,
-    });
+      await upsertCourseProgressFromXapiStatement({
+        userId: resolvedUser.userId,
+        enrolledProgramSlug: scope.programSlug,
+        curriculumVersion: scope.curriculumVersion,
+        parsed,
+      });
+      const completion = {
+        email: parsed.email,
+        actorIdentifier: parsed.actorIdentifier,
+        statementId: parsed.statementId,
+        matchedUserId: resolvedUser.userId,
+        mappingMethod: resolvedUser.mappingMethod,
+        ...(result as Record<string, unknown>),
+      };
+      completions.push(completion);
+    }
 
     await recordXapiEvent({
       statementId: parsed.statementId,
@@ -211,16 +248,10 @@ export async function handleInboundParsedStatement(
       rawPayload: parsed.rawStatement,
     });
 
-    completions.push({
-      email: parsed.email,
-      actorIdentifier: parsed.actorIdentifier,
-      statementId: parsed.statementId,
-      matchedUserId: resolvedUser.userId,
-      mappingMethod: resolvedUser.mappingMethod,
-      ...result,
-    });
   } catch (error) {
+    completionFailed = true;
     const message = error instanceof Error ? error.message : 'Unable to process statement';
+    retryableCompletionError = error instanceof Error ? error : new Error(message);
 
     await recordXapiEvent({
       statementId: parsed.statementId,
@@ -247,6 +278,15 @@ export async function handleInboundParsedStatement(
     });
   }
 
-  await markXapiStatementProcessed(parsed.statementId, options.statementHash);
+  // A shared provider course can target more than one assigned curriculum.
+  // If any target fails, leave the durable statement unprocessed so replay
+  // can retry the failed target. Successful targets are idempotent and may be
+  // re-run; marking the statement here would permanently lose later scopes.
+  if (!completionFailed || !attemptedCompletionTarget) {
+    await markXapiStatementProcessed(parsed.statementId, options.statementHash);
+  }
+  if (completionFailed && attemptedCompletionTarget) {
+    throw retryableCompletionError ?? new Error('Unable to process statement');
+  }
   return { completions };
 }

@@ -10,6 +10,7 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { prisma } from '@/lib/db/prisma';
 import { LOOKUP_LIST_CAP, MEMBER_HISTORY_CAP, isListTruncated } from '@/lib/db/queryCaps';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { buildMemberProgramOptions } from '@/lib/admin/assignableProgramOptions';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
@@ -48,10 +49,13 @@ import MemberCourseraDiagnoseButton from '@/components/admin/MemberCourseraDiagn
 import AdminMemberSkillCheckpointPanel from '@/components/admin/AdminMemberSkillCheckpointPanel';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 import { deriveCareerPlanSignal } from '@/lib/admin/careerPlanSignal';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 type AdminCourseProgressRow = {
+  programSlug: string;
   courseSlug: string;
   courseId: string | null;
-  status: string;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
   percentComplete: number;
   lastUpdatedAt: Date;
 };
@@ -148,7 +152,14 @@ export default async function AdminMemberDetailPage({
     learningProgress: true,
     courseProgress: {
       orderBy: { lastUpdatedAt: 'desc' },
-      select: { courseSlug: true, courseId: true, status: true, percentComplete: true, lastUpdatedAt: true },
+      select: {
+        programSlug: true,
+        courseSlug: true,
+        courseId: true,
+        status: true,
+        percentComplete: true,
+        lastUpdatedAt: true,
+      },
     },
     memberProgramProgress: {
       select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
@@ -280,7 +291,11 @@ export default async function AdminMemberDetailPage({
     // enrollment row. Secondary enrollments inherit nothing here.
     db.courseEnrollment.findFirst({
       where: { userId: id, isPrimary: true },
+      orderBy: { enrolledAt: 'desc' },
       select: {
+        programSlug: true,
+        curriculumVersion: true,
+        enrolledByAdminId: true,
         fundingSource: true,
         fundingNotes: true,
         workspaceEmail: true,
@@ -376,8 +391,10 @@ export default async function AdminMemberDetailPage({
             name: row.name,
             status: row.status,
           })),
-          member.enrolledProgram
-            ? getProgramBySlug(member.enrolledProgram)?.slug ?? member.enrolledProgram
+          (courseEnrollment?.programSlug ?? member.enrolledProgram)
+            ? getProgramBySlug(courseEnrollment?.programSlug ?? member.enrolledProgram)?.slug ??
+                courseEnrollment?.programSlug ??
+                member.enrolledProgram
             : null,
         )
       : null;
@@ -388,29 +405,51 @@ export default async function AdminMemberDetailPage({
   });
   const enrollmentGateBlocked = !gate.ok;
 
-  const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
-  const liveCourseProgress = (member.courseProgress ?? []) as AdminCourseProgressRow[];
+  const activeProgramSlug = courseEnrollment?.programSlug ?? member.enrolledProgram ?? null;
+  const program = activeProgramSlug ? getProgramBySlug(activeProgramSlug) : null;
+  const curriculumVersion =
+    program &&
+    courseEnrollment?.programSlug &&
+    programSlugsEquivalent(courseEnrollment.programSlug, program.slug)
+      ? courseEnrollment.curriculumVersion
+      : 'legacy-v1';
+  const curriculumCourses = program
+    ? getProgramCoursesForCurriculumVersion(program, curriculumVersion)
+    : [];
+  const liveCourseProgress = ((member.courseProgress ?? []) as AdminCourseProgressRow[])
+    .filter((row) =>
+      activeProgramSlug ? programSlugsEquivalent(row.programSlug, activeProgramSlug) : false,
+    );
   const liveProgressBySlug = new Map<string, AdminCourseProgressRow>(liveCourseProgress.map((row) => [row.courseSlug, row]));
   const liveProgramProgress = ((member.memberProgramProgress ?? []) as AdminMemberProgramProgressRow[])
-    .find((row) => row.programSlug === member.enrolledProgram) ?? null;
-  const completedCount = program
-    ? (liveProgramProgress?.coursesCompleted ?? liveCourseProgress.filter((row) => row.status === 'COMPLETED').length)
-    : 0;
+    .find((row) =>
+      activeProgramSlug ? programSlugsEquivalent(row.programSlug, activeProgramSlug) : false,
+    ) ?? null;
+  const programReconciliation = program
+    ? reconcileProgramProgress({
+        validatedCourses: curriculumCourses,
+        localRows: liveCourseProgress.map((row) => ({
+          courseSlug: row.courseSlug,
+          courseId: row.courseId,
+          status: row.status,
+          percentComplete: row.percentComplete,
+        })),
+      })
+    : null;
+  const completedCount = programReconciliation?.completedCount ?? 0;
   const careerPlanSignal = deriveCareerPlanSignal({
     careerRecommendationJson: member.careerRecommendationJson,
     applications: member.applications ?? [],
     events: member.memberEvents ?? [],
-    enrolledProgram: member.enrolledProgram,
+    enrolledProgram: activeProgramSlug,
     activeCourseCount: liveCourseProgress.filter((row) => row.status === 'IN_PROGRESS').length,
-    progressPercent: liveProgramProgress?.averagePercent ?? 0,
+    progressPercent: programReconciliation?.programPercent ?? liveProgramProgress?.averagePercent ?? 0,
   });
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
 
   // Progress strip props for admin view
   const adminAllCoursesComplete =
-    program != null &&
-    program.courses.length > 0 &&
-    program.courses.every((c) => liveProgressBySlug.get(c.slug)?.status === 'COMPLETED');
+    programReconciliation?.allComplete ?? false;
   const adminProgressStripProps = {
     intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
     assessment: !!member.assessmentCompleted,
@@ -471,7 +510,7 @@ export default async function AdminMemberDetailPage({
     .map((row) => row.courseSlug);
   const skillMissionSummary = await loadSkillMissionSummary({
     userId: member.id,
-    programSlug: member.enrolledProgram ?? null,
+    programSlug: activeProgramSlug,
     completedCourseSlugs,
   });
 
@@ -693,14 +732,14 @@ export default async function AdminMemberDetailPage({
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
-          <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
+          <p><strong>Enrolled:</strong> {program?.title ?? activeProgramSlug ?? '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) ?? '—'}</p>
           {program ? (
             <p>
               <strong>Course progress:</strong>{' '}
-              {liveProgramProgress
-                ? `${liveProgramProgress.averagePercent}% overall · ${completedCount} of ${program.courses.length} complete`
-                : `${completedCount} of ${program.courses.length} complete`}
+              {programReconciliation
+                ? `${programReconciliation.programPercent}% overall · ${completedCount} of ${curriculumCourses.length} complete`
+                : `${completedCount} of ${curriculumCourses.length} complete`}
             </p>
           ) : (
             <p><strong>Course progress:</strong> No program enrolled</p>
@@ -724,7 +763,7 @@ export default async function AdminMemberDetailPage({
           )}
 
           <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
-            {program?.courses.map((c) => {
+            {curriculumCourses.map((c) => {
               const progress = liveProgressBySlug.get(c.slug);
               const completed = progress?.status === 'COMPLETED';
               return (
@@ -764,8 +803,8 @@ export default async function AdminMemberDetailPage({
             memberName={member.fullName}
             enrollmentGateBlocked={enrollmentGateBlocked}
             currentProgramSlug={
-              member.enrolledProgram
-                ? getProgramBySlug(member.enrolledProgram)?.slug ?? member.enrolledProgram
+              activeProgramSlug
+                ? getProgramBySlug(activeProgramSlug)?.slug ?? activeProgramSlug
                 : null
             }
             assessmentCompleted={member.assessmentCompleted}

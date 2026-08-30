@@ -8,12 +8,15 @@ import { getUser } from '@/lib/auth/server';
 import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemberOrg, inheritLeaderOrg, inheritInvitedByOrg } from '@/lib/tenant/adminPageScope';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 
 import PageHeader from '@/components/portal/PageHeader';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,17 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 type CourseProgressRow = {
+  programSlug: string;
   courseSlug: string;
   courseId: string | null;
-  status: string;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
   percentComplete: number;
-  lastUpdatedAt: Date;
-};
-
-type MemberProgramProgressRow = {
-  programSlug: string;
-  averagePercent: number;
-  coursesCompleted: number;
   lastUpdatedAt: Date;
 };
 
@@ -82,23 +79,22 @@ export default async function AdminMemberStakeholderPage({
       deletedAt: true,
       enrolledProgram: true,
       enrolledAt: true,
+      courseEnrollments: {
+        where: { isPrimary: true },
+        orderBy: { enrolledAt: 'desc' },
+        take: 1,
+        select: { programSlug: true, curriculumVersion: true },
+      },
       assessmentCompleted: true,
       onboardingCompletedAt: true,
       courseProgress: {
         orderBy: { lastUpdatedAt: 'desc' },
         select: {
+          programSlug: true,
           courseSlug: true,
           courseId: true,
           status: true,
           percentComplete: true,
-          lastUpdatedAt: true,
-        },
-      },
-      memberProgramProgress: {
-        select: {
-          programSlug: true,
-          averagePercent: true,
-          coursesCompleted: true,
           lastUpdatedAt: true,
         },
       },
@@ -166,24 +162,36 @@ export default async function AdminMemberStakeholderPage({
 
   const preScreeningCount = preScreening ? 1 : 0;
 
-  const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
-  const liveCourseProgress = (member.courseProgress ?? []) as CourseProgressRow[];
+  const primaryEnrollment = member.courseEnrollments[0] ?? null;
+  const activeProgramSlug = primaryEnrollment?.programSlug ?? member.enrolledProgram ?? null;
+  const program = activeProgramSlug ? getProgramBySlug(activeProgramSlug) : null;
+  const curriculumCourses = program
+    ? getProgramCoursesForCurriculumVersion(
+        program,
+        primaryEnrollment?.curriculumVersion ?? 'legacy-v1',
+      )
+    : [];
+  const liveCourseProgress = ((member.courseProgress ?? []) as CourseProgressRow[])
+    .filter((row) =>
+      activeProgramSlug ? programSlugsEquivalent(row.programSlug, activeProgramSlug) : false,
+    );
   const liveProgressBySlug = new Map<string, CourseProgressRow>(
     liveCourseProgress.map((row) => [row.courseSlug, row]),
   );
-  const liveProgramProgress =
-    ((member.memberProgramProgress ?? []) as MemberProgramProgressRow[]).find(
-      (row) => row.programSlug === member.enrolledProgram,
-    ) ?? null;
-  const completedCount = program
-    ? liveProgramProgress?.coursesCompleted ??
-      liveCourseProgress.filter((row) => row.status === 'COMPLETED').length
-    : 0;
+  const programReconciliation = program
+    ? reconcileProgramProgress({
+        validatedCourses: curriculumCourses,
+        localRows: liveCourseProgress.map((row) => ({
+          courseSlug: row.courseSlug,
+          courseId: row.courseId,
+          status: row.status,
+          percentComplete: row.percentComplete,
+        })),
+      })
+    : null;
+  const completedCount = programReconciliation?.completedCount ?? 0;
 
-  const allCoursesComplete =
-    program != null &&
-    program.courses.length > 0 &&
-    program.courses.every((c) => liveProgressBySlug.get(c.slug)?.status === 'COMPLETED');
+  const allCoursesComplete = programReconciliation?.allComplete ?? false;
 
   const progressStripProps = {
     intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
@@ -489,12 +497,12 @@ export default async function AdminMemberStakeholderPage({
                 margin: '0 0 0.75rem',
               }}
             >
-              {liveProgramProgress
-                ? `${liveProgramProgress.averagePercent}% overall · ${completedCount} of ${program.courses.length} complete`
-                : `${completedCount} of ${program.courses.length} complete`}
+              {programReconciliation
+                ? `${programReconciliation.programPercent}% overall · ${completedCount} of ${curriculumCourses.length} complete`
+                : `${completedCount} of ${curriculumCourses.length} complete`}
             </p>
             <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none' }}>
-              {program.courses.map((c) => {
+              {curriculumCourses.map((c) => {
                 const progress = liveProgressBySlug.get(c.slug);
                 const completed = progress?.status === 'COMPLETED';
                 return (

@@ -12,6 +12,9 @@ import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThrea
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
@@ -91,7 +94,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       // secondary programs below the primary block (instead of hiding them
       // when `User.enrolledProgram` is set to just the primary slug).
       courseEnrollments: {
-        select: { programSlug: true, isPrimary: true, enrolledAt: true },
+        select: {
+          programSlug: true,
+          curriculumVersion: true,
+          isPrimary: true,
+          enrolledAt: true,
+        },
         orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
       },
       profile: {
@@ -334,14 +342,27 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   });
 
   // Program progress — real data from enrolled program courses
-  const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
-  const programCourses = programMeta?.courses ?? [];
+  const trainingAssignment = resolveTrainingProgressAssignment(
+    member.enrolledProgram,
+    member.courseEnrollments,
+  );
+  const activeProgramSlug = trainingAssignment.programSlug;
+  const activeEnrollment = activeProgramSlug
+    ? member.courseEnrollments.find((row) =>
+        programSlugsEquivalent(row.programSlug, activeProgramSlug),
+      ) ?? null
+    : null;
+  const curriculumVersion = trainingAssignment.curriculumVersion;
+  const programMeta = activeProgramSlug ? getProgramBySlug(activeProgramSlug) : null;
+  const programCourses = programMeta && curriculumVersion
+    ? getProgramCoursesForCurriculumVersion(programMeta, curriculumVersion)
+    : [];
   const courseraProgramId =
-    member.enrolledProgram != null
-      ? DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram]?.courseraProgramId
+    activeProgramSlug != null
+      ? DISCOVERED_COURSERA_PROGRAMS[activeProgramSlug]?.courseraProgramId
       : undefined;
   const b4bProgress =
-    member.email?.trim() && member.enrolledProgram
+    member.email?.trim() && activeProgramSlug
       ? await fetchLearnerProgressFromB4B(member.email, {
           programId: courseraProgramId,
           readOnlyAudit,
@@ -351,10 +372,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         })
       : new Map();
 
-  const trainingView = member.enrolledProgram
+  const trainingView = activeProgramSlug
       ? await loadMemberProgramTrainingView({
         userId: member.id,
-        programSlug: member.enrolledProgram,
+        programSlug: activeProgramSlug,
         b4bProgress,
         readOnlyAudit,
       })
@@ -367,7 +388,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   // the primary one we already render above. Single-program members produce
   // an empty list and the section is skipped, preserving today's UX.
   const otherProgramEnrollments = member.courseEnrollments
-    .filter((row) => row.programSlug !== member.enrolledProgram)
+    .filter((row) =>
+      activeProgramSlug ? !programSlugsEquivalent(row.programSlug, activeProgramSlug) : true,
+    )
     .map((row) => ({
       programSlug: row.programSlug,
       programTitle: getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
@@ -542,7 +565,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </h2>
             {programCourses.length === 0 ? (
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                {member.enrolledProgram ? 'No course data available for this program.' : 'Not enrolled in a program yet.'}
+                {activeProgramSlug ? 'No course data available for this program.' : 'Not enrolled in a program yet.'}
               </p>
             ) : (
               <>
@@ -926,7 +949,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 Other programs this student is in
               </h2>
               <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                Secondary enrollments outside the primary program ({programMeta?.title ?? member.enrolledProgram ?? '—'}).
+                Secondary enrollments outside the primary program ({programMeta?.title ?? activeProgramSlug ?? '—'}).
               </p>
               <div className="portal-card portal-card--flat" style={{ padding: '1rem', border: '1px solid var(--outline-variant)' }}>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

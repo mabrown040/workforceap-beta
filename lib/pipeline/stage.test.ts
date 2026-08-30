@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import { getPipelineStage, type PipelineStudent } from './stage';
 import { PROGRAMS } from '@/lib/content/programs';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
 
 const sampleProgram = PROGRAMS.find((p) => p.courses.length >= 2);
 if (!sampleProgram) throw new Error('test fixture: need a program with at least 2 courses');
@@ -14,6 +15,7 @@ function baseStudent(overrides: Partial<PipelineStudent> = {}): PipelineStudent 
     fullName: 'Test Member',
     email: 'member@example.com',
     enrolledProgram: sampleProgramSlug,
+    curriculumVersion: LEGACY_CURRICULUM_VERSION,
     enrolledAt: new Date('2026-01-01T00:00:00Z'),
     assessmentCompleted: true,
     coursesCompleted: [],

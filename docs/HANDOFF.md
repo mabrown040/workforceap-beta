@@ -85,7 +85,9 @@ Files: `app/(portal)/dashboard/page.tsx` (member, warm surface), `app/admin/page
       Member (`/en/dashboard?ui=kit`) + Admin (`/admin?ui=kit`) ARE verified rendering on real data.
 - [ ] Optionally seed Mike's demo account with a program enrollment + course progress so the member dashboard shows populated stats.
 - [x] **CI red on master fixed:** `/dev/kit` static prerender no longer calls `getDefaultOrganizationId()` at build time; `resolveOrgFromRequest()` now returns a build placeholder when `shouldSkipOptionalDbQueriesAtBuild()` is active.
-- [ ] Make preview build run `prisma migrate deploy` against demo (now that demo is baselined) so migrations auto-apply in the loop. Prod already does (`build:with-migrate`).
+- [x] Preview and production builds run `build:with-migrate`; preview uses the
+  baselined demo database and production uses the production database. This
+  keeps additive schema changes ahead of runtime code in both environments.
 - [ ] Reconcile draft PR #2066 to the demo-Supabase model (drop `demo.workforceap.org` requirement — any `*.vercel.app` preview is the test surface).
 - [ ] When happy: flip member dashboard `?ui=kit` → default (remove the flag) page-by-page.
 

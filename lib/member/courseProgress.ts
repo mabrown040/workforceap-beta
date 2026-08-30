@@ -2,7 +2,6 @@ import 'server-only';
 
 import { CourseProgressStatus, Prisma } from '@prisma/client';
 
-import { findCanonicalMappingForCourseraCourse } from '@/lib/coursera/canonicalMapping';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import {
   canonicalizeProgramSlug,
@@ -18,6 +17,11 @@ import { loadValidatedProgramCourses } from '@/lib/coursera/programCourseList';
 import { reconcileProgramProgress } from '@/lib/coursera/progressReconciliation';
 import { courseCompletionMilestoneRef } from '@/lib/coursera/milestones';
 import { upsertMergedCourseProgress } from '@/lib/coursera/upsertMergedCourseProgress';
+import { resolveProviderCourseMappings } from '@/lib/coursera/curriculumMapping';
+import {
+  getProgramCurriculumManifest,
+  normalizeCourseraCourseId,
+} from '@/lib/content/programCurriculumManifest';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
@@ -55,48 +59,36 @@ export type CanonicalProgramCourse = {
 export async function resolveCanonicalProgramCourseFromCourseraId(
   rawCourseraCourseId: string | null | undefined,
 ): Promise<CanonicalProgramCourse | null> {
-  const courseraCourseId = rawCourseraCourseId?.trim() || '';
+  const courseraCourseId = normalizeCourseraCourseId(rawCourseraCourseId);
   if (!courseraCourseId) return null;
 
-  const dbMapping = await findCanonicalMappingForCourseraCourse({ courseraCourseId });
-  if (dbMapping) {
-    const programSlug = canonicalizeProgramSlug(dbMapping.programSlug);
-    const catalogCourse = getProgramBySlug(programSlug)?.courses.find(
-      (course) => course.slug === dbMapping.courseSlug,
-    );
-    const discoveredCourse = DISCOVERED_COURSERA_PROGRAMS[programSlug]?.courses.find(
-      (course) => course.slug === dbMapping.courseSlug,
-    );
-    return {
-      programSlug,
-      courseSlug: dbMapping.courseSlug,
-      courseName: catalogCourse?.name ?? discoveredCourse?.name ?? dbMapping.courseSlug,
-      courseraCourseId,
-    };
-  }
-
-  // Some provider ids are shared across two real WAP curricula. Only a
-  // single distinct static pair is safe to promote without an admin mapping.
-  const candidates = new Map<string, CanonicalProgramCourse>();
-  for (const [rawProgramSlug, discoveredProgram] of Object.entries(
-    DISCOVERED_COURSERA_PROGRAMS,
-  )) {
-    const wapProgram = getProgramBySlug(rawProgramSlug);
-    if (!wapProgram) continue;
-    for (const course of discoveredProgram.courses) {
-      if (course.courseId !== courseraCourseId) continue;
-      const programSlug = wapProgram.slug;
-      const candidate = {
-        programSlug,
-        courseSlug: course.slug,
-        courseName: course.name,
-        courseraCourseId,
-      };
-      candidates.set(`${programSlug}|${course.slug}`, candidate);
-    }
-  }
-
-  return candidates.size === 1 ? Array.from(candidates.values())[0] : null;
+  const resolution = await resolveProviderCourseMappings({
+    courseraCourseId,
+    assignments: [],
+  });
+  if (resolution.targets.length !== 1) return null;
+  const target = resolution.targets[0]!;
+  const programSlug = canonicalizeProgramSlug(target.programSlug);
+  const manifestCourse = getProgramCurriculumManifest(
+    programSlug,
+    target.curriculumVersion,
+  )?.courses.find((course) => course.slug === target.courseSlug);
+  const catalogCourse = getProgramBySlug(programSlug)?.courses.find(
+    (course) => course.slug === target.courseSlug,
+  );
+  const discoveredCourse = DISCOVERED_COURSERA_PROGRAMS[programSlug]?.courses.find(
+    (course) => course.slug === target.courseSlug,
+  );
+  return {
+    programSlug,
+    courseSlug: target.courseSlug,
+    courseName:
+      manifestCourse?.name ??
+      catalogCourse?.name ??
+      discoveredCourse?.name ??
+      target.courseSlug,
+    courseraCourseId,
+  };
 }
 
 export async function refreshMemberProgramProgressRollup(userId: string, programSlug: string) {
@@ -109,13 +101,22 @@ export async function refreshMemberProgramProgressRollup(userId: string, program
   // so this path binds from syllabus/Course DB/static only.
   const userRow = await prisma.user.findUnique({
     where: { id: userId },
-    select: { organizationId: true },
+    select: {
+      organizationId: true,
+      courseEnrollments: {
+        where: { programSlug: { in: programSlugs } },
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        take: 1,
+        select: { curriculumVersion: true },
+      },
+    },
   });
   const validatedCourses = userRow?.organizationId
     ? (await loadValidatedProgramCourses({
         organizationId: userRow.organizationId,
         programSlug: canonicalProgramSlug,
         checkB4BContents: false,
+        curriculumVersion: userRow.courseEnrollments?.[0]?.curriculumVersion ?? 'legacy-v1',
       })).courses
     : (program?.courses ?? DISCOVERED_COURSERA_PROGRAMS[canonicalProgramSlug]?.courses.map((course) => ({
         slug: course.slug,
@@ -354,6 +355,7 @@ export async function claimLiveCourseCompletionEvent(args: {
 export async function upsertCourseProgressFromXapiStatement(args: {
   userId: string;
   enrolledProgramSlug: string | null;
+  curriculumVersion?: string | null;
   parsed: ParsedXapiStatement;
 }): Promise<CanonicalProgramCourse | null> {
   const { userId, parsed } = args;
@@ -370,12 +372,16 @@ export async function upsertCourseProgressFromXapiStatement(args: {
     if (!program) return null;
 
     const slugFromObject = matchCourseSlugFromObjectId(programSlug, parsed.courseObjectId);
-    const enrolledMatch = await resolveProgramCourseWithCatalogFallback(program, {
-      courseraCourseId: parsed.courseraCourseId ?? null,
-      enrolledProgramSlug: programSlug,
-      courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
-      courseName: parsed.courseName,
-    });
+    const enrolledMatch = await resolveProgramCourseWithCatalogFallback(
+      program,
+      {
+        courseraCourseId: parsed.courseraCourseId ?? null,
+        enrolledProgramSlug: programSlug,
+        courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
+        courseName: parsed.courseName,
+      },
+      { curriculumVersion: args.curriculumVersion ?? 'legacy-v1' },
+    );
     if (!enrolledMatch) return null;
     matched = enrolledMatch;
     courseId = parsed.courseraCourseId

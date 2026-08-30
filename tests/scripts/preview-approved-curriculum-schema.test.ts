@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const require = createRequire(import.meta.url);
 const guard = require('../../scripts/lib/supabase-project-guard.cjs');
 const previewDeploy = require('../../scripts/apply-preview-approved-curriculum-schema.cjs');
+const vercelBuild = require('../../scripts/vercel-build.cjs');
 
 const DEMO_PUBLIC = 'https://esbdrgaonplpvzmtrdhw.supabase.co';
 const DEMO_POOLER =
@@ -235,5 +236,65 @@ describe('approved-curriculum migration hardening', () => {
     expect(sql).toContain('stale or missing provider binding');
     expect(sql).toContain('expected 26 provider bindings');
     expect(sql.trimEnd().endsWith('COMMIT;')).toBe(true);
+  });
+});
+
+describe('Vercel build routing', () => {
+  it('keeps production on full migrations and preview on the guarded bootstrap', () => {
+    expect(vercelBuild.appBuildScriptForEnvironment('production')).toBe('build:with-migrate');
+    expect(vercelBuild.appBuildScriptForEnvironment('preview')).toBe('build:preview');
+    expect(() => vercelBuild.appBuildScriptForEnvironment('development')).toThrow(
+      'Unsupported VERCEL_ENV'
+    );
+    expect(() => vercelBuild.appBuildScriptForEnvironment('')).toThrow(
+      'Unsupported VERCEL_ENV'
+    );
+  });
+
+  it('uses a short Vercel command below the platform schema limit', async () => {
+    const fs = await import('node:fs/promises');
+    const repoRoot = path.resolve(__dirname, '../..');
+    const config = JSON.parse(await fs.readFile(path.join(repoRoot, 'vercel.json'), 'utf8'));
+    const pkg = JSON.parse(await fs.readFile(path.join(repoRoot, 'package.json'), 'utf8'));
+
+    expect(config.buildCommand).toBe('npm run build:vercel');
+    expect(config.buildCommand.length).toBeLessThanOrEqual(256);
+    expect(pkg.scripts['build:vercel']).toBe('node scripts/vercel-build.cjs');
+  });
+
+  it('validates routing without running marketing or application builds', () => {
+    const repoRoot = path.resolve(__dirname, '../..');
+    const preview = spawnSync(process.execPath, ['scripts/vercel-build.cjs', '--check'], {
+      cwd: repoRoot,
+      env: { ...process.env, VERCEL_ENV: 'preview' },
+      encoding: 'utf8',
+    });
+    const production = spawnSync(process.execPath, ['scripts/vercel-build.cjs', '--check'], {
+      cwd: repoRoot,
+      env: { ...process.env, VERCEL_ENV: 'production' },
+      encoding: 'utf8',
+    });
+    const unsupported = spawnSync(process.execPath, ['scripts/vercel-build.cjs', '--check'], {
+      cwd: repoRoot,
+      env: { ...process.env, VERCEL_ENV: 'development' },
+      encoding: 'utf8',
+    });
+
+    expect(preview.status).toBe(0);
+    expect(preview.stdout).toContain('app=build:preview');
+    expect(production.status).toBe(0);
+    expect(production.stdout).toContain('app=build:with-migrate');
+    expect(unsupported.status).toBe(1);
+  });
+
+  it('propagates a child npm failure with shell disabled', () => {
+    const spawn = vi.fn(() => ({ status: 9 }));
+    expect(() => vercelBuild.runNpm(['run', 'build'], process.cwd(), spawn)).toThrow(
+      'failed with status 9'
+    );
+    const calls = spawn.mock.calls as unknown as Array<
+      [string, string[], { shell: boolean }]
+    >;
+    expect(calls[0][2].shell).toBe(false);
   });
 });

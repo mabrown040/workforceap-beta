@@ -58,6 +58,9 @@ node scripts/check-supabase-env.mjs
 
 ## Migration routing
 
+`vercel.json` delegates to `npm run build:vercel`; the checked-in orchestrator
+builds/copies the marketing bundle, then chooses exactly one application path.
+
 - Production runs the complete Prisma migration chain through
   `npm run build:with-migrate`.
 - Preview normally uses the demo database. While that shared demo project's

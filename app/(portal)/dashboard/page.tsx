@@ -556,6 +556,7 @@ async function renderMemberDashboard(
       const missionSummary = await loadSkillMissionSummary({
         userId: user.id,
         programSlug: enrolledProgram,
+        curriculumVersion: activeEnrollment?.curriculumVersion ?? 'legacy-v1',
         completedCourseSlugs: completedRows.map((r) => r.courseSlug),
       });
       if (missionSummary) {

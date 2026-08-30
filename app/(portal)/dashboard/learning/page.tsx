@@ -100,6 +100,7 @@ export default async function LearningPage() {
     loadSkillMissionSummary({
       userId: user.id,
       programSlug: enrolledProgram,
+      curriculumVersion,
       completedCourseSlugs: coursesCompletedSlugs,
     }),
     loadMemberSkillsetProgress(user.id),

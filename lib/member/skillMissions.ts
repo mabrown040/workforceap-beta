@@ -3,11 +3,14 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
-  getSkillMissionDefinitionsForProgram,
-  getSkillMissionDefinition as getDefFromCatalog,
   type SkillMissionDefinition,
 } from '@/lib/content/skillMissionCatalog';
-import { isMissionCourseComplete, resolveMissionUnlockSlugs } from '@/lib/member/missionCourseUnlock';
+import { isMissionCourseComplete } from '@/lib/member/missionCourseUnlock';
+import {
+  buildSkillMissionEventKey,
+  getMissionDefinitionForEventKey,
+  resolveSkillMissionsForCurriculum,
+} from '@/lib/member/skillMissionCurriculum';
 
 export { type SkillMissionDefinition };
 
@@ -57,13 +60,23 @@ export type SkillMissionSummary = {
 export async function loadSkillMissionSummary(args: {
   userId: string;
   programSlug: string | null;
+  curriculumVersion: string;
   completedCourseSlugs: string[];
 }): Promise<SkillMissionSummary | null> {
   if (!args.programSlug) return null;
-  const definitions = getSkillMissionDefinitionsForProgram(args.programSlug);
-  if (!definitions.length) return null;
+  const resolvedMissions = resolveSkillMissionsForCurriculum({
+    programSlug: args.programSlug,
+    curriculumVersion: args.curriculumVersion,
+  });
+  if (!resolvedMissions.length) return null;
 
-  const missionKeys = definitions.map((d) => d.key);
+  const missionKeys = resolvedMissions.map(({ definition }) =>
+    buildSkillMissionEventKey({
+      programSlug: args.programSlug!,
+      curriculumVersion: args.curriculumVersion,
+      missionCourseSlug: definition.courseSlug,
+    }),
+  );
 
   const events = await prisma.memberEvent.findMany({
     where: {
@@ -131,18 +144,17 @@ export async function loadSkillMissionSummary(args: {
     };
   }
 
-  const programCourses = getProgramBySlug(args.programSlug)?.courses ?? [];
-
-  const missions: SkillMissionSummaryItem[] = definitions.map((def) => {
-    const latestEvent = latestEventMap.get(def.key) ?? null;
-    const unlockSlugs = resolveMissionUnlockSlugs({
+  const missions: SkillMissionSummaryItem[] = resolvedMissions.map((resolved) => {
+    const def = resolved.definition;
+    const eventKey = buildSkillMissionEventKey({
+      programSlug: args.programSlug!,
+      curriculumVersion: args.curriculumVersion,
       missionCourseSlug: def.courseSlug,
-      missionCourseTitle: def.courseTitle,
-      programCourses,
     });
+    const latestEvent = latestEventMap.get(eventKey) ?? null;
 
     let status: MissionStatus;
-    if (!isMissionCourseComplete(unlockSlugs, args.completedCourseSlugs)) {
+    if (!isMissionCourseComplete(resolved.unlockSlugs, args.completedCourseSlugs)) {
       status = 'locked';
     } else if (latestEvent?.eventName === MISSION_EVENT_PASSED) {
       status = 'passed';
@@ -161,6 +173,7 @@ export async function loadSkillMissionSummary(args: {
 
     return {
       ...def,
+      key: eventKey,
       // Strip answers/explanations — see ClientQuizQuestion.
       quizQuestions: def.quizQuestions.map((q) => ({ text: q.text, options: q.options })),
       status,
@@ -194,7 +207,7 @@ export async function loadSkillMissionSummary(args: {
   const passedCount = missions.filter((m) => m.status === 'passed').length;
   const readyCount = missions.filter((m) => m.status === 'ready').length;
   const retryCount = missions.filter((m) => m.status === 'needs_retry').length;
-  const totalMissions = definitions.length;
+  const totalMissions = resolvedMissions.length;
   const careerReadinessPct = Math.round((passedCount / totalMissions) * 100);
 
   return {
@@ -214,11 +227,17 @@ export async function loadSkillMissionSummary(args: {
 export async function recordMissionResult(args: {
   userId: string;
   programSlug: string;
+  curriculumVersion: string;
   courseSlug: string;
+  assignedCourseSlug: string;
   result: MissionResult;
   aiToolResultId: string | null;
 }): Promise<void> {
-  const key = `${args.programSlug}:mission:${args.courseSlug}`;
+  const key = buildSkillMissionEventKey({
+    programSlug: args.programSlug,
+    curriculumVersion: args.curriculumVersion,
+    missionCourseSlug: args.courseSlug,
+  });
   const eventName =
     args.result.verdict === 'passed' ? MISSION_EVENT_PASSED : MISSION_EVENT_RETRY;
 
@@ -233,7 +252,9 @@ export async function recordMissionResult(args: {
         ...args.result,
         aiToolResultId: args.aiToolResultId,
         courseSlug: args.courseSlug,
+        assignedCourseSlug: args.assignedCourseSlug,
         programSlug: args.programSlug,
+        curriculumVersion: args.curriculumVersion,
         recordedAt: new Date().toISOString(),
       },
     },
@@ -245,9 +266,15 @@ export async function recordMissionResult(args: {
 export async function recordMissionSubmission(args: {
   userId: string;
   programSlug: string;
+  curriculumVersion: string;
   courseSlug: string;
+  assignedCourseSlug: string;
 }): Promise<void> {
-  const key = `${args.programSlug}:mission:${args.courseSlug}`;
+  const key = buildSkillMissionEventKey({
+    programSlug: args.programSlug,
+    curriculumVersion: args.curriculumVersion,
+    missionCourseSlug: args.courseSlug,
+  });
   await prisma.memberEvent.create({
     data: {
       userId: args.userId,
@@ -255,7 +282,12 @@ export async function recordMissionSubmission(args: {
       entityType: 'skill_checkpoint',
       entityId: key,
       sourcePage: '/member/missions',
-      metadata: { courseSlug: args.courseSlug, programSlug: args.programSlug },
+      metadata: {
+        courseSlug: args.courseSlug,
+        assignedCourseSlug: args.assignedCourseSlug,
+        programSlug: args.programSlug,
+        curriculumVersion: args.curriculumVersion,
+      },
     },
   });
 }
@@ -265,10 +297,15 @@ export async function recordMissionSubmission(args: {
 export async function countRecentMissionSubmissions(args: {
   userId: string;
   programSlug: string;
+  curriculumVersion: string;
   courseSlug: string;
   sinceHours: number;
 }): Promise<number> {
-  const key = `${args.programSlug}:mission:${args.courseSlug}`;
+  const key = buildSkillMissionEventKey({
+    programSlug: args.programSlug,
+    curriculumVersion: args.curriculumVersion,
+    missionCourseSlug: args.courseSlug,
+  });
   const since = new Date(Date.now() - args.sinceHours * 60 * 60 * 1000);
   return prisma.memberEvent.count({
     where: {
@@ -282,8 +319,5 @@ export async function countRecentMissionSubmissions(args: {
 }
 
 export function getMissionDefinitionForKey(key: string): SkillMissionDefinition | null {
-  const parts = key.split(':mission:');
-  if (parts.length !== 2) return null;
-  const [programSlug, courseSlug] = parts;
-  return getDefFromCatalog(programSlug, courseSlug) ?? null;
+  return getMissionDefinitionForEventKey(key);
 }

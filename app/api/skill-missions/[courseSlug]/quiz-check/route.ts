@@ -3,7 +3,12 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { prisma } from '@/lib/db/prisma';
-import { getSkillMissionDefinition } from '@/lib/content/skillMissionCatalog';
+import {
+  buildSkillMissionEventKey,
+  parseSkillMissionEventKey,
+  resolveSkillMissionAssignment,
+  resolveSkillMissionForCurriculum,
+} from '@/lib/member/skillMissionCurriculum';
 
 /* Grades a single quiz answer so the mission modal can show instant
    feedback without correctIndex/explanation ever shipping in the page
@@ -41,19 +46,61 @@ export const POST = withApiGuc(
       }
 
       const { courseSlug } = await context.params;
+      const requestedMission = parseSkillMissionEventKey(parsed.data.missionKey);
+      if (!requestedMission) {
+        return NextResponse.json({ error: 'Mission not found' }, { status: 404 });
+      }
 
       const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
-        select: { enrolledProgram: true },
+        select: {
+          enrolledProgram: true,
+          courseEnrollments: {
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          },
+        },
       }));
-      const programSlug = dbUser?.enrolledProgram ?? null;
-      if (!programSlug) {
+      const assignment = resolveSkillMissionAssignment({
+        enrolledProgram: dbUser?.enrolledProgram,
+        enrollments: dbUser?.courseEnrollments ?? [],
+        requestedProgramSlug: requestedMission.programSlug,
+      });
+      if (!assignment) {
         return NextResponse.json({ error: 'Not enrolled in a program' }, { status: 403 });
       }
 
-      const missionDef = getSkillMissionDefinition(programSlug, courseSlug);
-      if (!missionDef || missionDef.key !== parsed.data.missionKey) {
+      const resolvedMission = resolveSkillMissionForCurriculum({
+        programSlug: assignment.programSlug,
+        curriculumVersion: assignment.curriculumVersion,
+        missionCourseSlug: courseSlug,
+      });
+      const expectedMissionKey = resolvedMission
+        ? buildSkillMissionEventKey({
+            programSlug: assignment.programSlug,
+            curriculumVersion: assignment.curriculumVersion,
+            missionCourseSlug: resolvedMission.definition.courseSlug,
+          })
+        : null;
+      if (!resolvedMission || expectedMissionKey !== parsed.data.missionKey) {
         return NextResponse.json({ error: 'Mission not found' }, { status: 404 });
+      }
+      const missionDef = resolvedMission.definition;
+
+      const progress = await prisma.$transaction((tx) => tx.courseProgress.findFirst({
+        where: {
+          userId: user.id,
+          programSlug: assignment.programSlug,
+          courseSlug: { in: resolvedMission.unlockSlugs },
+          status: 'COMPLETED',
+        },
+        select: { id: true },
+      }));
+      if (!progress) {
+        return NextResponse.json(
+          { error: 'You must complete this course before checking its mission quiz.' },
+          { status: 403 },
+        );
       }
 
       const question = missionDef.quizQuestions[parsed.data.questionIndex];

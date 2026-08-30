@@ -10,7 +10,8 @@
  *
  * Usage: node scripts/resolve-failed-migration-in-db.cjs <migration-name> [--applied|--rolled-back]
  *
- * Idempotent: if the migration is not in a failed state (Prisma P3012), exits 0.
+ * Idempotent: if the migration is not in a failed state (Prisma P3012), or a
+ * rollback target was never applied (Prisma P3011), exits 0.
  */
 
 const { execSync } = require('child_process');
@@ -54,7 +55,11 @@ try {
 } catch (error) {
   const output = `${error.stdout || ''}${error.stderr || ''}${error.message || ''}`;
 
-  if (isBenignMigrateResolveError(error.stdout || '', `${error.stderr || ''}\n${error.message || ''}`)) {
+  if (isBenignMigrateResolveError(
+    error.stdout || '',
+    `${error.stderr || ''}\n${error.message || ''}`,
+    resolution,
+  )) {
     console.log(
       `Migration ${migrationName} is not in a failed state (already resolved, applied, or never failed). Skipping.`,
     );

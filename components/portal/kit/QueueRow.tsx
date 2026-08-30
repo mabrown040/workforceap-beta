@@ -64,7 +64,6 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
         <HStack
           className="wa-kit-queue-row"
           gap={3}
-          align="center"
           style={{ background: TONE_BG[tone], borderRadius: 12, padding: '10px 12px' }}
         >
           <div

@@ -464,12 +464,11 @@ function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: Sess
         <div style={{ padding: 12, borderRadius: 16, display: 'inline-flex', ...iconChip }}>
           <Icon size={20} aria-hidden="true" />
         </div>
-        <Token
-          label={badge}
-          size="sm"
-          color="gray"
-          className={isLightBody ? undefined : 'wa-voice-coach-badge--on-color'}
-        />
+        {isLightBody ? (
+          <Token label={badge} size="sm" color="gray" />
+        ) : (
+          <span className="wa-voice-coach-badge--on-color">{badge}</span>
+        )}
       </div>
       <div>
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>

@@ -262,13 +262,23 @@ html.dark [data-surface] .wa-kit-card,
   background: light-dark(var(--wa-border), rgba(255, 255, 255, 0.08));
 }
 
-/* Astryx's neutral Token uses dark text by default. Voice-coach cards place
-   that token on saturated gold/crimson surfaces, so give those badges an
-   explicit on-color treatment instead of inheriting a low-contrast gray. */
+/* Voice-coach cards place badges on saturated gold/crimson surfaces. This
+   component-owned badge avoids overriding Astryx internals and keeps white
+   text above AA contrast even on the lightest dark-mode gold. */
 .wa-voice-coach-badge--on-color {
-  color: var(--wa-on-accent) !important;
-  background: rgba(0, 0, 0, 0.3) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: var(--wa-on-accent);
+  background: rgba(0, 0, 0, 0.45);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .wa-kit-bar-track {
@@ -296,13 +306,16 @@ html.dark [data-surface] .wa-kit-card,
 /* Queue actions stay beside the copy on roomy screens. On narrow phones the
    action gets a dedicated row aligned with the copy so long triage labels do
    not collapse underneath or collide with the button. */
+.wa-kit-queue-row {
+  align-items: center;
+}
 .wa-kit-queue-row__action {
   flex-shrink: 0;
 }
 @media (max-width: 480px) {
   .wa-kit-queue-row {
     flex-wrap: wrap;
-    align-items: flex-start !important;
+    align-items: flex-start;
   }
   .wa-kit-queue-row__action {
     box-sizing: border-box;

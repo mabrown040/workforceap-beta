@@ -96,7 +96,7 @@ Use this checklist for every production deploy. Do not skip steps.
   curl -H "Authorization: Bearer $CRON_SECRET" \
     https://www.workforceap.org/api/cron/smoke-test
   ```
-  > Should return 200, not 401.
+  > Should return HTTP 200 with `ok: true` and seven passing probes, not merely “not 401.” A failed readiness, public-page marker, timeout, or protected-route redirect returns 503, marks the cron execution failed, and reports a sanitized Sentry exception.
 
 ---
 

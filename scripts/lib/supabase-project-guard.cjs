@@ -89,13 +89,26 @@ function inspectSupabaseEnvironment(env = process.env, options = {}) {
     }
   }
 
-  for (const name of ['POSTGRES_URL_NON_POOLING', 'DATABASE_URL']) {
+  for (const name of ['POSTGRES_URL_NON_POOLING']) {
     const classification = classifications[name];
     if (classification !== 'unset' && classification !== 'unknown' && expected && classification !== expected) {
       errors.push(`${name} points at the wrong Supabase project for VERCEL_ENV=${vercelEnv}.`);
     }
     if (urls[name] && classification === 'unknown') {
       errors.push(`${name} is set but does not identify an approved Supabase project.`);
+    }
+  }
+
+  // DATABASE_URL is a fallback only. Vercel may inject an unrelated value,
+  // but Prisma and runtime signup checks prefer the explicit POSTGRES_* URLs.
+  // Validate it only when either effective Prisma URL would need the fallback.
+  if (!urls.POSTGRES_PRISMA_URL || (requireDirectUrl && !urls.POSTGRES_URL_NON_POOLING)) {
+    const classification = classifications.DATABASE_URL;
+    if (classification !== 'unset' && classification !== 'unknown' && expected && classification !== expected) {
+      errors.push(`DATABASE_URL points at the wrong Supabase project for VERCEL_ENV=${vercelEnv}.`);
+    }
+    if (urls.DATABASE_URL && classification === 'unknown') {
+      errors.push('DATABASE_URL is set but does not identify an approved Supabase project.');
     }
   }
 

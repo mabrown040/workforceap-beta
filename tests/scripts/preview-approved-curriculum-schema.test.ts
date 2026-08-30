@@ -88,10 +88,22 @@ describe('Supabase project guard', () => {
     expect(result.ok).toBe(false);
   });
 
-  it('checks a set DATABASE_URL instead of ignoring an unsafe fallback', () => {
+  it('ignores an unused DATABASE_URL when both explicit Prisma targets are safe', () => {
     const result = guard.inspectSupabaseEnvironment(
       {
         ...vercelEnv('preview', 'demo'),
+        DATABASE_URL: PROD_DIRECT,
+      },
+      { requireVercel: true, requireDirectUrl: true }
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it('checks DATABASE_URL when an explicit Prisma target is missing', () => {
+    const result = guard.inspectSupabaseEnvironment(
+      {
+        ...vercelEnv('preview', 'demo'),
+        POSTGRES_PRISMA_URL: '',
         DATABASE_URL: PROD_DIRECT,
       },
       { requireVercel: true, requireDirectUrl: true }

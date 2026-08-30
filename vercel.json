@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd marketing && npm ci --no-audit --no-fund && npm run build && cd .. && cp -r marketing/dist/* public/ && npm run build:with-migrate",
+  "buildCommand": "cd marketing && npm ci --no-audit --no-fund && npm run build && cd .. && cp -r marketing/dist/* public/ && if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run build:with-migrate; elif [ \"$VERCEL_ENV\" = \"preview\" ]; then npm run build:preview; else echo \"Blocked: unsupported VERCEL_ENV=$VERCEL_ENV\" >&2; exit 1; fi",
   "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in feature/portal-*|feature/astro-*|claude/*|codex/*) exit 1 ;; esac; exit 0",
   "crons": [
     {

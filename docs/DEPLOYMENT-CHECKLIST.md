@@ -15,7 +15,7 @@ Use this checklist for every production deploy. Do not skip steps.
 
 - [ ] **Install dependencies**
   ```bash
-  npm ci
+  corepack pnpm@10 install --frozen-lockfile
   ```
 
 - [ ] **Run TypeScript check**
@@ -26,9 +26,10 @@ Use this checklist for every production deploy. Do not skip steps.
 
 - [ ] **Run tests**
   ```bash
-  npm test
+  npm run test:unit
+  npm run test:vitest
   ```
-  > Includes unit + integration tests. Fix failures before deploy.
+  > Runs the Node.js unit lane and the Vitest component/API lane. Fix failures before deploy.
 
 - [ ] **Run E2E tests (if changed areas covered)**
   ```bash

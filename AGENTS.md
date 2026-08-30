@@ -30,7 +30,8 @@ Open `http://localhost:3000` in a browser.
 - `public/images/` — static image assets
 - `next.config.ts` — Next.js configuration including redirects for old `.html` URLs
 - `Caddyfile` — production reverse-proxy config
-- `DEPLOY.md` — production deployment instructions
+- `docs/DEPLOYMENT-CHECKLIST.md` — current Vercel production deployment and rollback instructions
+- `DEPLOY.md` — historical homelab static-site deployment notes only
 - `docs/COMPLETED-WORK-LOG.md` — shipped tasks (backlog hygiene: `docs/BACKLOG-MAINTENANCE.md`)
 - `docs/KIT_GUIDE.md` — **read before touching portal UI**: canonical `--wa-*` tokens (`light-dark()` based), warm/dense surfaces, `KitTone`/`StatusTone` semantics, the `KitBaseProps` contract, kit a11y hooks, and the anti-pattern list
 

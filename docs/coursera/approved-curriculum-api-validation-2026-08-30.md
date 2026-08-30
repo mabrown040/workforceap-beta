@@ -3,9 +3,9 @@
 Status: **blocked for external-track activation**. Portal mappings are safe to
 deploy dormant; do not assign `2026-approved-v2` yet.
 
-Licensing handoff: see
-`docs/coursera/missing-course-licensing-packet-2026-08-30.md` for the concise,
-copy-ready request covering all 11 missing provider IDs.
+Licensing handoff: see the
+[missing-course licensing packet](missing-course-licensing-packet-2026-08-30.md)
+for the concise, copy-ready request covering all 11 missing provider IDs.
 
 The production WorkforceAP Coursera B4B credentials were used read-only to
 compare the immutable approved manifest with the organization-wide Coursera

@@ -1,5 +1,10 @@
 # WorkforceAP Static Site Deployment
 
+> **Historical homelab notes — not the production deployment path.** WorkforceAP
+> production deploys from `master` through Vercel. Use
+> [`docs/DEPLOYMENT-CHECKLIST.md`](docs/DEPLOYMENT-CHECKLIST.md) for the current
+> release, health-check, and rollback procedure.
+
 ## Overview
 Static HTML/CSS/JS replica of the Squarespace site for hosting on `workforceap.mikeslabs.com`
 

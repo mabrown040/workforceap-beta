@@ -511,6 +511,7 @@ export default async function AdminMemberDetailPage({
   const skillMissionSummary = await loadSkillMissionSummary({
     userId: member.id,
     programSlug: activeProgramSlug,
+    curriculumVersion,
     completedCourseSlugs,
   });
 

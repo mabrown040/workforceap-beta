@@ -6,6 +6,8 @@
  * `prisma.user.findUnique` call.
  */
 
+import { programSlugsEquivalent } from '../content/programSlug';
+
 export type DashboardEnrollment = {
   id: string;
   programSlug: string;
@@ -32,11 +34,13 @@ export function resolveActiveDashboardProgram(args: {
   const primaryEnrollment =
     enrollments.find((e) => e.isPrimary) ??
     (legacyEnrolledProgram
-      ? enrollments.find((e) => e.programSlug === legacyEnrolledProgram) ?? null
+      ? enrollments.find((e) =>
+          programSlugsEquivalent(e.programSlug, legacyEnrolledProgram),
+        ) ?? null
       : null);
   const requested = args.requestedProgramSlug?.trim() ?? '';
   const matchingRequested = requested && primaryEnrollment
-    ? enrollments.find((e) => e.programSlug === requested)
+    ? enrollments.find((e) => programSlugsEquivalent(e.programSlug, requested))
     : null;
 
   const primaryProgramSlug = primaryEnrollment?.programSlug ?? legacyEnrolledProgram ?? null;
@@ -45,7 +49,7 @@ export function resolveActiveDashboardProgram(args: {
   const legacyEnrolledProgramMismatch =
     !!legacyEnrolledProgram &&
     !!primaryEnrollment &&
-    legacyEnrolledProgram !== primaryEnrollment.programSlug;
+    !programSlugsEquivalent(legacyEnrolledProgram, primaryEnrollment.programSlug);
 
   return { activeProgramSlug, primaryProgramSlug, legacyEnrolledProgramMismatch };
 }

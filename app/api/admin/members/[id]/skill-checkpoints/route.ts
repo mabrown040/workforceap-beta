@@ -5,6 +5,12 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { recordMissionResult, getMissionDefinitionForKey } from '@/lib/member/skillMissions';
+import {
+  buildSkillMissionEventKey,
+  resolveSkillMissionAssignment,
+  resolveSkillMissionForCurriculum,
+} from '@/lib/member/skillMissionCurriculum';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -41,13 +47,25 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
 
     const member = await prisma.$transaction((tx) => tx.user.findFirst({
       where: { id: memberId, deletedAt: null, organizationId: orgId },
-      select: { id: true, enrolledProgram: true },
+      select: {
+        id: true,
+        enrolledProgram: true,
+        courseEnrollments: {
+          select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+        },
+      },
     }));
     if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    if (member.enrolledProgram !== parsed.data.programSlug) {
+    const assignment = resolveSkillMissionAssignment({
+      enrolledProgram: member.enrolledProgram,
+      enrollments: member.courseEnrollments,
+      requestedProgramSlug: parsed.data.programSlug,
+    });
+    if (!assignment || !programSlugsEquivalent(assignment.programSlug, parsed.data.programSlug)) {
       return NextResponse.json(
         { error: 'Checkpoint program does not match the member\'s active program.' },
         { status: 400 },
@@ -57,14 +75,30 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
     // Validate the key against the catalog — rejects malformed keys and
     // keys whose program doesn't match the request.
     const missionDef = getMissionDefinitionForKey(parsed.data.checkpointKey);
-    if (!missionDef || missionDef.programSlug !== parsed.data.programSlug) {
+    const resolvedMission = missionDef
+      ? resolveSkillMissionForCurriculum({
+          programSlug: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
+          missionCourseSlug: missionDef.courseSlug,
+        })
+      : null;
+    const expectedMissionKey = resolvedMission
+      ? buildSkillMissionEventKey({
+          programSlug: assignment.programSlug,
+          curriculumVersion: assignment.curriculumVersion,
+          missionCourseSlug: resolvedMission.definition.courseSlug,
+        })
+      : null;
+    if (!resolvedMission || expectedMissionKey !== parsed.data.checkpointKey) {
       return NextResponse.json({ error: 'Unknown mission for this program.' }, { status: 400 });
     }
 
     await recordMissionResult({
       userId: memberId,
-      programSlug: missionDef.programSlug,
-      courseSlug: missionDef.courseSlug,
+      programSlug: assignment.programSlug,
+      curriculumVersion: assignment.curriculumVersion,
+      courseSlug: resolvedMission.definition.courseSlug,
+      assignedCourseSlug: resolvedMission.assignedCourseSlug,
       result: {
         verdict: parsed.data.decision,
         coachingNote: parsed.data.notes?.trim() || 'Admin override.',

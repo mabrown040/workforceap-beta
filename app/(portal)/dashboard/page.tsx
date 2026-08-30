@@ -6,6 +6,10 @@ import { headers } from 'next/headers';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  programSlugReadCandidates,
+  programSlugsEquivalent,
+} from '@/lib/content/programSlug';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
 import { withDbRetry } from '@/lib/db/withDbRetry';
@@ -515,8 +519,10 @@ async function renderMemberDashboard(
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const activeEnrollment = activeProgramView.allEnrollments.find(
-    (enrollment) => enrollment.programSlug === enrolledProgram,
+  const activeEnrollment = activeProgramView.allEnrollments.find((enrollment) =>
+    enrolledProgram
+      ? programSlugsEquivalent(enrollment.programSlug, enrolledProgram)
+      : false,
   );
   const curriculumCourses = program
     ? getProgramCoursesForCurriculumVersion(
@@ -550,12 +556,17 @@ async function renderMemberDashboard(
   if (enrolledProgram) {
     try {
       const completedRows = await prisma.courseProgress.findMany({
-        where: { userId: user.id, programSlug: enrolledProgram, status: 'COMPLETED' },
+        where: {
+          userId: user.id,
+          programSlug: { in: programSlugReadCandidates(enrolledProgram) },
+          status: 'COMPLETED',
+        },
         select: { courseSlug: true },
       });
       const missionSummary = await loadSkillMissionSummary({
         userId: user.id,
         programSlug: enrolledProgram,
+        curriculumVersion: activeEnrollment?.curriculumVersion ?? 'legacy-v1',
         completedCourseSlugs: completedRows.map((r) => r.courseSlug),
       });
       if (missionSummary) {

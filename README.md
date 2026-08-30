@@ -35,11 +35,14 @@ App runs at `http://localhost:3000`.
 | Doc | What it's for |
 |-----|---------------|
 | [`docs/DEVELOPER-ONBOARDING.md`](docs/DEVELOPER-ONBOARDING.md) | **Start here** — full setup & conventions |
-| [`docs/FULL-SITE-FEATURE-REFERENCE.md`](docs/FULL-SITE-FEATURE-REFERENCE.md) | Complete map of the public site, member portal, employer/partner portals, admin tools, APIs, integrations, and data model |
+| [`SYSTEM-DOCUMENTATION.md`](SYSTEM-DOCUMENTATION.md) | Stakeholder overview of the public site, member portal, and staff workflows |
 | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) | Build failures, auth issues, database problems |
 | [`docs/ENVIRONMENT-VARIABLES.md`](docs/ENVIRONMENT-VARIABLES.md) | Complete `.env` reference |
 | [`docs/API-REFERENCE.md`](docs/API-REFERENCE.md) | Internal API documentation |
 | [`docs/SECURITY-AND-HEALTH.md`](docs/SECURITY-AND-HEALTH.md) | Security posture & CSP |
+| [`docs/DEPLOYMENT-CHECKLIST.md`](docs/DEPLOYMENT-CHECKLIST.md) | Current Vercel production release and rollback checklist |
+| [`docs/HEALTH-PROBES.md`](docs/HEALTH-PROBES.md) | Liveness, readiness, and journey-smoke contracts |
+| [`docs/coursera/approved-curriculum-api-validation-2026-08-30.md`](docs/coursera/approved-curriculum-api-validation-2026-08-30.md) | Approved-v2 Coursera catalog proof and activation gates |
 | [`docs/TENANT-ISOLATION.md`](docs/TENANT-ISOLATION.md) | Multi-tenant architecture |
 | [`docs/UI-DESIGN-SYSTEM.md`](docs/UI-DESIGN-SYSTEM.md) | Design system details |
 | [`prisma/schema.prisma`](prisma/schema.prisma) | Database schema |
@@ -54,7 +57,8 @@ npm run lint             # ESLint
 npm run check            # Typecheck + lint
 npm run db:migrate       # Run DB migrations
 npm run db:studio        # Prisma Studio
-npm run test:unit        # Unit tests (Vitest)
+npm run test:unit        # Node.js unit tests (lib/**/*.test.ts)
+npm run test:vitest      # Vitest component/API suites
 npm run test:e2e         # E2E tests (Playwright)
 npm run email            # Email template preview
 ```

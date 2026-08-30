@@ -8,12 +8,18 @@ import {
   evaluateSkillMission,
   MissionEvalUnavailableError,
 } from '@/lib/ai/skillMissionEval';
-import { getSkillMissionDefinition } from '@/lib/content/skillMissionCatalog';
 import {
   recordMissionResult,
   recordMissionSubmission,
   countRecentMissionSubmissions,
 } from '@/lib/member/skillMissions';
+import {
+  buildSkillMissionEventKey,
+  parseSkillMissionEventKey,
+  resolveSkillMissionAssignment,
+  resolveSkillMissionForCurriculum,
+} from '@/lib/member/skillMissionCurriculum';
+import { programSlugReadCandidates } from '@/lib/content/programSlug';
 import type { MissionEvalResponse } from '@/lib/ai/skillMissionEval';
 
 const MAX_ATTEMPTS_PER_DAY = 5;
@@ -66,6 +72,8 @@ export const POST = withApiGuc(
         return fail(parsed.error.errors[0]?.message ?? 'Validation failed', 400);
       }
       const { missionKey, quizAnswers, scenarioResponse } = parsed.data;
+      const requestedMission = parseSkillMissionEventKey(missionKey);
+      if (!requestedMission) return fail('Mission not found', 404);
 
       // Each question must be answered exactly once
       const answeredIndexes = new Set(quizAnswers.map((a) => a.questionIndex));
@@ -78,23 +86,51 @@ export const POST = withApiGuc(
       // 4. Bind the program to the member's enrollment — never to the body
       const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
-        select: { enrolledProgram: true },
+        select: {
+          enrolledProgram: true,
+          courseEnrollments: {
+            select: { programSlug: true, curriculumVersion: true, isPrimary: true },
+            orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+          },
+        },
       }));
-      const programSlug = dbUser?.enrolledProgram ?? null;
-      if (!programSlug) {
+      const assignment = resolveSkillMissionAssignment({
+        enrolledProgram: dbUser?.enrolledProgram,
+        enrollments: dbUser?.courseEnrollments ?? [],
+        requestedProgramSlug: requestedMission.programSlug,
+      });
+      if (!assignment) {
         return fail('You must be enrolled in a program to attempt skill missions.', 403);
       }
+      const { programSlug, curriculumVersion } = assignment;
 
       // 5. Look up the mission for (enrolled program, course) and verify the
       //    client is talking about the same mission
-      const missionDef = getSkillMissionDefinition(programSlug, courseSlug);
-      if (!missionDef || missionDef.key !== missionKey) {
+      const resolvedMission = resolveSkillMissionForCurriculum({
+        programSlug,
+        curriculumVersion,
+        missionCourseSlug: courseSlug,
+      });
+      const expectedMissionKey = resolvedMission
+        ? buildSkillMissionEventKey({
+            programSlug,
+            curriculumVersion,
+            missionCourseSlug: resolvedMission.definition.courseSlug,
+          })
+        : null;
+      if (!resolvedMission || expectedMissionKey !== missionKey) {
         return fail('Mission not found', 404);
       }
+      const missionDef = resolvedMission.definition;
 
       // 6. Verify the student has completed this course
       const progress = await prisma.$transaction((tx) => tx.courseProgress.findFirst({
-        where: { userId: user.id, courseSlug, status: 'COMPLETED' },
+        where: {
+          userId: user.id,
+          programSlug: { in: programSlugReadCandidates(programSlug) },
+          courseSlug: { in: resolvedMission.unlockSlugs },
+          status: 'COMPLETED',
+        },
         select: { id: true },
       }));
       if (!progress) {
@@ -105,6 +141,7 @@ export const POST = withApiGuc(
       const recentAttempts = await countRecentMissionSubmissions({
         userId: user.id,
         programSlug,
+        curriculumVersion,
         courseSlug,
         sinceHours: 24,
       });
@@ -114,7 +151,13 @@ export const POST = withApiGuc(
           429
         );
       }
-      await recordMissionSubmission({ userId: user.id, programSlug, courseSlug });
+      await recordMissionSubmission({
+        userId: user.id,
+        programSlug,
+        curriculumVersion,
+        courseSlug,
+        assignedCourseSlug: resolvedMission.assignedCourseSlug,
+      });
 
       // 8. Grade the quiz server-side against the catalog
       const quizCorrectCount = quizAnswers.reduce((count, answer) => {
@@ -127,7 +170,7 @@ export const POST = withApiGuc(
       let evalResult;
       try {
         evalResult = await evaluateSkillMission({
-          courseSlug,
+          courseSlug: resolvedMission.assignedCourseSlug,
           programSlug,
           missionKey,
           courseTitle: missionDef.courseTitle,
@@ -155,6 +198,8 @@ export const POST = withApiGuc(
           userId: user.id,
           courseSlug,
           programSlug,
+          curriculumVersion,
+          assignedCourseSlug: resolvedMission.assignedCourseSlug,
           result: {
             verdict: evalResult.verdict,
             coachingNote: evalResult.coachingNote,

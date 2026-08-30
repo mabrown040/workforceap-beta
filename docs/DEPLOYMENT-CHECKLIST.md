@@ -1,6 +1,6 @@
 # WorkforceAP Production Deployment Checklist
 
-**Repo:** `wap-repo` | **Branch:** `master` | **Last Updated:** 2026-05-13
+**Repo:** `workforceap-beta` | **Branch:** `master` | **Last Updated:** 2026-08-30
 
 Use this checklist for every production deploy. Do not skip steps.
 
@@ -15,7 +15,7 @@ Use this checklist for every production deploy. Do not skip steps.
 
 - [ ] **Install dependencies**
   ```bash
-  npm ci
+  corepack pnpm@10 install --frozen-lockfile
   ```
 
 - [ ] **Run TypeScript check**
@@ -26,9 +26,10 @@ Use this checklist for every production deploy. Do not skip steps.
 
 - [ ] **Run tests**
   ```bash
-  npm test
+  npm run test:unit
+  npm run test:vitest
   ```
-  > Includes unit + integration tests. Fix failures before deploy.
+  > Runs the Node.js unit lane and the Vitest component/API lane. Fix failures before deploy.
 
 - [ ] **Run E2E tests (if changed areas covered)**
   ```bash
@@ -96,7 +97,7 @@ Use this checklist for every production deploy. Do not skip steps.
   curl -H "Authorization: Bearer $CRON_SECRET" \
     https://www.workforceap.org/api/cron/smoke-test
   ```
-  > Should return 200, not 401.
+  > Should return HTTP 200 with `ok: true` and seven passing probes, not merely “not 401.” A failed readiness, public-page marker, timeout, or protected-route redirect returns 503, marks the cron execution failed, and reports a sanitized Sentry exception.
 
 ---
 
@@ -120,7 +121,7 @@ Use this checklist for every production deploy. Do not skip steps.
     - `smoke-test` (hourly)
     - `deploy-health` (hourly)
     - `coursera-training-sync` (hourly)
-    - `at-risk-check` (daily 6am CT)
+    - `at-risk-check` (daily at 06:00 UTC, per `vercel.json`)
   - If `cron_executions` table exists, query:
     ```sql
     SELECT job_name, status, started_at

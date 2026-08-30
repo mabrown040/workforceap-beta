@@ -32,7 +32,17 @@ export function withCronLogging(
 
       try {
         const response = await runWithGucContext(SYSTEM_GUC_CONTEXT, () => handler(request));
-        await completeCronExecution(executionId, 'SUCCESS');
+        const responseStatus =
+          response && typeof response.status === 'number' ? response.status : 200;
+        if (responseStatus >= 400) {
+          await completeCronExecution(
+            executionId,
+            'FAILED',
+            `Cron handler returned HTTP ${responseStatus}`,
+          );
+        } else {
+          await completeCronExecution(executionId, 'SUCCESS');
+        }
         return response;
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));

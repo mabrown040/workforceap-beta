@@ -61,7 +61,11 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
       style={{ cursor: onClick ? 'pointer' : undefined }}
     >
       <Card>
-        <HStack gap={3} align="center" style={{ background: TONE_BG[tone], borderRadius: 12, padding: '10px 12px' }}>
+        <HStack
+          className="wa-kit-queue-row"
+          gap={3}
+          style={{ background: TONE_BG[tone], borderRadius: 12, padding: '10px 12px' }}
+        >
           <div
             style={{
               width: 38,
@@ -77,7 +81,7 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
           >
             {icon}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="wa-kit-queue-row__copy" style={{ flex: 1, minWidth: 0 }}>
             <HStack gap={2} align="center">
               <StatusDot variant={TONE_DOT[tone]} label={title} />
               <div style={{ fontWeight: 700, fontSize: 14 }}>{title}</div>
@@ -89,7 +93,7 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
               <Token label={flag} size="sm" color={TONE_TOKEN[tone]} />
             </span>
           ) : null}
-          {action}
+          {action ? <div className="wa-kit-queue-row__action">{action}</div> : null}
         </HStack>
       </Card>
     </div>

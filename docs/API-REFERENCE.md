@@ -1,9 +1,10 @@
 # WAP API Reference
 
-> Auto-generated from `app/api/**/*.route.ts`.
-> **Last updated:** 2026-05-13
+> Generated from `app/api/**/*.route.ts` on 2026-05-13. Critical route
+> contracts are maintained inline between full inventory regenerations.
+> **Contract corrections last reviewed:** 2026-08-30
 
-**Total routes:** 365
+**Snapshot total routes:** 365
 
 ## Auth (7)
 
@@ -28,7 +29,7 @@
 | `/api/public/wioa-qualification/voice-session` | POST | public |  |
 | `/api/xapi` | — | public | xAPI tenant server endpoint. Coursera's "Standard xAPI format" client posts |
 
-## Health (2)
+## Health (3)
 
 | Route | Methods | Auth | Description |
 |-------|---------|------|-------------|
@@ -476,7 +477,7 @@
 | `/api/cron/milestone-celebration` | GET, POST | cron | GET /api/cron/milestone-celebration Sends a celebration email when a member completes all courses in their program. Runs daily to catch comp |
 | `/api/cron/partner-outcome-digest` | GET, POST | cron | Weekly digest for referral partners: referral counts by stage + weekly wins. Protected with CRON_SECRET. Vercel schedule: Monday 8am CT (see |
 | `/api/cron/placement-survey` | GET, POST | cron | POST /api/cron/placement-survey Daily cron: sends 30/60/90-day placement surveys and escalates non-responders to counselors. Idempotent per  |
-| `/api/cron/smoke-test` | GET, POST | cron | Hourly public endpoint smoke test. HTTP checks on critical public paths to catch 500s/404s from bad deploys. |
+| `/api/cron/smoke-test` | GET, POST | cron | Seven-probe hourly journey smoke: validates liveness/readiness JSON, login/program markers, and final same-origin login redirects for dashboard/admin/counselor. Returns 503 when a probe fails or exceeds 8 seconds. |
 | `/api/cron/stale-training-check` | GET | cron | GET /api/cron/stale-training-check Daily: members with `CourseEnrollment` but no fresh `CourseProgress` (7d) get `User.staleTrainingDetected |
 | `/api/cron/verification` | GET, POST | cron | Daily verification that member-facing cron jobs actually executed. Checks cron run logs against schedule-aware freshness windows. Daily cron |
 | `/api/cron/weekly-recap-email` | GET, POST | cron | Cron endpoint to send weekly admin recap email. Runs Friday 4 PM CT (10 PM UTC: "0 22 * * 5"). Gathers: new applicants, placements, at-risk  |

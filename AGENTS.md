@@ -2,7 +2,7 @@
 
 ## Cursor Cloud specific instructions
 
-This is a **Next.js 15 (App Router)** website — a replica of the live Squarespace-hosted site at [workforceap.org](https://workforceap.org), intended for self-hosting without Squarespace. The live Squarespace site is the visual reference for how pages should look.
+This is the production **WorkforceAP Next.js 15 (App Router)** application at [workforceap.org](https://workforceap.org). It includes the public website plus authenticated member, counselor, employer, partner, and admin portals; the former Squarespace site is historical reference material, not the deployment target.
 
 ### Running the dev server
 
@@ -20,16 +20,18 @@ Open `http://localhost:3000` in a browser.
 
 ### Project structure
 
-- `app/` — Next.js App Router pages (10 routes)
-  - `layout.tsx` — root layout with TopBanner, MainNav, ScrollAnimations, and global CSS
-  - `page.tsx` — homepage
-  - `apply/`, `programs/`, `what-we-do/`, `how-it-works/`, `faq/`, `contact/`, `leadership/`, `salary-guide/`, `program-comparison/` — inner pages
+- `app/` — full Next.js App Router application: public/apply journeys, member and staff portals, admin tools, and API routes
+  - `layout.tsx` — root layout and tenant-aware application shell
+  - `(portal)/` — authenticated member, counselor, employer, and partner surfaces
+  - `admin/` — staff administration surfaces
+  - `api/` — application, integration, health, and cron route handlers
 - `components/` — shared React components (TopBanner, MainNav, Footer, PageHero, PhotoHighlight, ScrollAnimations)
 - `css/main.css` — all styles (imported globally via layout.tsx)
 - `public/images/` — static image assets
 - `next.config.ts` — Next.js configuration including redirects for old `.html` URLs
-- `Caddyfile` — production reverse-proxy config
-- `DEPLOY.md` — production deployment instructions
+- `Caddyfile` — legacy self-hosted reverse-proxy artifact; use the Vercel checklist below for production
+- `docs/DEPLOYMENT-CHECKLIST.md` — current Vercel production deployment and rollback instructions
+- `DEPLOY.md` — historical homelab static-site deployment notes only
 - `docs/COMPLETED-WORK-LOG.md` — shipped tasks (backlog hygiene: `docs/BACKLOG-MAINTENANCE.md`)
 - `docs/KIT_GUIDE.md` — **read before touching portal UI**: canonical `--wa-*` tokens (`light-dark()` based), warm/dense surfaces, `KitTone`/`StatusTone` semantics, the `KitBaseProps` contract, kit a11y hooks, and the anti-pattern list
 
@@ -43,7 +45,8 @@ Skill: `.agents/skills/blast-radius-audit/SKILL.md`. On-disk graph: `graph/`. Ra
 ```bash
 npm run lint          # ESLint (~~5 known errors~~ — Burned down 2026-05-20, gate flipped)
 npm run typecheck     # TypeScript type-checking (tsc --noEmit)
-npm run test:unit     # Node.js test runner (lib/**/*.test.ts) — 424 pass, 3 pre-existing failures
+npm run test:unit     # Node.js test runner (lib/**/*.test.ts)
+npm run test:vitest   # Vitest component/API suites
 npm run build         # Full production build (Prisma generate + next build)
 ```
 

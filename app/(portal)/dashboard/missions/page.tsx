@@ -9,6 +9,7 @@ import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 import { SkillMissionEmpty } from '@/components/portal/SkillMissionEmpty';
+import { programSlugsEquivalent } from '@/lib/content/programSlug';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -37,15 +38,20 @@ export default async function SkillMissionsPage() {
   ]);
 
   const programSlug = activeProgram.activeProgramSlug;
+  const activeEnrollment = activeProgram.allEnrollments.find((enrollment) =>
+    programSlug ? programSlugsEquivalent(enrollment.programSlug, programSlug) : false,
+  ) ?? null;
+  const curriculumVersion = activeEnrollment?.curriculumVersion ?? 'legacy-v1';
   const completedCourseSlugs = programSlug
     ? dbUser?.courseProgress
-        .filter((row) => row.programSlug === programSlug)
+        .filter((row) => programSlugsEquivalent(row.programSlug, programSlug))
         .map((row) => row.courseSlug) ?? []
     : [];
 
   const summary = await loadSkillMissionSummary({
     userId: user.id,
     programSlug,
+    curriculumVersion,
     completedCourseSlugs,
   });
 

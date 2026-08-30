@@ -7,6 +7,7 @@
 |---|---|---|---|---|
 | **Liveness** | `GET /api/health` | No Prisma / Redis / S3 | Next isolate is up | 200 if the process handles the request (429 if rate-limited) |
 | **Readiness** | `GET /api/health/ready` | One Prisma `$transaction` → default org `findUnique` (`slug=workforceap`) | Pages can resolve the org that `app/layout.tsx` needs on every request | 200 if org row is reachable; **503** if Prisma is down or the org is missing |
+| **Journey smoke** | `GET /api/cron/smoke-test` | Seven parallel HTTP probes; cron-authenticated | Liveness/readiness JSON, login/program page markers, and the `/dashboard`, `/admin`, `/counselor` login redirect contracts | 200 when every probe is healthy; **503** plus a sanitized Sentry exception when any probe fails or exceeds 8 seconds |
 | SLO snapshot | `GET /api/health/slo` | Admin-only | Internal SLO numbers | Auth-gated |
 
 ## What to alert on
@@ -14,8 +15,11 @@
 - **Process down / deploy crash-loop:** `/api/health` ≠ 200.
 - **Public pages 500 / org or DB unreachable:** `/api/health/ready` ≠ 200. This is the probe for “the marketing site and portal layout cannot talk to Prisma/org.”
 - **Portal 504 / `maxDuration` timeouts:** ready can still be green (DB up, render path too heavy). Alert on Vercel **runtime timeouts** for `/dashboard`, `/admin`, `/counselor` — not only health 200. Ready would **not** have gone red on 2026-06-18; the database was healthy.
+- **Broken public journey or auth boundary:** alert on a non-200 `cron_smoke_test` run or its `Production smoke failed` Sentry issue. The cron validates response content and final login targets, not just status codes.
 
 Do **not** add the org query back onto `/api/health`. That checkout hits the transaction pooler (`:6543`, `connection_limit=1`) on every public uptime tick.
+
+The hourly journey smoke intentionally does not log in or carry a learner cookie. It proves the public surface and protected-route boundary without touching member data. It does **not** replace authenticated browser burn-in or Vercel timeout alerts for real portal renders.
 
 ## Example
 
@@ -24,6 +28,10 @@ Do **not** add the org query back onto `/api/health`. That checkout hits the tra
 curl -sS -o /tmp/live.json -w "%{http_code}\n" https://www.workforceap.org/api/health
 # Readiness — page this for dependency / 500-adjacent alerts
 curl -sS -o /tmp/ready.json -w "%{http_code}\n" https://www.workforceap.org/api/health/ready
+# Journey smoke — must use the production cron secret; never paste it into logs/docs
+curl -sS -o /tmp/smoke.json -w "%{http_code}\n" \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  https://www.workforceap.org/api/cron/smoke-test
 ```
 
 `GET /api/health?deep=true` is **not** a dependency probe anymore. Use `/api/health/ready`.

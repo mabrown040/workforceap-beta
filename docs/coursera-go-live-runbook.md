@@ -64,6 +64,9 @@ Set these in Vercel (Production) **before** going live:
 | `COURSERA_COURSE_URL_TEMPLATE` | `https://www.coursera.org/learn/{courseId}` | Deep-link to individual courses |
 | `COURSERA_PROGRAM_ID` | `TpIlAogTQ8-SJQKIE8PP9w` | Coursera Enterprise program ID |
 | `COURSERA_PROGRAM_ID_MAP` | `{"it-support-ibm":"TpIlAogTQ8..."}` | Per-program overrides |
+| `COURSERA_B4B_CLIENT_ID` | `b4b-client-id` | OAuth client ID for B4B roster, membership, and enrollment calls |
+| `COURSERA_B4B_CLIENT_SECRET` | `b4b-client-secret` | OAuth client secret for B4B calls; keep server-side only |
+| `COURSERA_ORG_ID` | `your-business-org-id` | Coursera business organization ID used by the B4B routes and sync |
 | `COURSERA_APP_ID` | `abc123` | OAuth client ID for Coursera Enterprise API |
 | `COURSERA_APP_KEY` | `xyz789` | OAuth app key (same namespace as `APP_ID`) |
 | `COURSERA_APP_SECRET` | `secret` | OAuth app secret |
@@ -252,7 +255,7 @@ Currently only admins see unmatched learners. A future improvement is to show co
 
 | # | Item | Priority | Effort | Owner |
 |---|------|----------|--------|-------|
-| 1 | **Configure prod env vars** (`COURSERA_PROGRAM_HOME_URL`, `COURSERA_APP_KEY`, `COURSERA_APP_SECRET`, `COURSERA_WEBHOOK_SECRET`, skillset IDs) | P0 | 1 hour | Mike / Dad |
+| 1 | **Configure prod env vars** (`COURSERA_PROGRAM_HOME_URL`, B4B client ID/secret + org ID, `COURSERA_APP_KEY`, `COURSERA_APP_SECRET`, `COURSERA_WEBHOOK_SECRET`, skillset IDs) | P0 | 1 hour | Mike / Dad |
 | 2 | **Enter xAPI credentials in Coursera admin panel** per §4 | P0 | 30 min | Mike / Dad |
 | 3 | **Set up daily CSV email delivery** to `michael.brown2@workforceap.org` | P0 | 15 min | Mike / Dad |
 | 4 | **Test end-to-end:** create test member → enroll → click Open Coursera → complete a lesson → verify progress appears in WAP | P0 | 1 hour | Dench / Mike |
@@ -260,7 +263,7 @@ Currently only admins see unmatched learners. A future improvement is to show co
 | 6 | **Review `/admin/coursera`** for unmatched learners and map any known mismatches | P1 | 30 min | Counselor / Mike |
 | 7 | **Add counselor dashboard widget** showing unmatched Coursera learners for their caseload | P1 | 1–2 days | Dench |
 | 8 | **Add member-facing onboarding guide** for first-time Coursera users (mobile-optimized) | P2 | 1 day | Dench |
-| 9 | **Research Coursera Enterprise API** for programmatic learner invitation/enrollment | P2 | Spike (1–2 days) | Mike + Dench |
+| 9 | **Validate the existing member/admin B4B enrollment routes** with an approved test learner; confirm approval, license, idempotency, and audit-log safeguards before production use | P1 | 1–2 hours | Mike + Dench |
 | 10 | **SSO/SAML evaluation** — is it worth it for the ICP? | P3 | 1–2 weeks | Future |
 
 ---

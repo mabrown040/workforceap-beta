@@ -19,6 +19,7 @@ import {
   resolveSkillMissionAssignment,
   resolveSkillMissionForCurriculum,
 } from '@/lib/member/skillMissionCurriculum';
+import { programSlugReadCandidates } from '@/lib/content/programSlug';
 import type { MissionEvalResponse } from '@/lib/ai/skillMissionEval';
 
 const MAX_ATTEMPTS_PER_DAY = 5;
@@ -126,7 +127,7 @@ export const POST = withApiGuc(
       const progress = await prisma.$transaction((tx) => tx.courseProgress.findFirst({
         where: {
           userId: user.id,
-          programSlug,
+          programSlug: { in: programSlugReadCandidates(programSlug) },
           courseSlug: { in: resolvedMission.unlockSlugs },
           status: 'COMPLETED',
         },

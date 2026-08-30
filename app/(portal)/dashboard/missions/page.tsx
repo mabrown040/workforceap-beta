@@ -44,7 +44,7 @@ export default async function SkillMissionsPage() {
   const curriculumVersion = activeEnrollment?.curriculumVersion ?? 'legacy-v1';
   const completedCourseSlugs = programSlug
     ? dbUser?.courseProgress
-        .filter((row) => row.programSlug === programSlug)
+        .filter((row) => programSlugsEquivalent(row.programSlug, programSlug))
         .map((row) => row.courseSlug) ?? []
     : [];
 

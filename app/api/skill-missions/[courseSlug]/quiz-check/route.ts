@@ -9,6 +9,7 @@ import {
   resolveSkillMissionAssignment,
   resolveSkillMissionForCurriculum,
 } from '@/lib/member/skillMissionCurriculum';
+import { programSlugReadCandidates } from '@/lib/content/programSlug';
 
 /* Grades a single quiz answer so the mission modal can show instant
    feedback without correctIndex/explanation ever shipping in the page
@@ -90,7 +91,7 @@ export const POST = withApiGuc(
       const progress = await prisma.$transaction((tx) => tx.courseProgress.findFirst({
         where: {
           userId: user.id,
-          programSlug: assignment.programSlug,
+          programSlug: { in: programSlugReadCandidates(assignment.programSlug) },
           courseSlug: { in: resolvedMission.unlockSlugs },
           status: 'COMPLETED',
         },

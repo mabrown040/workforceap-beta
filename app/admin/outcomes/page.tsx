@@ -29,7 +29,7 @@ export default async function OutcomesPage({
 }) {
   const user = await getUser();
   if (!user) {
-    redirect('/login?redirect=/admin/outcomes');
+    redirect('/login?redirectTo=/admin/outcomes');
   }
 
   const scope = await resolveAdminPageTenant(user.id);

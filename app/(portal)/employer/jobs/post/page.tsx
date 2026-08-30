@@ -88,23 +88,14 @@ export default async function EmployerJobPostPage() {
         </div>
       )}
 
-      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
+      <div className="wa-pb-24 md:wa-pb-0">
+        <div className="wa-p-4 md:wa-p-0">
+          <div className="portal-card portal-card--flat wa-rounded-xl wa-p-4 md:wa-max-w-2xl md:wa-rounded-2xl md:wa-p-6">
             <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
               {t('postAJobQuickHint')}
             </p>
             <EmployerJobPostForm />
           </div>
-        </div>
-      </div>
-
-      <div className="wa-hidden md:wa-block">
-        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', maxWidth: '42rem' }}>
-          <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
-            {t('postAJobQuickHint')}
-          </p>
-          <EmployerJobPostForm />
         </div>
       </div>
     </PortalPageFrame>

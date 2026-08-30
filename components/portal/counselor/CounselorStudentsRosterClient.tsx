@@ -8,6 +8,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import type { BadgeVariant } from '@/components/portal/StatusBadge';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
+import { getProgramBySlug } from '@/lib/content/programs';
 import {
   DesignSurface,
   SectionHeader,
@@ -125,6 +126,12 @@ function getInitials(name: string): string {
     .slice(0, 2)
     .join('')
     .toUpperCase();
+}
+
+function getProgramLabel(enrolledProgram: string | null, programInterest: string | null): string {
+  const value = enrolledProgram ?? programInterest;
+  if (!value) return '—';
+  return getProgramBySlug(value)?.title ?? value;
 }
 
 type Props = {
@@ -275,7 +282,7 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
     {
       key: 'program',
       header: 'Program',
-      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.enrolledProgram ?? row.programInterest ?? '—'}</span>,
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{getProgramLabel(row.enrolledProgram, row.programInterest)}</span>,
     },
     { key: 'progress', header: 'Progress', render: (row) => <ProgressCell row={row} /> },
     { key: 'risk', header: 'Risk', render: (row) => <RiskCell row={row} /> },
@@ -394,7 +401,7 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, fontSize: 11, color: 'var(--wa-muted)', margin: '12px 0 4px' }}>
-                  <span style={{ minWidth: 0 }}>{row.enrolledProgram ?? row.programInterest ?? '—'}</span>
+                  <span style={{ minWidth: 0 }}>{getProgramLabel(row.enrolledProgram, row.programInterest)}</span>
                   <span style={{ whiteSpace: 'nowrap' }} title={wioa.tooltip}>
                     <StatusTag tone={variantToTone(wioa.variant)}>{wioa.label}</StatusTag>
                   </span>

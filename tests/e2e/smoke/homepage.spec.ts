@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
  * and displays critical elements for both desktop and mobile.
  */
 test.describe('Homepage smoke', () => {
-  test('homepage loads with hero, program cards, and footer', async ({ page }) => {
+  test('homepage loads with hero, journey, and footer', async ({ page }) => {
     await page.goto('/');
 
     // Hero heading visible
@@ -14,8 +14,11 @@ test.describe('Homepage smoke', () => {
     // Primary CTA link to /apply visible
     await expect(page.getByRole('link', { name: /apply/i }).first()).toBeVisible();
 
-    // Program showcase section visible (cards or heading)
-    await expect(page.getByRole('heading', { name: /program/i }).first()).toBeVisible();
+    // Canonical journey section visible. Program discovery is verified below
+    // through the Programs navigation link rather than stale homepage copy.
+    await expect(
+      page.getByRole('heading', { name: /from apply to hired/i }).first(),
+    ).toBeVisible();
 
     // Footer visible
     await expect(page.locator('footer')).toBeVisible();

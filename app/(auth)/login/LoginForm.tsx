@@ -462,9 +462,9 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
             <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">verified_user</span>
             {tAuth('login.trustedSecure')}
           </div>
-          <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
+          <h2 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
             {portalHeroCopyForPath(redirectTo).headline}
-          </h1>
+          </h2>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.8, lineHeight: 'var(--line-height-normal)' }}>
             {portalHeroCopyForPath(redirectTo).subtitle}
           </p>
@@ -474,7 +474,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
       {/* ── Right form panel ── */}
       <div style={s.formPanel}>
         <div style={s.formContainer}>
-          <h2 style={s.heading}>{tAuth('login.heading')}</h2>
+          <h1 style={s.heading}>{tAuth('login.heading')}</h1>
           <p style={s.subheading}>
             {tAuth('login.signingInto')}{' '}<strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
           </p>

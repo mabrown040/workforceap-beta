@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 type AtRiskMember = {
   memberId: string;
@@ -101,7 +102,7 @@ export default function AtRiskMemberList({ members }: Props) {
                 </span>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                {m.enrolledProgram ?? 'No program'}
+                {m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : 'No program'}
               </span>
             </Link>
           );

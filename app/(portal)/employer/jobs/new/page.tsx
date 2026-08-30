@@ -66,21 +66,15 @@ export default async function NewJobPage() {
           </Link>
         }
       />
-      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem', overflowY: 'auto' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
+      <div className="wa-pb-24 md:wa-pb-0">
+        <div className="wa-overflow-y-auto wa-p-4 md:wa-overflow-visible md:wa-p-0">
+          <div className="portal-card portal-card--flat wa-rounded-xl wa-p-4 md:wa-rounded-none md:wa-border-0 md:wa-bg-transparent md:wa-p-0">
             <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
               {t('createJobFullEditorHint')}
             </p>
             <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
           </div>
         </div>
-      </div>
-      <div className="wa-hidden md:wa-block">
-        <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
-          {t('createJobFullEditorHint')}
-        </p>
-        <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
       </div>
     </PortalPageFrame>
   );

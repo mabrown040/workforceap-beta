@@ -85,23 +85,33 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
 }export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ saved: false, error: 'Unauthorized' }, { status: 401 });
     const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
-    if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+    if (!aiRateOk) {
+      return NextResponse.json(
+        { saved: false, error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 },
+      );
+    }
 
     let body: FeedbackBody;
     try {
       body = await req.json() as FeedbackBody;
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      return NextResponse.json({ saved: false, error: 'Invalid JSON' }, { status: 400 });
     }
   
     const transcript = normalizeTranscript(Array.isArray(body.transcript) ? body.transcript : []);
   
     if (transcript.length === 0) {
-      return NextResponse.json({
-        steps: FALLBACK_STEPS,
-      });
+      return NextResponse.json(
+        {
+          saved: false,
+          steps: [],
+          error: 'No conversation transcript was captured, so nothing was saved. Please start a new session and try again.',
+        },
+        { status: 422 },
+      );
     }
   
     try {
@@ -155,13 +165,25 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
         console.error('Lilley transcript email error:', emailErr);
       }
   
-      return NextResponse.json({ steps });
+      return NextResponse.json({ saved: true, steps });
     } catch (err) {
       console.error('Lilley feedback persistence error:', err);
-      return NextResponse.json({ error: 'Failed to save transcript' }, { status: 500 });
+      return NextResponse.json(
+        {
+          saved: false,
+          error: 'Your transcript could not be saved, so no action plan was created. Please try again.',
+        },
+        { status: 500 },
+      );
     }
   } catch (error) {
     console.error('/counselor/feedback:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      {
+        saved: false,
+        error: 'Your transcript could not be saved, so no action plan was created. Please try again.',
+      },
+      { status: 500 },
+    );
   }
 });

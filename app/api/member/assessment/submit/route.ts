@@ -5,13 +5,14 @@ import { prisma } from '@/lib/db/prisma';
 import { scoreAssessment, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import type { QuestionChoice } from '@/lib/assessment/answer-key';
 import { brandedEmailLayout } from '@/lib/email/template';
+import { getAdminAlertRecipients } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { awardPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGuc(async (request: Request) => {
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -135,9 +136,9 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
       const resend = new Resend(resendKey);
   
       try {
-        await resend.emails.send({
+        const result = await resend.emails.send({
           from: emailFrom,
-          to: ASSESSMENT_EMAIL_TO,
+          to: getAdminAlertRecipients(),
           subject: `New Assessment Submitted — ${firstName} ${lastName}`,
           text: [
             `Name: ${firstName} ${lastName}`,
@@ -150,7 +151,13 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
             `View full results: ${adminLink}`,
           ].join('\n'),
         });
-        adminEmailSent = true;
+        if (result.error || !result.data?.id) {
+          console.error('Assessment admin email was not accepted by the provider', {
+            errorName: result.error?.name ?? 'missing_delivery_id',
+          });
+        } else {
+          adminEmailSent = true;
+        }
       } catch (err) {
         console.error('Assessment admin email failed:', err);
       }
@@ -166,13 +173,19 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
           ctaText: 'Go to Dashboard',
           ctaUrl: dashboardUrl,
         });
-        await resend.emails.send({
+        const result = await resend.emails.send({
           from: emailFrom,
           to: dbUser.email,
           subject: 'Assessment Complete — Workforce Advancement Project',
           html: memberHtml,
         });
-        memberEmailSent = true;
+        if (result.error || !result.data?.id) {
+          console.error('Assessment member email was not accepted by the provider', {
+            errorName: result.error?.name ?? 'missing_delivery_id',
+          });
+        } else {
+          memberEmailSent = true;
+        }
       } catch (err) {
         console.error('Assessment member email failed:', err);
       }

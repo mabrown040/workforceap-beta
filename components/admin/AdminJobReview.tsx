@@ -105,7 +105,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [matches, setMatches] = useState<MatchRow[] | null>(null);
   const [suggesting, setSuggesting] = useState(false);
-  const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'warning' | 'error'; message: string } | null>(null);
 
   const canApprove = job.status === 'pending';
   const canReject = job.status === 'pending';
@@ -128,12 +128,18 @@ export default function AdminJobReview({ job }: { job: Job }) {
     setActionFeedback(null);
     try {
       const res = await fetch(`/api/admin/jobs/${job.id}/approve`, { method: 'POST' });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; warning?: string };
       if (res.ok) {
-        setActionFeedback({ type: 'success', message: 'Job approved.' });
+        setActionFeedback({
+          type: data.warning ? 'warning' : 'success',
+          message: data.warning ?? 'Job approved.',
+        });
         router.refresh();
       } else {
-        setActionFeedback({ type: 'error', message: 'Failed to approve. Try again.' });
+        setActionFeedback({ type: 'error', message: data.error ?? 'Failed to approve. Try again.' });
       }
+    } catch {
+      setActionFeedback({ type: 'error', message: 'Could not reach the server. Check the job status before retrying.' });
     } finally {
       setApproving(false);
     }
@@ -153,12 +159,18 @@ export default function AdminJobReview({ job }: { job: Job }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: rejectReason }),
       });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; warning?: string };
       if (res.ok) {
-        setActionFeedback({ type: 'success', message: 'Job rejected.' });
+        setActionFeedback({
+          type: data.warning ? 'warning' : 'success',
+          message: data.warning ?? 'Job rejected.',
+        });
         router.refresh();
       } else {
-        setActionFeedback({ type: 'error', message: 'Failed to reject. Try again.' });
+        setActionFeedback({ type: 'error', message: data.error ?? 'Failed to reject. Try again.' });
       }
+    } catch {
+      setActionFeedback({ type: 'error', message: 'Could not reach the server. Check the job status before retrying.' });
     } finally {
       setRejecting(false);
     }
@@ -238,9 +250,15 @@ export default function AdminJobReview({ job }: { job: Job }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {actionFeedback && (
+      {actionFeedback && (() => {
+        const feedbackColor = actionFeedback.type === 'success'
+          ? 'var(--wa-success)'
+          : actionFeedback.type === 'warning'
+            ? 'var(--wa-gold)'
+            : 'var(--wa-danger)';
+        return (
         <div
-          role="status"
+          role={actionFeedback.type === 'error' ? 'alert' : 'status'}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -251,13 +269,13 @@ export default function AdminJobReview({ job }: { job: Job }) {
             borderRadius: 'var(--wa-radius-sm)',
             fontSize: 13,
             fontWeight: 600,
-            color: actionFeedback.type === 'success' ? 'var(--wa-success)' : 'var(--wa-danger)',
-            background: `color-mix(in srgb, ${actionFeedback.type === 'success' ? 'var(--wa-success)' : 'var(--wa-danger)'} 10%, transparent)`,
-            border: `1px solid color-mix(in srgb, ${actionFeedback.type === 'success' ? 'var(--wa-success)' : 'var(--wa-danger)'} 25%, transparent)`,
+            color: feedbackColor,
+            background: `color-mix(in srgb, ${feedbackColor} 10%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${feedbackColor} 25%, transparent)`,
           }}
         >
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {actionFeedback.type === 'success' ? <CheckCircle2 size={14} aria-hidden /> : <XCircle size={14} aria-hidden />}
+            {actionFeedback.type === 'error' ? <XCircle size={14} aria-hidden /> : <CheckCircle2 size={14} aria-hidden />}
             {actionFeedback.message}
           </span>
           <button
@@ -269,7 +287,8 @@ export default function AdminJobReview({ job }: { job: Job }) {
             Dismiss
           </button>
         </div>
-      )}
+        );
+      })()}
 
       <div className="wa-flex wa-items-center wa-flex-wrap" style={{ gap: 10 }}>
         <span style={{ fontSize: 14, color: 'var(--wa-muted)' }}>

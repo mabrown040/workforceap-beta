@@ -989,7 +989,7 @@ export default function EmployerJobsBoard({
                       )}
                       {j.status !== 'draft' && (
                         <Link
-                          href={`/employer/applications?jobId=${j.id}`}
+                          href={`/employer/jobs/${encodeURIComponent(j.id)}/applicants`}
                           className="btn btn-ghost btn-sm"
                           onClick={() => trackEmployerJobAction('view_applications', j.id, { status: j.status })}
                         >

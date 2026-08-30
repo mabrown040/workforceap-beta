@@ -198,6 +198,8 @@ test('loadMemberDashboardHome combines enrollment + progress into kit props', as
   assert.equal(view.pointsLedger[0].color, 'accent');
   assert.ok((view.pointsThisWeek ?? 0) >= 80);
   assert.equal(view.resumeHref, '/dashboard/training');
+  assert.equal(view.programHref, '/dashboard/program');
+  assert.equal(view.coursesHref, '/dashboard/learning');
   assert.equal(view.doThisNext?.variant, 'urgent');
   assert.equal(view.nextLesson, 'Finish Hardware module');
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
@@ -235,7 +237,8 @@ test('loadMemberDashboardHome shows saved progress when the member has no assign
   assert.equal(view.certModulesDone, 0);
   assert.equal(view.programStatus, 'In progress');
   assert.match(view.programTitle ?? '', /CompTIA A\+/i);
-  assert.equal(view.coursesHref, '/dashboard/program');
+  assert.equal(view.programHref, '/dashboard/program');
+  assert.equal(view.coursesHref, '/dashboard/learning');
 });
 
 test('loadMemberDashboardHome never reports 100% from one completed alias row in a multi-course program', async () => {
@@ -296,7 +299,8 @@ test('loadMemberDashboardHome returns a zeroed view when the user row is still m
   assert.equal(view.firstName, 'Jamie');
   assert.equal(view.points, 0);
   assert.equal(view.doThisNext, null);
-  assert.equal(view.coursesHref, '/dashboard/program');
+  assert.equal(view.programHref, '/dashboard/program');
+  assert.equal(view.coursesHref, '/dashboard/learning');
   assert.equal(view.toolkitHref, '/dashboard/ai-tools');
   assert.equal(view.nextLesson, undefined);
   assert.equal(view.programTitle, undefined);

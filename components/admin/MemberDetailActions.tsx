@@ -2,9 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PROGRAMS } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 
-export type ProgramOption = { slug: string; name: string; status?: string };
+export type ProgramOption = {
+  slug: string;
+  name: string;
+  status?: string;
+  curriculumMigrationPending?: boolean;
+};
 
 type ActionFeedback = { kind: 'success' | 'error'; text: string };
 
@@ -36,13 +41,27 @@ export default function MemberDetailActions({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
 
-  const options =
+  const options: ProgramOption[] =
     programOptions.length > 0
       ? programOptions
-      : PROGRAMS.map((p) => ({ slug: p.slug, name: p.title }));
+      : PROGRAMS
+          .filter((program) => (
+            !program.curriculumMigrationPending || program.slug === currentProgramSlug
+          ))
+          .map((program) => ({
+            slug: program.slug,
+            name: program.title,
+            curriculumMigrationPending: program.curriculumMigrationPending === true,
+          }));
+  const resolvedCurrentProgramSlug = currentProgramSlug
+    ? getProgramBySlug(currentProgramSlug)?.slug ?? currentProgramSlug
+    : null;
+  const selectedProgram = options.find((option) => option.slug === programSlug);
+  const assignmentBlocked = selectedProgram?.curriculumMigrationPending === true
+    || Boolean(selectedProgram?.status && selectedProgram.status !== 'active');
 
   const handleChangeProgram = async () => {
-    if (!programSlug) return;
+    if (!programSlug || assignmentBlocked || programSlug === resolvedCurrentProgramSlug) return;
     const selected = options.find((o) => o.slug === programSlug);
     const label = selected?.name ?? programSlug;
     if (enrollmentGateBlocked) {
@@ -139,9 +158,17 @@ export default function MemberDetailActions({
           >
             <option value="">— Select —</option>
             {options.map((p) => (
-              <option key={p.slug} value={p.slug}>
+              <option
+                key={p.slug}
+                value={p.slug}
+                disabled={
+                  p.curriculumMigrationPending === true
+                  || Boolean(p.status && p.status !== 'active')
+                }
+              >
                 {p.name}
                 {'status' in p && p.status && p.status !== 'active' ? ` (${p.status})` : ''}
+                {p.curriculumMigrationPending ? ' (curriculum activation pending)' : ''}
               </option>
             ))}
           </select>
@@ -149,11 +176,21 @@ export default function MemberDetailActions({
             type="button"
             className="btn btn-outline"
             onClick={() => void handleChangeProgram()}
-            disabled={!programSlug || !!loading}
+            disabled={
+              !programSlug
+              || programSlug === resolvedCurrentProgramSlug
+              || assignmentBlocked
+              || !!loading
+            }
           >
             {loading === 'program' ? '...' : 'Save'}
           </button>
         </div>
+        {assignmentBlocked ? (
+          <p role="status" style={{ margin: '0.4rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+            This current enrollment remains visible for continuity. It cannot be re-assigned while the program is inactive or awaiting curriculum activation.
+          </p>
+        ) : null}
       </div>
 
       {feedback ? (

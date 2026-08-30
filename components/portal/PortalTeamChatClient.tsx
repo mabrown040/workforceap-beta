@@ -45,6 +45,10 @@ type PortalTeamChatClientProps = {
   surfaceVariant: 'partner' | 'employer';
   /** Render without the outer voice-agent shell when embedded in another inbox shell. */
   decorated?: boolean;
+  /** Server-validated subject for a shared team conversation. */
+  contextLabel?: string;
+  /** Optional contextual text placed in the composer, still requiring send. */
+  initialDraft?: string;
 };
 
 export default function PortalTeamChatClient({
@@ -54,11 +58,13 @@ export default function PortalTeamChatClient({
   emptyHint,
   surfaceVariant,
   decorated = true,
+  contextLabel,
+  initialDraft = '',
 }: PortalTeamChatClientProps) {
   const { portalUserId } = initial;
   const [thread, setThread] = useState(initial.thread);
   const [messages, setMessages] = useState(initial.messages);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState(initialDraft);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -134,7 +140,7 @@ export default function PortalTeamChatClient({
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || sending) return;
+    if (!text || text === initialDraft.trim() || sending) return;
     setSending(true);
     setError(null);
     try {
@@ -168,6 +174,22 @@ export default function PortalTeamChatClient({
 
   const inner = (
     <div className="member-counselor-chat">
+      {contextLabel ? (
+        <div
+          role="status"
+          style={{
+            marginBottom: '0.75rem',
+            padding: '0.7rem 0.85rem',
+            borderRadius: '0.65rem',
+            border: '1px solid var(--outline-variant)',
+            background: 'var(--surface-container-low)',
+            color: 'var(--color-on-surface-variant)',
+            fontSize: '0.85rem',
+          }}
+        >
+          Message context: <strong style={{ color: 'var(--color-on-surface)' }}>{contextLabel}</strong>
+        </div>
+      ) : null}
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -207,7 +229,11 @@ export default function PortalTeamChatClient({
           placeholder="Type a message…"
           maxLength={8000}
         />
-        <button type="submit" className="btn btn-primary" disabled={sending || !draft.trim()}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={sending || !draft.trim() || draft.trim() === initialDraft.trim()}
+        >
           {sending ? 'Sending…' : 'Send'}
         </button>
       </form>

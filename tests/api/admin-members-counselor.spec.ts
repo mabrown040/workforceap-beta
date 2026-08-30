@@ -31,7 +31,7 @@ vi.mock('@/lib/auth/server', () => ({
   resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, role: 'anonymous' })),
 }));
 vi.mock('@/lib/auth/roles', () => ({ isSuperAdmin: vi.fn(() => Promise.resolve(false)), isAdmin: vi.fn() }));
-vi.mock('@/lib/email', () => ({ sendCounselorAssignedEmail: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('@/lib/email', () => ({ sendCounselorAssignedEmail: vi.fn().mockResolvedValue({ ok: true }) }));
 
 vi.mock('@/lib/messages/counselorThread', () => ({
   getOrCreateMemberCounselorThread: vi.fn().mockResolvedValue({
@@ -84,6 +84,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { createNotification } from '@/lib/notifications/create';
+import { sendCounselorAssignedEmail } from '@/lib/email';
 
 const UUIDS = {
   admin: '550e8400-e29b-41d4-a716-446655440001',
@@ -132,6 +133,7 @@ describe('POST /api/admin/members/[id]/counselor', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.counselorName).toBe('Counselor Alice');
+    expect(body.notificationEmailSent).toBe(true);
 
     expect(createNotification).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -146,6 +148,36 @@ describe('POST /api/admin/members/[id]/counselor', () => {
         }),
       })
     );
+  });
+
+  it('returns committed success with a warning when the assignment email fails', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin, fullName: 'Admin Bob' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({
+      id: UUIDS.member,
+      email: 'jane@example.com',
+      fullName: 'Jane Doe',
+      organizationId: 'org-1',
+    } as any);
+    vi.mocked(prisma.counselor.findFirst).mockResolvedValue({
+      id: UUIDS.counselor,
+      userId: UUIDS.counselorUser,
+      active: true,
+      user: { id: UUIDS.counselorUser, fullName: 'Counselor Alice' },
+    } as any);
+    vi.mocked(prisma.counselorAssignment.findUnique).mockResolvedValue(null);
+    vi.mocked(sendCounselorAssignedEmail).mockResolvedValueOnce({ ok: false, error: 'provider down' });
+
+    const res = await assignCounselor(
+      makeRequest(UUIDS.member, { counselorUserId: UUIDS.counselorUser }),
+      { params: Promise.resolve({ id: UUIDS.member }) },
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.notificationEmailSent).toBe(false);
+    expect(body.warning).toMatch(/assigned.*email was not sent/i);
   });
 
   it('returns 401 when unauthenticated', async () => {

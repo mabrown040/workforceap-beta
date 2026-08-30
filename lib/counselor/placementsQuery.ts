@@ -5,12 +5,15 @@ const PLACEMENTS_QUERY_LIMIT = 500;
 export function buildPlacementsQuery(options: {
   staffUserId: string;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
+  organizationId: string | null;
   memberId: string | null;
   days: number;
 }) {
   let query = `
     SELECT 
       pr.*,
+      u.full_name as member_name,
       u.email as member_email
     FROM placement_records pr
     JOIN users u ON u.id = pr.user_id
@@ -22,6 +25,9 @@ export function buildPlacementsQuery(options: {
   if (options.memberId) {
     query += ` AND pr.user_id = $${params.length + 1}`;
     params.push(options.memberId);
+  } else if (options.isAdmin && !options.isSuperAdmin) {
+    query += ` AND u.organization_id = $${params.length + 1}`;
+    params.push(options.organizationId ?? '');
   } else if (!options.isAdmin) {
     query += `
       AND EXISTS (

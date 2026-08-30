@@ -682,8 +682,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
         try {
           convRef.current = await ConversationClient.startSession({ signedUrl, dynamicVariables, ...callbacks });
         } catch {
-          // Retry once without dynamic variables (agent may not declare them).
-          convRef.current = await ConversationClient.startSession({ signedUrl, ...callbacks });
+          throw new Error('Your personalized coach context could not be attached. Please try again.');
         }
       } else {
         convRef.current = await ConversationClient.startSession({ signedUrl, ...callbacks });
@@ -1025,7 +1024,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                 Live Transcript
               </h3>
               <span style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, fontWeight: 700 }}>
-                {isLive ? 'LIVE' : phase === 'ended' ? 'SAVED' : 'IDLE'}
+                {isLive ? 'LIVE' : phase === 'ended' ? 'NOT SAVED' : 'IDLE'}
               </span>
             </div>
 

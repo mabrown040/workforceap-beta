@@ -184,7 +184,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
                 and tuition and fees remain pending program-owner verification and are not
                 published here as verified program facts.
               </p>
-              <div class="quad">
+              <div class="quad quad-pending">
                 <div>
                   <h3>Certification this training prepares you to pursue.</h3>
                   <p>{program.curriculum.credential}</p>
@@ -449,6 +449,9 @@ const metaDescription = `Training in ${display} offered at no cost for members w
   .prev-more{font-size:13px;color:var(--muted);margin-top:8px}
 
   .quad{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:20px}
+  /* The pending variant holds a single cell and follows a paragraph that has no
+     bottom margin, so it needs the same rhythm .cert-h uses. */
+  .quad-pending{margin-top:20px}
   .stars{display:flex;gap:4px;margin-bottom:8px}
   .star{color:var(--border);font-size:18px}
   .star.on{color:var(--gold)}

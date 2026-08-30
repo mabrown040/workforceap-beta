@@ -213,7 +213,7 @@ export default async function AnalyticsPage({
 }) {
   const user = await getUser();
   if (!user) {
-    redirect('/login?redirect=/admin/analytics');
+    redirect('/login?redirectTo=/admin/analytics');
   }
 
   const scope = await resolveAdminPageTenant(user.id);

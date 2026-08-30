@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 // ─── Mocks ───
 vi.mock('next/server', () => ({
@@ -174,6 +176,7 @@ vi.mock('@/lib/coursera/memberSkillsetProgress', () => ({
 
 vi.mock('@/lib/content/programs', () => ({
   getProgramBySlug: vi.fn(),
+  getProgramDisplayTitle: vi.fn((program: { title: string }) => program.title),
 }));
 
 vi.mock('@/lib/content/courseraDiscoveredCatalog', () => ({
@@ -219,7 +222,7 @@ import { POST as postRemind } from '@/app/api/counselor/remind-member/route';
 import { GET as getPlacements, POST as postPlacement } from '@/app/api/counselor/placements/route';
 import { GET as getPipelineAtRiskStats } from '@/app/api/admin/pipeline/at-risk-stats/route';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
@@ -234,6 +237,7 @@ import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainin
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import { getMemberPoints } from '@/lib/member/points';
 import { createNotification } from '@/lib/notifications/create';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 const UUIDS = {
   counselorUser: '550e8400-e29b-41d4-a716-446655440001',
@@ -1260,19 +1264,44 @@ describe('POST /api/counselor/remind-member', () => {
 describe('GET /api/counselor/placements', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn(prisma));
+    vi.mocked(getProgramBySlug).mockReturnValue(undefined);
   });
 
   it('returns placements for counselor', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser, email: 'counselor@wap.org' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
     vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(getProgramBySlug).mockReturnValue({
+      slug: 'comptia-a-professional-certificate',
+      title: 'CompTIA A+ Professional Certificate (CompTIA A+)',
+    } as any);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      {
+        id: UUIDS.memberUser,
+        fullName: 'Jane Doe',
+        email: 'jane@example.com',
+        enrolledProgram: 'comptia-a-plus',
+        courseEnrollments: [
+          {
+            programSlug: 'comptia-a-plus',
+            isPrimary: true,
+            enrolledAt: new Date('2026-05-01'),
+          },
+        ],
+      },
+    ] as any);
     vi.mocked(prisma.$queryRawUnsafe).mockResolvedValue([
       {
         id: 'placement-1',
         user_id: UUIDS.memberUser,
         employer_name: 'TechCorp',
         job_title: 'Junior IT Support',
+        member_name: 'Jane Doe',
         member_email: 'jane@example.com',
+        program_slug: 'comptia-a-plus',
       },
     ] as any);
 
@@ -1282,6 +1311,72 @@ describe('GET /api/counselor/placements', () => {
     const body = await res.json();
     expect(body.placements).toHaveLength(1);
     expect(body.placements[0].employer_name).toBe('TechCorp');
+    expect(body.placements[0].member_name).toBe('Jane Doe');
+    expect(body.placements[0].program_title).toBe('CompTIA A+ Professional Certificate (CompTIA A+)');
+    expect(body.memberOptions).toEqual([
+      {
+        id: UUIDS.memberUser,
+        fullName: 'Jane Doe',
+        email: 'jane@example.com',
+        programTitle: 'CompTIA A+ Professional Certificate (CompTIA A+)',
+      },
+    ]);
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          counselorAssignments: {
+            some: {
+              active: true,
+              counselor: { userId: UUIDS.counselorUser, active: true },
+            },
+          },
+        }),
+      }),
+    );
+  });
+
+  it('limits organization admins to active members in their own organization', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.adminUser, email: 'admin@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ organizationId: UUIDS.orgId } as any);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
+    vi.mocked(prisma.$queryRawUnsafe).mockResolvedValue([] as any);
+
+    const res = await getPlacements(makeRequest('http://localhost:3000/api/counselor/placements'));
+
+    expect(res.status).toBe(200);
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          organizationId: UUIDS.orgId,
+          deletedAt: null,
+          profile: { role: 'member' },
+        }),
+      }),
+    );
+  });
+
+  it('keeps the member selector cross-tenant for super-admin support', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.adminUser, email: 'admin@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
+    vi.mocked(prisma.$queryRawUnsafe).mockResolvedValue([] as any);
+
+    const res = await getPlacements(makeRequest('http://localhost:3000/api/counselor/placements'));
+
+    expect(res.status).toBe(200);
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          deletedAt: null,
+          profile: { role: 'member' },
+        },
+      }),
+    );
   });
 
   it('filters by memberId when provided', async () => {
@@ -1342,6 +1437,8 @@ describe('GET /api/counselor/placements', () => {
 describe('POST /api/counselor/placements', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => fn(prisma));
   });
 
   it('creates a placement record', async () => {
@@ -1349,6 +1446,16 @@ describe('POST /api/counselor/placements', () => {
     vi.mocked(isAdmin).mockResolvedValue(false);
     vi.mocked(isCounselor).mockResolvedValue(true);
     vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({
+      enrolledProgram: 'legacy-client-value',
+      courseEnrollments: [
+        {
+          programSlug: 'comptia-a-plus',
+          isPrimary: true,
+          enrolledAt: new Date('2026-05-01'),
+        },
+      ],
+    } as any);
 
     const mockPlacement = {
       id: 'placement-1',
@@ -1370,7 +1477,7 @@ describe('POST /api/counselor/placements', () => {
           jobTitle: 'Junior IT Support',
           startDate: '2026-05-10',
           salaryOffered: 45000,
-          programSlug: 'comptia-a-plus',
+          programSlug: 'attacker-controlled-program',
           notes: 'Great placement!',
         }),
       })
@@ -1380,9 +1487,70 @@ describe('POST /api/counselor/placements', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.placement.employer_name).toBe('TechCorp');
-  });
+    expect(prisma.user.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id: UUIDS.memberUser,
+          deletedAt: null,
+          profile: { role: 'member' },
+        }),
+      }),
+    );
+    const insertCall = vi.mocked(prisma.$queryRaw).mock.calls[0] ?? [];
+    expect(insertCall).toContain('comptia-a-professional-certificate');
+      expect(insertCall).not.toContain('attacker-controlled-program');
+    });
 
-  it('returns 400 for missing required fields', async () => {
+    it('rolls back placement creation when the required member event write fails', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser, email: 'counselor@wap.org' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(false);
+      vi.mocked(isCounselor).mockResolvedValue(true);
+      vi.mocked(assertStaffCanAccessMemberRecord).mockResolvedValue(true);
+      vi.mocked(prisma.user.findFirst).mockResolvedValue({
+        enrolledProgram: 'comptia-a-plus',
+        courseEnrollments: [],
+      } as any);
+
+      const txQueryRaw = vi.fn().mockResolvedValue([{ id: 'placement-not-committed' }]);
+      const txExecuteRaw = vi.fn().mockRejectedValue(new Error('member event insert failed'));
+      let writeTransactionCommitted = false;
+
+      vi.mocked(prisma.$transaction)
+        .mockImplementationOnce(async (fn: any) => fn(prisma))
+        .mockImplementationOnce(async (fn: any) => {
+          try {
+            const result = await fn({
+              $queryRaw: txQueryRaw,
+              $executeRaw: txExecuteRaw,
+            });
+            writeTransactionCommitted = true;
+            return result;
+          } catch (error) {
+            writeTransactionCommitted = false;
+            throw error;
+          }
+        });
+
+      const res = await postPlacement(
+        makeRequest('http://localhost:3000/api/counselor/placements', {
+          method: 'POST',
+          body: JSON.stringify({
+            userId: UUIDS.memberUser,
+            employerName: 'TechCorp',
+            jobTitle: 'Junior IT Support',
+          }),
+        })
+      );
+
+      expect(res.status).toBe(500);
+      expect(txQueryRaw).toHaveBeenCalledTimes(1);
+      expect(txExecuteRaw).toHaveBeenCalledTimes(1);
+      expect(writeTransactionCommitted).toBe(false);
+      expect(prisma.$queryRaw).not.toHaveBeenCalled();
+      expect(prisma.$executeRaw).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 for missing required fields', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser, email: 'counselor@wap.org' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
     vi.mocked(isCounselor).mockResolvedValue(true);
@@ -1459,5 +1627,25 @@ describe('POST /api/counselor/placements', () => {
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
+  });
+});
+
+describe('counselor placements UI contract', () => {
+  const source = readFileSync(
+    resolve(process.cwd(), 'app/(portal)/counselor/placements/page.tsx'),
+    'utf8',
+  );
+
+  it('uses the authorized member options returned by the placements endpoint', () => {
+    expect(source).toContain('setMemberOptions(data.memberOptions || [])');
+    expect(source).toMatch(/<select[\s\S]*memberOptions\.map/);
+    expect(source).not.toContain("label={t('memberId')}");
+  });
+
+  it('does not collect or display raw program slugs', () => {
+    expect(source).not.toContain('setProgramSlug');
+    expect(source).not.toContain('programSlug: programSlug');
+    expect(source).not.toContain('p.program_slug ||');
+    expect(source).toContain('program_title');
   });
 });

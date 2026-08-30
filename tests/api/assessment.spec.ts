@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const resendSend = vi.hoisted(() => vi.fn());
+
 // ─── Mocks ───
 vi.mock('next/server', () => ({
   NextResponse: {
@@ -97,7 +99,7 @@ vi.mock('resend', () => ({
   Resend: vi.fn().mockImplementation(function () {
     return {
       emails: {
-        send: vi.fn().mockResolvedValue({ id: 'email-123' }),
+        send: resendSend,
       },
     };
   }),
@@ -225,8 +227,11 @@ describe('POST /api/member/assessment/submit', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    resendSend.mockReset();
+    resendSend.mockResolvedValue({ data: { id: 'email-123' }, error: null });
     vi.stubEnv('RESEND_API_KEY', 'test-resend-key');
     vi.stubEnv('EMAIL_FROM', 'test@workforceap.org');
+    vi.stubEnv('EMAIL_TO_ADMIN', '');
     vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://test.workforceap.org');
   });
 
@@ -247,6 +252,30 @@ describe('POST /api/member/assessment/submit', () => {
     expect(typeof body.scorePct).toBe('number');
     expect(body.scorePct).toBeGreaterThanOrEqual(0);
     expect(body.scorePct).toBeLessThanOrEqual(100);
+    expect(body.adminEmailSent).toBe(true);
+    expect(body.emailsSent).toBe(true);
+    expect(resendSend.mock.calls[0]?.[0]?.to).toEqual([
+      'info@workforceap.org',
+      'michael.brown@workforceap.org',
+      'michael.brown2@workforceap.org',
+    ]);
+  });
+
+  it('does not claim staff delivery when Resend returns a provider error', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getCounselorStarterProfileReview).mockReturnValue({ required: false, missing: [] });
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as any);
+    resendSend
+      .mockResolvedValueOnce({ data: null, error: { name: 'validation_error' } })
+      .mockResolvedValueOnce({ data: { id: 'member-email-123' }, error: null });
+
+    const res = await submitAssessment(makeRequest(validBody));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.adminEmailSent).toBe(false);
+    expect(body.emailsSent).toBe(true);
   });
 
   it('stores results in member profile', async () => {

@@ -23,9 +23,11 @@ const FUNDING_SOURCE_LABELS: Record<FundingSource, string> = {
 export default function AdminMemberEnrollmentFundingForm({
   memberId,
   initial,
+  hasPrimaryEnrollment,
 }: {
   memberId: string;
   initial: EnrollmentFundingInitial;
+  hasPrimaryEnrollment: boolean;
 }) {
   const router = useRouter();
   const [fundingSource, setFundingSource] = useState<FundingSource | ''>(
@@ -54,12 +56,21 @@ export default function AdminMemberEnrollmentFundingForm({
           workspaceEmailProvisioned,
         }),
       });
-      const data = await r.json().catch(() => ({}));
+      const data = (await r.json().catch(() => ({}))) as {
+        error?: string;
+        enrollmentFundingSaved?: boolean;
+        workspaceSaved?: boolean;
+      };
       if (!r.ok) {
         setMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Save failed' });
         return;
       }
-      setMsg({ type: 'ok', text: 'Enrollment funding info saved.' });
+      setMsg({
+        type: 'ok',
+        text: data.enrollmentFundingSaved === true
+          ? 'Enrollment funding and workspace info saved.'
+          : 'Workspace info saved.',
+      });
       router.refresh();
     } catch {
       setMsg({ type: 'err', text: 'Network error' });
@@ -71,7 +82,10 @@ export default function AdminMemberEnrollmentFundingForm({
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
       {msg && (
-        <p style={{ fontSize: '0.9rem', color: msg.type === 'ok' ? '#166534' : '#b91c1c' }} role="status">
+        <p
+          style={{ fontSize: '0.9rem', color: msg.type === 'ok' ? '#166534' : '#b91c1c' }}
+          role={msg.type === 'ok' ? 'status' : 'alert'}
+        >
           {msg.text}
         </p>
       )}
@@ -83,6 +97,7 @@ export default function AdminMemberEnrollmentFundingForm({
         <select id="adminmemberenrollmentfundingform-funding-source-field"
           value={fundingSource}
           onChange={(e) => setFundingSource(e.target.value as FundingSource | '')}
+          disabled={!hasPrimaryEnrollment || saving}
           style={{
             width: '100%',
             padding: '0.4rem 0.6rem',
@@ -107,6 +122,7 @@ export default function AdminMemberEnrollmentFundingForm({
         <textarea id="adminmemberenrollmentfundingform-funding-notes-field"
           value={fundingNotes}
           onChange={(e) => setFundingNotes(e.target.value)}
+          disabled={!hasPrimaryEnrollment || saving}
           rows={3}
           placeholder="e.g. grant name, employer purchase order, partner org name…"
           style={{

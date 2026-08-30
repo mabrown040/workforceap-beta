@@ -215,7 +215,7 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
       align: 'right',
       render: (row) =>
         row.applicationId ? (
-          <Link href={`/employer/applications#${row.applicationId}`} style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)' }}>
+          <Link href={`/employer/applications/${encodeURIComponent(row.applicationId)}`} style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)' }}>
             Open
           </Link>
         ) : (
@@ -272,7 +272,7 @@ export default function EmployerMatchHistoryClient({ initialRows }: { initialRow
               />
               {row.applicationId ? (
                 <Link
-                  href={`/employer/applications#${row.applicationId}`}
+                  href={`/employer/applications/${encodeURIComponent(row.applicationId)}`}
                   style={{ fontSize: 12, fontWeight: 700, color: 'var(--wa-accent)' }}
                 >
                   Open application

@@ -31,7 +31,11 @@ const STEP_CONFIG = [
   { id: 8, title: 'Final questions', questionRange: [31, 35] as [number, number] },
 ];
 
-type AssessmentOutcome = { message: string; pct: number };
+type AssessmentOutcome = {
+  message: string;
+  pct: number;
+  staffNotificationSent?: boolean;
+};
 
 type AssessmentFormProps = {
   defaultFirstName: string;
@@ -178,7 +182,11 @@ export default function AssessmentForm({
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as {
+        error?: string;
+        scorePct?: number;
+        adminEmailSent?: boolean;
+      };
       if (!res.ok) {
         setError(data.error ?? 'Submission failed. Please try again.');
         setLoading(false);
@@ -188,7 +196,11 @@ export default function AssessmentForm({
       // The server is the source of truth for the score — it re-derives
       // raw/pct from answers and ignores any client-supplied score.
       const pct: number = typeof data.scorePct === 'number' ? data.scorePct : 0;
-      setOutcome({ message: assessmentConfirmMessage(pct), pct });
+      setOutcome({
+        message: assessmentConfirmMessage(pct),
+        pct,
+        staffNotificationSent: data.adminEmailSent === true,
+      });
       setStep('confirm');
 
       const intended =
@@ -215,6 +227,15 @@ export default function AssessmentForm({
           Preassessment complete
         </h2>
         <p className={styles.confirmCopy}>{outcome.message}</p>
+        {outcome.staffNotificationSent === true ? (
+          <p role="status" className={styles.notificationSent}>
+            Your results were saved and the WorkforceAP team was notified.
+          </p>
+        ) : outcome.staffNotificationSent === false ? (
+          <p role="alert" className={styles.notificationWarning}>
+            Your results were saved, but staff email delivery could not be confirmed. The team can still review them in the admin portal.
+          </p>
+        ) : null}
         <button type="button" className={`wa-kit-focus ${styles.primaryBtn}`} onClick={() => router.push(continueHref)}>
           {continueHref === '/dashboard' ? 'Open home' : 'Continue'}
         </button>

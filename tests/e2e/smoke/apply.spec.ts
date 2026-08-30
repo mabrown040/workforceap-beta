@@ -31,14 +31,14 @@ test.describe('Apply smoke', () => {
     // Contact / help link or phone
     await expect(page.locator('a[href^="tel:"]').first()).toBeVisible();
 
-    // Sticky apply CTA appears after scrolling past hero (organic mobile parity with paid)
+    // The form is already the active corridor after the hero, so the mobile
+    // sticky CTA stays unmounted instead of covering form controls.
     await page.evaluate(() => window.scrollTo(0, 400));
-    await expect(page.locator('.apply-organic-sticky-cta')).toBeVisible();
-    await expect(page.locator('.apply-organic-sticky-cta__button')).toContainText(/start your application/i);
+    await expect(page.locator('.apply-organic-sticky-cta')).toHaveCount(0);
 
-    // Sticky CTA stays hidden at footer — avoid covering links after the apply corridor
+    // It also stays hidden at the footer so it cannot cover support links.
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(page.locator('.apply-organic-sticky-cta')).not.toBeVisible();
+    await expect(page.locator('.apply-organic-sticky-cta')).toHaveCount(0);
   });
 
   test('paid apply variant shows mobile trust cues at form entry', async ({ page }) => {

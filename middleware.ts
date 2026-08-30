@@ -37,6 +37,7 @@ import {
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 import { WAP_USER_ID_HEADER } from '@/lib/auth/layoutUserId';
 import { hasSupabaseAuthCookies, shouldTalkToGoTrue } from '@/lib/auth/supabaseAuthCookie';
+import { isUnauthenticatedBrowserNavigationApiPath } from '@/lib/auth/tenantApiNavigation';
 import {
   READ_ONLY_PORTAL_AUDIT_HEADER,
   READ_ONLY_PORTAL_AUDIT_TOKEN_HEADER,
@@ -367,12 +368,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // API backstop: unlike page routes, these must not redirect (there is no
-  // browser navigation to redirect) — return the same JSON 401 shape the
-  // per-route `getUser()` checks already return, so this is a pure
-  // defense-in-depth layer with no observable change for authenticated
-  // callers or for the already-enforced per-route 401s.
-  if (isTenantApiPath(effectivePath) && !user) {
+  // API backstop: ordinary API calls return JSON 401. A very small set of
+  // GET endpoints are browser navigation targets; let those route handlers
+  // issue their destination-preserving login redirect instead.
+  if (
+    isTenantApiPath(effectivePath)
+    && !user
+    && !isUnauthenticatedBrowserNavigationApiPath(request.method, effectivePath)
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

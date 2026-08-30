@@ -18,6 +18,7 @@ import {
 interface Placement {
   id: string;
   user_id: string;
+  member_name: string | null;
   member_email: string;
   employer_name: string;
   job_title: string;
@@ -25,7 +26,14 @@ interface Placement {
   salary_offered: number | null;
   placed_at: string;
   notes: string | null;
-  program_slug: string | null;
+  program_title: string | null;
+}
+
+interface MemberOption {
+  id: string;
+  fullName: string | null;
+  email: string;
+  programTitle: string | null;
 }
 
 function PortalListSkeleton({ label }: { label: string }) {
@@ -63,6 +71,7 @@ const textAreaStyle: React.CSSProperties = {
 export default function PlacementsPage() {
   const t = useTranslations('counselor');
   const [placements, setPlacements] = useState<Placement[]>([]);
+  const [memberOptions, setMemberOptions] = useState<MemberOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -74,7 +83,6 @@ export default function PlacementsPage() {
   const [jobTitle, setJobTitle] = useState('');
   const [startDate, setStartDate] = useState('');
   const [salary, setSalary] = useState('');
-  const [programSlug, setProgramSlug] = useState('');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -88,7 +96,9 @@ export default function PlacementsPage() {
       if (!res.ok) throw new Error('Failed');
       const data = await res.json();
       setPlacements(data.placements || []);
+      setMemberOptions(data.memberOptions || []);
     } catch {
+      setMemberOptions([]);
       setMessage('Could not load placements');
       setMessageIsSuccess(false);
     } finally {
@@ -112,7 +122,6 @@ export default function PlacementsPage() {
           jobTitle,
           startDate: startDate || null,
           salaryOffered: salary ? parseInt(salary, 10) : null,
-          programSlug: programSlug || null,
           notes: notes || null,
         }),
       });
@@ -141,8 +150,16 @@ export default function PlacementsPage() {
     setJobTitle('');
     setStartDate('');
     setSalary('');
-    setProgramSlug('');
     setNotes('');
+  };
+
+  const selectedMember = memberOptions.find((member) => member.id === memberId) ?? null;
+
+  const formatMemberOption = (member: MemberOption) => {
+    const identity = member.fullName?.trim()
+      ? `${member.fullName.trim()} (${member.email})`
+      : member.email;
+    return member.programTitle ? `${identity} — ${member.programTitle}` : identity;
   };
 
   const formatDate = (d: string | null) => {
@@ -163,8 +180,11 @@ export default function PlacementsPage() {
       header: t('member'),
       render: (p) => (
         <>
-          <div style={{ fontWeight: 700 }}>{p.member_email}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>{p.program_slug || t('noProgram')}</div>
+          <div style={{ fontWeight: 700 }}>{p.member_name || p.member_email}</div>
+          {p.member_name && p.member_name !== p.member_email ? (
+            <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>{p.member_email}</div>
+          ) : null}
+          <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>{p.program_title || t('noProgram')}</div>
         </>
       ),
     },
@@ -234,14 +254,22 @@ export default function PlacementsPage() {
           <form onSubmit={handleSubmit} className="wa-kit-card" style={{ marginBottom: '1.5rem' }}>
             <SectionHeader title={t('newPlacement')} />
             <div style={{ display: 'grid', gap: '0 1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-              <FormField
-                label={t('memberId')}
-                type="text"
-                value={memberId}
-                onChange={(e) => setMemberId(e.target.value)}
-                required
-                aria-required
-              />
+              <FormField label={t('member')}>
+                <select
+                  value={memberId}
+                  onChange={(e) => setMemberId(e.target.value)}
+                  required
+                  aria-required="true"
+                  className="wa-kit-control"
+                >
+                  <option value="">— {t('member')} —</option>
+                  {memberOptions.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {formatMemberOption(member)}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
               <FormField
                 label={t('employer')}
                 type="text"
@@ -267,19 +295,27 @@ export default function PlacementsPage() {
                 placeholder="50000"
                 inputMode="numeric"
               />
-              <FormField
-                label={t('program')}
-                type="text"
-                value={programSlug}
-                onChange={(e) => setProgramSlug(e.target.value)}
-                placeholder="program-slug"
-              />
+              <div>
+                <span className="wa-kit-field-label">{t('program')}</span>
+                <div
+                  aria-live="polite"
+                  className="wa-kit-control"
+                  style={{ display: 'flex', alignItems: 'center', color: 'var(--wa-muted)' }}
+                >
+                  {selectedMember?.programTitle || t('noProgram')}
+                </div>
+              </div>
             </div>
             <FormField label={t('notes')} full>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={textAreaStyle} />
             </FormField>
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button type="submit" disabled={submitting} className="btn btn-primary" style={{ opacity: submitting ? 0.7 : 1 }}>
+              <button
+                type="submit"
+                disabled={submitting || !memberId}
+                className="btn btn-primary"
+                style={{ opacity: submitting || !memberId ? 0.7 : 1 }}
+              >
                 {submitting ? t('recording') : t('recordPlacement')}
               </button>
               <button
@@ -323,7 +359,7 @@ export default function PlacementsPage() {
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {p.member_email}
+                          {p.member_name || p.member_email}
                         </div>
                         <div
                           style={{
@@ -362,7 +398,7 @@ export default function PlacementsPage() {
                         marginTop: 12,
                       }}
                     >
-                      <span>{p.program_slug || t('noProgram')}</span>
+                      <span>{p.program_title || t('noProgram')}</span>
                       <span>
                         {t('startDate')}: {formatDate(p.start_date)}
                       </span>

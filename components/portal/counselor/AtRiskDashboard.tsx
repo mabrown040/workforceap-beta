@@ -24,6 +24,7 @@ import {
   type KitColor,
   type KitTone} from '@/components/portal/kit';
 import AtRiskDetailModal from './AtRiskDetailModal';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 /**
  * Counselor "At-risk members" — Command Center redesign.
@@ -989,7 +990,7 @@ function RiskRow({
             {row.phone ? ` · ${row.phone}` : ''}
           </div>
           <div style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 4 }}>
-            {row.enrolledProgram ?? 'Not enrolled'} · last activity {formatDate(row.lastActivityAt ?? row.memberSince)}
+            {row.enrolledProgram ? getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram : 'Not enrolled'} · last activity {formatDate(row.lastActivityAt ?? row.memberSince)}
           </div>
           <FactorChips factors={row.factors} />
         </div>

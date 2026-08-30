@@ -81,6 +81,7 @@ export type MemberDashboardHomeView = {
   certModulesTotal: number;
   pointsLedger: DashboardPointsLedgerEntry[];
   pointsThisWeek?: number;
+  programHref: string;
   resumeHref: string;
   coursesHref: string;
   toolkitHref: string;
@@ -300,8 +301,9 @@ function emptyHome(fallbackDisplayName: string | null | undefined): MemberDashbo
     certModulesDone: 0,
     certModulesTotal: 0,
     pointsLedger: [],
+    programHref: '/dashboard/program',
     resumeHref: '/dashboard/program',
-    coursesHref: '/dashboard/program',
+    coursesHref: '/dashboard/learning',
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext: null,
@@ -359,9 +361,8 @@ function shapeHome(args: {
   const firstName = displayFirstName(args.row.fullName, args.fallbackDisplayName);
 
   const topAction = args.row.nextBestActions[0] ?? null;
-  const programHref = assignedSlug && slug
-    ? `/dashboard?program=${encodeURIComponent(slug)}`
-    : '/dashboard/program';
+  const programHref = '/dashboard/program';
+  const resumeHref = assignedSlug && slug ? '/dashboard/training' : programHref;
   const doThisNext: NextBestAction | null = topAction
     ? {
         id: topAction.id,
@@ -406,8 +407,9 @@ function shapeHome(args: {
     certModulesTotal: totalCourses,
     pointsLedger: mapPointsLedger(recentLedger),
     pointsThisWeek: pointsThisWeek > 0 ? pointsThisWeek : undefined,
-    resumeHref: topAction?.ctaHref ?? programHref,
-    coursesHref: programHref,
+    programHref,
+    resumeHref,
+    coursesHref: '/dashboard/learning',
     toolkitHref: '/dashboard/ai-tools',
     jobsHref: '/dashboard/jobs',
     doThisNext,

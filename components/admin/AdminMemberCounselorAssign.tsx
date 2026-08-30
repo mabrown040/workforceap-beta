@@ -38,7 +38,12 @@ export default function AdminMemberCounselorAssign({
         setMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Save failed' });
         return;
       }
-      setMsg({ type: 'ok', text: 'Assigned. The member was emailed and can message from the portal.' });
+      setMsg({
+        type: 'ok',
+        text: data.notificationEmailSent === true
+          ? 'Assigned. The member was emailed and can message from the portal.'
+          : 'Assigned. The member can message from the portal, but the notification email was not sent.',
+      });
       router.refresh();
     } catch {
       setMsg({ type: 'err', text: 'Network error' });

@@ -106,7 +106,7 @@ export default function EmployerJobQuickActions({
         )}
       </div>
       <Link
-        href={`/employer/applications?jobId=${encodeURIComponent(jobId)}`}
+        href={`/employer/jobs/${encodeURIComponent(jobId)}/applicants`}
         style={{
           display: 'block',
           textAlign: 'center',

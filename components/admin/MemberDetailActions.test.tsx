@@ -74,4 +74,37 @@ describe('MemberDetailActions program assignment', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not reach the server.');
   });
+
+  it('keeps a current paused curriculum visible but prevents re-assignment', () => {
+    render(
+      <MemberDetailActions
+        {...defaultProps}
+        currentProgramSlug="paused-program"
+        programOptions={[
+          {
+            slug: 'paused-program',
+            name: 'Database Administrator',
+            curriculumMigrationPending: true,
+          },
+          { slug: 'data-analytics', name: 'Data Analytics' },
+        ]}
+      />,
+    );
+
+    const pausedOption = screen.getByRole('option', {
+      name: /Database Administrator.*curriculum activation pending/i,
+    });
+    expect(pausedOption).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent(/remains visible for continuity/i);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('does not offer paused curricula for a fresh assignment in fallback options', () => {
+    render(<MemberDetailActions {...defaultProps} programOptions={[]} />);
+
+    expect(
+      screen.queryByRole('option', { name: /curriculum activation pending/i }),
+    ).not.toBeInTheDocument();
+  });
 });

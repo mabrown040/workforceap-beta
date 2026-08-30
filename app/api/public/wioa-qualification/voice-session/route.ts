@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { buildPublicWioaPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { checkPublicVoiceSessionRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 const payloadSchema = z.object({
   fullName: z.string().trim().max(120).optional(),
@@ -11,17 +12,9 @@ const payloadSchema = z.object({
   countyOrZip: z.string().trim().max(120).optional(),
 });
 
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const ip = getClientIp(request);
+    const ip = getClientIpFromRequest(request);
     const { success: rateOk } = await checkPublicVoiceSessionRateLimit(`public-wioa-voice:${ip}`);
     if (!rateOk) {
       return NextResponse.json(

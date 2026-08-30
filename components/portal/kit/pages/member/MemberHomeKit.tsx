@@ -124,6 +124,7 @@ export interface MemberHomeKitProps {
   nextBadgeRemaining?: string;
   /** Short list shown in the home "Application pipeline" table. */
   pipeline?: PipelineRow[];
+  programHref?: string;
   resumeHref?: string;
   toolkitHref?: string;
   jobsHref?: string;
@@ -554,10 +555,11 @@ export function MemberHomeKit({
   nextBadgeName,
   nextBadgeRemaining,
   pipeline = [],
+  programHref = '/dashboard/program',
   resumeHref = '/dashboard/program',
   toolkitHref = '/dashboard/ai-tools',
   jobsHref = '/dashboard/jobs',
-  coursesHref = '/dashboard/program',
+  coursesHref = '/dashboard/learning',
   currentStreak = 0,
   longestStreak = 0,
   goals = [],
@@ -646,7 +648,7 @@ export function MemberHomeKit({
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-12 wa-gap-4">
           <div className="lg:wa-col-span-4">
           <div className="wa-kit-card">
-            <KitCardHead title="Certification path" linkLabel="Open plan" linkHref={resumeHref} />
+            <KitCardHead title="Certification path" linkLabel="Open plan" linkHref={programHref} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
               <div style={{ minWidth: 0, flex: 1 }}>
@@ -721,7 +723,7 @@ export function MemberHomeKit({
             ) : (
               <p className="wa-kit-lede" style={{ margin: 0 }}>
                 No study minutes this week.{' '}
-                <a href={resumeHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                <a href={programHref} className="wa-kit-focus" style={{ color: 'var(--wa-accent)', fontWeight: 700, textDecoration: 'none' }}>
                   Open program
                 </a>
               </p>

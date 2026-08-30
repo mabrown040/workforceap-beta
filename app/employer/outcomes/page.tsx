@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EmployerOutcomesPage() {
   const user = await getUser();
   if (!user) {
-    redirect('/login?redirect=/employer/outcomes');
+    redirect('/login?redirectTo=/employer/outcomes');
   }
 
   const employer = await isEmployer(user.id);

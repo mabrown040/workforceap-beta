@@ -219,6 +219,8 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
   assert.match(prompt, /do not mention 988 or emergency services/);
   assert.match(prompt, /Start exactly with "Okay\."/);
   assert.match(prompt, /Do not summarize their emotions/);
+  assert.match(prompt, /Do not present a menu of choices in this first return-to-career response/);
+  assert.match(prompt, /choose one next action or ask one open focused question/);
   assert.match(prompt, /After a CLEAR DENIAL, if the student means broader life stress/);
   assert.match(prompt, /do not redirect into career coaching/);
   assert.match(prompt, /My role is career coaching, so I cannot guide personal-life concerns/);

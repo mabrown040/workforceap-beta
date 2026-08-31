@@ -165,7 +165,7 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
   const patch = JSON.parse(readFileSync(livePatchPath, 'utf8')) as {
     name?: string;
     conversation_config?: {
-      agent?: { first_message?: string; prompt?: { prompt?: string } };
+      agent?: { first_message?: string; prompt?: { prompt?: string; llm?: string } };
       tts?: { voice_id?: string };
     };
   };
@@ -174,6 +174,7 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
 
   assert.equal(patch.name, 'Lilley - WorkforceAP Student Career Coach');
   assert.equal(patch.conversation_config?.tts?.voice_id, 'l4Coq6695JDX9xtLqXDE');
+  assert.equal(patch.conversation_config?.agent?.prompt?.llm, 'gpt-5.6-luna');
   assert.match(firstMessage, /I'm Lilley, your WorkforceAP AI career coach/);
   assert.match(prompt, /student-facing AI Career Coach/);
   assert.match(prompt, /You do not assist counselors with caseloads/);
@@ -183,24 +184,57 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
   assert.match(prompt, /\{\{coach_memory_summary\}\}/);
   assert.doesNotMatch(prompt, /\{\{staff_name\}\}|\{\{partner_name\}\}/);
   assert.doesNotMatch(prompt, /support career counselors and staff/);
-  assert.match(prompt, /Do not begin consecutive turns with the same empathy opener/);
-  assert.match(prompt, /without parroting the student's words/);
+  assert.match(prompt, /FINAL SPOKEN-OUTPUT CHECK/);
+  assert.match(prompt, /inspect the first sentence/);
+  assert.match(prompt, /generic empathy, an emotion paraphrase, or a stock opener/);
+  assert.match(prompt, /Start ordinary coaching replies with useful substance/);
+  assert.match(prompt, /Do not preface that substance with generic empathy/);
+  assert.match(prompt, /If a proposed first sentence only paraphrases emotion, delete it/);
+  assert.match(prompt, /Never begin consecutive ordinary-coaching turns with the same wording/);
+  assert.match(prompt, /repeat the exact STATE 2 safety question whenever STATE 2 requires it/);
   assert.match(prompt, /When personal-life stress affects work or training/);
-  assert.match(prompt, /Treat statements such as "I'm done," "I want to quit,"/);
-  assert.match(prompt, /only when the surrounding context could reasonably refer to life, safety, or hopelessness/);
-  assert.match(prompt, /Do not trigger this safety path when the student clearly means a specific course/);
+  assert.match(prompt, /Offer a tiny career step only when the student explicitly asks to return to a career topic/);
+  assert.match(prompt, /SAFETY STATE MACHINE/);
+  assert.match(prompt, /Never skip a state, infer an answer/);
+  assert.match(prompt, /STATE 1 — ORDINARY COACHING/);
+  assert.match(prompt, /Earlier career context does not make an unqualified statement career-only/);
+  assert.match(prompt, /named-task language as career-only only when the same turn contains no broader-life/);
   assert.match(
     prompt,
     /do you mean quitting the job search or training, or are you thinking about suicide or hurting yourself right now\?/
   );
+  assert.match(prompt, /Say only that sentence\. Then move to STATE 2/);
+  assert.match(prompt, /directly states that they are currently thinking about suicide/);
+  assert.match(prompt, /A denial, quotation, hypothetical question, or discussion of someone else's situation is not a positive disclosure/);
+  assert.match(prompt, /STATE 2 — WAITING FOR A DIRECT SAFETY ANSWER/);
+  assert.match(prompt, /Stay in this state until the student directly answers/);
+  assert.match(prompt, /A CLEAR DENIAL must explicitly deny current suicidal or self-harm thoughts/);
+  assert.match(prompt, /"I am safe," "I mean life," "I don't know,"/);
+  assert.match(prompt, /saying there is no plan is not a clear denial/);
+  assert.match(prompt, /Are you thinking about suicide or hurting yourself right now\?/);
+  assert.match(prompt, /remain in STATE 2/);
+  assert.match(prompt, /A refusal to answer or a statement such as "I do not want to talk about it" is an evasive non-answer/);
+  assert.match(prompt, /Do not preface it with empathy, explanation, or "I need a direct answer,"/);
+  assert.match(prompt, /do not add any other words/);
   assert.match(prompt, /do not mention 988 or emergency services/);
-  assert.match(prompt, /directly says they are thinking about suicide, self-harm, or harming someone else/);
-  assert.match(prompt, /skip the ambiguity question/);
-  assert.match(prompt, /cannot say they are safe/);
+  assert.match(prompt, /Start exactly with "Okay\."/);
+  assert.match(prompt, /Do not summarize their emotions/);
+  assert.match(prompt, /After a CLEAR DENIAL, if the student means broader life stress/);
+  assert.match(prompt, /do not redirect into career coaching/);
+  assert.match(prompt, /My role is career coaching, so I cannot guide personal-life concerns/);
+  assert.match(prompt, /We can pause here, or I can help you identify a trusted person or human support to contact/);
+  assert.match(prompt, /Would you like to pause, or would you like help identifying a trusted person or human support/);
+  assert.match(prompt, /Resume career coaching only if the student explicitly asks for it/);
+  assert.match(prompt, /STATE 3 — POSSIBLE SELF-HARM OR HARM TO OTHERS/);
+  assert.match(prompt, /Ordinary career coaching remains paused/);
+  assert.match(prompt, /already stated immediate danger or a plan to act, do not ask them to restate it/);
+  assert.match(prompt, /immediately give the emergency guidance below/);
+  assert.match(prompt, /no immediate danger or no plan, that does not clear STATE 3/);
+  assert.match(prompt, /A later "no plan" or "not in immediate danger" never returns/);
+  assert.match(prompt, /vary wording only when no exact sentence is mandated/);
+  assert.match(prompt, /Respond directly to the student's newest barrier/);
   assert.match(prompt, /call or text 988/);
   assert.match(prompt, /call 911 or local emergency services now/);
-  assert.match(prompt, /while a safety concern is unresolved/);
-  assert.match(prompt, /they or someone else are in immediate or life-threatening danger/);
   assert.match(prompt, /Do not invent or assume the student's enrollment, grades, progress, funding/);
   assert.match(prompt, /Never claim that Coursera access[\s\S]*approved or guaranteed/);
 });

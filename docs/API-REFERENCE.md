@@ -2,7 +2,7 @@
 
 > Generated from `app/api/**/*.route.ts` on 2026-05-13. Critical route
 > contracts are maintained inline between full inventory regenerations.
-> **Contract corrections last reviewed:** 2026-08-30
+> **Contract corrections last reviewed:** 2026-08-31
 
 **Snapshot total routes:** 365
 
@@ -101,6 +101,12 @@
 | `/api/apply/signup` | POST | public | Primary = [0]; up to 3 preferences in order */ |
 | `/api/apply/status-lookup` | POST | public |  |
 
+## Agent tools (1)
+
+| Route | Methods | Auth | Description |
+|-------|---------|------|-------------|
+| `/api/agent-tools/v1/[tool]` | POST | short-lived provider bearer token | Read-only Lilley gateway. Accepts no tool arguments; identity, organization, role, agent, and allowed-tool scope come from the server-minted Upstash session. Supports only `get_my_next_step`, `get_training_status`, and `get_coursera_progress`; rechecks active tenant membership and fails closed if Redis is unavailable. When governed curriculum evidence is unavailable, member progress can still be returned, but approval and provider-availability claims are explicitly marked unavailable and must not be inferred. |
+
 ## Member (80)
 
 | Route | Methods | Auth | Description |
@@ -115,7 +121,7 @@
 | `/api/member/assessment/submit` | POST | member | Multi-program: counselor-created flag lives on the primary enrollment. |
 | `/api/member/benefits/request` | POST | member |  |
 | `/api/member/career-business-coach/completion` | POST | member |  |
-| `/api/member/career-business-coach/voice-session` | POST | member | POST — signed URL for career and business coach voice session. */ |
+| `/api/member/career-business-coach/voice-session` | POST | member | Legacy Lilley entry point. Returns a signed URL plus only the scoped secret tool token; no member-authored text enters Lilley's system prompt. |
 | `/api/member/certifications/export` | GET | member |  |
 | `/api/member/certifications` | GET, POST | member | Use the user-provided date if supplied and valid, otherwise default to now |
 | `/api/member/certifications/upload` | POST | member | POST /api/member/certifications/upload Accepts a multipart/form-data upload with: - file: the certificate file (PDF/image) - certName: the c |
@@ -204,7 +210,7 @@
 | `/api/counselor/nudge` | POST | member | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |
 | `/api/counselor/placements` | GET, POST | counselor | GET /api/counselor/placements Returns all placement records. Counselor/admin only. Query params: memberId, employerName, days (recent N days |
 | `/api/counselor/remind-member` | POST | member | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |
-| `/api/counselor/session` | POST | authenticated; staff mode requires counselor/admin | Returns a signed ElevenLabs URL. Member/default mode selects Lilley with member/program context. Explicit `audience: "staff"` is role-gated, requires `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID`, and returns 503 while that dedicated agent is not configured. |
+| `/api/counselor/session` | POST | authenticated; staff mode requires counselor/admin | Returns a signed ElevenLabs URL. Member/default mode selects reviewed Lilley and returns only a scoped secret tool token; account/program truth is read through the tenant-scoped gateway, not prompt variables. Explicit `audience: "staff"` is role-gated, requires `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID`, and returns 503 while that dedicated agent is not configured. |
 | `/api/counselor/sessions/email-packet` | POST | member | Track A - Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Member exi |
 | `/api/counselor/sessions/upload-resume` | POST | super_admin | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |
 | `/api/counselor/sessions/voice-walkthrough` | POST | member | Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member |

@@ -6,13 +6,14 @@ import {
   resolveCounselorVoiceSessionPlan,
   startElevenLabsPortalSession,
 } from '@/lib/ai/elevenlabsAgents';
+import { startMemberAgentGatewaySession } from '@/lib/agents/gateway/startMemberSession';
 import {
   fetchCounselorPortalDynamicVariables,
-  fetchMemberPortalDynamicVariables,
 } from '@/lib/ai/elevenlabsPortalContext';
 import { cookies } from 'next/headers';
 import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { requireGucContext } from '@/lib/db/gucContext';
 
 async function _POST(request: Request) {
   try {
@@ -46,21 +47,48 @@ async function _POST(request: Request) {
     const locale = getAppLocaleFromCookieStore(cookieStore);
   
     try {
-      const dynamicVariables =
+      const staffDynamicVariables =
         plan.contextKind === 'staff'
           ? await fetchCounselorPortalDynamicVariables(user.id)
-          : await fetchMemberPortalDynamicVariables(user.id);
-      const { signedUrl, expiresAt, dynamicVariables: returned } =
-        await startElevenLabsPortalSession(plan.agentKey, {
-          dynamicVariables,
-          locale,
-        });
-      return NextResponse.json({
-        signedUrl,
-        expiresAt,
-        dynamicVariables: returned ?? dynamicVariables,
-        audience: plan.audience,
-      });
+          : undefined;
+      const session = plan.contextKind === 'member'
+        ? await (async () => {
+            const guc = requireGucContext();
+            if (
+              !guc.orgId ||
+              guc.userId !== user.id ||
+              guc.role === 'anonymous' ||
+              guc.role === 'system'
+            ) {
+              return null;
+            }
+            return startMemberAgentGatewaySession({
+              userId: user.id,
+              organizationId: guc.orgId,
+              role: guc.role,
+              agentKey: plan.agentKey,
+            });
+          })()
+        : await startElevenLabsPortalSession(plan.agentKey, {
+            dynamicVariables: staffDynamicVariables,
+            locale,
+          });
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Your member identity could not be verified for this session.' },
+          { status: 403 },
+        );
+      }
+      return NextResponse.json(
+        {
+          signedUrl: session.signedUrl,
+          expiresAt: session.expiresAt,
+          conversationId: session.conversationId,
+          dynamicVariables: session.dynamicVariables ?? staffDynamicVariables,
+          audience: plan.audience,
+        },
+        { headers: { 'Cache-Control': 'no-store, max-age=0' } },
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       console.error('[counselor/session]', msg);

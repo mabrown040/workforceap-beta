@@ -1,8 +1,10 @@
 # WorkforceAP Environment Variables
 
-> **Last audited:** 2026-05-13  
-> **Scope:** Application code (`app/`, `lib/`, `components/`, `scripts/`, `tests/`, `prisma/`)  
-> **Excludes:** Node.js / Next.js / Vercel runtime internals (e.g. `PORT`, `HOSTNAME`, `PATH`)  
+> **Last audited:** 2026-08-31
+>
+> **Scope:** Application code (`app/`, `lib/`, `components/`, `scripts/`, `tests/`, `prisma/`)
+>
+> **Excludes:** Node.js / Next.js / Vercel runtime internals (e.g. `PORT`, `HOSTNAME`, `PATH`)
 
 ---
 
@@ -84,12 +86,12 @@
 | `NEXT_PUBLIC_CAPTCHA_ENABLED` | 🟡 👁️ | Enable Cloudflare Turnstile | `false` | Public forms |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | 🟡 👁️ | Turnstile site key (public) | `0x4AAAA...` | Employer contact, public forms |
 | `TURNSTILE_SECRET_KEY` | 🟡 🔒 | Turnstile secret key | `0x4AAAA...` | API validation |
-| `UPSTASH_REDIS_REST_URL` | 🟡 🔒 | Upstash Redis REST URL for rate limiters | `https://….upstash.io` | `lib/rate-limit.ts` |
-| `UPSTASH_REDIS_REST_TOKEN` | 🟡 🔒 | Upstash Redis REST token | `AXxxxx` | `lib/rate-limit.ts` |
+| `UPSTASH_REDIS_REST_URL` | 🟡 🔒 | Upstash Redis REST URL for rate limiters and short-lived member-agent tool sessions | `https://….upstash.io` | `lib/rate-limit.ts`, `lib/agents/gateway/sessionStore.ts` |
+| `UPSTASH_REDIS_REST_TOKEN` | 🟡 🔒 | Upstash Redis REST token for rate limits and member-agent tool sessions | `AXxxxx` | `lib/rate-limit.ts`, `lib/agents/gateway/sessionStore.ts` |
 | `RATE_LIMIT_ALLOW_MISSING_UPSTASH` | 🟢 🔒 | Set `1` to boot production/preview without Redis. Auth/contact/partner-signup/MFA/bulk-email fail-open. Apply/signup stay open unless `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED=1`. | `1` | `lib/rate-limit.ts`, `lib/rate-limit-policy.ts` |
 | `WAP_APPLY_RATE_LIMIT_FAIL_CLOSED` | 🟢 🔒 | Set `1` to 429 apply/member signup when Redis is missing, even if `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`. Off by default so pre-prod conversion is not bricked. | `1` | `lib/rate-limit-policy.ts` |
 
-Still fail-open when Redis is missing (dev, or prod with `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`): public GET caps, invite-accept, org-onboard, careers-recommend, interest-profiler, webhooks, message-send, employer job-import, admin invite / token-links, Coursera identity, voice session, AI tools.
+Still fail-open when Redis is missing (dev, or prod with `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1`): public GET caps, invite-accept, org-onboard, careers-recommend, interest-profiler, webhooks, message-send, employer job-import, admin invite / token-links, Coursera identity, voice session, AI tools. Lilley's member-data tools are the exception: gateway token issue and authorization always fail closed without Upstash.
 
 ---
 
@@ -150,6 +152,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | Optional ConvAI override for Lilley; only reviewed student-agent IDs are accepted | `agent_...` | `/api/counselor/session` member/default mode |
+| `ELEVENLABS_LILLEY_BRANCH_ID` | 🔴 🔒 | Exact attended-reviewed Lilley main branch; required for both governed member Lilley entry points and branch-pinned provider verification | `agtbranch_...` | Member counselor/career-business signed URLs and Lilley patch runner |
 | `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` | 🔴 🔒 | Required to enable the separate counselor/admin caseload, outreach, and staff portal voice agent; no code fallback | `agent_...` | `/api/counselor/session` explicit staff mode; unset returns 503 |
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | 🟢 🔒 | ConvAI agent: employer coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_READINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: readiness coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
@@ -162,7 +165,9 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
 
-**Note:** Most agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience, but staff counselor mode intentionally does not. Keep the member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. Both member Lilley entry points accept only reviewed student-agent IDs, so stale or unknown deploy values cannot route students to a staff or unverified voice.
+**Note:** Most agent IDs have reviewed code fallbacks for production resilience, but staff counselor mode intentionally does not. Keep member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. Both member Lilley entry points accept only reviewed student-agent IDs and require `ELEVENLABS_LILLEY_BRANCH_ID`, so stale or unknown deploy values cannot route students to a staff, unreviewed branch, or unverified voice. The staff and unrelated agents do not inherit the Lilley branch pin.
+
+Lilley's member prompt contains no browser-supplied text placeholders. The session response exposes only `secret__agent_gateway_token`, a short-lived bearer value scoped to the signed-in user, organization, deployment, agent, and three read-only tools. Use `pnpm elevenlabs:apply-patches` for the reviewed voice/prompt/privacy patch and `pnpm elevenlabs:sync-member-tools -- --apply` for the explicit provider tool attachment; both require an exact `ELEVENLABS_AGENT_ID`, the attended-reviewed `ELEVENLABS_LILLEY_BRANCH_ID`, and a securely injected API key. Never paste provider keys or branch IDs from an unverified source into chat, docs, Git, or shell history.
 
 ---
 
@@ -454,5 +459,6 @@ These are referenced in the application but absent from `.env.example`. New deve
 
 | Date | Change |
 |------|--------|
+| 2026-08-31 | Documented the fail-closed member-agent gateway, Upstash dependency, reviewed-agent registry, and secure ElevenLabs activation commands. |
 | 2026-05-13 | Comprehensive audit. Documented 81 vars. Identified 6 deprecated. Updated `.env.example`. |
 | 2026-04-24 | Initial env variable list in `ENV-VARIABLES.md` (now superseded by this doc). |

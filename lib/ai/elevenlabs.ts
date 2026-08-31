@@ -10,6 +10,24 @@
 import { claudeChat } from './anthropicChat';
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
+const ELEVENLABS_SIGNED_URL_TIMEOUT_MS = 8_000;
+const ELEVENLABS_PROVIDER_IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
+
+export const ELEVENLABS_LILLEY_BRANCH_ENV = 'ELEVENLABS_LILLEY_BRANCH_ID' as const;
+
+export function requireElevenLabsBranchId(
+  value: string | undefined,
+  environmentKey: string = ELEVENLABS_LILLEY_BRANCH_ENV,
+): string {
+  const branchId = value?.trim();
+  if (!branchId) {
+    throw new Error(`${environmentKey} is not set`);
+  }
+  if (!ELEVENLABS_PROVIDER_IDENTIFIER.test(branchId)) {
+    throw new Error(`${environmentKey} is invalid`);
+  }
+  return branchId;
+}
 
 // Professional female voice — good for interviewer persona
 const DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'; // Rachel
@@ -114,26 +132,42 @@ export async function listVoices(): Promise<
  * Dynamic prompt/context must be sent from the client via `Conversation.startSession({ overrides })`
  * (see `@elevenlabs/client`); appending overrides to the signed URL is not reliably applied.
  */
-export async function createConversationalSession(agentId: string): Promise<{
+export async function createConversationalSession(
+  agentId: string,
+  options: { branchId?: string } = {},
+): Promise<{
   signedUrl: string;
   expiresAt?: string;
+  conversationId?: string;
 }> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
     throw new Error('ELEVENLABS_API_KEY is not set');
   }
 
-  const url = `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`;
+  const query = new URLSearchParams({
+    agent_id: agentId,
+    include_conversation_id: 'true',
+  });
+  if (options.branchId !== undefined) {
+    query.set(
+      'branch_id',
+      requireElevenLabsBranchId(options.branchId, 'ElevenLabs branch ID'),
+    );
+  }
+  const url = `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?${query.toString()}`;
   const response = await fetch(url, {
     method: 'GET',
     headers: {
       'xi-api-key': apiKey,
     },
+    signal: AbortSignal.timeout(ELEVENLABS_SIGNED_URL_TIMEOUT_MS),
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`ElevenLabs Conversational API error (${response.status}): ${errorText}`);
+    // Provider response bodies are intentionally not surfaced or logged. They
+    // are not needed by callers and can contain workspace diagnostics.
+    throw new Error(`ElevenLabs Conversational API error (${response.status})`);
   }
 
   const data = (await response.json()) as Record<string, unknown>;
@@ -143,6 +177,10 @@ export async function createConversationalSession(agentId: string): Promise<{
   if (!signedUrl) {
     throw new Error('ElevenLabs did not return a signed conversation URL');
   }
+
+  const conversationId =
+    (typeof data.conversation_id === 'string' ? data.conversation_id : undefined) ??
+    (typeof data.conversationId === 'string' ? data.conversationId : undefined);
 
   const unix =
     typeof data.expires_at_unix_secs === 'number'
@@ -154,6 +192,7 @@ export async function createConversationalSession(agentId: string): Promise<{
   return {
     signedUrl,
     expiresAt: Number.isFinite(unix) ? new Date(unix * 1000).toISOString() : undefined,
+    ...(conversationId ? { conversationId } : {}),
   };
 }
 

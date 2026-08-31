@@ -39,6 +39,7 @@ export function CareerBusinessCoachKit({
           completionEndpoint="/api/member/career-business-coach/completion"
           title="Career and Business Coach"
           description="Share your challenge — project management, sales, marketing, or career growth."
+          dataUseNotice="ElevenLabs processes your microphone audio and live transcript during this session. WorkforceAP may share only the saved next-step, program, and progress facts needed for the coach through approved read-only tools. If a transcript is captured, WorkforceAP saves it to your AI history and uses it to update coach memory; it may also email the transcript to configured WorkforceAP support recipients. Avoid sharing sensitive personal information."
           accent={colorVar('accent')}
           accentDark={colorVar('accentDark')}
           speakingLabel="Coach is speaking…"

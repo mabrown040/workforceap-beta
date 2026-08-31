@@ -8,6 +8,10 @@ const REPO = join(__dirname, '..', '..');
 function productionTypeScriptFiles(root: string): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(root)) {
+    // Worktrees and package managers can materialize nested dependency
+    // junctions. They are never production source and following them makes
+    // this structural test scan generated Prisma declarations.
+    if (entry === 'node_modules' || entry.startsWith('.')) continue;
     const path = join(root, entry);
     const stat = statSync(path);
     if (stat.isDirectory()) {

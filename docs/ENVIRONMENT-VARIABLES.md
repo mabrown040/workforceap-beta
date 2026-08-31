@@ -149,20 +149,20 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 |------|-------|-------------|---------|---------|
 | `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
-| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: Lilley, the member-facing student career coach | `agent_...` | `/api/counselor/session` member/default mode |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | Optional ConvAI override for Lilley; only reviewed student-agent IDs are accepted | `agent_...` | `/api/counselor/session` member/default mode |
 | `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` | 🔴 🔒 | Required to enable the separate counselor/admin caseload, outreach, and staff portal voice agent; no code fallback | `agent_...` | `/api/counselor/session` explicit staff mode; unset returns 503 |
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | 🟢 🔒 | ConvAI agent: employer coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_READINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: readiness coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | 🟢 🔒 | ConvAI agent: resume coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_PARTNER_AGENT_ID` | 🟢 🔒 | ConvAI agent: partner portal | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | 🟢 🔒 | ConvAI agent: WIOA prequal | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
-| `ELEVENLABS_CAREER_BUSINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: career & business | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_CAREER_BUSINESS_AGENT_ID` | 🟢 🔒 | Legacy member career/business override; restricted to the reviewed Lilley student agent | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `NEXT_PUBLIC_ELEVENLABS_WIOA_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: WIOA | `Sarah` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID` | 🟢 👁️ | Legacy fallback for the WIOA guide when `NEXT_PUBLIC_ELEVENLABS_WIOA_VOICE_ID` is unset; does not control Lilley or staff ConvAI voices | `...` | `lib/portal/counselorVoice.ts` |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
 | `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
 
-**Note:** Most agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience, but staff counselor mode intentionally does not. Keep the member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. Retired or unavailable agent IDs are ignored when supplied through the member-facing key so a stale deploy value cannot route members away from Lilley.
+**Note:** Most agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience, but staff counselor mode intentionally does not. Keep the member and staff IDs separate: member/default sessions use Lilley; role-authorized requests with `audience: "staff"` require `ELEVENLABS_COUNSELOR_STAFF_AGENT_ID` and return 503 while it is unset. ConvAI voices are configured on each ElevenLabs agent, not by `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`. Both member Lilley entry points accept only reviewed student-agent IDs, so stale or unknown deploy values cannot route students to a staff or unverified voice.
 
 ---
 

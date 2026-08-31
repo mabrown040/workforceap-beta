@@ -1,6 +1,8 @@
 # Approved Coursera curriculum v2 rollout
 
-Status: implemented as a dormant, additive release. External track activation remains gated.
+Status: deployed as a dormant, additive release on production commit
+`226921d890d67063ee3d1950da849393e447c5cc`. External track activation remains
+gated.
 
 Live B4B catalog proof on 2026-08-30 found 15 of 26 approved provider
 bindings available and 11 missing. See
@@ -72,7 +74,21 @@ the new constraint.
   visible in B4B. A missing collection fails closed inside WorkforceAP and
   never falls back to a public `/learn` URL or a legacy umbrella.
 
-## Activation gate
+## Deployed platform prerequisites
+
+- PR #2220 deployed the version-aware portal, Skill Missions, pathway-step
+  completion guards, and additive schema on 2026-08-30.
+- The production migration aborts unless the schema invariants and all 26
+  immutable WorkforceAP provider-binding rows are exact. A successful migration
+  proves the local target mapping, not Coursera organization licensing.
+- Exact-sha GitHub CI and Vercel passed. Production liveness/readiness reported
+  version `226921d` with healthy database and organization checks.
+- Fresh exact-master focused verification passed 33 Node tests and 50 Vitest
+  tests covering the manifest, migration contract, catalog/track validators,
+  assignment fail-closed behavior, versioned missions, pathway denominators,
+  and preview migration guards.
+
+## Remaining activation gate
 
 Before changing any manifest `externalTrack.status` to `validated`:
 
@@ -88,19 +104,11 @@ Before changing any manifest `externalTrack.status` to `validated`:
    set/order instead; catalog validation alone does not prove path membership.
 4. Record the exact collection ID in the manifest and set
    `assignmentMode: canary`; do not set `enabled` yet.
-5. Complete and verify the version-aware Skill Missions and pathway-step
-   completion guards. The implementation filters missions against the
-   learner's immutable assigned course list, versions non-legacy mission
-   events, rejects unassigned mission mutations, and records displayed pathway
-   indices against the pinned denominator. Until that code is merged and
-   deployed, this remains a hard blocker to a v2 canary.
-6. Deploy the completed version-aware portal code and migrate the additive
-   tables.
-7. Assign one clean, explicitly authorized canary learner through a reviewed
+5. Assign one clean, explicitly authorized canary learner through a reviewed
    canary-only operation (`activeCurriculumVersion(..., { explicitCanary:
    true })`) while retaining a v1 learner as the regression control. No public,
    member, invite, or ordinary admin endpoint exposes that override.
-8. Verify launch, enrollment, xAPI/B4B receipt, X/Y rollup, and exactly-once
+6. Verify launch, enrollment, xAPI/B4B receipt, X/Y rollup, and exactly-once
    milestones before changing `assignmentMode` to `enabled`.
 
 Rollback is to set `assignmentMode: disabled` first, then return the manifest

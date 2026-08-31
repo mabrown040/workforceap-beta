@@ -27,6 +27,18 @@ const nextConfig: NextConfig = {
   // Locale routing is handled in middleware + `lib/i18n` (App Router does not use next.config i18n).
   // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.
   outputFileTracingRoot: path.join(__dirname),
+  // The member-agent gateway validates the governed manifest and its exact
+  // evidence sources at runtime. Include those non-imported files in the
+  // serverless route trace so a Vercel bundle cannot silently degrade to an
+  // unavailable/stale knowledge response.
+  outputFileTracingIncludes: {
+    '/api/agent-tools/v1/*': [
+      './config/agent-knowledge/manifest.v1.json',
+      './shared/programSyllabi.ts',
+      './lib/content/programCurriculumManifest.ts',
+      './docs/coursera/approved-curriculum-api-validation-2026-08-30.md',
+    ],
+  },
   poweredByHeader: false,
   serverExternalPackages: ['pdf-parse', 'mammoth'],
   // Build-time ESLint is now a required gate (burned down 2026-05-20 — see

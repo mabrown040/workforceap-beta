@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "agentId": "agent_2001kv8wn1zhepm9x4tjfdzwm6v8",
+  "agentKey": "counselor",
+  "toolEndpointBaseUrl": "https://www.workforceap.org/api/agent-tools/v1",
+  "secretDynamicVariable": "secret__agent_gateway_token",
+  "toolExecutionPolicy": {
+    "executionMode": "immediate",
+    "preToolSpeech": "off",
+    "interruptionMode": "allow"
+  },
+  "tools": [
+    {
+      "name": "get_my_next_step",
+      "description": "Use when the signed-in WorkforceAP member asks what to do next. Returns the member's highest-priority saved next step. Takes no arguments."
+    },
+    {
+      "name": "get_training_status",
+      "description": "Use when the signed-in WorkforceAP member asks about their assigned program, validated training progress, approved-curriculum applicability, or whether mapped Coursera content is operationally available. Treat approved curriculum as assigned only when appliesToEnrollment is true and enrollmentVersionMatch is match; otherwise use enrollment/progress fields only. Takes no arguments."
+    },
+    {
+      "name": "get_coursera_progress",
+      "description": "Use when the signed-in WorkforceAP member asks about course-level Coursera progress synchronized into WorkforceAP. This is synchronized portal data, not a live Coursera API response. Takes no arguments."
+    }
+  ]
+}

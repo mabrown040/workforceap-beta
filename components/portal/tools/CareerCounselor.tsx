@@ -228,9 +228,14 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </p>
 
         <p id="lilley-data-use" style={{ marginBottom: '1.25rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
-          Your voice session is processed by ElevenLabs. Its transcript is analyzed by an AI provider,
-          saved to your WorkforceAP AI history and coach memory, and may be emailed to configured
-          WorkforceAP support recipients. Avoid sharing sensitive personal information.
+          ElevenLabs processes your microphone audio and live transcript during this session.
+          WorkforceAP may share only the saved next-step, program, and progress facts needed for
+          Lilley through approved read-only tools. If a transcript is captured, WorkforceAP saves it
+          to your AI history and uses it to update coach memory; it may also email the transcript to
+          configured WorkforceAP support recipients. Avoid sharing sensitive personal information.{' '}
+          <a href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>
+            Privacy details
+          </a>
         </p>
 
         {voiceError && (

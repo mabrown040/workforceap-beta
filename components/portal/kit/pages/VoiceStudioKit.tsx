@@ -94,7 +94,12 @@ export type SessionAgentConfig = {
    * POST payload as `{ role, interviewType }`.
    */
   askRole?: boolean;
+  /** Provider and member-context disclosure shown before the session starts. */
+  dataUseNotice?: string;
 };
+
+const LILLEY_DATA_USE_NOTICE =
+  'ElevenLabs processes your microphone audio and live transcript during this session. WorkforceAP may share only the saved next-step, program, and progress facts needed for Lilley through approved read-only tools. This AI Career Tools session does not save the transcript to your WorkforceAP AI history or coach memory.';
 
 const AGENT_ACCENT = {
   crimson: { accent: 'var(--wa-accent)', accentDark: 'var(--wa-accent-dark)' },
@@ -112,8 +117,18 @@ const SESSION_AGENTS: Record<VoiceStudioAgentKey, SessionAgentConfig> = {
     askRole: true,
     ...AGENT_ACCENT.crimson,
   },
-  counselor: { label: 'Lilley Career Coach', endpoint: '/api/counselor/session', ...AGENT_ACCENT.blue },
-  business: { label: 'Career & Business Coach', endpoint: '/api/member/career-business-coach/voice-session', ...AGENT_ACCENT.crimson },
+  counselor: {
+    label: 'Lilley Career Coach',
+    endpoint: '/api/counselor/session',
+    dataUseNotice: LILLEY_DATA_USE_NOTICE,
+    ...AGENT_ACCENT.blue,
+  },
+  business: {
+    label: 'Career & Business Coach',
+    endpoint: '/api/member/career-business-coach/voice-session',
+    dataUseNotice: LILLEY_DATA_USE_NOTICE,
+    ...AGENT_ACCENT.crimson,
+  },
 };
 
 /**
@@ -544,7 +559,7 @@ function formatClock(totalSeconds: number): string {
  * live session, not canned content.
  */
 function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
-  const { label, endpoint, payload, accent, accentDark, askRole } = agent;
+  const { label, endpoint, payload, accent, accentDark, askRole, dataUseNotice } = agent;
   const [phase, setPhase] = useState<SessionPhase>('idle');
   const [error, setError] = useState('');
   const [agentSpeaking, setAgentSpeaking] = useState(false);
@@ -925,6 +940,26 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               </div>
             ) : null}
 
+            {dataUseNotice && (phase === 'idle' || phase === 'ended') ? (
+              <p
+                role="note"
+                aria-label="Voice session data use"
+                style={{
+                  maxWidth: 440,
+                  margin: '20px 0 0',
+                  color: SESSION_MUTED,
+                  fontSize: 'var(--wa-type-meta)',
+                  lineHeight: 1.55,
+                  textAlign: 'center',
+                }}
+              >
+                {dataUseNotice}{' '}
+                <Link href="/privacy" style={{ color: 'var(--wa-sidebar-text)', textDecoration: 'underline' }}>
+                  Privacy details
+                </Link>
+              </p>
+            ) : null}
+
             {/* controls — real start / mute / end depending on phase */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 12, marginTop: 28 }}>
               {phase === 'active' ? (
@@ -1028,7 +1063,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
                 Live Transcript
               </h3>
               <span style={{ fontSize: 'var(--wa-type-meta)', color: SESSION_FAINT, fontWeight: 700 }}>
-                {isLive ? 'LIVE' : phase === 'ended' ? 'NOT SAVED' : 'IDLE'}
+                {isLive ? 'LIVE' : phase === 'ended' ? 'NOT SAVED TO WAP' : 'IDLE'}
               </span>
             </div>
 

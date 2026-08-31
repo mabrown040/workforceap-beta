@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "knowledgeId": "workforceap.approved-program-catalog.2026-08-27",
+      "audience": ["agent", "member", "staff"],
+      "tenantScope": "global",
+      "sensitivity": "public",
+      "status": "approved",
+      "owner": "Workforce Advancement Project",
+      "reviewer": "Workforce Solutions Capital Area",
+      "sourcePath": "shared/programSyllabi.ts",
+      "sourceSha": "d89b21b404961eb7160410eb764680c6200573654435fedc29618de46f8bc902",
+      "version": "2026-approved-v2",
+      "effectiveAt": "2026-08-27T00:00:00-04:00",
+      "reviewBy": "2027-08-27T23:59:59-04:00",
+      "citationLabel": "WorkforceAP regulated program syllabi, including the August 2026 approved amendments",
+      "contentHash": "7118fd833747aeeb34c46a24a05d537b725ca1fe14e6b8d51ecbf127bededa05",
+      "content": {
+        "kind": "approved_program_catalog",
+        "catalogVersion": "2026-approved-v2",
+        "truthBoundary": "approved_curriculum_does_not_prove_operational_coursera_availability",
+        "programs": [
+          {
+            "programSlug": "it-support-professional-certificate-ibm",
+            "title": "IT Support Professional Certificate (IBM)",
+            "totalHours": 160,
+            "courseCount": 10,
+            "sourceDocument": "1-IT_Support_Professional_Certificate_IBM.docx",
+            "syllabusSourceSha256": "107b080538dbd2b9dbf9a15274a071cbce40cb480092ee96c66f4cee1bf5aeac"
+          },
+          {
+            "programSlug": "comptia-a-professional-certificate",
+            "title": "CompTIA A+ Professional Certificate (CompTIA A+)",
+            "totalHours": 160,
+            "courseCount": 10,
+            "sourceDocument": "2-CompTIA_A_Professional_Certificate_CompTIA_A.docx",
+            "syllabusSourceSha256": "e25f11cea5d1fb19078a74a715f0e608fc40d5e82297785f3137323eaea36a9e"
+          },
+          {
+            "programSlug": "cybersecurity-professional-certificate-google",
+            "title": "Networking and Cybersecurity Professional Certificate (Net+, Sec+)",
+            "totalHours": 160,
+            "courseCount": 14,
+            "sourceDocument": "3-Networking_and_Cybersecurity_Professional_Certificate_Net_Sec.pdf",
+            "syllabusSourceSha256": "22f28a7d1e174054d5d7226b559b7ccaeddd885d8f77cfcf78f7a05289af6da2"
+          },
+          {
+            "programSlug": "project-management-professional-certificate-microsoft",
+            "title": "Project Management Professional Certificate (Microsoft)",
+            "totalHours": 160,
+            "courseCount": 10,
+            "sourceDocument": "4-Project_Management_Professional_Certificate_Microsoft.docx",
+            "syllabusSourceSha256": "d8cf4a5b52674f3c025115b29f59d49b4460eafbdab120e31a35ca395ba4539f"
+          },
+          {
+            "programSlug": "ai-practitioner-professional-certificate-aws",
+            "title": "AI Practitioner Professional Certificate (AWS)",
+            "totalHours": 160,
+            "courseCount": 17,
+            "sourceDocument": "5-AI_Practitioner_Professional_Certificate_AWS.docx",
+            "syllabusSourceSha256": "463235611e3bbdc611e382bbfd6bd19a1c895d5e70ea34f572549e4447f3b3ab"
+          },
+          {
+            "programSlug": "data-analytics-professional-certificate-google",
+            "title": "Management Analyst & Business Intelligence Professional Certificate",
+            "totalHours": 160,
+            "courseCount": 11,
+            "sourceDocument": "6-Management Analyst & Business Intelligence Professional Certificate (IBM).pdf",
+            "syllabusSourceSha256": "49079c1479a516089f3a374dbcbc35dc2b0b267eb99c22b22db93ea9777a41af"
+          },
+          {
+            "programSlug": "data-science-professional-certificate-ibm",
+            "title": "Database Administrator (DBA) Professional Certificate (IBM)",
+            "totalHours": 160,
+            "courseCount": 9,
+            "sourceDocument": "7-Database Administrator (DBA) Professional Certificate (IBM).pdf",
+            "syllabusSourceSha256": "f1c3f8eb3838bc76bc7863b72ab7245ca5f632131cde28775f1b212037a1289f"
+          },
+          {
+            "programSlug": "aws-cloud-technology-amazon",
+            "title": "AWS Cloud Technology Professional Certificate (AWS)",
+            "totalHours": 160,
+            "courseCount": 10,
+            "sourceDocument": "8-AWS_Cloud_Technology_Professional_Certificate_AWS.docx",
+            "syllabusSourceSha256": "91f2848866dc01fd057dccbf66e4afc28b54e2faf473281cb5c77ef7864743c0"
+          },
+          {
+            "programSlug": "ux-design-professional-certificate-google",
+            "title": "User Experience & Interface Design Professional Certificate",
+            "totalHours": 160,
+            "courseCount": 8,
+            "sourceDocument": "9-User Experience & Interface Design Professional Certificate (Google).pdf",
+            "syllabusSourceSha256": "6ac3ac7d95b30786356fbc702245ac0ea42d5410594aa6add3629bdf2385ff08"
+          },
+          {
+            "programSlug": "digital-marketing-e-commerce-google",
+            "title": "Digital Marketing & E-Commerce Professional Certificate (Google)",
+            "totalHours": 160,
+            "courseCount": 8,
+            "sourceDocument": "10-Digital_Marketing__E-Commerce_Professional_Certificate_Google.docx",
+            "syllabusSourceSha256": "57396b1b42bbe53ed58b08992c146da9f758585f99e04d4fcd6f6e6f7192c0ca"
+          },
+          {
+            "programSlug": "software-developer-professional-certificate-ibm",
+            "title": "AI and Software Developer Professional Certificate (IBM)",
+            "totalHours": 200,
+            "courseCount": 17,
+            "sourceDocument": "11-AI_and_Software_Developer_Professional_Certificate_IBM.docx",
+            "syllabusSourceSha256": "260e264c661fe627d4f963c7b83d687124b94d7a17e73cbc409a1de4ec83197b"
+          },
+          {
+            "programSlug": "health-information-technology-mchit",
+            "title": "Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)",
+            "totalHours": 160,
+            "courseCount": 16,
+            "sourceDocument": "12-Medical_Billing_Coding_and_Health_Information_Technician_Certificate_MBCHIT.docx",
+            "syllabusSourceSha256": "146aed96a69baa289c0956d460d4742b0d89fc8f1c5ea4809bcb572010710778"
+          }
+        ]
+      }
+    },
+    {
+      "knowledgeId": "workforceap.coursera-approved-target.2026-approved-v2",
+      "audience": ["agent", "staff"],
+      "tenantScope": "global",
+      "sensitivity": "internal",
+      "status": "approved",
+      "owner": "Workforce Advancement Project",
+      "reviewer": "WorkforceAP Engineering",
+      "sourcePath": "lib/content/programCurriculumManifest.ts",
+      "sourceSha": "53dd7ce068fa69034591c2154451112b7bdca0d4476425e6807b776b818c68aa",
+      "version": "2026-approved-v2-target-map",
+      "effectiveAt": "2026-08-30T00:00:00-04:00",
+      "reviewBy": "2027-08-30T23:59:59-04:00",
+      "citationLabel": "WorkforceAP immutable 2026-approved-v2 Coursera target mapping",
+      "contentHash": "93198eefb396febdfb74352b7a0611e63eb241e488f59ee4a4c38f2359158055",
+      "content": {
+        "kind": "approved_coursera_target",
+        "curriculumVersion": "2026-approved-v2",
+        "truthBoundary": "local_target_bindings_do_not_prove_provider_licensing_or_launchability",
+        "approvedCourseCount": 28,
+        "approvedProviderCourseCount": 26,
+        "approvedWorkforceApCourseCount": 2,
+        "programs": [
+          {
+            "programSlug": "ux-design-professional-certificate-google",
+            "approvedCourseCount": 8,
+            "approvedProviderCourseCount": 7,
+            "externalTrackStatus": "pending",
+            "collectionId": null,
+            "assignmentMode": "disabled"
+          },
+          {
+            "programSlug": "data-science-professional-certificate-ibm",
+            "approvedCourseCount": 9,
+            "approvedProviderCourseCount": 9,
+            "externalTrackStatus": "pending",
+            "collectionId": null,
+            "assignmentMode": "disabled"
+          },
+          {
+            "programSlug": "data-analytics-professional-certificate-google",
+            "approvedCourseCount": 11,
+            "approvedProviderCourseCount": 10,
+            "externalTrackStatus": "pending",
+            "collectionId": null,
+            "assignmentMode": "disabled"
+          }
+        ]
+      }
+    },
+    {
+      "knowledgeId": "workforceap.coursera-operational-snapshot.2026-08-30",
+      "audience": ["agent", "member", "staff"],
+      "tenantScope": "global",
+      "sensitivity": "internal",
+      "status": "blocked",
+      "owner": "WorkforceAP Coursera Administrator",
+      "reviewer": "WorkforceAP Engineering",
+      "sourcePath": "docs/coursera/approved-curriculum-api-validation-2026-08-30.md",
+      "sourceSha": "db4a19ba73a4511ac517e51248447a38f9bfe110826caf13c181bc19426f56c1",
+      "version": "2026-08-30-b4b-catalog-snapshot",
+      "effectiveAt": "2026-08-30T00:00:00-04:00",
+      "reviewBy": "2026-09-06T23:59:59-04:00",
+      "citationLabel": "WorkforceAP read-only Coursera organization-catalog validation, August 30 2026",
+      "contentHash": "43167dca6e3d2939c394eafac2dcc4544e159eb2c0573502b0c83d16be2f124c",
+      "content": {
+        "kind": "coursera_operational_snapshot",
+        "asOf": "2026-08-30T00:00:00-04:00",
+        "activationState": "blocked",
+        "truthBoundary": "operational_availability_requires_exact_provider_catalog_and_learning_path_proof",
+        "approvedProviderCourseCount": 26,
+        "exactApiMatchCount": 15,
+        "missingProviderCourseCount": 11,
+        "programs": [
+          {
+            "programSlug": "ux-design-professional-certificate-google",
+            "approvedProviderCourseCount": 7,
+            "exactApiMatchCount": 6,
+            "missing": [
+              {
+                "courseraSlug": "responsive-web-design-adobe-xd",
+                "courseraCourseId": "YLwdQgp-Eeu0VAqNda9Xjw"
+              }
+            ]
+          },
+          {
+            "programSlug": "data-science-professional-certificate-ibm",
+            "approvedProviderCourseCount": 9,
+            "exactApiMatchCount": 5,
+            "missing": [
+              {
+                "courseraSlug": "introduction-to-relational-databases",
+                "courseraCourseId": "qNrWFjDlEeua-goM8-0Q8w"
+              },
+              {
+                "courseraSlug": "hands-on-introduction-to-linux-commands-and-shell-scripting",
+                "courseraCourseId": "B_rci897EeufchLeGgZGZQ"
+              },
+              {
+                "courseraSlug": "etl-and-data-pipelines-shell-airflow-kafka",
+                "courseraCourseId": "gaD7sM97EeuHgw5SCcDQSQ"
+              },
+              {
+                "courseraSlug": "data-warehouse-fundamentals",
+                "courseraCourseId": "xdMr0c97EeuHgw5SCcDQSQ"
+              }
+            ]
+          },
+          {
+            "programSlug": "data-analytics-professional-certificate-google",
+            "approvedProviderCourseCount": 10,
+            "exactApiMatchCount": 4,
+            "missing": [
+              {
+                "courseraSlug": "project-stakeholder-and-requirements-management-fundamentals",
+                "courseraCourseId": "ma9Rl54ZEfCkjBKc1V0Qpw"
+              },
+              {
+                "courseraSlug": "business-strategy-creating-competitive-advantage",
+                "courseraCourseId": "RrWSGy5yEfGRiRLMJS1FiQ"
+              },
+              {
+                "courseraSlug": "financial-analysis-and-modeling",
+                "courseraCourseId": "CGp8Nj4JEfGj6wr_-5C2xw"
+              },
+              {
+                "courseraSlug": "data-visualization-dashboards-excel-cognos",
+                "courseraCourseId": "NRRbf9zWEeqPZRKxGtAxBQ"
+              },
+              {
+                "courseraSlug": "generative-ai-transform-your-management-consulting",
+                "courseraCourseId": "xZqTjNaNEfC69hJmAzZJ9w"
+              },
+              {
+                "courseraSlug": "capstone-integrated-management-consulting-project",
+                "courseraCourseId": "0_J99TlPEfGP5A7qtRBM-w"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

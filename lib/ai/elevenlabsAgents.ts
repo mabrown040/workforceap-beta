@@ -1,64 +1,27 @@
-/**
- * Maps portal features to ElevenLabs Conversational AI agent env vars.
- * Set these in Vercel / `.env` alongside `ELEVENLABS_API_KEY`.
- */
+/** Portal compatibility layer backed by the authoritative ElevenLabs registry. */
 
 import { clampElevenLabsDynamicVariables } from '@/lib/ai/clampElevenLabsDynamicVariables';
 import { createConversationalSession } from '@/lib/ai/elevenlabs';
-
-export type ElevenLabsPortalAgentKey =
-  | 'interview'
-  | 'counselor'
-  | 'counselor_staff'
-  | 'employer'
-  | 'readiness'
-  | 'resume_coach'
-  | 'partner'
-  | 'wioa_prequal'
-  | 'career_business';
-
-const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
-  interview: 'ELEVENLABS_INTERVIEW_AGENT_ID',
-  counselor: 'ELEVENLABS_COUNSELOR_AGENT_ID',
-  counselor_staff: 'ELEVENLABS_COUNSELOR_STAFF_AGENT_ID',
-  employer: 'ELEVENLABS_EMPLOYER_AGENT_ID',
-  readiness: 'ELEVENLABS_READINESS_AGENT_ID',
-  resume_coach: 'ELEVENLABS_RESUME_COACH_AGENT_ID',
-  partner: 'ELEVENLABS_PARTNER_AGENT_ID',
-  wioa_prequal: 'ELEVENLABS_WIOA_PREQUAL_AGENT_ID',
-  career_business: 'ELEVENLABS_CAREER_BUSINESS_AGENT_ID',
-};
-
-export const LILLEY_STUDENT_COACH_AGENT_ID = 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8';
-
-const LILLEY_MEMBER_AGENT_KEYS = new Set<ElevenLabsPortalAgentKey>([
-  'counselor',
-  'career_business',
-]);
-const REVIEWED_LILLEY_STUDENT_COACH_AGENT_IDS = new Set([
+import {
+  ELEVENLABS_AGENT_KEYS,
+  ELEVENLABS_AGENT_REGISTRY,
   LILLEY_STUDENT_COACH_AGENT_ID,
-]);
+  environmentKeyForElevenLabsAgent,
+  resolveElevenLabsAgent,
+  type ElevenLabsAgentKey,
+} from '@/lib/elevenlabs/agentRegistry';
 
-/**
- * Defaults if env is unset — production should set `ELEVENLABS_*_AGENT_ID` per deploy.
- * IDs match WorkforceAP agents in the ElevenLabs workspace (ConvAI).
- */
-export const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
-  interview: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
-  // Legacy key name; this agent is Lilley, the member-facing student career coach.
-  counselor: LILLEY_STUDENT_COACH_AGENT_ID,
-  employer: 'agent_0901kmznx45vf19s9psjrctqr6x5',
-  partner: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
-  readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
-  resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
-  wioa_prequal: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
-  /** Lilley also serves the legacy member career-business entry point. */
-  career_business: LILLEY_STUDENT_COACH_AGENT_ID,
-};
+export type ElevenLabsPortalAgentKey = ElevenLabsAgentKey;
+export { LILLEY_STUDENT_COACH_AGENT_ID };
 
-const REVIEWED_RESUME_COACH_AGENT_IDS = new Set([
-  'agent_6601kmznw90ffxkbk7mpbym73vh9',
-]);
+export const FALLBACK_AGENT_IDS = Object.fromEntries(
+  ELEVENLABS_AGENT_KEYS.flatMap((key) => {
+    const resolution = ELEVENLABS_AGENT_REGISTRY[key].resolution;
+    return resolution.mode === 'env-with-reviewed-fallback'
+      ? [[key, resolution.reviewedFallbackAgentId] as const]
+      : [];
+  }),
+) as Partial<Record<ElevenLabsPortalAgentKey, string>>;
 
 export type CounselorVoiceSessionPlan =
   | {
@@ -109,42 +72,40 @@ export function resolveCounselorVoiceSessionPlan(
 }
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {
-  const fromEnv = process.env[ENV_KEYS[key]]?.trim();
-  const unreviewedLilleyAgent = fromEnv && LILLEY_MEMBER_AGENT_KEYS.has(key)
-    ? !REVIEWED_LILLEY_STUDENT_COACH_AGENT_IDS.has(fromEnv)
-    : false;
-  const unreviewedResumeCoach = key === 'resume_coach' && fromEnv
-    ? !REVIEWED_RESUME_COACH_AGENT_IDS.has(fromEnv)
-    : false;
-  if (fromEnv && !unreviewedLilleyAgent && !unreviewedResumeCoach) {
-    return fromEnv;
+  const result = resolveElevenLabsAgent(key);
+  if (!result.ok) return undefined;
+  if (result.ignoredEnvironmentReason) {
+    console.warn(
+      `[elevenlabs] Ignoring ${result.ignoredEnvironmentReason} value from ${result.environmentKey}.`,
+    );
   }
-  if (unreviewedLilleyAgent) {
-    console.warn(`[elevenlabs] Ignoring unreviewed Lilley agent ID from ${ENV_KEYS[key]}.`);
-  }
-  if (unreviewedResumeCoach) {
-    console.warn(`[elevenlabs] Ignoring unreviewed resume coach ID from ${ENV_KEYS[key]}.`);
-  }
-  return FALLBACK_AGENT_IDS[key];
+  return result.agentId;
 }
 
 export function envKeyForPortalAgent(key: ElevenLabsPortalAgentKey): string {
-  return ENV_KEYS[key];
+  return environmentKeyForElevenLabsAgent(key);
 }
 
 export async function startElevenLabsPortalSession(
   key: ElevenLabsPortalAgentKey,
-  options?: { dynamicVariables?: Record<string, string | number | boolean>; locale?: string }
+  options?: {
+    dynamicVariables?: Record<string, string | number | boolean>;
+    locale?: string;
+    branchId?: string;
+  }
 ): Promise<{
   signedUrl: string;
   expiresAt?: string;
+  conversationId?: string;
   dynamicVariables?: Record<string, string>;
 }> {
   const agentId = getElevenLabsAgentId(key);
   if (!agentId) {
-    throw new Error(`No ElevenLabs agent ID for "${key}". Set ${ENV_KEYS[key]}.`);
+    throw new Error(`No ElevenLabs agent ID for "${key}". Set ${envKeyForPortalAgent(key)}.`);
   }
-  const session = await createConversationalSession(agentId);
+  const session = await createConversationalSession(agentId, {
+    ...(options?.branchId ? { branchId: options.branchId } : {}),
+  });
   const dynamicVariables = options?.dynamicVariables
     ? clampElevenLabsDynamicVariables({
         ...options.dynamicVariables,

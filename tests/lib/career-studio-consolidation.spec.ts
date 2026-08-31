@@ -61,9 +61,28 @@ describe('Career Studio consolidation', () => {
   it('does not claim local voice transcripts are saved or drop personalized context', () => {
     const studio = source('components/portal/kit/pages/VoiceStudioKit.tsx');
 
-    expect(studio).toContain("phase === 'ended' ? 'NOT SAVED'");
+    expect(studio).toContain("phase === 'ended' ? 'NOT SAVED TO WAP'");
     expect(studio).not.toContain("phase === 'ended' ? 'SAVED'");
     expect(studio).not.toContain('Retry once without dynamic variables');
     expect(studio).toContain('Your personalized coach context could not be attached');
+  });
+
+  it('shows Lilley data-use terms before every session start', () => {
+    const studio = source('components/portal/kit/pages/VoiceStudioKit.tsx');
+    const renderedNotice = studio.indexOf("dataUseNotice && (phase === 'idle' || phase === 'ended')");
+    const controls = studio.indexOf('{/* controls — real start / mute / end depending on phase */}');
+
+    expect(studio.match(/dataUseNotice: LILLEY_DATA_USE_NOTICE/g)).toHaveLength(2);
+    expect(studio).toContain("endpoint: '/api/counselor/session'");
+    expect(studio).toContain("endpoint: '/api/member/career-business-coach/voice-session'");
+    expect(studio).toContain('ElevenLabs processes your microphone audio and live transcript');
+    expect(studio).toContain('only the saved next-step, program, and progress facts needed for Lilley');
+    expect(studio).toContain('through approved read-only tools');
+    expect(studio).toContain('This AI Career Tools session does not save the transcript to your WorkforceAP AI history or coach memory');
+    expect(studio).toContain("dataUseNotice && (phase === 'idle' || phase === 'ended')");
+    expect(studio).toContain('aria-label="Voice session data use"');
+    expect(studio).toContain('href="/privacy"');
+    expect(renderedNotice).toBeGreaterThan(-1);
+    expect(controls).toBeGreaterThan(renderedNotice);
   });
 });

@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Check, X, AlertTriangle } from 'lucide-react';
 import type { BaseSessionConfig, Conversation } from '@elevenlabs/client';
+import { mayRetryElevenLabsWithoutDynamicVariables } from '@/lib/ai/elevenLabsDynamicVariablePolicy';
 import { RESUME_COACH_LIVE_DRAFT_MAX_CHARS } from '@/lib/ai/resumeCoachDataContract';
 import { VoiceOrb } from './kit/VoiceOrb';
 
@@ -585,6 +586,10 @@ export default function PortalVoiceSession({
     const hasDynamicVariables = Boolean(
       dynamicVariables && Object.keys(dynamicVariables).length > 0
     );
+    const mayRetryWithoutDynamicVariables = mayRetryElevenLabsWithoutDynamicVariables(
+      retryWithoutDynamicVariables,
+      dynamicVariables,
+    );
 
     try {
       const { Conversation: ConversationClient } = await import('@elevenlabs/client');
@@ -601,7 +606,7 @@ export default function PortalVoiceSession({
           pushInitialLiveResumeDraft(conv);
         } catch (firstErr) {
           logVoice('start_threw_with_dynamic_variables', firstErr);
-          if (!retryWithoutDynamicVariables) {
+          if (!mayRetryWithoutDynamicVariables) {
             throw firstErr;
           }
           logVoice('start_retry', { plainSignedUrlOnly: true });
@@ -628,7 +633,7 @@ export default function PortalVoiceSession({
       stopVideoRecordingStream();
       setVoiceError(
         `Voice session failed${
-          retryWithoutDynamicVariables ? ' (including retry without dynamic variables if applicable)' : ''
+          mayRetryWithoutDynamicVariables ? ' (including retry without dynamic variables if applicable)' : ''
         }: ${err instanceof Error ? err.message : String(err)}`
       );
       setPhase('pre');

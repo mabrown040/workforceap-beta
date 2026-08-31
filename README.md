@@ -42,6 +42,7 @@ App runs at `http://localhost:3000`.
 | [`docs/SECURITY-AND-HEALTH.md`](docs/SECURITY-AND-HEALTH.md) | Security posture & CSP |
 | [`docs/DEPLOYMENT-CHECKLIST.md`](docs/DEPLOYMENT-CHECKLIST.md) | Current Vercel production release and rollback checklist |
 | [`docs/HEALTH-PROBES.md`](docs/HEALTH-PROBES.md) | Liveness, readiness, and journey-smoke contracts |
+| [`docs/runbooks/elevenlabs-member-agent-cutover.md`](docs/runbooks/elevenlabs-member-agent-cutover.md) | Attended Lilley prompt, privacy, and read-only tool activation/rollback |
 | [`docs/coursera/approved-curriculum-api-validation-2026-08-30.md`](docs/coursera/approved-curriculum-api-validation-2026-08-30.md) | Approved-v2 Coursera catalog proof and activation gates |
 | [`docs/TENANT-ISOLATION.md`](docs/TENANT-ISOLATION.md) | Multi-tenant architecture |
 | [`docs/UI-DESIGN-SYSTEM.md`](docs/UI-DESIGN-SYSTEM.md) | Design system details |
@@ -61,6 +62,8 @@ npm run test:unit        # Node.js unit tests (lib/**/*.test.ts)
 npm run test:vitest      # Vitest component/API suites
 npm run test:e2e         # E2E tests (Playwright)
 npm run email            # Email template preview
+pnpm elevenlabs:verify-agents       # Read-only provider patch verification
+pnpm elevenlabs:sync-member-tools   # Read-only Lilley tool verification
 ```
 
 Use `pnpm-lock.yaml` as the canonical dependency lockfile. Do not install from

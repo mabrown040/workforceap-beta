@@ -173,7 +173,7 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
   const prompt = patch.conversation_config?.agent?.prompt?.prompt ?? '';
 
   assert.equal(patch.name, 'Lilley - WorkforceAP Student Career Coach');
-  assert.equal(patch.conversation_config?.tts?.voice_id, 'XrExE9yKIg1WjnnlVkGX');
+  assert.equal(patch.conversation_config?.tts?.voice_id, 'l4Coq6695JDX9xtLqXDE');
   assert.match(firstMessage, /I'm Lilley, your WorkforceAP AI career coach/);
   assert.match(prompt, /student-facing AI Career Coach/);
   assert.match(prompt, /You do not assist counselors with caseloads/);
@@ -183,6 +183,26 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
   assert.match(prompt, /\{\{coach_memory_summary\}\}/);
   assert.doesNotMatch(prompt, /\{\{staff_name\}\}|\{\{partner_name\}\}/);
   assert.doesNotMatch(prompt, /support career counselors and staff/);
+  assert.match(prompt, /Do not begin consecutive turns with the same empathy opener/);
+  assert.match(prompt, /without parroting the student's words/);
+  assert.match(prompt, /When personal-life stress affects work or training/);
+  assert.match(prompt, /Treat statements such as "I'm done," "I want to quit,"/);
+  assert.match(prompt, /only when the surrounding context could reasonably refer to life, safety, or hopelessness/);
+  assert.match(prompt, /Do not trigger this safety path when the student clearly means a specific course/);
+  assert.match(
+    prompt,
+    /do you mean quitting the job search or training, or are you thinking about suicide or hurting yourself right now\?/
+  );
+  assert.match(prompt, /do not mention 988 or emergency services/);
+  assert.match(prompt, /directly says they are thinking about suicide, self-harm, or harming someone else/);
+  assert.match(prompt, /skip the ambiguity question/);
+  assert.match(prompt, /cannot say they are safe/);
+  assert.match(prompt, /call or text 988/);
+  assert.match(prompt, /call 911 or local emergency services now/);
+  assert.match(prompt, /while a safety concern is unresolved/);
+  assert.match(prompt, /they or someone else are in immediate or life-threatening danger/);
+  assert.match(prompt, /Do not invent or assume the student's enrollment, grades, progress, funding/);
+  assert.match(prompt, /Never claim that Coursera access[\s\S]*approved or guaranteed/);
 });
 
 test('member portal surfaces consistently present Lilley as an AI career coach', () => {

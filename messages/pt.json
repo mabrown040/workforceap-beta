@@ -149,6 +149,7 @@
     "address": "Endereço",
     "city": "Cidade",
     "state": "Estado",
+    "selectState": "Selecione um estado",
     "zip": "CEP",
     "submit": "Enviar",
     "next": "Próximo",

@@ -149,6 +149,7 @@
     "address": "Dirección",
     "city": "Ciudad",
     "state": "Estado",
+    "selectState": "Selecciona un estado",
     "zip": "Código postal",
     "submit": "Enviar",
     "next": "Siguiente",

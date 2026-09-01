@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, type CSSProperties } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Copy,
   Check,
@@ -69,15 +70,19 @@ const FIELDS = [
 
 export default function ElevatorPitchClient({
   initialData,
+  userId,
   preview = false,
   previewStep = 'form',
   previewPitch,
 }: {
   initialData?: { name: string; targetRole: string; strengths: string; certifications: string; industry: string } | null;
+  /** Signed-in member (or member being set up). Scopes the local draft so one client's answers never bleed into another's form. */
+  userId?: string;
   preview?: boolean;
   previewStep?: Step;
   previewPitch?: string;
 } = {}) {
+  const router = useRouter();
   const [step, setStep] = useState<Step>(previewStep);
   const [name, setName] = useState(initialData?.name ?? '');
   const [targetRole, setTargetRole] = useState(initialData?.targetRole ?? '');
@@ -94,11 +99,27 @@ export default function ElevatorPitchClient({
   };
   const values = { name, role: targetRole, strengths, certs: certifications, industry };
 
-  useDraftAutosave('ai-tool:elevator-pitch:name', name, setName);
-  useDraftAutosave('ai-tool:elevator-pitch:targetRole', targetRole, setTargetRole);
-  useDraftAutosave('ai-tool:elevator-pitch:strengths', strengths, setStrengths);
-  useDraftAutosave('ai-tool:elevator-pitch:certifications', certifications, setCertifications);
-  useDraftAutosave('ai-tool:elevator-pitch:industry', industry, setIndustry);
+  // Drafts are keyed per member. The old shared key meant a counselor/admin
+  // opening the tool for a NEW client saw the previous client's name, role and
+  // strengths already filled in.
+  const draftScope = `ai-tool:elevator-pitch:${userId ?? 'anon'}`;
+  useDraftAutosave(`${draftScope}:name`, name, setName);
+  useDraftAutosave(`${draftScope}:targetRole`, targetRole, setTargetRole);
+  useDraftAutosave(`${draftScope}:strengths`, strengths, setStrengths);
+  useDraftAutosave(`${draftScope}:certifications`, certifications, setCertifications);
+  useDraftAutosave(`${draftScope}:industry`, industry, setIndustry);
+
+  // One-time cleanup of the legacy unscoped keys so stale data cannot resurface.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      for (const k of ['name', 'targetRole', 'strengths', 'certifications', 'industry']) {
+        window.localStorage.removeItem(`ai-tool:elevator-pitch:${k}`);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const [pitch, setPitch] = useState(previewPitch ?? '');
   const [generating, setGenerating] = useState(false);
@@ -150,6 +171,9 @@ export default function ElevatorPitchClient({
       setPitch(data.pitch);
       setEmailStatus({ sent: data.emailSent === true, error: data.emailError ?? null });
       setStep('pitch');
+      // "Previous pitches" is server-rendered — refresh so the new pitch shows up
+      // without a manual reload (members read a stale list as "my pitch was deleted").
+      router.refresh();
     } catch {
       setGenError('Network error — try again.');
     } finally {

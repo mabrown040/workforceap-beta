@@ -37,6 +37,7 @@ export function ElevatorPitchKit({
     >
       <div className="wa-kit-card">
         <ElevatorPitchClient
+          userId={userId}
           initialData={initialData}
           preview={preview}
           previewStep={previewStep}

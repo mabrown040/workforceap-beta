@@ -17,7 +17,15 @@ import {
   getVoiceCoachTranscriptRecipients,
   sendElevatorSpeechEmail,
   sendVoiceCoachArtifactEmail,
-} from '@/lib/email';export const POST = withApiGuc(async (request: Request) => {
+} from '@/lib/email';
+
+/** Minimum words for a usable 10–20 second pitch (target is 40–60). */
+const MIN_PITCH_WORDS = 25;
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,6 +55,10 @@ import {
     }
 
     const { name, targetRole, strengths, certifications, industry, language, subjectMemberId, sessionId } = body;
+    // Fields arrive as an untyped Record — never call .trim() on them directly
+    // below this point; use the `final*` values (a missing targetRole used to
+    // throw inside the persist block and silently drop the saved pitch).
+
   
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId ?? undefined);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
@@ -97,13 +109,29 @@ import {
     const coachContextBlock = await loadCoachContextBlock(onBehalf.subjectUserId);
 
     try {
-      const pitch = await chatCompletion(
+      const systemPrompt = `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(normalizedLanguage)} Return only the pitch, nothing else.${coachContextBlock}`;
+      let pitch = await chatCompletion(
         [
-          { role: 'system', content: `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(normalizedLanguage)} Return only the pitch, nothing else.${coachContextBlock}` },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt },
         ],
-        { maxTokens: 200, temperature: 0.7 }
+        { maxTokens: 260, temperature: 0.7 }
       );
+
+      // Guard against truncated / one-line output ("My name is …" and nothing
+      // else). A real 10–20 second pitch is 40–60 words; retry once with an
+      // explicit reminder before giving the member something unusable.
+      if (pitch && countWords(cleanSpokenLine(pitch)) < MIN_PITCH_WORDS) {
+        console.warn('[elevator-pitch] short output, retrying', { words: countWords(pitch) });
+        const retry = await chatCompletion(
+          [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `${prompt}\n\nIMPORTANT: Your previous attempt was too short. Write the COMPLETE pitch as one spoken paragraph of 40-60 words covering who they are, what they do best, and what they are looking for.` },
+          ],
+          { maxTokens: 260, temperature: 0.7 }
+        );
+        if (retry && countWords(cleanSpokenLine(retry)) > countWords(cleanSpokenLine(pitch))) pitch = retry;
+      }
   
       if (!pitch) return NextResponse.json({ error: 'Could not generate pitch. Try again.' }, { status: 500 });
   
@@ -117,7 +145,7 @@ import {
         await saveAIToolResult(
           onBehalf.subjectUserId,
           'career_counselor',
-          `AI elevator speech for ${targetRole.trim()}`,
+          `AI elevator speech for ${finalTargetRole}`,
           trimmedPitch,
           { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId }
         );
@@ -132,14 +160,14 @@ import {
           if (recipients.length > 0) {
             await sendVoiceCoachArtifactEmail({
               to: recipients,
-              memberName: dbUser?.fullName?.trim() || user.email || name.trim() || 'WorkforceAP member',
+              memberName: dbUser?.fullName?.trim() || user.email || finalName || 'WorkforceAP member',
               memberEmail: dbUser?.email?.trim() || user.email || null,
               coachLabel: 'Elevator Pitch Builder',
               artifactTitle: 'Generated pitch',
               artifactBody: trimmedPitch,
               highlights: [
-                `Target role: ${targetRole.trim()}`,
-                industry?.trim() ? `Industry: ${industry.trim()}` : '',
+                `Target role: ${finalTargetRole}`,
+                finalIndustry ? `Industry: ${finalIndustry}` : '',
               ].filter(Boolean),
             });
           }
@@ -163,11 +191,11 @@ import {
         if (recipient) {
           const emailResult = await sendElevatorSpeechEmail({
             to: recipient,
-            memberName: dbUser?.fullName?.trim() || name.trim() || recipient,
-            targetRole: targetRole.trim(),
-            strengths: strengths?.trim() || null,
-            certifications: certifications?.trim() || null,
-            industry: industry?.trim() || null,
+            memberName: dbUser?.fullName?.trim() || finalName || recipient,
+            targetRole: finalTargetRole,
+            strengths: finalStrengths || null,
+            certifications: finalCertifications || null,
+            industry: finalIndustry || null,
             pitch: cleanedPitch,
           });
           emailSent = emailResult.ok;

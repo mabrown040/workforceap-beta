@@ -130,10 +130,10 @@ export default function WorkspaceShell({
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
-  // Members: left command-rail on desktop (>=1024), MemberPortalTopNav on
-  // small screens (<=768), hamburger drawer in between. Do not also paint
-  // the overflowing flat tab bar — it only appeared at 769–1023 and duplicated
-  // the drawer (FINDING-023). Other roles still get tab-filtered rails.
+  // Members: left command-rail always visible from 769px up (laptops included —
+  // ops asked that the side menu never hide behind a hamburger on a laptop),
+  // MemberPortalTopNav on small screens (<=768). Do not also paint the
+  // overflowing flat tab bar (FINDING-023). Other roles still get tab-filtered rails.
   const desktopNavItems =
     portalRole === 'member'
       ? navItems
@@ -257,7 +257,11 @@ export default function WorkspaceShell({
   }, [isMobileDrawer]);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
+    // Persistent left rail from tablet-landscape / laptop widths up (>=769px).
+    // Below that, members get MemberPortalTopNav and other roles the drawer.
+    // Keep in sync with the `(min-width: 769px)` shell rules in
+    // css/portal-main-extracted.css.
+    const mq = window.matchMedia('(min-width: 769px)');
     const fn = () => setWide(mq.matches);
     fn();
     mq.addEventListener('change', fn);

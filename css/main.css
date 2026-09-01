@@ -2349,6 +2349,31 @@ a.nav-cta {
         font-size: 0.8125rem !important;
     }
 }
+/* Laptop / zoomed-in laptop widths (901–1120px): keep the full horizontal
+   menu on one row. Smaller logo, tighter gaps and compact type so the last
+   items (Login / Apply Now) never clip off the right edge. */
+@media (min-width: 901px) and (max-width: 1120px) {
+    .nav-container {
+        gap: 0.75rem;
+        padding: 0 1rem;
+    }
+    .nav-logo-image,
+    .main-nav--depth .nav-logo-image {
+        height: 40px;
+        max-width: 120px;
+    }
+    .nav-menu {
+        gap: 0.7rem;
+    }
+    .nav-menu a,
+    .nav-menu .dropdown .dropdown-trigger,
+    .nav-menu .nav-login-primary {
+        font-size: 0.78rem;
+    }
+    .nav-theme-slot-desktop {
+        gap: 0.25rem !important;
+    }
+}
 .nav-cta:hover,
 a.nav-cta:hover {
     transform: translateY(-1px);

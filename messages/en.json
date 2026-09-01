@@ -149,6 +149,7 @@
     "address": "Address",
     "city": "City",
     "state": "State",
+    "selectState": "Select a state",
     "zip": "ZIP code",
     "submit": "Submit",
     "next": "Next",

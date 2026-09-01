@@ -300,6 +300,61 @@ function hasActiveProviderCapability(value) {
   return true;
 }
 
+function isInertProviderWorkflow(workflow) {
+  if (workflow === undefined || workflow === null) return true;
+  if (!isPlainObject(workflow)) return false;
+  if (Object.keys(workflow).length === 0) return true;
+
+  const allowedWorkflowKeys = new Set([
+    'edges',
+    'nodes',
+    'prevent_subagent_loops',
+    'subgraphs',
+  ]);
+  if (Object.keys(workflow).some((key) => !allowedWorkflowKeys.has(key))) return false;
+  if (!isPlainObject(workflow.edges) || Object.keys(workflow.edges).length !== 0) return false;
+  if (
+    !isPlainObject(workflow.nodes) ||
+    Object.keys(workflow.nodes).length !== 1 ||
+    !Object.hasOwn(workflow.nodes, 'start_node')
+  ) {
+    return false;
+  }
+
+  const startNode = workflow.nodes.start_node;
+  if (!isPlainObject(startNode)) return false;
+  const allowedStartNodeKeys = new Set([
+    'type',
+    'position',
+    'edge_order',
+    'parent_subgraph_id',
+  ]);
+  if (Object.keys(startNode).some((key) => !allowedStartNodeKeys.has(key))) return false;
+  if (
+    startNode.type !== 'start' ||
+    !Array.isArray(startNode.edge_order) ||
+    startNode.edge_order.length !== 0 ||
+    (startNode.parent_subgraph_id !== undefined && startNode.parent_subgraph_id !== null)
+  ) {
+    return false;
+  }
+
+  const position = startNode.position;
+  if (
+    !isPlainObject(position) ||
+    Object.keys(position).sort().join(',') !== 'x,y' ||
+    position.x !== 0 ||
+    position.y !== 0
+  ) {
+    return false;
+  }
+  if (workflow.prevent_subagent_loops !== false) return false;
+  return (
+    workflow.subgraphs === undefined ||
+    (isPlainObject(workflow.subgraphs) && Object.keys(workflow.subgraphs).length === 0)
+  );
+}
+
 function findLanguagePresetCapabilityIssues(languagePresets) {
   if (isEmptyProviderField(languagePresets)) return [];
   if (!isPlainObject(languagePresets)) return ['conversation_config.language_presets'];
@@ -383,7 +438,7 @@ export function findMemberAgentCapabilityIssues(
     issues.push('conversation_config.agent.prompt.enable_parallel_tool_calls');
   }
 
-  if (hasActiveProviderCapability(agent?.workflow)) {
+  if (!isInertProviderWorkflow(agent?.workflow)) {
     issues.push('workflow');
   }
   issues.push(
@@ -407,6 +462,7 @@ export function findMemberAgentCapabilityIssues(
     'custom_llm_extra_body',
     'enable_conversation_initiation_client_data_from_webhook',
     'enable_starting_workflow_node_id_from_client',
+    'enable_procedure_ids_from_client',
   ]) {
     if (hasActiveProviderCapability(overrides?.[key])) {
       issues.push(`platform_settings.overrides.${key}`);

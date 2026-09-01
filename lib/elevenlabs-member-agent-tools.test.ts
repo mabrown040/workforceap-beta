@@ -410,17 +410,32 @@ test('agent capability verification allows only governed read-only tool ids', ()
         },
       },
     },
+    workflow: {
+      edges: {},
+      nodes: {
+        start_node: {
+          type: 'start',
+          position: { x: 0, y: 0 },
+          edge_order: [],
+          parent_subgraph_id: null,
+        },
+      },
+      prevent_subagent_loops: false,
+      subgraphs: {},
+    },
     platform_settings: {
       privacy: { zero_retention_mode: true },
       data_collection: {},
       data_collection_scopes: {},
       overrides: {
         conversation_config_override: {
+          conversation: { text_only: false, max_duration_seconds: false },
           agent: { prompt: { prompt: false, tool_ids: false, knowledge_base: false } },
         },
         custom_llm_extra_body: false,
         enable_conversation_initiation_client_data_from_webhook: false,
         enable_starting_workflow_node_id_from_client: false,
+        enable_procedure_ids_from_client: false,
       },
       workspace_overrides: {
         conversation_initiation_client_data_webhook: null,
@@ -445,6 +460,7 @@ test('agent capability verification allows only governed read-only tool ids', ()
         conversation_config_override: {
           agent: { prompt: Record<string, unknown> };
         };
+        enable_procedure_ids_from_client: boolean;
       };
       workspace_overrides: { webhooks: Record<string, unknown> };
     };
@@ -454,9 +470,24 @@ test('agent capability verification allows only governed read-only tool ids', ()
   unsafePrompt.knowledge_base = [{ id: 'kb-unreviewed' }];
   (unsafePrompt.built_in_tools as Record<string, unknown>).update_state = { enabled: true };
   unsafeAgent.platform_settings.overrides.conversation_config_override.agent.prompt.tool_ids = true;
+  unsafeAgent.platform_settings.overrides.enable_procedure_ids_from_client = true;
   unsafeAgent.platform_settings.workspace_overrides.webhooks.post_call_webhook_id = 'webhook-1';
   Object.assign(unsafeAgent, {
-    workflow: { start_node: { type: 'start' } },
+    workflow: {
+      edges: {
+        start_to_tool: { source: 'start_node', target: 'tool_node' },
+      },
+      nodes: {
+        start_node: {
+          type: 'start',
+          position: { x: 0, y: 0 },
+          edge_order: ['start_to_tool'],
+          parent_subgraph_id: null,
+        },
+        tool_node: { type: 'tool', position: { x: 0, y: 0 }, edge_order: [], tools: [] },
+      },
+      prevent_subagent_loops: false,
+    },
   });
   Object.assign(unsafeAgent.conversation_config, {
     language_presets: {
@@ -495,6 +526,7 @@ test('agent capability verification allows only governed read-only tool ids', ()
   assert.ok(
     issues.includes('platform_settings.workspace_overrides.webhooks.post_call_webhook_id'),
   );
+  assert.ok(issues.includes('platform_settings.overrides.enable_procedure_ids_from_client'));
   assert.ok(issues.includes('workflow'));
   assert.ok(issues.includes('conversation_config.language_presets.es.overrides'));
   assert.ok(
@@ -530,6 +562,7 @@ test('agent capability verification rejects every active conversation override s
           tts: { voice_id: false, model_id: null },
           asr: { keywords: [] },
           turn: null,
+          conversation: { text_only: false, max_duration_seconds: false },
         },
       },
     },
@@ -545,6 +578,8 @@ test('agent capability verification rejects every active conversation override s
     { tts: { voice_id: true } },
     { tts: { voice_id: 'voice-unreviewed' } },
     { asr: { keywords: ['unreviewed-keyword'] } },
+    { conversation: { text_only: true } },
+    { conversation: { max_duration_seconds: true } },
   ];
   for (const conversationConfigOverride of adversarialOverrides) {
     const adversarialAgent = structuredClone(safeAgent) as unknown as {
@@ -559,6 +594,89 @@ test('agent capability verification rejects every active conversation override s
     assert.ok(
       findMemberAgentCapabilityIssues(adversarialAgent, []).includes(issuePath),
       `Expected ${issuePath} for ${JSON.stringify(conversationConfigOverride)}`,
+    );
+  }
+});
+
+test('agent capability verification accepts only the provider inert workflow graph', () => {
+  type WorkflowFixture = {
+    edges: Record<string, unknown>;
+    nodes: Record<string, Record<string, unknown>>;
+    prevent_subagent_loops: boolean;
+    subgraphs?: Record<string, unknown>;
+    [key: string]: unknown;
+  };
+
+  const inertWorkflow: WorkflowFixture = {
+    edges: {},
+    nodes: {
+      start_node: {
+        type: 'start',
+        position: { x: 0, y: 0 },
+        edge_order: [],
+        parent_subgraph_id: null,
+      },
+    },
+    prevent_subagent_loops: false,
+    subgraphs: {},
+  };
+  const agentWithWorkflow = (workflow: unknown) => ({
+    conversation_config: { agent: { prompt: { tool_ids: [] } } },
+    platform_settings: { privacy: { zero_retention_mode: true } },
+    workflow,
+  });
+
+  for (const absentWorkflow of [undefined, null, {}]) {
+    assert.deepEqual(
+      findMemberAgentCapabilityIssues(agentWithWorkflow(absentWorkflow), []),
+      [],
+      `Expected absent workflow to be inert: ${JSON.stringify(absentWorkflow)}`,
+    );
+  }
+
+  for (const malformedWorkflow of ['', [], false, 0]) {
+    assert.ok(
+      findMemberAgentCapabilityIssues(agentWithWorkflow(malformedWorkflow), []).includes(
+        'workflow',
+      ),
+      `Expected malformed workflow to fail closed: ${JSON.stringify(malformedWorkflow)}`,
+    );
+  }
+
+  assert.deepEqual(findMemberAgentCapabilityIssues(agentWithWorkflow(inertWorkflow), []), []);
+
+  const mutations: Array<(workflow: WorkflowFixture) => void> = [
+    (workflow) => {
+      workflow.edges.start_to_tool = { source: 'start_node', target: 'tool_node' };
+    },
+    (workflow) => {
+      workflow.nodes.tool_node = { type: 'tool', tools: [] };
+    },
+    (workflow) => {
+      workflow.nodes.start_node.edge_order = ['start_to_tool'];
+    },
+    (workflow) => {
+      workflow.nodes.start_node.type = 'override_agent';
+    },
+    (workflow) => {
+      workflow.nodes.start_node.parent_subgraph_id = 'subgraph-1';
+    },
+    (workflow) => {
+      workflow.nodes.start_node.position = { x: 1, y: 0 };
+    },
+    (workflow) => {
+      workflow.subgraphs = { 'subgraph-1': {} };
+    },
+    (workflow) => {
+      workflow.procedures = {};
+    },
+  ];
+  for (const mutate of mutations) {
+    const workflow = structuredClone(inertWorkflow);
+    mutate(workflow);
+    assert.ok(
+      findMemberAgentCapabilityIssues(agentWithWorkflow(workflow), []).includes('workflow'),
+      `Expected workflow issue for ${JSON.stringify(workflow)}`,
     );
   }
 });

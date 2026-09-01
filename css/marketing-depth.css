@@ -191,6 +191,32 @@ html.dark .main-nav--depth .mobile-nav-toggle:hover{
 .main-nav--depth .nav-lang-hidden{display:none!important}
 
 /* ============================================================
+   Laptop / zoomed-in laptop widths (901–1120px): keep the full horizontal
+   menu on one row. Lives here (not main.css) because the depth re-skin
+   above sets 15px links with html-qualified selectors that would otherwise
+   win the cascade; same selectors + later position = these take effect.
+   ============================================================ */
+@media (min-width:901px) and (max-width:1120px){
+  .main-nav--depth .nav-container{gap:.75rem;padding:0 1rem}
+  .main-nav--depth .nav-logo-image{height:40px;max-width:120px}
+  .main-nav--depth .nav-menu{gap:.7rem}
+  html .main-nav--depth .nav-menu > li > a,
+  html .main-nav--depth .nav-menu .dropdown .dropdown-trigger,
+  html.dark .main-nav--depth .nav-menu > li > a,
+  html.dark .main-nav--depth .nav-menu .dropdown .dropdown-trigger,
+  html:not(.dark) .main-nav--depth.scrolled .nav-menu > li > a,
+  html:not(.dark) .main-nav--depth.scrolled .nav-menu .dropdown .dropdown-trigger,
+  html .main-nav--depth .nav-menu .nav-login-primary,
+  html.dark .main-nav--depth .nav-menu .nav-login-primary,
+  html:not(.dark) .main-nav--depth.scrolled .nav-menu .nav-login-primary,
+  html:not(.dark) .main-nav--depth.scrolled .nav-menu .nav-login-flyout-trigger{
+    font-size:13px;
+  }
+  .main-nav--depth .nav-cta,
+  .main-nav--depth a.nav-cta{font-size:13.5px;padding:10px 14px!important}
+  .main-nav--depth .nav-theme-slot-desktop{gap:.25rem!important}
+}
+/* ============================================================
    Mobile drawer re-skin — light surface, crimson accents.
    ============================================================ */
 @media (max-width:900px){

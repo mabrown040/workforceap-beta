@@ -123,13 +123,21 @@ export const POST = withApiGuc(async (request: Request) => {
       // explicit reminder before giving the member something unusable.
       if (pitch && countWords(cleanSpokenLine(pitch)) < MIN_PITCH_WORDS) {
         console.warn('[elevator-pitch] short output, retrying', { words: countWords(pitch) });
-        const retry = await chatCompletion(
-          [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: `${prompt}\n\nIMPORTANT: Your previous attempt was too short. Write the COMPLETE pitch as one spoken paragraph of 40-60 words covering who they are, what they do best, and what they are looking for.` },
-          ],
-          { maxTokens: 260, temperature: 0.7 }
-        );
+        // A failed retry must not throw away the pitch we already have —
+        // chatCompletion throws when every provider fails (e.g. a 429 on the
+        // immediate second call), so keep the first result in that case.
+        let retry: string | null = null;
+        try {
+          retry = await chatCompletion(
+            [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `${prompt}\n\nIMPORTANT: Your previous attempt was too short. Write the COMPLETE pitch as one spoken paragraph of 40-60 words covering who they are, what they do best, and what they are looking for.` },
+            ],
+            { maxTokens: 260, temperature: 0.7 }
+          );
+        } catch (retryErr) {
+          console.warn('[elevator-pitch] retry failed, keeping first result', retryErr);
+        }
         if (retry && countWords(cleanSpokenLine(retry)) > countWords(cleanSpokenLine(pitch))) pitch = retry;
       }
   

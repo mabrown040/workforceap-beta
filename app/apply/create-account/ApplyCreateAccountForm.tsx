@@ -198,6 +198,7 @@ export default function ApplyCreateAccountForm() {
         }
         if (draft.state) {
           setStateVal(toStateAbbr(draft.state));
+          setOptionalAddressOpen(true);
         } else if (elig?.state) {
           setStateVal(toStateAbbr(elig.state));
           setOptionalAddressOpen(true);

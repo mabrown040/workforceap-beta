@@ -103,11 +103,24 @@ export default function ElevatorPitchClient({
   // opening the tool for a NEW client saw the previous client's name, role and
   // strengths already filled in.
   const draftScope = `ai-tool:elevator-pitch:${userId ?? 'anon'}`;
-  useDraftAutosave(`${draftScope}:name`, name, setName);
-  useDraftAutosave(`${draftScope}:targetRole`, targetRole, setTargetRole);
-  useDraftAutosave(`${draftScope}:strengths`, strengths, setStrengths);
-  useDraftAutosave(`${draftScope}:certifications`, certifications, setCertifications);
-  useDraftAutosave(`${draftScope}:industry`, industry, setIndustry);
+  const nameDraft = useDraftAutosave(`${draftScope}:name`, name, setName);
+  const roleDraft = useDraftAutosave(`${draftScope}:targetRole`, targetRole, setTargetRole);
+  const strengthsDraft = useDraftAutosave(`${draftScope}:strengths`, strengths, setStrengths);
+  const certsDraft = useDraftAutosave(`${draftScope}:certifications`, certifications, setCertifications);
+  const industryDraft = useDraftAutosave(`${draftScope}:industry`, industry, setIndustry);
+  // Staff often set up several clients under one login, so the per-user key
+  // alone is not enough: drop the stored draft once a pitch is written, and
+  // wipe both state and storage when starting a new client.
+  const clearDrafts = () =>
+    [nameDraft, roleDraft, strengthsDraft, certsDraft, industryDraft].forEach((d) => d.clear());
+  const resetForm = () => {
+    clearDrafts();
+    setName('');
+    setTargetRole('');
+    setStrengths('');
+    setCertifications('');
+    setIndustry('');
+  };
 
   // One-time cleanup of the legacy unscoped keys so stale data cannot resurface.
   useEffect(() => {
@@ -171,6 +184,9 @@ export default function ElevatorPitchClient({
       setPitch(data.pitch);
       setEmailStatus({ sent: data.emailSent === true, error: data.emailError ?? null });
       setStep('pitch');
+      // Keep the answers in memory for "Edit answers", but stop the saved
+      // draft from pre-filling the form for the next client.
+      clearDrafts();
       // "Previous pitches" is server-rendered — refresh so the new pitch shows up
       // without a manual reload (members read a stale list as "my pitch was deleted").
       router.refresh();
@@ -267,27 +283,37 @@ export default function ElevatorPitchClient({
           </FormField>
         ))}
         {genError ? <AiToolError error={genError} /> : null}
-        <button
-          type="submit"
-          disabled={generating || !name.trim() || !targetRole.trim()}
-          aria-busy={generating}
-          className={KIT_BTN}
-          style={{
-            ...kitBtnSolid,
-            opacity: generating || !name.trim() || !targetRole.trim() ? 0.6 : 1,
-            cursor: generating || !name.trim() || !targetRole.trim() ? 'not-allowed' : 'pointer',
-            alignSelf: 'flex-start',
-          }}
-        >
-          {generating ? (
-            <>
-              <PortalInlineSpinner size={18} />
-              Writing…
-            </>
-          ) : (
-            'Write pitch'
-          )}
-        </button>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button
+            type="submit"
+            disabled={generating || !name.trim() || !targetRole.trim()}
+            aria-busy={generating}
+            className={KIT_BTN}
+            style={{
+              ...kitBtnSolid,
+              opacity: generating || !name.trim() || !targetRole.trim() ? 0.6 : 1,
+              cursor: generating || !name.trim() || !targetRole.trim() ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {generating ? (
+              <>
+                <PortalInlineSpinner size={18} />
+                Writing…
+              </>
+            ) : (
+              'Write pitch'
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={resetForm}
+            disabled={generating}
+            className={KIT_BTN}
+            style={{ ...kitBtnOutline, opacity: generating ? 0.6 : 1 }}
+          >
+            Clear form
+          </button>
+        </div>
       </form>
     );
   }
@@ -455,6 +481,7 @@ export default function ElevatorPitchClient({
             <button
               type="button"
               onClick={() => {
+                resetForm();
                 setStep('form');
                 setPlaybackUrl(null);
               }}

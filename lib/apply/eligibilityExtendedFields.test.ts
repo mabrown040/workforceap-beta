@@ -42,6 +42,36 @@ const PREEXISTING_HEAR_ABOUT_OPTIONS = [
   'Partner or community ambassador',
 ] as const;
 
+/** Organisations added from the 9/1/26 ops change list. */
+const HEAR_ABOUT_OPTIONS_ADDED_9_1 = [
+  'Workforce Solutions Greater Dallas',
+  'Workforce Solutions Central Texas',
+  'Workforce Solutions Gulf Coast',
+  'Workforce Solutions Alamo',
+  'Goodwill Central Texas',
+  'Gary Job Corps',
+  'Lifeworks',
+  'Building Promise',
+  'LifeAnew',
+  'MSRW Management',
+  'ACC (Austin Community College)',
+  'Community First (Mobile Loaves and Fishes)',
+  'Big Austin',
+  'EGBI',
+  'YMCA',
+  'Boys and Girls Clubs',
+  'Capital Idea',
+  'Austin Free-Net',
+  'Latinitas',
+  'Veterans Affairs (VA)',
+  'City of Austin',
+  'State of Texas',
+  'Austin Public Health (APH)',
+  'AISD',
+  'Texas Empowerment Academy',
+  '100 Black Men',
+] as const;
+
 test('normalizes yes/no and rejects other values', () => {
   assert.equal(normalizeYesNo('yes'), 'yes');
   assert.equal(normalizeYesNo('no'), 'no');
@@ -72,8 +102,24 @@ test('hear-about dropdown preserves every existing choice and adds new choices o
       REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
     ),
   );
-  assert.equal(APPLY_HEAR_ABOUT_OPTIONS.length, PREEXISTING_HEAR_ABOUT_OPTIONS.length + 2);
+  for (const option of HEAR_ABOUT_OPTIONS_ADDED_9_1) {
+    assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(option), option);
+  }
+  assert.equal(
+    APPLY_HEAR_ABOUT_OPTIONS.length,
+    PREEXISTING_HEAR_ABOUT_OPTIONS.length + 2 + HEAR_ABOUT_OPTIONS_ADDED_9_1.length,
+  );
   assert.equal(new Set(APPLY_HEAR_ABOUT_OPTIONS).size, APPLY_HEAR_ABOUT_OPTIONS.length);
+  // The ops list also spelled two existing entries differently — those are
+  // aliases of the existing rows, not new rows.
+  assert.equal(
+    normalizedReferralSourceKey('Launch Pad Job Club (LPJC)'),
+    normalizedReferralSourceKey('Launch Pad Job Club'),
+  );
+  assert.equal(
+    normalizedReferralSourceKey('PurposeWorks / Job Seekers Network'),
+    normalizedReferralSourceKey('Purpose Works / Job Seekers Network'),
+  );
 });
 
 test('admin referral dropdown removes normalized duplicates but accepts historical values', () => {

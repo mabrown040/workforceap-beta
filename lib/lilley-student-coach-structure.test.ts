@@ -179,6 +179,11 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
       tts?: { voice_id?: string };
     };
     platform_settings?: {
+      overrides?: {
+        conversation_config_override?: {
+          conversation?: { text_only?: boolean };
+        };
+      };
       privacy?: {
         record_voice?: boolean;
         retention_days?: number;
@@ -197,11 +202,16 @@ test('the active ElevenLabs patch is student-facing and cannot restore the staff
 
   assert.equal(patch.name, 'Lilley - WorkforceAP Student Career Coach');
   assert.equal(patch.conversation_config?.tts?.voice_id, 'l4Coq6695JDX9xtLqXDE');
+  assert.equal(
+    patch.platform_settings?.overrides?.conversation_config_override?.conversation?.text_only,
+    false,
+    'Lilley must not allow clients to switch the reviewed voice session into text-only mode',
+  );
   assert.deepEqual(patch.platform_settings?.privacy, {
     record_voice: false,
-    retention_days: 0,
-    delete_transcript_and_pii: true,
-    delete_audio: true,
+    retention_days: -1,
+    delete_transcript_and_pii: false,
+    delete_audio: false,
     apply_to_existing_conversations: false,
     zero_retention_mode: true,
   });

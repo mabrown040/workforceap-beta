@@ -76,6 +76,68 @@ const patch = {
 
 const reviewedBranchId = 'agtbranch_reviewed-main_2026';
 
+test('governed Lilley model transition clears incompatible reasoning and disables fallback cascade', async () => {
+  const checkedInPatch = JSON.parse(
+    await readFile(
+      join(
+        process.cwd(),
+        'scripts',
+        'elevenlabs',
+        'patches',
+        `${GOVERNED_LILLEY_AGENT_ID}.patch.json`,
+      ),
+      'utf8',
+    ),
+  ) as {
+    conversation_config?: {
+      agent?: {
+        prompt?: {
+          llm?: unknown;
+          reasoning_effort?: unknown;
+          backup_llm_config?: unknown;
+        };
+      };
+    };
+    platform_settings?: {
+      privacy?: {
+        retention_days?: unknown;
+        delete_transcript_and_pii?: unknown;
+        delete_audio?: unknown;
+        zero_retention_mode?: unknown;
+      };
+    };
+  };
+  const prompt = checkedInPatch.conversation_config?.agent?.prompt;
+  const privacy = checkedInPatch.platform_settings?.privacy;
+
+  assert.equal(prompt?.llm, 'claude-haiku-4-5');
+  assert.equal(prompt?.reasoning_effort, null);
+  assert.deepEqual(prompt?.backup_llm_config, { preference: 'disabled' });
+  assert.equal(privacy?.zero_retention_mode, true);
+  assert.equal(privacy?.retention_days, -1);
+  assert.equal(privacy?.delete_transcript_and_pii, false);
+  assert.equal(privacy?.delete_audio, false);
+
+  const merged = expectedAgentAfterPatch(
+    {
+      conversation_config: {
+        agent: {
+          prompt: {
+            llm: 'gpt-5.6-luna',
+            reasoning_effort: 'low',
+            backup_llm_config: { preference: 'default' },
+          },
+        },
+      },
+    },
+    checkedInPatch,
+  );
+  const mergedPrompt = merged.conversation_config?.agent?.prompt;
+  assert.equal(mergedPrompt?.llm, 'claude-haiku-4-5');
+  assert.equal(mergedPrompt?.reasoning_effort, null);
+  assert.deepEqual(mergedPrompt?.backup_llm_config, { preference: 'disabled' });
+});
+
 function lilleyAgentOnReviewedMainBranch() {
   return {
     ...structuredClone(preimage),

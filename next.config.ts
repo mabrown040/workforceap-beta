@@ -32,6 +32,15 @@ const nextConfig: NextConfig = {
   // serverless route trace so a Vercel bundle cannot silently degrade to an
   // unavailable/stale knowledge response.
   outputFileTracingIncludes: {
+    // The PDF parser is resolved at runtime inside a worker thread (webpack
+    // rewrites require.resolve into a numeric module id, so the path cannot be
+    // computed at module scope). That hides the dependency from the file
+    // tracer, which would ship a lambda where every PDF fails to parse — so
+    // include it explicitly for the routes that read resume text.
+    '/api/**': [
+      './node_modules/pdfjs-dist/package.json',
+      './node_modules/pdfjs-dist/legacy/build/pdf.mjs',
+    ],
     '/api/agent-tools/v1/*': [
       './config/agent-knowledge/manifest.v1.json',
       './shared/programSyllabi.ts',
@@ -40,7 +49,7 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
-  serverExternalPackages: ['pdf-parse', 'mammoth'],
+  serverExternalPackages: ['pdfjs-dist', 'mammoth'],
   // Build-time ESLint is now a required gate (burned down 2026-05-20 — see
   // PLAN-2026-Q3 §7 / AGENTS.md). The known lint errors (bare <table>s + 1
   // missing alt) have been fixed or moved under the documented legacy

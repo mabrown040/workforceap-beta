@@ -51,10 +51,21 @@ test('PDF extraction runs with page, time, and worker memory bounds', () => {
   const extraction = source('lib/resume/extractTextFromResumeBuffer.ts');
 
   assert.match(extraction, /MAX_PDF_RESUME_PAGES = 30/);
-  assert.match(extraction, /PDF_PARSE_TIMEOUT_MS = 8_000/);
   assert.match(extraction, /resourceLimits/);
   assert.match(extraction, /maxOldGenerationSizeMb: 128/);
   assert.match(extraction, /parsePdfInBoundedWorker/);
+
+  // The parse must stay time-bounded. The cap was raised from 8s to 20s when
+  // extraction moved to pdfjs-dist (a much larger module that loads inside the
+  // worker, so a cold serverless start pays the import first). Assert a real
+  // ceiling rather than one exact value, so a bound that stops bounding fails.
+  const timeout = extraction.match(/PDF_PARSE_TIMEOUT_MS = ([\d_]+);/);
+  assert.ok(timeout, 'PDF_PARSE_TIMEOUT_MS must be declared');
+  const timeoutMs = Number(timeout[1].replaceAll('_', ''));
+  assert.ok(
+    timeoutMs > 0 && timeoutMs <= 30_000,
+    `PDF parse timeout must stay within 30s, got ${timeoutMs}ms`,
+  );
 });
 
 test('DOCX extraction streams with actual output and token caps and previews reuse it', () => {

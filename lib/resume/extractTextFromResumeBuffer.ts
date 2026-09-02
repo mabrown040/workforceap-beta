@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer';
-import { createRequire } from 'node:module';
 import { TextDecoder } from 'node:util';
 import { Worker } from 'node:worker_threads';
 import { createInflateRaw } from 'node:zlib';
@@ -7,26 +6,73 @@ import { sanitizeResumePlainText } from './extractionQuality';
 
 const MAX_EXTRACTED_RESUME_TEXT_CHARS = 500_000;
 const MAX_PDF_RESUME_PAGES = 30;
-const PDF_PARSE_TIMEOUT_MS = 8_000;
+/**
+ * Raised from 8s: pdfjs-dist is a far larger module than the old parser and
+ * loads inside the worker, so a cold serverless start pays that import cost
+ * before the first page is read. The cap still bounds a hostile file.
+ */
+const PDF_PARSE_TIMEOUT_MS = 20_000;
 const MAX_DOCX_DOCUMENT_XML_BYTES = 8 * 1024 * 1024;
 const MAX_DOCX_COMPRESSED_ENTRY_BYTES = 5 * 1024 * 1024;
 const MAX_DOCX_ENTRIES = 8192;
 const MAX_DOCX_XML_TOKENS = 100_000;
-const requireFromResumeModule = createRequire(import.meta.url);
-const pdfParseModulePath = requireFromResumeModule.resolve('pdf-parse');
+/**
+ * Modern pdf.js (pdfjs-dist), not pdf-parse.
+ *
+ * pdf-parse bundles pdf.js builds from 2018 (newest v2.0.550). Production was
+ * rejecting real member resumes with "bad XRef entry", "Command token too
+ * long" and "Illegal character" — files that current PDF producers (Word,
+ * Canva, Google Docs, macOS Preview) emit routinely. pdfjs-dist reads those
+ * same files, and extracts more text from the ones pdf-parse could already
+ * handle.
+ */
 
 const PDF_WORKER_SOURCE = String.raw`
   const { parentPort, workerData } = require('node:worker_threads');
-  const pdfParse = require(workerData.modulePath);
+  const { pathToFileURL } = require('node:url');
   (async () => {
     try {
-      const parsed = await pdfParse(Buffer.from(workerData.bytes), { max: workerData.maxPages });
-      const text = typeof parsed?.text === 'string' ? parsed.text : '';
-      if (text.length > workerData.maxTextChars) {
-        parentPort.postMessage({ ok: false, code: 'unsafe_extraction' });
-        return;
+      // Resolved here, not in the importing module: webpack rewrites
+      // require.resolve() into an internal numeric module id, so any path
+      // computed at module scope arrives as a number inside the bundle.
+      // For an eval worker Node resolves bare specifiers from process.cwd().
+      const { createRequire } = require('node:module');
+      const resolveFrom = createRequire(workerData.cwd + '/package.json');
+      const entry = resolveFrom.resolve('pdfjs-dist/legacy/build/pdf.mjs');
+      const pdfjs = await import(pathToFileURL(entry).href);
+      const doc = await pdfjs.getDocument({
+        data: new Uint8Array(workerData.bytes),
+        // No eval, no network font fetches, no system font probing: this
+        // parses untrusted member uploads inside a memory-capped worker.
+        isEvalSupported: false,
+        useSystemFonts: false,
+        disableFontFace: true,
+      }).promise;
+      try {
+        const pageCount = Math.min(doc.numPages, workerData.maxPages);
+        let text = '';
+        for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+          const page = await doc.getPage(pageNumber);
+          const content = await page.getTextContent();
+          // Concatenate runs and break only where pdf.js reports a line end.
+          // Joining every item with a space instead would split words and
+          // hex codes apart ("#1 a 1 a 1 a"), degrading what the AI tools read.
+          for (const item of content.items) {
+            if (!('str' in item)) continue;
+            text += item.str;
+            if (item.hasEOL) text += String.fromCharCode(10);
+          }
+          text += String.fromCharCode(10);
+          page.cleanup();
+          if (text.length > workerData.maxTextChars) {
+            parentPort.postMessage({ ok: false, code: 'unsafe_extraction' });
+            return;
+          }
+        }
+        parentPort.postMessage({ ok: true, text });
+      } finally {
+        await doc.destroy();
       }
-      parentPort.postMessage({ ok: true, text });
     } catch {
       parentPort.postMessage({ ok: false, code: 'invalid_pdf' });
     }
@@ -66,7 +112,7 @@ async function parsePdfInBoundedWorker(buf: Buffer): Promise<string> {
     const worker = new Worker(PDF_WORKER_SOURCE, {
       eval: true,
       workerData: {
-        modulePath: pdfParseModulePath,
+        cwd: process.cwd(),
         bytes: buf,
         maxPages: MAX_PDF_RESUME_PAGES,
         maxTextChars: MAX_EXTRACTED_RESUME_TEXT_CHARS,

@@ -83,7 +83,7 @@
     "next": "15.5.18",
     "next-intl": "^4.11.0",
     "pdf-lib": "^1.17.1",
-    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "4.10.38",
     "react": "^19",
     "react-dom": "^19",
     "react-hook-form": "^7.54.2",

@@ -94,7 +94,9 @@ export function getAdminAlertRecipients(): string[] {
 }
 
 export function getResend(): Resend | null {
-  const key = process.env.RESEND_API_KEY;
+  // Trim: the key becomes the Authorization header, and a pasted trailing
+  // newline makes every send throw before it reaches the network.
+  const key = process.env.RESEND_API_KEY?.replace(/[\r\n\0]/g, '').trim();
   if (!key) return null;
   return new Resend(key);
 }

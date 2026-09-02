@@ -2,7 +2,8 @@
  * Thin Gemini fallback. No SDK dependency — uses the REST API directly.
  * Set GEMINI_API_KEY to enable. Optional GEMINI_MODEL (default: gemini-2.5-flash).
  */
-const apiKey = process.env.GEMINI_API_KEY;
+/** Trimmed: the key is sent as a header/query value (see lib/ai/groq.ts). */
+const apiKey = (process.env.GEMINI_API_KEY ?? '').replace(/[\r\n\0]/g, '').trim() || undefined;
 const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';
 
 export function isGeminiConfigured(): boolean {

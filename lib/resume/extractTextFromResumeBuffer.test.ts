@@ -178,3 +178,31 @@ test('plain-text save route rejects poisoned resume data before storage', async 
   assert.match(route, /body\.resumeRevision !== currentRevision/);
   assert.match(route, /resumeOriginalPath:\s*profile\?\.resumeOriginalPath \?\? null/);
 });
+
+test('extractTextFromResumeBuffer: reads a PDF from a current-generation producer', async () => {
+  // Regression for the production failures "bad XRef entry" / "Command token
+  // too long" / "Illegal character": pdf-parse bundles pdf.js builds from 2018
+  // and rejected files that modern producers (Word, Canva, Google Docs, macOS
+  // Preview) emit routinely. pdf-lib writes the same modern structure, so this
+  // fixture fails on the old parser and succeeds on pdfjs-dist.
+  const { PDFDocument, StandardFonts } = require('pdf-lib') as typeof import('pdf-lib');
+
+  for (const useObjectStreams of [true, false]) {
+    const document = await PDFDocument.create();
+    const page = document.addPage([612, 792]);
+    const font = await document.embedFont(StandardFonts.Helvetica);
+    page.drawText('MICHAEL A BROWN PMP', { x: 40, y: 700, size: 12, font });
+    page.drawText('Executive Director, Workforce Advancement Project', {
+      x: 40,
+      y: 676,
+      size: 11,
+      font,
+    });
+
+    const pdf = Buffer.from(await document.save({ useObjectStreams }));
+    const text = await extractTextFromResumeBuffer(pdf, 'pdf');
+
+    assert.match(text, /MICHAEL A BROWN PMP/);
+    assert.match(text, /Workforce Advancement Project/);
+  }
+});

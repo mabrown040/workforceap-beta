@@ -19,10 +19,13 @@ describe('Stage A raw Coursera attachment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     queryRaw
-      .mockResolvedValueOnce([]) // global email advisory lock
       .mockResolvedValueOnce([{ id: 'user-1' }]) // active target, FOR SHARE
       .mockResolvedValueOnce([]); // no existing ownership conflict
-    executeRaw.mockResolvedValueOnce(2).mockResolvedValueOnce(3);
+    // global email advisory lock, then the course and badge updates
+    executeRaw
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(3);
   });
 
   it('locks, validates, and adopts course plus badge rows as one caller-owned unit', async () => {
@@ -36,19 +39,19 @@ describe('Stage A raw Coursera attachment', () => {
     );
 
     expect(result).toEqual({ courseRowsUpdated: 2, badgeRowsUpdated: 3 });
-    expect(queryRaw).toHaveBeenCalledTimes(3);
-    expect(executeRaw).toHaveBeenCalledTimes(2);
+    expect(queryRaw).toHaveBeenCalledTimes(2);
+    expect(executeRaw).toHaveBeenCalledTimes(3);
 
-    const lock = queryRaw.mock.calls[0]?.[0] as { sql: string; values: unknown[] };
+    const lock = executeRaw.mock.calls[0]?.[0] as { sql: string; values: unknown[] };
     expect(lock.sql).toContain('pg_advisory_xact_lock');
     expect(lock.values).toContain('coursera:raw-email:learner@example.com');
 
-    const target = queryRaw.mock.calls[1]?.[0] as { sql: string; values: unknown[] };
+    const target = queryRaw.mock.calls[0]?.[0] as { sql: string; values: unknown[] };
     expect(target.sql).toContain('FOR SHARE');
     expect(target.values).toEqual(expect.arrayContaining(['user-1', 'org-1']));
 
-    const courseUpdate = executeRaw.mock.calls[0]?.[0] as { sql: string };
-    const badgeUpdate = executeRaw.mock.calls[1]?.[0] as { sql: string };
+    const courseUpdate = executeRaw.mock.calls[1]?.[0] as { sql: string };
+    const badgeUpdate = executeRaw.mock.calls[2]?.[0] as { sql: string };
     expect(courseUpdate.sql).toContain('UPDATE coursera_course_progress');
     expect(badgeUpdate.sql).toContain('UPDATE coursera_badge_progress');
   });
@@ -56,7 +59,6 @@ describe('Stage A raw Coursera attachment', () => {
   it('fails before either update when any existing row has another owner', async () => {
     queryRaw.mockReset();
     queryRaw
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: 'user-1' }])
       .mockResolvedValueOnce([{ source: 'course' }]);
 
@@ -70,12 +72,16 @@ describe('Stage A raw Coursera attachment', () => {
         db,
       ),
     ).rejects.toThrow('different user or organization');
-    expect(executeRaw).not.toHaveBeenCalled();
+    expect(
+      executeRaw.mock.calls.filter(
+        ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+      ),
+    ).toHaveLength(0);
   });
 
   it('fails before ownership inspection when the target user is outside the organization', async () => {
     queryRaw.mockReset();
-    queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+    queryRaw.mockResolvedValueOnce([]);
 
     await expect(
       attachRawCourseraProgressToUser(
@@ -87,7 +93,11 @@ describe('Stage A raw Coursera attachment', () => {
         db,
       ),
     ).rejects.toThrow('active member of the expected organization');
-    expect(queryRaw).toHaveBeenCalledTimes(2);
-    expect(executeRaw).not.toHaveBeenCalled();
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+    expect(
+      executeRaw.mock.calls.filter(
+        ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+      ),
+    ).toHaveLength(0);
   });
 });

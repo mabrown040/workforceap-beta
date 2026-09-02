@@ -13,6 +13,21 @@ describe('legacy raw Coursera tenant adoption', () => {
   const executeRaw = vi.fn();
   const db = { $queryRaw: queryRaw, $executeRaw: executeRaw } as never;
 
+  /** Find a recorded statement by a distinctive fragment of its SQL. */
+  const statementMatching = (
+    mock: { mock: { calls: unknown[][] } },
+    fragment: string,
+  ): { sql: string; values: unknown[] } | undefined =>
+    mock.mock.calls
+      .map(([statement]) => statement as { sql: string; values: unknown[] })
+      .find((statement) => statement?.sql?.includes(fragment));
+
+  /** Every write except the advisory locks themselves. */
+  const nonLockWrites = () =>
+    executeRaw.mock.calls.filter(
+      ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+    );
+
   beforeEach(() => {
     vi.clearAllMocks();
     executeRaw.mockResolvedValue(1);
@@ -20,7 +35,6 @@ describe('legacy raw Coursera tenant adoption', () => {
 
   it('locks the global email identity, validates ownership, then adopts a NULL-org course row', async () => {
     queryRaw
-      .mockResolvedValueOnce([]) // advisory lock
       .mockResolvedValueOnce([{ userId: 'user-existing' }]) // existing linked user discovery
       .mockResolvedValueOnce([{ id: 'user-1' }, { id: 'user-existing' }]) // active users, FOR SHARE
       .mockResolvedValueOnce([]); // ownership validation
@@ -37,18 +51,17 @@ describe('legacy raw Coursera tenant adoption', () => {
     });
 
     expect(adopted).toBe(1);
-    const lock = queryRaw.mock.calls[0]?.[0] as { sql: string; values: unknown[] };
-    expect(lock.sql).toContain('pg_advisory_xact_lock');
-    expect(lock.values).toContain('coursera:raw-email:learner@example.com');
+    const lock = statementMatching(executeRaw, 'pg_advisory_xact_lock');
+    expect(lock?.values).toContain('coursera:raw-email:learner@example.com');
 
-    const existingUsers = queryRaw.mock.calls[1]?.[0] as {
-      sql: string;
-      values: unknown[];
-    };
+    const existingUsers = statementMatching(
+      queryRaw,
+      'INNER JOIN coursera_course_progress existing',
+    ) as { sql: string; values: unknown[] };
     expect(existingUsers.sql).toContain('INNER JOIN coursera_course_progress existing');
     expect(existingUsers.sql).toContain('ORDER BY existing.user_id');
 
-    const userLocks = queryRaw.mock.calls[2]?.[0] as {
+    const userLocks = statementMatching(queryRaw, 'FROM users AS candidate_user') as {
       sql: string;
       values: unknown[];
     };
@@ -57,20 +70,26 @@ describe('legacy raw Coursera tenant adoption', () => {
     expect(userLocks.sql).toContain('ORDER BY candidate_user.id');
     expect(userLocks.sql).toContain('FOR SHARE');
     expect(userLocks.values).toEqual(['user-1', 'user-existing', 'org-1']);
-    expect(queryRaw.mock.invocationCallOrder[0]).toBeLessThan(
-      queryRaw.mock.invocationCallOrder[2],
+    // The global email lock must still precede the per-user row locks.
+    expect(executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      queryRaw.mock.invocationCallOrder[queryRaw.mock.calls.findIndex(
+        ([statement]) => (statement as { sql?: string }).sql?.includes('FROM users AS candidate_user'),
+      )],
     );
 
-    const validation = queryRaw.mock.calls[3]?.[0] as {
-      sql: string;
-      values: unknown[];
-    };
+    const validation = statementMatching(
+      queryRaw,
+      "THEN 'incoming-user-outside-organization'",
+    ) as { sql: string; values: unknown[] };
     expect(validation.sql).toContain("THEN 'incoming-user-outside-organization'");
     expect(validation.sql).toContain("THEN 'foreign-organization'");
     expect(validation.sql).toContain("THEN 'existing-user-outside-organization'");
     expect(validation.values).toContain('org-1');
 
-    const update = executeRaw.mock.calls[0]?.[0] as { sql: string; values: unknown[] };
+    const update = statementMatching(executeRaw, 'UPDATE coursera_course_progress existing') as {
+      sql: string;
+      values: unknown[];
+    };
     expect(update.sql).toContain('UPDATE coursera_course_progress existing');
     expect(update.sql).toContain('existing.organization_id IS NULL');
     expect(update.sql).toContain('existing.user_id IN');
@@ -79,7 +98,6 @@ describe('legacy raw Coursera tenant adoption', () => {
 
   it('rejects a non-NULL foreign-organization course identity without adopting it', async () => {
     queryRaw
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([
         {
@@ -101,7 +119,7 @@ describe('legacy raw Coursera tenant adoption', () => {
         ],
       }),
     ).rejects.toThrow('foreign-organization');
-    expect(executeRaw).not.toHaveBeenCalled();
+    expect(nonLockWrites()).toHaveLength(0);
   });
 
   it('rejects conflicting incoming users before taking a database lock', async () => {
@@ -128,7 +146,6 @@ describe('legacy raw Coursera tenant adoption', () => {
 
   it('applies the same ownership gate to badge rows', async () => {
     queryRaw
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ userId: 'user-existing' }])
       .mockResolvedValueOnce([{ id: 'user-existing' }])
       .mockResolvedValueOnce([]);
@@ -145,24 +162,31 @@ describe('legacy raw Coursera tenant adoption', () => {
     });
 
     expect(adopted).toBe(1);
-    const existingUsers = queryRaw.mock.calls[1]?.[0] as { sql: string };
+    const existingUsers = statementMatching(
+      queryRaw,
+      'INNER JOIN coursera_badge_progress existing',
+    ) as { sql: string };
     expect(existingUsers.sql).toContain('INNER JOIN coursera_badge_progress existing');
-    const userLocks = queryRaw.mock.calls[2]?.[0] as {
+    const userLocks = statementMatching(queryRaw, 'FROM users AS candidate_user') as {
       sql: string;
       values: unknown[];
     };
     expect(userLocks.sql).toContain('ORDER BY candidate_user.id');
     expect(userLocks.sql).toContain('FOR SHARE');
     expect(userLocks.values).toEqual(['user-existing', 'org-1']);
-    const validation = queryRaw.mock.calls[3]?.[0] as { sql: string };
+    const validation = statementMatching(
+      queryRaw,
+      'LEFT JOIN coursera_badge_progress existing',
+    ) as { sql: string };
     expect(validation.sql).toContain('LEFT JOIN coursera_badge_progress existing');
-    const update = executeRaw.mock.calls[0]?.[0] as { sql: string };
+    const update = statementMatching(executeRaw, 'UPDATE coursera_badge_progress existing') as {
+      sql: string;
+    };
     expect(update.sql).toContain('UPDATE coursera_badge_progress existing');
   });
 
   it('fails closed before course adoption when an incoming linked user cannot be locked active', async () => {
     queryRaw
-      .mockResolvedValueOnce([]) // advisory lock
       .mockResolvedValueOnce([]) // no existing linked user
       .mockResolvedValueOnce([]); // incoming user is absent, moved, or deleted
 
@@ -179,17 +203,18 @@ describe('legacy raw Coursera tenant adoption', () => {
       }),
     ).rejects.toThrow('linked-user-outside-organization');
 
-    const userLocks = queryRaw.mock.calls[2]?.[0] as { sql: string };
+    const userLocks = statementMatching(queryRaw, 'FROM users AS candidate_user') as {
+      sql: string;
+    };
     expect(userLocks.sql).toContain('candidate_user.organization_id');
     expect(userLocks.sql).toContain('candidate_user.deleted_at IS NULL');
     expect(userLocks.sql).toContain('FOR SHARE');
-    expect(queryRaw).toHaveBeenCalledTimes(3);
-    expect(executeRaw).not.toHaveBeenCalled();
+    expect(queryRaw).toHaveBeenCalledTimes(2);
+    expect(nonLockWrites()).toHaveLength(0);
   });
 
   it('fails closed before badge adoption when an existing linked user cannot be locked active', async () => {
     queryRaw
-      .mockResolvedValueOnce([]) // advisory lock
       .mockResolvedValueOnce([{ userId: 'user-deleted' }]) // existing linked user
       .mockResolvedValueOnce([]); // user is outside the tenant or soft-deleted
 
@@ -206,12 +231,12 @@ describe('legacy raw Coursera tenant adoption', () => {
       }),
     ).rejects.toThrow('linked-user-outside-organization');
 
-    expect(queryRaw).toHaveBeenCalledTimes(3);
-    expect(executeRaw).not.toHaveBeenCalled();
+    expect(queryRaw).toHaveBeenCalledTimes(2);
+    expect(nonLockWrites()).toHaveLength(0);
   });
 
   it('deduplicates and sorts global email locks to avoid cross-batch deadlocks', async () => {
-    queryRaw.mockResolvedValue([]);
+    executeRaw.mockResolvedValue(1);
 
     await lockLegacyRawCourseraEmails(db, [
       'z@example.com',
@@ -219,8 +244,9 @@ describe('legacy raw Coursera tenant adoption', () => {
       'a@example.com',
     ]);
 
-    expect(queryRaw).toHaveBeenCalledTimes(1);
-    const statement = queryRaw.mock.calls[0]?.[0] as {
+    expect(executeRaw).toHaveBeenCalledTimes(1);
+    expect(queryRaw).not.toHaveBeenCalled();
+    const statement = executeRaw.mock.calls[0]?.[0] as {
       sql: string;
       values: unknown[];
     };

@@ -49,8 +49,24 @@ export function verifyUnsubscribeToken(token: string): string | null {
   }
 }
 
-/** Absolute one-click unsubscribe URL for a recipient, for List-Unsubscribe. */
+/** Remove characters that are illegal in an HTTP header value. */
+export function stripHeaderUnsafe(value: string): string {
+  return value.replace(/[\r\n\0]/g, '').trim();
+}
+
+/**
+ * Absolute one-click unsubscribe URL for a recipient, for List-Unsubscribe.
+ *
+ * The base is env-derived and lands verbatim in an HTTP header, so it is
+ * stripped of CR/LF/NUL and surrounding whitespace first. A single trailing
+ * newline in NEXT_PUBLIC_SITE_URL (easy to paste into a hosting dashboard)
+ * otherwise makes every single-recipient send throw
+ * "Header keys and values cannot contain carriage return, line feed, or null
+ * characters" — which took out nudges, weekly recaps and application
+ * confirmations in production while multi-recipient admin mail kept working.
+ */
 export function buildUnsubscribeUrl(email: string): string {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org').replace(/\/$/, '');
+  const configured = stripHeaderUnsafe(process.env.NEXT_PUBLIC_SITE_URL ?? '');
+  const base = (configured || 'https://www.workforceap.org').replace(/\/$/, '');
   return `${base}/api/unsubscribe?token=${encodeURIComponent(buildUnsubscribeToken(email))}`;
 }

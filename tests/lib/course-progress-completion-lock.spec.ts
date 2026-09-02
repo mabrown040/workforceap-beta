@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   transaction: vi.fn(),
   queryRaw: vi.fn(),
+  executeRaw: vi.fn(),
   upsert: vi.fn(),
   createMemberEvent: vi.fn(),
 }));
@@ -20,9 +21,11 @@ import {
 describe('markCourseProgressCompleted atomic transition', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.executeRaw.mockResolvedValue(1);
     mocks.transaction.mockImplementation(async (callback) =>
       callback({
         $queryRaw: mocks.queryRaw,
+        $executeRaw: mocks.executeRaw,
         courseProgress: { upsert: mocks.upsert },
         memberEvent: { create: mocks.createMemberEvent },
       }),
@@ -31,7 +34,6 @@ describe('markCourseProgressCompleted atomic transition', () => {
 
   it('locks the canonical program and recognizes a completed alias row', async () => {
     mocks.queryRaw
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([
         {
           courseSlug: 'technical-support-fundamentals',
@@ -48,8 +50,8 @@ describe('markCourseProgressCompleted atomic transition', () => {
       courseId: 'course-1',
     });
 
-    const lockStatement = mocks.queryRaw.mock.calls[0]?.[0] as { sql?: string };
-    const readStatement = mocks.queryRaw.mock.calls[1]?.[0] as {
+    const lockStatement = mocks.executeRaw.mock.calls[0]?.[0] as { sql?: string };
+    const readStatement = mocks.queryRaw.mock.calls[0]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
@@ -62,9 +64,7 @@ describe('markCourseProgressCompleted atomic transition', () => {
   });
 
   it('claims a live completion event under the canonical program/course advisory lock', async () => {
-    mocks.queryRaw
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+    mocks.queryRaw.mockResolvedValueOnce([]);
     mocks.createMemberEvent.mockResolvedValueOnce({ id: 'event-1' });
 
     const claimed = await claimLiveCourseCompletionEvent({
@@ -76,11 +76,11 @@ describe('markCourseProgressCompleted atomic transition', () => {
       source: 'coursera-webhook',
     });
 
-    const lockStatement = mocks.queryRaw.mock.calls[0]?.[0] as {
+    const lockStatement = mocks.executeRaw.mock.calls[0]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
-    const eventRead = mocks.queryRaw.mock.calls[1]?.[0] as {
+    const eventRead = mocks.queryRaw.mock.calls[0]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
@@ -109,9 +109,7 @@ describe('markCourseProgressCompleted atomic transition', () => {
   });
 
   it('does not claim or recreate an existing canonical completion event', async () => {
-    mocks.queryRaw
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ id: 'event-existing' }]);
+    mocks.queryRaw.mockResolvedValueOnce([{ id: 'event-existing' }]);
 
     const claimed = await claimLiveCourseCompletionEvent({
       userId: 'user-1',

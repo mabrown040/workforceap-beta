@@ -60,6 +60,21 @@ export function htmlToPlainText(html: string): string {
     .trim();
 }
 
+/**
+ * Drop CR/LF/NUL from every header value (and any header whose name carries
+ * them) before handing the map to the mail SDK. One malformed env var or
+ * caller-supplied value must never be able to fail an entire send — the
+ * underlying fetch throws on the whole request, not just the bad header.
+ */
+export function sanitizeHeaders(headers: Record<string, string>): Record<string, string> {
+  const clean: Record<string, string> = {};
+  for (const [name, value] of Object.entries(headers)) {
+    if (/[\r\n\0]/.test(name)) continue;
+    clean[name] = String(value ?? '').replace(/[\r\n\0]/g, '').trim();
+  }
+  return clean;
+}
+
 export function buildDeliverabilityHeaders(unsubscribeUrl?: string): Record<string, string> {
   if (unsubscribeUrl) {
     // RFC 8058 one-click: HTTPS URI first, mailto fallback second.
@@ -126,14 +141,14 @@ export async function sendBrandedEmail(
       replyTo: args.replyTo,
       cc: args.cc,
       bcc: args.bcc,
-      headers: {
+      headers: sanitizeHeaders({
         // Single-recipient mail gets a tokenized RFC 8058 one-click URL bound
         // to that recipient; multi-recipient mail falls back to mailto-only.
         ...buildDeliverabilityHeaders(
           typeof args.to === 'string' ? buildUnsubscribeUrl(args.to) : undefined,
         ),
         ...args.headers,
-      },
+      }),
       ...(args.attachments ? { attachments: args.attachments } : {}),
     });
   } catch (err) {

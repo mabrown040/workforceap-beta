@@ -2,7 +2,7 @@ import { CourseProgressStatus, Prisma } from '@prisma/client';
 
 import type { ExistingCourseProgress, MergedCourseProgress } from '@/lib/coursera/b4bSync';
 
-type DbClient = Pick<Prisma.TransactionClient, '$queryRaw'> & {
+type DbClient = Pick<Prisma.TransactionClient, '$queryRaw' | '$executeRaw'> & {
   $transaction?: <T>(
     callback: (tx: Prisma.TransactionClient) => Promise<T>,
   ) => Promise<T>;
@@ -62,10 +62,10 @@ export async function upsertMergedCourseProgress(
       : 0;
 
   const runAtomicUpsert = async (
-    tx: Pick<Prisma.TransactionClient, '$queryRaw'>,
+    tx: Pick<Prisma.TransactionClient, '$queryRaw' | '$executeRaw'>,
   ): Promise<UpsertMergedCourseProgressResult> => {
     const lockKey = `${userId}:${programSlug}:${courseSlug}`;
-    await tx.$queryRaw(Prisma.sql`
+    await tx.$executeRaw(Prisma.sql`
       SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))
     `);
     const previousRows = await tx.$queryRaw<

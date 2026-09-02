@@ -71,7 +71,7 @@ function normalizeIdentityRows<T extends { externalEmail: string; userId: string
  * from a reviewed admin attachment. Call only inside a transaction.
  */
 export async function lockLegacyRawCourseraEmails(
-  db: Pick<Prisma.TransactionClient, '$queryRaw'>,
+  db: Pick<Prisma.TransactionClient, '$queryRaw' | '$executeRaw'>,
   emails: string[],
 ): Promise<void> {
   const lockKeys = [...new Set(
@@ -83,7 +83,7 @@ export async function lockLegacyRawCourseraEmails(
   if (lockKeys.length === 0) return;
 
   const tuples = lockKeys.map((lockKey) => Prisma.sql`(${lockKey}::text)`);
-  await db.$queryRaw(Prisma.sql`
+  await db.$executeRaw(Prisma.sql`
     SELECT pg_advisory_xact_lock(hashtextextended(ordered.lock_key, 0))
     FROM (
       SELECT input.lock_key
@@ -105,7 +105,7 @@ export async function lockLegacyRawCourseraEmails(
  * IDs are sorted so batches that overlap on users take row locks in one order.
  */
 async function lockActiveRawProgressUsers(
-  db: Pick<Prisma.TransactionClient, '$queryRaw'>,
+  db: Pick<Prisma.TransactionClient, '$queryRaw' | '$executeRaw'>,
   args: {
     organizationId: string;
     userIds: Array<string | null>;

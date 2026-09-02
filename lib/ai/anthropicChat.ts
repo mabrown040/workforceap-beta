@@ -2,9 +2,9 @@ import Anthropic from '@anthropic-ai/sdk';
 import { groqChatCompletion } from './groq';
 import { geminiChat, isGeminiConfigured } from './geminiChat';
 
-const client = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
+/** Trimmed: the key becomes an Authorization header (see lib/ai/groq.ts). */
+const anthropicKey = (process.env.ANTHROPIC_API_KEY ?? '').replace(/[\r\n\0]/g, '').trim();
+const client = anthropicKey ? new Anthropic({ apiKey: anthropicKey }) : null;
 
 export function isAnthropicConfigured(): boolean {
   return !!client;

@@ -5,10 +5,20 @@ import { geminiChat, isGeminiConfigured } from '@/lib/ai/geminiChat';
 
 export { isAIConfigured } from '@/lib/ai/configured';
 
-const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
+/**
+ * Keys become Authorization headers, so they are stripped of CR/LF/NUL and
+ * trimmed. `isAIConfigured()` already trims when deciding whether a provider
+ * exists; constructing the client with the raw value made the two disagree,
+ * and a pasted trailing newline then failed every call at request time.
+ */
+function providerKey(raw: string | undefined): string {
+  return (raw ?? '').replace(/[\r\n\0]/g, '').trim();
+}
+
+const groqKey = providerKey(process.env.GROQ_API_KEY);
+const anthropicKey = providerKey(process.env.ANTHROPIC_API_KEY);
+const groq = groqKey ? new Groq({ apiKey: groqKey }) : null;
+const anthropic = anthropicKey ? new Anthropic({ apiKey: anthropicKey }) : null;
 
 const MODELS = [
   'llama-3.3-70b-versatile',

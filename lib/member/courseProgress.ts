@@ -206,7 +206,7 @@ export async function markCourseProgressCompleted(args: {
     // milestones. The program-level key also keeps future transition logic
     // from missing a halfway crossing when two courses finish together.
     const lockKey = `course-completion:${args.userId}:${programSlug}`;
-    await tx.$queryRaw(Prisma.sql`
+    await tx.$executeRaw(Prisma.sql`
       SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))
     `);
 
@@ -307,7 +307,7 @@ export async function claimLiveCourseCompletionEvent(args: {
 
   return prisma.$transaction(async (tx) => {
     const lockKey = `course-completion-event:${args.userId}:${completionKey}`;
-    await tx.$queryRaw(Prisma.sql`
+    await tx.$executeRaw(Prisma.sql`
       SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))
     `);
 

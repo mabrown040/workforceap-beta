@@ -183,11 +183,14 @@ describe('promoteCsvProgressToCanonical', () => {
   it('adopts NULL-org raw rows only for the reviewed organization and user', async () => {
     mocks.rawFindMany.mockReset().mockResolvedValue([]);
     mocks.queryRaw
-      .mockResolvedValueOnce([]) // reviewed identity global lock
-      .mockResolvedValueOnce([]) // attachment global lock
       .mockResolvedValueOnce([{ id: 'user-1' }]) // active target, FOR SHARE
       .mockResolvedValueOnce([]); // no foreign raw ownership
-    mocks.executeRaw.mockResolvedValueOnce(2).mockResolvedValueOnce(1);
+    // Two advisory locks (reviewed identity + attachment) then the two updates.
+    mocks.executeRaw
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
 
     const result = await backfillUserIdForCourseraEmail(
       ' Learner@Example.com ',
@@ -203,13 +206,16 @@ describe('promoteCsvProgressToCanonical', () => {
       rollupsRefreshed: 0,
       errors: 0,
     });
-    expect(mocks.queryRaw).toHaveBeenCalledTimes(4);
-    for (const lockCall of mocks.queryRaw.mock.calls.slice(0, 2)) {
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(2);
+    const lockCalls = mocks.executeRaw.mock.calls.filter(([statement]) =>
+      (statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+    );
+    expect(lockCalls).toHaveLength(2);
+    for (const lockCall of lockCalls) {
       const lock = lockCall[0] as { sql: string; values: unknown[] };
-      expect(lock.sql).toContain('pg_advisory_xact_lock');
       expect(lock.values).toContain('coursera:raw-email:learner@example.com');
     }
-    const targetUserQuery = mocks.queryRaw.mock.calls[2]?.[0] as {
+    const targetUserQuery = mocks.queryRaw.mock.calls[0]?.[0] as {
       sql: string;
       values: unknown[];
     };
@@ -217,7 +223,7 @@ describe('promoteCsvProgressToCanonical', () => {
     expect(targetUserQuery.values).toEqual(
       expect.arrayContaining(['user-1', 'org-1']),
     );
-    const conflictQuery = mocks.queryRaw.mock.calls[3]?.[0] as {
+    const conflictQuery = mocks.queryRaw.mock.calls[1]?.[0] as {
       sql: string;
       values: unknown[];
     };
@@ -237,8 +243,11 @@ describe('promoteCsvProgressToCanonical', () => {
         }),
       }),
     );
-    expect(mocks.executeRaw).toHaveBeenCalledTimes(2);
-    for (const [statement] of mocks.executeRaw.mock.calls) {
+    const writes = mocks.executeRaw.mock.calls.filter(
+      ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+    );
+    expect(writes).toHaveLength(2);
+    for (const [statement] of writes) {
       const sql = (statement as { sql: string }).sql;
       const values = (statement as { values: unknown[] }).values;
       expect(sql).toContain('organization_id IS NULL OR organization_id =');
@@ -250,30 +259,34 @@ describe('promoteCsvProgressToCanonical', () => {
   it('rejects reviewed attachment when the email has raw progress owned elsewhere', async () => {
     mocks.rawFindMany.mockReset().mockResolvedValue([]);
     mocks.queryRaw
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: 'user-1' }])
       .mockResolvedValueOnce([{ source: 'course' }]);
 
     await expect(
       backfillUserIdForCourseraEmail('learner@example.com', 'user-1', 'org-1'),
     ).rejects.toThrow('different user or organization');
-    expect(mocks.queryRaw).toHaveBeenCalledTimes(4);
-    expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(2);
+    expect(
+      mocks.executeRaw.mock.calls.filter(
+        ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+      ),
+    ).toHaveLength(0);
     expect(mocks.rawFindMany).not.toHaveBeenCalled();
   });
 
   it('rejects a map target outside the reviewed organization before any raw write', async () => {
-    mocks.queryRaw
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+    mocks.queryRaw.mockResolvedValueOnce([]);
 
     await expect(
       backfillUserIdForCourseraEmail('learner@example.com', 'foreign-user', 'org-1'),
     ).rejects.toThrow('active member of the expected organization');
-    expect(mocks.queryRaw).toHaveBeenCalledTimes(3);
-    expect(mocks.executeRaw).not.toHaveBeenCalled();
+    // Only the target-user lookup reads; the advisory locks are writes now.
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(1);
+    expect(
+      mocks.executeRaw.mock.calls.filter(
+        ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+      ),
+    ).toHaveLength(0);
     expect(mocks.rawFindMany).not.toHaveBeenCalled();
   });
 });

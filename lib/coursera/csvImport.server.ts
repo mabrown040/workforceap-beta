@@ -44,7 +44,7 @@ function chunkCsvRows<T>(arr: T[], size = CSV_UPSERT_CHUNK): T[][] {
 }
 
 async function assertRawWriterUsersBelongToOrganization(
-  db: Pick<Prisma.TransactionClient, '$queryRaw'>,
+  db: Pick<Prisma.TransactionClient, '$queryRaw' | '$executeRaw'>,
   organizationId: string,
   userIds: Array<string | null>,
 ): Promise<void> {
@@ -840,7 +840,7 @@ export type CourseraRawProgressAttachment = {
  * tables. Every caller acquires email before actor to avoid lock inversion.
  */
 export async function lockCourseraIdentityForAttachment(
-  db: Pick<Prisma.TransactionClient, '$queryRaw'>,
+  db: Pick<Prisma.TransactionClient, '$queryRaw' | '$executeRaw'>,
   args: {
     organizationId: string;
     courseraEmail?: string | null;
@@ -862,7 +862,7 @@ export async function lockCourseraIdentityForAttachment(
   if (actorIdentifier) {
     const actorHomePage = args.actorHomePage?.trim() || '';
     const actorLockKey = `${organizationId}:coursera-actor:${actorHomePage}:${actorIdentifier}`;
-    await db.$queryRaw(Prisma.sql`
+    await db.$executeRaw(Prisma.sql`
       SELECT pg_advisory_xact_lock(hashtextextended(${actorLockKey}, 0))
     `);
   }

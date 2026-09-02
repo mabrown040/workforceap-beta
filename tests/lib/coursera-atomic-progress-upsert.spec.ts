@@ -7,9 +7,12 @@ describe('upsertMergedCourseProgress atomic merge ladder', () => {
   it('keeps COMPLETED at the database conflict point during concurrent stale writes', async () => {
     const statements: Array<{ sql: string; values: unknown[] }> = [];
     const db = {
+      $executeRaw: vi.fn(async (statement: { sql: string; values: unknown[] }) => {
+        statements.push(statement);
+        return 1;
+      }),
       $queryRaw: vi.fn(async (statement: { sql: string; values: unknown[] }) => {
         statements.push(statement);
-        if (statement.sql.includes('pg_advisory_xact_lock')) return [{}];
         if (statement.sql.includes('SELECT status')) return [];
         const incomingCompleted = statement.values.includes(CourseProgressStatus.COMPLETED);
         return [{
@@ -87,9 +90,12 @@ describe('upsertMergedCourseProgress atomic merge ladder', () => {
   it('bounds malformed provider percentages before insert and at the conflict ladder', async () => {
     const statements: Array<{ sql: string; values: unknown[] }> = [];
     const db = {
+      $executeRaw: vi.fn(async (statement: { sql: string; values: unknown[] }) => {
+        statements.push(statement);
+        return 1;
+      }),
       $queryRaw: vi.fn(async (statement: { sql: string; values: unknown[] }) => {
         statements.push(statement);
-        if (statement.sql.includes('pg_advisory_xact_lock')) return [{}];
         if (statement.sql.includes('SELECT status')) return [];
         return [{ status: CourseProgressStatus.IN_PROGRESS, inserted: true }];
       }),

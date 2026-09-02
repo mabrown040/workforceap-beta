@@ -37,7 +37,6 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
     mocks.rawFindFirst.mockResolvedValue(null);
     mocks.queryRaw
       .mockReset()
-      .mockResolvedValueOnce([]) // global advisory lock
       .mockResolvedValueOnce([]) // no existing linked users
       .mockResolvedValueOnce([{ id: 'user-1' }]) // incoming user FOR SHARE
       .mockResolvedValueOnce([]) // no legacy ownership conflict
@@ -63,7 +62,11 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
       'linked-user-outside-organization',
     );
     expect(mocks.rawFindFirst).not.toHaveBeenCalled();
-    expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(
+      mocks.executeRaw.mock.calls.filter(
+        ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+      ),
+    ).toHaveLength(0);
   });
 
   it('looks up and conflicts on the organization-local raw identity', async () => {
@@ -78,14 +81,14 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
         },
       }),
     );
-    const lockStatement = mocks.queryRaw.mock.calls[0]?.[0] as {
+    const lockStatement = mocks.executeRaw.mock.calls[0]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
     expect(lockStatement.sql).toContain('pg_advisory_xact_lock');
     expect(lockStatement.values).toContain('coursera:raw-email:learner@example.com');
 
-    const linkedUserStatement = mocks.queryRaw.mock.calls[1]?.[0] as {
+    const linkedUserStatement = mocks.queryRaw.mock.calls[0]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
@@ -94,7 +97,7 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
       expect.arrayContaining(['learner@example.com', 'course-1', 'user-1']),
     );
 
-    const userLockStatement = mocks.queryRaw.mock.calls[2]?.[0] as {
+    const userLockStatement = mocks.queryRaw.mock.calls[1]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
@@ -102,7 +105,7 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
     expect(userLockStatement.sql).toContain('FOR SHARE');
     expect(userLockStatement.values).toEqual(expect.arrayContaining(['user-1', 'org-1']));
 
-    const conflictStatement = mocks.queryRaw.mock.calls[3]?.[0] as {
+    const conflictStatement = mocks.queryRaw.mock.calls[2]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
@@ -110,14 +113,14 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
     expect(conflictStatement.sql).toContain('existing_user.organization_id');
     expect(conflictStatement.values).toContain('org-1');
 
-    const adoptionStatement = mocks.executeRaw.mock.calls[0]?.[0] as {
+    const adoptionStatement = mocks.executeRaw.mock.calls[1]?.[0] as {
       sql?: string;
       values?: unknown[];
     };
     expect(adoptionStatement.sql).toContain('existing.organization_id IS NULL');
     expect(adoptionStatement.values).toContain('org-1');
 
-    const statement = mocks.queryRaw.mock.calls[4]?.[0] as { sql?: string; values?: unknown[] };
+    const statement = mocks.queryRaw.mock.calls[3]?.[0] as { sql?: string; values?: unknown[] };
     expect(statement.sql).toContain(
       'ON CONFLICT (\n        organization_id,\n        LOWER(external_email),\n        coursera_course_id',
     );
@@ -132,7 +135,6 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
     mocks.queryRaw
       .mockReset()
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: 'user-1' }])
       .mockResolvedValueOnce([
         {
@@ -145,14 +147,17 @@ describe('upsertCourseraCourseProgress tenant identity', () => {
     await expect(upsertCourseraCourseProgress(input)).rejects.toThrow(
       'foreign-organization',
     );
-    expect(mocks.executeRaw).not.toHaveBeenCalled();
+    expect(
+      mocks.executeRaw.mock.calls.filter(
+        ([statement]) => !(statement as { sql?: string }).sql?.includes('pg_advisory_xact_lock'),
+      ),
+    ).toHaveLength(0);
     expect(mocks.rawFindFirst).not.toHaveBeenCalled();
   });
 
   it('rejects a concurrent attempt to attach the same tenant row to another user', async () => {
     mocks.queryRaw
       .mockReset()
-      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: 'user-1' }])
       .mockResolvedValueOnce([])

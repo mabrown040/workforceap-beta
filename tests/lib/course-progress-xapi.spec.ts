@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   queryRaw: vi.fn(),
+  executeRaw: vi.fn(),
 }));
 
 vi.mock('server-only', () => ({}));
@@ -46,7 +47,7 @@ vi.mock('@/lib/coursera/programCourseList', () => ({
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     $transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
-      callback({ $queryRaw: mocks.queryRaw })),
+      callback({ $queryRaw: mocks.queryRaw, $executeRaw: mocks.executeRaw })),
     user: {
       findUnique: vi.fn(async ({ select }: { select: Record<string, boolean> }) =>
         select.organizationId
@@ -78,8 +79,8 @@ import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgre
 describe('xAPI canonical progress without enrollment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.executeRaw.mockResolvedValue(1);
     mocks.queryRaw.mockImplementation(async (statement: { sql?: string }) => {
-      if (statement.sql?.includes('pg_advisory_xact_lock')) return [];
       if (statement.sql?.includes('SELECT status')) return [];
       if (statement.sql?.includes('INSERT INTO course_progress')) {
         return [{ status: 'IN_PROGRESS', inserted: true }];
@@ -106,6 +107,11 @@ describe('xAPI canonical progress without enrollment', () => {
         rawStatement: {},
       },
     });
+
+    const lock = mocks.executeRaw.mock.calls
+      .map(([statement]) => statement as { sql?: string })
+      .find((statement) => statement.sql?.includes('pg_advisory_xact_lock'));
+    expect(lock).toBeDefined();
 
     const write = mocks.queryRaw.mock.calls
       .map(([statement]) => statement as { sql?: string; values?: unknown[] })

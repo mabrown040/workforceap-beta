@@ -104,12 +104,15 @@ export default function ApplyResultsClient({
         programParam && getProgramBySlug(programParam) && allowSlug(programParam)
           ? programParam
           : null;
-      let initial: string[] = explicitSlug ? [explicitSlug] : [];
+      // Only an explicit ?program= (the card the applicant clicked on the
+      // programs page) is pre-selected. Career-quiz results used to be
+      // auto-selected here, which made cards look already chosen; the
+      // applicant now makes every pick themselves.
+      const initial: string[] = explicitSlug ? [explicitSlug] : [];
       try {
         const fyp = localStorage.getItem(FYP_RESULTS_KEY);
         if (fyp) {
           const parsed = JSON.parse(fyp) as CareerMatchPayload | string[] | unknown;
-          let fromQuiz: string[] = [];
           if (
             parsed &&
             typeof parsed === 'object' &&
@@ -118,26 +121,12 @@ export default function ApplyResultsClient({
             Array.isArray((parsed as CareerMatchPayload).programSlugs)
           ) {
             const v1 = parsed as CareerMatchPayload;
-            fromQuiz = v1.programSlugs!
+            const fromQuiz = v1.programSlugs!
               .map((s) => (typeof s === 'string' ? s : null))
               .filter((s): s is string => !!s && !!getProgramBySlug(s) && allowSlug(s))
               .slice(0, 3);
+            // Quiz matches only influence card ORDER (shown first), never selection.
             if (fromQuiz.length) setQuizRecommendedSlugs(fromQuiz);
-          } else if (Array.isArray(parsed)) {
-            fromQuiz = parsed
-              .map((s) => (typeof s === 'string' ? s : null))
-              .filter((s): s is string => !!s && !!getProgramBySlug(s) && allowSlug(s))
-              .slice(0, 3);
-          }
-          if (fromQuiz.length) {
-            // Explicit ?program= must stay as the 1st choice. Quiz recs only
-            // fill remaining slots (up to 3 total) without overriding it.
-            if (explicitSlug) {
-              const rest = fromQuiz.filter((s) => s !== explicitSlug);
-              initial = [explicitSlug, ...rest].slice(0, 3);
-            } else {
-              initial = fromQuiz;
-            }
           }
         }
       } catch {
@@ -421,24 +410,6 @@ export default function ApplyResultsClient({
                     }}
                   >
                     {t('schoolResultsCatalogBadge')}
-                  </span>
-                ) : quizRecommendedSlugs.includes(p.slug) ? (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: '0.5rem',
-                      left: '0.5rem',
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.04em',
-                      color: 'var(--color-on-primary)',
-                      background: 'var(--color-primary)',
-                      padding: '0.2rem 0.45rem',
-                      borderRadius: 4,
-                    }}
-                  >
-                    {t('resultsFromQuizBadge')}
                   </span>
                 ) : null}
                 {rank && (

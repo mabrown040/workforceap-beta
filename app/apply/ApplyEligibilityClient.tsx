@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
+import { US_STATES, toStateAbbr } from '@/lib/apply/usStates';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
 import {
@@ -166,7 +167,7 @@ export default function ApplyEligibilityClient({
     setPhone(draft.phone ?? '');
     setAgeGroup(draft.ageGroup ?? '');
     setCity(draft.city ?? '');
-    setStateVal(draft.state ?? '');
+    setStateVal(toStateAbbr(draft.state));
     setZip(draft.zip ?? '');
     setCounty(draft.county ?? '');
     setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
@@ -846,17 +847,22 @@ export default function ApplyEligibilityClient({
             </div>
             <div className="form-group apply-form-group--full">
               <label htmlFor="apply-state">{tForm('state')} *</label>
-              <input
+              <select
                 id="apply-state"
-                type="text"
                 name="state"
                 autoComplete="address-level1"
                 value={stateVal}
                 onChange={(e) => setStateVal(e.target.value)}
                 required
-                maxLength={50}
                 aria-invalid={attemptedContinue && !stateVal.trim()}
-              />
+              >
+                <option value="">{tForm('selectState')}</option>
+                {US_STATES.map((s) => (
+                  <option key={s.abbr} value={s.abbr}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group apply-form-group--full">
               <label htmlFor="apply-zip">{tForm('zip')} *</label>

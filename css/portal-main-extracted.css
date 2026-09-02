@@ -1612,7 +1612,7 @@ html.dark .workspace-tab-bar {
     flex-direction: row;
     gap: 0.4rem;
 }
-@media (min-width: 1024px) {
+@media (min-width: 769px) {
     /* Members no longer render a flat tab bar (FINDING-023). Keep this
        hide rule so leftover markup cannot overflow the rail. */
     html[data-portal-role="member"] .workspace-tab-bar--flat {
@@ -1701,7 +1701,7 @@ html:not(.dark) .workspace-sidebar.open::before {
     padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
     gap: 0.5rem;
 }
-@media (max-width: 1023px) {
+@media (max-width: 768px) {
     .workspace-sidebar.open::before {
         display: none;
     }
@@ -2122,7 +2122,25 @@ html.dark .workspace-sidebar-signout:hover {
         max-width: min(320px, 90vw);
     }
 }
-@media (min-width: 1024px) {
+/* Laptop / tablet-landscape (769–1023px): the rail stays on screen but slimmer. */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .workspace-sidebar:not(.workspace-sidebar--collapsed) {
+        width: 208px;
+    }
+    .workspace-sidebar:not(.workspace-sidebar--collapsed) .workspace-sidebar-inner {
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
+    }
+    .workspace-sidebar:not(.workspace-sidebar--collapsed) .workspace-sidebar-link {
+        font-size: 0.78rem;
+        padding: 0.4rem 0.55rem;
+        gap: 0.5rem;
+        min-height: 40px;
+    }
+}
+/* Persistent side rail from 769px up (tablet landscape + every laptop).
+   Mirrors the matchMedia breakpoint in components/portal/WorkspaceShell.tsx. */
+@media (min-width: 769px) {
     .workspace-menu-btn {
         display: none;
     }

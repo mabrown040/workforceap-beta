@@ -99,7 +99,22 @@
   /* language switcher inside the drawer (desktop one is hidden < 980px) */
   .mobilemenu .langswitch{display:flex;justify-content:center;gap:4px;margin-top:20px;padding:6px;background:var(--surface-2)}
   .mobilemenu .langswitch a{flex:1;text-align:center;font-size:14px;padding:11px 0;border-bottom:0}
-  @media(max-width:880px){
+  /* Laptop / zoomed-in laptop widths (821–1120px): keep the full horizontal
+     menu visible but tighten type + spacing so every item fits on one row
+     instead of the last ones clipping off the right edge. */
+  @media(min-width:821px) and (max-width:1120px){
+    nav.top .row{gap:14px}
+    .brand-logo{height:40px}
+    .navlinks{gap:clamp(10px,1.6vw,20px);flex-wrap:nowrap;min-width:0}
+    .navlinks a,.navlinks .navdrop-trigger{font-size:13px;white-space:nowrap}
+    .navchev{width:12px;height:12px}
+    .navactions{gap:10px;flex-shrink:0}
+    .navactions .signin{font-size:13px}
+    /* nav.top qualifier so this beats Layout.astro's global .btn--nav (same cascade order otherwise) */
+    nav.top .navactions .btn--nav{padding:10px 14px;font-size:13.5px}
+  }
+  /* .98 so fractional viewport widths (125% OS scaling) never fall between the two blocks */
+  @media(max-width:820.98px){
     .navlinks{display:none}.navactions{display:none}
     .hamburger{display:flex}
     .navtoggle{display:block;position:fixed;right:24px;top:14px;width:44px;height:44px;margin:0;opacity:0;z-index:50;pointer-events:none}

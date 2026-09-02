@@ -174,17 +174,6 @@ const subgroupsWithPrograms = subgroups.filter((s) => s.programs.length > 0);
 
 const catalogSize = subgroupsWithPrograms.reduce((n, s) => n + s.programs.length, 0);
 
-// Starter "Start here" trio (real STARTER_PROGRAM_SLUGS from ProgramsContent.tsx)
-const starterSlugs = [
-  'digital-literacy-empowerment-class',
-  'it-support-professional-certificate-ibm',
-  'project-management-professional-certificate-microsoft',
-];
-const allPrograms = subgroupsWithPrograms.flatMap((s) => s.programs);
-const starterPrograms = starterSlugs
-  .map((slug) => allPrograms.find((p) => p.slug === slug))
-  .filter((p): p is P => Boolean(p));
-
 // Filter chips (real labels + counts from ProgramsContent.tsx)
 const filterChips = [
   { label: `All programs (${catalogSize})`, cat: 'all', active: true },
@@ -305,43 +294,6 @@ const filterChips = [
   </div>
   <p class="no-results" hidden>No programs match your search. <button type="button" class="linkbtn" id="clear-filters">Clear filters</button></p>
 
-  <!-- Start here — three safest first choices (real starter framing) -->
-  <section class="starter">
-    <div class="starter-head">
-      <div>
-        <p class="starter-eyebrow">Start here</p>
-        <h3>Not sure which one fits? Start with these three.</h3>
-      </div>
-      <a class="btn btn--primary" href="/career-quiz">Take the 2-minute quiz</a>
-    </div>
-    <p class="starter-lead">These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.</p>
-    <div class="pgrid">
-      {starterPrograms.map((p) => (
-        <div class="pcard">
-          <div class="pcard-top">
-            <div class="ptags">
-              <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
-              <span class="fund-pill">{p.funding}</span>
-            </div>
-            <span class="picon"><Icon name={p.icon} size={26} /></span>
-          </div>
-          <h4>{p.title}</h4>
-          <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
-          <p class="pdisc">Salary range is a national early-career estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience, employer, and location.</p>
-          <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
-          <div class="pcard-foot">
-            <span class="ppartner">Partner: {p.partner}</span>
-            <div class="pacts">
-              <a class="btn btn--ghost btn--sm" href={`/programs/${p.slug}`}>View Program</a>
-              <a class="btn btn--primary btn--sm" href={`/apply?program=${p.slug}`}>Get Started →</a>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-    <a class="see-all" href="#all-programs">See all {catalogSize} programs ↓</a>
-  </section>
-
   <!-- All programs, grouped by real subgroup (fully expanded) -->
   <div id="all-programs"></div>
   {subgroupsWithPrograms.map((sg) => (
@@ -393,8 +345,6 @@ const filterChips = [
     var chips = Array.prototype.slice.call(document.querySelectorAll('.chips .chip'));
     var sections = Array.prototype.slice.call(document.querySelectorAll('#all-programs ~ .subgroup, .subgroup[data-cat]'));
     var cards = Array.prototype.slice.call(document.querySelectorAll('.subgroup[data-cat] .pcard'));
-    var starter = document.querySelector('.starter');
-    var seeAll = document.querySelector('.see-all');
     var noResults = document.querySelector('.no-results');
     var clearBtn = document.getElementById('clear-filters');
     if (!input || !cards.length) return;
@@ -402,7 +352,6 @@ const filterChips = [
 
     function apply() {
       var q = (input.value || '').trim().toLowerCase();
-      var filtering = q !== '' || activeCat !== 'all';
       var shown = 0;
       cards.forEach(function (card) {
         var okCat = activeCat === 'all' || card.getAttribute('data-cat') === activeCat;
@@ -415,8 +364,6 @@ const filterChips = [
         var any = sec.querySelector('.pcard:not([hidden])');
         sec.hidden = !any;
       });
-      if (starter) starter.hidden = filtering;
-      if (seeAll) seeAll.hidden = filtering;
       if (noResults) noResults.hidden = shown !== 0;
     }
 
@@ -590,13 +537,6 @@ const filterChips = [
   .no-results{margin:0 0 24px;color:var(--muted);font-size:15px}
   .linkbtn{background:none;border:0;color:var(--crimson);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
 
-  /* starter "Start here" section */
-  .starter{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);padding:24px;margin-bottom:40px}
-  .starter-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-  .starter-eyebrow{color:var(--crimson);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-  .starter-head h3{font-size:20px;font-weight:800}
-  .starter-lead{font-size:15px;color:var(--muted);max-width:44rem;line-height:1.6;margin:12px 0 18px}
-  .see-all{display:inline-flex;margin-top:16px;color:var(--crimson);font-weight:800;text-decoration:underline;text-underline-offset:4px}
 
   /* subgroup sections */
   .subgroup{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border);scroll-margin-top:6rem}

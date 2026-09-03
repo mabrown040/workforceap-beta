@@ -280,9 +280,15 @@ const metaDescription = `Training in ${display} offered at no cost for members w
                 )}
                 <span class="cmark" aria-hidden="true">+</span>
               </summary>
-              {(c.description || courseAlignment.get(normalizeCourseName(c.name))?.length) && (
+              {(c.description || c.lessons?.length || courseAlignment.get(normalizeCourseName(c.name))?.length) && (
                 <div class="cbody">
                   {c.description && <p>{c.description}</p>}
+                  {c.lessons?.length && (
+                    <p class="calign">
+                      <strong>Lessons ({c.provider?.name ?? 'online'}):</strong>{' '}
+                      {c.lessons.map((l) => `${l.title} (${l.minutes} min)`).join(' · ')}
+                    </p>
+                  )}
                   {courseAlignment.get(normalizeCourseName(c.name))?.length && (
                     <p class="calign">
                       <strong>Prepares you for:</strong>{' '}

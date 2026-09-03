@@ -19,6 +19,13 @@ import {
   getProgramCurriculum,
   type ProgramCurriculum,
 } from '../../../shared/programCurricula';
+import {
+  DIGITALLEARN_PROVIDER_NAME,
+  DIGITAL_LITERACY_DESCRIPTION,
+  DIGITAL_LITERACY_DURATION_LABEL,
+  DIGITAL_LITERACY_PROGRAM_TITLE,
+  digitalLiteracyCatalogCourses,
+} from '../../../shared/digitalLiteracyPathway';
 
 export type LanguageSupportLevel = 'full' | 'subtitles' | 'ai-subtitles' | 'none';
 export interface LanguageSupport {
@@ -34,6 +41,10 @@ export interface ProgramCourse {
   description?: string;
   kind?: 'coursera' | 'workforceap';
   courseraSlug?: string;
+  /** In-platform module content (Digital Literacy): linked video lessons. */
+  lessons?: ReadonlyArray<{ title: string; minutes: number; url: string }>;
+  topics?: readonly string[];
+  provider?: { name: string; url: string };
 }
 
 export interface ProgramExtra {
@@ -94,8 +105,7 @@ export function salaryRangeDisplay(program: Program): string {
   return program.salary.replace(/^Starting salary:\s*/i, '').trim();
 }
 
-const DIGITAL_LITERACY_PROGRAM_DURATION = 'Self-paced — about 9 hours (Microsoft Digital Literacy)';
-export const DIGITAL_LITERACY_EXTERNAL_COURSE_URL = 'https://www.microsoft.com/en-us/digital-literacy';
+const DIGITAL_LITERACY_PROGRAM_DURATION = DIGITAL_LITERACY_DURATION_LABEL;
 
 // Helper to build course objects from verbatim course-name lists, matching the
 // Next slug scheme `${slug}-course-${i+1}` and default estimated hours.
@@ -106,25 +116,24 @@ function courses(slug: string, names: string[], hours = 10): ProgramCourse[] {
 const BASE_PROGRAMS: Program[] = [
   {
     slug: 'digital-literacy-empowerment-class',
-    title: 'Workforce AP Digital Literacy Course',
+    title: DIGITAL_LITERACY_PROGRAM_TITLE,
     category: 'digital-literacy',
     categoryLabel: 'Digital Literacy',
     categoryColor: '#666',
     icon: '💻',
     duration: DIGITAL_LITERACY_PROGRAM_DURATION,
     salary: 'Starting salary: $38K-$52K',
-    skills: ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'],
-    courses: courses('digital-literacy-empowerment-class', ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 5),
-    partner: 'Microsoft',
+    skills: ['Digital literacy', 'Email', 'Online safety', 'Video meetings', 'Cloud storage', 'Microsoft Word', 'Online job applications'],
+    courses: digitalLiteracyCatalogCourses('digital-literacy-empowerment-class'),
+    partner: DIGITALLEARN_PROVIDER_NAME,
     fundingSource: 'Grant',
-    languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
-    externalCourseUrl: DIGITAL_LITERACY_EXTERNAL_COURSE_URL,
-    description: 'This course is built for members who are new to computers, smartphones, or the internet — no prior tech experience needed. It gives you direct, one-stop access to Microsoft\'s free Digital Literacy course (about 9 hours, self-paced): using a computer, getting online safely, email and online communication, and creating and managing digital content. Members who complete it are ready for office support, customer service, and administrative roles. If you are already comfortable with email and basic software, Cybersecurity or IT Support may be a stronger next step. Not sure where you stand? The pathfinder quiz can help you choose.',
+    languagesSupported: { es: 'full', pt: 'none', fr: 'none' },
+    description: DIGITAL_LITERACY_DESCRIPTION,
     extra: {
       bestFor: 'Members who are new to computers and the internet — no tech background required. If you already use email and browse the web daily, a program like IT Support or Cybersecurity may be a stronger fit.',
       jobOutcomes: ['Office Support Specialist', 'Customer Service Representative', 'Administrative Assistant'],
       difficulty: 1,
-      rampNote: 'No tech background required. About 9 hours, self-paced, start any time. Start here if technology feels unfamiliar.',
+      rampNote: 'No tech background required. Ten short online modules (about 4 hours of lessons), self-paced, in English or Spanish. Start here if technology feels unfamiliar.',
     },
   },
   {

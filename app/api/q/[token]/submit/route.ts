@@ -16,6 +16,7 @@ import {
 } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
+import { autoAssignAmbassadorFromReferral } from '@/lib/counselor/ambassadorAutoAssign';
 import { hasEligibilityScreeningFields } from '@/lib/apply/eligibilityScreeningFields';
 
 /**
@@ -235,6 +236,23 @@ export const POST = withApiGuc(
           request: auditRequestMeta(request),
           orgId: link.orgId,
         }).catch(() => {});
+
+        // Community Ambassador auto-assignment (9/3/26): the public
+        // questionnaire also asks who referred the member.
+        const referredMemberId = link.subjectUserId;
+        if (referredMemberId) {
+          after(() =>
+            autoAssignAmbassadorFromReferral({
+              memberId: referredMemberId,
+              source: 'public_eligibility',
+              hearAbout: extendedMeta.hearAbout,
+              hearAboutOther: extendedMeta.hearAboutOther,
+              partnerAmbassadorReferral: extendedMeta.partnerAmbassadorReferral,
+            }).catch((err) => {
+              logger.warn('q/submit: ambassador auto-assign failed', { userId: referredMemberId, err });
+            }),
+          );
+        }
 
         if (notifyMeta.email && hasEligibilityScreeningFields(extendedMeta)) {
           const displayName =

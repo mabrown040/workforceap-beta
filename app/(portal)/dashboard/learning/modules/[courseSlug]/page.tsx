@@ -78,6 +78,9 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
   });
   if (!course) notFound();
 
+  const hasLessons = Boolean(course.lessons && course.lessons.length > 0);
+  const lessonMinutes = (course.lessons ?? []).reduce((sum, lesson) => sum + lesson.minutes, 0);
+
   const completion = await prisma.courseProgress.findFirst({
     where: {
       userId: user.id,
@@ -92,15 +95,58 @@ export default async function WorkforceApModulePage({ params, searchParams }: Pr
     <DesignSurface surface="warm">
       <main style={{ maxWidth: 960, margin: '0 auto', padding: 'var(--wa-pad-sm)', paddingBottom: '5rem' }}>
         <PageOpener
-          kicker="WorkforceAP applied lab"
+          kicker={hasLessons ? `${course.provider?.name ?? 'WorkforceAP'} module` : 'WorkforceAP applied lab'}
           title={course.name}
-          lede={course.description}
+          lede={hasLessons ? course.description?.split(' Covers:')[0] : course.description}
           icon={<BookOpen size={14} aria-hidden="true" />}
-          action={<StatusTag tone={completion ? 'ok' : 'warn'}>{completion ? 'Complete' : `${course.estimatedHours} hours`}</StatusTag>}
+          action={
+            <StatusTag tone={completion ? 'ok' : 'warn'}>
+              {completion ? 'Complete' : hasLessons ? `${lessonMinutes} min of lessons` : `${course.estimatedHours} hours`}
+            </StatusTag>
+          }
         />
 
+        {hasLessons ? (
+          <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Watch the lessons</h2>
+            <p style={{ margin: '8px 0 16px', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
+              Each lesson opens on {course.provider?.name ?? 'the provider site'} in a new tab — free, self-paced, in English or Spanish.
+              Come back here and mark the module complete when you have finished them all.
+            </p>
+            <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'grid', gap: 10 }}>
+              {(course.lessons ?? []).map((lesson) => (
+                <li key={`${lesson.title}-${lesson.url}`} style={{ lineHeight: 1.5 }}>
+                  <a href={lesson.url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700 }}>
+                    {lesson.title}
+                  </a>
+                  <span style={{ color: 'var(--wa-muted)' }}> · {lesson.minutes} min</span>
+                </li>
+              ))}
+            </ol>
+            {course.topics?.length ? (
+              <>
+                <h3 style={{ fontSize: 15, fontWeight: 800, margin: '20px 0 8px' }}>What you will practice</h3>
+                <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--wa-text)', lineHeight: 1.55 }}>
+                  {course.topics.map((topic) => (
+                    <li key={topic}>{topic}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {course.provider ? (
+              <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--wa-muted)' }}>
+                Can&apos;t find a lesson? Browse all courses at{' '}
+                <a href={course.provider.url} target="_blank" rel="noopener noreferrer">
+                  {course.provider.name}
+                </a>
+                . Creating a free account there lets you print a certificate for each course.
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+
         <section className="wa-kit-card" style={{ marginTop: 24, padding: 24 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Complete the applied work</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>{hasLessons ? 'Put it to work' : 'Complete the applied work'}</h2>
           <p style={{ margin: '8px 0 20px', color: 'var(--wa-muted)', lineHeight: 1.6 }}>
             Work through these portal tools, keep your project evidence, and mark the lab complete when your required work is finished.
           </p>

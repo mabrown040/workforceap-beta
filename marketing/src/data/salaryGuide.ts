@@ -226,7 +226,7 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   {
     slug: 'digital-literacy-empowerment-class',
     program: 'Workforce AP Digital Literacy Course',
-    duration: 'Self-paced — about 9 hours (Microsoft Digital Literacy)',
+    duration: 'Online, self-paced — 10 short modules (DigitalLearn.org)',
     salary: '$38K–$52K',
     level: 'Entry',
     ramp: 'Easier',

@@ -1130,7 +1130,7 @@ export const BUSINESS_AND_DESIGN_PACKS: ProgramCheckpointPack[] = [
     courses: [
       {
         courseSlug: 'digital-literacy-course-2',
-        courseName: 'Device Distribution & Setup + Browser & Search Engines',
+        courseName: 'Internet Basics',
         programSlug: 'digital-literacy-empowerment-class',
         checkpoints: [
           {
@@ -1197,7 +1197,7 @@ export const BUSINESS_AND_DESIGN_PACKS: ProgramCheckpointPack[] = [
       },
       {
         courseSlug: 'digital-literacy-course-3',
-        courseName: 'Introduction to Emails & Advanced Email Techniques',
+        courseName: 'Email Basics',
         programSlug: 'digital-literacy-empowerment-class',
         checkpoints: [
           {
@@ -1264,7 +1264,7 @@ export const BUSINESS_AND_DESIGN_PACKS: ProgramCheckpointPack[] = [
       },
       {
         courseSlug: 'digital-literacy-course-4',
-        courseName: 'Avoiding Online Scams + Introduction to Financial Literacy',
+        courseName: 'Cybersecurity Basics: Online Scams and Fraud',
         programSlug: 'digital-literacy-empowerment-class',
         checkpoints: [
           {

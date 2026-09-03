@@ -14,6 +14,10 @@ import {
   LEGACY_CURRICULUM_VERSION,
 } from '@/lib/content/programCurriculumManifest';
 
+// Fixture note (9/3/26): Digital Literacy became a WorkforceAP in-platform module
+// program (no provider mapping), so these provider-mapping cases use the plain
+// provider-backed IT Support + Cybersecurity program instead.
+
 test('identifies both the shipped and configured organization umbrella ids', () => {
   const previous = process.env.COURSERA_ORG_PROGRAM_ID;
   process.env.COURSERA_ORG_PROGRAM_ID = 'configured-umbrella';
@@ -133,7 +137,7 @@ test('two WAP programs keep different validated denominators despite one umbrell
     loadValidatedProgramCourses(
       {
         organizationId: 'org-1',
-        programSlug: 'digital-literacy-empowerment-class',
+        programSlug: 'it-support-and-entry-level-cyber-security-certificate',
       },
       dependencies,
     ),
@@ -179,7 +183,7 @@ test('read-only audit skips the Coursera provider check', async () => {
 });
 
 test('admin mapping binds a syllabus course and a non-empty provider catalog reports stale ids', async () => {
-  const programSlug = 'digital-literacy-empowerment-class';
+  const programSlug = 'it-support-and-entry-level-cyber-security-certificate';
   const firstCourse = getProgramBySlug(programSlug)?.courses[0];
   assert.ok(firstCourse);
   const dependencies: ProgramCourseListDependencies = {
@@ -212,7 +216,7 @@ test('admin mapping binds a syllabus course and a non-empty provider catalog rep
 });
 
 test('an explicit legacy assignment preserves admin-corrected provider identity', async () => {
-  const programSlug = 'digital-literacy-empowerment-class';
+  const programSlug = 'it-support-and-entry-level-cyber-security-certificate';
   const firstCourse = getProgramBySlug(programSlug)?.courses[0];
   assert.ok(firstCourse);
 
@@ -290,7 +294,7 @@ test('canonical program reads query every reverse alias for Course DB and mappin
 });
 
 test('provider validation distinguishes an unavailable provider from a clean empty catalog', async () => {
-  const programSlug = 'digital-literacy-empowerment-class';
+  const programSlug = 'it-support-and-entry-level-cyber-security-certificate';
   const firstCourse = getProgramBySlug(programSlug)?.courses[0];
   assert.ok(firstCourse);
   const base = {
@@ -332,7 +336,7 @@ test('provider validation distinguishes an unavailable provider from a clean emp
 });
 
 test('provider health flags non-Course bindings and exposes off-syllabus extras without changing Y', async () => {
-  const programSlug = 'digital-literacy-empowerment-class';
+  const programSlug = 'it-support-and-entry-level-cyber-security-certificate';
   const firstCourse = getProgramBySlug(programSlug)?.courses[0];
   assert.ok(firstCourse);
   const syllabusCount = getProgramBySlug(programSlug)?.courses.length ?? 0;
@@ -392,7 +396,7 @@ test('admin catalog health batches provider and database reads across canonical 
       organizationId: 'org-1',
       programSlugs: [
         aiProgramSlug,
-        'digital-literacy-empowerment-class',
+        'it-support-and-entry-level-cyber-security-certificate',
       ],
     },
     {

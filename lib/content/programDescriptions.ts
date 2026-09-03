@@ -1,3 +1,5 @@
+import { DIGITAL_LITERACY_DESCRIPTION } from '../../shared/digitalLiteracyPathway';
+
 import { getProgramSyllabus } from '../../shared/programSyllabi';
 
 /**
@@ -28,8 +30,7 @@ export const PROGRAM_CATEGORY_DESCRIPTIONS: Record<string, string> = {
  * what roles it leads to, and what to do next.
  */
 export const PROGRAM_SLUG_DESCRIPTIONS: Record<string, string> = {
-  'digital-literacy-empowerment-class':
-    'This course is built for members who are new to computers, smartphones, or the internet — no prior tech experience needed. It gives you direct, one-stop access to Microsoft\'s free Digital Literacy course (about 9 hours, self-paced): using a computer, getting online safely, email and online communication, and creating and managing digital content. Members who complete it are ready for office support, customer service, and administrative roles. If you are already comfortable with email and basic software, Cybersecurity or IT Support may be a stronger next step. Not sure where you stand? The pathfinder quiz can help you choose.',
+  'digital-literacy-empowerment-class': DIGITAL_LITERACY_DESCRIPTION,
 
   'cybersecurity-professional-certificate-google':
     'This program is designed for members who are serious about entering the security field and are ready to commit three to five months of focused effort. You will build hands-on skills in Linux, SQL, Python scripting, network security, and incident response — the exact toolkit that Security Operations Center (SOC) roles require. The Google Cybersecurity Certificate is widely recognized and signals job-readiness to employers. Members who succeed here typically start as Cybersecurity Analysts, SOC Analysts, or Security Operations Specialists earning $75K–$112K. If you have never used a computer for work before, we recommend starting with Digital Literacy or IT Support first to build a foundation. Ready to move forward? Apply now or use the comparison tool to see how this program stacks up against other IT tracks.',

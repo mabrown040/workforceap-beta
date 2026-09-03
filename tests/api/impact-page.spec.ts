@@ -264,8 +264,8 @@ describe('Impact Page — getPublicImpactStats', () => {
 
     it('includes members served, completers, placements, and avg wage', async () => {
       const enrolled = [
-        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
-        makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
+        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: true }),
+        makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: true }),
         makeEnrolledUser({ id: 'u3', programSlug: 'it-support-professional-certificate-ibm', avgPercent: 50, coursesCompleted: 3, hasPlacement: false }),
       ];
 
@@ -310,8 +310,8 @@ describe('Impact Page — getPublicImpactStats', () => {
 
     it('placement count matches prisma.placementRecord.count', async () => {
       const enrolled = [
-        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
-        makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: false }),
+        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: true }),
+        makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: false }),
       ];
 
       mockImpactQueries({ membersServed: 2, enrolledUsers: enrolled, hiresMade: 1 });
@@ -323,7 +323,7 @@ describe('Impact Page — getPublicImpactStats', () => {
 
     it('avg wage calculation is correct', async () => {
       const enrolled = [
-        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
+        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: true }),
       ];
 
       mockImpactQueries({
@@ -342,8 +342,8 @@ describe('Impact Page — getPublicImpactStats', () => {
 
     it('program rows aggregate enrolled and completed correctly', async () => {
       const enrolled = [
-        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: false }),
-        makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: false }),
+        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: false }),
+        makeEnrolledUser({ id: 'u2', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: false }),
         makeEnrolledUser({ id: 'u3', programSlug: 'digital-literacy-empowerment-class', avgPercent: 50, coursesCompleted: 3, hasPlacement: false }),
         makeEnrolledUser({
           id: 'u4',
@@ -442,7 +442,7 @@ describe('Impact Page — getPublicImpactStats', () => {
 
     it('avgSalaryIncreaseDollars is null when no paired salary data', async () => {
       const enrolled = [
-        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),
+        makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 10, hasPlacement: true }),
       ];
 
       mockImpactQueries({ membersServed: 1, enrolledUsers: enrolled, hiresMade: 1 });
@@ -461,7 +461,7 @@ describe('Impact Page — getPublicImpactStats', () => {
           id: 'u1',
           programSlug: 'digital-literacy-empowerment-class',
           avgPercent: 100,
-          coursesCompleted: 6,
+          coursesCompleted: 10,
           hasPlacement: false,
           enrolledAt,
           lastUpdatedAt: completedAt,

@@ -125,9 +125,9 @@ const STEPS_BY_SLUG: Record<string, ProgramEnrollmentStep[]> = {
     DEFAULT_STEPS[0],
     {
       id: 'staff_assign',
-      title: 'Start the Microsoft Digital Literacy course right away',
+      title: 'Start your first module right away',
       description:
-        'No Coursera provisioning is needed. Your training page links straight to Microsoft\'s free, self-paced Digital Literacy course (about 9 hours) — open it and begin whenever you are ready.',
+        'No Coursera provisioning is needed. Your training page lists ten short DigitalLearn.org modules — open a module, watch its lessons (English or Spanish), and mark it complete. Each DigitalLearn course also offers a printable certificate.',
     },
     DEFAULT_STEPS[2],
     {

@@ -36,7 +36,7 @@ export interface CourseSkillMapping {
 const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'digital-literacy-course-1',
-    courseName: 'Orientation & Informational Session',
+    courseName: 'Computer Basics',
     programSlug: 'digital-literacy-empowerment-class',
     programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
@@ -51,7 +51,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
   },
   {
     courseSlug: 'digital-literacy-course-2',
-    courseName: 'Device Distribution & Setup + Browser & Search Engines',
+    courseName: 'Internet Basics',
     programSlug: 'digital-literacy-empowerment-class',
     programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
@@ -66,7 +66,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
   },
   {
     courseSlug: 'digital-literacy-course-3',
-    courseName: 'Introduction to Emails & Advanced Email Techniques',
+    courseName: 'Email Basics',
     programSlug: 'digital-literacy-empowerment-class',
     programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
@@ -81,7 +81,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
   },
   {
     courseSlug: 'digital-literacy-course-4',
-    courseName: 'Avoiding Online Scams + Introduction to Financial Literacy',
+    courseName: 'Cybersecurity Basics: Online Scams and Fraud',
     programSlug: 'digital-literacy-empowerment-class',
     programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',

@@ -23,6 +23,14 @@ import {
   type ProgramCurriculum,
 } from '../../shared/programCurricula';
 import {
+  DIGITALLEARN_PROVIDER_NAME,
+  DIGITAL_LITERACY_DURATION_LABEL,
+  DIGITAL_LITERACY_MODULES,
+  DIGITAL_LITERACY_PROGRAM_SLUG,
+  DIGITAL_LITERACY_PROGRAM_TITLE,
+  digitalLiteracyCatalogCourses,
+} from '../../shared/digitalLiteracyPathway';
+import {
   getProgramCurriculumManifest,
   isApprovedCurriculumReadyForAssignment,
 } from './programCurriculumManifest';
@@ -75,6 +83,12 @@ export interface ProgramCourse {
   courseraCourseId?: string;
   /** Official Coursera /learn slug supplied by the approved syllabus. */
   courseraSlug?: string;
+  /** In-platform module content (Digital Literacy): linked video lessons. */
+  lessons?: ReadonlyArray<{ title: string; minutes: number; url: string }>;
+  /** What the member practises in this module. */
+  topics?: readonly string[];
+  /** External lesson provider shown on the module page. */
+  provider?: { name: string; url: string };
 }
 
 export interface Program {
@@ -347,17 +361,19 @@ function mkProgram(
   };
 }
 
-const DIGITAL_LITERACY_PROGRAM_DURATION = 'Self-paced — about 9 hours (Microsoft Digital Literacy)';
 /**
- * Ops (9/2/26): Digital Literacy is the free one-stop Microsoft Digital
- * Literacy course. Members get direct access the moment they choose it.
+ * Ops (9/3/26): Digital Literacy is the free DigitalLearn.org pathway, opened
+ * module by module inside the member portal. See shared/digitalLiteracyPathway.ts.
  */
-export const DIGITAL_LITERACY_EXTERNAL_COURSE_URL = 'https://www.microsoft.com/en-us/digital-literacy';
+const DIGITAL_LITERACY_PROGRAM_DURATION = DIGITAL_LITERACY_DURATION_LABEL;
 
 export const PROGRAMS: Program[] = [
   {
-    ...mkProgram('Workforce AP Digital Literacy Course', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'Microsoft', 5, 'digital-literacy-empowerment-class', 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
-    externalCourseUrl: DIGITAL_LITERACY_EXTERNAL_COURSE_URL,
+    ...mkProgram(DIGITAL_LITERACY_PROGRAM_TITLE, 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Online safety', 'Video meetings', 'Cloud storage', 'Microsoft Word', 'Online job applications'], DIGITAL_LITERACY_MODULES.map((module) => module.name), DIGITALLEARN_PROVIDER_NAME, 1, DIGITAL_LITERACY_PROGRAM_SLUG, 'Grant', { es: 'full', pt: 'none', fr: 'none' }),
+    // The ten DigitalLearn modules are WorkforceAP in-platform modules
+    // (kind: 'workforceap'), so the member launch route opens the portal
+    // module page with the linked lessons instead of Coursera.
+    courses: digitalLiteracyCatalogCourses(DIGITAL_LITERACY_PROGRAM_SLUG),
   },
   mkProgram('IT Support Professional Certificate (IBM)', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '💻', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$72K', ['Help desk', 'Hardware', 'Software', 'Customer service'], ['Introduction to Technical Support', 'Introduction to Hardware and Operating Systems', 'Introduction to Software, Programming, and Databases', 'Introduction to Networking and Storage', 'Introduction to Cybersecurity Essentials', 'Introduction to Cloud Computing', 'Technical Support Case Studies and Capstone Project'], 'IBM', 10, undefined, 'WIOA', { es: 'ai-subtitles', pt: 'full', fr: 'ai-subtitles' }),
   mkProgram('IT Support and Entry-level Cybersecurity Certificate (IBM)', 'it-cyber-entry', 'IT & Cybersecurity', '#ad2c4d', '🛡️', '3-5 months, 10 hrs/week', 'Starting salary: $60K-$88K', ['Help desk', 'Networking', 'Security fundamentals', 'Incident response'], ['IT Support Foundations', 'Computer Hardware and Operating Systems', 'Networking Fundamentals', 'Cybersecurity Essentials', 'Entry-Level Security Operations', 'Career Preparation for IT and Cybersecurity'], 'IBM', 10, 'it-support-and-entry-level-cyber-security-certificate', 'WIOA', { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' }),

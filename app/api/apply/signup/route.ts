@@ -399,6 +399,23 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         },
       },
     });
+
+    // This route writes the new account's session into the browser's cookie
+    // jar (so a confirmed signup lands straight on the confirmation page).
+    // If the browser is already signed in — e.g. an admin enrolling a second
+    // address from their own laptop (9/2/26 ops report) — that would overwrite
+    // the live session with the new one and lock the first account out. Refuse
+    // instead of clobbering.
+    const { data: existingSession } = await supabase.auth.getUser();
+    if (existingSession?.user) {
+      return NextResponse.json(
+        {
+          error: `You are already signed in as ${existingSession.user.email ?? 'another account'}. Sign out first, then create the new account.`,
+          code: 'ALREADY_SIGNED_IN',
+        },
+        { status: 409 },
+      );
+    }
   
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -423,6 +440,17 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     const user = authData.user;
     if (!user) {
       return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
+    }
+
+    // With "Confirm email" on, Supabase answers a signUp for an address that
+    // already exists with HTTP 200 and an obfuscated user whose `identities`
+    // is empty (no error). Treat that as "already registered" instead of
+    // falling through to the users.email unique constraint and a 500.
+    if (Array.isArray(user.identities) && user.identities.length === 0) {
+      return NextResponse.json(
+        { error: 'An account with this email already exists. Log in to continue, or use password reset if you are returning.' },
+        { status: 400 }
+      );
     }
 
     const priorUser = await withDbRetry(() => prisma.$transaction((tx) => tx.user.findUnique({

@@ -225,8 +225,8 @@ export const salaryGuideRows: SalaryGuideRow[] = [
   },
   {
     slug: 'digital-literacy-empowerment-class',
-    program: 'Digital Literacy Empowerment Class',
-    duration: '6 weeks, 5 hrs/week (30 hours total)',
+    program: 'Workforce AP Digital Literacy Course',
+    duration: 'Self-paced — about 9 hours (Microsoft Digital Literacy)',
     salary: '$38K–$52K',
     level: 'Entry',
     ramp: 'Easier',

@@ -1,7 +1,7 @@
 /** Portal compatibility layer backed by the authoritative ElevenLabs registry. */
 
 import { clampElevenLabsDynamicVariables } from '@/lib/ai/clampElevenLabsDynamicVariables';
-import { createConversationalSession } from '@/lib/ai/elevenlabs';
+import { ElevenLabsApiError, createConversationalSession } from '@/lib/ai/elevenlabs';
 import {
   ELEVENLABS_AGENT_KEYS,
   ELEVENLABS_AGENT_REGISTRY,
@@ -103,9 +103,28 @@ export async function startElevenLabsPortalSession(
   if (!agentId) {
     throw new Error(`No ElevenLabs agent ID for "${key}". Set ${envKeyForPortalAgent(key)}.`);
   }
-  const session = await createConversationalSession(agentId, {
-    ...(options?.branchId ? { branchId: options.branchId } : {}),
-  });
+  const sessionOptions = options?.branchId ? { branchId: options.branchId } : {};
+  let session: Awaited<ReturnType<typeof createConversationalSession>>;
+  try {
+    session = await createConversationalSession(agentId, sessionOptions);
+  } catch (error) {
+    // A 404 means the configured / reviewed agent id no longer exists in the
+    // live ElevenLabs account (this is what broke WIOA conversation practice
+    // after the April account migration). Recover once with the id the
+    // migration record says this role was re-created under, and tell ops which
+    // env var to set so the recovery stops being needed.
+    const migratedAgentId = ELEVENLABS_AGENT_REGISTRY[key].historicalMigration?.migratedAgentId;
+    const canRecover =
+      error instanceof ElevenLabsApiError &&
+      error.status === 404 &&
+      !!migratedAgentId &&
+      migratedAgentId !== agentId;
+    if (!canRecover) throw error;
+    console.warn(
+      `[elevenlabs] Agent ${agentId} for "${key}" returned 404; retrying with the migrated agent ${migratedAgentId}. Set ${envKeyForPortalAgent(key)} to the live agent id.`,
+    );
+    session = await createConversationalSession(migratedAgentId, sessionOptions);
+  }
   const dynamicVariables = options?.dynamicVariables
     ? clampElevenLabsDynamicVariables({
         ...options.dynamicVariables,

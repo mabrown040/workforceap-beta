@@ -26,8 +26,12 @@ test('admin member storage delete runs before the Prisma soft-delete write', () 
     src.indexOf('await deleteUserStorageObjects') < src.indexOf('deletedAt: now'),
     'must remove blobs before rewriting deletedAt / email',
   );
+  // Soft delete now bans the auth user (lib/admin/authUserLifecycle.ts) instead
+  // of hard-deleting it, so restore can re-enable sign-in.
+  assert.ok(src.indexOf('disableAuthUserForSoftDelete(') > -1, 'must lock the auth user, not delete it');
   assert.ok(
-    src.indexOf('await deleteUserStorageObjects') < src.indexOf('auth.admin.deleteUser'),
-    'must remove blobs before auth delete',
+    src.indexOf('await deleteUserStorageObjects') < src.indexOf('disableAuthUserForSoftDelete('),
+    'must remove blobs before locking the auth user',
   );
+  assert.equal(src.includes('auth.admin.deleteUser'), false, 'soft delete must not hard-delete the auth user');
 });

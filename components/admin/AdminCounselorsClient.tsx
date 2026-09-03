@@ -16,11 +16,12 @@ type Row = {
 };
 type PartnerOpt = { id: string; name: string };
 
-type Affiliation = 'wap_staff' | 'partner' | 'independent';
+type Affiliation = 'wap_staff' | 'partner' | 'independent' | 'community_ambassador';
 const AFFILIATION_LABELS: Record<Affiliation, string> = {
   wap_staff: 'WorkforceAP Staff',
   partner: 'Partner Org',
   independent: 'Independent Advisor',
+  community_ambassador: 'Community Ambassador',
 };
 
 export default function AdminCounselorsClient({ partners }: { partners: PartnerOpt[] }) {
@@ -104,6 +105,7 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
               <option value="wap_staff">{AFFILIATION_LABELS.wap_staff}</option>
               <option value="partner">{AFFILIATION_LABELS.partner}</option>
               <option value="independent">{AFFILIATION_LABELS.independent}</option>
+              <option value="community_ambassador">{AFFILIATION_LABELS.community_ambassador}</option>
             </select>
           </div>
           {affiliation === 'partner' && (

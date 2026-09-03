@@ -48,8 +48,16 @@ export async function POST(request: NextRequest) {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
+      // Keep the provider detail (status code, env var hint) in the server log;
+      // members only need to know the written screening still works.
       console.error('[public/wioa-qualification/voice-session]', msg);
-      return NextResponse.json({ error: msg }, { status: 503 });
+      return NextResponse.json(
+        {
+          error:
+            'Voice practice is unavailable right now. The written screening on this page still works — please use that for now.',
+        },
+        { status: 503 },
+      );
     }
   } catch (error) {
     console.error('/public/wioa-qualification/voice-session:', error);

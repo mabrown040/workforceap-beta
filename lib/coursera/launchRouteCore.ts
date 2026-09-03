@@ -11,6 +11,8 @@ type DbUser = {
 } | null;
 
 type ProgramWithCourses = {
+  /** One-stop external course: launch it directly, skipping Coursera. */
+  externalCourseUrl?: string;
   courses: Array<{
     slug: string;
     kind?: 'coursera' | 'workforceap';
@@ -128,6 +130,12 @@ export function createCourseraLaunchHandler<ResponseLike, ProgramType extends Pr
     const program = enrolledProgram
       ? deps.getProgramBySlug(enrolledProgram, curriculumVersion)
       : null;
+
+    // One-stop external courses (Digital Literacy → Microsoft) have nothing to
+    // provision or map on Coursera: send the member straight to the course.
+    if (program?.externalCourseUrl) {
+      return deps.redirect(program.externalCourseUrl);
+    }
 
     const approvedTrack = enrolledProgram && curriculumVersion === APPROVED_CURRICULUM_VERSION
       ? deps.getApprovedCurriculumTrack(enrolledProgram, curriculumVersion)

@@ -49,6 +49,7 @@
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | `agent_0901kmznx45vf19s9psjrctqr6x5` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_PARTNER_AGENT_ID` | `agent_7601kntxhqx3e0mvznpwk9bqj5yw` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | `agent_6601kmznw90ffxkbk7mpbym73vh9` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | WIOA Pre-Qualification Guide agent id in the **live** account (pre-migration `agent_6801knv07nb2ftj9p54nm6xem0xj`, re-created 2026-04-30 as `agent_7801kqfjg0qwfy68btrqh6jg87kf`) | (same) | ElevenLabs ConvAI — **unset in prod as of 9/2/26**, which is why WIOA voice practice returned a 404; the code now retries the migrated id once, but set this to stop relying on that. |
 
 ### AI Tools: Groq (Chat/Completion Backend)
 | Variable | Production Value | Local Dev Value | Source |

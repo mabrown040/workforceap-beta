@@ -6,7 +6,7 @@ import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { prisma } from '@/lib/db/prisma';
 import CounselorPortalShell from '@/components/portal/CounselorPortalShell';
-import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
+import { counselorAffiliationDisplay } from '@/lib/counselor/counselorLabels';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getTranslations } from 'next-intl/server';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
@@ -47,7 +47,7 @@ export default async function CounselorLayout({ children }: { children: React.Re
       include: { partner: { select: { name: true } } },
     });
     subtitle = counselor
-      ? counselorAffiliationLabel(counselor.partner?.name)
+      ? counselorAffiliationDisplay(counselor.affiliation, counselor.partner?.name)
       : allowedAdmin
         ? 'Super admin preview'
         : 'Counselor';

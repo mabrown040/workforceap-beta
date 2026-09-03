@@ -1075,6 +1075,9 @@ enum CounselorAffiliation {
   wap_staff
   partner
   independent
+  // Community Ambassadors: trusted community members who onboard and coach
+  // the students they bring in (9/2/26). They sign in like counselors.
+  community_ambassador
 
   @@map("counselor_affiliations")
 }
@@ -1471,6 +1474,10 @@ model Invitation {
   subgroupId      String?          @map("subgroup_id")
   // Partner org for counselor invites; null = WorkforceAP counselor
   partnerId       String?          @map("partner_id")
+  // Counselor invites only: which kind of counselor to create on accept
+  // (wap_staff / partner / independent / community_ambassador). Null keeps
+  // the legacy "partner if partnerId else wap_staff" rule.
+  counselorAffiliation CounselorAffiliation? @map("counselor_affiliation")
   programSlug     String?          @map("program_slug")
   invitedById     String           @map("invited_by")
   token           String           @unique

@@ -3,14 +3,12 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import Link from 'next/link';
-import { ClipboardCheck, Lock } from 'lucide-react';
+import { ClipboardCheck } from 'lucide-react';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
-import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import { formatPortalDate } from '@/lib/formatDate';
 
 const PAGE_TITLE = 'Skills check';
@@ -34,20 +32,20 @@ export default async function AssessmentPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/assessment');
 
-  const [dbUser, staffBypass] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: user.id },
-      include: {
-        profile: true,
-        courseEnrollments: {
-          where: { isPrimary: true },
-          select: { enrolledByAdminId: true },
-          take: 1,
-        },
+  // Ops (9/2/26): the preassessment is open to every member as soon as they
+  // sign in — it no longer waits for staff to mark intake complete. Results
+  // are emailed to staff and posted on the member's account for WIOA review.
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: {
+      profile: true,
+      courseEnrollments: {
+        where: { isPrimary: true },
+        select: { enrolledByAdminId: true },
+        take: 1,
       },
-    }),
-    canBypassMemberAssessment(user.id),
-  ]);
+    },
+  });
 
   if (!dbUser) redirect('/login');
 
@@ -70,11 +68,6 @@ export default async function AssessmentPage({
               scorePct={dbUser.assessmentScorePct}
               completedAt={dbUser.assessmentCompletedAt}
               programInterest={dbUser.programInterest}
-            />
-          ) : dbUser.interviewCompletedAt == null && !staffBypass ? (
-            <AssessmentLockedCard
-              interviewRequestedAt={dbUser.interviewRequestedAt}
-              interviewEligible={dbUser.interviewEligible}
             />
           ) : (
             <AssessmentReady
@@ -156,39 +149,6 @@ function AssessmentCompletedCard({
           Open home
         </Link>
       </div>
-    </div>
-  );
-}
-
-function AssessmentLockedCard({
-  interviewRequestedAt,
-  interviewEligible,
-}: {
-  interviewRequestedAt: Date | null;
-  interviewEligible: boolean;
-}) {
-  return (
-    <div className="wa-kit-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <Lock size={18} aria-hidden="true" style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
-        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
-          Unlocks after intake
-        </h2>
-      </div>
-      <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 'var(--wa-type-body)' }}>
-        Complete intake first. Then this check unlocks.
-      </p>
-      {interviewRequestedAt ? (
-        <p style={{ margin: 0, color: 'var(--wa-text)', fontWeight: 600, fontSize: 'var(--wa-type-body)' }}>
-          Requested on {formatPortalDate(interviewRequestedAt)} — we&apos;ll schedule it.
-        </p>
-      ) : interviewEligible ? (
-        <MemberInterviewRequestButton />
-      ) : (
-        <p style={{ margin: 0, color: 'var(--wa-muted)', fontSize: 'var(--wa-type-body)' }}>
-          Finish pre-screening on home, then request intake.
-        </p>
-      )}
     </div>
   );
 }

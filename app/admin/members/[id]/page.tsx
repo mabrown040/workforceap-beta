@@ -16,7 +16,8 @@ import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
 // Use the client-safe questions file — the "Full Q&A" details list only
 // renders question text + recorded answer, no correctness check.
-import { ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS } from '@/lib/assessment/questions';
+import AssessmentAnswersReadonly from '@/components/admin/AssessmentAnswersReadonly';
+import { buildAssessmentReviewRows } from '@/lib/assessment/reviewRows';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberCourseraEnrollmentApproval from '@/components/admin/MemberCourseraEnrollmentApproval';
 import AdminMemberConsentPanel from '@/components/admin/AdminMemberConsentPanel';
@@ -1162,22 +1163,13 @@ export default async function AdminMemberDetailPage({
         </section>
 
         {member.assessmentCompleted && (
-          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Assessment</h2>
-            <p><strong>Score:</strong> {member.assessmentScore ?? 0}/100 ({member.assessmentScorePct ?? 0}%)</p>
-            <p><strong>Date:</strong> {member.assessmentCompletedAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) ?? '—'}</p>
-            <p><strong>Program interest:</strong> {member.programInterest ?? '—'}</p>
-            <details style={{ marginTop: '0.75rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Full Q&A</summary>
-              {assessmentAnswers && (
-                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem', fontSize: '0.9rem' }}>
-                  {ASSESSMENT_QUESTIONS.map((q) => (
-                    <li key={q.id}>Q{q.id}: {q.question} → {assessmentAnswers[q.id] ?? '—'}</li>
-                  ))}
-                </ul>
-              )}
-            </details>
-          </section>
+          <AssessmentAnswersReadonly
+            rows={buildAssessmentReviewRows(assessmentAnswers)}
+            score={member.assessmentScore}
+            scorePct={member.assessmentScorePct}
+            completedAt={member.assessmentCompletedAt}
+            programInterest={member.programInterest}
+          />
         )}
       </div>
     </div>

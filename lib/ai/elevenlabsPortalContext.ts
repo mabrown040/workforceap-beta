@@ -103,6 +103,12 @@ export async function fetchWioaPortalDynamicVariables(userId: string): Promise<R
       wioa_low_income_self_report: snapshot?.answers.lowIncomeSelfReport ? 'true' : 'false',
       wioa_training_interest: snapshot?.answers.trainingInterest ? 'true' : 'false',
       wioa_completed_intake_self_report: snapshot?.answers.completedIntakeSelfReport ? 'true' : 'false',
+      wioa_public_assistance_self_report:
+        snapshot?.answers.publicAssistanceSelfReport === true
+          ? 'true'
+          : snapshot?.answers.publicAssistanceSelfReport === false
+            ? 'false'
+            : '',
       wioa_signal: snapshot?.signal ?? '',
       wioa_program_name: 'Workforce Innovation and Opportunity Act (WIOA)',
       wioa_pronunciation: 'W. I. O. A.',

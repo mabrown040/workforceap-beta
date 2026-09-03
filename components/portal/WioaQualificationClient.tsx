@@ -78,6 +78,9 @@ export default function WioaQualificationClient({
   const [lowIncomeSelfReport, setLowIncomeSelfReport] = useState(false);
   const [trainingInterest, setTrainingInterest] = useState(true);
   const [completedIntakeSelfReport, setCompletedIntakeSelfReport] = useState(false);
+  const [publicAssistanceSelfReport, setPublicAssistanceSelfReport] = useState<boolean | null>(
+    initialSnapshot?.answers.publicAssistanceSelfReport ?? null
+  );
 
   const voicePayload = useMemo(
     () => ({
@@ -114,6 +117,7 @@ export default function WioaQualificationClient({
           lowIncomeSelfReport,
           trainingInterest,
           completedIntakeSelfReport,
+          publicAssistanceSelfReport,
           ...(isPublic
             ? {
                 contact: {
@@ -441,6 +445,32 @@ export default function WioaQualificationClient({
                 <span>My household income is limited or near self-sufficiency (additional documentation for WIOA)</span>
               </label>
             </div>
+
+            <fieldset className="portal-field" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+              <legend className="portal-field__label" style={{ padding: 0 }}>
+                Are you receiving TANF, WIC, and/or Food stamps (SNAP)?
+              </legend>
+              <div role="radiogroup" aria-label="Receiving TANF, WIC, or Food stamps" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                {([
+                  { value: true, label: 'Yes' },
+                  { value: false, label: 'No' },
+                ] as const).map((option) => (
+                  <label
+                    key={option.label}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', minHeight: '44px', cursor: 'pointer' }}
+                  >
+                    <input
+                      type="radio"
+                      name="wioa-public-assistance"
+                      value={option.label.toLowerCase()}
+                      checked={publicAssistanceSelfReport === option.value}
+                      onChange={() => setPublicAssistanceSelfReport(option.value)}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
             <div className="portal-field">
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: '44px', paddingBlock: '0.25rem', cursor: 'pointer' }}>

@@ -1,5 +1,5 @@
 import type { WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
-import { barrierLabel } from '@/lib/wioa/wioaQualification';
+import { barrierLabel, publicAssistanceLabel } from '@/lib/wioa/wioaQualification';
 import { wioaReviewLabel } from '@/lib/wioa/wioaReview';
 
 const AGE_LABEL: Record<string, string> = {
@@ -37,6 +37,9 @@ export default function WioaScreeningReadonly({ snapshot, reviewStatus, reviewed
         </li>
         <li>
           <strong>Dislocated worker:</strong> {a.dislocatedWorker ? 'Yes' : 'No'}
+        </li>
+        <li>
+          <strong>Receiving TANF / WIC / Food stamps (SNAP):</strong> {publicAssistanceLabel(a.publicAssistanceSelfReport)}
         </li>
       </ul>
       {(reviewStatus || reviewNotes) && (

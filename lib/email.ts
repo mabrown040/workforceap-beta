@@ -61,6 +61,7 @@ import {
   adminStaleApplicantsDigestHtml,
   employerJobExpiryHtml,
 } from '@/emails';
+import { LOGIN_CODE_LENGTH, loginCodeFromToken } from '@/lib/invitations/loginCode';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 /** Legacy single-inbox constant — prefer {@link getAdminAlertRecipients} for sends. */
@@ -91,6 +92,22 @@ export function getAdminAlertRecipients(): string[] {
     return Array.from(new Set(configured));
   }
   return [...DEFAULT_ADMIN_ALERT_RECIPIENTS];
+}
+
+/**
+ * Inboxes that receive a member's completed training preassessment (the full
+ * answer sheet). Ops (9/2/26) asked for these to land with Michael Brown; set
+ * `ASSESSMENT_RESULT_RECIPIENTS` (comma-separated) to change the list. The
+ * admin-alert inboxes are always included so nothing is silently dropped.
+ */
+export function getAssessmentResultRecipients(): string[] {
+  const configured = (process.env.ASSESSMENT_RESULT_RECIPIENTS ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  return Array.from(
+    new Set([...configured, ...getAdminAlertRecipients(), 'michael.brown@workforceap.org']),
+  );
 }
 
 export function getResend(): Resend | null {
@@ -1197,6 +1214,15 @@ export async function sendInvitationEmail(params: {
     return { ok: false, error: 'Email not configured' };
   }
   const branding = await getOrganizationBranding(params.orgId);
+  // The login code is the token prefix (lib/invitations/loginCode.ts), so it
+  // can be derived from the link and every sender (create, resend) shows it.
+  let loginCode: string | null = null;
+  try {
+    const token = new URL(params.inviteUrl).searchParams.get('token');
+    if (token && token.length >= LOGIN_CODE_LENGTH) loginCode = loginCodeFromToken(token);
+  } catch {
+    loginCode = null;
+  }
   const html = brandedEmailLayout({
     title: `${params.inviterName} invited you to join ${branding.name}`,
     bodyHtml: invitationHtml({
@@ -1204,6 +1230,7 @@ export async function sendInvitationEmail(params: {
       role: params.role,
       personalMessage: params.personalMessage,
       branding,
+      loginCode,
     }),
     ctaText: 'Accept Invitation',
     ctaUrl: params.inviteUrl,

@@ -53,7 +53,7 @@ export const GET = withApiGuc(_GET);
 const createBody = z.object({
   userId: z.string().uuid(),
   partnerId: z.string().uuid().nullable().optional(),
-  affiliation: z.enum(['wap_staff', 'partner', 'independent']).optional(),
+  affiliation: z.enum(['wap_staff', 'partner', 'independent', 'community_ambassador']).optional(),
   title: z.string().max(120).optional().nullable(),
 });async function _POST(request: NextRequest) {
   try {
@@ -103,6 +103,9 @@ const createBody = z.object({
   }
   if (resolvedAffiliation === 'independent' && partnerId) {
     return NextResponse.json({ error: 'Independent advisors cannot be linked to a partner org' }, { status: 400 });
+  }
+  if (resolvedAffiliation === 'community_ambassador' && partnerId) {
+    return NextResponse.json({ error: 'Community Ambassadors are not linked to a partner org' }, { status: 400 });
   }
 
   if (partnerId) {

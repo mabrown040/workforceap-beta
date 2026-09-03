@@ -125,16 +125,16 @@ const STEPS_BY_SLUG: Record<string, ProgramEnrollmentStep[]> = {
     DEFAULT_STEPS[0],
     {
       id: 'staff_assign',
-      title: 'Staff confirms your digital literacy cohort',
+      title: 'Start the Microsoft Digital Literacy course right away',
       description:
-        'Digital Literacy may include device distribution and in-person or hybrid sessions depending on cohort — your counselor will confirm logistics.',
+        'No Coursera provisioning is needed. Your training page links straight to Microsoft\'s free, self-paced Digital Literacy course (about 9 hours) — open it and begin whenever you are ready.',
     },
     DEFAULT_STEPS[2],
     {
       id: 'exam',
       title: 'Completion and next steps',
       description:
-        'After core modules, your team will help you decide whether to move into a professional certificate track.',
+        'Mark each module complete as you finish it. Afterwards your team will help you decide whether to move into a professional certificate track.',
     },
     DEFAULT_STEPS[4],
   ],

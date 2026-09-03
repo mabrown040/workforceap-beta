@@ -26,6 +26,11 @@ export type WioaQualificationAnswers = {
   trainingInterest: boolean;
   /** Completed orientation or intake with WorkforceAP (self-reported) */
   completedIntakeSelfReport: boolean;
+  /**
+   * Receiving TANF, WIC, and/or SNAP (food stamps). Added 9/2/26; optional so
+   * snapshots saved before the question existed still parse (null = not asked).
+   */
+  publicAssistanceSelfReport?: boolean | null;
 };
 
 export type WioaEligibilitySignal = 'likely' | 'possible' | 'review' | 'unclear';
@@ -77,6 +82,13 @@ export function barrierLabel(b: WioaBarrier): string {
   return BARRIER_LABELS[b] ?? b;
 }
 
+/** Staff-facing Yes / No / Not answered label for the TANF / WIC / SNAP question. */
+export function publicAssistanceLabel(value: boolean | null | undefined): string {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  return 'Not answered';
+}
+
 /**
  * Heuristic signal for UI routing — counselors make final WIOA determinations.
  */
@@ -87,11 +99,18 @@ export function computeWioaSignal(answers: WioaQualificationAnswers): {
   const reasons: string[] = [];
   const hasBarrier = answers.primaryBarrier !== 'none';
   const isYouth = answers.ageBracket === 'under18';
+  const receivesPublicAssistance = answers.publicAssistanceSelfReport === true;
+  // Receiving TANF / SNAP is itself a WIOA low-income indicator, so it counts
+  // the same way as the self-reported income question.
+  const lowIncome = answers.lowIncomeSelfReport || receivesPublicAssistance;
   const coreQualifierCount =
-    (answers.lowIncomeSelfReport ? 1 : 0) +
+    (lowIncome ? 1 : 0) +
     (answers.dislocatedWorker ? 1 : 0) +
     (hasBarrier ? 1 : 0);
 
+  if (receivesPublicAssistance) {
+    reasons.push('You shared that you receive TANF, WIC, or SNAP (food stamps), which usually meets WIOA low-income guidelines once staff verify it.');
+  }
   if (answers.lowIncomeSelfReport) {
     reasons.push('You shared that your household income may fit common WIOA income guidelines, which staff can verify.');
   }
@@ -118,9 +137,9 @@ export function computeWioaSignal(answers: WioaQualificationAnswers): {
   } else if (answers.dislocatedWorker) {
     signal = 'likely';
   } else if (
-    (answers.lowIncomeSelfReport && hasBarrier) ||
+    (lowIncome && hasBarrier) ||
     coreQualifierCount >= 2 ||
-    (answers.lowIncomeSelfReport && answers.completedIntakeSelfReport)
+    (lowIncome && answers.completedIntakeSelfReport)
   ) {
     signal = 'likely';
   } else if (coreQualifierCount >= 1 || answers.trainingInterest || answers.completedIntakeSelfReport) {
@@ -169,6 +188,10 @@ export function parseWioaAnswers(raw: unknown): WioaQualificationAnswers | null 
     'other',
   ];
   if (!barriers.includes(primaryBarrier as WioaBarrier)) return null;
+  // Optional: older snapshots never asked this, and a non-boolean value must not
+  // invalidate the rest of the screening.
+  const publicAssistanceSelfReport =
+    typeof o.publicAssistanceSelfReport === 'boolean' ? o.publicAssistanceSelfReport : null;
 
   return {
     ageBracket,
@@ -178,5 +201,6 @@ export function parseWioaAnswers(raw: unknown): WioaQualificationAnswers | null 
     lowIncomeSelfReport: o.lowIncomeSelfReport,
     trainingInterest: o.trainingInterest,
     completedIntakeSelfReport: o.completedIntakeSelfReport,
+    publicAssistanceSelfReport,
   };
 }

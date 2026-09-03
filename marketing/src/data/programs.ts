@@ -68,6 +68,11 @@ export interface Program {
    * submission (CPT, CLT). Never set at the same time as `syllabus`.
    */
   curriculum?: ProgramCurriculum;
+  /**
+   * Direct link to a one-stop external course. When set, the program's
+   * enroll CTAs open this URL instead of the apply form.
+   */
+  externalCourseUrl?: string;
 }
 
 // ── External partners whose credential gets a "<Partner> certified" badge ──
@@ -89,7 +94,8 @@ export function salaryRangeDisplay(program: Program): string {
   return program.salary.replace(/^Starting salary:\s*/i, '').trim();
 }
 
-const DIGITAL_LITERACY_PROGRAM_DURATION = '6 weeks, 5 hrs/week (30 hours total)';
+const DIGITAL_LITERACY_PROGRAM_DURATION = 'Self-paced — about 9 hours (Microsoft Digital Literacy)';
+export const DIGITAL_LITERACY_EXTERNAL_COURSE_URL = 'https://www.microsoft.com/en-us/digital-literacy';
 
 // Helper to build course objects from verbatim course-name lists, matching the
 // Next slug scheme `${slug}-course-${i+1}` and default estimated hours.
@@ -100,7 +106,7 @@ function courses(slug: string, names: string[], hours = 10): ProgramCourse[] {
 const BASE_PROGRAMS: Program[] = [
   {
     slug: 'digital-literacy-empowerment-class',
-    title: 'Digital Literacy Empowerment Class',
+    title: 'Workforce AP Digital Literacy Course',
     category: 'digital-literacy',
     categoryLabel: 'Digital Literacy',
     categoryColor: '#666',
@@ -109,15 +115,16 @@ const BASE_PROGRAMS: Program[] = [
     salary: 'Starting salary: $38K-$52K',
     skills: ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'],
     courses: courses('digital-literacy-empowerment-class', ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 5),
-    partner: 'Grant',
+    partner: 'Microsoft',
     fundingSource: 'Grant',
     languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
-    description: 'This program is built for members who are new to computers, smartphones, or the internet — no prior tech experience needed. In six weeks you will build the everyday digital skills that employers expect: setting up and using email, navigating the web safely, managing online accounts, and understanding basic financial tools. Members who complete this program are ready for office support, customer service, and administrative roles. If you are already comfortable with email and basic software, Cybersecurity or IT Support may be a stronger next step. Not sure where you stand? The pathfinder quiz can help you choose.',
+    externalCourseUrl: DIGITAL_LITERACY_EXTERNAL_COURSE_URL,
+    description: 'This course is built for members who are new to computers, smartphones, or the internet — no prior tech experience needed. It gives you direct, one-stop access to Microsoft\'s free Digital Literacy course (about 9 hours, self-paced): using a computer, getting online safely, email and online communication, and creating and managing digital content. Members who complete it are ready for office support, customer service, and administrative roles. If you are already comfortable with email and basic software, Cybersecurity or IT Support may be a stronger next step. Not sure where you stand? The pathfinder quiz can help you choose.',
     extra: {
       bestFor: 'Members who are new to computers and the internet — no tech background required. If you already use email and browse the web daily, a program like IT Support or Cybersecurity may be a stronger fit.',
       jobOutcomes: ['Office Support Specialist', 'Customer Service Representative', 'Administrative Assistant'],
       difficulty: 1,
-      rampNote: 'No tech background required. Six weeks, beginner pace. Start here if technology feels unfamiliar.',
+      rampNote: 'No tech background required. About 9 hours, self-paced, start any time. Start here if technology feels unfamiliar.',
     },
   },
   {

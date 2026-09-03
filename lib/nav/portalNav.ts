@@ -443,6 +443,7 @@ export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
   { href: '/counselor/students', label: 'My members', group: 'workflows', Icon: Users },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
+  { href: '/counselor/profile', label: 'My profile', group: 'manage', Icon: User },
   { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },
   { href: '/counselor/guide', label: 'Portal guide', group: 'manage', Icon: HelpCircle },
 ];

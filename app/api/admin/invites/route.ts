@@ -8,6 +8,7 @@ import { sendInvitationEmail } from '@/lib/email';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { InvitationStatus } from '@prisma/client';
 import { randomBytes } from 'crypto';
+import { loginCodeFromToken } from '@/lib/invitations/loginCode';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -106,6 +107,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       role: formData.get('role'),
       subgroupId: formData.get('subgroupId'),
       partnerId: formData.get('partnerId'),
+      counselorAffiliation: formData.get('counselorAffiliation'),
       programSlug: formData.get('programSlug'),
       personalMessage: formData.get('personalMessage'),
     };
@@ -131,6 +133,16 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       : null;
   const personalMessage =
     typeof o.personalMessage === 'string' ? o.personalMessage.trim() || null : null;
+  // Counselor invites (9/2/26): which kind of counselor to create on accept.
+  // Community Ambassadors are counselors with their own affiliation so their
+  // caseload and portal label read correctly.
+  const COUNSELOR_AFFILIATIONS = ['wap_staff', 'partner', 'independent', 'community_ambassador'] as const;
+  type CounselorAffiliationInput = (typeof COUNSELOR_AFFILIATIONS)[number];
+  const counselorAffiliation: CounselorAffiliationInput | null =
+    typeof o.counselorAffiliation === 'string' &&
+    (COUNSELOR_AFFILIATIONS as readonly string[]).includes(o.counselorAffiliation)
+      ? (o.counselorAffiliation as CounselorAffiliationInput)
+      : null;
 
   if (!email) {
     return respondError('Email is required', 400);
@@ -170,6 +182,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     }
   }
 
+  if (inviteRole === 'counselor' && counselorAffiliation === 'partner' && !partnerId) {
+    return respondError('Partner-affiliated counselors need a partner organisation', 400);
+  }
   if (inviteRole === 'counselor' && partnerId) {
     const p = await prisma.$transaction((tx) => tx.partner.findUnique({
       where: { id: partnerId },
@@ -206,7 +221,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       email,
       role: inviteRole,
       subgroupId: inviteRole === 'partner' ? subgroupId : null,
-      partnerId: inviteRole === 'counselor' ? partnerId : null,
+      partnerId: inviteRole === 'counselor' && counselorAffiliation !== 'community_ambassador' && counselorAffiliation !== 'independent' ? partnerId : null,
+      counselorAffiliation:
+        inviteRole === 'counselor'
+          ? counselorAffiliation ?? (partnerId ? 'partner' : 'wap_staff')
+          : null,
       programSlug: inviteRole === 'member' ? programSlug : null,
       invitedById: user.id,
       token,
@@ -228,6 +247,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   });
 
   const inviteUrl = `${SITE_URL}/invite?token=${token}`;
+  const loginCode = loginCodeFromToken(token);
   const roleLabel =
     inviteRole === 'admin'
       ? 'Admin'
@@ -283,6 +303,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       role: invitation.role,
       status: invitation.status,
       expiresAt: invitation.expiresAt,
+      loginCode,
     },
   });
 

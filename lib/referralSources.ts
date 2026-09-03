@@ -1,45 +1,59 @@
 export const REFERRAL_SOURCE_OTHER_PARTNER = 'Other Partner (write in)';
 export const REFERRAL_SOURCE_COMMUNITY_AMBASSADOR = 'Community Ambassador (write in)';
 
-export const CENTRAL_TEXAS_REFERRAL_SOURCES = [
-  'Launch Pad Job Club',
-  'Purpose Works / Job Seekers Network',
-  // Preserve the pre-existing generic choice alongside the two specific
-  // boards. They are distinct answers, not display duplicates.
-  'Workforce Solutions',
+/**
+ * Partner / referral organisations in the order ops asked for on the 9/2/26
+ * change list (PurposeWorks first, then LPJC, the two Capital Area boards,
+ * Community Ambassador, then the alphabetical partner list, "Other Partner"
+ * last). Generic non-partner channels follow in GENERIC_REFERRAL_CHANNELS.
+ */
+export const PARTNER_REFERRAL_SOURCES = [
+  'PurposeWorks / Job Seekers Network',
+  'Launch Pad Job Club (LPJC)',
   'Workforce Solutions Capital Area',
   'Workforce Solutions Rural Capital Area',
-  'Workforce Solutions Greater Dallas',
-  'Workforce Solutions Central Texas',
-  'Workforce Solutions Gulf Coast',
-  'Workforce Solutions Alamo',
-  'Goodwill Central Texas',
-  'Gary Job Corps',
-  'Lifeworks',
-  'Building Promise',
-  'LifeAnew',
-  'MSRW Management',
-  'ACC (Austin Community College)',
-  'Community First (Mobile Loaves and Fishes)',
-  'Big Austin',
-  'EGBI',
-  'YMCA',
-  'Boys and Girls Clubs',
-  'Capital Idea',
-  'Austin Free-Net',
-  'Latinitas',
-  'Veterans Affairs (VA)',
-  'City of Austin',
-  'State of Texas',
-  'Austin Public Health (APH)',
-  'AISD',
-  'Texas Empowerment Academy',
-  '100 Black Men',
-  REFERRAL_SOURCE_OTHER_PARTNER,
   REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
+  'ACC (Austin Community College)',
+  'African American Youth Harvest Foundation (AAYHF)',
+  'AISD',
+  'Austin Area Urban League (AAUL)',
+  'Austin Career Institute',
+  'Austin Free-Net',
+  'Austin Public Health (APH)',
+  'Big Austin',
+  'Boys and Girls Clubs',
+  'Building Promise',
+  'Capital Idea',
+  'City of Austin',
+  'Concordia College',
+  'Concordia High School',
+  'Community First (Mobile Loaves and Fishes)',
+  'EGBI',
+  'Gary Job Corps',
+  'Goodwill Central Texas',
+  'Latinitas',
+  'LifeAnew',
+  'Lifeworks',
+  'MSRW Management',
+  'North East High School (Reagan)',
+  'Southern Careers Institute',
+  'State of Texas',
+  'Texas Empowerment Academy',
+  'Universal Tech Movement (UTM)',
+  'Veterans Affairs (VA)',
+  'Workforce Solutions Alamo',
+  'Workforce Solutions Central Texas',
+  'Workforce Solutions Greater Dallas',
+  'Workforce Solutions Gulf Coast',
+  'Workforce Solutions (Other)',
+  'YMCA',
+  '100 Black Men of Austin',
+  REFERRAL_SOURCE_OTHER_PARTNER,
+] as const;
+
+/** Non-partner ways people hear about WorkforceAP; kept after the partner list. */
+export const GENERIC_REFERRAL_CHANNELS = [
   'Texas Workforce Commission (TWC)',
-  'Austin Area Urban League',
-  'African American Youth Harvest Foundation',
   '211 Texas',
   'Community organization',
   'Church or faith community',
@@ -51,6 +65,11 @@ export const CENTRAL_TEXAS_REFERRAL_SOURCES = [
   'Other / write in',
 ] as const;
 
+export const CENTRAL_TEXAS_REFERRAL_SOURCES = [
+  ...PARTNER_REFERRAL_SOURCES,
+  ...GENERIC_REFERRAL_CHANNELS,
+] as const;
+
 /** Used when the referral-sources API cannot reach the database. */
 export const FALLBACK_REFERRAL_SOURCES = CENTRAL_TEXAS_REFERRAL_SOURCES;
 
@@ -60,6 +79,12 @@ export const PUBLIC_REFERRAL_SOURCE_OPTIONS = CENTRAL_TEXAS_REFERRAL_SOURCES;
 /** Historical admin values remain accepted so stale tabs and older records keep working. */
 const LEGACY_ADMIN_REFERRAL_SOURCE_OPTIONS = [
   'Workforce Solutions',
+  // Pre-9/2/26 spellings of rows that were renamed on the ops list.
+  'Purpose Works / Job Seekers Network',
+  'Launch Pad Job Club',
+  'African American Youth Harvest Foundation',
+  'Austin Area Urban League',
+  '100 Black Men',
   'Community Organization',
   'Flyer or Brochure',
   'WorkforceAP Counselor',
@@ -76,12 +101,27 @@ export const ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES = [
 
 const REFERRAL_SOURCE_SEMANTIC_ALIASES: Readonly<Record<string, string>> = {
   // Ops list spellings that mean the same organisation as an existing option.
-  'launch pad job club (lpjc)': 'launch pad job club',
-  lpjc: 'launch pad job club',
-  'purposeworks / job seekers network': 'purpose works / job seekers network',
-  purposeworks: 'purpose works / job seekers network',
+  'launch pad job club': 'launch pad job club (lpjc)',
+  lpjc: 'launch pad job club (lpjc)',
+  'purpose works / job seekers network': 'purposeworks / job seekers network',
+  purposeworks: 'purposeworks / job seekers network',
+  'purpose works': 'purposeworks / job seekers network',
+  'workforce capital area': 'workforce solutions capital area',
+  'workforce rural capital area': 'workforce solutions rural capital area',
+  'workforce solutions': 'workforce solutions (other)',
+  'community ambassador': 'community ambassador (write in)',
+  'other partner': 'other partner (write in)',
   acc: 'acc (austin community college)',
   'austin community college': 'acc (austin community college)',
+  'african american youth harvest foundation': 'african american youth harvest foundation (aayhf)',
+  aayhf: 'african american youth harvest foundation (aayhf)',
+  'austin area urban league': 'austin area urban league (aaul)',
+  aaul: 'austin area urban league (aaul)',
+  'universal tech movement': 'universal tech movement (utm)',
+  utm: 'universal tech movement (utm)',
+  'north east high school': 'north east high school (reagan)',
+  'reagan high school': 'north east high school (reagan)',
+  '100 black men': '100 black men of austin',
   'mobile loaves and fishes': 'community first (mobile loaves and fishes)',
   'community first': 'community first (mobile loaves and fishes)',
   'veterans affairs': 'veterans affairs (va)',

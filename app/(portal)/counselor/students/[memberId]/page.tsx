@@ -23,6 +23,8 @@ import CounselorNotesPanel from './CounselorNotesPanel';
 import AdvisorSessionNotesPanel from './AdvisorSessionNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
+import AssessmentAnswersReadonly from '@/components/admin/AssessmentAnswersReadonly';
+import { buildAssessmentReviewRows } from '@/lib/assessment/reviewRows';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import {
   employerJobPostingApplicationStatusBadgeVariant,
@@ -83,6 +85,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       enrolledProgram: true,
       programInterest: true,
       assessmentScorePct: true,
+      assessmentScore: true,
+      assessmentCompleted: true,
+      assessmentCompletedAt: true,
+      assessmentAnswers: true,
       wioaQualificationJson: true,
       wioaReviewStatus: true,
       wioaReviewedAt: true,
@@ -422,6 +428,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   }
 
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
+  // Ops (9/2/26): the preassessment answer sheet sits with the WIOA screening so
+  // counselors review both in one place.
+  const assessmentRows =
+    member.assessmentCompleted && member.assessmentAnswers
+      ? buildAssessmentReviewRows(member.assessmentAnswers)
+      : null;
   let wioaReviewerName: string | null = null;
   if (member.wioaReviewedByUserId) {
     const rev = await prisma.user.findUnique({
@@ -770,6 +782,17 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             />
           </div>
         ) : null}
+        {assessmentRows ? (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <AssessmentAnswersReadonly
+              rows={assessmentRows}
+              score={member.assessmentScore}
+              scorePct={member.assessmentScorePct}
+              completedAt={member.assessmentCompletedAt}
+              programInterest={member.programInterest}
+            />
+          </div>
+        ) : null}
 
         <div style={{ padding: '0 1rem 1.5rem' }}>
           <div
@@ -936,6 +959,17 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
                 reviewerName={wioaReviewerName}
                 reviewNotes={member.wioaReviewNotes}
+              />
+            </section>
+          ) : null}
+          {assessmentRows ? (
+            <section style={{ marginTop: '1.5rem' }}>
+              <AssessmentAnswersReadonly
+                rows={assessmentRows}
+                score={member.assessmentScore}
+                scorePct={member.assessmentScorePct}
+                completedAt={member.assessmentCompletedAt}
+                programInterest={member.programInterest}
               />
             </section>
           ) : null}

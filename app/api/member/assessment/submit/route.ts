@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { scoreAssessment, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import type { QuestionChoice } from '@/lib/assessment/answer-key';
 import { brandedEmailLayout } from '@/lib/email/template';
-import { getAdminAlertRecipients } from '@/lib/email';
+import { getAssessmentResultRecipients } from '@/lib/email';
+import { buildAssessmentReviewRows, formatAssessmentReviewText } from '@/lib/assessment/reviewRows';
 import { trackEvent } from '@/lib/events/track';
 import { awardPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
@@ -136,10 +137,13 @@ export const POST = withApiGuc(async (request: Request) => {
       const resend = new Resend(resendKey);
   
       try {
+        // Ops (9/2/26): staff get the full answer sheet, not just the score, so
+        // the WIOA assessment review can start from the email alone.
+        const reviewRows = buildAssessmentReviewRows(answersTyped);
         const result = await resend.emails.send({
           from: emailFrom,
-          to: getAdminAlertRecipients(),
-          subject: `New Assessment Submitted — ${firstName} ${lastName}`,
+          to: getAssessmentResultRecipients(),
+          subject: `Training preassessment submitted — ${firstName} ${lastName} (${pct}%)`,
           text: [
             `Name: ${firstName} ${lastName}`,
             `Email: ${dbUser.email}`,
@@ -148,7 +152,10 @@ export const POST = withApiGuc(async (request: Request) => {
             `Score: ${raw}/${TOTAL_POINTS} (${pct}%)`,
             `Submitted: ${new Date().toISOString()}`,
             '',
-            `View full results: ${adminLink}`,
+            `Member account (WIOA assessment): ${siteUrl}/admin/members/${user.id}`,
+            `All assessments: ${adminLink}`,
+            '',
+            ...formatAssessmentReviewText(reviewRows),
           ].join('\n'),
         });
         if (result.error || !result.data?.id) {

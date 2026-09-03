@@ -15,7 +15,8 @@ export function invitationRoleLabel(role: string): string {
 }
 
 export function inviteAcceptLoginRedirect(role: string): string {
-  if (role === 'counselor') return '/login?redirectTo=/counselor';
+  // Counselors (incl. Community Ambassadors) land on profile setup first.
+  if (role === 'counselor') return '/login?redirectTo=/counselor/profile';
   if (role === 'partner') return '/login?redirectTo=/partner';
   return '/login?redirectTo=/dashboard';
 }

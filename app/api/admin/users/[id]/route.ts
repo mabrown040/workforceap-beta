@@ -9,6 +9,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
 import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
 import { buildDeletedEmail } from '../_deletedEmail';
+import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -56,10 +57,11 @@ import { logAuditEvent } from '@/lib/audit/log';async function _DELETE(
         }),
       );
   
-      const supabase = getSupabaseAdmin();
-      const { error } = await supabase.auth.admin.deleteUser(id);
-      if (error) {
-        console.error('[admin/users/:id DELETE] Supabase delete error:', error.message);
+      // Soft delete = lock the login, never destroy it: restore must be able
+      // to bring the account back (9/2/26 ops report).
+      const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id);
+      if (!disabled.ok) {
+        console.error('[admin/users/:id DELETE] Supabase disable error:', disabled.message);
         return userAuthDeleteFailedResponse();
       }
   

@@ -15,6 +15,22 @@ const ELEVENLABS_PROVIDER_IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
 
 export const ELEVENLABS_LILLEY_BRANCH_ENV = 'ELEVENLABS_LILLEY_BRANCH_ID' as const;
 
+/**
+ * Non-2xx answer from the ElevenLabs Conversational API. Carries only the HTTP
+ * status: provider bodies are never read (they can contain workspace
+ * diagnostics), but callers need the status to tell "agent not found" (404)
+ * apart from an outage.
+ */
+export class ElevenLabsApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`ElevenLabs Conversational API error (${status})`);
+    this.name = 'ElevenLabsApiError';
+    this.status = status;
+  }
+}
+
 export function requireElevenLabsBranchId(
   value: string | undefined,
   environmentKey: string = ELEVENLABS_LILLEY_BRANCH_ENV,
@@ -167,7 +183,7 @@ export async function createConversationalSession(
   if (!response.ok) {
     // Provider response bodies are intentionally not surfaced or logged. They
     // are not needed by callers and can contain workspace diagnostics.
-    throw new Error(`ElevenLabs Conversational API error (${response.status})`);
+    throw new ElevenLabsApiError(response.status);
   }
 
   const data = (await response.json()) as Record<string, unknown>;

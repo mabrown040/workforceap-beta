@@ -263,7 +263,7 @@ export default function PublicEligibilityForm({
         </div>
       ) : null}
       <YesNoGroup name="q2" label="Household income below $60,000?" value={q2} onChange={setQ2} />
-      <YesNoGroup name="snapWic" label="Currently receiving SNAP and/or WIC?" value={snapWic} onChange={setSnapWic} />
+      <YesNoGroup name="snapWic" label="Receiving TANF, WIC, and/or Food stamps (SNAP)?" value={snapWic} onChange={setSnapWic} />
       <YesNoGroup name="q3" label="Authorized to work in the U.S.?" value={q3} onChange={setQ3} />
 
       <div style={fieldGroup}>

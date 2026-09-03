@@ -76,6 +76,14 @@ const applyHref = partnerRef
   : `/apply?program=${program.slug}`;
 const applyHomeHref = partnerRef ? `/apply?ref=${encodeURIComponent(partnerRef)}` : '/apply';
 
+// One-stop external course (ops 9/2/26: Digital Literacy → Microsoft's free
+// course). The primary CTA opens the course directly; applying to WorkforceAP
+// for member support stays available as the secondary action.
+const externalCourseUrl = program.externalCourseUrl ?? '';
+const primaryHref = externalCourseUrl || applyHref;
+const primaryLabel = externalCourseUrl ? 'Start the free course' : 'Apply Now';
+const primaryAttrs = externalCourseUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+
 const pageTitle = `${display} Training & Certification`;
 const metaDescription = `Training in ${display} offered at no cost for members who qualify through scholarship/grant funded membership. ${program.duration}. Starting salary ${range}. Funded pathways available. Apply today.`;
 ---
@@ -104,8 +112,10 @@ const metaDescription = `Training in ${display} offered at no cost for members w
       </div>
     )}
     <div class="hero-acts">
-      <a class="dbtn dbtn--solid" href={applyHref}>Apply Now <span>→</span></a>
-      <a class="dbtn dbtn--hero-secondary" href="/find-your-path">Not sure? Take the pathfinder quiz</a>
+      <a class="dbtn dbtn--solid" href={primaryHref} {...primaryAttrs}>{primaryLabel} <span>→</span></a>
+      {externalCourseUrl
+        ? <a class="dbtn dbtn--hero-secondary" href={applyHref}>Apply for WorkforceAP member support</a>
+        : <a class="dbtn dbtn--hero-secondary" href="/find-your-path">Not sure? Take the pathfinder quiz</a>}
     </div>
   </div>
 </section>
@@ -338,8 +348,9 @@ const metaDescription = `Training in ${display} offered at no cost for members w
       <div class="bottomcta">
         <h3>Ready to start your career in {program.categoryLabel}?</h3>
         <p>Applications take about 5 minutes. No cost for <a href={applyHomeHref}>qualifying members</a>. We respond within 1–2 business days.</p>
-        <a class="btn btn--primary btn--lg" href={applyHref}>Apply Now</a>
+        <a class="btn btn--primary btn--lg" href={primaryHref} {...primaryAttrs}>{primaryLabel}</a>
         <div class="cta-links">
+          {externalCourseUrl && <a href={applyHref}>Want a WorkforceAP advisor alongside the course? Apply here</a>}
           <a href="/find-your-path">Not sure this is right? Take the pathfinder quiz</a>
           <a href="/program-comparison">Compare programs side-by-side</a>
         </div>
@@ -364,8 +375,10 @@ const metaDescription = `Training in ${display} offered at no cost for members w
           <span class="ssalary">Starting {range}</span>
         </div>
         <span class="spartner">{badge}</span>
-        <a class="btn btn--primary sapply" href={applyHref}>Apply Now</a>
-        <p class="snote">No cost to members who qualify through scholarship/grant funded membership.</p>
+        <a class="btn btn--primary sapply" href={primaryHref} {...primaryAttrs}>{primaryLabel}</a>
+        {externalCourseUrl
+          ? <p class="snote">Free, self-paced Microsoft course — opens in a new tab. <a href={applyHref}>Apply</a> if you also want WorkforceAP member support.</p>
+          : <p class="snote">No cost to members who qualify through scholarship/grant funded membership.</p>}
         <a class="squiz" href="/find-your-path">Not sure? Take the pathfinder quiz →</a>
         <a class="scompare" href="/program-comparison">Open comparison tool (featured tracks)</a>
       </div>
@@ -382,7 +395,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
     <h2>Ready to start?</h2>
     <p>Apply in minutes. A member advisor will follow up within 1–2 business days.</p>
     <div class="acts acts--center">
-      <a class="bbtn bbtn--gold" href={applyHref}>Apply Now →</a>
+      <a class="bbtn bbtn--gold" href={primaryHref} {...primaryAttrs}>{primaryLabel} →</a>
       <a class="bbtn bbtn--outline" href="/programs">Browse all programs</a>
     </div>
   </div>

@@ -36,6 +36,7 @@ type AcceptInvitation = {
   invitedById: string;
   subgroupId: string | null;
   partnerId: string | null;
+  counselorAffiliation: string | null;
   programSlug: string | null;
   status: string;
   expiresAt: Date;
@@ -252,11 +253,33 @@ async function ensureCourseEnrollmentForInvite(
   });
 }
 
-async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: string | null) {
-  // Derive affiliation from partner linkage. The DB column defaults to
-  // 'wap_staff', which silently misclassifies partner-invited counselors when
-  // the caller does not set affiliation explicitly. Always set it here.
-  const affiliation: 'partner' | 'wap_staff' = partnerId ? 'partner' : 'wap_staff';
+type CounselorAffiliationValue = 'wap_staff' | 'partner' | 'independent' | 'community_ambassador';
+
+function resolveCounselorAffiliation(
+  requested: string | null,
+  partnerId: string | null,
+): CounselorAffiliationValue {
+  if (
+    requested === 'wap_staff' ||
+    requested === 'partner' ||
+    requested === 'independent' ||
+    requested === 'community_ambassador'
+  ) {
+    return requested;
+  }
+  // Legacy invites (no affiliation stored): derive from partner linkage. The DB
+  // column defaults to 'wap_staff', which silently misclassifies
+  // partner-invited counselors when nothing sets it explicitly.
+  return partnerId ? 'partner' : 'wap_staff';
+}
+
+async function ensureCounselorRow(
+  tx: InviteTx,
+  userId: string,
+  partnerId: string | null,
+  requestedAffiliation: string | null = null,
+) {
+  const affiliation = resolveCounselorAffiliation(requestedAffiliation, partnerId);
 
   const existing = await tx.counselor.findFirst({
     where: { userId },
@@ -324,6 +347,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
           invitedById: true,
           subgroupId: true,
           partnerId: true,
+          counselorAffiliation: true,
           programSlug: true,
           status: true,
           expiresAt: true,
@@ -499,7 +523,7 @@ async function acceptExistingUser(
           });
         }
         txStep = 'ensure_counselor_row_existing';
-        await ensureCounselorRow(tx, user.id, invitation.partnerId ?? null);
+        await ensureCounselorRow(tx, user.id, invitation.partnerId ?? null, invitation.counselorAffiliation);
       }
 
     });
@@ -753,7 +777,7 @@ async function finishNewUserDbSetup(
         }
         txStep = 'ensure_counselor_row';
         inviteAcceptLog('tx:ensure_counselor', { invitationId });
-        await ensureCounselorRow(tx, authUserId, invitation.partnerId ?? null);
+        await ensureCounselorRow(tx, authUserId, invitation.partnerId ?? null, invitation.counselorAffiliation);
       }
 
     });

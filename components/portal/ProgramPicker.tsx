@@ -281,6 +281,17 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
                   {p.duration}
                 </div>
                 <div style={{ color: 'var(--wa-accent)', fontWeight: 600, marginTop: 4 }}>{p.salary}</div>
+                {p.externalCourseUrl ? (
+                  <a
+                    href={p.externalCourseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="wa-kit-focus"
+                    style={{ display: 'inline-block', marginTop: 8, fontWeight: 700, color: 'var(--wa-accent)' }}
+                  >
+                    Open the free course directly →
+                  </a>
+                ) : null}
               </div>
               {assignmentPaused ? (
                 <p

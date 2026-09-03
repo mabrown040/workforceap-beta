@@ -38,7 +38,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     courseSlug: 'digital-literacy-course-1',
     courseName: 'Orientation & Informational Session',
     programSlug: 'digital-literacy-empowerment-class',
-    programTitle: 'Digital Literacy Empowerment Class',
+    programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [
@@ -53,7 +53,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     courseSlug: 'digital-literacy-course-2',
     courseName: 'Device Distribution & Setup + Browser & Search Engines',
     programSlug: 'digital-literacy-empowerment-class',
-    programTitle: 'Digital Literacy Empowerment Class',
+    programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [
@@ -68,7 +68,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     courseSlug: 'digital-literacy-course-3',
     courseName: 'Introduction to Emails & Advanced Email Techniques',
     programSlug: 'digital-literacy-empowerment-class',
-    programTitle: 'Digital Literacy Empowerment Class',
+    programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [
@@ -83,7 +83,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     courseSlug: 'digital-literacy-course-4',
     courseName: 'Avoiding Online Scams + Introduction to Financial Literacy',
     programSlug: 'digital-literacy-empowerment-class',
-    programTitle: 'Digital Literacy Empowerment Class',
+    programTitle: 'Workforce AP Digital Literacy Course',
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import DataTable from '@/components/portal/ui/DataTable';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { loginCodeFromToken } from '@/lib/invitations/loginCode';
 
 type Invite = {
   id: string;
@@ -18,6 +19,9 @@ type Invite = {
   invitedBy: { id: string; fullName: string; email: string };
   subgroup: { id: string; name: string } | null;
   partner: { id: string; name: string } | null;
+  /** Present for admins; the login code shown below is derived from it. */
+  token?: string;
+  counselorAffiliation?: string | null;
 };
 
 type Props = {
@@ -263,7 +267,21 @@ export default function InvitesTable({ invites }: Props) {
                     )}
                     {inv.role === 'counselor' && (
                       <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                        {inv.partner ? `Partner: ${inv.partner.name}` : 'WorkforceAP counselor'}
+                        {inv.counselorAffiliation === 'community_ambassador'
+                          ? 'Community Ambassador'
+                          : inv.counselorAffiliation === 'independent'
+                            ? 'Independent advisor'
+                            : inv.partner
+                              ? `Partner: ${inv.partner.name}`
+                              : 'WorkforceAP counselor'}
+                      </div>
+                    )}
+                    {inv.token && effectiveStatus(inv) === 'pending' && (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                        Login code:{' '}
+                        <code style={{ fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em' }}>
+                          {loginCodeFromToken(inv.token)}
+                        </code>
                       </div>
                     )}
                   </>

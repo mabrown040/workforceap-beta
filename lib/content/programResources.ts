@@ -44,6 +44,7 @@ export const PROGRAM_RESOURCES: Record<string, ProgramResource[]> = {
     { title: 'NIMS Credentialing', description: 'Manufacturing skills credentials', url: 'https://www.nims-skills.org/' },
   ],
   'digital-literacy': [
+    { title: 'Microsoft Digital Literacy (the course)', description: 'Free, self-paced one-stop course — about 9 hours', url: 'https://www.microsoft.com/en-us/digital-literacy' },
     { title: 'Google Digital Garage', description: 'Free digital skills training', url: 'https://learndigital.withgoogle.com/digitalgarage' },
     { title: 'GCF Global', description: 'Free tutorials on computers and the internet', url: 'https://edu.gcfglobal.org/' },
   ],

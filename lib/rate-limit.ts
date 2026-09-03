@@ -322,7 +322,9 @@ if (redisUrl && redisToken) {
   });
   forgotPasswordEmailRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(3, '24 h'),
+    // Was 3 per 24 h: anyone who clicked "reset" a few times while a link was
+    // slow to arrive was silently locked out for a day (9/2/26 ops report).
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:forgot-password-email',
   });
   publicCareersGetRateLimiter = new Ratelimit({
@@ -552,7 +554,7 @@ export async function checkForgotPasswordRateLimit(ip: string): Promise<{ succes
   return { success: r.success };
 }
 
-/** Forgot-password per-email cap — 3 requests per email per 24 h; fail-closed in production. */
+/** Forgot-password per-email cap — 5 requests per email per hour; fail-closed in production. */
 export async function checkForgotPasswordEmailRateLimit(email: string): Promise<{ success: boolean }> {
   const r = await failClosedLimit(forgotPasswordEmailRateLimiter, 'forgot-password-email', email.toLowerCase());
   return { success: r.success };

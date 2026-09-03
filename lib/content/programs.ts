@@ -121,6 +121,12 @@ export interface Program {
    * validated; existing enrollments retain their immutable legacy version.
    */
   curriculumMigrationPending?: boolean;
+  /**
+   * Direct link to a one-stop external course (no Coursera provisioning).
+   * When set, every "enroll" / "launch" CTA for this program opens this URL
+   * instead of the apply form or the Coursera launch route.
+   */
+  externalCourseUrl?: string;
 }
 
 function normalizeDiscoveredProgramTitle(title: string): string {
@@ -341,10 +347,18 @@ function mkProgram(
   };
 }
 
-const DIGITAL_LITERACY_PROGRAM_DURATION = '6 weeks, 5 hrs/week (30 hours total)';
+const DIGITAL_LITERACY_PROGRAM_DURATION = 'Self-paced — about 9 hours (Microsoft Digital Literacy)';
+/**
+ * Ops (9/2/26): Digital Literacy is the free one-stop Microsoft Digital
+ * Literacy course. Members get direct access the moment they choose it.
+ */
+export const DIGITAL_LITERACY_EXTERNAL_COURSE_URL = 'https://www.microsoft.com/en-us/digital-literacy';
 
 export const PROGRAMS: Program[] = [
-  mkProgram('Digital Literacy Empowerment Class', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'Grant', 5, undefined, 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
+  {
+    ...mkProgram('Workforce AP Digital Literacy Course', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'Microsoft', 5, 'digital-literacy-empowerment-class', 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
+    externalCourseUrl: DIGITAL_LITERACY_EXTERNAL_COURSE_URL,
+  },
   mkProgram('IT Support Professional Certificate (IBM)', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '💻', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$72K', ['Help desk', 'Hardware', 'Software', 'Customer service'], ['Introduction to Technical Support', 'Introduction to Hardware and Operating Systems', 'Introduction to Software, Programming, and Databases', 'Introduction to Networking and Storage', 'Introduction to Cybersecurity Essentials', 'Introduction to Cloud Computing', 'Technical Support Case Studies and Capstone Project'], 'IBM', 10, undefined, 'WIOA', { es: 'ai-subtitles', pt: 'full', fr: 'ai-subtitles' }),
   mkProgram('IT Support and Entry-level Cybersecurity Certificate (IBM)', 'it-cyber-entry', 'IT & Cybersecurity', '#ad2c4d', '🛡️', '3-5 months, 10 hrs/week', 'Starting salary: $60K-$88K', ['Help desk', 'Networking', 'Security fundamentals', 'Incident response'], ['IT Support Foundations', 'Computer Hardware and Operating Systems', 'Networking Fundamentals', 'Cybersecurity Essentials', 'Entry-Level Security Operations', 'Career Preparation for IT and Cybersecurity'], 'IBM', 10, 'it-support-and-entry-level-cyber-security-certificate', 'WIOA', { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' }),
   mkProgram('AI Practitioner Professional Certificate (AWS)', 'ai-software', 'AI & Software Dev', '#8b4a9b', '🤖', '3-5 months, 10 hrs/week', 'Starting salary: $85K-$135K', ['AI/ML', 'Generative AI', 'AI ethics', 'NLP'], ['Introduction to Artificial Intelligence (AI)', 'Artificial Intelligence: An Overview', 'Introduction to Digital Transformation Part 1', 'AI For All', 'AI Concepts and Strategy', 'Generative AI for Everyone', 'Machine Learning for All', 'AI Ethics and Governance', 'Natural Language Processing', 'Computer Vision Fundamentals', 'AI for Healthcare', 'AI Product Management', 'Reinforcement Learning', 'AI Capstone Project', 'AI Practitioner Cert Prep', 'Emerging AI Technologies'], 'Amazon Web Services', 10, 'ai-practitioner-professional-certificate-aws', 'WIOA', { es: 'ai-subtitles', pt: 'full', fr: 'none' }),

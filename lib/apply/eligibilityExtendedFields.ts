@@ -15,15 +15,18 @@ import {
 export const YES_NO = ['yes', 'no'] as const;
 export type YesNo = (typeof YES_NO)[number];
 
-/** Hear-about options for the public apply screener (adult / paid paths). */
-export const APPLY_HEAR_ABOUT_OPTIONS = [
-  ...PUBLIC_REFERRAL_SOURCE_OPTIONS,
-  'Partner or community ambassador',
-] as const;
+/**
+ * Hear-about options for the public apply screener (adult / paid paths).
+ * The 9/2/26 ops list dropped the duplicate "Partner or community ambassador"
+ * row: "Community Ambassador (write in)" and "Other Partner (write in)" already
+ * cover it. The constant below stays so previously saved answers keep working.
+ */
+export const APPLY_HEAR_ABOUT_OPTIONS = [...PUBLIC_REFERRAL_SOURCE_OPTIONS] as const;
 
 export type ApplyHearAboutOption = (typeof APPLY_HEAR_ABOUT_OPTIONS)[number];
 
 export const APPLY_HEAR_ABOUT_OTHER = 'Other / write in';
+/** Legacy stored value (pre-9/2/26 menu row); still detected as an ambassador referral. */
 export const APPLY_HEAR_ABOUT_AMBASSADOR = 'Partner or community ambassador';
 
 export function isYesNo(value: unknown): value is YesNo {

@@ -185,6 +185,7 @@ export const STATIC_PATHS = {
     '/counselor/messages',
     '/counselor/notifications',
     '/counselor/placements',
+    '/counselor/profile',
     '/counselor/queue',
     '/counselor/resources',
     '/counselor/sessions',

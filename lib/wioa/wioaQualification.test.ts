@@ -69,3 +69,34 @@ assert.equal(
 }
 
 console.log('wioaQualification tests passed');
+
+// 9/2/26: TANF / WIC / SNAP question is optional for old snapshots and counts as a low-income qualifier.
+{
+  const legacy = parseWioaAnswers({ ...base, ageBracket: '25_54' });
+  assert.equal(legacy?.publicAssistanceSelfReport, null);
+  const answered = parseWioaAnswers({ ...base, ageBracket: '25_54', publicAssistanceSelfReport: true });
+  assert.equal(answered?.publicAssistanceSelfReport, true);
+  const junk = parseWioaAnswers({ ...base, ageBracket: '25_54', publicAssistanceSelfReport: 'yes' });
+  assert.equal(junk?.publicAssistanceSelfReport, null);
+}
+
+{
+  const { signal, reasons } = computeWioaSignal({
+    ...base,
+    ageBracket: '25_54',
+    primaryBarrier: 'transportation',
+    publicAssistanceSelfReport: true,
+  });
+  assert.equal(signal, 'likely');
+  assert.ok(reasons.some((r) => r.includes('TANF')));
+}
+
+{
+  const { signal, reasons } = computeWioaSignal({
+    ...base,
+    ageBracket: '25_54',
+    publicAssistanceSelfReport: false,
+  });
+  assert.equal(signal, 'possible');
+  assert.ok(!reasons.some((r) => r.includes('TANF')));
+}

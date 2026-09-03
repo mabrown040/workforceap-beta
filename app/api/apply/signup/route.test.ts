@@ -251,16 +251,21 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
   getSupabaseCookieOptions: vi.fn(() => ({})),
 }));
 
+const supabaseGetUser = vi.fn(async () => ({ data: { user: null }, error: null }));
+const supabaseSignUp = vi.fn(async () => ({
+  data: {
+    user: { id: 'user-test-1', email: 'applicant@example.com' },
+    session: null,
+  },
+  error: null,
+}));
+
 vi.mock('@supabase/ssr', () => ({
   createServerClient: vi.fn(() => ({
     auth: {
-      signUp: vi.fn(async () => ({
-        data: {
-          user: { id: 'user-test-1', email: 'applicant@example.com' },
-          session: null,
-        },
-        error: null,
-      })),
+      // The route refuses to overwrite an existing browser session (9/2/26).
+      getUser: supabaseGetUser,
+      signUp: supabaseSignUp,
     },
   })),
 }));
@@ -1018,5 +1023,47 @@ describe('POST /api/apply/signup school enrollment ack emails', () => {
 
     expect(sendSchoolEnrollmentParentAckEmail).not.toHaveBeenCalled();
     expect(sendSchoolEnrollmentPartnerAckEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
+  beforeEach(() => {
+    supabaseGetUser.mockReset();
+    supabaseGetUser.mockResolvedValue({ data: { user: null }, error: null } as never);
+    supabaseSignUp.mockReset();
+    supabaseSignUp.mockResolvedValue({
+      data: { user: { id: 'user-test-1', email: 'applicant@example.com' }, session: null },
+      error: null,
+    } as never);
+  });
+
+  it('refuses to create an account while the browser is signed in as someone else', async () => {
+    supabaseGetUser.mockResolvedValue({
+      data: { user: { id: 'admin-1', email: 'admin@example.com' } },
+      error: null,
+    } as never);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.code).toBe('ALREADY_SIGNED_IN');
+    expect(body.error).toContain('admin@example.com');
+    expect(supabaseSignUp).not.toHaveBeenCalled();
+  });
+
+  it('treats an obfuscated existing-user signUp (empty identities) as "already registered"', async () => {
+    supabaseSignUp.mockResolvedValue({
+      data: {
+        user: { id: 'user-existing', email: 'applicant@example.com', identities: [] },
+        session: null,
+      },
+      error: null,
+    } as never);
+
+    const res = await POST(makeRequest());
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(/already exists/i);
   });
 });

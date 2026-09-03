@@ -25,13 +25,13 @@ export type SkillMissionDefinition = {
 
 const SKILL_MISSION_CATALOG: SkillMissionDefinition[] = [
 
-  // ─── PROGRAM 1: Digital Literacy Empowerment Class ───────────────────────
+  // ─── PROGRAM 1: Workforce AP Digital Literacy Course ───────────────────────
 
   {
     key: "digital-literacy-empowerment-class:mission:digital-literacy-course-1",
     courseSlug: "digital-literacy-course-1",
     programSlug: "digital-literacy-empowerment-class",
-    programTitle: "Digital Literacy Empowerment Class",
+    programTitle: "Workforce AP Digital Literacy Course",
     courseTitle: "Orientation & Informational Session",
     missionName: "Support Hero",
     missionTagline: "Prove you can keep people safe online",
@@ -81,7 +81,7 @@ const SKILL_MISSION_CATALOG: SkillMissionDefinition[] = [
     key: "digital-literacy-empowerment-class:mission:digital-literacy-course-2",
     courseSlug: "digital-literacy-course-2",
     programSlug: "digital-literacy-empowerment-class",
-    programTitle: "Digital Literacy Empowerment Class",
+    programTitle: "Workforce AP Digital Literacy Course",
     courseTitle: "Device Distribution & Setup + Browser & Search Engines",
     missionName: "Tech Builder",
     missionTagline: "Prove you can set up and navigate devices confidently",
@@ -131,7 +131,7 @@ const SKILL_MISSION_CATALOG: SkillMissionDefinition[] = [
     key: "digital-literacy-empowerment-class:mission:digital-literacy-course-3",
     courseSlug: "digital-literacy-course-3",
     programSlug: "digital-literacy-empowerment-class",
-    programTitle: "Digital Literacy Empowerment Class",
+    programTitle: "Workforce AP Digital Literacy Course",
     courseTitle: "Introduction to Emails & Advanced Email Techniques",
     missionName: "Client Champion",
     missionTagline: "Prove you can communicate professionally over email",
@@ -181,7 +181,7 @@ const SKILL_MISSION_CATALOG: SkillMissionDefinition[] = [
     key: "digital-literacy-empowerment-class:mission:digital-literacy-course-4",
     courseSlug: "digital-literacy-course-4",
     programSlug: "digital-literacy-empowerment-class",
-    programTitle: "Digital Literacy Empowerment Class",
+    programTitle: "Workforce AP Digital Literacy Course",
     courseTitle: "Avoiding Online Scams + Introduction to Financial Literacy",
     missionName: "Support Hero",
     missionTagline: "Prove you can protect yourself and others from digital fraud",

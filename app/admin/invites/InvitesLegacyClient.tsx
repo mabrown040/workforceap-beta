@@ -20,6 +20,8 @@ type Invite = {
   invitedBy: { id: string; fullName: string; email: string };
   subgroup: { id: string; name: string } | null;
   partner: { id: string; name: string } | null;
+  token?: string;
+  counselorAffiliation?: string | null;
 };
 
 type Subgroup = { id: string; name: string };

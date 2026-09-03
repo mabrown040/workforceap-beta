@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
-import { barrierLabel } from '@/lib/wioa/wioaQualification';
+import { barrierLabel, publicAssistanceLabel } from '@/lib/wioa/wioaQualification';
 import { WIOA_REVIEW_LABELS, WIOA_REVIEW_STATUSES, type WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import type { WioaReviewSnapshotRow } from '@/lib/wioa/reviewSnapshot';
 
@@ -102,6 +102,9 @@ export default function AdminMemberWioaReviewPanel({
         </li>
         <li>
           <strong>Low income (self-reported):</strong> {a.lowIncomeSelfReport ? 'Yes' : 'No'}
+        </li>
+        <li>
+          <strong>Receiving TANF / WIC / Food stamps (SNAP):</strong> {publicAssistanceLabel(a.publicAssistanceSelfReport)}
         </li>
         <li>
           <strong>Training interest:</strong> {a.trainingInterest ? 'Yes' : 'No'}

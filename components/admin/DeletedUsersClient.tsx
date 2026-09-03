@@ -65,7 +65,12 @@ export default function DeletedUsersClient({
         setError(data.error ?? 'Could not restore.');
       } else {
         setSuccess(
-          `Restored. ${data.restoredEmail ? `Email reverted to ${data.restoredEmail}.` : ''} Note: Supabase auth was hard-deleted on the original delete; the user needs a fresh invite to sign in.`
+          [
+            data.restoredEmail ? `Email reverted to ${data.restoredEmail}.` : 'Restored.',
+            data.message ?? data.warning ?? '',
+          ]
+            .filter(Boolean)
+            .join(' ')
         );
         router.refresh();
       }

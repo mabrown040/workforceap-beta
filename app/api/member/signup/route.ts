@@ -9,6 +9,7 @@ import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { trackEvent } from '@/lib/events/track';
 import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { prisma } from '@/lib/db/prisma';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -182,6 +183,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Account creation failed. Please try again.' },
         { status: 500 }
+      );
+    }
+
+    // With "Confirm email" on, Supabase answers a signUp for an existing
+    // address with HTTP 200 and an obfuscated user whose `identities` is
+    // empty. Surface it as "already exists" rather than crashing on the
+    // users.email unique constraint below.
+    if (Array.isArray(user.identities) && user.identities.length === 0) {
+      return NextResponse.json(
+        { error: 'An account with this email may already exist. Try logging in or resetting your password.' },
+        { status: 400 }
+      );
+    }
+
+    // Never roll back an auth user that already had an app row: that is a
+    // returning member, and deleting their Supabase account would lock them
+    // out for good.
+    const priorMember = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true } });
+    if (priorMember) {
+      return NextResponse.json(
+        { error: 'An account with this email already exists. Log in to continue, or use password reset.' },
+        { status: 400 }
       );
     }
   

@@ -2,7 +2,7 @@
  * Checkpoint packs — business, design, and digital-literacy programs.
  *
  * Covers: Project Management (Microsoft), Digital Marketing & E-commerce (Google),
- * UX Design (Google), and the Digital Literacy Empowerment Class.
+ * UX Design (Google), and the Workforce AP Digital Literacy Course.
  * See ./types.ts for the content rules these checkpoints follow.
  */
 
@@ -1124,7 +1124,7 @@ export const BUSINESS_AND_DESIGN_PACKS: ProgramCheckpointPack[] = [
   // ==========================================================================
   {
     programSlug: 'digital-literacy-empowerment-class',
-    programTitle: 'Digital Literacy Empowerment Class',
+    programTitle: 'Workforce AP Digital Literacy Course',
     whyItMatters:
       'These everyday computer skills — email, search, and staying safe online — open the door to jobs, services, and every other program here.',
     courses: [

@@ -29,6 +29,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
   const [role, setRole] = useState<'admin' | 'partner' | 'member' | 'counselor'>('member');
   const [subgroupId, setSubgroupId] = useState('');
   const [partnerId, setPartnerId] = useState('');
+  const [counselorAffiliation, setCounselorAffiliation] = useState<'wap_staff' | 'partner' | 'independent' | 'community_ambassador'>('wap_staff');
   const [programSlug, setProgramSlug] = useState('');
   const [personalMessage, setPersonalMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -50,7 +51,8 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
           email: email.trim().toLowerCase(),
           role,
           subgroupId: role === 'partner' && subgroupId ? subgroupId : null,
-          partnerId: role === 'counselor' && partnerId ? partnerId : null,
+          partnerId: role === 'counselor' && counselorAffiliation === 'partner' && partnerId ? partnerId : null,
+          counselorAffiliation: role === 'counselor' ? counselorAffiliation : null,
           programSlug: role === 'member' && programSlug ? programSlug : null,
           personalMessage: personalMessage.trim() || null,
         }),
@@ -231,7 +233,34 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
               </select>
             </div>
 
-            {role === 'counselor' && partners.length > 0 && (
+            {role === 'counselor' && (
+              <div style={{ marginBottom: '1rem' }}>
+                <label htmlFor="invite-counselor-affiliation" style={labelStyle}>
+                  Counselor type
+                </label>
+                <select
+                  id="invite-counselor-affiliation"
+                  value={counselorAffiliation}
+                  onChange={(e) =>
+                    setCounselorAffiliation(
+                      e.target.value as 'wap_staff' | 'partner' | 'independent' | 'community_ambassador',
+                    )
+                  }
+                  style={inputStyle}
+                >
+                  <option value="wap_staff">WorkforceAP staff counselor</option>
+                  <option value="community_ambassador">Community Ambassador</option>
+                  <option value="partner">Partner-organisation counselor</option>
+                  <option value="independent">Independent advisor</option>
+                </select>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
+                  Community Ambassadors get a counselor sign-in and a login code, set up their counselor profile,
+                  and see only the members you assign to them.
+                </p>
+              </div>
+            )}
+
+            {role === 'counselor' && counselorAffiliation === 'partner' && partners.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-counselor-partner" style={labelStyle}>
                   Partner affiliation (for counselors)

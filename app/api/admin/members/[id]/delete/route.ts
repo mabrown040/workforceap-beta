@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
@@ -98,10 +99,11 @@ export const POST = withApiGuc(async (
       }),
     );
 
-    const supabaseAdmin = getSupabaseAdmin();
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
-    if (error) {
-      console.error('[admin/members/[id]/delete] Supabase auth delete error:', error.message);
+    // Soft delete = lock the login, never destroy it (see
+    // lib/admin/authUserLifecycle.ts): restore can lift the ban later.
+    const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id);
+    if (!disabled.ok) {
+      console.error('[admin/members/[id]/delete] Supabase auth disable error:', disabled.message);
     }
 
     const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {

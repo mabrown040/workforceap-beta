@@ -2,12 +2,51 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sanitizePublicPartnerLabel, sanitizePublicSubgroupLabel } from '@/lib/public/publicDataFilters';
+import { normalizeLoginCode } from '@/lib/invitations/loginCode';
+import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
-    const token = searchParams.get('token');
+    let token = searchParams.get('token');
+
+    // Login-code path (9/2/26): `?code=XXXX-XXXX&email=…` resolves the pending
+    // invitation for that email whose token starts with the code. The pair is
+    // required; a code on its own is never enough. Rate limited per IP like
+    // the accept endpoint so codes cannot be brute-forced.
+    const code = normalizeLoginCode(searchParams.get('code'));
+    const codeEmail = (searchParams.get('email') ?? '').trim().toLowerCase();
+    let resolvedByCode = false;
+    if (!token && (searchParams.get('code') || codeEmail)) {
+      if (!code || !codeEmail) {
+        return NextResponse.json(
+          { valid: false, error: 'Enter the email address the invitation was sent to and your login code.' },
+          { status: 400 },
+        );
+      }
+      const { success } = await checkInviteAcceptRateLimit(getClientIpFromRequest(request));
+      if (!success) {
+        return NextResponse.json(
+          { valid: false, error: 'Too many attempts. Please try again in an hour.' },
+          { status: 429 },
+        );
+      }
+      const match = await prisma.$transaction((tx) => tx.invitation.findFirst({
+        where: { email: codeEmail, status: 'pending', token: { startsWith: code } },
+        orderBy: { createdAt: 'desc' },
+        select: { token: true },
+      }));
+      if (!match) {
+        return NextResponse.json(
+          { valid: false, error: 'No open invitation matches that email and login code. Check both, or ask your WorkforceAP contact to resend it.' },
+          { status: 404 },
+        );
+      }
+      token = match.token;
+      resolvedByCode = true;
+    }
   
     if (!token || token.length < 32) {
       return NextResponse.json({ valid: false, error: 'Invalid or missing token' }, { status: 400 });
@@ -56,6 +95,10 @@ export const GET = withApiGuc(async (request: NextRequest) => {
   
       return NextResponse.json({
         valid: true,
+        // Only handed back when the caller proved email + code; the token is
+        // what the accept step needs.
+        ...(resolvedByCode ? { token } : {}),
+        counselorAffiliation: invitation.counselorAffiliation ?? null,
         email: invitation.email,
         role: invitation.role,
         roleLabel,

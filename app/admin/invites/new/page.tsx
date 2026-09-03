@@ -123,6 +123,20 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
+          <span>Counselor type (for counselors)</span>
+          <select name="counselorAffiliation" defaultValue="wap_staff">
+            <option value="wap_staff">WorkforceAP staff counselor</option>
+            <option value="community_ambassador">Community Ambassador</option>
+            <option value="partner">Partner-organisation counselor (pick the partner below)</option>
+            <option value="independent">Independent advisor</option>
+          </select>
+          <small style={{ color: 'var(--color-on-surface-variant)' }}>
+            Community Ambassadors get a counselor sign-in plus a login code, set up their counselor profile, and
+            see only the members you assign to them.
+          </small>
+        </label>
+
+        <label className="form-group" style={{ margin: 0 }}>
           <span>Partner affiliation (for counselors)</span>
           <select name="partnerId" defaultValue="">
             <option value="">WorkforceAP (organization counselor)</option>

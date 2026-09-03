@@ -43,7 +43,9 @@ function captionFor(args: {
   const org =
     args.affiliation === 'independent'
       ? 'Independent Advisor'
-      : args.partnerName ?? 'WorkforceAP';
+      : args.affiliation === 'community_ambassador'
+        ? 'Community Ambassador'
+        : args.partnerName ?? 'WorkforceAP';
   return args.title ? `${org} · ${args.title}` : org;
 }
 

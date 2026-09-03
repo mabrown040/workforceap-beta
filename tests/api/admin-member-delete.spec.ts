@@ -39,9 +39,12 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
   ),
 }));
 
+const supabaseUpdateUserById = vi.fn().mockResolvedValue({ error: null });
+const supabaseDeleteUser = vi.fn().mockResolvedValue({ error: null });
+
 vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdmin: vi.fn(() => ({
-    auth: { admin: { deleteUser: vi.fn().mockResolvedValue({ error: null }) } },
+    auth: { admin: { updateUserById: supabaseUpdateUserById, deleteUser: supabaseDeleteUser } },
   })),
 }));
 
@@ -128,6 +131,10 @@ describe('POST /api/admin/members/[id]/delete', () => {
     const res = await POST(deleteReq(), { params: Promise.resolve({ id: MEMBER_ID }) });
 
     expect(res.status).toBe(200);
+    // Soft delete locks the login (ban) so restore can bring it back; it must
+    // never hard-delete the Supabase auth user (9/2/26 lockout report).
+    expect(supabaseUpdateUserById).toHaveBeenCalledWith(MEMBER_ID, { ban_duration: '876600h' });
+    expect(supabaseDeleteUser).not.toHaveBeenCalled();
     expect(deleteUserStorageObjects).toHaveBeenCalledWith(MEMBER_ID, {
       extraPaths: [
         { bucket: 'member-resumes', path: 'member-1/resume.pdf' },

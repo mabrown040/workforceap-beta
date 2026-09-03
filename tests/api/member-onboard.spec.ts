@@ -40,6 +40,9 @@ vi.mock('@/lib/db/prisma', () => ({
     $transaction: vi.fn(async (arg: any) => { const { prisma } = await import('@/lib/db/prisma'); return typeof arg === 'function' ? arg(prisma) : Promise.all(arg); }),
     user: {
       update: vi.fn(),
+      // Signup now checks for a pre-existing app row before creating one
+      // (never roll back a returning member's auth user). Default: brand new.
+      findUnique: vi.fn(async () => null),
     },
     application: {
       findFirst: vi.fn(),

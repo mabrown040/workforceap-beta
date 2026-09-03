@@ -15,21 +15,62 @@ import {
 import {
   ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES,
   ADMIN_REFERRAL_SOURCE_OPTIONS,
+  GENERIC_REFERRAL_CHANNELS,
+  PARTNER_REFERRAL_SOURCES,
   REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
   REFERRAL_SOURCE_OTHER_PARTNER,
   normalizedReferralSourceKey,
   uniqueReferralSourceOptions,
 } from '../referralSources';
 
-const PREEXISTING_HEAR_ABOUT_OPTIONS = [
-  'Launch Pad Job Club',
-  'Purpose Works / Job Seekers Network',
-  'Workforce Solutions',
+/** Exact partner order from the 9/2/26 ops change list. */
+const PARTNER_ORDER_9_2 = [
+  'PurposeWorks / Job Seekers Network',
+  'Launch Pad Job Club (LPJC)',
   'Workforce Solutions Capital Area',
   'Workforce Solutions Rural Capital Area',
+  'Community Ambassador (write in)',
+  'ACC (Austin Community College)',
+  'African American Youth Harvest Foundation (AAYHF)',
+  'AISD',
+  'Austin Area Urban League (AAUL)',
+  'Austin Career Institute',
+  'Austin Free-Net',
+  'Austin Public Health (APH)',
+  'Big Austin',
+  'Boys and Girls Clubs',
+  'Building Promise',
+  'Capital Idea',
+  'City of Austin',
+  'Concordia College',
+  'Concordia High School',
+  'Community First (Mobile Loaves and Fishes)',
+  'EGBI',
+  'Gary Job Corps',
+  'Goodwill Central Texas',
+  'Latinitas',
+  'LifeAnew',
+  'Lifeworks',
+  'MSRW Management',
+  'North East High School (Reagan)',
+  'Southern Careers Institute',
+  'State of Texas',
+  'Texas Empowerment Academy',
+  'Universal Tech Movement (UTM)',
+  'Veterans Affairs (VA)',
+  'Workforce Solutions Alamo',
+  'Workforce Solutions Central Texas',
+  'Workforce Solutions Greater Dallas',
+  'Workforce Solutions Gulf Coast',
+  'Workforce Solutions (Other)',
+  'YMCA',
+  '100 Black Men of Austin',
+  'Other Partner (write in)',
+] as const;
+
+/** Non-partner channels that pre-date the partner list and must survive it. */
+const GENERIC_CHANNELS = [
   'Texas Workforce Commission (TWC)',
-  'Austin Area Urban League',
-  'African American Youth Harvest Foundation',
   '211 Texas',
   'Community organization',
   'Church or faith community',
@@ -39,37 +80,6 @@ const PREEXISTING_HEAR_ABOUT_OPTIONS = [
   'Social media',
   'WorkforceAP counselor or team member',
   'Other / write in',
-  'Partner or community ambassador',
-] as const;
-
-/** Organisations added from the 9/1/26 ops change list. */
-const HEAR_ABOUT_OPTIONS_ADDED_9_1 = [
-  'Workforce Solutions Greater Dallas',
-  'Workforce Solutions Central Texas',
-  'Workforce Solutions Gulf Coast',
-  'Workforce Solutions Alamo',
-  'Goodwill Central Texas',
-  'Gary Job Corps',
-  'Lifeworks',
-  'Building Promise',
-  'LifeAnew',
-  'MSRW Management',
-  'ACC (Austin Community College)',
-  'Community First (Mobile Loaves and Fishes)',
-  'Big Austin',
-  'EGBI',
-  'YMCA',
-  'Boys and Girls Clubs',
-  'Capital Idea',
-  'Austin Free-Net',
-  'Latinitas',
-  'Veterans Affairs (VA)',
-  'City of Austin',
-  'State of Texas',
-  'Austin Public Health (APH)',
-  'AISD',
-  'Texas Empowerment Academy',
-  '100 Black Men',
 ] as const;
 
 test('normalizes yes/no and rejects other values', () => {
@@ -81,7 +91,7 @@ test('normalizes yes/no and rejects other values', () => {
 
 test('includes ambassador and other in hear-about options', () => {
   assert.equal(
-    (APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(APPLY_HEAR_ABOUT_AMBASSADOR),
+    (APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(REFERRAL_SOURCE_COMMUNITY_AMBASSADOR),
     true,
   );
   assert.equal(
@@ -90,10 +100,10 @@ test('includes ambassador and other in hear-about options', () => {
   );
 });
 
-test('hear-about dropdown preserves every existing choice and adds new choices once', () => {
-  for (const option of PREEXISTING_HEAR_ABOUT_OPTIONS) {
-    assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(option), option);
-  }
+test('hear-about dropdown follows the 9/2/26 ops order, then generic channels, with no duplicates', () => {
+  assert.deepEqual([...PARTNER_REFERRAL_SOURCES], [...PARTNER_ORDER_9_2]);
+  assert.deepEqual([...GENERIC_REFERRAL_CHANNELS], [...GENERIC_CHANNELS]);
+  assert.deepEqual([...APPLY_HEAR_ABOUT_OPTIONS], [...PARTNER_ORDER_9_2, ...GENERIC_CHANNELS]);
   assert.ok(
     (APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(REFERRAL_SOURCE_OTHER_PARTNER),
   );
@@ -102,23 +112,39 @@ test('hear-about dropdown preserves every existing choice and adds new choices o
       REFERRAL_SOURCE_COMMUNITY_AMBASSADOR,
     ),
   );
-  for (const option of HEAR_ABOUT_OPTIONS_ADDED_9_1) {
-    assert.ok((APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(option), option);
-  }
+  // Ops asked for a duplicate check: no two rows may collapse to the same organisation.
+  const normalized = APPLY_HEAR_ABOUT_OPTIONS.map(normalizedReferralSourceKey);
+  assert.equal(new Set(normalized).size, APPLY_HEAR_ABOUT_OPTIONS.length);
+  // The old duplicate ambassador row is gone from the menu but still recognised.
+  assert.ok(!(APPLY_HEAR_ABOUT_OPTIONS as readonly string[]).includes(APPLY_HEAR_ABOUT_AMBASSADOR));
+  // Earlier spellings normalise onto the renamed rows so stored answers still match.
   assert.equal(
-    APPLY_HEAR_ABOUT_OPTIONS.length,
-    PREEXISTING_HEAR_ABOUT_OPTIONS.length + 2 + HEAR_ABOUT_OPTIONS_ADDED_9_1.length,
-  );
-  assert.equal(new Set(APPLY_HEAR_ABOUT_OPTIONS).size, APPLY_HEAR_ABOUT_OPTIONS.length);
-  // The ops list also spelled two existing entries differently — those are
-  // aliases of the existing rows, not new rows.
-  assert.equal(
-    normalizedReferralSourceKey('Launch Pad Job Club (LPJC)'),
     normalizedReferralSourceKey('Launch Pad Job Club'),
+    normalizedReferralSourceKey('Launch Pad Job Club (LPJC)'),
   );
   assert.equal(
-    normalizedReferralSourceKey('PurposeWorks / Job Seekers Network'),
     normalizedReferralSourceKey('Purpose Works / Job Seekers Network'),
+    normalizedReferralSourceKey('PurposeWorks / Job Seekers Network'),
+  );
+  assert.equal(
+    normalizedReferralSourceKey('Workforce Capital Area'),
+    normalizedReferralSourceKey('Workforce Solutions Capital Area'),
+  );
+  assert.equal(
+    normalizedReferralSourceKey('Workforce Solutions'),
+    normalizedReferralSourceKey('Workforce Solutions (Other)'),
+  );
+  assert.equal(
+    normalizedReferralSourceKey('Austin Area Urban League'),
+    normalizedReferralSourceKey('Austin Area Urban League (AAUL)'),
+  );
+  assert.equal(
+    normalizedReferralSourceKey('African American Youth Harvest Foundation'),
+    normalizedReferralSourceKey('African American Youth Harvest Foundation (AAYHF)'),
+  );
+  assert.equal(
+    normalizedReferralSourceKey('100 Black Men'),
+    normalizedReferralSourceKey('100 Black Men of Austin'),
   );
 });
 
@@ -133,7 +159,10 @@ test('admin referral dropdown removes normalized duplicates but accepts historic
   assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('WorkforceAP Counselor'));
   assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('Church'));
   assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('Workforce Solutions'));
-  assert.ok(ADMIN_REFERRAL_SOURCE_OPTIONS.includes('Workforce Solutions'));
+  assert.ok(ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES.includes('Purpose Works / Job Seekers Network'));
+  // The legacy generic row collapses onto the renamed "(Other)" row in the menu.
+  assert.ok(ADMIN_REFERRAL_SOURCE_OPTIONS.includes('Workforce Solutions (Other)'));
+  assert.ok(!ADMIN_REFERRAL_SOURCE_OPTIONS.includes('Workforce Solutions'));
 
   for (const historicalValue of ['Community Organization', 'Flyer or Brochure', 'Social Media']) {
     assert.ok((ADMIN_REFERRAL_SOURCE_ACCEPTED_VALUES as readonly string[]).includes(historicalValue));
@@ -142,15 +171,16 @@ test('admin referral dropdown removes normalized duplicates but accepts historic
 
 test('public referral menu removes database/static duplicates without dropping new choices', () => {
   const combined = uniqueReferralSourceOptions([
-    'Launch Pad Job Club',
+    'Launch Pad Job Club (LPJC)',
     ' launch   pad job club ',
+    'PurposeWorks / Job Seekers Network',
     'Purpose Works / Job Seekers Network',
     'New Community Partner',
   ]);
 
   assert.deepEqual(combined, [
-    'Launch Pad Job Club',
-    'Purpose Works / Job Seekers Network',
+    'Launch Pad Job Club (LPJC)',
+    'PurposeWorks / Job Seekers Network',
     'New Community Partner',
   ]);
 });

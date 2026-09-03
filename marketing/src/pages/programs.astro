@@ -25,6 +25,7 @@ function row(slug: string, category: string, cat: string, icon: string) {
     partner: p.partner,
     funding: fundingLabel(p.fundingSource ?? 'WIOA'),
     skills: p.skills.slice(0, 3),
+    external: p.externalCourseUrl ?? '',
   };
 }
 
@@ -79,7 +80,7 @@ const journey = [
 // ════════════════════════════════════════════════════════════════════
 type P = {
   slug: string; category: string; cat: string; icon: string; title: string;
-  duration: string; salary: string; partner: string; funding: string; skills: string[];
+  duration: string; salary: string; partner: string; funding: string; skills: string[]; external: string;
 };
 
 // Category accent → blend pill class (crimson / gold / blue / green / neutral)
@@ -321,7 +322,9 @@ const filterChips = [
               <span class="ppartner">Partner: {p.partner}</span>
               <div class="pacts">
                 <a class="btn btn--ghost btn--sm" href={`/programs/${p.slug}`}>View Program</a>
-                <a class="btn btn--primary btn--sm" href={`/apply?program=${p.slug}`}>Get Started →</a>
+                {p.external
+                  ? <a class="btn btn--primary btn--sm" href={p.external} target="_blank" rel="noopener noreferrer">Start the free course →</a>
+                  : <a class="btn btn--primary btn--sm" href={`/apply?program=${p.slug}`}>Get Started →</a>}
               </div>
             </div>
           </div>

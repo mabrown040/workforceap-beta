@@ -14,15 +14,22 @@ type InviteData = {
   subgroup?: { id: string; name: string } | null;
   partner?: { id: string; name: string } | null;
   program?: { slug: string; title: string } | null;
+  counselorAffiliation?: string | null;
   error?: string;
 };
 
 function InviteContent() {
   const searchParams = useSearchParams();
-  const token = searchParams?.get('token');
+  const tokenParam = searchParams?.get('token');
+  // The token either arrives in the link or is resolved from email + login code.
+  const [token, setToken] = useState<string | null>(tokenParam ?? null);
+  const [codeEmail, setCodeEmail] = useState('');
+  const [codeInput, setCodeInput] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [codeSubmitting, setCodeSubmitting] = useState(false);
 
   const [data, setData] = useState<InviteData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!tokenParam);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -34,10 +41,12 @@ function InviteContent() {
 
   useEffect(() => {
     if (!token) {
-      setData({ valid: false, error: 'Missing invitation token' });
+      // No link token: show the login-code form instead of an error.
+      setData(null);
       setLoading(false);
       return;
     }
+    setLoading(true);
     fetch(`/api/invite/validate?token=${encodeURIComponent(token)}`)
       .then((res) => safeParseResponseJson<InviteData>(res))
       .then(({ ok, data, parseError, status }) => {
@@ -57,6 +66,29 @@ function InviteContent() {
       .catch(() => setData({ valid: false, error: "We couldn't load this invitation. Try again in a moment." }))
       .finally(() => setLoading(false));
   }, [token]);
+
+  const handleCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCodeSubmitting(true);
+    setCodeError(null);
+    try {
+      const qs = new URLSearchParams({ code: codeInput.trim(), email: codeEmail.trim() });
+      const res = await fetch(`/api/invite/validate?${qs.toString()}`);
+      const parsed = await safeParseResponseJson<InviteData & { token?: string }>(res);
+      if (parsed.parseError || !parsed.data) {
+        throw new Error("We couldn't check that code. Try again in a moment.");
+      }
+      if (!res.ok || !parsed.data.valid || !parsed.data.token) {
+        throw new Error(parsed.data.error ?? 'That email and login code do not match an open invitation.');
+      }
+      setData(parsed.data);
+      setToken(parsed.data.token);
+    } catch (err) {
+      setCodeError(err instanceof Error ? err.message : 'Something went wrong. Try again in a moment.');
+    } finally {
+      setCodeSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +148,80 @@ function InviteContent() {
     return (
       <div style={{ textAlign: 'center', padding: '3rem' }}>
         <p>Loading invitation...</p>
+      </div>
+    );
+  }
+
+  if (!token) {
+    return (
+      <div className="container" style={{ maxWidth: '560px', paddingTop: '3rem', paddingBottom: '3rem' }}>
+        <div style={{ background: 'var(--surface-container-low)', borderRadius: '12px', padding: '2rem' }}>
+          <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Have a login code?</h1>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+            Enter the email address your invitation was sent to and the login code from your WorkforceAP
+            contact. Counselors and Community Ambassadors use this to set up their account.
+          </p>
+          <form onSubmit={handleCodeSubmit}>
+            {codeError && (
+              <div
+                role="alert"
+                style={{
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  background: 'var(--surface-container)',
+                  borderRadius: '6px',
+                  color: 'var(--color-accent)',
+                  fontSize: '0.9rem',
+                }}
+              >
+                {codeError}
+              </div>
+            )}
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="code-email" style={labelStyle}>
+                Email
+              </label>
+              <input
+                id="code-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={codeEmail}
+                onChange={(e) => setCodeEmail(e.target.value)}
+                placeholder="you@example.com"
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label htmlFor="code-value" style={labelStyle}>
+                Login code
+              </label>
+              <input
+                id="code-value"
+                type="text"
+                required
+                inputMode="text"
+                autoComplete="one-time-code"
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
+                placeholder="XXXX-XXXX"
+                maxLength={9}
+                style={{ ...inputStyle, letterSpacing: '0.12em', fontFamily: 'ui-monospace, monospace' }}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={codeSubmitting}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '0.75rem' }}
+            >
+              {codeSubmitting ? 'Checking…' : 'Continue'}
+            </button>
+          </form>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>
+            Already set up? <LocalizedLink href="/login">Sign in</LocalizedLink>.
+          </p>
+        </div>
       </div>
     );
   }
@@ -189,7 +295,15 @@ function InviteContent() {
         {data.role === 'counselor' && (
           <p style={{ fontSize: '0.95rem', marginBottom: '0.5rem' }}>
             Affiliation:{' '}
-            <strong>{data.partner ? data.partner.name : 'WorkforceAP (organization counselor)'}</strong>
+            <strong>
+              {data.counselorAffiliation === 'community_ambassador'
+                ? 'Community Ambassador'
+                : data.counselorAffiliation === 'independent'
+                  ? 'Independent advisor'
+                  : data.partner
+                    ? data.partner.name
+                    : 'WorkforceAP (organization counselor)'}
+            </strong>
           </p>
         )}
         {data.program && (

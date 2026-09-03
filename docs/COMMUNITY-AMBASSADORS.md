@@ -38,10 +38,22 @@ email with the same code.
 - Many students: **Admin → Members → select → Bulk update → Assign counselor**.
 - A student can have one active counselor at a time; re-assigning moves them.
 
-Tip: on the apply form, students name who referred them under
-"How did you hear about WorkforceAP?" (choose **Community Ambassador (write in)**
-and type the ambassador's name). Use the eligibility datasheet
-(`/admin/eligibility`) to find those students and assign them in bulk.
+### Automatic assignment from the apply form
+
+Students name who referred them under "How did you hear about WorkforceAP?"
+(choose **Community Ambassador (write in)** and type the ambassador's name) or
+in the optional "Partner or community ambassador referral" field. When that
+text matches **exactly one** active Community Ambassador (by full name,
+case- and accent-insensitive, or by email) in the same organisation, the
+student is assigned to that ambassador automatically at signup — the
+ambassador gets a portal notification, the student gets the usual "you have a
+new advisor" email, and the assignment note records the referral text. The
+same happens when a member fills in the dashboard eligibility questionnaire.
+
+It never guesses: a misspelled name, two ambassadors with the same name, or a
+student who already has a counselor is left for staff. Use the eligibility
+datasheet (`/admin/eligibility`, "ambassador" column) to catch those and
+assign them by hand or in bulk.
 
 ## 4. What the ambassador sees
 
@@ -64,3 +76,6 @@ tools.
 - Profile: `app/(portal)/counselor/profile/`, `app/api/counselor/profile/route.ts`.
 - Assignment: `app/api/admin/members/[id]/counselor/route.ts`, bulk in
   `app/api/admin/members/bulk-update/route.ts`.
+- Auto-assignment from referrals: `lib/counselor/ambassadorReferral.ts`
+  (matching), `lib/counselor/ambassadorAutoAssign.ts` (assignment), called
+  from the apply signup, member eligibility, and public `/q` submit routes.

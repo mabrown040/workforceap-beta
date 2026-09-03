@@ -12,6 +12,7 @@ import {
 } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
+import { autoAssignAmbassadorFromReferral } from '@/lib/counselor/ambassadorAutoAssign';
 /**
  * Member-owned eligibility questionnaire (§9). Reuses the `app/api/member/profile`
  * pattern: city/state/zip + barrierTypes write to Profile columns (which exist).
@@ -287,6 +288,20 @@ async function _PATCH(request: Request) {
         })
       );
     }
+
+    // Community Ambassador auto-assignment (9/3/26): a member who names their
+    // ambassador on the dashboard questionnaire lands on that caseload too.
+    after(() =>
+      autoAssignAmbassadorFromReferral({
+        memberId: user.id,
+        source: 'member_eligibility',
+        hearAbout: extended.hearAbout,
+        hearAboutOther: extended.hearAboutOther,
+        partnerAmbassadorReferral: extended.partnerAmbassadorReferral,
+      }).catch((err) => {
+        logger.warn('member/eligibility: ambassador auto-assign failed', { userId: user.id, err });
+      }),
+    );
 
     return NextResponse.json({ ok: true });
   } catch (error) {

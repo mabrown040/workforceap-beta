@@ -19,6 +19,7 @@ import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { autoAssignAmbassadorFromReferral } from '@/lib/counselor/ambassadorAutoAssign';
 import {
   normalizePartnerRef,
   PARTNER_REF_COOKIE,
@@ -892,6 +893,21 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       }
       return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
     }
+
+    // Community Ambassador auto-assignment (9/3/26): if the applicant named an
+    // ambassador, put them on that ambassador's caseload. Runs after the
+    // response; matching is strict and never overrides an existing assignment.
+    after(() =>
+      autoAssignAmbassadorFromReferral({
+        memberId: user.id,
+        source: 'apply_signup',
+        hearAbout: hearAboutNormalized,
+        hearAboutOther: hearAboutOtherNormalized,
+        partnerAmbassadorReferral: partnerAmbassadorNormalized,
+      }).catch((err) => {
+        logger.warn('apply/signup: ambassador auto-assign failed', { userId: user.id, err });
+      }),
+    );
 
     // Consume the partner ref cookie exactly once. School computer labs,
     // library machines, and family devices are the normal case for this

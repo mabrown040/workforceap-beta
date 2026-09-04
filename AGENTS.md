@@ -45,12 +45,16 @@ Skill: `.agents/skills/blast-radius-audit/SKILL.md`. On-disk graph: `graph/`. Ra
 ```bash
 npm run lint          # ESLint (~~5 known errors~~ — Burned down 2026-05-20, gate flipped)
 npm run typecheck     # TypeScript type-checking (tsc --noEmit)
-npm run test:unit     # Node.js test runner (lib/**/*.test.ts)
-npm run test:vitest   # Vitest component/API suites
+npm run test:unit     # Node.js library tests; logs explicit skips/delegations
+npm run test:vitest   # Vitest component/API suites + registered library suites
 npm run build         # Full production build (Prisma generate + next build)
 ```
 
 Note: `npm run build` runs ESLint at build time (gate flipped 2026-05-20 — `eslint.ignoreDuringBuilds: false`). Use `npm run typecheck` and `npm run lint` separately for faster feedback during development.
+
+Register library suites importing Vitest in `scripts/vitest-library-specs.mjs`.
+Both runners share that registry; `tests/test-runner-coverage.test.ts` guards
+ownership and collection. Run both test lanes, not just `npm test` (Node only).
 
 ### Environment notes
 

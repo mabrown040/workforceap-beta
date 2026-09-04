@@ -116,7 +116,15 @@ this scoped as its own pass rather than folded into the verification/scoring fix
 
 ---
 
-### TODO-008: `lib/**/*.test.ts` vitest lane doesn't run in CI (pre-existing, discovered this round)
+### ~~TODO-008: `lib/**/*.test.ts` vitest lane doesn't run in CI~~ ✓ COMPLETED
+
+**Completed:** 2026-09-04. Restored all 24 delegated suites through the shared
+`scripts/vitest-library-specs.mjs` registry and removed the conflicting exclude.
+`tests/test-runner-coverage.test.ts` guards against recurrence. Repaired stale
+fixtures for curriculum completion, member merge, retention, and masked errors;
+production behavior is unchanged. CI already requires `test:vitest`.
+
+**Historical discovery notes (superseded by the completion above):**
 
 **What:** `vitest.config.ts`'s `include` lists `lib/**/*.test.ts`, but the `exclude`
 array lists the identical glob — so despite ~18 files (`quarterlyOutcomes.test.ts`,
@@ -978,6 +986,7 @@ Affects: `app/(decision-journey)/programs/[slug]`, `app/blog/[slug]` (and any ot
 
 ## Completed
 
+- **TODO-008: library Vitest collection gap** — all 24 delegated suites now share a runner registry and collection guard; stale test fixtures repaired. Completed 2026-09-04. Historical discovery notes retained above.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

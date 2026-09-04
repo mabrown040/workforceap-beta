@@ -58,8 +58,8 @@ npm run lint             # ESLint
 npm run check            # Typecheck + lint
 npm run db:migrate       # Run DB migrations
 npm run db:studio        # Prisma Studio
-npm run test:unit        # Node.js unit tests (lib/**/*.test.ts)
-npm run test:vitest      # Vitest component/API suites
+npm run test:unit        # Node.js library tests; logs explicit skips/delegations
+npm run test:vitest      # Vitest component/API suites + registered library suites
 npm run test:e2e         # E2E tests (Playwright)
 npm run email            # Email template preview
 pnpm elevenlabs:verify-agents       # Read-only provider patch verification
@@ -69,6 +69,14 @@ pnpm elevenlabs:sync-member-tools   # Read-only Lilley tool verification
 Use `pnpm-lock.yaml` as the canonical dependency lockfile. Do not install from
 stale secondary lockfiles; CI installs with pnpm 10 and then runs the npm
 scripts above.
+
+Both test lanes are required in CI. Library suites that import Vitest belong in
+[`scripts/vitest-library-specs.mjs`](scripts/vitest-library-specs.mjs), shared by
+both runners. `tests/test-runner-coverage.test.ts` fails if a Vitest library suite
+is missing from the registry or excluded from collection. The Node runner keeps
+its separate, documented live-service/server-only skips. Signup component/API
+tests use mocked transport/providers; passing them does not prove live account
+creation or verification-email delivery.
 
 ## Tech Stack at a Glance
 

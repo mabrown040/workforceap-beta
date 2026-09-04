@@ -29,12 +29,27 @@ that automatically emails to counselor and the student."
   record. The admin who pressed the button is cc'd on the counselor copy. If no
   counselor is assigned, only the student receives it and the UI says so.
   Status moves to `sent`; re-sending is allowed and counted.
+- **Downloads**: every surface offers "Download both (PDF)" — the J6 cover
+  letter and J5 invoice merged into one file, in that order, so the whole packet
+  prints or saves as a set — plus separate "Download J5" / "Download J6" buttons
+  and inline "View" links.
 - **Where people see it**:
   - member: `/dashboard/documents` ("My documents" in the nav);
   - counselor: student page section "Training invoice & cover letter (J5 / J6)";
   - admin: the billing page list.
-- **PDF access** (`GET /api/billing-packets/[id]/pdf?doc=j5|j6`): org admin,
-  the member's active assigned counselor, or the member. Anyone else gets 404.
+- **PDF access** (`GET /api/billing-packets/[id]/pdf?doc=j5|j6|both`): org
+  admin, the member's active assigned counselor, or the member. Anyone else gets
+  404. Single documents render inline unless `download=1`; `doc=both` downloads
+  by default (`download=0` to preview it inline).
+
+## Page layout
+
+Each document is laid out so the closing never orphans: the J5 remit terms +
+certification + signature are reserved as one unit, and the J6 closing +
+signature + enclosure/cc likewise. A 10-class program (the largest in the
+current catalog bar one) fits on a single page per document — guarded by a
+regression test in `lib/billing/packetPdf.test.ts`. A 13-class program
+legitimately runs to two pages, with real content on the second.
 
 ## Files
 

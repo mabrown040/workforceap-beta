@@ -54,6 +54,9 @@ const WHITE = rgb(1, 1, 1);
 
 type Fonts = { regular: PDFFont; bold: PDFFont; italic: PDFFont };
 
+/** Height of the drawn/typed signature area inside the signature block. */
+const SIG_BOX_H = 42;
+
 /**
  * pdf-lib standard fonts only encode WinAnsi. Keep printable Latin-1 plus the
  * common typographic marks WinAnsi carries; swap anything else for '?'.
@@ -233,16 +236,24 @@ class Sheet {
     });
   }
 
-  /** Signature block: drawn PNG or typed name in italics, then name/title/date. */
-  async signature(lead: string) {
+  /**
+   * Signature block: drawn PNG or typed name in italics, then name/title/date.
+   * `tail` lines (enclosure, cc) are reserved with the block and printed under
+   * it, so a closing never lands alone on a trailing page.
+   */
+  static signatureHeight(hasLead: boolean, tailCount = 0): number {
+    return (hasLead ? 18 : 0) + SIG_BOX_H + 4 + 13 * 4 + 12 + tailCount * 12;
+  }
+
+  async signature(lead: string, tail: string[] = []) {
     const { input } = this;
-    this.ensure(118);
+    const sigBoxH = SIG_BOX_H;
+    this.ensure(Sheet.signatureHeight(Boolean(lead), tail.length));
     if (lead) {
       this.text(lead, { size: 9.5, color: MUTED });
       this.gap(8);
     }
 
-    const sigBoxH = 48;
     const sigBoxW = 220;
     const sigTop = this.y;
     let drawn = false;
@@ -275,7 +286,11 @@ class Sheet {
       `Signed ${formatLongDate(toIsoDate(input.signedAt))}${drawn ? ' (electronic signature)' : ' (typed signature)'}`,
       { size: 9, color: MUTED },
     );
-    this.gap(14);
+    this.gap(12);
+    for (const line of tail) {
+      this.text(line, { size: 9, color: MUTED });
+      this.gap(12);
+    }
   }
 }
 
@@ -336,7 +351,7 @@ export async function renderJ5InvoicePdf(input: PacketDocumentInput): Promise<Ui
   }
   sheet.y = Math.min(sheet.y - 22, metaY - 6);
   sheet.rule();
-  sheet.gap(18);
+  sheet.gap(14);
 
   // Bill to / participant columns.
   const colW = (PAGE_W - MARGIN * 2 - 24) / 2;
@@ -362,7 +377,7 @@ export async function renderJ5InvoicePdf(input: PacketDocumentInput): Promise<Ui
     sheet.text(ellipsize(line, f.regular, 10, colW), { x: rightX, size: 10 });
     sheet.gap(13);
   }
-  sheet.y = Math.min(leftEnd, sheet.y) - 12;
+  sheet.y = Math.min(leftEnd, sheet.y) - 10;
 
   // Line-item table.
   const cols = { idx: MARGIN, desc: MARGIN + 26, hours: PAGE_W - MARGIN - 190, amount: PAGE_W - MARGIN };
@@ -375,12 +390,12 @@ export async function renderJ5InvoicePdf(input: PacketDocumentInput): Promise<Ui
     sheet.text('CONTACT HOURS', { x: cols.hours, size: 8.5, font: f.bold, color: MUTED });
     const aw = f.bold.widthOfTextAtSize('AMOUNT', 8.5);
     sheet.text('AMOUNT', { x: cols.amount - aw, size: 8.5, font: f.bold, color: MUTED });
-    sheet.gap(22);
+    sheet.gap(20);
   };
   drawHeader();
   input.lineItems.forEach((row, i) => {
     const lines = wrap(row.description, f.regular, 10, descW);
-    const rowH = Math.max(1, lines.length) * 13 + 10;
+    const rowH = Math.max(1, lines.length) * 13 + 8;
     if (sheet.y - rowH < FOOTER_H + 12) {
       sheet.ensure(rowH + 30);
       drawHeader();
@@ -400,26 +415,28 @@ export async function renderJ5InvoicePdf(input: PacketDocumentInput): Promise<Ui
 
   // Totals.
   sheet.ensure(60);
-  sheet.gap(6);
+  sheet.gap(4);
   const hours = totalContactHours(input.lineItems);
   const totalsX = cols.hours - 60;
   sheet.text('Total contact hours', { x: totalsX, size: 9.5, color: MUTED });
   const hw = f.regular.widthOfTextAtSize(`${hours}`, 9.5);
   sheet.text(`${hours}`, { x: cols.amount - hw, size: 9.5 });
-  sheet.gap(20);
+  sheet.gap(18);
   sheet.page.drawRectangle({ x: totalsX - 10, y: sheet.y - 8, width: PAGE_W - MARGIN - totalsX + 10, height: 26, color: SHADE });
   sheet.text('TOTAL DUE', { x: totalsX, size: 10.5, font: f.bold, color: ACCENT });
   const total = formatMoney(input.totalAmount);
   const tw = f.bold.widthOfTextAtSize(total, 13);
   sheet.text(total, { x: cols.amount - tw, size: 13, font: f.bold, color: ACCENT });
-  sheet.gap(34);
+  sheet.gap(26);
 
-  // Remit / terms.
-  sheet.paragraph(
-    `Training is provided at no cost to the participant. This invoice is billed to the funding partner named above. Please remit payment to ${input.provider.legalName}, ${input.provider.addressLines.join(', ')} (EIN ${input.provider.ein}), or contact ${input.provider.email} for electronic payment details. Reference invoice ${input.packetNumber} on all remittances.`,
-    { size: 9.5, color: MUTED },
-  );
-  sheet.gap(10);
+  // Remit / terms, reserved together with the signature block so a long
+  // invoice never leaves the closing alone on a page of its own.
+  const remitText = `Training is provided at no cost to the participant. This invoice is billed to the funding partner named above. Please remit payment to ${input.provider.legalName}, ${input.provider.addressLines.join(', ')} (EIN ${input.provider.ein}), or contact ${input.provider.email} for electronic payment details. Reference invoice ${input.packetNumber} on all remittances.`;
+  const remitLeading = 9 * 1.45;
+  const remitHeight = wrap(remitText, f.regular, 9, PAGE_W - MARGIN * 2).length * remitLeading;
+  sheet.ensure(remitHeight + 6 + Sheet.signatureHeight(true));
+  sheet.paragraph(remitText, { size: 9, color: MUTED });
+  sheet.gap(6);
 
   await sheet.signature('I certify that the classes and amounts above are accurate and that the participant is enrolled as stated.');
   sheet.finishFooters();
@@ -432,12 +449,12 @@ export async function renderJ6CoverLetterPdf(input: PacketDocumentInput): Promis
   const f = sheet.fonts;
 
   sheet.text(formatLongDate(toIsoDate(input.invoiceDate)), { size: 10.5 });
-  sheet.gap(24);
+  sheet.gap(20);
   for (const line of billToLines(input)) {
     sheet.text(line, { size: 10.5 });
-    sheet.gap(14);
+    sheet.gap(13);
   }
-  sheet.gap(10);
+  sheet.gap(8);
   sheet.paragraph(`RE: Training invoice ${input.packetNumber} — ${input.member.fullName}, ${input.programTitle}`, {
     font: f.bold,
     size: 10.5,
@@ -445,32 +462,64 @@ export async function renderJ6CoverLetterPdf(input: PacketDocumentInput): Promis
   sheet.gap(8);
   const salutation = input.billToAttention ? `Dear ${input.billToAttention},` : 'To Whom It May Concern:';
   sheet.text(salutation, { size: 10.5 });
-  sheet.gap(20);
+  sheet.gap(16);
 
   for (const block of sanitizePdfText(input.coverLetterBody).split(/\n{2,}/)) {
-    sheet.paragraph(block, { size: 10.5 });
-    sheet.gap(8);
+    sheet.paragraph(block, { size: 10.5, leading: 14.6 });
+    sheet.gap(6);
   }
 
-  sheet.gap(6);
-  sheet.ensure(140);
+  sheet.gap(4);
+  // Closing, signature, enclosure and cc are one unit: reserve exactly what
+  // they occupy so the letter only breaks when the body genuinely runs long.
+  const tail = [
+    `Enclosure: Form J5 Training Invoice ${input.packetNumber} (${formatMoney(input.totalAmount)})`,
+    `cc: ${input.member.fullName} (participant); assigned career counselor`,
+  ];
+  sheet.ensure(14 + 4 + Sheet.signatureHeight(false, tail.length));
   sheet.text('Respectfully,', { size: 10.5 });
   sheet.gap(4);
-  await sheet.signature('');
-  sheet.ensure(30);
-  sheet.text(`Enclosure: Form J5 Training Invoice ${input.packetNumber} (${formatMoney(input.totalAmount)})`, { size: 9, color: MUTED });
-  sheet.gap(12);
-  sheet.text(`cc: ${input.member.fullName} (participant); assigned career counselor`, { size: 9, color: MUTED });
+  await sheet.signature('', tail);
 
   sheet.finishFooters();
   return doc.save();
 }
 
-export async function renderPacketDocument(kind: PacketDocKind, input: PacketDocumentInput): Promise<Uint8Array> {
+/**
+ * Both documents in one file (J6 cover letter first, then the J5 invoice it
+ * transmits) so the office can download or print the whole packet in one go.
+ */
+export async function renderPacketBundlePdf(input: PacketDocumentInput): Promise<Uint8Array> {
+  const [j6, j5] = await Promise.all([renderJ6CoverLetterPdf(input), renderJ5InvoicePdf(input)]);
+  const bundle = await PDFDocument.create();
+  bundle.setTitle(`Training invoice packet ${input.packetNumber}`);
+  bundle.setAuthor(input.provider.legalName);
+  bundle.setSubject(`${input.member.fullName} - ${input.programTitle}`);
+  bundle.setCreator(`${input.provider.shortName} billing`);
+  for (const bytes of [j6, j5]) {
+    const source = await PDFDocument.load(bytes);
+    const pages = await bundle.copyPages(source, source.getPageIndices());
+    pages.forEach((page) => bundle.addPage(page));
+  }
+  return bundle.save();
+}
+
+/** 'both' renders the cover letter and invoice merged into a single PDF. */
+export type PacketDownloadKind = PacketDocKind | 'both';
+
+export function parsePacketDownloadKind(value: string | null | undefined): PacketDownloadKind {
+  if (value === 'j6') return 'j6';
+  if (value === 'both') return 'both';
+  return 'j5';
+}
+
+export async function renderPacketDocument(kind: PacketDownloadKind, input: PacketDocumentInput): Promise<Uint8Array> {
+  if (kind === 'both') return renderPacketBundlePdf(input);
   return kind === 'j5' ? renderJ5InvoicePdf(input) : renderJ6CoverLetterPdf(input);
 }
 
-export function packetDocumentFilename(kind: PacketDocKind, packetNumber: string, memberName: string): string {
+export function packetDocumentFilename(kind: PacketDownloadKind, packetNumber: string, memberName: string): string {
   const slug = memberName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'participant';
-  return `${PACKET_DOC_LABELS[kind].file}-${packetNumber}-${slug}.pdf`;
+  const base = kind === 'both' ? 'J5-J6-invoice-packet' : PACKET_DOC_LABELS[kind].file;
+  return `${base}-${packetNumber}-${slug}.pdf`;
 }

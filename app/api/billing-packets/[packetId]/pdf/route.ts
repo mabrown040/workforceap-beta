@@ -3,12 +3,14 @@ import { getUser } from '@/lib/auth/server';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { loadPacketForViewer } from '@/lib/billing/packetAccess';
 import { packetToDocumentInput } from '@/lib/billing/packetDocument';
-import { loadLetterheadLogo, packetDocumentFilename, renderPacketDocument, type PacketDocKind } from '@/lib/billing/packetPdf';
+import { loadLetterheadLogo, packetDocumentFilename, parsePacketDownloadKind, renderPacketDocument } from '@/lib/billing/packetPdf';
 
 /**
- * Render one packet document on demand: ?doc=j5 (invoice) or ?doc=j6 (cover
- * letter). Open to the org admin, the member's assigned counselor and the
- * member. Inline by default; ?download=1 forces a save dialog.
+ * Render a packet document on demand: ?doc=j5 (invoice), ?doc=j6 (cover
+ * letter), or ?doc=both (cover letter and invoice merged into one file).
+ * Open to the org admin, the member's assigned counselor and the member.
+ * Inline by default; ?download=1 forces a save dialog, and the merged packet
+ * downloads by default since it exists to be saved or printed as a set.
  */
 export const GET = withApiGuc(async (request: Request, { params }: { params: Promise<{ packetId: string }> }) => {
   try {
@@ -18,9 +20,9 @@ export const GET = withApiGuc(async (request: Request, { params }: { params: Pro
     if (!/^[0-9a-f-]{36}$/i.test(packetId)) return NextResponse.json({ error: 'Document not found' }, { status: 404 });
 
     const url = new URL(request.url);
-    const docParam = url.searchParams.get('doc');
-    const kind: PacketDocKind = docParam === 'j6' ? 'j6' : 'j5';
-    const download = url.searchParams.get('download') === '1';
+    const kind = parsePacketDownloadKind(url.searchParams.get('doc'));
+    const downloadParam = url.searchParams.get('download');
+    const download = downloadParam === '1' || (kind === 'both' && downloadParam !== '0');
 
     const loaded = await loadPacketForViewer(packetId, user.id);
     if (!loaded.ok) return NextResponse.json({ error: loaded.error }, { status: loaded.status });

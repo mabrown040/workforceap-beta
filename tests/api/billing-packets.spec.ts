@@ -253,6 +253,16 @@ describe('GET /api/billing-packets/[packetId]/pdf', () => {
     expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe('%PDF-');
   });
 
+  it('serves both documents as one attachment for doc=both', async () => {
+    mocks.packetFindUnique.mockResolvedValue(packetRow);
+    const res = await packetPdf(new Request(`http://localhost/api/billing-packets/${PACKET}/pdf?doc=both`), packetParams(PACKET));
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('application/pdf');
+    expect(res.headers.get('Content-Disposition')).toContain('attachment; filename="J5-J6-invoice-packet-WAP-2026-0001-tarrance-hopkins.pdf"');
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe('%PDF-');
+  });
+
   it('lets the assigned counselor view it and hides it from anyone else', async () => {
     mocks.isAdmin.mockResolvedValue(false);
     mocks.getUser.mockResolvedValue({ id: COUNSELOR });

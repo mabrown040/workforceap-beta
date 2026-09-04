@@ -18,7 +18,7 @@ type BillingPacketListProps = {
 
 type SendState = { id: string; busy: boolean; ok?: boolean; message?: string } | null;
 
-function pdfHref(id: string, doc: 'j5' | 'j6', download = false) {
+function pdfHref(id: string, doc: 'j5' | 'j6' | 'both', download = false) {
   return `/api/billing-packets/${id}/pdf?doc=${doc}${download ? '&download=1' : ''}`;
 }
 
@@ -92,10 +92,13 @@ export default function BillingPacketList({
               <a className="btn btn-outline" style={{ minHeight: 40 }} href={pdfHref(p.id, 'j6')} target="_blank" rel="noopener">
                 View J6 cover letter
               </a>
-              <a className="btn btn-outline" style={{ minHeight: 40 }} href={pdfHref(p.id, 'j5', true)}>
+              <a className="btn btn-outline" style={{ minHeight: 40 }} href={pdfHref(p.id, 'both', true)} download>
+                Download both (PDF)
+              </a>
+              <a className="btn btn-outline" style={{ minHeight: 40 }} href={pdfHref(p.id, 'j5', true)} download>
                 Download J5
               </a>
-              <a className="btn btn-outline" style={{ minHeight: 40 }} href={pdfHref(p.id, 'j6', true)}>
+              <a className="btn btn-outline" style={{ minHeight: 40 }} href={pdfHref(p.id, 'j6', true)} download>
                 Download J6
               </a>
               {canSend ? (

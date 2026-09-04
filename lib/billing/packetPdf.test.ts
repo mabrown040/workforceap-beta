@@ -1,7 +1,15 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
-import { packetDocumentFilename, renderJ5InvoicePdf, renderJ6CoverLetterPdf, sanitizePdfText, type PacketDocumentInput } from './packetPdf';
+import {
+  packetDocumentFilename,
+  parsePacketDownloadKind,
+  renderJ5InvoicePdf,
+  renderJ6CoverLetterPdf,
+  renderPacketBundlePdf,
+  sanitizePdfText,
+  type PacketDocumentInput,
+} from './packetPdf';
 import { getTrainingProviderIdentity } from './providerIdentity';
 
 // 1x1 transparent PNG.
@@ -55,6 +63,38 @@ describe('J5 / J6 PDF renderers', () => {
     assert.equal(await pageCount(j5), 1);
   });
 
+  it('keeps a full 10-class program to one page per document', async () => {
+    // Regression guard: the 10-class Project Management program used to spill a
+    // near-empty second page carrying only the signature block.
+    const classes = [
+      ['Project Management Fundamentals', 16],
+      ['Team Building and Leadership in Project Management', 14],
+      ['Project Manager Engagement with Stakeholders', 12],
+      ['Process Groups and Processes in Project Management', 15],
+      ['PMP Formulas', 16],
+      ['Project Management Principles', 14],
+      ['PM4R Agile: Agile Mindset in Development Projects', 21],
+      ['PM4R Agile: 5 Steps for Hybrid Management of Projects', 19],
+      ['Project Management Performance Domains', 14],
+      ['PMP Application Process and Practice Exam', 19],
+    ] as const;
+    const lineItems = classes.map(([description, hours]) => ({ description, hours, amount: 750 }));
+    const body = [
+      'Please find enclosed the training invoice (Form J5) from Workforce Advancement Project for Tarrance Hopkins, who is enrolled in the Project Management Professional Certificate (Microsoft) program under reference ITA-2026-4471.',
+      `The invoice covers the following classes (160 total contact hours):\n${classes.map(([n, h]) => `- ${n} (${h} contact hours)`).join('\n')}`,
+      'The total amount due is $7,500.00. A class-by-class price breakdown appears on the invoice. Training is provided at no cost to the participant; this invoice is billed to Workforce Solutions Capital Area as the funding partner.',
+      "Thank you for your partnership in advancing this participant's career. Please contact me directly with any questions about this enrollment or invoice.",
+    ].join('\n\n');
+    const packet = input({
+      lineItems,
+      totalAmount: 7500,
+      coverLetterBody: body,
+      programTitle: 'Project Management Professional Certificate (Microsoft)',
+    });
+    assert.equal(await pageCount(await renderJ5InvoicePdf(packet)), 1);
+    assert.equal(await pageCount(await renderJ6CoverLetterPdf(packet)), 1);
+  });
+
   it('flows a long invoice and a long letter onto extra pages instead of running off the sheet', async () => {
     const many = Array.from({ length: 45 }, (_, i) => ({ description: `Class ${i + 1}`, hours: 4, amount: 100 }));
     const j5 = await renderJ5InvoicePdf(input({ lineItems: many, totalAmount: 4500 }));
@@ -70,8 +110,28 @@ describe('J5 / J6 PDF renderers', () => {
     assert.equal(sanitizePdfText('café 🎓 漢'), 'café ? ?');
   });
 
+  it('merges the cover letter and invoice into one downloadable file', async () => {
+    const [j5, j6, bundle] = await Promise.all([
+      renderJ5InvoicePdf(input()),
+      renderJ6CoverLetterPdf(input()),
+      renderPacketBundlePdf(input()),
+    ]);
+    const [j5Pages, j6Pages, bundlePages] = await Promise.all([pageCount(j5), pageCount(j6), pageCount(bundle)]);
+    assert.equal(bundlePages, j5Pages + j6Pages);
+    assert.equal(Buffer.from(bundle.slice(0, 5)).toString(), '%PDF-');
+  });
+
+  it('parses the doc query parameter, defaulting to the invoice', () => {
+    assert.equal(parsePacketDownloadKind('j6'), 'j6');
+    assert.equal(parsePacketDownloadKind('both'), 'both');
+    assert.equal(parsePacketDownloadKind('j5'), 'j5');
+    assert.equal(parsePacketDownloadKind(null), 'j5');
+    assert.equal(parsePacketDownloadKind('nonsense'), 'j5');
+  });
+
   it('builds safe filenames', () => {
     assert.equal(packetDocumentFilename('j5', 'WAP-2026-0001', "Tarrance O'Hopkins"), 'J5-training-invoice-WAP-2026-0001-tarrance-o-hopkins.pdf');
     assert.equal(packetDocumentFilename('j6', 'WAP-2026-0001', '   '), 'J6-cover-letter-WAP-2026-0001-participant.pdf');
+    assert.equal(packetDocumentFilename('both', 'WAP-2026-0001', 'Tarrance Hopkins'), 'J5-J6-invoice-packet-WAP-2026-0001-tarrance-hopkins.pdf');
   });
 });

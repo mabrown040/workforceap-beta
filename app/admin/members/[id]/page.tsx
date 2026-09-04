@@ -576,6 +576,7 @@ export default async function AdminMemberDetailPage({
               <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
               Readiness
             </Link>
+            <Link href={`/admin/members/${id}/billing`} className="btn btn-outline" style={{ flex: '1 1 10rem', justifyContent: 'center', minHeight: 44, textAlign: 'center' }}>J5 / J6 billing</Link>
             <Link href="/admin/members" className="btn btn-outline" style={{ flex: '1 1 10rem', justifyContent: 'center', minHeight: 44 }}>Back to Members</Link>
           </div>
         }

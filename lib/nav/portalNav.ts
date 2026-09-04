@@ -158,6 +158,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: GitBranch,
   },
   { href: '/dashboard/certifications', label: 'My certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/documents', label: 'My documents', group: 'manage', tab: 'program', Icon: FileText },
   { href: '/dashboard/career-brief', label: 'My career plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE
     ? [

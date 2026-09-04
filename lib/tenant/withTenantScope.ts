@@ -38,6 +38,7 @@ import {
  *   - CourseEnrollment
  *   - OrganizationProgramCatalog
  *   - PreScreeningResponse
+ *   - TrainingBillingPacket (J5/J6 invoice packets)
  *
  * Parent-FK models (no `organizationId` column) are also scoped:
  *   - Application, PlacementRecord, CourseProgress via `user.organizationId`

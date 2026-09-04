@@ -47,6 +47,7 @@ model Organization {
   auditEvents       AuditEvent[]
   chapters          Chapter[]
   wioaReviewSnapshots WioaReviewSnapshot[]
+  trainingBillingPackets TrainingBillingPacket[]
 
   @@map("organizations")
 }
@@ -258,6 +259,8 @@ model User {
   /// for a specific program.
   courseEnrollments           CourseEnrollment[]
   adminCourseEnrollments      CourseEnrollment[]    @relation("AdminCourseEnrollments")
+  trainingBillingPackets      TrainingBillingPacket[] @relation("MemberBillingPackets")
+  billingPacketsSigned        TrainingBillingPacket[] @relation("BillingPacketSigner")
 
   mentorProfile       Mentor?
   mentorSessions      MentorSession[] @relation("MentorSessionMember")
@@ -1793,6 +1796,56 @@ model CourseEnrollment {
   @@index([enrolledByAdminId])
   @@index([sponsoredByPartnerId])
   @@map("course_enrollments")
+}
+
+/// J5 training invoice + J6 cover letter packet for one member's program
+/// enrollment, billed to the workforce board / funding partner. Created
+/// already signed by the admin (Executive Director) from
+/// /admin/members/[id]/billing; the two PDFs are rendered on demand from this
+/// row (see lib/billing/packetPdf.ts) so the documents never drift from the
+/// signed data. `status` moves signed -> sent when the packet is emailed to the
+/// member's counselor and the member.
+model TrainingBillingPacket {
+  id              String   @id @default(uuid())
+  organizationId  String   @map("organization_id")
+  memberId        String   @map("member_id")
+  programSlug     String   @map("program_slug")
+  /// Human invoice number, unique per organization (e.g. WAP-2026-0007).
+  packetNumber    String   @map("packet_number")
+  status          String   @default("signed")
+  invoiceDate     DateTime @map("invoice_date") @db.Date
+  dueDate         DateTime? @map("due_date") @db.Date
+  /// Funding partner / workforce board the invoice is addressed to.
+  billToName      String   @map("bill_to_name")
+  billToAttention String?  @map("bill_to_attention")
+  billToAddress   String?  @map("bill_to_address") @db.Text
+  billToEmail     String?  @map("bill_to_email")
+  /// Board/ITA/voucher/PO reference printed on both documents.
+  referenceNumber String?  @map("reference_number")
+  /// Array of { description, hours, amount } rows (classes + fees).
+  lineItems       Json     @map("line_items")
+  totalAmount     Float    @map("total_amount")
+  coverLetterBody String   @map("cover_letter_body") @db.Text
+  signerName      String   @map("signer_name")
+  signerTitle     String   @map("signer_title")
+  /// PNG data URL of the drawn signature. Null when the signer typed their name.
+  signatureImage  String?  @map("signature_image") @db.Text
+  signedAt        DateTime @map("signed_at")
+  signedById      String   @map("signed_by_id")
+  sentAt          DateTime? @map("sent_at")
+  sentTo          String[] @default([]) @map("sent_to")
+  sendCount       Int      @default(0) @map("send_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  member       User         @relation("MemberBillingPackets", fields: [memberId], references: [id], onDelete: Cascade)
+  signedBy     User         @relation("BillingPacketSigner", fields: [signedById], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, packetNumber])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([memberId, createdAt(sort: Desc)])
+  @@map("training_billing_packets")
 }
 
 /// xAPI statements ingested from Coursera (LRS webhook). `statementId` is the external UUID when present.

@@ -51,6 +51,18 @@
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | `agent_6601kmznw90ffxkbk7mpbym73vh9` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | WIOA Pre-Qualification Guide agent id in the **live** account (pre-migration `agent_6801knv07nb2ftj9p54nm6xem0xj`, re-created 2026-04-30 as `agent_7801kqfjg0qwfy68btrqh6jg87kf`) | (same) | ElevenLabs ConvAI — **unset in prod as of 9/2/26**, which is why WIOA voice practice returned a 404; the code now retries the migrated id once, but set this to stop relying on that. |
 
+### Billing: J5 invoice + J6 cover letter packets (optional overrides)
+All default to the Workforce Advancement Project identity printed on the official price list. Set only what differs.
+
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `BILLING_PROVIDER_LEGAL_NAME` | `Workforce Advancement Project` (default) | (same) | Letterhead on J5/J6 |
+| `BILLING_PROVIDER_ADDRESS` | `207 Settlers Valley Drive, Suite C | Pflugerville, TX 78660` (default; `|` separates lines) | (same) | Letterhead / remit-to |
+| `BILLING_PROVIDER_PHONE` / `BILLING_PROVIDER_EMAIL` / `BILLING_PROVIDER_WEBSITE` / `BILLING_PROVIDER_EIN` | defaults: `512-825-2896`, `michael.brown@workforceap.org`, `www.workforceap.org`, `41-2612389` | (same) | Letterhead; reply-to on the packet emails |
+| `BILLING_SIGNER_NAME` / `BILLING_SIGNER_TITLE` | defaults: `Michael A. Brown, PMP, ChE`, `Executive Director` | (same) | Prefilled signer on /admin/members/[id]/billing (editable per packet) |
+| `BILLING_PACKET_PREFIX` | `WAP` (default) -> invoice numbers `WAP-2026-0001` | (same) | Invoice numbering |
+| `BILLING_DEFAULT_BILL_TO_NAME` / `BILLING_DEFAULT_BILL_TO_ATTENTION` / `BILLING_DEFAULT_BILL_TO_ADDRESS` | defaults: `Workforce Solutions Capital Area`, `Accounts Payable / Training Services`, empty | (same) | Prefilled "Bill to" (editable per packet) |
+
 ### AI Tools: Groq (Chat/Completion Backend)
 | Variable | Production Value | Local Dev Value | Source |
 |----------|------------------|-----------------|--------|

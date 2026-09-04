@@ -22,6 +22,8 @@ import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainin
 import CounselorNotesPanel from './CounselorNotesPanel';
 import AdvisorSessionNotesPanel from './AdvisorSessionNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
+import BillingPacketList from '@/components/billing/BillingPacketList';
+import { listPacketsForMember } from '@/lib/billing/packetAccess';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
 import AssessmentAnswersReadonly from '@/components/admin/AssessmentAnswersReadonly';
 import { buildAssessmentReviewRows } from '@/lib/assessment/reviewRows';
@@ -443,6 +445,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     wioaReviewerName = rev?.fullName ?? null;
   }
 
+  const billingPackets = await listPacketsForMember(member.id);
+
   return (
     <>
       {counselor360LoadFailed ? <span hidden data-portal-error-state="counselor-member-360-load" /> : null}
@@ -807,6 +811,25 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               Resumes
             </h2>
             <StaffMemberResumePanel memberId={member.id} />
+          </div>
+        </div>
+
+        <div style={{ padding: '0 1rem 1.5rem' }}>
+          <div
+            style={{
+              background: 'var(--surface-container-lowest)',
+              borderRadius: '0.75rem',
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h2 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 0.35rem' }}>
+              Training invoice &amp; cover letter (J5 / J6)
+            </h2>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-muted)' }}>
+              Signed by the office and emailed to you and the student. Download the PDFs here anytime.
+            </p>
+            <BillingPacketList packets={billingPackets} emptyText="No signed invoice packet for this student yet." />
           </div>
         </div>
 

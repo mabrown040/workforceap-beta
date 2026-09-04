@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { ElevenLabsApiError } from '@/lib/ai/elevenlabs';
+import { startMemberAgentGatewaySession } from '@/lib/agents/gateway/startMemberSession';
+import { requireGucContext } from '@/lib/db/gucContext';
 import { fetchWioaPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { trackEvent } from '@/lib/events/track';
 
@@ -28,14 +31,50 @@ export const POST = withApiGuc(async () => {
       }).catch(() => {});
   
       const dynamicVariables = await fetchWioaPortalDynamicVariables(user.id);
-      const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('wioa_prequal', {
-        dynamicVariables,
-      });
-      return NextResponse.json({
-        signedUrl,
-        expiresAt,
-        dynamicVariables: returned ?? dynamicVariables,
-      });
+      try {
+        const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('wioa_prequal', {
+          dynamicVariables,
+        });
+        return NextResponse.json({
+          signedUrl,
+          expiresAt,
+          dynamicVariables: returned ?? dynamicVariables,
+        });
+      } catch (primaryError) {
+        // 9/3/26: the WIOA pre-qualification agent ids on record are unknown to
+        // the live ElevenLabs account (404 on both). Rather than show members an
+        // error, run the practice conversation on Lilley, the member career coach
+        // that is verified working, through the governed gateway (member context
+        // arrives via tools, not prompt variables). Setting
+        // ELEVENLABS_WIOA_PREQUAL_AGENT_ID to a live agent restores the dedicated
+        // WIOA guide without a code change.
+        if (!(primaryError instanceof ElevenLabsApiError && primaryError.status === 404)) {
+          throw primaryError;
+        }
+        const guc = requireGucContext();
+        if (!guc.orgId || guc.userId !== user.id || guc.role === 'anonymous' || guc.role === 'system') {
+          throw primaryError;
+        }
+        console.warn(
+          '[member/wioa-qualification/voice-session] WIOA agent unavailable (404); using the Lilley coach via the member gateway. Set ELEVENLABS_WIOA_PREQUAL_AGENT_ID to restore the dedicated agent.',
+        );
+        const fallback = await startMemberAgentGatewaySession({
+          userId: user.id,
+          organizationId: guc.orgId,
+          role: guc.role,
+          agentKey: 'career_business',
+        });
+        return NextResponse.json(
+          {
+            signedUrl: fallback.signedUrl,
+            expiresAt: fallback.expiresAt,
+            conversationId: fallback.conversationId,
+            dynamicVariables: fallback.dynamicVariables,
+            agent: 'lilley_fallback',
+          },
+          { headers: { 'Cache-Control': 'no-store, max-age=0' } },
+        );
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       // Keep the provider detail (status code, env var hint) in the server log;

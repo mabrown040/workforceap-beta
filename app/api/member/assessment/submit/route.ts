@@ -73,6 +73,9 @@ export const POST = withApiGuc(async (request: Request) => {
       return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
     }
 
+    // Ops (9/3/26): the preassessment is never blocked. A counselor-created
+    // account with an unconfirmed profile still submits; staff see the missing
+    // fields on the member page and the reminder stays on the member's form.
     const starterProfileReview = getCounselorStarterProfileReview({
       wasCounselorCreated: !!dbUser.courseEnrollments[0]?.enrolledByAdminId,
       phone: dbUser.phone,
@@ -83,16 +86,9 @@ export const POST = withApiGuc(async (request: Request) => {
       zip: dbUser.profile?.zip,
       referralSource: dbUser.profile?.referralSource,
     });
-    if (starterProfileReview.required) {
-      return NextResponse.json(
-        {
-          error: 'Review your profile details before starting the assessment.',
-          code: 'STARTER_PROFILE_REVIEW_REQUIRED',
-          missing: getStarterProfileFieldLabels(starterProfileReview.missing),
-        },
-        { status: 400 }
-      );
-    }
+    const profileReviewPending = starterProfileReview.required
+      ? getStarterProfileFieldLabels(starterProfileReview.missing)
+      : [];
 
     // Use updateMany with assessmentCompleted=false in the WHERE clause so the
     // check and write are atomic — prevents a duplicate submission from a race
@@ -204,6 +200,7 @@ export const POST = withApiGuc(async (request: Request) => {
       scorePct: pct,
       emailsSent: memberEmailSent,
       adminEmailSent,
+      profileReviewPending,
     });
   } catch (error) {
     console.error('/member/assessment/submit:', error);

@@ -187,42 +187,35 @@ function AssessmentReady({
   });
   const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
 
-  if (starterProfileReview.required) {
-    return (
-      <div className="wa-kit-card">
-        <h2 style={{ margin: '0 0 0.5rem', fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em' }}>
-          Confirm your details first
-        </h2>
-        <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6, marginBottom: 16, fontSize: 'var(--wa-type-body)' }}>
-          Your counselor started this account. Confirm contact and referral details before the preassessment.
-          {starterProfileMissingLabels.length ? ` Missing: ${starterProfileMissingLabels.join(', ')}.` : ''}
-        </p>
-        <Link
-          href="/dashboard/profile"
-          className="wa-kit-focus hover:wa-opacity-90 wa-inline-flex wa-items-center wa-justify-center"
-          style={{
-            minHeight: 44,
-            padding: '10px 16px',
-            background: 'var(--wa-accent)',
-            color: 'var(--wa-on-accent)',
-            fontWeight: 600,
-            fontSize: 'var(--wa-type-body)',
-            borderRadius: 999,
-            textDecoration: 'none',
-          }}
-        >
-          Review profile
-        </Link>
-      </div>
-    );
-  }
+  // Ops (9/3/26): the preassessment must never be locked. A counselor-created
+  // account with missing contact details gets a reminder above the form, not a
+  // wall in front of it.
+  const profileReminder = starterProfileReview.required ? (
+    <div
+      className="wa-kit-card"
+      role="note"
+      style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}
+    >
+      <p style={{ margin: 0, color: 'var(--wa-muted)', lineHeight: 1.5, fontSize: 'var(--wa-type-body)', flex: '1 1 280px' }}>
+        Your counselor started this account. When you have a minute, confirm your contact and referral
+        details in your profile
+        {starterProfileMissingLabels.length ? ` (missing: ${starterProfileMissingLabels.join(', ')})` : ''}.
+      </p>
+      <Link href="/dashboard/profile" className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus hover:wa-opacity-90">
+        Review profile
+      </Link>
+    </div>
+  ) : null;
 
   return (
-    <AssessmentForm
-      defaultFirstName={firstName}
-      defaultLastName={lastName}
-      defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
-      defaultRedirectTo={redirectTo || undefined}
-    />
+    <>
+      {profileReminder}
+      <AssessmentForm
+        defaultFirstName={firstName}
+        defaultLastName={lastName}
+        defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
+        defaultRedirectTo={redirectTo || undefined}
+      />
+    </>
   );
 }

@@ -362,7 +362,7 @@ describe('POST /api/member/assessment/submit', () => {
     expect(await res.json()).toEqual({ error: 'Invalid submission data' });
   });
 
-  it('returns 400 when starter profile review is required', async () => {
+  it('still accepts the submission when starter profile review is pending', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getCounselorStarterProfileReview).mockReturnValue({
       required: true,
@@ -372,14 +372,15 @@ describe('POST /api/member/assessment/submit', () => {
       ...mockUser,
       courseEnrollments: [{ enrolledByAdminId: 'admin-123' }],
     } as any);
+    vi.mocked(prisma.user.update).mockResolvedValue({ id: UUIDS.user } as any);
 
     const req = makeRequest(validBody);
     const res = await submitAssessment(req);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.code).toBe('STARTER_PROFILE_REVIEW_REQUIRED');
-    expect(body.missing).toEqual(['phone', 'address']);
+    expect(body.ok).toBe(true);
+    expect(body.profileReviewPending).toEqual(['phone', 'address']);
   });
 });
 

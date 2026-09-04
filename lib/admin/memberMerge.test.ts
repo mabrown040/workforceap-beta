@@ -55,8 +55,8 @@ function makeMockTx() {
 
   return {
     calls,
-    $queryRaw: async (query: { sql?: string[]; values?: unknown[] }) => {
-      const sql = query.sql?.join('') ?? '';
+    $queryRaw: async (query: Prisma.Sql) => {
+      const sql = query.sql;
       logCall('$queryRaw', sql);
       if (sql.includes('FOR UPDATE')) {
         const ids = (query.values ?? []).filter((value): value is string => typeof value === 'string');
@@ -138,6 +138,7 @@ function makeMockTx() {
       },
     },
     workflowDiagnostic: {
+      updateMany: async () => ({ count: 0 }),
       create: async (args: unknown) => {
         logCall('workflowDiagnostic.create', args);
         return {};
@@ -152,7 +153,6 @@ function makeMockTx() {
     resourceProgress: { updateMany: async () => ({ count: 0 }) },
     pathwayStepProgress: { updateMany: async () => ({ count: 0 }) },
     trainingAccessRequest: { updateMany: async () => ({ count: 0 }) },
-    workflowDiagnostic_updateMany: { updateMany: async () => ({ count: 0 }) },
     auditLog: { updateMany: async () => ({ count: 0 }) },
     invitation: { updateMany: async () => ({ count: 0 }) },
     programChangeRequest: { updateMany: async () => ({ count: 0 }) },
@@ -160,7 +160,7 @@ function makeMockTx() {
     partnerOutreachLog: { updateMany: async () => ({ count: 0 }) },
     portalWorkflowEvent: { updateMany: async () => ({ count: 0 }) },
     jobPostingApplication: { updateMany: async () => ({ count: 0 }) },
-    aiJobMatch: { updateMany: async () => ({ count: 0 }) },
+    aIJobMatch: { updateMany: async () => ({ count: 0 }) },
     memberNextBestAction: { updateMany: async () => ({ count: 0 }) },
     jobApplication: { updateMany: async () => ({ count: 0 }) },
     pointsTransaction: { updateMany: async () => ({ count: 0 }) },
@@ -258,6 +258,7 @@ describe('executeMemberMerge', () => {
     const result = await executeMemberMerge(tx, 'primary', 'secondary', 'admin-1');
     expect(result.primaryId).toBe('primary');
     expect(result.secondaryId).toBe('secondary');
+    expect(result.repointed).toEqual([]);
 
     // Should have updated secondary user with deletedAt + email suffix
     const calls = (tx as unknown as MockTxExtras).calls;

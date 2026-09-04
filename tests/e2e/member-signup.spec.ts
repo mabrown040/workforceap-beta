@@ -4,6 +4,12 @@ import { test, expect } from "@playwright/test";
 const MOBILE_VIEWPORT = { width: 375, height: 667 };
 
 test.describe("Member signup (/signup)", () => {
+  test.beforeEach(async ({ page }) => {
+    // Every signup request must be explicitly mocked by its test. A validation
+    // regression must never create an account against the configured app.
+    await page.route("**/api/member/signup", (route) => route.abort());
+  });
+
   test("signup page loads and has form", async ({ page }) => {
     await page.goto("/signup");
     await expect(page.getByRole("heading", { name: /create an account/i })).toBeVisible();
@@ -39,16 +45,74 @@ test.describe("Member signup (/signup)", () => {
     await expect(page.locator("#fullName-error")).toContainText(/name must be/i, { timeout: 3000 });
   });
 
-  test("signup form succeeds without phone or zip", async ({ page }) => {
+  test("signup shows email verification without phone or zip (mocked API)", async ({ page }) => {
+    await page.route("**/api/member/signup", (route) => route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true, message: "Check your email to verify your account." }),
+    }));
+
     await page.goto("/signup");
     await page.getByLabel(/full name/i).fill("Test User");
     await page.getByLabel(/^email$/i).fill("test@example.com");
     await page.locator("#password").fill("Password1");
     await page.getByLabel(/program of interest/i).selectOption({ index: 1 });
     await page.getByLabel(/terms/i).check();
+    const responsePromise = page.waitForResponse((response) =>
+      new URL(response.url()).pathname === "/api/member/signup"
+      && response.request().method() === "POST"
+    );
     await page.getByRole("button", { name: /create account/i }).click();
-    await expect(page.locator("#phone-error")).not.toBeVisible({ timeout: 2000 }).catch(() => {});
-    await expect(page.locator("#zip-error")).not.toBeVisible({ timeout: 2000 }).catch(() => {});
+    const response = await responsePromise;
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toMatchObject({ success: true });
+    const submitted = response.request().postDataJSON();
+    expect(submitted).toMatchObject({
+      fullName: "Test User",
+      email: "test@example.com",
+      password: "Password1",
+      consentTerms: true,
+      consentCommunications: false,
+    });
+    expect(submitted.programInterest).toBe("Digital Literacy Empowerment Class (6 weeks, 30 hours total)");
+    expect(submitted).not.toHaveProperty("phone");
+    expect(submitted).not.toHaveProperty("zip");
+    await expect(page.getByRole("heading", { name: "Check your email", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: /create account/i })).toHaveCount(0);
+    const loginLink = page.getByRole("link", { name: "Go to login", exact: true });
+    const loginUrl = new URL((await loginLink.getAttribute("href"))!, page.url());
+    expect(loginUrl.pathname).toMatch(/^\/(?:en\/)?login$/);
+    expect(loginUrl.searchParams.get("redirectTo")).toMatch(/^\/(?:en\/)?dashboard$/);
+    await loginLink.click();
+    await expect(page).toHaveURL(loginUrl.href);
+  });
+
+  test("signup API rejection keeps the form available and shows no success (mocked API)", async ({ page }) => {
+    const error = "An account with this email may already exist. Try logging in or resetting your password.";
+    await page.route("**/api/member/signup", (route) => route.fulfill({
+      status: 400,
+      contentType: "application/json",
+      body: JSON.stringify({ error }),
+    }));
+
+    await page.goto("/signup");
+    const signupUrl = page.url();
+    await page.getByLabel(/full name/i).fill("Test User");
+    await page.getByLabel(/^email$/i).fill("test@example.com");
+    await page.locator("#password").fill("Password1");
+    await page.getByLabel(/program of interest/i).selectOption({ index: 1 });
+    await page.getByLabel(/terms/i).check();
+    const responsePromise = page.waitForResponse((response) =>
+      new URL(response.url()).pathname === "/api/member/signup"
+      && response.request().method() === "POST"
+    );
+    await page.getByRole("button", { name: /create account/i }).click();
+
+    expect((await responsePromise).status()).toBe(400);
+    await expect(page.getByRole("alert")).toHaveText(error);
+    await expect(page.getByRole("button", { name: /create account/i })).toBeEnabled();
+    await expect(page.getByRole("heading", { name: "Check your email", exact: true })).toHaveCount(0);
+    await expect(page).toHaveURL(signupUrl);
   });
 
   test("signup form has program interest dropdown", async ({ page }) => {
@@ -95,7 +159,7 @@ test.describe("Member signup (/signup)", () => {
     await page.getByLabel(/full name/i).fill("Test User");
     await page.getByLabel(/^email$/i).fill("test@example.com");
     await page.locator("#password").fill("Password1");
-    await page.getByLabel(/zip code/i).fill("abc");
+    await page.getByLabel(/zip code/i).fill("!@#");
     await page.getByLabel(/program of interest/i).selectOption({ index: 1 });
     await page.getByLabel(/terms/i).check();
     await page.getByRole("button", { name: /create account/i }).click();

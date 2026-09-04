@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { cleanupTable, cleanupDeletedAccounts, runDataCleanup } from './cleanup';
-import { RETENTION_TABLES, getCutoffDate } from './config';
+import {
+  RETENTION_TABLES,
+  CRITICAL_AUDIT_ACTION_PREFIXES,
+  CRITICAL_AUDIT_RETENTION_DAYS,
+  getCutoffDate,
+} from './config';
 
 const mockDeleteMany = vi.fn();
 const mockFindMany = vi.fn();
@@ -76,7 +81,17 @@ describe('cleanupTable', () => {
 
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { createdAt: { lt: expect.any(Date) } },
+        where: {
+          AND: [
+            { createdAt: { lt: getCutoffDate(cfg.days) } },
+            {
+              OR: [
+                { NOT: { OR: CRITICAL_AUDIT_ACTION_PREFIXES.map((prefix) => ({ action: { startsWith: prefix } })) } },
+                { createdAt: { lt: getCutoffDate(CRITICAL_AUDIT_RETENTION_DAYS) } },
+              ],
+            },
+          ],
+        },
         select: { id: true },
         take: 1000,
         orderBy: { createdAt: 'asc' },

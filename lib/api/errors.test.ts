@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { NextResponse } from 'next/server';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import {
   ApiError,
   toApiError,
@@ -44,25 +45,29 @@ describe('toApiError', () => {
     expect(toApiError(original)).toBe(original);
   });
 
-  it('wraps generic Error in ApiError.internal', () => {
+  it('wraps generic Error without exposing its message and preserves the cause', () => {
     const err = new Error('Database timeout');
     const result = toApiError(err);
     expect(result).toBeInstanceOf(ApiError);
     expect(result.code).toBe('INTERNAL_ERROR');
-    expect(result.message).toBe('Database timeout');
+    expect(result.message).toBe('Internal server error');
     expect(result.status).toBe(500);
+    expect(result.cause).toBe(err);
   });
 
   it('wraps string in ApiError.internal', () => {
     const result = toApiError('string error');
-    expect(result.message).toBe('string error');
+    expect(result.message).toBe('Internal server error');
     expect(result.code).toBe('INTERNAL_ERROR');
+    expect(result.cause).toBe('string error');
   });
 
   it('wraps unknown types with fallback message', () => {
-    const result = toApiError({ foo: 'bar' });
-    expect(result.message).toBe('Unknown error');
+    const original = { foo: 'bar' };
+    const result = toApiError(original);
+    expect(result.message).toBe('Internal server error');
     expect(result.code).toBe('INTERNAL_ERROR');
+    expect(result.cause).toBe(original);
   });
 });
 
@@ -97,11 +102,17 @@ describe('handleApiError', () => {
   });
 
   it('wraps unknown errors in INTERNAL_ERROR', async () => {
-    const response = handleApiError(new Error('Unexpected'), 'POST /api/jobs');
+    const original = new Error('Unexpected');
+    const response = handleApiError(original, 'POST /api/jobs');
 
     expect(response.status).toBe(500);
     const body = await response.json();
-    expect(body.error.code).toBe('INTERNAL_ERROR');
-    expect(body.error.message).toBe('Unexpected');
+    expect(body).toEqual({
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error', status: 500 },
+    });
+    expect(captureApiError).toHaveBeenLastCalledWith(
+      expect.objectContaining({ cause: original }),
+      { route: 'POST /api/jobs', extra: { code: 'INTERNAL_ERROR' } },
+    );
   });
 });

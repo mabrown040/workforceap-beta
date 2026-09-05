@@ -36,6 +36,11 @@ vi.mock('@/lib/db/prisma', () => {
 });
 
 import { prisma } from '@/lib/db/prisma';
+import { LEGACY_CURRICULUM_VERSION } from '@/lib/content/programCurriculumManifest';
+import {
+  DIGITAL_LITERACY_PROGRAM_SLUG,
+  digitalLiteracyCatalogCourses,
+} from '@/shared/digitalLiteracyPathway';
 import {
   generateQuarterlyOutcomes,
   getDefaultQuarter,
@@ -52,12 +57,21 @@ function makeSpec(q: string, year: number) {
   return { quarter: q as 'Q1' | 'Q2' | 'Q3' | 'Q4', year };
 }
 
+function completedProgramCourses() {
+  return digitalLiteracyCatalogCourses(DIGITAL_LITERACY_PROGRAM_SLUG).map((course) => ({
+    programSlug: DIGITAL_LITERACY_PROGRAM_SLUG,
+    courseSlug: course.slug,
+    percentComplete: 100,
+    completedAt: new Date('2026-02-15'),
+  }));
+}
+
 function mockMember(opts: {
   id: string;
   enrolledAt?: Date;
   enrolledProgram?: string;
   deletedAt?: Date | null;
-  courseProgress?: { percentComplete: number; completedAt?: Date | null }[];
+  courseProgress?: { percentComplete: number; completedAt?: Date | null; programSlug?: string; courseSlug?: string }[];
   courseEnrollments?: { programSlug: string; enrolledAt: Date }[];
 }): any {
   return {
@@ -65,8 +79,17 @@ function mockMember(opts: {
     enrolledAt: opts.enrolledAt ?? new Date('2026-02-01'),
     enrolledProgram: opts.enrolledProgram ?? 'cna',
     deletedAt: opts.deletedAt ?? null,
-    courseProgress: opts.courseProgress ?? [],
-    courseEnrollments: opts.courseEnrollments ?? [{ programSlug: opts.enrolledProgram ?? 'cna', enrolledAt: opts.enrolledAt ?? new Date('2026-02-01') }],
+    courseProgress: (opts.courseProgress ?? []).map((progress) => ({
+      programSlug: opts.enrolledProgram ?? 'cna',
+      courseSlug: 'course-1',
+      completedAt: null,
+      ...progress,
+    })),
+    courseEnrollments: (opts.courseEnrollments ?? [{ programSlug: opts.enrolledProgram ?? 'cna', enrolledAt: opts.enrolledAt ?? new Date('2026-02-01') }]).map((enrollment) => ({
+      curriculumVersion: LEGACY_CURRICULUM_VERSION,
+      isPrimary: true,
+      ...enrollment,
+    })),
   };
 }
 
@@ -170,7 +193,11 @@ describe('generateQuarterlyOutcomes', () => {
     // - u4: enrolled, never started → drop-off
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       mockMember({ id: 'u1', courseProgress: [{ percentComplete: 50 }] }),
-      mockMember({ id: 'u2', courseProgress: [{ percentComplete: 100, completedAt: new Date('2026-02-15') }] }),
+      mockMember({
+        id: 'u2',
+        enrolledProgram: DIGITAL_LITERACY_PROGRAM_SLUG,
+        courseProgress: completedProgramCourses(),
+      }),
       mockMember({ id: 'u3', courseProgress: [{ percentComplete: 30 }] }),
       mockMember({ id: 'u4', courseProgress: [] }),
     ]);
@@ -192,6 +219,7 @@ describe('generateQuarterlyOutcomes', () => {
 
     expect(report.metrics.totalEnrolled).toBe(4);
     expect(report.metrics.completions).toBe(1);
+    expect(report.programBreakdown.find((program) => program.programSlug === DIGITAL_LITERACY_PROGRAM_SLUG)?.completions).toBe(1);
     expect(report.metrics.placements).toBe(1);
     expect(report.metrics.activeMembers).toBe(1); // u3
     expect(report.metrics.dropOffs).toBe(1); // u4
@@ -204,21 +232,29 @@ describe('generateQuarterlyOutcomes', () => {
     expect(report.metrics.salaryMedian).toBe(45000);
   });
 
-  it('counts certifications as completions', async () => {
+  it('does not count certifications or a partial curriculum as program completion', async () => {
+    const completedCourses = completedProgramCourses();
+    expect(completedCourses.length).toBeGreaterThan(1);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
-      mockMember({ id: 'u1', courseProgress: [] }),
+      mockMember({
+        id: 'u1',
+        enrolledProgram: DIGITAL_LITERACY_PROGRAM_SLUG,
+        courseProgress: completedCourses.slice(0, 1),
+      }),
     ]);
     vi.mocked(prisma.courseProgress.findMany).mockResolvedValue([]);
     vi.mocked(prisma.userCertification.findMany).mockResolvedValue([
-      { userId: 'u1', user: { enrolledProgram: 'cna' } },
+      { userId: 'u1', user: { enrolledProgram: DIGITAL_LITERACY_PROGRAM_SLUG } },
     ] as any);
     vi.mocked(prisma.placementRecord.findMany).mockResolvedValue([]);
     vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([]);
 
     const report = await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));
-    expect(report.metrics.completions).toBe(1);
-    expect(report.metrics.activeMembers).toBe(0);
+    expect(report.metrics.completions).toBe(0);
+    expect(report.programBreakdown[0].completions).toBe(0);
+    expect(report.metrics.activeMembers).toBe(1);
     expect(report.metrics.dropOffs).toBe(0);
+    expect(prisma.userCertification.findMany).not.toHaveBeenCalled();
   });
 
   it('handles multiple programs via courseEnrollments', async () => {
@@ -301,10 +337,8 @@ describe('generateQuarterlyOutcomes', () => {
     expect(report.metrics.salaryMax).toBeNull();
   });
 
-  it('excludes members with deletedAt from enrolled count', async () => {
-    vi.mocked(prisma.user.findMany).mockResolvedValue([
-      mockMember({ id: 'u1', deletedAt: new Date('2026-02-01'), courseProgress: [] }),
-    ]);
+  it('excludes deleted members in both the cohort query and enrolled count', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([]);
     vi.mocked(prisma.courseProgress.findMany).mockResolvedValue([]);
     vi.mocked(prisma.userCertification.findMany).mockResolvedValue([]);
     vi.mocked(prisma.placementRecord.findMany).mockResolvedValue([]);
@@ -312,8 +346,14 @@ describe('generateQuarterlyOutcomes', () => {
 
     const report = await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));
 
-    expect(report.metrics.totalEnrolled).toBe(1);
-    expect(report.metrics.dropOffs).toBe(1);
+    expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ organizationId: ORG_ID, deletedAt: null }),
+    }));
+    expect(prisma.user.count).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ organizationId: ORG_ID, deletedAt: null }),
+    }));
+    expect(report.metrics.totalEnrolled).toBe(0);
+    expect(report.metrics.dropOffs).toBe(0);
     expect(report.metrics.activeMembers).toBe(0);
   });
 

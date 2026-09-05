@@ -3,14 +3,9 @@
 /**
  * Wrapper around `node --test` for the project's unit tests.
  *
- * The full repo has ~191 `*.test.ts` specs but two subsets can't run
- * under `node --import tsx --test`:
- *
- *  - Tests that `import { ... } from 'vitest'` — they were authored
- *    against a different runner. Skipped until they're either ported
- *    to `node:test` or vitest is wired up properly in CI (it's
- *    declared in package.json but not currently materialized in
- *    `node_modules`).
+ * Library suites that import Vitest run in `npm run test:vitest`, not here.
+ * Both runners share scripts/vitest-library-specs.mjs, and the Vitest
+ * collection guard proves those suites are not excluded from that lane.
  *
  *  - Tests whose target module imports `'server-only'` at module
  *    load — that package throws unconditionally when not run inside
@@ -21,8 +16,7 @@
  * list stays declarative + documented. Print the skipped files at
  * the start so the skip list is visible in CI logs.
  *
- * Vitest specs are gated by an **explicit allowlist** (see
- * `KNOWN_VITEST_SPECS` below). A new test file that imports vitest
+ * Vitest specs are gated by an **explicit shared manifest**. A new test file that imports vitest
  * and isn't in the allowlist will fail the run rather than be
  * silently skipped — that prevents "I added a vitest spec → CI
  * pretends it ran" surprises (Codex P2 catch on PR #1230).
@@ -33,50 +27,24 @@ import { readFileSync } from 'node:fs';
 import { glob } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { VITEST_LIBRARY_SPECS } from './vitest-library-specs.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 
 const SKIP_REASONS = {
-  vitest: "imports 'vitest' (node:test runner can't satisfy)",
+  vitest: "owned by npm run test:vitest (shared manifest; collection guarded)",
   serverOnly: "imports 'server-only' (no test-env shim yet)",
   realDb: "requires a live postgres connection (no Prisma mock layer in this spec)",
 };
 
 /**
- * Explicit allowlist of test files that currently import from `vitest`
- * but are accepted as skips. Anything NEW that imports vitest will fail
- * the run with a clear message: either port the spec to `node:test` or
- * (if you really need vitest) add a separate `test:unit:vitest` lane
- * and add the file here so this gate doesn't silently swallow it.
+ * Explicit shared ownership: these suites run in the required Vitest lane.
+ * Unknown Vitest suites fail here until registered, instead of silently
+ * being dropped from Node coverage.
  */
-const KNOWN_VITEST_SPECS = new Set([
-  'lib/admin/funderProgramMetrics.test.ts',
-  'lib/admin/memberMerge.test.ts',
-  'lib/admin/metrics.test.ts',
-  'lib/analytics/aiToolEfficacy.test.ts',
-  'lib/analytics/quarterlyOutcomes.test.ts',
-  'lib/api/errors.test.ts',
-  'lib/audit/readOnlyPortalAudit.test.ts',
-  'lib/auth/roles.read-only-audit.test.ts',
-  'lib/cache.test.ts',
-  'lib/content/programs.test.ts',
-  'lib/counselor/templates.test.ts',
-  'lib/coursera/learnerProgress.test.ts',
-  'lib/cron/wioa-report.test.ts',
-  'lib/marketing/trustStripMetrics.test.ts',
-  'lib/marketing/googleItSupportLanding.test.ts',
-  'lib/messages/counselorInbox.test.ts',
-  'lib/member/atRiskScoring.test.ts',
-  'lib/member/nextBestActions.test.ts',
-  'lib/member/dashboardTabs.test.ts',
-  'lib/member/getMemberState.test.ts',
-  'lib/member/streaks.test.ts',
-  'lib/member/xapiVerbProgress.test.ts',
-  'lib/retention/cleanup.test.ts',
-  'lib/xapi/statements.test.ts',
-]);
+const KNOWN_VITEST_SPECS = new Set(VITEST_LIBRARY_SPECS);
 
 async function listTestFiles() {
   const out = [];
@@ -140,7 +108,7 @@ async function main() {
   if (unknownVitest.length > 0) {
     console.error(
       `\n❌ ${unknownVitest.length} test file(s) import 'vitest' but are not in the ` +
-        `KNOWN_VITEST_SPECS allowlist in scripts/test-unit.mjs:\n`,
+        `shared manifest in scripts/vitest-library-specs.mjs:\n`,
     );
     for (const file of unknownVitest) {
       console.error(`  - ${file}`);
@@ -148,8 +116,8 @@ async function main() {
     console.error(
       `\nThe node:test runner can't satisfy vitest imports. Pick one:\n` +
         `  (a) Port the spec to node:test (import from 'node:test' + 'node:assert/strict').\n` +
-        `  (b) Wire up a separate vitest lane in CI and add the file to KNOWN_VITEST_SPECS\n` +
-        `      so this gate skips it explicitly instead of silently dropping coverage.\n`,
+        `  (b) Add the file to VITEST_LIBRARY_SPECS and run npm run test:vitest.\n` +
+        `      The collection guard ensures the required Vitest lane includes it.\n`,
     );
     process.exit(1);
   }

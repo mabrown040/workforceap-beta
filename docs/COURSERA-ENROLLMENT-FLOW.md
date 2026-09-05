@@ -97,6 +97,14 @@ invite. After accepting, click Enroll again to start the course."
   Coursera, malformed body) is propagated as a 502 with the audit trail
   of whichever steps did succeed.
 
+## Enrollment versus progress refresh
+
+The response keeps the provider `status` separate from `sync.status`. New enrollments return `requested` when Next.js `after` registers the existing background refresh, or `failed_to_start` if registration fails. Invitations and already-enrolled responses return `not_requested`.
+
+`requested` does **not** mean progress is synchronized or that a durable job exists. The shared sync can finish with partial results, and later failures cannot change an already-returned response. The UI immediately offers the existing course launch link after recognized enrollment acceptance without changing completion percentages; unknown HTTP-200 responses never show success.
+
+Background rejection, mapping lookup failure, and audit failure produce fixed-stage diagnostics without raw provider details. Reporting failures cannot overturn accepted enrollment. Durable sync history and live provider acceptance remain separate checks.
+
 ## Audit logging
 
 Every B4B write writes a row to the existing `audit_logs` table (see

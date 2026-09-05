@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
     '/api/**': [
       './node_modules/pdfjs-dist/package.json',
       './node_modules/pdfjs-dist/legacy/build/pdf.mjs',
+      // Even in Node, pdf.mjs dynamically imports this sibling to parse PDFs.
+      './node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
     ],
     '/api/agent-tools/v1/*': [
       './config/agent-knowledge/manifest.v1.json',

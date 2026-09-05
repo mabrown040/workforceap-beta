@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -227,35 +227,41 @@ async function _POST(request: Request) {
     // calls so a downstream observer reading the audit trail sees the
     // state-graph order, not whatever Postgres scheduled.
     for (const event of result.events) {
-      await writeEnrollAudit({ actorUserId: user.id, actorRole: 'member', targetUserId: user.id, event }).catch((auditErr) => {
+      await writeEnrollAudit({ actorUserId: user.id, actorRole: 'member', targetUserId: user.id, event }).catch(() => {
         // A failure to audit must NOT undo the enrollment — the seat is
         // already spent. We surface the failure for triage but keep the
         // success response the user sees.
-        captureApiError(auditErr, {
-          route: 'member/coursera/enroll-in-course',
-          extra: { userId: user.id, step: event.step, note: 'audit-write-failed' },
-        });
+        reportPostEnrollmentIssue('audit_write_failed', user.id);
       });
     }
   
-    // After a successful enroll, kick off the existing auto-sync so that
-    // local CourseProgress rows seed quickly. We run it best-effort and
-    // don't await — the UI's `router.refresh()` will pick up the seeded
-    // rows on the next render or whenever the cron / xAPI replay catches up.
+    // Provider acceptance and local progress refresh are independent outcomes.
+    // Keep this potentially slow multi-program pull out of the response path,
+    // but register it with Next so it is not abandoned immediately on return.
+    // "requested" is not a durable-job or completed-sync guarantee. The shared
+    // sync can resolve with partial results, so never advertise "synced" here.
+    let syncStatus: 'not_requested' | 'requested' | 'failed_to_start' = 'not_requested';
     if (result.status === 'enrolled' || result.status === 'membership-created-and-enrolled') {
-      triggerAutoSyncBestEffort({
-        wapUserId: user.id,
-        orgId,
-        email: user.email,
-        enrolledProgram,
-      }).catch(() => {
-        /* swallow — auto-sync is fire-and-forget */
-      });
+      const syncArgs = { wapUserId: user.id, orgId, email: user.email, enrolledProgram };
+      try {
+        after(async () => {
+          try {
+            await triggerAutoSyncBestEffort(syncArgs);
+          } catch {
+            reportPostEnrollmentIssue('progress_refresh_failed', user.id);
+          }
+        });
+        syncStatus = 'requested';
+      } catch {
+        syncStatus = 'failed_to_start';
+        reportPostEnrollmentIssue('progress_refresh_schedule_failed', user.id);
+      }
     }
   
     return NextResponse.json({
       status: result.status,
       message: result.message,
+      sync: { status: syncStatus },
     });
   } catch (error) {
     console.error('/member/coursera/enroll-in-course:', error);
@@ -269,9 +275,9 @@ async function _POST(request: Request) {
  * because that's where the seeding + xAPI replay logic actually lives.
  * We don't call the auto-sync HTTP route to avoid a self-fan-out.
  *
- * Worst case (no Coursera identity mapping yet, e.g. the user just got
- * invited): we no-op silently. The cron / member auto-sync route
- * will pick it up after the user accepts the invite.
+ * Preserve the existing account-email fallback when no mapping is available.
+ * A mapping lookup failure is reported without suppressing the fallback, while
+ * sync failures propagate to the registered callback for safe reporting.
  */
 async function triggerAutoSyncBestEffort(args: {
   wapUserId: string;
@@ -281,7 +287,10 @@ async function triggerAutoSyncBestEffort(args: {
 }): Promise<void> {
   const { listCourseraIdentityMappingsForUser } = await import('@/lib/xapi/mappings');
   const mappings = await listCourseraIdentityMappingsForUser(args.wapUserId).catch(
-    () => [] as Array<{ courseraEmail: string | null }>,
+    () => {
+      reportPostEnrollmentIssue('mapping_lookup_failed', args.wapUserId);
+      return [] as Array<{ courseraEmail: string | null }>;
+    },
   );
   const courseraEmail =
     mappings.find((m) => m.courseraEmail)?.courseraEmail ?? args.email;
@@ -294,8 +303,23 @@ async function triggerAutoSyncBestEffort(args: {
     orgId: args.orgId,
     enrolledByAdmin: null,
     existingEnrolledProgram: args.enrolledProgram,
-  }).catch(() => {
-    /* swallow — auto-sync is fire-and-forget */
   });
+}
+
+/** Provider errors can contain account data. Emit only fixed-stage diagnostics;
+ * even a telemetry outage must never overturn a provider-accepted enrollment. */
+function reportPostEnrollmentIssue(
+  stage: 'audit_write_failed' | 'progress_refresh_failed' | 'progress_refresh_schedule_failed' | 'mapping_lookup_failed',
+  userId: string,
+): void {
+  try {
+    captureApiError(new Error(`Coursera post-enrollment ${stage}`), {
+      route: 'member/coursera/enroll-in-course',
+      userId,
+      extra: { stage },
+    });
+  } catch {
+    // Reporting is fail-soft; no provider body, email, or credential fallback.
+  }
 }
 export const POST = withApiGuc(_POST);

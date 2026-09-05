@@ -1,6 +1,6 @@
 # WorkforceAP Production Deployment Checklist
 
-**Repo:** `workforceap-beta` | **Branch:** `master` | **Last Updated:** 2026-08-30
+**Repo:** `workforceap-beta` | **Branch:** `master` | **Last Updated:** 2026-09-04
 
 Use this checklist for every production deploy. Do not skip steps.
 
@@ -30,6 +30,13 @@ Use this checklist for every production deploy. Do not skip steps.
   npm run test:vitest
   ```
   > Runs the Node.js unit lane and the Vitest component/API lane. Fix failures before deploy.
+
+- [ ] **Verify PDF parser packaging after a fresh build**
+  ```bash
+  npm run build:local
+  node scripts/verify-pdf-deployment.mjs
+  ```
+  > CI also runs this after its production build. It extracts a synthetic PDF using only the PDF assets listed in six emitted route traces, outside the checkout. This catches a missing dynamic worker; it does not replace authenticated upload, saved-text, or live coach acceptance.
 
 - [ ] **Run E2E tests (if changed areas covered)**
   ```bash

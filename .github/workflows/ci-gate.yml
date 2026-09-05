@@ -108,3 +108,9 @@ jobs:
           SKIP_ENV_VALIDATION: "1"
           RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"
         timeout-minutes: 15
+
+      # A parser unit test can pass with the full checkout's node_modules even
+      # when a serverless artifact omits the dynamically loaded PDF worker.
+      - name: Verify deployed PDF parser assets
+        run: node scripts/verify-pdf-deployment.mjs
+        timeout-minutes: 2

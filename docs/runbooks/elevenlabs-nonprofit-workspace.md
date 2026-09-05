@@ -42,8 +42,14 @@ dictionary and its canonical empty analysis container. All other mutable fields
 remain exact. Provider verification does not prove that Vercel is using the right
 credential, nor does a provider simulation replace an authenticated voice smoke.
 
-Use a runtime credential with ElevenAgents read and Text to Speech access. Keep
-temporary agent-write migration credentials separate from production, and never
+Use a runtime credential with ElevenAgents **Write** (`convai_write`) and Text to
+Speech access. The September 5 live check proved that Read can fetch an agent,
+but signed-session creation returns HTTP 401 with `missing_permissions` naming
+`convai_write`. The provider requires that broader scope even though WorkforceAP
+only mints sessions at runtime. Keep unrelated permissions disabled. A scope
+change on the existing key takes effect at the provider; replacing a Vercel key
+value requires a deployment. Keep temporary migration credentials separate from
+production, and never
 install the one-day recovery key as a durable runtime credential. Verify the
 nonprofit agent IDs and the unqualified agent GET's `main_branch_id`, align the
 Vercel Production and Preview scopes, and redeploy to activate their new values.

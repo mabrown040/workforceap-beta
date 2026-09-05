@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
-import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import {
+  MEMBER_VOICE_UNAVAILABLE_MESSAGE,
+  startMemberVoiceSessionWithLilleyFallback,
+} from '@/lib/ai/memberVoiceFallback';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { trackEvent } from '@/lib/events/track';
 
@@ -17,7 +20,7 @@ export const POST = withApiGuc(async () => {
         { status: 429, headers: { 'Retry-After': '3600' } }
       );
     }
-  
+
     try {
       void trackEvent({
         userId: user.id,
@@ -26,21 +29,32 @@ export const POST = withApiGuc(async () => {
         metadata: { tool: 'readiness_voice_session', provider: 'elevenlabs' },
         sourcePage: '/dashboard/readiness',
       }).catch(() => {});
-  
+
       const memberDynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
       const { member_name: _memberName, ...dynamicVariables } = memberDynamicVariables;
-      const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('readiness', {
+      const session = await startMemberVoiceSessionWithLilleyFallback({
+        key: 'readiness',
+        userId: user.id,
         dynamicVariables,
+        routeLabel: 'member/readiness/voice-session',
       });
-      return NextResponse.json({
-        signedUrl,
-        expiresAt,
-        dynamicVariables: returned ?? dynamicVariables,
-      });
+      return NextResponse.json(
+        {
+          signedUrl: session.signedUrl,
+          expiresAt: session.expiresAt,
+          conversationId: session.conversationId,
+          dynamicVariables: session.dynamicVariables,
+          agent: session.agent,
+        },
+        { headers: { 'Cache-Control': 'no-store, max-age=0' } },
+      );
     } catch (e) {
+      // Provider detail (status code, env var hint) stays in the server log;
+      // the raw message used to reach members as "Server: ElevenLabs
+      // Conversational API error (404)".
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       console.error('[member/readiness/voice-session]', msg);
-      return NextResponse.json({ error: msg }, { status: 503 });
+      return NextResponse.json({ error: MEMBER_VOICE_UNAVAILABLE_MESSAGE }, { status: 503 });
     }
   } catch (error) {
     console.error('/member/readiness/voice-session:', error);

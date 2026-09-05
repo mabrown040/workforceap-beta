@@ -110,6 +110,18 @@ describe('POST /api/admin/members/[id]/delete', () => {
     expect(update).not.toHaveBeenCalled();
   });
 
+  it('refuses to delete the account the admin is signed in with', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: MEMBER_ID, email: 'admin@example.com' } as never);
+
+    const res = await POST(deleteReq(), { params: Promise.resolve({ id: MEMBER_ID }) });
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain('account you are signed in with');
+    expect(deleteUserStorageObjects).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+    expect(getSupabaseAdmin).not.toHaveBeenCalled();
+  });
+
   it('fails closed when member storage objects cannot be deleted', async () => {
     vi.mocked(deleteUserStorageObjects).mockResolvedValue({
       ok: false,

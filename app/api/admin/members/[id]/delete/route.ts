@@ -29,6 +29,22 @@ export const POST = withApiGuc(async (
     await requireAdmin(user.id);
 
     const { id } = await params;
+
+    // 9/5/26 ops report: an admin deleted what looked like a second "member"
+    // account from the users list, but that row was the one backing their own
+    // sign-in (User.id is the Supabase auth id). The soft delete then locked
+    // the very login they were using and left them unable to sign in or reset.
+    // The super-admin delete route already refuses this; mirror it here.
+    if (id === user.id) {
+      return NextResponse.json(
+        {
+          error:
+            'You cannot delete the account you are signed in with. Sign in with a different admin account to delete this one.',
+        },
+        { status: 400 },
+      );
+    }
+
     const orgId = await getActorOrganizationId(user.id);
 
     // Soft-delete the Prisma row AND release the email from the unique

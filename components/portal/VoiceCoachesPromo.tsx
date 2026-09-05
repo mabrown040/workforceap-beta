@@ -53,7 +53,7 @@ export default function VoiceCoachesPromo() {
             glowColor="#a47f38"
             gradient="linear-gradient(135deg, #a47f38, #7d5f26)"
             title="Elevator Introduction"
-            description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
+            description="Not a voice coach: writes a 10 to 20 second intro from your profile, saves it, and emails it to you to rehearse."
             href="/dashboard/ai-tools/elevator-pitch?prefill=true"
             ctaLabel="Build intro"
           />
@@ -61,7 +61,7 @@ export default function VoiceCoachesPromo() {
           <VoiceCoachLauncherCard
             {...readinessVoiceSurface}
             title="Readiness Coach"
-            description="Interviews, certifications, and next steps — talked through out loud."
+            description="Stuck on what to do next? Talk through resume, training, applications, or interviews and leave with one clear next step."
             href="/dashboard/ai-tools/studio?tab=session&agent=readiness"
             ctaLabel="Start voice session"
           />
@@ -70,7 +70,7 @@ export default function VoiceCoachesPromo() {
             {...resumeCoachVoiceSurface}
             badge="RESUME"
             title="Resume & Experience Enhancer"
-            description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
+            description="Reads your uploaded resume or live draft and coaches you line by line on bullets, framing, and gaps."
             href="/dashboard/ai-tools/studio?tab=session&agent=resume"
             ctaLabel="Start voice session"
           />
@@ -79,7 +79,7 @@ export default function VoiceCoachesPromo() {
             {...mockInterviewVoiceSurface}
             badge="PRACTICE"
             title="Voice Interview Practice"
-            description="Launch the full mock interview experience with setup guidance and optional recording."
+            description="A realistic interviewer for the role you name: answer out loud, optionally on camera, then review your transcript."
             href="/dashboard/ai-tools/studio?tab=session&agent=mock"
             ctaLabel="Start practice"
           />
@@ -89,7 +89,7 @@ export default function VoiceCoachesPromo() {
           <VoiceCoachLauncherCard
             {...studentCounselorVoiceSurface}
             title="Lilley Career Coach"
-            description="Talk through training, your job search, or your next step, then leave with a personalized action plan."
+            description="Knows your WorkforceAP plan, training status, and Coursera progress. Ends with a saved three-step action plan."
             href="/dashboard/counselor"
             ctaLabel="Start session"
           />
@@ -97,7 +97,7 @@ export default function VoiceCoachesPromo() {
             {...careerBusinessVoiceSurface}
             icon={careerBusinessVoiceSurface.icon ?? <Mic size={22} aria-hidden />}
             title="Career & Business Coach"
-            description="Get broader career, project management, sales, marketing, and business guidance in one place."
+            description="Lilley in a wider lane: project management, sales, marketing, communication, and business questions beyond your program."
             href="/dashboard/ai-tools/studio?tab=session&agent=business"
             ctaLabel="Start session"
           />

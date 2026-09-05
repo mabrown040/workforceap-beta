@@ -53,7 +53,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     id: 'readiness',
     title: TOOL_CARDS.readinessCoach.label,
     icon: TOOL_CARDS.readinessCoach.icon,
-    description: 'Talk through interviews, certifications, and next steps with an AI coach.',
+    description: 'Stuck on what to do next? Talk through resume, training, applications, or interviews and leave with one clear next step.',
     links: [
       { label: 'Open readiness coach', href: TOOL_CARDS.readinessCoach.href },
     ],
@@ -92,7 +92,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     id: 'voice-interview',
     title: TOOL_CARDS.voiceInterview.label,
     icon: TOOL_CARDS.voiceInterview.icon,
-    description: 'Practice live mock interviews with voice coaching, setup guidance, and saved results.',
+    description: 'A realistic interviewer for the role you name: answer out loud, then review your transcript, feedback, and saved results.',
     links: [
       { label: 'Open voice interviewer', href: TOOL_CARDS.voiceInterview.href },
     ],
@@ -101,7 +101,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     id: 'career-business',
     title: TOOL_CARDS.careerBusiness.label,
     icon: TOOL_CARDS.careerBusiness.icon,
-    description: 'Get broader career, project management, sales, marketing, and business guidance in one place.',
+    description: 'Lilley in a wider lane: project management, sales, marketing, communication, and business questions beyond your program.',
     links: [
       { label: 'Open career and business coach', href: TOOL_CARDS.careerBusiness.href },
     ],

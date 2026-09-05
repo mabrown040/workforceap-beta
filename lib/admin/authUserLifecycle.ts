@@ -53,7 +53,19 @@ export async function reenableAuthUserAfterRestore(
     email_confirm: true,
   });
   if (!unbanError) return { ok: true, action: 'unbanned' };
-  if (!isUserNotFound(unbanError.message, unbanError.status)) {
+  if (isEmailTaken(unbanError.message, unbanError.status)) {
+    // The restored row's address belongs to another login (a second account
+    // for the same person, or the login's address was changed after the row
+    // was created). Getting the person back in matters more than re-syncing
+    // the address: lift the ban and leave the login's current email alone.
+    const { error: unbanOnlyError } = await admin.auth.admin.updateUserById(user.id, {
+      ban_duration: 'none',
+    });
+    if (!unbanOnlyError) return { ok: true, action: 'unbanned' };
+    if (!isUserNotFound(unbanOnlyError.message, unbanOnlyError.status)) {
+      return { ok: false, message: unbanOnlyError.message };
+    }
+  } else if (!isUserNotFound(unbanError.message, unbanError.status)) {
     return { ok: false, message: unbanError.message };
   }
 
@@ -84,6 +96,11 @@ export async function reenableAuthUserAfterRestore(
     };
   }
   return { ok: true, action: 'recreated' };
+}
+
+function isEmailTaken(message: string | undefined, status: number | undefined): boolean {
+  if (status === 422 && /email/i.test(message ?? '')) return true;
+  return /email.*(already|exists|registered|taken)|already.*registered/i.test(message ?? '');
 }
 
 function isUserNotFound(message: string | undefined, status: number | undefined): boolean {

@@ -49,7 +49,7 @@
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | `agent_0901kmznx45vf19s9psjrctqr6x5` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_PARTNER_AGENT_ID` | `agent_7601kntxhqx3e0mvznpwk9bqj5yw` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | `agent_6601kmznw90ffxkbk7mpbym73vh9` | (same) | ElevenLabs ConvAI |
-| `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | WIOA Pre-Qualification Guide agent id in the **live** account (pre-migration `agent_6801knv07nb2ftj9p54nm6xem0xj`, re-created 2026-04-30 as `agent_7801kqfjg0qwfy68btrqh6jg87kf`) | (same) | ElevenLabs ConvAI — **unset in prod as of 9/2/26**, which is why WIOA voice practice returned a 404; the code now retries the migrated id once, but set this to stop relying on that. |
+| `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | `agent_7801kqfjg0qwfy68btrqh6jg87kf` (WIOA guide in the WorkforceAP nonprofit workspace, patched 2026-09-05; pre-migration id `agent_6801knv07nb2ftj9p54nm6xem0xj` is retired) | (same) | ElevenLabs ConvAI — the code falls back to the nonprofit id when unset. If the configured `ELEVENLABS_API_KEY` belongs to a workspace that does not know the agent (404), the member WIOA, readiness, and resume-coach routes start Lilley through the member gateway and tell the browser `agent: 'lilley_fallback'`; the public WIOA page returns a friendly 503. See `docs/runbooks/elevenlabs-nonprofit-workspace.md`. |
 
 ### Billing: J5 invoice + J6 cover letter packets (optional overrides)
 All default to the Workforce Advancement Project identity printed on the official price list. Set only what differs.

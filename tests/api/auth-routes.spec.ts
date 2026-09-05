@@ -457,7 +457,57 @@ describe('POST /api/auth/login', () => {
 
     expect(res.status).toBe(401);
     const body = await res.json();
-    expect(body.error).toBe('Incorrect email or password.');
+    expect(body.error).toContain('Incorrect email or password.');
+    expect(body.error).toContain('Forgot password?');
+  });
+
+  it('reports a Supabase-side rate limit instead of blaming the password', async () => {
+    vi.mocked(createServerClient).mockReturnValue({
+      auth: {
+        signInWithPassword: vi.fn(() =>
+          Promise.resolve({
+            data: {},
+            error: { message: 'Request rate limit reached', status: 429 },
+          })
+        ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(),
+          listFactors: vi.fn(),
+        },
+      },
+    } as any);
+
+    const res = await loginPOST(makeJsonRequest({ email: 'jane@example.com', password: 'right' }));
+
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).toBe('60');
+    const body = await res.json();
+    expect(body.error).toContain('Too many sign-in attempts');
+    expect(body.error).not.toContain('Incorrect email or password');
+  });
+
+  it('reports an auth provider outage as temporary, not as wrong credentials', async () => {
+    vi.mocked(createServerClient).mockReturnValue({
+      auth: {
+        signInWithPassword: vi.fn(() =>
+          Promise.resolve({
+            data: {},
+            error: { message: 'Database error querying schema', status: 500 },
+          })
+        ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(),
+          listFactors: vi.fn(),
+        },
+      },
+    } as any);
+
+    const res = await loginPOST(makeJsonRequest({ email: 'jane@example.com', password: 'right' }));
+
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toContain('temporarily unavailable');
+    expect(body.error).not.toContain('Incorrect email or password');
   });
 
   it('returns friendly 401 for unconfirmed email', async () => {

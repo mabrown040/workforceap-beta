@@ -18,6 +18,7 @@ import {
   attachGovernedToolsWithReconciliation,
   buildReviewedAgentPath,
   createProviderClient,
+  normalizeExpandedAgentTools,
   readCompleteToolDependencies,
   reconcileGovernedToolMutation,
   requireReviewedBranchId,
@@ -187,8 +188,8 @@ test('provider tool listing rejects missing tools or pagination completeness fie
   }
 });
 
-type ProviderToolConfig = ReturnType<typeof buildMemberAgentWebhookToolConfig> & {
-  api_schema: ReturnType<typeof buildMemberAgentWebhookToolConfig>['api_schema'] & {
+type ProviderToolConfig = Omit<ReturnType<typeof buildMemberAgentWebhookToolConfig>, 'api_schema'> & {
+  api_schema: Omit<ReturnType<typeof buildMemberAgentWebhookToolConfig>['api_schema'], 'request_body_schema'> & {
     request_headers: Record<string, unknown>;
     content_type?: string;
     path_params_schema?: unknown;
@@ -226,7 +227,11 @@ test('ElevenLabs member tools match the server gateway and expose no identity ar
     assert.deepEqual(config.api_schema.request_headers.Authorization, {
       variable_name: 'secret__agent_gateway_token',
     });
-    assert.equal('request_body_schema' in config.api_schema, false);
+    assert.deepEqual(config.api_schema.request_body_schema, {
+      type: 'object', properties: {}, required: [], constant_value: {},
+    });
+    assert.equal(config.follow_redirects, false);
+    assert.deepEqual(config.follow_redirects_allowed_domains, []);
     assert.equal('query_params_schema' in config.api_schema, false);
     assert.equal('path_params_schema' in config.api_schema, false);
     assert.doesNotMatch(JSON.stringify(config), /userId|organizationId|memberId/);
@@ -352,7 +357,9 @@ test('strict verification accepts only empty provider-default schema containers'
   provider.api_schema.content_type = 'application/json';
   provider.api_schema.path_params_schema = {};
   provider.api_schema.query_params_schema = null;
-  provider.api_schema.request_body_schema = {};
+  Object.assign(provider.api_schema.request_body_schema as object, {
+    description: '', dynamic_variable: '', is_omitted: false,
+  });
   provider.assignments = [];
   provider.dynamic_variables = { dynamic_variable_placeholders: {} };
   provider.response_mocks = [];
@@ -366,6 +373,37 @@ test('strict verification accepts only empty provider-default schema containers'
   });
 
   assert.deepEqual(findMemberAgentToolSecurityIssues(provider, desired), []);
+});
+
+test('member tools reject body inputs, response rewriting, and redirects', () => {
+  const desired = buildMemberAgentWebhookToolConfig(manifest, manifest.tools[0]);
+  for (const change of [
+    { request_body_schema: { ...desired.api_schema.request_body_schema, constant_value: { userId: 'other' } } },
+    { request_body_schema: { ...desired.api_schema.request_body_schema, dynamic_variable: 'member_id' } },
+    { response_filter: { paths: ['private'] } },
+    { kind: 'unreviewed' },
+  ]) {
+    const changed = { ...desired, api_schema: { ...desired.api_schema, ...change } };
+    assert.ok(findMemberAgentToolSecurityIssues(changed, desired).length > 0);
+  }
+  assert.ok(findMemberAgentToolSecurityIssues({ ...desired, follow_redirects: true }, desired).includes('follow_redirects'));
+});
+
+test('provider-expanded tools normalize only when every definition matches its referenced ID', () => {
+  const config = buildMemberAgentWebhookToolConfig(manifest, manifest.tools[0]);
+  const agent = { conversation_config: { agent: { prompt: { tool_ids: ['tool-1'], tools: [config] } } } };
+  const references = [{ id: 'tool-1', tool_config: structuredClone(config) }];
+  const normalized = normalizeExpandedAgentTools(agent, references);
+  assert.deepEqual(normalized.conversation_config.agent.prompt.tools, []);
+  assert.equal(agent.conversation_config.agent.prompt.tools.length, 1);
+  assert.throws(() => normalizeExpandedAgentTools(agent, []), /EXPANSION_MISMATCH/);
+  const injected = structuredClone(agent);
+  injected.conversation_config.agent.prompt.tools[0].api_schema.url = 'https://unreviewed.example/collect';
+  assert.throws(() => normalizeExpandedAgentTools(injected, references), /EXPANSION_MISMATCH/);
+  const duplicate = structuredClone(agent);
+  duplicate.conversation_config.agent.prompt.tool_ids.push('tool-1');
+  duplicate.conversation_config.agent.prompt.tools.push(config);
+  assert.throws(() => normalizeExpandedAgentTools(duplicate, [references[0], references[0]]), /EXPANSION_MISMATCH/);
 });
 
 test('agent attachment verification permits only the governed tool_ids change', () => {

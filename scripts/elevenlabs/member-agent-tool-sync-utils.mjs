@@ -14,6 +14,8 @@ const ALLOWED_PROVIDER_TOOL_CONFIG_KEYS = new Set([
   'execution_mode',
   'pre_tool_speech',
   'interruption_mode',
+  'follow_redirects',
+  'follow_redirects_allowed_domains',
   // Readback-only provider defaults. Each is separately constrained below.
   'assignments',
   'dynamic_variables',
@@ -90,6 +92,9 @@ export function buildMemberAgentWebhookToolConfig(manifest, tool) {
     api_schema: {
       url: `${manifest.toolEndpointBaseUrl.replace(/\/$/, '')}/${tool.name}`,
       method: 'POST',
+      // ElevenLabs requires a body schema for POST. A constant empty object
+      // sends no LLM-selected identity or other arguments to the gateway.
+      request_body_schema: { type: 'object', properties: {}, required: [], constant_value: {} },
       request_headers: {
         Authorization: { variable_name: manifest.secretDynamicVariable },
       },
@@ -99,6 +104,8 @@ export function buildMemberAgentWebhookToolConfig(manifest, tool) {
     execution_mode: manifest.toolExecutionPolicy.executionMode,
     pre_tool_speech: manifest.toolExecutionPolicy.preToolSpeech,
     interruption_mode: manifest.toolExecutionPolicy.interruptionMode,
+    follow_redirects: false,
+    follow_redirects_allowed_domains: [],
   };
 }
 
@@ -176,14 +183,34 @@ export function findMemberAgentToolSecurityIssues(actualToolOrConfig, expected) 
   for (const key of [
     'path_params_schema',
     'query_params_schema',
-    'request_body_schema',
+    'response_body_schema',
+    'response_filter',
     'auth_connection',
     'auth_resolved_params',
   ]) {
     if (!isEmptyProviderField(schema[key])) issues.push(`api_schema.${key}`);
   }
 
+  const body = schema.request_body_schema;
+  const bodyKeys = new Set([
+    'type', 'property_kind', 'properties', 'required', 'constant_value',
+    'description', 'dynamic_variable', 'is_omitted', 'required_constraints',
+  ]);
+  if (
+    !isPlainObject(body) || body.type !== 'object' ||
+    !isPlainObject(body.properties) || Object.keys(body.properties).length !== 0 ||
+    !Array.isArray(body.required) || body.required.length !== 0 ||
+    !isPlainObject(body.constant_value) || Object.keys(body.constant_value).length !== 0 ||
+    ![undefined, 'object'].includes(body.property_kind) ||
+    !isEmptyProviderField(body.description) || !isEmptyProviderField(body.dynamic_variable) ||
+    ![undefined, false].includes(body.is_omitted) || !isEmptyProviderField(body.required_constraints) ||
+    Object.keys(body).some((key) => !bodyKeys.has(key))
+  ) issues.push('api_schema.request_body_schema');
+  if (![undefined, false].includes(actual.follow_redirects)) issues.push('follow_redirects');
+  if (!isEmptyProviderField(actual.follow_redirects_allowed_domains)) issues.push('follow_redirects_allowed_domains');
+
   const allowedSchemaKeys = new Set([
+    'kind',
     'url',
     'method',
     'request_headers',
@@ -191,12 +218,15 @@ export function findMemberAgentToolSecurityIssues(actualToolOrConfig, expected) 
     'path_params_schema',
     'query_params_schema',
     'request_body_schema',
+    'response_body_schema',
+    'response_filter',
     'auth_connection',
     'auth_resolved_params',
   ]);
   for (const key of Object.keys(schema)) {
     if (!allowedSchemaKeys.has(key)) issues.push(`api_schema.${key}`);
   }
+  if (![undefined, 'webhook'].includes(schema.kind)) issues.push('api_schema.kind');
   if (
     schema.content_type !== undefined &&
     !['application/json', 'application/json; charset=utf-8'].includes(

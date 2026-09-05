@@ -4,6 +4,7 @@
  * Keep active runtime configuration separate from historical migration evidence:
  * a migration ID is never promoted to a runtime fallback merely because it was
  * recorded by the April 2026 account migration.
+ * The nonprofit targets below were re-read and patched on 2026-09-05.
  */
 
 import {
@@ -92,10 +93,10 @@ export type ElevenLabsAgentRegistryEntry = {
 };
 
 export const LILLEY_STUDENT_COACH_AGENT_ID =
-  'agent_2001kv8wn1zhepm9x4tjfdzwm6v8' as const satisfies ElevenLabsAgentId;
+  'agent_1101kqfjfm8retm8j6md467wzxdb' as const satisfies ElevenLabsAgentId;
 
 export const RESUME_COACH_REVIEWED_AGENT_ID =
-  'agent_6601kmznw90ffxkbk7mpbym73vh9' as const satisfies ElevenLabsAgentId;
+  'agent_9101kqfjg2z8ew5r3ad4fz6323yr' as const satisfies ElevenLabsAgentId;
 
 const reviewedOnly = (
   ...agentIds: readonly ElevenLabsAgentId[]
@@ -115,14 +116,11 @@ export const ELEVENLABS_AGENT_REGISTRY = {
     environmentOverridePolicy: anyValidAgentId,
     resolution: {
       mode: 'env-with-reviewed-fallback',
-      reviewedFallbackAgentId: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
+      reviewedFallbackAgentId: 'agent_4601kqfjaz5rf09bya66s9gg1wvc',
       failClosed: false,
     },
     allowedMemberTools: [],
-    checkedInPatchAgentIds: [
-      'agent_9001kmy4g522e5ttvj88k5z1ygem',
-      'agent_0001knv003k3ffkb8e13xvzbyxh7',
-    ],
+    checkedInPatchAgentIds: ['agent_4601kqfjaz5rf09bya66s9gg1wvc'],
     historicalMigration: {
       sourceAgentId: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
       migratedAgentId: 'agent_4601kqfjaz5rf09bya66s9gg1wvc',
@@ -171,11 +169,11 @@ export const ELEVENLABS_AGENT_REGISTRY = {
     environmentOverridePolicy: anyValidAgentId,
     resolution: {
       mode: 'env-with-reviewed-fallback',
-      reviewedFallbackAgentId: 'agent_0901kmznx45vf19s9psjrctqr6x5',
+      reviewedFallbackAgentId: 'agent_6301kqfjfpexew9bnd64vs8nr7ak',
       failClosed: false,
     },
     allowedMemberTools: [],
-    checkedInPatchAgentIds: ['agent_0901kmznx45vf19s9psjrctqr6x5'],
+    checkedInPatchAgentIds: ['agent_6301kqfjfpexew9bnd64vs8nr7ak'],
     historicalMigration: {
       sourceAgentId: 'agent_0901kmznx45vf19s9psjrctqr6x5',
       migratedAgentId: 'agent_6301kqfjfpexew9bnd64vs8nr7ak',
@@ -190,11 +188,11 @@ export const ELEVENLABS_AGENT_REGISTRY = {
     environmentOverridePolicy: anyValidAgentId,
     resolution: {
       mode: 'env-with-reviewed-fallback',
-      reviewedFallbackAgentId: 'agent_5801kmznwny0e8gtmb726aaeevnt',
+      reviewedFallbackAgentId: 'agent_9201kqfjfrkyex086d2cb706xsb0',
       failClosed: false,
     },
     allowedMemberTools: [],
-    checkedInPatchAgentIds: ['agent_5801kmznwny0e8gtmb726aaeevnt'],
+    checkedInPatchAgentIds: ['agent_9201kqfjfrkyex086d2cb706xsb0'],
     historicalMigration: {
       sourceAgentId: 'agent_5801kmznwny0e8gtmb726aaeevnt',
       migratedAgentId: 'agent_9201kqfjfrkyex086d2cb706xsb0',
@@ -215,7 +213,7 @@ export const ELEVENLABS_AGENT_REGISTRY = {
     allowedMemberTools: [],
     checkedInPatchAgentIds: [RESUME_COACH_REVIEWED_AGENT_ID],
     historicalMigration: {
-      sourceAgentId: RESUME_COACH_REVIEWED_AGENT_ID,
+      sourceAgentId: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
       migratedAgentId: 'agent_9101kqfjg2z8ew5r3ad4fz6323yr',
       recordedAt: '2026-04-30',
     },
@@ -228,11 +226,11 @@ export const ELEVENLABS_AGENT_REGISTRY = {
     environmentOverridePolicy: anyValidAgentId,
     resolution: {
       mode: 'env-with-reviewed-fallback',
-      reviewedFallbackAgentId: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
+      reviewedFallbackAgentId: 'agent_3701kqfjfxxjfm88pgh40h2ca4bs',
       failClosed: false,
     },
     allowedMemberTools: [],
-    checkedInPatchAgentIds: ['agent_7601kntxhqx3e0mvznpwk9bqj5yw'],
+    checkedInPatchAgentIds: ['agent_3701kqfjfxxjfm88pgh40h2ca4bs'],
     historicalMigration: {
       sourceAgentId: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
       migratedAgentId: 'agent_3701kqfjfxxjfm88pgh40h2ca4bs',
@@ -247,11 +245,11 @@ export const ELEVENLABS_AGENT_REGISTRY = {
     environmentOverridePolicy: anyValidAgentId,
     resolution: {
       mode: 'env-with-reviewed-fallback',
-      reviewedFallbackAgentId: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
+      reviewedFallbackAgentId: 'agent_7801kqfjg0qwfy68btrqh6jg87kf',
       failClosed: false,
     },
     allowedMemberTools: [],
-    checkedInPatchAgentIds: ['agent_6801knv07nb2ftj9p54nm6xem0xj'],
+    checkedInPatchAgentIds: ['agent_7801kqfjg0qwfy68btrqh6jg87kf'],
     historicalMigration: {
       sourceAgentId: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
       migratedAgentId: 'agent_7801kqfjg0qwfy68btrqh6jg87kf',
@@ -359,6 +357,12 @@ export function resolveElevenLabsAgent(
 
   if (!isElevenLabsAgentId(configured)) {
     return fallbackResolution(key, entry, 'invalid-environment-agent-id');
+  }
+
+  // The nonprofit agent once used for staff now runs the governed student
+  // prompt. Never send caseload or staff context to that repurposed agent.
+  if (key === 'counselor_staff' && configured === LILLEY_STUDENT_COACH_AGENT_ID) {
+    return fallbackResolution(key, entry, 'unreviewed-environment-agent-id');
   }
 
   if (

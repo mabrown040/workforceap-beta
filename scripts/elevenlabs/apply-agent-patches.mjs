@@ -24,7 +24,7 @@ const PATCH_DIR = join(__dirname, 'patches');
 const API = 'https://api.elevenlabs.io/v1';
 export const REQUEST_TIMEOUT_MS = 15_000;
 export const GOVERNED_LILLEY_AGENT_ID =
-  'agent_2001kv8wn1zhepm9x4tjfdzwm6v8';
+  'agent_1101kqfjfm8retm8j6md467wzxdb';
 const PROVIDER_IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
 const DEFAULT_LOGGER = {
   error: (...values) => console.error(...values),

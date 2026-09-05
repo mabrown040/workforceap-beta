@@ -12,7 +12,7 @@ import {
 const root = process.cwd();
 const patchPath = join(
   root,
-  'scripts/elevenlabs/patches/agent_6601kmznw90ffxkbk7mpbym73vh9.patch.json',
+  'scripts/elevenlabs/patches/agent_9101kqfjg2z8ew5r3ad4fz6323yr.patch.json',
 );
 
 test('resume voice fallback has a checked-in female-voice, anti-injection contract', (t) => {
@@ -25,12 +25,12 @@ test('resume voice fallback has a checked-in female-voice, anti-injection contra
 
   assert.equal(
     getElevenLabsAgentId('resume_coach'),
-    'agent_6601kmznw90ffxkbk7mpbym73vh9',
+    'agent_9101kqfjg2z8ew5r3ad4fz6323yr',
   );
   process.env.ELEVENLABS_RESUME_COACH_AGENT_ID = 'agent_unreviewed_resume';
   assert.equal(
     getElevenLabsAgentId('resume_coach'),
-    'agent_6601kmznw90ffxkbk7mpbym73vh9',
+    'agent_9101kqfjg2z8ew5r3ad4fz6323yr',
   );
 
   const patch = JSON.parse(readFileSync(patchPath, 'utf8')) as {

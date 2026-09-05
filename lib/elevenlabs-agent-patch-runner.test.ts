@@ -22,6 +22,52 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
+test('provider replaces prompt placeholders and verification rejects stale member context', () => {
+  const preimage = {
+    conversation_config: { agent: {
+      language: 'en',
+      dynamic_variables: { dynamic_variable_placeholders: {
+        member_name: 'old placeholder', support_context: 'old context',
+      } },
+    } },
+  };
+  const patch = {
+    conversation_config: { agent: {
+      dynamic_variables: { dynamic_variable_placeholders: { secret__agent_gateway_token: '' } },
+    } },
+  };
+  const expected = {
+    conversation_config: { agent: {
+      language: 'en',
+      dynamic_variables: { dynamic_variable_placeholders: { secret__agent_gateway_token: '' } },
+    } },
+  };
+  assert.deepEqual(expectedAgentAfterPatch(preimage, patch), expected);
+  assert.deepEqual(findAgentPostPatchDrift(expected, preimage, patch), []);
+  assert.deepEqual(findAgentPostPatchDrift({
+    conversation_config: { agent: {
+      ...expected.conversation_config.agent,
+      dynamic_variables: { dynamic_variable_placeholders: {
+        secret__agent_gateway_token: '', member_name: 'stale member context',
+      } },
+    } },
+  }, preimage, patch), [
+    'conversation_config.agent.dynamic_variables.dynamic_variable_placeholders.member_name',
+  ]);
+});
+
+test('empty provider analysis canonicalization is accepted but added collection is drift', () => {
+  const before = { name: 'Before', platform_settings: { analysis_items: null } };
+  const after = { name: 'After', platform_settings: {
+    analysis_items: { evaluation_criteria: [], data_collection: [] as string[] },
+  } };
+  assert.deepEqual(findAgentPostPatchDrift(after, before, { name: 'After' }), []);
+  after.platform_settings.analysis_items.data_collection.push('unrequested collection');
+  assert.deepEqual(findAgentPostPatchDrift(after, before, { name: 'After' }), [
+    'platform_settings.analysis_items',
+  ]);
+});
+
 function createFetchQueue(responses: Response[]) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
   const fetchImpl = async (url: string | URL | Request, init: RequestInit = {}) => {

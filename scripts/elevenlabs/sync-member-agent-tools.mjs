@@ -118,6 +118,29 @@ export function assertReviewedAgentBranch(agent, agentId, branchId) {
   return agent;
 }
 
+export function normalizeExpandedAgentTools(agent, referencedTools) {
+  const prompt = agent?.conversation_config?.agent?.prompt;
+  if (!Array.isArray(prompt?.tools) || prompt.tools.length === 0) return agent;
+  const ids = prompt.tool_ids;
+  if (!Array.isArray(ids) || new Set(ids).size !== ids.length ||
+    ids.length !== prompt.tools.length || referencedTools.length !== ids.length) {
+    throw new ProviderReconciliationError('AGENT_TOOL_EXPANSION_MISMATCH');
+  }
+  const remaining = [...prompt.tools];
+  for (const id of ids) {
+    const matches = referencedTools.filter((tool) => tool?.id === id);
+    if (matches.length !== 1) throw new ProviderReconciliationError('AGENT_TOOL_EXPANSION_MISMATCH');
+    const index = remaining.findIndex((tool) => isDeepStrictEqual(tool, matches[0].tool_config));
+    if (index < 0) throw new ProviderReconciliationError('AGENT_TOOL_EXPANSION_MISMATCH');
+    remaining.splice(index, 1);
+  }
+  // GET materializes tool_ids into the deprecated tools field. Normalize only
+  // after every expanded definition exactly matches its separately read ID.
+  const normalized = structuredClone(agent);
+  normalized.conversation_config.agent.prompt.tools = [];
+  return normalized;
+}
+
 export function createProviderClient(key, branchId) {
   return {
     listTools: () => listCandidateTools(key),
@@ -166,11 +189,19 @@ export function createProviderClient(key, branchId) {
       if (response.status === 404) return;
       if (!response.ok) throw new Error(`DELETE_TOOL failed with status ${response.status}.`);
     },
-    getAgent: async (agentId) =>
-      readJson(
+    getAgent: async (agentId) => {
+      const agent = await readJson(
         await providerFetch(buildReviewedAgentPath(agentId, branchId), key),
         'GET_AGENT',
-      ),
+      );
+      const prompt = agent?.conversation_config?.agent?.prompt;
+      if (!Array.isArray(prompt?.tools) || prompt.tools.length === 0) return agent;
+      if (!Array.isArray(prompt.tool_ids)) throw new ProviderReconciliationError('AGENT_TOOL_EXPANSION_MISMATCH');
+      const referencedTools = await Promise.all(prompt.tool_ids.map(async (id) => readJson(
+        await providerFetch(`/convai/tools/${encodeURIComponent(id)}`, key), 'GET_EXPANDED_TOOL',
+      )));
+      return normalizeExpandedAgentTools(agent, referencedTools);
+    },
     patchAgentToolIds: async (agentId, toolIds, versionDescription) =>
       readJson(
         await providerFetch(buildReviewedAgentPath(agentId, branchId), key, {

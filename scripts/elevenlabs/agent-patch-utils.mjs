@@ -6,12 +6,20 @@ function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function mergeJson(base, patch) {
+function mergeJson(base, patch, path = []) {
   if (!isObject(patch)) return cloneJson(patch);
+  // ElevenLabs replaces this dictionary, removing placeholders from the old
+  // prompt. Require exact replacement so stale member context cannot survive.
+  if (
+    path.join('.') ===
+    'conversation_config.agent.dynamic_variables.dynamic_variable_placeholders'
+  ) return cloneJson(patch);
 
   const merged = isObject(base) ? cloneJson(base) : {};
   for (const [key, value] of Object.entries(patch)) {
-    merged[key] = isObject(value) ? mergeJson(merged[key], value) : cloneJson(value);
+    merged[key] = isObject(value)
+      ? mergeJson(merged[key], value, [...path, key])
+      : cloneJson(value);
   }
   return merged;
 }
@@ -66,11 +74,22 @@ const PROVIDER_MANAGED_AGENT_FIELDS = new Set([
 
 function withoutProviderManagedFields(agent) {
   if (!isObject(agent)) return agent;
-  return Object.fromEntries(
+  const comparable = Object.fromEntries(
     Object.entries(agent).filter(
       ([key]) => !PROVIDER_MANAGED_AGENT_FIELDS.has(key),
     ),
   );
+  const analysis = comparable.platform_settings?.analysis_items;
+  // Older agents return null until their first update. The provider then emits
+  // this empty representation; any actual analysis configuration remains exact.
+  if (
+    isObject(analysis) && Object.keys(analysis).length === 2 &&
+    Array.isArray(analysis.evaluation_criteria) && analysis.evaluation_criteria.length === 0 &&
+    Array.isArray(analysis.data_collection) && analysis.data_collection.length === 0
+  ) {
+    comparable.platform_settings = { ...comparable.platform_settings, analysis_items: null };
+  }
+  return comparable;
 }
 
 /**
@@ -103,8 +122,8 @@ export function agentPatchMatches(actual, expected) {
 
 /**
  * Produce the exact agent state that should exist after ElevenLabs applies a
- * partial PATCH. Patch objects merge recursively; arrays and scalar values are
- * replaced. This intentionally works for every supported checked-in field,
+ * partial PATCH. Objects merge recursively except the replaced dynamic-variable
+ * dictionary; arrays and scalar values are replaced. This covers each checked-in field,
  * including platform_settings and workflow.
  */
 export function expectedAgentAfterPatch(preimage, patch) {

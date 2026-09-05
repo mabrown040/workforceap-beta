@@ -28,14 +28,16 @@ const okResponse = () =>
     headers: { 'content-type': 'application/json' },
   });
 
-test('wioa_prequal recovers from a 404 on the reviewed agent by retrying the migrated agent once', async (t) => {
+test('wioa_prequal recovers from a retired personal override by retrying the nonprofit agent once', async (t) => {
   withEnv(t);
   const entry = ELEVENLABS_AGENT_REGISTRY.wioa_prequal;
+  const retiredAgentId = entry.historicalMigration.sourceAgentId;
+  process.env.ELEVENLABS_WIOA_PREQUAL_AGENT_ID = retiredAgentId;
   const requestedAgentIds: string[] = [];
   globalThis.fetch = async (input) => {
     const agentId = new URL(String(input)).searchParams.get('agent_id') ?? '';
     requestedAgentIds.push(agentId);
-    if (agentId === entry.resolution.reviewedFallbackAgentId) {
+    if (agentId === retiredAgentId) {
       return { ok: false, status: 404, text: async () => 'not found' } as Response;
     }
     return okResponse();
@@ -44,7 +46,7 @@ test('wioa_prequal recovers from a 404 on the reviewed agent by retrying the mig
   const session = await startElevenLabsPortalSession('wioa_prequal');
 
   assert.deepEqual(requestedAgentIds, [
-    entry.resolution.reviewedFallbackAgentId,
+    retiredAgentId,
     entry.historicalMigration?.migratedAgentId,
   ]);
   assert.equal(session.signedUrl, 'wss://provider.test/session');
@@ -65,7 +67,7 @@ test('non-404 provider failures are not retried against the migrated agent', asy
   assert.equal(calls, 1);
 });
 
-test('a 404 on both the reviewed and migrated agents surfaces the provider error', async (t) => {
+test('a 404 on the reviewed nonprofit agent is not retried against the same agent', async (t) => {
   withEnv(t);
   let calls = 0;
   globalThis.fetch = async () => {
@@ -77,5 +79,24 @@ test('a 404 on both the reviewed and migrated agents surfaces the provider error
     startElevenLabsPortalSession('wioa_prequal'),
     /ElevenLabs Conversational API error \(404\)/,
   );
-  assert.equal(calls, 2);
+  assert.equal(calls, 1);
+});
+
+test('staff and governed member failures never retry a historical agent in another role', async (t) => {
+  withEnv(t);
+  const previousStaffId = process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
+  process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID = 'agent_1234567890abcdefghijklmnopqr';
+  t.after(() => {
+    if (previousStaffId === undefined) delete process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID;
+    else process.env.ELEVENLABS_COUNSELOR_STAFF_AGENT_ID = previousStaffId;
+  });
+  for (const key of ['counselor_staff', 'career_business', 'resume_coach'] as const) {
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      return { ok: false, status: 404, text: async () => 'not found' } as Response;
+    };
+    await assert.rejects(startElevenLabsPortalSession(key), /ElevenLabs Conversational API error \(404\)/);
+    assert.equal(calls, 1, `${key} must not cross its reviewed role boundary`);
+  }
 });

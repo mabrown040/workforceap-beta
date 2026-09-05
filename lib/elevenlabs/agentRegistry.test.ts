@@ -141,7 +141,7 @@ test('invalid ordinary overrides fall back while reviewed-only agents reject dri
   assert.deepEqual(interview, {
     ok: true,
     key: 'interview',
-    agentId: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
+    agentId: 'agent_4601kqfjaz5rf09bya66s9gg1wvc',
     source: 'reviewed-fallback',
     environmentKey: 'ELEVENLABS_INTERVIEW_AGENT_ID',
     ignoredEnvironmentReason: 'invalid-environment-agent-id',
@@ -185,7 +185,7 @@ test('valid ordinary env overrides preserve current behavior', () => {
   );
 });
 
-test('April migration IDs remain historical evidence rather than active fallbacks', () => {
+test('nonprofit cutover preserves April evidence and explicitly reviews each active target', () => {
   const expectedMigrationIds = {
     interview: 'agent_4601kqfjaz5rf09bya66s9gg1wvc',
     counselor_staff: 'agent_1101kqfjfm8retm8j6md467wzxdb',
@@ -200,10 +200,40 @@ test('April migration IDs remain historical evidence rather than active fallback
   for (const [key, migrationId] of Object.entries(expectedMigrationIds)) {
     const entry = ELEVENLABS_AGENT_REGISTRY[key as keyof typeof expectedMigrationIds];
     assert.equal(entry.historicalMigration?.migratedAgentId, migrationId);
-    if (entry.resolution.mode === 'env-with-reviewed-fallback') {
-      assert.notEqual(entry.resolution.reviewedFallbackAgentId, migrationId);
+    if (entry.resolution.mode === 'env-with-reviewed-fallback' && key !== 'career_business') {
+      assert.equal(entry.resolution.reviewedFallbackAgentId, migrationId);
     }
   }
 
   assert.equal(ELEVENLABS_AGENT_REGISTRY.counselor.historicalMigration, null);
+  assert.equal(LILLEY_STUDENT_COACH_AGENT_ID, 'agent_1101kqfjfm8retm8j6md467wzxdb');
+  assert.equal(ELEVENLABS_AGENT_REGISTRY.career_business.resolution.reviewedFallbackAgentId,
+    LILLEY_STUDENT_COACH_AGENT_ID);
+  assert.equal(ELEVENLABS_AGENT_REGISTRY.resume_coach.historicalMigration.sourceAgentId,
+    'agent_6601kmznw90ffxkbk7mpbym73vh9');
+});
+
+test('repurposed nonprofit Lilley fails closed when configured as the staff counselor', () => {
+  assert.deepEqual(resolveElevenLabsAgent('counselor_staff', {
+    ELEVENLABS_COUNSELOR_STAFF_AGENT_ID: LILLEY_STUDENT_COACH_AGENT_ID,
+  }), {
+    ok: false, key: 'counselor_staff', environmentKey: 'ELEVENLABS_COUNSELOR_STAFF_AGENT_ID',
+    reason: 'unreviewed-environment-agent-id',
+  });
+});
+
+test('retired personal Lilley and resume overrides resolve to reviewed nonprofit agents', () => {
+  for (const key of ['counselor', 'career_business'] as const) {
+    const result = resolveElevenLabsAgent(key, {
+      [ELEVENLABS_AGENT_REGISTRY[key].environmentKey]: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8',
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.agentId, LILLEY_STUDENT_COACH_AGENT_ID);
+      assert.equal(result.ignoredEnvironmentReason, 'unreviewed-environment-agent-id');
+    }
+  }
+  assert.equal(getElevenLabsAgentIdFromRegistry('resume_coach', {
+    ELEVENLABS_RESUME_COACH_AGENT_ID: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
+  }), RESUME_COACH_REVIEWED_AGENT_ID);
 });

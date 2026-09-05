@@ -24,7 +24,7 @@ export const readinessVoiceSurface: Surface = {
   /* Badges normalized to short Title Case across all voice surfaces
      (audit #55) — was "Workforce Readiness & career coach". */
   badge: 'READINESS',
-  subtext: 'Interviews, certifications, and next steps — talked through out loud.',
+  subtext: 'Stuck on what to do next? Talk it through and leave with one clear next step.',
   icon: icon(Target),
   glowColor: GOLD,
   gradient: `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
@@ -35,7 +35,7 @@ export const readinessVoiceSurface: Surface = {
 export const resumeCoachVoiceSurface: Surface = {
   badge: 'RESUME',
   subtext:
-    'Voice feedback on bullets and framing. Pair with your live draft when you use the rewriter.',
+    'Reads your uploaded resume or live draft and coaches you line by line on bullets, framing, and gaps.',
   icon: icon(Sparkles),
   glowColor: CRIMSON,
   gradient: `linear-gradient(135deg, ${CRIMSON}, ${CRIMSON_DARK})`,
@@ -55,7 +55,7 @@ export const counselorStaffVoiceSurface: Surface = {
 
 export const studentCounselorVoiceSurface: Surface = {
   badge: 'LILLEY',
-  subtext: 'Student career coaching — then your personalized action plan.',
+  subtext: 'Knows your WorkforceAP plan and progress — then your saved action plan.',
   icon: icon(Headphones),
   glowColor: BLUE,
   gradient: `linear-gradient(135deg, ${BLUE}, ${BLUE_DARK})`,
@@ -85,7 +85,7 @@ export const partnerVoiceSurface: Surface = {
 
 export const mockInterviewVoiceSurface: Surface = {
   badge: 'PRACTICE',
-  subtext: 'Answer out loud — optional camera recording for review.',
+  subtext: 'A realistic interviewer for the role you name — optional camera recording for review.',
   icon: icon(AudioLines),
   glowColor: CRIMSON,
   gradient: `linear-gradient(135deg, ${CRIMSON_DARK}, #5e1426)`,
@@ -95,7 +95,7 @@ export const mockInterviewVoiceSurface: Surface = {
 
 export const careerBusinessVoiceSurface: Surface = {
   badge: 'ADVANCED',
-  subtext: 'Career, project management, sales, marketing, and business guidance.',
+  subtext: 'Lilley in a wider lane: project management, sales, marketing, and business questions.',
   icon: icon(Briefcase),
   glowColor: CRIMSON,
   gradient: `linear-gradient(135deg, ${CRIMSON}, ${CRIMSON_DARK})`,

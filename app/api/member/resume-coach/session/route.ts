@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import {
+  MEMBER_VOICE_UNAVAILABLE_MESSAGE,
+  startMemberVoiceSessionWithLilleyFallback,
+} from '@/lib/ai/memberVoiceFallback';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import {
@@ -74,22 +77,28 @@ async function getResumeCoachDynamicVariables(
   
     try {
       const dynamicVariables = await getResumeCoachDynamicVariables(user.id, { liveResumeDraft });
-      const {
-        signedUrl,
-        expiresAt,
-        dynamicVariables: clampedDynamicVariables,
-      } = await startElevenLabsPortalSession('resume_coach', {
+      const session = await startMemberVoiceSessionWithLilleyFallback({
+        key: 'resume_coach',
+        userId: user.id,
         dynamicVariables,
+        routeLabel: 'member/resume-coach/session',
       });
-      return NextResponse.json({
-        signedUrl,
-        expiresAt,
-        dynamicVariables: clampedDynamicVariables ?? {},
-      });
+      return NextResponse.json(
+        {
+          signedUrl: session.signedUrl,
+          expiresAt: session.expiresAt,
+          conversationId: session.conversationId,
+          dynamicVariables: session.dynamicVariables,
+          agent: session.agent,
+        },
+        { headers: { 'Cache-Control': 'no-store, max-age=0' } },
+      );
     } catch (e) {
+      // Provider detail stays in the server log; the raw message used to reach
+      // members as "Server: ElevenLabs Conversational API error (404)".
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       console.error('[member/resume-coach/session]', msg);
-      return NextResponse.json({ error: msg }, { status: 503 });
+      return NextResponse.json({ error: MEMBER_VOICE_UNAVAILABLE_MESSAGE }, { status: 503 });
     }
   } catch (error) {
     console.error('/member/resume-coach/session:', error);

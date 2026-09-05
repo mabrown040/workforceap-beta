@@ -48,8 +48,13 @@ export const POST = withApiGuc(async () => {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
+      // Provider detail stays in the server log; the raw message used to reach
+      // users as "Server: ElevenLabs Conversational API error (404)".
       console.error('[partner/voice-session]', msg);
-      return NextResponse.json({ error: msg }, { status: 503 });
+      return NextResponse.json(
+        { error: 'Voice assistance is unavailable right now. Please try again in a few minutes.' },
+        { status: 503 },
+      );
     }
   } catch (error) {
     console.error('/partner/voice-session:', error);

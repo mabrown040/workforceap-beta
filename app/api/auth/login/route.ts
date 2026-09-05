@@ -89,18 +89,61 @@ async function handleLogin(request: Request) {
 
   if (error) {
     const msg = error.message ?? '';
-    let friendly: string;
+    const providerStatus = typeof (error as { status?: unknown }).status === 'number'
+      ? (error as { status: number }).status
+      : undefined;
+    // Ops (9/5/26): every GoTrue failure used to collapse into "Incorrect
+    // email or password", so an admin locked out by a Supabase-side rate limit
+    // or an auth outage kept retrying passwords (and reset links) that were
+    // never the problem. Keep the generic wording for a real credential miss
+    // (no account enumeration), but say so when it is not the password.
     if (/email not confirmed/i.test(msg)) {
-      friendly =
-        "Your email hasn't been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.";
-    } else if (/user.*disabled|account.*disabled|banned/i.test(msg)) {
-      friendly =
-        "Your account isn't available. Contact us at (512) 777-1808 for help.";
-    } else {
-      // Always return identical generic message to prevent account enumeration
-      friendly = 'Incorrect email or password.';
+      return NextResponse.json(
+        {
+          error:
+            "Your email hasn't been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.",
+        },
+        { status: 401 },
+      );
     }
-    return NextResponse.json({ error: friendly }, { status: 401 });
+    if (/user.*disabled|account.*disabled|banned/i.test(msg)) {
+      return NextResponse.json(
+        { error: "Your account isn't available. Contact us at (512) 777-1808 for help." },
+        { status: 401 },
+      );
+    }
+    if (providerStatus === 429 || /rate limit|too many requests/i.test(msg)) {
+      return NextResponse.json(
+        {
+          error:
+            'Too many sign-in attempts right now. Please wait a minute and try again. Your password has not been changed.',
+        },
+        { status: 429, headers: { 'Retry-After': '60' } },
+      );
+    }
+    if (
+      (providerStatus !== undefined && providerStatus >= 500) ||
+      /unexpected_failure|database error|service unavailable|fetch failed|timed? ?out|network/i.test(msg)
+    ) {
+      logger.error('/auth/login: auth provider failure', { status: providerStatus, err: msg });
+      return NextResponse.json(
+        {
+          error:
+            'Sign-in is temporarily unavailable. Please try again in a few minutes. Your password has not been changed.',
+        },
+        { status: 503, headers: { 'Retry-After': '60' } },
+      );
+    }
+    // Always return the same generic message for a credential miss to prevent
+    // account enumeration; point at the reset flow, which now also repairs an
+    // account whose login record went missing.
+    return NextResponse.json(
+      {
+        error:
+          'Incorrect email or password. If you recently reset your password, use the newest one — or choose "Forgot password?" to set a new one.',
+      },
+      { status: 401 },
+    );
   }
 
   if (!data.session) {

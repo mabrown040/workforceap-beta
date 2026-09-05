@@ -98,7 +98,10 @@ export function pickClientMessageSlice(
       Object.assign(out, pickNamespaces(m, PORTAL_CLIENT_NAMESPACES));
       break;
     case 'admin':
-      Object.assign(out, pickNamespaces(m, ['admin', 'courseraProgress']));
+      // `workspace` + `group` back the shared WorkspaceShell chrome (nav
+      // labels, group switcher) that AdminPortalShell renders; without them
+      // every /admin render logged MISSING_MESSAGE: workspace (en).
+      Object.assign(out, pickNamespaces(m, ['admin', 'courseraProgress', 'workspace', 'group']));
       break;
     case 'apply':
       Object.assign(out, pickNamespaces(m, ['apply']));

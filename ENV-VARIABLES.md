@@ -49,7 +49,7 @@
 | `ELEVENLABS_EMPLOYER_AGENT_ID` | `agent_0901kmznx45vf19s9psjrctqr6x5` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_PARTNER_AGENT_ID` | `agent_7601kntxhqx3e0mvznpwk9bqj5yw` | (same) | ElevenLabs ConvAI |
 | `ELEVENLABS_RESUME_COACH_AGENT_ID` | `agent_6601kmznw90ffxkbk7mpbym73vh9` | (same) | ElevenLabs ConvAI |
-| `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | WIOA Pre-Qualification Guide agent id in the **live** account (pre-migration `agent_6801knv07nb2ftj9p54nm6xem0xj`, re-created 2026-04-30 as `agent_7801kqfjg0qwfy68btrqh6jg87kf`) | (same) | ElevenLabs ConvAI — **unset in prod as of 9/2/26**, which is why WIOA voice practice returned a 404; the code now retries the migrated id once, but set this to stop relying on that. |
+| `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | WIOA Pre-Qualification Guide agent id in the **live** account (pre-migration `agent_6801knv07nb2ftj9p54nm6xem0xj`, re-created 2026-04-30 as `agent_7801kqfjg0qwfy68btrqh6jg87kf`) | (same) | ElevenLabs ConvAI — **unset in prod as of 9/5/26** and both ids above answer 404 in the live account. Member voice routes (WIOA, readiness, resume coach) now fall back to Lilley through the member gateway and tell the browser `agent: 'lilley_fallback'`; the public WIOA page returns a friendly 503. To restore the dedicated WIOA guide: create/find it in the live ElevenLabs workspace and set this variable. |
 
 ### Billing: J5 invoice + J6 cover letter packets (optional overrides)
 All default to the Workforce Advancement Project identity printed on the official price list. Set only what differs.

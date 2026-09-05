@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { reenableAuthUserAfterRestore } from '@/lib/admin/authUserLifecycle';
+import { prisma } from '@/lib/db/prisma';
 import { getResend } from '@/lib/email';
 import { sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
@@ -22,6 +24,62 @@ function escapeHtml(value: string): string {
 
 function isUserNotFound(message: string): boolean {
   return /user.*not.*found|no user|not found/i.test(message);
+}
+
+/**
+ * Heal the "user in Prisma, not in Supabase Auth" split from a reset request.
+ *
+ * Ops (9/5/26): an admin's reset link never arrived and the login answered
+ * "Incorrect email or password" for every password. Before 9/2 the admin
+ * soft-delete hard-deleted the Supabase auth user (see
+ * `disableAuthUserForSoftDelete`), and `docs/auth-troubleshooting.md` lists
+ * seeds/manual inserts as another source of Prisma-only accounts. GoTrue then
+ * reports "user not found" to `generateLink`, which this module used to treat
+ * as an unknown address and silently skip — so the member could neither sign
+ * in nor recover.
+ *
+ * When an active `users` row exists for the address, re-create the auth user
+ * under the SAME id (User.id is the auth id everywhere) with a confirmed email
+ * and no password, exactly as admin restore does, so the reset link that
+ * follows lets the member set a password and sign in. Returns true when the
+ * auth user now exists.
+ */
+async function recreateAuthUserFromPrismaRow(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  normalizedEmail: string,
+): Promise<boolean> {
+  let row: { id: string; email: string; fullName: string | null; phone: string | null } | null = null;
+  try {
+    row = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' }, deletedAt: null },
+      select: { id: true, email: true, fullName: true, phone: true },
+    });
+  } catch (err) {
+    logger.warn('passwordReset: could not look up users row for auth self-heal', {
+      err: err instanceof Error ? err.message : String(err),
+    });
+    return false;
+  }
+  if (!row) return false;
+
+  const result = await reenableAuthUserAfterRestore(admin, {
+    id: row.id,
+    email: normalizedEmail,
+    fullName: row.fullName,
+    phone: row.phone,
+  });
+  if (!result.ok) {
+    logger.error('passwordReset: auth user missing for an active users row and could not be re-created', {
+      userId: row.id,
+      reason: result.message,
+    });
+    return false;
+  }
+  logger.warn('passwordReset: re-created missing Supabase auth user for an active account', {
+    userId: row.id,
+    action: result.action,
+  });
+  return true;
 }
 
 /**
@@ -65,11 +123,22 @@ export async function sendPasswordResetEmail(
 
   if (canMintOwnLink) {
     const admin = getSupabaseAdmin();
-    const { data, error } = await admin.auth.admin.generateLink({
-      type: 'recovery',
-      email: normalizedEmail,
-      options: { redirectTo: resetPageUrl },
-    });
+    const mintRecoveryLink = () =>
+      admin.auth.admin.generateLink({
+        type: 'recovery',
+        email: normalizedEmail,
+        options: { redirectTo: resetPageUrl },
+      });
+
+    let { data, error } = await mintRecoveryLink();
+
+    if (error && isUserNotFound(error.message)) {
+      // No auth user — but is there an app account? If so, bring the login
+      // back under the same id and mint the link again.
+      if (await recreateAuthUserFromPrismaRow(admin, normalizedEmail)) {
+        ({ data, error } = await mintRecoveryLink());
+      }
+    }
 
     if (error) {
       // Unknown address: report as skipped so callers keep their uniform

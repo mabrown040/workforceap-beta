@@ -97,6 +97,12 @@ export type PortalVoiceSessionProps = {
    * page h1 is the only heading above it).
    */
   titleAs?: 'h2' | 'h3';
+  /**
+   * Shown during the session when the server started a stand-in coach
+   * (`agent: 'lilley_fallback'`) because the dedicated agent was unavailable.
+   * Pass `null` to suppress the notice.
+   */
+  fallbackAgentNotice?: string | null;
   description: string;
   /** Visible before Start; describes the third-party voice data transfer. */
   dataUseNotice?: string;
@@ -191,6 +197,7 @@ export default function PortalVoiceSession({
   sessionPayload,
   title,
   titleAs = 'h3',
+  fallbackAgentNotice = 'The dedicated coach for this tool is unavailable right now, so you are talking with Lilley, the WorkforceAP career coach.',
   description,
   dataUseNotice = 'By starting, you send microphone audio, the live transcript, and this tool\'s session context to ElevenLabs, our voice provider. Do not share passwords, Social Security numbers, or financial account details.',
   accent = '#ad2c4d',
@@ -220,6 +227,7 @@ export default function PortalVoiceSession({
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
+  const [sessionNotice, setSessionNotice] = useState('');
   const [agentSpeaking, setAgentSpeaking] = useState(false);
   const [liveLines, setLiveLines] = useState<Array<{ speaker: 'agent' | 'user'; text: string }>>([]);
   const [suggestions, setSuggestions] = useState<ResumeSuggestion[]>([]);
@@ -428,16 +436,21 @@ export default function PortalVoiceSession({
         signedUrl?: string;
         dynamicVariables?: Record<string, string | number | boolean>;
         error?: string;
+        agent?: string;
       };
       if (!res.ok || !data.signedUrl) {
         throw new Error(data.error ?? 'Voice is not available right now.');
       }
       signedUrl = data.signedUrl;
       dynamicVariables = data.dynamicVariables;
+      setSessionNotice(
+        data.agent === 'lilley_fallback' && fallbackAgentNotice ? fallbackAgentNotice : ''
+      );
       logVoice('signed_url_ok', {
         hasDynamicVariables: Boolean(
           dynamicVariables && Object.keys(dynamicVariables).length > 0
         ),
+        agent: data.agent ?? 'primary',
       });
     } catch (err) {
       logVoice('signed_url_failed', err);
@@ -939,6 +952,24 @@ export default function PortalVoiceSession({
             {agentSpeaking ? 'Speaking' : 'Listening'}
           </span>
         </div>
+        {sessionNotice ? (
+          <p
+            role="status"
+            style={{
+              margin: '0 0 1.25rem',
+              padding: '0.6rem 0.85rem',
+              borderRadius: 12,
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              color: 'rgba(255,255,255,0.78)',
+              fontSize: '0.8rem',
+              lineHeight: 1.45,
+              textAlign: 'center',
+            }}
+          >
+            {sessionNotice}
+          </p>
+        ) : null}
 
         {showLiveTranscript ? (
           <div

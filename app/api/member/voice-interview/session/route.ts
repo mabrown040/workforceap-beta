@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
+import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
@@ -14,7 +14,7 @@ export const POST = withApiGuc(async (req: NextRequest) => {
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
       return NextResponse.json(
-        { error: 'Too many voice sessions. Please wait an hour before starting another.' },
+        { error: VOICE_SESSION_LIMIT_MESSAGE },
         { status: 429, headers: { 'Retry-After': '3600' } }
       );
     }

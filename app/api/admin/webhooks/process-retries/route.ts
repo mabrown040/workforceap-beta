@@ -44,9 +44,21 @@ async function handle(request: NextRequest) {
       return acc;
     }, {} as Record<string, number>);
 
-    const actorId = user?.id ?? 'cron';
-    void auditLog({ actorUserId: actorId, action: 'admin_webhook_retries_processed', targetType: 'User', targetId: actorId, metadata: { processed: results.length, triggeredBy: user ? 'admin' : 'cron' } }).catch(() => {});
-    logAuditEvent({ user: { id: actorId, role: 'admin' }, verb: 'created', object: { type: 'WebhookRetryBatch', id: actorId }, result: { success: true } }).catch(() => {});
+    // `audit_logs.actor_user_id` is a FK to `users.id`. When Vercel cron runs
+    // this route there is no signed-in user, so the actor must be NULL — the
+    // literal 'cron' used to violate the FK on every 10-minute run, and the
+    // swallowed error meant the batch was never recorded (see lib/audit.ts,
+    // which now also reports write failures to Sentry).
+    const actorId = user?.id ?? null;
+    const triggeredBy = user ? 'admin' : 'cron';
+    void auditLog({
+      actorUserId: actorId,
+      action: 'admin_webhook_retries_processed',
+      targetType: 'WebhookRetryBatch',
+      targetId: triggeredBy,
+      metadata: { processed: results.length, triggeredBy, summary: byResult },
+    }).catch(() => {});
+    logAuditEvent({ user: { id: actorId ?? 'cron', role: user ? 'admin' : 'system' }, verb: 'created', object: { type: 'WebhookRetryBatch', id: triggeredBy }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       processed: results.length,
       summary: byResult,

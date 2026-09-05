@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
+import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import {
   MEMBER_VOICE_UNAVAILABLE_MESSAGE,
   startMemberVoiceSessionWithLilleyFallback,
@@ -16,7 +16,7 @@ export const POST = withApiGuc(async () => {
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
       return NextResponse.json(
-        { error: 'Too many voice sessions. Please wait an hour before starting another.' },
+        { error: VOICE_SESSION_LIMIT_MESSAGE },
         { status: 429, headers: { 'Retry-After': '3600' } }
       );
     }

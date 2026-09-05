@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
+import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from '@/lib/tenant/organization';
 // `prisma` import removed: the only direct use was the `member` lookup,
@@ -79,7 +79,7 @@ async function _POST(req: NextRequest) {
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
       return NextResponse.json(
-        { error: 'Too many voice sessions. Please wait an hour before starting another.' },
+        { error: VOICE_SESSION_LIMIT_MESSAGE },
         { status: 429, headers: { 'Retry-After': '3600' } }
       );
     }

@@ -95,9 +95,12 @@ let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 // (member portal voice tools, counselor/employer/partner walkthroughs,
 // AI interview practice, etc.). Each session bills 5-10 minutes of
 // ElevenLabs voice at ~$0.30/min, so 1k unbounded reqs ≈ $1.5-3k.
-// 5/hr per user covers normal multi-session interview practice while
+// 10/hr per user covers multi-coach practice and retrying session starts while
 // blocking obvious abuse and accidental loops.
 let voiceSessionRateLimiter: Ratelimit | null = null;
+export const VOICE_SESSION_STARTS_PER_HOUR = 10;
+export const VOICE_SESSION_LIMIT_MESSAGE =
+  `The limit is ${VOICE_SESSION_STARTS_PER_HOUR} voice session starts per hour. Please try again later.`;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 let verifyMfaRateLimiter: Ratelimit | null = null;
 let publicHealthRateLimiter: Ratelimit | null = null;
@@ -334,7 +337,7 @@ if (redisUrl && redisToken) {
   });
   voiceSessionRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    limiter: Ratelimit.slidingWindow(VOICE_SESSION_STARTS_PER_HOUR, '1 h'),
     prefix: 'ratelimit:voice-session',
   });
   publicVoiceSessionRateLimiter = new Ratelimit({

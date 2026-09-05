@@ -53,6 +53,13 @@ Suggested fix: keep it fire-and-forget, but route the failure into
 `captureApiError` and an audit row, and have the member surface show a "still
 syncing" state rather than an empty course list.
 
+**Implementation update (2026-09-04):** the member route now registers the refresh
+with Next.js `after`, reports fixed-stage failures, and returns a separate
+`sync.status`. Accepted enrollments expose the launch link immediately without
+inventing progress. This is partial remediation, not a closed finding: durable
+sync history, partial-sync visibility, and live acceptance remain outstanding.
+See [the current response contract](COURSERA-ENROLLMENT-FLOW.md#enrollment-versus-progress-refresh).
+
 ### F-3 — The org ID falls back to a hardcoded constant
 **Severity: medium.**
 

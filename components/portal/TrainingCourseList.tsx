@@ -1,12 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import type { CourseProgressStatus } from '@prisma/client';
 import type { ProgramCourse } from '@/lib/content/programs';
 import { isWorkforceApCourse, workforceApCourseHref } from '@/lib/content/courseDelivery';
+import { useAnnounce } from '@/components/portal/kit/hooks/useAnnounce';
+
+type EnrollNotice = {
+  kind: 'success' | 'invited' | 'warning' | 'error';
+  message: string;
+};
+
+type EnrollmentFocus = {
+  programSlug: string;
+  trigger: HTMLButtonElement;
+  actions: HTMLElement;
+  launchHref: string;
+  moved: boolean;
+  ready: boolean;
+  stop: () => void;
+};
 
 export type CourseProgressUi = {
   status: CourseProgressStatus;
@@ -57,18 +73,44 @@ export default function TrainingCourseList({
   enrolledCourseraCourseIds = [],
 }: TrainingCourseListProps) {
   const router = useRouter();
+  const announce = useAnnounce();
   const [marking, setMarking] = useState<string | null>(null);
   const [markError, setMarkError] = useState<string | null>(null);
   /** Course slug currently being enrolled (button → "Enrolling…"). */
   const [enrolling, setEnrolling] = useState<string | null>(null);
-  const [enrollNotice, setEnrollNotice] = useState<{
-    kind: 'success' | 'invited' | 'error';
-    message: string;
-  } | null>(null);
+  const [enrollNotice, setEnrollNotice] = useState<EnrollNotice | null>(null);
+  // Provider acceptance can precede local progress rows. Keep the launch CTA
+  // available without inventing progress, and scope this session state by program.
+  const [confirmedEnrolledCourseKeys, setConfirmedEnrolledCourseKeys] = useState<Set<string>>(() => new Set());
+  const enrollmentFocus = useRef<EnrollmentFocus | null>(null);
   /** Open when the state machine returned `status: 'invited'`. */
   const [invitedModalOpen, setInvitedModalOpen] = useState(false);
   const completedSet = new Set(completedSlugs);
   const enrolledCourseraSet = new Set(enrolledCourseraCourseIds);
+
+  useEffect(() => () => {
+    // Stop listening even if the request never settles after navigation.
+    enrollmentFocus.current?.stop();
+    enrollmentFocus.current = null;
+  }, [programSlug]);
+
+  useEffect(() => {
+    const pending = enrollmentFocus.current;
+    if (!pending?.ready) return;
+    pending.stop();
+    enrollmentFocus.current = null;
+    if (pending.programSlug !== programSlug || pending.moved || !pending.actions.isConnected) return;
+    // Disabling/removing the trigger can leave native focus on body. Restore
+    // only that lost action focus, never override a deliberate move elsewhere.
+    if (document.activeElement !== document.body && document.activeElement !== pending.trigger) return;
+    const launch = pending.actions.querySelector<HTMLAnchorElement>('a.training-course-cta-primary');
+    if (launch?.isConnected && launch.getAttribute('href') === pending.launchHref) launch.focus();
+  }, [confirmedEnrolledCourseKeys, programSlug]);
+
+  const showEnrollNotice = (notice: EnrollNotice) => {
+    setEnrollNotice(notice);
+    announce(notice.message, notice.kind === 'error' ? 'assertive' : 'polite');
+  };
 
   const getStatus = (slug: string): 'complete' | 'in_progress' | 'not_started' => {
     const row = progressBySlug?.[slug];
@@ -81,13 +123,29 @@ export default function TrainingCourseList({
     return 'not_started';
   };
 
-  const handleEnroll = async (course: ProgramCourse) => {
+  const handleEnroll = async (course: ProgramCourse, trigger: HTMLButtonElement) => {
     if (!course.courseraCourseId) {
-      setEnrollNotice({
+      showEnrollNotice({
         kind: 'error',
         message: "This course isn't linked to Coursera yet. Try again later.",
       });
       return;
+    }
+    let focus: EnrollmentFocus | null = null;
+    if (document.activeElement === trigger && trigger.parentElement) {
+      const tracking: EnrollmentFocus = {
+        programSlug, trigger, actions: trigger.parentElement,
+        launchHref: `/api/member/coursera/launch?course=${encodeURIComponent(course.slug)}`,
+        moved: false, ready: false,
+        stop: () => document.removeEventListener('focusin', onFocusMove),
+      };
+      const onFocusMove = (event: FocusEvent) => {
+        if (event.target !== trigger) tracking.moved = true;
+      };
+      enrollmentFocus.current?.stop();
+      enrollmentFocus.current = tracking;
+      document.addEventListener('focusin', onFocusMove);
+      focus = tracking;
     }
     setEnrolling(course.slug);
     setEnrollNotice(null);
@@ -97,45 +155,70 @@ export default function TrainingCourseList({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ courseraCourseId: course.courseraCourseId }),
       });
-      const payload = (await res.json().catch(() => ({}))) as {
-        status?: string;
-        message?: string;
-        error?: string;
-        code?: string;
-      };
+      const rawPayload: unknown = await res.json().catch(() => null);
+      const payload = rawPayload && typeof rawPayload === 'object' && !Array.isArray(rawPayload)
+        ? rawPayload as Record<string, unknown>
+        : {};
       if (!res.ok) {
         // Server-side eligibility refusal. The button shouldn't have been
         // visible — but if a stale tab was cached, this is the safety net.
         const msg =
           payload.code === 'NOT_APPROVED'
             ? 'Enrollment is locked. Your counselor will enable this when funding is confirmed.'
-            : payload.error ?? 'Could not enroll. Please try again.';
-        setEnrollNotice({ kind: 'error', message: msg });
+            : typeof payload.error === 'string' ? payload.error : 'Could not enroll. Please try again.';
+        showEnrollNotice({ kind: 'error', message: msg });
         return;
       }
       if (payload.status === 'invited') {
         setInvitedModalOpen(true);
-        setEnrollNotice({
+        showEnrollNotice({
           kind: 'invited',
           message:
-            payload.message ?? 'Check your email — Coursera sent an invite.',
+            typeof payload.message === 'string' ? payload.message : 'Check your email — Coursera sent an invite.',
         });
         return;
       }
-      // 'enrolled', 'membership-created-and-enrolled', or 'already-enrolled':
-      // refetch to pull the latest progress (including the seeded
-      // CourseProgress rows the server's auto-sync may have just created).
-      setEnrollNotice({
-        kind: 'success',
-        message: payload.message ?? 'Enrolled.',
-      });
+      if (payload.status !== 'enrolled' && payload.status !== 'membership-created-and-enrolled' && payload.status !== 'already-enrolled') {
+        showEnrollNotice({
+          kind: 'error',
+          message: 'We couldn’t confirm the enrollment result. Check your course access in Coursera or contact your counselor.',
+        });
+        return;
+      }
+      if (focus && enrollmentFocus.current === focus) focus.ready = true;
+      setConfirmedEnrolledCourseKeys((previous) => new Set(previous).add(`${programSlug}:${course.courseraCourseId}`));
+      const syncStatus = payload.sync && typeof payload.sync === 'object'
+        ? (payload.sync as Record<string, unknown>).status
+        : undefined;
+      if (payload.status === 'already-enrolled') {
+        showEnrollNotice({
+          kind: 'success',
+          message: 'Coursera reports you’re already enrolled. Open the course to continue; progress updates may take a few minutes.',
+        });
+      } else if (syncStatus === 'failed_to_start') {
+        showEnrollNotice({
+          kind: 'warning',
+          message: 'Coursera accepted your enrollment, but we couldn’t start the progress refresh. You can still open the course. If progress stays missing, message your counselor.',
+        });
+      } else {
+        showEnrollNotice({
+          kind: 'success',
+          message: syncStatus === 'requested'
+            ? 'Coursera accepted your enrollment. A progress refresh has been requested; updates may take a few minutes.'
+            : 'Coursera accepted your enrollment. Progress updates may take a few minutes.',
+        });
+      }
       router.refresh();
     } catch {
-      setEnrollNotice({
+      showEnrollNotice({
         kind: 'error',
         message: 'Could not reach the server. Check your connection and try again.',
       });
     } finally {
+      if (focus && !focus.ready) {
+        focus.stop();
+        if (enrollmentFocus.current === focus) enrollmentFocus.current = null;
+      }
       setEnrolling(null);
     }
   };
@@ -200,28 +283,21 @@ export default function TrainingCourseList({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {enrollNotice && (
         <div
-          role={enrollNotice.kind === 'error' ? 'alert' : 'status'}
-          aria-live="polite"
+          role="note"
           style={{
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
+            padding: 'var(--wa-pad-sm)',
+            borderRadius: 'var(--wa-radius-sm)',
             background:
               enrollNotice.kind === 'error'
-                ? 'rgba(200, 50, 50, 0.08)'
+                ? 'var(--wa-danger-soft)'
+                : enrollNotice.kind === 'warning'
+                  ? 'var(--wa-gold-soft)'
                 : enrollNotice.kind === 'invited'
-                  ? 'rgba(43,123,185,0.08)'
-                  : 'rgba(74,155,79,0.08)',
-            border:
-              enrollNotice.kind === 'error'
-                ? '1px solid rgba(200, 50, 50, 0.25)'
-                : enrollNotice.kind === 'invited'
-                  ? '1px solid rgba(43,123,185,0.25)'
-                  : '1px solid rgba(74,155,79,0.25)',
-            color:
-              enrollNotice.kind === 'error'
-                ? 'var(--color-error, #c83232)'
-                : 'var(--color-on-surface)',
-            fontSize: '0.9rem',
+                  ? 'var(--wa-info-soft)'
+                  : 'var(--wa-success-soft)',
+            border: '1px solid var(--wa-border)',
+            color: 'var(--wa-text)',
+            fontSize: 'var(--wa-type-body)',
           }}
         >
           {enrollNotice.message}
@@ -424,6 +500,7 @@ export default function TrainingCourseList({
               ) : !isComplete &&
               c.courseraCourseId &&
               !enrolledCourseraSet.has(c.courseraCourseId) &&
+              !confirmedEnrolledCourseKeys.has(`${programSlug}:${c.courseraCourseId}`) &&
               status === 'not_started' &&
               (pct ?? 0) === 0 ? (
                 eligibilityApproved ? (
@@ -432,7 +509,7 @@ export default function TrainingCourseList({
                     className="btn btn-primary training-course-cta-primary"
                     data-course-slug={c.slug}
                     data-course-id={c.courseraCourseId}
-                    onClick={() => handleEnroll(c)}
+                    onClick={(event) => handleEnroll(c, event.currentTarget)}
                     disabled={enrolling !== null}
                     aria-busy={enrolling === c.slug}
                     aria-label={

@@ -51,6 +51,21 @@ export function pdfDeploymentAssets(files) {
  * subprocess runs outside the checkout with no inherited Node loader or NODE_PATH.
  * This verifies parser packaging, not authenticated upload/storage/provider behavior.
  */
+/** The runner prints exactly one `{"text": …}` line; pdf.js warnings may surround it. */
+export function parseRunnerResult(stdout) {
+  const lines = stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  for (let i = lines.length - 1; i >= 0; i -= 1) {
+    if (!lines[i].startsWith('{')) continue;
+    try {
+      const parsed = JSON.parse(lines[i]);
+      if (parsed && typeof parsed.text === 'string') return parsed;
+    } catch {
+      // Not our payload (e.g. a warning that happens to start with a brace).
+    }
+  }
+  throw new Error(`PDF runner produced no JSON result. stdout:\n${stdout}`);
+}
+
 export async function verifyPdfDeploymentAssets(root, assets) {
   const temporaryParent = path.resolve(tmpdir());
   const artifact = await mkdtemp(path.join(temporaryParent, 'workforceap-pdf-deployment-'));
@@ -87,8 +102,10 @@ export async function verifyPdfDeploymentAssets(root, assets) {
       // No application credentials or inherited test loaders reach the subprocess.
       env: { SystemRoot: process.env.SystemRoot ?? '', NODE_PATH: '', NODE_OPTIONS: '' },
     });
-    // pdf.js may write optional canvas/font warnings before the final JSON result.
-    const result = JSON.parse(stdout.trim().split(/\r?\n/).at(-1));
+    // pdf.js may write optional canvas/font warnings to stdout before, or
+    // (from the worker, asynchronously) after, the JSON result line. Take the
+    // one line that is our JSON payload rather than assuming it comes last.
+    const result = parseRunnerResult(stdout);
     assert.equal(result.text.trim(), EXPECTED_TEXT);
     return { text: result.text.trim(), assetCount: assets.length };
   } finally {

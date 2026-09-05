@@ -108,22 +108,24 @@ export async function startElevenLabsPortalSession(
   try {
     session = await createConversationalSession(agentId, sessionOptions);
   } catch (error) {
-    // A 404 means the configured / reviewed agent id no longer exists in the
-    // live ElevenLabs account (this is what broke WIOA conversation practice
-    // after the April account migration). Recover once with the id the
-    // migration record says this role was re-created under, and tell ops which
-    // env var to set so the recovery stops being needed.
-    const migratedAgentId = ELEVENLABS_AGENT_REGISTRY[key].historicalMigration?.migratedAgentId;
+    // Retired ordinary overrides may recover to this role's reviewed runtime
+    // target. Historical IDs cannot authorize a retry: the former staff ID is
+    // now student Lilley, and governed roles must retain their exact agent pin.
+    const entry = ELEVENLABS_AGENT_REGISTRY[key];
+    const fallbackAgentId = entry.resolution.mode === 'env-with-reviewed-fallback'
+      ? entry.resolution.reviewedFallbackAgentId
+      : undefined;
     const canRecover =
       error instanceof ElevenLabsApiError &&
       error.status === 404 &&
-      !!migratedAgentId &&
-      migratedAgentId !== agentId;
+      entry.environmentOverridePolicy.kind === 'valid-agent-id' &&
+      !!fallbackAgentId &&
+      fallbackAgentId !== agentId;
     if (!canRecover) throw error;
     console.warn(
-      `[elevenlabs] Agent ${agentId} for "${key}" returned 404; retrying with the migrated agent ${migratedAgentId}. Set ${envKeyForPortalAgent(key)} to the live agent id.`,
+      `[elevenlabs] Agent ${agentId} for "${key}" returned 404; retrying with the reviewed agent ${fallbackAgentId}. Set ${envKeyForPortalAgent(key)} to the live agent id.`,
     );
-    session = await createConversationalSession(migratedAgentId, sessionOptions);
+    session = await createConversationalSession(fallbackAgentId, sessionOptions);
   }
   const dynamicVariables = options?.dynamicVariables
     ? clampElevenLabsDynamicVariables({

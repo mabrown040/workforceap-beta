@@ -149,7 +149,7 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 
 | Name | Badge | Description | Example | Used In |
 |------|-------|-------------|---------|---------|
-| `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
+| `ELEVENLABS_API_KEY` | 🟡 🔒 | API key from the WorkforceAP nonprofit workspace; signed-session creation requires ElevenAgents Write (`convai_write`), plus Text to Speech access for speech generation | `sk_...` | Voice UI, signed URLs |
 | `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
 | `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | Optional ConvAI override for Lilley; only reviewed student-agent IDs are accepted | `agent_...` | `/api/counselor/session` member/default mode |
 | `ELEVENLABS_LILLEY_BRANCH_ID` | 🔴 🔒 | Exact attended-reviewed Lilley main branch; required for both governed member Lilley entry points and branch-pinned provider verification | `agtbranch_...` | Member counselor/career-business signed URLs and Lilley patch runner |

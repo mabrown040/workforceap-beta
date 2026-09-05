@@ -140,7 +140,7 @@ test('member Lilley surfaces accept only the reviewed student agent while staff 
   assert.equal(getElevenLabsAgentId('career_business'), LILLEY_STUDENT_COACH_AGENT_ID);
   assert.equal(getElevenLabsAgentId('counselor_staff'), undefined);
 
-  process.env.ELEVENLABS_COUNSELOR_AGENT_ID = 'agent_1101kqfjfm8retm8j6md467wzxdb';
+  process.env.ELEVENLABS_COUNSELOR_AGENT_ID = 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8';
   process.env.ELEVENLABS_CAREER_BUSINESS_AGENT_ID = 'agent_unreviewed_member_voice';
   assert.equal(getElevenLabsAgentId('counselor'), LILLEY_STUDENT_COACH_AGENT_ID);
   assert.equal(getElevenLabsAgentId('career_business'), LILLEY_STUDENT_COACH_AGENT_ID);

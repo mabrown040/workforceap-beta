@@ -6,6 +6,7 @@ export const VITEST_LIBRARY_SPECS = Object.freeze([
   'lib/analytics/aiToolEfficacy.test.ts',
   'lib/analytics/quarterlyOutcomes.test.ts',
   'lib/api/errors.test.ts',
+  'lib/audit.test.ts',
   'lib/audit/readOnlyPortalAudit.test.ts',
   'lib/auth/roles.read-only-audit.test.ts',
   'lib/cache.test.ts',

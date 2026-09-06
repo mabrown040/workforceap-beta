@@ -38,8 +38,10 @@ It still rejects inline tools or mismatched definitions and never retries an
 ambiguous mutation without reconciling the live result.
 
 The patch verifier models the provider's replacement of the dynamic-placeholder
-dictionary and its canonical empty analysis container. All other mutable fields
-remain exact. Provider verification does not prove that Vercel is using the right
+dictionary and its canonical empty analysis container. For ordinary reviewed
+agents, the runner retains unspecified live placeholder keys before sending the
+replacement dictionary. Lilley retains its exact secret-only contract. All other
+mutable fields remain exact. Provider verification does not prove that Vercel is using the right
 credential, nor does a provider simulation replace an authenticated voice smoke.
 
 Use a runtime credential with ElevenAgents **Write** (`convai_write`) and Text to
@@ -93,3 +95,58 @@ and is not comprehensive PII detection. It does not delete previous transcripts,
 change separate completion/history/email flows, or establish zero provider
 transcript retention for agents other than Lilley. The inline AI Career Tools
 voice session remains temporary and does not acquire new persistence or tools.
+
+## Attended JSON import and preservation checks
+
+The provider UI's **Import agent JSON config** replaces the complete configuration.
+Start from **Copy agent JSON config** for the exact authenticated nonprofit agent
+and reviewed branch; preserve that export as the preimage. Apply only the reviewed
+hardening delta to a detached copy, then import, publish, and re-export. A partial
+checked-in patch is not a complete UI import document. Reconcile any live prompt
+edit before replacing its reviewed portion; appending the new safety policy to
+Lilley's old crisis-loop instructions would leave conflicting rules in place.
+
+The September 6 patch delta changes prompt safety text, adds safe prompt defaults,
+requires signed authentication with an empty hostname allowlist, disables client
+override permissions, sets the 600-second duration and 90-second silence limits,
+and sets `record_voice: false` where it was not already specified. Check those
+requested changes and compare the remaining fields with the same agent's live
+preimage, including these contracts:
+
+- Agent and branch identity, first message, language, and dynamic-variable defaults.
+  Lilley retains only the declared `secret__agent_gateway_token` placeholder; the
+  Resume Coach retains its complete resume/context placeholder dictionary. All
+  ordinary-agent patches now declare safe defaults for their referenced variables.
+  Overlay those reviewed defaults on the existing ordinary-agent dictionary while
+  retaining unrelated keys; do not discard the rest of the dictionary during UI
+  import. Readiness does not send `member_name`, some interview entry points do not
+  send `experience_level`, and public WIOA sends only a subset of `wioa_*` keys.
+  Personal/status defaults stay empty rather than inventing a name or eligibility.
+  The runner rejects missing referenced defaults before writing or verifying a
+  reviewed agent. It does not retain stale personal placeholders for Lilley.
+- LLM, backup/cascade configuration, voice and TTS model, voice tuning, ASR settings,
+  client events, tools and their authorization headers, knowledge sources, native
+  guards, and workflows. None is changed by this hardening delta. Keep the existing
+  transcript events needed by the application's feedback flows.
+- Privacy fields beyond `record_voice`, including Lilley's existing Zero Retention
+  Mode, retention and deletion values, and existing-conversation settings. The
+  other seven agents do not acquire ZRM through this change.
+- Widget terms, links, display/consent flags, sharing, and post-call settings.
+  The import must not change their copy or audience.
+
+During Lilley's September 6 attended import, the operator published and re-exported
+the agent and observed one UI normalization outside the requested delta:
+`platform_settings.widget.terms_html` changed from `null` to HTML rendered from the
+existing `terms_text`. The `terms_text` and `shareable_page_show_terms` values stayed
+unchanged; no terms copy changed. This observation applies to that Lilley import
+only and does not attest to the other seven agents or to an authenticated voice
+conversation.
+
+For any later occurrence, inspect the before/after terms text, rendered text and
+links, and display flags. Record this exact null-to-rendered-HTML difference
+separately only when those checks match. Do not ignore all `terms_html` drift, clear
+the rendered HTML to force an old representation, or weaken the general patch
+verifier. Keep provider-managed metadata/version changes separate from mutable
+configuration changes; any other difference needs reconciliation before declaring
+the import verified. Track readback and behavioral acceptance for each agent
+individually.

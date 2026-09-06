@@ -131,6 +131,41 @@ export function expectedAgentAfterPatch(preimage, patch) {
 }
 
 /**
+ * ElevenLabs replaces the whole placeholder dictionary. For ordinary agents,
+ * retain keys that the reviewed partial patch does not specify before sending
+ * that replacement. Governed Lilley must not use this helper: its exact
+ * secret-only dictionary intentionally removes stale member prompt context.
+ */
+export function preserveUnspecifiedAgentPlaceholders(preimage, patch) {
+  const placeholders = patch?.conversation_config?.agent?.dynamic_variables?.dynamic_variable_placeholders;
+  if (!isObject(placeholders)) return patch;
+  const existing = preimage?.conversation_config?.agent?.dynamic_variables?.dynamic_variable_placeholders;
+  const prepared = cloneJson(patch);
+  prepared.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders = {
+    ...(isObject(existing) ? existing : {}),
+    ...placeholders,
+  };
+  return prepared;
+}
+
+/** Static prompt/first-message variables need inert defaults when a route omits them. */
+export function findAgentTemplateVariableIssues(agent) {
+  const config = agent?.conversation_config?.agent;
+  const text = [config?.prompt?.prompt, config?.first_message].filter(value => typeof value === 'string').join('\n');
+  const variables = new Set([
+    ...Array.from(text.matchAll(/{{\s*([A-Za-z_][A-Za-z0-9_]*)\s*}}/g), match => match[1]),
+    ...Array.from(text.matchAll(/{%\s*(?:if|elif)\s+([A-Za-z_][A-Za-z0-9_]*)\b/g), match => match[1]),
+  ]);
+  const placeholders = config?.dynamic_variables?.dynamic_variable_placeholders;
+  return [...variables].filter(name => {
+    if (name.startsWith('system__')) return false;
+    const value = placeholders?.[name];
+    return !['string', 'number', 'boolean'].includes(typeof value)
+      || (typeof value === 'number' && !Number.isFinite(value));
+  }).sort().map(name => `conversation_config.agent.dynamic_variables.dynamic_variable_placeholders.${name}`);
+}
+
+/**
  * Unlike the legacy subset assertion, this proves every patchable live-agent
  * field is unchanged except for the recursively applied checked-in patch.
  * GET-only identity, access, assignment and version metadata is deliberately

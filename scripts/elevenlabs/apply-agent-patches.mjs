@@ -17,6 +17,8 @@ import {
   findAgentPreimageDrift,
   findAgentPostPatchDrift,
   expectedAgentAfterPatch,
+  preserveUnspecifiedAgentPlaceholders,
+  findAgentTemplateVariableIssues,
   isSupportedAgentPatch,
 } from './agent-patch-utils.mjs';
 import {
@@ -169,10 +171,26 @@ export async function applyAgentPatch({
     return false;
   }
 
+  const effectiveBody = REVIEWED_VOICE_AGENT_IDS.has(agentId) && agentId !== GOVERNED_LILLEY_AGENT_ID
+    ? preserveUnspecifiedAgentPlaceholders(liveAgent, body)
+    : body;
+
   if (REVIEWED_VOICE_AGENT_IDS.has(agentId)) {
-    const securityIssues = findVoiceAgentSecurityIssues(
-      checkOnly ? liveAgent : expectedAgentAfterPatch(liveAgent, body),
-    );
+    const effectiveAgent = checkOnly ? liveAgent : expectedAgentAfterPatch(liveAgent, effectiveBody);
+    const securityIssues = [
+      ...findVoiceAgentSecurityIssues(effectiveAgent),
+      ...findAgentTemplateVariableIssues(effectiveAgent),
+    ];
+    if (agentId === GOVERNED_LILLEY_AGENT_ID) {
+      const placeholders = effectiveAgent?.conversation_config?.agent?.dynamic_variables?.dynamic_variable_placeholders;
+      if (
+        !placeholders || Object.keys(placeholders).length !== 1
+        || !Object.hasOwn(placeholders, 'secret__agent_gateway_token')
+        || placeholders.secret__agent_gateway_token !== ''
+      ) {
+        securityIssues.push('conversation_config.agent.dynamic_variables.dynamic_variable_placeholders');
+      }
+    }
     if (securityIssues.length > 0) {
       logger.error('UNSAFE_AGENT_CONFIGURATION', agentId, securityIssues.join(','));
       return false;
@@ -180,7 +198,7 @@ export async function applyAgentPatch({
   }
 
   if (checkOnly) {
-    const mismatches = findAgentPatchMismatches(liveAgent, body);
+    const mismatches = findAgentPatchMismatches(liveAgent, effectiveBody);
     if (mismatches.length > 0) {
       logger.error('VERIFY_FAILED', agentId, mismatches.slice(0, 20).join(','));
       return false;
@@ -206,7 +224,7 @@ export async function applyAgentPatch({
         'xi-api-key': key,
         'content-type': 'application/json; charset=utf-8',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(effectiveBody),
     },
     timeoutMs,
     logger,
@@ -255,7 +273,7 @@ export async function applyAgentPatch({
     return false;
   }
 
-  const desiredDrift = findAgentPostPatchDrift(postPatchAgent, preimage, body);
+  const desiredDrift = findAgentPostPatchDrift(postPatchAgent, preimage, effectiveBody);
   if (desiredDrift.length === 0) {
     logger.log(
       patchResponse?.ok ? 'APPLIED_AND_VERIFIED' : 'APPLIED_AND_RECONCILED',

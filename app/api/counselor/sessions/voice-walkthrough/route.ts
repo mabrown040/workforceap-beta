@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
+import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE, VOICE_SESSION_RESPONSE_HEADERS } from '@/lib/ai/voiceSessionBoundary';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from '@/lib/tenant/organization';
@@ -75,6 +76,9 @@ async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await hasActiveVoiceSessionUser(user.id))) {
+      return NextResponse.json({ error: VOICE_SESSION_IDENTITY_MESSAGE }, { status: 403 });
+    }
 
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
@@ -118,7 +122,7 @@ async function _POST(req: NextRequest) {
     const orgId = await getSubjectOrganizationId(memberId);
     const member = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
-        where: { id: memberId },
+        where: { id: memberId, deletedAt: null },
         select: { fullName: true, email: true, programInterest: true, enrolledProgram: true },
       }),
     );
@@ -167,7 +171,7 @@ async function _POST(req: NextRequest) {
       signedUrl: session.signedUrl,
       expiresAt: session.expiresAt,
       dynamicVariables: session.dynamicVariables ?? dynamicVariables,
-    });
+    }, { headers: VOICE_SESSION_RESPONSE_HEADERS });
   } catch (error) {
     captureApiError(error, { route: 'POST /api/counselor/sessions/voice-walkthrough' });
     const msg = error instanceof Error ? error.message : 'Failed to start voice walk-through';

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE } from '@/lib/ai/voiceSessionBoundary';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startMemberAgentGatewaySession } from '@/lib/agents/gateway/startMemberSession';
 import { requireGucContext } from '@/lib/db/gucContext';
@@ -11,6 +12,9 @@ export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await hasActiveVoiceSessionUser(user.id))) {
+      return NextResponse.json({ error: VOICE_SESSION_IDENTITY_MESSAGE }, { status: 403 });
+    }
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
       return NextResponse.json(

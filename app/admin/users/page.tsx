@@ -9,6 +9,7 @@ import { resolveAdminPageTenant, withAdminPageScope } from '@/lib/tenant/adminPa
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminUsersManager from '@/components/admin/AdminUsersManager';
+import { buildUserDirectoryWhere, normalizeDirectorySearch, STAFF_DIRECTORY_ROLES, USER_DIRECTORY_ROLES } from '@/lib/admin/directorySearch';
 import {
   UsersKit,
   type UserRow,
@@ -21,9 +22,6 @@ export async function generateMetadata(): Promise<Metadata> {
     path: '/admin/users',
   });
 }
-
-/** Profile.role values that count as staff (NOT plain members). */
-const STAFF_ROLES = ['admin', 'super_admin', 'case_manager', 'counselor'] as const;
 
 /** Human-readable role labels for the roster. */
 const ROLE_LABELS: Record<string, string> = {
@@ -77,18 +75,21 @@ export default async function AdminUsersPage({
 
   const params = (await searchParams) ?? {};
   const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+  const searchQuery = typeof params.search === 'string' ? normalizeDirectorySearch(params.search) : '';
+  const allowedRoles: readonly string[] = requestedUi === 'legacy' ? USER_DIRECTORY_ROLES : STAFF_DIRECTORY_ROLES;
+  const roleFilter = typeof params.role === 'string' && allowedRoles.includes(params.role) ? params.role : '';
+  const pageParam = typeof params.page === 'string' ? Number(params.page) : 1;
+  const currentPage = Number.isSafeInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+  const pageSize = 50;
+  const where = buildUserDirectoryWhere({ searchQuery, roleFilter, staffOnly: requestedUi !== 'legacy' });
 
   // Legacy → the original full CRUD manager (quick create, edit, reset, delete).
   if (requestedUi === 'legacy') {
-    const pageParam = typeof params.page === 'string' ? parseInt(params.page, 10) : 1;
-    const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
-    const pageSize = 50;
-
     const [users, canManageRoles, deletedCount, totalCount] = await Promise.all([
       withAdminPageScope(scope, (db) =>
         db.user.findMany({
-          where: { deletedAt: null },
-          orderBy: { createdAt: 'desc' },
+          where,
+          orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
           skip: (currentPage - 1) * pageSize,
           take: pageSize,
           select: {
@@ -102,7 +103,7 @@ export default async function AdminUsersPage({
       ),
       isSuperAdmin(user.id),
       withAdminPageScope(scope, (db) => db.user.count({ where: { deletedAt: { not: null } } })),
-      withAdminPageScope(scope, (db) => db.user.count({ where: { deletedAt: null } })),
+      withAdminPageScope(scope, (db) => db.user.count({ where })),
     ]);
 
     return (
@@ -127,6 +128,8 @@ export default async function AdminUsersPage({
           totalCount={totalCount}
           currentPage={currentPage}
           pageSize={pageSize}
+          searchQuery={searchQuery}
+          roleFilter={roleFilter}
           initialUsers={users.map((row) => ({
             id: row.id,
             fullName: row.fullName ?? row.email,
@@ -143,14 +146,12 @@ export default async function AdminUsersPage({
 
   // --- DEFAULT: real (lean) staff accounts roster (design kit) ---
   // Filter to staff/admin/counselor roles only — NOT all members.
-  const staffResult = await withAdminPageScope(scope, (db) =>
+  const [staffResult, totalCount] = await withAdminPageScope(scope, (db) => Promise.all([
     db.user.findMany({
-      take: 500,
-      where: {
-        deletedAt: null,
-        profile: { role: { in: [...STAFF_ROLES] } },
-      },
-      orderBy: [{ lastLoginAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
+      take: pageSize,
+      skip: (currentPage - 1) * pageSize,
+      where,
+      orderBy: [{ lastLoginAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }, { id: 'asc' }],
       select: {
         id: true,
         fullName: true,
@@ -159,7 +160,8 @@ export default async function AdminUsersPage({
         profile: { select: { role: true } },
       },
     }),
-  );
+    db.user.count({ where }),
+  ]));
 
   const activeCutoff = new Date();
   activeCutoff.setDate(activeCutoff.getDate() - ACTIVE_IDLE_DAYS);
@@ -179,5 +181,5 @@ export default async function AdminUsersPage({
     };
   });
 
-  return <UsersKit users={users} total={users.length} />;
+  return <UsersKit users={users} total={totalCount} currentPage={currentPage} pageSize={pageSize} searchQuery={searchQuery} roleFilter={roleFilter} />;
 }

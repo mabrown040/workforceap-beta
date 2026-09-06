@@ -14,6 +14,11 @@ import {
   findAgentPreimageDrift,
   findAgentPostPatchDrift,
 } from '../scripts/elevenlabs/agent-patch-utils.mjs';
+import {
+  DISABLED_CLIENT_OVERRIDES,
+  findVoiceAgentSecurityIssues,
+  REVIEWED_VOICE_AGENT_IDS,
+} from '../scripts/elevenlabs/agent-security-policy.mjs';
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -190,8 +195,101 @@ function lilleyAgentOnReviewedMainBranch() {
     agent_id: GOVERNED_LILLEY_AGENT_ID,
     branch_id: reviewedBranchId,
     main_branch_id: reviewedBranchId,
+    conversation_config: {
+      ...structuredClone(preimage.conversation_config),
+      conversation: { max_duration_seconds: 600 },
+      turn: { silence_end_call_timeout: 90 },
+    },
+    platform_settings: {
+      ...structuredClone(preimage.platform_settings),
+      auth: { enable_auth: true, allowlist: [] },
+      privacy: { ...preimage.platform_settings.privacy, record_voice: false },
+      overrides: structuredClone(DISABLED_CLIENT_OVERRIDES),
+    },
   };
 }
+
+test('every reviewed patch closes public access and client capabilities without changing role tools', async () => {
+  for (const agentId of REVIEWED_VOICE_AGENT_IDS) {
+    const checkedInPatch = JSON.parse(await readFile(
+      join(process.cwd(), 'scripts', 'elevenlabs', 'patches', `${agentId}.patch.json`),
+      'utf8',
+    ));
+    const live = {
+      ...preimage,
+      platform_settings: {
+        ...preimage.platform_settings,
+        auth: { enable_auth: false, allowlist: [{ hostname: 'old.example.test' }] },
+        overrides: {
+          conversation_config_override: {
+            agent: { prompt: { prompt: true, tool_ids: true } },
+            conversation: { max_duration_seconds: true },
+          },
+          enable_starting_workflow_node_id_from_client: true,
+        },
+      },
+    };
+    const effective = expectedAgentAfterPatch(live, checkedInPatch);
+    assert.deepEqual(findVoiceAgentSecurityIssues(effective), [], agentId);
+    assert.deepEqual(effective.conversation_config.agent.prompt.tool_ids, ['tool_1']);
+    assert.equal(effective.conversation_config.tts.model_id, 'eleven_flash_v2_5');
+    assert.equal(effective.conversation_config.tts.voice_id,
+      agentId === GOVERNED_LILLEY_AGENT_ID ? 'l4Coq6695JDX9xtLqXDE'
+        : agentId === 'agent_7801kqfjg0qwfy68btrqh6jg87kf' ? 'EXAVITQu4vr4xnSDxMaL'
+          : agentId === 'agent_9101kqfjg2z8ew5r3ad4fz6323yr' ? 'XrExE9yKIg1WjnnlVkGX'
+            : 'old_voice');
+  }
+});
+
+test('reviewed agent writes reject unsafe effective state before any provider mutation', async () => {
+  const attempts = [
+    { platform_settings: { auth: { enable_auth: false } } },
+    { platform_settings: { auth: { allowlist: [{ hostname: 'public.example.test' }] } } },
+    { platform_settings: { overrides: { conversation_config_override: {
+      agent: { prompt: { tool_ids: true } },
+    } } } },
+    { platform_settings: { overrides: { newly_added_provider_override: true } } },
+    { platform_settings: { overrides: { custom_llm_extra_body: 'false' } } },
+    { conversation_config: { conversation: { max_duration_seconds: 3600 } } },
+    { conversation_config: { turn: { silence_end_call_timeout: -1 } } },
+    { platform_settings: { privacy: { record_voice: true } } },
+  ];
+  for (const body of attempts) {
+    const { calls, fetchImpl } = createFetchQueue([jsonResponse(lilleyAgentOnReviewedMainBranch())]);
+    const { entries, logger } = createLogger();
+    const result = await applyAgentPatch({
+      agentId: GOVERNED_LILLEY_AGENT_ID,
+      branchId: reviewedBranchId,
+      body,
+      key: 'test-secret-never-log',
+      fetchImpl,
+      apiBase: 'https://provider.invalid/v1',
+      logger,
+    });
+    assert.equal(result, false, JSON.stringify(body));
+    assert.equal(calls.length, 1, 'an unsafe patch must stop after the read');
+    assert.ok(entries.some(entry => entry[0] === 'UNSAFE_AGENT_CONFIGURATION'));
+    assert.equal(JSON.stringify(entries).includes('test-secret-never-log'), false);
+  }
+});
+
+test('read-only verification rejects insecure live state even when the requested subset matches', async () => {
+  const live = lilleyAgentOnReviewedMainBranch();
+  live.platform_settings.auth.enable_auth = false;
+  const { calls, fetchImpl } = createFetchQueue([jsonResponse(live)]);
+  const { logger } = createLogger();
+  assert.equal(await applyAgentPatch({
+    agentId: GOVERNED_LILLEY_AGENT_ID,
+    branchId: reviewedBranchId,
+    body: { name: live.name },
+    checkOnly: true,
+    key: 'test-secret-never-log',
+    fetchImpl,
+    apiBase: 'https://provider.invalid/v1',
+    logger,
+  }), false);
+  assert.equal(calls.length, 1);
+});
 
 test('legacy patch verification asserts only checked-in fields', () => {
   const expected = {

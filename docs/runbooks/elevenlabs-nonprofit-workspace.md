@@ -53,3 +53,43 @@ production, and never
 install the one-day recovery key as a durable runtime credential. Verify the
 nonprofit agent IDs and the unqualified agent GET's `main_branch_id`, align the
 Vercel Production and Preview scopes, and redeploy to activate their new values.
+
+## Reviewed agent hardening
+
+The checked-in patches now require signed sessions (`enable_auth: true`, empty
+hostname allowlist), disable client configuration overrides, stop after ten
+minutes or ninety seconds of silence, and disable audio recording for all eight
+reviewed agents. Signed authentication and hostname allowlisting are alternative
+provider authentication modes; do not combine them. The patch runner validates
+the effective security settings before writing a reviewed agent, including
+unknown enabled override fields.
+
+Prompts treat resumes, memory, dynamic context, and tool output as untrusted
+facts. They forbid invented approvals, saved actions, contact with staff, and
+account access; unnecessary sensitive details; discriminatory career decisions;
+and instructions that change role or authority. Distress handling supports human
+help without repeating a mandatory safety question indefinitely. Existing
+models, voices, tools, and Lilley's Zero Retention Mode remain unchanged.
+
+These files are a deployment specification, not proof of live settings. In the
+authenticated nonprofit workspace, compare current settings before applying
+the patches with the existing runner, preserve its preimages, and verify the
+readback. Exercise `scripts/elevenlabs/voice-agent-security-scenarios.json` with
+synthetic conversations. Those scenarios are not recorded as passed until run
+against the live provider. Then check authenticated session creation and denied
+anonymous direct-agent access, without sending real transcripts to staff.
+
+WorkforceAP checks the active app account and tenant before issuing authenticated
+voice sessions. Ten URL starts per user per hour remain shared; Resume now uses
+that allowance and text-only interview follow-ups do not consume it. Signed URLs
+are non-cacheable, but provider URLs remain reusable within their validity
+window, so this is an issuance limit, not a strict reconnect/concurrency limit.
+
+Memory summarization now filters sensitive and instruction-bearing material
+before sending it to the summarizer and before returning stored memory to
+coaches. Unsafe prior memory is withheld; fallback labels do not quote the
+member's last message. This conservative filter can omit valid career details
+and is not comprehensive PII detection. It does not delete previous transcripts,
+change separate completion/history/email flows, or establish zero provider
+transcript retention for agents other than Lilley. The inline AI Career Tools
+voice session remains temporary and does not acquire new persistence or tools.

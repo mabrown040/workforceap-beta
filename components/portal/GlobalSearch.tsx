@@ -5,47 +5,13 @@ import { useRouter } from 'next/navigation';
 import { CommandPalette, CommandPaletteInput } from '@astryxdesign/core/CommandPalette';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Text } from '@astryxdesign/core/Text';
-import type { SearchableItem, SearchSource } from '@astryxdesign/core/Typeahead';
+import { Button } from '@astryxdesign/core/Button';
+import { createGlobalSearchSource, type GlobalSearchItem } from '@/lib/admin/globalSearchSource';
 
-type SearchResult = {
-  id: string;
-  type: 'member' | 'employer' | 'partner' | 'job';
-  label: string;
-  sublabel?: string;
-  href: string;
-  icon: string;
-};
-
-const TYPE_GROUP: Record<SearchResult['type'], string> = {
-  member: 'Members',
-  employer: 'Employers',
-  partner: 'Partners',
-  job: 'Jobs',
-};
-
-type PaletteItem = SearchableItem<{
-  group: string;
-  sublabel?: string;
-  type?: SearchResult['type'];
-}>;
-
-// Bootstrap quick links shown before the user types.
-const QUICK_LINKS: PaletteItem[] = [
-  { id: '/admin/members', label: 'Members', auxiliaryData: { group: 'Quick links', sublabel: 'View all members' } },
-  { id: '/admin/employers', label: 'Employers', auxiliaryData: { group: 'Quick links', sublabel: 'View all employers' } },
-  { id: '/admin/partners', label: 'Partners', auxiliaryData: { group: 'Quick links', sublabel: 'View all partners' } },
-  { id: '/admin/jobs', label: 'Jobs', auxiliaryData: { group: 'Quick links', sublabel: 'View all jobs' } },
-];
-
-/**
- * Admin global search (⌘K) — Astryx `CommandPalette` over the existing
- * `/api/admin/search` endpoint. Item ids are the target hrefs, so selection
- * (`onValueChange`) is a straight router.push. Replaces the previous
- * hand-rolled fixed-overlay implementation (focus trap, listbox semantics,
- * grouping, and keyboard navigation now come from the component).
- */
+/** Admin search uses stable record identities; destinations remain separate. */
 export default function GlobalSearch() {
   const [open, setOpen] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const router = useRouter();
 
   // Cmd+K / Ctrl+K to open (Escape is handled by the palette's own dialog)
@@ -60,53 +26,40 @@ export default function GlobalSearch() {
     return () => document.removeEventListener('keydown', handler);
   }, []);
 
-  const searchSource = useMemo<SearchSource<PaletteItem>>(
-    () => ({
-      async search(query: string) {
-        if (query.trim().length < 2) return QUICK_LINKS;
-        try {
-          const res = await fetch(`/api/admin/search?q=${encodeURIComponent(query.trim())}&limit=8`, { credentials: 'include' });
-          if (!res.ok) return [];
-          const data = (await res.json()) as { results: SearchResult[] };
-          return (data.results ?? []).map((r) => ({
-            id: r.href,
-            label: r.label,
-            auxiliaryData: { group: TYPE_GROUP[r.type], sublabel: r.sublabel, type: r.type },
-          }));
-        } catch {
-          return [];
-        }
-      },
-      bootstrap() {
-        return QUICK_LINKS;
-      },
-    }),
-    []
-  );
+  const searchSource = useMemo(() => createGlobalSearchSource(setSearchError), []);
+  useEffect(() => () => searchSource.cancel?.(), [searchSource]);
+  useEffect(() => {
+    if (!open) searchSource.cancel?.();
+  }, [open, searchSource]);
 
   return (
     <>
       <button
         type="button"
-        className="portal-icon-btn"
+        className="portal-icon-btn wa-min-h-11 wa-min-w-11"
         onClick={() => setOpen(true)}
-        aria-label="Global search (⌘K)"
+        aria-label="Search members, staff, employers, partners, and jobs"
         title="Search (⌘K)"
-        style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
+        style={{ display: 'flex', alignItems: 'center', gap: 'var(--wa-pad-sm)', paddingInline: 'var(--wa-pad-sm)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)', background: 'var(--wa-surface)', color: 'var(--wa-text)', fontSize: 'var(--wa-type-meta)', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>search</span>
-        <span className="wa-hidden md:wa-inline">Search</span>
-        <kbd style={{ fontSize: '0.625rem', fontWeight: 700, padding: '0.1rem 0.3rem', borderRadius: '0.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', display: 'inline-block' }}>⌘K</kbd>
+        <span>Search</span>
+        <kbd className="wa-hidden md:wa-inline" style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)' }}>⌘K</kbd>
       </button>
-      <CommandPalette<PaletteItem>
+      <CommandPalette<GlobalSearchItem>
         isOpen={open}
         onOpenChange={setOpen}
         searchSource={searchSource}
         label="Global search"
-        input={<CommandPaletteInput placeholder="Search members, employers, partners, jobs…" />}
+        width="min(40rem, calc(100vw - 2rem))"
+        maxHeight="min(30rem, calc(100dvh - 2rem))"
+        footer={<Button label="Close search" variant="ghost" onClick={() => setOpen(false)} />}
+        input={<CommandPaletteInput placeholder="Search names, emails, employers, partners, jobs…" />}
         emptyBootstrapText="Type to search members, employers, partners, and jobs"
-        emptySearchText="No results"
-        onValueChange={(href) => {
+        emptySearchText={searchError ? <Text role="alert">{searchError}</Text> : 'No matching results'}
+        onValueChange={(id) => {
+          const href = searchSource.resolveHref(id);
+          if (!href) return;
           setOpen(false);
           router.push(href);
         }}

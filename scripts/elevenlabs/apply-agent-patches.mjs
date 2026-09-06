@@ -16,8 +16,13 @@ import {
   findAgentPatchMismatches,
   findAgentPreimageDrift,
   findAgentPostPatchDrift,
+  expectedAgentAfterPatch,
   isSupportedAgentPatch,
 } from './agent-patch-utils.mjs';
+import {
+  findVoiceAgentSecurityIssues,
+  REVIEWED_VOICE_AGENT_IDS,
+} from './agent-security-policy.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PATCH_DIR = join(__dirname, 'patches');
@@ -162,6 +167,16 @@ export async function applyAgentPatch({
   ) {
     logger.error('BRANCH_PIN_MISMATCH', agentId);
     return false;
+  }
+
+  if (REVIEWED_VOICE_AGENT_IDS.has(agentId)) {
+    const securityIssues = findVoiceAgentSecurityIssues(
+      checkOnly ? liveAgent : expectedAgentAfterPatch(liveAgent, body),
+    );
+    if (securityIssues.length > 0) {
+      logger.error('UNSAFE_AGENT_CONFIGURATION', agentId, securityIssues.join(','));
+      return false;
+    }
   }
 
   if (checkOnly) {

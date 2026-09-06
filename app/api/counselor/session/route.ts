@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE } from '@/lib/ai/voiceSessionBoundary';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import {
@@ -19,6 +20,9 @@ async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await hasActiveVoiceSessionUser(user.id))) {
+      return NextResponse.json({ error: VOICE_SESSION_IDENTITY_MESSAGE }, { status: 403 });
+    }
 
     const rawBody = await request.json().catch(() => ({}));
     const requestedAudience =

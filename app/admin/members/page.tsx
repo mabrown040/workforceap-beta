@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { Prisma } from '@prisma/client';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Merge } from 'lucide-react';
@@ -22,6 +23,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { buildDirectorySearchWhere, normalizeDirectorySearch } from '@/lib/admin/directorySearch';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -46,7 +48,7 @@ export default async function AdminMembersPage({
   const t = await getTranslations('admin');
 
   const params = (await searchParams) ?? {};
-  const searchQuery = typeof params.search === 'string' ? params.search.trim() : '';
+  const searchQuery = typeof params.search === 'string' ? normalizeDirectorySearch(params.search) : '';
   const programFilter = typeof params.program === 'string' ? params.program.trim() : '';
   const statusFilter = typeof params.status === 'string' ? params.status.trim() : '';
   const partnerFilter = typeof params.partner === 'string' ? params.partner.trim() : '';
@@ -60,8 +62,9 @@ export default async function AdminMembersPage({
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   // Build the where clause based on filters
-  const whereClause: any = {
+  const whereClause: Prisma.UserWhereInput = {
     ...MEMBER_OR_DOGFOOD_WHERE,
+    AND: [buildDirectorySearchWhere(searchQuery)],
   };
 
   // Status filter: dropped includes soft-deleted members; others exclude them.
@@ -72,13 +75,6 @@ export default async function AdminMembersPage({
     whereClause.deletedAt = null;
   }
 
-  if (searchQuery) {
-    whereClause.OR = [
-      { fullName: { contains: searchQuery, mode: 'insensitive' } },
-      { email: { contains: searchQuery, mode: 'insensitive' } },
-    ];
-  }
-
   if (programFilter) {
     whereClause.courseEnrollments = {
       some: { programSlug: programFilter },
@@ -86,7 +82,10 @@ export default async function AdminMembersPage({
   }
 
   if (validStatus && validStatus !== 'dropped') {
-    Object.assign(whereClause, buildStatusWhere(validStatus));
+    whereClause.AND = [
+      buildDirectorySearchWhere(searchQuery),
+      buildStatusWhere(validStatus) as Prisma.UserWhereInput,
+    ];
   }
 
   // Partner + enrolled-date filters are applied server-side so they span the
@@ -121,7 +120,7 @@ export default async function AdminMembersPage({
   const [membersResult, totalCountResult, partnerOptionsResult, activeProgramsResult] = await withAdminPageScope(scope, (db) => Promise.allSettled([
     db.user.findMany({
       where: whereClause,
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
       select: {

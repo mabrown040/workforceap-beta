@@ -213,6 +213,16 @@ toolkit. Do not replace it with `MemberToolkitKit`. Page chrome is `PageOpener`
 on the shared `--wa-bg-wave` wash. Live-session panels stay dark (`--wa-sidebar-*`,
 not raw hex) — that is session chrome, not a second app header.
 
+`UsersKit` is the staff/admin directory at `/admin/users`. Its loader searches
+and counts before pagination; `useDirectoryNavigation` keeps URL search, role,
+and page state together while earlier responses cannot overwrite a newer query.
+Phone rows show complete names and emails plus an explicit account action.
+The full manager (`?ui=legacy`) searches every active account, with a visible
+mobile row layout and a collapsed account-creation form. Member lifecycle
+filters and search run on the server; health/attention filters remain explicitly
+labeled as applying to the loaded page. Do not re-filter server search results
+against that page in the client.
+
 ---
 
 ## 7. Icons, styling, and motion

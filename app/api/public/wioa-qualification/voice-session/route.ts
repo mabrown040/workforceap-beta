@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         signedUrl,
         expiresAt,
         dynamicVariables: returned ?? dynamicVariables,
-      });
+      }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to start session';
       // Keep the provider detail (status code, env var hint) in the server log;

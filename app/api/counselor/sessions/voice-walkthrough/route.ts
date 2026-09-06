@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
+import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE, VOICE_SESSION_RESPONSE_HEADERS } from '@/lib/ai/voiceSessionBoundary';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from '@/lib/tenant/organization';
@@ -14,6 +15,8 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { getInterviewVoiceGreeting } from '@/lib/ai/interviewVoiceGreeting';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -69,12 +72,16 @@ const bodySchema = z.object({
   jobDescription: z.string().max(8000).optional(),
   companyName: z.string().max(200).optional(),
   interviewLevel: z.enum(['entry', 'mid', 'senior']).optional(),
+  language: z.enum(['en', 'es', 'fr', 'pt']).optional(),
 });
 
 async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await hasActiveVoiceSessionUser(user.id))) {
+      return NextResponse.json({ error: VOICE_SESSION_IDENTITY_MESSAGE }, { status: 403 });
+    }
 
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
@@ -101,6 +108,7 @@ async function _POST(req: NextRequest) {
       jobDescription,
       companyName,
       interviewLevel,
+      language: requestedLanguage,
     } = parsed.data;
 
     const onBehalf = await resolveActOnBehalf(user.id, memberId);
@@ -118,7 +126,7 @@ async function _POST(req: NextRequest) {
     const orgId = await getSubjectOrganizationId(memberId);
     const member = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
-        where: { id: memberId },
+        where: { id: memberId, deletedAt: null },
         select: { fullName: true, email: true, programInterest: true, enrolledProgram: true },
       }),
     );
@@ -155,8 +163,12 @@ async function _POST(req: NextRequest) {
       dynamicVariables.cover_draft = coverDraft ?? '';
     }
     if (card === 'interview') {
+      const language = normalizeAIResponseLanguage(requestedLanguage);
       dynamicVariables.interview_level = interviewLevel ?? 'entry';
       dynamicVariables.cover_draft = coverDraft ?? '';
+      dynamicVariables.response_language = language;
+      dynamicVariables.response_language_instruction = aiResponseLanguageInstruction(language);
+      dynamicVariables.interview_greeting = getInterviewVoiceGreeting(language);
     }
 
     const session = await startElevenLabsPortalSession(CARD_TO_AGENT[card], {
@@ -167,7 +179,7 @@ async function _POST(req: NextRequest) {
       signedUrl: session.signedUrl,
       expiresAt: session.expiresAt,
       dynamicVariables: session.dynamicVariables ?? dynamicVariables,
-    });
+    }, { headers: VOICE_SESSION_RESPONSE_HEADERS });
   } catch (error) {
     captureApiError(error, { route: 'POST /api/counselor/sessions/voice-walkthrough' });
     const msg = error instanceof Error ? error.message : 'Failed to start voice walk-through';

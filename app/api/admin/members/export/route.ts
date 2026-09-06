@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,6 +10,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { formatPhone } from '@/lib/formatPhone';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { buildDirectorySearchWhere, normalizeDirectorySearch } from '@/lib/admin/directorySearch';
+import { buildStatusWhere, type StudentStatus } from '@/lib/admin/studentStatus';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const MAX_EXPORT = 5000;
@@ -33,9 +36,10 @@ async function _GET(request: NextRequest) {
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') ?? '';
-    const programFilter = searchParams.get('program') ?? '';
-    const partnerFilter = searchParams.get('partner') ?? '';
+    const search = normalizeDirectorySearch(searchParams.get('search') ?? '');
+    const programFilter = (searchParams.get('program') ?? '').trim();
+    const partnerFilter = (searchParams.get('partner') ?? '').trim();
+    const statusFilter = (searchParams.get('status') ?? '').trim();
     const healthFilter = searchParams.get('health') ?? '';
     const notInCourse = searchParams.get('notInCourse') === '1';
     const needsAttention = searchParams.get('needsAttention') === '1';
@@ -57,12 +61,25 @@ async function _GET(request: NextRequest) {
       }
     }
 
-    // Fetch all members (same base query as the page, but we apply client-side filtering
-    // to match the exact logic in MembersTable)
+    // Apply directory filters before the export bound, so a matching member
+    // outside the first 5,000 unfiltered records is still included.
+    const where: Prisma.UserWhereInput = {
+      ...MEMBER_OR_DOGFOOD_WHERE,
+      ...dateWhere,
+      deletedAt: statusFilter === 'dropped' ? { not: null } : null,
+      AND: [
+        buildDirectorySearchWhere(search),
+        buildStatusWhere(statusFilter as StudentStatus) as Prisma.UserWhereInput,
+      ],
+      ...(programFilter ? { courseEnrollments: { some: { programSlug: programFilter } } } : {}),
+      ...(partnerFilter ? {
+        partnerReferrals: partnerFilter === '__none' ? { none: {} } : { some: { partnerId: partnerFilter } },
+      } : {}),
+    };
     const members = await withTenantScope(orgId, (db) =>
       db.user.findMany({
-        where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, ...dateWhere },
-        orderBy: { createdAt: 'desc' },
+        where,
+        orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
         take: MAX_EXPORT,
         select: {
           id: true,
@@ -127,16 +144,12 @@ async function _GET(request: NextRequest) {
       recentEventMap.set(e.userId, e._count._all);
     }
 
-    // Apply filters matching MembersTable logic exactly
+    // Derived health and attention filters retain the existing bounded behavior.
     const filtered = members.filter((m) => {
-      const q = search.toLowerCase();
-      const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
       const enrollmentSlugs = [
         ...(m.enrolledProgram ? [m.enrolledProgram] : []),
         ...m.courseEnrollments.map((e) => e.programSlug),
       ];
-      const matchProgram = !programFilter || enrollmentSlugs.includes(programFilter);
-      const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerReferrals[0]?.partner.id : m.partnerReferrals[0]?.partner.id === partnerFilter);
 
       // Health calculation (mirrors calculateHealthStatus in lib/admin/healthScore)
       let healthStatus: 'green' | 'yellow' | 'red' | undefined;
@@ -166,7 +179,7 @@ async function _GET(request: NextRequest) {
       if (isNew) reasons.push('New');
       const matchAttention = !needsAttention || reasons.length > 0;
 
-      return matchSearch && matchProgram && matchPartner && matchHealth && matchNotInCourse && matchAttention;
+      return matchHealth && matchNotInCourse && matchAttention;
     });
 
     const headers = [
@@ -210,6 +223,7 @@ async function _GET(request: NextRequest) {
         truncated: members.length >= MAX_EXPORT,
         filters: {
           search: search || null,
+          status: statusFilter || null,
           program: programFilter || null,
           partner: partnerFilter || null,
           health: healthFilter || null,
@@ -230,6 +244,7 @@ async function _GET(request: NextRequest) {
           truncated: members.length >= MAX_EXPORT,
           filters: {
             search: search || null,
+            status: statusFilter || null,
             program: programFilter || null,
             partner: partnerFilter || null,
             health: healthFilter || null,

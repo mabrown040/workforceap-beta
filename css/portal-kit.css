@@ -600,3 +600,120 @@ html.dark [data-surface] .wa-kit-card,
 .wa-shell-text-action:disabled {
   cursor: default;
 }
+/* People directories: readable identities and controls from phones to desktop. */
+.wa-kit-people-roster {
+  min-width: 0;
+  padding: var(--wa-pad);
+}
+.wa-kit-people-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--wa-pad-sm);
+  align-items: end;
+  margin-bottom: var(--wa-pad-sm);
+}
+.wa-kit-people-filters input,
+.wa-kit-people-filters [role=combobox],
+.wa-kit-people-filters .astryx-text-input,
+.wa-kit-people-filters .astryx-selector {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+.wa-kit-people-count {
+  color: var(--wa-muted);
+  font-size: var(--wa-type-meta);
+  margin-block: var(--wa-pad-sm);
+}
+.wa-kit-people-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--wa-pad-sm);
+  min-width: 0;
+}
+.wa-kit-people-name {
+  min-width: 0;
+  font-weight: 700;
+  color: var(--wa-text);
+  overflow-wrap: anywhere;
+}
+.wa-kit-people-email {
+  color: var(--wa-muted);
+  overflow-wrap: anywhere;
+  font-size: var(--wa-type-meta);
+  margin-block: var(--wa-pad-sm);
+}
+.wa-kit-people-row {
+  padding: var(--wa-pad) 0;
+  border-bottom: 1px solid var(--wa-border);
+}
+.wa-kit-people-row .wa-kit-people-name {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.wa-kit-people-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wa-pad-sm);
+  color: var(--wa-muted);
+  font-size: var(--wa-type-meta);
+}
+.wa-kit-people-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--wa-accent);
+  font-weight: 600;
+}
+.admin-users-manager { display: grid; gap: var(--wa-pad); min-width: 0; }
+.admin-users-create > summary,
+.admin-members-mobile-details > summary {
+  cursor: pointer;
+  min-height: 2.75rem;
+  padding-block: var(--wa-pad-sm);
+  color: var(--wa-accent);
+  font-weight: 600;
+}
+.admin-members-mobile-identity { display: flex; align-items: center; min-width: 0; flex: 1; }
+.admin-members-mobile-select { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; cursor: pointer; }
+.admin-members-mobile-select input[type="checkbox"] { width: 1.125rem; height: 1.125rem; min-width: 0; min-height: 0; }
+.admin-members-secondary-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+@media (min-width: 900px) {
+  .admin-members-toolbar .admin-members-filter-toggle { display: none; }
+}
+@media (max-width: 899px) {
+  .admin-members-secondary-controls { display: none; }
+  .admin-members-secondary-controls--open { display: flex; }
+  .admin-users-desktop,
+  .admin-members-desktop { display: none; }
+  .admin-portal-card-list.admin-users-cards,
+  .admin-portal-card-list.admin-members-cards { display: flex; }
+  .admin-users-cards .admin-portal-card,
+  .admin-members-cards .admin-portal-card {
+    padding: var(--wa-pad) var(--wa-pad-sm);
+    background: var(--wa-surface);
+    color: var(--wa-text);
+    border-color: var(--wa-border);
+    border-radius: var(--wa-radius-sm);
+    box-shadow: none;
+    min-width: 0;
+  }
+  .admin-users-cards .admin-portal-card__header,
+  .admin-members-cards .admin-portal-card__header { flex-wrap: wrap; }
+  .admin-users-cards .admin-portal-card__meta,
+  .admin-members-cards .admin-portal-card__meta { overflow-wrap: anywhere; font-size: var(--wa-type-meta); }
+  .admin-users-cards .admin-portal-card__header strong { overflow-wrap: anywhere; }
+  .admin-users-cards .admin-portal-card__badge,
+  .admin-members-cards .admin-portal-card__badge,
+  .admin-members-cards .admin-portal-card__label { font-size: var(--wa-type-meta); }
+  .admin-users-cards .btn,
+  .admin-members-cards .btn,
+  .admin-members-toolbar .btn,
+  .admin-members-toolbar input:not([type=checkbox]),
+  .admin-members-toolbar select { min-height: 2.75rem; }
+  .admin-members-toolbar input[type=search] { font-size: 1rem; }
+  .admin-members-search-label__text,
+  .admin-members-filter-field { font-size: var(--wa-type-meta); letter-spacing: normal; text-transform: none; }
+}
+@media (max-width: 599px) {
+  .wa-kit-people-filters { grid-template-columns: minmax(0, 1fr); }
+}

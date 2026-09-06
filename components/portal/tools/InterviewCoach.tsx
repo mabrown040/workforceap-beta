@@ -191,6 +191,7 @@ export default function InterviewCoach({
       const data = (await res.json()) as {
         mode: 'voice' | 'text';
         signedUrl?: string;
+        dynamicVariables?: Record<string, string | number | boolean>;
         firstQuestion?: string;
         sessionId: string;
       };
@@ -202,7 +203,7 @@ export default function InterviewCoach({
         setSignedUrl(data.signedUrl);
         voiceTranscriptRef.current = [];
         setPhase('voice');
-        connectVoiceSession(data.signedUrl);
+        connectVoiceSession(data.signedUrl, data.dynamicVariables);
       } else {
         setCurrentQuestion(data.firstQuestion ?? previewQuestionFor(role, 0));
         setPhase('interview');
@@ -212,13 +213,14 @@ export default function InterviewCoach({
     }
   }
 
-  async function connectVoiceSession(url: string) {
+  async function connectVoiceSession(url: string, dynamicVariables?: Record<string, string | number | boolean>) {
     setVoiceError('');
     setWsStatus('connecting');
     try {
       const { Conversation } = await import('@elevenlabs/client');
       const conv = await Conversation.startSession({
         signedUrl: url,
+        ...(dynamicVariables ? { dynamicVariables } : {}),
         onConnect: () => setWsStatus('connected'),
         onDisconnect: (details) => {
           setWsStatus('ended');

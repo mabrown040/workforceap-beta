@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { hasActiveVoiceSessionUser, VOICE_SESSION_IDENTITY_MESSAGE, VOICE_SESSION_RESPONSE_HEADERS } from '@/lib/ai/voiceSessionBoundary';
 import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { ElevenLabsApiError } from '@/lib/ai/elevenlabs';
@@ -13,6 +14,9 @@ export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await hasActiveVoiceSessionUser(user.id))) {
+      return NextResponse.json({ error: VOICE_SESSION_IDENTITY_MESSAGE }, { status: 403 });
+    }
     const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
     if (!voiceRateOk) {
       return NextResponse.json(
@@ -39,7 +43,7 @@ export const POST = withApiGuc(async () => {
           signedUrl,
           expiresAt,
           dynamicVariables: returned ?? dynamicVariables,
-        });
+        }, { headers: VOICE_SESSION_RESPONSE_HEADERS });
       } catch (primaryError) {
         // 9/3/26: the WIOA pre-qualification agent ids on record are unknown to
         // the live ElevenLabs account (404 on both). Rather than show members an

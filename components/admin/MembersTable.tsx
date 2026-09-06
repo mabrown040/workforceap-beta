@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle } from 'lucide-react';
 import { StatusDot } from '@astryxdesign/core/StatusDot';
 import { getStudentStatus, type StudentStatus } from '@/lib/admin/studentStatus';
@@ -13,6 +13,7 @@ import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
 import ConfirmDialog from './ConfirmDialog';
 import PortalPagination from '@/components/portal/PortalPagination';
+import { useDirectoryNavigation } from './useDirectoryNavigation';
 
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
@@ -277,11 +278,10 @@ export default function MembersTable({
   allAssignablePrograms,
 }: MembersTableProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const initialSort = searchParams?.get('sort')?.split(':') as [SortKey, SortDir] | undefined;
-  const [search, setSearch] = useState(searchQuery);
+  const { query: search, search: setSearch, navigate: updateUrl, pending: searchPending } = useDirectoryNavigation(searchQuery);
   const [programFilterState, setProgramFilterState] = useState(programFilter);
   const [statusFilterState, setStatusFilterState] = useState(statusFilter);
   const [partnerFilter, setPartnerFilter] = useState(partnerFilterProp);
@@ -303,7 +303,6 @@ export default function MembersTable({
   const [exportLoading, setExportLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | { type: 'enrolled' | 'completed'; count: number }>(null);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
-  const searchDebounceRef = useRef<number | null>(null);
 
   const closeConfirmAction = () => {
     if (!bulkActionLoading) setConfirmAction(null);
@@ -311,57 +310,21 @@ export default function MembersTable({
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const updateUrl = useCallback(
-    (newParams: Record<string, string>) => {
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
-      Object.entries(newParams).forEach(([key, value]) => {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
-      });
-      // Reset to page 1 when filters change
-      if (
-        newParams.search !== undefined ||
-        newParams.program !== undefined ||
-        newParams.status !== undefined ||
-        newParams.partner !== undefined ||
-        newParams.startDate !== undefined ||
-        newParams.endDate !== undefined
-      ) {
-        params.delete('page');
-      }
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [router, pathname, searchParams]
-  );
+  // An earlier response for one filter must not reset newer choices in others.
+  useEffect(() => { setProgramFilterState(programFilter); }, [programFilter]);
+  useEffect(() => { setStatusFilterState(statusFilter); }, [statusFilter]);
+  useEffect(() => { setPartnerFilter(partnerFilterProp); }, [partnerFilterProp]);
+  useEffect(() => { setStartDate(startDateFilter); }, [startDateFilter]);
+  useEffect(() => { setEndDate(endDateFilter); }, [endDateFilter]);
 
   const filtered = useMemo(() => {
     const rows = members.filter((m) => {
-      const q = search.toLowerCase();
-      const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
-      const matchProgram = !programFilterState || m.enrollmentProgramSlugs.includes(programFilterState);
-      const memberStatus = getStudentStatus({
-        enrolledAt: m.enrolledAt ? new Date(m.enrolledAt) : null,
-        enrolledProgram: m.enrolledProgram,
-        deletedAt: null, // client-side only sees non-deleted from server
-        updatedAt: typeof m.updatedAt === 'string' ? new Date(m.updatedAt) : m.updatedAt,
-        courseProgressCount: m.liveTraining?.percent ?? 0,
-        certificationCount: m.coursesCompleted?.length ?? 0,
-        recentEventCount: m.healthStatus === 'green' ? 1 : 0,
-      });
-      const matchStatus = !statusFilterState || (
-        statusFilterState === 'stale'
-          ? !!m.staleTrainingDetectedAt
-          : memberStatus === statusFilterState
-      );
-      // Partner and date-range filters round-trip to the server (URL params),
-      // so the loaded page is already scoped to them — no client predicate.
+      // Search, program, lifecycle, partner and dates are already applied before
+      // server pagination. Re-filtering them here can hide valid server matches.
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
       const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);
       const matchAttention = !needsAttentionFilter || needsAttention(m);
-      return matchSearch && matchProgram && matchStatus && matchHealth && matchNotInCourse && matchAttention;
+      return matchHealth && matchNotInCourse && matchAttention;
     });
     const dir = sortDir === 'asc' ? 1 : -1;
     // Stable sort with a fit-score tiebreaker so equal keys keep a sensible order.
@@ -376,9 +339,6 @@ export default function MembersTable({
       .map(([m]) => m);
   }, [
     members,
-    search,
-    programFilterState,
-    statusFilterState,
     healthFilter,
     notInCourseFilter,
     needsAttentionFilter,
@@ -397,7 +357,7 @@ export default function MembersTable({
   }
 
   const programs = useMemo(() => {
-    const titleBySlug = new Map<string, string>();
+    const titleBySlug = new Map(allAssignablePrograms.map(program => [program.slug, program.title]));
     for (const m of members) {
       for (const slug of m.enrollmentProgramSlugs) {
         if (!titleBySlug.has(slug)) {
@@ -408,7 +368,7 @@ export default function MembersTable({
     return [...titleBySlug.entries()]
       .map(([slug, title]) => ({ slug, title }))
       .sort((a, b) => a.title.localeCompare(b.title));
-  }, [members]);
+  }, [members, allAssignablePrograms]);
 
   const partnerOptions = useMemo(
     () => allPartnerOptions.map((p) => [p.id, p.name] as const),
@@ -434,7 +394,6 @@ export default function MembersTable({
   const selectedRows = useMemo(() => members.filter((m) => selectedIds.has(m.id)), [members, selectedIds]);
 
   function clearAllFilters() {
-    setSearch('');
     setProgramFilterState('');
     setStatusFilterState('');
     setPartnerFilter('');
@@ -514,6 +473,7 @@ export default function MembersTable({
     try {
       const params = new URLSearchParams();
       if (search.trim()) params.set('search', search.trim());
+      if (statusFilterState) params.set('status', statusFilterState);
       if (programFilterState) params.set('program', programFilterState);
       if (partnerFilter) params.set('partner', partnerFilter);
       if (healthFilter) params.set('health', healthFilter);
@@ -554,7 +514,7 @@ export default function MembersTable({
   }
 
   return (
-    <div className="admin-members-table-root">
+    <div className="admin-members-table-root" aria-busy={searchPending}>
       <div className="admin-members-toolbar">
         <div className="admin-members-toolbar__primary">
           <label className="admin-members-search-label">
@@ -563,19 +523,14 @@ export default function MembersTable({
               type="search"
               placeholder="Name or email"
               value={search}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSearch(value);
-                if (searchDebounceRef.current) window.clearTimeout(searchDebounceRef.current);
-                searchDebounceRef.current = window.setTimeout(() => updateUrl({ search: value }), 300);
-              }}
+              onChange={(e) => setSearch(e.target.value)}
               className="admin-members-search-input"
               autoComplete="off"
             />
           </label>
           <button
             type="button"
-            className="btn btn-outline btn-sm md:wa-hidden admin-members-filter-toggle"
+            className="btn btn-outline btn-sm admin-members-filter-toggle"
             onClick={() => setFiltersExpanded((v) => !v)}
             aria-expanded={filtersExpanded}
           >
@@ -586,7 +541,8 @@ export default function MembersTable({
         </div>
 
         <div className="admin-members-count-line" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <span aria-live="polite">
+          <span role="status">
+            {searchPending ? 'Searching all members… ' : null}
             <strong>{filtered.length.toLocaleString()}</strong> shown
             {totalCount !== filtered.length ? (
               <>
@@ -601,7 +557,7 @@ export default function MembersTable({
               </span>
             ) : null}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className={`admin-members-secondary-controls${filtersExpanded ? ' admin-members-secondary-controls--open' : ''}`}>
             <label className="admin-members-filter-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
               <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>From</span>
               <input
@@ -626,7 +582,7 @@ export default function MembersTable({
               type="button"
               className="btn btn-outline btn-sm"
               onClick={() => void exportFilteredCsv()}
-              disabled={exportLoading || filtered.length === 0}
+              disabled={searchPending || exportLoading || filtered.length === 0}
               aria-busy={exportLoading}
             >
               <Download size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
@@ -1023,39 +979,33 @@ export default function MembersTable({
             <li
               key={m.id}
               className="admin-portal-card"
-              style={{ cursor: 'pointer' }}
-              onClick={() => window.location.assign(`/admin/members/${m.id}`)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') window.location.assign(`/admin/members/${m.id}`);
-              }}
-              aria-label={`View details for ${m.fullName}`}
             >
               <div className="admin-portal-card__header" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', flex: 1, minWidth: 0 }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(m.id)}
-                    onChange={() => toggleSelect(m.id)}
-                    aria-label={`Select ${m.fullName}`}
-                  />
+                <div className="admin-members-mobile-identity">
+                  <label className="admin-members-mobile-select">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(m.id)}
+                      onChange={() => toggleSelect(m.id)}
+                      aria-label={`Select ${m.fullName}`}
+                    />
+                  </label>
                   <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)', wordBreak: 'break-word' }} onClick={(e) => e.stopPropagation()}>
                     {m.healthStatus && <HealthDot status={m.healthStatus} />}
                     {m.fullName}
                   </Link>
-                </label>
+                </div>
                 {m.healthStatus ? (
                   <span
                     className="admin-portal-card__badge"
                     style={{
                       background:
                         m.healthStatus === 'green'
-                          ? 'rgba(22,163,74,0.12)'
+                          ? 'var(--wa-success-soft)'
                           : m.healthStatus === 'yellow'
-                            ? 'rgba(217,119,6,0.12)'
-                            : 'rgba(220,38,38,0.12)',
-                      color: m.healthStatus === 'green' ? '#166534' : m.healthStatus === 'yellow' ? '#b45309' : '#991b1b',
+                            ? 'var(--wa-gold-soft)'
+                            : 'var(--wa-danger-soft)',
+                      color: m.healthStatus === 'green' ? 'light-dark(#166534, var(--wa-success))' : m.healthStatus === 'yellow' ? 'var(--wa-gold-dark)' : 'light-dark(#991b1b, var(--wa-danger))',
                     }}
                   >
                     {m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}
@@ -1071,7 +1021,7 @@ export default function MembersTable({
                 <span className="admin-portal-card__label">Status</span>{' '}
                 {(() => {
                   const status = m.memberStatus ?? 'active';
-                  const color = status === 'active' ? '#16a34a' : status === 'placed' ? '#2563eb' : '#9ca3af';
+                  const color = status === 'active' ? '#166534' : status === 'placed' ? '#2563eb' : '#4b5563';
                   const bg = status === 'active' ? '#f0fdf4' : status === 'placed' ? '#eff6ff' : '#f3f4f6';
                   return (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid ${color}20`, textTransform: 'capitalize' }}>
@@ -1085,6 +1035,8 @@ export default function MembersTable({
               <p className="admin-portal-card__row">
                 <span className="admin-portal-card__label">Program</span> {m.programTitle ?? '—'}
               </p>
+              <details className="admin-members-mobile-details">
+                <summary>Training & details</summary>
               <p className="admin-portal-card__row">
                 <span className="admin-portal-card__label">Partner</span> {m.partnerName ?? '—'}
               </p>
@@ -1095,7 +1047,9 @@ export default function MembersTable({
                 <span className="admin-portal-card__label">Training</span> {formatTraining(m, 'card')}
               </p>
               <p className="admin-portal-card__meta">Last active {lastActive}</p>
+              </details>
               <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                <Link href={`/admin/members/${m.id}`} className="btn btn-sm btn-primary">Open member</Link>
                 <Link
                   href={`/counselor/sessions/${m.id}/run`}
                   onClick={(e) => e.stopPropagation()}
@@ -1112,9 +1066,10 @@ export default function MembersTable({
 
       {filtered.length === 0 && (
         <div className="admin-empty-state">
-          <h3>{members.length === 0 ? 'No members yet' : 'No matches'}</h3>
-          <p>{members.length === 0 ? 'Add your first member to get started.' : 'Try adjusting your search or filters.'}</p>
-          {members.length === 0 && (
+          <h3>{searchPending ? 'Searching…' : activeFilterCount > 0 ? 'No matching members' : 'No members yet'}</h3>
+          <p>{activeFilterCount > 0 ? 'Try a different name, email, or filter.' : 'Add your first member to get started.'}</p>
+          {activeFilterCount > 0 && <button type="button" className="btn btn-outline" onClick={clearAllFilters}>Clear search & filters</button>}
+          {members.length === 0 && activeFilterCount === 0 && !searchPending && (
             <a href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
               <Plus size={16} /> Add Member
             </a>

@@ -6,6 +6,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import CoachChat from '@/components/portal/CoachChat';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { sanitizeCoachMemoryFields } from '@/lib/coach/memorySafety';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,7 +26,7 @@ export default async function CoachPage() {
   // Read display name + persistent coach memory for a warm, memory-aware
   // greeting. These reads are best-effort: a slow/missing row must never
   // block the chat surface from rendering.
-  const [dbUser, memory] = await Promise.all([
+  const [dbUser, memoryRow] = await Promise.all([
     prisma.user
       .findUnique({ where: { id: user.id }, select: { fullName: true } })
       .catch(() => null),
@@ -37,6 +38,7 @@ export default async function CoachPage() {
       .catch(() => null),
   ]);
 
+  const memory = memoryRow ? sanitizeCoachMemoryFields(memoryRow) : null;
   const firstName = dbUser?.fullName?.trim().split(/\s+/)[0] || 'there';
   const returning = Boolean(memory?.summary?.trim() || memory?.lastTopic?.trim());
 

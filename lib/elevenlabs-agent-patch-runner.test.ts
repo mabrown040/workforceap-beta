@@ -13,7 +13,14 @@ import {
   findAgentPatchMismatches,
   findAgentPreimageDrift,
   findAgentPostPatchDrift,
+  preserveUnspecifiedAgentPlaceholders,
+  findAgentTemplateVariableIssues,
 } from '../scripts/elevenlabs/agent-patch-utils.mjs';
+import {
+  DISABLED_CLIENT_OVERRIDES,
+  findVoiceAgentSecurityIssues,
+  REVIEWED_VOICE_AGENT_IDS,
+} from '../scripts/elevenlabs/agent-security-policy.mjs';
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -190,8 +197,202 @@ function lilleyAgentOnReviewedMainBranch() {
     agent_id: GOVERNED_LILLEY_AGENT_ID,
     branch_id: reviewedBranchId,
     main_branch_id: reviewedBranchId,
+    conversation_config: {
+      ...structuredClone(preimage.conversation_config),
+      agent: {
+        ...structuredClone(preimage.conversation_config.agent),
+        dynamic_variables: { dynamic_variable_placeholders: { secret__agent_gateway_token: '' } },
+      },
+      conversation: { max_duration_seconds: 600 },
+      turn: { silence_end_call_timeout: 90 },
+    },
+    platform_settings: {
+      ...structuredClone(preimage.platform_settings),
+      auth: { enable_auth: true, allowlist: [] },
+      privacy: { ...preimage.platform_settings.privacy, record_voice: false },
+      overrides: structuredClone(DISABLED_CLIENT_OVERRIDES),
+    },
   };
 }
+
+test('every reviewed patch closes public access and client capabilities without changing role tools', async () => {
+  for (const agentId of REVIEWED_VOICE_AGENT_IDS) {
+    const checkedInPatch = JSON.parse(await readFile(
+      join(process.cwd(), 'scripts', 'elevenlabs', 'patches', `${agentId}.patch.json`),
+      'utf8',
+    ));
+    const live = {
+      ...preimage,
+      platform_settings: {
+        ...preimage.platform_settings,
+        auth: { enable_auth: false, allowlist: [{ hostname: 'old.example.test' }] },
+        overrides: {
+          conversation_config_override: {
+            agent: { prompt: { prompt: true, tool_ids: true } },
+            conversation: { max_duration_seconds: true },
+          },
+          enable_starting_workflow_node_id_from_client: true,
+        },
+      },
+    };
+    const effective = expectedAgentAfterPatch(live, checkedInPatch);
+    assert.deepEqual(findVoiceAgentSecurityIssues(effective), [], agentId);
+    assert.deepEqual(effective.conversation_config.agent.prompt.tool_ids, ['tool_1']);
+    assert.equal(effective.conversation_config.tts.model_id, 'eleven_flash_v2_5');
+    assert.equal(effective.conversation_config.tts.voice_id,
+      agentId === GOVERNED_LILLEY_AGENT_ID ? 'l4Coq6695JDX9xtLqXDE'
+        : agentId === 'agent_7801kqfjg0qwfy68btrqh6jg87kf' ? 'EXAVITQu4vr4xnSDxMaL'
+          : agentId === 'agent_9101kqfjg2z8ew5r3ad4fz6323yr' ? 'XrExE9yKIg1WjnnlVkGX'
+            : 'old_voice');
+  }
+});
+
+test('ordinary-agent writes preserve unrelated placeholder keys in the provider replacement', async () => {
+  const agentId = 'agent_9201kqfjfrkyex086d2cb706xsb0';
+  const live = {
+    ...lilleyAgentOnReviewedMainBranch(), agent_id: agentId,
+    conversation_config: {
+      ...lilleyAgentOnReviewedMainBranch().conversation_config,
+      agent: {
+        prompt: { prompt: 'Hello {{member_name}} from {{site_name}}' },
+        dynamic_variables: { dynamic_variable_placeholders: {
+          existing_portal_hint: 'Keep this configured extension', member_name: 'Sample person',
+        } },
+      },
+    },
+  };
+  const body = { conversation_config: { agent: { dynamic_variables: { dynamic_variable_placeholders: {
+    member_name: '', site_name: 'WorkforceAP',
+  } } } } };
+  const effectiveBody = preserveUnspecifiedAgentPlaceholders(live, body);
+  const expected = expectedAgentAfterPatch(live, effectiveBody);
+  const { calls, fetchImpl } = createFetchQueue([
+    jsonResponse(live), jsonResponse({}), jsonResponse(expected),
+  ]);
+  assert.equal(await applyAgentPatch({ agentId, body, key: 'test-only', fetchImpl, logger: createLogger().logger }), true);
+  const sent = JSON.parse(String(calls[1].init.body));
+  assert.deepEqual(sent.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders, {
+    existing_portal_hint: 'Keep this configured extension', member_name: '', site_name: 'WorkforceAP',
+  });
+  assert.equal(live.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders.member_name, 'Sample person');
+  assert.deepEqual(body.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders, { member_name: '', site_name: 'WorkforceAP' });
+
+  for (const change of ['edit', 'remove', 'add'] as const) {
+    const drifted = structuredClone(expected);
+    const defaults = drifted.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders;
+    if (change === 'edit') defaults.existing_portal_hint = 'Unexpected concurrent edit';
+    if (change === 'remove') delete defaults.existing_portal_hint;
+    if (change === 'add') defaults.unrequested_key = 'Unexpected concurrent addition';
+    const driftQueue = createFetchQueue([jsonResponse(live), jsonResponse({}), jsonResponse(drifted)]);
+    const log = createLogger();
+    assert.equal(await applyAgentPatch({ agentId, body, key: 'test-only', fetchImpl: driftQueue.fetchImpl, logger: log.logger }), false, change);
+    assert.ok(log.entries.some(entry => entry[0] === 'MANUAL_RECOVERY_REQUIRED'), change);
+    assert.equal(driftQueue.calls.filter(call => call.init.method === 'PATCH').length, 1, change);
+  }
+});
+
+test('governed Lilley writes still replace stale member placeholders with the secret-only contract', async () => {
+  const live = lilleyAgentOnReviewedMainBranch();
+  const source = { ...live, conversation_config: { ...live.conversation_config, agent: {
+    ...live.conversation_config.agent,
+    dynamic_variables: { dynamic_variable_placeholders: { member_name: 'Stale member', unknown_context: 'Do not retain' } },
+  } } };
+  const body = { conversation_config: { agent: { dynamic_variables: { dynamic_variable_placeholders: {
+    secret__agent_gateway_token: '',
+  } } } } };
+  const expected = expectedAgentAfterPatch(source, body);
+  const { calls, fetchImpl } = createFetchQueue([jsonResponse(source), jsonResponse({}), jsonResponse(expected)]);
+  assert.equal(await applyAgentPatch({ agentId: GOVERNED_LILLEY_AGENT_ID, branchId: reviewedBranchId, body, key: 'test-only', fetchImpl, logger: createLogger().logger }), true);
+  const sent = JSON.parse(String(calls[1].init.body));
+  assert.deepEqual(sent.conversation_config.agent.dynamic_variables.dynamic_variable_placeholders, { secret__agent_gateway_token: '' });
+});
+
+test('governed Lilley check-only rejects extra, missing, or functional secret defaults', async () => {
+  const placeholderPath = 'conversation_config.agent.dynamic_variables.dynamic_variable_placeholders';
+  for (const placeholders of [
+    { secret__agent_gateway_token: '', stale_member_context: 'Synthetic stale context' },
+    { secret__agent_gateway_token: 'synthetic-nonempty-token' },
+    {},
+  ]) {
+    const live = lilleyAgentOnReviewedMainBranch();
+    const badLive = { ...live, conversation_config: { ...live.conversation_config, agent: {
+      ...live.conversation_config.agent,
+      dynamic_variables: { dynamic_variable_placeholders: placeholders },
+    } } };
+    const { calls, fetchImpl } = createFetchQueue([jsonResponse(badLive)]);
+    const { entries, logger } = createLogger();
+    assert.equal(await applyAgentPatch({ agentId: GOVERNED_LILLEY_AGENT_ID, branchId: reviewedBranchId, body: { name: live.name }, checkOnly: true, key: 'test-only', fetchImpl, logger }), false);
+    assert.equal(calls.length, 1);
+    assert.ok(entries.some(entry => entry[0] === 'UNSAFE_AGENT_CONFIGURATION' && entry[2].includes(placeholderPath)));
+    assert.ok(entries.every(entry => !entry.join(' ').includes('Synthetic stale context') && !entry.join(' ').includes('synthetic-nonempty-token')));
+  }
+});
+
+test('reviewed verification rejects missing template defaults even for a name-only check', async () => {
+  const live = { ...lilleyAgentOnReviewedMainBranch(), agent_id: 'agent_9201kqfjfrkyex086d2cb706xsb0', conversation_config: {
+    ...lilleyAgentOnReviewedMainBranch().conversation_config,
+    agent: { first_message: "{% if response_language == 'es' %}Hola{% else %}Hi{% endif %}", prompt: { prompt: 'Hello {{member_name}}. {{system__conversation_id}}' }, dynamic_variables: { dynamic_variable_placeholders: {} } },
+  } };
+  assert.deepEqual(findAgentTemplateVariableIssues(live), [
+    'conversation_config.agent.dynamic_variables.dynamic_variable_placeholders.member_name',
+    'conversation_config.agent.dynamic_variables.dynamic_variable_placeholders.response_language',
+  ]);
+  const { calls, fetchImpl } = createFetchQueue([jsonResponse(live)]);
+  const { entries, logger } = createLogger();
+  assert.equal(await applyAgentPatch({ agentId: live.agent_id, body: { name: live.name }, checkOnly: true, key: 'test-only', fetchImpl, logger }), false);
+  assert.equal(calls.length, 1);
+  assert.ok(entries.some(entry => entry[0] === 'UNSAFE_AGENT_CONFIGURATION'));
+});
+
+test('reviewed agent writes reject unsafe effective state before any provider mutation', async () => {
+  const attempts = [
+    { platform_settings: { auth: { enable_auth: false } } },
+    { platform_settings: { auth: { allowlist: [{ hostname: 'public.example.test' }] } } },
+    { platform_settings: { overrides: { conversation_config_override: {
+      agent: { prompt: { tool_ids: true } },
+    } } } },
+    { platform_settings: { overrides: { newly_added_provider_override: true } } },
+    { platform_settings: { overrides: { custom_llm_extra_body: 'false' } } },
+    { conversation_config: { conversation: { max_duration_seconds: 3600 } } },
+    { conversation_config: { turn: { silence_end_call_timeout: -1 } } },
+    { platform_settings: { privacy: { record_voice: true } } },
+  ];
+  for (const body of attempts) {
+    const { calls, fetchImpl } = createFetchQueue([jsonResponse(lilleyAgentOnReviewedMainBranch())]);
+    const { entries, logger } = createLogger();
+    const result = await applyAgentPatch({
+      agentId: GOVERNED_LILLEY_AGENT_ID,
+      branchId: reviewedBranchId,
+      body,
+      key: 'test-secret-never-log',
+      fetchImpl,
+      apiBase: 'https://provider.invalid/v1',
+      logger,
+    });
+    assert.equal(result, false, JSON.stringify(body));
+    assert.equal(calls.length, 1, 'an unsafe patch must stop after the read');
+    assert.ok(entries.some(entry => entry[0] === 'UNSAFE_AGENT_CONFIGURATION'));
+    assert.equal(JSON.stringify(entries).includes('test-secret-never-log'), false);
+  }
+});
+
+test('read-only verification rejects insecure live state even when the requested subset matches', async () => {
+  const live = lilleyAgentOnReviewedMainBranch();
+  live.platform_settings.auth.enable_auth = false;
+  const { calls, fetchImpl } = createFetchQueue([jsonResponse(live)]);
+  const { logger } = createLogger();
+  assert.equal(await applyAgentPatch({
+    agentId: GOVERNED_LILLEY_AGENT_ID,
+    branchId: reviewedBranchId,
+    body: { name: live.name },
+    checkOnly: true,
+    key: 'test-secret-never-log',
+    fetchImpl,
+    apiBase: 'https://provider.invalid/v1',
+    logger,
+  }), false);
+  assert.equal(calls.length, 1);
+});
 
 test('legacy patch verification asserts only checked-in fields', () => {
   const expected = {
@@ -635,7 +836,7 @@ test('ElevenLabs runner uses bounded requests and never logs provider bodies', a
   assert.match(source, /AbortSignal\.timeout\(timeoutMs\)/);
   assert.match(source, /access_info\?\.is_creator !== true/);
   assert.match(source, /structuredClone\(liveAgent\)/);
-  assert.match(source, /findAgentPostPatchDrift\(postPatchAgent, preimage, body\)/);
+  assert.match(source, /findAgentPostPatchDrift\(postPatchAgent, preimage, effectiveBody\)/);
   assert.match(source, /findAgentPreimageDrift\(postPatchAgent, preimage\)/);
   assert.match(source, /branch_id=\$\{encodeURIComponent\(pinnedBranchId\)\}/);
   assert.match(source, /agent\?\.main_branch_id === branchId/);

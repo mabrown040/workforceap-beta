@@ -16,6 +16,10 @@ const agents = {
 } as const;
 const supportContext =
   'Nonprofit workforce development: practical, respectful career coaching. No medical, legal, immigration, tax, or financial advice.';
+const englishGreeting =
+  'Hi - I am your WorkforceAP interview coach. Tell me when you are ready, and I will start your mock interview at the right level for this role.';
+const spanishGreeting =
+  'Hola. Soy tu coach de entrevistas de WorkforceAP. Dime cuando estés listo y comenzaré tu entrevista simulada al nivel adecuado para este puesto.';
 
 type Variables = Record<string, string | number | boolean>;
 type Agent = {
@@ -35,8 +39,8 @@ function templateReferences(agent: Agent): Set<string> {
   for (const match of template.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
     references.add(match[1]);
   }
-  // Conditional-only variables matter too: Interview's first message selects
-  // Spanish with {% if response_language == 'es' %}, without a {{...}} token.
+  // Include prompt context guards, even if their variable is not separately
+  // interpolated. First messages use ordinary {{variable}} substitution.
   for (const match of template.matchAll(/\{%\s*(?:if|elif)\s+(\w+)\b[^%]*%\}/g)) {
     references.add(match[1]);
   }
@@ -86,8 +90,8 @@ test('Readiness tolerates its intentional omission of member_name and retains su
   assert.equal(resolved.coach_memory_summary, '');
 });
 
-test('Interview tolerates missing experience and defaults conditional-only language to English', () => {
-  // app/api/interview/session/route.ts provides role/type/language but does not
+test('Interview substitutes a fixed greeting without unsupported first-message conditionals', () => {
+  // app/api/interview/session/route.ts provides role/type/greeting but does not
   // set experience_level; member context can independently fail to load.
   const agent = readAgent(agents.interview);
   const runtime = { target_role: 'Support specialist', interview_type: 'behavioral' };
@@ -96,12 +100,22 @@ test('Interview tolerates missing experience and defaults conditional-only langu
   assert.equal(resolved.member_name, '');
   assert.equal(resolved.interview_eligible, '');
   assert.equal(resolved.target_role, runtime.target_role);
-  assert.equal(resolved.response_language, 'en');
-  assert.equal(resolveReferences(agent, { ...runtime, response_language: 'es' }).response_language, 'es');
+  assert.equal(agent.first_message, '{{interview_greeting}}');
+  assert.doesNotMatch(agent.first_message, /\{%|%\}/);
+  assert.equal(Object.hasOwn(agent.dynamic_variables.dynamic_variable_placeholders, 'response_language'), false);
+  assert.equal(resolved.response_language_instruction, '');
+  assert.equal(resolved.interview_greeting, englishGreeting);
+  const renderGreeting = (variables: Variables) => agent.first_message.replace(
+    /\{\{(\w+)\}\}/g,
+    (_match, variable: string) => String(variables[variable]),
+  );
+  assert.equal(renderGreeting(resolved), englishGreeting);
+  const spanish = resolveReferences(agent, { ...runtime, interview_greeting: spanishGreeting });
+  assert.equal(renderGreeting(spanish), spanishGreeting);
 
-  const missingLanguage = structuredClone(agent);
-  delete missingLanguage.dynamic_variables.dynamic_variable_placeholders.response_language;
-  assert.throws(() => resolveReferences(missingLanguage, runtime), /Missing template variable: response_language/);
+  const missingGreeting = structuredClone(agent);
+  delete missingGreeting.dynamic_variables.dynamic_variable_placeholders.interview_greeting;
+  assert.throws(() => resolveReferences(missingGreeting, runtime), /Missing template variable: interview_greeting/);
 });
 
 test('public WIOA subset resolves without inventing missing screening answers or outcomes', () => {
@@ -127,7 +141,7 @@ test('public WIOA subset resolves without inventing missing screening answers or
   }
 });
 
-test('new defaults provide site framing and language without fabricating identity or status', () => {
+test('new defaults provide site framing and a fixed greeting without fabricating identity or status', () => {
   for (const [role, id] of Object.entries(agents)) {
     if (role === 'lilley' || role === 'resume') continue;
     const defaults = readAgent(id).dynamic_variables.dynamic_variable_placeholders;
@@ -135,7 +149,7 @@ test('new defaults provide site framing and language without fabricating identit
     assert.equal(defaults.support_context, supportContext, role);
     for (const [key, value] of Object.entries(defaults)) {
       if (key === 'site_name' || key === 'support_context') continue;
-      assert.equal(value, key === 'response_language' ? 'en' : '', `${role}.${key}`);
+      assert.equal(value, role === 'interview' && key === 'interview_greeting' ? englishGreeting : '', `${role}.${key}`);
     }
   }
 });

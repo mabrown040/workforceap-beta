@@ -24,6 +24,7 @@ describe('InterviewCoach personalized voice session', () => {
     const dynamicVariables = {
       target_role: 'Security Analyst', interview_type: 'technical', member_name: 'Ada',
       response_language: 'es', experience_level: 'entry', coach_memory_summary: 'Practice explaining incident triage.',
+      interview_greeting: 'Hola. Soy tu coach de entrevistas de WorkforceAP.',
       interview_eligible: true, completed_interviews: 2,
     };
     vi.mocked(fetch).mockImplementation(async input => String(input).startsWith('/api/interview/history')

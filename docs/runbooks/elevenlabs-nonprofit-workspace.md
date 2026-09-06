@@ -150,3 +150,13 @@ verifier. Keep provider-managed metadata/version changes separate from mutable
 configuration changes; any other difference needs reconciliation before declaring
 the import verified. Track readback and behavioral acceptance for each agent
 individually.
+
+The interview opening uses the supported `{{interview_greeting}}` placeholder.
+Each interview session issuer supplies fixed English or Spanish greeting copy
+alongside its response-language instruction; it never accepts an arbitrary
+greeting from a request or member context. The provider default is the reviewed
+English greeting. This replaces the earlier conditional first message: during
+attended readback the UI pruned its conditional-only `response_language` default.
+That unused provider default is removed, while application language forwarding
+remains intact. Prompt and first-message checks must match this supported
+placeholder contract rather than ignoring the provider's pruning.

@@ -6,6 +6,7 @@ import { VOICE_SESSION_LIMIT_MESSAGE, checkVoiceSessionRateLimit } from '@/lib/r
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { getInterviewVoiceGreeting } from '@/lib/ai/interviewVoiceGreeting';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const payloadSchema = z.object({
@@ -49,6 +50,7 @@ export const POST = withApiGuc(async (req: NextRequest) => {
       experience_level: experienceLevel,
       response_language: language,
       response_language_instruction: aiResponseLanguageInstruction(language),
+      interview_greeting: getInterviewVoiceGreeting(language),
     };
   
     try {

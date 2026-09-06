@@ -9,6 +9,7 @@ import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/ele
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { appendCoachMemoryToSystemPrompt, loadCoachMemory } from '@/lib/coach/memory';
 import { aiResponseLanguageInstruction, firstInterviewPromptForLanguage, nextInterviewPromptForLanguage, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { getInterviewVoiceGreeting } from '@/lib/ai/interviewVoiceGreeting';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
@@ -66,6 +67,7 @@ export const POST = withApiGuc(async (req: NextRequest) => {
           interview_type: interviewType,
           response_language: language,
           response_language_instruction: aiResponseLanguageInstruction(language),
+          interview_greeting: getInterviewVoiceGreeting(language),
         };
         const { signedUrl, dynamicVariables: returnedVars } = await startElevenLabsPortalSession('interview', {
           dynamicVariables,

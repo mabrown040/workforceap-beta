@@ -15,6 +15,8 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { getInterviewVoiceGreeting } from '@/lib/ai/interviewVoiceGreeting';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -70,6 +72,7 @@ const bodySchema = z.object({
   jobDescription: z.string().max(8000).optional(),
   companyName: z.string().max(200).optional(),
   interviewLevel: z.enum(['entry', 'mid', 'senior']).optional(),
+  language: z.enum(['en', 'es', 'fr', 'pt']).optional(),
 });
 
 async function _POST(req: NextRequest) {
@@ -105,6 +108,7 @@ async function _POST(req: NextRequest) {
       jobDescription,
       companyName,
       interviewLevel,
+      language: requestedLanguage,
     } = parsed.data;
 
     const onBehalf = await resolveActOnBehalf(user.id, memberId);
@@ -159,8 +163,12 @@ async function _POST(req: NextRequest) {
       dynamicVariables.cover_draft = coverDraft ?? '';
     }
     if (card === 'interview') {
+      const language = normalizeAIResponseLanguage(requestedLanguage);
       dynamicVariables.interview_level = interviewLevel ?? 'entry';
       dynamicVariables.cover_draft = coverDraft ?? '';
+      dynamicVariables.response_language = language;
+      dynamicVariables.response_language_instruction = aiResponseLanguageInstruction(language);
+      dynamicVariables.interview_greeting = getInterviewVoiceGreeting(language);
     }
 
     const session = await startElevenLabsPortalSession(CARD_TO_AGENT[card], {

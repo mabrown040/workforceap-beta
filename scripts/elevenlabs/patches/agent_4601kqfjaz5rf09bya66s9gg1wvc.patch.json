@@ -1,7 +1,7 @@
 {
   "conversation_config": {
     "agent": {
-      "first_message": "{% if response_language == 'es' %}Hola. Soy tu coach de entrevistas de WorkforceAP. Dime cuando estés listo y comenzaré tu entrevista simulada al nivel adecuado para este puesto.{% else %}Hi - I am your WorkforceAP interview coach. Tell me when you are ready, and I will start your mock interview at the right level for this role.{% endif %}",
+      "first_message": "{{interview_greeting}}",
       "dynamic_variables": {
         "dynamic_variable_placeholders": {
           "site_name": "WorkforceAP",
@@ -16,7 +16,7 @@
           "program_skills": "",
           "organization_name": "",
           "interview_eligible": "",
-          "response_language": "en"
+          "interview_greeting": "Hi - I am your WorkforceAP interview coach. Tell me when you are ready, and I will start your mock interview at the right level for this role."
         }
       },
       "prompt": {

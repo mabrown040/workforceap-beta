@@ -81,6 +81,11 @@ synthetic conversations. Those scenarios are not recorded as passed until run
 against the live provider. Then check authenticated session creation and denied
 anonymous direct-agent access, without sending real transcripts to staff.
 
+The [September 6 verification record](elevenlabs-hardening-verification-20260906.md)
+records the completed publication and fresh readback of all eight agents, denied
+anonymous direct connections, and one successful production WIOA synthetic
+conversation. Signed-in Readiness and microphone acceptance remain separate.
+
 WorkforceAP checks the active app account and tenant before issuing authenticated
 voice sessions. Ten URL starts per user per hour remain shared; Resume now uses
 that allowance and text-only interview follow-ups do not consume it. Signed URLs
@@ -113,7 +118,8 @@ and sets `record_voice: false` where it was not already specified. Check those
 requested changes and compare the remaining fields with the same agent's live
 preimage, including these contracts:
 
-- Agent and branch identity, first message, language, and dynamic-variable defaults.
+- Agent and branch identity, language, and dynamic-variable defaults. Preserve the
+  first message except for the reviewed Interview greeting replacement below.
   Lilley retains only the declared `secret__agent_gateway_token` placeholder; the
   Resume Coach retains its complete resume/context placeholder dictionary. All
   ordinary-agent patches now declare safe defaults for their referenced variables.
@@ -134,13 +140,13 @@ preimage, including these contracts:
 - Widget terms, links, display/consent flags, sharing, and post-call settings.
   The import must not change their copy or audience.
 
-During Lilley's September 6 attended import, the operator published and re-exported
-the agent and observed one UI normalization outside the requested delta:
+During the September 6 attended imports, all eight agents were published and
+re-exported. Each showed one UI normalization outside the requested delta:
 `platform_settings.widget.terms_html` changed from `null` to HTML rendered from the
 existing `terms_text`. The `terms_text` and `shareable_page_show_terms` values stayed
-unchanged; no terms copy changed. This observation applies to that Lilley import
-only and does not attest to the other seven agents or to an authenticated voice
-conversation.
+unchanged; no terms copy changed. Each rendered value matched Lilley's inspected
+text and links. This configuration observation does not attest to an authenticated
+voice conversation; connection and behavior evidence are recorded separately.
 
 For any later occurrence, inspect the before/after terms text, rendered text and
 links, and display flags. Record this exact null-to-rendered-HTML difference

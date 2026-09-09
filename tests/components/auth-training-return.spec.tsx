@@ -196,4 +196,23 @@ describe('returning to selected training through authentication', () => {
     expect(screen.getByLabelText(/New password \*/)).toHaveValue('New-example-123');
     expect(navigation.push).not.toHaveBeenCalled();
   });
+
+  it.each([
+    { status: 503, message: '{}' },
+    { status: 502, message: 'Bad Gateway' },
+    { message: '   ' },
+    { message: '[object Object]' },
+  ])('shows useful retry guidance for an unreadable password-update error %j', async (error) => {
+    navigation.search.set('token_hash', 'valid-token');
+    navigation.search.set('type', 'recovery');
+    auth.updateUser.mockResolvedValueOnce({ error });
+    mount(<ResetPasswordPage />);
+    await screen.findByRole('heading', { name: 'Set new password' });
+    fireEvent.change(screen.getByLabelText(/New password \*/), { target: { value: 'New-example-123' } });
+    fireEvent.change(screen.getByLabelText(/Confirm new password/), { target: { value: 'New-example-123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save new password' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not update password. Please try again.');
+    expect(screen.getByRole('button', { name: 'Save new password' })).toBeEnabled();
+    expect(screen.getByLabelText(/New password \*/)).toHaveValue('New-example-123');
+  });
 });

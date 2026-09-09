@@ -110,7 +110,13 @@ function ResetPasswordForm() {
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
-        setFormError(error.message ?? tAuth('resetPassword.updateFailed'));
+        const message = error.message?.trim();
+        const retryableProviderFailure = error.status !== undefined && error.status >= 500;
+        setFormError(
+          !retryableProviderFailure && message && message !== '{}' && message !== '[object Object]'
+            ? message
+            : tAuth('resetPassword.updateFailed'),
+        );
         setStage('ready');
         passwordRef.current?.focus();
         return;

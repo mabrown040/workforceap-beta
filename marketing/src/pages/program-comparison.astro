@@ -2,36 +2,60 @@
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
 import { PROGRAM_COMPARISON_TRACKS, STARTER_SLUGS } from '../data/programComparison';
+import { PROGRAMS, partnerBadge } from '../data/programs';
+
+// Preserve the familiar grouping while using the same current syllabus facts
+// as program details. Historical salary/demand scores are not outcome evidence.
+const tracks = PROGRAM_COMPARISON_TRACKS.map((track) => {
+  const program = PROGRAMS.find((entry) => entry.slug === track.slug);
+  if (!program) throw new Error(`Comparison program missing: ${track.slug}`);
+  return {
+    slug: program.slug,
+    title: program.title,
+    duration: program.duration,
+    categoryLabel: track.categoryLabel,
+    categoryOrder: track.categoryOrder,
+    provider: partnerBadge(program),
+    preparation: program.syllabus?.recommendedPrerequisite
+      ?? (program.syllabus
+        ? 'No recommended prerequisite listed in the syllabus; confirm fit with an advisor.'
+        : 'Confirm preparation with an advisor.'),
+    bestFor: program.slug === 'aws-cloud-technology-amazon'
+      ? 'Tech-curious learners ready for cloud.'
+      : (program.extra?.bestFor ?? program.description),
+    roles: program.extra?.jobOutcomes ?? [],
+  };
+});
 
 // Recommended starting points (real STARTER_SLUGS from ProgramComparisonClient).
 const starterTracks = STARTER_SLUGS
-  .map((slug) => PROGRAM_COMPARISON_TRACKS.find((t) => t.slug === slug))
-  .filter((t): t is (typeof PROGRAM_COMPARISON_TRACKS)[number] => Boolean(t));
+  .map((slug) => tracks.find((t) => t.slug === slug))
+  .filter((t): t is (typeof tracks)[number] => Boolean(t));
 
 // Group tracks by category, preserving category order (mirrors the pick table).
 const categories = [...new Map(
-  PROGRAM_COMPARISON_TRACKS
+  tracks
     .slice()
     .sort((a, b) => a.categoryOrder - b.categoryOrder)
     .map((t) => [t.categoryLabel, t.categoryOrder]),
 ).entries()].map(([label]) => ({
   label,
-  tracks: PROGRAM_COMPARISON_TRACKS.filter((t) => t.categoryLabel === label),
+  tracks: tracks.filter((t) => t.categoryLabel === label),
 }));
 
-const trackCount = PROGRAM_COMPARISON_TRACKS.length;
+const trackCount = tracks.length;
 
 // "How to choose" factors (verbatim guidance from ProgramComparisonClient).
 const factors = [
   {
     icon: 'clock',
     label: 'Time',
-    desc: 'Most tracks run about 3–5 months at ~10 hours a week (your pace may vary). Digital Literacy is the fastest on-ramp.',
+    desc: 'Compare published course hours and delivery format with the study time you can protect each week.',
   },
   {
     icon: 'star',
-    label: 'Difficulty (★–★★★)',
-    desc: '★ = beginner-friendly. ★★★ = a steeper curve, usually with higher earning potential.',
+    label: 'Preparation',
+    desc: 'Check the syllabus prerequisites. An advisor can help you decide what to learn first.',
   },
   {
     icon: 'laptop',
@@ -40,14 +64,14 @@ const factors = [
   },
   {
     icon: 'trending-up',
-    label: 'Salary vs. ramp',
-    desc: 'Higher ranges usually mean more depth. Pick what you can finish, not only the bigger number.',
+    label: 'Career research',
+    desc: 'Compare current job requirements and local pay for the occupation you want to enter.',
   },
 ];
 ---
 <Layout
   title="Compare Programs — Side-by-Side Career Tracks"
-  description="Compare WorkforceAP career tracks side-by-side: duration, difficulty, salary, demand, and fit. Start from recommended paths or browse every track."
+  description="Compare WorkforceAP career tracks side-by-side: course hours, delivery format, preparation, roles to research, and training providers."
 >
 <div class="cmpdepth">
 
@@ -62,9 +86,9 @@ const factors = [
     <div class="lede">
       <span class="pill"><span class="pill__star"><Icon name="bar-chart" size={12} /></span>Program comparison</span>
       <h1>Which program fits <span class="shimmer">your goals?</span></h1>
-      <p class="sub">Compare career tracks side-by-side on the factors that matter: time commitment, difficulty, salary potential, and job demand. See the tradeoffs at a glance.</p>
+      <p class="sub">Compare the time commitment, preparation, and skills behind each career path. Choose a program that fits your life and the work you want to do.</p>
       <div class="acts">
-        <a class="dbtn dbtn--solid" href="/find-your-path">Not sure? Take the 5-minute pathfinder <span>→</span></a>
+        <a class="dbtn dbtn--solid" href="/find-your-path">Not sure? Find your path <span>→</span></a>
         <a class="dbtn dbtn--glass" href="#compare-table">Jump to the comparison</a>
       </div>
     </div>
@@ -77,9 +101,9 @@ const factors = [
         <strong>{trackCount}</strong>
       </div>
       <div class="hg-rows">
-        <div class="hg-row"><span><Icon name="clock" size={16} /> Typical length</span><b>3–5 months</b></div>
-        <div class="hg-row"><span><Icon name="dollar" size={16} /> Starting ranges</span><b>$52K–$145K</b></div>
-        <div class="hg-row"><span><Icon name="target" size={16} /> Demand</span><b>High → Very High</b></div>
+        <div class="hg-row"><span><Icon name="clock" size={16} /> Your schedule</span><b>Compare course hours</b></div>
+        <div class="hg-row"><span><Icon name="book-open" size={16} /> Your background</span><b>Check preparation</b></div>
+        <div class="hg-row"><span><Icon name="target" size={16} /> Your next role</span><b>Research requirements</b></div>
       </div>
       <div class="hg-chips">
         <span>No cost to qualifying members</span>
@@ -94,7 +118,7 @@ const factors = [
   <div class="sec-head">
     <span class="eyebrow">How to use this page</span>
     <h2>Pick based on <span class="grad-text">what matters most</span></h2>
-    <p>Start with fit, then narrow with the table below. Higher ranges usually mean more depth — finish the program you start.</p>
+    <p>Start with your interests and available study time. Use the published preparation notes and an advisor conversation to narrow your choices.</p>
   </div>
   <div class="choose">
     {factors.map((f, i) => (
@@ -105,7 +129,7 @@ const factors = [
       </div>
     ))}
   </div>
-  <p class="cmp-truth">Still unsure? <a href="/find-your-path">The 5-minute pathfinder ranks your top-fit tracks.</a></p>
+  <p class="cmp-truth">Still unsure? <a href="/find-your-path">Find programs to explore with the pathfinder.</a> For pay and job requirements, <a href="/salary-guide">use our career research guide.</a></p>
 </div></section>
 
 <!-- ══════════════════════════════ RECOMMENDED STARTING POINTS ══════════════════════════════ -->
@@ -113,18 +137,16 @@ const factors = [
   <div class="sec-head" style="max-width:640px">
     <span class="eyebrow">Recommended starting points</span>
     <h2>Three common <span class="grad-text">front doors</span></h2>
-    <p>Not the only options — just safe first choices. Browse the full table below to weigh any track.</p>
+    <p>Explore these starting points, then compare preparation and course content before choosing a track.</p>
   </div>
   <div class="tri">
     {starterTracks.map((t) => (
       <article class="acard">
         <span class="eyebrow" style="margin-bottom:12px">{t.categoryLabel}</span>
-        <h3>{t.shortName}</h3>
+        <h3>{t.title}</h3>
         <p>{t.bestFor}</p>
         <div class="acard-meta">
           <span><Icon name="clock" size={15} /> {t.duration}</span>
-          <span class="acard-stars" aria-label={`Difficulty ${t.difficulty}`}>{t.difficulty}</span>
-          <span class="acard-sal">{t.salary}</span>
         </div>
         <div class="acard-acts">
           <a class="btn btn--ghost" href={`/programs/${t.slug}`}>Program detail</a>
@@ -134,7 +156,7 @@ const factors = [
     ))}
   </div>
   <p class="starters-more">
-    <a href="/find-your-path">Take the 5-minute quiz</a> for ranked matches, or <a href="/programs">browse all programs</a>.
+    <a href="/find-your-path">Find your path</a> for suggestions based on your interests, or <a href="/programs">browse all programs</a>.
   </p>
 </div></section>
 
@@ -143,7 +165,7 @@ const factors = [
   <div class="sec-head" style="text-align:left;align-items:flex-start;max-width:46rem">
     <span class="eyebrow">Side-by-side</span>
     <h2 style="margin-bottom:8px">Compare all {trackCount} career tracks</h2>
-    <p>Duration, difficulty, starting range, demand, and the certificate you earn — grouped by field.</p>
+    <p>Published study commitment, preparation, training providers, and roles to research — grouped by field.</p>
   </div>
 
   <!-- Wide table wraps with horizontal scroll on narrow screens -->
@@ -153,32 +175,25 @@ const factors = [
         <tr>
           <th scope="col" class="cmp-track">Track</th>
           <th scope="col">Duration</th>
-          <th scope="col">Difficulty</th>
-          <th scope="col">Starting range</th>
-          <th scope="col">Job demand</th>
-          <th scope="col">Certificate</th>
+          <th scope="col">Preparation</th>
+          <th scope="col">Roles to research</th>
+          <th scope="col">Training providers</th>
           <th scope="col" class="cmp-act"><span class="sr-only">Apply</span></th>
         </tr>
       </thead>
       <tbody>
         {categories.map((cat) => (
           <>
-            <tr class="cmp-cat"><th scope="colgroup" colspan="7">{cat.label}</th></tr>
+            <tr class="cmp-cat"><th scope="colgroup" colspan="6">{cat.label}</th></tr>
             {cat.tracks.map((t) => (
               <tr>
                 <th scope="row" class="cmp-track" data-label="Track">
-                  <a href={`/programs/${t.slug}`}>{t.shortName}</a>
+                  <a href={`/programs/${t.slug}`}>{t.title}</a>
                 </th>
                 <td data-label="Duration">{t.duration}</td>
-                <td data-label="Difficulty"><span aria-label={`Difficulty ${t.difficulty}`}>{t.difficulty}</span></td>
-                <td data-label="Starting range"><b class="cmp-sal">{t.salary}</b></td>
-                <td data-label="Job demand">
-                  <span class={t.demand === 'Very High' ? 'demand demand--vh' : 'demand'}>
-                    {t.demand === 'Very High' && <Icon name="trending-up" size={13} />}
-                    {t.demand}
-                  </span>
-                </td>
-                <td data-label="Certificate">{t.certs}</td>
+                <td data-label="Preparation">{t.preparation}</td>
+                <td data-label="Roles to research">{t.roles.join(' · ')}</td>
+                <td data-label="Training providers">{t.provider}</td>
                 <td data-label="Apply" class="cmp-act">
                   <a class="btn btn--ghost" style="padding:11px 16px;font-size:13px" href={`/apply?program=${t.slug}`}>Apply</a>
                 </td>
@@ -190,7 +205,7 @@ const factors = [
     </table>
   </div>
 
-  <p class="catalog-foot">Salary ranges are Austin market estimates (Lightcast/BLS, Jan 2026). Actual pay depends on experience, role, and employer. Difficulty is a planning guide, not a prerequisite.</p>
+  <p class="catalog-foot">Program details use the current WorkforceAP catalog and supplied syllabi. A suggested role is a research direction; employers may require additional education or experience. <a href="/salary-guide">Check occupational pay and entry requirements</a> before deciding.</p>
 </div></section>
 
 <!-- ══════════════════════════════ HELP / NO-COST BAND ══════════════════════════════ -->
@@ -210,7 +225,7 @@ const factors = [
       <h3>No cost for qualifying members</h3>
       <p>WorkforceAP programs are offered at no cost for members who qualify through scholarship/grant funded membership. Training is available through WorkforceAP and partner-backed pathways.</p>
       <div class="help-acts">
-        <a class="btn btn--light" href="/salary-guide">View salary guide</a>
+        <a class="btn btn--light" href="/salary-guide">Research pay and job requirements</a>
         <a class="btn btn--translucent" href="/apply">Apply now</a>
       </div>
     </div>

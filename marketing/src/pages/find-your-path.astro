@@ -3,8 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import FindYourPathQuiz from '../components/FindYourPathQuiz.tsx';
 ---
 <Layout
-  title="Find Your Path — WorkforceAP"
-  description="Answer 3 quick questions and we'll match you with the WorkforceAP training programs that fit your interests, experience, and timeline. No cost to members who qualify through scholarship/grant funded membership; an advisor follows up after you apply. 501(c)(3) nonprofit."
+  title="Build Your Career Action Plan — WorkforceAP"
+  description="Explore WorkforceAP programs in 3 questions. Build a four-week career preparation plan, estimate your study pace, and save your next steps without an email or account."
 >
 <!-- HERO — DEPTH STAGE (compact crimson band) -->
 <section class="fyp-hero stage" aria-labelledby="fyp-hero-heading">
@@ -14,17 +14,18 @@ import FindYourPathQuiz from '../components/FindYourPathQuiz.tsx';
   <div class="grain" aria-hidden="true"></div>
 
   <div class="wrap fyp-hero__inner">
-    <span class="pill"><span class="pill__star">★</span>501(c)(3) nonprofit · about 2 minutes · advisor follow-up after you apply</span>
-    <h1 id="fyp-hero-heading" class="fyp-hero__heading">Find your path</h1>
-    <p class="fyp-hero__subhead">Answer 3 quick questions and we’ll match you with the training programs that fit your interests, experience, and timeline.</p>
+    <span class="pill">3 questions · a plan you can keep · no email required</span>
+    <h1 id="fyp-hero-heading" class="fyp-hero__heading">Your next chapter starts with a plan.</h1>
+    <p class="fyp-hero__subhead">Explore programs that fit your interests. Build a study schedule and a four-week checklist to turn your next career move into concrete steps.</p>
     <p class="fyp-hero__help">Questions? Call <a href="tel:+15127771808">(512) 777-1808</a></p>
   </div>
 </section>
 
 <!-- QUIZ SECTION -->
 <section class="band band--surface fyp-section" aria-label="Career match quiz"><div class="wrap fyp-wrap">
-  <p class="fyp-form-kicker" role="note">Career match only · no cost to members who qualify through scholarship/grant funded membership · advisor follow-up after you apply</p>
+  <p class="fyp-form-kicker" role="note">Explore first. Your plan is free, and training is $0 for qualifying members.</p>
   <FindYourPathQuiz client:visible />
+  <noscript><p>The interactive plan needs JavaScript. You can still <a href="/programs">explore programs</a> or call <a href="tel:+15127771808">(512) 777-1808</a> to talk through your next step.</p></noscript>
 </div></section>
 
 <style>
@@ -72,7 +73,7 @@ import FindYourPathQuiz from '../components/FindYourPathQuiz.tsx';
 
   /* ---------------- LIGHT QUIZ BAND ---------------- */
   .fyp-section{padding:var(--sec-pad) 0}
-  .fyp-wrap{max-width:840px;margin:0 auto}
+  .fyp-wrap{max-width:1040px;margin:0 auto}
   .fyp-form-kicker{font-size:13px;font-weight:700;color:var(--gold-dark);background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.22);border-radius:999px;padding:8px 16px;display:inline-block;margin-bottom:22px}
 
   /* ===================================================================
@@ -158,6 +159,109 @@ import FindYourPathQuiz from '../components/FindYourPathQuiz.tsx';
   :global(.fyp-footer){text-align:center;display:flex;flex-direction:column;align-items:center;gap:.75rem}
   :global(.fyp-footer p){color:var(--muted);font-size:.95rem;margin:0}
   :global(.fyp-retake){font-size:14px}
+
+  /* Career preparation workspace: an editable plan, with a quiet print view. */
+  :global(.fyp-flow){max-width:760px;margin-inline:auto}
+  :global(.fyp-question:focus),:global(.fyp-results__title:focus){outline:none}
+  :global(.fyp-results__title){max-width:24ch}
+  :global(.fyp-results__sub){max-width:70ch}
+  :global(.fyp-resume){display:flex;gap:1.5rem;align-items:center;justify-content:space-between;padding:1.5rem;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;margin-bottom:1.5rem}
+  :global(.fyp-resume p){color:var(--muted);font-size:1rem;margin-top:.25rem}
+  :global(.fyp-resume .btn){flex-shrink:0}
+  :global(.fyp-grid){grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+  :global(.fyp-card){border-radius:12px;box-shadow:none;padding:1.25rem;min-width:0}
+  :global(.fyp-card.is-selected){border-color:var(--crimson);background:var(--surface-2)}
+  :global(.fyp-card__cat){background:none;color:var(--muted);padding:0;margin-bottom:.5rem;font-size:.875rem}
+  :global(.fyp-card__rank){font-size:.75rem;color:var(--crimson)}
+  :global(.fyp-card__reason),:global(.fyp-card__meta),:global(.fyp-card__readiness){font-size:1rem;line-height:1.55}
+  :global(.fyp-card__readiness){margin:.5rem 0 1.25rem;color:var(--muted)}
+  :global(.fyp-card__cta){font-size:.9375rem;line-height:1.4;padding:.75rem 1rem;min-height:48px}
+  :global(.fyp-card__detail){font-size:1rem;min-height:44px;display:inline-flex;align-items:center;gap:.5rem;text-decoration:underline}
+  :global(.fyp-answer){font-size:1rem}
+  :global(.fyp-answer__dot){border-color:var(--muted)}
+  :global(.fyp-retake),:global(.fyp-back){min-height:44px}
+  :global(.fyp-rail__num){transition:none}
+  :global(.cap){scroll-margin-top:100px;margin:2.5rem 0;border:1px solid var(--border);background:var(--surface);border-radius:16px;overflow:hidden}
+  :global(.cap:focus){outline:3px solid var(--crimson);outline-offset:4px}
+  :global(.cap-header){padding:2rem 2rem 1.5rem;background:var(--surface-2)}
+  :global(.cap-eyebrow){color:var(--crimson);font-size:.8125rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.75rem}
+  :global(.cap-header h3){font-size:clamp(1.6rem,3vw,2.125rem);line-height:1.15;margin-bottom:.75rem}
+  :global(.cap-header>p:last-child){max-width:68ch;color:var(--muted);font-size:1rem}
+  :global(.cap-settings){display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:1.25rem;padding:1.5rem 2rem;background:var(--surface-2)}
+  :global(.cap-field){display:flex;flex-direction:column;gap:.5rem;min-width:0;font-weight:700;font-size:1rem}
+  :global(.cap-field select){width:100%;min-width:0;min-height:48px;border:1px solid var(--muted);border-radius:8px;padding:.75rem 2rem .75rem .75rem;background:var(--surface);color:var(--text);font:inherit;font-weight:500;text-overflow:ellipsis;cursor:pointer}
+  :global(.cap-pacing){margin:0 2rem;padding:1.5rem 0;border-bottom:1px solid var(--border)}
+  :global(.cap-pacing h4){font-size:1rem;font-weight:700;color:var(--crimson);line-height:1.5}
+  :global(.cap-pacing__number){font-size:1.125rem;margin:.75rem 0}
+  :global(.cap-pacing__number strong){font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;line-height:1.3;color:var(--text)}
+  :global(.cap-pacing p:not(.cap-pacing__number)){font-size:1rem;color:var(--muted);margin-top:.5rem;max-width:76ch}
+  :global(.cap a:not(.btn)){color:var(--crimson);text-decoration:underline;text-underline-offset:3px}
+  :global(.cap a:not(.btn):hover){color:var(--accent-dark)}
+  :global(.cap-progress){padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;font-size:1rem}
+  :global(.cap-progress progress){width:160px;height:10px;flex-shrink:0;accent-color:var(--crimson);border:0;border-radius:10px;background:var(--border)}
+  :global(.cap-progress progress::-webkit-progress-bar){background:var(--border);border-radius:10px}
+  :global(.cap-progress progress::-webkit-progress-value){background:var(--crimson);border-radius:10px}
+  :global(.cap-progress progress::-moz-progress-bar){background:var(--crimson);border-radius:10px}
+  :global(.cap-weeks){list-style:none;padding:0 2rem;margin:0}
+  :global(.cap-week){display:grid;grid-template-columns:180px minmax(0,1fr);gap:2rem;padding:1.5rem 0;border-top:1px solid var(--border)}
+  :global(.cap-week__heading>span){font-size:.8125rem;font-weight:800;color:var(--crimson);text-transform:uppercase;letter-spacing:.04em}
+  :global(.cap-week__heading h4){margin-top:.5rem;font-size:1.125rem;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.4}
+  :global(.cap-tasks){list-style:none;display:grid;gap:1.25rem}
+  :global(.cap-task){display:flex;align-items:flex-start;gap:.75rem;cursor:pointer;min-height:44px;font-size:1rem;line-height:1.6}
+  :global(.cap-task input){flex-shrink:0;accent-color:var(--crimson);width:21px;height:21px;margin-top:.25rem;cursor:pointer}
+  :global(.cap-task.is-done>span){color:var(--muted);text-decoration:line-through}
+  :global(.cap-task__link){display:inline-flex;align-items:center;gap:.375rem;min-height:44px;margin-left:33px;font-size:1rem;font-weight:600}
+  :global(.cap-next){margin:0 2rem;padding:1.75rem 0;border-top:1px solid var(--border)}
+  :global(.cap-next h4){font-size:1.25rem;font-family:'Plus Jakarta Sans',sans-serif}
+  :global(.cap-next>p){font-size:1rem;color:var(--muted);margin:.5rem 0 1rem}
+  :global(.cap-next .cap-advisor){margin:.75rem 0 0}
+  :global(.cap-save){padding:1.5rem 2rem;background:var(--surface-2);border-top:1px solid var(--border)}
+  :global(.cap-save__actions){display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+  :global(.cap-save p){font-size:.875rem;color:var(--muted);max-width:80ch;margin-top:.5rem;line-height:1.6}
+  :global(.cap-save__status){font-weight:700;color:var(--text)!important}
+  :global(.cap-text-button){font:inherit;color:var(--crimson);background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
+  :global(.cap-error){color:var(--accent-dark)!important}
+  :global(.cap-print-only){display:none}
+  :global(.fyp-results button:focus-visible),:global(.fyp-results a:focus-visible),:global(.fyp-flow button:focus-visible),:global(.cap select:focus-visible),:global(.cap input:focus-visible){outline:3px solid var(--crimson);outline-offset:3px}
+  @media(max-width:800px){
+    :global(.fyp-grid){grid-template-columns:1fr}
+    :global(.fyp-card__cta){width:auto;align-self:flex-start}
+    :global(.fyp-card__detail){align-self:flex-start}
+    :global(.cap-week){grid-template-columns:145px minmax(0,1fr);gap:1.25rem}
+    :global(.cap-settings){grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    :global(.fyp-resume){align-items:stretch;flex-direction:column}
+    :global(.cap-header),:global(.cap-settings),:global(.cap-save){padding:1.25rem}
+    :global(.cap-pacing),:global(.cap-next){margin-inline:1.25rem}
+    :global(.cap-progress){padding:1.25rem;align-items:flex-start;flex-direction:column;gap:.75rem}
+    :global(.cap-progress progress){width:100%}
+    :global(.cap-weeks){padding:0 1.25rem}
+    :global(.cap-week){grid-template-columns:1fr;gap:1rem}
+    :global(.cap-next .btn),:global(.cap-save__actions .btn){width:100%;justify-content:center}
+    :global(.cap-next .btn){text-align:center;padding:.875rem 1rem}
+  }
+  @media(prefers-reduced-motion:reduce){
+    :global(.fyp-progress__bar i){transition:none}
+    :global(.fyp-results .btn),:global(.fyp-flow .btn){transition:none;transform:none}
+  }
+  @media print{
+    :global(body:has(.cap)>:not(main)),.fyp-hero,.fyp-form-kicker,:global(.cap-no-print){display:none!important}
+    :global(body:has(.cap)),:global(.cap){background:var(--surface)!important;overflow:visible!important}
+    .fyp-section{padding:0}
+    .fyp-wrap{max-width:none;padding:0}
+    :global(.cap){border:0;border-radius:0;margin:0;font-size:11pt}
+    :global(.cap-header),:global(.cap-pacing),:global(.cap-save),:global(.cap-progress){padding:12pt 0;margin:0;background:none}
+    :global(.cap-header h3){font-size:22pt}
+    :global(.cap-weeks){padding:0}
+    :global(.cap-week){break-inside:avoid;grid-template-columns:110pt minmax(0,1fr);gap:16pt;padding:12pt 0}
+    :global(.cap a){color:var(--text)!important}
+    :global(.cap-task),:global(.cap-task__link),:global(.cap-pacing p),:global(.cap-header>p:last-child){font-size:10pt!important}
+    :global(.cap-task__link){min-height:0;margin-top:4pt}
+    :global(.cap-print-only){display:block;overflow-wrap:anywhere}
+    :global(.cap-task input){appearance:none;border:1pt solid var(--text);width:12pt;height:12pt}
+    :global(.cap-task input:checked)::after{content:'✓';display:block;line-height:10pt;text-align:center;font-size:10pt}
+  }
 
   @media(max-width:560px){
     :global(.fyp-qcard){padding:22px}

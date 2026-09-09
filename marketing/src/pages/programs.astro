@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { PROGRAMS as CATALOG, salaryRangeDisplay } from '../data/programs';
+import { PROGRAMS as CATALOG } from '../data/programs';
 import Icon from '../components/Icon.astro';
 
-// Card rows derive title/duration/salary/partner/funding/skills from the
+// Card rows derive title/duration/partner/funding/skills from the
 // canonical data file so the listing can never drift from the detail pages
 // again (it did: three programs were renamed for TWC/EdVera alignment).
 // Grouping, category labels, and icons stay page-local, keyed by slug.
@@ -21,7 +21,6 @@ function row(slug: string, category: string, cat: string, icon: string) {
     icon,
     title: p.title,
     duration: p.duration,
-    salary: salaryRangeDisplay(p),
     partner: p.partner,
     funding: fundingLabel(p.fundingSource ?? 'WIOA'),
     skills: p.skills.slice(0, 3),
@@ -60,7 +59,7 @@ const factors = [
   { label: 'Your interests', desc: 'What work feels natural or exciting to you?', icon: 'heart' },
   { label: 'Device access', desc: 'Some programs work on phones; others need a laptop.', icon: 'laptop' },
   { label: 'Time available', desc: 'Most programs need 5–10 hours per week for 3–5 months.', icon: 'clock' },
-  { label: 'Earning goal', desc: 'Entry-level roles typically start around $35K–$55K nationally.', icon: 'dollar' },
+  { label: 'Earning goal', desc: 'Research pay for a specific occupation and location, then compare current job requirements.', icon: 'dollar' },
   { label: 'Growth path', desc: 'Some certificates lead directly to jobs; others are stepping stones.', icon: 'trending-up' },
 ];
 
@@ -75,12 +74,12 @@ const journey = [
 // ════════════════════════════════════════════════════════════════════
 // FULL CATALOG — all 20 real programs from lib/content/programs.ts (PROGRAMS).
 // Real titles / category labels / durations / partners / funding sources /
-// skills (first 3) / salary ranges (the real "Starting salary: $X-$Y" strings).
+// skills (first 3). Occupational pay research is separate from program facts.
 // Grouped by the real subgroups (lib/content/programSubgroup.ts) in real order.
 // ════════════════════════════════════════════════════════════════════
 type P = {
   slug: string; category: string; cat: string; icon: string; title: string;
-  duration: string; salary: string; partner: string; funding: string; skills: string[]; external: string;
+  duration: string; partner: string; funding: string; skills: string[]; external: string;
 };
 
 // Category accent → blend pill class (crimson / gold / blue / green / neutral)
@@ -251,7 +250,7 @@ const filterChips = [
   <div class="tools-row">
     <a class="btn btn--primary" href="/find-your-path">Not sure? Take the 2-minute pathfinder</a>
     <a class="btn btn--ghost" href="/program-comparison">Compare Programs</a>
-    <a class="btn btn--ghost" href="/salary-guide">View Salary Guide</a>
+    <a class="btn btn--ghost" href="/salary-guide">Research pay and job requirements</a>
   </div>
 </div></section>
 
@@ -315,8 +314,7 @@ const filterChips = [
               <span class="picon"><Icon name={p.icon} size={26} /></span>
             </div>
             <h4>{p.title}</h4>
-            <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
-            <p class="pdisc">Salary range is a national early-career estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience, employer, and location.</p>
+            <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span></div>
             <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
             <div class="pcard-foot">
               <span class="ppartner">Partner: {p.partner}</span>
@@ -333,11 +331,11 @@ const filterChips = [
     </section>
   ))}
 
-  <p class="catalog-foot">Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.</p>
+  <p class="catalog-foot">Compare course content and preparation before applying. Use the career research guide to check occupational pay and local job requirements with public sources.</p>
   <div class="catalog-actions">
     <a class="btn btn--primary" href="/career-quiz">Find Your Path — Take the Quiz</a>
     <a class="btn btn--ghost" href="/program-comparison">Compare Programs</a>
-    <a class="btn btn--ghost" href="/salary-guide">View Salary Guide</a>
+    <a class="btn btn--ghost" href="/salary-guide">Research pay and job requirements</a>
   </div>
 </div></section>
 

@@ -1,22 +1,13 @@
-import { useState } from 'react';
-import { PROGRAMS as PROGRAM_CATALOG, salaryRangeDisplay } from '../data/programs';
+import { useEffect, useRef, useState } from 'react';
+import { PROGRAMS as PROGRAM_CATALOG, type Program as CatalogProgram } from '../data/programs';
+import CareerActionPlan from './CareerActionPlan';
+import { readCareerPlan, verifiedProgramHours, type CareerPlanSnapshot } from '../lib/careerActionPlan';
 import { trackQuizFunnel } from '../lib/marketingDataLayer';
 
 /**
- * Find Your Path — career-match quiz, ported to the Astro marketing site as a
- * React island (hydrated via client:visible).
- *
- * Truth-lock: questions, answer wording, scoring weights, recommendation ramp,
- * and "why this fits" reasoning are copied VERBATIM from the live Next funnel:
- *   - app/(decision-journey)/find-your-path/FindYourPathClient.tsx (QUESTIONS, UX)
- *   - lib/content/quizScoring.ts (scoreQuiz, defaults, merge)
- *   - lib/content/quizProgramRecommendations.ts (getTopProgramsFromQuiz)
- *   - lib/content/quizReasoning.ts (getFitReasoning, getTopFitSummary)
- *
- * The Next version POSTs to /api/careers/recommend and falls back to
- * getTopProgramsFromQuiz when that call fails. The static marketing site has no
- * such API, so we use the exact same client-side fallback the funnel already
- * ships — no rewording, no fabricated results.
+ * Three-question exploration, adapted from the portal's category scoring.
+ * Interest and readiness guide suggestions; salary figures are not ranking inputs.
+ * Runs locally without a career API or an email gate. An advisor confirms fit.
  */
 
 /* ───────────────────────── quizScoring.ts (verbatim) ───────────────────────── */
@@ -70,11 +61,11 @@ function createEmptyWeights(): CategoryWeights {
   };
 }
 
-function mergeQuizShortAnswers(partial: Pick<QuizAnswers, 'q1' | 'q2' | 'q3'>): QuizAnswers {
+export function mergeQuizShortAnswers(partial: Pick<QuizAnswers, 'q1' | 'q2' | 'q3'>): QuizAnswers {
   return { ...partial, ...QUIZ_SHORT_FORM_DEFAULTS };
 }
 
-function scoreQuiz(answers: QuizAnswers): CategoryWeights {
+export function scoreQuiz(answers: QuizAnswers): CategoryWeights {
   const w = createEmptyWeights();
 
   // Q1
@@ -194,31 +185,9 @@ function scoreQuiz(answers: QuizAnswers): CategoryWeights {
   return w;
 }
 
-/* ───────────────────── program catalog (real PROGRAMS subset) ─────────────────────
-   slug / title / category(quiz key) / categoryLabel / categoryColor / duration /
-   salary / partner — sourced from lib/content/programs.ts (PROGRAMS) via the same
-   data already mirrored in marketing/src/pages/programs.astro. Verbatim values. */
+/* Shared marketing catalog; no private training or labor-market data required. */
 
-type Program = {
-  slug: string;
-  title: string;
-  category: CategoryKey;
-  categoryLabel: string;
-  categoryColor: string;
-  duration: string;
-  salary: string;
-  partner: string;
-};
-
-const CAT_COLOR: Record<CategoryKey, string> = {
-  'it-cyber': '#2b7bb9',
-  'ai-software': '#8b4a9b',
-  'cloud-data': '#0d9488',
-  business: '#4a9b4f',
-  healthcare: '#e11d48',
-  manufacturing: '#ea580c',
-  'digital-literacy': '#6b7280',
-};
+type Program = Omit<CatalogProgram, 'category'> & { category: CategoryKey };
 
 const CAT_LABEL: Record<CategoryKey, string> = {
   'it-cyber': 'IT & Cybersecurity',
@@ -234,16 +203,7 @@ function mk(slug: string, categoryOverride?: CategoryKey): Program {
   const source = PROGRAM_CATALOG.find((program) => program.slug === slug);
   if (!source) throw new Error(`Missing marketing program: ${slug}`);
   const category = categoryOverride ?? source.category as CategoryKey;
-  return {
-    slug: source.slug,
-    title: source.title,
-    category,
-    categoryLabel: CAT_LABEL[category],
-    categoryColor: CAT_COLOR[category],
-    duration: source.duration,
-    salary: salaryRangeDisplay(source),
-    partner: source.partner,
-  };
+  return { ...source, category, categoryLabel: CAT_LABEL[category] };
 }
 
 const PROGRAMS: Program[] = [
@@ -273,66 +233,43 @@ function getProgramBySlug(slug: string): Program | undefined {
   return PROGRAMS.find((p) => p.slug === slug);
 }
 
-/* ─────────────── quizProgramRecommendations.ts (verbatim logic) ─────────────── */
+/* ─────────────── recommendations: interests and readiness ─────────────── */
 
 const ANCHOR_DIGITAL_LITERACY_SLUG = 'digital-literacy-empowerment-class';
 const ANCHOR_IT_SUPPORT_SLUG = 'it-support-professional-certificate-ibm';
 
-function getTopProgramsFromQuiz(weights: CategoryWeights, answers: QuizAnswers): Program[] {
-  const scored = PROGRAMS.map((p) => {
-    const score = weights[p.category] ?? 0;
-    const salaryMatch = p.salary.match(/\$(\d+)K/);
-    const salaryNum = salaryMatch ? parseInt(salaryMatch[1], 10) : 0;
-    return { program: p, score, salaryNum };
-  });
-  scored.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return b.salaryNum - a.salaryNum;
-  });
-
-  const topMatches = scored.filter((s) => s.score > 0);
-  const goalProgram = topMatches[0]?.program;
-
-  const digital = getProgramBySlug(ANCHOR_DIGITAL_LITERACY_SLUG);
-  const itSupport = getProgramBySlug(ANCHOR_IT_SUPPORT_SLUG);
-
-  const experienceLevel = answers.q2;
-  const needsDigital =
-    answers.q6 === 'no_computer' ||
-    answers.q6 === 'needs_device' ||
-    answers.q5 === 'basics' ||
-    answers.q5 === 'basic_apps';
+export function getTopProgramsFromQuiz(weights: CategoryWeights, answers: QuizAnswers): Program[] {
+  const interestCategories: Partial<Record<Q1Answer, CategoryKey[]>> = {
+    computers: ['it-cyber', 'ai-software'], health: ['healthcare'],
+    building: ['manufacturing'], managing: ['business'], data: ['cloud-data', 'ai-software'],
+  };
+  const preferred = interestCategories[answers.q1] ?? [];
+  const beginner = answers.q2 === 'brand_new' || answers.q2 === 'some_knowledge';
+  const scored = PROGRAMS.map((program, index) => ({
+    program, index,
+    interest: preferred.includes(program.category) ? 1 : 0,
+    score: weights[program.category] ?? 0,
+    difficulty: program.extra?.difficulty ?? 2,
+  })).sort((a, b) => b.interest - a.interest
+    || (beginner ? a.difficulty - b.difficulty : 0)
+    || b.score - a.score || a.index - b.index);
 
   const result: Program[] = [];
-
-  if (experienceLevel === 'brand_new') {
-    if (needsDigital && digital) result.push(digital);
-    if (itSupport) result.push(itSupport);
-    if (goalProgram && !result.find((p) => p.slug === goalProgram.slug)) {
-      result.push(goalProgram);
-    }
-  } else if (experienceLevel === 'some_knowledge') {
-    if (itSupport) result.push(itSupport);
-    if (goalProgram && !result.find((p) => p.slug === goalProgram.slug)) {
-      result.push(goalProgram);
-    }
-  } else {
-    if (goalProgram) result.push(goalProgram);
+  const exploringTechnology = ['computers', 'data', 'not_sure'].includes(answers.q1);
+  const needsDigital = ['no_computer', 'needs_device'].includes(answers.q6)
+    || ['basics', 'basic_apps'].includes(answers.q5);
+  if (beginner && exploringTechnology) {
+    const foundation = getProgramBySlug(needsDigital ? ANCHOR_DIGITAL_LITERACY_SLUG : ANCHOR_IT_SUPPORT_SLUG);
+    if (foundation) result.push(foundation);
   }
-
-  let idx = 0;
-  while (result.length < 3 && idx < scored.length) {
-    const prog = scored[idx].program;
-    if (!result.find((p) => p.slug === prog.slug)) {
-      result.push(prog);
-    }
-    idx++;
+  for (const { program } of scored) {
+    if (!result.some((candidate) => candidate.slug === program.slug)) result.push(program);
+    if (result.length === 3) break;
   }
-
-  return result.slice(0, 3);
+  return result;
 }
 
-/* ─────────────────────── quizReasoning.ts (verbatim) ─────────────────────── */
+/* ─────────────────────── exploration reasoning ─────────────────────── */
 
 type AnswerKey = keyof QuizAnswers;
 
@@ -348,18 +285,18 @@ const REASON_BY_ANSWER: Record<string, Partial<Record<string, string>>> = {
   q2: {
     brand_new: "You're starting fresh - we recommend programs that welcome beginners.",
     some_knowledge: 'You have basics but no credentials - these programs build on that foundation.',
-    work_experience: 'You have real-world experience - certification will formalize what you already know.',
+    work_experience: 'You bring work experience. Compare the curriculum with the skills you already use and the ones you want to build.',
     certifications: "You're ready to level up - these programs go deeper.",
   },
   q3: {
-    as_fast: "You need to get working soon - this program's timeline fits that goal.",
-    '3_5_months': "You can invest 3-5 months - that's a strong fit for most of our Coursera-based tracks.",
+    as_fast: "You want to start working soon. Confirm this program’s schedule and prerequisites with an advisor.",
+    '3_5_months': 'You chose a 3–5 month training window. Compare it with the curriculum hours and a weekly pace you can sustain.',
     planning_ahead: "You're planning ahead - you have time for programs that take a bit longer.",
-    employed_switch: "You're switching careers while employed - this program's pace suits that.",
+    employed_switch: "You’re planning a career change while working. Build a study schedule you can sustain.",
   },
   q4: {
-    salary: 'You prioritized earning potential - this track has strong salary outcomes.',
-    stability: 'You want job stability - this field has steady demand.',
+    salary: 'You prioritized earning potential. Compare local job requirements and occupational wage sources.',
+    stability: 'You prioritized stability. Explore current job requirements before choosing a program.',
     remote: "You're interested in remote work - many roles in this path support it.",
     community: 'You care about community impact - this path connects you to local employers.',
     hands: 'You prefer hands-on work - this program matches that style.',
@@ -367,7 +304,7 @@ const REASON_BY_ANSWER: Record<string, Partial<Record<string, string>>> = {
   q5: {
     comfortable: "You're comfortable with tech - you can focus on the credential.",
     basic_apps: 'You use phones and basics - we have programs that start where you are.',
-    tech_savvy: "You're tech-savvy — this credential will open next-level roles.",
+    tech_savvy: "You’re comfortable with technology and ready to explore a more specialized skill.",
     basics: 'You need to start from the basics - this program is designed for that.',
   },
 };
@@ -402,7 +339,9 @@ function getFitReasoning(program: Program, answers: QuizAnswers): string {
   const cat = program.category;
   const reasons: string[] = [];
 
-  (['q1', 'q2', 'q3', 'q4', 'q5'] as AnswerKey[]).forEach((q) => {
+  // The short form asks only these questions. Never attribute the unasked
+  // scoring defaults to a learner as though they expressed those preferences.
+  (['q1', 'q2', 'q3'] as AnswerKey[]).forEach((q) => {
     const ans = answers[q];
     if (!ans) return;
     const map = REASON_BY_ANSWER[q];
@@ -472,10 +411,6 @@ const QUESTIONS = [
 
 const STEP_LABELS = ['Interest', 'Experience', 'Timeline'];
 
-function getApplyHref(slug: string) {
-  return `/apply?program=${encodeURIComponent(slug)}`;
-}
-
 /* ─────────────────────────────── component ─────────────────────────────── */
 
 export default function FindYourPathQuiz() {
@@ -484,11 +419,31 @@ export default function FindYourPathQuiz() {
   const [results, setResults] = useState<Program[] | null>(null);
   const [resultAnswers, setResultAnswers] = useState<QuizAnswers | null>(null);
   const [pendingChoice, setPendingChoice] = useState<AnswerValue | null>(null);
+  const [selectedProgramSlug, setSelectedProgramSlug] = useState('');
+  const [savedPlan, setSavedPlan] = useState<CareerPlanSnapshot | null>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const hasInteracted = useRef(false);
+
+  useEffect(() => {
+    try { setSavedPlan(readCareerPlan(window.localStorage, PROGRAMS.map((program) => program.slug))); } catch { /* Quiz works without storage. */ }
+  }, []);
+
+  useEffect(() => {
+    if (hasInteracted.current) headingRef.current?.focus();
+  }, [step, results]);
+
+  function resumePlan() {
+    if (!savedPlan) return;
+    hasInteracted.current = true;
+    setSelectedProgramSlug(savedPlan.selectedProgramSlug);
+    setResults(savedPlan.recommendedProgramSlugs.map(getProgramBySlug).filter((program): program is Program => Boolean(program)));
+  }
 
   const currentQ = QUESTIONS[step];
 
   function advanceFromAnswer(value: AnswerValue) {
     if (!currentQ) return;
+    hasInteracted.current = true;
     if (step === 0) trackQuizFunnel('find_your_path', 'started');
     const newAnswers = { ...answers, [currentQ.id]: value };
     setAnswers(newAnswers);
@@ -501,6 +456,7 @@ export default function FindYourPathQuiz() {
       const weights = scoreQuiz(fullAnswers);
       const programs = getTopProgramsFromQuiz(weights, fullAnswers);
       trackQuizFunnel('find_your_path', 'completed', { quiz_result: programs[0]?.slug ?? 'none' });
+      setSelectedProgramSlug(programs[0]?.slug ?? '');
       setResults(programs);
       setResultAnswers(fullAnswers);
     }
@@ -512,11 +468,14 @@ export default function FindYourPathQuiz() {
   }
 
   function handleBack() {
+    hasInteracted.current = true;
     setPendingChoice(null);
     if (step > 0) setStep(step - 1);
   }
 
   function handleRetake() {
+    hasInteracted.current = true;
+    try { setSavedPlan(readCareerPlan(window.localStorage, PROGRAMS.map((program) => program.slug))); } catch { setSavedPlan(null); }
     setResults(null);
     setResultAnswers(null);
     setAnswers({});
@@ -525,109 +484,48 @@ export default function FindYourPathQuiz() {
   }
 
   /* ── results screen ── */
-  if (results && resultAnswers) {
-    const topProgram = results[0];
-    const topApplyHref = topProgram ? getApplyHref(topProgram.slug) : '/apply';
-    const needsDevice = resultAnswers.q6 === 'no_computer' || resultAnswers.q6 === 'needs_device';
-
+  if (results) {
     return (
       <div className="fyp-results">
-        <span className="fyp-kicker">Quiz complete</span>
-        <h2 className="fyp-results__title">Your career match results</h2>
-        <p className="fyp-results__sub">{getTopFitSummary(resultAnswers)}</p>
-
-        {needsDevice && (
-          <div className="fyp-note" role="region" aria-label="Computer access support">
-            <p>
-              <strong>Need a reliable computer for training?</strong> Ask your advisor about{' '}
-              <strong>loaner or device support</strong> options — we can help you get set up for online
-              coursework. <a href="/contact">Contact us</a> or call <a href="tel:+15127771808">(512) 777-1808</a>.
-            </p>
-          </div>
-        )}
-
-        <h3 className="fyp-results__h3">Your Top 3 WorkforceAP programs</h3>
-        <div className="fyp-grid">
-          {results.map((program, idx) => {
-            const rank = idx === 0 ? 'Best Match' : idx === 1 ? 'Strong Fit' : 'Also Consider';
-            const reasoning = getFitReasoning(program, resultAnswers);
-            return (
-              <div
-                key={program.slug}
-                className="fyp-card"
-                style={{ borderLeft: `4px solid ${program.categoryColor}` }}
-              >
-                <span className="fyp-card__rank">#{idx + 1} {rank}</span>
-                <div className="fyp-card__top">
-                  <span className="fyp-card__cat" style={{ background: program.categoryColor }}>
-                    {program.categoryLabel}
-                  </span>
-                </div>
-                <h4 className="fyp-card__title">{program.title}</h4>
-                <p className="fyp-card__reason">{reasoning}</p>
-                <div className="fyp-card__meta"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: '-2px', marginRight: '5px' }}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>{program.duration}</div>
-                <div className="fyp-card__salary">
-                  Starting range: {program.salary} <span>(national framing)</span>
-                </div>
-                <div className="fyp-card__partner">Partner: {program.partner}</div>
-                <a
-                  className="btn btn--primary fyp-card__cta"
-                  href={getApplyHref(program.slug)}
-                  onClick={() => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: program.slug })}
-                >
-                  Apply for this path →
-                </a>
-                <a className="fyp-card__detail" href={`/programs/${program.slug}`}>
-                  View full program details →
-                </a>
-              </div>
-            );
-          })}
-        </div>
-
-        {topProgram && (
-          <div className="fyp-cta">
-            <p className="fyp-cta__lead">
-              Your strongest match is <strong>{topProgram.title}</strong>. The published starting band is{' '}
-              {topProgram.salary} and the fastest next step is to start your application now.
-            </p>
-            <p className="fyp-cta__sub">
-              Choose the track that fits you best, then we’ll follow up within 1–2 business days.
-            </p>
-            <div className="fyp-cta__actions">
-              <a
-                className="btn btn--primary"
-                href={topApplyHref}
-                onClick={() => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: topProgram.slug })}
-              >
-                Start {topProgram.title} Application →
-              </a>
-              <a className="btn btn--ghost" href="/contact">
-                Talk to an advisor first
-              </a>
-            </div>
-            <p className="fyp-cta__phone">
-              <a href="tel:+15127771808">Prefer to talk first? Call (512) 777-1808</a>
-            </p>
-          </div>
-        )}
-
-        <div className="fyp-next">
-          <p>
-            Use the comparison page to review published tracks side-by-side — time, difficulty, salary band,
-            and best-for notes. Then use the salary guide for the same published ranges.
-          </p>
-          <div className="fyp-next__links">
-            <a href="/program-comparison">Compare programs</a>
+        <div className="fyp-recommendations cap-no-print">
+          <span className="fyp-kicker">{resultAnswers ? 'Quiz complete' : 'Welcome back to your plan'}</span>
+          <h2 ref={headingRef} tabIndex={-1} className="fyp-results__title">A direction. And a next step.</h2>
+          <p className="fyp-results__sub">{resultAnswers ? getTopFitSummary(resultAnswers) : 'Your saved programs are ready to explore. Continue your checklist below.'} These are starting points, not an assessment of eligibility or a job guarantee.</p>
+          <h3 className="fyp-results__h3">Programs to explore</h3>
+          <div className="fyp-grid">
+            {results.map((program, index) => {
+              const verified = verifiedProgramHours(program);
+              const isSelected = selectedProgramSlug === program.slug;
+              return (
+                <article key={program.slug} className={`fyp-card${isSelected ? ' is-selected' : ''}`}>
+                  <span className="fyp-card__rank">{index === 0 ? 'Start exploring here' : 'Another direction to explore'}</span>
+                  <p className="fyp-card__cat">{program.categoryLabel}</p>
+                  <h4 className="fyp-card__title">{program.title}</h4>
+                  <p className="fyp-card__reason">{resultAnswers ? getFitReasoning(program, resultAnswers) : 'One of the programs from your saved exploration.'}</p>
+                  <p className="fyp-card__meta">{verified ? `${Number(verified.hours.toFixed(1))} ${verified.lessonTimeOnly ? 'lesson' : 'curriculum'} hours · see your pace below` : 'Training hours: confirm with an advisor'}</p>
+                  <p className="fyp-card__readiness">{program.syllabus?.recommendedPrerequisite ?? (program.extra?.difficulty === 3 ? 'This is a more advanced track. Review the prerequisites with an advisor before enrolling.' : 'Review the curriculum and entry requirements with an advisor to confirm your starting point.')}</p>
+                  <button type="button" className={`btn ${isSelected ? 'btn--primary' : 'btn--ghost'} fyp-card__cta`} aria-pressed={isSelected} onClick={() => {
+                    setSelectedProgramSlug(program.slug);
+                    document.getElementById('career-action-plan')?.focus();
+                  }}>{isSelected ? 'Selected for my plan' : 'Build my plan for this program'}</button>
+                  <a className="fyp-card__detail" href={`/programs/${program.slug}`}>Program details <span aria-hidden="true">→</span></a>
+                </article>
+              );
+            })}
           </div>
         </div>
 
-        <div className="fyp-footer">
-          <p>Not seeing what you expected?</p>
-          <a href="/programs" className="btn btn--ghost">Browse All Programs →</a>
-          <button type="button" className="btn btn--ghost fyp-retake" onClick={handleRetake}>
-            Retake quiz
-          </button>
+        <CareerActionPlan programs={results} selectedProgramSlug={selectedProgramSlug} onProgramChange={setSelectedProgramSlug}
+          onApply={(slug) => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: slug })}
+          onForget={() => { setSavedPlan(null); handleRetake(); }} />
+
+        <div className="fyp-next cap-no-print">
+          <p>Still deciding? Compare curricula and entry requirements, or research occupations and wages before committing.</p>
+          <div className="fyp-next__links"><a href="/program-comparison">Compare programs</a><a href="/salary-guide">Research career pay</a></div>
+        </div>
+        <div className="fyp-footer cap-no-print">
+          <a href="/programs" className="btn btn--ghost">Browse all programs</a>
+          <button type="button" className="btn btn--ghost fyp-retake" onClick={handleRetake}>Retake quiz</button>
         </div>
       </div>
     );
@@ -639,6 +537,10 @@ export default function FindYourPathQuiz() {
 
   return (
     <div className="fyp-flow">
+      {savedPlan && step === 0 && <div className="fyp-resume">
+        <div><strong>Your career plan is saved here.</strong><p>Pick up where you left off, or answer the questions to explore again.</p></div>
+        <button type="button" className="btn btn--primary" onClick={resumePlan}>Resume my saved plan</button>
+      </div>}
       {/* progress */}
       <div className="fyp-progress">
         <span className="fyp-progress__step">
@@ -652,7 +554,7 @@ export default function FindYourPathQuiz() {
 
       {/* quiz card */}
       <div className="fyp-qcard">
-        <h2 className="fyp-question">{currentQ?.question}</h2>
+        <h2 ref={headingRef} tabIndex={-1} className="fyp-question">{currentQ?.question}</h2>
         <fieldset className="fyp-answers">
           <legend className="fyp-sr-only">{currentQ?.question}</legend>
           {currentQ?.answers.map((a) => {

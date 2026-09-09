@@ -66,6 +66,21 @@ const mobileNav = [
   { href: '/contact', label: 'Contact' },
 ];
 const path = Astro.url.pathname;
+// Static marketing owns these clean URLs; omit campaign and quiz query strings
+// so search engines and shared links identify the same page.
+const publicOrigin = 'https://www.workforceap.org';
+const canonicalUrl = new URL(path.replace(/\/+$/, '') || '/', publicOrigin).href;
+const socialImage = new URL('/images/image-asset.webp', publicOrigin).href;
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'NGO',
+  '@id': `${publicOrigin}/#organization`,
+  name: 'Workforce Advancement Project',
+  alternateName: 'WorkforceAP',
+  url: publicOrigin,
+  logo: `${publicOrigin}/images/wap_logo.png`,
+  description: 'A nonprofit providing occupational training, professional certificates, and career support.',
+};
 const heroPhotoPath = heroPhotoForKey(path);
 const heroPhotoUrl = heroPhotoCssUrl(path);
 // distinct photos for the page's mid-band and closing CTA so no section
@@ -81,6 +96,19 @@ const heroPhotoUrl3 = `url('${heroPhoto3}')`;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkforceAP" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={socialImage} />
+  <meta property="og:image:alt" content="WorkforceAP — career training and career support" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={socialImage} />
+  <script type="application/ld+json" set:html={JSON.stringify(organizationSchema).replace(/</g, '\\u003c')} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />

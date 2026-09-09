@@ -33,14 +33,17 @@ vi.mock('@/components/portal/PortalTeamChatClient', () => ({
   default: ({
     contextLabel,
     initialDraft,
+    initial,
   }: {
     contextLabel?: string;
     initialDraft?: string;
+    initial: { messages: { id: string }[] };
   }) => (
     <div
       data-testid="partner-team-chat"
       data-context-label={contextLabel ?? ''}
       data-initial-draft={initialDraft ?? ''}
+      data-message-ids={initial.messages.map(message => message.id).join(',')}
     />
   ),
 }));
@@ -89,7 +92,7 @@ describe('partner contextual messages page', () => {
         where: {
           partnerId: 'partner-1',
           partner: { organizationId: 'org-1' },
-          member: { organizationId: 'org-1', deletedAt: null },
+          member: expect.objectContaining({ organizationId: 'org-1', deletedAt: null, profile: { role: 'member' } }),
         },
       }),
     );
@@ -104,5 +107,24 @@ describe('partner contextual messages page', () => {
 
     expect(screen.getByTestId('partner-team-chat')).toHaveAttribute('data-context-label', '');
     expect(screen.getByTestId('partner-team-chat')).toHaveAttribute('data-initial-draft', '');
+  });
+
+  it('shows the latest 200 of a longer conversation in chronological order after reload', async () => {
+    const history = Array.from({ length: 205 }, (_, index) => ({
+      id: `message-${String(index + 1).padStart(3, '0')}`,
+      createdAt: new Date(Date.UTC(2026, 8, 1, 0, index)),
+      body: `Synthetic reply ${index + 1}`,
+    }));
+    vi.mocked(prisma.message.findMany).mockImplementation(((args: any) => {
+      expect(args.where).toEqual({ threadId: 'partner-thread' });
+      expect(args.orderBy).toEqual([{ createdAt: 'desc' }, { id: 'desc' }]);
+      return Promise.resolve([...history].reverse().slice(0, args.take));
+    }) as typeof prisma.message.findMany);
+
+    render(await PartnerMessagesPage({ searchParams: Promise.resolve({}) }));
+    const ids = screen.getByTestId('partner-team-chat').getAttribute('data-message-ids')!.split(',');
+    expect(ids).toHaveLength(200);
+    expect(ids[0]).toBe('message-006');
+    expect(ids.at(-1)).toBe('message-205');
   });
 });

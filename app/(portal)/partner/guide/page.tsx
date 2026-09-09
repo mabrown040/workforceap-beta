@@ -6,6 +6,9 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import PartnerReferralShare from '@/components/partner/PartnerReferralShare';
+import PartnerReferralResourcesSection from '@/components/partner/PartnerReferralResourcesSection';
+import { buildPartnerReferralLink } from '@/lib/partner/referralLink';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -30,7 +33,7 @@ const FAQS = [
   },
   {
     q: 'What if they need additional support?',
-    a: 'Every member gets a dedicated counselor. If someone you referred needs extra support, flag it from their profile on your dashboard and our team will follow up.',
+    a: 'Open Messages from the referred member’s profile to ask the WorkforceAP team for help. Review the member context, describe the support needed, and send when ready.',
   },
 ];
 
@@ -59,6 +62,14 @@ export default async function PartnerGuidePage() {
   ]);
 
   const partnerName = ctx.partner.name;
+  const partner = await prisma.partner.findUnique({
+    where: { id: ctx.partnerId },
+    select: { referralCode: true, slug: true },
+  });
+  const { referralCode, url: referralApplyUrl } = buildPartnerReferralLink({
+    referralCode: partner?.referralCode,
+    slug: partner?.slug ?? ctx.partner.slug,
+  });
 
   return (
     <div style={{ maxWidth: '56rem', margin: '0 auto', paddingBottom: '6rem' }} className="md:wa-pb-12">
@@ -82,6 +93,8 @@ export default async function PartnerGuidePage() {
         </p>
       </header>
 
+      <PartnerReferralShare url={referralApplyUrl} referralCode={referralCode} />
+
       {/* Who is WorkforceAP for */}
       <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
@@ -91,8 +104,8 @@ export default async function PartnerGuidePage() {
           Job seekers who are <strong style={{ color: 'var(--color-on-surface)' }}>unemployed, underemployed, or changing careers</strong>.
         </p>
         <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-          The program is available <strong style={{ color: 'var(--color-on-surface)' }}>at no cost</strong> to members.
-          Your referrals help them access job training, AI career tools, counseling, and employer connections.
+          Your referrals connect people with career support, training pathways, and employer connections.
+          WorkforceAP must confirm training eligibility, enrollment approval, and any required funding before training begins.
         </p>
       </section>
 
@@ -113,10 +126,10 @@ export default async function PartnerGuidePage() {
             {
               num: '2',
               title: 'Send them to Apply',
-              desc: 'Direct them to workforceap.org/apply — the application takes about 10 minutes.',
-              detail: `Ask them to list "${partnerName}" as how they heard about us so the referral is attributed to your organization.`,
+              desc: 'Share your organization’s referral link above, or copy an outreach template below.',
+              detail: 'Keep the referral code in the link. A general application link does not carry your organization’s attribution.',
               icon: 'open_in_new',
-              link: { label: 'workforceap.org/apply', href: '/apply' },
+              link: { label: 'Open your attributed application link', href: referralApplyUrl },
             },
             {
               num: '3',
@@ -174,6 +187,8 @@ export default async function PartnerGuidePage() {
           ))}
         </div>
       </section>
+
+      <PartnerReferralResourcesSection partnerName={partnerName} referralApplyUrl={referralApplyUrl} />
 
       {/* Referral Impact */}
       <section style={{ marginBottom: '2.5rem' }}>

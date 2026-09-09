@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 export type RiskTier = 'high' | 'medium' | 'low' | 'watch';
 
@@ -17,13 +18,18 @@ export function computeRiskTier(daysStale: number): RiskTier {
 }
 
 export function nextBestAction(stage: string, tier: RiskTier): string {
+  if (stage === 'approval_pending') {
+    return 'Ask WorkforceAP to confirm enrollment approval and any funding steps before asking the member to start training.';
+  }
   if (stage === 'applied') {
-    if (tier === 'high' || tier === 'medium') return 'Call or text to confirm they started the apply flow and list your org as referral source.';
+    if (tier === 'high' || tier === 'medium') return 'Check whether they need help completing their application or assessment.';
     return 'Send a quick check-in: offer to help finish enrollment steps.';
   }
   if (stage === 'enrolled') {
-    if (tier === 'high' || tier === 'medium') return 'Nudge them to stay on pace in the first two weeks of training.';
-    return 'Celebrate enrollment and set a reminder to check progress next week.';
+    return 'Confirm they can open their assigned courses and help them choose a first training session.';
+  }
+  if (stage === 'in_training') {
+    return 'Check their latest course progress and ask what is blocking the next step; involve WorkforceAP if support is needed.';
   }
   return 'Review pipeline stage and schedule a touchpoint.';
 }
@@ -42,10 +48,14 @@ export type PartnerAttentionRow = {
   lastTouchName: string | null;
 };
 
-export async function buildPartnerAttentionQueue(partnerId: string): Promise<PartnerAttentionRow[]> {
+export async function buildPartnerAttentionQueue(partnerId: string, organizationId: string): Promise<PartnerAttentionRow[]> {
   const referrals = await prisma.partnerReferral.findMany({
     take: 500,
-    where: { partnerId, member: { deletedAt: null } },
+    where: {
+      partnerId,
+      partner: { organizationId, active: true },
+      member: { organizationId, deletedAt: null, ...MEMBER_ONLY_WHERE },
+    },
     include: {
       assignedPartnerUser: { select: { fullName: true } },
       member: {
@@ -58,6 +68,7 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
             select: { programSlug: true, curriculumVersion: true, isPrimary: true },
           },
           enrolledAt: true,
+          courseraEnrollmentApproved: true,
           updatedAt: true,
           deletedAt: true,
           assessmentCompleted: true,
@@ -117,8 +128,14 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
       applications: m.applications,
       memberProgramProgress: m.memberProgramProgress,
     };
-    const stage = getPipelineStage(student);
-    if (stage !== 'applied' && stage !== 'enrolled') continue;
+    const pipelineStage = getPipelineStage(student);
+    if (pipelineStage !== 'applied' && pipelineStage !== 'enrolled' && pipelineStage !== 'in_training') continue;
+    // A saved program/enrollment row is not approval or proof of funded access.
+    // Keep observed training activity visible even if a legacy approval flag
+    // is absent; only pre-training enrollments use the pending label.
+    const stage = pipelineStage === 'enrolled' && !m.courseraEnrollmentApproved
+      ? 'approval_pending'
+      : pipelineStage;
 
     const staleDays = staleDaysSince(m.updatedAt);
     const riskTier = computeRiskTier(staleDays);
@@ -128,7 +145,9 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
       memberId: m.id,
       fullName: m.fullName,
       stage,
-      stageLabel: PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS] ?? stage,
+      stageLabel: stage === 'approval_pending'
+        ? 'Training approval pending'
+        : PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS] ?? stage,
       programTitle: program?.title ?? '—',
       staleDays,
       riskTier,

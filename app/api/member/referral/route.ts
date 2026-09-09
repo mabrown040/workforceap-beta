@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
-import { getOrCreateReferralCode } from '@/lib/member/referrals';
+import { getOrCreateReferralCode, getRewardedReferralCount } from '@/lib/member/referrals';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry } from '@/lib/db/withDbRetry';
 import { logger } from '@/lib/observability/logger';
@@ -17,9 +16,7 @@ export const GET = withApiGuc(async () => {
     // escaped as a raw 500 on the dashboard share UI.
     const code = await withDbRetry(() => getOrCreateReferralCode(user.id));
     const rewardedCount = await withDbRetry(() =>
-      prisma.referralConversion.count({
-        where: { referrerUserId: user.id, status: 'rewarded' },
-      }),
+      getRewardedReferralCount(user.id),
     );
     return NextResponse.json({ code, sharePath: `/r/${code}`, rewardedCount });
   } catch (err) {

@@ -12,7 +12,7 @@ async function _GET() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const members = await buildPartnerAttentionQueue(ctx.partnerId);
+  const members = await buildPartnerAttentionQueue(ctx.partnerId, ctx.partner.organizationId);
   return NextResponse.json({ members });
 
   } catch (error) {
@@ -21,4 +21,3 @@ async function _GET() {
   }
 }
 export const GET = withApiGuc(_GET);
-

@@ -123,7 +123,7 @@ export interface CommandCenterKpiItem extends KpiItem {
 /** One "System health" row (cron/system status). */
 export interface CommandCenterSystemHealthRow {
   name: string;
-  status: 'ok' | 'warn';
+  status: 'ok' | 'warn' | 'unknown';
   /** Small caption, e.g. "2 errors this week" or "Nightly at 2:00 AM". */
   meta?: string;
 }
@@ -457,7 +457,7 @@ export function CommandCenterKit({
           optional inline sparkline (StatSparkTile), matching the member
           Command Center's KPI row. */}
       <div
-        className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-5 wa-gap-3"
+        className={`wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 ${kpis.length === 4 ? "lg:wa-grid-cols-4" : "lg:wa-grid-cols-5"} wa-gap-3`}
         style={{ marginBottom: 20 }}
       >
         {kpis.map((it) => {
@@ -492,7 +492,7 @@ export function CommandCenterKit({
             <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>
               What needs you today
             </h3>
-            <Token label={`${queueItems.length} items`} size="sm" color="pink" />
+            <Token label={`${queueItems.length} queues`} size="sm" color="pink" />
           </div>
 
           <div className="wa-space-y-2">
@@ -535,11 +535,11 @@ export function CommandCenterKit({
           <CardHead title="System health" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {systemHealth.map((row) => (
-              <div key={row.name} className="wa-flex wa-items-center wa-justify-between" style={{ gap: 12 }}>
+              <div key={row.name} className="wa-flex wa-items-center wa-justify-between" style={{ gap: 12, flexWrap: 'wrap' }}>
                 <span className="wa-flex wa-items-center wa-gap-2" style={{ minWidth: 0 }}>
                   <StatusDot
-                    variant={row.status === 'ok' ? 'success' : 'warning'}
-                    label={row.status === 'ok' ? `${row.name} operating normally` : `${row.name} needs attention`}
+                    variant={row.status === 'ok' ? 'success' : row.status === 'warn' ? 'warning' : 'neutral'}
+                    label={row.status === 'ok' ? `${row.name}: no issues detected by this check` : row.status === 'warn' ? `${row.name} needs attention` : `${row.name} not verified`}
                   />
                   <span style={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.name}
@@ -551,7 +551,7 @@ export function CommandCenterKit({
                       {row.meta}
                     </span>
                   ) : null}
-                  <StatusTag tone={row.status === 'ok' ? 'ok' : 'warn'}>{row.status === 'ok' ? 'OK' : 'Warn'}</StatusTag>
+                  <StatusTag tone={row.status === 'ok' ? 'ok' : row.status === 'warn' ? 'warn' : 'muted'}>{row.status === 'ok' ? 'OK' : row.status === 'warn' ? 'Warn' : 'Not verified'}</StatusTag>
                 </span>
               </div>
             ))}

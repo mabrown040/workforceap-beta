@@ -12,6 +12,8 @@ import { ADMIN_SSR_LIST_CAP } from '@/lib/db/queryCaps';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
+import PartnerReferralShare from '@/components/partner/PartnerReferralShare';
+import { buildPartnerReferralLink } from '@/lib/partner/referralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -156,6 +158,10 @@ export default async function PartnerDashboardPage({
   // only surfaces for partners on the payout track. Community partners get
   // the referral pipeline view without any money-shaped chrome.
   const showPayouts = isReferralPartner(ctx.partner);
+  const { referralCode: refParam, url: referralApplyUrl } = buildPartnerReferralLink({
+    referralCode: partnerRow.referralCode,
+    slug: partnerRow.slug ?? ctx.partner.slug,
+  });
 
   // ── ?ui=kit LEAN PATH (runs AFTER auth/partner guards, BEFORE the heavy
   // loadPartnerReferralBundle + Promise.all aggregations that stall on the
@@ -343,6 +349,8 @@ export default async function PartnerDashboardPage({
             goal={t('referralsProgressOutcomes', { partnerName: ctx.partner.name })}
           />
 
+          <PartnerReferralShare url={referralApplyUrl} referralCode={refParam} />
+
           <PartnerKpiGrid
             items={[
               {
@@ -525,8 +533,6 @@ export default async function PartnerDashboardPage({
   }
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-  const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
-  const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
   const referralBadge = buildPartnerReferralBadge({
     baseUrl: applyLinkBase,
     referralCode: refParam,

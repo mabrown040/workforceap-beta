@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
+import { Pagination } from '@astryxdesign/core/Pagination';
+import { adminQueueHref, type AdminQueueKey } from '@/lib/admin/commandCenterHelpers';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import type {
   AdminApplicationPendingRow,
@@ -34,6 +36,8 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
     data.totals.atRiskCount +
     data.totals.interviewingCount +
     data.totals.applicationsPendingCount;
+  const pagination = data.pagination;
+  const showQueue = (queue: AdminQueueKey) => !pagination || pagination.queue === queue;
   const oldest = data.totals.oldestPendingApplicationDays;
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -44,6 +48,7 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
   const [bulkResult, setBulkResult] = useState<string | null>(null);
 
   const pendingIds = useMemo(() => data.applicationsPending.map((r) => r.applicationId), [data.applicationsPending]);
+  const activeSelected = useMemo(() => new Set(pendingIds.filter((id) => selected.has(id))), [pendingIds, selected]);
   const allSelected = pendingIds.length > 0 && pendingIds.every((id) => selected.has(id));
 
   function toggleOne(id: string) {
@@ -71,33 +76,47 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
 
   function submitBulk() {
     if (!bulkAction) return;
-    const ids = [...selected];
+    const ids = pendingIds.filter((id) => selected.has(id));
     if (ids.length === 0) return;
     setBulkError(null);
     startBulkTransition(async () => {
-      const response = await fetch('/api/admin/applications/bulk-review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          applicationIds: ids,
-          status: bulkAction,
-          notes: `Bulk-reviewed from Command Center (${ids.length} application${ids.length === 1 ? '' : 's'}).`,
-          verified: bulkAction === 'APPROVED' ? attested : undefined,
-        }),
-      });
-      const json = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        setBulkError(typeof json.error === 'string' ? json.error : 'Bulk review failed. Try again.');
-        return;
+      try {
+        const response = await fetch('/api/admin/applications/bulk-review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            applicationIds: ids,
+            status: bulkAction,
+            notes: `Bulk-reviewed from Command Center (${ids.length} application${ids.length === 1 ? '' : 's'}).`,
+            verified: bulkAction === 'APPROVED' ? attested : undefined,
+          }),
+        });
+        const json = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          setBulkError(typeof json.error === 'string' ? json.error : 'Bulk review failed. Try again.');
+          return;
+        }
+        if (!Number.isInteger(json.processedCount) || json.processedCount < 0
+          || !Number.isInteger(json.failedCount) || json.failedCount < 0
+          || json.processedCount + json.failedCount !== ids.length
+          || !Array.isArray(json.failures) || json.failures.length !== json.failedCount
+          || !json.failures.every((failure: unknown) => failure != null && typeof failure === 'object'
+            && 'applicationId' in failure && typeof failure.applicationId === 'string' && ids.includes(failure.applicationId))
+          || new Set(json.failures.map((failure: { applicationId: string }) => failure.applicationId)).size !== json.failedCount) {
+          throw new Error('Missing or inconsistent review receipt');
+        }
+        setBulkResult(
+          `${BULK_LABEL[bulkAction]}: ${json.processedCount} done${
+            json.failedCount ? `, ${json.failedCount} failed` : ''
+          }.`,
+        );
+        const failedIds = new Set<string>((json.failures ?? []).map((failure: { applicationId: string }) => failure.applicationId));
+        setSelected(new Set(ids.filter((id) => failedIds.has(id))));
+        setBulkAction(null);
+        router.refresh();
+      } catch {
+        setBulkError('The review response could not be confirmed. Reload the queue before retrying; some items may have completed.');
       }
-      setBulkResult(
-        `${BULK_LABEL[bulkAction]}: ${json.processedCount ?? ids.length} done${
-          json.failedCount ? `, ${json.failedCount} failed` : ''
-        }.`,
-      );
-      setSelected(new Set());
-      setBulkAction(null);
-      router.refresh();
     });
   }
 
@@ -109,7 +128,7 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
           padding: '1.25rem',
           marginBottom: '1.25rem',
           border: '1px solid color-mix(in srgb, var(--color-accent) 22%, var(--outline-variant))',
-          background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 8%, white), white 72%)',
+          background: 'var(--wa-surface)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -118,10 +137,10 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
               Today&apos;s walk-in plan
             </p>
             <h2 style={{ margin: '0.25rem 0 0', fontSize: 'clamp(1.35rem, 4vw, 2rem)', lineHeight: 1.1 }}>
-              {total === 0 ? 'No one is waiting on you.' : `${total} ${total === 1 ? 'person needs' : 'people need'} a next step`}
+              {total === 0 ? 'No pending items in these queues.' : `${total} ${total === 1 ? 'item needs' : 'items need'} a next step`}
             </h2>
             <p style={{ margin: '0.45rem 0 0', color: 'var(--color-on-surface-variant)', maxWidth: '48rem' }}>
-              Single-org queue for replies, risk check-ins, interviews, and application review. Start at the left and work down.
+              Replies, check-ins, interview opportunities, and applications for your organization. A member may appear in more than one queue.
             </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(7.5rem, 1fr))', gap: '0.6rem', minWidth: 'min(100%, 20rem)' }}>
@@ -138,20 +157,21 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
         ) : null}
       </section>
 
+      {pagination ? <p><Link href="/admin/command-center">All queues</Link></p> : null}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 20rem), 1fr))', gap: '1rem' }}>
-        <Bucket title="Needs Reply" count={data.totals.needsReplyCount} icon="mark_email_unread" empty="No member messages waiting for a reply.">
+        {showQueue('needs-reply') && <Bucket queue="needs-reply" pagination={pagination} title="Needs Reply" count={data.totals.needsReplyCount} icon="mark_email_unread" empty="No member messages waiting for a reply.">
           {data.needsReply.map((row) => <NeedsReplyCard key={row.threadId} row={row} />)}
-        </Bucket>
+        </Bucket>}
 
-        <Bucket title="At Risk" count={data.totals.atRiskCount} icon="warning" empty="No enrolled students have gone quiet for 14+ days.">
+        {showQueue('at-risk') && <Bucket queue="at-risk" pagination={pagination} title="At Risk" count={data.totals.atRiskCount} icon="warning" empty="No enrolled students have gone quiet for 14+ days.">
           {data.atRisk.map((row) => <AtRiskCard key={row.memberId} row={row} />)}
-        </Bucket>
+        </Bucket>}
 
-        <Bucket title="Interviewing" count={data.totals.interviewingCount} icon="record_voice_over" empty="No active interviews or offers to prep right now.">
+        {showQueue('interviewing') && <Bucket queue="interviewing" pagination={pagination} title="Interview prep" count={data.totals.interviewingCount} icon="record_voice_over" empty="No active interviews or offers to prep right now.">
           {data.interviewing.map((row) => <InterviewingCard key={`${row.memberId}-${row.company}-${row.role}`} row={row} />)}
-        </Bucket>
+        </Bucket>}
 
-        <Bucket title="Applications Pending" count={data.totals.applicationsPendingCount} icon="assignment_ind" empty="No applications are waiting for review.">
+        {showQueue('applications') && <Bucket queue="applications" pagination={pagination} title="Applications Pending" count={data.totals.applicationsPendingCount} icon="assignment_ind" empty="No applications are waiting for review.">
           {data.applicationsPending.length > 0 ? (
             <div
               style={{
@@ -169,9 +189,9 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
             >
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>
                 <input type="checkbox" checked={allSelected} onChange={toggleAll} />
-                {selected.size > 0 ? `${selected.size} selected` : 'Select all'}
+                {activeSelected.size > 0 ? `${activeSelected.size} selected` : 'Select this page'}
               </label>
-              {selected.size > 0 ? (
+              {activeSelected.size > 0 ? (
                 <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                   {REVIEW_ACTIONS.map((action) => (
                     <button
@@ -181,7 +201,7 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
                       onClick={() => openBulk(action.status)}
                       style={action.tone === 'danger' ? { borderColor: '#fecaca', color: '#b91c1c' } : undefined}
                     >
-                      {action.label} ({selected.size})
+                      {action.label} ({activeSelected.size})
                     </button>
                   ))}
                 </div>
@@ -193,18 +213,18 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
             <ApplicationCard
               key={row.applicationId}
               row={row}
-              selected={selected.has(row.applicationId)}
+              selected={activeSelected.has(row.applicationId)}
               onToggleSelect={() => toggleOne(row.applicationId)}
             />
           ))}
-        </Bucket>
+        </Bucket>}
       </div>
 
       <ConfirmDialog
         open={bulkAction != null}
         title={
           bulkAction
-            ? `${BULK_LABEL[bulkAction]} ${selected.size} application${selected.size === 1 ? '' : 's'}?`
+            ? `${BULK_LABEL[bulkAction]} ${activeSelected.size} application${activeSelected.size === 1 ? '' : 's'}?`
             : 'Bulk review'
         }
         danger={bulkAction === 'DENIED'}
@@ -213,10 +233,10 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
               {bulkAction === 'APPROVED'
-                ? `This approves ${selected.size} member${selected.size === 1 ? '' : 's'} at once and sends each their enrollment confirmation email.`
+                ? `This approves ${activeSelected.size} member${activeSelected.size === 1 ? '' : 's'} at once and sends each their application decision email.`
                 : bulkAction === 'DENIED'
-                  ? `This marks ${selected.size} application${selected.size === 1 ? '' : 's'} as not a fit and emails each applicant.`
-                  : `This asks ${selected.size} applicant${selected.size === 1 ? '' : 's'} for more information.`}
+                  ? `This marks ${activeSelected.size} application${activeSelected.size === 1 ? '' : 's'} as not a fit and emails each applicant.`
+                  : `This asks ${activeSelected.size} applicant${activeSelected.size === 1 ? '' : 's'} for more information.`}
             </p>
             {bulkAction === 'APPROVED' ? (
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -253,7 +273,7 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
 
 function Metric({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div style={{ borderRadius: '0.75rem', background: 'white', border: '1px solid var(--outline-variant)', padding: '0.75rem' }}>
+    <div style={{ borderRadius: '0.75rem', background: 'var(--wa-surface)', border: '1px solid var(--outline-variant)', padding: '0.75rem' }}>
       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 700 }}>{label}</p>
       <p style={{ margin: '0.1rem 0 0', fontSize: '1.45rem', fontWeight: 800, color: accent ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>
         {value}
@@ -262,7 +282,11 @@ function Metric({ label, value, accent }: { label: string; value: number; accent
   );
 }
 
-function Bucket({ title, count, icon, empty, children }: { title: string; count: number; icon: string; empty: string; children: React.ReactNode }) {
+function Bucket({ title, count, icon, empty, children, queue, pagination }: {
+  title: string; count: number; icon: string; empty: string; children: React.ReactNode;
+  queue: AdminQueueKey; pagination?: AdminCommandCenter['pagination'];
+}) {
+  const router = useRouter();
   return (
     <section className="portal-card portal-card--flat" style={{ padding: '1rem', minHeight: '14rem' }}>
       <header style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.9rem' }}>
@@ -275,6 +299,10 @@ function Bucket({ title, count, icon, empty, children }: { title: string; count:
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>{children}</div>
       )}
+      {pagination ? (
+        <Pagination page={pagination.page} pageSize={pagination.pageSize} totalItems={count}
+          onChange={(page) => router.push(adminQueueHref(queue, page))} variant="count" size="sm" label={`${title} pages`} />
+      ) : count > 0 ? <p><Link href={adminQueueHref(queue)}>View all {count} items</Link></p> : null}
     </section>
   );
 }
@@ -296,9 +324,9 @@ function AtRiskCard({ row }: { row: AdminAtRiskRow }) {
   return (
     <ActionCard
       name={row.memberName}
-      meta={`${row.daysInactive} days without activity`}
+      meta={`${row.daysInactive} days since portal activity or enrollment`}
       detail={row.enrolledProgram
-        ? `Program: ${getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram}`
+        ? `${row.reason ?? "Check-in needed"} · Program: ${getProgramBySlug(row.enrolledProgram)?.title ?? row.enrolledProgram}`
         : 'Enrolled, no program label'}
       href={`/admin/members/${row.memberId}`}
       action="Check in"

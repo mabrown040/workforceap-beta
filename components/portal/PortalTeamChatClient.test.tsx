@@ -27,7 +27,7 @@ import PortalTeamChatClient from './PortalTeamChatClient';
 describe('PortalTeamChatClient contextual draft', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false })));
-    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
       configurable: true,
       value: vi.fn(),
     });

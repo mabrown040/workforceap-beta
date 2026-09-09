@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import {
@@ -34,11 +34,12 @@ type InitialPayload = {
 };
 
 /** Base path for GET/POST/PATCH (e.g. /api/admin/members/:id/messages or /api/counselor/members/:id/messages) */
-export default function AdminMemberCounselorChatClient({
+function MemberCounselorConversation({
   initial,
   messagesApiBase,
   compact,
   messagingSurface = 'counselor',
+  readCursorMode = false,
 }: {
   initial: InitialPayload;
   messagesApiBase?: string;
@@ -46,6 +47,8 @@ export default function AdminMemberCounselorChatClient({
   compact?: boolean;
   /** Gradient shell like voice agents; `none` for plain layout. */
   messagingSurface?: 'counselor' | 'admin' | 'none';
+  /** Opt in only for routes that acknowledge a loaded message cursor. */
+  readCursorMode?: boolean;
 }) {
   const { staffUserId, member } = initial;
   const apiBase = messagesApiBase ?? `/api/admin/members/${member.id}/messages`;
@@ -54,19 +57,32 @@ export default function AdminMemberCounselorChatClient({
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sendStatus, setSendStatus] = useState<string | null>(null);
+  const draftRevision = useRef(0);
+  const sendingRef = useRef(false);
+  const inputId = useId();
   const bottomRef = useRef<HTMLDivElement>(null);
   const realtimeInstanceRef = useRef(0);
   // Skip the auto-scroll on initial mount so the surrounding member detail
   // page loads scrolled to the top instead of jumping down to the chat thread.
   const hasMountedRef = useRef(false);
 
-  const markRead = useCallback(async () => {
+  const markRead = useCallback(async (messageId?: string) => {
+    if (readCursorMode && !messageId) return;
     try {
-      await fetch(apiBase, { method: 'PATCH', credentials: 'include' });
+      await fetch(apiBase, {
+        method: 'PATCH', credentials: 'include',
+        ...(readCursorMode ? {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lastReadMessageId: messageId }),
+        } : {}),
+      });
     } catch {
       /* ignore */
     }
-  }, [apiBase]);
+  }, [apiBase, readCursorMode]);
+
+  const lastRenderedMessageId = messages.at(-1)?.id;
 
   useEffect(() => {
     if (hasMountedRef.current) {
@@ -76,8 +92,8 @@ export default function AdminMemberCounselorChatClient({
     } else {
       hasMountedRef.current = true;
     }
-    void markRead();
-  }, [messages.length, markRead]);
+    void markRead(lastRenderedMessageId);
+  }, [messages.length, lastRenderedMessageId, markRead]);
 
   const threadId = thread.id;
 
@@ -109,7 +125,7 @@ export default function AdminMemberCounselorChatClient({
               if (prev.some((m) => m.id === id)) return prev;
               return [...prev, { id, threadId, authorId, body, createdAt, authorName }];
             });
-            if (authorId === member.id) void markRead();
+            if (authorId === member.id && !readCursorMode) void markRead();
           }
         )
         .on(
@@ -142,14 +158,17 @@ export default function AdminMemberCounselorChatClient({
       console.warn('[AdminMemberCounselorChat] Realtime unavailable', e);
       return undefined;
     }
-  }, [threadId, member.id, member.fullName, staffUserId, markRead, apiBase]);
+  }, [threadId, member.id, member.fullName, staffUserId, markRead, apiBase, readCursorMode]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || sending) return;
+    if (!text || sendingRef.current) return;
+    const submittedRevision = draftRevision.current;
+    sendingRef.current = true;
     setSending(true);
     setError(null);
+    setSendStatus(null);
     try {
       const r = await fetch(apiBase, {
         method: 'POST',
@@ -163,15 +182,25 @@ export default function AdminMemberCounselorChatClient({
         return;
       }
       const msg = data.message as Omit<MessageDto, 'authorName'> | undefined;
-      if (msg) {
+      if (!msg || typeof msg.id !== 'string' || !msg.id || msg.threadId !== threadId || msg.authorId !== staffUserId || msg.body !== text || typeof msg.createdAt !== 'string' || !Number.isFinite(Date.parse(msg.createdAt))) {
+        setError('Your message could not be confirmed. Your draft is still here. Check the conversation before trying again.');
+        return;
+      }
+      {
         setMessages((prev) =>
           prev.some((m) => m.id === msg.id) ? prev : [...prev, { ...msg, authorName: 'You' }]
         );
       }
-      setDraft('');
+      if (draftRevision.current === submittedRevision) {
+        setDraft('');
+        setSendStatus('Message sent.');
+      } else {
+        setSendStatus('Message sent. Your newer text is still unsent.');
+      }
     } catch {
       setError('Network error');
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   };
@@ -216,16 +245,17 @@ export default function AdminMemberCounselorChatClient({
         })}
         <div ref={bottomRef} />
       </div>
+      {sendStatus && <p role="status" style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)' }}>{sendStatus}</p>}
       <form className="member-counselor-chat__form" onSubmit={send}>
-        <label htmlFor="admin-chat-input" className="sr-only">
+        <label htmlFor={inputId} className="wa-sr-only">
           Reply
         </label>
         <textarea
-          id="admin-chat-input"
+          id={inputId}
           className="member-counselor-chat__input"
           rows={3}
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => { draftRevision.current += 1; setDraft(e.target.value); setSendStatus(null); }}
           placeholder={`Reply to ${member.fullName}…`}
           maxLength={8000}
         />
@@ -248,4 +278,10 @@ export default function AdminMemberCounselorChatClient({
   }
 
   return inner;
+}
+
+/** A recipient change starts a separate conversation state, including draft and
+ * in-flight response handling; an old response cannot populate the new thread. */
+export default function AdminMemberCounselorChatClient(props: Parameters<typeof MemberCounselorConversation>[0]) {
+  return <MemberCounselorConversation key={`${props.initial.member.id}:${props.initial.thread.id}:${props.messagesApiBase ?? 'admin'}`} {...props} />;
 }

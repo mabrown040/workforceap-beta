@@ -48,7 +48,7 @@ export async function getNavBadgeCountsForUser(
     const sa = await isSuperAdmin(userId);
     const ctx = await getPartnerForUser(userId, { isSuperAdminHint: sa });
     if (!ctx) return {};
-    return getPartnerBadgeCounts(ctx.partnerId);
+    return getPartnerBadgeCounts(ctx.partnerId, ctx.partner.organizationId);
   }
 
   if (role === 'counselor') {
@@ -209,12 +209,12 @@ async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCou
   };
 }
 
-async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts> {
+async function getPartnerBadgeCounts(partnerId: string, organizationId: string): Promise<NavBadgeCounts> {
   const since = new Date();
   since.setDate(since.getDate() - MILESTONE_LOOKBACK_DAYS);
 
   const [attentionRows, referralIds, partnerUsers, thread] = await Promise.all([
-    buildPartnerAttentionQueue(partnerId),
+    buildPartnerAttentionQueue(partnerId, organizationId),
     prisma.partnerReferral.findMany({
       take: 500,
       where: { partnerId, member: { deletedAt: null } },

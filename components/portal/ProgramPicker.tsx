@@ -3,6 +3,7 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
 
@@ -194,7 +195,7 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
             <>
               <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Review your selection</p>
               <p style={{ margin: '0 0 6px', fontSize: 14 }}>
-                <strong>{selectedProgram.title}</strong> · {selectedProgram.duration} · {selectedProgram.salary}
+                <strong>{selectedProgram.title}</strong> · {selectedProgram.duration}
               </p>
               <p style={{ margin: '0 0 12px', color: 'var(--wa-muted)', fontSize: 14, lineHeight: 1.5 }}>
                 Funding is tied to one program. After you confirm, changes require WorkforceAP admin help.
@@ -234,6 +235,9 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
         </div>
       )}
 
+      <p>
+        <LocalizedLink href="/salary-guide" className="wa-kit-focus">Research career pay</LocalizedLink>
+      </p>
       <div
         style={{
           display: 'grid',
@@ -280,7 +284,6 @@ export default function ProgramPicker({ programs, wioaScreeningSubmittedAt, prev
                   </span>
                   {p.duration}
                 </div>
-                <div style={{ color: 'var(--wa-accent)', fontWeight: 600, marginTop: 4 }}>{p.salary}</div>
                 {p.externalCourseUrl ? (
                   <a
                     href={p.externalCourseUrl}

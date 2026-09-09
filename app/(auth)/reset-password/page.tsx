@@ -12,6 +12,9 @@ type Stage = 'verifying' | 'ready' | 'submitting' | 'success' | 'error';
 function ResetPasswordForm() {
   const tAuth = useTranslations('auth');
   const searchParams = useSearchParams();
+  const redirectTo = normalizePostLoginRedirect(searchParams?.get('redirectTo'));
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+  const forgotPasswordHref = `/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`;
   const router = useRouter();
   const supabase = useRef(createSupabaseBrowserClient()).current;
 
@@ -133,8 +136,7 @@ function ResetPasswordForm() {
     }
 
     setStage('success');
-    const target = normalizePostLoginRedirect(searchParams?.get('redirectTo'));
-    setTimeout(() => router.push(target), 2000);
+    setTimeout(() => router.push(redirectTo), 2000);
   }
 
   if (stage === 'verifying') {
@@ -153,7 +155,7 @@ function ResetPasswordForm() {
           <div className="page-hero-content">
             <h1>{tAuth('resetPassword.linkInvalidHeading')}</h1>
             <p role="alert">{verifyError}</p>
-            <LocalizedLink href="/forgot-password" className="btn btn-primary" style={{ marginTop: '1rem', minHeight: 44 }}>
+            <LocalizedLink href={forgotPasswordHref} className="btn btn-primary" style={{ marginTop: '1rem', minHeight: 44 }}>
               {tAuth('resetPassword.requestNewLink')}
             </LocalizedLink>
           </div>
@@ -303,7 +305,7 @@ function ResetPasswordForm() {
                   <span aria-live="polite">{stage === 'submitting' ? tAuth('resetPassword.saving') : tAuth('resetPassword.submit')}</span>
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-                  <LocalizedLink href="/login">{tAuth('resetPassword.backToLogin')}</LocalizedLink>
+                  <LocalizedLink href={loginHref}>{tAuth('resetPassword.backToLogin')}</LocalizedLink>
                 </p>
               </form>
             </div>

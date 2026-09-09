@@ -3,7 +3,6 @@ import { buildPageMetadataAsync, SITE_URL } from '@/app/seo';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
-import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 
 export function resolveApplyProgramSlug(raw: string | string[] | undefined): string | undefined {
   if (raw == null) return undefined;
@@ -14,11 +13,9 @@ export function resolveApplyProgramSlug(raw: string | string[] | undefined): str
 
 export function buildApplyProgramBlockCopy(program: Program): {
   bullets: string[];
-  salaryLine: string;
 } {
   const bullets = program.skills.slice(0, 3);
-  const salaryLine = salaryRangeDisplay(program);
-  return { bullets, salaryLine };
+  return { bullets };
 }
 
 /** Field label for meta description (e.g. "cybersecurity and IT"). */
@@ -48,32 +45,34 @@ export async function buildApplyPageMetadata(programParam: string | undefined): 
   const program = slug ? getProgramBySlug(slug) : undefined;
   const locale = await getRequestLocale();
 
-  // TODO(design): designer needs to produce `/public/images/og/apply.webp`
-  // (1200x630). Referenced here so social shares of /apply don't fall back
-  // to the generic homepage OG. Applied to both the generic and program-
-  // pre-filled variants of the page.
-  const applyOgImage = '/images/og/apply.webp';
-
-  if (!program) {
-    return buildPageMetadataAsync({
-      title: 'Apply for Career Training',
-      description:
-        'Apply for career certification training at no cost to members. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We follow up with next steps in 1 to 2 business days.',
-      path: '/apply',
-      image: applyOgImage,
-    });
-  }
-
-  const { title, description } = buildApplyProgramSeo(program);
+  // Use the existing full-resolution brand asset, including its real dimensions.
+  const applyOgImage = {
+    url: '/images/logo-tight.png',
+    width: 1930,
+    height: 985,
+    alt: 'Workforce Advancement Project — Empowering People. Advancing Futures.',
+  };
+  const { title, description } = program ? buildApplyProgramSeo(program) : {
+    title: 'Apply for Career Training',
+    description:
+      'Apply for career certification training at no cost to members. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We follow up with next steps in 1 to 2 business days.',
+  };
   const base = await buildPageMetadataAsync({
     title,
     description,
     path: '/apply',
-    image: applyOgImage,
+    image: applyOgImage.url,
   });
+  const branded: Metadata = {
+    ...base,
+    openGraph: { ...base.openGraph, images: [applyOgImage] },
+    twitter: { ...base.twitter, images: [{ url: applyOgImage.url, alt: applyOgImage.alt }] },
+  };
+  if (!program) return branded;
+
   const localizedApply = withLocalePrefix('/apply', locale);
   return {
-    ...base,
+    ...branded,
     alternates: {
       ...base.alternates,
       canonical: `${SITE_URL}${localizedApply}?program=${encodeURIComponent(program.slug)}`,

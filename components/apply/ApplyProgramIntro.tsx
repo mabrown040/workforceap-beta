@@ -15,8 +15,8 @@ export default async function ApplyProgramIntro({
   const program = getProgramBySlug(programSlug);
   if (!program) return null;
 
-  const { bullets, salaryLine } = buildApplyProgramBlockCopy(program);
-  const t = await getTranslations('apply');
+  const { bullets } = buildApplyProgramBlockCopy(program);
+  const [t, tCta] = await Promise.all([getTranslations('apply'), getTranslations('cta')]);
   const toggleId = `apply-program-intro-${program.slug}`;
 
   return (
@@ -47,8 +47,8 @@ export default async function ApplyProgramIntro({
             <li key={b}>{b}</li>
           ))}
         </ul>
-        <p className="apply-program-intro__salary">
-          <strong>{t('programIntroSalaryLabel')}</strong> {salaryLine} {t('programIntroSalaryDisclaimer')}
+        <p className="apply-program-intro__more">
+          <LocalizedLink href="/salary-guide">{tCta('viewSalaryGuide')}</LocalizedLink>
         </p>
         <p className="apply-program-intro__more">
           <LocalizedLink href={schoolRef ? `/programs/${program.slug}?ref=${encodeURIComponent(schoolRef)}` : `/programs/${program.slug}`}>{t('programIntroReadOverview')}</LocalizedLink>{' '}
@@ -117,7 +117,6 @@ export default async function ApplyProgramIntro({
         }
 
         .apply-program-intro__cert,
-        .apply-program-intro__salary,
         .apply-program-intro__more {
           font-size: var(--font-size-sm);
           line-height: var(--line-height-normal);

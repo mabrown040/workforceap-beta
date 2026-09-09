@@ -60,6 +60,7 @@ export default function ApplyResultsClient({
   schoolProgramSlugs?: string[];
 }) {
   const t = useTranslations('apply');
+  const tCta = useTranslations('cta');
   const searchParams = useSearchParams();
   const programParam = searchParams?.get('program');
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
@@ -357,6 +358,9 @@ export default function ApplyResultsClient({
         )}
         </div>
 
+        <p className="apply-results-program-hint">
+          <LocalizedLink href="/salary-guide">{tCta('viewSalaryGuide')}</LocalizedLink>
+        </p>
         <div
           className="apply-results-program-grid"
           style={{
@@ -451,7 +455,6 @@ export default function ApplyResultsClient({
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">schedule</span>
                     {p.duration}
                   </div>
-                  <div style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{p.salary}</div>
                 </div>
               </div>
             );

@@ -8,6 +8,7 @@ const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => router,
+  usePathname: () => '/en/dashboard/program',
 }));
 
 vi.mock('@/components/ProgramIcon', () => ({
@@ -63,6 +64,8 @@ describe('ProgramPicker fresh assignment gates', () => {
     ).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent(/applications remain open/i);
     expect(screen.getByRole('button', { name: 'Training activation pending' })).toBeDisabled();
+    expect(screen.getByRole('link', { name: 'Research career pay' })).toHaveAttribute('href', '/en/salary-guide');
+    expect(screen.queryByText(/Starting salary|\$60K/)).not.toBeInTheDocument();
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -74,7 +77,10 @@ describe('ProgramPicker fresh assignment gates', () => {
 
     render(<ProgramPicker programs={[program({})]} />);
 
+    expect(screen.getByText('160 hours')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Research career pay' })).toHaveAttribute('href', '/en/salary-guide');
     fireEvent.click(screen.getByRole('button', { name: 'Review selection' }));
+    expect(screen.queryByText(/Starting salary|\$60K/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm program' }));
 
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/dashboard'));

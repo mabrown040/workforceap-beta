@@ -97,12 +97,9 @@ export async function resolveCascadeScope(
  * bodies and learner emails. `isAdmin()` itself is not tenant-aware so
  * the page MUST pass the actor scope.
  *
- * Excludes cascades whose 72h TTL has already elapsed (`expiresAt <= now`).
- * The expire cron runs daily so there's a window of up to 24h where a
- * cascade's status is still 'awaiting_approval' but the approve endpoint
- * will refuse to send it. Showing those cards in the inbox would let an
- * admin click Approve and get a 409 — actionable-looking but not
- * actionable. Filtering at the query layer keeps both surfaces honest.
+ * Excludes unapproved drafts whose TTL has elapsed. Approved deliveries
+ * remain visible after TTL so staff can reconcile uncertain sends or finish
+ * recording delivery whose provider receipts are already saved.
  */
 export async function listAwaitingApprovalCascades(opts?: {
   limit?: number;
@@ -154,9 +151,8 @@ export async function listAwaitingApprovalCascades(opts?: {
 
 /**
  * Fast count for nav badges. Cheaper than the full list when we just need a
- * number ("Agent Inbox · 3"). Mirrors the list filter — past-TTL cascades
- * are not actionable, so they're not counted in the badge either. Also
- * tenant-scoped per the actor's CascadeScopeFilter.
+ * number ("Agent Inbox · 3"). Mirrors the list filter: current approvals
+ * plus incomplete deliveries requiring review, scoped to the actor.
  */
 export async function countAwaitingApprovalCascades(opts?: {
   scope?: CascadeScopeFilter;

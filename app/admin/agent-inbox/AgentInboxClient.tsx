@@ -332,7 +332,16 @@ function CascadeCard({
           alignItems: 'flex-end',
         }}
       >
-        {reviewingDelivery && <button type="button" onClick={onRefresh} disabled={busy}>
+        {reviewingDelivery && <button type="button" onClick={onRefresh} disabled={busy}
+          style={{
+            minHeight: '44px',
+            padding: '0.55rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--outline-variant)',
+            background: 'transparent',
+            cursor: busy ? 'wait' : 'pointer',
+            fontSize: '0.9rem',
+          }}>
           Refresh delivery status
         </button>}
         {!reviewingDelivery && <label style={{ flex: 1, minWidth: '14rem', fontSize: '0.85rem' }}>

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "clm_dead_diagnostics_read_failures_20260909_verified",
+    "runId": "run_20260909_1730_followup",
+    "auditor": "dead-code",
+    "entityIds": [
+      "ent_file_lib_email",
+      "ent_cluster_tenant_auth"
+    ],
+    "title": "Diagnostics distinguishes unavailable reads from successfully empty activity",
+    "severity": "latent",
+    "blast": "Rejected email or integration reads display Unavailable independently; successful empty results retain No recent activity. A database ping does not establish that diagnostic records can be read or messages delivered.",
+    "evidence": "app/admin/diagnostics/page.tsx:447; app/admin/diagnostics/page.tsx:486; graph/evidence/clm_dead_diagnostics_20260909-green.txt; graph/evidence/dead-code-email-reliability-focused-green.txt.",
+    "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs diagnostics",
+    "supersedes": "clm_dead_diagnostics_read_failures_20260909",
+    "status": "verified"
+  }
+]

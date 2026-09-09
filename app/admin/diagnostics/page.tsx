@@ -444,6 +444,8 @@ export default async function AdminDiagnosticsPage({
   let dbOk = true;
   let emailRows: { status: string }[] = [];
   let integrationRows: { status: string }[] = [];
+  let emailReadFailed = false;
+  let integrationReadFailed = false;
 
   try {
     // Cheap liveness ping — proves the pooler answers.
@@ -466,7 +468,12 @@ export default async function AdminDiagnosticsPage({
       }),
     ]);
     if (emailResult.status === 'fulfilled') emailRows = emailResult.value;
+    else emailReadFailed = true;
     if (integrationResult.status === 'fulfilled') integrationRows = integrationResult.value;
+    else integrationReadFailed = true;
+  } else {
+    emailReadFailed = true;
+    integrationReadFailed = true;
   }
 
   const tiles: DiagnosticTile[] = [
@@ -476,12 +483,18 @@ export default async function AdminDiagnosticsPage({
     dbOk
       ? { name: 'Database', iconKey: 'database', status: 'Healthy', tone: 'ok' }
       : { name: 'Database', iconKey: 'database', status: 'Unreachable', tone: 'alert' },
-    deriveSubsystemTile('Email Queue', 'email', emailRows),
-    deriveSubsystemTile('Integrations', 'integrations', integrationRows),
+    emailReadFailed
+      ? { name: 'Email Queue', iconKey: 'email', status: 'Unavailable', tone: 'alert' }
+      : deriveSubsystemTile('Email Queue', 'email', emailRows),
+    integrationReadFailed
+      ? { name: 'Integrations', iconKey: 'integrations', status: 'Unavailable', tone: 'alert' }
+      : deriveSubsystemTile('Integrations', 'integrations', integrationRows),
   ];
 
   const allHealthy = tiles.every((t) => t.tone === 'ok');
-  const note = allHealthy
+  const note = emailReadFailed || integrationReadFailed
+    ? 'Some diagnostic records could not be read. Unavailable means the measurement failed; it does not mean there was no activity or that delivery succeeded. Reload to retry, or check the per-workflow log (?ui=legacy).'
+    : allHealthy
     ? 'All measured subsystems are reporting healthy. App and database checks are live; email and integration status reflect recorded workflow diagnostics from the last 24 hours. For the full per-workflow log, error triage, and enrollment-drift checks, open the legacy view (?ui=legacy).'
     : 'One or more subsystems need attention. Email and integration tiles are derived from recorded workflow diagnostics over the last 24 hours — drill into the legacy view (?ui=legacy) for the per-workflow log, error triage, and fallback paths.';
 

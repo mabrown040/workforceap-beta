@@ -85,7 +85,7 @@ npm run db:push    # syncs schema.prisma directly (NOT migrate — see below)
 npm run db:seed    # upserts default org `workforceap`, roles, programs, demo jobs, blog
 ```
 
-**Do not use `npm run db:migrate:deploy` for local dev** — the migration history has a duplicate `partner_users` migration (`20260319100000_add_partner_users` and `20260320000000_add_partner_users`) that fails with Prisma `P3018` / Postgres `42P07 relation "partner_users" already exists`. Production uses `build:with-migrate` (`scripts/safe-migrate.cjs` + `resolve-failed-migration*`) to work around it; for local dev, `db:push` is simpler and authoritative.
+**Clean migration replay is unsupported.** A disposable-database audit on 2026-09-09 reproduced both the duplicate `partner_users` migration (`P3018` / PostgreSQL `42P07`) and, after verifying and resolving only that duplicate locally, an invitations foreign key referencing `subgroups` before its later creation (`42P01`). Production's `build:with-migrate` recovery runners do not make fresh replay supported. Use `db:push` only for disposable development fixtures; it omits migration-only security DDL such as RLS policies and SQL triggers and is not a production recovery procedure. Preserve historical migration files/checksums and follow [docs/DATABASE-RECOVERY.md](docs/DATABASE-RECOVERY.md) for preflight and recovery limits.
 
 #### Features that still need external credentials (degrade gracefully)
 

@@ -105,3 +105,33 @@ describe('calculateAtRiskScore — course activity gap', () => {
   });
 
 });
+
+
+describe('funding-pending training assignment', () => {
+  it('does not count an unapproved seat as a failure to start training', async () => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ ...baseUser(), courseraEnrollmentApproved: false } as never);
+    vi.mocked(prisma.message.findFirst).mockResolvedValue({ createdAt: new Date() } as never);
+    mockLoadTrainingView.mockResolvedValue({ hasStartedTraining: false, allCoursesComplete: false, lastTrainingActivityAt: null });
+    const result = await calculateAtRiskScore('u1');
+    expect(result.factors.some((factor) => factor.name === 'INCOMPLETE_FIRST_COURSE')).toBe(false);
+  });
+
+  it('retains the non-start factor after enrollment is approved', async () => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ ...baseUser(), courseraEnrollmentApproved: true } as never);
+    vi.mocked(prisma.message.findFirst).mockResolvedValue({ createdAt: new Date() } as never);
+    mockLoadTrainingView.mockResolvedValue({ hasStartedTraining: false, allCoursesComplete: false, lastTrainingActivityAt: null });
+    const result = await calculateAtRiskScore('u1');
+    expect(result.factors.find((factor) => factor.name === 'INCOMPLETE_FIRST_COURSE')?.weight).toBe(20);
+  });
+
+  it('preserves real inactivity evidence for a legacy learner who has already started', async () => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ ...baseUser(), courseraEnrollmentApproved: false } as never);
+    vi.mocked(prisma.message.findFirst).mockResolvedValue({ createdAt: new Date() } as never);
+    mockLoadTrainingView.mockResolvedValue({ hasStartedTraining: true, allCoursesComplete: false, lastTrainingActivityAt: daysAgo(20) });
+    const result = await calculateAtRiskScore('u1');
+    expect(result.factors.find((factor) => factor.name === 'NO_COURSE_ACTIVITY_14_DAYS')?.weight).toBe(25);
+  });
+});

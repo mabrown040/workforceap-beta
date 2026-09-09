@@ -1,0 +1,144 @@
+Read-only audit of 638a622
+Anchors: .github/workflows/ci-gate.yml:105-110, package.json:8, scripts/vercel-build.cjs:48-52
+Command: node -e 'const fs=require('"'"'node:fs'"'"'),assert=require('"'"'node:assert/strict'"'"');const ci=fs.readFileSync('"'"'.github/workflows/ci-gate.yml'"'"','"'"'utf8'"'"');const app=require('"'"'./package.json'"'"').scripts.build;console.log('"'"'CI build command: npm run build'"'"');console.log('"'"'Root build script:'"'"',app);console.log('"'"'Vercel runs marketing npm ci + npm run build before the app (scripts/vercel-build.cjs:48-52).'"'"');assert.match(ci,/working-directory:\s*marketing|npm --prefix marketing|npm run build:vercel|cd marketing/, '"'"'Required CI must exercise the separate marketing build used by deployment'"'"');'
+Exit code: 1
+CI build command: npm run build
+Root build script: node scripts/check-supabase-env.mjs && node scripts/verify-material-symbols-font-size.mjs && node scripts/prisma-env.js prisma generate && next build
+Vercel runs marketing npm ci + npm run build before the app (scripts/vercel-build.cjs:48-52).
+node:assert:883
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: Required CI must exercise the separate marketing build used by deployment
+    at [eval]:1:382
+    at runScriptInThisContext (node:internal/vm:209:10)
+    at node:internal/process/execution:446:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:444:60)
+    at evalFunction (node:internal/process/execution:279:30)
+    at evalTypeScript (node:internal/process/execution:291:3)
+    at node:internal/main/eval_string:74:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'name: CI\n' +
+    '\n' +
+    'on:\n' +
+    '  pull_request:\n' +
+    '    branches: [master]\n' +
+    '  push:\n' +
+    '    branches: [master]\n' +
+    '  workflow_dispatch:\n' +
+    '\n' +
+    'concurrency:\n' +
+    '  group: ci-${{ github.ref }}\n' +
+    '  cancel-in-progress: true\n' +
+    '\n' +
+    'jobs:\n' +
+    '  ci:\n' +
+    '    name: Typecheck & Build\n' +
+    '    runs-on: ubuntu-latest\n' +
+    '    timeout-minutes: 30\n' +
+    '\n' +
+    '    env:\n' +
+    "      # Stub values so Next.js/Prisma don't crash at build time in CI.\n" +
+    '      # Real secrets are never needed for a typecheck+build gate.\n' +
+    '      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci"\n' +
+    '      NEXTAUTH_SECRET: "ci-secret-placeholder"\n' +
+    '      NEXTAUTH_URL: "http://localhost:3000"\n' +
+    '      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"\n' +
+    '      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"\n' +
+    '      # GitHub runners have 16GB; the cold production build (no cache) was\n' +
+    "      # riding the 4GB ceiling and OOM'd (exit 134) as the app grew. 8GB gives\n" +
+    '      # headroom without approaching the runner limit.\n' +
+    '      NODE_OPTIONS: "--max-old-space-size=8192"\n' +
+    '      RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"\n' +
+    '\n' +
+    '    steps:\n' +
+    '      - name: Checkout\n' +
+    '        uses: actions/checkout@v4\n' +
+    '\n' +
+    '      - name: Setup pnpm\n' +
+    '        uses: pnpm/action-setup@v4\n' +
+    '\n' +
+    '      - name: Setup Node\n' +
+    '        uses: actions/setup-node@v4\n' +
+    '        with:\n' +
+    '          node-version: "22"\n' +
+    '          cache: "pnpm"\n' +
+    '\n' +
+    '      - name: Install dependencies\n' +
+    '        run: pnpm install --frozen-lockfile\n' +
+    '\n' +
+    '      - name: Generate Prisma client\n' +
+    '        run: node scripts/prisma-env.js prisma generate\n' +
+    '\n' +
+    '      - name: Typecheck\n' +
+    '        run: npx tsc --noEmit\n' +
+    '\n' +
+    '      # Icon font coverage — fails if source uses a Material Symbols icon\n' +
+    '      # missing from the committed subset (would render as raw ligature\n' +
+    '      # text like FLIGHT_TAKEOFF in production). The `npm run build`\n' +
+    '      # script runs this on Vercel, but the Build step below invokes\n' +
+    '      # `npx next build` directly, so gate it explicitly here.\n' +
+    '      - name: Verify Material Symbols subset\n' +
+    '        run: node scripts/verify-material-symbols-font-size.mjs\n' +
+    '\n' +
+    "      # Unit tests (Node's built-in test runner via the `test:unit`\n" +
+    '      # script, which uses tsx). 499 specs run deterministically without\n' +
+    '      # external services; the small set that needs vitest, server-only,\n' +
+    '      # a live postgres, or a stale-assertion review is filtered in\n' +
+    '      # `scripts/test-unit.mjs` with the reason logged at startup.\n' +
+    '      # Required gate — failures block the PR.\n' +
+    '      - name: Unit tests\n' +
+    '        run: npm run test:unit\n' +
+    '\n' +
+    '      # Lint is release-blocking so Vercel cannot strand production on an\n' +
+    '      # ESLint error after GitHub CI has already reported success.\n' +
+    '      - name: Lint\n' +
+    '        run: npm run lint\n' +
+    '        timeout-minutes: 5\n' +
+    '\n' +
+    '      # Vitest is release-blocking. Playwright e2e and node:test files are\n' +
+    '      # excluded by vitest.config.ts and run in their own lanes.\n' +
+    '      - name: Vitest\n' +
+    '        run: timeout 480 npm run test:vitest\n' +
+    '        timeout-minutes: 10\n' +
+    '\n' +
+    '      # Dead-code detection — report-only. No knip/ts-prune/depcheck config\n' +
+    '      # existed before this; `knip` was added as a devDependency (see\n' +
+    "      # package.json) but hasn't been tuned yet (no knip.json, so it uses\n" +
+    '      # default Next.js/Prisma-aware detection which may have false\n' +
+    '      # positives on this codebase, e.g. dynamic route handlers or\n' +
+    '      # barrel re-exports). Surfaces unused files/exports/deps on every\n' +
+    '      # PR without blocking. Flip to required once the initial report has\n' +
+    '      # been triaged and a knip.json config silences accepted false\n' +
+    '      # positives.\n' +
+    '      - name: Dead code (report-only)\n' +
+    '        run: npm run deadcode\n' +
+    '        continue-on-error: true\n' +
+    '        timeout-minutes: 5\n' +
+    '\n' +
+    '      # Tenant-isolation guardrails. Static-grep check across high-risk\n' +
+    '      # routes — expanded in PR 2 of AUDIT-2026-05-16 to cover the\n' +
+    '      # cross-tenant cluster (§C-T1..§H-T4). Required gate.\n' +
+    '      - name: Verify high-risk tenant routes\n' +
+    '        run: node scripts/verify-high-risk-tenant-routes.cjs\n' +
+    '\n' +
+    '      - name: Build\n' +
+    '        run: npm run build\n' +
+    '        env:\n' +
+    '          SKIP_ENV_VALIDATION: "1"\n' +
+    '          RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"\n' +
+    '        timeout-minutes: 15\n' +
+    '\n' +
+    "      # A parser unit test can pass with the full checkout's node_modules even\n" +
+    '      # when a serverless artifact omits the dynamically loaded PDF worker.\n' +
+    '      - name: Verify deployed PDF parser assets\n' +
+    '        run: node scripts/verify-pdf-deployment.mjs\n' +
+    '        timeout-minutes: 2\n',
+  expected: /working-directory:\s*marketing|npm --prefix marketing|npm run build:vercel|cd marketing/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.2

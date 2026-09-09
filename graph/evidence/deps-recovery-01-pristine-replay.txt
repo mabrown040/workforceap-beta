@@ -1,0 +1,40 @@
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "workforceap_recovery_audit_20260909", schema "public" at "127.0.0.1:55437"
+
+171 migrations found in prisma/migrations
+
+Applying migration `20260314000000_init_members_portal`
+Applying migration `20260315000000_add_job_applications`
+Applying migration `20260315000001_add_benefit_requests`
+Applying migration `20260315000002_add_learning_progress`
+Applying migration `20260315000003_add_ai_tool_results`
+Applying migration `20260315000004_add_job_match_scorer`
+Applying migration `20260315000005_add_ai_tools_and_phone_screen`
+Applying migration `20260315000006_add_user_certifications`
+Applying migration `20260316000000_phase1_mvp`
+Applying migration `20260318000000_add_assessment_fields`
+Applying migration `20260318000001_dashboard_sprint`
+Applying migration `20260318000002_admin_role_and_apply`
+Applying migration `20260318000003_blog_posts`
+Applying migration `20260318100000_readiness_and_onboarding`
+Applying migration `20260318200000_blog_scheduled_at`
+Applying migration `20260318300000_partner_portal`
+Applying migration `20260318400000_pipeline_tracker`
+Applying migration `20260318500000_counselor_sprint`
+Applying migration `20260319000000_add_sms_opt_in`
+Applying migration `20260319100000_add_partner_users`
+Applying migration `20260320000000_add_partner_users`
+Error: P3018
+
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+
+Migration name: 20260320000000_add_partner_users
+
+Database error code: 42P07
+
+Database error:
+ERROR: relation "partner_users" already exists
+
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42P07), message: "relation \"partner_users\" already exists", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("heap.c"), line: Some(1167), routine: Some("heap_create_with_catalog") }
+
+

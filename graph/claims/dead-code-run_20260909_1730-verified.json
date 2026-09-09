@@ -1,0 +1,32 @@
+[
+  {
+    "id": "clm_dead_milestone_false_sent_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "entityIds": [
+      "ent_file_lib_email"
+    ],
+    "title": "Milestone dispatch persists receipts and safely retries only unaccepted messages",
+    "severity": "ship-break",
+    "blast": "Incomplete sends remain approved with durable per-draft attempt history. Atomic claims prevent overlapping dispatch; accepted drafts are skipped; uncertain attempts reuse the same provider key within 23 hours. A complete ledger can finalize beyond TTL without another send. Provider acceptance is not inbox delivery, and legacy or unverifiable history requires staff reconciliation.",
+    "evidence": "lib/milestoneCascade/sendApprovedCascade.ts:62; lib/milestoneCascade/dispatchState.ts:56; graph/evidence/clm_dead_milestone_20260909-green.txt; graph/evidence/dead-code-email-reliability-focused-green.txt (42 tests in five suites); graph/evidence/milestone-inbox-ui-green.txt.",
+    "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs milestone",
+    "supersedes": "clm_dead_milestone_false_sent_20260909",
+    "status": "verified"
+  },
+  {
+    "id": "clm_dead_partner_resolved_errors_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "entityIds": [
+      "ent_file_lib_email"
+    ],
+    "title": "Partner notification helpers surface resolved provider errors with diagnostics",
+    "severity": "ship-break",
+    "blast": "Both partner send helpers inspect the SDK result, await an error diagnostic and rethrow failures to callers. Existing preference/configuration no-op conditions remain; this fix adds neither a generic partner outbox nor delivery confirmation.",
+    "evidence": "lib/notifications/partner-notify.ts:7; lib/notifications/partner-notify.ts:114; lib/notifications/partner-notify.ts:175; graph/evidence/clm_dead_partner_20260909-green.txt; graph/evidence/dead-code-email-reliability-focused-green.txt.",
+    "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs partner",
+    "supersedes": "clm_dead_partner_resolved_errors_20260909",
+    "status": "verified"
+  }
+]

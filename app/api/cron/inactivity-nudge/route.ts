@@ -54,10 +54,14 @@ async function handle(_req: NextRequest) {
 
   for (const member of members) {
     try {
-      await sendInactiveNudgeEmail({
+      const delivery = await sendInactiveNudgeEmail({
         to: member.email,
         fullName: member.fullName ?? member.email,
       });
+      if (!delivery.ok) {
+        failed++;
+        continue;
+      }
       sent++;
 
       await recordNudgeSent({ userId: member.id, tier: 'yellow', kind: 'inactivity' });
@@ -75,10 +79,10 @@ async function handle(_req: NextRequest) {
     }
   }
 
-  const runResult = { sent, failed, total: members.length };
+  const runResult = { ok: failed === 0, sent, failed, total: members.length };
   await setCronRecordsProcessed(sent);
-  await logCronRun('cron_inactivity_nudge', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
-  return NextResponse.json(runResult);
+  await logCronRun('cron_inactivity_nudge', runResult, failed > 0 ? 'error' : 'ok');
+  return NextResponse.json(runResult, { status: failed > 0 ? 503 : 200 });
 }
 
 export const GET = withCronLogging('cron_inactivity_nudge', handle);

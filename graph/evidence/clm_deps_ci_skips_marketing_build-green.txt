@@ -1,0 +1,7 @@
+Command: node -e 'const fs=require('"'"'node:fs'"'"'),assert=require('"'"'node:assert/strict'"'"');const ci=fs.readFileSync('"'"'.github/workflows/ci-gate.yml'"'"','"'"'utf8'"'"');const app=require('"'"'./package.json'"'"').scripts.build;console.log('"'"'CI build command: npm run build'"'"');console.log('"'"'Root build script:'"'"',app);console.log('"'"'Vercel runs marketing npm ci + npm run build before the app (scripts/vercel-build.cjs:48-52).'"'"');assert.match(ci,/working-directory:\s*marketing|npm --prefix marketing|npm run build:vercel|cd marketing/, '"'"'Required CI must exercise the separate marketing build used by deployment'"'"');'
+
+CI build command: npm run build
+Root build script: node scripts/check-supabase-env.mjs && node scripts/verify-material-symbols-font-size.mjs && node scripts/prisma-env.js prisma generate && next build
+Vercel runs marketing npm ci + npm run build before the app (scripts/vercel-build.cjs:48-52).
+
+Exit code: 0

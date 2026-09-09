@@ -1,0 +1,20 @@
+COMMAND: node graph/evidence/repro_dead_code_email_20260909.mjs diagnostics
+{"case":"diagnostics SELECTs fail while ping succeeds","tiles":[{"name":"App","iconKey":"app","status":"Operational","tone":"ok"},{"name":"Database","iconKey":"database","status":"Healthy","tone":"ok"},{"name":"Email Queue","iconKey":"email","status":"No recent activity","tone":"muted"},{"name":"Integrations","iconKey":"integrations","status":"No recent activity","tone":"muted"}]}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Email Queue read failure must be distinguishable from a successful empty result
+    at Object.diagnostics (file:///home/claw/src/workforceap-career-launch/graph/evidence/repro_dead_code_email_20260909.mjs:73:12)
+    at async file:///home/claw/src/workforceap-career-launch/graph/evidence/repro_dead_code_email_20260909.mjs:79:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'No recent activity',
+  expected: 'No recent activity',
+  operator: 'notStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.2
+
+EXIT: 1

@@ -1,6 +1,23 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/db/prisma';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+
+/** Surface provider rejections and persist safe metadata before returning. */
+async function sendPartnerEmail(resend: Resend, args: { from: string; to: string; subject: string; text: string }): Promise<void> {
+  try {
+    const result = await resend.emails.send(args);
+    if (result.error) throw new Error(result.error.message || 'Email provider rejected the message.');
+  } catch (error) {
+    await recordWorkflowDiagnostic({
+      workflow: 'email_send', status: 'error', provider: 'resend',
+      summary: `Partner email send failed: "${args.subject}"`,
+      failureReason: error instanceof Error ? error.message : 'Email provider request failed.',
+      metadata: { to: [args.to], subject: args.subject },
+    });
+    throw error;
+  }
+}
 
 export type PartnerMilestone =
   | 'Program enrollment'
@@ -94,7 +111,7 @@ export async function sendPartnerMilestoneEmail(
 
   try {
     const resend = new Resend(resendKey);
-    await resend.emails.send({
+    await sendPartnerEmail(resend, {
       from: emailFrom,
       to: referral.partner.contactEmail.trim(),
       subject,
@@ -102,6 +119,7 @@ export async function sendPartnerMilestoneEmail(
     });
   } catch (err) {
     console.error('sendPartnerMilestoneEmail failed:', err);
+    throw err;
   }
 }
 
@@ -154,7 +172,7 @@ export async function sendPartnerNewMemberAssignedEmail(
 
     try {
       const resend = new Resend(resendKey);
-      await resend.emails.send({
+      await sendPartnerEmail(resend, {
         from: emailFrom,
         to: partner.contactEmail.trim(),
         subject,
@@ -162,8 +180,10 @@ export async function sendPartnerNewMemberAssignedEmail(
       });
     } catch (err) {
       console.error('sendPartnerNewMemberAssignedEmail failed:', err);
+      throw err;
     }
   } catch (err) {
     console.error('sendPartnerNewMemberAssignedEmail: load or send failed:', err);
+    throw err;
   }
 }

@@ -1,0 +1,27 @@
+Read-only audit of 638a622
+Anchors: prisma/migrations/20260319100000_add_partner_users/migration.sql:2, prisma/migrations/20260320000000_add_partner_users/migration.sql:2
+Command: node -e 'const fs=require('"'"'node:fs'"'"'),assert=require('"'"'node:assert/strict'"'"');const files=['"'"'prisma/migrations/20260319100000_add_partner_users/migration.sql'"'"','"'"'prisma/migrations/20260320000000_add_partner_users/migration.sql'"'"'];const creates=files.filter(p=>/^CREATE TABLE \"partner_users\"/m.test(fs.readFileSync(p,'"'"'utf8'"'"')));console.log('"'"'Unconditional CREATE TABLE partner_users migrations:'"'"',JSON.stringify(creates));assert.ok(creates.length<=1, '"'"'Migration replay creates partner_users twice without an intervening drop or existence guard'"'"');'
+Exit code: 1
+Unconditional CREATE TABLE partner_users migrations: ["prisma/migrations/20260319100000_add_partner_users/migration.sql","prisma/migrations/20260320000000_add_partner_users/migration.sql"]
+node:internal/assert/utils:77
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: Migration replay creates partner_users twice without an intervening drop or existence guard
+    at [eval]:1:411
+    at runScriptInThisContext (node:internal/vm:209:10)
+    at node:internal/process/execution:446:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:444:60)
+    at evalFunction (node:internal/process/execution:279:30)
+    at evalTypeScript (node:internal/process/execution:291:3)
+    at node:internal/main/eval_string:74:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.2

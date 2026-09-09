@@ -1,28 +1,97 @@
 {
-  "runId": "run_20260825_1630",
+  "runId": "run_20260909_1730",
   "generatedBy": "scripts/audit-rank.mjs",
-  "generatedAt": "2026-08-25T16:37:32.766Z",
+  "generatedAt": "2026-09-09T17:37:50.304Z",
   "topSlice": [
     {
-      "id": "clm_dead_confirmation_email_orphan",
-      "severity": "latent",
-      "auditor": "dead-code",
-      "title": "No client calls /api/apply/confirmation-email after signup after() fix",
-      "blast": "Orphan public POST remains attack surface (rate-limited) and confuses ops about which path sends receipts.",
-      "evidence": "rg '/api/apply/confirmation-email' across *.ts/*.tsx only hits the route itself and lib/rate-limit.ts prefixes — zero importers in app/ or components/. Apply signup now schedules sendApplicationConfirmationEmail via after() in app/api/apply/signup/route.ts:699.",
-      "verify": "rg -n \"/api/apply/confirmation-email\" --glob '*.{ts,tsx}' | rg -v 'confirmation-email/route|rate-limit'"
+      "id": "clm_secrets_deleted_session_still_authorized",
+      "severity": "prod-break",
+      "auditor": "secrets",
+      "title": "Soft-deleted accounts with surviving provider sessions retain member API access",
+      "blast": "When provider disable fails after the application soft-delete, existing sessions still read member profile data. The deletedAt login guard does not revoke sessions already signed in; shared getUser and GUC bootstrap also continue recognizing the identity.",
+      "evidence": "app/api/admin/members/[id]/delete/route.ts:100-118 explicitly retains deletedAt on Auth disable failure; lib/auth/server.ts:101-115 and :164-178 omit deletedAt; app/api/member/profile/route.ts:18-26 returns that deleted row; app/api/auth/login/route.ts:145-175 checks deletedAt only during login. Raw red regression: graph/evidence/clm_secrets_deleted_session_still_authorized.txt",
+      "verify": "npx vitest run --config graph/evidence/secrets-run_20260909_1730.vitest.config.mts -t 'soft-deleted application identity'"
     },
     {
-      "id": "clm_secrets_resend_silent_miss",
-      "severity": "latent",
+      "id": "clm_secrets_logout_retains_session",
+      "severity": "prod-break",
       "auditor": "secrets",
-      "title": "Missing RESEND_API_KEY soft-fails all branded sends with warn only",
-      "blast": "Every apply/eligibility/employer receipt and admin alert becomes a no-op on a misconfigured deploy; UX copy still promises an automatic email.",
-      "evidence": "lib/email.ts getResend() returns null when process.env.RESEND_API_KEY unset; sendApplicationConfirmationEmail and peers console.warn and return { ok: false } without throwing. docs/EMAIL_SETUP.md documents the key. Confirmation page copy (messages/en.json confirmationHeroBody) promises automatic confirmation email.",
-      "verify": "rg -n \"getResend|RESEND_API_KEY not set\" lib/email.ts | head -20"
+      "title": "Logout returns success and retains authentication cookies on a provider sign-out error",
+      "blast": "Shared-browser logout can leave the previous member or staff session usable: the UI accepts HTTP 200 and redirects while both Supabase auth-cookie chunks remain.",
+      "evidence": "app/api/auth/logout/route.ts:30-51; components/portal/SignOutButton.tsx:20; installed @supabase/auth-js 2.101.1 src/GoTrueClient.ts:3730-3746 returns provider 503 before local session removal. Raw red regression: graph/evidence/clm_secrets_logout_retains_session.txt",
+      "verify": "npx vitest run --config graph/evidence/secrets-run_20260909_1730.vitest.config.mts -t 'logout clears local authentication'"
+    },
+    {
+      "id": "clm_secrets_mfa_unenrolled_admin_bypass",
+      "severity": "prod-break",
+      "auditor": "secrets",
+      "title": "Enforced staff MFA permits admin API access before initial factor enrollment",
+      "blast": "A password-authenticated administrator can skip the setup-MFA destination and directly reach admin APIs before enrolling any factor. Role checks still apply, but the mandatory second factor is bypassed.",
+      "evidence": "middleware.ts:382-407 gates only aal1/aal2 and passes aal1/aal1; app/api/auth/login/route.ts:179-190 requires setup for unenrolled staff after creating their session; app/api/admin/members/route.ts:12-18 checks user/role only; installed @supabase/auth-js 2.101.1 src/GoTrueClient.ts:5442-5461 leaves nextLevel=aal1 when no verified factor exists. Raw red regression: graph/evidence/clm_secrets_mfa_unenrolled_admin_bypass.txt",
+      "verify": "npx vitest run --config graph/evidence/secrets-run_20260909_1730.vitest.config.mts -t 'enforced MFA rejects admin API'"
+    },
+    {
+      "id": "clm_dead_milestone_false_sent_20260909",
+      "severity": "ship-break",
+      "auditor": "dead-code",
+      "title": "Milestone dispatcher persists sent status when every email fails",
+      "blast": "Approved learner celebrations leave the approval queue as sent even when the provider accepts no messages. Per-draft outcomes are returned but not persisted on the cascade, and the approve route only accepts awaiting_approval, so a failed send has no usable retry path through that endpoint. The separate exception path claims retryable while writing dispatch_failed, which is also rejected by that guard.",
+      "evidence": "lib/milestoneCascade/sendApprovedCascade.ts:89 counts failed emails, then :94-109 unconditionally writes sent/sentAt and swallows write errors. app/api/admin/milestone-cascades/[id]/approve/route.ts:95 rejects non-awaiting_approval statuses and :180-196 returns retryable:true for dispatch_failed. graph/evidence/clm_dead_milestone_20260909.txt records emailsSent:0, emailsFailed:1, persistedStatus:sent, persistedHasOutcomes:false under a synthetic provider rejection.",
+      "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs milestone"
+    },
+    {
+      "id": "clm_dead_partner_resolved_errors_20260909",
+      "severity": "ship-break",
+      "auditor": "dead-code",
+      "title": "Partner notification send paths ignore resolved provider errors",
+      "blast": "Partner milestone and new-member-assignment messages disappear when Resend resolves with {error}: both helpers return normally, do not enter their catch blocks, and bypass the central email failure diagnostic. Callers cannot identify or retry a rejected send. This affects course-completion and placement notifications as well as assignment updates.",
+      "evidence": "lib/notifications/partner-notify.ts:95 and :155 await resend.emails.send without inspecting its result; lib/email/send.ts:158 documents and handles this SDK error contract in the central wrapper. graph/evidence/clm_dead_partner_20260909.txt records two synthetic provider rejections, zero surfaced failures, zero logged errors. The probe loads the actual TypeScript module with isolated provider/DB mocks; no network.",
+      "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs partner"
+    },
+    {
+      "id": "clm_hot_deploy_health_false_success_20260909",
+      "severity": "ship-break",
+      "auditor": "hot-paths",
+      "title": "Deployment health returns HTTP success for a non-ready deployment",
+      "blast": "CronExecution records SUCCESS and external HTTP monitoring remains green despite the deploy health result being false.",
+      "evidence": "app/api/cron/deploy-health/route.ts:79-94; graph/evidence/clm_hot_deploy_health_false_success_20260909.txt",
+      "verify": "npx vitest run tests/api/cron-deploy-health.spec.ts"
+    },
+    {
+      "id": "clm_hot_inactivity_false_sent_20260909",
+      "severity": "ship-break",
+      "auditor": "hot-paths",
+      "title": "Inactivity outreach consumes the cooldown after a rejected email",
+      "blast": "Members miss the outreach email and become ineligible for retries for seven days; staff see a successful send.",
+      "evidence": "app/api/cron/inactivity-nudge/route.ts:57-63; graph/evidence/clm_hot_inactivity_false_sent_20260909.txt",
+      "verify": "npx vitest run tests/api/cron-inactive-nudge.spec.ts"
     }
   ],
   "dropped": [
+    {
+      "id": "clm_hot_pending_training_risk_20260909",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_confirmation_email_orphan",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_dead_diagnostics_read_failures_20260909",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_deps_ci_skips_marketing_build",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_deps_duplicate_partner_users_replay",
+      "reason": "below-slice"
+    },
+    {
+      "id": "clm_secrets_resend_silent_miss",
+      "reason": "below-slice"
+    },
     {
       "id": "clm_dead_elig_comment_fireforget",
       "reason": "hygiene-excluded"

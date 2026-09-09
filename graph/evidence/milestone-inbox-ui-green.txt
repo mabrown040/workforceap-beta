@@ -1,0 +1,9 @@
+
+ RUN  v4.1.6 /home/claw/src/workforceap-career-launch
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  13:51:34
+   Duration  1.41s (transform 153ms, setup 134ms, import 238ms, tests 342ms, environment 1.43s)
+

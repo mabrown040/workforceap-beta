@@ -1,0 +1,56 @@
+$ npm run test:unit
+  type: 'test'
+  ...
+1..1304
+# tests 1445
+# suites 61
+# pass 1437
+# fail 0
+# cancelled 0
+# skipped 8
+# todo 0
+# duration_ms 9928.808414
+
+$ npm run test:vitest
+ ✓ tests/lib/marketing-mobile-touch-targets.spec.ts (1 test) 3ms
+
+ Test Files  283 passed (283)
+      Tests  2464 passed (2464)
+   Start at  14:00:23
+   Duration  58.88s (transform 34.26s, setup 33.12s, import 94.65s, tests 73.56s, environment 354.92s)
+
+
+$ npm run typecheck
+
+> workforceap@1.0.0 typecheck
+> tsc --noEmit
+
+
+$ node scripts/verify-pdf-deployment.mjs
+PASS api/member/resume/upload: extracted synthetic PDF with 3 traced PDF assets
+PASS api/member/resume/plain-text: extracted synthetic PDF with 3 traced PDF assets
+PASS api/admin/members/[id]/upload-resume: extracted synthetic PDF with 3 traced PDF assets
+PASS api/counselor/sessions/upload-resume: extracted synthetic PDF with 3 traced PDF assets
+PASS api/ai/extract-resume-text: extracted synthetic PDF with 3 traced PDF assets
+PASS api/member/resume-coach/session: extracted synthetic PDF with 3 traced PDF assets
+
+$ npm run build:local (NODE_OPTIONS=--max-old-space-size=8192; local fixture configuration)
+ ✓ Compiled successfully in 2.5min
+ ✓ Generating static pages (499/499)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+$ npm run lint
+
+✖ 28 problems (0 errors, 28 warnings)
+
+
+$ independent auth/milestone rereview
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+ Test Files  7 passed (7)
+      Tests  67 passed (67)
+   Start at  14:00:48
+   Duration  3.33s (transform 4.53s, setup 1.77s, import 6.54s, tests 1.18s, environment 2.76s)
+
+

@@ -13,7 +13,7 @@ import {
   ActionDraftSchema,
   type ActionDraft,
 } from '@/lib/milestoneCascade/types';
-import { dispatchApprovedCascade } from '@/lib/milestoneCascade/sendApprovedCascade';
+import { CascadeDispatchError, dispatchApprovedCascade } from '@/lib/milestoneCascade/sendApprovedCascade';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -87,33 +87,15 @@ async function _POST(
     // admin who knows / guesses a cascade UUID send a milestone email to
     // another tenant's learner. 404 on cross-tenant ids to prevent
     // enumeration.
-    const cascade = await prisma.milestoneCascade.findFirst({
-      where: { id, ...(await resolveCascadeUserFilter(user.id)) },
-      include: { user: { select: { email: true, organizationId: true } } },
-    });
-    if (!cascade) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    if (cascade.status !== 'awaiting_approval') {
+    const scopeWhere = await resolveCascadeUserFilter(user.id);
+    const cascade = await prisma.$transaction(tx => tx.milestoneCascade.findFirst({
+      where: { id, ...scopeWhere },
+      include: { user: { select: { email: true, organizationId: true, deletedAt: true } } },
+    }));
+    if (!cascade || cascade.user.deletedAt) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    if (!['awaiting_approval', 'approved', 'sent'].includes(cascade.status)) {
       return NextResponse.json(
-        { error: `Cascade is in status "${cascade.status}", not awaiting_approval` },
-        { status: 409 },
-      );
-    }
-
-    // TTL guard. The expire cron runs daily, so there's a window of up to
-    // 24h where a cascade is past its expiresAt but still
-    // status='awaiting_approval'. Sending in that window would violate the
-    // "stale celebrations are worse than no celebration" rule. The cron
-    // toggle can also be flipped off independently, which would let stale
-    // cascades sit indefinitely — defense in depth here means the route
-    // refuses on its own.
-    const now = new Date();
-    if (cascade.expiresAt <= now) {
-      return NextResponse.json(
-        {
-          error: 'Cascade has expired (past 72h TTL) — stale celebrations should not be sent',
-          expiredAt: cascade.expiresAt,
-          code: 'expired',
-        },
+        { error: `Cascade is in status "${cascade.status}", not available for approval or retry` },
         { status: 409 },
       );
     }
@@ -127,9 +109,9 @@ async function _POST(
       const r = ActionDraftSchema.safeParse(item);
       if (r.success) drafts.push(r.data);
     }
-    if (drafts.length === 0) {
+    if (drafts.length === 0 || drafts.length !== rawDrafts.length || drafts.length > 5) {
       return NextResponse.json(
-        { error: 'No valid drafts on this cascade — nothing to send' },
+        { error: 'The saved drafts are invalid. Staff review is required before sending.' },
         { status: 422 },
       );
     }
@@ -138,6 +120,9 @@ async function _POST(
     // are not editable in the pilot — the schema above rejects unknown
     // fields, and we only spread into matching type).
     const edited = parsed.data.editedDrafts ?? {};
+    if (cascade.status !== 'awaiting_approval' && Object.keys(edited).length > 0) {
+      return NextResponse.json({ error: 'Approved messages are frozen. Retry the saved failed drafts without editing them.', code: 'approved_drafts_frozen' }, { status: 409 });
+    }
     const finalDrafts: ActionDraft[] = drafts.map((d, i) => {
       const e = edited[String(i)];
       if (!e || d.type !== 'celebrate_milestone') return d;
@@ -148,54 +133,17 @@ async function _POST(
       };
     });
 
-    // Atomic transition: only flip if still awaiting_approval AND not yet
-    // expired. The expiresAt filter closes the precheck→update race window
-    // (counselor opens at 70h, takes 3h to edit, clicks approve at 73h —
-    // we want this to fail rather than send a stale cascade). Persist the
-    // edited drafts so the audit trail reflects what was actually sent.
-    const updateResult = await prisma.milestoneCascade.updateMany({
-      where: { id, status: 'awaiting_approval', expiresAt: { gt: now } },
-      data: {
-        status: 'approved',
-        approvedByUserId: user.id,
-        approvedAt: new Date(),
-        drafts: finalDrafts as unknown as object,
-      },
+    // The dispatcher atomically claims the saved snapshot and persists every
+    // per-draft outcome. Retrying reuses its fixed provider keys and skips all
+    // accepted messages; the route never guesses a rollback after a send.
+    const dispatchResult = await dispatchApprovedCascade({
+      cascadeId: id,
+      drafts: finalDrafts,
+      recipientEmail: cascade.user.email,
+      approvedByUserId: user.id,
+      sourceDrafts: cascade.drafts,
+      scopeWhere,
     });
-    if (updateResult.count === 0) {
-      return NextResponse.json(
-        { error: 'Cascade was no longer awaiting_approval (lost race)' },
-        { status: 409 },
-      );
-    }
-
-    // Dispatch outbound (sends emails, transitions to `sent`).
-    let dispatchResult: { emailsSent: number; emailsFailed: number; advisoryCount: number };
-    try {
-      dispatchResult = await dispatchApprovedCascade({
-        cascadeId: id,
-        drafts: finalDrafts,
-        recipientEmail: cascade.user?.email ?? '',
-      });
-    } catch (dispatchErr) {
-      console.error('[milestone-cascade approve] dispatch failed:', dispatchErr);
-      // Transition to dispatch_failed so the cascade can be retried
-      await prisma.milestoneCascade.updateMany({
-        where: { id, status: 'approved' },
-        data: {
-          status: 'dispatch_failed',
-        },
-      });
-      return NextResponse.json(
-        {
-          error: 'Approval saved but dispatch failed',
-          detail: dispatchErr instanceof Error ? dispatchErr.message : 'unknown',
-          code: 'dispatch_failed',
-          retryable: true,
-        },
-        { status: 502 },
-      );
-    }
 
     // Audit trail.
     await auditLog({
@@ -212,7 +160,7 @@ async function _POST(
     }).catch((err) => console.error('[milestone-cascade] auditLog failed:', err));
     logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'approved', object: { type: 'MilestoneCascade', id }, result: { success: true, extensions: { targetUserId: cascade.userId, emailsSent: dispatchResult.emailsSent } } }).catch(() => {});
 
-    trackEvent({
+    if (dispatchResult.dispatch.failed === 0 && dispatchResult.dispatch.uncertain === 0 && dispatchResult.dispatch.pending === 0) trackEvent({
       userId: cascade.userId,
       eventName: 'milestone_cascade_sent',
       entityType: 'MilestoneCascade',
@@ -224,12 +172,17 @@ async function _POST(
       },
     }).catch(() => {});
 
+    if (dispatchResult.dispatch.failed || dispatchResult.dispatch.uncertain || dispatchResult.dispatch.pending) {
+      return NextResponse.json({ ok: false, error: 'Some messages were not accepted. Retry only the saved failed drafts; accepted messages will be skipped.', code: 'dispatch_incomplete', retryable: dispatchResult.dispatch.canRetry, cascadeId: id, ...dispatchResult }, { status: 502 });
+    }
+
     return NextResponse.json({
       ok: true,
       cascadeId: id,
       ...dispatchResult,
     });
   } catch (err) {
+    if (err instanceof CascadeDispatchError) return NextResponse.json({ ok: false, error: err.message, code: err.code, retryable: err.retryable }, { status: err.status });
     console.error('[milestone-cascade approve] unhandled:', err);
     return NextResponse.json(
       { error: 'Approve failed', detail: err instanceof Error ? err.message : 'unknown' },

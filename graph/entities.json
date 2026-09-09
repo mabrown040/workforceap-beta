@@ -106,5 +106,47 @@
     "kind": "route",
     "label": "Member program enroll",
     "path": "app/api/member/enroll/route.ts"
+  },
+  {
+    "id": "ent_job_inactivity_nudge",
+    "kind": "job",
+    "label": "Inactivity outreach and shared cooldown",
+    "path": "app/api/cron/inactivity-nudge/route.ts"
+  },
+  {
+    "id": "ent_job_deploy_health",
+    "kind": "job",
+    "label": "Production deployment health",
+    "path": "app/api/cron/deploy-health/route.ts"
+  },
+  {
+    "id": "ent_file_at_risk_scoring",
+    "kind": "file",
+    "label": "Training and engagement risk scoring",
+    "path": "lib/member/atRiskScoring.ts"
+  },
+  {
+    "id": "ent_file_ci_gate",
+    "kind": "file",
+    "label": "Required continuous integration",
+    "path": ".github/workflows/ci-gate.yml"
+  },
+  {
+    "id": "ent_file_vercel_build",
+    "kind": "file",
+    "label": "Vercel build pipeline",
+    "path": "scripts/vercel-build.cjs"
+  },
+  {
+    "id": "ent_file_partner_users_migration_0319",
+    "kind": "file",
+    "label": "First partner user migration",
+    "path": "prisma/migrations/20260319100000_add_partner_users/migration.sql"
+  },
+  {
+    "id": "ent_file_partner_users_migration_0320",
+    "kind": "file",
+    "label": "Repeated partner user migration",
+    "path": "prisma/migrations/20260320000000_add_partner_users/migration.sql"
   }
 ]

@@ -1,0 +1,17 @@
+
+ RUN  v4.1.6 /home/claw/src/workforceap-career-launch
+
+·································stderr | tests/lib/milestone-email-provider.spec.ts > milestone provider idempotency boundary > surfaces a resolved provider rejection as a failed outcome
+sendMilestoneCascadeEmail failed: Error: Synthetic changed payload
+    at sendBrandedEmail (/home/claw/src/workforceap-career-launch/lib/email/send.ts:167:11)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Module.sendMilestoneCascadeEmail (/home/claw/src/workforceap-career-launch/lib/email.ts:1148:20)
+    at /home/claw/src/workforceap-career-launch/tests/lib/milestone-email-provider.spec.ts:32:12
+
+·········
+
+ Test Files  5 passed (5)
+      Tests  42 passed (42)
+   Start at  13:58:45
+   Duration  1.01s (transform 689ms, setup 457ms, import 968ms, tests 104ms, environment 737ms)
+

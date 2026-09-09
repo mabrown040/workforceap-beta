@@ -16,6 +16,11 @@ semantics from scratch.
    composing from a blank file.
 4. If you change kit behavior, update the file's header comment and this guide in the same change.
 
+The admin Agent Inbox's "Needs review" count includes both unexpired drafts
+awaiting approval and approved cascades with incomplete delivery. Delivery
+rows stay visible for retry or staff reconciliation; provider acceptance is
+not labelled as confirmed inbox delivery.
+
 ---
 
 ## 1. Token families — which one to use

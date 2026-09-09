@@ -213,6 +213,22 @@ the same discard confirmation for unfinished work; pending evaluation stays
 mounted, and successful results close without a discard prompt. The dialog locks
 background scrolling and restores the prior document/body scroll styles on close.
 
+`MemberLabWorkspace` is the original practice/evidence workspace. It inherits the
+member shell and warm surface; lab sections become a single reading sequence on
+phones. Saving keeps a private draft. Explicit sharing creates an immutable
+submission containing the exact lab and rubric versions. A later private edit
+must never replace that submitted copy. Failed requests and stale revisions keep
+the current text; text entered during a save survives the earlier response.
+
+`LabReviewQueue` and `LabEvidenceReview` use the dense counselor surface. They
+display only submitted evidence for the actor’s current organization and assigned
+members (organization admins can also review unassigned work). Review decisions
+belong to one submission. A competing review never hides the local feedback
+draft. Revision requests unlock a new member submission; rubric feedback does
+not award course completion, attendance, or an external credential. Source briefs
+are versioned in `lib/content/itSupportLabs.ts`; never silently edit a published
+version after collecting evidence against it.
+
 **A11y behavior hooks** (`components/portal/kit/hooks/` — use these instead of hand-rolling;
 any future kit Dialog/Menu/Combobox must be built on them):
 

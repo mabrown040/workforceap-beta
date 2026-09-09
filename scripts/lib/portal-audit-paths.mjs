@@ -177,6 +177,7 @@ export const STATIC_PATHS = {
   ],
 
   counselor: [
+    '/counselor/lab-reviews',
     '/counselor',
     '/counselor?ui=legacy',
     '/counselor/at-risk',
@@ -204,6 +205,7 @@ export const DYNAMIC_PATHS = {
     '/dashboard/counselor/[id]',
     '/dashboard/jobs/[id]',
     '/dashboard/learning/modules/[courseSlug]',
+    '/dashboard/learning/labs/[labId]',
     '/dashboard/mentors/[mentorId]',
   ],
   admin: [
@@ -233,7 +235,7 @@ export const DYNAMIC_PATHS = {
     '/employer/jobs/[id]/edit',
   ],
   partner: ['/partner/referred-members/[memberId]'],
-  counselor: ['/counselor/sessions/[memberId]/run', '/counselor/students/[memberId]'],
+  counselor: ['/counselor/sessions/[memberId]/run', '/counselor/students/[memberId]', '/counselor/lab-reviews/[submissionId]'],
 };
 
 /** Checked-in fixtures make these dynamic routes mandatory on isolated targets. */

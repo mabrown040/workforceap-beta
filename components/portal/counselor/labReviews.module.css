@@ -1,0 +1,38 @@
+.workspace {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: var(--wa-pad);
+  color: var(--wa-text);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.workspace h2 { font-size: 1.3rem; font-weight: 750; line-height: 1.3; }
+.workspace h3 { font-size: 1.05rem; font-weight: 700; }
+.workspace p { margin: 0; max-width: 75ch; }
+.workspace form { max-width: 58rem; }
+.muted { color: var(--wa-muted); }
+.meta { color: var(--wa-muted); font-size: var(--wa-type-meta); }
+.link { color: var(--wa-accent); text-decoration: underline; text-underline-offset: .2em; overflow-wrap: anywhere; }
+.tabs { display: flex; flex-wrap: wrap; gap: var(--wa-pad-sm); border-bottom: 1px solid var(--wa-border); }
+.tabs a { display: inline-flex; align-items: center; padding: var(--wa-pad-sm); min-height: 2.75rem; color: var(--wa-muted); border-bottom: 2px solid transparent; text-decoration: none; }
+.tabs a[aria-current="page"] { color: var(--wa-text); font-weight: 700; border-bottom-color: var(--wa-accent); }
+.queue { list-style: none; padding: 0; margin: 0; }
+.queue li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--wa-pad-sm); padding-block: var(--wa-pad); border-bottom: 1px solid var(--wa-border); }
+.queue h2 { font-size: 1.1rem; }
+.queue a { min-height: 2.75rem; display: inline-flex; align-items: center; }
+.status { color: var(--wa-muted); font-size: var(--wa-type-meta); font-weight: 650; }
+.panel { min-width: 0; padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); }
+.evidence { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--wa-surface); padding-block: var(--wa-pad-sm); }
+.criterion { padding-block: var(--wa-pad); border-top: 1px solid var(--wa-border); }
+.error { color: var(--wa-danger); }
+.success { color: var(--wa-success); }
+.history { border-top: 1px solid var(--wa-border); padding-block: var(--wa-pad-sm); }
+.history summary { min-height: 2.75rem; display: flex; align-items: center; gap: var(--wa-pad-sm); cursor: pointer; font-weight: 650; }
+.history summary::before { content: '+'; }
+.history[open] summary::before { content: '−'; }
+.workspace :global(.astryx-radio-list-item), .workspace :global(.astryx-button) { min-height: 2.75rem; }
+@media (max-width: 600px) {
+  .workspace { padding: var(--wa-pad-sm); }
+  .queue li { grid-template-columns: minmax(0, 1fr); }
+  .panel { padding: var(--wa-pad-sm); }
+}

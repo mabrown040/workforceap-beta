@@ -213,7 +213,7 @@ describe('administrator email release', () => {
       { ...deletedRow(), id: 'admin-target', email: 'staff@example.com', profile: { role: 'super_admin' } },
     ]);
     mocks.disableAuth.mockRejectedValue(new Error('Provider disconnected'));
-    const response = await freeBatch();
+    const response = await freeBatch(req());
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true, freed: 0, skipped: 2, total: 2 });
     expect(mocks.disableAuth).toHaveBeenCalledTimes(1);

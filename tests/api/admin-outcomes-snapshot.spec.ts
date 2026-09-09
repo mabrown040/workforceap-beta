@@ -74,7 +74,7 @@ const snapshot = {
     placementsMissingSalary: 0,
     enrolledWithoutEnrolledAt: 0,
   },
-  funnelWaterfall: [{ stage: 'Applications', count: 10, previousCount: 10, conversionRate: 100 }],
+  funnelWaterfall: [{ stage: 'Applications', count: 10, previousCount: 10, conversionRate: 100 }, { stage: 'Training completed', count: 3, previousCount: 10, conversionRate: 30 }],
   applicationQueueHealth: { pendingCount: 2, medianAgeDays: 3, oldestAgeDays: 7 },
   cohorts: [{ month: '2026-06', monthLabel: 'Jun 2026', applications: 4, approved: 3, enrolled: 2, certified: 1, placed: 1 }],
   kpis: {
@@ -105,5 +105,21 @@ describe('GET /api/admin/outcomes/snapshot', () => {
     expect(res.headers.get('content-disposition')).toContain('outcomes-snapshot');
     const body = Buffer.from(await res.arrayBuffer());
     expect(body.subarray(0, 4).toString('utf8')).toBe('%PDF');
+  });
+
+  it('exports the human-facing training completion stage in CSV', async () => {
+    const res = await GET(new Request('http://localhost:3000/api/admin/outcomes/snapshot?format=csv') as any);
+    expect(res.status).toBe(200);
+    const csv = await res.text();
+    expect(csv).toContain('Training completed');
+    expect(csv).not.toContain('Certified');
+  });
+
+  it('preserves legacy JSON keys and separate credential totals', async () => {
+    const res = await GET(new Request('http://localhost:3000/api/admin/outcomes/snapshot') as any);
+    const body = await res.json();
+    expect(body.snapshot.outcomes.totals.membersCertified).toBe(3);
+    expect(body.snapshot.cohorts[0].certified).toBe(1);
+    expect(body.snapshot.certifications).toEqual(snapshot.certifications);
   });
 });

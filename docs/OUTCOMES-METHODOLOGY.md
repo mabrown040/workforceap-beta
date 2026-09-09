@@ -40,7 +40,7 @@ Implemented as `prisma.application.groupBy({ by: ['status'] })`. One row per `Ap
 |---|---|
 | Members served / enrolled | `users WHERE deleted_at IS NULL AND enrolled_program IS NOT NULL` (period-bounded by `enrolled_at` when `period != 'all-time'`) |
 | In active training | Members where `memberProgramProgressPct(...)` is in the open interval `(0, 100)` |
-| Certified | Members where `memberProgramCompleted(...)` returns true (program-progress rollup at 100%) |
+| Training completed | Members whose completed-course rollup equals the required course count for their assigned curriculum version; this does not establish credential verification |
 | Placed | `placement_records` row count (period-bounded by `placed_at` when `period != 'all-time'`) |
 | Placement rate | `placed / enrolled`, suppressed when `enrolled < SMALL_SAMPLE_THRESHOLD` |
 | Median annual salary | Median of `placement_records.salary_offered` where non-null and > 0 |
@@ -59,22 +59,24 @@ Joins: `placement_records.user_id → users.id`. A `User` has at most one `Place
 
 Activity ≡ any `MemberEvent`. Includes login, AI tool runs, course progress, profile edits, etc. — every meaningful surface writes to `member_events`.
 
-### 4. Certifications earned
+The legacy serialized fields `membersCertified` and per-program/cohort `certified` are retained for compatibility. Their visible label is **Training completed**.
+
+### 4. Credential records
 
 | Metric | Source |
 |---|---|
-| Total certifications recorded | `user_certifications` row count |
-| Earned in last 30 days | `user_certifications WHERE earned_at >= now − 30 days` |
-| Unique members holding ≥1 certification | `SELECT DISTINCT user_id FROM user_certifications` |
+| Total credential records | `user_certifications` row count |
+| Reported earned dates in last 30 days | `user_certifications WHERE earned_at >= now − 30 days` |
+| Unique members with credential records | `SELECT DISTINCT user_id FROM user_certifications` |
 
-A single member can hold multiple certifications. The unique-member count is what most funders mean when they ask "how many certified."
+A single member can have multiple credential records. These queries do not filter by review status and include member-reported credentials; they must not be presented as verified-credential totals. Historical records and serialized aggregate keys are unchanged.
 
 ### 5. Programs
 
 | Metric | Source |
 |---|---|
 | Per-program enrolled count | Group `users` by `enrolled_program` |
-| Per-program certified count | Members with `memberProgramCompleted(...)` true |
+| Per-program training completed count | Members whose completed-course rollup equals the required count for the assigned curriculum version |
 | Per-program placed count | Group `placement_records` by joined `user.enrolled_program` |
 | Per-program placement rate | `placed / enrolled` per row, suppressed below threshold |
 

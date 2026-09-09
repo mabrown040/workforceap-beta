@@ -477,6 +477,7 @@ export async function generateQuarterlyOutcomes(
           retentionDecision: r.retentionDecision,
           count: r._count._all,
         })),
+        90,
       ),
       hundredEightyDay: summarizeRetentionGroups(
         hundredEightyDayRetentionRows.map((r) => ({
@@ -484,6 +485,7 @@ export async function generateQuarterlyOutcomes(
           retentionDecision: r.retentionDecision,
           count: r._count._all,
         })),
+        180,
       ),
     },
     programBreakdown,

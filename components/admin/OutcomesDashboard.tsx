@@ -385,7 +385,7 @@ export default function OutcomesDashboard() {
                 />
                 <StatCard
                   value={fmtNumber(t?.membersCertified)}
-                  label="Certified"
+                  label="Training completed"
                   hint="Completed their program."
                 />
               </div>
@@ -431,7 +431,7 @@ export default function OutcomesDashboard() {
                         <Bar pct={(p.enrolled / programMax) * 100} color={rateSuppressed ? WARNING : ACCENT} />
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '0.35rem', fontSize: '0.78rem', color: MUTED }}>
                           <span>{fmtNumber(p.enrolled)} enrolled</span>
-                          <span>{fmtNumber(p.certified)} certified</span>
+                          <span>{fmtNumber(p.certified)} completed training</span>
                           <span>{fmtNumber(p.placed)} placed</span>
                         </div>
                       </div>
@@ -468,11 +468,11 @@ export default function OutcomesDashboard() {
             </SectionShell>
 
             {/* ── Certifications ── */}
-            <SectionShell title="Certifications" subtitle="Certifications earned and unique members holding them.">
+            <SectionShell title="Credential records" subtitle="Includes member-reported credentials; review status varies. These are not verified-credential totals.">
               <div className="portal-grid-metrics">
-                <StatCard value={fmtNumber(certifications?.totalEarned)} label="Total earned" hint="All certifications recorded." />
-                <StatCard value={fmtNumber(certifications?.earnedLast30d)} label="Last 30 days" hint="Recently earned." accent={SUCCESS} />
-                <StatCard value={fmtNumber(certifications?.uniqueMembers)} label="Unique members" hint="Members with ≥1 certification." />
+                <StatCard value={fmtNumber(certifications?.totalEarned)} label="Total records" hint="All credential records, across review statuses." />
+                <StatCard value={fmtNumber(certifications?.earnedLast30d)} label="Last 30 days" hint="Records with a reported earned date in this period." accent={SUCCESS} />
+                <StatCard value={fmtNumber(certifications?.uniqueMembers)} label="Unique members" hint="Members with at least one credential record." />
               </div>
             </SectionShell>
 

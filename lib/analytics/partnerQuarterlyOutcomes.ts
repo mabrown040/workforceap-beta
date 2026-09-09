@@ -53,10 +53,10 @@ export interface PartnerQuarterlyOutcomesReport {
    * Retention as of the end of this quarter for every member this partner
    * has ever referred (not just this quarter's referral cohort) — a
    * placement's 90/180-day window is almost never inside the same quarter
-   * the referral/placement happened in. Classified with the same
-   * retentionDecision/retentionStatus OR-combination as the board snapshot
-   * (lib/admin/boardOutcomes.ts) via lib/analytics/retentionOutcome.ts.
-   * pendingDecision is always reported rather than dropped.
+   * the referral/placement happened in. Classification uses window-specific
+   * evidence via lib/analytics/retentionOutcome.ts: an earlier retained
+   * milestone alone cannot prove 180-day retention. pendingDecision includes
+   * insufficient evidence and is always reported rather than dropped.
    */
   retention: {
     ninetyDay: RetentionSummary;
@@ -474,6 +474,7 @@ export async function generatePartnerQuarterlyOutcomes(
           retentionDecision: r.retentionDecision,
           count: r._count._all,
         })),
+        90,
       ),
       hundredEightyDay: summarizeRetentionGroups(
         hundredEightyDayRetentionRows.map((r) => ({
@@ -481,6 +482,7 @@ export async function generatePartnerQuarterlyOutcomes(
           retentionDecision: r.retentionDecision,
           count: r._count._all,
         })),
+        180,
       ),
     },
     programBreakdown,

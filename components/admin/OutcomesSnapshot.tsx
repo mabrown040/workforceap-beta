@@ -337,7 +337,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
         </SectionShell>
 
         {/* ── Funnel Waterfall ── */}
-        <SectionShell title="Funnel waterfall" subtitle="Accounts → Applications → Approved → Enrolled → Certified → Placed (counts + conversion rates).">
+        <SectionShell title="Funnel waterfall" subtitle="Accounts → Applications → Approved → Enrolled → Training completed → Placed (counts + conversion rates).">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {waterfall.map((step, idx) => (
               <div key={step.stage}>
@@ -431,14 +431,14 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
             />
             <StatCard
               value={fmtNumber(t?.membersCertified)}
-              label="Certified"
-              hint="Completed their program."
+              label="Training completed"
+              hint="Completed assigned training; credential verification is separate."
             />
           </div>
         </SectionShell>
 
         {/* ── Cohort Table ── */}
-        <SectionShell title="Cohort breakdown" subtitle="Applications, approvals, enrollments, certifications, and placements by month.">
+        <SectionShell title="Cohort breakdown" subtitle="Applications, approvals, enrollments, training completions, and placements by month.">
           {cohorts.length === 0 ? (
             <p style={{ margin: 0, fontSize: '0.875rem', color: MUTED }}>No cohort data yet.</p>
           ) : (
@@ -449,7 +449,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
                   { key: 'applications', header: 'Applications', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.applications)}</span> },
                   { key: 'approved', header: 'Approved', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.approved)}</span> },
                   { key: 'enrolled', header: 'Enrolled', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.enrolled)}</span> },
-                  { key: 'certified', header: 'Certified', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.certified)}</span> },
+                  { key: 'certified', header: 'Training completed', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.certified)}</span> },
                   { key: 'placed', header: 'Placed', align: 'right', cell: (c: CohortMonth) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtNumber(c.placed)}</span> },
                 ]}
                 rows={cohorts}
@@ -503,7 +503,7 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
                     <Bar pct={(p.enrolled / programMax) * 100} color={rateSuppressed ? WARNING : ACCENT} />
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '0.35rem', fontSize: '0.78rem', color: MUTED }}>
                       <span>{fmtNumber(p.enrolled)} enrolled</span>
-                      <span>{fmtNumber(p.certified)} certified</span>
+                      <span>{fmtNumber(p.certified)} completed training</span>
                       <span>{fmtNumber(p.placed)} placed</span>
                     </div>
                   </div>
@@ -540,11 +540,11 @@ export default function OutcomesSnapshot({ initialSnapshot, initialPeriod }: Out
         </SectionShell>
 
         {/* ── Certifications ── */}
-        <SectionShell title="Certifications" subtitle="Certifications earned and unique members holding them.">
+        <SectionShell title="Credential records" subtitle="Includes member-reported credentials; review status varies. These are not verified-credential totals.">
           <div className="portal-grid-metrics">
-            <StatCard value={fmtNumber(certifications?.totalEarned)} label="Total earned" hint="All certifications recorded." />
-            <StatCard value={fmtNumber(certifications?.earnedLast30d)} label="Last 30 days" hint="Recently earned." accent={SUCCESS} />
-            <StatCard value={fmtNumber(certifications?.uniqueMembers)} label="Unique members" hint="Members with ≥1 certification." />
+            <StatCard value={fmtNumber(certifications?.totalEarned)} label="Total records" hint="All credential records, across review statuses." />
+            <StatCard value={fmtNumber(certifications?.earnedLast30d)} label="Last 30 days" hint="Records with a reported earned date in this period." accent={SUCCESS} />
+            <StatCard value={fmtNumber(certifications?.uniqueMembers)} label="Unique members" hint="Members with at least one credential record." />
           </div>
         </SectionShell>
 

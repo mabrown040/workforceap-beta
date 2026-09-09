@@ -154,7 +154,7 @@ export default function BoardOutcomesView({
                   key: 'certified',
                   header: (
                     <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                      Certified
+                      Training completed
                     </span>
                   ),
                   align: 'right',
@@ -317,15 +317,15 @@ function PilotPhaseBanner({ totals }: { totals: BoardOutcomes['totals'] }) {
   // What's the most accurate "where we are" phrase given the data?
   let phase: string;
   if (membersPlaced > 0) {
-    phase = `Cohort is mid-cycle: ${membersPlaced} placed, ${membersInTraining} still in training.`;
+    phase = `Recorded outcomes: ${membersPlaced} placed, ${membersInTraining} still in training.`;
   } else if (membersCertified > 0) {
-    phase = `${membersCertified} member${membersCertified === 1 ? '' : 's'} certified and entering job search; placements typically follow within 4–8 weeks.`;
+    phase = `${membersCertified} member${membersCertified === 1 ? ' has' : 's have'} completed assigned training. Credential verification and job placement are separate milestones.`;
   } else if (membersInTraining > 0) {
-    phase = `${membersInTraining} member${membersInTraining === 1 ? '' : 's'} mid-training. Most programs run 8–12 weeks before certification + placement.`;
+    phase = `${membersInTraining} member${membersInTraining === 1 ? ' is' : 's are'} in training. Completion and placement are reported as they are recorded.`;
   } else if (membersEnrolled > 0) {
-    phase = `${membersEnrolled} member${membersEnrolled === 1 ? '' : 's'} enrolled and onboarding. Training cycles begin within 1–2 weeks of enrollment.`;
+    phase = `${membersEnrolled} member${membersEnrolled === 1 ? ' is' : 's are'} enrolled; no training completions or placements are recorded yet.`;
   } else {
-    phase = `Pre-cohort. Program infrastructure is live and ready to receive members.`;
+    phase = 'No enrollments are recorded for this reporting period.';
   }
 
   return (
@@ -367,13 +367,13 @@ function PilotPhaseBanner({ totals }: { totals: BoardOutcomes['totals'] }) {
             color: 'var(--color-blue, #2b7bb9)',
           }}
         >
-          Pilot phase &middot; {membersServed} member{membersServed === 1 ? '' : 's'} served
+          Reporting context &middot; {membersServed} member{membersServed === 1 ? '' : 's'} served
         </p>
         <p style={{ margin: '0.35rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
           {phase}
         </p>
         <p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-          Numbers below are real-time. Placement rate and median wage will populate as the first cohort hires close.
+          These figures reflect recorded activity. Training completion, credential review, and employment outcomes should be read separately.
         </p>
       </div>
     </section>

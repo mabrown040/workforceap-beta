@@ -1,3 +1,5 @@
+import { crossTenantOK } from '@/lib/tenant/withTenantScope';
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
 import { createMember } from '@/lib/member/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
@@ -8,7 +10,6 @@ import { checkSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limi
 import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { trackEvent } from '@/lib/events/track';
 import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { prisma } from '@/lib/db/prisma';
 
 function getClientIp(request: NextRequest): string {
@@ -127,6 +128,22 @@ export async function POST(request: NextRequest) {
       );
     }
   
+    // An existing app identity may have no Auth row after a legacy delete.
+    // Never create another identity or transfer its roles/records through signup.
+    const existingAccount = await crossTenantOK(() => withSystemGuc(() => prisma.$transaction((tx) => tx.user.findFirst({
+      where: { email: { equals: data.email, mode: 'insensitive' } },
+      select: { id: true },
+    }))));
+    if (existingAccount) {
+      return NextResponse.json(
+        {
+          code: 'ACCOUNT_RECOVERY_REQUIRED',
+          error: 'An account with this email already exists. If you cannot sign in, contact WorkforceAP at (512) 777-1808 for staff-assisted account recovery.',
+        },
+        { status: 409 },
+      );
+    }
+
     const cookieStore = await cookies();
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookieOptions: getSupabaseCookieOptions(),
@@ -212,11 +229,9 @@ export async function POST(request: NextRequest) {
       await createMember(user.id, data);
     } catch (err) {
       console.error('Signup member creation error:', err);
-      await getSupabaseAdmin()
-        .auth.admin.deleteUser(user.id)
-        .catch((cleanupErr) => {
-          console.error('Failed to clean up auth user after member creation error:', cleanupErr);
-        });
+      // signUp may return a pre-existing unconfirmed/orphan Auth identity.
+      // No app row is not proof this request created it. Preserve the login
+      // for recovery instead of destructively deleting an unproven identity.
       return NextResponse.json(
         { error: 'Account creation failed. Please try again.' },
         { status: 500 }

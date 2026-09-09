@@ -4,7 +4,10 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
-import { buildDeletedEmail } from '../_deletedEmail';
+import { buildDeletedEmail, isDeletedEmailMarker, parseDeletedEmail } from '../_deletedEmail';
+import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { hasAdminAccess } from '@/lib/auth/roleAccess';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
@@ -37,7 +40,7 @@ async function _POST() {
           deletedAt: { not: null },
           NOT: { email: { endsWith: '@deleted.invalid' } },
         },
-        select: { id: true, email: true },
+        select: { id: true, email: true, deletedAt: true, profile: { select: { role: true } }, userRoles: { select: { role: { select: { name: true } } } } },
         take: 100,
       }),
     );
@@ -46,20 +49,27 @@ async function _POST() {
     let skipped = 0;
     const ts = Date.now();
     for (const u of candidates) {
-      const newEmail = buildDeletedEmail(u.id, ts, u.email);
+      if (u.id === actor.id || hasAdminAccess(u.profile?.role ?? 'member', u.userRoles.map((entry) => entry.role.name))) { skipped += 1; continue; }
+      const originalEmail = parseDeletedEmail(u.email) ?? u.email;
+      if (isDeletedEmailMarker(u.email) && !parseDeletedEmail(u.email)) { skipped += 1; continue; }
+      const newEmail = parseDeletedEmail(u.email) ? u.email : buildDeletedEmail(u.id, ts, u.email);
       if (!newEmail) {
         skipped += 1;
         continue;
       }
       try {
-        await withTenantScope(orgId, (db) =>
+        const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), u.id, originalEmail);
+        if (!disabled.ok) { skipped += 1; continue; }
+        const changed = await withTenantScope(orgId, (db) =>
           db.user.updateMany({
-            where: { id: u.id },
+            where: { id: u.id, email: u.email, deletedAt: u.deletedAt },
             data: { email: newEmail },
           }),
         );
-        freed += 1;
+        if (changed.count === 1) freed += 1;
+        else skipped += 1;
       } catch (err) {
+        skipped += 1;
         captureApiError(err, { route: 'admin/users/free-deleted-emails', extra: { userId: u.id } });
       }
     }

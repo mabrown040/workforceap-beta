@@ -1,3 +1,4 @@
+vi.mock('@/lib/tenant/withTenantScope', () => ({ crossTenantOK: (fn: () => Promise<unknown>) => fn() }));
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ─── Mocks ───
@@ -43,6 +44,7 @@ vi.mock('@/lib/db/prisma', () => ({
       // Signup now checks for a pre-existing app row before creating one
       // (never roll back a returning member's auth user). Default: brand new.
       findUnique: vi.fn(async () => null),
+      findFirst: vi.fn(async () => null),
     },
     application: {
       findFirst: vi.fn(),

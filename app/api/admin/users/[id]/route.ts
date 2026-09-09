@@ -8,7 +8,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
 import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
-import { buildDeletedEmail } from '../_deletedEmail';
+import { buildDeletedEmail, isDeletedEmailMarker, parseDeletedEmail } from '../_deletedEmail';
 import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -37,6 +37,8 @@ import { logAuditEvent } from '@/lib/audit/log';async function _DELETE(
       }),
     );
     if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
+    const originalEmail = parseDeletedEmail(target.email) ?? target.email;
+    if (isDeletedEmailMarker(target.email) && !parseDeletedEmail(target.email)) return NextResponse.json({ error: 'The original email cannot be recovered from this deleted account.' }, { status: 409 });
   
     try {
       // See app/api/admin/members/[id]/delete/route.ts — same pattern.
@@ -59,7 +61,7 @@ import { logAuditEvent } from '@/lib/audit/log';async function _DELETE(
   
       // Soft delete = lock the login, never destroy it: restore must be able
       // to bring the account back (9/2/26 ops report).
-      const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id);
+      const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id, originalEmail);
       if (!disabled.ok) {
         console.error('[admin/users/:id DELETE] Supabase disable error:', disabled.message);
         return userAuthDeleteFailedResponse();

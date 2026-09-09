@@ -5,30 +5,17 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { captureApiError } from '@/lib/observability/captureApiError';
-import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { filterNudgeEligibleUserIds, recordNudgeSent } from '@/lib/cron/nudgeThrottle';
 import { createNotification } from '@/lib/notifications/create';
 
 /**
- * GET /api/cron/course-accountability  (Sprint R3 — PLAN-2026-Q3.md)
- *
- * Day-5 accountability check-in: scans for `CourseEnrollment` rows created
- * 5+ days ago with zero Coursera progress (B4B `overallProgress` null or 0
- * across all course content). For each:
- *   1. Sends an accountability nudge to the member.
- *   2. Writes a `counselor_followup_needed` MemberEvent audit row so the
- *      counselor's queue surfaces them. (No new table — extends the existing
- *      MemberEvent audit log per the PLAN guidance: "an audit event the
- *      counselor can subscribe to".)
- *
- * Idempotency: both the email send AND the counselor follow-up are scoped to
- * the enrollment id. We skip enrollments that already have a
- * `course_accountability_sent` MemberEvent row. Also shares a 7-day
- * cross-cron cooldown (via `MemberNudgeLog`) with inactive-nudge and
- * inactivity-nudge — see lib/cron/nudgeThrottle.ts.
- *
- * Vercel cron: 0 15 * * * (3pm UTC daily — runs after the AM at-risk-check).
+ * Day-5 reserved-seat funding update, using the existing scheduled endpoint.
+ * Only primary assignments without a recorded funding source and without
+ * Coursera enrollment approval are eligible. FundingSource is metadata, not
+ * proof of a grant award; this route never claims funding has been approved.
+ * Provider progress (including missing progress) is not a funding signal.
+ * Prior sends and the shared seven-day outreach cooldown remain in force.
  */
 async function handle(_request: Request) {
   const fiveDaysAgo = new Date();
@@ -36,18 +23,22 @@ async function handle(_request: Request) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  // Window the scan: 5-7 days old enrollments. Older than 7 days are
-  // expected to have been picked up by at-risk-check / inactive-nudge.
+  // Keep the existing 5–7 day send window; funding waits are not evidence
+  // that a member failed to start training.
   const enrollments = await prisma.courseEnrollment.findMany({
     where: {
       createdAt: { gte: sevenDaysAgo, lte: fiveDaysAgo },
-      user: { deletedAt: null },
+      isPrimary: true,
+      fundingSource: null,
+      user: { deletedAt: null, courseraEnrollmentApproved: false },
     },
     select: {
       id: true,
       userId: true,
       programSlug: true,
-      user: { select: { email: true, fullName: true } },
+      isPrimary: true,
+      fundingSource: true,
+      user: { select: { email: true, fullName: true, deletedAt: true, courseraEnrollmentApproved: true } },
     },
     take: 500,
   });
@@ -83,23 +74,12 @@ async function handle(_request: Request) {
   for (const enrollment of enrollments) {
     if (sentEnrollmentIds.has(enrollment.id)) continue;
     if (!enrollment.user?.email) continue;
+    // Re-check the selected facts before dispatch; never turn unknown flags
+    // or a secondary assignment into a funding-pending notification.
+    if (enrollment.isPrimary !== true || enrollment.fundingSource !== null || enrollment.user.deletedAt !== null || enrollment.user.courseraEnrollmentApproved !== false) continue;
     if (!eligibleUserIds.has(enrollment.userId)) continue;
 
     try {
-      // Pull Coursera authoritative progress. Soft-fails to an empty Map if
-      // B4B is unreachable — we'd rather skip a day than spam a learner who
-      // actually started but Coursera is temporarily down.
-      const progress = await fetchLearnerProgressFromB4B(enrollment.user.email);
-
-      let hasProgress = false;
-      for (const entry of progress.values()) {
-        if (entry.overallProgress > 0) {
-          hasProgress = true;
-          break;
-        }
-      }
-      if (hasProgress) continue;
-
       const program = getProgramBySlug(enrollment.programSlug);
       const programName = program ? getProgramDisplayTitle(program) : enrollment.programSlug;
 
@@ -123,14 +103,14 @@ async function handle(_request: Request) {
           })
           .catch(() => { /* non-fatal */ });
 
-        await recordNudgeSent({ userId: enrollment.userId, tier: 'yellow', kind: 'accountability' });
+        await recordNudgeSent({ userId: enrollment.userId, tier: 'yellow', kind: 'funding_update' });
 
         await createNotification({
           userId: enrollment.userId,
           type: 'nudge',
-          title: `Ready to start ${programName}?`,
-          body: "You enrolled a few days ago but haven't started yet — pick up where you left off.",
-          data: { link: '/dashboard' },
+          title: `Your ${programName} training seat is reserved`,
+          body: "We are working on funding and enrollment next steps. You will be notified when funding is approved and you can begin classes.",
+          data: { link: '/dashboard/program' },
         });
 
         // Counselor follow-up queue: audit event the counselor view subscribes to.
@@ -142,7 +122,7 @@ async function handle(_request: Request) {
               entityType: 'course_enrollment',
               entityId: enrollment.id,
               metadata: {
-                reason: 'unstarted_5d',
+                reason: 'funding_enrollment_followup',
                 programSlug: enrollment.programSlug,
                 programName,
               },

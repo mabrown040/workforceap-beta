@@ -98,7 +98,8 @@ export function pickClientMessageSlice(
       Object.assign(out, pickNamespaces(m, PORTAL_CLIENT_NAMESPACES));
       break;
     case 'admin':
-      Object.assign(out, pickNamespaces(m, ['admin', 'courseraProgress']));
+      // AdminPortalShell uses the shared WorkspaceShell label namespaces too.
+      Object.assign(out, pickNamespaces(m, ['admin', 'courseraProgress', 'workspace', 'group']));
       break;
     case 'apply':
       Object.assign(out, pickNamespaces(m, ['apply']));

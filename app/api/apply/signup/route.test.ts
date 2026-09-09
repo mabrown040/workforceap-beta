@@ -1,3 +1,4 @@
+vi.mock('@/lib/tenant/withTenantScope', () => ({ crossTenantOK: (fn: () => Promise<unknown>) => fn() }));
 // @vitest-environment node
 /**
  * Colocated route test for POST /api/apply/signup.
@@ -74,6 +75,8 @@ const state = vi.hoisted(() => ({
   /** Args passed to the admin new-application alert email. */
   adminEmails: [] as { applicationNotes?: string }[],
 
+  existingAccount: null as { id: string } | null,
+  emailLookups: [] as unknown[],
   resolvedOrgId: 'org-test-1',
   provisionCalls: [] as Array<{ headers?: unknown; programSlug?: string | null }>,
   userUpserts: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
@@ -97,6 +100,7 @@ vi.mock('@/lib/db/prisma', () => {
         return {};
       }),
       findUnique: vi.fn(async () => null),
+      findFirst: vi.fn(async (args: unknown) => { state.emailLookups.push(args); return state.existingAccount; }),
     },
     courseEnrollment: {
       findMany: vi.fn(async () => []),
@@ -213,6 +217,7 @@ vi.mock('@/lib/observability/logger', () => ({
 
 vi.mock('@/lib/db/withRequestGuc', () => ({
   withApiGuc: (handler: unknown) => handler,
+  withSystemGuc: (fn: () => Promise<unknown>) => fn(),
 }));
 
 vi.mock('@/lib/db/withDbRetry', () => ({
@@ -304,6 +309,8 @@ function makeRequest(overrides: Record<string, unknown> = {}) {
 }
 
 function resetState() {
+  state.existingAccount = null;
+  state.emailLookups.length = 0;
   state.applicationCreates.length = 0;
   state.partnerLookups.length = 0;
   state.enrollmentUpserts.length = 0;
@@ -1028,6 +1035,7 @@ describe('POST /api/apply/signup school enrollment ack emails', () => {
 
 describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
   beforeEach(() => {
+    resetState();
     supabaseGetUser.mockReset();
     supabaseGetUser.mockResolvedValue({ data: { user: null }, error: null } as never);
     supabaseSignUp.mockReset();
@@ -1050,6 +1058,25 @@ describe('POST /api/apply/signup account-safety guards (9/2/26)', () => {
     expect(body.code).toBe('ALREADY_SIGNED_IN');
     expect(body.error).toContain('admin@example.com');
     expect(supabaseSignUp).not.toHaveBeenCalled();
+  });
+
+  it('requires staff recovery for an existing legacy identity even when Auth is missing', async () => {
+    state.existingAccount = { id: 'old-super-admin-identity' };
+    const res = await POST(makeRequest({ email: 'Applicant@Example.COM' }));
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: expect.stringContaining('staff-assisted account recovery'),
+    });
+    expect(state.emailLookups).toEqual([{
+      where: { email: { equals: 'applicant@example.com', mode: 'insensitive' } },
+      select: { id: true },
+    }]);
+    expect(supabaseSignUp).not.toHaveBeenCalled();
+    expect(state.userUpserts).toEqual([]);
+    expect(state.profileUpserts).toEqual([]);
+    expect(state.enrollmentUpserts).toEqual([]);
+    expect(state.applicationCreates).toEqual([]);
   });
 
   it('treats an obfuscated existing-user signUp (empty identities) as "already registered"', async () => {

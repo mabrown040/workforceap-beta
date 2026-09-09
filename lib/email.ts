@@ -838,7 +838,7 @@ export async function sendNewApplicationAdminEmail(params: {
   }
 }
 
-/** Send program enrollment confirmation to member */
+/** Confirm a saved program selection without claiming funded enrollment. */
 export async function sendCourseEnrolledEmail(params: {
   to: string;
   fullName: string;
@@ -851,16 +851,16 @@ export async function sendCourseEnrolledEmail(params: {
   }
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
   const html = brandedEmailLayout({
-    title: `You're Enrolled: ${params.programName}`,
+    title: `Your ${params.programName} program selection`,
     bodyHtml: courseEnrolledHtml({ firstName: first, programName: params.programName }),
-    ctaText: 'View Training',
-    ctaUrl: `${SITE_URL}/dashboard`,
+    ctaText: 'View my program',
+    ctaUrl: `${SITE_URL}/dashboard/program`,
   });
   try {
     await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
-      subject: sanitizeEmailSubjectLine(`You're Enrolled: ${params.programName}`),
+      subject: sanitizeEmailSubjectLine(`Your ${params.programName} program selection is saved`),
       html,
     });
     return { ok: true };
@@ -871,15 +871,15 @@ export async function sendCourseEnrolledEmail(params: {
 }
 
 /**
- * Sprint R3 — sent fire-and-forget right after a new CourseEnrollment row
- * commits. The caller is responsible for idempotency (logs a `course_kickoff_email_sent`
+ * Program next steps after a CourseEnrollment assignment row commits.
+ * A saved assignment is not evidence of funded access. The caller handles
+ * idempotency (logs a `course_kickoff_email_sent`
  * MemberEvent or relies on the unique-per-enrollment send path).
  */
 export async function sendCourseKickoffEmail(params: {
   to: string;
   fullName: string;
   programName: string;
-  deepLink?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -887,12 +887,12 @@ export async function sendCourseKickoffEmail(params: {
     return { ok: false, error: 'Email not configured' };
   }
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
-  const subject = `Your ${params.programName} course starts soon — block 30 minutes this week`;
+  const subject = `Your ${params.programName} program next steps`;
   const html = brandedEmailLayout({
-    title: `Let's get ${params.programName} started`,
+    title: 'Review your program next steps',
     bodyHtml: courseKickoffHtml({ firstName: first, programName: params.programName }),
-    ctaText: 'Open lesson one',
-    ctaUrl: params.deepLink ?? `${SITE_URL}/dashboard/training`,
+    ctaText: 'View my program',
+    ctaUrl: `${SITE_URL}/dashboard/program`,
   });
   try {
     await sendBrandedEmail(resend, {
@@ -909,15 +909,14 @@ export async function sendCourseKickoffEmail(params: {
 }
 
 /**
- * Sprint R3 — day-5 accountability nudge for enrollees who have zero Coursera
- * progress. The cron path is idempotent against `course_accountability_sent`
+ * Reserved-seat funding update for the pending-approval cohort selected by
+ * the cron. The cron path is idempotent against `course_accountability_sent`
  * MemberEvent rows scoped to the enrollment id.
  */
 export async function sendCourseAccountabilityEmail(params: {
   to: string;
   fullName: string;
   programName: string;
-  deepLink?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -925,12 +924,10 @@ export async function sendCourseAccountabilityEmail(params: {
     return { ok: false, error: 'Email not configured' };
   }
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
-  const subject = `${first}, your ${params.programName} course is paid for — let's get started`;
+  const subject = `Your ${params.programName} training reservation — funding update`;
   const html = brandedEmailLayout({
-    title: `Your ${params.programName} seat is waiting`,
+    title: 'Your training reservation',
     bodyHtml: courseAccountabilityHtml({ firstName: first, programName: params.programName }),
-    ctaText: 'Open lesson one',
-    ctaUrl: params.deepLink ?? `${SITE_URL}/dashboard/training`,
   });
   try {
     await sendBrandedEmail(resend, {

@@ -27,6 +27,7 @@ function ResetPasswordForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmRef = useRef<HTMLInputElement>(null);
+  const verification = useRef<Promise<string | null> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -41,7 +42,7 @@ function ResetPasswordForm() {
       }
     });
 
-    async function exchangeToken() {
+    async function exchangeToken(): Promise<string | null> {
       const code = searchParams?.get('code');
       const tokenHash = searchParams?.get('token_hash');
       const type = searchParams?.get('type');
@@ -49,61 +50,40 @@ function ResetPasswordForm() {
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
       const hashType = hashParams.get('type');
+      let result: { error: unknown };
 
       if (accessToken && refreshToken && hashType === 'recovery') {
-        const { error } = await supabase.auth.setSession({
+        // Server-issued fallback links have no browser PKCE verifier cookie.
+        result = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         });
-        if (!active) return;
-        if (error) {
-          setVerifyError(invalidLinkMessage);
-          setStage('error');
-          return;
-        }
-        window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
-        setVerifyError(null);
-        setStage('ready');
-        return;
+      } else if (tokenHash && type === 'recovery') {
+        result = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+      } else if (code && type === 'recovery') {
+        result = await supabase.auth.exchangeCodeForSession(code);
+      } else {
+        return code || tokenHash ? invalidLinkMessage : tAuth('resetPassword.noTokenMessage');
       }
 
-      if (tokenHash && type === 'recovery') {
-        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
-        if (!active) return;
-        if (error) {
-          setVerifyError(invalidLinkMessage);
-          setStage('error');
-        } else {
-          setVerifyError(null);
-          setStage('ready');
-        }
-        return;
-      }
-
-      if (code) {
-        const codeType = searchParams?.get('type');
-        if (codeType !== 'recovery') {
-          setVerifyError(invalidLinkMessage);
-          setStage('error');
-          return;
-        }
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!active) return;
-        if (error) {
-          setVerifyError(invalidLinkMessage);
-          setStage('error');
-        } else {
-          setVerifyError(null);
-          setStage('ready');
-        }
-        return;
-      }
-
-      setVerifyError(tAuth('resetPassword.noTokenMessage'));
-      setStage('error');
+      if (result.error) return invalidLinkMessage;
+      // A verified one-use token should not remain in history or be retried
+      // when the member follows another link. Keep their training destination.
+      const cleanUrl = new URL(window.location.href);
+      for (const key of ['token_hash', 'type', 'code']) cleanUrl.searchParams.delete(key);
+      cleanUrl.hash = '';
+      window.history.replaceState(window.history.state, '', cleanUrl.pathname + cleanUrl.search);
+      return null;
     }
 
-    void exchangeToken();
+    // React effect replay must share the in-flight verification: the first
+    // request consumes the recovery token, so issuing it twice rejects a valid link.
+    verification.current ??= exchangeToken().catch(() => invalidLinkMessage);
+    void verification.current.then((errorMessage) => {
+      if (!active) return;
+      setVerifyError(errorMessage);
+      setStage(errorMessage ? 'error' : 'ready');
+    });
     return () => {
       active = false;
       subscription.unsubscribe();
@@ -127,16 +107,22 @@ function ResetPasswordForm() {
     }
 
     setStage('submitting');
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) {
-      setFormError(error.message ?? tAuth('resetPassword.updateFailed'));
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        setFormError(error.message ?? tAuth('resetPassword.updateFailed'));
+        setStage('ready');
+        passwordRef.current?.focus();
+        return;
+      }
+
+      setStage('success');
+      setTimeout(() => router.push(redirectTo), 2000);
+    } catch {
+      setFormError(tAuth('resetPassword.updateFailed'));
       setStage('ready');
       passwordRef.current?.focus();
-      return;
     }
-
-    setStage('success');
-    setTimeout(() => router.push(redirectTo), 2000);
   }
 
   if (stage === 'verifying') {

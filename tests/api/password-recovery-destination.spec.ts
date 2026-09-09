@@ -5,6 +5,7 @@ const providers = vi.hoisted(() => ({
   sendEmail: vi.fn(),
   template: vi.fn((_props: { ctaUrl: string }) => '<html>Recovery email fixture</html>'),
   fallbackReset: vi.fn(),
+  createClient: vi.fn(),
   resend: {} as object | null,
 }));
 vi.mock('@/lib/rate-limit', () => ({
@@ -19,11 +20,13 @@ vi.mock('@/lib/supabase-admin', () => ({ getSupabaseAdmin: () => ({ auth: { admi
 vi.mock('@/lib/email', () => ({ getResend: () => providers.resend }));
 vi.mock('@/lib/email/send', () => ({ sendBrandedEmail: providers.sendEmail }));
 vi.mock('@/lib/email/template', () => ({ brandedEmailLayout: providers.template }));
-vi.mock('@/lib/observability/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@supabase/supabase-js', () => ({ createClient: () => ({ auth: { resetPasswordForEmail: providers.fallbackReset } }) }));
+vi.mock('@/lib/observability/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() } }));
+vi.mock('@supabase/supabase-js', () => ({ createClient: providers.createClient }));
 
 import { POST } from '@/app/api/auth/forgot-password/route';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { checkForgotPasswordEmailRateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/observability/logger';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -34,6 +37,8 @@ beforeEach(() => {
   providers.generateLink.mockResolvedValue({ data: { properties: { hashed_token: 'opaque+token/with=symbols' } }, error: null });
   providers.sendEmail.mockResolvedValue(undefined);
   providers.fallbackReset.mockResolvedValue({ error: null });
+  providers.createClient.mockReturnValue({ auth: { resetPasswordForEmail: providers.fallbackReset } });
+  vi.mocked(checkForgotPasswordEmailRateLimit).mockResolvedValue({ success: true });
 });
 afterEach(() => { vi.unstubAllEnvs(); });
 
@@ -93,5 +98,72 @@ describe('password recovery destination across real route and mailer (mocked pro
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true, message: 'If an account exists for that email, you will receive reset instructions shortly.' });
     expect(providers.sendEmail).not.toHaveBeenCalled();
+    expect(providers.fallbackReset).not.toHaveBeenCalled();
+  });
+
+  it('falls back after branded delivery rejects, without depending on a browser PKCE verifier', async () => {
+    providers.sendEmail.mockRejectedValueOnce(new Error('Resend rejected this request'));
+    const result = await sendPasswordResetEmail(' Learner@Example.Test ', '/reset-password?redirectTo=%2Fdashboard%2Fprogram');
+    expect(result).toEqual({ error: null, via: 'supabase' });
+    expect(providers.generateLink).toHaveBeenCalledWith(expect.objectContaining({ email: 'learner@example.test' }));
+    expect(providers.fallbackReset).toHaveBeenCalledOnce();
+    expect(providers.fallbackReset).toHaveBeenCalledWith('learner@example.test', {
+      redirectTo: 'https://training.example.test/reset-password?redirectTo=%2Fdashboard%2Fprogram',
+    });
+    expect(providers.createClient).toHaveBeenCalledWith('https://auth.example.test', 'fixture-anon', {
+      auth: { flowType: 'implicit', autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    });
+    expect(logger.info).toHaveBeenCalledWith('passwordReset: recovery request accepted by provider', { via: 'supabase' });
+  });
+
+  it.each(['provider-error', 'missing-link', 'thrown-request'])('tries the fallback when recovery link creation fails: %s', async (failure) => {
+    if (failure === 'provider-error') providers.generateLink.mockResolvedValueOnce({ data: null, error: { message: 'Endpoint not found' } });
+    if (failure === 'missing-link') providers.generateLink.mockResolvedValueOnce({ data: { properties: {} }, error: null });
+    if (failure === 'thrown-request') providers.generateLink.mockRejectedValueOnce(new Error('Network unavailable'));
+    expect(await sendPasswordResetEmail('learner@example.test')).toEqual({ error: null, via: 'supabase' });
+    expect(providers.sendEmail).not.toHaveBeenCalled();
+    expect(providers.fallbackReset).toHaveBeenCalledOnce();
+  });
+
+  it('does not claim delivery or expose provider details when both mailers fail', async () => {
+    providers.sendEmail.mockRejectedValueOnce(new Error('Resend failed: sensitive provider detail'));
+    providers.fallbackReset.mockResolvedValueOnce({ error: { message: 'SMTP secret configuration detail' } });
+    const response = await POST(request('/dashboard/program'));
+    expect(response.status).toBe(503);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+    expect(await response.json()).toEqual({ error: expect.stringContaining('Password reset is temporarily unavailable') });
+    expect(providers.sendEmail).toHaveBeenCalledOnce();
+    expect(providers.fallbackReset).toHaveBeenCalledOnce();
+    expect(logger.info).not.toHaveBeenCalled();
+  });
+
+  it('reports thrown fallback transport errors without an unhandled rejection', async () => {
+    providers.resend = null;
+    providers.fallbackReset.mockRejectedValueOnce(new Error('Connection failed'));
+    expect(await sendPasswordResetEmail('learner@example.test')).toEqual({ error: { message: 'Connection failed' }, via: 'supabase' });
+  });
+
+  it('classifies the provider user_not_found code as unknown without another delivery attempt', async () => {
+    providers.generateLink.mockResolvedValueOnce({ data: null, error: { code: 'user_not_found', message: 'Account absent' } });
+    const response = await POST(request());
+    expect(response.status).toBe(200);
+    expect(providers.fallbackReset).not.toHaveBeenCalled();
+    expect(providers.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('reports an email rate limit honestly and does not attempt delivery', async () => {
+    vi.mocked(checkForgotPasswordEmailRateLimit).mockResolvedValueOnce({ success: false });
+    const response = await POST(request());
+    expect(response.status).toBe(429);
+    expect(response.headers.get('Retry-After')).toBe('3600');
+    expect(await response.json()).toEqual({ error: expect.stringContaining('Too many reset requests') });
+    expect(providers.generateLink).not.toHaveBeenCalled();
+    expect(providers.fallbackReset).not.toHaveBeenCalled();
+  });
+
+  it('includes the working recovery URL in the explicit plain-text email', async () => {
+    await sendPasswordResetEmail('learner@example.test');
+    expect(providers.sendEmail.mock.calls[0][1].text).toContain(providers.template.mock.calls[0][0].ctaUrl);
+    expect(providers.fallbackReset).not.toHaveBeenCalled();
   });
 });

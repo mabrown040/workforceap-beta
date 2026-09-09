@@ -47,6 +47,7 @@
     "contactUs": "Contact Us",
     "memberPortal": "Member portal",
     "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
     "workspaceTabs": "Workspace tabs",
@@ -1458,6 +1459,9 @@
     "placedViaReferral": "Placed via referral"
   },
   "group": {
+    "memberTools": "Tools & careers",
+    "memberProgress": "Training & progress",
+    "memberAccount": "Account & support",
     "workflows": "Workflows",
     "insights": "Insights",
     "manage": "Manage"

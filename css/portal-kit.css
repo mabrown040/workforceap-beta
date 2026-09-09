@@ -732,7 +732,7 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-training-tabs button { display: inline-flex; align-items: center; gap: .5rem; min-height: 3rem; padding: .75rem .25rem; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--wa-muted); font: inherit; font-weight: 650; cursor: pointer; }
 .wa-kit-training-tabs button[aria-pressed="true"] { color: var(--wa-accent); border-bottom-color: var(--wa-accent); }
 .wa-kit-training-tabs > span { margin-left: auto; }
-.wa-kit-training-workbench { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.3fr); gap: var(--wa-pad); align-items: start; }
+.wa-kit-training-workbench { display: grid; grid-template-columns: minmax(0, 19rem) minmax(0, 1fr); gap: var(--wa-pad); align-items: start; }
 .wa-kit-training-outline { min-width: 0; }
 .wa-kit-training-back { display: none; border: 0; background: transparent; color: var(--wa-accent); font: inherit; font-weight: 650; text-align: left; min-height: 2.75rem; cursor: pointer; }
 .wa-kit-training-course-list { list-style: none; padding: 0; margin: var(--wa-pad-sm) 0; }
@@ -774,6 +774,11 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-training-weeklist button span { display: flex; align-items: center; gap: .5rem; font-size: var(--wa-type-meta); color: var(--wa-muted); }
 .wa-kit-training-footnote { display: flex; align-items: flex-start; gap: .5rem; margin-top: var(--wa-pad) !important; color: var(--wa-muted); font-size: var(--wa-type-meta); }
 .wa-kit-training-footnote svg { flex-shrink: 0; margin-top: .25rem; }
+@media (min-width: 901px) and (max-width: 1199px) {
+  .wa-kit-training-workbench { grid-template-columns: minmax(0, .8fr) minmax(0, 1.3fr); }
+  .wa-kit-training-filter { align-items: stretch; flex-direction: column; }
+  .wa-kit-training-filter select { max-width: 100%; }
+}
 @media (max-width: 900px) {
   .wa-kit-training-back { display: block; }
   .wa-kit-training-workbench, .wa-kit-training-schedule { grid-template-columns: 1fr; }

@@ -68,6 +68,7 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
         id: true,
         email: true,
         enrolledProgram: true,
+        courseraEnrollmentApproved: true,
         courseEnrollments: {
           orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
           select: {
@@ -138,12 +139,13 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
       b4bProgress,
     });
 
-    if (!trainingView) {
-      score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
-      factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
-    } else if (!trainingView.hasStartedTraining) {
-      score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
-      factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
+    if (!trainingView?.hasStartedTraining) {
+      // A saved program can still be waiting for funding/enrollment approval.
+      // Only an approved member can be expected to start the first course.
+      if (user.courseraEnrollmentApproved === true) {
+        score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
+        factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
+      }
     } else if (!trainingView.allCoursesComplete && trainingView.lastTrainingActivityAt) {
       // Started but has gone quiet — graduated by actual days since last
       // CourseProgress touch instead of a flat "flagged stale" weight.

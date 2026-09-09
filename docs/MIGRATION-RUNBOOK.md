@@ -2,7 +2,10 @@
 
 **Repo:** `wap-repo` | **Last Updated:** 2026-05-13
 
-Step-by-step guide for every pending migration. Read the full entry before running.
+Historical migration notes from 2026-05-13. The inventory, blocked statuses, and
+suggested order below are not a current deployment plan. Use
+[`DATABASE-RECOVERY.md`](DATABASE-RECOVERY.md) for the current preflight and known
+replay limits, and inspect the target's actual migration state and pending SQL.
 
 ---
 

@@ -1,6 +1,6 @@
 # WorkforceAP Production Deployment Checklist
 
-**Repo:** `workforceap-beta` | **Branch:** `master` | **Last Updated:** 2026-09-04
+**Repo:** `workforceap-beta` | **Branch:** `master` | **Last Updated:** 2026-09-09
 
 Use this checklist for every production deploy. Do not skip steps.
 
@@ -17,6 +17,14 @@ Use this checklist for every production deploy. Do not skip steps.
   ```bash
   corepack pnpm@10 install --frozen-lockfile
   ```
+
+- [ ] **Build the marketing package and stage its output**
+  ```bash
+  npm --prefix marketing ci --no-audit --no-fund
+  npm --prefix marketing run build
+  node -e "require('./scripts/vercel-build.cjs').copyMarketingBuild(process.cwd())"
+  ```
+  > Required CI runs the same locked marketing install, Astro build, and output copy as Vercel before the Next.js build. Keep generated `marketing/dist` and copied public assets out of commits. This check does not run deployment migrations or preview database provisioning.
 
 - [ ] **Run TypeScript check**
   ```bash
@@ -45,9 +53,9 @@ Use this checklist for every production deploy. Do not skip steps.
 
 - [ ] **Review pending migrations**
   ```bash
-  npx prisma migrate status
+  node scripts/prisma-env.js prisma migrate status
   ```
-  > Read `docs/MIGRATION-RUNBOOK.md` for each pending migration. Confirm risk level and rollback plan.
+  > Complete [database preflight](DATABASE-RECOVERY.md#preflight-for-an-existing-database) against the intended existing database. Inspect the current pending SQL and target state; the May inventory in `MIGRATION-RUNBOOK.md` is historical. Clean replay is unsupported: both a duplicate table migration and a later dependency-order failure were reproduced. Preserve historical SQL/checksums.
 
 - [ ] **Check environment variables**
   - [ ] `CRON_SECRET` is set in Vercel (Production)
@@ -81,11 +89,9 @@ Use this checklist for every production deploy. Do not skip steps.
   # or via PR: merge to master, Vercel auto-deploys
   ```
 
-- [ ] **Run Prisma migrations**
-  ```bash
-  npx prisma migrate deploy
-  ```
-  > Run against production database. Use Supabase SQL Editor if CLI access is restricted.
+- [ ] **Verify the production migration stage**
+  - The Vercel build runs `build:with-migrate` after building marketing. Inspect that stage's output; do not start a concurrent manual migration.
+  - Stop on a migration failure and follow [database recovery guidance](DATABASE-RECOVERY.md). A placeholder-URL skip does not verify the production schema.
 
 - [ ] **Verify Vercel build succeeds**
   - Vercel Dashboard → Deployments
@@ -154,9 +160,9 @@ Use this checklist for every production deploy. Do not skip steps.
 
 If deploy fails:
 
-1. **Revert code**: `git revert <sha>` or rollback in Vercel
-2. **Assess migration reversibility**: Some migrations (enum changes, column drops) cannot be rolled back without data loss
-3. **Database**: If schema change is breaking, restore from Supabase backup (taken daily at 00:00 UTC)
+1. **Assess application rollback compatibility**: Inspect which migrations actually applied, even if the build failed later. A Vercel rollback changes the application, not the database. Revert code or select a prior deployment only after checking compatibility with the current schema.
+2. **Assess migration reversibility**: Some migrations (enum changes, column drops) cannot be rolled back without data loss. Review a specific forward repair or recovery plan.
+3. **Database**: Follow [database recovery guidance](DATABASE-RECOVERY.md). At 2026-09-09 17:35:07 UTC, the provider returned eight completed daily backups, newest `insertedAt` 09:54:37.111 UTC that day, with PITR disabled. No restore was tested; there is no verified 00:00 UTC schedule. Recheck availability, rehearse an isolated restore, and quantify data loss before choosing a production restore.
 4. **Verify rollback**: Re-run health check + smoke tests
 
 ---
@@ -164,6 +170,7 @@ If deploy fails:
 ## Related Docs
 
 - `docs/MIGRATION-RUNBOOK.md` — Per-migration details
+- `docs/DATABASE-RECOVERY.md` — Current replay limits, migration preflight, and backup/restore evidence
 - `docs/ENVIRONMENT-VARIABLES.md` — Full env var reference
 - `docs/TROUBLESHOOTING.md` — Common issues
 - `docs/INCIDENT-RESPONSE-PLAN.md` — Escalation procedures

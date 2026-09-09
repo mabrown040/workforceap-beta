@@ -18,7 +18,9 @@ const NO_RAW_HEX_MESSAGE =
 
 const config = [
   {
-    ignores: [".next/**", "marketing/dist/**", "node_modules/**"],
+    // Astro's compiled assets are also staged into public before the Next build.
+    // Keep handwritten public scripts in lint; ignore only generated chunks.
+    ignores: [".next/**", "marketing/dist/**", "public/_astro/**", "node_modules/**"],
   },
   ...nextVitals,
   tseslint.configs.base,

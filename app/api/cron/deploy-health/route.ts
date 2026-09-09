@@ -70,7 +70,7 @@ async function handle(_request: Request) {
   console.log(JSON.stringify(result));
   await setCronRecordsProcessed(1);
   await logCronRun('cron_deploy_health', result, result.ok ? 'ok' : 'error');
-  return Response.json(result);
+  return Response.json(result, { status: result.ok ? 200 : 503 });
 }
 
 export const GET = withCronLogging('cron_deploy_health', handle);

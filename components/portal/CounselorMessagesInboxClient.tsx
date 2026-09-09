@@ -346,6 +346,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
         padding: '1rem 1.25rem',
         borderBottom: '1px solid var(--outline-variant)',
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '1rem',
@@ -353,7 +354,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
         background: 'color-mix(in srgb, var(--surface-container-lowest) 92%, transparent)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: 0, flex: '1 1 12rem' }}>
         <div
           style={{
             width: 38,
@@ -378,7 +379,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
             .toUpperCase() ?? '—'}
         </div>
         <div style={{ minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0 }}>{chat.member.fullName}</p>
+          <p style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0, overflowWrap: 'anywhere' }}>{chat.member.fullName}</p>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
             {(() => {
               const row = rows.find((x) => x.memberId === chat.member.id);

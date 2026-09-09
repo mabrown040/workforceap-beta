@@ -2,6 +2,7 @@
   "target": "Disposable localhost PostgreSQL 55437",
   "source": "Actual commandCenter.ts and helpers; real Prisma SQL and transactions. Actor organization resolver uses fixture DB; catalog label lookup stubbed. Does not claim production RLS proof.",
   "checks": [
+    "UTC timestamps retain exact waiting hours and inactivity days when the process/database use America/New_York",
     "Full organization totals survive 8-row previews, >500 conversations, answered threads and same-timestamp staff replies",
     "All four focused queues page without duplicate rows and exclude foreign-organization and deleted members",
     "Newly approved and unapproved reserved seats are not labeled 14-days inactive; observed progress and explicit stale flags remain visible",

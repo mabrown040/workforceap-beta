@@ -25,7 +25,7 @@ describe('loaded message read-through cursor', () => {
     tx.messageThread.findUnique.mockImplementation(async () => ({ ...read }));
     tx.message.findFirst.mockImplementation(async ({ where }) => {
       const message = messages.get(where.id);
-      return message?.threadId === where.threadId ? { createdAt: message.createdAt } : null;
+      return message && message.threadId === where.threadId ? { createdAt: message.createdAt } : null;
     });
     tx.messageThread.updateMany.mockImplementation(async ({ where, data }) => {
       const field = Object.keys(data)[0] as keyof typeof read;

@@ -76,6 +76,8 @@ export async function getAdminCommandCenter(
   };
 }
 
+// Prisma DateTime columns store UTC without an offset. Raw SQL/JSON projections
+// below attach UTC explicitly so server or database timezone cannot skew ages.
 // Count and page use the same filtered relation in one database snapshot. The
 // aggregate still returns a total when the requested page is empty.
 async function readQueue<T>(query: Prisma.Sql, order: Prisma.Sql, limit: number, offset: number) {
@@ -94,7 +96,7 @@ async function loadNeedsReply(orgId: string, now: Date, limit: number, offset: n
     id: string; full_name: string | null; email: string;
     thread_id: string; body: string | null; created_at: string;
   }>(Prisma.sql`
-    SELECT u.id, u.full_name, u.email, t.id AS thread_id, latest.body, latest.created_at
+    SELECT u.id, u.full_name, u.email, t.id AS thread_id, latest.body, latest.created_at AT TIME ZONE 'UTC' AS created_at
     FROM message_threads t
     JOIN users u ON u.id = t.member_id
     JOIN LATERAL (
@@ -118,7 +120,7 @@ async function loadAtRisk(orgId: string, now: Date, atRiskCutoff: Date, limit: n
     SELECT u.id, u.full_name, u.email, u.enrolled_program,
       u.stale_training_detected_at IS NOT NULL AS stale_training,
       GREATEST(0, FLOOR(EXTRACT(EPOCH FROM (${now}::timestamptz -
-        COALESCE(last_event.created_at, u.enrolled_at, u.created_at))) / 86400)::int) AS days_inactive
+        (COALESCE(last_event.created_at, u.enrolled_at, u.created_at) AT TIME ZONE 'UTC'))) / 86400)::int) AS days_inactive
     FROM users u
     LEFT JOIN LATERAL (
       SELECT me.created_at FROM member_events me WHERE me.user_id = u.id
@@ -132,7 +134,7 @@ async function loadAtRisk(orgId: string, now: Date, atRiskCutoff: Date, limit: n
             SELECT 1 FROM member_program_progress mp WHERE mp.user_id = u.id
               AND mp.program_slug = u.enrolled_program AND (mp.courses_completed > 0 OR mp.average_percent > 0)
           ))
-          AND COALESCE(last_event.created_at, u.enrolled_at, u.created_at) <= ${atRiskCutoff}::timestamptz
+          AND (COALESCE(last_event.created_at, u.enrolled_at, u.created_at) AT TIME ZONE 'UTC') <= ${atRiskCutoff}::timestamptz
         )
       )
   `, Prisma.sql`days_inactive DESC, id ASC`, limit, offset);

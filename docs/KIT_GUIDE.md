@@ -47,6 +47,11 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   `[data-surface]` inside `.workspace-shell-root`. Member navigation and
   `PageOpener` labels use sentence case; keep intentional names such as
   “AI Career Tools” intact.
+  Member rails use a 232px budget (208px on smaller laptops, 72px collapsed),
+  with daily destinations visible and secondary groups disclosed on demand.
+  The current route opens its group and only the most specific destination
+  receives `aria-current`. Navigation labels stay readable at 16px with 44px
+  targets; desktop brand and public-site link share one header row.
 - **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
   `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
@@ -195,6 +200,18 @@ Foundation: `DesignSurface` / `useSurface`, `colorVar` + `KitColor`/`KitTone` ty
 | `AppShellSidebar`, `AppShellMember` | shell chrome (dense sidebar / member tabs) |
 | `UniversalSearch` | global search affordance |
 | `MemberDashboardKit` | composed member dashboard |
+
+`ChatThread` accepts an optional editable `initialText` and `multiline` composer
+for server-validated context such as a course feedback request. It never sends
+on mount. Async `onSend` handlers return `false` on failure so the draft stays
+available for retry; successful sends clear only the submitted revision and
+preserve text edited while the request was pending.
+
+`SkillMissionChallenge` owns its focus trap and close guard. Callers must not
+wrap it in a second Escape handler. Escape, backdrop, and close buttons share
+the same discard confirmation for unfinished work; pending evaluation stays
+mounted, and successful results close without a discard prompt. The dialog locks
+background scrolling and restores the prior document/body scroll styles on close.
 
 **A11y behavior hooks** (`components/portal/kit/hooks/` — use these instead of hand-rolling;
 any future kit Dialog/Menu/Combobox must be built on them):

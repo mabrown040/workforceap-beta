@@ -13,6 +13,8 @@ import { getTranslations } from 'next-intl/server';
 import { MemberMessagesEmpty } from '@/components/portal/kit/pages/member/MemberMessagesEmpty';
 import { MemberMessagesKit } from '@/components/portal/kit/pages/member/MemberMessagesKit';
 import type { ChatMessage } from '@/components/portal/kit';
+import { loadTrainingWorkspace } from '@/lib/member/loadTrainingWorkspace';
+import { buildTrainingFeedbackDraft } from '@/lib/member/trainingFeedbackDraft';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('messages');
@@ -26,12 +28,20 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MemberMessagesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ ui?: string }>;
+  searchParams?: Promise<{ ui?: string; program?: string; course?: string; curriculum?: string }>;
 }) {
-  const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/dashboard/messages');
-
   const params = await searchParams;
+  const identifier = (value: unknown) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,200}$/.test(value) ? value : null;
+  const requestedProgram = identifier(params?.program);
+  const requestedCourse = identifier(params?.course);
+  const requestedCurriculum = identifier(params?.curriculum);
+  const hasRequestedFeedback = Boolean(params?.program || params?.course || params?.curriculum);
+  const feedbackQuery = requestedProgram && requestedCourse && requestedCurriculum
+    ? new URLSearchParams({ program: requestedProgram, course: requestedCourse, curriculum: requestedCurriculum }).toString()
+    : '';
+  const user = await getUser();
+  if (!user) redirect(`/login?redirectTo=${encodeURIComponent(`/dashboard/messages${feedbackQuery ? `?${feedbackQuery}` : ''}`)}`);
+
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
   const readOnlyAudit = isReadOnlyPortalAuditHeader(await headers());
 
@@ -114,7 +124,16 @@ export default async function MemberMessagesPage({
   // ── New design-kit inbox (default). Opt out with ?ui=legacy. ──
   // Reuses the same real counselor thread + the existing legacy send endpoint
   // (`POST /api/member/messages`) that MemberCounselorChatClient posts to.
-  if (requestedUi !== 'legacy') {
+  if (requestedUi !== 'legacy' || hasRequestedFeedback) {
+    let feedbackDraft: ReturnType<typeof buildTrainingFeedbackDraft>;
+    if (requestedProgram && requestedCourse && requestedCurriculum) {
+      try {
+        const workspace = await loadTrainingWorkspace({ userId: user.id, programSlug: requestedProgram });
+        feedbackDraft = buildTrainingFeedbackDraft(workspace, requestedCourse, requestedCurriculum);
+      } catch {
+        // Inbox remains available if the optional course context cannot load.
+      }
+    }
     const kitMessages: ChatMessage[] = messages.map((m) => {
       const mine = m.authorId === user.id;
       return {
@@ -148,6 +167,8 @@ export default async function MemberMessagesPage({
         activeOnline={Boolean(thread.counselorUserId)}
         otherInitials={counselorInitials}
         messages={kitMessages}
+        feedbackDraft={feedbackDraft}
+        feedbackNotice={hasRequestedFeedback && !feedbackDraft ? 'We could not load that assigned course. You can still write your message below.' : undefined}
       />
     );
   }

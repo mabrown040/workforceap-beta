@@ -15,7 +15,10 @@ export interface ChatMessage {
 interface ChatThreadProps {
   messages: ChatMessage[];
   placeholder?: string;
-  onSend?: (text: string) => void;
+  onSend?: (text: string) => void | boolean | Promise<void | boolean>;
+  /** Initial, editable context. Never sends until the member submits. */
+  initialText?: string;
+  multiline?: boolean;
 }
 
 function authorLabel(author: ReactNode | undefined): string {
@@ -27,10 +30,12 @@ function authorLabel(author: ReactNode | undefined): string {
 /**
  * Message thread + composer — kit-native (no Astryx Chat). Member↔counselor
  * inbox and AI advisor surfaces. Uses `--wa-*` bubbles so messages read as
- * the same product as the rest of the member portal.
+ * the same product as the rest of the member portal. Optional contextual drafts
+ * are editable; asynchronous send failures preserve the current composer text.
  */
-export function ChatThread({ messages, placeholder = 'Type a message…', onSend }: ChatThreadProps) {
-  const [text, setText] = useState('');
+export function ChatThread({ messages, placeholder = 'Type a message…', onSend, initialText = '', multiline = false }: ChatThreadProps) {
+  const [text, setText] = useState(initialText);
+  const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const canSend = Boolean(onSend);
 
@@ -38,11 +43,19 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
     endRef.current?.scrollIntoView({ block: 'end' });
   }, [messages.length]);
 
-  const send = () => {
+  const send = async () => {
     const t = text.trim();
-    if (!t || !onSend) return;
-    onSend(t);
-    setText('');
+    if (!t || !onSend || sending) return;
+    const submitted = text;
+    setSending(true);
+    try {
+      const accepted = await onSend(t);
+      if (accepted !== false) setText((current) => current === submitted ? '' : current);
+    } catch {
+      // The caller owns error presentation; a retry must retain the draft.
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -94,7 +107,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          send();
+          void send();
         }}
         className="wa-flex wa-items-center"
         style={{ marginTop: 12, flexShrink: 0, gap: 8 }}
@@ -102,7 +115,22 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
         <label className="wa-sr-only" htmlFor="wa-kit-chat-input">
           {placeholder}
         </label>
-        <input
+        {multiline ? <textarea
+          id="wa-kit-chat-input"
+          className="wa-kit-focus"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={placeholder}
+          disabled={!canSend}
+          rows={8}
+          maxLength={8000}
+          style={{
+            flex: 1, minWidth: 0, padding: 'var(--wa-pad-sm)',
+            border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)',
+            background: 'var(--wa-bg)', color: 'var(--wa-text)',
+            fontSize: 'var(--wa-type-body)', lineHeight: 1.5, resize: 'vertical',
+          }}
+        /> : <input
           id="wa-kit-chat-input"
           className="wa-kit-focus"
           value={text}
@@ -110,6 +138,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
           placeholder={placeholder}
           disabled={!canSend}
           autoComplete="off"
+          maxLength={8000}
           style={{
             flex: 1,
             minHeight: 44,
@@ -121,12 +150,12 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
             color: 'var(--wa-text)',
             fontSize: 'var(--wa-type-body)',
           }}
-        />
+        />}
         <button
           type="submit"
           className="wa-kit-focus hover:wa-opacity-90"
-          disabled={!canSend || !text.trim()}
-          aria-label="Send message"
+          disabled={!canSend || !text.trim() || sending}
+          aria-label={sending ? 'Sending message' : 'Send message'}
           style={{
             width: 44,
             height: 44,

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useAnnounce, useFocusTrap } from '@/components/portal/kit';
 import {
   X,
   Copy,
@@ -358,11 +359,13 @@ function PhaseQuiz({
   onFinish,
   onClose,
   preview = false,
+  onDirty,
 }: {
   mission: SkillMissionSummaryItem;
   onFinish: (answers: QuizAnswer[]) => void;
   onClose: () => void;
   preview?: boolean;
+  onDirty: () => void;
 }) {
   const questions = mission.quizQuestions.slice(0, 3);
   const [currentQ, setCurrentQ] = useState(0);
@@ -378,6 +381,7 @@ function PhaseQuiz({
 
   async function handleSelect(idx: number) {
     if (selectedThisQ !== null || checking) return;
+    onDirty();
     setSelectedThisQ(idx);
     setChecking(true);
     setCheckError(null);
@@ -608,14 +612,20 @@ function PhaseScenario({
   onSubmit,
   onBack,
   onClose,
+  onDirty,
+  initialResponse,
+  onResponseChange,
 }: {
   mission: SkillMissionSummaryItem;
   quizAnswers: QuizAnswer[];
   onSubmit: (response: string) => Promise<void>;
   onBack: () => void;
   onClose: () => void;
+  onDirty: () => void;
+  initialResponse: string;
+  onResponseChange: (response: string) => void;
 }) {
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState(initialResponse);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -689,8 +699,10 @@ function PhaseScenario({
       {/* Textarea */}
       <div style={{ position: 'relative', marginBottom: '0.4rem' }}>
         <textarea
+          aria-label="Your scenario response"
+          disabled={loading}
           value={response}
-          onChange={(e) => setResponse(e.target.value)}
+          onChange={(e) => { setResponse(e.target.value); onResponseChange(e.target.value); onDirty(); }}
           rows={8}
           placeholder="Walk me through how you'd handle this... (aim for 150+ words)"
           style={{
@@ -1063,6 +1075,37 @@ export default function SkillMissionChallenge({
   const [phase, setPhase] = useState<0 | 1 | 2 | 3 | 4>(initialPhase);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswer[]>([]);
   const [evalResult, setEvalResult] = useState<(MissionEvalResponse & { ok: true }) | null>(initialResult);
+  const [scenarioDraft, setScenarioDraft] = useState('');
+  const [closeNotice, setCloseNotice] = useState('');
+  const dirty = useRef(false);
+  const evaluating = useRef(false);
+  const announce = useAnnounce();
+  const markDirty = () => { dirty.current = true; };
+  const requestClose = () => {
+    if (!preview && evaluating.current) {
+      const notice = 'Your practice is still being reviewed. Please wait for the result before closing.';
+      setCloseNotice(notice); announce(notice, 'assertive');
+      return;
+    }
+    if (!preview && dirty.current && !window.confirm('Leave this practice? Your unsaved answers and response will be lost.')) return;
+    onClose();
+  };
+  const dialogRef = useFocusTrap<HTMLDivElement>(true, { onEscape: requestClose });
+  useEffect(() => {
+    // Lock both scroll roots: portal pages set overflow on the document element.
+    // Preserve existing inline values so closing cannot undo another surface's lock.
+    const roots = [document.documentElement, document.body];
+    const previous = roots.map((root) => root.style.overflowY);
+    roots.forEach((root) => { root.style.overflowY = 'hidden'; });
+    return () => roots.forEach((root, index) => { root.style.overflowY = previous[index]; });
+  }, []);
+  useEffect(() => {
+    const protectPractice = (event: BeforeUnloadEvent) => {
+      if (!preview && (dirty.current || evaluating.current)) event.preventDefault();
+    };
+    window.addEventListener('beforeunload', protectPractice);
+    return () => window.removeEventListener('beforeunload', protectPractice);
+  }, [preview]);
 
   const submitScenario = useCallback(
     async (scenarioResponse: string) => {
@@ -1071,31 +1114,39 @@ export default function SkillMissionChallenge({
         setPhase(3);
         return;
       }
-      const res = await fetch(
-        `/api/skill-missions/${encodeURIComponent(mission.courseSlug)}/evaluate`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            missionKey: mission.key,
-            // Server re-grades from the catalog — only the selections go up.
-            quizAnswers: quizAnswers.map(({ questionIndex, selectedIndex }) => ({
-              questionIndex,
-              selectedIndex,
-            })),
-            scenarioResponse,
-          }),
-        },
-      );
+      evaluating.current = true;
+      setCloseNotice('');
+      try {
+        const res = await fetch(
+          `/api/skill-missions/${encodeURIComponent(mission.courseSlug)}/evaluate`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              missionKey: mission.key,
+              // Server re-grades from the catalog — only the selections go up.
+              quizAnswers: quizAnswers.map(({ questionIndex, selectedIndex }) => ({
+                questionIndex,
+                selectedIndex,
+              })),
+              scenarioResponse,
+            }),
+          },
+        );
 
-      const data: MissionEvalResponse = await res.json();
+        const data: MissionEvalResponse = await res.json();
 
-      if (!data.ok) {
-        throw new Error((data as { ok: false; error: string }).error || 'Evaluation failed');
+        if (!data.ok) {
+          throw new Error((data as { ok: false; error: string }).error || 'Evaluation failed');
+        }
+
+        setEvalResult(data as MissionEvalResponse & { ok: true });
+        dirty.current = false;
+        setPhase(3);
+      } finally {
+        evaluating.current = false;
+        setCloseNotice('');
       }
-
-      setEvalResult(data as MissionEvalResponse & { ok: true });
-      setPhase(3);
     },
     [mission, quizAnswers, preview],
   );
@@ -1117,19 +1168,18 @@ export default function SkillMissionChallenge({
     }
   }
 
-  // Prevent body scroll while modal is open
-  // (CSS approach — no effect on SSR)
   const overlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose();
+    if (e.target === e.currentTarget) requestClose();
   };
 
   return (
-    <div style={OVERLAY_STYLE} onClick={overlayClick} role="dialog" aria-modal="true" aria-label={mission.missionName}>
+    <div ref={dialogRef} style={OVERLAY_STYLE} onClick={overlayClick} role="dialog" aria-modal="true" aria-label={mission.missionName}>
+      {closeNotice ? <p role="status" style={{ position: 'absolute', bottom: 'var(--wa-pad-sm)', margin: 0, padding: 'var(--wa-pad-sm)', background: 'var(--wa-surface)', color: 'var(--wa-text)', borderRadius: 'var(--wa-radius-sm)' }}>{closeNotice}</p> : null}
       {phase === 0 && (
-        <PhaseIntro mission={mission} onAccept={() => setPhase(1)} onClose={onClose} />
+        <PhaseIntro mission={mission} onAccept={() => setPhase(1)} onClose={requestClose} />
       )}
       {phase === 1 && (
-        <PhaseQuiz mission={mission} onFinish={handleQuizFinish} onClose={onClose} preview={preview} />
+        <PhaseQuiz mission={mission} onFinish={handleQuizFinish} onClose={requestClose} preview={preview} onDirty={markDirty} />
       )}
       {phase === 2 && (
         <PhaseScenario
@@ -1137,11 +1187,14 @@ export default function SkillMissionChallenge({
           quizAnswers={quizAnswers}
           onSubmit={submitScenario}
           onBack={() => setPhase(1)}
-          onClose={onClose}
+          onClose={requestClose}
+          onDirty={markDirty}
+          initialResponse={scenarioDraft}
+          onResponseChange={setScenarioDraft}
         />
       )}
       {phase === 3 && evalResult && (
-        <PhaseResult result={evalResult} onContinue={handleResultContinue} onClose={onClose} />
+        <PhaseResult result={evalResult} onContinue={handleResultContinue} onClose={requestClose} />
       )}
       {phase === 4 && evalResult && (
         <PhaseCelebration result={evalResult} onComplete={handleComplete} />

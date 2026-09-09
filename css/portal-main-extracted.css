@@ -1761,6 +1761,10 @@ html:not(.dark) .workspace-sidebar.open::before {
 .workspace-sidebar-collapse-btn:hover {
     background: var(--color-gray-100);
 }
+.workspace-sidebar-close-btn { display: flex; }
+@media (min-width: 769px) {
+  .workspace-sidebar-collapse-btn.workspace-sidebar-close-btn { display: none; }
+}
 .workspace-sidebar-list--root {
     gap: 0.9rem;
 }
@@ -9487,7 +9491,7 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
  * (No viewport gate — colors apply at all widths; the drawer/rail positioning
  *  is handled by the existing responsive rules.)
  * ═══════════════════════════════════════════════════════════════════════════ */
-html[data-portal-role] .workspace-sidebar {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar {
   background: var(--wa-sidebar-bg, #1b1115) !important;
   border-right: 1px solid var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
   border-left: none !important;
@@ -9495,38 +9499,38 @@ html[data-portal-role] .workspace-sidebar {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-html[data-portal-role] .workspace-sidebar-link,
-html[data-portal-role] .workspace-sidebar-home-link,
-html[data-portal-role] .workspace-sidebar-signout {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-home-link,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-signout {
   color: var(--wa-sidebar-muted, #e8cbd2) !important;
 }
-html[data-portal-role] .workspace-sidebar-link:hover {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link:hover {
   background: var(--wa-sidebar-bg-hover, #2b1820) !important;
   color: var(--wa-sidebar-text, #fff7f8) !important;
 }
 /* Active = solid crimson fill + white (matches admin-full mockup) */
-html[data-portal-role] .workspace-sidebar-link.active {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link.active {
   background: var(--wa-accent, #ad2c4d) !important;
   color: #ffffff !important;
 }
-html[data-portal-role] .workspace-sidebar-link.active .workspace-sidebar-icon,
-html[data-portal-role] .workspace-sidebar-link.active svg {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link.active .workspace-sidebar-icon,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link.active svg {
   color: #ffffff !important;
 }
-html[data-portal-role] .workspace-sidebar-group-label,
-html[data-portal-role] .workspace-sidebar-label {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-group-label,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-label {
   color: var(--wa-sidebar-label, #b58c98) !important;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 700;
   font-size: 0.625rem;
 }
-html[data-portal-role] .workspace-sidebar-nav svg,
-html[data-portal-role] .workspace-sidebar-link .material-symbols-outlined {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-nav svg,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link .material-symbols-outlined {
   color: inherit !important;
 }
 /* Flat groups — no card chrome, matching the mockup's clean grouped list */
-html[data-portal-role] .workspace-sidebar-group {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-group {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -9534,13 +9538,13 @@ html[data-portal-role] .workspace-sidebar-group {
   margin: 0 0 0.85rem !important;
 }
 /* Dense flat items + crimson count-badge pills */
-html[data-portal-role] .workspace-sidebar-link {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link {
   border-radius: 8px;
   padding: 0.4rem 0.6rem;
   font-weight: 600;
   font-size: 0.8125rem;
 }
-html[data-portal-role] .workspace-nav-badge {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-nav-badge {
   background: var(--wa-accent, #ad2c4d) !important;
   color: #ffffff !important;
   border: none !important;
@@ -9550,16 +9554,16 @@ html[data-portal-role] .workspace-nav-badge {
   border-radius: 999px;
 }
 /* On an active (crimson) row, keep the badge legible (translucent white). */
-html[data-portal-role] .workspace-sidebar-link.active .workspace-nav-badge {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-link.active .workspace-nav-badge {
   background: rgba(255, 255, 255, 0.25) !important;
   color: #ffffff !important;
 }
-html[data-portal-role] .workspace-sidebar-toolbar,
-html[data-portal-role] .workspace-sidebar-inner {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-toolbar,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-inner {
   background: transparent !important;
 }
-html[data-portal-role] .workspace-sidebar-collapse-btn,
-html[data-portal-role] .workspace-menu-btn {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-sidebar-collapse-btn,
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role="member"]) .workspace-menu-btn {
   color: var(--wa-sidebar-muted, #e8cbd2) !important;
   border-color: var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
   background: rgba(255, 255, 255, 0.06) !important;
@@ -9645,6 +9649,100 @@ html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn:focus-
 /* Collapsed desktop rail: center the brand mark, hide search. */
 html[data-portal-role='admin'] .workspace-sidebar--collapsed .workspace-sidebar-brand {
   justify-content: center;
+}
+
+/* Member shell: a quiet rail around the training workspace. Daily destinations
+   stay visible; secondary groups disclose on demand and open for their route. */
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-link {
+  min-height: 2.75rem;
+  font-size: 1rem;
+  line-height: 1.35;
+  border-radius: var(--wa-radius-sm);
+  transition: background var(--wa-dur-fast) var(--wa-ease), color var(--wa-dur-fast) var(--wa-ease);
+}
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-link.active {
+  box-shadow: none;
+}
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-link.active::after {
+  display: none;
+}
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-label,
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-appearance__label {
+  font-size: var(--wa-type-meta);
+  letter-spacing: normal;
+  text-transform: none;
+}
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-list--root {
+  gap: 0.5rem;
+}
+.workspace-shell-root[data-workspace-role='member'] .workspace-resume-upload-hint {
+  margin-bottom: 1rem;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-surface);
+  color: var(--wa-muted);
+}
+.workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-group {
+  margin-bottom: 0 !important;
+}
+.workspace-sidebar-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--wa-sidebar-muted);
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--wa-radius-sm);
+}
+.workspace-sidebar-section-toggle::-webkit-details-marker { display: none; }
+.workspace-sidebar-section-toggle > span:first-child { flex: 1; }
+.workspace-sidebar-section-toggle > svg {
+  flex-shrink: 0;
+  transition: transform var(--wa-dur-fast) var(--wa-ease);
+}
+.workspace-sidebar-section[open] > .workspace-sidebar-section-toggle > svg { transform: rotate(180deg); }
+.workspace-sidebar-section-toggle:focus-visible {
+  outline: 2px solid var(--wa-sidebar-text);
+  outline-offset: -2px;
+}
+@media (hover: hover) {
+  .workspace-sidebar-section-toggle:hover {
+    color: var(--wa-sidebar-text);
+    background: var(--wa-sidebar-bg-hover);
+  }
+}
+@media (min-width: 769px) {
+  .workspace-shell-root[data-workspace-role='member'] .workspace-sidebar:not(.workspace-sidebar--collapsed) {
+    width: 14.5rem;
+  }
+  .workspace-shell-root[data-workspace-role='member'] .workspace-sidebar-inner {
+    padding-inline: 0.75rem;
+  }
+  .workspace-shell-root[data-workspace-role='member'] .workspace-shell-brand-block {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.875rem;
+  }
+  .workspace-shell-root[data-workspace-role='member'] .workspace-shell-brand {
+    display: inline-flex;
+    align-items: center;
+  }
+  .workspace-shell-root[data-workspace-role='member'] .workspace-shell-tagline {
+    display: none;
+  }
+  .workspace-shell-root[data-workspace-role='member'] .workspace-shell-header {
+    min-height: 4.25rem;
+    padding-block: 0.5rem;
+  }
+}
+@media (min-width: 769px) and (max-width: 1023px) {
+  .workspace-shell-root[data-workspace-role='member'] .workspace-sidebar:not(.workspace-sidebar--collapsed) {
+    width: 13rem;
+  }
 }
 
 /* ── Global search dialog focus state ──

@@ -17,6 +17,16 @@ const MANAGEMENT_PROGRAM = 'data-analytics-professional-certificate-google';
 const DBA_PROGRAM = 'data-science-professional-certificate-ibm';
 const UX_PROGRAM = 'ux-design-professional-certificate-google';
 
+test('legacy IBM capstone alias uses the exact assigned case-study course and preserves its event key', () => {
+  const programSlug = 'it-support-professional-certificate-ibm';
+  const mission = resolveSkillMissionForCurriculum({ programSlug, curriculumVersion: LEGACY_CURRICULUM_VERSION, missionCourseSlug: 'it-support-course-7' });
+  assert.ok(mission);
+  assert.equal(mission.assignedCourseSlug, 'technical-support-case-studies');
+  assert.ok(mission.unlockSlugs.includes('technical-support-case-studies'));
+  assert.equal(buildSkillMissionEventKey({ programSlug, curriculumVersion: LEGACY_CURRICULUM_VERSION, missionCourseSlug: mission.definition.courseSlug }), `${programSlug}:mission:it-support-course-7`);
+  assert.equal(resolveSkillMissionForCurriculum({ programSlug: UX_PROGRAM, curriculumVersion: LEGACY_CURRICULUM_VERSION, missionCourseSlug: 'it-support-course-7' }), null);
+});
+
 test('legacy curriculum retains the complete static mission catalog', () => {
   assert.equal(resolveSkillMissionsForCurriculum({
     programSlug: MANAGEMENT_PROGRAM,

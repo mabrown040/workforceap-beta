@@ -38,6 +38,7 @@ export type SkillMissionAssignment = {
 function findAssignedCourse(
   definition: SkillMissionDefinition,
   courses: readonly MissionCurriculumCourse[],
+  curriculumVersion: string,
 ): MissionCurriculumCourse | null {
   const directMatches = courses.filter((course) =>
     course.slug === definition.courseSlug
@@ -45,6 +46,17 @@ function findAssignedCourse(
   );
   if (directMatches.length === 1) return directMatches[0]!;
   if (directMatches.length > 1) return null;
+
+  // The frozen IBM course is "Technical Support (IT) Case Studies and
+  // Capstone" (Coursera slug technical-support-case-studies). Its existing
+  // support-case mission used the earlier title "...Capstone Project".
+  // This explicit legacy alias preserves the mission/event identity and
+  // never changes enrollment versions or relies on course position.
+  if (curriculumVersion === LEGACY_CURRICULUM_VERSION
+      && definition.programSlug === 'it-support-professional-certificate-ibm'
+      && definition.courseSlug === 'it-support-course-7') {
+    return courses.find((course) => course.slug === 'technical-support-case-studies') ?? null;
+  }
 
   const normalizedTitle = normalizeCourseName(definition.courseTitle);
   const titleMatches = courses.filter(
@@ -80,7 +92,7 @@ export function resolveSkillMissionsForCurriculum(args: {
 
   const resolved: ResolvedSkillMission[] = [];
   for (const definition of getSkillMissionDefinitionsForProgram(programSlug)) {
-    const assignedCourse = findAssignedCourse(definition, courses);
+    const assignedCourse = findAssignedCourse(definition, courses, curriculumVersion);
     if (!assignedCourse) {
       if (curriculumVersion !== LEGACY_CURRICULUM_VERSION) continue;
       resolved.push({

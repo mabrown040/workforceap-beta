@@ -13,7 +13,15 @@ export function isActiveRoute(pathname: string, href: string, aliases: string[] 
 }
 
 export function getBestActiveHref(pathname: string, links: ActiveNavLink[]): string | null {
-  const matches = links.filter((link) => isActiveRoute(pathname, link.href, link.aliases));
-  if (matches.length === 0) return null;
-  return matches.sort((a, b) => b.href.length - a.href.length)[0]?.href ?? null;
+  let bestHref: string | null = null;
+  let bestLength = -1;
+  for (const link of links) {
+    for (const candidate of [link.href, ...(link.aliases ?? [])]) {
+      if (matchesPrefix(pathname, candidate) && candidate.length > bestLength) {
+        bestHref = link.href;
+        bestLength = candidate.length;
+      }
+    }
+  }
+  return bestHref;
 }

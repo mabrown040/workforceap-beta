@@ -40,7 +40,7 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
 ];
 
 function canonicalPortalPath(path: string): string {
-  return splitLocalePrefix(path).pathnameWithoutLocale;
+  return splitLocalePrefix(new URL(path, 'https://internal.invalid').pathname).pathnameWithoutLocale;
 }
 
 function portalTitleForPath(path: string): string {
@@ -313,21 +313,19 @@ type LoginFormProps = {
 
 export default function LoginForm({ initialRedirectTo = '/dashboard', accountDeleted = false, emailVerified = false }: LoginFormProps) {
   const tAuth = useTranslations('auth');
-  /* ─── business logic (preserved exactly) ─── */
+  /* Keep the requested page through sign-in and recovery. */
   const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
   const canonicalRedirectTo = canonicalPortalPath(redirectTo);
-  const redirectParam = initialRedirectTo;
+  const isMemberLogin = canonicalRedirectTo === '/dashboard' || canonicalRedirectTo.startsWith('/dashboard/');
 
   const destinationActive = (target: string) => {
-    if (target === '/dashboard') {
-      return redirectParam == null || redirectParam === '' || canonicalRedirectTo === '/dashboard';
-    }
-    return canonicalRedirectTo === target;
+    return canonicalRedirectTo === target || canonicalRedirectTo.startsWith(`${target}/`);
   };
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const signupHref = `/signup?redirectTo=${encodeURIComponent('/dashboard')}`;
+  const signupHref = `/signup?redirectTo=${encodeURIComponent(isMemberLogin ? redirectTo : '/dashboard')}`;
+  const forgotPasswordHref = `/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`;
   const partnerSignupHref = '/partners#partner-signup';
   const isPartnerLogin = canonicalRedirectTo === '/partner' || canonicalRedirectTo.startsWith('/partner/');
   const isStaffLikeLogin =
@@ -348,7 +346,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showStaffPortals, setShowStaffPortals] = useState(
-    () => canonicalRedirectTo !== '/dashboard',
+    () => !isMemberLogin,
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -525,8 +523,8 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
               {PORTAL_DESTINATIONS.filter((o) =>
                 o.redirectTo === '/dashboard' || showStaffPortals
               ).map((o) => {
-                const href = `/login?redirectTo=${encodeURIComponent(o.redirectTo)}`;
                 const active = destinationActive(o.redirectTo);
+                const href = `/login?redirectTo=${encodeURIComponent(active ? redirectTo : o.redirectTo)}`;
                 return (
                   <LocalizedLink
                     key={o.redirectTo}
@@ -621,7 +619,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard', accountDel
             <div style={s.fieldGroup}>
               <div style={s.passwordRow}>
                 <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>{tAuth('login.password')}</label>
-                <LocalizedLink href="/forgot-password" style={s.recoverLink}>{tAuth('login.forgotPassword')}</LocalizedLink>
+                <LocalizedLink href={forgotPasswordHref} style={s.recoverLink}>{tAuth('login.forgotPassword')}</LocalizedLink>
               </div>
               <div style={s.passwordWrap}>
                 <input

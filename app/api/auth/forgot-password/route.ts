@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { checkForgotPasswordRateLimit, checkForgotPasswordEmailRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { logger } from '@/lib/observability/logger';
 
 export async function POST(request: Request) {
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
       );
     }
   
-    let body: { email?: string };
+    let body: { email?: string; redirectTo?: string };
     try {
       body = await request.json();
     } catch {
@@ -44,7 +45,9 @@ export async function POST(request: Request) {
     let error: { message?: string } | null = null;
     let via: string | undefined;
     try {
-      ({ error, via } = await sendPasswordResetEmail(email));
+      const redirectTo = normalizePostLoginRedirect(body?.redirectTo);
+      const resetPath = `/reset-password?redirectTo=${encodeURIComponent(redirectTo)}`;
+      ({ error, via } = await sendPasswordResetEmail(email, resetPath));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Password reset is temporarily unavailable.';
       logger.error('/auth/forgot-password: send threw', { err: message });

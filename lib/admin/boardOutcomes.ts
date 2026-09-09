@@ -30,6 +30,7 @@ export type BoardOutcomes = {
     membersServed: number;
     membersEnrolled: number;
     membersInTraining: number;
+    /** Legacy serialized key: completed assigned training, not credential verification. */
     membersCertified: number;
     membersPlaced: number;
     placementRate: number; // %, of enrolled
@@ -48,6 +49,7 @@ export type BoardOutcomes = {
   programs: Array<{
     programSlug: string;
     enrolled: number;
+    /** Legacy serialized key: members who completed this program's assigned training. */
     certified: number;
     placed: number;
     placementRate: number;
@@ -451,7 +453,7 @@ export async function getBoardOutcomes(
     funnel: [
       { stage: 'Enrolled', count: membersServed },
       { stage: 'In training', count: membersInTraining },
-      { stage: 'Certified', count: membersCertified },
+      { stage: 'Training completed', count: membersCertified },
       { stage: 'Placed', count: membersPlaced },
     ],
     demographics: {
@@ -568,6 +570,7 @@ export type CohortMonth = {
   applications: number;
   approved: number;
   enrolled: number;
+  /** Legacy serialized key: completed assigned training. */
   certified: number;
   placed: number;
 };
@@ -607,7 +610,7 @@ export type BoardSnapshot = {
   activity: BoardSnapshotActivity;
   certifications: BoardSnapshotCertifications;
   dataQuality: BoardSnapshotDataQuality;
-  /** Full funnel: accounts → applications → pending/approved/denied → enrolled → certified → placed */
+  /** Full funnel: accounts → applications → pending/approved/denied → enrolled → training completed → placed */
   funnelWaterfall: FunnelWaterfallStage[];
   /** Pending application queue health metrics */
   applicationQueueHealth: ApplicationQueueHealth;
@@ -878,7 +881,7 @@ export async function getBoardSnapshot(
     { stage: 'Applications', count: totalApps, previousCount: totalAccounts, conversionRate: totalAccounts > 0 ? Math.round((totalApps / totalAccounts) * 100) : 0 },
     { stage: 'Approved', count: applicationFunnel.approved, previousCount: totalApps, conversionRate: totalApps > 0 ? Math.round((applicationFunnel.approved / totalApps) * 100) : 0 },
     { stage: 'Enrolled', count: enrolledCount, previousCount: applicationFunnel.approved, conversionRate: applicationFunnel.approved > 0 ? Math.round((enrolledCount / applicationFunnel.approved) * 100) : 0 },
-    { stage: 'Certified', count: certifiedCount, previousCount: enrolledCount, conversionRate: enrolledCount > 0 ? Math.round((certifiedCount / enrolledCount) * 100) : 0 },
+    { stage: 'Training completed', count: certifiedCount, previousCount: enrolledCount, conversionRate: enrolledCount > 0 ? Math.round((certifiedCount / enrolledCount) * 100) : 0 },
     { stage: 'Placed', count: placedCount, previousCount: certifiedCount, conversionRate: certifiedCount > 0 ? Math.round((placedCount / certifiedCount) * 100) : 0 },
   ];
 
@@ -1086,7 +1089,7 @@ export function formatBoardSnapshotMarkdown(snapshot: BoardSnapshot): string {
   lines.push('');
   lines.push(`- **Members served (enrolled):** ${fmtNumber(t.membersEnrolled)}`);
   lines.push(`- In active training: ${fmtNumber(t.membersInTraining)}`);
-  lines.push(`- Certified: ${fmtNumber(t.membersCertified)}`);
+  lines.push(`- Training completed: ${fmtNumber(t.membersCertified)}`);
   lines.push(`- Placed in employment: ${fmtNumber(t.membersPlaced)}`);
   lines.push('');
   lines.push(`- **Placement rate:** ${fmtRate(t.membersPlaced, t.membersEnrolled)}`);
@@ -1098,7 +1101,7 @@ export function formatBoardSnapshotMarkdown(snapshot: BoardSnapshot): string {
     }`,
   );
   lines.push('');
-  lines.push(`*Source: \`users\` (enrolled) + \`placement_records\` joined on user.*`);
+  lines.push(`*Source: \`users\` (enrolled), assigned-curriculum course completion rollups, and \`placement_records\`. Training completion does not establish credential verification.*`);
   lines.push('');
 
   // 3. Activity recency
@@ -1114,13 +1117,13 @@ export function formatBoardSnapshotMarkdown(snapshot: BoardSnapshot): string {
   lines.push('');
 
   // 4. Certifications
-  lines.push('## 4. Certifications Earned');
+  lines.push('## 4. Credential Records');
   lines.push('');
-  lines.push(`- Total certifications recorded: ${fmtNumber(certifications.totalEarned)}`);
-  lines.push(`- Earned in last 30 days: ${fmtNumber(certifications.earnedLast30d)}`);
-  lines.push(`- Unique members holding at least one certification: ${fmtNumber(certifications.uniqueMembers)}`);
+  lines.push(`- Total credential records: ${fmtNumber(certifications.totalEarned)}`);
+  lines.push(`- Reported earned dates in last 30 days: ${fmtNumber(certifications.earnedLast30d)}`);
+  lines.push(`- Unique members with credential records: ${fmtNumber(certifications.uniqueMembers)}`);
   lines.push('');
-  lines.push(`*Source: \`user_certifications\` table.*`);
+  lines.push(`*Source: \`user_certifications\` table. Includes member-reported credentials and records with different review statuses; these are not verified-credential totals.*`);
   lines.push('');
 
   // 5. Programs breakdown
@@ -1129,7 +1132,7 @@ export function formatBoardSnapshotMarkdown(snapshot: BoardSnapshot): string {
   if (outcomes.programs.length === 0) {
     lines.push('*No enrolled members yet.*');
   } else {
-    lines.push('| Program | Enrolled | Certified | Placed | Placement Rate |');
+    lines.push('| Program | Enrolled | Training completed | Placed | Placement Rate |');
     lines.push('|---|---:|---:|---:|---:|');
     for (const p of outcomes.programs) {
       const rate =

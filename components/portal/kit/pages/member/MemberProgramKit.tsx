@@ -4,6 +4,7 @@ import { Play, Check, Lock, CalendarDays, Target, ArrowRight, GraduationCap } fr
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface, ProgressRing, PageOpener } from '@/components/portal/kit';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
+import { MemberTrainingWorkspace, type MemberTrainingWorkspaceProps } from './MemberTrainingWorkspace';
 
 /**
  * Member Portal — program / certification path (kit ProgressRing + modules +
@@ -26,6 +27,8 @@ interface ProgramModule {
 }
 
 export interface MemberProgramKitProps {
+  /** Durable, authenticated workspace when the member has a pinned enrollment. */
+  trainingWorkspace?: MemberTrainingWorkspaceProps;
   programTitle?: string;
   /** 0–100. */
   progressPercent?: number;
@@ -85,6 +88,7 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Luc
 };
 
 export function MemberProgramKit({
+  trainingWorkspace,
   programTitle = 'Your program',
   progressPercent = 0,
   modulesComplete = 0,
@@ -100,6 +104,7 @@ export function MemberProgramKit({
   missionsSummary,
   missionsHref = '#',
 }: MemberProgramKitProps) {
+  if (trainingWorkspace) return <MemberTrainingWorkspace key={`${trainingWorkspace.workspace.programSlug}:${trainingWorkspace.workspace.curriculumVersion}`} {...trainingWorkspace} />;
   const pct = Math.max(0, Math.min(100, Math.round(progressPercent)));
 
   // Only show the Next Live Session card when we have a real session to show.

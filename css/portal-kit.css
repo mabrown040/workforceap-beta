@@ -717,3 +717,78 @@ html.dark [data-surface] .wa-kit-card,
 @media (max-width: 599px) {
   .wa-kit-people-filters { grid-template-columns: minmax(0, 1fr); }
 }
+/* Member training workspace: assigned courses, study planning, and durable work. */
+.wa-kit-training { max-width: 74rem; margin-inline: auto; padding: var(--wa-pad-sm); padding-bottom: calc(var(--wa-pad) * 4); color: var(--wa-text); }
+.wa-kit-training h2, .wa-kit-training h3, .wa-kit-training p { margin: 0; }
+.wa-kit-training h2 { font-size: clamp(1.2rem, 2.2vw, 1.7rem); font-weight: 800; letter-spacing: -.025em; line-height: 1.25; text-wrap: balance; }
+.wa-kit-training h3 { font-size: 1.125rem; font-weight: 750; line-height: 1.35; text-wrap: balance; }
+.wa-kit-training p { line-height: 1.6; }
+.wa-kit-training-overview { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: var(--wa-pad); margin-block: var(--wa-pad); padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); }
+.wa-kit-training-eyebrow { font-size: var(--wa-type-meta); font-weight: 750; color: var(--wa-accent); }
+.wa-kit-training-muted { color: var(--wa-muted); font-size: var(--wa-type-meta); line-height: 1.6; overflow-wrap: anywhere; }
+.wa-kit-training-next { display: flex; flex-direction: column; align-items: flex-start; gap: var(--wa-pad-sm); padding: var(--wa-pad-sm); background: var(--wa-accent-soft); border-radius: var(--wa-radius-sm); }
+.wa-kit-training-next p:not(.wa-kit-training-eyebrow) { font-size: var(--wa-type-meta); }
+.wa-kit-training-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--wa-pad-sm); border-bottom: 1px solid var(--wa-border); margin-bottom: var(--wa-pad); }
+.wa-kit-training-tabs button { display: inline-flex; align-items: center; gap: .5rem; min-height: 3rem; padding: .75rem .25rem; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--wa-muted); font: inherit; font-weight: 650; cursor: pointer; }
+.wa-kit-training-tabs button[aria-pressed="true"] { color: var(--wa-accent); border-bottom-color: var(--wa-accent); }
+.wa-kit-training-tabs > span { margin-left: auto; }
+.wa-kit-training-workbench { display: grid; grid-template-columns: minmax(0, 19rem) minmax(0, 1fr); gap: var(--wa-pad); align-items: start; }
+.wa-kit-training-outline { min-width: 0; }
+.wa-kit-training-back { display: none; border: 0; background: transparent; color: var(--wa-accent); font: inherit; font-weight: 650; text-align: left; min-height: 2.75rem; cursor: pointer; }
+.wa-kit-training-course-list { list-style: none; padding: 0; margin: var(--wa-pad-sm) 0; }
+.wa-kit-training-course-list li { border-bottom: 1px solid var(--wa-border); }
+.wa-kit-training-course-list button { display: flex; align-items: center; gap: .75rem; padding: var(--wa-pad-sm); min-height: 4.5rem; width: 100%; text-align: left; font: inherit; color: var(--wa-text); background: transparent; border: 0; cursor: pointer; border-radius: var(--wa-radius-sm); }
+.wa-kit-training-course-list button:hover, .wa-kit-training-course-list button[aria-current] { background: var(--wa-accent-soft); }
+.wa-kit-training-number { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 2rem; height: 2rem; border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); font-size: var(--wa-type-meta); color: var(--wa-muted); font-variant-numeric: tabular-nums; }
+.wa-kit-training-number.is-complete { color: var(--wa-success); background: var(--wa-surface-2); }
+.wa-kit-training-course-name { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: .35rem; }
+.wa-kit-training-course-name strong { font-weight: 650; line-height: 1.4; }
+.wa-kit-training-course-name > span { font-size: var(--wa-type-meta); color: var(--wa-muted); }
+.wa-kit-training-editor { min-width: 0; padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); scroll-margin-top: calc(var(--wa-pad) * 3); }
+.wa-kit-training-editor .wa-kit-cta { justify-content: center; width: fit-content; min-height: 2.75rem; }
+.wa-kit-training-field { display: flex; flex-direction: column; gap: .5rem; font-size: var(--wa-type-meta); font-weight: 650; }
+.wa-kit-training-field input, .wa-kit-training-field select { min-height: 2.75rem; min-width: 0; max-width: 100%; padding: .65rem .75rem; border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); color: var(--wa-text); background: var(--wa-surface); font: inherit; font-size: 1rem; color-scheme: inherit; }
+.wa-kit-training-field input:focus-visible, .wa-kit-training-field select:focus-visible { outline: 2px solid var(--wa-accent); outline-offset: 2px; }
+.wa-kit-training-filter { flex-direction: row; justify-content: space-between; align-items: center; margin-top: var(--wa-pad-sm); }
+.wa-kit-training-filter select { max-width: 70%; }
+.wa-kit-training-notice { padding: var(--wa-pad-sm); border-left: 3px solid var(--wa-info); background: var(--wa-surface-2); margin-block: var(--wa-pad-sm) !important; font-size: var(--wa-type-meta); }
+.wa-kit-training-success, .wa-kit-training-error { display: flex; align-items: center; gap: .5rem; font-size: var(--wa-type-meta); margin-bottom: var(--wa-pad-sm) !important; }
+.wa-kit-training-success { color: var(--wa-success); }
+.wa-kit-training-error { color: var(--wa-danger); }
+.wa-kit-training-tools { border-top: 1px solid var(--wa-border); padding-top: var(--wa-pad-sm); }
+.wa-kit-training-tools a { display: flex; align-items: center; gap: .75rem; min-height: 4rem; padding-block: .75rem; border-bottom: 1px solid var(--wa-border); text-decoration: none; color: var(--wa-text); }
+.wa-kit-training-tools a:hover strong { color: var(--wa-accent); text-decoration: underline; }
+.wa-kit-training-tools a > span { display: flex; flex: 1; flex-direction: column; gap: .25rem; }
+.wa-kit-training-tools a small { color: var(--wa-muted); font-size: var(--wa-type-meta); }
+.wa-kit-training-tools a svg { flex-shrink: 0; color: var(--wa-accent); }
+.wa-kit-training-schedule { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: calc(var(--wa-pad) * 1.5); align-items: start; }
+.wa-kit-training-plan { padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); }
+.wa-kit-training-estimate { display: flex; flex-direction: column; gap: .25rem; padding-block: var(--wa-pad-sm); border-block: 1px solid var(--wa-border); }
+.wa-kit-training-estimate strong { font-size: 2rem; line-height: 1.1; color: var(--wa-accent); }
+.wa-kit-training-estimate span { font-size: var(--wa-type-meta); color: var(--wa-muted); }
+.wa-kit-training-weeklist ol { list-style: none; padding: 0; margin-block: var(--wa-pad); }
+.wa-kit-training-weeklist li { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: var(--wa-pad-sm); border-bottom: 1px solid var(--wa-border); padding-block: var(--wa-pad-sm); }
+.wa-kit-training-week { color: var(--wa-accent); font-size: var(--wa-type-meta); font-weight: 700; }
+.wa-kit-training-weeklist button { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: .5rem; color: var(--wa-text); background: transparent; border: 0; font: inherit; cursor: pointer; min-height: 2.75rem; }
+.wa-kit-training-weeklist button:hover strong { text-decoration: underline; }
+.wa-kit-training-weeklist button span { display: flex; align-items: center; gap: .5rem; font-size: var(--wa-type-meta); color: var(--wa-muted); }
+.wa-kit-training-footnote { display: flex; align-items: flex-start; gap: .5rem; margin-top: var(--wa-pad) !important; color: var(--wa-muted); font-size: var(--wa-type-meta); }
+.wa-kit-training-footnote svg { flex-shrink: 0; margin-top: .25rem; }
+@media (min-width: 901px) and (max-width: 1199px) {
+  .wa-kit-training-workbench { grid-template-columns: minmax(0, .8fr) minmax(0, 1.3fr); }
+  .wa-kit-training-filter { align-items: stretch; flex-direction: column; }
+  .wa-kit-training-filter select { max-width: 100%; }
+}
+@media (max-width: 900px) {
+  .wa-kit-training-back { display: block; }
+  .wa-kit-training-workbench, .wa-kit-training-schedule { grid-template-columns: 1fr; }
+  .wa-kit-training-outline .wa-kit-training-course-list { max-height: 23rem; overflow-y: auto; overscroll-behavior: contain; }
+}
+@media (max-width: 600px) {
+  .wa-kit-training-overview { grid-template-columns: 1fr; padding: var(--wa-pad-sm); }
+  .wa-kit-training-editor, .wa-kit-training-plan { padding: var(--wa-pad-sm); }
+  .wa-kit-training-tabs { gap: .5rem 1rem; }
+  .wa-kit-training-tabs button { font-size: .875rem; }
+  .wa-kit-training-tabs > span { flex-basis: 100%; margin: 0 0 .5rem; }
+  .wa-kit-training-weeklist li { grid-template-columns: 4.5rem minmax(0, 1fr); }
+}

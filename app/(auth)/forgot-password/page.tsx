@@ -5,10 +5,13 @@ import { useRef, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
+import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 
 function ForgotPasswordForm() {
   const tAuth = useTranslations('auth');
   const searchParams = useSearchParams();
+  const redirectTo = normalizePostLoginRedirect(searchParams?.get('redirectTo'));
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
   const [email, setEmail] = useState(searchParams?.get('email') ?? '');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +37,7 @@ function ForgotPasswordForm() {
       const res = await fetchAuth('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, redirectTo }),
       });
 
       const data = await res.json();
@@ -69,7 +72,7 @@ function ForgotPasswordForm() {
           <div className="page-hero-content">
             <h1>{tAuth('forgotPassword.successHeading')}</h1>
             <p>{successMessage}</p>
-            <LocalizedLink href="/login" className="btn btn-primary" style={{ marginTop: '1rem', minHeight: 44 }}>
+            <LocalizedLink href={loginHref} className="btn btn-primary" style={{ marginTop: '1rem', minHeight: 44 }}>
               {tAuth('forgotPassword.backToLogin')}
             </LocalizedLink>
           </div>
@@ -129,7 +132,7 @@ function ForgotPasswordForm() {
                   <span aria-live="polite">{status === 'loading' ? tAuth('forgotPassword.sending') : tAuth('forgotPassword.submit')}</span>
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-                  <LocalizedLink href="/login">{tAuth('forgotPassword.backToLogin')}</LocalizedLink>
+                  <LocalizedLink href={loginHref}>{tAuth('forgotPassword.backToLogin')}</LocalizedLink>
                 </p>
               </form>
             </div>

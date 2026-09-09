@@ -1,0 +1,46 @@
+{
+  "status": "passed_with_deliberately_blocked_analytics",
+  "checkedAt": "2026-09-09T02:44:27.675844+00:00",
+  "url": "http://localhost:4323/dashboard/program?course=introduction-to-networking-and-storage",
+  "scope": "Actual authenticated /dashboard/program, API and disposable PostgreSQL; two synthetic local members only",
+  "authentication": "Real Supabase SSR session cookies verified by localhost-only GoTrue fixture; no application auth bypass",
+  "checks": [
+    "Authenticated assigned legacy curriculum: 160 hours, 3 of 10 complete, 114 hours remaining",
+    "Schedule updates, rejects zero-hour pace, and persists 10h / 12 weeks across reload on program route",
+    "Selected course, notes, and artifact URL persist across reload on program route",
+    "Distinct unsaved drafts survive course switching; both save against their assigned course",
+    "Saved-work and unfinished filters show exact matching courses; Coursera launch href matches selected course (not invoked)",
+    "Saving course evidence does not change assigned completion or remaining-hour estimate",
+    "Second authenticated member has no first-member notes, artifact, saved-course entries, or persisted study plan",
+    "desktop 1440px: no horizontal overflow",
+    "tablet 768px: no horizontal overflow",
+    "Mobile course navigation moves focus to editor and returns to curriculum",
+    "mobile 375px: no horizontal overflow",
+    "dark 1440px: no horizontal overflow"
+  ],
+  "applicationExceptions": [],
+  "applicationConsoleErrors": [],
+  "deliberatelyBlockedAnalytics": {
+    "request": "https://www.googletagmanager.com/gtm.js?id=GTM-53JCT6WN",
+    "resourceErrorCount": 4,
+    "error": "net::ERR_FAILED",
+    "attribution": "Separate requestfailed + console.location trace confirmed the deliberately aborted GTM script produces this resource error. Four script loads were blocked during browser reloads."
+  },
+  "screenshots": [
+    "training-workspace-desktop.png",
+    "training-workspace-tablet.png",
+    "training-workspace-mobile.png",
+    "training-workspace-dark.png",
+    "training-workspace-schedule.png"
+  ],
+  "providerLaunch": {
+    "hrefVerified": true,
+    "invoked": false
+  },
+  "productionDataUsed": false,
+  "productionChanges": false,
+  "notes": [
+    "The browser assertion harness initially rejected the four blocked-resource errors; request attribution resolved them as deliberate analytics blocks, not application errors.",
+    "Screenshots include the Next development indicator. A subsequent caption-space correction does not change behavior."
+  ]
+}

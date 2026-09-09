@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "authenticatedThrough": "localhost-only GoTrue fixture using real Supabase SSR session cookies",
+  "database": "disposable localhost Postgres workforceap_career_preview",
+  "checks": [
+    "assigned160-hour curriculum",
+    "private no-store responses",
+    "study plan persisted to database",
+    "course notes and artifact URL persisted",
+    "second member cannot see first member work",
+    "course completion unchanged by notes/schedule",
+    "curriculum assignment unchanged"
+  ],
+  "rejectedCases": [
+    {
+      "name": "unauthenticated read",
+      "status": 401
+    },
+    {
+      "name": "identity injection query",
+      "status": 400
+    },
+    {
+      "name": "curriculum version conflict",
+      "status": 409
+    },
+    {
+      "name": "unassigned program",
+      "status": 403
+    },
+    {
+      "name": "unassigned course",
+      "status": 403
+    },
+    {
+      "name": "identity injection body",
+      "status": 400
+    },
+    {
+      "name": "zero hours",
+      "status": 400
+    },
+    {
+      "name": "invalid date",
+      "status": 400
+    },
+    {
+      "name": "unsafe artifact URL",
+      "status": 400
+    },
+    {
+      "name": "oversized notes",
+      "status": 400
+    },
+    {
+      "name": "malformed JSON",
+      "status": 400
+    }
+  ],
+  "storage": {
+    "studyPlanRows": 1,
+    "courseWorkRows": 1
+  }
+}

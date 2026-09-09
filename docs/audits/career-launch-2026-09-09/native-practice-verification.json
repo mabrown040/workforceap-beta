@@ -1,0 +1,139 @@
+{
+  "status": "passed",
+  "checks": [
+    "Three real authenticated quiz-check requests returned200 and server explanations for matched assigned course",
+    "Evaluation boundary mocked503 only: Escape/X/backdrop cannot discard pending work; failed response preserves text; dismissing discard keeps draft; confirmed discard closes",
+    "Existing-record rendering: explicitly seeded synthetic prior feedback and resume draft appear after reload; course completion stays3/10 and114h",
+    "Another authenticated member cannot see first-member practice feedback and remains completion-gated",
+    "Native practice dialog fits375px and clean intro closes with Escape",
+    "At375/768/1440px the overlay equals the viewport, the card stays within bounds, background wheel scrolling is blocked, and closing restores focus and scroll styles."
+  ],
+  "quizResults": [
+    {
+      "question": 0,
+      "status": 200,
+      "correct": true
+    },
+    {
+      "question": 1,
+      "status": 200,
+      "correct": true
+    },
+    {
+      "question": 2,
+      "status": 200,
+      "correct": true
+    }
+  ],
+  "errors": [],
+  "liveAiGradingVerified": false,
+  "aiBoundary": "Browser evaluation mocked503; existing API evaluator contract exercised in focusedtests. Prior-result display uses explicitly seeded synthetic member event.",
+  "paidProviderCalls": false,
+  "overlayVerification": {
+    "status": "passed",
+    "captures": "Settled viewport-only captures after focus and layout; no transformed containing block",
+    "viewports": [
+      {
+        "name": "mobile",
+        "width": 375,
+        "height": 812,
+        "theme": "light",
+        "scrollY": 1757,
+        "overlay": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 812
+        },
+        "card": {
+          "x": 16,
+          "y": 40.59375,
+          "width": 343,
+          "height": 730.796875,
+          "bottom": 771.390625
+        },
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "backgroundScrollBlocked": true,
+        "focusRestored": true,
+        "scrollStylesRestored": true
+      },
+      {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024,
+        "theme": "light",
+        "scrollY": 1179,
+        "overlay": {
+          "x": 0,
+          "y": 0,
+          "width": 768,
+          "height": 1024
+        },
+        "card": {
+          "x": 84,
+          "y": 260.46875,
+          "width": 600,
+          "height": 503.0625,
+          "bottom": 763.53125
+        },
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "backgroundScrollBlocked": true,
+        "focusRestored": true,
+        "scrollStylesRestored": true
+      },
+      {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "scrollY": 579,
+        "overlay": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        },
+        "card": {
+          "x": 420,
+          "y": 248.46875,
+          "width": 600,
+          "height": 503.0625,
+          "bottom": 751.53125
+        },
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "backgroundScrollBlocked": true,
+        "focusRestored": true,
+        "scrollStylesRestored": true
+      },
+      {
+        "name": "dark",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark",
+        "scrollY": 579,
+        "overlay": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        },
+        "card": {
+          "x": 420,
+          "y": 248.46875,
+          "width": 600,
+          "height": 503.0625,
+          "bottom": 751.53125
+        },
+        "bodyOverflow": "hidden",
+        "rootOverflow": "hidden",
+        "backgroundScrollBlocked": true,
+        "focusRestored": true,
+        "scrollStylesRestored": true
+      }
+    ],
+    "errors": []
+  }
+}

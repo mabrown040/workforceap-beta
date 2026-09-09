@@ -4,8 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
-import { ChevronLeft, ChevronRight, ExternalLink, Menu, ShieldHalf } from 'lucide-react';
-import { getBestActiveHref, isActiveRoute } from '@/lib/nav/activeRoute';
+import { ChevronDown, ChevronLeft, ChevronRight, ExternalLink, Menu, ShieldHalf, X } from 'lucide-react';
+import { getBestActiveHref } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import {
   type PortalNavItem,
@@ -359,6 +359,21 @@ export default function WorkspaceShell({
   }, [hasTabs, activeTab]);
 
   const firstHref = navItems[0]?.href ?? '/';
+  const memberGroupLabels: Partial<Record<string, string>> = portalRole === 'member' ? {
+    workflows: tGroup('memberTools'),
+    insights: tGroup('memberProgress'),
+    manage: tGroup('memberAccount'),
+  } : {};
+  const resumeUploadHint = showResumeUploadHint ? (
+    <div className="workspace-resume-upload-hint" role="status">
+      <span className="workspace-resume-upload-hint__text">
+        No resume on file yet — upload one to power AI tools and your coach.
+      </span>
+      <Link href="/dashboard/resume" prefetch={false} className="workspace-resume-upload-hint__cta">
+        Upload resume
+      </Link>
+    </div>
+  ) : null;
 
   const rootStyle: React.CSSProperties | undefined = (() => {
     const style: Record<string, string> = {};
@@ -375,7 +390,7 @@ export default function WorkspaceShell({
   })();
 
   return (
-    <div className="workspace-shell-root" style={rootStyle}>
+    <div className="workspace-shell-root" data-workspace-role={portalRole} style={rootStyle}>
       {readOnlyAudit ? (
         <span hidden data-portal-audit-suppressed="workspace-nav-badges-and-notification-polling" />
       ) : null}
@@ -473,16 +488,7 @@ export default function WorkspaceShell({
         </div>
       </header>
 
-      {showResumeUploadHint ? (
-        <div className="workspace-resume-upload-hint" role="status">
-          <span className="workspace-resume-upload-hint__text">
-            No resume on file yet — upload one to power AI tools and your coach.
-          </span>
-          <Link href="/dashboard/resume" prefetch={false} className="workspace-resume-upload-hint__cta">
-            Upload resume
-          </Link>
-        </div>
-      ) : null}
+      {portalRole !== 'member' ? resumeUploadHint : null}
 
       {superAdmin && superAdminImpersonating && superAdminBackHref && (
         <div className="workspace-super-admin-banner">
@@ -532,6 +538,11 @@ export default function WorkspaceShell({
         <aside
           id="workspace-sidebar"
           ref={trapRef}
+          inert={!wide && !drawerOpen}
+          aria-hidden={!wide && !drawerOpen ? true : undefined}
+          role={isMobileDrawer ? 'dialog' : undefined}
+          aria-modal={isMobileDrawer ? true : undefined}
+          aria-label={isMobileDrawer ? `${translateLabel(workspaceLabel)} navigation` : undefined}
           className={`workspace-sidebar ${drawerOpen ? 'open' : ''} ${isCollapsedDesktop ? 'workspace-sidebar--collapsed' : ''}`}
         >
           <div className="workspace-sidebar-inner">
@@ -564,7 +575,16 @@ export default function WorkspaceShell({
                 >
                   {collapsed ? <ChevronRight size={18} aria-hidden /> : <ChevronLeft size={18} aria-hidden />}
                 </button>
-              ) : null}
+              ) : (
+                <button
+                  type="button"
+                  className="workspace-sidebar-collapse-btn workspace-sidebar-close-btn"
+                  onClick={closeDrawer}
+                  aria-label={tNav('closeMenu')}
+                >
+                  <X size={18} aria-hidden />
+                </button>
+              )}
             </div>
             {/* In-rail admin search — matches the mockup's "Search admin…" placement.
                 Hidden when the desktop rail is collapsed. */}
@@ -577,19 +597,16 @@ export default function WorkspaceShell({
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {
                   const list = wide ? desktopNavItems : mobileDrawerNavItems;
-                  const inGroup = list.filter((i) => i.group === group);
+                  // Repeated shortcuts must not paint two current-page entries.
+                  const inGroup = list.filter((item, index) =>
+                    item.group === group && list.findIndex((candidate) => candidate.href === item.href) === index,
+                  );
                   if (inGroup.length === 0) return null;
                   const groupLabel = NAV_GROUP_LABELS[group];
-                  return (
-                    <li key={group} className="workspace-sidebar-group">
-                      {groupLabel && !isCollapsedDesktop ? (
-                        <div className="workspace-sidebar-group-label">{translateLabel(groupLabel)}</div>
-                      ) : null}
-                      <ul className="workspace-sidebar-list">
+                  const links = (
+                    <ul className="workspace-sidebar-list">
                         {inGroup.map((item) => {
-                          const isActive =
-                            activeHref === item.href ||
-                            isActiveRoute(pathname, item.href, item.aliases ?? []);
+                          const isActive = activeHref === item.href;
                           const Icon = item.Icon;
                           const b = badgeTotalForItem(badges, item);
                           return (
@@ -620,13 +637,39 @@ export default function WorkspaceShell({
                             </li>
                           );
                         })}
-                      </ul>
+                    </ul>
+                  );
+                  const disclose = portalRole === 'member' && group !== 'primary' && !isCollapsedDesktop;
+                  const groupBadge = inGroup.reduce((total, item) => total + badgeTotalForItem(badges, item), 0);
+                  return (
+                    <li key={group} className="workspace-sidebar-group">
+                      {disclose ? (
+                        <details
+                          key={`${group}:${activeHref}`}
+                          className="workspace-sidebar-section"
+                          open={inGroup.some((item) => item.href === activeHref)}
+                        >
+                          <summary className="workspace-sidebar-section-toggle">
+                            <span>{memberGroupLabels[group] ?? translateLabel(groupLabel ?? group)}</span>
+                            {groupBadge > 0 ? <span className="workspace-nav-badge">{groupBadge > 99 ? '99+' : groupBadge}</span> : null}
+                            <ChevronDown size={16} aria-hidden />
+                          </summary>
+                          {links}
+                        </details>
+                      ) : (
+                        <>
+                          {groupLabel && !isCollapsedDesktop ? (
+                            <div className="workspace-sidebar-group-label">{translateLabel(groupLabel)}</div>
+                          ) : null}
+                          {links}
+                        </>
+                      )}
                     </li>
                   );
                 })}
               </ul>
             </nav>
-            <div className="workspace-sidebar-footer">
+            {portalRole !== 'member' || !isCollapsedDesktop ? <div className="workspace-sidebar-footer">
               {!wide ? (
                 <div className="workspace-sidebar-meta">
                   <span className="workspace-sidebar-context workspace-sidebar-context--chip" title={contextLabel}>
@@ -652,12 +695,13 @@ export default function WorkspaceShell({
                   {translateLabel('Sign out')}
                 </SignOutButton>
               ) : null}
-            </div>
+            </div> : null}
           </div>
         </aside>
 
         <div ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
           {portalRole === 'member' ? <MemberPortalTopNav badgeCounts={badges} hrefMap={navHrefMap} /> : null}
+          {portalRole === 'member' ? resumeUploadHint : null}
           {topBanner}
           <UnreviewedLocaleBanner />
           <div className="workspace-shell-main-inner">{children}</div>

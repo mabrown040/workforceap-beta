@@ -393,6 +393,9 @@ describe('generateQuarterlyOutcomes', () => {
       ] as any)
       .mockResolvedValueOnce([
         { retentionStatus: null, retentionDecision: 'retained', _count: { _all: 1 } },
+        { retentionStatus: 'retained_90d', retentionDecision: null, _count: { _all: 2 } },
+        { retentionStatus: 'retained_180d', retentionDecision: null, _count: { _all: 1 } },
+        { retentionStatus: 'retained_90d', retentionDecision: 'not_retained', _count: { _all: 1 } },
       ] as any);
 
     const report = await generateQuarterlyOutcomes(ORG_ID, makeSpec('Q1', 2026));
@@ -405,9 +408,9 @@ describe('generateQuarterlyOutcomes', () => {
     });
     expect(report.retention.hundredEightyDay).toEqual({
       retained: 1,
-      notRetainedOrSeparated: 0,
-      pendingDecision: 0,
-      total: 1,
+      notRetainedOrSeparated: 1,
+      pendingDecision: 3,
+      total: 5,
     });
   });
 });

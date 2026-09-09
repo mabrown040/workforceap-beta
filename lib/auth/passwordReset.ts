@@ -81,8 +81,13 @@ export async function sendPasswordResetEmail(
     }
 
     const hashedToken = data?.properties?.hashed_token;
+    const recoveryUrl = new URL(resetPageUrl);
+    if (hashedToken) {
+      recoveryUrl.searchParams.set('token_hash', hashedToken);
+      recoveryUrl.searchParams.set('type', 'recovery');
+    }
     const resetLink = hashedToken
-      ? `${resetPageUrl}?token_hash=${encodeURIComponent(hashedToken)}&type=recovery`
+      ? recoveryUrl.href
       : data?.properties?.action_link;
     if (!resetLink) {
       return { error: { message: 'Supabase did not return a recovery link.' }, via: 'resend' };

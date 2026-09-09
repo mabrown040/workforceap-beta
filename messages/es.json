@@ -47,6 +47,7 @@
     "contactUs": "Contáctanos",
     "memberPortal": "Portal de miembros",
     "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
     "expandSidebar": "Expandir barra lateral",
     "collapseSidebar": "Contraer barra lateral",
     "workspaceTabs": "Pestañas del espacio de trabajo",
@@ -1445,6 +1446,9 @@
     "placedViaReferral": "Colocados por referencia"
   },
   "group": {
+    "memberTools": "Herramientas y carreras",
+    "memberProgress": "Formación y progreso",
+    "memberAccount": "Cuenta y apoyo",
     "workflows": "Flujos de trabajo",
     "insights": "Información",
     "manage": "Gestionar"

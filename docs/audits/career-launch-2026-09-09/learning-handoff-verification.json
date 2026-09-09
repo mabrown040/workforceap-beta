@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "checks": [
+    "Workspace links only identifiers; server loads own assigned course/evidence; private notes excluded; no automatic message",
+    "Failed send preserves edited request; explicit retry stores exactly one fixture message; reload retains conversation",
+    "Unassigned course context falls back to empty composer without leaking saved work",
+    "Course-matched native practice opens existing challenge; Escape closes and restores workspace",
+    "Reviewed feedback composer fits375px without horizontal overflow"
+  ],
+  "exceptions": [],
+  "providerOrAiEvaluationInvoked": false,
+  "scope": "Normal authentication; only synthetic local member data and local message storage. No external counselor or production write.",
+  "expectedFixtureConsoleMessages": {
+    "realtime": "Local GoTrue fixture does not implement hosted Supabase realtime; the production CSP blocks localhost websocket attempts.",
+    "sendFailure": "One deliberately mocked HTTP503 tests draft preservation."
+  }
+}

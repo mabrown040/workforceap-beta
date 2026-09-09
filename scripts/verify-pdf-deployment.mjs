@@ -11,6 +11,16 @@ const execFileAsync = promisify(execFile);
 const SCRIPT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EXPECTED_TEXT = 'PDF Deployment Test Candidate SQL PostgreSQL Career Coaching';
 const PDF_PACKAGE = '/node_modules/pdfjs-dist/';
+export const PDF_DEPLOYMENT_RESULT_PREFIX = 'WORKFORCEAP_PDF_DEPLOYMENT_RESULT:';
+
+/** Optional pdf.js warnings may arrive before or after the extraction result. */
+export function parsePdfDeploymentResult(stdout) {
+  const results = stdout.split(/\r?\n/).filter((line) => line.startsWith(PDF_DEPLOYMENT_RESULT_PREFIX));
+  assert.equal(results.length, 1, 'Expected exactly one tagged PDF deployment result');
+  const result = JSON.parse(results[0].slice(PDF_DEPLOYMENT_RESULT_PREFIX.length));
+  assert.ok(result && typeof result.text === 'string', 'PDF deployment result must contain text');
+  return result;
+}
 
 /** No member data, external resources, or network access is needed for this fixture. */
 function syntheticPdf() {
@@ -78,7 +88,7 @@ export async function verifyPdfDeploymentAssets(root, assets) {
       assert.ok(entry.startsWith(process.cwd() + path.sep), 'Resolved outside the isolated PDF artifact');
       const { extractTextFromResumeBuffer } = require('./extractTextFromResumeBuffer.js');
       extractTextFromResumeBuffer(readFileSync('synthetic-resume.pdf'), 'pdf')
-        .then((text) => process.stdout.write(JSON.stringify({ text }) + '\n'))
+        .then((text) => process.stdout.write(${JSON.stringify(PDF_DEPLOYMENT_RESULT_PREFIX)} + JSON.stringify({ text }) + '\n'))
         .catch((error) => { console.error(error.code || error.message); process.exitCode = 1; });
     `;
     const { stdout } = await execFileAsync(process.execPath, ['--no-global-search-paths', '--eval', runner], {
@@ -87,8 +97,7 @@ export async function verifyPdfDeploymentAssets(root, assets) {
       // No application credentials or inherited test loaders reach the subprocess.
       env: { SystemRoot: process.env.SystemRoot ?? '', NODE_PATH: '', NODE_OPTIONS: '' },
     });
-    // pdf.js may write optional canvas/font warnings before the final JSON result.
-    const result = JSON.parse(stdout.trim().split(/\r?\n/).at(-1));
+    const result = parsePdfDeploymentResult(stdout);
     assert.equal(result.text.trim(), EXPECTED_TEXT);
     return { text: result.text.trim(), assetCount: assets.length };
   } finally {

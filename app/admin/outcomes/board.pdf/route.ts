@@ -211,7 +211,7 @@ export async function GET(req: NextRequest) {
     <div class="stat-grid">
       <div class="stat"><p class="stat-label">Enrolled</p><p class="stat-value">${fmtNumber(t.membersEnrolled)}</p></div>
       <div class="stat"><p class="stat-label">In training</p><p class="stat-value">${fmtNumber(t.membersInTraining)}</p></div>
-      <div class="stat"><p class="stat-label">Certified</p><p class="stat-value">${fmtNumber(t.membersCertified)}</p></div>
+      <div class="stat"><p class="stat-label">Training completed</p><p class="stat-value">${fmtNumber(t.membersCertified)}</p></div>
       <div class="stat"><p class="stat-label">Placed</p><p class="stat-value">${fmtNumber(t.membersPlaced)}</p></div>
       <div class="stat"><p class="stat-label">Median salary</p><p class="stat-value">${escapeHtml(fmtMoney(t.medianAnnualSalary))}</p></div>
       <div class="stat"><p class="stat-label">Avg weeks to placement</p><p class="stat-value">${t.averageWeeksToPlacement === null ? '—' : t.averageWeeksToPlacement}</p></div>
@@ -231,9 +231,10 @@ export async function GET(req: NextRequest) {
   </section>
 
   <section>
-    <h2>4. Certifications earned</h2>
+    <h2>4. Credential records</h2>
+    <p>Includes member-reported credentials; review status varies. These are not verified-credential totals.</p>
     <div class="stat-grid">
-      <div class="stat"><p class="stat-label">Total earned</p><p class="stat-value">${fmtNumber(snapshot.certifications.totalEarned)}</p></div>
+      <div class="stat"><p class="stat-label">Total records</p><p class="stat-value">${fmtNumber(snapshot.certifications.totalEarned)}</p></div>
       <div class="stat"><p class="stat-label">Last 30 days</p><p class="stat-value">${fmtNumber(snapshot.certifications.earnedLast30d)}</p></div>
       <div class="stat"><p class="stat-label">Unique members</p><p class="stat-value">${fmtNumber(snapshot.certifications.uniqueMembers)}</p></div>
     </div>
@@ -249,7 +250,7 @@ export async function GET(req: NextRequest) {
               <tr>
                 <th>Program</th>
                 <th class="num">Enrolled</th>
-                <th class="num">Certified</th>
+                <th class="num">Training completed</th>
                 <th class="num">Placed</th>
                 <th class="num">Placement rate</th>
               </tr>

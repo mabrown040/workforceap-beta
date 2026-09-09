@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
+import { assignMemberCounselor } from '@/lib/counselor/assignment';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
@@ -60,7 +61,7 @@ const bodySchema = z.discriminatedUnion('action', [
   }),
 ]);
 
-type BulkResult = { memberId: string; ok: boolean; error?: string };
+type BulkResult = { memberId: string; ok: boolean; error?: string; warning?: string };
 
 export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -233,7 +234,7 @@ export const POST = withApiGuc(async (request: Request) => {
         where: {
           userId: reassignCounselorUserId,
           active: true,
-          user: { organizationId: orgId },
+          user: { organizationId: orgId, deletedAt: null },
         },
         include: { user: { select: { id: true, fullName: true } } },
       }));
@@ -260,36 +261,11 @@ export const POST = withApiGuc(async (request: Request) => {
             continue;
           }
 
-          const existingPair = await prisma.$transaction((tx) => tx.counselorAssignment.findUnique({
-            where: {
-              counselorId_memberId: { counselorId: targetCounselor.id, memberId },
-            },
+          await prisma.$transaction((tx) => assignMemberCounselor(tx, {
+            memberId, organizationId: orgId, counselorUserId: targetCounselor.userId,
           }));
 
-          await prisma.$transaction(async (tx) => {
-            await tx.counselorAssignment.updateMany({
-              where: { memberId, active: true },
-              data: { active: false },
-            });
-            if (existingPair) {
-              await tx.counselorAssignment.update({
-                where: { id: existingPair.id },
-                data: { active: true },
-              });
-            } else {
-              await tx.counselorAssignment.create({
-                data: { counselorId: targetCounselor.id, memberId, active: true },
-              });
-            }
-          });
-
-          const thread = await getOrCreateMemberCounselorThread(memberId);
-          await prisma.$transaction((tx) => tx.messageThread.update({
-            where: { id: thread.id },
-            data: { counselorUserId: targetCounselor.userId },
-          }));
-
-          await auditLog({
+          const auditResults = await Promise.allSettled([auditLog({
             actorUserId: user.id,
             action: INBOX_ZERO_REASSIGN_ACTION,
             targetType: 'User',
@@ -299,18 +275,21 @@ export const POST = withApiGuc(async (request: Request) => {
               counselorUserId: targetCounselor.userId,
               counselorName: targetCounselor.user.fullName,
             },
-          });
-
-          await logInboxZeroBulkAuditEvent({
+          }), logInboxZeroBulkAuditEvent({
             actorUserId: user.id,
             memberId,
             verb: 'completed',
             action: INBOX_ZERO_REASSIGN_ACTION,
             request,
             extensions: { counselorUserId: targetCounselor.userId, batchSize: memberIds.length },
-          }).catch((e) => console.error('[bulk reassign] AuditEvent:', e));
+          })]);
 
-          results.push({ memberId, ok: true });
+          const auditFailed = auditResults.some((result) => result.status === 'rejected');
+          if (auditFailed) console.error('[bulk reassign] assignment committed; audit follow-up failed', memberId);
+          results.push({
+            memberId, ok: true,
+            warning: auditFailed ? 'Counselor assigned, but audit history needs review. Contact an administrator; do not repeat the reassignment.' : undefined,
+          });
           sent += 1;
         } catch (e) {
           console.error('[bulk reassign]', memberId, e);
@@ -326,6 +305,7 @@ export const POST = withApiGuc(async (request: Request) => {
         failed,
         results,
         counselorName: targetCounselor.user.fullName,
+        warnings: [...new Set(results.flatMap((result) => result.warning ? [result.warning] : []))],
       });
     }
 

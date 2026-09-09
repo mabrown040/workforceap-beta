@@ -106,3 +106,20 @@ disabled. These observations establish available backup records at that time,
 not a fixed daily schedule, a successful restore, or a guaranteed recovery time.
 No backup restore was performed. Recheck the provider for current availability
 before recovery. [Sanitized response](../graph/evidence/deps-production-backups-run_20260909_1730.txt).
+
+## Existing production migration-history differences
+
+A read-only preflight at **2026-09-09 22:38 UTC** found 175 completed migration
+names, no unresolved migration, 15 stored checksums that differ from the current
+repository files, and three completed names absent from this checkout. Every
+one of those 15 repository files is byte-identical to the deployed `dfd49fa9`
+baseline; the stakeholder workflow branch did not introduce these historical
+differences. The database-only names are `20260320100000_employer_portal_jobs`,
+`20260616050000_s2_compliance_fix_xapi_org_null`, and
+`20260616060000_fix_xapi_org_id_backfill`.
+
+These differences are additional evidence that historical clean replay is not
+a recovery method. Preserve both the recorded checksums and repository history;
+do not rewrite or resolve them to make a status report look clean. Review each
+new additive migration against the actual live objects. The complete comparison
+is retained in `artifacts/workforceap-stakeholder-workflows-2026-09-09/migration-preflight.json`.

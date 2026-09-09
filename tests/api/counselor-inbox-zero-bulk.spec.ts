@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('next/server', () => ({
   NextResponse: {
@@ -44,10 +44,11 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
 }));
 vi.mock('@/lib/db/prisma', () => {
   const prisma: any = {
+    user: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     message: { create: vi.fn().mockResolvedValue({ id: 'msg-1' }) },
     counselor: { findFirst: vi.fn() },
     counselorAssignment: { findUnique: vi.fn(), updateMany: vi.fn(), update: vi.fn(), create: vi.fn() },
-    messageThread: { update: vi.fn() },
+    messageThread: { update: vi.fn(), upsert: vi.fn().mockResolvedValue({ id: 'thread-1' }) },
     memberEvent: { create: vi.fn() },
   };
   prisma.$transaction = vi.fn((arg: any) =>
@@ -82,6 +83,7 @@ function makeRequest(body: unknown) {
 }
 
 describe('POST /api/counselor/inbox-zero/bulk', () => {
+  afterEach(() => vi.restoreAllMocks());
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
@@ -138,8 +140,48 @@ describe('POST /api/counselor/inbox-zero/bulk', () => {
       }),
     );
     expect(res.status).toBe(200);
+    expect(prisma.messageThread.upsert).toHaveBeenCalledWith(expect.objectContaining({ where: { memberId: MEMBER_ID }, update: { counselorUserId: TARGET_COUNSELOR_USER } }));
     expect(logInboxZeroBulkAuditEvent).toHaveBeenCalledWith(
       expect.objectContaining({ verb: 'completed' }),
     );
+  });
+
+  it.each(['audit log', 'audit event', 'both'] as const)('reports committed reassignment with a warning when %s fails', async (failure) => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(prisma.counselor.findFirst).mockResolvedValue({
+      id: 'counselor-row', userId: TARGET_COUNSELOR_USER,
+      user: { id: TARGET_COUNSELOR_USER, fullName: 'Pat Advisor' },
+    } as never);
+    if (failure !== 'audit event') vi.mocked(auditLog).mockRejectedValueOnce(new Error('Synthetic audit failure'));
+    if (failure !== 'audit log') vi.mocked(logInboxZeroBulkAuditEvent).mockRejectedValueOnce(new Error('Synthetic event failure'));
+
+    const res = await POST(makeRequest({ action: 'reassign', memberIds: [MEMBER_ID], counselorUserId: TARGET_COUNSELOR_USER }));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({ ok: true, sent: 1, failed: 0,
+      results: [{ memberId: MEMBER_ID, ok: true, warning: expect.stringContaining('Counselor assigned') }],
+      warnings: [expect.stringContaining('do not repeat the reassignment')],
+    });
+    expect(prisma.messageThread.upsert).toHaveBeenCalledTimes(1);
+    expect(auditLog).toHaveBeenCalledTimes(1);
+    expect(logInboxZeroBulkAuditEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps transaction failure as a failed item without an audit warning or success receipt', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(prisma.counselor.findFirst).mockResolvedValue({
+      id: 'counselor-row', userId: TARGET_COUNSELOR_USER,
+      user: { id: TARGET_COUNSELOR_USER, fullName: 'Pat Advisor' },
+    } as never);
+    vi.mocked(prisma.messageThread.upsert).mockRejectedValueOnce(new Error('Synthetic transaction failure'));
+
+    const res = await POST(makeRequest({ action: 'reassign', memberIds: [MEMBER_ID], counselorUserId: TARGET_COUNSELOR_USER }));
+
+    expect(await res.json()).toMatchObject({ sent: 0, failed: 1,
+      results: [{ memberId: MEMBER_ID, ok: false, error: 'internal' }], warnings: [],
+    });
+    expect(auditLog).not.toHaveBeenCalled();
+    expect(logInboxZeroBulkAuditEvent).not.toHaveBeenCalled();
   });
 });

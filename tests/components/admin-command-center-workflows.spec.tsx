@@ -8,12 +8,12 @@ import type { AdminApplicationPendingRow, AdminCommandCenter, AdminQueueKey } fr
 const mocks = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn(), fetch: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mocks.push, refresh: mocks.refresh }) }));
 vi.mock('@/components/admin/ConfirmDialog', () => ({
-  default: ({ open, title, body, busy, onConfirm, onCancel }: {
-    open: boolean; title: string; body: ReactNode; busy: boolean; onConfirm: () => void; onCancel: () => void;
+  default: ({ open, title, body, busy, confirmDisabled, onConfirm, onCancel }: {
+    open: boolean; title: string; body: ReactNode; busy: boolean; confirmDisabled?: boolean; onConfirm: () => void; onCancel: () => void;
   }) => open ? (
     <div role="dialog" aria-label={title}>
       {body}
-      <button type="button" disabled={busy} onClick={onConfirm}>Confirm bulk review</button>
+      <button type="button" disabled={busy || confirmDisabled} onClick={onConfirm}>Confirm bulk review</button>
       <button type="button" disabled={busy} onClick={onCancel}>Cancel bulk review</button>
     </div>
   ) : null,
@@ -171,6 +171,32 @@ describe('admin bulk review selection and recovery', () => {
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalledTimes(2));
     expect(requestBody(1).applicationIds).toEqual(['application-b']);
     expect(screen.getByRole('checkbox', { name: 'Select Applicant b' })).not.toBeChecked();
+  });
+
+  it.each([408, 500, 502, 504])('requires a fresh queue after an ambiguous HTTP %s response', async (status) => {
+    mocks.fetch.mockResolvedValueOnce(Response.json({ error: 'Internal server error' }, { status }));
+    const { rerender } = render(<AdminCommandCenterClient data={center()} />);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select this page' }));
+    confirmBulkInfo();
+    expect(await screen.findByRole('alert')).toHaveTextContent('some items may have completed');
+    expect(screen.getByRole('button', { name: 'Confirm bulk review' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm bulk review' }));
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel bulk review' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ask for info (2)' }));
+    expect(screen.getByRole('button', { name: 'Confirm bulk review' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Reload queue' }));
+    expect(mocks.refresh).toHaveBeenCalledOnce();
+    // Reload request alone does not unlock a retry until fresh server data arrives.
+    fireEvent.click(screen.getByRole('button', { name: 'Ask for info (2)' }));
+    expect(screen.getByRole('button', { name: 'Confirm bulk review' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel bulk review' }));
+    rerender(<AdminCommandCenterClient data={center({ applicationsPending: [application('b')] })} />);
+    mocks.fetch.mockResolvedValueOnce(Response.json({ processedCount: 1, failedCount: 0, failures: [] }));
+    confirmBulkInfo();
+    await waitFor(() => expect(mocks.fetch).toHaveBeenCalledTimes(2));
+    expect(requestBody(1).applicationIds).toEqual(['application-b']);
   });
 
   it.each([

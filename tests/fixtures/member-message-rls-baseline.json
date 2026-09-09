@@ -1,0 +1,204 @@
+{
+  "capturedAt": "2026-09-09T22:38:07.049Z",
+  "scope": "Read-only production public messaging and assignment policy/function definitions; no member data. Minimal local table harness is not a schema migration replay.",
+  "functions": [
+    {
+      "proname": "get_current_org_id",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_current_org_id()\n RETURNS text\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nBEGIN\n  RETURN NULLIF(COALESCE(current_setting('app.current_org_id', true), ''), '');\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
+      "proname": "get_current_role",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_current_role()\n RETURNS text\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nBEGIN\n  RETURN COALESCE(current_setting('app.current_role', true), NULL);\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
+      "proname": "get_current_user_id",
+      "definition": "CREATE OR REPLACE FUNCTION public.get_current_user_id()\n RETURNS text\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nBEGIN\n  RETURN NULLIF(COALESCE(current_setting('app.current_user_id', true), ''), '');\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
+      "proname": "is_admin_for_member_data",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_admin_for_member_data(check_user_id text)\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nDECLARE\n  co TEXT;\nBEGIN\n  co := get_current_org_id();\n  IF is_current_super_admin() THEN RETURN TRUE; END IF;\n  IF is_current_admin() AND co IS NOT NULL THEN\n    -- When called from users_select_admin policy under FORCE RLS,\n    -- querying users here would recurse infinitely.\n    -- For users table, the caller should use is_admin_for_org(organization_id)\n    -- directly. For other tables, the users lookup is safe.\n    RETURN EXISTS (\n      SELECT 1 FROM users u\n      WHERE u.id = check_user_id AND u.organization_id = co\n    );\n  END IF;\n  RETURN FALSE;\nEND;\n$function$\n"
+    },
+    {
+      "proname": "is_counselor_for_member",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_counselor_for_member(check_member_id text)\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nDECLARE cu TEXT;\nBEGIN\n  IF get_current_role() = 'system' THEN RETURN TRUE; END IF;\n  cu := get_current_user_id();\n  IF cu IS NULL THEN RETURN FALSE; END IF;\n  RETURN EXISTS (SELECT 1 FROM counselor_assignments ca JOIN counselors c ON ca.counselor_id = c.id WHERE ca.member_id = check_member_id AND c.user_id = cu AND ca.active = true);\nEND;\n$function$\n"
+    },
+    {
+      "proname": "is_current_admin",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_current_admin()\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nBEGIN RETURN get_current_role() IN ('admin', 'super_admin', 'system'); END;\n$function$\n"
+    },
+    {
+      "proname": "is_current_employer",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_current_employer(check_employer_id text)\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nDECLARE cu TEXT;\nBEGIN\n  IF get_current_role() = 'system' THEN RETURN TRUE; END IF;\n  cu := get_current_user_id();\n  IF cu IS NULL THEN RETURN FALSE; END IF;\n  RETURN EXISTS (SELECT 1 FROM employers e WHERE e.id = check_employer_id AND e.user_id = cu);\nEND;\n$function$\n"
+    },
+    {
+      "proname": "is_current_partner",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_current_partner(check_partner_id text)\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nDECLARE cu TEXT; cp TEXT;\nBEGIN\n  IF get_current_role() = 'system' THEN RETURN TRUE; END IF;\n  cu := get_current_user_id();\n  cp := COALESCE(current_setting('app.current_partner_id', true), NULL);\n  IF cp IS NOT NULL AND cp = check_partner_id THEN RETURN TRUE; END IF;\n  IF cu IS NULL THEN RETURN FALSE; END IF;\n  RETURN EXISTS (SELECT 1 FROM partner_users pu WHERE pu.partner_id = check_partner_id AND pu.user_id = cu);\nEND;\n$function$\n"
+    },
+    {
+      "proname": "is_current_super_admin",
+      "definition": "CREATE OR REPLACE FUNCTION public.is_current_super_admin()\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\nBEGIN RETURN get_current_role() = 'super_admin'; END;\n$function$\n"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "(member_id = get_current_user_id())",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselor_assignments",
+      "policyname": "counselor_assignments_select_member",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM counselors c\n  WHERE ((c.id = counselor_assignments.counselor_id) AND (c.user_id = get_current_user_id()))))",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselor_assignments",
+      "policyname": "counselor_assignments_select_counselor",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "is_admin_for_member_data(member_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselor_assignments",
+      "policyname": "counselor_assignments_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "is_admin_for_member_data(member_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselor_assignments",
+      "policyname": "counselor_assignments_modify_admin",
+      "schemaname": "public",
+      "with_check": "is_admin_for_member_data(member_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = get_current_user_id())",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselors",
+      "policyname": "counselors_select_self",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM counselor_assignments ca\n  WHERE ((ca.counselor_id = counselors.id) AND (ca.member_id = get_current_user_id()) AND (ca.active = true))))",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselors",
+      "policyname": "counselors_select_assigned_member",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "is_current_admin()",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselors",
+      "policyname": "counselors_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "is_current_admin()",
+      "roles": [
+        "public"
+      ],
+      "tablename": "counselors",
+      "policyname": "counselors_modify_admin",
+      "schemaname": "public",
+      "with_check": "is_current_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((member_id = get_current_user_id()) OR (counselor_user_id = get_current_user_id()) OR (staff_user_id = get_current_user_id()) OR ((employer_id IS NOT NULL) AND is_current_employer(employer_id)) OR ((partner_id IS NOT NULL) AND is_current_partner(partner_id)) OR ((member_id IS NOT NULL) AND is_admin_for_member_data(member_id)) OR is_current_super_admin())",
+      "roles": [
+        "public"
+      ],
+      "tablename": "message_threads",
+      "policyname": "message_threads_select_participant",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((member_id = get_current_user_id()) OR (counselor_user_id = get_current_user_id()) OR (staff_user_id = get_current_user_id()) OR ((employer_id IS NOT NULL) AND is_current_employer(employer_id)) OR ((partner_id IS NOT NULL) AND is_current_partner(partner_id)))",
+      "roles": [
+        "public"
+      ],
+      "tablename": "message_threads",
+      "policyname": "message_threads_update_participant",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM message_threads t\n  WHERE ((t.id = messages.thread_id) AND ((t.member_id = get_current_user_id()) OR (t.counselor_user_id = get_current_user_id()) OR (t.staff_user_id = get_current_user_id()) OR ((t.employer_id IS NOT NULL) AND is_current_employer(t.employer_id)) OR ((t.partner_id IS NOT NULL) AND is_current_partner(t.partner_id)) OR ((t.member_id IS NOT NULL) AND is_admin_for_member_data(t.member_id)) OR is_current_super_admin()))))",
+      "roles": [
+        "public"
+      ],
+      "tablename": "messages",
+      "policyname": "messages_select_thread_participant",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "public"
+      ],
+      "tablename": "messages",
+      "policyname": "messages_insert_author",
+      "schemaname": "public",
+      "with_check": "((author_id = get_current_user_id()) AND (EXISTS ( SELECT 1\n   FROM message_threads t\n  WHERE ((t.id = messages.thread_id) AND ((t.member_id = get_current_user_id()) OR (t.counselor_user_id = get_current_user_id()) OR (t.staff_user_id = get_current_user_id()) OR ((t.employer_id IS NOT NULL) AND is_current_employer(t.employer_id)) OR ((t.partner_id IS NOT NULL) AND is_current_partner(t.partner_id)))))))"
+    }
+  ],
+  "acl": [
+    {
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdDxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "nspname": "public",
+      "relname": "message_threads",
+      "anon_update": true,
+      "authenticated_select": true,
+      "authenticated_update": true
+    },
+    {
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdDxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "nspname": "public",
+      "relname": "messages",
+      "anon_update": true,
+      "authenticated_select": true,
+      "authenticated_update": true
+    }
+  ]
+}

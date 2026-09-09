@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot, type Root } from 'react-dom/client';
 import ReferralShareCard from '@/app/(portal)/dashboard/points/ReferralShareCard';
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), write: vi.fn(), share: vi.fn(), track: vi.fn(), event: vi.fn() }));
 vi.mock('@/lib/analytics/events', () => ({ trackMemberReferralShare: mocks.track }));
@@ -23,6 +25,38 @@ afterEach(() => {
 });
 
 describe('member referral sharing toolkit', () => {
+  it.each([false, true])('hydrates its server loading markup before adding fetched controls (native share: %s)', async nativeShare => {
+    let resolveRequest!: (value: Response) => void;
+    mocks.fetch.mockImplementation(() => new Promise<Response>(resolve => { resolveRequest = resolve; }));
+    Object.defineProperty(navigator, 'share', { configurable: true, value: nativeShare ? mocks.share : undefined });
+    const markup = <main id="referral-hydration-fixture"><ReferralShareCard /></main>;
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(markup);
+    document.body.appendChild(container);
+    const serverMain = container.firstElementChild;
+    const serverCard = container.querySelector('section');
+    const recoverableErrors = vi.fn();
+    let root: Root | undefined;
+    try {
+      expect(container).toHaveTextContent('Loading your referral link');
+      expect(container.querySelector('input,textarea')).toBeNull();
+      expect(mocks.fetch).not.toHaveBeenCalled();
+      await act(async () => { root = hydrateRoot(container, markup, { onRecoverableError: recoverableErrors }); });
+      expect(container.firstElementChild).toBe(serverMain);
+      expect(container.querySelector('section')).toBe(serverCard);
+      expect(container).toHaveTextContent('Loading your referral link');
+      await act(async () => { resolveRequest(response(data)); });
+      expect(await screen.findByLabelText('Your referral link')).toHaveValue(`${window.location.origin}${data.sharePath}`);
+      expect(container.firstElementChild).toBe(serverMain);
+      expect(container.querySelector('section')).toBe(serverCard);
+      expect(recoverableErrors).not.toHaveBeenCalled();
+      expect(screen.queryByRole('button', { name: 'Share…' }) !== null).toBe(nativeShare);
+    } finally {
+      await act(async () => { root?.unmount(); });
+      container.remove();
+    }
+  });
+
   it('keeps a load failure visible and retries successfully', async () => {
     mocks.fetch.mockResolvedValueOnce(response({}, 503)).mockResolvedValueOnce(response(data));
     render(<ReferralShareCard />);

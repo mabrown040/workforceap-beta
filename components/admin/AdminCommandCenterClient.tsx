@@ -29,6 +29,8 @@ const BULK_LABEL: Record<ReviewStatus, string> = {
   DENIED: 'Not a fit',
 };
 
+const UNCERTAIN_REVIEW = 'The review response could not be confirmed. Reload the queue before retrying; some items may have completed.';
+
 export default function AdminCommandCenterClient({ data }: { data: AdminCommandCenter }) {
   const router = useRouter();
   const total =
@@ -46,6 +48,10 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
   const [bulkPending, startBulkTransition] = useTransition();
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkResult, setBulkResult] = useState<string | null>(null);
+  // Closing/reopening the dialog does not make an ambiguous write safe to retry.
+  // A fresh server queue snapshot is required before another submission.
+  const [uncertainSnapshot, setUncertainSnapshot] = useState<AdminCommandCenter | null>(null);
+  const outcomeUncertain = uncertainSnapshot === data;
 
   const pendingIds = useMemo(() => data.applicationsPending.map((r) => r.applicationId), [data.applicationsPending]);
   const activeSelected = useMemo(() => new Set(pendingIds.filter((id) => selected.has(id))), [pendingIds, selected]);
@@ -68,14 +74,14 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
   }
 
   function openBulk(status: ReviewStatus) {
-    setBulkError(null);
+    setBulkError(outcomeUncertain ? UNCERTAIN_REVIEW : null);
     setBulkResult(null);
     setAttested(false);
     setBulkAction(status);
   }
 
   function submitBulk() {
-    if (!bulkAction) return;
+    if (!bulkAction || outcomeUncertain) return;
     const ids = pendingIds.filter((id) => selected.has(id));
     if (ids.length === 0) return;
     setBulkError(null);
@@ -93,6 +99,8 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
         });
         const json = await response.json().catch(() => ({}));
         if (!response.ok) {
+          // A server/proxy failure can arrive after one or more reviews commit.
+          if (response.status >= 500 || response.status === 408) throw new Error('Unconfirmed review outcome');
           setBulkError(typeof json.error === 'string' ? json.error : 'Bulk review failed. Try again.');
           return;
         }
@@ -115,7 +123,8 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
         setBulkAction(null);
         router.refresh();
       } catch {
-        setBulkError('The review response could not be confirmed. Reload the queue before retrying; some items may have completed.');
+        setUncertainSnapshot(data);
+        setBulkError(UNCERTAIN_REVIEW);
       }
     });
   }
@@ -229,6 +238,7 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
         }
         danger={bulkAction === 'DENIED'}
         busy={bulkPending}
+        confirmDisabled={outcomeUncertain}
         body={
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
@@ -245,7 +255,7 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
                   checked={attested}
                   onChange={(e) => {
                     setAttested(e.target.checked);
-                    if (e.target.checked) setBulkError(null);
+                    if (e.target.checked && !outcomeUncertain) setBulkError(null);
                   }}
                   style={{ marginTop: '0.2rem' }}
                 />
@@ -253,6 +263,12 @@ export default function AdminCommandCenterClient({ data }: { data: AdminCommandC
               </label>
             ) : null}
             {bulkError ? <p role="alert" style={{ margin: 0, fontSize: '0.8rem', color: '#b91c1c' }}>{bulkError}</p> : null}
+            {outcomeUncertain ? (
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => {
+                setBulkAction(null);
+                router.refresh();
+              }}>Reload queue</button>
+            ) : null}
           </div>
         }
         confirmLabel={bulkAction ? BULK_LABEL[bulkAction] : 'Confirm'}

@@ -7,6 +7,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { hasAdminAccess } from '@/lib/auth/roleAccess';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
@@ -39,6 +40,7 @@ export const POST = withApiGuc(async (
     await requireAdmin(user.id);
 
     const { id } = await params;
+    if (id === user.id) return NextResponse.json({ error: 'You cannot erase your own administrator account.' }, { status: 403 });
     const body = await request.json().catch(() => ({}));
     const force = body.force === true;
     
@@ -61,6 +63,7 @@ export const POST = withApiGuc(async (
         where: { id },
         include: {
           profile: true,
+          userRoles: { select: { role: { select: { name: true } } } },
           auditLogs: true,
           memberEvents: true,
           messagesAuthored: true,
@@ -73,6 +76,7 @@ export const POST = withApiGuc(async (
     if (!existing) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
+    if (hasAdminAccess(existing.profile?.role ?? 'member', existing.userRoles.map((entry) => entry.role.name))) return NextResponse.json({ error: 'Administrator accounts cannot be erased from member management.' }, { status: 403 });
 
     const extraPaths = [
       existing.profile?.resumeOriginalPath

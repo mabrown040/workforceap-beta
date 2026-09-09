@@ -240,6 +240,10 @@ filters and search run on the server; health/attention filters remain explicitly
 labeled as applying to the loaded page. Do not re-filter server search results
 against that page in the client.
 
+`StudentsRosterKit` shows the full account email beneath each student name in
+both table rows and mobile cards. Keep that identifier visible and wrapping so
+staff can distinguish same-name accounts before opening an account action.
+
 ---
 
 ## 7. Icons, styling, and motion

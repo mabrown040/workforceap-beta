@@ -8,7 +8,7 @@ import { logger } from '@/lib/observability/logger';
 
 export type PasswordResetSendResult = {
   error: { message: string } | null;
-  /** Which mailer carried the email; `skipped` when no account matched. */
+  /** Provider handling the request; acceptance is not proof of inbox delivery. */
   via: 'resend' | 'supabase' | 'skipped';
 };
 
@@ -20,8 +20,8 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function isUserNotFound(message: string): boolean {
-  return /user.*not.*found|no user|not found/i.test(message);
+function isUserNotFound(error: { message: string; code?: string }): boolean {
+  return error.code === 'user_not_found' || /user.*not.*found|no user/i.test(error.message);
 }
 
 /**
@@ -40,8 +40,9 @@ function isUserNotFound(message: string): boolean {
  * Track E (Sprint E.1 PR 2) — when `orgId` is supplied, the link's origin is
  * the org's `customDomain` (or default), so AAUL users land on AAUL's host.
  *
- * Falls back to the Supabase mailer when Resend or the service role key is not
- * configured (local dev), so the flow never regresses below the old behavior.
+ * Falls back to the Supabase mailer when the branded provider is unavailable
+ * or rejects delivery. This server-created fallback deliberately uses implicit
+ * recovery: no browser PKCE verifier cookie exists for this server request.
  */
 export async function sendPasswordResetEmail(
   email: string,
@@ -64,61 +65,62 @@ export async function sendPasswordResetEmail(
   const canMintOwnLink = !!resend && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (canMintOwnLink) {
-    const admin = getSupabaseAdmin();
-    const { data, error } = await admin.auth.admin.generateLink({
-      type: 'recovery',
-      email: normalizedEmail,
-      options: { redirectTo: resetPageUrl },
-    });
-
-    if (error) {
-      // Unknown address: report as skipped so callers keep their uniform
-      // "if an account exists" response without revealing anything.
-      if (isUserNotFound(error.message)) {
-        return { error: { message: error.message }, via: 'skipped' };
-      }
-      return { error: { message: error.message }, via: 'resend' };
-    }
-
-    const hashedToken = data?.properties?.hashed_token;
-    const recoveryUrl = new URL(resetPageUrl);
-    if (hashedToken) {
-      recoveryUrl.searchParams.set('token_hash', hashedToken);
-      recoveryUrl.searchParams.set('type', 'recovery');
-    }
-    const resetLink = hashedToken
-      ? recoveryUrl.href
-      : data?.properties?.action_link;
-    if (!resetLink) {
-      return { error: { message: 'Supabase did not return a recovery link.' }, via: 'resend' };
-    }
-
-    const from = process.env.EMAIL_FROM || `${branding.name} <hello@workforceap.org>`;
-    const html = brandedEmailLayout({
-      title: 'Reset your password',
-      bodyHtml: `
-        <p>We received a request to reset the password for <strong>${escapeHtml(normalizedEmail)}</strong>.</p>
-        <p>Click the button below to choose a new password. The link works once and expires in about an hour.</p>
-        <p style="font-size:13px;color:#6b6b6b;">If you did not ask for this, you can ignore this email — your password will not change. Questions? Email <a href="mailto:${escapeHtml(branding.supportEmail)}">${escapeHtml(branding.supportEmail)}</a>.</p>
-      `,
-      ctaText: 'Reset password',
-      ctaUrl: resetLink,
-      branding,
-    });
-
     try {
+      const admin = getSupabaseAdmin();
+      const { data, error } = await admin.auth.admin.generateLink({
+        type: 'recovery',
+        email: normalizedEmail,
+        options: { redirectTo: resetPageUrl },
+      });
+
+      if (error) {
+        // Unknown address: report as skipped so callers keep their uniform
+        // "if an account exists" response without revealing anything.
+        if (isUserNotFound(error)) {
+          return { error: { message: error.message }, via: 'skipped' };
+        }
+        throw new Error(error.message);
+      }
+
+      const hashedToken = data?.properties?.hashed_token;
+      const recoveryUrl = new URL(resetPageUrl);
+      if (hashedToken) {
+        recoveryUrl.searchParams.set('token_hash', hashedToken);
+        recoveryUrl.searchParams.set('type', 'recovery');
+      }
+      const resetLink = hashedToken
+        ? recoveryUrl.href
+        : data?.properties?.action_link;
+      if (!resetLink) {
+        throw new Error('Supabase did not return a recovery link.');
+      }
+
+      const from = process.env.EMAIL_FROM || `${branding.name} <hello@workforceap.org>`;
+      const html = brandedEmailLayout({
+        title: 'Reset your password',
+        bodyHtml: `
+          <p>We received a request to reset the password for <strong>${escapeHtml(normalizedEmail)}</strong>.</p>
+          <p>Click the button below to choose a new password. The link works once and expires in about an hour.</p>
+          <p style="font-size:13px;color:#6b6b6b;">If you did not ask for this, you can ignore this email — your password will not change. Questions? Email <a href="mailto:${escapeHtml(branding.supportEmail)}">${escapeHtml(branding.supportEmail)}</a>.</p>
+        `,
+        ctaText: 'Reset password',
+        ctaUrl: resetLink,
+        branding,
+      });
+
       await sendBrandedEmail(resend, {
         from,
         to: normalizedEmail,
         subject: `Reset your ${branding.name} password`,
         html,
+        text: `Reset your ${branding.name} password: ${resetLink}\n\nIf you did not request this, ignore this email. Your password will not change.`,
         replyTo: branding.supportEmail,
       });
+      logger.info('passwordReset: recovery email accepted by provider', { via: 'resend' });
       return { error: null, via: 'resend' };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Password reset email could not be sent.';
-      logger.error('passwordReset: Resend delivery failed', { err: message });
-      return { error: { message }, via: 'resend' };
+      logger.warn('passwordReset: branded delivery failed; trying Supabase mailer', { err: message });
     }
   }
 
@@ -131,8 +133,17 @@ export async function sendPasswordResetEmail(
     },
   });
 
-  const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-    redirectTo: resetPageUrl,
-  });
-  return { error: error ? { message: error.message } : null, via: 'supabase' };
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+      redirectTo: resetPageUrl,
+    });
+    if (!error) logger.info('passwordReset: recovery request accepted by provider', { via: 'supabase' });
+    return {
+      error: error ? { message: error.message } : null,
+      via: error && isUserNotFound(error) ? 'skipped' : 'supabase',
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Password reset email could not be sent.';
+    return { error: { message }, via: 'supabase' };
+  }
 }

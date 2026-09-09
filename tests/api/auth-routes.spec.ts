@@ -221,6 +221,7 @@ function resetLoginMocks() {
     },
   }) as any);
   vi.mocked(prisma.profile.findUnique).mockResolvedValue(null);
+  vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
   vi.mocked(isStaffMfaEnforcementEnabled).mockReturnValue(false);
   vi.mocked(verifyAdminMfaTrustToken).mockResolvedValue(false);
   vi.mocked(cookies).mockResolvedValue(createMockCookieStore() as any);
@@ -270,6 +271,46 @@ describe('POST /api/auth/login', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resetLoginMocks();
+  });
+
+  it.each(['success', 'provider-error', 'network-error'])('rejects a soft-deleted account and clears new session cookies when revocation has %s', async (outcome) => {
+    const signOut = outcome === 'network-error'
+      ? vi.fn().mockRejectedValue(new Error('Auth unavailable'))
+      : vi.fn().mockResolvedValue({ error: outcome === 'provider-error' ? { message: 'Auth unavailable' } : null });
+    vi.mocked(createServerClient).mockReturnValue({ auth: {
+      signInWithPassword: vi.fn().mockResolvedValue({ data: { user: { id: 'deleted-user' }, session: { access_token: 'fixture' } }, error: null }),
+      signOut,
+    } } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ deletedAt: new Date('2026-09-09T12:00:00Z') } as any);
+    const cookieStore = createMockCookieStore([
+      { name: 'sb-fixture-auth-token.0', value: 'new-session-part-0' },
+      { name: 'sb-fixture-auth-token.1', value: 'new-session-part-1' },
+      { name: 'theme', value: 'dark' },
+    ]);
+    vi.mocked(cookies).mockResolvedValue(cookieStore as any);
+    const response = await loginPOST(makeJsonRequest({ email: 'deleted@example.test', password: 'fixture-password' }));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: expect.stringContaining("Your account isn't available") });
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'deleted-user' }, select: { deletedAt: true } });
+    expect(signOut).toHaveBeenCalledWith({ scope: 'local' });
+    for (const name of ['sb-fixture-auth-token.0', 'sb-fixture-auth-token.1', 'wa_session_only', 'wa_admin_mfa_trust']) {
+      expect(cookieStore._setCalls).toContainEqual(expect.objectContaining({ name, value: '', options: expect.objectContaining({ maxAge: 0 }) }));
+    }
+    expect(cookieStore._jar.get('theme')).toBe('dark');
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it.each([null, { deletedAt: null }])('permits an authenticated active or not-yet-reconciled application account: %j', async (account) => {
+    const signOut = vi.fn();
+    const signInWithPassword = vi.fn().mockResolvedValue({ data: { user: { id: 'active-user' }, session: { access_token: 'fixture' } }, error: null });
+    vi.mocked(createServerClient).mockReturnValue({ auth: { signInWithPassword, signOut } } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(account as any);
+    const response = await loginPOST(makeJsonRequest({ email: ' Active@Example.Test ', password: 'fixture-password' }));
+    expect(response.status).toBe(200);
+    expect(signInWithPassword).toHaveBeenCalledWith({ email: 'active@example.test', password: 'fixture-password' });
+    expect(await response.json()).toMatchObject({ ok: true, redirectTo: '/dashboard' });
+    expect(signOut).not.toHaveBeenCalled();
   });
 
   it('returns 400 for invalid JSON body', async () => {
@@ -883,7 +924,7 @@ describe('POST /api/auth/forgot-password', () => {
   });
 
   it('returns uniform success for non-existent email', async () => {
-    vi.mocked(sendPasswordResetEmail).mockResolvedValue({ error: { message: 'User not found' } } as any);
+    vi.mocked(sendPasswordResetEmail).mockResolvedValue({ error: { message: 'User not found' }, via: 'skipped' } as any);
 
     const res = await forgotPasswordPOST(
       makeJsonRequest({ email: 'nobody@example.com' }, 'http://localhost:3000/api/auth/forgot-password')
@@ -908,16 +949,17 @@ describe('POST /api/auth/forgot-password', () => {
     expect(body.message).toContain('If an account exists');
   });
 
-  it('returns 500 when sendPasswordResetEmail throws', async () => {
+  it('returns a safe retryable error when sendPasswordResetEmail throws', async () => {
     vi.mocked(sendPasswordResetEmail).mockRejectedValue(new Error('SMTP failure'));
 
     const res = await forgotPasswordPOST(
       makeJsonRequest({ email: 'jane@example.com' }, 'http://localhost:3000/api/auth/forgot-password')
     );
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.error).toBe('SMTP failure');
+    expect(body.error).toContain('Password reset is temporarily unavailable');
+    expect(body.error).not.toContain('SMTP failure');
   });
 });
 

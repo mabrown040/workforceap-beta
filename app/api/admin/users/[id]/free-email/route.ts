@@ -3,7 +3,10 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { buildDeletedEmail, isDeletedEmail } from '../../_deletedEmail';
+import { buildDeletedEmail, isDeletedEmail, parseDeletedEmail, isDeletedEmailMarker } from '../../_deletedEmail';
+import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { hasAdminAccess } from '@/lib/auth/roleAccess';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -36,30 +39,35 @@ async function _POST(
   const target = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id },
-      select: { id: true, email: true, deletedAt: true },
+      select: { id: true, email: true, deletedAt: true, profile: { select: { role: true } }, userRoles: { select: { role: { select: { name: true } } } } },
     }),
   );
   if (!target) return NextResponse.json({ error: 'User not found' }, { status: 404 });
   if (!target.deletedAt) {
     return NextResponse.json({ error: 'User is not soft-deleted; cannot free email.' }, { status: 400 });
   }
-  if (isDeletedEmail(target.email)) {
-    return NextResponse.json({ ok: true, alreadyFreed: true, currentEmail: target.email });
-  }
-
-  const newEmail = buildDeletedEmail(id, Date.now(), target.email);
+  if (id === actor.id || hasAdminAccess(target.profile?.role ?? 'member', target.userRoles.map((entry) => entry.role.name))) return NextResponse.json({ error: 'Restore administrator accounts instead of releasing their sign-in email.' }, { status: 403 });
+  const originalEmail = parseDeletedEmail(target.email) ?? target.email;
+  if (isDeletedEmailMarker(target.email) && !parseDeletedEmail(target.email)) return NextResponse.json({ error: 'The original email cannot be recovered from this deleted account.' }, { status: 409 });
+  const alreadyFreed = isDeletedEmail(target.email);
+  const newEmail = alreadyFreed ? target.email : buildDeletedEmail(id, Date.now(), target.email);
   if (!newEmail) {
     return NextResponse.json(
       { error: 'Cannot free email because it is too long to preserve for restore.' },
       { status: 400 },
     );
   }
-  await withTenantScope(orgId, (db) =>
-    db.user.updateMany({
-      where: { id },
-      data: { email: newEmail },
-    }),
-  );
+  const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id, originalEmail);
+  if (!disabled.ok) return NextResponse.json({ error: 'The sign-in email could not be released. Retry or contact support.' }, { status: 502 });
+  if (!alreadyFreed) {
+    const changed = await withTenantScope(orgId, (db) =>
+      db.user.updateMany({
+        where: { id, email: target.email, deletedAt: target.deletedAt },
+        data: { email: newEmail },
+      }),
+    );
+    if (changed.count !== 1) return NextResponse.json({ error: 'The account changed during this request. Reload before trying again.' }, { status: 409 });
+  }
 
   auditLog({
     actorUserId: actor.id,
@@ -77,7 +85,7 @@ async function _POST(
     orgId,
   }).catch((err) => console.error('[admin/users/free-email] xAPI audit log failed:', err));
 
-  return NextResponse.json({ ok: true, originalEmail: target.email, currentEmail: newEmail });
+  return NextResponse.json({ ok: true, alreadyFreed, originalEmail, currentEmail: newEmail });
 
   } catch (error) {
     console.error('/admin/users/[id]/free-email error:', error);

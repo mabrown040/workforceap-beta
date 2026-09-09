@@ -1,3 +1,5 @@
+vi.mock('@/lib/tenant/withTenantScope', () => ({ crossTenantOK: (fn: () => Promise<unknown>) => fn() }));
+vi.mock('@/lib/db/withRequestGuc', () => ({ withSystemGuc: (fn: () => Promise<unknown>) => fn() }));
 // @vitest-environment node
 /** Real handler/schema; Supabase, member persistence, rate limits, and telemetry
  * are mocked. This proves response orchestration, not account/email persistence. */
@@ -8,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   signUp: vi.fn(),
   createMember: vi.fn(),
   findUser: vi.fn(),
+  findEmail: vi.fn(),
   deleteUser: vi.fn(),
   checkSignupRateLimit: vi.fn(),
   checkSignupEmailRateLimit: vi.fn(),
@@ -17,7 +20,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@supabase/ssr', () => ({ createServerClient: () => ({ auth: { signUp: mocks.signUp } }) }));
 vi.mock('next/headers', () => ({ cookies: async () => ({ getAll: () => [] }) }));
 vi.mock('@/lib/member/service', () => ({ createMember: mocks.createMember }));
-vi.mock('@/lib/db/prisma', () => ({ prisma: { user: { findUnique: mocks.findUser } } }));
+vi.mock('@/lib/db/prisma', () => ({ prisma: { $transaction: (fn: (tx: unknown) => Promise<unknown>) => fn({ user: { findFirst: mocks.findEmail } }), user: { findUnique: mocks.findUser } } }));
 vi.mock('@/lib/supabase-admin', () => ({ getSupabaseAdmin: () => ({ auth: { admin: { deleteUser: mocks.deleteUser } } }) }));
 vi.mock('@/lib/rate-limit', () => ({
   checkSignupRateLimit: mocks.checkSignupRateLimit,
@@ -62,6 +65,7 @@ beforeEach(() => {
     error: null,
   });
   mocks.findUser.mockResolvedValue(null);
+  mocks.findEmail.mockResolvedValue(null);
   mocks.createMember.mockResolvedValue(undefined);
   mocks.deleteUser.mockResolvedValue({ error: null });
   mocks.trackEvent.mockResolvedValue(undefined);
@@ -123,7 +127,26 @@ describe('POST /api/member/signup response contract (mocked providers)', () => {
     expect(mocks.trackEvent).not.toHaveBeenCalled();
   });
 
-  it('returns an error when member provisioning fails and cleans up only the mocked new identity', async () => {
+  it.each(['active-with-auth', 'legacy-missing-auth', 'deleted-original-email'])('requires staff recovery for a case-insensitive existing app identity (%s)', async () => {
+    // No Auth lookup/signUp is needed: every app-email collision is protected,
+    // including the historical case where its original Auth ID no longer exists.
+    mocks.findEmail.mockResolvedValueOnce({ id: 'original-identity' });
+    const response = await POST(request());
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      code: 'ACCOUNT_RECOVERY_REQUIRED',
+      error: expect.stringContaining('staff-assisted account recovery'),
+    });
+    expect(mocks.findEmail).toHaveBeenCalledExactlyOnceWith({
+      where: { email: { equals: 'test@example.com', mode: 'insensitive' } },
+      select: { id: true },
+    });
+    expect(mocks.signUp).not.toHaveBeenCalled();
+    expect(mocks.createMember).not.toHaveBeenCalled();
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
+  });
+
+  it('preserves the Auth identity when member provisioning fails because signup does not prove it was new', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     mocks.createMember.mockRejectedValueOnce(new Error('Simulated persistence failure'));
     const response = await POST(request());
@@ -131,7 +154,7 @@ describe('POST /api/member/signup response contract (mocked providers)', () => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: 'Account creation failed. Please try again.' });
     expect(mocks.createMember).toHaveBeenCalledTimes(1);
-    expect(mocks.deleteUser).toHaveBeenCalledExactlyOnceWith('new-member-id');
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
     expect(mocks.trackEvent).not.toHaveBeenCalled();
   });
 });

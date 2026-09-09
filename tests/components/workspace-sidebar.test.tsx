@@ -3,9 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceShell from '@/components/portal/WorkspaceShell';
-import { MEMBER_PORTAL_NAV_ITEMS, EMPLOYER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
+import { MEMBER_PORTAL_NAV_ITEMS, EMPLOYER_PORTAL_NAV_ITEMS, ADMIN_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { getBestActiveHref } from '@/lib/nav/activeRoute';
+import { pickAdminClientMessages } from '@/lib/i18n/pickRootClientMessages';
 import messages from '@/messages/en.json';
+import spanishMessages from '@/messages/es.json';
 
 const location = vi.hoisted(() => ({ pathname: '/dashboard/program', wide: true }));
 vi.mock('next/navigation', () => ({ usePathname: () => location.pathname }));
@@ -137,5 +139,47 @@ describe('active-route specificity', () => {
   });
   it('matches full path segments and leaves unrelated routes unselected', () => {
     expect(getBestActiveHref('/dashboard/programming', [{ href: '/dashboard/program' }])).toBeNull();
+  });
+});
+
+describe('admin workspace with the production translation slice', () => {
+  it.each([
+    ['/admin', '/admin'],
+    ['/en/admin/students', '/admin/students'],
+    ['/admin/students/fixture-student', '/admin/students'],
+  ])('marks one destination at %s without raw translation keys', (pathname, activeHref) => {
+    location.pathname = pathname;
+    const onError = vi.fn();
+    const { container } = render(
+      <NextIntlClientProvider locale="en" messages={pickAdminClientMessages(messages)} onError={onError}>
+        <WorkspaceShell portalRole="admin" navItems={ADMIN_PORTAL_NAV_ITEMS}
+          workspaceLabel="Admin workspace" contextLabel="Administrator" readOnlyAudit>
+          <h1>Admin content</h1>
+        </WorkspaceShell>
+      </NextIntlClientProvider>,
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(container.querySelector('.workspace-shell-tagline')).toHaveTextContent('Admin workspace');
+    expect(container).not.toHaveTextContent('workspace.admin');
+    const current = container.querySelectorAll('.workspace-sidebar [aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveAttribute('href', activeHref);
+    expect(container.querySelectorAll('.workspace-sidebar-link.active')).toHaveLength(1);
+  });
+
+  it('uses the selected locale for the admin shell labels', () => {
+    location.pathname = '/es/admin/students';
+    const onError = vi.fn();
+    const { container } = render(
+      <NextIntlClientProvider locale="es" messages={pickAdminClientMessages(spanishMessages)} onError={onError}>
+        <WorkspaceShell portalRole="admin" navItems={ADMIN_PORTAL_NAV_ITEMS}
+          workspaceLabel="Admin workspace" contextLabel="Administrator" readOnlyAudit>
+          <h1>Admin content</h1>
+        </WorkspaceShell>
+      </NextIntlClientProvider>,
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(container.querySelector('.workspace-shell-tagline')).toHaveTextContent(spanishMessages.workspace.admin);
+    expect(container.querySelector('.workspace-sidebar [aria-current="page"]')).toHaveAttribute('href', '/admin/students');
   });
 });

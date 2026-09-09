@@ -1,3 +1,4 @@
+import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
@@ -16,9 +17,8 @@ import { ApplicationStatus } from '@prisma/client';
 import { resolveProvisionOrganizationId } from '@/lib/tenant/resolveProvisionOrg';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logger } from '@/lib/observability/logger';
-import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { withApiGuc, withSystemGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry, isConnectionAcquisitionError } from '@/lib/db/withDbRetry';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { autoAssignAmbassadorFromReferral } from '@/lib/counselor/ambassadorAutoAssign';
 import {
   normalizePartnerRef,
@@ -418,6 +418,22 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       );
     }
   
+    // An existing app identity may have no Auth row after a legacy delete.
+    // Never create another identity or transfer its roles/records through signup.
+    const existingAccount = await crossTenantOK(() => withSystemGuc(() => prisma.$transaction((tx) => tx.user.findFirst({
+      where: { email: { equals: email.trim().toLowerCase(), mode: 'insensitive' } },
+      select: { id: true },
+    }))));
+    if (existingAccount) {
+      return NextResponse.json(
+        {
+          code: 'ACCOUNT_RECOVERY_REQUIRED',
+          error: 'An account with this email already exists. If you cannot sign in, contact WorkforceAP at (512) 777-1808 for staff-assisted account recovery.',
+        },
+        { status: 409 },
+      );
+    }
+
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email.toLowerCase().trim(),
@@ -874,23 +890,9 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       }
     } catch (dbError) {
       captureApiError(dbError, { route: 'POST /api/apply/signup' });
-      // Roll back the auth user we just created so a failed signup doesn't
-      // leave an orphaned auth.users row with no app `users` row (the state
-      // that later causes member_events / message_threads FK violations and
-      // "Member not found" crashes). Mirror /api/member/signup's cleanup.
-      // Only delete when this was a brand-new user: `priorUser` is null means
-      // no app row existed before this request, so the auth account was created
-      // by this signUp call. A returning applicant (priorUser set) keeps theirs.
-      if (!priorUser) {
-        await getSupabaseAdmin()
-          .auth.admin.deleteUser(user.id)
-          .catch((cleanupErr) => {
-            logger.error('apply/signup: failed to clean up auth user after DB error', {
-              userId: user.id,
-              err: cleanupErr,
-            });
-          });
-      }
+      // A missing app row does not prove signUp created a fresh Auth identity:
+      // returning unconfirmed/orphan accounts can have no app row too. Keep
+      // that identity recoverable instead of deleting it after an app error.
       return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
     }
 

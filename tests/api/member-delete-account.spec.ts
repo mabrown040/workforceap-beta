@@ -41,6 +41,7 @@ vi.mock('@/lib/db/prisma', () => ({
 vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdmin: vi.fn(),
 }));
+vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn() }));
 
 vi.mock('@/lib/gdpr/deleteUserStorage', () => ({
   ACCOUNT_STORAGE_DELETE_FAILED:
@@ -54,6 +55,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { deleteUserStorageObjects } from '@/lib/gdpr/deleteUserStorage';
+import { isAdmin } from '@/lib/auth/roles';
 
 const UUIDS = {
   user: '550e8400-e29b-41d4-a716-446655440001',
@@ -62,7 +64,18 @@ const UUIDS = {
 describe('POST /api/member/delete-account', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(isAdmin).mockResolvedValue(false);
     vi.mocked(deleteUserStorageObjects).mockResolvedValue({ ok: true, deleted: [] } as any);
+  });
+
+  it('protects administrator accounts from the member self-delete action', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as never);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    const res = await deleteAccount(new Request('http://localhost'));
+    expect(res.status).toBe(403);
+    expect(deleteUserStorageObjects).not.toHaveBeenCalled();
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(getSupabaseAdmin).not.toHaveBeenCalled();
   });
 
   it('soft-deletes user account for authenticated member', async () => {

@@ -110,3 +110,21 @@ describe('admin command center helpers', () => {
     });
   });
 });
+
+describe('admin queue navigation', () => {
+  it('normalizes invalid or untrusted queue parameters', async () => {
+    const { normalizeAdminQueueRequest } = await import('./commandCenterHelpers');
+    for (const value of ['-1', '2.5', 'Infinity', '1e6', ['2'], NaN]) {
+      assert.equal(normalizeAdminQueueRequest('applications', value).page, 1);
+    }
+    assert.deepEqual(normalizeAdminQueueRequest('another-tenant', '2'), { queue: undefined, page: 1 });
+    assert.equal(normalizeAdminQueueRequest('applications', '2').page, 2);
+    assert.equal(normalizeAdminQueueRequest('applications', Number.MAX_SAFE_INTEGER).page, 100000);
+  });
+
+  it('keeps the selected queue in page navigation', async () => {
+    const { adminQueueHref } = await import('./commandCenterHelpers');
+    assert.equal(adminQueueHref('applications', 2), '/admin/command-center?queue=applications&page=2');
+    assert.equal(adminQueueHref('needs-reply', -1), '/admin/command-center?queue=needs-reply&page=1');
+  });
+});

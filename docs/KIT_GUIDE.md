@@ -334,3 +334,13 @@ The Astryx design system is installed site-wide (`app/layout.tsx` imports `reset
 *Maintenance: this file is hand-synced. If you touch `components/portal/kit/index.ts` exports,
 token names in `css/portal-tokens.css`, or `KitTone`/`StatusTone` semantics, update the matching
 section here in the same PR.*
+
+### Stakeholder workflow contracts (2026-09-09)
+
+- Admin Command Center queue counts represent all matching active records in the actor's organization, independent of the eight-row overview. Focused `queue`/`page` URLs show 25 items, retain context, and recover from an emptied last page. Totals are items, and interview rows are opportunities; neither is a unique-person count. “Select this page” acts only on visible application IDs.
+- Command Center health accepts `unknown` in addition to `ok`/`warn`. Unmeasured or failed checks show a neutral dot and “Not verified,” never green. Failed core loaders render an explicit error state.
+- Partner application links carry the existing attribution token and appear on the default overview/guide. Share tools prepare user-reviewable text; copy or native-share failure stays visible. Attention keeps approved/observed training separate from approval/funding pending.
+- Counselor student summaries state funding source separately from the member-level Coursera approval flag. Neither asserts paid grants or working provider access. Member-context links, drafts, and message recipients must remain tied to the selected learner through async work.
+- Member “Invite a friend” is a dedicated page in the existing warm portal shell, reusing the sharing component from Points. It shows the member's own aggregate rewards and a share toolkit; no referred learner names or learning progress. A count requires both committed reward receipts.
+- Only real trend data receives an arrow/delta chip. Real admin headline counts use four columns for four KPIs, and the work-queue header counts queues rather than learners or pending items.
+- Counselor/partner read receipts acknowledge an authorized loaded-message ID and advance monotonically. Timestamp ties remain read-through semantics. Shared partner/employer chat scrolls its conversation log; adding a message must not move the outer page.

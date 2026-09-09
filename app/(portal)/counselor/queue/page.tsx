@@ -39,7 +39,7 @@ function WorkQueueRowCard({ row }: { row: WorkQueueRow }) {
   const tier = workQueueTier(row.hoursWaiting);
   const c = colorVar(tier.color);
   return (
-    <Link href={`/counselor/messages?studentId=${row.memberId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Link href={`/counselor/messages?memberId=${encodeURIComponent(row.memberId)}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div
         className="wa-kit-card wa-kit-card--sm wa-kit-card--hover"
         style={{ display: 'flex', alignItems: 'flex-start', gap: 12, borderLeft: `3px solid ${c}` }}

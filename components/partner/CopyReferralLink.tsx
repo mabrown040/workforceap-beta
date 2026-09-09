@@ -1,72 +1,46 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack } from '@astryxdesign/core/HStack';
+import { VStack } from '@astryxdesign/core/VStack';
+import { Text } from '@astryxdesign/core/Text';
+import { Check, Copy } from 'lucide-react';
+import { useAnnounce } from '@/components/portal/kit/hooks/useAnnounce';
 
 export default function CopyReferralLink({
   url,
   referralCodeDisplay,
 }: {
   url: string;
-  /** Shown beside actions so partners can read their code aloud or type it elsewhere. */
+  /** Shown beside actions so partners can read their code aloud. */
   referralCodeDisplay?: string;
 }) {
   const [state, setState] = useState<'idle' | 'copied' | 'err'>('idle');
+  const announce = useAnnounce();
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(url);
       setState('copied');
-      window.setTimeout(() => setState('idle'), 2500);
+      announce('Referral link copied.');
     } catch {
       setState('err');
-      window.setTimeout(() => setState('idle'), 3000);
+      announce('Copy failed. Select and copy the referral link shown above.', 'assertive');
     }
   };
 
   return (
-    <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem' }}>
-      {referralCodeDisplay ? (
-        <span
-          className="partner-referral-code-chip"
-          title="Applicants can also cite this code during intake."
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.35rem 0.65rem',
-            borderRadius: '999px',
-            border: '1px solid rgba(173,44,77,0.22)',
-            background: 'rgba(173,44,77,0.06)',
-            fontSize: '0.8125rem',
-            fontWeight: 700,
-            fontFamily: 'ui-monospace, monospace',
-            color: 'var(--color-on-surface)',
-          }}
-        >
-          <span style={{ opacity: 0.75, fontWeight: 600, fontFamily: 'inherit' }}>Code</span>
-          {referralCodeDisplay}
-        </span>
-      ) : null}
-      <button type="button" className="btn btn-muted btn-sm" onClick={() => void copy()}>
-        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
-          {state === 'copied' ? (
-            <>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
-              Copied!
-            </>
-          ) : state === 'err' ? (
-            <>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">error</span>
-              Copy failed — try again
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">link</span>
-              Copy link
-            </>
-          )}
-        </span>
-      </button>
-    </div>
+    <VStack gap={2}>
+      <HStack gap={3} wrap="wrap" vAlign="center">
+        <Button
+          label={state === 'copied' ? 'Link copied' : 'Copy referral link'}
+          icon={state === 'copied' ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
+          onClick={() => void copy()}
+        />
+        {referralCodeDisplay ? <Text type="supporting">Referral code: {referralCodeDisplay}</Text> : null}
+      </HStack>
+      {state === 'err' ? <Text as="p">Copy failed. Select and copy the referral link shown above.</Text> : null}
+    </VStack>
   );
 }

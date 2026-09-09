@@ -1,0 +1,14 @@
+{
+  "target": "authorized disposable local PostgreSQL on port 55437",
+  "source": "actual lib/member/referrals.ts with real Prisma transactions and fixture-only GUC adapter",
+  "checks": [
+    "Actual PostgreSQL rolls back conversion, both receipts and balances after second-recipient counter failure",
+    "Six concurrent real serializable reward calls commit one conversion and exactly two awards",
+    "SQL aggregate is own-referrer-only and requires both point receipts",
+    "Synthetic historical missing award is repaired once without duplicating the existing award",
+    "Only task-created local users and their cascade-owned proof records were removed; absence verified"
+  ],
+  "externalMail": false,
+  "productionChanges": false,
+  "cleanupVerified": true
+}

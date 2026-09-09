@@ -121,9 +121,22 @@ assertContains(
 
 assertContains(
   'app/api/partner/referrals/route.ts',
-  ['member.organizationId !== ctx.partner.organizationId'],
-  'partner/referrals POST rejects cross-tenant memberId (AUDIT §C-T5)',
+  [
+    'tx.partnerReferral.findFirst',
+    'partnerId: ctx.partnerId',
+    'partner: { organizationId: ctx.partner.organizationId, active: true }',
+    'if (!referral)',
+  ],
+  'partner/referrals POST only acknowledges an existing authorized relationship (AUDIT §C-T5)',
 );
+assertMatches(
+  'app/api/partner/referrals/route.ts',
+  /member:\s*\{\s*organizationId:\s*ctx\.partner\.organizationId,\s*deletedAt:\s*null,\s*\.\.\.MEMBER_ONLY_WHERE,?\s*\}/,
+  'partner referral must reference an active member in the partner organization',
+);
+if (/partnerReferral\.(create|createMany|upsert)\s*\(/.test(read('app/api/partner/referrals/route.ts'))) {
+  fail('partner/referrals must not create a relationship that grants member access; use the authorized application/admin flow');
+}
 
 assertContains(
   'app/api/admin/employers/[id]/approve/route.ts',

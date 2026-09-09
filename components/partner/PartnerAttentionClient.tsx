@@ -290,7 +290,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                     tone={TIER_TONE[m.riskTier]}
                     icon={<Icon size={16} aria-hidden />}
                     title={m.fullName}
-                    meta={`${m.stageLabel} · ${m.programTitle} · quiet ${m.staleDays}d`}
+                    meta={`${m.stageLabel} · ${m.programTitle} · profile updated ${m.staleDays}d ago`}
                     flag={m.riskTier.toUpperCase()}
                     action={
                       <Link href={`/partner/referred-members/${m.memberId}`} className="portal-section-action">

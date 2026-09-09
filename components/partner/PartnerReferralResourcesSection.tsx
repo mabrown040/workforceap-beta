@@ -13,7 +13,7 @@ export default function PartnerReferralResourcesSection({
   const emailBody = [
     `Hi,`,
     ``,
-    `I'm reaching out from ${partnerName}. WorkforceAP offers no-cost training and career support for eligible participants in our community.`,
+    `I'm reaching out from ${partnerName}. WorkforceAP connects people with career support and training pathways. Training eligibility, enrollment approval, and any required funding are confirmed by WorkforceAP.`,
     ``,
     `If you or someone you know could benefit, you can apply here (please use this link so we're credited as your referral partner):`,
     `${referralApplyUrl}`,
@@ -23,7 +23,7 @@ export default function PartnerReferralResourcesSection({
   ].join('\n');
 
   const socialCaption = [
-    `Training + career support at no cost to eligible learners. ${partnerName} is partnering with WorkforceAP — apply via our link to get started.`,
+    `${partnerName} is partnering with WorkforceAP to connect people with career support and training pathways. Apply via our link; WorkforceAP will confirm training eligibility and any required funding.`,
     referralApplyUrl,
   ].join('\n\n');
 

@@ -7,7 +7,7 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
+import { assignMemberCounselor } from '@/lib/counselor/assignment';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 import type { PipelineBoardStage, MemberStatus } from '@prisma/client';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -128,7 +128,7 @@ async function _POST(request: NextRequest) {
         where: {
           userId: counselorUserId,
           active: true,
-          user: { organizationId: orgId },
+          user: { organizationId: orgId, deletedAt: null },
         },
         include: { user: { select: { id: true, fullName: true } } },
       });
@@ -217,42 +217,15 @@ async function _POST(request: NextRequest) {
             }
           }
           if (counselorUserId !== undefined) {
-            if (counselorUserId === null) {
-              await tx.counselorAssignment.updateMany({
-                where: { memberId: member.id, active: true },
-                data: { active: false },
-              });
-            } else if (counselor) {
-              const existingPair = await tx.counselorAssignment.findUnique({
-                where: {
-                  counselorId_memberId: { counselorId: counselor.id, memberId: member.id },
-                },
-              });
-              await tx.counselorAssignment.updateMany({
-                where: { memberId: member.id, active: true },
-                data: { active: false },
-              });
-              if (existingPair) {
-                await tx.counselorAssignment.update({
-                  where: { id: existingPair.id },
-                  data: { active: true },
-                });
-              } else {
-                await tx.counselorAssignment.create({
-                  data: {
-                    counselorId: counselor.id,
-                    memberId: member.id,
-                    active: true,
-                  },
-                });
-              }
-            }
+            await assignMemberCounselor(tx, {
+              memberId: member.id, organizationId: orgId, counselorUserId,
+            });
           }
         });
 
         updatedCount++;
 
-        // Cache invalidation, thread routing, and audit writes are important
+        // Cache invalidation and audit writes are important
         // post-commit work. Report a warning instead of lying to the UI that
         // the already-committed member mutation failed.
         try {
@@ -260,19 +233,6 @@ async function _POST(request: NextRequest) {
         } catch (cacheError) {
           console.error(`[bulk-update] member-state cache invalidation failed for ${member.id}:`, cacheError);
           warnings.push(`${member.fullName}: member updated, but cached portal data may take a few minutes to refresh.`);
-        }
-
-        if (counselorUserId !== undefined) {
-          try {
-            const thread = await getOrCreateMemberCounselorThread(member.id);
-            await prisma.messageThread.update({
-              where: { id: thread.id },
-              data: { counselorUserId: counselorUserId === null ? null : counselor?.user.id ?? null },
-            });
-          } catch (threadError) {
-            console.error(`[bulk-update] counselor thread sync failed for ${member.id}:`, threadError);
-            warnings.push(`${member.fullName}: member updated, but counselor chat routing needs review.`);
-          }
         }
 
         const auditResults = await Promise.allSettled([auditLog({

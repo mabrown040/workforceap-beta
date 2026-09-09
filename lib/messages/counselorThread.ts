@@ -80,20 +80,24 @@ export async function assertStaffCanAccessThread(staffUserId: string, threadId: 
     return (await isAdmin(staffUserId)) ? thread : null;
   }
 
-  if (thread.counselorUserId === staffUserId) return thread;
+  // A cached thread owner is routing metadata, not lasting authorization.
+  // Reassignment, counselor deactivation, or an old failed sync must revoke it.
 
   // Tenant-scoped admin access: super_admin is cross-tenant by design;
   // org admins may only access threads for members in their own org.
   const memberOrgId = thread.memberId
-    ? (await prisma.user.findUnique({ where: { id: thread.memberId }, select: { organizationId: true } }))?.organizationId ?? null
+    ? (await prisma.user.findFirst({ where: { id: thread.memberId, deletedAt: null }, select: { organizationId: true } }))?.organizationId ?? null
     : null;
   if (memberOrgId && (await isSuperAdmin(staffUserId))) return thread;
   if (memberOrgId && (await isAdminInOrg(staffUserId, memberOrgId))) return thread;
 
-  if (!thread.memberId) return null;
+  if (!thread.memberId || !memberOrgId) return null;
 
   const assigned = await prisma.counselorAssignment.findFirst({
-    where: { memberId: thread.memberId, active: true, counselor: { userId: staffUserId, active: true } },
+    where: {
+      memberId: thread.memberId, active: true,
+      counselor: { userId: staffUserId, active: true, user: { organizationId: memberOrgId, deletedAt: null } },
+    },
     select: { id: true },
   });
   if (assigned) return thread;

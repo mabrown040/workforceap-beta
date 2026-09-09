@@ -18,6 +18,8 @@ type ConfirmDialogProps = {
   danger?: boolean;
   /** Disables both buttons and swaps the confirm label while the action runs. */
   busy?: boolean;
+  /** Prevent confirmation while leaving Cancel available. */
+  confirmDisabled?: boolean;
   /** Dialog card max width in px. Defaults to 420 (previous hardcoded value). */
   maxWidth?: number;
   onConfirm: () => void;
@@ -40,6 +42,7 @@ export default function ConfirmDialog({
   cancelLabel = 'Cancel',
   danger = false,
   busy = false,
+  confirmDisabled = false,
   maxWidth = 420,
   onConfirm,
   onCancel,
@@ -67,7 +70,7 @@ export default function ConfirmDialog({
             label={busy ? 'Working…' : confirmLabel}
             variant={danger ? 'destructive' : 'primary'}
             onClick={onConfirm}
-            isDisabled={busy}
+            isDisabled={busy || confirmDisabled}
             isLoading={busy}
           />
         </HStack>

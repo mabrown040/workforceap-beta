@@ -56,6 +56,7 @@ export const STATIC_PATHS = {
     '/dashboard/messages',
     '/dashboard/missions',
     '/dashboard/points',
+    '/dashboard/referrals',
     '/dashboard/profile',
     '/dashboard/program',
     '/dashboard/program/employer-screening',

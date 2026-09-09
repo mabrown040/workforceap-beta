@@ -66,7 +66,7 @@ export async function getSlaStatusForThreads(threadIds: string[]): Promise<Map<s
   return map;
 }
 
-export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<number> {
+export async function countThreadsWithSlaBreach(minHours: 48 | 72, organizationId?: string): Promise<number> {
   const thresholdMs = minHours === 48 ? HOURS_48_MS : HOURS_72_MS;
   const threshold = new Date(Date.now() - thresholdMs);
 
@@ -82,6 +82,8 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
        WHERE t.kind = 'member'
          AND m.author_id = t.member_id
          AND t.member_id IS NOT NULL
+         AND EXISTS (SELECT 1 FROM users u WHERE u.id = t.member_id AND u.deleted_at IS NULL
+           AND ($2::text IS NULL OR u.organization_id = $2))
        ORDER BY m.thread_id, m.created_at DESC
      )
      SELECT COUNT(*)::int AS count
@@ -96,6 +98,7 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
            AND m2.created_at > lmm.member_last_msg_at
        )`,
     threshold,
+    organizationId ?? null,
   );
 
   return result[0]?.count ?? 0;

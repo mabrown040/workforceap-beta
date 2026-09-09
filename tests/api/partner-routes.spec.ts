@@ -35,7 +35,7 @@ vi.mock('@/lib/auth/roles', () => ({
 }));
 
 vi.mock('@/lib/db/prisma', () => {
-  const partnerReferral = { findMany: vi.fn(), create: vi.fn(), findUnique: vi.fn() };
+  const partnerReferral = { findMany: vi.fn(), create: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn() };
   const user = { findUnique: vi.fn() };
   const partner = { findUnique: vi.fn() };
   const placementRecord = { findFirst: vi.fn() };
@@ -388,51 +388,75 @@ describe('POST /api/partner/referrals', () => {
   it('returns 404 when member does not exist', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(partnerCtx as any);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.partnerReferral.findFirst).mockResolvedValue(null);
 
     const res = await referralsPost(makeRequest({ memberId: UUIDS.member }));
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: 'Member not found' });
   });
 
-  it('creates a new referral successfully', async () => {
+  it('acknowledges an existing authorized referral idempotently without creating or changing attribution', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(partnerCtx as any);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, fullName: 'Alice', organizationId: UUIDS.org } as any);
-    vi.mocked(prisma.partnerReferral.create).mockResolvedValue({
+    vi.mocked(prisma.partnerReferral.findFirst).mockResolvedValue({
       id: 'ref-123',
       partnerId: UUIDS.partner,
       memberId: UUIDS.member,
       referredAt: new Date('2026-05-01'),
-      member: { id: UUIDS.member, fullName: 'Alice' },
     } as any);
 
     const res = await referralsPost(makeRequest({ memberId: UUIDS.member }));
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.partnerId).toBe(UUIDS.partner);
     expect(body.memberId).toBe(UUIDS.member);
     expect(body.referredAt).toBe('2026-05-01T00:00:00.000Z');
 
-    expect(prisma.partnerReferral.create).toHaveBeenCalledWith(
+    expect(prisma.partnerReferral.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
+        where: expect.objectContaining({
           partnerId: UUIDS.partner,
           memberId: UUIDS.member,
+          partner: { organizationId: UUIDS.org, active: true },
+          member: expect.objectContaining({
+            organizationId: UUIDS.org,
+            deletedAt: null,
+            profile: { role: 'member' },
+          }),
         }),
       })
     );
+    expect(prisma.partnerReferral.create).not.toHaveBeenCalled();
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+
+    const retry = await referralsPost(makeRequest({ memberId: UUIDS.member }));
+    expect(retry.status).toBe(200);
+    expect(await retry.json()).toEqual(body);
+    expect(prisma.partnerReferral.create).not.toHaveBeenCalled();
   });
 
-  it('returns 409 when referral already exists', async () => {
+  it.each([
+    { label: 'an unrelated same-org member', memberOrg: UUIDS.org, deletedAt: null, role: 'member', linked: false },
+    { label: 'a cross-org member with a stale referral', memberOrg: UUIDS.member2, deletedAt: null, role: 'member', linked: true },
+    { label: 'a deleted referred member', memberOrg: UUIDS.org, deletedAt: new Date('2026-09-01'), role: 'member', linked: true },
+    { label: 'a staff account with a stale referral', memberOrg: UUIDS.org, deletedAt: null, role: 'admin', linked: true },
+  ])('denies $label without granting partner access', async ({ memberOrg, deletedAt, role, linked }) => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(partnerCtx as any);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, fullName: 'Alice', organizationId: UUIDS.org } as any);
-    vi.mocked(prisma.partnerReferral.create).mockRejectedValue({ code: 'P2002' });
+    // This member exists, but existence alone is not authorization. Evaluate
+    // the relevant query predicates against the synthetic relationship.
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, organizationId: memberOrg } as any);
+    vi.mocked(prisma.partnerReferral.findFirst).mockImplementation(((args: any) => {
+      const filter = args.where.member;
+      const authorized = linked && filter.organizationId === memberOrg && filter.deletedAt === deletedAt && filter.profile.role === role;
+      return Promise.resolve(authorized ? { id: 'unexpected-access' } : null);
+    }) as typeof prisma.partnerReferral.findFirst);
 
     const res = await referralsPost(makeRequest({ memberId: UUIDS.member }));
-    expect(res.status).toBe(409);
-    expect(await res.json()).toEqual({ error: 'Referral already exists for this member' });
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Member not found' });
+    expect(prisma.partnerReferral.create).not.toHaveBeenCalled();
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 });
 

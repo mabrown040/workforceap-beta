@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
@@ -191,8 +191,14 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
   const [inboxFilter, setInboxFilter] = useState<InboxFilter>('all');
   const [selectedId, setSelectedId] = useState<string | null>(() => pickInitialSelection(rows, initialMemberId));
   const [mobileList, setMobileList] = useState(() => !hasInitialSelection);
-  const [chat, setChat] = useState<ChatPayload | null>(null);
+  const [loadedChat, setChat] = useState<ChatPayload | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<{ memberId: string; message: string } | null>(null);
+  const [retry, setRetry] = useState(0);
+  const hasAuthorizedSelection = rows.some((row) => row.memberId === selectedId);
+  // Never show or mount a composer for a previous selection, even before the
+  // effect runs or when requests resolve out of order.
+  const chat = hasAuthorizedSelection && loadedChat?.member.id === selectedId ? loadedChat : null;
 
   useEffect(() => {
     setSelectedId((prev) => {
@@ -209,29 +215,40 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
     }
   }, [rows, initialMemberId]);
 
-  const loadChat = useCallback(async (memberId: string) => {
-    setLoading(true);
-    try {
-      const r = await fetch(`/api/counselor/members/${memberId}/messages`, { credentials: 'include' });
-      const d = await r.json();
-      if (!r.ok) {
-        setChat(null);
-        return;
-      }
-      setChat({
-        member: d.member,
-        thread: d.thread,
-        messages: d.messages,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    if (selectedId) void loadChat(selectedId);
-    else setChat(null);
-  }, [selectedId, loadChat]);
+    if (!selectedId || !hasAuthorizedSelection) {
+      setChat(null);
+      return;
+    }
+    const memberId = selectedId;
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError(null);
+    async function loadChat() {
+      try {
+        const response = await fetch(`/api/counselor/members/${encodeURIComponent(memberId)}/messages`, {
+          credentials: 'include',
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('Could not load this conversation. Try again.');
+        const data: ChatPayload = await response.json();
+        if (controller.signal.aborted) return;
+        if (data.member?.id !== memberId || data.thread?.memberId !== memberId || !data.thread?.id || !Array.isArray(data.messages)) {
+          throw new Error('Could not load this conversation. Try again.');
+        }
+        setChat(data);
+      } catch {
+        if (!controller.signal.aborted) {
+          setChat(null);
+          setLoadError({ memberId, message: 'Could not load this conversation. Try again.' });
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }
+    void loadChat();
+    return () => controller.abort();
+  }, [selectedId, hasAuthorizedSelection, retry]);
 
   const needsReplyCount = useMemo(() => rows.filter((r) => r.needsReply).length, [rows]);
   const unreadThreadCount = useMemo(() => rows.filter((r) => r.unreadCount > 0).length, [rows]);
@@ -329,6 +346,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
         padding: '1rem 1.25rem',
         borderBottom: '1px solid var(--outline-variant)',
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '1rem',
@@ -336,7 +354,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
         background: 'color-mix(in srgb, var(--surface-container-lowest) 92%, transparent)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: 0, flex: '1 1 12rem' }}>
         <div
           style={{
             width: 38,
@@ -361,7 +379,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
             .toUpperCase() ?? '—'}
         </div>
         <div style={{ minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0 }}>{chat.member.fullName}</p>
+          <p style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0, overflowWrap: 'anywhere' }}>{chat.member.fullName}</p>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
             {(() => {
               const row = rows.find((x) => x.memberId === chat.member.id);
@@ -386,6 +404,13 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
   const chatBody =
     rows.length === 0 ? (
       <div style={{ padding: '2rem', color: 'var(--color-on-surface-variant)' }}>No assigned members yet.</div>
+    ) : loadError?.memberId === selectedId && !loading ? (
+      <div style={{ padding: 'var(--wa-pad)' }}>
+        <p role="alert" style={{ color: 'var(--wa-text)' }}>{loadError.message}</p>
+        <button type="button" className="btn btn-outline" onClick={() => setRetry((value) => value + 1)}>
+          Try again
+        </button>
+      </div>
     ) : loading || !chat ? (
       <div style={{ padding: '2rem', color: 'var(--color-on-surface-variant)' }}>Loading thread…</div>
     ) : (
@@ -399,7 +424,9 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
         }}
       >
         <AdminMemberCounselorChatClient
+          key={`${chat.member.id}:${chat.thread.id}`}
           compact
+          readCursorMode
           messagesApiBase={`/api/counselor/members/${chat.member.id}/messages`}
           initial={{
             staffUserId,

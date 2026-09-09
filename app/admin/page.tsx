@@ -10,6 +10,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
 import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
 import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import TriageDigestSection from '@/components/admin/TriageDigestSection';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -60,6 +61,7 @@ export default async function AdminTodayPage({
   if (requestedUi !== 'legacy') {
     const yearStart = new Date(new Date().getUTCFullYear(), 0, 1);
     let adminHomeLoadFailed = false;
+    let workflowHealthLoadFailed = false;
 
     const { data, headline } = await withAuthGuc(async () => {
       const orgId = await getActorOrganizationId(user.id);
@@ -103,7 +105,7 @@ export default async function AdminTodayPage({
         // "System health" signals — same cheap patterns app/admin/overview/page.tsx
         // already runs after its own auth guard (one count + one existing helper,
         // no new expensive queries).
-        prisma.workflowDiagnostic
+        scope.superAdmin ? prisma.workflowDiagnostic
           .count({
             where: {
               status: { in: ['error', 'errored'] },
@@ -111,11 +113,11 @@ export default async function AdminTodayPage({
             },
           })
           .catch((error) => {
-            adminHomeLoadFailed = true;
+            workflowHealthLoadFailed = true;
             console.error('[admin/page] workflow diagnostic count failed', error);
             return 0;
-          }),
-        countThreadsWithSlaBreach(48).catch((error) => {
+          }) : Promise.resolve(null),
+        countThreadsWithSlaBreach(48, orgId).catch((error) => {
           adminHomeLoadFailed = true;
           console.error('[admin/page] message SLA count failed', error);
           return 0;
@@ -150,6 +152,8 @@ export default async function AdminTodayPage({
       };
     });
 
+    if (adminHomeLoadFailed) return <AdminDataLoadError title="Command center unavailable" message="Current queues and dashboard figures could not be loaded. Please reload this page." />;
+
     const { totals } = data;
 
     // Placements by month (Jan→current month, YTD).
@@ -163,10 +167,7 @@ export default async function AdminTodayPage({
     const placementsByMonth: ChartDatum[] = monthBuckets.map((value, i) => ({ label: monthLabels[i], value }));
     const placementsYtd = headline.placementRows.length;
 
-    const interviewingShare =
-      headline.activeStudents > 0
-        ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
-        : '—';
+
 
     // Cheap trend series for the "Placements YTD" sparkline — reuses the
     // month buckets already computed for the placements-trend chart above
@@ -178,19 +179,15 @@ export default async function AdminTodayPage({
         label: 'Active Students',
         value: headline.activeStudents,
         color: 'text',
-        delta: `${headline.activeStudents} enrolled`,
-        deltaColor: 'success',
       },
       {
         label: 'Placements YTD',
         value: placementsYtd,
         color: 'success',
-        delta: 'this year',
-        deltaColor: 'success',
-        spark: placementsSpark ? { series: placementsSpark, delta: 'this year', direction: 'up' } : undefined,
+        spark: placementsSpark ? { series: placementsSpark } : undefined,
       },
-      { label: 'Interviewing Share', value: interviewingShare, color: 'info', delta: 'of enrolled', deltaColor: 'muted' },
-      { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
+      { label: 'Interview prep', value: totals.interviewingCount, color: 'info' },
+      { label: 'At Risk', value: totals.atRiskCount, color: 'accent' },
     ];
 
     const queueItems: CommandCenterQueueItem[] = [
@@ -198,21 +195,21 @@ export default async function AdminTodayPage({
         id: 'at-risk',
         icon: <TriangleAlert size={14} aria-hidden />,
         iconColor: 'var(--wa-accent)',
-        title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} inactive 14+ days`,
-        detail: 'Enrolled, gone quiet — likely to drop',
+        title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} need a check-in`,
+        detail: 'Approved training has gone quiet or course activity is flagged',
         actionLabel: `${totals.atRiskCount} items`,
         urgent: totals.atRiskCount > 0,
-        href: '/admin/command-center?ui=legacy',
+        href: '/admin/command-center?queue=at-risk',
         count: totals.atRiskCount,
       },
       {
         id: 'needs-reply',
         icon: <Bell size={14} aria-hidden />,
         iconColor: 'var(--wa-info)',
-        title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'message' : 'messages'} awaiting your reply`,
+        title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'conversation needs' : 'conversations need'} a reply`,
         detail: 'Members are waiting on a response',
         actionLabel: `${totals.needsReplyCount} items`,
-        href: '/admin/messages',
+        href: '/admin/command-center?queue=needs-reply',
         count: totals.needsReplyCount,
       },
       {
@@ -222,7 +219,7 @@ export default async function AdminTodayPage({
         title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
         detail: 'Eligibility + program-fit review pending',
         actionLabel: `${totals.applicationsPendingCount} items`,
-        href: '/admin/command-center?ui=legacy',
+        href: '/admin/command-center?queue=applications',
         count: totals.applicationsPendingCount,
       },
       {
@@ -240,34 +237,32 @@ export default async function AdminTodayPage({
         id: 'interviewing',
         icon: <Briefcase size={14} aria-hidden />,
         iconColor: 'var(--wa-success)',
-        title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'candidate' : 'candidates'} interviewing`,
+        title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'opportunity needs' : 'opportunities need'} interview prep`,
         detail: 'Phone screens, interviews, and offers to prep',
         actionLabel: `${totals.interviewingCount} items`,
-        href: '/admin/placements',
+        href: '/admin/command-center?queue=interviewing',
         count: totals.interviewingCount,
       },
     ];
 
-    // System health — a few named operational signals. Two are real (cron
-    // error count over 7d, message-SLA breach count over 48h — both already
-    // computed above via the exact patterns app/admin/overview/page.tsx uses
-    // post-guard); the rest have no cheap per-workflow signal today, so they
-    // show a static "ok" with an honest static caption rather than a
-    // fabricated number.
+    // Unmeasured services are explicitly unknown; global workflow diagnostics
+    // are shown only to platform admins, never ordinary tenant admins.
     const systemHealth: CommandCenterSystemHealthRow[] = [
-      { name: 'Coursera sync', status: 'ok', meta: 'Nightly at 2:00 AM' },
-      { name: 'At-risk scoring', status: 'ok', meta: 'Recomputes hourly' },
+      { name: 'Coursera sync', status: 'unknown', meta: 'Latest run not verified here' },
+      { name: 'At-risk scoring', status: 'unknown', meta: 'Latest run not verified here' },
       {
-        name: 'Notifications',
+        name: 'Member reply SLA',
         status: headline.slaBreaches48h > 0 ? 'warn' : 'ok',
-        meta: headline.slaBreaches48h > 0 ? `${headline.slaBreaches48h} threads >48h` : 'All threads within SLA',
+        meta: headline.slaBreaches48h > 0 ? `${headline.slaBreaches48h} threads waiting >48h` : 'No replies overdue by 48h',
       },
-      {
-        name: 'Webhook retry',
-        status: headline.recentCronErrors > 0 ? 'warn' : 'ok',
-        meta: headline.recentCronErrors > 0 ? `${headline.recentCronErrors} errors (7d)` : 'No errors this week',
-      },
-      { name: 'Payouts', status: 'ok', meta: 'No automated signal yet' },
+      ...(scope.superAdmin ? [{
+        name: 'Platform workflow errors',
+        status: workflowHealthLoadFailed || headline.recentCronErrors == null ? 'unknown' as const
+          : headline.recentCronErrors > 0 ? 'warn' as const : 'ok' as const,
+        meta: workflowHealthLoadFailed || headline.recentCronErrors == null ? 'Could not check diagnostics'
+          : `${headline.recentCronErrors} errors recorded in 7 days`,
+      }] : []),
+      { name: 'Payouts', status: 'unknown', meta: 'No automated check available' },
     ];
 
     const programHealth: ProgramHealthDatum[] = data.programHealth.map((row) => ({

@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import type { AppLocale } from '@/lib/i18n/config';
 import {
   WAP_LOCALE_COOKIE,
@@ -109,6 +110,12 @@ function isAdminPath(pathname: string) {
 
 function isAdminApiPath(pathname: string) {
   return ADMIN_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function isStaffMfaPath(pathname: string) {
+  return isAdminPath(pathname) || isAdminApiPath(pathname) ||
+    pathname === '/counselor' || pathname.startsWith('/counselor/') ||
+    pathname === '/api/counselor' || pathname.startsWith('/api/counselor/');
 }
 
 function isTenantApiPath(pathname: string) {
@@ -379,29 +386,51 @@ export async function middleware(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (isStaffMfaEnforcementEnabled() && (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)) && user) {
-    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (isStaffMfaEnforcementEnabled() && isStaffMfaPath(effectivePath) && user) {
+    let aalData;
+    try {
+      const result = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (!result.error) aalData = result.data;
+    } catch {
+      // A provider outage must not turn the staff MFA gate into an allow.
+    }
+    const preserveSessionCookies = (blocked: NextResponse) => {
+      for (const cookie of response.cookies.getAll()) blocked.cookies.set(cookie);
+      blocked.headers.set('Cache-Control', 'no-store');
+      return blocked;
+    };
+    if (!aalData || (aalData.currentLevel !== 'aal1' && aalData.currentLevel !== 'aal2')) {
+      return preserveSessionCookies(NextResponse.json(
+        { error: 'Unable to verify MFA. Please try again.' }, { status: 503 },
+      ));
+    }
+    if (aalData.currentLevel === 'aal2') return response;
 
-    if (aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2') {
+    const enrolled = aalData.nextLevel === 'aal2';
+    if (enrolled) {
       const trustedDevice = await verifyAdminMfaTrustToken({
         token: request.cookies.get(getAdminMfaTrustCookieName())?.value,
         userId: user.id,
         userAgent: request.headers.get('user-agent'),
-      });
+        ip: getClientIpFromRequest(request),
+      }).catch(() => false);
 
       if (trustedDevice) {
         return response;
       }
-
-      if (isAdminApiPath(effectivePath)) {
-        return NextResponse.json({ error: 'MFA required' }, { status: 403 });
-      }
-
-      if (!effectivePath.startsWith('/verify-mfa') && !effectivePath.startsWith('/setup-mfa')) {
-        const verifyUrl = new URL('/verify-mfa', request.url);
-        return NextResponse.redirect(verifyUrl);
-      }
     }
+
+    // Auth setup/challenge/logout endpoints are outside these staff prefixes,
+    // so an AAL1 session can still enroll, verify, recover, or sign out.
+    if (effectivePath.startsWith('/api/')) {
+      return preserveSessionCookies(NextResponse.json(
+        { error: enrolled ? 'MFA required' : 'MFA setup required', code: enrolled ? 'MFA_REQUIRED' : 'MFA_SETUP_REQUIRED' },
+        { status: 403 },
+      ));
+    }
+    const mfaUrl = new URL(enrolled ? '/verify-mfa' : '/setup-mfa', request.url);
+    mfaUrl.searchParams.set('next', requestedPathWithSearch(request));
+    return preserveSessionCookies(NextResponse.redirect(mfaUrl));
   }
 
   return response;

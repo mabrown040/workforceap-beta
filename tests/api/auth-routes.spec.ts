@@ -868,15 +868,18 @@ describe('POST /api/auth/logout', () => {
     expect(trustClear!.value).toBe('');
   });
 
-  it('returns 500 when signOut throws', async () => {
+  it('clears the local session even when the provider client cannot be created', async () => {
     const { createSupabaseServerClient } = await import('@/lib/auth/server');
     vi.mocked(createSupabaseServerClient).mockRejectedValue(new Error('Supabase down'));
+    const cookieStore = createMockCookieStore([{ name: 'sb-fixture-auth-token', value: 'synthetic' }]);
+    vi.mocked(cookies).mockResolvedValue(cookieStore as any);
 
     const res = await logoutPOST(new Request('http://localhost/api/auth/logout', { method: 'POST' }));
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.error).toBe('Internal server error');
+    expect(body).toEqual({ success: true, globalSignOut: false });
+    expect(cookieStore._jar.get('sb-fixture-auth-token')).toBe('');
   });
 });
 

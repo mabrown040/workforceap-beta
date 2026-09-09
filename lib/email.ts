@@ -1120,10 +1120,11 @@ export async function sendMilestoneCascadeEmail(params: {
   to: string;
   subject: string;
   bodyText: string;
+  idempotencyKey?: string;
   /** Optional CTA. Defaults to a training-dashboard link. */
   ctaText?: string;
   ctaUrl?: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; error?: string; messageId?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendMilestoneCascadeEmail: RESEND_API_KEY not set');
@@ -1144,13 +1145,15 @@ export async function sendMilestoneCascadeEmail(params: {
     ctaUrl: params.ctaUrl ?? `${SITE_URL}/dashboard`,
   });
   try {
-    await sendBrandedEmail(resend, {
+    const result = await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(params.subject),
       html,
+      idempotencyKey: params.idempotencyKey,
     });
-    return { ok: true };
+    if (params.idempotencyKey && !result.data?.id) return { ok: false, error: 'The email provider did not return an acceptance receipt.' };
+    return { ok: true, messageId: result.data?.id };
   } catch (err) {
     console.error('sendMilestoneCascadeEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };

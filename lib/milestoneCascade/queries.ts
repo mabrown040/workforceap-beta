@@ -5,6 +5,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { ActionDraftSchema, type ActionDraft } from './types';
+import { summarizeCascadeDispatch, type CascadeDispatchSummary } from './dispatchState';
 
 /**
  * Server-side query helpers for the milestone-cascade pipeline.
@@ -19,6 +20,8 @@ import { ActionDraftSchema, type ActionDraft } from './types';
 
 export interface CascadeCardData {
   id: string;
+  status: string;
+  dispatch: CascadeDispatchSummary | null;
   userId: string;
   userFullName: string | null;
   userEmail: string;
@@ -85,7 +88,7 @@ export async function resolveCascadeScope(
 }
 
 /**
- * List cascades currently awaiting counselor approval, oldest first. Drives
+ * List cascades awaiting approval or delivery reconciliation, oldest first. Drives
  * `/admin/agent-inbox`.
  *
  * Tenant scope: super-admins see everything; tenant admins see only their
@@ -112,8 +115,10 @@ export async function listAwaitingApprovalCascades(opts?: {
       : {};
   const rows = await prisma.milestoneCascade.findMany({
     where: {
-      status: 'awaiting_approval',
-      expiresAt: { gt: new Date() },
+      OR: [
+        { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
+        { status: 'approved' },
+      ],
       ...userFilter,
     },
     orderBy: { createdAt: 'asc' },
@@ -127,6 +132,8 @@ export async function listAwaitingApprovalCascades(opts?: {
     const { drafts, invalid } = parseDrafts(row.drafts);
     return {
       id: row.id,
+      status: row.status,
+      dispatch: row.status === 'approved' ? summarizeCascadeDispatch(row.dispatchState) : null,
       userId: row.userId,
       userFullName: row.user?.fullName ?? null,
       userEmail: row.user?.email ?? '(unknown)',
@@ -161,8 +168,10 @@ export async function countAwaitingApprovalCascades(opts?: {
       : {};
   return prisma.milestoneCascade.count({
     where: {
-      status: 'awaiting_approval',
-      expiresAt: { gt: new Date() },
+      OR: [
+        { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
+        { status: 'approved' },
+      ],
       ...userFilter,
     },
   });
@@ -185,6 +194,8 @@ export async function getCascadeForReview(
   const { drafts, invalid } = parseDrafts(row.drafts);
   return {
     id: row.id,
+    status: row.status,
+    dispatch: row.status === 'approved' ? summarizeCascadeDispatch(row.dispatchState) : null,
     userId: row.userId,
     userFullName: row.user?.fullName ?? null,
     userEmail: row.user?.email ?? '(unknown)',

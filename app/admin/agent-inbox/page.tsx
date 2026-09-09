@@ -10,6 +10,7 @@ import { formatPortalDate } from '@/lib/formatDate';
 
 import {
   listAwaitingApprovalCascades,
+  countAwaitingApprovalCascades,
   resolveCascadeScope,
   type CascadeCardData,
 } from '@/lib/milestoneCascade/queries';
@@ -67,8 +68,10 @@ function toKitRow(c: CascadeCardData): AgentInboxRow {
     type: humanizeMilestone(c.milestoneType, c.milestoneRef),
     drafts: c.drafts.length,
     when: formatPortalDate(c.createdAt),
-    expires: formatExpiry(expiresAt),
-    urgency: expiryTone(expiresAt),
+    expires: c.status === 'approved'
+      ? c.dispatch?.retryAfter ? 'Sending' : c.dispatch?.canRetry && expiresAt > new Date() ? 'Delivery retry available' : 'Delivery needs review'
+      : formatExpiry(expiresAt),
+    urgency: c.status === 'approved' ? c.dispatch?.retryAfter ? 'info' : 'warn' : expiryTone(expiresAt),
   };
 }
 
@@ -106,9 +109,10 @@ export default async function AgentInboxPage({
   // AI-drafted message bodies and learner emails.
   const scope = await resolveCascadeScope(user.id);
 
-  const [cascades, metrics] = await Promise.all([
+  const [cascades, metrics, needsReview] = await Promise.all([
     listAwaitingApprovalCascades({ limit: 100, scope }),
     getCascadeMetrics({ windowDays: 7, scope }),
+    countAwaitingApprovalCascades({ scope }),
   ]);
 
   if (legacy) {
@@ -132,7 +136,7 @@ export default async function AgentInboxPage({
     <PortalPageFrame>
       <AgentInboxKit
         rows={cascades.map(toKitRow)}
-        awaitingReview={metrics.totals.awaitingApproval}
+        awaitingReview={needsReview}
         pendingDraft={metrics.totals.pendingDraft}
         sent={metrics.totals.sent}
         resolved={metrics.totals.dismissed + metrics.totals.expired}

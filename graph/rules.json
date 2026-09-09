@@ -24,14 +24,14 @@
     "id": "rul_concordia_seed_owner",
     "fromClaimId": null,
     "status": "accepted",
-    "text": "create-chs-partner.ts owns production Concordia. Student URL segment IS Partner.slug (CHS_PARTNER_SLUG === 'concordia' → /enroll/concordia). seed-partner-school.ts must not silently overwrite that row.",
+    "text": "create-chs-partner.ts owns production Concordia. Student URL segment IS Partner.slug (CHS_PARTNER_SLUG === 'concordia' \u2192 /enroll/concordia). seed-partner-school.ts must not silently overwrite that row.",
     "check": "lib/partners/chsPartner.ts:CHS_PARTNER_SLUG === 'concordia'"
   },
   {
     "id": "rul_publish_needs_catalog",
     "fromClaimId": null,
     "status": "accepted",
-    "text": "A school enroll page with sponsoredEnrollment=true and zero catalog rows 404s. Admin publish must require ≥1 program slug.",
+    "text": "A school enroll page with sponsoredEnrollment=true and zero catalog rows 404s. Admin publish must require \u22651 program slug.",
     "check": "lib/partner/adminSchoolPartner.ts:validateAdminProgramSlugs"
   },
   {
@@ -45,7 +45,7 @@
     "id": "rul_admin_school_is_data_entry",
     "fromClaimId": "clm_dead_admin_unpublish",
     "status": "proposed",
-    "text": "School #2 is admin data entry: POST/PATCH /api/admin/partners must accept partnerType, sponsoredEnrollment, enrollmentPageEnabled, and ≥1 catalog slug.",
+    "text": "School #2 is admin data entry: POST/PATCH /api/admin/partners must accept partnerType, sponsoredEnrollment, enrollmentPageEnabled, and \u22651 catalog slug.",
     "check": "app/api/admin/partners/route.ts accepts sponsoredEnrollment"
   },
   {
@@ -75,5 +75,75 @@
     "status": "proposed",
     "text": "API routes that send Resend/branded email after a success response must schedule with next/server after() (or await before responding). Bare sendX(...).catch freezes on Vercel serverless. Guard: lib/email/serverlessAfterGuard.test.ts.",
     "check": "node --import tsx --test lib/email/serverlessAfterGuard.test.ts"
+  },
+  {
+    "id": "rul_deleted_sessions_deny_application_access",
+    "fromClaimId": "clm_secrets_deleted_session_still_authorized_verified",
+    "status": "proposed",
+    "text": "All shared authentication and request-context bootstrap paths must reject a recorded application soft-delete even when the provider session remains valid; database lookup failure must not grant access.",
+    "check": "npx vitest run --config graph/evidence/secrets-run_20260909_1730.vitest.config.mts -t 'soft-deleted application identity'"
+  },
+  {
+    "id": "rul_logout_local_clear_independent",
+    "fromClaimId": "clm_secrets_logout_retains_session_verified",
+    "status": "proposed",
+    "text": "Local logout must clear all auth-cookie chunks, code-verifier cookies and staff device trust even when provider revocation fails; report global revocation separately from local logout.",
+    "check": "npx vitest run --config graph/evidence/secrets-run_20260909_1730.vitest.config.mts -t 'logout clears local authentication'"
+  },
+  {
+    "id": "rul_staff_mfa_requires_setup_and_verification",
+    "fromClaimId": "clm_secrets_mfa_unenrolled_admin_bypass_verified",
+    "status": "proposed",
+    "text": "With staff MFA enforcement enabled, protected staff requests require the applicable enrolled-factor or verified trusted-device policy; no factor means setup is required, and assurance lookup errors must fail closed.",
+    "check": "npx vitest run --config graph/evidence/secrets-run_20260909_1730.vitest.config.mts -t 'enforced MFA rejects admin API'"
+  },
+  {
+    "id": "rul_milestone_durable_acceptance_retry",
+    "fromClaimId": "clm_dead_milestone_false_sent_20260909_verified",
+    "status": "proposed",
+    "text": "Milestone dispatch must durably record each stable provider key before sending and each acceptance receipt afterward; skip accepted drafts, reject changed recipient/content and unverifiable history, atomically scope checkpoints to an active unchanged target, and bound ambiguous retries inside provider key retention. Complete ledgers may finalize without sending.",
+    "check": "node graph/evidence/repro_dead_code_email_20260909.mjs milestone"
+  },
+  {
+    "id": "rul_partner_provider_result_must_surface",
+    "fromClaimId": "clm_dead_partner_resolved_errors_20260909_verified",
+    "status": "proposed",
+    "text": "Partner email helpers must inspect resolved SDK errors as well as exceptions, await best-effort failure diagnostics, and surface failure to callers. A resolved promise alone does not establish provider acceptance.",
+    "check": "node graph/evidence/repro_dead_code_email_20260909.mjs partner"
+  },
+  {
+    "id": "rul_cron_health_status_matches_result",
+    "fromClaimId": "clm_hot_deploy_health_false_success_20260909_verified",
+    "status": "proposed",
+    "text": "Deployment health handlers must map a failed health result to a non-success HTTP status and error diagnostic; cron completion alone is not evidence of a healthy deployment.",
+    "check": "npx vitest run tests/api/cron-deploy-health.spec.ts"
+  },
+  {
+    "id": "rul_nudge_acceptance_precedes_cooldown",
+    "fromClaimId": "clm_hot_inactivity_false_sent_20260909_verified",
+    "status": "proposed",
+    "text": "A rejected outreach email must not increment accepted-send counts, consume the retry cooldown or create its companion success notification. Partial failures must remain observable in cron output and HTTP status.",
+    "check": "npx vitest run tests/api/cron-inactive-nudge.spec.ts"
+  },
+  {
+    "id": "rul_training_risk_requires_access",
+    "fromClaimId": "clm_hot_pending_training_risk_20260909_verified",
+    "status": "proposed",
+    "text": "Do not score an unapproved reservation as a failure to start training. Preserve evidence from learners who actually started, and distinguish funding/enrollment approval from course activity.",
+    "check": "npx vitest run lib/member/atRiskScoring.test.ts"
+  },
+  {
+    "id": "rul_diagnostics_read_failure_is_unavailable",
+    "fromClaimId": "clm_dead_diagnostics_read_failures_20260909_verified",
+    "status": "proposed",
+    "text": "A failed diagnostic query must render unavailable rather than healthy or empty activity. Keep independent successful measurements visible and label provider acceptance separately from delivery.",
+    "check": "node graph/evidence/repro_dead_code_email_20260909.mjs diagnostics"
+  },
+  {
+    "id": "rul_ci_covers_deployment_build_inputs",
+    "fromClaimId": "clm_deps_ci_skips_marketing_build_verified",
+    "status": "proposed",
+    "text": "Required CI must build and stage every separately locked package consumed by deployment, including Astro marketing, before validating the application artifact; the root Next build alone is insufficient.",
+    "check": "node -e 'const fs=require('\"'\"'node:fs'\"'\"'),assert=require('\"'\"'node:assert/strict'\"'\"');const ci=fs.readFileSync('\"'\"'.github/workflows/ci-gate.yml'\"'\"','\"'\"'utf8'\"'\"');const app=require('\"'\"'./package.json'\"'\"').scripts.build;console.log('\"'\"'CI build command: npm run build'\"'\"');console.log('\"'\"'Root build script:'\"'\"',app);console.log('\"'\"'Vercel runs marketing npm ci + npm run build before the app (scripts/vercel-build.cjs:48-52).'\"'\"');assert.match(ci,/working-directory:\\s*marketing|npm --prefix marketing|npm run build:vercel|cd marketing/, '\"'\"'Required CI must exercise the separate marketing build used by deployment'\"'\"');'"
   }
 ]

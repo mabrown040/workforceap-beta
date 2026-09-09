@@ -1,0 +1,48 @@
+[
+  {
+    "id": "clm_dead_partner_resolved_errors_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "entityIds": [
+      "ent_file_lib_email"
+    ],
+    "title": "Partner notification send paths ignore resolved provider errors",
+    "severity": "ship-break",
+    "blast": "Partner milestone and new-member-assignment messages disappear when Resend resolves with {error}: both helpers return normally, do not enter their catch blocks, and bypass the central email failure diagnostic. Callers cannot identify or retry a rejected send. This affects course-completion and placement notifications as well as assignment updates.",
+    "evidence": "lib/notifications/partner-notify.ts:95 and :155 await resend.emails.send without inspecting its result; lib/email/send.ts:158 documents and handles this SDK error contract in the central wrapper. graph/evidence/clm_dead_partner_20260909.txt records two synthetic provider rejections, zero surfaced failures, zero logged errors. The probe loads the actual TypeScript module with isolated provider/DB mocks; no network.",
+    "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs partner",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_milestone_false_sent_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "entityIds": [
+      "ent_file_lib_email"
+    ],
+    "title": "Milestone dispatcher persists sent status when every email fails",
+    "severity": "ship-break",
+    "blast": "Approved learner celebrations leave the approval queue as sent even when the provider accepts no messages. Per-draft outcomes are returned but not persisted on the cascade, and the approve route only accepts awaiting_approval, so a failed send has no usable retry path through that endpoint. The separate exception path claims retryable while writing dispatch_failed, which is also rejected by that guard.",
+    "evidence": "lib/milestoneCascade/sendApprovedCascade.ts:89 counts failed emails, then :94-109 unconditionally writes sent/sentAt and swallows write errors. app/api/admin/milestone-cascades/[id]/approve/route.ts:95 rejects non-awaiting_approval statuses and :180-196 returns retryable:true for dispatch_failed. graph/evidence/clm_dead_milestone_20260909.txt records emailsSent:0, emailsFailed:1, persistedStatus:sent, persistedHasOutcomes:false under a synthetic provider rejection.",
+    "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs milestone",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_diagnostics_read_failures_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "entityIds": [
+      "ent_file_lib_email",
+      "ent_cluster_tenant_auth"
+    ],
+    "title": "Diagnostics read failures are rendered as no recent activity",
+    "severity": "latent",
+    "blast": "If SELECT 1 succeeds but diagnostic queries fail, staff see a healthy database and no recent email/integration activity. The page conceals that these measurements could not be read, preventing meaningful troubleshooting of notification failures.",
+    "evidence": "app/admin/diagnostics/page.tsx:455-469 uses Promise.allSettled and only handles fulfilled results; rejected results retain empty arrays. :479-480 passes those arrays to deriveSubsystemTile, whose empty case reports No recent activity. graph/evidence/clm_dead_diagnostics_20260909.txt executes the actual page with successful DB ping and rejected diagnostic reads; both subsystem tiles incorrectly report No recent activity.",
+    "verify": "node graph/evidence/repro_dead_code_email_20260909.mjs diagnostics",
+    "supersedes": null,
+    "status": "open"
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "clm_hot_pending_training_risk_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "title": "Funding-pending seats are scored as a failure to start training",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_diagnostics_read_failures_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "title": "Diagnostics read failures are rendered as no recent activity",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_ci_skips_marketing_build",
+    "runId": "run_20260909_1730",
+    "auditor": "deps",
+    "title": "Required CI omits the Astro build that gates every Vercel deployment",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_duplicate_partner_users_replay",
+    "runId": "run_20260909_1730",
+    "auditor": "deps",
+    "title": "Fresh migration replay creates partner_users twice and cannot complete",
+    "severity": "latent",
+    "status": "open"
+  }
+]

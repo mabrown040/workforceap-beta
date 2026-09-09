@@ -1,0 +1,23 @@
+COMMAND: node graph/evidence/repro_dead_code_email_20260909.mjs partner
+{"case":"partner provider resolved errors","rejectedProviderSends":2,"failuresSurfaced":0,"loggedErrors":0}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Both provider rejections must surface a failed result or throw; silently resolving loses retry/failure handling
+
+0 !== 2
+
+    at Object.partner (file:///home/claw/src/workforceap-career-launch/graph/evidence/repro_dead_code_email_20260909.mjs:40:10)
+    at async file:///home/claw/src/workforceap-career-launch/graph/evidence/repro_dead_code_email_20260909.mjs:79:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 2,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.2
+
+EXIT: 1

@@ -1,0 +1,71 @@
+
+> workforceap@1.0.0 lint
+> eslint .
+
+
+/home/claw/src/workforceap-career-launch/app/(decision-journey)/find-your-path/FindYourPathClient.tsx
+  355:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/claw/src/workforceap-career-launch/app/(portal)/dashboard/ai-tools/resume-rewriter/ResumeRewriterClient.tsx
+  88:6  warning  React Hook useEffect has a missing dependency: 'initialData?.resume'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/claw/src/workforceap-career-launch/app/(portal)/dashboard/jobs/JobsListingClient.tsx
+  373:6  warning  React Hook useEffect has a missing dependency: 'initialJobs.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/claw/src/workforceap-career-launch/app/(portal)/dashboard/survey/SurveyClient.tsx
+  468:9  warning  A form label must have accessible text  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/app/admin/members/new/AddMemberWizard.tsx
+  463:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  470:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  477:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/app/apply/ApplyEligibilityClient.tsx
+  294:6  warning  React Hook useEffect has a missing dependency: 'yesNoAnswers'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/claw/src/workforceap-career-launch/app/dev/astryx/side-gallery/page.tsx
+  92:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/claw/src/workforceap-career-launch/components/MainNav.tsx
+  336:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/claw/src/workforceap-career-launch/components/admin/EmailTemplatesClient.tsx
+  655:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  684:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  713:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  744:17  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/components/admin/MemberMergeClient.tsx
+  140:11  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  187:11  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/components/admin/PartnerEditModal.tsx
+  281:15  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/components/employer/EmployerLoiForm.tsx
+  171:11  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/components/forms/PlacementSurveyForm.tsx
+  162:9  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  176:9  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+  207:9  warning  A form label must be associated with a control  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/components/onboarding/MemberOnboardingWizard.tsx
+  264:13  warning  A form label must have accessible text  jsx-a11y/label-has-associated-control
+
+/home/claw/src/workforceap-career-launch/components/portal/LearningPathCard.tsx
+  31:6  warning  React Hook useEffect has a missing dependency: 'fetchProgress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/claw/src/workforceap-career-launch/components/portal/PortalVoiceSession.tsx
+  297:6  warning  React Hook useEffect has a missing dependency: 'stopVideoRecordingStream'. Either include it or remove the dependency array                                                         react-hooks/exhaustive-deps
+  315:6  warning  React Hook useEffect has missing dependencies: 'checkpointEndpoint', 'checkpointIntervalMs', and 'persistCheckpointTranscript'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/claw/src/workforceap-career-launch/components/portal/tools/MockInterviewVideoRecorder.tsx
+  85:38  warning  The ref value 'videoRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'videoRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/home/claw/src/workforceap-career-launch/hooks/useDraftAutosave.ts
+  31:9  warning  The 'isEmpty' logical expression could make the dependencies of useEffect Hook (at line 51) change on every render. To fix this, wrap the initialization of 'isEmpty' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  31:9  warning  The 'isEmpty' logical expression could make the dependencies of useEffect Hook (at line 68) change on every render. To fix this, wrap the initialization of 'isEmpty' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+✖ 28 problems (0 errors, 28 warnings)
+

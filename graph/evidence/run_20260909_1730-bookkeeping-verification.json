@@ -1,0 +1,22 @@
+{
+  "originalClaimAndRankAndFrozenFilesPreserved": true,
+  "verifiedSupersessions": 10,
+  "exactOriginalVerifyCommandsPreserved": true,
+  "allEntityAndEvidenceReferencesResolve": true,
+  "rulesAdded": 10,
+  "newRulesStatus": "proposed",
+  "newRuns": 2,
+  "humanGate": "ship-selected",
+  "unresolvedMigrationReplay": "original open claim preserved; no verified supersession",
+  "restoreStatus": "not performed; backup metadata only",
+  "evidenceFilesScanned": 45,
+  "potentialSecretMatchesRequiringReview": 0,
+  "knownPublicFixtures": [
+    {
+      "file": "graph/evidence/clm_deps_ci_skips_marketing_build.txt",
+      "line": 45,
+      "classification": "public local CI fixture only"
+    }
+  ],
+  "scanScope": "Private-key blocks, JWT structures, known provider-key prefixes, authorization bearer literals and credential-bearing PostgreSQL URLs; synthetic test cookies and local fixtures inspected. Pattern scan is not a guarantee against every possible secret format."
+}

@@ -1,0 +1,42 @@
+{
+  "checkedAt": "2026-09-09T17:35:07.063Z",
+  "request": "Supabase Management GET /v1/projects/<production-ref>/database/backups; read-only; authorization omitted",
+  "httpStatus": 200,
+  "pitrEnabled": false,
+  "walgEnabled": true,
+  "backups": [
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-09T09:54:37.111Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-08T09:58:33.649Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-07T09:57:04.644Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-06T09:55:41.190Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-05T10:00:00.700Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-04T09:55:15.180Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-03T09:57:07.428Z"
+    },
+    {
+      "status": "COMPLETED",
+      "insertedAt": "2026-09-02T09:55:13.278Z"
+    }
+  ]
+}
+Supplemental observation only: docs/DEPLOYMENT-CHECKLIST.md:159 says daily backups occur at 00:00 UTC; returned timestamps are around 09:55 UTC. Existing daily backups are completed; PITR is disabled. No restore operation or restore drill was performed.

@@ -1,0 +1,159 @@
+Focused migration and deployment tests
+Command: npx vitest run tests/scripts/safe-migrate.spec.ts tests/scripts/preview-approved-curriculum-schema.test.ts
+
+
+ RUN  v4.1.6 /home/claw/src/workforceap-career-launch
+
+
+ Test Files  2 passed (2)
+      Tests  35 passed (35)
+   Start at  13:48:08
+   Duration  1.13s (transform 62ms, setup 138ms, import 50ms, tests 205ms, environment 710ms)
+
+
+
+Actual marketing build after npm ci --no-audit --no-fund in marketing/
+Command: npm run build (cwd marketing)
+
+
+> wap-astro@0.1.0 build
+> astro build
+
+13:46:57 [types] Generated 47ms
+13:46:57 [build] output: "static"
+13:46:57 [build] directory: /home/claw/src/workforceap-career-launch/marketing/dist/
+13:46:57 [build] Collecting build info...
+13:46:57 [build] ✓ Completed in 60ms.
+13:46:57 [build] Building static entrypoints...
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+warn - The `content` option in your Tailwind CSS configuration is missing or empty.
+warn - Configure your content sources or your generated CSS will be missing styles.
+warn - https://tailwindcss.com/docs/content-configuration
+13:47:00 [vite] ✓ built in 2.96s
+13:47:00 [build] ✓ Completed in 2.99s.
+
+ building client (vite) 
+13:47:00 [vite] transforming...
+13:47:01 [vite] ✓ 41 modules transformed.
+13:47:01 [vite] rendering chunks...
+13:47:01 [vite] computing gzip size...
+13:47:01 [vite] dist/_astro/marketingDataLayer.CE4OwNAK.js      1.13 kB │ gzip:  0.69 kB
+13:47:01 [vite] dist/_astro/CareerQuiz.CtDuBhUf.js              4.79 kB │ gzip:  1.96 kB
+13:47:01 [vite] dist/_astro/index.CVf8TyFT.js                   6.72 kB │ gzip:  2.68 kB
+13:47:01 [vite] dist/_astro/InterestProfilerQuiz.CjkA7URX.js    8.32 kB │ gzip:  2.92 kB
+13:47:01 [vite] dist/_astro/FindYourPathQuiz.DW8lPWKD.js      115.40 kB │ gzip: 33.25 kB
+13:47:01 [vite] dist/_astro/client.DrE9CFQR.js                135.60 kB │ gzip: 43.80 kB
+13:47:01 [vite] ✓ built in 537ms
+
+ generating static routes 
+13:47:01 ▶ src/pages/[lang]/index.astro
+13:47:01   ├─ /es/index.html (+10ms)
+13:47:01   ├─ /fr/index.html (+3ms)
+13:47:01   └─ /pt/index.html (+3ms)
+13:47:01 ▶ src/pages/about.astro
+13:47:01   └─ /about/index.html (+2ms)
+13:47:01 ▶ src/pages/accessibility.astro
+13:47:01   └─ /accessibility/index.html (+3ms)
+13:47:01 ▶ src/pages/blog/[slug].astro
+13:47:01   ├─ /blog/equity-reshore-movement-workforce-development/index.html (+4ms)
+13:47:01   ├─ /blog/supply-chain-disruption-best-job-market-manufacturing/index.html (+2ms)
+13:47:01   ├─ /blog/what-reshoring-means-for-workers/index.html (+3ms)
+13:47:01   ├─ /blog/bringing-manufacturing-back-america/index.html (+3ms)
+13:47:01   ├─ /blog/top-20-cities-launch-tech-career/index.html (+4ms)
+13:47:01   ├─ /blog/michael-brown-workforce-leader-austin/index.html (+2ms)
+13:47:01   ├─ /blog/austin-best-city-launch-tech-career/index.html (+2ms)
+13:47:01   ├─ /blog/5-certifications-under-6-months/index.html (+2ms)
+13:47:01   ├─ /blog/from-warehouse-to-it-support-marcus-story/index.html (+2ms)
+13:47:01   ├─ /blog/google-cybersecurity-certificate-worth-it/index.html (+2ms)
+13:47:01   └─ /blog/breaking-into-tech-starting-over/index.html (+2ms)
+13:47:01 ▶ src/pages/blog.astro
+13:47:01   └─ /blog/index.html (+4ms)
+13:47:01 ▶ src/pages/career-quiz.astro
+13:47:01   └─ /career-quiz/index.html (+8ms)
+13:47:01 ▶ src/pages/careers/thank-you.astro
+13:47:01   └─ /careers/thank-you/index.html (+3ms)
+13:47:01 ▶ src/pages/careers.astro
+13:47:01   └─ /careers/index.html (+2ms)
+13:47:01 ▶ src/pages/contact.astro
+13:47:01   └─ /contact/index.html (+2ms)
+13:47:01 ▶ src/pages/donate.astro
+13:47:01   └─ /donate/index.html (+2ms)
+13:47:01 ▶ src/pages/employers.astro
+13:47:01   └─ /employers/index.html (+3ms)
+13:47:01 ▶ src/pages/faq.astro
+13:47:01   └─ /faq/index.html (+3ms)
+13:47:01 ▶ src/pages/find-your-path.astro
+13:47:01   └─ /find-your-path/index.html (+7ms)
+13:47:01 ▶ src/pages/how-it-works.astro
+13:47:01   └─ /how-it-works/index.html (+3ms)
+13:47:01 ▶ src/pages/impact.astro
+13:47:01   └─ /impact/index.html (+2ms)
+13:47:01 ▶ src/pages/index.astro
+13:47:01   └─ /index.html (+2ms)
+13:47:01 ▶ src/pages/interest-profiler.astro
+13:47:01   └─ /interest-profiler/index.html (+3ms)
+13:47:01 ▶ src/pages/leadership/[slug].astro
+13:47:01   ├─ /leadership/michael-brown/index.html (+3ms)
+13:47:01   ├─ /leadership/adriane-brown/index.html (+2ms)
+13:47:01   ├─ /leadership/lakecia-gunter/index.html (+2ms)
+13:47:01   ├─ /leadership/brandon-frye/index.html (+2ms)
+13:47:01   ├─ /leadership/derrick-fishback/index.html (+2ms)
+13:47:01   └─ /leadership/michael-brown-ii/index.html (+2ms)
+13:47:01 ▶ src/pages/leadership.astro
+13:47:01   └─ /leadership/index.html (+2ms)
+13:47:01 ▶ src/pages/lp/google-it-automation.astro
+13:47:01   └─ /lp/google-it-automation/index.html (+3ms)
+13:47:01 ▶ src/pages/mentor.astro
+13:47:01   └─ /mentor/index.html (+2ms)
+13:47:01 ▶ src/pages/partners/thank-you.astro
+13:47:01   └─ /partners/thank-you/index.html (+3ms)
+13:47:01 ▶ src/pages/partners.astro
+13:47:01   └─ /partners/index.html (+2ms)
+13:47:01 ▶ src/pages/privacy.astro
+13:47:01   └─ /privacy/index.html (+4ms)
+13:47:01 ▶ src/pages/program-comparison.astro
+13:47:01   └─ /program-comparison/index.html (+3ms)
+13:47:01 ▶ src/pages/programs/[slug].astro
+13:47:01   ├─ /programs/digital-literacy-empowerment-class/index.html (+4ms)
+13:47:01   ├─ /programs/it-support-professional-certificate-ibm/index.html (+2ms)
+13:47:01   ├─ /programs/it-support-and-entry-level-cyber-security-certificate/index.html (+2ms)
+13:47:01   ├─ /programs/ai-practitioner-professional-certificate-aws/index.html (+3ms)
+13:47:01   ├─ /programs/software-developer-professional-certificate-ibm/index.html (+2ms)
+13:47:01   ├─ /programs/project-management-professional-certificate-microsoft/index.html (+2ms)
+13:47:01   ├─ /programs/data-analytics-professional-certificate-google/index.html (+2ms)
+13:47:01   ├─ /programs/data-science-professional-certificate-ibm/index.html (+2ms)
+13:47:01   ├─ /programs/aws-cloud-technology-amazon/index.html (+2ms)
+13:47:01   ├─ /programs/it-automation-with-python-google/index.html (+2ms)
+13:47:01   ├─ /programs/comptia-a-professional-certificate/index.html (+2ms)
+13:47:01   ├─ /programs/comptia-network-professional-certificate/index.html (+3ms)
+13:47:01   ├─ /programs/comptia-security-professional-certificate/index.html (+2ms)
+13:47:01   ├─ /programs/cybersecurity-professional-certificate-google/index.html (+2ms)
+13:47:01   ├─ /programs/digital-marketing-e-commerce-google/index.html (+2ms)
+13:47:01   ├─ /programs/ux-design-professional-certificate-google/index.html (+2ms)
+13:47:01   ├─ /programs/health-information-technology-mchit/index.html (+2ms)
+13:47:01   ├─ /programs/certified-production-technician-cpt/index.html (+2ms)
+13:47:01   ├─ /programs/certified-logistics-technician-clt/index.html (+2ms)
+13:47:01   └─ /programs/core-construction-training-certificate/index.html (+2ms)
+13:47:01 ▶ src/pages/programs/google-it-support.astro
+13:47:01   └─ /programs/google-it-support/index.html (+2ms)
+13:47:01 ▶ src/pages/programs/price-list.astro
+13:47:01   └─ /programs/price-list/index.html (+2ms)
+13:47:01 ▶ src/pages/programs.astro
+13:47:01   └─ /programs/index.html (+4ms)
+13:47:01 ▶ src/pages/salary-guide.astro
+13:47:01   └─ /salary-guide/index.html (+4ms)
+13:47:01 ▶ src/pages/terms.astro
+13:47:01   └─ /terms/index.html (+2ms)
+13:47:01 ▶ src/pages/what-we-do.astro
+13:47:01   └─ /what-we-do/index.html (+2ms)
+13:47:01 ▶ /outcomes
+13:47:01   └─ /outcomes/index.html (+1ms)
+13:47:01 ▶ /outcomes/
+13:47:01   └─ /outcomes/index.html (+1ms)
+13:47:01 ✓ Completed in 251ms.
+
+13:47:01 [build] 68 page(s) built in 3.90s
+13:47:01 [build] Complete!

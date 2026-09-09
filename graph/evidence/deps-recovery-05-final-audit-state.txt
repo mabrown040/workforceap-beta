@@ -1,0 +1,14 @@
+          migration_name          | applied | rolled_back | applied_steps_count 
+----------------------------------+---------+-------------+---------------------
+ 20260320000002_add_invitations   | f       | f           |                   0
+ 20260320000001_super_admin_role  | t       | f           |                   1
+ 20260320000000_add_partner_users | t       | f           |                   0
+ 20260320000000_add_partner_users | f       | t           |                   0
+ 20260319100000_add_partner_users | t       | f           |                   1
+(5 rows)
+
+ invitations_created | subgroups_created 
+---------------------+-------------------
+ f                   | f
+(1 row)
+

@@ -1,0 +1,1 @@
+{"case":"diagnostics SELECTs fail while ping succeeds","tiles":[{"name":"App","iconKey":"app","status":"Operational","tone":"ok"},{"name":"Database","iconKey":"database","status":"Healthy","tone":"ok"},{"name":"Email Queue","iconKey":"email","status":"Unavailable","tone":"alert"},{"name":"Integrations","iconKey":"integrations","status":"Unavailable","tone":"alert"}]}

@@ -1,0 +1,5 @@
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "workforceap_recovery_audit_20260909", schema "public" at "127.0.0.1:55437"
+
+Migration 20260320000000_add_partner_users marked as applied.
+

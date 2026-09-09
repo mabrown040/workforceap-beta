@@ -1,0 +1,18 @@
+[
+  {
+    "id": "clm_deps_ci_skips_marketing_build_verified",
+    "runId": "run_20260909_1730_followup",
+    "auditor": "deps",
+    "entityIds": [
+      "ent_file_ci_gate",
+      "ent_file_vercel_build"
+    ],
+    "title": "Required CI builds and stages the deployment marketing package",
+    "severity": "latent",
+    "blast": "Required CI installs the pinned marketing package, builds Astro and stages its output before the application build, so this deployment prerequisite is exercised. The combined optimized application build and hosted rollout are separate pending release checks.",
+    "evidence": ".github/workflows/ci-gate.yml; scripts/vercel-build.cjs:48; graph/evidence/clm_deps_ci_skips_marketing_build-green.txt (original contract assertion exit 0); graph/evidence/deps-phase2-build-and-guard-tests.txt (68 Astro pages and 35 migration/build-guard tests passed).",
+    "verify": "node -e 'const fs=require('\"'\"'node:fs'\"'\"'),assert=require('\"'\"'node:assert/strict'\"'\"');const ci=fs.readFileSync('\"'\"'.github/workflows/ci-gate.yml'\"'\"','\"'\"'utf8'\"'\"');const app=require('\"'\"'./package.json'\"'\"').scripts.build;console.log('\"'\"'CI build command: npm run build'\"'\"');console.log('\"'\"'Root build script:'\"'\"',app);console.log('\"'\"'Vercel runs marketing npm ci + npm run build before the app (scripts/vercel-build.cjs:48-52).'\"'\"');assert.match(ci,/working-directory:\\s*marketing|npm --prefix marketing|npm run build:vercel|cd marketing/, '\"'\"'Required CI must exercise the separate marketing build used by deployment'\"'\"');'",
+    "supersedes": "clm_deps_ci_skips_marketing_build",
+    "status": "verified"
+  }
+]

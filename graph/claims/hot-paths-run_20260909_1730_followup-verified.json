@@ -1,0 +1,17 @@
+[
+  {
+    "id": "clm_hot_pending_training_risk_20260909_verified",
+    "runId": "run_20260909_1730_followup",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_at_risk_scoring"
+    ],
+    "title": "Funding-pending reservations no longer receive a first-course non-start penalty",
+    "severity": "ship-break",
+    "blast": "Only approved learners who have not started are assessed the first-course non-start penalty. Actual training activity still contributes appropriate inactivity evidence even if approval data is later inconsistent.",
+    "evidence": "lib/member/atRiskScoring.ts:143; graph/evidence/clm_hot_pending_training_risk_20260909-green.txt (20 tests in four suites).",
+    "verify": "npx vitest run lib/member/atRiskScoring.test.ts",
+    "supersedes": "clm_hot_pending_training_risk_20260909",
+    "status": "verified"
+  }
+]

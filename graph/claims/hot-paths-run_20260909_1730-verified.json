@@ -1,0 +1,32 @@
+[
+  {
+    "id": "clm_hot_deploy_health_false_success_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_job_deploy_health"
+    ],
+    "title": "Deployment health exposes failed checks through failing HTTP status",
+    "severity": "ship-break",
+    "blast": "Non-ready deployments and failed health probes return non-success HTTP status and error diagnostics, allowing cron execution history and HTTP monitors to observe failure.",
+    "evidence": "app/api/cron/deploy-health/route.ts:29; app/api/cron/deploy-health/route.ts:73; graph/evidence/clm_hot_deploy_health_false_success_20260909-green.txt (shared deployment/outreach run: 12 tests passed).",
+    "verify": "npx vitest run tests/api/cron-deploy-health.spec.ts",
+    "supersedes": "clm_hot_deploy_health_false_success_20260909",
+    "status": "verified"
+  },
+  {
+    "id": "clm_hot_inactivity_false_sent_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_job_inactivity_nudge"
+    ],
+    "title": "Rejected inactivity emails no longer consume outreach cooldown",
+    "severity": "ship-break",
+    "blast": "A provider-rejected nudge is counted as failed and does not write a cooldown or companion notification. Partial failures return non-success status. This is not a general exactly-once guarantee across provider acceptance and later database writes.",
+    "evidence": "app/api/cron/inactivity-nudge/route.ts:57; app/api/cron/inactivity-nudge/route.ts:85; graph/evidence/clm_hot_inactivity_false_sent_20260909-green.txt (shared deployment/outreach run: 12 tests passed).",
+    "verify": "npx vitest run tests/api/cron-inactive-nudge.spec.ts",
+    "supersedes": "clm_hot_inactivity_false_sent_20260909",
+    "status": "verified"
+  }
+]

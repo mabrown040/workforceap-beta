@@ -1,5 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { buildTrainingSchedule, isValidPlanDate } from '@/lib/member/trainingWorkspace';
+import { assignedSyllabusBreakdown, buildTrainingSchedule, isValidPlanDate } from '@/lib/member/trainingWorkspace';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+
+describe('assigned syllabus hours', () => {
+  it('shows the source breakdown when the assigned courses actually match it', () => {
+    const program = getProgramBySlug('it-support-professional-certificate-ibm')!;
+    expect(assignedSyllabusBreakdown(getProgramCoursesForCurriculumVersion(program, 'legacy-v1'), program.syllabus))
+      .toBe('102 hours of coursework + 58 hours of labs, projects, and preparation.');
+  });
+  it('does not attach a newer breakdown to a different legacy curriculum with the same160-hour total', () => {
+    const program = getProgramBySlug('data-analytics-professional-certificate-google')!;
+    const assigned = getProgramCoursesForCurriculumVersion(program, 'legacy-v1');
+    expect(assigned.reduce((sum, course) => sum + course.estimatedHours, 0)).toBe(160);
+    expect(program.syllabus?.totalHours).toBe(160);
+    expect(assignedSyllabusBreakdown(assigned, program.syllabus)).toBeUndefined();
+  });
+  it('does not invent a breakdown without a supplied syllabus', () => {
+    expect(assignedSyllabusBreakdown([])).toBeUndefined();
+  });
+});
 
 describe('training schedule estimates', () => {
   it('plans the actual160-hour course weights over16weeks at10hours/week', () => {

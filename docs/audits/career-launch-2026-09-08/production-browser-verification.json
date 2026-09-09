@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "build": "Optimized Next production build",
+  "checkedAt": "2026-09-09T02:53:11.114Z",
+  "checks": [
+    "Production authenticated page renders assigned160h,30% and114 unfinished hours",
+    "Production schedule save persists10h/date/12weeks across reload",
+    "Production coursework and artifact save persist with selected course after reload",
+    "No application JS exceptions, application console errors, or desktop overflow; official completion unchanged"
+  ],
+  "requests": [
+    {
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "status": 200
+    }
+  ],
+  "errors": [],
+  "applicationConsoleErrors": [],
+  "localVercelAnalyticsErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:4323/_vercel/insights/script.js",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Refused to execute script from 'http://localhost:4323/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+      "location": {
+        "url": "http://localhost:4323/dashboard/program",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:4323/_vercel/speed-insights/script.js",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Refused to execute script from 'http://localhost:4323/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+      "location": {
+        "url": "http://localhost:4323/dashboard/program",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:4323/_vercel/insights/script.js",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Refused to execute script from 'http://localhost:4323/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+      "location": {
+        "url": "http://localhost:4323/dashboard/program",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:4323/_vercel/speed-insights/script.js",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Refused to execute script from 'http://localhost:4323/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+      "location": {
+        "url": "http://localhost:4323/dashboard/program",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:4323/_vercel/insights/script.js",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Refused to execute script from 'http://localhost:4323/_vercel/insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+      "location": {
+        "url": "http://localhost:4323/dashboard/program?course=introduction-to-networking-and-storage",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:4323/_vercel/speed-insights/script.js",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Refused to execute script from 'http://localhost:4323/_vercel/speed-insights/script.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.",
+      "location": {
+        "url": "http://localhost:4323/dashboard/program?course=introduction-to-networking-and-storage",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "analyticsScriptsSuppressed": 3,
+  "providerLaunched": false,
+  "productionDataUsed": false,
+  "localFixtureLimitations": [
+    "Vercel Insights and Speed Insights assets are unavailable on the local standalone Next server and emit 404/MIME resource errors.",
+    "The local fixture has no Upstash configuration and omits the CI rate-limit opt-out, so server logs include the existing missing-Upstash warning. No clean-server-log claim is made."
+  ]
+}

@@ -3,7 +3,7 @@ import { glob } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import nextConfig from '../next.config';
-import { pdfDeploymentAssets, verifyPdfDeploymentAssets } from '../scripts/verify-pdf-deployment.mjs';
+import { PDF_DEPLOYMENT_RESULT_PREFIX, parsePdfDeploymentResult, pdfDeploymentAssets, verifyPdfDeploymentAssets } from '../scripts/verify-pdf-deployment.mjs';
 
 const root = process.cwd();
 
@@ -16,6 +16,27 @@ async function configuredPdfAssets() {
 }
 
 describe('PDF deployment packaging', () => {
+  it('reads the tagged result when optional warnings arrive before and after it', () => {
+    const result = { text: 'Synthetic PDF text' };
+    const stdout = [
+      'Warning: optional canvas dependency is unavailable',
+      `${PDF_DEPLOYMENT_RESULT_PREFIX}${JSON.stringify(result)}`,
+      'Warning: Unable to load optional font data',
+      '',
+    ].join('\r\n');
+    expect(parsePdfDeploymentResult(stdout)).toEqual(result);
+  });
+
+  it.each([
+    ['missing result', 'Warning: no tagged result\n{"text":"untagged"}\n'],
+    ['duplicate results', `${PDF_DEPLOYMENT_RESULT_PREFIX}{"text":"one"}\n${PDF_DEPLOYMENT_RESULT_PREFIX}{"text":"two"}\n`],
+    ['malformed JSON', `${PDF_DEPLOYMENT_RESULT_PREFIX}{invalid}\n`],
+    ['null result', `${PDF_DEPLOYMENT_RESULT_PREFIX}null\n`],
+    ['invalid text', `${PDF_DEPLOYMENT_RESULT_PREFIX}{"text":42}\n`],
+  ])('rejects %s without accepting surrounding output as evidence', (_label, stdout) => {
+    expect(() => parsePdfDeploymentResult(stdout)).toThrow();
+  });
+
   it('extracts text with only the configured API PDF trace assets, outside the workspace', async () => {
     const assets = await configuredPdfAssets();
     const result = await verifyPdfDeploymentAssets(root, assets);

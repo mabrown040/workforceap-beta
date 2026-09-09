@@ -18,7 +18,9 @@ pace. The schedule, course notes, and evidence links persist in PostgreSQL under
 the authenticated member, program, and immutable curriculum version. They are
 separate from provider completion and credentials. Existing assignments are not
 upgraded or replaced with a newer public syllabus. Where published and assigned
-hours differ, the screen explains the difference.
+hours differ, the screen explains the difference. A public coursework/lab
+breakdown is shown only when the actual assigned course names and hours match
+the source syllabus, even when two different curricula share a 160-hour total.
 
 Saving work never completes a course. The workspace's completion bar uses all
 assigned courses as its denominator: the fixture's three completed courses are
@@ -33,9 +35,9 @@ remain responsible for actual training access and completion evidence.
 ### Validation
 
 - Full Node test lane: 1,435 passed, eight existing skips.
-- Full Vitest lane: 256 suites and 2,187 tests passed after the workspace change.
-- Final targeted API, schedule, component, and preview-schema checks: 57 tests
-  passed, including the 16 new deployment-bootstrap tests.
+- Full Vitest lane: 257 suites and 2,208 tests passed after correcting the
+  packaging verifier. Final focused checks also cover three new regressions
+  for matching the assigned curriculum to the published hour breakdown.
 - Eleven actual-component tests cover course switching, draft persistence,
   save races, errors, filters, schedule validation, unsaved navigation, course
   destinations, and the full assigned-course completion denominator.
@@ -43,8 +45,10 @@ remain responsible for actual training access and completion evidence.
   second-member isolation, invalid-request rejection, and unchanged official
   completion and enrollment records. Authentication uses normal Supabase SSR
   cookies against a disposable local auth fixture; no bypass was added to the app.
-- Browser and production-build evidence is recorded with the final screenshots
-  and verification notes in this folder.
+- Optimized Next.js production build: 499 pages pass. Both production-mode
+  saves and reloads, isolation, and invalid-request checks pass. Hosted Vercel
+  checks confirm the restored homepage, program application handoff, and the
+  new authenticated API boundary. See [runtime verification](training-verification.md).
 
 ### Release behavior
 

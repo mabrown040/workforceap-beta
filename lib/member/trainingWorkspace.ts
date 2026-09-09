@@ -1,5 +1,14 @@
 import { z } from 'zod';
 import type { ProgramCourse } from '@/lib/content/programs';
+import type { ProgramSyllabus } from '@/shared/programSyllabi';
+
+/** Matching totals alone do not prove that a legacy assignment uses the public syllabus. */
+export function assignedSyllabusBreakdown(courses: readonly ProgramCourse[], syllabus?: ProgramSyllabus): string | undefined {
+  if (!syllabus || courses.length !== syllabus.courses.length || !courses.every((course, index) => (
+    course.name === syllabus.courses[index].name && course.estimatedHours === syllabus.courses[index].hours
+  ))) return undefined;
+  return `${syllabus.clockHours} hours of coursework + ${syllabus.labHours} hours of labs, projects, and preparation.`;
+}
 
 export const TRAINING_WORKSPACE_MAX_NOTES = 10000;
 export const TRAINING_WORKSPACE_MAX_URL = 2000;

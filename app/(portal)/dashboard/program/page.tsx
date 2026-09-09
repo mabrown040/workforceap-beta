@@ -27,6 +27,7 @@ import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberPro
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { loadTrainingWorkspace } from '@/lib/member/loadTrainingWorkspace';
+import { assignedSyllabusBreakdown } from '@/lib/member/trainingWorkspace';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -229,7 +230,7 @@ export default async function ProgramPage({
           completedSlugs: [...completedSet],
           initialCourseSlug: typeof params?.course === 'string' ? params.course : undefined,
           syllabusHours: program.syllabus?.totalHours,
-          syllabusBreakdown: program.syllabus ? `${program.syllabus.clockHours} hours of coursework + ${program.syllabus.labHours} hours of labs, projects, and preparation.` : undefined,
+          syllabusBreakdown: assignedSyllabusBreakdown(curriculumCourses, program.syllabus),
           trainingEmail: activeEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail,
           destinations: curriculumCourses.map((course) => ({
             slug: course.slug,

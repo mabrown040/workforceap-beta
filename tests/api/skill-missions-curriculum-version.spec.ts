@@ -102,6 +102,30 @@ describe('Skill Mission curriculum-version mutation gates', () => {
     } as any);
   });
 
+  it('unlocks the IBM capstone only from completion in its assigned program and keeps the historic event identity', async () => {
+    const programSlug = 'it-support-professional-certificate-ibm';
+    const courseSlug = 'it-support-course-7';
+    const missionKey = `${programSlug}:mission:${courseSlug}`;
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(assignment('legacy-v1', programSlug) as any);
+    let storedProgram = programSlug;
+    vi.mocked(prisma.courseProgress.findFirst).mockImplementation((async (query: any) => {
+      return query.where.userId === USER_ID && query.where.programSlug.in.includes(storedProgram)
+        && query.where.courseSlug.in.includes('technical-support-case-studies') ? { id: 'capstone-completion' } : null;
+    }) as any);
+    const response = await evaluateMission(missionRequest(missionKey) as any, { params: Promise.resolve({ courseSlug }) });
+    expect(response.status).toBe(200);
+    expect(evaluateSkillMission).toHaveBeenCalledWith(expect.objectContaining({ courseSlug: 'technical-support-case-studies', missionKey }));
+    for (const [query] of vi.mocked(prisma.memberEvent.create).mock.calls) {
+      expect(query.data.entityId).toBe(missionKey);
+      expect(query.data.metadata).toEqual(expect.objectContaining({ assignedCourseSlug: 'technical-support-case-studies', curriculumVersion: 'legacy-v1' }));
+    }
+    storedProgram = PROGRAM;
+    vi.mocked(evaluateSkillMission).mockClear();
+    const rejected = await evaluateMission(missionRequest(missionKey) as any, { params: Promise.resolve({ courseSlug }) });
+    expect(rejected.status).toBe(403);
+    expect(evaluateSkillMission).not.toHaveBeenCalled();
+  });
+
   it('rejects a legacy-only mission for a v2 learner before progress or event writes', async () => {
     const courseSlug = 'data-analytics-course-8';
     const missionKey = `${PROGRAM}:curriculum:${VERSION}:mission:${courseSlug}`;

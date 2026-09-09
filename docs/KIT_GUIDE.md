@@ -207,6 +207,12 @@ on mount. Async `onSend` handlers return `false` on failure so the draft stays
 available for retry; successful sends clear only the submitted revision and
 preserve text edited while the request was pending.
 
+`SkillMissionChallenge` owns its focus trap and close guard. Callers must not
+wrap it in a second Escape handler. Escape, backdrop, and close buttons share
+the same discard confirmation for unfinished work; pending evaluation stays
+mounted, and successful results close without a discard prompt. The dialog locks
+background scrolling and restores the prior document/body scroll styles on close.
+
 **A11y behavior hooks** (`components/portal/kit/hooks/` — use these instead of hand-rolling;
 any future kit Dialog/Menu/Combobox must be built on them):
 

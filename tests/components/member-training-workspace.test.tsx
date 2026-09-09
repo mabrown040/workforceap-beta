@@ -4,12 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemberTrainingWorkspace } from '@/components/portal/kit/pages/member/MemberTrainingWorkspace';
 import type { TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 import { PROGRAM_SYLLABI } from '@/shared/programSyllabi';
+import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
 
 // This is the server action called by the real Coursera launch link. Keep the
 // actual link, form controls, kit components, and workspace behavior mounted.
 vi.mock('@/app/(portal)/dashboard/_actions/analyticsActions', () => ({
   logCourseraLaunchFromPortal: vi.fn().mockResolvedValue(undefined),
 }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
 const programSlug = 'it-support-professional-certificate-ibm';
 const syllabus = PROGRAM_SYLLABI[programSlug];
@@ -35,9 +37,9 @@ function fixture(): TrainingWorkspace {
   };
 }
 
-function mount(workspace = fixture(), completedSlugs: string[] = []) {
+function mount(workspace = fixture(), completedSlugs: string[] = [], practiceMissions: TrainingCoursePractice[] = []) {
   return render(<MemberTrainingWorkspace workspace={workspace} programTitle={workspace.programTitle}
-    completedSlugs={completedSlugs} syllabusHours={160} syllabusBreakdown={syllabus.totalHoursLabel}
+    completedSlugs={completedSlugs} practiceMissions={practiceMissions} syllabusHours={160} syllabusBreakdown={syllabus.totalHoursLabel}
     destinations={[
       { slug: courseSlug(0), launchHref },
       { slug: courseSlug(9), moduleHref },
@@ -220,6 +222,67 @@ describe('member training workspace', () => {
     await chooseCourse(9);
     expect(within(editor()).getByRole('link', { name: 'Open lessons and lab' })).toHaveAttribute('href', moduleHref);
     expect(within(editor()).queryByRole('link', { name: /Open course in Coursera/ })).not.toBeInTheDocument();
+  });
+
+  it('carries only assigned identifiers into a reviewable feedback request', async () => {
+    mount(savedCourse(fixture(), 0, 'Private reflection must stay here.', 'https://example.org/private-project'));
+    const link = () => within(editor()).getByRole('link', { name: /Ask for feedback on this course/ });
+    let destination = new URL(link().getAttribute('href')!, window.location.origin);
+    expect(destination.pathname).toBe('/dashboard/messages');
+    expect(Object.fromEntries(destination.searchParams)).toEqual({ program: programSlug, course: courseSlug(0), curriculum: 'test-syllabus-v1' });
+    expect(destination.href).not.toContain('Private');
+    expect(destination.href).not.toContain('example.org');
+    await chooseCourse(9);
+    destination = new URL(link().getAttribute('href')!, window.location.origin);
+    expect(destination.searchParams.get('course')).toBe(courseSlug(9));
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('opens the selected course practice without sending an attempt or losing notes', async () => {
+    const practice: TrainingCoursePractice = {
+      assignedCourseSlug: courseSlug(0),
+      mission: {
+        key: 'fixture:mission:support', courseSlug: 'support-mission', programSlug,
+        programTitle: syllabus.title, courseTitle: syllabus.courses[0].name,
+        missionName: 'Support practice', missionTagline: 'Explain a support request.',
+        primaryAxis: 'Service', skillLabels: ['Troubleshooting'], scenarioPrompt: 'Explain your diagnostic steps.',
+        evidenceHint: 'Use concrete observations.', estimatedMinutes: 15,
+        quizQuestions: [{ text: 'What comes first?', options: ['Ask', 'Guess', 'Restart', 'Ignore'] }],
+        status: 'ready', completedAt: null, latestResult: null, aiToolResultId: null,
+      },
+    };
+    mount(fixture(), [], [practice]);
+    fireEvent.change(notes(), { target: { value: 'Keep this diagnostic reflection.' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Start this skill practice' }));
+    expect(screen.getByRole('dialog', { name: 'Support practice' })).toBeInTheDocument();
+    expect(fetch).not.toHaveBeenCalled();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Start this skill practice' })).toHaveFocus();
+    expect(notes()).toHaveValue('Keep this diagnostic reflection.');
+    await chooseCourse(1);
+    expect(screen.queryByRole('region', { name: 'Course skill practice' })).not.toBeInTheDocument();
+  });
+
+  it('shows authoritative practice status and feedback without pretending a credential was earned', () => {
+    const mission: TrainingCoursePractice['mission'] = {
+      key: 'fixture:mission:support', courseSlug: 'support-mission', programSlug,
+      programTitle: syllabus.title, courseTitle: syllabus.courses[0].name,
+      missionName: 'Support practice', missionTagline: 'Explain a support request.', primaryAxis: 'Service',
+      skillLabels: ['Troubleshooting'], scenarioPrompt: 'Explain your steps.', evidenceHint: '', estimatedMinutes: 15,
+      quizQuestions: [], status: 'passed', completedAt: new Date('2026-09-09'), aiToolResultId: 'result-1',
+      latestResult: { verdict: 'passed', coachingNote: 'Your diagnostic sequence is clear.', resumeBullet: 'Documented a sample support investigation.', starStory: 'I investigated a sample request.', skillsUnlocked: ['Troubleshooting'] },
+    };
+    const { unmount } = mount(fixture(), [], [{ assignedCourseSlug: courseSlug(0), mission }]);
+    expect(screen.getByText('Your diagnostic sequence is clear.')).toBeInTheDocument();
+    expect(screen.getByText('Documented a sample support investigation.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Practice this skill again' })).toBeEnabled();
+    expect(screen.getByText(/does not award a credential/)).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: 'Assigned courses completed' })).toHaveAttribute('aria-valuenow', '0');
+    unmount();
+    mount(fixture(), [], [{ assignedCourseSlug: courseSlug(0), mission: { ...mission, status: 'locked', latestResult: null } }]);
+    expect(screen.getByText(/opens when this course's completion is recorded/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Start this skill practice/ })).not.toBeInTheDocument();
   });
 
   it('keeps the editor and blocks internal navigation when a member declines to discard unsaved work', async () => {

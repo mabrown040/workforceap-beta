@@ -42,7 +42,7 @@ export interface MemberMessagesKitProps {
    * the composer falls back to the real `/api/member/messages` endpoint.
    * Backward compatible: callers that pass `onSend` keep their behavior.
    */
-  onSend?: (text: string) => void;
+  onSend?: (text: string) => void | boolean | Promise<void | boolean>;
   /**
    * Current member user id. When provided, the Kit becomes a real, sending
    * inbox backed by the existing counselor-thread API. Initials shown on the
@@ -58,6 +58,9 @@ export interface MemberMessagesKitProps {
    * replies arrive live (no refresh). Mirrors `MemberCounselorChatClient`.
    */
   threadId?: string;
+  /** Server-validated assigned course context; never contains private notes. */
+  feedbackDraft?: { key: string; text: string };
+  feedbackNotice?: string;
 }
 
 const DEFAULT_CONVERSATIONS: Conversation[] = [];
@@ -75,6 +78,8 @@ export function MemberMessagesKit({
   memberUserId,
   otherInitials = activeInitials,
   threadId,
+  feedbackDraft,
+  feedbackNotice,
 }: MemberMessagesKitProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(messagesProp);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +116,7 @@ export function MemberMessagesKit({
         if (!r.ok || !data.message) {
           setMessages((prev) => prev.filter((m) => m.id !== tempId));
           setError(typeof data.error === 'string' ? data.error : 'Send failed');
-          return;
+          return false;
         }
         const saved = data.message;
         setMessages((prev) =>
@@ -122,22 +127,28 @@ export function MemberMessagesKit({
         } catch {
           /* ignore */
         }
+        if (feedbackDraft) {
+          const url = new URL(window.location.href);
+          for (const key of ['program', 'course', 'curriculum']) url.searchParams.delete(key);
+          window.history.replaceState(null, '', url);
+        }
+        return true;
       } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempId));
         setError('Network error');
+        return false;
       }
     },
-    [],
+    [feedbackDraft],
   );
 
   const handleSend = useCallback(
     (text: string) => {
       if (onSend) {
-        onSend(text);
-        return;
+        return onSend(text);
       }
       if (memberUserId) {
-        void sendLive(text);
+        return sendLive(text);
       }
     },
     [onSend, memberUserId, sendLive],
@@ -336,15 +347,21 @@ export function MemberMessagesKit({
               </div>
             </div>
             <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column' }}>
+              {feedbackDraft ? <p className="wa-kit-lede">
+                Review your course details and any saved project link before sending. Your private notes are not shared.
+              </p> : feedbackNotice ? <p role="status" className="wa-kit-lede">{feedbackNotice}</p> : null}
               {error ? (
                 <p role="alert" className="wa-kit-lede" style={{ margin: '0 0 12px', color: 'var(--wa-danger)' }}>
                   {error}
                 </p>
               ) : null}
               <ChatThread
+                key={feedbackDraft?.key ?? 'general'}
                 messages={messages}
                 placeholder={`Message ${activeName.split(' ')[0]}…`}
                 onSend={canSend ? handleSend : undefined}
+                initialText={feedbackDraft?.text}
+                multiline={Boolean(feedbackDraft)}
               />
             </div>
           </div>

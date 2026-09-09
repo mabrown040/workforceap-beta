@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, BookOpen, CalendarDays, Check, ChevronRight, Clock3, FileCheck2, GraduationCap, MessageCircle, Save } from 'lucide-react';
 import { Button } from '@astryxdesign/core/Button';
 import { ProgressBar } from '@astryxdesign/core/ProgressBar';
@@ -11,6 +12,8 @@ import { VStack } from '@astryxdesign/core/VStack';
 import { HStack } from '@astryxdesign/core/HStack';
 import { DesignSurface, PageOpener, useAnnounce } from '@/components/portal/kit';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
+import SkillMissionChallenge from '@/components/portal/SkillMissionChallenge';
+import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
 import { buildTrainingSchedule, isValidPlanDate, type TrainingWorkspace } from '@/lib/member/trainingWorkspace';
 
 export type TrainingCourseDestination = { slug: string; launchHref?: string; moduleHref?: string };
@@ -23,6 +26,8 @@ export interface MemberTrainingWorkspaceProps {
   syllabusHours?: number;
   syllabusBreakdown?: string;
   trainingEmail?: string | null;
+  practiceMissions?: TrainingCoursePractice[];
+  practiceUnavailable?: boolean;
 }
 
 type Draft = { notes: string; artifactUrl: string };
@@ -37,7 +42,8 @@ function addDays(date: string, days: number) {
 }
 
 /** The member's assigned curriculum, study schedule, and durable work in one place. */
-export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTitle, completedSlugs, destinations, initialCourseSlug, syllabusHours, syllabusBreakdown, trainingEmail }: MemberTrainingWorkspaceProps) {
+export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTitle, completedSlugs, destinations, initialCourseSlug, syllabusHours, syllabusBreakdown, trainingEmail, practiceMissions = [], practiceUnavailable = false }: MemberTrainingWorkspaceProps) {
+  const router = useRouter();
   const [workspace, setWorkspace] = useState(initialWorkspace);
   const completed = new Set(completedSlugs);
   const nextCourse = workspace.courses.find((course) => !completed.has(course.slug));
@@ -50,6 +56,8 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
   const [saving, setSaving] = useState<'plan' | string | null>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [activeMission, setActiveMission] = useState<TrainingCoursePractice['mission'] | null>(null);
+  const closeMission = () => { setActiveMission(null); router.refresh(); };
   const editorRef = useRef<HTMLElement>(null);
   const outlineRef = useRef<HTMLElement>(null);
   const announce = useAnnounce();
@@ -86,6 +94,7 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
   const weeks = validPace ? Math.ceil(hoursRemaining / pace) : 0;
   const finishDate = validPace && startDate && weeks ? addDays(startDate, weeks * 7 - 1) : null;
   const selectedDestination = destinations.find((course) => course.slug === selectedSlug);
+  const selectedPractice = practiceMissions.find((row) => row.assignedCourseSlug === selectedSlug)?.mission;
   const filteredCourses = workspace.courses.filter((course) => filter === 'remaining' ? !completed.has(course.slug) : filter === 'saved' ? Boolean(course.notes || course.artifactUrl) : true);
 
   // Split real assigned course hours into study weeks. These are planning
@@ -220,6 +229,21 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
                   <p className="wa-kit-training-muted">Opens in a new tab.{trainingEmail ? ` Use your training email: ${trainingEmail}.` : ' Use the training account assigned by your counselor.'}</p>
                 </VStack> : selectedDestination?.moduleHref ? <Link href={selectedDestination.moduleHref} className="wa-kit-cta wa-kit-focus">Open lessons and lab <ArrowRight size={16} aria-hidden="true" /></Link> : <p className="wa-kit-training-notice">Use this workspace for your assigned activities. Your counselor can provide the lesson or lab instructions. <Link href="/dashboard/messages">Ask your counselor</Link></p>}
 
+                {selectedPractice ? <section aria-label="Course skill practice">
+                  <VStack gap={3}>
+                    <h3>Practice this skill</h3>
+                    <p><strong>{selectedPractice.missionName}</strong> · About {selectedPractice.estimatedMinutes} minutes</p>
+                    <p className="wa-kit-training-muted">{selectedPractice.missionTagline}</p>
+                    {selectedPractice.status === 'locked' ? <p className="wa-kit-training-notice">This practice opens when this course&apos;s completion is recorded. You can keep working on your course notes below.</p> : <Button label={selectedPractice.status === 'passed' ? 'Practice this skill again' : selectedPractice.status === 'needs_retry' ? 'Try this skill practice again' : 'Start this skill practice'} variant="secondary" size="lg" onClick={() => setActiveMission(selectedPractice)} />}
+                    {selectedPractice.latestResult ? <VStack gap={2}>
+                      <p className="wa-kit-training-eyebrow">{selectedPractice.status === 'passed' ? 'Practice passed' : 'Practice feedback · try again'}</p>
+                      <p>{selectedPractice.latestResult.coachingNote}</p>
+                      {selectedPractice.status === 'passed' && selectedPractice.latestResult.resumeBullet ? <><h4>Your resume draft</h4><p>{selectedPractice.latestResult.resumeBullet}</p><p className="wa-kit-training-muted">Review this wording for accuracy before adding it to your resume.</p></> : null}
+                    </VStack> : null}
+                    <p className="wa-kit-training-muted">A short quiz and written scenario with feedback. This practice does not award a credential or replace your course assessment.</p>
+                  </VStack>
+                </section> : practiceUnavailable ? <p className="wa-kit-training-notice">Course practice could not load. <Link href="/dashboard/missions">Try the Skill Missions page</Link>.</p> : null}
+
                 <form onSubmit={(event) => { event.preventDefault(); void save('coursework'); }}>
                   <VStack gap={4}>
                     <HStack gap={2} vAlign="center"><FileCheck2 size={20} aria-hidden="true" /><h3>Your work, kept here</h3></HStack>
@@ -234,13 +258,16 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
                   <h3>Put this learning to work</h3>
                   <Link href="/dashboard/missions"><FileCheck2 size={18} aria-hidden="true" /><span><strong>Practice with Skill Missions</strong><small>Apply your skills and get feedback.</small></span><ArrowRight size={16} aria-hidden="true" /></Link>
                   <Link href="/dashboard/resume"><Save size={18} aria-hidden="true" /><span><strong>Build your resume</strong><small>Turn the work into a career story.</small></span><ArrowRight size={16} aria-hidden="true" /></Link>
-                  <Link href="/dashboard/messages"><MessageCircle size={18} aria-hidden="true" /><span><strong>Talk with your counselor</strong><small>Get unstuck and plan your next move.</small></span><ArrowRight size={16} aria-hidden="true" /></Link>
+                  <Link href={`/dashboard/messages?${new URLSearchParams({ program: workspace.programSlug, course: selected.slug, curriculum: workspace.curriculumVersion }).toString()}`}><MessageCircle size={18} aria-hidden="true" /><span><strong>Ask for feedback on this course</strong><small>Review a message with this course and your saved project link.</small></span><ArrowRight size={16} aria-hidden="true" /></Link>
                 </footer>
               </VStack> : <p>Your assigned courses will appear here when your enrollment is ready.</p>}
             </section>
           </section>
         )}
         <p className="wa-kit-training-footnote"><Clock3 size={16} aria-hidden="true" /> Course hours are curriculum estimates. Completion shown here uses your existing training records.</p>
+        {activeMission ? <section>
+          <SkillMissionChallenge mission={activeMission} onClose={closeMission} onComplete={closeMission} />
+        </section> : null}
       </main>
     </DesignSurface>
   );

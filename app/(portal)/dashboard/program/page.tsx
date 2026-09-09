@@ -28,6 +28,7 @@ import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { loadTrainingWorkspace } from '@/lib/member/loadTrainingWorkspace';
 import { assignedSyllabusBreakdown } from '@/lib/member/trainingWorkspace';
+import { loadTrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -184,6 +185,11 @@ export default async function ProgramPage({
   // loaded above. Renders only when a program is actually enrolled — the
   // unenrolled "choose your program" picker above keeps its own legacy UI.
   if (requestedUi !== 'legacy') {
+    const coursePractice = workspaceResult.workspace
+      ? await loadTrainingCoursePractice({ userId: user.id, workspace: workspaceResult.workspace, completedCourseSlugs: [...completedSet] })
+          .then((missions) => ({ missions, unavailable: false }))
+          .catch(() => ({ missions: [], unavailable: true }))
+      : { missions: [], unavailable: false };
     const totalCourses = curriculumCourses.length;
     const progressPercent =
       trainingView?.progressPercentDisplay ??
@@ -228,6 +234,8 @@ export default async function ProgramPage({
           workspace: workspaceResult.workspace,
           programTitle: program.title,
           completedSlugs: [...completedSet],
+          practiceMissions: coursePractice.missions,
+          practiceUnavailable: coursePractice.unavailable,
           initialCourseSlug: typeof params?.course === 'string' ? params.course : undefined,
           syllabusHours: program.syllabus?.totalHours,
           syllabusBreakdown: assignedSyllabusBreakdown(curriculumCourses, program.syllabus),

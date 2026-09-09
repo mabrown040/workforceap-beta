@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { PROGRAMS as PROGRAM_CATALOG, type Program as CatalogProgram } from '../data/programs';
-import CareerActionPlan from './CareerActionPlan';
-import { readCareerPlan, verifiedProgramHours, type CareerPlanSnapshot } from '../lib/careerActionPlan';
 import { trackQuizFunnel } from '../lib/marketingDataLayer';
 
 /**
@@ -419,25 +417,12 @@ export default function FindYourPathQuiz() {
   const [results, setResults] = useState<Program[] | null>(null);
   const [resultAnswers, setResultAnswers] = useState<QuizAnswers | null>(null);
   const [pendingChoice, setPendingChoice] = useState<AnswerValue | null>(null);
-  const [selectedProgramSlug, setSelectedProgramSlug] = useState('');
-  const [savedPlan, setSavedPlan] = useState<CareerPlanSnapshot | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const hasInteracted = useRef(false);
 
   useEffect(() => {
-    try { setSavedPlan(readCareerPlan(window.localStorage, PROGRAMS.map((program) => program.slug))); } catch { /* Quiz works without storage. */ }
-  }, []);
-
-  useEffect(() => {
     if (hasInteracted.current) headingRef.current?.focus();
   }, [step, results]);
-
-  function resumePlan() {
-    if (!savedPlan) return;
-    hasInteracted.current = true;
-    setSelectedProgramSlug(savedPlan.selectedProgramSlug);
-    setResults(savedPlan.recommendedProgramSlugs.map(getProgramBySlug).filter((program): program is Program => Boolean(program)));
-  }
 
   const currentQ = QUESTIONS[step];
 
@@ -456,7 +441,6 @@ export default function FindYourPathQuiz() {
       const weights = scoreQuiz(fullAnswers);
       const programs = getTopProgramsFromQuiz(weights, fullAnswers);
       trackQuizFunnel('find_your_path', 'completed', { quiz_result: programs[0]?.slug ?? 'none' });
-      setSelectedProgramSlug(programs[0]?.slug ?? '');
       setResults(programs);
       setResultAnswers(fullAnswers);
     }
@@ -475,7 +459,6 @@ export default function FindYourPathQuiz() {
 
   function handleRetake() {
     hasInteracted.current = true;
-    try { setSavedPlan(readCareerPlan(window.localStorage, PROGRAMS.map((program) => program.slug))); } catch { setSavedPlan(null); }
     setResults(null);
     setResultAnswers(null);
     setAnswers({});
@@ -484,30 +467,26 @@ export default function FindYourPathQuiz() {
   }
 
   /* ── results screen ── */
-  if (results) {
+  if (results && resultAnswers) {
     return (
       <div className="fyp-results">
-        <div className="fyp-recommendations cap-no-print">
-          <span className="fyp-kicker">{resultAnswers ? 'Quiz complete' : 'Welcome back to your plan'}</span>
-          <h2 ref={headingRef} tabIndex={-1} className="fyp-results__title">A direction. And a next step.</h2>
-          <p className="fyp-results__sub">{resultAnswers ? getTopFitSummary(resultAnswers) : 'Your saved programs are ready to explore. Continue your checklist below.'} These are starting points, not an assessment of eligibility or a job guarantee.</p>
+        <div className="fyp-recommendations">
+          <span className="fyp-kicker">Quiz complete</span>
+          <h2 ref={headingRef} tabIndex={-1} className="fyp-results__title">Your career match results</h2>
+          <p className="fyp-results__sub">{getTopFitSummary(resultAnswers)} Review the curriculum and entry requirements with an advisor before choosing your training.</p>
           <h3 className="fyp-results__h3">Programs to explore</h3>
           <div className="fyp-grid">
             {results.map((program, index) => {
-              const verified = verifiedProgramHours(program);
-              const isSelected = selectedProgramSlug === program.slug;
               return (
-                <article key={program.slug} className={`fyp-card${isSelected ? ' is-selected' : ''}`}>
+                <article key={program.slug} className="fyp-card">
                   <span className="fyp-card__rank">{index === 0 ? 'Start exploring here' : 'Another direction to explore'}</span>
                   <p className="fyp-card__cat">{program.categoryLabel}</p>
                   <h4 className="fyp-card__title">{program.title}</h4>
-                  <p className="fyp-card__reason">{resultAnswers ? getFitReasoning(program, resultAnswers) : 'One of the programs from your saved exploration.'}</p>
-                  <p className="fyp-card__meta">{verified ? `${Number(verified.hours.toFixed(1))} ${verified.lessonTimeOnly ? 'lesson' : 'curriculum'} hours · see your pace below` : 'Training hours: confirm with an advisor'}</p>
+                  <p className="fyp-card__reason">{getFitReasoning(program, resultAnswers)}</p>
+                  <p className="fyp-card__meta">{program.duration}</p>
                   <p className="fyp-card__readiness">{program.syllabus?.recommendedPrerequisite ?? (program.extra?.difficulty === 3 ? 'This is a more advanced track. Review the prerequisites with an advisor before enrolling.' : 'Review the curriculum and entry requirements with an advisor to confirm your starting point.')}</p>
-                  <button type="button" className={`btn ${isSelected ? 'btn--primary' : 'btn--ghost'} fyp-card__cta`} aria-pressed={isSelected} onClick={() => {
-                    setSelectedProgramSlug(program.slug);
-                    document.getElementById('career-action-plan')?.focus();
-                  }}>{isSelected ? 'Selected for my plan' : 'Build my plan for this program'}</button>
+                  <a className="btn btn--primary fyp-card__cta" href={`/apply?program=${encodeURIComponent(program.slug)}`}
+                    onClick={() => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: program.slug })}>Apply for this program <span aria-hidden="true">→</span></a>
                   <a className="fyp-card__detail" href={`/programs/${program.slug}`}>Program details <span aria-hidden="true">→</span></a>
                 </article>
               );
@@ -515,15 +494,17 @@ export default function FindYourPathQuiz() {
           </div>
         </div>
 
-        <CareerActionPlan programs={results} selectedProgramSlug={selectedProgramSlug} onProgramChange={setSelectedProgramSlug}
-          onApply={(slug) => trackQuizFunnel('find_your_path', 'apply_click', { quiz_result: slug })}
-          onForget={() => { setSavedPlan(null); handleRetake(); }} />
+        <div className="fyp-cta">
+          <p className="fyp-cta__lead">Already a WorkforceAP member?</p>
+          <p className="fyp-cta__sub">Sign in to access your enrolled programs and coursework. If you are applying for the first time, choose a program above or talk with an advisor.</p>
+          <div className="fyp-cta__actions"><a className="btn btn--primary" href="/login?redirectTo=/dashboard/program">Sign in to my training</a><a className="btn btn--ghost" href="/contact">Talk with an advisor</a></div>
+        </div>
 
-        <div className="fyp-next cap-no-print">
+        <div className="fyp-next">
           <p>Still deciding? Compare curricula and entry requirements, or research occupations and wages before committing.</p>
           <div className="fyp-next__links"><a href="/program-comparison">Compare programs</a><a href="/salary-guide">Research career pay</a></div>
         </div>
-        <div className="fyp-footer cap-no-print">
+        <div className="fyp-footer">
           <a href="/programs" className="btn btn--ghost">Browse all programs</a>
           <button type="button" className="btn btn--ghost fyp-retake" onClick={handleRetake}>Retake quiz</button>
         </div>
@@ -537,10 +518,6 @@ export default function FindYourPathQuiz() {
 
   return (
     <div className="fyp-flow">
-      {savedPlan && step === 0 && <div className="fyp-resume">
-        <div><strong>Your career plan is saved here.</strong><p>Pick up where you left off, or answer the questions to explore again.</p></div>
-        <button type="button" className="btn btn--primary" onClick={resumePlan}>Resume my saved plan</button>
-      </div>}
       {/* progress */}
       <div className="fyp-progress">
         <span className="fyp-progress__step">

@@ -1,57 +1,108 @@
-# Career discovery that leads to a useful next step
+# Member training and informed program discovery
 
-Built from production `a6327040` on 2026-09-08. The change improves the public Astro experience; authenticated portal behavior and production records are outside its scope.
+Working from production `a6327040`, September 8, 2026. The homepage is preserved
+exactly as requested. Work centers on the enrolled member experience and on
+accurate program information that leads into training.
 
-## What a learner can now do
+## Member training workspace
 
-1. Find career exploration and application actions in the first mobile viewport.
-2. Review actual program skills, curriculum hours, and published prerequisites.
-3. Answer three questions and explore programs based on interests and readiness, without salary-based ranking.
-4. Choose a program, set weekly study capacity, and follow an eight-task, four-week **preparation** plan. It is not a four-week credential or employment promise.
-5. Keep separate progress for each recommended program, resume later on the same device, download a branded text copy, print/save PDF, or remove the saved plan.
-6. Carry the chosen program into the application link.
-7. Research occupational duties, preparation and wages through BLS, O*NET and My Next Move, with market data clearly separated from WorkforceAP outcomes.
+The authenticated `/dashboard/program` now presents the member's assigned
+curriculum as a working course outline. The IT Support assignment contains all
+10 courses and 160 hours, including the 58-hour lab/project/preparation block.
+Each course has a workspace with its description, a verified launch destination
+when available, working notes, and a project/evidence link. Members can revisit
+any assigned course and filter for unfinished courses or saved work.
 
-## Before and after
+A study-schedule view maps unfinished courses into weeks at the member's chosen
+pace. The schedule, course notes, and evidence links persist in PostgreSQL under
+the authenticated member, program, and immutable curriculum version. They are
+separate from provider completion and credentials. Existing assignments are not
+upgraded or replaced with a newer public syllabus. Where published and assigned
+hours differ, the screen explains the difference.
 
-At 390×844, the previous homepage placed application/pathfinder actions at approximately y926/y988. The new career-path action sits at y389–445 and application at y451–499, both above the first-visit consent banner. This measures visibility, not a conversion lift.
+Saving work never completes a course. The workspace's completion bar uses all
+assigned courses as its denominator: the fixture's three completed courses are
+30% of ten, including the applied lab. Course hours are planning estimates,
+not attendance records. The existing provider launch and completion systems
+remain responsible for actual training access and completion evidence.
 
-| Before | After |
-| --- | --- |
-| ![Previous mobile homepage](home-before-mobile.png) | ![New mobile homepage](home-after-mobile.png) |
+![Member training workspace](training-workspace-desktop.png)
 
-![New desktop homepage](home-after-desktop.png)
+![Saved study schedule](training-workspace-schedule.png)
 
-![New career plan on mobile](plan-after-mobile.png)
+### Validation
 
-![New career plan on desktop](plan-after-desktop.png)
+- Full Node test lane: 1,435 passed, eight existing skips.
+- Full Vitest lane: 256 suites and 2,187 tests passed after the workspace change.
+- Final targeted API, schedule, component, and preview-schema checks: 57 tests
+  passed, including the 16 new deployment-bootstrap tests.
+- Eleven actual-component tests cover course switching, draft persistence,
+  save races, errors, filters, schedule validation, unsaved navigation, course
+  destinations, and the full assigned-course completion denominator.
+- Local authenticated API-to-PostgreSQL checks prove schedule/work persistence,
+  second-member isolation, invalid-request rejection, and unchanged official
+  completion and enrollment records. Authentication uses normal Supabase SSR
+  cookies against a disposable local auth fixture; no bypass was added to the app.
+- Browser and production-build evidence is recorded with the final screenshots
+  and verification notes in this folder.
+
+### Release behavior
+
+Two additive tables store study plans and course work. Their migration enables
+row-level security with own-member policies. Normal production releases apply
+the migration through the existing deployment process. The preview bootstrap
+accepts only the configured DEMO database on Vercel Preview, checks the schema
+before and after applying it, and refuses production targets or partial schema.
+If workspace storage is unavailable, the existing course view remains available
+with an explicit retry notice; failed saves never show success.
+
+All validation used synthetic local members. No production member work was
+changed and no production release was performed.
+
+## Public journey
+
+- `marketing/src/pages/index.astro` and its mobile touch-target test are
+  byte-identical to `a63270406ae691b96a801989ba0d3f7f356fb53b`.
+- The three-question pathfinder recommends real catalog programs using interest
+  and readiness. Each result links to its curriculum and preserves its program
+  slug in the application URL. Existing members can sign in to
+  `/dashboard/program`.
+- The downloadable/printable preparation plan and its local-storage feature
+  have been removed. Public pages do not promise that feature.
+- Catalog, comparison, salary research, and impact transparency improvements
+  remain. Unsupported salary/demand figures are not used to rank or promote
+  the corrected programs. Syllabus hours, tuition, and prerequisites remain.
+- Shared canonical/social metadata remains; no ranking or brand-growth result
+  is claimed.
+
+## Current public evidence
+
+![Preserved homepage on mobile](home-restored-mobile.png)
+
+![Program matches and training entry points](program-matches-mobile.png)
 
 ![Impact and transparency](impact-after-desktop.png)
 
-The shared marketing layout now emits canonical URLs, Open Graph and Twitter metadata, and organization structured data. These support consistent identification and link previews; no search ranking or brand-growth result is claimed.
+`home-before-mobile.png` preserves the original production reference. The
+redesigned homepage and preparation-plan artifacts are no longer part of the
+review package.
 
-## Verification
+## Verification after the scope correction
 
-- Astro production build: all 68 pages pass.
-- Next.js production build: pass, including 498 generated static routes and production lint/type validation, using CI placeholder credentials.
-- TypeScript: pass.
-- ESLint: no errors; existing unrelated warnings remain. Changed TypeScript/React files have no warnings.
-- Node unit lane: 1,435 passed, 0 failed, 8 explicit skips.
-- Vitest: 253 files and 2,157 tests passed, including 15 focused plan/ranking tests. The existing homepage touch-target contract was updated for the new links.
-- Browser: home, career research and impact reviewed at 375, 768 and 1440 widths; no horizontal overflow or runtime errors.
-- Plan browser checks: real quiz, correct program handoff URL, verified-hour pacing, no estimate at zero capacity or unknown hours, separate checklists, reload/resume, downloaded text, print PDF, malformed/blocked storage, and removal without immediate re-saving.
-- Search: `IT support` returns the three relevant programs; an unmatched query displays recovery; clearing restores 20. Multi-word token-prefix matching avoids matching `IT` inside `Literacy`.
-- Rendered HTML: 29 key pages have one H1, one canonical and one set of social title/image metadata.
-- No real applications, emails, donations, or member records were submitted during verification.
+- Exact source-byte comparison confirms homepage and mobile test restoration.
+- Astro production build: all 68 routes pass.
+- Targeted Vitest: 2 suites, 4 tests pass (matching regressions and original
+  homepage touch targets).
+- Mobile quiz completed at 390 × 844: computer beginner results start with IBM
+  IT Support and CompTIA A+; application URLs include the matching program
+  slugs; member sign-in targets `/dashboard/program`; no preparation-plan or
+  export controls remain. No page overflow or runtime errors observed.
+- Earlier retained-page review verified catalog/detail/comparison hours and
+  prerequisite integrity, salary-guide search/recovery, and impact-page
+  navigation. See the linked source reviews for boundaries.
+- No production deployment, live application submission, outbound message, or
+  real member-record mutation was performed by the public-journey review.
 
-## Measurement added
-
-The plan uses the existing marketing data layer with `funnel=career_plan` and milestones `opened`, `downloaded`, `print_requested`, and `preparation_completed`, plus the existing quiz/application click events. Payloads include program slug, not checklist answers, study hours, or contact details. `print_requested` records intent, not proof that a PDF was saved. Preparation completion is not training completion. Existing analytics consent configuration governs collection.
-
-These events allow follow-up measurement of plan use and progression to application. Outcome improvement still requires actual enrollment, completion, credential, employment and retention evidence, with denominators and coverage stated.
-
-## Publication and evidence limits
-
-The new impact page explains what is publicly available without implying that unavailable reports mean zero participants or zero outcomes. No placement rates, wage gains, ratings, rankings or testimonials were invented. See [the evidence review](../../career-launch-evidence-2026-09-08.md) for source boundaries and the unresolved provenance of an existing seeded success story.
-
-This is a functional and editorial upgrade. It does not establish that WorkforceAP is the best provider in America, independently verify all existing site content, or replace an outcome evaluation.
+See [the public journey audit](../2026-09-08-public-career-journey.md) and
+[the evidence review](../../career-launch-evidence-2026-09-08.md). Neither
+constitutes an independent outcome evaluation or proof of national ranking.

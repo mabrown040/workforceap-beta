@@ -197,6 +197,8 @@ model User {
   applicationAiFeedbacks ApplicationAiFeedback[]
   benefitRequests        BenefitRequest[]
   learningProgress       LearningProgress[]
+  trainingStudyPlans     TrainingStudyPlan[]
+  trainingCourseWork     TrainingCourseWork[]
   aiToolResults          AIToolResult[]
   coachMemory            CoachMemory?
   userCertifications     UserCertification[]
@@ -600,6 +602,43 @@ model LearningProgress {
   @@unique([userId, pathwayId])
   @@index([userId])
   @@map("learning_progress")
+}
+
+/// Member-owned study planning. These estimates never credit official training progress.
+model TrainingStudyPlan {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  programSlug       String   @map("program_slug")
+  curriculumVersion String   @map("curriculum_version")
+  weeklyHours       Int      @map("weekly_hours")
+  planStartDate     DateTime @map("plan_start_date") @db.Date
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programSlug, curriculumVersion], map: "training_study_plans_user_program_version_key")
+  @@index([userId])
+  @@map("training_study_plans")
+}
+
+/// Private working notes and artifact links, separate from provider/credential completion.
+model TrainingCourseWork {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  programSlug       String   @map("program_slug")
+  curriculumVersion String   @map("curriculum_version")
+  courseSlug        String   @map("course_slug")
+  notes             String   @default("") @db.Text
+  artifactUrl       String?  @map("artifact_url") @db.VarChar(2000)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programSlug, curriculumVersion, courseSlug], map: "training_course_work_user_program_version_course_key")
+  @@index([userId])
+  @@map("training_course_work")
 }
 
 model Goal {

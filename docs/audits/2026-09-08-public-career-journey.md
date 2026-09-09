@@ -4,6 +4,11 @@ Read-only browser review of production `https://www.workforceap.org` at desktop
 and 390 × 844 mobile dimensions. Completed the pathfinder and followed its
 application link; did not submit an application or send a message.
 
+The homepage remains exactly as supplied at `a6327040`, per the user’s explicit
+requirement. Its observations below are context, not authorization to redesign
+it. The final implementation removes the public preparation-plan feature and
+connects program exploration to application and enrolled member training.
+
 ## Observed production behavior
 
 1. **Home learner actions below the first mobile screen.** On `/`, Donate begins
@@ -65,6 +70,13 @@ not render them.
   `/tmp/wap-live-match-results.png`, `/tmp/wap-live-apply.png`, and
   `/tmp/wap-changed-comparison-mobile.png`.
 
-Remaining scope: other owners are improving home, quiz plans, and impact.
-Archived blog content also requires an evidence review before its named member
-stories or historical wage claims are reused as proof.
+Current scope: preserve the homepage, retain useful program matching and
+evidence corrections, and support real training inside the authenticated
+member platform. The public preparation-plan component and exports have been
+removed. Archived blog content still requires an evidence review before its
+named member stories or historical wage claims are reused as proof.
+
+Post-correction validation: exact homepage and mobile-test source restoration;
+68-route Astro build; 4 targeted tests; mobile quiz to program application and
+member sign-in handoff. Current screenshots and member-workspace verification
+status are in `career-launch-2026-09-08/README.md`.

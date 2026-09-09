@@ -26,6 +26,7 @@ import { DesignSurface, PageOpener } from '@/components/portal/kit';
 import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
+import { loadTrainingWorkspace } from '@/lib/member/loadTrainingWorkspace';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -39,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProgramPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ ui?: string }>;
+  searchParams?: Promise<{ ui?: string; course?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/program');
@@ -156,12 +157,20 @@ export default async function ProgramPage({
         })
       : new Map();
 
-  const trainingView = await loadMemberProgramTrainingView({
+  const [trainingView, workspaceResult] = await Promise.all([loadMemberProgramTrainingView({
     userId: user.id,
     programSlug: enrolledSlug,
     b4bProgress,
     readOnlyAudit,
-  });
+  }), requestedUi !== 'legacy'
+    ? loadTrainingWorkspace({ userId: user.id, programSlug: enrolledSlug })
+        .then((workspace) => ({ workspace, failed: false }))
+        .catch(() => {
+          console.error('[dashboard/program] Training workspace unavailable.');
+          return { workspace: null, failed: true };
+        })
+    : Promise.resolve({ workspace: null, failed: false }),
+  ]);
   const completedSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
   const completedCount = trainingView?.completedCount ?? 0;
   const nextCourseSlug =
@@ -214,6 +223,23 @@ export default async function ProgramPage({
         </div>
       ) : null}
       <MemberProgramKit
+        trainingWorkspace={workspaceResult.workspace ? {
+          workspace: workspaceResult.workspace,
+          programTitle: program.title,
+          completedSlugs: [...completedSet],
+          initialCourseSlug: typeof params?.course === 'string' ? params.course : undefined,
+          syllabusHours: program.syllabus?.totalHours,
+          syllabusBreakdown: program.syllabus ? `${program.syllabus.clockHours} hours of coursework + ${program.syllabus.labHours} hours of labs, projects, and preparation.` : undefined,
+          trainingEmail: activeEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail,
+          destinations: curriculumCourses.map((course) => ({
+            slug: course.slug,
+            ...(course.kind === 'workforceap'
+              ? { moduleHref: `/dashboard/learning/modules/${encodeURIComponent(course.slug)}?program=${encodeURIComponent(enrolledSlug)}` }
+              : launchableCourseSlugs.has(course.slug)
+                ? { launchHref: `/api/member/coursera/launch?course=${encodeURIComponent(course.slug)}` }
+                : {}),
+          })),
+        } : undefined}
         programTitle={program.title}
         progressPercent={progressPercent}
         modulesComplete={completedCount}
@@ -226,6 +252,7 @@ export default async function ProgramPage({
         // defaults and point the missions CTA at the live missions page.
         missionsHref="/dashboard/missions"
       />
+      {workspaceResult.failed ? <p className="wa-kit-training-notice" role="status">Your saved training workspace could not be loaded. Your course progress is still available above. Reload to try again.</p> : null}
       </>
     );
   }

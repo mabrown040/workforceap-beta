@@ -16,8 +16,8 @@ describe('marketing mobile touch targets', () => {
     expect(blendCss).toMatch(
       /footer li a,\.flegal a\{display:inline-flex;align-items:center;min-width:44px;min-height:44px;/,
     );
-    expect(homeSource).toMatch(/\.text-link\{[^}]*min-height:44px/);
-    expect(homeSource).toMatch(/\.community-links>a\{min-height:44px;/);
+    expect(homeSource).toMatch(/\.tlink\{[^}]*min-height:44px/);
+    expect(homeSource).toMatch(/\.pill--donate\{min-height:44px;/);
     expect(consentSource).toMatch(
       /\.consent__copy a\{display:inline-flex;align-items:center;min-height:44px;/,
     );

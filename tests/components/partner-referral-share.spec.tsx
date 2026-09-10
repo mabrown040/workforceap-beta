@@ -18,6 +18,8 @@ describe('partner attributed sharing', () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch');
     const link = buildPartnerReferralLink({ referralCode: ' community&1 ', slug: 'community' });
     render(<PartnerReferralShare url={link.url} referralCode={link.referralCode} />);
+    expect(screen.getByText('Referral code: community&1')).not.toBeVisible();
+    fireEvent.click(screen.getByText('View link and referral code'));
     const anchor = screen.getByRole('link');
     expect(new URL(anchor.getAttribute('href')!).searchParams.get('ref')).toBe('community&1');
     expect(screen.getByText('Referral code: community&1')).toBeVisible();
@@ -34,7 +36,8 @@ describe('partner attributed sharing', () => {
     const link = buildPartnerReferralLink({ referralCode: '', slug: 'community-slug' });
     render(<PartnerReferralShare url={link.url} referralCode={link.referralCode} />);
     fireEvent.click(screen.getByRole('button', { name: 'Copy referral link' }));
-    expect(await screen.findByText('Copy failed. Select and copy the referral link shown above.')).toBeVisible();
+    expect(await screen.findByText('Copy failed. Select and copy your referral link manually.')).toBeVisible();
+    expect(screen.getByRole('link')).toBeVisible();
     expect(screen.getByRole('link')).toHaveAttribute('href', 'https://training.example.invalid/apply?ref=community-slug');
     expect(screen.getByRole('button', { name: 'Copy referral link' })).toBeEnabled();
   });

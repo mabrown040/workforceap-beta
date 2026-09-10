@@ -11,10 +11,13 @@ import { useAnnounce } from '@/components/portal/kit/hooks/useAnnounce';
 export default function CopyReferralLink({
   url,
   referralCodeDisplay,
+  onCopyError,
 }: {
   url: string;
   /** Shown beside actions so partners can read their code aloud. */
   referralCodeDisplay?: string;
+  /** Reveals a manual-copy fallback when the browser denies clipboard access. */
+  onCopyError?: () => void;
 }) {
   const [state, setState] = useState<'idle' | 'copied' | 'err'>('idle');
   const announce = useAnnounce();
@@ -26,7 +29,8 @@ export default function CopyReferralLink({
       announce('Referral link copied.');
     } catch {
       setState('err');
-      announce('Copy failed. Select and copy the referral link shown above.', 'assertive');
+      onCopyError?.();
+      announce('Copy failed. Select and copy your referral link manually.', 'assertive');
     }
   };
 
@@ -34,13 +38,14 @@ export default function CopyReferralLink({
     <VStack gap={2}>
       <HStack gap={3} wrap="wrap" vAlign="center">
         <Button
+          variant="primary"
           label={state === 'copied' ? 'Link copied' : 'Copy referral link'}
           icon={state === 'copied' ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
           onClick={() => void copy()}
         />
         {referralCodeDisplay ? <Text type="supporting">Referral code: {referralCodeDisplay}</Text> : null}
       </HStack>
-      {state === 'err' ? <Text as="p">Copy failed. Select and copy the referral link shown above.</Text> : null}
+      {state === 'err' ? <Text as="p">Copy failed. Select and copy your referral link manually.</Text> : null}
     </VStack>
   );
 }

@@ -88,6 +88,7 @@ describe('member referral sharing toolkit', () => {
   });
   it('copies a useful message without sending or promising a funded place or job', async () => {
     render(<ReferralShareCard />); fireEvent.click(await screen.findByRole('button', { name: 'Copy invitation message' }));
+    expect(screen.getByLabelText('Invitation message')).not.toBeVisible();
     await waitFor(() => expect(mocks.write).toHaveBeenCalledOnce());
     const text = mocks.write.mock.calls[0][0];
     expect(text).toContain(`${window.location.origin}/r/ABCD2345`);
@@ -100,9 +101,22 @@ describe('member referral sharing toolkit', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Copy invitation message' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('copy it manually');
     const message = screen.getByLabelText('Invitation message') as HTMLTextAreaElement;
+    expect(message).toBeVisible();
     fireEvent.focus(message);
     expect(message.selectionStart).toBe(0); expect(message.selectionEnd).toBe(message.value.length);
     expect(mocks.track).not.toHaveBeenCalled();
+  });
+  it('reveals the complete invitation for review without copying or sending', async () => {
+    render(<ReferralShareCard />);
+    await screen.findByLabelText('Your referral link');
+    const message = screen.getByLabelText('Invitation message');
+    expect(message).not.toBeVisible();
+    fireEvent.click(screen.getByText('Preview invitation message'));
+    expect(message).toBeVisible();
+    expect((message as HTMLTextAreaElement).value).toContain(`${window.location.origin}/r/ABCD2345`);
+    expect(mocks.write).not.toHaveBeenCalled();
+    expect(mocks.share).not.toHaveBeenCalled();
+    expect(mocks.event).not.toHaveBeenCalled();
   });
   it('offers native sharing only when available and treats cancellation quietly', async () => {
     Object.defineProperty(navigator, 'share', { configurable: true, value: mocks.share });

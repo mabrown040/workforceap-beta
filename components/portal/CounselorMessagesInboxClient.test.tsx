@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('next/link', () => ({
@@ -6,15 +6,11 @@ vi.mock('next/link', () => ({
     <a href={href}>{children}</a>
   ),
 }));
-vi.mock('@/components/portal/VoiceAgentSurface', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <section>{children}</section>,
-}));
 vi.mock('@/components/admin/AdminMemberCounselorChatClient', () => ({
   default: ({ messagesApiBase, initial }: { messagesApiBase: string; initial: { member: { id: string } } }) => (
     <div data-testid="loaded-chat" data-api={messagesApiBase} data-member={initial.member.id}>Loaded chat</div>
   ),
 }));
-vi.mock('@/lib/portal/messagingSurfaces', () => ({ counselorStaffMessagingSurface: {} }));
 
 import CounselorMessagesInboxClient from './CounselorMessagesInboxClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
@@ -93,6 +89,18 @@ describe('CounselorMessagesInboxClient deep-link selection', () => {
       '/api/counselor/members/member-2/messages',
       expect.objectContaining({ credentials: 'include', signal: expect.any(AbortSignal) }),
     );
+  });
+
+  it('announces the active filter and narrows the member list without mixing recipients', async () => {
+    render(<CounselorMessagesInboxClient staffUserId="staff-1" rows={rows} />);
+    const filters = within(screen.getAllByRole('group', { name: 'Filter conversations' })[0]);
+    expect(filters.getByRole('button', { name: 'All 2' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(filters.getByRole('button', { name: 'Needs reply 1' }));
+    expect(filters.getByRole('button', { name: 'Needs reply 1' })).toHaveAttribute('aria-pressed', 'true');
+    expect(filters.getByRole('button', { name: 'All 2' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.queryByRole('button', { name: /Grace Member/ })).not.toBeInTheDocument();
+    await act(async () => {});
+    expect(screen.getAllByTestId('loaded-chat')[0]).toHaveAttribute('data-member', 'member-1');
   });
 });
 

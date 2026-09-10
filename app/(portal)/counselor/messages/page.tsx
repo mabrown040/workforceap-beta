@@ -11,6 +11,7 @@ import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { resolveAuthorizedCounselorMessageContext } from '@/lib/messages/contextSelection';
+import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
 type Props = {
   searchParams?: Promise<{
@@ -42,6 +43,11 @@ export default async function CounselorMessagesHubPage({ searchParams }: Props) 
 
   const memberIds = assignments.map((a) => a.member.id);
   const rows = await buildCounselorInboxRows(memberIds, { readOnlyAudit });
+  // Resolve catalog labels on the server; the inbox never needs the curriculum catalog.
+  const displayRows = rows.map((row) => {
+    const program = getProgramBySlug(row.programSubtitle);
+    return { ...row, programSubtitle: program ? getProgramDisplayTitle(program) : row.programSubtitle };
+  });
   const query = await searchParams;
   const initialContext = resolveAuthorizedCounselorMessageContext(rows, {
     threadId: query?.thread,
@@ -73,7 +79,7 @@ export default async function CounselorMessagesHubPage({ searchParams }: Props) 
           <div style={{ minHeight: '50vh' }}>
             <CounselorMessagesInboxClient
               staffUserId={user.id}
-              rows={rows}
+              rows={displayRows}
               initialMemberId={initialContext?.memberId}
             />
           </div>

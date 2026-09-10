@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Copy, Share2 } from 'lucide-react';
 import { trackMemberReferralShare } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
@@ -8,6 +8,7 @@ import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 import { POINT_VALUES } from '@/lib/member/pointsConfig';
 import { buildReferralInvitation, ReferralShareDataSchema, type ReferralShareData } from '@/lib/member/referralSharing';
 import { CardHead, FormField } from '@/components/portal/kit';
+import styles from './ReferralShareCard.module.css';
 
 /** Own referral link and aggregate rewards; copying/sharing never sends an email. */
 export default function ReferralShareCard() {
@@ -18,6 +19,7 @@ export default function ReferralShareCard() {
   const [actionError, setActionError] = useState('');
   const [sharing, setSharing] = useState(false);
   const [nativeShare, setNativeShare] = useState(false);
+  const invitationDetails = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -51,7 +53,8 @@ export default function ReferralShareCard() {
         void postMemberEvent({ eventName: 'member_referral_link_copied', entityType: 'member_referral', metadata: { action: 'copy_link' }, sourcePage: window.location.pathname });
       }
     } catch {
-      setActionError(`Copying is unavailable in this browser. Select the ${kind === 'link' ? 'link' : 'invitation message'} below and copy it manually.`);
+      if (kind === 'message' && invitationDetails.current) invitationDetails.current.open = true;
+      setActionError(`Copying is unavailable in this browser. Select your ${kind === 'link' ? 'referral link' : 'invitation message'} and copy it manually.`);
     }
   }
 
@@ -68,10 +71,10 @@ export default function ReferralShareCard() {
   }
 
   return (
-    <section className="wa-kit-card wa-space-y-4" aria-label="Invite a friend">
-      <CardHead title="Share an opportunity" />
-      <p style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-body)', lineHeight: 1.6 }}>
-        Know someone considering a career change? Send them a link to explore WorkforceAP. Their application and training details stay private.
+    <section className={`wa-kit-card ${styles.panel}`} aria-label="Invite a friend">
+      <CardHead title="Share WorkforceAP" />
+      <p className={styles.intro}>
+        Share career training with someone you know. Their application and training details stay private.
       </p>
       {loadError ? (
         <div className="wa-space-y-3">
@@ -80,23 +83,30 @@ export default function ReferralShareCard() {
         </div>
       ) : !data ? <p role="status">Loading your referral link…</p> : (
         <>
-          <div className="wa-flex wa-flex-wrap wa-gap-3">
+          <section className={styles.linkRow} aria-label="Copy your referral link">
+            <FormField label="Your referral link" readOnly value={shareUrl} onFocus={event => event.currentTarget.select()} />
             <button type="button" className="wa-kit-cta wa-kit-focus" onClick={() => copy('link')}><Copy size={16} aria-hidden />Copy link</button>
+          </section>
+          <section className={styles.actions} aria-label="More sharing options">
             <button type="button" className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus" onClick={() => copy('message')}>Copy invitation message</button>
             {nativeShare && <button type="button" className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus" onClick={share} disabled={sharing}><Share2 size={16} aria-hidden />{sharing ? 'Opening share options…' : 'Share…'}</button>}
-          </div>
-          <p role="status" aria-live="polite" style={{ color: 'var(--wa-muted)' }}>{feedback}</p>
+          </section>
+          <p role="status" aria-live="polite" className={styles.feedback}>{feedback}</p>
           {actionError && <p role="alert">{actionError}</p>}
-          <FormField label="Your referral link" readOnly value={shareUrl} onFocus={event => event.currentTarget.select()} />
-          <FormField label="Invitation message">
-            <textarea readOnly value={message} rows={5} onFocus={event => event.currentTarget.select()} className="wa-kit-control" style={{ width: '100%', resize: 'vertical', padding: 'var(--wa-pad-sm)', border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-surface)', color: 'var(--wa-text)', fontSize: 'var(--wa-type-body)', lineHeight: 1.6 }} />
-          </FormField>
-          <p style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)' }}>Copying creates a message for you to send. WorkforceAP does not contact anyone from this page.</p>
-          <p><strong>{data.rewardedCount}</strong> recorded referral reward{data.rewardedCount === 1 ? '' : 's'}</p>
-          <details>
-            <summary className="wa-kit-focus" style={{ cursor: 'pointer', minHeight: '2.75rem', color: 'var(--wa-text)' }}>How referral points work</summary>
-            <p style={{ color: 'var(--wa-muted)', lineHeight: 1.6 }}>A recorded referral reward adds {POINT_VALUES.referral_referrer_reward} points for you and {POINT_VALUES.referral_referee_reward} for your friend. Tracking currently requires your friend to use the same browser and enroll through their member dashboard within 30 days; signup or staff-assisted enrollment may not record a reward.</p>
+          <details ref={invitationDetails} className={styles.disclosure}>
+            <summary className="wa-kit-focus">Preview invitation message</summary>
+            <FormField label="Invitation message">
+              <textarea readOnly value={message} rows={4} onFocus={event => event.currentTarget.select()} className={`wa-kit-control ${styles.message}`} />
+            </FormField>
           </details>
+          <p className={styles.note}>You choose who to contact. Nothing is sent from this page.</p>
+          <footer className={styles.rewards}>
+            <p><strong>{data.rewardedCount}</strong> recorded referral reward{data.rewardedCount === 1 ? '' : 's'}</p>
+            <details className={styles.disclosure}>
+              <summary className="wa-kit-focus">How referral points work</summary>
+              <p className={styles.note}>A recorded referral reward adds {POINT_VALUES.referral_referrer_reward} points for you and {POINT_VALUES.referral_referee_reward} for your friend. Tracking currently requires your friend to use the same browser and enroll through their member dashboard within 30 days; signup or staff-assisted enrollment may not record a reward.</p>
+            </details>
+          </footer>
         </>
       )}
     </section>

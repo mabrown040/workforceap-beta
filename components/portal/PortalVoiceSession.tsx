@@ -302,6 +302,8 @@ export default function PortalVoiceSession({
       convRef.current?.endSession();
       stopVideoRecordingStream();
     };
+  // Intentional unmount-only cleanup: re-running this effect when stopVideoRecordingStream changes would call convRef.current?.endSession() and kill a live voice session.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Only clear when fully idle or finished — not during `connecting` (would race with draft sync).
@@ -320,6 +322,8 @@ export default function PortalVoiceSession({
         }, checkpointIntervalMs);
       }
     }
+  // Intentional: the checkpoint interval is created once per phase change; persistCheckpointTranscript and the endpoint/interval props are read through refs/closure by design (re-creating the timer would reset the autosave cadence).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
   useEffect(() => {

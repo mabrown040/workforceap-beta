@@ -541,13 +541,15 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                 <button
                   type="button"
                   onClick={() => setShowManualForm((v) => !v)}
+                  aria-expanded={showManualForm}
+                  aria-controls="manual-mapping-form"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', cursor: 'pointer', marginBottom: showManualForm ? '1rem' : 0 }}
                 >
                   <h3 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0 }}>Add Manual Mapping</h3>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: showManualForm ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: showManualForm ? 'rotate(180deg)' : 'none' }}>expand_more</span>
                 </button>
                 {showManualForm && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                  <div id="manual-mapping-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                     <div>
                       <label htmlFor="careermappingsclient-program-field" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Program</label>
                       <select id="careermappingsclient-program-field"
@@ -606,10 +608,13 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                       type="button"
                       onClick={() => void saveMapping()}
                       disabled={loading}
+                      aria-busy={loading}
                       className="btn btn-primary"
                       style={{ width: '100%' }}
                     >
-                      {loading ? 'Saving…' : 'Save Mapping'}
+                      <span aria-live="polite">
+                        {loading ? 'Saving…' : 'Save Mapping'}
+                      </span>
                     </button>
                   </div>
                 )}

@@ -9591,8 +9591,7 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
 :is(html[data-portal-role], .workspace-shell-root[data-workspace-role]) .workspace-sidebar-inner {
   background: transparent !important;
 }
-:is(html[data-portal-role], .workspace-shell-root[data-workspace-role]) .workspace-sidebar-collapse-btn,
-:is(html[data-portal-role], .workspace-shell-root[data-workspace-role]) .workspace-menu-btn {
+:is(html[data-portal-role], .workspace-shell-root[data-workspace-role]) .workspace-sidebar-collapse-btn {
   color: var(--wa-sidebar-muted, #e8cbd2) !important;
   border-color: var(--wa-sidebar-border, rgba(201, 168, 76, 0.16)) !important;
   background: rgba(255, 255, 255, 0.06) !important;

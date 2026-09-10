@@ -1,0 +1,47 @@
+[
+  {
+    "id": "clm_hot_inactivity_false_sent_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_job_inactivity_nudge"
+    ],
+    "title": "Inactivity outreach consumes the cooldown after a rejected email",
+    "severity": "ship-break",
+    "blast": "Members miss the outreach email and become ineligible for retries for seven days; staff see a successful send.",
+    "evidence": "app/api/cron/inactivity-nudge/route.ts:57-63; graph/evidence/clm_hot_inactivity_false_sent_20260909.txt",
+    "verify": "npx vitest run tests/api/cron-inactive-nudge.spec.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_deploy_health_false_success_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_job_deploy_health"
+    ],
+    "title": "Deployment health returns HTTP success for a non-ready deployment",
+    "severity": "ship-break",
+    "blast": "CronExecution records SUCCESS and external HTTP monitoring remains green despite the deploy health result being false.",
+    "evidence": "app/api/cron/deploy-health/route.ts:79-94; graph/evidence/clm_hot_deploy_health_false_success_20260909.txt",
+    "verify": "npx vitest run tests/api/cron-deploy-health.spec.ts",
+    "supersedes": null,
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_pending_training_risk_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "entityIds": [
+      "ent_file_at_risk_scoring"
+    ],
+    "title": "Funding-pending seats are scored as a failure to start training",
+    "severity": "ship-break",
+    "blast": "Unapproved program reservations add a course non-start risk penalty and trigger misleading staff intervention before the member can begin classes.",
+    "evidence": "lib/member/atRiskScoring.ts:128-164; graph/evidence/clm_hot_pending_training_risk_20260909.txt",
+    "verify": "npx vitest run lib/member/atRiskScoring.test.ts",
+    "supersedes": null,
+    "status": "open"
+  }
+]

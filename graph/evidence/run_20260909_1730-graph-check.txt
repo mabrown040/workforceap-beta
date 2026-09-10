@@ -1,0 +1,2 @@
+graph schema ok
+rules ok

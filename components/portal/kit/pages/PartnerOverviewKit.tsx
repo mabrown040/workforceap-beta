@@ -3,9 +3,9 @@
  *
  * These compose existing kit primitives + the .wa-kit-* token CSS to render the
  * mockup sections that have no standalone primitive yet:
- *   - <PartnerKpiGrid>          KPI tiles — StatSparkTile (icon + delta chip +
- *     optional sparkline) with an optional muted subtitle line underneath.
- *   - <PartnerReferralFunnel>   Referred → Enrolled → Placed funnel (RankBars).
+ *   - <PartnerKpiGrid>          Compact StatTile metrics with captions inside;
+ *     supplied trend data keeps the richer StatSparkTile variant.
+ *   - <PartnerReferralFunnel>   Referred → Enrolled → Placed in one desktop row.
  *   - <PartnerPayoutLedger>     Payout history as a period/amount/status table.
  *   - <PartnerAttentionCard>    "Review member progress" accent CTA card
  *   - <PartnerAssistantAccordion> collapsible Partner-assistant disclosure
@@ -18,18 +18,19 @@
  */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Lightbulb, Users } from 'lucide-react';
-import { Card } from '@astryxdesign/core/Card';
+import { ChevronRight, Users } from 'lucide-react';
 import {
   CardHead,
   DataTable,
-  RankBars,
+  ProgressBar,
+  StatTile,
   StatSparkTile,
   StatusTag,
   type KitColor,
   type KitTone,
   type SparkStat,
 } from '@/components/portal/kit';
+import styles from './PartnerOverviewKit.module.css';
 
 // ── KPI grid: StatSparkTile (icon + delta chip + optional sparkline) ──────────
 
@@ -52,9 +53,9 @@ export interface PartnerKpiTile {
 
 export function PartnerKpiGrid({ items }: { items: PartnerKpiTile[] }) {
   return (
-    <div className="wa-grid wa-grid-cols-2 lg:wa-grid-cols-4 wa-gap-3">
+    <div className={styles.metrics}>
       {items.map((it) => (
-        <div key={it.label} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        it.spark ? <div key={it.label} className={styles.trendMetric}>
           <StatSparkTile
             icon={it.icon ?? <Users size={16} />}
             label={it.label}
@@ -63,9 +64,9 @@ export function PartnerKpiGrid({ items }: { items: PartnerKpiTile[] }) {
             spark={it.spark}
           />
           {it.subtitle ? (
-            <div style={{ fontSize: 11, color: 'var(--wa-muted)', padding: '0 2px' }}>{it.subtitle}</div>
+            <p className={styles.caption}>{it.subtitle}</p>
           ) : null}
-        </div>
+        </div> : <StatTile key={it.label} label={it.label} value={it.value} color={it.color ?? 'text'} delta={it.subtitle} deltaColor="muted" className={styles.metric} />
       ))}
     </div>
   );
@@ -83,12 +84,15 @@ export interface PartnerFunnelStage {
 
 export function PartnerReferralFunnel({ stages }: { stages: PartnerFunnelStage[] }) {
   return (
-    <Card>
+    <section className={`wa-kit-card ${styles.funnel}`} aria-label="Referral funnel">
       <CardHead title="Referral funnel" />
-      <RankBars
-        data={stages.map((s) => ({ label: s.label, value: s.value, pct: s.pct, color: s.color ?? 'accent' }))}
-      />
-    </Card>
+      <section className={styles.stages} aria-label="Referral stages">
+        {stages.map(stage => <section key={stage.label} className={styles.stage} aria-label={stage.label}>
+          <p><span>{stage.label}</span><strong>{stage.value}</strong></p>
+          <ProgressBar pct={stage.pct} color={stage.color ?? 'accent'} aria-label={`${stage.label} as a share of referrals`} />
+        </section>)}
+      </section>
+    </section>
   );
 }
 
@@ -136,7 +140,7 @@ export function PartnerPayoutLedger({ rows }: { rows: PartnerPayoutLedgerRow[] }
 // ── Attention / CTA card (accent-soft background) ─────────────────────────────
 
 export function PartnerAttentionCard({
-  icon = <Lightbulb size={20} aria-hidden />,
+  icon,
   title,
   body,
   href,
@@ -149,37 +153,11 @@ export function PartnerAttentionCard({
   return (
     <Link
       href={href}
-      className="wa-kit-card wa-kit-card--tinted wa-kit-card--hover wa-kit-focus"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
+      className={`wa-kit-focus ${styles.attention}`}
     >
-      <div
-        aria-hidden
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 'var(--wa-radius-sm)',
-          background: 'var(--wa-accent)',
-          color: 'var(--wa-on-accent)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 20,
-          flexShrink: 0,
-        }}
-      >
-        {icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--wa-text)' }}>{title}</div>
-        <div style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{body}</div>
-      </div>
-      <ChevronRight size={18} aria-hidden style={{ color: 'var(--wa-accent)', flexShrink: 0 }} />
+      {icon ? <span aria-hidden>{icon}</span> : null}
+      <span className={styles.attentionCopy}><strong>{title}</strong>{' '}<span>{body}</span></span>
+      <ChevronRight size={18} aria-hidden />
     </Link>
   );
 }

@@ -4,7 +4,9 @@ import { sendCourseKickoffEmail } from '@/lib/email';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
 /**
- * Sprint R3 (PLAN-2026-Q3.md) — fire-and-forget course kickoff email trigger.
+ * Fire-and-forget program-next-steps email after an assignment is saved.
+ * A CourseEnrollment commit does not establish funding or permission to start;
+ * the email deliberately makes neither claim.
  *
  * Idempotency: every send writes a `course_kickoff_email_sent` MemberEvent
  * with `entityType='course_enrollment'` and `entityId=<enrollmentId>`. Before

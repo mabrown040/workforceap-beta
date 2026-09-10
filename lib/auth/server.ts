@@ -17,6 +17,19 @@ export function hasSupabaseServerEnv() {
   );
 }
 
+/** A surviving Auth session must not revive an application soft-delete. */
+async function isApplicationAccountAvailable(userId: string): Promise<boolean> {
+  // A newly confirmed Auth identity may not have its application row yet.
+  // Only a recorded deletion denies it; a failed lookup must not grant access.
+  const context = buildGucContext({ userId, orgId: null });
+  const account = await runWithGucContext(context, () =>
+    withDbRetry(() => prisma.$transaction((tx) =>
+      tx.user.findUnique({ where: { id: userId }, select: { deletedAt: true } }),
+    )),
+  );
+  return !account?.deletedAt;
+}
+
 /**
  * Creates a Supabase client for Server Components, Server Actions, and Route Handlers.
  * Uses cookies for session management. Requires middleware for session refresh.
@@ -82,6 +95,7 @@ export async function getSession() {
       console.error('[auth:getSession] Supabase session read failed; treating request as signed out', error);
       return null;
     }
+    if (session?.user && !(await isApplicationAccountAvailable(session.user.id))) return null;
     return session;
   } catch (err) {
     unstable_rethrow(err);
@@ -111,6 +125,7 @@ export const getUser = cache(async function getUser() {
       console.error('[auth:getUser] Supabase user validation failed; treating request as signed out', error);
       return null;
     }
+    if (user && !(await isApplicationAccountAvailable(user.id))) return null;
     return user;
   } catch (err) {
     unstable_rethrow(err);

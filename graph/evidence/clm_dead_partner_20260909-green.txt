@@ -1,0 +1,1 @@
+{"case":"partner provider resolved errors","rejectedProviderSends":2,"failuresSurfaced":2,"loggedErrors":3}

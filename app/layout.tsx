@@ -96,7 +96,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // that already has a Supabase cookie). Do not fall back to getUser()
   // here — anonymous marketing/apply first paint must not talk to GoTrue.
   const forwardedUserId = h.get(WAP_USER_ID_HEADER);
-  const resolvedUserId = resolveLayoutUserId(forwardedUserId);
+  const candidateUserId = resolveLayoutUserId(forwardedUserId);
+  // Middleware verifies the provider session, but cannot check application
+  // deletion in Edge. Never bootstrap roles from its header after getUser()
+  // rejects that identity (including a failed application-status lookup).
+  const supabaseUser = candidateUserId ? await getUser() : null;
+  const resolvedUserId = supabaseUser?.id === candidateUserId ? candidateUserId : null;
   let bootstrapLoadFailed = false;
 
   // Resolve the real org for EVERY request path — authenticated or anonymous.
@@ -120,7 +125,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // exist. We need the full Supabase user (email/metadata) to populate the
     // new rows; getUser() is request-cached so this is free. Best-effort —
     // a failure must not block the render; the GUC bootstrap below still runs.
-    const supabaseUser = await getUser();
     if (supabaseUser) {
       await ensureAppUserProvisioned(supabaseUser, { headers: h, readOnlyAudit }).catch((err) => {
         bootstrapLoadFailed = true;

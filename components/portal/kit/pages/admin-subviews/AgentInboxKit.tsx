@@ -13,7 +13,7 @@ import {
 } from '@/components/portal/kit';
 
 /**
- * Agent Inbox — admin review queue for milestone-cascade drafts (dense, read-only).
+ * Agent Inbox — admin review queue for drafts and incomplete deliveries (dense, read-only).
  * Target route: /admin/agent-inbox  (interactive approve/dismiss UI lives behind ?ui=legacy)
  *
  * The live page is an interactive inbox: a counselor reviews AI-drafted
@@ -49,7 +49,7 @@ export interface AgentInboxRow {
 
 export interface AgentInboxKitProps {
   rows: AgentInboxRow[];
-  /** Total cascades awaiting counselor review (matches the queue). */
+  /** Total drafts or incomplete deliveries needing staff review (matches the queue). */
   awaitingReview: number;
   /** Cascades still waiting on the LLM to draft. */
   pendingDraft: number;
@@ -74,7 +74,7 @@ export function AgentInboxKit({
         } awaiting your review`;
 
   const kpis: KpiItem[] = [
-    { label: 'Awaiting Review', value: awaitingReview, color: 'accent' },
+    { label: 'Needs review', value: awaitingReview, color: 'accent' },
     { label: 'Pending Draft', value: pendingDraft, color: 'info' },
     { label: 'Sent', value: sent, color: 'success' },
     { label: 'Resolved', value: resolved, color: 'muted' },

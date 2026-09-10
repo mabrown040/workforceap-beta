@@ -2955,6 +2955,8 @@ model MilestoneCascade {
   dismissedAt         DateTime? @map("dismissed_at")
   dismissedReason     String?   @map("dismissed_reason") @db.Text
   sentAt              DateTime? @map("sent_at")
+  /// Versioned, per-draft provider acceptance and bounded retry ledger.
+  dispatchState       Json?     @map("dispatch_state")
 
   /// 72h TTL after creation. Stale celebrations don't get sent.
   expiresAt           DateTime  @map("expires_at")

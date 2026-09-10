@@ -47,6 +47,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Vercel builds the separate Astro package before Next.js. Use the same
+      # npm lockfile and commands so a marketing failure blocks this gate too.
+      - name: Install marketing dependencies
+        working-directory: marketing
+        run: npm ci --no-audit --no-fund
+
+      - name: Build marketing
+        working-directory: marketing
+        run: npm run build
+        timeout-minutes: 5
+
+      - name: Stage marketing output for Next.js
+        run: node -e "require('./scripts/vercel-build.cjs').copyMarketingBuild(process.cwd())"
+
       - name: Generate Prisma client
         run: node scripts/prisma-env.js prisma generate
 
@@ -56,8 +70,8 @@ jobs:
       # Icon font coverage — fails if source uses a Material Symbols icon
       # missing from the committed subset (would render as raw ligature
       # text like FLIGHT_TAKEOFF in production). The `npm run build`
-      # script runs this on Vercel, but the Build step below invokes
-      # `npx next build` directly, so gate it explicitly here.
+      # script runs this on Vercel and in the Build step below; gate it
+      # explicitly here for faster feedback before the remaining checks.
       - name: Verify Material Symbols subset
         run: node scripts/verify-material-symbols-font-size.mjs
 

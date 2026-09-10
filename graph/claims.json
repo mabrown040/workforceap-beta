@@ -1,9 +1,97 @@
 [
   {
+    "id": "clm_secrets_deleted_session_still_authorized",
+    "runId": "run_20260909_1730",
+    "auditor": "secrets",
+    "title": "Soft-deleted accounts with surviving provider sessions retain member API access",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_logout_retains_session",
+    "runId": "run_20260909_1730",
+    "auditor": "secrets",
+    "title": "Logout returns success and retains authentication cookies on a provider sign-out error",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_secrets_mfa_unenrolled_admin_bypass",
+    "runId": "run_20260909_1730",
+    "auditor": "secrets",
+    "title": "Enforced staff MFA permits admin API access before initial factor enrollment",
+    "severity": "prod-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_milestone_false_sent_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "title": "Milestone dispatcher persists sent status when every email fails",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_partner_resolved_errors_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "title": "Partner notification send paths ignore resolved provider errors",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_deploy_health_false_success_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "title": "Deployment health returns HTTP success for a non-ready deployment",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_inactivity_false_sent_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "title": "Inactivity outreach consumes the cooldown after a rejected email",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
+    "id": "clm_hot_pending_training_risk_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "title": "Funding-pending seats are scored as a failure to start training",
+    "severity": "ship-break",
+    "status": "open"
+  },
+  {
     "id": "clm_dead_confirmation_email_orphan",
     "runId": "run_20260825_1630",
     "auditor": "dead-code",
     "title": "No client calls /api/apply/confirmation-email after signup after() fix",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_dead_diagnostics_read_failures_20260909",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "title": "Diagnostics read failures are rendered as no recent activity",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_ci_skips_marketing_build",
+    "runId": "run_20260909_1730",
+    "auditor": "deps",
+    "title": "Required CI omits the Astro build that gates every Vercel deployment",
+    "severity": "latent",
+    "status": "open"
+  },
+  {
+    "id": "clm_deps_duplicate_partner_users_replay",
+    "runId": "run_20260909_1730",
+    "auditor": "deps",
+    "title": "Fresh migration replay creates partner_users twice and cannot complete",
     "severity": "latent",
     "status": "open"
   },
@@ -70,5 +158,95 @@
     "title": "Public /api/apply/confirmation-email requires recent Application row",
     "severity": "hygiene",
     "status": "open"
+  },
+  {
+    "id": "clm_secrets_deleted_session_still_authorized_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "secrets",
+    "title": "Shared authentication rejects soft-deleted application identities",
+    "severity": "prod-break",
+    "status": "verified",
+    "supersedes": "clm_secrets_deleted_session_still_authorized"
+  },
+  {
+    "id": "clm_secrets_logout_retains_session_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "secrets",
+    "title": "Logout clears local auth and trust cookies when provider revocation fails",
+    "severity": "prod-break",
+    "status": "verified",
+    "supersedes": "clm_secrets_logout_retains_session"
+  },
+  {
+    "id": "clm_secrets_mfa_unenrolled_admin_bypass_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "secrets",
+    "title": "Enforced staff MFA blocks protected requests before factor enrollment",
+    "severity": "prod-break",
+    "status": "verified",
+    "supersedes": "clm_secrets_mfa_unenrolled_admin_bypass"
+  },
+  {
+    "id": "clm_dead_milestone_false_sent_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "title": "Milestone dispatch persists receipts and safely retries only unaccepted messages",
+    "severity": "ship-break",
+    "status": "verified",
+    "supersedes": "clm_dead_milestone_false_sent_20260909"
+  },
+  {
+    "id": "clm_dead_partner_resolved_errors_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "dead-code",
+    "title": "Partner notification helpers surface resolved provider errors with diagnostics",
+    "severity": "ship-break",
+    "status": "verified",
+    "supersedes": "clm_dead_partner_resolved_errors_20260909"
+  },
+  {
+    "id": "clm_hot_deploy_health_false_success_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "title": "Deployment health exposes failed checks through failing HTTP status",
+    "severity": "ship-break",
+    "status": "verified",
+    "supersedes": "clm_hot_deploy_health_false_success_20260909"
+  },
+  {
+    "id": "clm_hot_inactivity_false_sent_20260909_verified",
+    "runId": "run_20260909_1730",
+    "auditor": "hot-paths",
+    "title": "Rejected inactivity emails no longer consume outreach cooldown",
+    "severity": "ship-break",
+    "status": "verified",
+    "supersedes": "clm_hot_inactivity_false_sent_20260909"
+  },
+  {
+    "id": "clm_hot_pending_training_risk_20260909_verified",
+    "runId": "run_20260909_1730_followup",
+    "auditor": "hot-paths",
+    "title": "Funding-pending reservations no longer receive a first-course non-start penalty",
+    "severity": "ship-break",
+    "status": "verified",
+    "supersedes": "clm_hot_pending_training_risk_20260909"
+  },
+  {
+    "id": "clm_dead_diagnostics_read_failures_20260909_verified",
+    "runId": "run_20260909_1730_followup",
+    "auditor": "dead-code",
+    "title": "Diagnostics distinguishes unavailable reads from successfully empty activity",
+    "severity": "latent",
+    "status": "verified",
+    "supersedes": "clm_dead_diagnostics_read_failures_20260909"
+  },
+  {
+    "id": "clm_deps_ci_skips_marketing_build_verified",
+    "runId": "run_20260909_1730_followup",
+    "auditor": "deps",
+    "title": "Required CI builds and stages the deployment marketing package",
+    "severity": "latent",
+    "status": "verified",
+    "supersedes": "clm_deps_ci_skips_marketing_build"
   }
 ]

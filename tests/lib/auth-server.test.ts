@@ -34,6 +34,14 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
   SESSION_ONLY_COOKIE: 'session_only',
 }));
 
+vi.mock('@/lib/db/prisma', () => ({
+  prisma: {
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn({
+      user: { findUnique: vi.fn().mockResolvedValue({ deletedAt: null }) },
+    })),
+  },
+}));
+
 // ─── Imports after mocks ───
 import { hasSupabaseServerEnv, createSupabaseServerClient, getSession, getUser } from '@/lib/auth/server';
 import { createServerClient } from '@supabase/ssr';

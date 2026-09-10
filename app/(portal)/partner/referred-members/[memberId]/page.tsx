@@ -22,6 +22,7 @@ import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgres
 import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 import { getProgramCoursesForCurriculumVersion } from '@/lib/member/curriculumAssignment';
 import { resolveTrainingProgressAssignment } from '@/lib/member/trainingProgress';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 type Props = {
   params: Promise<{ memberId: string }>;
@@ -65,13 +66,18 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const { memberId } = await params;
 
   const referral = await prisma.partnerReferral.findFirst({
-    where: { partnerId: ctx.partnerId, memberId },
+    where: {
+      partnerId: ctx.partnerId,
+      memberId,
+      partner: { organizationId: ctx.partner.organizationId, active: true },
+      member: { organizationId: ctx.partner.organizationId, deletedAt: null, ...MEMBER_ONLY_WHERE },
+    },
     select: { id: true, referredAt: true },
   });
   if (!referral) notFound();
 
   const member = await prisma.user.findUnique({
-    where: { id: memberId, deletedAt: null },
+    where: { id: memberId, organizationId: ctx.partner.organizationId, deletedAt: null, AND: MEMBER_ONLY_WHERE },
     select: {
       id: true,
       fullName: true,
@@ -267,6 +273,12 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
             { label: 'Member Details' },
           ]}
         />
+
+        <p className="wa-mb-4">
+          <Link href={`/partner/messages?memberId=${encodeURIComponent(member.id)}`} className="wa-kit-focus">
+            Ask WorkforceAP about this member
+          </Link>
+        </p>
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] wa-gap-4 md:wa-gap-6">
           <div className="wa-grid wa-grid-cols-1 wa-gap-4">

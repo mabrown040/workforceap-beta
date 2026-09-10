@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
 import { CommandPalette, CommandPaletteInput } from '@astryxdesign/core/CommandPalette';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Text } from '@astryxdesign/core/Text';
@@ -42,7 +43,7 @@ export default function GlobalSearch() {
         title="Search (⌘K)"
         style={{ display: 'flex', alignItems: 'center', gap: 'var(--wa-pad-sm)', paddingInline: 'var(--wa-pad-sm)', borderRadius: 'var(--wa-radius-sm)', border: '1px solid var(--wa-border)', background: 'var(--wa-surface)', color: 'var(--wa-text)', fontSize: 'var(--wa-type-meta)', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>search</span>
+        <Search size={16} aria-hidden />
         <span>Search</span>
         <kbd className="wa-hidden md:wa-inline" style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)' }}>⌘K</kbd>
       </button>

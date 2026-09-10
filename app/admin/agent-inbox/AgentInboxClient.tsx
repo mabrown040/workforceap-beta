@@ -1,13 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
 import type { ActionDraft } from '@/lib/milestoneCascade/types';
+import type { CascadeDispatchSummary } from '@/lib/milestoneCascade/dispatchState';
 
 export interface CascadeCardWire {
   id: string;
+  status: string;
+  dispatch: CascadeDispatchSummary | null;
   userId: string;
   userFullName: string | null;
   userEmail: string;
@@ -59,6 +62,7 @@ export function AgentInboxClient({ cascades: initialCascades }: { cascades: Casc
   const [dismissReasons, setDismissReasons] = useState<Record<string, string>>({});
   const [flash, setFlash] = useState<{ id: string; kind: 'sent' | 'dismissed' | 'error'; text: string } | null>(null);
   const router = useRouter();
+  useEffect(() => { setCascades(initialCascades); }, [initialCascades]);
 
   function updateEdit(cascadeId: string, draftIndex: number, patch: DraftEdit) {
     setEdits((prev) => ({
@@ -75,7 +79,8 @@ export function AgentInboxClient({ cascades: initialCascades }: { cascades: Casc
     setFlash(null);
     try {
       // Convert numeric-keyed edits map to string-keyed for the JSON wire.
-      const editedDraftsForCascade = edits[cascadeId] ?? {};
+      const retry = cascades.find((cascade) => cascade.id === cascadeId)?.status === 'approved';
+      const editedDraftsForCascade = retry ? {} : edits[cascadeId] ?? {};
       const editedDrafts: Record<string, DraftEdit> = {};
       for (const [k, v] of Object.entries(editedDraftsForCascade)) {
         if (v.subject !== undefined || v.body !== undefined) editedDrafts[k] = v;
@@ -87,14 +92,26 @@ export function AgentInboxClient({ cascades: initialCascades }: { cascades: Casc
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.dispatch) {
+          setCascades((previous) => previous.map((cascade) => cascade.id !== cascadeId ? cascade : {
+            ...cascade,
+            status: 'approved',
+            dispatch: data.dispatch,
+            drafts: cascade.drafts.map((draft, index) => draft.type === 'celebrate_milestone'
+              ? { ...draft, ...editedDrafts[String(index)] }
+              : draft),
+          }));
+          setEdits((previous) => ({ ...previous, [cascadeId]: {} }));
+        }
         setFlash({ id: cascadeId, kind: 'error', text: data.error ?? 'Approve failed' });
+        router.refresh();
         return;
       }
       setCascades((prev) => prev.filter((c) => c.id !== cascadeId));
       setFlash({
         id: cascadeId,
         kind: 'sent',
-        text: `Sent ${data.emailsSent} email${data.emailsSent === 1 ? '' : 's'}${
+        text: `Email provider accepted ${data.emailsSent} email${data.emailsSent === 1 ? '' : 's'}${
           data.emailsFailed ? `, ${data.emailsFailed} failed` : ''
         }${data.advisoryCount ? `, ${data.advisoryCount} advisory logged` : ''}.`,
       });
@@ -105,6 +122,7 @@ export function AgentInboxClient({ cascades: initialCascades }: { cascades: Casc
         kind: 'error',
         text: err instanceof Error ? err.message : 'Network error',
       });
+      router.refresh();
     } finally {
       setBusyId(null);
     }
@@ -177,6 +195,7 @@ export function AgentInboxClient({ cascades: initialCascades }: { cascades: Casc
             }
             onApprove={() => approve(c.id)}
             onDismiss={() => dismiss(c.id)}
+            onRefresh={() => router.refresh()}
             busy={busyId === c.id}
           />
         ))}
@@ -216,6 +235,7 @@ function CascadeCard({
   onDismissReasonChange,
   onApprove,
   onDismiss,
+  onRefresh,
   busy,
 }: {
   cascade: CascadeCardWire;
@@ -225,10 +245,14 @@ function CascadeCard({
   onDismissReasonChange: (v: string) => void;
   onApprove: () => void;
   onDismiss: () => void;
+  onRefresh: () => void;
   busy: boolean;
 }) {
   const expires = useMemo(() => formatExpiry(cascade.expiresAt), [cascade.expiresAt]);
   const learnerLabel = cascade.userFullName ?? cascade.userEmail;
+  const reviewingDelivery = cascade.status === 'approved';
+  const expired = new Date(cascade.expiresAt).getTime() <= Date.now();
+  const canSend = !reviewingDelivery || cascade.dispatch?.canFinalize === true || (cascade.dispatch?.canRetry === true && !expired);
 
   return (
     <li
@@ -251,13 +275,13 @@ function CascadeCard({
         }}
       >
         <strong style={{ fontSize: '1rem' }}>{learnerLabel}</strong>
-        <StatusBadge label="awaiting review" variant="warning" />
+        <StatusBadge label={reviewingDelivery ? 'delivery needs attention' : 'awaiting review'} variant="warning" />
         <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
           {cascade.milestoneType.replaceAll('_', ' ')}
           {cascade.milestoneRef ? ` · ${cascade.milestoneRef}` : ''}
         </span>
         <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginLeft: 'auto' }}>
-          {expires}
+          {expired ? 'sending window ended' : expires}
         </span>
       </header>
 
@@ -283,10 +307,21 @@ function CascadeCard({
             draft={draft}
             edit={edits[i] ?? {}}
             onEdit={(patch) => onEdit(i, patch)}
-            disabled={busy}
+            disabled={busy || reviewingDelivery}
           />
         ))}
       </ul>
+
+      {reviewingDelivery && (
+        <p role="status">
+          {cascade.dispatch ? `${cascade.dispatch.accepted} email${cascade.dispatch.accepted === 1 ? '' : 's'} accepted; ${cascade.dispatch.failed} failed; ${cascade.dispatch.uncertain} unconfirmed. ` : ''}
+          {cascade.dispatch?.canFinalize
+            ? 'All messages are recorded as accepted. Finish recording this delivery without sending again.'
+            : expired
+            ? 'The sending window has ended. Review delivery with staff before taking further action.'
+            : cascade.dispatch?.blockedReason ?? 'Retry sends only unfinished messages. Accepted emails are skipped.'}
+        </p>
+      )}
 
       <div
         style={{
@@ -297,7 +332,19 @@ function CascadeCard({
           alignItems: 'flex-end',
         }}
       >
-        <label style={{ flex: 1, minWidth: '14rem', fontSize: '0.85rem' }}>
+        {reviewingDelivery && <button type="button" onClick={onRefresh} disabled={busy}
+          style={{
+            minHeight: '44px',
+            padding: '0.55rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--outline-variant)',
+            background: 'transparent',
+            cursor: busy ? 'wait' : 'pointer',
+            fontSize: '0.9rem',
+          }}>
+          Refresh delivery status
+        </button>}
+        {!reviewingDelivery && <label style={{ flex: 1, minWidth: '14rem', fontSize: '0.85rem' }}>
           <span style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--color-on-surface-variant)' }}>
             Dismiss reason (optional — improves future drafts)
           </span>
@@ -315,8 +362,8 @@ function CascadeCard({
               fontSize: '0.9rem',
             }}
           />
-        </label>
-        <button
+        </label>}
+        {!reviewingDelivery && <button
           type="button"
           onClick={onDismiss}
           disabled={busy}
@@ -330,11 +377,11 @@ function CascadeCard({
           }}
         >
           Dismiss
-        </button>
+        </button>}
         <button
           type="button"
           onClick={onApprove}
-          disabled={busy}
+          disabled={busy || !canSend}
           style={{
             padding: '0.55rem 1rem',
             borderRadius: 'var(--radius-sm)',
@@ -346,7 +393,7 @@ function CascadeCard({
             fontWeight: 600,
           }}
         >
-          {busy ? 'Sending…' : 'Approve & Send'}
+          {busy ? 'Updating…' : reviewingDelivery ? cascade.dispatch?.canFinalize ? 'Finish recording delivery' : 'Retry unfinished emails' : 'Approve & Send'}
         </button>
       </div>
 

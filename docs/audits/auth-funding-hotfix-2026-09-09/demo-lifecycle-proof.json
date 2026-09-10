@@ -1,0 +1,92 @@
+{
+  "project": "esbdrgaonplpvzmtrdhw",
+  "testRun": "auth-hotfix-20260909",
+  "startedAt": "2026-09-09T16:13:21.228Z",
+  "checks": [
+    {
+      "name": "confirmed synthetic account created without email",
+      "passed": true
+    },
+    {
+      "name": "actual helper retires and bans the original identity",
+      "passed": true
+    },
+    {
+      "name": "tracked identity metadata matches this test",
+      "passed": true
+    },
+    {
+      "name": "old UUID retained with retired alias and future ban",
+      "passed": true
+    },
+    {
+      "name": "confirmed synthetic account created without email",
+      "passed": true
+    },
+    {
+      "name": "released address accepts a different new confirmed identity",
+      "passed": true
+    },
+    {
+      "name": "restore collision safely rejected",
+      "passed": true
+    },
+    {
+      "name": "tracked identity metadata matches this test",
+      "passed": true
+    },
+    {
+      "name": "failed restore leaves original retired and banned",
+      "passed": true
+    },
+    {
+      "name": "tracked identity metadata matches this test",
+      "passed": true
+    },
+    {
+      "name": "restore collision preserves replacement identity and address",
+      "passed": true
+    },
+    {
+      "name": "tracked identity metadata matches this test",
+      "passed": true
+    },
+    {
+      "name": "created identity cleanup verified",
+      "passed": true
+    },
+    {
+      "name": "restore succeeds after freeing address",
+      "passed": true
+    },
+    {
+      "name": "tracked identity metadata matches this test",
+      "passed": true
+    },
+    {
+      "name": "same UUID restored to original address without active ban",
+      "passed": true
+    },
+    {
+      "name": "original synthetic password signs in to the restored original UUID",
+      "passed": true
+    },
+    {
+      "name": "tracked identity metadata matches this test",
+      "passed": true
+    },
+    {
+      "name": "created identity cleanup verified",
+      "passed": true
+    }
+  ],
+  "createdIds": [
+    "d157d0d0-b550-4560-9bc1-6a5463af5da4",
+    "6245af53-be9b-4632-9395-cab592fb9ff3"
+  ],
+  "cleanedIds": [
+    "6245af53-be9b-4632-9395-cab592fb9ff3",
+    "d157d0d0-b550-4560-9bc1-6a5463af5da4"
+  ],
+  "finishedAt": "2026-09-09T16:13:23.831Z"
+}

@@ -13,6 +13,7 @@ export type AdminNeedsReplyRow = AdminCommandCenterBaseRow & {
 
 export type AdminAtRiskRow = AdminCommandCenterBaseRow & {
   daysInactive: number;
+  reason?: string;
   enrolledProgram: string | null;
 };
 
@@ -63,7 +64,21 @@ export type AdminProgramHealthRow = {
   pct: number;
 };
 
+export const ADMIN_QUEUE_KEYS = ['needs-reply', 'at-risk', 'interviewing', 'applications'] as const;
+export type AdminQueueKey = typeof ADMIN_QUEUE_KEYS[number];
+export function normalizeAdminQueueRequest(queue: unknown, page: unknown) {
+  const parsedQueue = typeof queue === 'string' && ADMIN_QUEUE_KEYS.includes(queue as AdminQueueKey)
+    ? queue as AdminQueueKey : undefined;
+  const numericPage = typeof page === 'string' && /^\d+$/.test(page) ? Number(page) : page;
+  return { queue: parsedQueue, page: parsedQueue && typeof numericPage === 'number' && Number.isSafeInteger(numericPage) && numericPage > 0
+    ? Math.min(numericPage, 100000) : 1 };
+}
+export function adminQueueHref(queue: AdminQueueKey, page = 1) {
+  return `/admin/command-center?queue=${queue}&page=${normalizeAdminQueueRequest(queue, page).page}`;
+}
+
 export type AdminCommandCenter = {
+  pagination?: { queue: AdminQueueKey; page: number; pageSize: number };
   needsReply: AdminNeedsReplyRow[];
   atRisk: AdminAtRiskRow[];
   interviewing: AdminInterviewingRow[];

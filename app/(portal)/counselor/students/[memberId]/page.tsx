@@ -20,6 +20,8 @@ import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import CounselorNotesPanel from './CounselorNotesPanel';
+import CounselorTrainingHandoff from '@/components/portal/counselor/CounselorTrainingHandoff';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import AdvisorSessionNotesPanel from './AdvisorSessionNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import BillingPacketList from '@/components/billing/BillingPacketList';
@@ -77,6 +79,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   if (!counselor && !adminUser) redirect('/dashboard');
 
   const t = await getTranslations('counselor');
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) notFound();
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
@@ -85,6 +88,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       fullName: true,
       email: true,
       enrolledProgram: true,
+      courseraEnrollmentApproved: true,
       programInterest: true,
       assessmentScorePct: true,
       assessmentScore: true,
@@ -107,6 +111,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           curriculumVersion: true,
           isPrimary: true,
           enrolledAt: true,
+          fundingSource: true,
         },
         orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
       },
@@ -338,6 +343,19 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   const messagesLabel = showingFirstLabel(messages.length, messageTotal, 'messages');
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 
+  const trainingHandoff = (
+    <CounselorTrainingHandoff
+      memberId={member.id}
+      courseraEnrollmentApproved={member.courseraEnrollmentApproved}
+      enrollments={member.courseEnrollments.map((enrollment) => ({
+        programSlug: enrollment.programSlug,
+        programTitle: getProgramBySlug(enrollment.programSlug)?.title ?? enrollment.programSlug,
+        isPrimary: enrollment.isPrimary,
+        fundingSource: enrollment.fundingSource,
+      }))}
+    />
+  );
+
   const initials = getInitials(member.fullName ?? 'U');
   const program = member.enrolledProgram ?? member.programInterest ?? '—';
   const enrollmentBadge = counselorStudentStatusBadge({
@@ -545,7 +563,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             {/* Action buttons */}
             <div style={{ display: 'flex', gap: '0.625rem' }}>
               <Link
-                href="/counselor/messages"
+                href={`/counselor/messages?memberId=${encodeURIComponent(member.id)}`}
                 className="btn btn-outline"
                 style={{ flex: 1, fontSize: '0.8rem' }}
               >
@@ -565,6 +583,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        <div style={{ padding: '0 1rem 1rem' }}>{trainingHandoff}</div>
 
         {/* Program Progress */}
         <div style={{ padding: '0 1rem 1rem' }}>
@@ -660,12 +680,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {otherProgramEnrollments.map((row) => (
                   <li key={row.programSlug} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
-                    <Link
-                      href={`/admin/training-progress?program=${encodeURIComponent(row.programSlug)}`}
-                      style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
-                    >
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
                       {row.programTitle}
-                    </Link>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -706,12 +723,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
         {/* Counselor Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
-          <CounselorNotesPanel memberId={member.id} />
+          <CounselorNotesPanel key={member.id} memberId={member.id} />
         </div>
 
         {/* Session Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
-          <AdvisorSessionNotesPanel memberId={member.id} />
+          <AdvisorSessionNotesPanel key={member.id} memberId={member.id} />
         </div>
 
         {/* Elevator pitch deployments — mobile */}
@@ -950,6 +967,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             }
           />
 
+          <div className="wa-mt-4 wa-mb-4">{trainingHandoff}</div>
+
           {/* Employment barrier chips — desktop */}
           {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', margin: '1rem 0' }}>
@@ -1023,12 +1042,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                         background: 'var(--surface-container-low)',
                       }}
                     >
-                      <Link
-                        href={`/admin/training-progress?program=${encodeURIComponent(row.programSlug)}`}
-                        style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
-                      >
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
                         {row.programTitle}
-                      </Link>
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -1143,12 +1159,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
           <section style={{ marginTop: '1.5rem' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Counselor Notes</h2>
-            <CounselorNotesPanel memberId={member.id} />
+            <CounselorNotesPanel key={member.id} memberId={member.id} />
           </section>
 
           <section style={{ marginTop: '1.5rem' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Session Notes</h2>
-            <AdvisorSessionNotesPanel memberId={member.id} />
+            <AdvisorSessionNotesPanel key={member.id} memberId={member.id} />
           </section>
 
           <section id="counselor-member-messages" style={{ marginTop: '1.5rem' }}>
@@ -1161,6 +1177,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             {readOnlyAudit && thread ? (
               <p>Counselor conversation is available. Live sync and read receipts are paused for this audit.</p>
             ) : thread ? <AdminMemberCounselorChatClient
+              readCursorMode
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{
                 staffUserId: user.id,

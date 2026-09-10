@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { disableAuthUserForSoftDelete } from '@/lib/admin/authUserLifecycle';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { hasAdminAccess } from '@/lib/auth/roleAccess';
+import { buildDeletedEmail, isDeletedEmailMarker, parseDeletedEmail } from '@/app/api/admin/users/_deletedEmail';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -29,6 +31,7 @@ export const POST = withApiGuc(async (
     await requireAdmin(user.id);
 
     const { id } = await params;
+    if (id === user.id) return NextResponse.json({ error: 'You cannot delete your own administrator account.' }, { status: 403 });
     const orgId = await getActorOrganizationId(user.id);
 
     // Soft-delete the Prisma row AND release the email from the unique
@@ -50,8 +53,9 @@ export const POST = withApiGuc(async (
           email: true,
           deletedAt: true,
           profile: {
-            select: { resumeOriginalPath: true, resumeEnhancedPath: true },
+            select: { role: true, resumeOriginalPath: true, resumeEnhancedPath: true },
           },
+          userRoles: { select: { role: { select: { name: true } } } },
           userCertifications: { select: { proofUrl: true } },
         },
       }),
@@ -59,6 +63,15 @@ export const POST = withApiGuc(async (
     if (!existing) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+    if (hasAdminAccess(existing.profile?.role ?? 'member', existing.userRoles.map((entry) => entry.role.name))) {
+      return NextResponse.json({ error: 'Administrator accounts cannot be deleted from member management.' }, { status: 403 });
+    }
+    const originalEmail = parseDeletedEmail(existing.email) ?? existing.email;
+    if (isDeletedEmailMarker(existing.email) && !parseDeletedEmail(existing.email)) {
+      return NextResponse.json({ error: 'The original email cannot be recovered from this deleted account. Contact support.' }, { status: 409 });
+    }
+    const newEmail = existing.deletedAt ? existing.email : buildDeletedEmail(id, now.getTime(), existing.email);
+    if (!newEmail) return NextResponse.json({ error: 'This email is too long to preserve safely for restore.' }, { status: 400 });
 
     // Soft-delete still removes member-resumes / member-files objects so PII
     // does not linger while the row is recoverable. Restore will not bring
@@ -85,10 +98,6 @@ export const POST = withApiGuc(async (
     // If the row is already soft-deleted, leave its email rewrite alone —
     // don't double-rewrite (would build up nested "deleted_deleted_..."
     // prefixes if an admin clicks delete twice).
-    const newEmail = existing.deletedAt
-      ? existing.email
-      : `deleted_${id}_${now.getTime()}_${existing.email}@deleted.invalid`.slice(0, 255);
-
     await withTenantScope(orgId, (db) =>
       db.user.update({
         where: { id },
@@ -101,9 +110,10 @@ export const POST = withApiGuc(async (
 
     // Soft delete = lock the login, never destroy it (see
     // lib/admin/authUserLifecycle.ts): restore can lift the ban later.
-    const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id);
+    const disabled = await disableAuthUserForSoftDelete(getSupabaseAdmin(), id, originalEmail);
     if (!disabled.ok) {
       console.error('[admin/members/[id]/delete] Supabase auth disable error:', disabled.message);
+      return NextResponse.json({ error: 'The account is marked deleted, but its sign-in could not be disabled and its email has not been fully released. Retry this action or contact support.', authDisabled: false }, { status: 502 });
     }
 
     const profileRole = await withDbRetry(() => getProfileRole(user.id)).catch((err) => {

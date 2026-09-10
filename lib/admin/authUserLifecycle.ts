@@ -6,6 +6,16 @@ type Admin = ReturnType<typeof getSupabaseAdmin>;
 /** ~100 years: Supabase has no "indefinite" ban, only a duration. */
 const SOFT_DELETE_BAN_DURATION = '876600h';
 
+/** Valid, per-identity Auth address; the recoverable original stays in the app marker. */
+export function retiredAuthEmail(userId: string): string {
+  return `deleted-${userId}@deleted.invalid`;
+}
+
+function matchesSelectedIdentity(actual: { id: string; email?: string }, userId: string, expectedEmail: string): boolean {
+  const email = actual.email?.trim().toLowerCase();
+  return actual.id === userId && (email === expectedEmail.trim().toLowerCase() || email === retiredAuthEmail(userId).toLowerCase());
+}
+
 export type DisableAuthUserResult =
   | { ok: true; alreadyMissing: boolean }
   | { ok: false; message: string };
@@ -13,16 +23,26 @@ export type DisableAuthUserResult =
 /**
  * Admin "soft delete" used to hard-delete the Supabase auth user, which made
  * the app-side restore a no-op for sign-in (the row came back, the login did
- * not — 9/2/26 ops report). Ban the login instead: the member is locked out
- * exactly as before (`signInWithPassword` fails with a "banned" error), and
- * {@link reenableAuthUserAfterRestore} can lift it.
+ * not — 9/2/26 ops report). Verify the selected identity, ban it, and retire
+ * its email so a later signup cannot collide with the deleted Auth address.
+ * {@link reenableAuthUserAfterRestore} restores the original address and login.
  */
 export async function disableAuthUserForSoftDelete(
   admin: Admin,
   userId: string,
+  expectedEmail: string,
 ): Promise<DisableAuthUserResult> {
+  const { data, error: lookupError } = await admin.auth.admin.getUserById(userId);
+  if (lookupError) return isUserNotFound(lookupError.message, lookupError.status)
+    ? { ok: true, alreadyMissing: true }
+    : { ok: false, message: 'Could not verify the selected sign-in account.' };
+  if (!data.user || !matchesSelectedIdentity(data.user, userId, expectedEmail)) {
+    return { ok: false, message: 'The sign-in identity does not match the selected account. No Auth account was changed.' };
+  }
   const { error } = await admin.auth.admin.updateUserById(userId, {
     ban_duration: SOFT_DELETE_BAN_DURATION,
+    email: retiredAuthEmail(userId),
+    email_confirm: true,
   });
   if (!error) return { ok: true, alreadyMissing: false };
   if (isUserNotFound(error.message, error.status)) {
@@ -47,21 +67,26 @@ export async function reenableAuthUserAfterRestore(
   admin: Admin,
   user: { id: string; email: string; fullName?: string | null; phone?: string | null },
 ): Promise<ReenableAuthUserResult> {
-  const { error: unbanError } = await admin.auth.admin.updateUserById(user.id, {
-    ban_duration: 'none',
-    email: user.email,
-    email_confirm: true,
-  });
-  if (!unbanError) return { ok: true, action: 'unbanned' };
-  if (!isUserNotFound(unbanError.message, unbanError.status)) {
-    return { ok: false, message: unbanError.message };
+  const email = user.email.trim().toLowerCase();
+  const { data: existing, error: lookupError } = await admin.auth.admin.getUserById(user.id);
+  if (!lookupError) {
+    if (!existing.user || !matchesSelectedIdentity(existing.user, user.id, email)) {
+      return { ok: false, message: 'The sign-in identity does not match the selected account. No Auth account was changed.' };
+    }
+    const { error: unbanError } = await admin.auth.admin.updateUserById(user.id, {
+      ban_duration: 'none', email, email_confirm: true,
+    });
+    return unbanError ? { ok: false, message: unbanError.message } : { ok: true, action: 'unbanned' };
+  }
+  if (!isUserNotFound(lookupError.message, lookupError.status)) {
+    return { ok: false, message: 'Could not verify the selected sign-in account.' };
   }
 
   // GoTrue's admin create endpoint accepts a caller-supplied `id`; the
   // supabase-js type does not declare it, hence the cast.
   const attributes = {
     id: user.id,
-    email: user.email,
+    email,
     email_confirm: true,
     user_metadata: {
       ...(user.fullName ? { full_name: user.fullName } : {}),

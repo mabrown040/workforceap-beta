@@ -204,6 +204,11 @@ vi.mock('@/lib/counselor/nudgeTemplates', () => ({
   renderNudge: vi.fn(() => 'Hi there — test message.'),
 }));
 
+vi.mock('@/lib/messages/readCursor', async (importOriginal) => ({
+  ...await importOriginal<typeof import('@/lib/messages/readCursor')>(),
+  advanceThreadReadCursor: vi.fn(),
+}));
+
 vi.mock('@/lib/notifications/create', () => ({
   createNotification: vi.fn(),
   createBulkNotifications: vi.fn(),
@@ -212,6 +217,8 @@ vi.mock('@/lib/notifications/create', () => ({
 // ─── Imports after mocks ───
 import { GET as getDashboard } from '@/app/api/counselor/dashboard/route';
 import { GET as getMemberDetail } from '@/app/api/counselor/members/[memberId]/route';
+import { advanceThreadReadCursor } from '@/lib/messages/readCursor';
+
 import {
   GET as getMessages,
   POST as postMessage,
@@ -616,7 +623,7 @@ describe('GET /api/counselor/members/[memberId]/messages', () => {
         body: 'Hi Jane!',
         createdAt: new Date('2026-05-10T10:05:00Z'),
       },
-    ] as any);
+    ].reverse() as any);
 
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: UUIDS.memberUser, fullName: 'Jane Doe' },
@@ -634,6 +641,40 @@ describe('GET /api/counselor/members/[memberId]/messages', () => {
     expect(body.messages).toHaveLength(2);
     expect(body.messages[0].body).toBe('Hello counselor');
     expect(body.messages[1].body).toBe('Hi Jane!');
+  });
+
+  it('returns the latest 500 messages chronologically for a longer authorized thread', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(getSubjectOrganizationId).mockResolvedValue(UUIDS.orgId);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({ id: UUIDS.memberUser, fullName: 'Synthetic Member' } as any);
+    vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue({ id: UUIDS.threadId, memberId: UUIDS.memberUser } as any);
+    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true as any);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([]);
+    const history = Array.from({ length: 503 }, (_, index) => ({
+      id: `message-${String(index).padStart(4, '0')}`,
+      threadId: UUIDS.threadId,
+      authorId: UUIDS.memberUser,
+      body: index === 502 ? 'Newest member question' : `Earlier message ${index}`,
+      createdAt: new Date(Date.UTC(2026, 8, 9, 0, index)),
+    }));
+    vi.mocked(prisma.message.findMany).mockImplementation((async (options: any) => {
+      expect(options.where).toEqual({ threadId: UUIDS.threadId });
+      const order = Array.isArray(options.orderBy) ? options.orderBy[0] : options.orderBy;
+      return (order.createdAt === 'desc' ? [...history].reverse() : history).slice(0, options.take) as any;
+    }) as never);
+    const result = await getMessages(
+      makeRequest(`http://localhost:3000/api/counselor/members/${UUIDS.memberUser}/messages`),
+      { params: Promise.resolve({ memberId: UUIDS.memberUser }) },
+    );
+    expect(result.status).toBe(200);
+    const { messages } = await result.json();
+    expect(messages).toHaveLength(500);
+    expect(messages[0].id).toBe('message-0003');
+    expect(messages.at(-1).body).toBe('Newest member question');
+    expect(messages.map((message: { id: string }) => message.id)).toEqual(history.slice(3).map((message) => message.id));
+    expect(assertStaffCanAccessThread).toHaveBeenCalledWith(UUIDS.counselorUser, UUIDS.threadId);
   });
 
   it('does not provision a missing thread during a read-only audit', async () => {
@@ -906,9 +947,17 @@ describe('POST /api/counselor/members/[memberId]/messages', () => {
 describe('PATCH /api/counselor/members/[memberId]/messages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(getSubjectOrganizationId).mockResolvedValue(UUIDS.orgId);
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({ id: UUIDS.memberUser } as any);
+    vi.mocked(prisma.messageThread.findFirst).mockResolvedValue({ id: UUIDS.threadId, memberId: UUIDS.memberUser, counselorLastReadAt: null } as any);
+    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true as any);
+    vi.mocked(advanceThreadReadCursor).mockResolvedValue({ ok: true, readAt: '2026-09-09T12:00:00.000Z' });
   });
 
-  it('marks thread as read for counselor', async () => {
+  it('acknowledges the loaded cursor in the authorized counselor thread', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser, email: 'counselor@wap.org' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
     vi.mocked(isCounselor).mockResolvedValue(true);
@@ -922,13 +971,14 @@ describe('PATCH /api/counselor/members/[memberId]/messages', () => {
       memberLastReadAt: null,
       counselorLastReadAt: null,
     };
-    vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
+    vi.mocked(prisma.messageThread.findFirst).mockResolvedValue(thread as any);
     vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true as any);
     vi.mocked(prisma.messageThread.update).mockResolvedValue({} as any);
 
     const res = await patchMessages(
       makeRequest('http://localhost:3000/api/counselor/members/' + UUIDS.memberUser + '/messages', {
         method: 'PATCH',
+        body: JSON.stringify({ lastReadMessageId: 'loaded-message' }),
       }),
       { params: Promise.resolve({ memberId: UUIDS.memberUser }) }
     );
@@ -936,7 +986,9 @@ describe('PATCH /api/counselor/members/[memberId]/messages', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
-    expect(body.counselorLastReadAt).toBeDefined();
+    expect(body.counselorLastReadAt).toBe('2026-09-09T12:00:00.000Z');
+    expect(advanceThreadReadCursor).toHaveBeenCalledWith({ threadId: UUIDS.threadId, messageId: 'loaded-message', reader: 'counselor' });
+    expect(getOrCreateMemberCounselorThread).not.toHaveBeenCalled();
   });
 
   it('returns 401 when not authenticated', async () => {
@@ -989,6 +1041,42 @@ describe('PATCH /api/counselor/members/[memberId]/messages', () => {
     const body = await res.json();
     expect(body.error).toBe('Member not found');
   });
+  it('suppresses read-receipt writes and provisioning during a read-only audit', async () => {
+    const result = await patchMessages(makeRequest(`http://localhost/api/counselor/members/${UUIDS.memberUser}/messages`, {
+      method: 'PATCH', headers: { 'x-workforceap-read-only-audit': '1' }, body: JSON.stringify({ lastReadMessageId: 'loaded-message' }),
+    }), { params: Promise.resolve({ memberId: UUIDS.memberUser }) });
+    expect(result.status).toBe(200);
+    expect(await result.json()).toMatchObject({ auditSuppressed: true });
+    expect(advanceThreadReadCursor).not.toHaveBeenCalled();
+    expect(prisma.messageThread.update).not.toHaveBeenCalled();
+    expect(getOrCreateMemberCounselorThread).not.toHaveBeenCalled();
+  });
+  it('rejects a cursor outside the authorized thread without provisioning', async () => {
+    vi.mocked(advanceThreadReadCursor).mockResolvedValue({ ok: false });
+    const result = await patchMessages(makeRequest(`http://localhost/api/counselor/members/${UUIDS.memberUser}/messages`, {
+      method: 'PATCH', body: JSON.stringify({ lastReadMessageId: 'foreign-message' }),
+    }), { params: Promise.resolve({ memberId: UUIDS.memberUser }) });
+    expect(result.status).toBe(404);
+    expect(prisma.messageThread.update).not.toHaveBeenCalled();
+    expect(getOrCreateMemberCounselorThread).not.toHaveBeenCalled();
+  });
+  it('passes an absent cursor through as a no-op instead of inventing the current time', async () => {
+    const result = await patchMessages(makeRequest(`http://localhost/api/counselor/members/${UUIDS.memberUser}/messages`, {
+      method: 'PATCH',
+    }), { params: Promise.resolve({ memberId: UUIDS.memberUser }) });
+    expect(result.status).toBe(200);
+    expect(advanceThreadReadCursor).toHaveBeenCalledWith({ threadId: UUIDS.threadId, messageId: undefined, reader: 'counselor' });
+    expect(prisma.messageThread.update).not.toHaveBeenCalled();
+  });
+  it('does not acknowledge a member outside the counselor’s assignment', async () => {
+    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(false as any);
+    const result = await patchMessages(makeRequest(`http://localhost/api/counselor/members/${UUIDS.memberUser}/messages`, {
+      method: 'PATCH', body: JSON.stringify({ lastReadMessageId: 'loaded-message' }),
+    }), { params: Promise.resolve({ memberId: UUIDS.memberUser }) });
+    expect(result.status).toBe(403);
+    expect(advanceThreadReadCursor).not.toHaveBeenCalled();
+  });
+
 });
 
 // ─── POST /api/counselor/nudge ───

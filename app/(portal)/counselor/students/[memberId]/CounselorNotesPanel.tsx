@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import styles from './notesPanel.module.css';
@@ -23,43 +23,70 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   const [deleteError, setDeleteError] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('');
+  const draftRevision = useRef(0);
+  const notesRevision = useRef(0);
+  const saveInFlight = useRef(false);
+  const loadRequest = useRef(0);
 
   const fetchNotes = useCallback(async () => {
+    const request = ++loadRequest.current;
+    const revision = notesRevision.current;
+    setLoading(true);
+    setFetchError(false);
     try {
       const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/notes`, {}, 15000);
+      if (request !== loadRequest.current) return;
       if (!res.ok) {
         setFetchError(true);
         return;
       }
       const data = await res.json();
-      if (Array.isArray(data)) setNotes(data);
+      if (request === loadRequest.current && revision === notesRevision.current) {
+        if (Array.isArray(data)) setNotes(data);
+        else setFetchError(true);
+      }
     } catch {
-      setFetchError(true);
+      if (request === loadRequest.current) setFetchError(true);
     } finally {
-      setLoading(false);
+      if (request === loadRequest.current) setLoading(false);
     }
   }, [memberId]);
 
-  useEffect(() => { fetchNotes(); }, [fetchNotes]);
+  useEffect(() => {
+    void fetchNotes();
+    return () => { loadRequest.current += 1; };
+  }, [fetchNotes]);
 
   const handleAdd = async () => {
-    if (!newNote.trim()) return;
+    if (!newNote.trim() || saveInFlight.current) return;
+    const submittedRevision = draftRevision.current;
+    const submittedContent = newNote.trim();
+    saveInFlight.current = true;
     setSubmitting(true);
     setError('');
+    setSaveStatus('');
     try {
       const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newNote.trim() }),
+        body: JSON.stringify({ content: submittedContent }),
       }, 15000);
       if (!res.ok) throw new Error('Failed to save note');
       const note = await res.json();
-      setNotes((prev) => [note, ...prev]);
-      setNewNote('');
-      setAdding(false);
+      notesRevision.current += 1;
+      setNotes((prev) => [note, ...prev.filter((existing) => existing.id !== note.id)]);
+      if (draftRevision.current === submittedRevision) {
+        setNewNote('');
+        setAdding(false);
+        setSaveStatus('Note saved.');
+      } else {
+        setSaveStatus('Note saved. Your newer edits are still unsaved.');
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error saving note');
     } finally {
+      saveInFlight.current = false;
       setSubmitting(false);
     }
   };
@@ -74,6 +101,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
         body: JSON.stringify({ noteId }),
       }, 15000);
       if (!res.ok) throw new Error('Failed to delete note');
+      notesRevision.current += 1;
       setNotes((prev) => prev.filter((n) => n.id !== noteId));
     } catch {
       setDeleteError('Could not delete note. Please try again.');
@@ -96,7 +124,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
         </h3>
         {!adding && (
           <button type="button"
-            onClick={() => setAdding(true)}
+            onClick={() => { setAdding(true); setSaveStatus(''); }}
             className={styles.addButton}
           >
             + Add Note
@@ -112,7 +140,8 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           <textarea
             id={`counselor-note-${memberId}`}
             value={newNote}
-            onChange={(e) => setNewNote(e.target.value)}
+            onChange={(e) => { draftRevision.current += 1; setNewNote(e.target.value); setSaveStatus(''); }}
+            maxLength={5000}
             placeholder="Write a note about this member..."
             rows={3}
             style={{
@@ -128,7 +157,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               boxSizing: 'border-box',
             }}
           />
-          {error && <p style={{ color: 'var(--color-accent)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
+          {error && <p role="alert" style={{ color: 'var(--color-accent)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button type="button"
               onClick={handleAdd}
@@ -139,7 +168,8 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               {submitting ? 'Saving…' : 'Save'}
             </button>
             <button type="button"
-              onClick={() => { setAdding(false); setNewNote(''); setError(''); }}
+              disabled={submitting}
+              onClick={() => { draftRevision.current += 1; setAdding(false); setNewNote(''); setError(''); setSaveStatus(''); }}
               className={styles.cancelButton}
             >
               Cancel
@@ -147,6 +177,8 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           </div>
         </div>
       )}
+
+      {saveStatus && <p role="status" style={{ color: 'var(--wa-muted)', fontSize: 'var(--wa-type-meta)' }}>{saveStatus}</p>}
 
       {deleteError && (
         <p style={{ fontSize: '0.8rem', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
@@ -156,7 +188,10 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
 
       {fetchError && (
         <p style={{ fontSize: '0.8rem', color: 'var(--color-accent, #b00020)', margin: '0 0 0.5rem' }}>
-          Couldn’t load notes. Try refreshing the page.
+          Couldn’t load notes.{' '}
+          <button type="button" className={styles.addButton} onClick={() => void fetchNotes()} disabled={loading}>
+            {loading ? 'Loading…' : 'Try again'}
+          </button>
         </p>
       )}
 

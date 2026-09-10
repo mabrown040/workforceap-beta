@@ -68,6 +68,7 @@ export default function InboxZeroClient({ initialQueue }: Props) {
   const [singleNote, setSingleNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [resultMsg, setResultMsg] = useState<string | null>(null);
+  const [bulkWarnings, setBulkWarnings] = useState<string[]>([]);
 
   const templates = useMemo(() => listFollowUpTemplates(), []);
   const selectedRows = useMemo(
@@ -141,6 +142,7 @@ export default function InboxZeroClient({ initialQueue }: Props) {
       setBusy(true);
       setError(null);
       setResultMsg(null);
+      setBulkWarnings([]);
       try {
         const memberIds = Array.from(selectedIds);
         const body: Record<string, unknown> = { action, memberIds };
@@ -164,10 +166,20 @@ export default function InboxZeroClient({ initialQueue }: Props) {
         if (!res.ok) throw new Error('bulk failed');
         const data = await res.json();
         setResultMsg(t('inboxZeroBulkResult', { sent: data.sent ?? 0, failed: data.failed ?? 0 }));
+        setBulkWarnings(action === 'reassign' && Array.isArray(data.warnings)
+          ? data.warnings.filter((warning: unknown): warning is string => typeof warning === 'string') : []);
         setBulkModal(null);
         setBulkNote('');
         clearSelection();
-        await refreshQueue();
+        if (action === 'reassign') {
+          // A refresh failure cannot turn a received commit receipt into a
+          // failed reassignment or suggest repeating a completed handoff.
+          await refreshQueue().catch(() => {
+            setError('The queue could not refresh. Reload this page before taking another action.');
+          });
+        } else {
+          await refreshQueue();
+        }
       } catch {
         setError(t('inboxZeroBulkFailed'));
       } finally {
@@ -202,8 +214,33 @@ export default function InboxZeroClient({ initialQueue }: Props) {
     }
   };
 
+  const feedback = (
+    <>
+      {resultMsg ? (
+        <div
+          role="status"
+          className="wa-kit-card wa-kit-card--sm"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1rem', background: 'var(--wa-success-soft, color-mix(in srgb, var(--wa-success) 12%, transparent))' }}
+        >
+          <CheckCircle2 size={16} aria-hidden style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-text)' }}>{resultMsg}</p>
+        </div>
+      ) : null}
+      {bulkWarnings.map((warning) => (
+        <p key={warning} role="alert" className="wa-kit-card wa-kit-card--sm"
+          style={{ color: 'var(--wa-text)', borderColor: 'var(--wa-gold)' }}>{warning}</p>
+      ))}
+      {error ? (
+        <p role="alert" style={{ margin: '0 0 1rem', color: 'var(--wa-danger)', fontSize: '0.85rem', fontWeight: 600 }}>{error}</p>
+      ) : null}
+
+    </>
+  );
+
   if (queue.rows.length === 0) {
     return (
+      <>
+      {feedback}
       <PortalEmptyState
         title={t('inboxZeroClearTitle')}
         description={t('inboxZeroClearDesc')}
@@ -211,6 +248,7 @@ export default function InboxZeroClient({ initialQueue }: Props) {
         primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
         secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
       />
+      </>
     );
   }
 
@@ -278,18 +316,7 @@ export default function InboxZeroClient({ initialQueue }: Props) {
         </div>
       ) : null}
 
-      {resultMsg ? (
-        <div
-          className="wa-kit-card wa-kit-card--sm"
-          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1rem', background: 'var(--wa-success-soft, color-mix(in srgb, var(--wa-success) 12%, transparent))' }}
-        >
-          <CheckCircle2 size={16} aria-hidden style={{ color: 'var(--wa-success)', flexShrink: 0 }} />
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--wa-text)' }}>{resultMsg}</p>
-        </div>
-      ) : null}
-      {error ? (
-        <p style={{ margin: '0 0 1rem', color: 'var(--wa-danger)', fontSize: '0.85rem', fontWeight: 600 }}>{error}</p>
-      ) : null}
+      {feedback}
 
       <SectionHeader
         title={t('inboxZero')}

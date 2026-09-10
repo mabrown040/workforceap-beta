@@ -15,6 +15,7 @@ import {
   normalizeMessageBody,
   serializeMessage,
 } from '@/lib/messages/counselorThread';
+import { advanceThreadReadCursor, readCursorInputSchema } from '@/lib/messages/readCursor';
 import { createNotification } from '@/lib/notifications/create';
 import { isReadOnlyPortalAuditHeader } from '@/lib/audit/readOnlyPortalAudit';
 
@@ -70,11 +71,14 @@ async function _GET(request: NextRequest, { params }: Props) {
   const access = await assertStaffCanAccessThread(user.id, thread.id);
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const messages = await prisma.$transaction((tx) => tx.message.findMany({
+  // A bounded inbox must include the newest reply; selecting the oldest 500
+  // permanently hides current conversation once a thread grows beyond the cap.
+  const newestMessages = await prisma.$transaction((tx) => tx.message.findMany({
     where: { threadId: thread.id },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: 500,
   }));
+  const messages = newestMessages.slice().reverse();
 
   const names = await withTenantScope(orgId, (db) =>
     db.user.findMany({
@@ -172,7 +176,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const POST = withApiGuc(_POST);async function _PATCH(_request: NextRequest, { params }: Props) {
+export const POST = withApiGuc(_POST);async function _PATCH(request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -189,20 +193,20 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
   );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
-  const thread = await getOrCreateMemberCounselorThread(memberId);
+  const thread = await prisma.messageThread.findFirst({ where: { memberId, kind: 'member' } });
+  if (!thread) return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
   const access = await assertStaffCanAccessThread(user.id, thread.id);
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const now = new Date();
-  await prisma.$transaction((tx) => tx.messageThread.update({
-    where: { id: thread.id },
-    data: {
-      counselorLastReadAt: now,
-      counselorUserId: thread.counselorUserId ?? user.id,
-    },
-  }));
-
-  return NextResponse.json({ ok: true, counselorLastReadAt: now.toISOString() });
+  if (isReadOnlyPortalAuditHeader(request.headers)) {
+    return NextResponse.json({ ok: true, auditSuppressed: true, counselorLastReadAt: thread.counselorLastReadAt?.toISOString() ?? null });
+  }
+  const parsed = readCursorInputSchema.safeParse(await request.json().catch(() => ({})));
+  if (!parsed.success) return NextResponse.json({ error: 'Invalid read cursor' }, { status: 400 });
+  const result = await advanceThreadReadCursor({
+    threadId: thread.id, messageId: parsed.data.lastReadMessageId, reader: 'counselor',
+  });
+  if (!result.ok) return NextResponse.json({ error: 'Message not found' }, { status: 404 });
+  return NextResponse.json({ ok: true, counselorLastReadAt: result.readAt });
 
   } catch (error) {
     console.error('/counselor/members/[memberId]/messages error:', error);

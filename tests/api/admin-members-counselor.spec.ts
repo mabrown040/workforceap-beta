@@ -57,6 +57,7 @@ vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     user: {
       findFirst: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
     counselor: {
       findFirst: vi.fn(),
@@ -73,6 +74,7 @@ vi.mock('@/lib/db/prisma', () => ({
     }),
     messageThread: {
       update: vi.fn().mockResolvedValue({}),
+      upsert: vi.fn().mockResolvedValue({ id: 'thread-1' }),
     },
   },
 }));

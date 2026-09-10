@@ -50,11 +50,13 @@ vi.mock('@/lib/cron/cronExecution', () => ({
 }));
 
 import { GET } from '@/app/api/cron/inactive-nudge/route';
+import { GET as inactivityGet } from '@/app/api/cron/inactivity-nudge/route';
 import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { CRON_NUDGE_CANDIDATE_CAP } from '@/lib/cron/cronCaps';
+import { createNotification } from '@/lib/notifications/create';
 
 describe('GET /api/cron/inactive-nudge', () => {
   beforeEach(() => {
@@ -135,5 +137,51 @@ describe('GET /api/cron/inactive-nudge', () => {
       'cron_inactive_nudge',
       expect.objectContaining({ ok: true, inactiveEmailsSent: 0 }),
     );
+  });
+});
+
+
+describe('inactivity email acceptance', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('does not consume the cooldown or report a send when the email provider rejects', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([{ id: 'member', email: 'member@example.com', fullName: 'Member' }] as never);
+    vi.mocked(sendInactiveNudgeEmail).mockResolvedValue({ ok: false, error: 'Provider unavailable' });
+    const response = await inactivityGet(new Request('http://localhost/api/cron/inactivity-nudge') as never);
+    const result = await response.json();
+    expect(result.sent).toBe(0);
+    expect(result.failed).toBe(1);
+    expect(prisma.memberNudgeLog.create).not.toHaveBeenCalled();
+    expect(createNotification).not.toHaveBeenCalled();
+    expect(response.status).toBe(503);
+  });
+
+  it('retains accepted sends while reporting a partial provider failure', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: 'accepted', email: 'accepted@example.com', fullName: 'Accepted' },
+      { id: 'rejected', email: 'rejected@example.com', fullName: 'Rejected' },
+    ] as never);
+    vi.mocked(sendInactiveNudgeEmail)
+      .mockResolvedValueOnce({ ok: true })
+      .mockResolvedValueOnce({ ok: false, error: 'Provider unavailable' });
+    const response = await inactivityGet(new Request('http://localhost/api/cron/inactivity-nudge') as never);
+    expect(await response.json()).toMatchObject({ ok: false, sent: 1, failed: 1, total: 2 });
+    expect(response.status).toBe(503);
+    expect(prisma.memberNudgeLog.create).toHaveBeenCalledExactlyOnceWith({
+      data: { userId: 'accepted', tier: 'yellow', kind: 'inactivity' },
+    });
+    expect(createNotification).toHaveBeenCalledTimes(1);
+    expect(setCronRecordsProcessed).toHaveBeenCalledWith(1);
+  });
+
+  it('returns success when every eligible email is accepted', async () => {
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: 'member', email: 'member@example.com', fullName: 'Member' },
+    ] as never);
+    vi.mocked(sendInactiveNudgeEmail).mockResolvedValue({ ok: true });
+    const response = await inactivityGet(new Request('http://localhost/api/cron/inactivity-nudge') as never);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ok: true, sent: 1, failed: 0, total: 1 });
+    expect(prisma.memberNudgeLog.create).toHaveBeenCalledTimes(1);
   });
 });

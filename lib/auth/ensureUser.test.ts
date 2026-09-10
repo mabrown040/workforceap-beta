@@ -119,7 +119,7 @@ test('ensureUserInDb never overwrites an existing users.organizationId', async (
   assert.deepEqual(updatePayload, {});
 });
 
-test('ensureUserInDb - handles P2002 unique constraint error by updating with email', async (t) => {
+test('ensureUserInDb never rebinds an existing identity after an email uniqueness conflict', async (t) => {
   const { userDelegate } = stubDefaultOrg(t);
 
   let upsertCalls: any[] = [];
@@ -131,13 +131,21 @@ test('ensureUserInDb - handles P2002 unique constraint error by updating with em
     return {} as any;
   };
 
-  await ensureUserInDb({ id: 'user-2', email: 'test2@example.com' });
+  await assert.rejects(ensureUserInDb({ id: 'user-2', email: 'test2@example.com' }), /Account identity conflict/);
 
-  assert.equal(upsertCalls.length, 2);
+  assert.equal(upsertCalls.length, 1);
   assert.deepEqual(upsertCalls[0].where, { id: 'user-2' });
-  assert.deepEqual(upsertCalls[1].where, { email: 'test2@example.com' });
-  assert.deepEqual(upsertCalls[1].update, { id: 'user-2' });
-  assert.equal(upsertCalls[1].update.organizationId, undefined);
+  assert.deepEqual(upsertCalls[0].update, {});
+});
+
+test('ensureUserInDb normalizes email without changing the authenticated identity', async (t) => {
+  const { userDelegate } = stubDefaultOrg(t);
+  let saved: any;
+  userDelegate.upsert = async (args: any) => { saved = args; return {}; };
+  await ensureUserInDb({ id: 'auth-original', email: '  MixedCase@Example.com  ' });
+  assert.equal(saved.create.email, 'mixedcase@example.com');
+  assert.equal(saved.create.id, 'auth-original');
+  assert.deepEqual(saved.update, {});
 });
 
 test('ensureUserInDb - rethrows non-P2002 errors', async (t) => {

@@ -5,6 +5,7 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { prisma } from '@/lib/db/prisma';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import { getOrCreatePartnerMessageThread } from '@/lib/messages/portalThreads';
@@ -49,7 +50,7 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
           where: {
             partnerId: ctx.partnerId,
             partner: { organizationId: ctx.partner.organizationId },
-            member: { organizationId: ctx.partner.organizationId, deletedAt: null },
+            member: { organizationId: ctx.partner.organizationId, deletedAt: null, ...MEMBER_ONLY_WHERE },
           },
           select: { member: { select: { id: true, fullName: true } } },
           orderBy: { referredAt: 'desc' },
@@ -92,10 +93,11 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
   const messages = await prisma.message.findMany({
     take: 200,
     where: { threadId: thread.id },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
 
-  const serializedMessages = messages.map(serializeMessage);
+  // The capped window must include the latest replies after a reload.
+  const serializedMessages = messages.reverse().map(serializeMessage);
   const last = serializedMessages[serializedMessages.length - 1] as { body?: string } | undefined;
   const previewText =
     serializedMessages.length > 0 ? last?.body ?? 'No messages yet' : 'No messages yet — ask us anything';
@@ -131,6 +133,7 @@ export default async function PartnerMessagesPage({ searchParams }: Props) {
           </div>
 
           <PortalTeamChatClient
+            readCursorMode
             key={`partner-chat-${selectedMember?.id ?? 'general'}`}
             surfaceVariant="partner"
             apiPath="/api/partner/messages"

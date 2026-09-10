@@ -220,6 +220,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     aliases: ['/dashboard/assessments', '/dashboard/skills-assessment'],
   },
   // ── Profile tab ──
+  { href: '/dashboard/referrals', label: 'Invite a friend', group: 'manage', tab: 'me', Icon: Users },
   { href: '/dashboard/weekly-recap', label: 'Weekly recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {
     href: '/dashboard/messages',

@@ -1,143 +1,114 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Users, Copy, Check } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Copy, Share2 } from 'lucide-react';
 import { trackMemberReferralShare } from '@/lib/analytics/events';
 import { postMemberEvent } from '@/lib/events/client';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 import { POINT_VALUES } from '@/lib/member/pointsConfig';
-import { CardHead } from '@/components/portal/kit';
+import { buildReferralInvitation, ReferralShareDataSchema, type ReferralShareData } from '@/lib/member/referralSharing';
+import { CardHead, FormField } from '@/components/portal/kit';
+import styles from './ReferralShareCard.module.css';
 
-type ReferralData = { code: string; sharePath: string; rewardedCount: number };
-
-/**
- * Member referral share card. Lazily mints (on first load) the member's referral
- * code via GET /api/member/referral and offers a copy-to-clipboard share link.
- * Both the referrer and the friend earn points once the friend enrolls.
- */
+/** Own referral link and aggregate rewards; copying/sharing never sends an email. */
 export default function ReferralShareCard() {
-  const [data, setData] = useState<ReferralData | null>(null);
-  const [error, setError] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [data, setData] = useState<ReferralShareData | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [sharing, setSharing] = useState(false);
+  const [nativeShare, setNativeShare] = useState(false);
+  const invitationDetails = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    setNativeShare(typeof navigator.share === 'function');
+    setLoadError(false);
     (async () => {
       try {
-        const res = await fetch('/api/member/referral');
-        if (!res.ok) throw new Error('failed');
-        const parsed = await safeParseResponseJson<ReferralData>(res);
-        if (active && parsed.ok && parsed.data?.code) setData(parsed.data);
-        else if (active) setError(true);
+        const res = await fetch('/api/member/referral', { signal: controller.signal });
+        const parsed = await safeParseResponseJson(res);
+        const result = ReferralShareDataSchema.safeParse(parsed.data);
+        if (!res.ok || !parsed.ok || !result.success) throw new Error('Referral details unavailable');
+        if (active) setData(result.data);
       } catch {
-        if (active) setError(true);
+        if (active) setLoadError(true);
       }
     })();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  if (error) return null; // fail quiet — referral is a bonus, never blocks the page
+    return () => { active = false; controller.abort(); };
+  }, [attempt]);
 
   const shareUrl = data ? `${window.location.origin}${data.sharePath}` : '';
-  const referrerReward = POINT_VALUES.referral_referrer_reward ?? 0;
-  const refereeReward = POINT_VALUES.referral_referee_reward ?? 0;
+  const message = buildReferralInvitation(shareUrl);
 
-  async function copy() {
-    if (!shareUrl) return;
+  async function copy(kind: 'link' | 'message') {
+    setFeedback(''); setActionError('');
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      trackMemberReferralShare('copy_link');
-      void postMemberEvent({
-        eventName: 'member_referral_link_copied',
-        entityType: 'member_referral',
-        metadata: { action: 'copy_link' },
-        sourcePage: '/dashboard/points',
-      });
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(kind === 'link' ? shareUrl : message);
+      setFeedback(kind === 'link' ? 'Link copied.' : 'Invitation message copied. Paste it into your own message when you are ready.');
+      if (kind === 'link') {
+        trackMemberReferralShare('copy_link');
+        void postMemberEvent({ eventName: 'member_referral_link_copied', entityType: 'member_referral', metadata: { action: 'copy_link' }, sourcePage: window.location.pathname });
+      }
     } catch {
-      /* clipboard blocked — the input is selectable as a fallback */
+      if (kind === 'message' && invitationDetails.current) invitationDetails.current.open = true;
+      setActionError(`Copying is unavailable in this browser. Select your ${kind === 'link' ? 'referral link' : 'invitation message'} and copy it manually.`);
     }
   }
 
+  async function share() {
+    setFeedback(''); setActionError(''); setSharing(true);
+    try {
+      await navigator.share({ title: 'Explore WorkforceAP', text: message });
+      setFeedback('Sharing completed.');
+    } catch (error) {
+      if (!(error && typeof error === 'object' && 'name' in error && error.name === 'AbortError')) {
+        setActionError('Sharing is unavailable right now. Copy the link or invitation message instead.');
+      }
+    } finally { setSharing(false); }
+  }
+
   return (
-    <section className="wa-kit-card">
-      <CardHead title="Invite a friend" />
-      <div className="wa-flex wa-items-center wa-gap-3" style={{ marginBottom: 14, marginTop: -4 }}>
-        <div
-          aria-hidden="true"
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 'var(--wa-radius-sm)',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'color-mix(in srgb, var(--wa-gold) 14%, transparent)',
-            color: 'var(--wa-gold)',
-          }}
-        >
-          <Users size={18} />
+    <section className={`wa-kit-card ${styles.panel}`} aria-label="Invite a friend">
+      <CardHead title="Share WorkforceAP" />
+      <p className={styles.intro}>
+        Share career training with someone you know. Their application and training details stay private.
+      </p>
+      {loadError ? (
+        <div className="wa-space-y-3">
+          <p role="alert">We could not load your referral link. Please try again.</p>
+          <button type="button" className="wa-kit-cta wa-kit-focus" onClick={() => setAttempt(value => value + 1)}>Retry loading link</button>
         </div>
-        <p style={{ margin: 0, color: 'var(--wa-muted)', lineHeight: 1.6, fontSize: '0.875rem' }}>
-          Share your link. When a friend joins and enrolls in a program, you earn{' '}
-          <strong style={{ color: 'var(--wa-text)' }}>{referrerReward} points</strong> and they start with{' '}
-          <strong style={{ color: 'var(--wa-text)' }}>{refereeReward}</strong>.
-        </p>
-      </div>
-
-      <div className="wa-flex wa-gap-2" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-        <input
-          readOnly
-          value={data ? shareUrl : 'Generating your link…'}
-          onFocus={(e) => e.currentTarget.select()}
-          aria-label="Your referral link"
-          style={{
-            flex: '1 1 16rem',
-            minWidth: 0,
-            padding: '0.6rem 0.75rem',
-            borderRadius: 'var(--wa-radius-sm)',
-            border: '1px solid var(--wa-border)',
-            background: 'var(--wa-surface-2)',
-            color: 'var(--wa-text)',
-            fontSize: '0.85rem',
-          }}
-        />
-        <button
-          type="button"
-          onClick={copy}
-          disabled={!data}
-          className="wa-kit-focus enabled:hover:wa-opacity-90 enabled:active:wa-scale-[0.98] motion-reduce:active:wa-scale-100 wa-transition-[opacity,transform] wa-duration-150 motion-reduce:wa-transition-none"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            whiteSpace: 'nowrap',
-            minHeight: 40,
-            padding: '8px 16px',
-            background: 'var(--wa-accent)',
-            color: 'var(--wa-on-accent)',
-            fontWeight: 700,
-            fontSize: 13,
-            borderRadius: 999,
-            border: 'none',
-            cursor: data ? 'pointer' : 'not-allowed',
-            opacity: data ? 1 : 0.6,
-          }}
-        >
-          {copied ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
-          {copied ? 'Copied!' : 'Copy link'}
-        </button>
-      </div>
-
-      {data && data.rewardedCount > 0 ? (
-        <p style={{ margin: '0.85rem 0 0', fontSize: '0.85rem', color: 'var(--wa-muted)' }}>
-          {data.rewardedCount} friend{data.rewardedCount === 1 ? '' : 's'} you referred {data.rewardedCount === 1 ? 'has' : 'have'} enrolled. Thank you!
-        </p>
-      ) : null}
+      ) : !data ? <p role="status">Loading your referral link…</p> : (
+        <>
+          <section className={styles.linkRow} aria-label="Copy your referral link">
+            <FormField label="Your referral link" readOnly value={shareUrl} onFocus={event => event.currentTarget.select()} />
+            <button type="button" className="wa-kit-cta wa-kit-focus" onClick={() => copy('link')}><Copy size={16} aria-hidden />Copy link</button>
+          </section>
+          <section className={styles.actions} aria-label="More sharing options">
+            <button type="button" className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus" onClick={() => copy('message')}>Copy invitation message</button>
+            {nativeShare && <button type="button" className="wa-kit-cta wa-kit-cta--ghost wa-kit-focus" onClick={share} disabled={sharing}><Share2 size={16} aria-hidden />{sharing ? 'Opening share options…' : 'Share…'}</button>}
+          </section>
+          <p role="status" aria-live="polite" className={styles.feedback}>{feedback}</p>
+          {actionError && <p role="alert">{actionError}</p>}
+          <details ref={invitationDetails} className={styles.disclosure}>
+            <summary className="wa-kit-focus">Preview invitation message</summary>
+            <FormField label="Invitation message">
+              <textarea readOnly value={message} rows={4} onFocus={event => event.currentTarget.select()} className={`wa-kit-control ${styles.message}`} />
+            </FormField>
+          </details>
+          <p className={styles.note}>You choose who to contact. Nothing is sent from this page.</p>
+          <footer className={styles.rewards}>
+            <p><strong>{data.rewardedCount}</strong> recorded referral reward{data.rewardedCount === 1 ? '' : 's'}</p>
+            <details className={styles.disclosure}>
+              <summary className="wa-kit-focus">How referral points work</summary>
+              <p className={styles.note}>A recorded referral reward adds {POINT_VALUES.referral_referrer_reward} points for you and {POINT_VALUES.referral_referee_reward} for your friend. Tracking currently requires your friend to use the same browser and enroll through their member dashboard within 30 days; signup or staff-assisted enrollment may not record a reward.</p>
+            </details>
+          </footer>
+        </>
+      )}
     </section>
   );
 }

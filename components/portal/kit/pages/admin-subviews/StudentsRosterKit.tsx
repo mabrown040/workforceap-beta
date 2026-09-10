@@ -24,12 +24,15 @@ import {
  * Interactive (filter chips toggle the visible rows) → needs 'use client'.
  * Uses DataTable mobile="cards" so the wide roster stacks cleanly on mobile
  * (the mockup calls out "wide table → stacked cards on mobile, no squish").
+ * Names always include the full account email to distinguish same-name accounts
+ * in both table rows and mobile cards; email text wraps instead of truncating.
  */
 export type StudentStatus = 'Job-Ready' | 'At Risk' | 'In Training' | 'Interviewing' | 'Placed';
 
 export interface StudentRow {
   id: string;
   name: string;
+  email: string;
   initials?: string;
   location: string;
   program: string;
@@ -64,6 +67,7 @@ const DEFAULT_STUDENTS: StudentRow[] = [
   {
     id: 'mb',
     name: 'Mike Brown',
+    email: 'mike.brown@example.test',
     initials: 'MB',
     location: 'Austin, TX',
     program: 'Cloud & IT',
@@ -76,6 +80,7 @@ const DEFAULT_STUDENTS: StudentRow[] = [
   {
     id: 'jd',
     name: 'Jasmine Davis',
+    email: 'jasmine.davis@example.test',
     initials: 'JD',
     location: 'Austin, TX',
     program: 'Healthcare',
@@ -88,6 +93,7 @@ const DEFAULT_STUDENTS: StudentRow[] = [
   {
     id: 'ct',
     name: 'Carlos Torres',
+    email: 'carlos.torres@example.test',
     initials: 'CT',
     location: 'Round Rock, TX',
     program: 'Skilled Trades',
@@ -100,6 +106,7 @@ const DEFAULT_STUDENTS: StudentRow[] = [
   {
     id: 'aw',
     name: 'Aisha Williams',
+    email: 'aisha.williams@example.test',
     initials: 'AW',
     location: 'Austin, TX',
     program: 'Data & AI',
@@ -182,6 +189,9 @@ export function StudentsRosterKit({
           {row.inWap === false ? <Token label="Unmatched" size="sm" color="pink" /> : null}
           {row.inWap !== false && row.noProgram ? <Token label="No program" size="sm" color="yellow" /> : null}
         </div>
+        <p style={{ margin: 0, fontSize: 'var(--wa-type-meta)', color: 'var(--wa-muted)', overflowWrap: 'anywhere', whiteSpace: 'normal' }}>
+          {row.email}
+        </p>
         <div
           style={{
             fontSize: 10,

@@ -81,7 +81,8 @@ const mockTx = {
     deleteMany: vi.fn(),
   },
   message: { create: vi.fn() },
-  messageThread: { update: vi.fn() },
+  messageThread: { update: vi.fn(), upsert: vi.fn().mockResolvedValue({ id: 'thread-1' }) },
+  counselor: { findFirst: vi.fn() },
   counselorAssignment: {
     updateMany: vi.fn(),
     update: vi.fn(),
@@ -154,6 +155,7 @@ describe('Bulk operations', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockTx.user.updateMany.mockResolvedValue({ count: 1 });
+    mockTx.counselor.findFirst.mockImplementation((args) => prisma.counselor.findFirst(args));
     mockTx.courseEnrollment.updateMany.mockResolvedValue({ count: 1 });
     mockTx.courseEnrollment.findMany.mockResolvedValue([]);
     mockTx.courseEnrollment.upsert.mockResolvedValue({ id: 'enrollment-1' });
@@ -456,7 +458,7 @@ describe('Bulk operations', () => {
       );
 
       expect(res.status).toBe(200);
-      expect(mockTx.user.updateMany).toHaveBeenCalledTimes(1);
+      expect(mockTx.user.updateMany).toHaveBeenCalledTimes(2);
       expect(mockTx.courseEnrollment.updateMany).not.toHaveBeenCalled();
       expect(mockTx.counselorAssignment.updateMany).toHaveBeenCalledWith({
         where: { memberId: uid(1), active: true },
@@ -465,6 +467,7 @@ describe('Bulk operations', () => {
       expect(mockTx.counselorAssignment.create).toHaveBeenCalledWith({
         data: { counselorId: 'counselor-1', memberId: uid(1), active: true },
       });
+      expect(mockTx.messageThread.upsert).toHaveBeenCalledWith(expect.objectContaining({ where: { memberId: uid(1) }, update: { counselorUserId: uid(88) } }));
     });
 
     it('unassigns a counselor in the same transaction when no program change is requested', async () => {
@@ -480,13 +483,14 @@ describe('Bulk operations', () => {
       );
 
       expect(res.status).toBe(200);
-      expect(mockTx.user.updateMany).toHaveBeenCalledTimes(1);
+      expect(mockTx.user.updateMany).toHaveBeenCalledTimes(2);
       expect(mockTx.courseEnrollment.updateMany).not.toHaveBeenCalled();
       expect(mockTx.counselorAssignment.updateMany).toHaveBeenCalledWith({
         where: { memberId: uid(1), active: true },
         data: { active: false },
       });
       expect(mockTx.counselorAssignment.create).not.toHaveBeenCalled();
+      expect(mockTx.messageThread.upsert).toHaveBeenCalledWith(expect.objectContaining({ where: { memberId: uid(1) }, update: { counselorUserId: null } }));
     });
   });
 

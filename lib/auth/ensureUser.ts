@@ -29,7 +29,7 @@ export async function ensureUserInDb(
   supabaseUser: SupabaseUser,
   options: EnsureUserOptions = {},
 ) {
-  const email = supabaseUser.email ?? `${supabaseUser.id}@placeholder.local`;
+  const email = supabaseUser.email?.trim().toLowerCase() || `${supabaseUser.id}@placeholder.local`;
   const fullName = (supabaseUser.user_metadata?.full_name as string) ?? 'Member';
 
   const organizationId = await resolveProvisionOrganizationId({
@@ -51,8 +51,8 @@ export async function ensureUserInDb(
       update: {},
     });
   } catch (err: unknown) {
-    // If a user with this email already exists (e.g. duplicate from old record),
-    // update the existing record's id to match the auth user, or just skip if id matches
+    // An email collision does not prove identity equivalence. Rebinding User.id
+    // would transfer roles and every cascading relation to another Auth identity.
     const isUniqueError =
       typeof err === 'object' &&
       err !== null &&
@@ -60,12 +60,7 @@ export async function ensureUserInDb(
       (err as { code: string }).code === 'P2002';
 
     if (isUniqueError) {
-      // Try to find by email and update the id to match auth
-      await prisma.user.upsert({
-        where: { email },
-        create: { id: supabaseUser.id, organizationId, email, fullName },
-        update: { id: supabaseUser.id },
-      });
+      throw new Error('Account identity conflict. An administrator must verify the existing account before setup can continue.');
     } else {
       throw err;
     }

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+import { isAdmin } from '@/lib/auth/roles';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import {
@@ -15,6 +16,7 @@ export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (await isAdmin(user.id)) return NextResponse.json({ error: 'Administrator accounts cannot be deleted from member account settings.' }, { status: 403 });
   
     try {
       const storage = await deleteUserStorageObjects(user.id);

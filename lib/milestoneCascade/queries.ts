@@ -5,6 +5,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { ActionDraftSchema, type ActionDraft } from './types';
+import { summarizeCascadeDispatch, type CascadeDispatchSummary } from './dispatchState';
 
 /**
  * Server-side query helpers for the milestone-cascade pipeline.
@@ -19,6 +20,8 @@ import { ActionDraftSchema, type ActionDraft } from './types';
 
 export interface CascadeCardData {
   id: string;
+  status: string;
+  dispatch: CascadeDispatchSummary | null;
   userId: string;
   userFullName: string | null;
   userEmail: string;
@@ -85,7 +88,7 @@ export async function resolveCascadeScope(
 }
 
 /**
- * List cascades currently awaiting counselor approval, oldest first. Drives
+ * List cascades awaiting approval or delivery reconciliation, oldest first. Drives
  * `/admin/agent-inbox`.
  *
  * Tenant scope: super-admins see everything; tenant admins see only their
@@ -94,12 +97,9 @@ export async function resolveCascadeScope(
  * bodies and learner emails. `isAdmin()` itself is not tenant-aware so
  * the page MUST pass the actor scope.
  *
- * Excludes cascades whose 72h TTL has already elapsed (`expiresAt <= now`).
- * The expire cron runs daily so there's a window of up to 24h where a
- * cascade's status is still 'awaiting_approval' but the approve endpoint
- * will refuse to send it. Showing those cards in the inbox would let an
- * admin click Approve and get a 409 — actionable-looking but not
- * actionable. Filtering at the query layer keeps both surfaces honest.
+ * Excludes unapproved drafts whose TTL has elapsed. Approved deliveries
+ * remain visible after TTL so staff can reconcile uncertain sends or finish
+ * recording delivery whose provider receipts are already saved.
  */
 export async function listAwaitingApprovalCascades(opts?: {
   limit?: number;
@@ -112,8 +112,10 @@ export async function listAwaitingApprovalCascades(opts?: {
       : {};
   const rows = await prisma.milestoneCascade.findMany({
     where: {
-      status: 'awaiting_approval',
-      expiresAt: { gt: new Date() },
+      OR: [
+        { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
+        { status: 'approved' },
+      ],
       ...userFilter,
     },
     orderBy: { createdAt: 'asc' },
@@ -127,6 +129,8 @@ export async function listAwaitingApprovalCascades(opts?: {
     const { drafts, invalid } = parseDrafts(row.drafts);
     return {
       id: row.id,
+      status: row.status,
+      dispatch: row.status === 'approved' ? summarizeCascadeDispatch(row.dispatchState) : null,
       userId: row.userId,
       userFullName: row.user?.fullName ?? null,
       userEmail: row.user?.email ?? '(unknown)',
@@ -147,9 +151,8 @@ export async function listAwaitingApprovalCascades(opts?: {
 
 /**
  * Fast count for nav badges. Cheaper than the full list when we just need a
- * number ("Agent Inbox · 3"). Mirrors the list filter — past-TTL cascades
- * are not actionable, so they're not counted in the badge either. Also
- * tenant-scoped per the actor's CascadeScopeFilter.
+ * number ("Agent Inbox · 3"). Mirrors the list filter: current approvals
+ * plus incomplete deliveries requiring review, scoped to the actor.
  */
 export async function countAwaitingApprovalCascades(opts?: {
   scope?: CascadeScopeFilter;
@@ -161,8 +164,10 @@ export async function countAwaitingApprovalCascades(opts?: {
       : {};
   return prisma.milestoneCascade.count({
     where: {
-      status: 'awaiting_approval',
-      expiresAt: { gt: new Date() },
+      OR: [
+        { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
+        { status: 'approved' },
+      ],
       ...userFilter,
     },
   });
@@ -185,6 +190,8 @@ export async function getCascadeForReview(
   const { drafts, invalid } = parseDrafts(row.drafts);
   return {
     id: row.id,
+    status: row.status,
+    dispatch: row.status === 'approved' ? summarizeCascadeDispatch(row.dispatchState) : null,
     userId: row.userId,
     userFullName: row.user?.fullName ?? null,
     userEmail: row.user?.email ?? '(unknown)',

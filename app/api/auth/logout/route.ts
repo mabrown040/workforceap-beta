@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/auth/server';
 import { SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName } from '@/lib/auth/mfaTrust';
 import { logger } from '@/lib/observability/logger';
+import { isSupabaseAuthTokenCookieName } from '@/lib/auth/supabaseAuthCookie';
 
 export async function POST(request: Request) {
   try {
@@ -27,28 +28,34 @@ export async function POST(request: Request) {
       }
     }
 
-    const supabase = await createSupabaseServerClient();
-    await supabase.auth.signOut();
-
-    // Clear the session-only preference flag on logout
     const cookieStore = await cookies();
-    cookieStore.set(SESSION_ONLY_COOKIE, '', {
-      path: '/',
-      maxAge: 0,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-    });
+    const cookieNames = new Set(cookieStore.getAll().map(({ name }) => name));
+    let globalSignOut = false;
+    try {
+      const supabase = await createSupabaseServerClient();
+      const { error } = await supabase.auth.signOut();
+      globalSignOut = !error;
+      if (error) logger.error('[auth/logout] Provider sign-out failed; clearing local session');
+    } catch {
+      logger.error('[auth/logout] Provider sign-out unavailable; clearing local session');
+    }
 
-    cookieStore.set(getAdminMfaTrustCookieName(), '', {
-      path: '/',
-      maxAge: 0,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-    });
+    // auth-js can return an error before removing local session storage. Clear
+    // both original and newly refreshed chunks regardless of provider status.
+    for (const { name } of cookieStore.getAll()) cookieNames.add(name);
+    cookieNames.add(SESSION_ONLY_COOKIE);
+    cookieNames.add(getAdminMfaTrustCookieName());
+    for (const name of cookieNames) {
+      if (!isSupabaseAuthTokenCookieName(name) &&
+          !/^sb-[a-z0-9]+-auth-token-code-verifier(?:\.\d+)?$/i.test(name) &&
+          name !== SESSION_ONLY_COOKIE && name !== getAdminMfaTrustCookieName()) continue;
+      cookieStore.set(name, '', {
+        path: '/', maxAge: 0, sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production', httpOnly: true,
+      });
+    }
 
-    return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ success: true, globalSignOut }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     logger.error('[auth/logout] error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

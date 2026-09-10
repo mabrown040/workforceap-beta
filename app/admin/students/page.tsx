@@ -133,6 +133,7 @@ export default async function AdminStudentsPage({
           select: {
             id: true,
             fullName: true,
+            email: true,
             enrolledProgram: true,
             enrolledAt: true,
             assessmentScorePct: true,
@@ -290,6 +291,7 @@ export default async function AdminStudentsPage({
     return {
       id: m.id,
       name: m.fullName,
+      email: m.email,
       initials: initialsFrom(m.fullName),
       location,
       program: programTitle,
@@ -313,8 +315,9 @@ export default async function AdminStudentsPage({
     students.push({
       id: `coursera:${learner.externalEmail}`,
       name: learner.externalName?.trim() || learner.externalEmail,
+      email: learner.externalEmail,
       initials: initialsFrom(learner.externalName || learner.externalEmail),
-      location: learner.externalEmail,
+      location: '—',
       program: 'Coursera activity',
       progress: learner.averageProgressPercent,
       readiness: 0,

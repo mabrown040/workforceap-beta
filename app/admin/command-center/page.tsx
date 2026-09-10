@@ -7,6 +7,7 @@ import { resolveAdminPageTenant, withAdminPageScope, inheritUserOrg, inheritMemb
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
+import { normalizeAdminQueueRequest, adminQueueHref } from '@/lib/admin/commandCenterHelpers';
 import type { ChartDatum } from '@/components/portal/kit';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -32,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminCommandCenterPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ ui?: string }>;
+  searchParams?: Promise<{ ui?: string; queue?: string; page?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/command-center');
@@ -42,6 +43,7 @@ export default async function AdminCommandCenterPage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  const request = normalizeAdminQueueRequest(params?.queue, params?.page);
 
   // Single source of truth for both the kit (default) and the legacy view:
   // the real command-center loader. Re-establishes the auth GUC context (RSC
@@ -49,7 +51,7 @@ export default async function AdminCommandCenterPage({
   // this the queries would run with anonymous RLS credentials).
   let commandCenterLoadFailed = false;
   const data: AdminCommandCenter = await withAuthGuc(() =>
-    getAdminCommandCenter(user.id, { perSectionLimit: 8 }),
+    getAdminCommandCenter(user.id, { perSectionLimit: 8, ...request }),
   ).catch((err) => {
     console.error('[admin/command-center] failed to load command center:', err);
     commandCenterLoadFailed = true;
@@ -79,10 +81,17 @@ export default async function AdminCommandCenterPage({
     );
   }
 
+  if (data.pagination) {
+    const counts = { 'needs-reply': data.totals.needsReplyCount, 'at-risk': data.totals.atRiskCount,
+      interviewing: data.totals.interviewingCount, applications: data.totals.applicationsPendingCount };
+    const lastPage = Math.max(1, Math.ceil(counts[data.pagination.queue] / data.pagination.pageSize));
+    if (data.pagination.page > lastPage) redirect(adminQueueHref(data.pagination.queue, lastPage));
+  }
+
   // v2 KIT is now the DEFAULT Command Center; legacy view via ?ui=legacy.
   // Runs AFTER the auth/role guard above (access control preserved) and is fed
   // by the real loader's totals/buckets — no fabricated counts.
-  if (requestedUi !== 'legacy') {
+  if (requestedUi !== 'legacy' && !request.queue) {
     const { totals } = data;
     let headlineLoadFailed = false;
 
@@ -125,12 +134,11 @@ export default async function AdminCommandCenterPage({
       return { activeStudents: 0, placementsYtd: 0, placementRows: [] as Array<{ placedAt: Date }> };
     });
 
+    if (headlineLoadFailed) return <AdminDataLoadError title="Command center unavailable" message="Current dashboard figures could not be loaded. Please reload this page." />;
+
     // Share of enrolled, non-deleted members currently in the interviewing
     // placement bucket. Falls back to "—" when there are none.
-    const interviewingShare =
-      headline.activeStudents > 0
-        ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
-        : '—';
+
 
     // Placements by month (Jan→current month, YTD) for the BarChartMini.
     const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -150,18 +158,14 @@ export default async function AdminCommandCenterPage({
         label: 'Active Students',
         value: headline.activeStudents,
         color: 'text',
-        delta: `${headline.activeStudents} enrolled`,
-        deltaColor: 'success',
       },
       {
         label: 'Placements YTD',
         value: headline.placementsYtd,
         color: 'success',
-        delta: 'this year',
-        deltaColor: 'success',
       },
-      { label: 'Interviewing Share', value: interviewingShare, color: 'info', delta: 'of enrolled', deltaColor: 'muted' },
-      { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
+      { label: 'Interview prep', value: totals.interviewingCount, color: 'info' },
+      { label: 'At Risk', value: totals.atRiskCount, color: 'accent' },
     ];
 
     const queueItems: CommandCenterQueueItem[] = [
@@ -169,20 +173,20 @@ export default async function AdminCommandCenterPage({
         id: 'at-risk',
         icon: <TriangleAlert size={14} aria-hidden />,
         iconColor: 'var(--wa-accent)',
-        title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} inactive 14+ days`,
-        detail: 'Enrolled, gone quiet — likely to drop',
+        title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} need a check-in`,
+        detail: 'Approved training has gone quiet or course activity is flagged',
         actionLabel: `${totals.atRiskCount} items`,
         urgent: totals.atRiskCount > 0,
-        href: '/admin/command-center?ui=legacy',
+        href: '/admin/command-center?queue=at-risk',
       },
       {
         id: 'needs-reply',
         icon: <Bell size={14} aria-hidden />,
         iconColor: 'var(--wa-info)',
-        title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'message' : 'messages'} awaiting your reply`,
+        title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'conversation needs' : 'conversations need'} a reply`,
         detail: 'Members are waiting on a response',
         actionLabel: `${totals.needsReplyCount} items`,
-        href: '/admin/messages',
+        href: '/admin/command-center?queue=needs-reply',
       },
       {
         id: 'applications',
@@ -191,7 +195,7 @@ export default async function AdminCommandCenterPage({
         title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
         detail: 'Eligibility + program-fit review pending',
         actionLabel: `${totals.applicationsPendingCount} items`,
-        href: '/admin/command-center?ui=legacy',
+        href: '/admin/command-center?queue=applications',
       },
       {
         id: 'certifications',
@@ -207,10 +211,10 @@ export default async function AdminCommandCenterPage({
         id: 'interviewing',
         icon: <Briefcase size={14} aria-hidden />,
         iconColor: 'var(--wa-success)',
-        title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'candidate' : 'candidates'} interviewing`,
+        title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'opportunity needs' : 'opportunities need'} interview prep`,
         detail: 'Phone screens, interviews, and offers to prep',
         actionLabel: `${totals.interviewingCount} items`,
-        href: '/admin/placements',
+        href: '/admin/command-center?queue=interviewing',
       },
     ];
 
@@ -256,7 +260,7 @@ export default async function AdminCommandCenterPage({
         title="Command Center"
         subtitle="The exact queue to run a walk-in session: reply, check in, prep interviews, review applications."
       />
-      <AdminCommandCenterClient data={data} />
+      <AdminCommandCenterClient key={`${request.queue ?? "all"}:${request.page}`} data={data} />
     </PortalPageFrame>
   );
 }

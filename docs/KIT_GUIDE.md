@@ -16,6 +16,11 @@ semantics from scratch.
    composing from a blank file.
 4. If you change kit behavior, update the file's header comment and this guide in the same change.
 
+The admin Agent Inbox's "Needs review" count includes both unexpired drafts
+awaiting approval and approved cascades with incomplete delivery. Delivery
+rows stay visible for retry or staff reconciliation; provider acceptance is
+not labelled as confirmed inbox delivery.
+
 ---
 
 ## 1. Token families — which one to use
@@ -50,8 +55,13 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   Member rails use a 232px budget (208px on smaller laptops, 72px collapsed),
   with daily destinations visible and secondary groups disclosed on demand.
   The current route opens its group and only the most specific destination
-  receives `aria-current`. Navigation labels stay readable at 16px with 44px
-  targets; desktop brand and public-site link share one header row.
+  receives `aria-current`. Staff rails use 240px and the shared desktop header
+  uses a 68px minimum height. Destination lists scroll independently so appearance
+  and language remain reachable at the foot of the expanded rail. Collapsing any
+  rail hides its preference controls; expanding restores them. Appearance options
+  stack their icons above labels to fit the rail, with radio-keyboard behavior
+  intact. Navigation labels stay readable at 16px with 44px targets; desktop brand
+  and public-site link share one header row.
 - **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
   `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
@@ -256,6 +266,10 @@ filters and search run on the server; health/attention filters remain explicitly
 labeled as applying to the loaded page. Do not re-filter server search results
 against that page in the client.
 
+`StudentsRosterKit` shows the full account email beneath each student name in
+both table rows and mobile cards. Keep that identifier visible and wrapping so
+staff can distinguish same-name accounts before opening an account action.
+
 ---
 
 ## 7. Icons, styling, and motion
@@ -341,3 +355,22 @@ The Astryx design system is installed site-wide (`app/layout.tsx` imports `reset
 *Maintenance: this file is hand-synced. If you touch `components/portal/kit/index.ts` exports,
 token names in `css/portal-tokens.css`, or `KitTone`/`StatusTone` semantics, update the matching
 section here in the same PR.*
+
+### Stakeholder workflow contracts (2026-09-09)
+
+- Admin Command Center queue counts represent all matching active records in the actor's organization, independent of the eight-row overview. Focused `queue`/`page` URLs show 25 items, retain context, and recover from an emptied last page. Totals are items, and interview rows are opportunities; neither is a unique-person count. “Select this page” acts only on visible application IDs.
+- Command Center health accepts `unknown` in addition to `ok`/`warn`. Unmeasured or failed checks show a neutral dot and “Not verified,” never green. Failed core loaders render an explicit error state.
+- Partner application links carry the existing attribution token and appear on the default overview/guide. Share tools prepare user-reviewable text; copy or native-share failure stays visible. Attention keeps approved/observed training separate from approval/funding pending.
+- Counselor student summaries state funding source separately from the member-level Coursera approval flag. Neither asserts paid grants or working provider access. Member-context links, drafts, and message recipients must remain tied to the selected learner through async work.
+- Member “Invite a friend” is a dedicated page in the existing warm portal shell, reusing the sharing component from Points. It shows the member's own aggregate rewards and a share toolkit; no referred learner names or learning progress. A count requires both committed reward receipts.
+- Only real trend data receives an arrow/delta chip. Real admin headline counts use four columns for four KPIs, and the work-queue header counts queues rather than learners or pending items.
+- Counselor/partner read receipts acknowledge an authorized loaded-message ID and advance monotonically. Timestamp ties remain read-through semantics. Shared partner/employer chat scrolls its conversation log; adding a message must not move the outer page.
+
+### Portal polish contracts (2026-09-09)
+
+- Admin overview uses a compact metric strip and flat queue rows. All-zero measured placement series show a concise zero summary; absent series stay absent and nonzero series retain their chart. Program and system context stays secondary without stretching to the queue height. Actions retain full counts and destinations; bulk selection remains owned by the queue client.
+- Sidebar preference controls keep their radio keyboard interaction. The rail scrolls its destinations, with language and appearance visible below. Narrow or collapsed navigation must never expose clipped focusable controls.
+- Counselor messages use one neutral inbox workspace. Member metadata appears once per roster row, catalog names resolve on the server, and selected conversations/filter controls expose their state accessibly. Recipient identity, request guards, and draft ownership remain unchanged.
+- Partner sharing keeps its primary Copy action visible; URL/code live in a native disclosure that opens on clipboard failure. Member sharing keeps the link/copy action visible and opens invitation preview for manual copying when needed. Privacy and aggregate-reward limits remain visible.
+- Partner metrics without supplied trend data use compact StatTile captions; supplied trends retain StatSparkTile. The referral funnel presents the same supplied counts/percentages as named progress bars across a desktop row and a mobile stack. The progress handoff retains its destination as a quiet direct link.
+- Staff mobile navigation consumes portal surface tokens in both themes. Staff rails use their server-rendered role for initial styling; short landscape viewports scroll the whole rail so neither destinations nor preferences are clipped.

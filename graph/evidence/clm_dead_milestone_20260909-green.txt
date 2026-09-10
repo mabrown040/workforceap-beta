@@ -1,0 +1,1 @@
+{"case":"all cascade sends fail","providerCalls":1,"emailsSent":0,"emailsFailed":1,"persistedStatus":"approved","persistedHasOutcomes":true}

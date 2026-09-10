@@ -1,11 +1,11 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
-import { counselorStaffMessagingSurface } from '@/lib/portal/messagingSurfaces';
+import styles from './CounselorMessagesInboxClient.module.css';
 import {
   InboxEmpty,
   InboxHeader,
@@ -56,7 +56,7 @@ function pickInitialSelection(rs: CounselorInboxRow[], initialMemberId?: string 
   return rs[0].memberId;
 }
 
-function InboxFilterTabs({
+function InboxFilters({
   filter,
   onFilter,
   allCount,
@@ -74,42 +74,19 @@ function InboxFilterTabs({
       key={id}
       type="button"
       onClick={() => onFilter(id)}
-      style={{
-        flex: 1,
-        padding: '0.35rem 0.5rem',
-        borderRadius: '0.5rem',
-        border: 'none',
-        fontSize: '0.72rem',
-        fontWeight: filter === id ? 700 : 600,
-        cursor: 'pointer',
-        background:
-          filter === id
-            ? 'color-mix(in srgb, var(--color-accent) 18%, var(--surface-container-high))'
-            : 'transparent',
-        color: filter === id ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-        whiteSpace: 'nowrap',
-      }}
+      aria-pressed={filter === id}
+      className={`${styles.filter} wa-kit-focus`}
     >
-      {label}
-      {count > 0 ? (
-        <span style={{ marginLeft: '0.35rem', opacity: 0.85 }}>({count})</span>
-      ) : null}
+      <span>{label}</span>{' '}
+      <span className={styles.filterCount}>{count}</span>
     </button>
   );
 
   return (
     <div
-      role="tablist"
+      role="group"
       aria-label="Filter conversations"
-      style={{
-        display: 'flex',
-        gap: '0.25rem',
-        padding: '0.35rem',
-        margin: '0 1rem 0.75rem',
-        borderRadius: '0.625rem',
-        background: 'color-mix(in srgb, var(--surface-container) 70%, transparent)',
-        border: '1px solid color-mix(in srgb, var(--outline-variant) 60%, transparent)',
-      }}
+      className={styles.filters}
     >
       {tab('all', 'All', allCount)}
       {tab('needs_reply', 'Needs reply', needsCount)}
@@ -120,65 +97,16 @@ function InboxFilterTabs({
 
 function MemberContextAside({ row }: { row: CounselorInboxRow }) {
   return (
-    <aside
-      className="portal-inbox__context"
-      style={{
-        width: 280,
-        flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0,
-        borderLeft: '1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent)',
-        background: 'var(--surface-container-lowest)',
-      }}
-    >
-      <div style={{ padding: '1rem 1.1rem', borderBottom: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)' }}>
-        <h3 className="portal-inbox__title" style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
-          Context
-        </h3>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.35rem 0 0', lineHeight: 1.45 }}>
-          {row.programSubtitle}
-          <br />
-          <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
-            {row.enrollmentStatus === 'enrolled' ? 'Enrolled' : 'Not enrolled'}
-          </span>
-          {row.lastActivityLabel ? (
-            <>
-              <br />
-              <span style={{ fontSize: '0.75rem' }}>{row.lastActivityLabel}</span>
-            </>
-          ) : null}
-        </p>
-        {row.needsReply ? (
-          <p
-            style={{
-              margin: '0.75rem 0 0',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: 'var(--color-accent)',
-            }}
-          >
-            Awaiting your reply
-          </p>
-        ) : null}
-      </div>
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-        <Link href={`/counselor/students/${row.memberId}`} className="btn btn-primary btn-sm" style={{ justifyContent: 'center' }}>
-          Open full profile
-        </Link>
-        <Link
-          href={`/counselor/sessions/${row.memberId}/run`}
-          className="btn btn-outline btn-sm"
-          style={{ justifyContent: 'center' }}
-        >
-          Run in-office session
-        </Link>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-          Notes, training, and placements live on the profile. Keep this tab for quick messaging.
-        </p>
-      </div>
+    <aside className={styles.context} aria-label="Member details">
+      <h3>Member details</h3>
+      <dl>
+        <dt>Enrollment</dt>
+        <dd>{row.enrollmentStatus === 'enrolled' ? 'Enrolled' : 'Not enrolled'}</dd>
+        <dt>Last activity</dt>
+        <dd>{row.lastActivityLabel?.replace(/^Last activity\s+/i, '') || 'No recent activity'}</dd>
+      </dl>
+      {row.needsReply ? <p className={styles.replyStatus}>Awaiting your reply</p> : null}
+      <p className={styles.contextHint}>Open the profile for notes, training, and placements.</p>
     </aside>
   );
 }
@@ -191,8 +119,14 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
   const [inboxFilter, setInboxFilter] = useState<InboxFilter>('all');
   const [selectedId, setSelectedId] = useState<string | null>(() => pickInitialSelection(rows, initialMemberId));
   const [mobileList, setMobileList] = useState(() => !hasInitialSelection);
-  const [chat, setChat] = useState<ChatPayload | null>(null);
+  const [loadedChat, setChat] = useState<ChatPayload | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<{ memberId: string; message: string } | null>(null);
+  const [retry, setRetry] = useState(0);
+  const hasAuthorizedSelection = rows.some((row) => row.memberId === selectedId);
+  // Never show or mount a composer for a previous selection, even before the
+  // effect runs or when requests resolve out of order.
+  const chat = hasAuthorizedSelection && loadedChat?.member.id === selectedId ? loadedChat : null;
 
   useEffect(() => {
     setSelectedId((prev) => {
@@ -209,29 +143,40 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
     }
   }, [rows, initialMemberId]);
 
-  const loadChat = useCallback(async (memberId: string) => {
-    setLoading(true);
-    try {
-      const r = await fetch(`/api/counselor/members/${memberId}/messages`, { credentials: 'include' });
-      const d = await r.json();
-      if (!r.ok) {
-        setChat(null);
-        return;
-      }
-      setChat({
-        member: d.member,
-        thread: d.thread,
-        messages: d.messages,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    if (selectedId) void loadChat(selectedId);
-    else setChat(null);
-  }, [selectedId, loadChat]);
+    if (!selectedId || !hasAuthorizedSelection) {
+      setChat(null);
+      return;
+    }
+    const memberId = selectedId;
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError(null);
+    async function loadChat() {
+      try {
+        const response = await fetch(`/api/counselor/members/${encodeURIComponent(memberId)}/messages`, {
+          credentials: 'include',
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('Could not load this conversation. Try again.');
+        const data: ChatPayload = await response.json();
+        if (controller.signal.aborted) return;
+        if (data.member?.id !== memberId || data.thread?.memberId !== memberId || !data.thread?.id || !Array.isArray(data.messages)) {
+          throw new Error('Could not load this conversation. Try again.');
+        }
+        setChat(data);
+      } catch {
+        if (!controller.signal.aborted) {
+          setChat(null);
+          setLoadError({ memberId, message: 'Could not load this conversation. Try again.' });
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }
+    void loadChat();
+    return () => controller.abort();
+  }, [selectedId, hasAuthorizedSelection, retry]);
 
   const needsReplyCount = useMemo(() => rows.filter((r) => r.needsReply).length, [rows]);
   const unreadThreadCount = useMemo(() => rows.filter((r) => r.unreadCount > 0).length, [rows]);
@@ -265,14 +210,15 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
   };
 
   const listPane = (opts: { mobile: boolean }) => (
-    <InboxPane variant="list" style={opts.mobile ? { flex: 1 } : { width: 300, flexShrink: 0 }}>
+    <InboxPane variant="list" className={styles.listPane}>
       <InboxHeader
-        title="Inbox"
+        title="Conversations"
+        right={<MessageSquare size={20} aria-hidden="true" />}
         subtitle={rows.length > 0 ? 'Needs reply and unread sort to the top.' : undefined}
       />
       <InboxSearch value={search} onChange={setSearch} placeholder="Search by name or message…" />
       {rows.length > 0 ? (
-        <InboxFilterTabs
+        <InboxFilters
           filter={inboxFilter}
           onFilter={setInboxFilter}
           allCount={rows.length}
@@ -298,20 +244,14 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
             >
               <InboxRowLayout
                 title={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  <span className={styles.rowTitle}>
                     {r.memberName}
                     {r.needsReply ? (
                       <span className="portal-inbox-row__reply-pill">Reply</span>
                     ) : null}
                   </span>
                 }
-                subtitle={
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)' }}>
-                    {r.programSubtitle}
-                    {r.enrollmentStatus === 'enrolled' ? ' · Enrolled' : ' · Not enrolled'}
-                    {r.lastActivityLabel ? ` · ${r.lastActivityLabel}` : ''}
-                  </span>
-                }
+                subtitle={r.programSubtitle}
                 meta={r.timeLabel}
                 preview={r.preview}
                 badge={<InboxUnreadBadge count={r.unreadCount} />}
@@ -324,60 +264,32 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
   );
 
   const chatHeader = chat ? (
-    <div
-      style={{
-        padding: '1rem 1.25rem',
-        borderBottom: '1px solid var(--outline-variant)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '1rem',
-        flexShrink: 0,
-        background: 'color-mix(in srgb, var(--surface-container-lowest) 92%, transparent)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: 0 }}>
-        <div
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: '9999px',
-            background: 'var(--color-accent)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            color: '#fff',
-            fontSize: '0.8rem',
-            flexShrink: 0,
-          }}
-        >
+    <div className={styles.chatHeader}>
+      <div className={styles.recipient}>
+        <div className={styles.avatar} aria-hidden="true">
           {chat.member.fullName
             ?.split(' ')
             .filter(Boolean)
-            .map((w) => w[0])
+            .map((word) => word[0])
             .join('')
             .slice(0, 2)
             .toUpperCase() ?? '—'}
         </div>
-        <div style={{ minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0 }}>{chat.member.fullName}</p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
-            {(() => {
-              const row = rows.find((x) => x.memberId === chat.member.id);
-              const enrollment = row?.enrollmentStatus === 'enrolled' ? 'Enrolled' : 'Not enrolled';
-              const activity = row?.lastActivityLabel ?? 'No recent activity';
-              return `${row?.programSubtitle ?? '—'} · ${enrollment} · ${activity}`;
-            })()}
+        <div className={styles.recipientText}>
+          <h2>{chat.member.fullName}</h2>
+          <p>{selectedRow?.programSubtitle ?? 'Program not recorded'}</p>
+          <p className={styles.mobileContext}>
+            {selectedRow?.enrollmentStatus === 'enrolled' ? 'Enrolled' : 'Not enrolled'}
+            {selectedRow?.lastActivityLabel ? ` · ${selectedRow.lastActivityLabel}` : ''}
           </p>
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-        <Link href={`/counselor/sessions/${chat.member.id}/run`} className="btn btn-outline btn-sm">
-          Session
-        </Link>
-        <Link href={`/counselor/students/${chat.member.id}`} className="btn btn-primary btn-sm">
+      <div className={styles.actions}>
+        <Link href={`/counselor/students/${chat.member.id}`} className="btn btn-outline wa-kit-focus">
           Profile
+        </Link>
+        <Link href={`/counselor/sessions/${chat.member.id}/run`} className="btn btn-outline wa-kit-focus">
+          Session
         </Link>
       </div>
     </div>
@@ -385,21 +297,22 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
 
   const chatBody =
     rows.length === 0 ? (
-      <div style={{ padding: '2rem', color: 'var(--color-on-surface-variant)' }}>No assigned members yet.</div>
+      <div className={styles.messageState}>No assigned members yet.</div>
+    ) : loadError?.memberId === selectedId && !loading ? (
+      <div className={styles.messageState}>
+        <p role="alert">{loadError.message}</p>
+        <button type="button" className="btn btn-outline" onClick={() => setRetry((value) => value + 1)}>
+          Try again
+        </button>
+      </div>
     ) : loading || !chat ? (
-      <div style={{ padding: '2rem', color: 'var(--color-on-surface-variant)' }}>Loading thread…</div>
+      <div role="status" className={styles.messageState}>Loading conversation…</div>
     ) : (
-      <div
-        style={{
-          flex: 1,
-          minHeight: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '0 1rem 1rem',
-        }}
-      >
+      <div className={styles.chatBody}>
         <AdminMemberCounselorChatClient
+          key={`${chat.member.id}:${chat.thread.id}`}
           compact
+          readCursorMode
           messagesApiBase={`/api/counselor/members/${chat.member.id}/messages`}
           initial={{
             staffUserId,
@@ -412,58 +325,35 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows, initia
     );
 
   return (
-    <VoiceAgentSurface {...counselorStaffMessagingSurface} headline="Member messages" subtext="Work the queue: needs-reply first, everything syncs in real time.">
-      <>
-        <div className="md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
-          {mobileList ? (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>{listPane({ mobile: true })}</div>
-          ) : (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-              <div
-                style={{
-                  padding: '0.75rem 1rem',
-                  borderBottom: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
-                }}
+    <section className={styles.workspace} aria-label="Member conversations">
+      <div className={styles.mobile}>
+        {mobileList ? listPane({ mobile: true }) : (
+          <div className={styles.mobileThread}>
+            <div className={styles.backBar}>
+              <button
+                type="button"
+                onClick={() => setMobileList(true)}
+                className={`${styles.backButton} wa-kit-focus`}
               >
-                <button
-                  type="button"
-                  onClick={() => setMobileList(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--color-accent)',
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    cursor: 'pointer',
-                    padding: 0,
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
-                    arrow_back
-                  </span>
-                  All conversations
-                </button>
-              </div>
-              {chatHeader}
-              {chatBody}
+                <ArrowLeft size={18} aria-hidden="true" />
+                All conversations
+              </button>
             </div>
-          )}
-        </div>
-
-        <div className="wa-hidden md:wa-block">
-          <InboxShell style={{ maxWidth: '1320px', height: 'min(88vh, 940px)' }}>
-            {listPane({ mobile: false })}
-            <InboxPane variant="thread" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-              {chatHeader}
-              {chatBody}
-            </InboxPane>
-            {selectedRow ? <MemberContextAside row={selectedRow} /> : null}
-          </InboxShell>
-        </div>
-      </>
-    </VoiceAgentSurface>
+            {chatHeader}
+            {chatBody}
+          </div>
+        )}
+      </div>
+      <div className={styles.desktop}>
+        <InboxShell style={{ maxWidth: 'none', margin: 0, height: '100%', border: 'none', borderRadius: 0 }}>
+          {listPane({ mobile: false })}
+          <InboxPane variant="thread" className={styles.threadPane}>
+            {chatHeader}
+            {chatBody}
+          </InboxPane>
+          {selectedRow ? <MemberContextAside row={selectedRow} /> : null}
+        </InboxShell>
+      </div>
+    </section>
   );
 }

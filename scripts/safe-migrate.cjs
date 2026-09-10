@@ -144,13 +144,14 @@ if (result.status !== 0) {
   console.error('');
   console.error('  No auto-resolve will be attempted. Inspect the failing migration:');
   console.error('    - Check whether the DDL it tried to run is partially applied.');
-  console.error('    - If yes, write a follow-up migration that idempotently brings');
-  console.error('      the schema to the intended state, and run');
-  console.error('        npx prisma migrate resolve --rolled-back <name>');
-  console.error('      against the failed one.');
+  console.error('    - Restore the failed migration\'s pre-state before marking it');
+  console.error('      --rolled-back, and confirm its original SQL can then rerun.');
+  console.error('      A later follow-up migration cannot bypass a failing earlier one.');
   console.error('    - If you are CERTAIN the partial state is what the migration');
   console.error('      intended, re-run this script with:');
   console.error('        node scripts/safe-migrate.cjs --force-resolve <migration-name>');
+  console.error('    - Read docs/DATABASE-RECOVERY.md. Fresh replay is not supported;');
+  console.error('      do not resolve successive failures just to make deploy pass.');
   console.error('');
   process.exit(result.status);
 }

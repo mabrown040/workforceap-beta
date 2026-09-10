@@ -104,6 +104,8 @@ export interface SendBrandedEmailArgs {
   /** Caller-supplied headers are merged on top of the defaults. */
   headers?: Record<string, string>;
   attachments?: Array<{ filename: string; content: string | Buffer }>;
+  /** Stable per-message request key; retries must preserve the original payload. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -132,7 +134,7 @@ export async function sendBrandedEmail(
   const text = args.text && args.text.trim().length > 0 ? args.text : htmlToPlainText(args.html);
   let result: Awaited<ReturnType<Resend['emails']['send']>>;
   try {
-    result = await resend.emails.send({
+    const payload = {
       from: args.from,
       to: args.to,
       subject: args.subject,
@@ -150,7 +152,10 @@ export async function sendBrandedEmail(
         ...args.headers,
       }),
       ...(args.attachments ? { attachments: args.attachments } : {}),
-    });
+    };
+    result = args.idempotencyKey
+      ? await resend.emails.send(payload, { idempotencyKey: args.idempotencyKey })
+      : await resend.emails.send(payload);
   } catch (err) {
     recordEmailFailure(args, err instanceof Error ? err.message : 'Send threw');
     throw err;

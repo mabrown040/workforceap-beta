@@ -1,0 +1,22 @@
+  attname   |          format_type           | attnotnull 
+------------+--------------------------------+------------
+ id         | text                           | t
+ partner_id | text                           | t
+ user_id    | text                           | t
+ created_at | timestamp(3) without time zone | t
+(4 rows)
+
+            conname            |                                 pg_get_constraintdef                                 
+-------------------------------+--------------------------------------------------------------------------------------
+ partner_users_pkey            | PRIMARY KEY (id)
+ partner_users_partner_id_fkey | FOREIGN KEY (partner_id) REFERENCES partners(id) ON UPDATE CASCADE ON DELETE CASCADE
+ partner_users_user_id_fkey    | FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+(3 rows)
+
+          indexname           |                                          indexdef                                           
+------------------------------+---------------------------------------------------------------------------------------------
+ partner_users_pkey           | CREATE UNIQUE INDEX partner_users_pkey ON public.partner_users USING btree (id)
+ partner_users_user_id_key    | CREATE UNIQUE INDEX partner_users_user_id_key ON public.partner_users USING btree (user_id)
+ partner_users_partner_id_idx | CREATE INDEX partner_users_partner_id_idx ON public.partner_users USING btree (partner_id)
+(3 rows)
+

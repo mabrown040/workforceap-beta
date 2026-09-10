@@ -94,6 +94,7 @@ export function InboxSearch({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={placeholder}
       />
     </div>
   );
@@ -124,6 +125,7 @@ export function InboxRowButton({
         unread ? ' portal-inbox-row--unread' : ''
       }${needsReply ? ' portal-inbox-row--needs-reply' : ''}`}
       onClick={onClick}
+      aria-pressed={active}
     >
       {children}
     </button>
@@ -162,7 +164,6 @@ export function InboxRowLayout({
       <div className="portal-inbox-row__main">
         <div className="portal-inbox-row__top">
           <div className="portal-inbox-row__title">{title}</div>
-          {subtitle ? <div className="portal-inbox-row__subtitle">{subtitle}</div> : null}
           {meta ? <div className="portal-inbox-row__meta">{meta}</div> : null}
         </div>
         {subtitle ? <div className="portal-inbox-row__subtitle">{subtitle}</div> : null}
@@ -191,4 +192,3 @@ export function InboxEmpty({
     </div>
   );
 }
-

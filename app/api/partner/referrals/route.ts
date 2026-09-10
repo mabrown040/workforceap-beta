@@ -4,8 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
-import { auditLog } from '@/lib/audit';
-import { logAuditEvent } from '@/lib/audit/log';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -68,58 +67,33 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
 
     const { memberId } = parsed.data;
 
-    // Reject cross-tenant referrals. Without this, a partner in Org A could
-    // claim any member in Org B; the corrupted PartnerReferral row would
-    // persist even though loadPartnerReferralBundle hides it from the UI
-    // (AUDIT §C-T5).
-    const member = await prisma.$transaction((tx) => tx.user.findUnique({
-      where: { id: memberId },
-      select: { id: true, fullName: true, organizationId: true },
+    // A referral grants access to member records. Knowing a same-org UUID
+    // must never let a partner grant themselves that access. Attribution is
+    // created by the application flow or the separate admin assignment API.
+    // Keep this endpoint idempotent for an already-authorized relationship.
+    const referral = await prisma.$transaction((tx) => tx.partnerReferral.findFirst({
+      where: {
+        partnerId: ctx.partnerId,
+        memberId,
+        partner: { organizationId: ctx.partner.organizationId, active: true },
+        member: {
+          organizationId: ctx.partner.organizationId,
+          deletedAt: null,
+          ...MEMBER_ONLY_WHERE,
+        },
+      },
+      select: { id: true, partnerId: true, memberId: true, referredAt: true },
     }));
-    if (!member) {
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
-    }
-    if (member.organizationId !== ctx.partner.organizationId) {
+    if (!referral) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    try {
-      const referral = await prisma.$transaction((tx) => tx.partnerReferral.create({
-        data: {
-          partnerId: ctx.partnerId,
-          memberId,
-        },
-        include: {
-          member: { select: { id: true, fullName: true } },
-        },
-      }));
-
-      auditLog({
-        actorUserId: user.id,
-        action: 'partner_referral_created',
-        targetType: 'User',
-        targetId: memberId,
-        metadata: { referralId: referral.id, partnerId: ctx.partnerId },
-      }).catch(() => {});
-      logAuditEvent({
-        user: { id: user.id, role: 'partner' },
-        verb: 'referred',
-        object: { type: 'PartnerReferral', id: referral.id },
-        result: { success: true, extensions: { memberId, partnerId: ctx.partnerId } },
-      }).catch(() => {});
-
-      return NextResponse.json({
-        id: referral.id,
-        partnerId: referral.partnerId,
-        memberId: referral.memberId,
-        referredAt: referral.referredAt.toISOString(),
-      }, { status: 201 });
-    } catch (e: any) {
-      if (e.code === 'P2002') {
-        return NextResponse.json({ error: 'Referral already exists for this member' }, { status: 409 });
-      }
-      throw e;
-    }
+    return NextResponse.json({
+      id: referral.id,
+      partnerId: referral.partnerId,
+      memberId: referral.memberId,
+      referredAt: referral.referredAt.toISOString(),
+    });
   } catch (error) {
     console.error('/partner/referrals POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

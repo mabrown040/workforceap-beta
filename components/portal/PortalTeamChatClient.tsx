@@ -49,6 +49,8 @@ type PortalTeamChatClientProps = {
   contextLabel?: string;
   /** Optional contextual text placed in the composer, still requiring send. */
   initialDraft?: string;
+  /** Acknowledge the last rendered message; legacy employer API stays unchanged. */
+  readCursorMode?: boolean;
 };
 
 export default function PortalTeamChatClient({
@@ -60,6 +62,7 @@ export default function PortalTeamChatClient({
   decorated = true,
   contextLabel,
   initialDraft = '',
+  readCursorMode = false,
 }: PortalTeamChatClientProps) {
   const { portalUserId } = initial;
   const [thread, setThread] = useState(initial.thread);
@@ -67,15 +70,32 @@ export default function PortalTeamChatClient({
   const [draft, setDraft] = useState(initialDraft);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sendingRef = useRef(false);
+  const lastRenderedMessageId = messages[messages.length - 1]?.id ?? null;
+  const renderedReadCursor = useRef<string | null>(null);
+  useEffect(() => {
+    renderedReadCursor.current = lastRenderedMessageId;
+  }, [lastRenderedMessageId]);
 
   const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: scrollBehavior() });
+    const log = scrollRef.current;
+    // Keep the conversation at its newest reply without scrolling the outer
+    // portal page past the conversation and into its footer on mobile.
+    log?.scrollTo({ top: log.scrollHeight, behavior: scrollBehavior() });
   }, []);
 
   const markRead = useCallback(async () => {
     try {
-      const r = await fetch(apiPath, { method: 'PATCH', credentials: 'include' });
+      const lastReadMessageId = renderedReadCursor.current;
+      if (readCursorMode && !lastReadMessageId) return;
+      const r = await fetch(apiPath, {
+        method: 'PATCH', credentials: 'include',
+        ...(readCursorMode ? {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lastReadMessageId }),
+        } : {}),
+      });
       if (r.ok) {
         const d = (await r.json()) as { portalUserLastReadAt?: string };
         if (d.portalUserLastReadAt) {
@@ -86,12 +106,12 @@ export default function PortalTeamChatClient({
     } catch {
       /* ignore */
     }
-  }, [apiPath]);
+  }, [apiPath, readCursorMode]);
 
   useEffect(() => {
     scrollToBottom();
     void markRead();
-  }, [messages.length, scrollToBottom, markRead]);
+  }, [messages.length, lastRenderedMessageId, scrollToBottom, markRead]);
 
   useEffect(() => {
     const onFocus = () => void markRead();
@@ -122,7 +142,9 @@ export default function PortalTeamChatClient({
               if (prev.some((m) => m.id === id)) return prev;
               return [...prev, { id, threadId, authorId, body, createdAt }];
             });
-            if (authorId !== portalUserId) void markRead();
+            // Cursor mode acknowledges in the post-render effect above. The
+            // realtime callback must not acknowledge an unseen payload.
+            if (!readCursorMode && authorId !== portalUserId) void markRead();
           }
         )
         .subscribe();
@@ -135,12 +157,14 @@ export default function PortalTeamChatClient({
       console.warn('[PortalTeamChat] Realtime unavailable', e);
       return undefined;
     }
-  }, [threadId, portalUserId, markRead]);
+  }, [threadId, portalUserId, markRead, readCursorMode]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
+    const submittedDraft = draft;
     const text = draft.trim();
-    if (!text || text === initialDraft.trim() || sending) return;
+    if (!text || text === initialDraft.trim() || sendingRef.current) return;
+    sendingRef.current = true;
     setSending(true);
     setError(null);
     try {
@@ -159,11 +183,12 @@ export default function PortalTeamChatClient({
       if (msg) {
         setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
       }
-      setDraft('');
+      setDraft((current) => current === submittedDraft ? '' : current);
       dispatchBadgeRefresh();
     } catch {
       setError('Network error');
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   };
@@ -195,7 +220,7 @@ export default function PortalTeamChatClient({
           {error}
         </p>
       ) : null}
-      <div className="member-counselor-chat__scroll" role="log" aria-live="polite" aria-relevant="additions">
+      <div ref={scrollRef} className="member-counselor-chat__scroll" role="log" aria-live="polite" aria-relevant="additions">
         {messages.length === 0 ? (
           <p style={{ color: 'var(--color-on-surface-variant)' }}>{emptyHint}</p>
         ) : (
@@ -214,7 +239,6 @@ export default function PortalTeamChatClient({
             );
           })
         )}
-        <div ref={bottomRef} />
       </div>
       <form className="member-counselor-chat__form" onSubmit={send}>
         <label htmlFor="portal-team-chat-input" className="sr-only">

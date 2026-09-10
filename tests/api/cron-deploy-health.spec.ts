@@ -69,6 +69,7 @@ describe('GET /api/cron/deploy-health', () => {
     const json = await res.json();
     expect(json.ok).toBe(false);
     expect(json.readyState).toBe('BUILDING');
+    expect(res.status).toBe(503);
     expect(logCronRun).toHaveBeenCalledWith(
       'cron_deploy_health',
       expect.anything(),

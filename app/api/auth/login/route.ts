@@ -12,6 +12,7 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { logger } from '@/lib/observability/logger';
 import { trackEvent } from '@/lib/events/track';
+import { isSupabaseAuthTokenCookieName } from '@/lib/auth/supabaseAuthCookie';
 
 import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
 import { withDbRetry } from '@/lib/db/withDbRetry';
@@ -137,14 +138,42 @@ async function handleLogin(request: Request) {
   // transient pooler blip here (P1017 / "can't reach database server") must
   // not turn a valid login into a 500. This is a read, so retrying is safe.
   // (2026-06-30 incident: an ~11-min pooler outage 500'd every login here.)
-  const profile = await withDbRetry(() =>
-    prisma.$transaction((tx) =>
-      tx.profile.findUnique({
+  const { profile, account } = await withDbRetry(() =>
+    prisma.$transaction(async (tx) => {
+      const account = await tx.user.findUnique({
+        where: { id: data.user.id },
+        select: { deletedAt: true },
+      });
+      const profile = await tx.profile.findUnique({
         where: { userId: data.user.id },
         select: { role: true },
-      }),
-    ),
+      });
+      return { profile, account };
+    }),
   );
+
+  // Auth retirement can fail after the application marks an account deleted.
+  // Do not issue a portal login in that state, even with a valid old password.
+  // A missing application row is different: signup reconciliation may create it.
+  if (account?.deletedAt) {
+    try {
+      const result = await supabase.auth.signOut({ scope: 'local' });
+      if (result?.error) logger.warn('login: deleted-account session revocation failed', { userId: data.user.id });
+    } catch {
+      logger.warn('login: deleted-account session revocation failed', { userId: data.user.id });
+    }
+    // Clear the new browser session even if Auth cannot revoke it remotely.
+    const names = new Set([
+      ...cookieStore.getAll().filter(({ name }) => isSupabaseAuthTokenCookieName(name)).map(({ name }) => name),
+      SESSION_ONLY_COOKIE,
+      getAdminMfaTrustCookieName(),
+    ]);
+    for (const name of names) cookieStore.set(name, '', { ...cookieOpts, path: '/', maxAge: 0 });
+    return NextResponse.json(
+      { error: "Your account isn't available. Contact us at (512) 777-1808 for help." },
+      { status: 403, headers: { 'Cache-Control': 'no-store' } },
+    );
+  }
 
   const staffMfaEnabled = isStaffMfaEnforcementEnabled();
   const aalData = staffMfaEnabled

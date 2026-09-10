@@ -120,6 +120,10 @@ vi.mock('@/lib/db/prisma', () => ({
     profile: {
       findUnique: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+      update: vi.fn().mockResolvedValue({}),
+    },
   },
 }));
 
@@ -464,6 +468,7 @@ describe('Employer auth flow', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       role: 'employer',
     } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ deletedAt: null } as any);
 
     const res = await loginPost(
       makeLoginRequest({
@@ -478,6 +483,14 @@ describe('Employer auth flow', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.redirectTo).toBe('/employer');
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { id: UUIDS.user },
+      select: { deletedAt: true },
+    });
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: UUIDS.user },
+      data: { lastLoginAt: expect.any(Date) },
+    });
   });
 
   it('unauthenticated access to /employer/jobs redirects to login', async () => {

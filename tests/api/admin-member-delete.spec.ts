@@ -41,10 +41,11 @@ vi.mock('@/lib/tenant/withTenantScope', () => ({
 
 const supabaseUpdateUserById = vi.fn().mockResolvedValue({ error: null });
 const supabaseDeleteUser = vi.fn().mockResolvedValue({ error: null });
+const supabaseGetUserById = vi.fn();
 
 vi.mock('@/lib/supabase-admin', () => ({
   getSupabaseAdmin: vi.fn(() => ({
-    auth: { admin: { updateUserById: supabaseUpdateUserById, deleteUser: supabaseDeleteUser } },
+    auth: { admin: { getUserById: supabaseGetUserById, updateUserById: supabaseUpdateUserById, deleteUser: supabaseDeleteUser } },
   })),
 }));
 
@@ -95,9 +96,12 @@ describe('POST /api/admin/members/[id]/delete', () => {
       deletedAt: null,
       profile: { resumeOriginalPath: 'member-1/resume.pdf', resumeEnhancedPath: null },
       userCertifications: [{ proofUrl: 'cert-files/member-1/cert.pdf' }],
+      userRoles: [],
     });
     update.mockResolvedValue({ id: MEMBER_ID });
     vi.mocked(deleteUserStorageObjects).mockResolvedValue({ ok: true, deleted: [] });
+    supabaseGetUserById.mockResolvedValue({ data: { user: { id: MEMBER_ID, email: 'member@example.com' } }, error: null });
+    supabaseUpdateUserById.mockResolvedValue({ error: null });
   });
 
   it('returns 401 when unauthenticated', async () => {
@@ -133,7 +137,7 @@ describe('POST /api/admin/members/[id]/delete', () => {
     expect(res.status).toBe(200);
     // Soft delete locks the login (ban) so restore can bring it back; it must
     // never hard-delete the Supabase auth user (9/2/26 lockout report).
-    expect(supabaseUpdateUserById).toHaveBeenCalledWith(MEMBER_ID, { ban_duration: '876600h' });
+    expect(supabaseUpdateUserById).toHaveBeenCalledWith(MEMBER_ID, { ban_duration: '876600h', email: `deleted-${MEMBER_ID}@deleted.invalid`, email_confirm: true });
     expect(supabaseDeleteUser).not.toHaveBeenCalled();
     expect(deleteUserStorageObjects).toHaveBeenCalledWith(MEMBER_ID, {
       extraPaths: [
@@ -142,5 +146,38 @@ describe('POST /api/admin/members/[id]/delete', () => {
       ],
     });
     expect(update).toHaveBeenCalled();
+  });
+
+  it('rejects self-deletion before looking up or touching any account', async () => {
+    const res = await POST(deleteReq(), { params: Promise.resolve({ id: 'admin-1' }) });
+    expect(res.status).toBe(403);
+    expect(findFirst).not.toHaveBeenCalled();
+    expect(deleteUserStorageObjects).not.toHaveBeenCalled();
+    expect(supabaseUpdateUserById).not.toHaveBeenCalled();
+  });
+  it.each([
+    { profile: { role: 'super_admin' }, userRoles: [] },
+    { profile: { role: 'member' }, userRoles: [{ role: { name: 'admin' } }] },
+  ])('protects administrator targets across both role stores: %j', async (roles) => {
+    findFirst.mockResolvedValue({ email: 'administrator@example.com', deletedAt: null, userCertifications: [], ...roles });
+    const res = await POST(deleteReq(), { params: Promise.resolve({ id: MEMBER_ID }) });
+    expect(res.status).toBe(403);
+    expect(deleteUserStorageObjects).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+    expect(supabaseUpdateUserById).not.toHaveBeenCalled();
+  });
+  it('does not claim success when Auth retirement fails after the app soft-delete', async () => {
+    supabaseUpdateUserById.mockResolvedValue({ error: { message: 'Provider unavailable', status: 503 } });
+    const res = await POST(deleteReq(), { params: Promise.resolve({ id: MEMBER_ID }) });
+    expect(res.status).toBe(502);
+    expect((await res.json()).authDisabled).toBe(false);
+    expect(update).toHaveBeenCalled();
+  });
+  it('refuses to truncate a restore marker for a long email', async () => {
+    findFirst.mockResolvedValue({ email: 'x'.repeat(230) + '@example.com', deletedAt: null, profile: null, userCertifications: [], userRoles: [] });
+    const res = await POST(deleteReq(), { params: Promise.resolve({ id: MEMBER_ID }) });
+    expect(res.status).toBe(400);
+    expect(deleteUserStorageObjects).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
   });
 });

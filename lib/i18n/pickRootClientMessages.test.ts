@@ -65,6 +65,8 @@ test('admin / apply / auth slices stay on their own catalogs', () => {
   assert.ok(ns(admin, 'admin'));
   assert.ok(ns(admin, 'courseraProgress'));
   assert.equal(ns(admin, 'courseraProgress').title, 'Coursera progress');
+  assert.equal(ns(admin, 'workspace').admin, 'Admin workspace');
+  assert.equal(ns(admin, 'group').workflows, 'Workflows');
   assert.equal((admin as Record<string, unknown>).dashboard, undefined);
   assert.ok(ns(apply, 'apply'));
   assert.equal((apply as Record<string, unknown>).admin, undefined);

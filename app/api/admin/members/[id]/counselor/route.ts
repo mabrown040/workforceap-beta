@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendCounselorAssignedEmail } from '@/lib/email';
-import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
+import { assignMemberCounselor } from '@/lib/counselor/assignment';
 import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
@@ -50,7 +50,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     where: {
       userId: parsed.data.counselorUserId,
       active: true,
-      user: { organizationId: orgId },
+      user: { organizationId: orgId, deletedAt: null },
     },
     include: { user: { select: { id: true, fullName: true } } },
   }));
@@ -58,37 +58,8 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     return NextResponse.json({ error: 'Counselor not found or inactive' }, { status: 400 });
   }
 
-  const existingPair = await prisma.$transaction((tx) => tx.counselorAssignment.findUnique({
-    where: {
-      counselorId_memberId: { counselorId: counselor.id, memberId },
-    },
-  }));
-
-  await prisma.$transaction(async (tx) => {
-    await tx.counselorAssignment.updateMany({
-      where: { memberId, active: true },
-      data: { active: false },
-    });
-    if (existingPair) {
-      await tx.counselorAssignment.update({
-        where: { id: existingPair.id },
-        data: { active: true },
-      });
-    } else {
-      await tx.counselorAssignment.create({
-        data: {
-          counselorId: counselor.id,
-          memberId,
-          active: true,
-        },
-      });
-    }
-  });
-
-  const thread = await getOrCreateMemberCounselorThread(memberId);
-  await prisma.$transaction((tx) => tx.messageThread.update({
-    where: { id: thread.id },
-    data: { counselorUserId: counselor.userId },
+  const { thread } = await prisma.$transaction((tx) => assignMemberCounselor(tx, {
+    memberId, organizationId: orgId, counselorUserId: counselor.userId,
   }));
 
   let notificationEmailSent = false;

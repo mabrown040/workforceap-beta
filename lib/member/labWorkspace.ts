@@ -13,9 +13,17 @@ const INCLUDE_REVIEW = { review: true } as const;
 const NEWEST_FIRST = [{ submittedAt: 'desc' }, { id: 'desc' }] as const;
 
 export class LabWorkspaceError extends Error {
-  constructor(public readonly code: 'FORBIDDEN' | 'LAB_NOT_AVAILABLE' | 'DRAFT_CONFLICT' | 'CONTENT_CHANGED' | 'INVALID_EVIDENCE' | 'ALREADY_SUBMITTED' | 'REVIEW_CONFLICT' | 'INVALID_REVIEW', public readonly status: number) {
+  constructor(public readonly code: 'FORBIDDEN' | 'LAB_NOT_AVAILABLE' | 'DRAFT_CONFLICT' | 'CONTENT_CHANGED' | 'INVALID_EVIDENCE' | 'ALREADY_SUBMITTED' | 'REVIEW_CONFLICT' | 'INVALID_REVIEW' | 'WORKSPACE_UNAVAILABLE', public readonly status: number) {
     super(code);
     this.name = 'LabWorkspaceError';
+  }
+}
+
+function requireLabTransactions(): void {
+  // Match the shared Prisma flattening modes without changing other workflows.
+  // Evidence and its draft revision must commit together or neither may change.
+  if (process.env.PRISMA_FLATTEN_TX === '1' || ['preview', 'development'].includes(process.env.VERCEL_ENV ?? '')) {
+    throw new LabWorkspaceError('WORKSPACE_UNAVAILABLE', 503);
   }
 }
 
@@ -107,6 +115,7 @@ export async function loadLabWorkspace(args: { userId: string; labId: string }):
 }
 
 async function persistLab(userId: string, labId: string, input: LabDraftInput | LabSubmitInput, submitting: boolean): Promise<LabWorkspace> {
+  requireLabTransactions();
   try {
     return await prisma.$transaction(async (db) => {
       const actor = await actorFor(db, userId);
@@ -226,6 +235,7 @@ export async function loadLabReview(args: { userId: string; submissionId: string
 }
 
 export async function reviewLabEvidence(userId: string, submissionId: string, input: LabReviewInput): Promise<LabStaffReviewWorkspace> {
+  requireLabTransactions();
   try {
     return await prisma.$transaction(async (db) => {
       const actor = await staffActor(db, userId);

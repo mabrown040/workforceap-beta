@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getPracticeLab, IT_SUPPORT_LAB_PROGRAM_SLUG } from '@/lib/content/itSupportLabs';
 
 const db = vi.hoisted(() => ({
@@ -22,6 +22,8 @@ const submission = { id: 'submission-1', draftId: 'draft-1', userId: memberId, o
 const reviewInput = { expectedReviewVersion: 0 as const, decision: 'reviewed' as const, feedback: 'Evidence reviewed against the supplied rubric.', rubricResults: lab.rubric.map((criterion) => ({ criterionId: criterion.id, score: 2 as const, feedback: 'Addressed.' })) };
 
 beforeEach(() => {
+  vi.stubEnv('VERCEL_ENV', 'production');
+  vi.stubEnv('PRISMA_FLATTEN_TX', '0');
   vi.resetAllMocks();
   transaction.mockImplementation(async (run) => run(db));
   db.user.findFirst.mockResolvedValue(actor);
@@ -37,6 +39,8 @@ beforeEach(() => {
   db.memberLabSubmission.create.mockResolvedValue(submission);
 });
 
+afterEach(() => vi.unstubAllEnvs());
+
 function asStaff(role: 'admin' | 'counselor' | 'super_admin' = 'admin', organizationId = org) {
   db.user.findFirst.mockImplementation(async ({ where }) => where.id === memberId
     ? { id: memberId, organizationId: org, fullName: 'Synthetic member' }
@@ -48,6 +52,40 @@ function asStaff(role: 'admin' | 'counselor' | 'super_admin' = 'admin', organiza
   });
   db.memberLabSubmission.findMany.mockResolvedValue([submission]);
 }
+
+describe('lab writes require atomic transactions', () => {
+  const flattenedModes = [
+    { name: 'preview', vercelEnv: 'preview', flatten: '0' },
+    { name: 'development', vercelEnv: 'development', flatten: '0' },
+    { name: 'explicit production override', vercelEnv: 'production', flatten: '1' },
+  ];
+  it.each(flattenedModes)('rejects all mutations before database work in $name', async ({ vercelEnv, flatten }) => {
+    vi.stubEnv('VERCEL_ENV', vercelEnv);
+    vi.stubEnv('PRISMA_FLATTEN_TX', flatten);
+
+    await expect(saveLabDraft(memberId, lab.id, input)).rejects.toMatchObject({ code: 'WORKSPACE_UNAVAILABLE', status: 503 });
+    await expect(submitLabEvidence(memberId, lab.id, { ...input, shareForReview: true })).rejects.toMatchObject({ code: 'WORKSPACE_UNAVAILABLE', status: 503 });
+    await expect(reviewLabEvidence('staff-1', submission.id, reviewInput)).rejects.toMatchObject({ code: 'WORKSPACE_UNAVAILABLE', status: 503 });
+
+    expect(transaction).not.toHaveBeenCalled();
+    for (const model of Object.values(db)) {
+      for (const query of Object.values(model)) expect(query).not.toHaveBeenCalled();
+    }
+  });
+  it.each(flattenedModes)('keeps authorized member and staff reads available in $name', async ({ vercelEnv, flatten }) => {
+    vi.stubEnv('VERCEL_ENV', vercelEnv);
+    vi.stubEnv('PRISMA_FLATTEN_TX', flatten);
+
+    expect((await loadLabWorkspace({ userId: memberId, labId: lab.id }))?.lab.id).toBe(lab.id);
+    asStaff();
+    expect((await loadLabReviewQueue({ userId: 'staff-1' })).items[0]?.submissionId).toBe(submission.id);
+    expect((await loadLabReview({ userId: 'staff-1', submissionId: submission.id }))?.submission.id).toBe(submission.id);
+    expect(db.memberLabDraft.create).not.toHaveBeenCalled();
+    expect(db.memberLabDraft.updateMany).not.toHaveBeenCalled();
+    expect(db.memberLabSubmission.create).not.toHaveBeenCalled();
+    expect(db.memberLabReview.create).not.toHaveBeenCalled();
+  });
+});
 
 describe('pinned member lab eligibility and versioned writes', () => {
   it('fails closed without an enrollment or for another assigned curriculum', async () => {

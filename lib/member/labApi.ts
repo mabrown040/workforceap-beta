@@ -12,6 +12,7 @@ const MESSAGES = {
   ALREADY_SUBMITTED: 'This evidence has already been submitted. You can submit another revision after revision is requested.',
   REVIEW_CONFLICT: 'This submission has changed or already been reviewed. Reload before reviewing.',
   INVALID_REVIEW: 'Score each rubric criterion once. Request revision if any criterion is below 2.',
+  WORKSPACE_UNAVAILABLE: 'The lab workspace is unavailable. Your changes were not saved. Please try again.',
 };
 export function labJson(data: unknown, status = 200) { return NextResponse.json(data, { status, headers: LAB_PRIVATE_HEADERS }); }
 export function labFailure(error: unknown) {

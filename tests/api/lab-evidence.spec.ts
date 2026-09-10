@@ -103,6 +103,24 @@ describe('member lab evidence request boundary', () => {
     expect(log).toHaveBeenCalledWith('[lab-evidence] Operation unavailable.');
     log.mockRestore();
   });
+  it('returns a private safe 503 for every mutation when saving is unavailable', async () => {
+    mocks.save.mockRejectedValueOnce(new LabWorkspaceError('WORKSPACE_UNAVAILABLE', 503));
+    mocks.submit.mockRejectedValueOnce(new LabWorkspaceError('WORKSPACE_UNAVAILABLE', 503));
+    mocks.review.mockRejectedValueOnce(new LabWorkspaceError('WORKSPACE_UNAVAILABLE', 503));
+    const responses = [
+      await PUT(request('/api/member/labs/ticket-triage', 'PUT', draft), labContext),
+      await submit(request('/api/member/labs/ticket-triage/submit', 'POST', { ...draft, shareForReview: true }), labContext),
+      await review(request('/api/staff/lab-reviews/' + submissionId, 'POST', feedback), reviewContext),
+    ];
+    for (const response of responses) {
+      expect(response.status).toBe(503);
+      expect(response.headers.get('cache-control')).toBe('private, no-store');
+      expect(await response.json()).toEqual({
+        code: 'WORKSPACE_UNAVAILABLE',
+        error: 'The lab workspace is unavailable. Your changes were not saved. Please try again.',
+      });
+    }
+  });
 });
 
 describe('staff review request boundary', () => {

@@ -88,3 +88,10 @@ submitted evidence; dropping them would destroy learner work. A failed migration
 is transactional and requires inspecting the actual failure before any recovery
 action. The existing homepage, provider assignments, and completion paths are
 outside this change.
+
+The shared Prisma adapter flattens transactions on Vercel preview/development and
+when `PRISMA_FLATTEN_TX=1`. Lab saves, submissions, and reviews fail closed before
+database work in those modes; authorized reads remain available. Verify the full
+write cycle with real transactions in production mode, including on disposable
+local fixtures. Production must leave transaction flattening disabled. Preview
+page checks alone do not establish evidence-write atomicity.

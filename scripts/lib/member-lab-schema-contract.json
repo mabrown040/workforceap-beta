@@ -1,0 +1,770 @@
+{
+  "migration": "20260909130000_member_lab_evidence",
+  "migrationSha256": "22eee16563087bdf96751fabf71cf88fbaa1c56a7e447972bbdb47cba89afab3",
+  "provenance": "Catalog metadata from the fixed migration applied to disposable local PostgreSQL; no member data.",
+  "schema": {
+    "tables": [
+      {
+        "name": "member_lab_drafts",
+        "kind": "r",
+        "rls": true,
+        "forceRls": false
+      },
+      {
+        "name": "member_lab_reviews",
+        "kind": "r",
+        "rls": true,
+        "forceRls": false
+      },
+      {
+        "name": "member_lab_submissions",
+        "kind": "r",
+        "rls": true,
+        "forceRls": false
+      }
+    ],
+    "columns": [
+      {
+        "table": "member_lab_drafts",
+        "name": "id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "organization_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "user_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "enrollment_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "program_slug",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "curriculum_version",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "lab_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "content_version",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "revision",
+        "type": "integer",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": "0"
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "submission_count",
+        "type": "integer",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": "0"
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "answers",
+        "type": "jsonb",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": "'{}'::jsonb"
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "artifact_url",
+        "type": "character varying(2000)",
+        "notNull": false,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "created_at",
+        "type": "timestamp(3) without time zone",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": "CURRENT_TIMESTAMP"
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "updated_at",
+        "type": "timestamp(3) without time zone",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "submission_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "reviewer_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "reviewer_display_name",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "reviewer_role",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "decision",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "feedback",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "rubric_version",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "rubric_results",
+        "type": "jsonb",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "reviewed_at",
+        "type": "timestamp(3) without time zone",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": "CURRENT_TIMESTAMP"
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "draft_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "organization_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "user_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "lab_id",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "program_slug",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "curriculum_version",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "content_version",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "rubric_version",
+        "type": "text",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "draft_revision",
+        "type": "integer",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "attempt",
+        "type": "integer",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "answers",
+        "type": "jsonb",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "artifact_url",
+        "type": "character varying(2000)",
+        "notNull": false,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "lab_snapshot",
+        "type": "jsonb",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "submitted_at",
+        "type": "timestamp(3) without time zone",
+        "notNull": true,
+        "identity": "",
+        "generated": "",
+        "default": "CURRENT_TIMESTAMP"
+      }
+    ],
+    "indexes": [
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_pkey",
+        "definition": "CREATE UNIQUE INDEX member_lab_drafts_pkey ON public.member_lab_drafts USING btree (id)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_enrollment_lab_content_key",
+        "definition": "CREATE UNIQUE INDEX member_lab_drafts_enrollment_lab_content_key ON public.member_lab_drafts USING btree (enrollment_id, lab_id, content_version)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_identity_key",
+        "definition": "CREATE UNIQUE INDEX member_lab_drafts_identity_key ON public.member_lab_drafts USING btree (id, organization_id, user_id)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_user_id_idx",
+        "definition": "CREATE INDEX member_lab_drafts_user_id_idx ON public.member_lab_drafts USING btree (user_id)",
+        "valid": true,
+        "ready": true,
+        "unique": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_pkey",
+        "definition": "CREATE UNIQUE INDEX member_lab_reviews_pkey ON public.member_lab_reviews USING btree (id)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_submission_id_key",
+        "definition": "CREATE UNIQUE INDEX member_lab_reviews_submission_id_key ON public.member_lab_reviews USING btree (submission_id)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_pkey",
+        "definition": "CREATE UNIQUE INDEX member_lab_submissions_pkey ON public.member_lab_submissions USING btree (id)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_draft_id_attempt_key",
+        "definition": "CREATE UNIQUE INDEX member_lab_submissions_draft_id_attempt_key ON public.member_lab_submissions USING btree (draft_id, attempt)",
+        "valid": true,
+        "ready": true,
+        "unique": true
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_organization_id_submitted_at_id_idx",
+        "definition": "CREATE INDEX member_lab_submissions_organization_id_submitted_at_id_idx ON public.member_lab_submissions USING btree (organization_id, submitted_at, id)",
+        "valid": true,
+        "ready": true,
+        "unique": false
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_user_id_lab_id_submitted_at_idx",
+        "definition": "CREATE INDEX member_lab_submissions_user_id_lab_id_submitted_at_idx ON public.member_lab_submissions USING btree (user_id, lab_id, submitted_at)",
+        "valid": true,
+        "ready": true,
+        "unique": false
+      }
+    ],
+    "constraints": [
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_revision_check",
+        "type": "c",
+        "definition": "CHECK ((revision >= 0))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_submission_count_check",
+        "type": "c",
+        "definition": "CHECK ((submission_count >= 0))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_answers_check",
+        "type": "c",
+        "definition": "CHECK ((jsonb_typeof(answers) = 'object'::text))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_pkey",
+        "type": "p",
+        "definition": "PRIMARY KEY (id)",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_organization_id_fkey",
+        "type": "f",
+        "definition": "FOREIGN KEY (organization_id) REFERENCES organizations(id) ON UPDATE CASCADE ON DELETE RESTRICT",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_user_id_fkey",
+        "type": "f",
+        "definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_enrollment_id_fkey",
+        "type": "f",
+        "definition": "FOREIGN KEY (enrollment_id) REFERENCES course_enrollments(id) ON UPDATE CASCADE ON DELETE CASCADE",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_reviewer_role_check",
+        "type": "c",
+        "definition": "CHECK ((reviewer_role = ANY (ARRAY['admin'::text, 'counselor'::text])))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_decision_check",
+        "type": "c",
+        "definition": "CHECK ((decision = ANY (ARRAY['revision_requested'::text, 'reviewed'::text])))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_feedback_check",
+        "type": "c",
+        "definition": "CHECK (((char_length(feedback) >= 1) AND (char_length(feedback) <= 4000)))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_rubric_results_check",
+        "type": "c",
+        "definition": "CHECK ((jsonb_typeof(rubric_results) = 'array'::text))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_pkey",
+        "type": "p",
+        "definition": "PRIMARY KEY (id)",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_submission_id_fkey",
+        "type": "f",
+        "definition": "FOREIGN KEY (submission_id) REFERENCES member_lab_submissions(id) ON UPDATE CASCADE ON DELETE CASCADE",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_draft_revision_check",
+        "type": "c",
+        "definition": "CHECK ((draft_revision > 0))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_attempt_check",
+        "type": "c",
+        "definition": "CHECK ((attempt > 0))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_answers_check",
+        "type": "c",
+        "definition": "CHECK ((jsonb_typeof(answers) = 'object'::text))",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_pkey",
+        "type": "p",
+        "definition": "PRIMARY KEY (id)",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_draft_id_organization_id_user_id_fkey",
+        "type": "f",
+        "definition": "FOREIGN KEY (draft_id, organization_id, user_id) REFERENCES member_lab_drafts(id, organization_id, user_id) ON UPDATE CASCADE ON DELETE CASCADE",
+        "validated": true,
+        "deferrable": false,
+        "initiallyDeferred": false
+      }
+    ],
+    "policies": [
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_read",
+        "command": "SELECT",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": "lab_actor_is_member(user_id, organization_id)",
+        "check": null
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_insert",
+        "command": "INSERT",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": null,
+        "check": "lab_actor_is_member(user_id, organization_id)"
+      },
+      {
+        "table": "member_lab_drafts",
+        "name": "member_lab_drafts_update",
+        "command": "UPDATE",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": "lab_actor_is_member(user_id, organization_id)",
+        "check": "lab_actor_is_member(user_id, organization_id)"
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_read",
+        "command": "SELECT",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": "(lab_actor_is_member(user_id, organization_id) OR lab_actor_can_review(user_id, organization_id))",
+        "check": null
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_insert",
+        "command": "INSERT",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": null,
+        "check": "lab_actor_is_member(user_id, organization_id)"
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_read",
+        "command": "SELECT",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": "(EXISTS ( SELECT 1\n   FROM member_lab_submissions s\n  WHERE ((s.id = member_lab_reviews.submission_id) AND (lab_actor_is_member(s.user_id, s.organization_id) OR lab_actor_can_review(s.user_id, s.organization_id)))))",
+        "check": null
+      },
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_insert",
+        "command": "INSERT",
+        "roles": [
+          "public"
+        ],
+        "permissive": "PERMISSIVE",
+        "using": null,
+        "check": "((reviewer_id = NULLIF(current_setting('app.current_user_id'::text, true), ''::text)) AND (EXISTS ( SELECT 1\n   FROM member_lab_submissions s\n  WHERE ((s.id = member_lab_reviews.submission_id) AND lab_actor_can_review(s.user_id, s.organization_id)))))"
+      }
+    ],
+    "functions": [
+      {
+        "name": "lab_actor_is_member",
+        "arguments": "p_member_id text, p_organization_id text",
+        "result": "boolean",
+        "language": "sql",
+        "definer": true,
+        "volatility": "s",
+        "strict": false,
+        "leakproof": false,
+        "parallel": "u",
+        "config": [
+          "search_path=pg_catalog, public"
+        ],
+        "body": "\n  SELECT EXISTS (SELECT 1 FROM public.users u\n    WHERE u.id = p_member_id AND u.id = NULLIF(current_setting('app.current_user_id', true), '')\n      AND u.organization_id = p_organization_id AND u.deleted_at IS NULL);\n"
+      },
+      {
+        "name": "lab_actor_can_review",
+        "arguments": "p_member_id text, p_organization_id text",
+        "result": "boolean",
+        "language": "sql",
+        "definer": true,
+        "volatility": "s",
+        "strict": false,
+        "leakproof": false,
+        "parallel": "u",
+        "config": [
+          "search_path=pg_catalog, public"
+        ],
+        "body": "\n  SELECT EXISTS (SELECT 1 FROM public.users actor JOIN public.users member ON member.id = p_member_id\n    WHERE actor.id = NULLIF(current_setting('app.current_user_id', true), '')\n      AND actor.id <> member.id\n      AND actor.organization_id = p_organization_id AND member.organization_id = p_organization_id\n      AND actor.deleted_at IS NULL AND member.deleted_at IS NULL\n      AND (\n        EXISTS (SELECT 1 FROM public.profiles p WHERE p.user_id = actor.id AND p.role IN ('admin', 'super_admin'))\n        OR EXISTS (SELECT 1 FROM public.user_roles ur JOIN public.roles r ON r.id = ur.role_id WHERE ur.user_id = actor.id AND r.name IN ('admin', 'super_admin'))\n        OR EXISTS (SELECT 1 FROM public.counselor_assignments ca JOIN public.counselors c ON c.id = ca.counselor_id WHERE ca.member_id = member.id AND ca.active AND c.active AND c.user_id = actor.id)\n      ));\n"
+      },
+      {
+        "name": "reject_lab_evidence_update",
+        "arguments": "",
+        "result": "trigger",
+        "language": "plpgsql",
+        "definer": false,
+        "volatility": "v",
+        "strict": false,
+        "leakproof": false,
+        "parallel": "u",
+        "config": [
+          "search_path=pg_catalog, public"
+        ],
+        "body": "\nBEGIN RAISE EXCEPTION 'Lab evidence and reviews are immutable' USING ERRCODE = '23514'; END;\n"
+      }
+    ],
+    "triggers": [
+      {
+        "table": "member_lab_reviews",
+        "name": "member_lab_reviews_immutable",
+        "enabled": "O",
+        "definition": "CREATE TRIGGER member_lab_reviews_immutable BEFORE UPDATE ON public.member_lab_reviews FOR EACH ROW EXECUTE FUNCTION reject_lab_evidence_update()",
+        "functionSchema": "public",
+        "functionName": "reject_lab_evidence_update"
+      },
+      {
+        "table": "member_lab_submissions",
+        "name": "member_lab_submissions_immutable",
+        "enabled": "O",
+        "definition": "CREATE TRIGGER member_lab_submissions_immutable BEFORE UPDATE ON public.member_lab_submissions FOR EACH ROW EXECUTE FUNCTION reject_lab_evidence_update()",
+        "functionSchema": "public",
+        "functionName": "reject_lab_evidence_update"
+      }
+    ]
+  }
+}

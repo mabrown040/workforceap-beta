@@ -444,6 +444,7 @@ export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor/inbox', label: 'Inbox zero', group: 'workflows', Icon: ListChecks },
   { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
   { href: '/counselor/students', label: 'My members', group: 'workflows', Icon: Users },
+  { href: '/counselor/lab-reviews', label: 'Lab reviews', group: 'workflows', Icon: ClipboardCheck },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
   { href: '/counselor/profile', label: 'My profile', group: 'manage', Icon: User },
   { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },

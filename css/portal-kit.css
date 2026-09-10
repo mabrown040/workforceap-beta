@@ -745,6 +745,12 @@ html.dark [data-surface] .wa-kit-card,
 .wa-kit-training-course-name strong { font-weight: 650; line-height: 1.4; }
 .wa-kit-training-course-name > span { font-size: var(--wa-type-meta); color: var(--wa-muted); }
 .wa-kit-training-editor { min-width: 0; padding: var(--wa-pad); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); background: var(--wa-surface); scroll-margin-top: calc(var(--wa-pad) * 3); }
+.wa-kit-training-labs { list-style: none; padding: 0; margin: 0; }
+.wa-kit-training-labs li { border-top: 1px solid var(--wa-border); }
+.wa-kit-training-labs a { display: flex; align-items: center; justify-content: space-between; gap: var(--wa-pad-sm); padding-block: var(--wa-pad-sm); min-height: 2.75rem; color: var(--wa-text); text-decoration: none; }
+.wa-kit-training-labs a strong { color: var(--wa-accent); text-decoration: underline; text-underline-offset: .2em; }
+.wa-kit-training-labs a:hover strong { text-decoration-thickness: 2px; }
+.wa-kit-training-labs a svg { flex-shrink: 0; }
 .wa-kit-training-editor .wa-kit-cta { justify-content: center; width: fit-content; min-height: 2.75rem; }
 .wa-kit-training-field { display: flex; flex-direction: column; gap: .5rem; font-size: var(--wa-type-meta); font-weight: 650; }
 .wa-kit-training-field input, .wa-kit-training-field select { min-height: 2.75rem; min-width: 0; max-width: 100%; padding: .65rem .75rem; border: 1px solid var(--wa-border); border-radius: var(--wa-radius-sm); color: var(--wa-text); background: var(--wa-surface); font: inherit; font-size: 1rem; color-scheme: inherit; }

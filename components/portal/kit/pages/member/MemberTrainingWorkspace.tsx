@@ -15,6 +15,7 @@ import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunch
 import SkillMissionChallenge from '@/components/portal/SkillMissionChallenge';
 import type { TrainingCoursePractice } from '@/lib/member/trainingCoursePractice';
 import { buildTrainingSchedule, isValidPlanDate, type TrainingWorkspace } from '@/lib/member/trainingWorkspace';
+import { IT_SUPPORT_LAB_SCOPE, listPracticeLabsForAssignment } from '@/lib/content/itSupportLabs';
 
 export type TrainingCourseDestination = { slug: string; launchHref?: string; moduleHref?: string };
 export interface MemberTrainingWorkspaceProps {
@@ -95,6 +96,7 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
   const finishDate = validPace && startDate && weeks ? addDays(startDate, weeks * 7 - 1) : null;
   const selectedDestination = destinations.find((course) => course.slug === selectedSlug);
   const selectedPractice = practiceMissions.find((row) => row.assignedCourseSlug === selectedSlug)?.mission;
+  const selectedLabs = listPracticeLabsForAssignment({ programSlug: workspace.programSlug, curriculumVersion: workspace.curriculumVersion, courseSlug: selectedSlug });
   const filteredCourses = workspace.courses.filter((course) => filter === 'remaining' ? !completed.has(course.slug) : filter === 'saved' ? Boolean(course.notes || course.artifactUrl) : true);
 
   // Split real assigned course hours into study weeks. These are planning
@@ -224,7 +226,11 @@ export function MemberTrainingWorkspace({ workspace: initialWorkspace, programTi
                   <p className="wa-kit-training-muted">{selected.description ?? 'Follow the assigned course activities and keep your notes and project evidence here.'}</p>
                   {completed.has(selected.slug) ? <p className="wa-kit-training-success"><Check size={16} aria-hidden="true" />Completion recorded</p> : null}
                 </VStack>
-                {selectedDestination?.launchHref ? <VStack gap={2}>
+                {selectedLabs.length ? <section aria-label="Applied support labs"><VStack gap={4}>
+                  <VStack gap={2}><h3>{IT_SUPPORT_LAB_SCOPE.title}</h3><p className="wa-kit-training-muted">Practice with supplied support tickets and device logs. Save your evidence, submit it for human feedback, and revise your work.</p></VStack>
+                  <ol className="wa-kit-training-labs">{selectedLabs.map((lab) => <li key={lab.id}><Link href={`/dashboard/learning/labs/${lab.id}`} className="wa-kit-focus"><VStack gap={1}><strong>{lab.title}</strong><span>{lab.summary}</span><span className="wa-kit-training-muted">About {lab.estimatedMinutes} minutes · Written evidence and counselor review</span></VStack><ArrowRight size={18} aria-hidden="true" /></Link></li>)}</ol>
+                  <p className="wa-kit-training-notice">These four starter labs have about 5 planned hours of activity. Instructional review and time validation are pending; the full 58-hour lab sequence is still being developed.</p>
+                </VStack></section> : selectedDestination?.launchHref ? <VStack gap={2}>
                   <TrackedCourseraLaunchLink href={selectedDestination.launchHref} courseSlug={selected.slug} className="wa-kit-cta wa-kit-focus">{completed.has(selected.slug) ? 'Review course in Coursera' : 'Open course in Coursera'} <ArrowRight size={16} aria-hidden="true" /></TrackedCourseraLaunchLink>
                   <p className="wa-kit-training-muted">Opens in a new tab.{trainingEmail ? ` Use your training email: ${trainingEmail}.` : ' Use the training account assigned by your counselor.'}</p>
                 </VStack> : selectedDestination?.moduleHref ? <Link href={selectedDestination.moduleHref} className="wa-kit-cta wa-kit-focus">Open lessons and lab <ArrowRight size={16} aria-hidden="true" /></Link> : <p className="wa-kit-training-notice">Use this workspace for your assigned activities. Your counselor can provide the lesson or lab instructions. <Link href="/dashboard/messages">Ask your counselor</Link></p>}

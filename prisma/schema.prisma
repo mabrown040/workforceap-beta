@@ -35,6 +35,7 @@ model Organization {
   updatedAt        DateTime @updatedAt @map("updated_at")
 
   users             User[]
+  memberLabDrafts   MemberLabDraft[]
   partners          Partner[]
   employers         Employer[]
   jobs              Job[]
@@ -199,6 +200,7 @@ model User {
   learningProgress       LearningProgress[]
   trainingStudyPlans     TrainingStudyPlan[]
   trainingCourseWork     TrainingCourseWork[]
+  memberLabDrafts        MemberLabDraft[]
   aiToolResults          AIToolResult[]
   coachMemory            CoachMemory?
   userCertifications     UserCertification[]
@@ -605,6 +607,78 @@ model LearningProgress {
 }
 
 /// Member-owned study planning. These estimates never credit official training progress.
+model MemberLabDraft {
+  id                String   @id @default(uuid())
+  organizationId    String   @map("organization_id")
+  userId            String   @map("user_id")
+  enrollmentId      String   @map("enrollment_id")
+  programSlug       String   @map("program_slug")
+  curriculumVersion String   @map("curriculum_version")
+  labId             String   @map("lab_id")
+  contentVersion    String   @map("content_version")
+  revision          Int      @default(0)
+  submissionCount   Int      @default(0) @map("submission_count")
+  answers           Json     @default("{}")
+  artifactUrl       String?  @map("artifact_url") @db.VarChar(2000)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  enrollment   CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  submissions  MemberLabSubmission[]
+
+  @@unique([enrollmentId, labId, contentVersion], map: "member_lab_drafts_enrollment_lab_content_key")
+  @@unique([id, organizationId, userId], map: "member_lab_drafts_identity_key")
+  @@index([userId])
+  @@map("member_lab_drafts")
+}
+
+/// Immutable evidence snapshot. Human feedback never awards course credit or credentials.
+model MemberLabSubmission {
+  id                String   @id @default(uuid())
+  draftId           String   @map("draft_id")
+  organizationId    String   @map("organization_id")
+  userId            String   @map("user_id")
+  labId             String   @map("lab_id")
+  programSlug       String   @map("program_slug")
+  curriculumVersion String   @map("curriculum_version")
+  contentVersion    String   @map("content_version")
+  rubricVersion     String   @map("rubric_version")
+  draftRevision     Int      @map("draft_revision")
+  attempt           Int
+  answers           Json
+  artifactUrl       String?  @map("artifact_url") @db.VarChar(2000)
+  labSnapshot       Json     @map("lab_snapshot")
+  submittedAt       DateTime @default(now()) @map("submitted_at")
+
+  draft  MemberLabDraft  @relation(fields: [draftId, organizationId, userId], references: [id, organizationId, userId], onDelete: Cascade)
+  review MemberLabReview?
+
+  @@unique([draftId, attempt])
+  @@index([organizationId, submittedAt, id])
+  @@index([userId, labId, submittedAt])
+  @@map("member_lab_submissions")
+}
+
+/// One immutable review per submission, preserving the reviewer's identity at review time.
+model MemberLabReview {
+  id                  String   @id @default(uuid())
+  submissionId        String   @unique @map("submission_id")
+  reviewerId          String   @map("reviewer_id")
+  reviewerDisplayName String   @map("reviewer_display_name")
+  reviewerRole        String   @map("reviewer_role")
+  decision            String
+  feedback            String   @db.Text
+  rubricVersion       String   @map("rubric_version")
+  rubricResults       Json     @map("rubric_results")
+  reviewedAt          DateTime @default(now()) @map("reviewed_at")
+
+  submission MemberLabSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("member_lab_reviews")
+}
+
 model TrainingStudyPlan {
   id                String   @id @default(uuid())
   userId            String   @map("user_id")
@@ -1826,6 +1900,7 @@ model CourseEnrollment {
   /// seat" survives the partner row being edited or removed. Resolve it
   /// against `Partner.id` at read time and tolerate misses.
   sponsoredByPartnerId      String?        @map("sponsored_by_partner_id")
+  memberLabDrafts            MemberLabDraft[]
 
   @@unique([userId, programSlug])
   @@index([organizationId])

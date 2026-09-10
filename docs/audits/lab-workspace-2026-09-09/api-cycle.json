@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-09-09T15:03:10.144Z",
+  "environment": "Disposable local Postgres55437, normal SupabaseSSR auth against synthetic GoTrue54327. No production records or external messages.",
+  "checks": [
+    "Anonymous lab request denied",
+    "Assigned member can open original lab",
+    "Member responses are private and uncached",
+    "Private draft saves durably",
+    "Private draft is absent from counselor queue",
+    "Another member sees only their empty draft",
+    "Stale draft save rejected",
+    "Cross-origin mutation rejected",
+    "Submission requires explicit sharing consent",
+    "Member explicitly submits immutable attempt one",
+    "Submission retains content and rubric versions",
+    "Assigned counselor sees submitted evidence",
+    "Unassigned counselor denied evidence",
+    "Other-organization admin denied evidence",
+    "Member cannot act as staff reviewer",
+    "Same-organization admin can review",
+    "Member can continue a private draft after submission",
+    "Counselor still sees original submission, not later private edits",
+    "Incomplete rubric cannot be marked reviewed",
+    "Counselor records rubric feedback and revision request",
+    "Review records authenticated reviewer identity",
+    "Duplicate review cannot overwrite history",
+    "Member sees saved revision request",
+    "Member can submit a second immutable attempt after feedback",
+    "Earlier evidence and review survive resubmission",
+    "Counselor can compare both attempts",
+    "Complete written evidence can receive a recorded review",
+    "Reviewed attempt cannot be silently resubmitted",
+    "Concurrent edits allow one save and one conflict",
+    "Lab work and reviews award no course completion or credential"
+  ],
+  "before": {
+    "courses": 3,
+    "credentials": 0
+  },
+  "after": {
+    "courses": 3,
+    "credentials": 0
+  },
+  "firstSubmissionId": "9a908ffc-7da5-4198-a698-0740249d2a59",
+  "secondSubmissionId": "c3706cb4-57d4-49ce-88ac-7940035bd035"
+}

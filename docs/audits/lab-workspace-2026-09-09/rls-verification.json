@@ -1,0 +1,118 @@
+{
+  "verifiedAt": "2026-09-09T15:11:59.035Z",
+  "environment": "Disposable local PostgreSQL 127.0.0.1:55437; synthetic fixtures only",
+  "migration": "20260909130000_member_lab_evidence",
+  "databaseRole": "temporary non-owner NOSUPERUSER NOBYPASSRLS with explicit table grants",
+  "transaction": "All probe rows, temporary grants and role rolled back. Existing fixture records unchanged.",
+  "checks": [
+    {
+      "name": "member reads own private draft",
+      "passed": true
+    },
+    {
+      "name": "member reads own shared evidence",
+      "passed": true
+    },
+    {
+      "name": "member cannot delete draft and cascade away evidence",
+      "passed": true
+    },
+    {
+      "name": "other member cannot read private draft",
+      "passed": true
+    },
+    {
+      "name": "other member cannot read submission",
+      "passed": true
+    },
+    {
+      "name": "assigned counselor cannot read private draft",
+      "passed": true
+    },
+    {
+      "name": "assigned counselor can read submitted evidence",
+      "passed": true
+    },
+    {
+      "name": "assigned counselor cannot forge another reviewer id",
+      "passed": true
+    },
+    {
+      "name": "assigned counselor can insert review as self",
+      "passed": true
+    },
+    {
+      "name": "member sees returned review",
+      "passed": true
+    },
+    {
+      "name": "member cannot review own work by forging admin GUC",
+      "passed": true
+    },
+    {
+      "name": "unassigned counselor cannot read evidence even with forged admin GUC",
+      "passed": true
+    },
+    {
+      "name": "unassigned counselor cannot read review",
+      "passed": true
+    },
+    {
+      "name": "unassigned counselor cannot write review with forged role",
+      "passed": true
+    },
+    {
+      "name": "same-org admin cannot read private draft",
+      "passed": true
+    },
+    {
+      "name": "same-org admin reads evidence",
+      "passed": true
+    },
+    {
+      "name": "same-org admin reads review",
+      "passed": true
+    },
+    {
+      "name": "other-org admin cannot read evidence with forged org and super-admin GUC",
+      "passed": true
+    },
+    {
+      "name": "other-org admin cannot read review",
+      "passed": true
+    },
+    {
+      "name": "missing actor context denies draft",
+      "passed": true
+    },
+    {
+      "name": "missing actor context denies evidence",
+      "passed": true
+    },
+    {
+      "name": "missing actor context denies review",
+      "passed": true
+    },
+    {
+      "name": "submission content update rejected even for table owner",
+      "passed": true
+    },
+    {
+      "name": "review update rejected even for table owner",
+      "passed": true
+    },
+    {
+      "name": "all probe data rolled back",
+      "passed": true
+    },
+    {
+      "name": "temporary probe role rolled back",
+      "passed": true
+    }
+  ],
+  "passed": 26,
+  "limitations": [
+    "Local policy proof does not establish production migration application.",
+    "API tests separately cover pinned assignment, content/rubric validation and optimistic concurrency."
+  ]
+}

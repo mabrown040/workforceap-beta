@@ -1,0 +1,119 @@
+{
+  "status": "passed",
+  "readOnly": true,
+  "results": [
+    {
+      "surface": "member",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "staff-recorded-review",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-recorded-review",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-recorded-review",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-recorded-review",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-recorded-review",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-recorded-review",
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-review-form",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-review-form",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "horizontalOverflow": false
+    },
+    {
+      "surface": "staff-review-form",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "horizontalOverflow": false
+    }
+  ],
+  "errors": [],
+  "notes": "Only synthetic local users. Admin views member2 pending work; assigned counselor views member1 recorded review. No review was sent during visual checks."
+}

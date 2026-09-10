@@ -368,6 +368,24 @@ Run migrations in this sequence:
 
 ---
 
+## 20260909130000_member_lab_evidence
+
+Adds `member_lab_drafts`, `member_lab_submissions`, and `member_lab_reviews` for
+explicitly shared practice evidence and human rubric feedback. The migration is
+transactional and additive; it changes no existing learner, attendance, provider,
+or credential records. Access policies bind current user, organization, and
+counselor assignments; submitted evidence and reviews reject updates.
+
+Validation: fixed SQL applied to a disposable local database, with 26 nonowner
+RLS assertions and the complete member-to-counselor API cycle. Production applies
+this through the guarded migration build. Preview uses the fixed DEMO-only
+bootstrap and full catalog contract; partial or altered schemas stop the build.
+
+Recovery: roll back the application deployment while retaining these tables.
+Dropping them after members submit work would delete evidence. If the transactional
+migration fails, inspect the actual error before retrying; do not mark an unknown
+failure resolved. See [the lab verification record](audits/lab-workspace-2026-09-09/README.md).
+
 ## Related Docs
 
 - `docs/DEPLOYMENT-CHECKLIST.md` — Full deploy ceremony

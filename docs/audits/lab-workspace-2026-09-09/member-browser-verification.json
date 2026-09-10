@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "fixture": "Synthetic local member2/network-diagnosis; member1 review-cycle record untouched",
+  "checks": [
+    "Actual PUT200 saves the submitted private snapshot while newer typing remains in the editor",
+    "A second actual save and reload preserve the latest written evidence and optional artifact link",
+    "Deliberately mocked503 retains text; actual retry PUT200 persists it",
+    "Nothing is shared before consent; actual POST200 creates one immutable submission that survives reload"
+  ],
+  "viewports": [
+    {
+      "surface": "member",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    },
+    {
+      "surface": "member",
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "horizontalOverflow": false,
+      "firstEvidenceFieldInViewport": true
+    }
+  ],
+  "errors": [],
+  "outboundProviderCalls": false,
+  "simulatedFailure": "One browser-intercepted503 used only to verify retained text; persistence calls otherwise hit the real localAPI and isolatedPostgres",
+  "captureNote": "Final viewport screenshots wait for the actual evidence field to enter the viewport after anchor scrolling; all three sizes checked in light and dark."
+}

@@ -669,7 +669,7 @@ export default function WorkspaceShell({
                 })}
               </ul>
             </nav>
-            {portalRole !== 'member' || !isCollapsedDesktop ? <div className="workspace-sidebar-footer">
+            {!isCollapsedDesktop ? <div className="workspace-sidebar-footer">
               {!wide ? (
                 <div className="workspace-sidebar-meta">
                   <span className="workspace-sidebar-context workspace-sidebar-context--chip" title={contextLabel}>
@@ -683,7 +683,7 @@ export default function WorkspaceShell({
                   {translateLabel(PRODUCT_COPY.publicSiteLabel)}
                 </Link>
               ) : null}
-              <div style={{ padding: '0.5rem 0', display: 'flex', justifyContent: 'center' }}>
+              <div className="workspace-sidebar-language">
                 <LanguageToggle />
               </div>
               <div className={`workspace-sidebar-appearance${isCollapsedDesktop ? ' sr-only' : ''}`}>

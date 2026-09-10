@@ -105,11 +105,15 @@ describe('workspace navigation', () => {
     expect(active[0]).toHaveAttribute('href', '/employer/jobs');
   });
 
-  it('preserves existing staff footer controls when the staff rail is collapsed', async () => {
+  it('keeps preferences reachable by expanding the staff rail without clipped controls', async () => {
     const user = userEvent.setup();
     show('employer');
     await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
+    expect(screen.queryByText('Language')).not.toBeInTheDocument();
+    expect(screen.queryByText('Theme preference')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Expand sidebar' }));
     expect(screen.getByText('Language')).toBeInTheDocument();
+    expect(screen.getByText('Theme preference')).toBeInTheDocument();
   });
 
   it('keeps a closed mobile drawer out of keyboard and screen-reader navigation', async () => {

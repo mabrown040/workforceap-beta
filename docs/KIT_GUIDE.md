@@ -55,8 +55,13 @@ Key `--wa-*` tokens (see `css/portal-tokens.css` for the full set):
   Member rails use a 232px budget (208px on smaller laptops, 72px collapsed),
   with daily destinations visible and secondary groups disclosed on demand.
   The current route opens its group and only the most specific destination
-  receives `aria-current`. Navigation labels stay readable at 16px with 44px
-  targets; desktop brand and public-site link share one header row.
+  receives `aria-current`. Staff rails use 240px and the shared desktop header
+  uses a 68px minimum height. Destination lists scroll independently so appearance
+  and language remain reachable at the foot of the expanded rail. Collapsing any
+  rail hides its preference controls; expanding restores them. Appearance options
+  stack their icons above labels to fit the rail, with radio-keyboard behavior
+  intact. Navigation labels stay readable at 16px with 44px targets; desktop brand
+  and public-site link share one header row.
 - **Type floors (flip per surface):** `--wa-type-body` (16px warm / 14px dense) and
   `--wa-type-meta` (13px both). Member body copy, form controls, and CTAs use
   `--wa-type-body`. Kickers, tags, table headers, and captions use `--wa-type-meta`.
@@ -344,3 +349,12 @@ section here in the same PR.*
 - Member “Invite a friend” is a dedicated page in the existing warm portal shell, reusing the sharing component from Points. It shows the member's own aggregate rewards and a share toolkit; no referred learner names or learning progress. A count requires both committed reward receipts.
 - Only real trend data receives an arrow/delta chip. Real admin headline counts use four columns for four KPIs, and the work-queue header counts queues rather than learners or pending items.
 - Counselor/partner read receipts acknowledge an authorized loaded-message ID and advance monotonically. Timestamp ties remain read-through semantics. Shared partner/employer chat scrolls its conversation log; adding a message must not move the outer page.
+
+### Portal polish contracts (2026-09-09)
+
+- Admin overview uses a compact metric strip and flat queue rows. All-zero measured placement series show a concise zero summary; absent series stay absent and nonzero series retain their chart. Program and system context stays secondary without stretching to the queue height. Actions retain full counts and destinations; bulk selection remains owned by the queue client.
+- Sidebar preference controls keep their radio keyboard interaction. The rail scrolls its destinations, with language and appearance visible below. Narrow or collapsed navigation must never expose clipped focusable controls.
+- Counselor messages use one neutral inbox workspace. Member metadata appears once per roster row, catalog names resolve on the server, and selected conversations/filter controls expose their state accessibly. Recipient identity, request guards, and draft ownership remain unchanged.
+- Partner sharing keeps its primary Copy action visible; URL/code live in a native disclosure that opens on clipboard failure. Member sharing keeps the link/copy action visible and opens invitation preview for manual copying when needed. Privacy and aggregate-reward limits remain visible.
+- Partner metrics without supplied trend data use compact StatTile captions; supplied trends retain StatSparkTile. The referral funnel presents the same supplied counts/percentages as named progress bars across a desktop row and a mobile stack. The progress handoff retains its destination as a quiet direct link.
+- Staff mobile navigation consumes portal surface tokens in both themes. Staff rails use their server-rendered role for initial styling; short landscape viewports scroll the whole rail so neither destinations nor preferences are clipped.

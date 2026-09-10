@@ -32,8 +32,8 @@ vi.mock('@/components/portal/PageHeader', () => ({
   default: ({ title }: { title: string }) => <h1>{title}</h1>,
 }));
 vi.mock('@/components/portal/CounselorMessagesInboxClient', () => ({
-  default: ({ initialMemberId }: { initialMemberId?: string | null }) => (
-    <div data-testid="counselor-inbox" data-initial-member-id={initialMemberId ?? ''} />
+  default: ({ initialMemberId, rows }: { initialMemberId?: string | null; rows: Array<{ programSubtitle: string }> }) => (
+    <div data-testid="counselor-inbox" data-initial-member-id={initialMemberId ?? ''} data-programs={JSON.stringify(rows.map((row) => row.programSubtitle))} />
   ),
 }));
 
@@ -44,8 +44,8 @@ import { prisma } from '@/lib/db/prisma';
 import { buildCounselorInboxRows } from '@/lib/messages/counselorInbox';
 
 const authorizedRows = [
-  { memberId: 'member-1', threadId: 'thread-1' },
-  { memberId: 'member-2', threadId: 'thread-2' },
+  { memberId: 'member-1', threadId: 'thread-1', programSubtitle: 'it-support-professional-certificate-ibm' },
+  { memberId: 'member-2', threadId: 'thread-2', programSubtitle: 'An individually recorded program' },
 ];
 
 describe('counselor contextual messages page', () => {
@@ -84,5 +84,14 @@ describe('counselor contextual messages page', () => {
     for (const inbox of screen.getAllByTestId('counselor-inbox')) {
       expect(inbox).toHaveAttribute('data-initial-member-id', '');
     }
+  });
+
+  it('shows the catalog title for a stored slug while preserving an unmatched recorded title', async () => {
+    render(await CounselorMessagesHubPage({}));
+    const inboxes = screen.getAllByTestId('counselor-inbox');
+    const titles = JSON.parse(inboxes[inboxes.length - 1].getAttribute('data-programs')!);
+    expect(titles[0]).toBe('IT Support Professional Certificate (IBM)');
+    expect(titles[1]).toBe('An individually recorded program');
+    expect(authorizedRows[0].programSubtitle).toBe('it-support-professional-certificate-ibm');
   });
 });

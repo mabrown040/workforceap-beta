@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const pricingState = vi.hoisted(() => ({ enforced: true }));
+
 // ─── Mocks ───
 vi.mock('next/server', () => {
   class MockNextRequest extends Request {
@@ -44,6 +46,9 @@ vi.mock('@/lib/db/prisma', () => {
 });
 
 vi.mock('@/lib/stripe/client', () => ({
+  get EMPLOYER_PRICING_ENFORCED() {
+    return pricingState.enforced;
+  },
   getStripe: vi.fn(),
   getStripeWebhookSecret: vi.fn(() => 'whsec_test_secret'),
   EMPLOYER_TIERS: {
@@ -80,6 +85,20 @@ describe('POST /api/employer/checkout', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    pricingState.enforced = true;
+  });
+
+  it('fails closed without calling Stripe when employer pricing is disabled', async () => {
+    pricingState.enforced = false;
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: 'emp-1' } as any);
+
+    const res = await checkoutPOST(makeRequest({ tier: 'basic' }));
+
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: 'Employer pricing is not available' });
+    expect(getStripe).not.toHaveBeenCalled();
+    expect(prisma.employer.findUnique).not.toHaveBeenCalled();
   });
 
   it('returns 401 when user is not authenticated', async () => {

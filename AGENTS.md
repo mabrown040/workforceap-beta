@@ -183,3 +183,7 @@ MORE CLI:
   swizzle <Name>     eject component source for deep customization
   upgrade --apply    run after any @astryxdesign/core bump
 <!-- ASTRYX:END -->
+
+## Shared operating lanes
+
+Read `docs/two-lanes.md` for provider-independent execution, ownership, release records and lab handoff. Existing app-specific deployment and database recovery rules above remain authoritative.

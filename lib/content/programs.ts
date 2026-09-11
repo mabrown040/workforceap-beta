@@ -83,12 +83,28 @@ export interface ProgramCourse {
   courseraCourseId?: string;
   /** Official Coursera /learn slug supplied by the approved syllabus. */
   courseraSlug?: string;
-  /** In-platform module content (Digital Literacy): linked video lessons. */
-  lessons?: ReadonlyArray<{ title: string; minutes: number; url: string }>;
+  /** In-platform module content (Digital Literacy): attributed provider destinations. */
+  lessons?: ReadonlyArray<{
+    title: string;
+    minutes: number;
+    url: string;
+    destinationKind?: 'verified-course' | 'course-materials-fallback' | 'course-details-with-materials-fallback';
+    verificationLabel?: string;
+    fallbackUrl?: string;
+    fallbackLabel?: string;
+  }>;
   /** What the member practises in this module. */
   topics?: readonly string[];
-  /** External lesson provider shown on the module page. */
-  provider?: { name: string; url: string };
+  /** External provider provenance shown alongside linked materials. */
+  provider?: {
+    name: string;
+    url: string;
+    verifiedOn?: string;
+    accessNote?: string;
+    languageNote?: string;
+    attribution?: string;
+    license?: { name: string; url: string; termsUrl?: string };
+  };
 }
 
 export interface Program {

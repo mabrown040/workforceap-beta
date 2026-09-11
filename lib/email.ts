@@ -1165,6 +1165,7 @@ export async function sendWeeklyRecapEmail(params: {
   to: string;
   fullName: string;
   recapSummary: string;
+  idempotencyKey?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -1184,6 +1185,7 @@ export async function sendWeeklyRecapEmail(params: {
       to: params.to,
       subject: 'Your WorkforceAP Weekly Recap',
       html,
+      idempotencyKey: params.idempotencyKey,
     });
     return { ok: true };
   } catch (err) {

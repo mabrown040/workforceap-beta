@@ -24,6 +24,81 @@ describe('sendBrandedEmail', () => {
     );
   });
 
+  it('retries Resend 429 responses with provider metadata and preserves the idempotent request', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    const calls: Array<{ payload: unknown; options: unknown }> = [];
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async (payload: unknown, options: unknown) => {
+          calls.push({ payload, options });
+          if (calls.length === 1) {
+            return {
+              data: null,
+              error: { name: 'rate_limit_exceeded', message: 'Too many requests', retry_after: 2 },
+            };
+          }
+          return { data: { id: 'accepted' }, error: null };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    const result = await sendBrandedEmail(
+      resend,
+      {
+        from: 'WorkforceAP <hello@workforceap.org>',
+        to: 'applicant@example.com',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+        idempotencyKey: 'weekly-recap:user-1:2026-09-07',
+      },
+      { sleep: async (ms) => { delays.push(ms); } },
+    );
+
+    assert.equal(result.data?.id, 'accepted');
+    assert.deepEqual(delays, [2_000]);
+    assert.equal(calls.length, 2);
+    assert.deepEqual(calls[1], calls[0]);
+  });
+
+  it('stops after the bounded retry budget and caps provider-requested waits', async () => {
+    process.env.CRON_SECRET = 'test-unsubscribe-secret';
+    let attempts = 0;
+    const delays: number[] = [];
+    const resend = {
+      emails: {
+        send: async () => {
+          attempts++;
+          return {
+            data: null,
+            error: {
+              name: 'rate_limit_exceeded',
+              message: 'Still rate limited',
+              headers: { 'Retry-After': '60' },
+            },
+          };
+        },
+      },
+    } as unknown as import('resend').Resend;
+
+    await assert.rejects(
+      () => sendBrandedEmail(
+        resend,
+        {
+          from: 'WorkforceAP <hello@workforceap.org>',
+          to: 'applicant@example.com',
+          subject: 'Test',
+          html: '<p>Hi</p>',
+        },
+        { sleep: async (ms) => { delays.push(ms); } },
+      ),
+      /Still rate limited/,
+    );
+
+    assert.equal(attempts, 3);
+    assert.deepEqual(delays, [5_000, 5_000]);
+  });
+
   it('strips CR/LF from headers so a newline in NEXT_PUBLIC_SITE_URL cannot fail the send', async () => {
     process.env.CRON_SECRET = 'test-unsubscribe-secret';
     // Exactly how the production outage was configured: a pasted trailing newline.

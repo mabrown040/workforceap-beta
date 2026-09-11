@@ -7,7 +7,13 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { createBoundedPacer } from '@/lib/email/pacing';
 import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
+
+export const maxDuration = 300;
+
+const RECAP_SEND_INTERVAL_MS = 500;
+const RECAP_PACING_MAX_TOTAL_WAIT_MS = 240_000;
 
 /**
  * GET /api/cron/weekly-recap
@@ -46,22 +52,33 @@ async function handle(_request: Request) {
 
   let sent = 0;
   let failed = 0;
+  let skipped = 0;
 
   // Batch-generate recaps to eliminate read-side N+1 (~10 queries total vs 10×N)
   const recaps = await generateWeeklyRecaps(members, weekStart);
   const recapByUserId = new Map(recaps.map((r) => [r.userId, r.recapData]));
+  const waitForSendSlot = createBoundedPacer({
+    intervalMs: RECAP_SEND_INTERVAL_MS,
+    maxTotalWaitMs: RECAP_PACING_MAX_TOTAL_WAIT_MS,
+  });
 
-  for (const member of members) {
+  for (const [index, member] of members.entries()) {
     try {
       const recapData = recapByUserId.get(member.id) as Parameters<typeof buildWeeklyRecapEmailSummary>[0] | undefined;
       if (!recapData) { failed++; continue; }
 
       const recapSummary = buildWeeklyRecapEmailSummary(recapData);
+      const pace = await waitForSendSlot();
+      if (!pace.ok) {
+        skipped += members.length - index;
+        break;
+      }
 
       const result = await sendWeeklyRecapEmail({
         to: member.email,
         fullName: member.fullName ?? member.email,
         recapSummary,
+        idempotencyKey: `weekly-recap:${member.id}:${weekStart.toISOString().slice(0, 10)}`,
       });
 
       // sendWeeklyRecapEmail catches Resend failures internally and
@@ -85,9 +102,14 @@ async function handle(_request: Request) {
     }
   }
 
-  const runResult = { sent, failed, total: members.length };
+  const runResult = {
+    sent,
+    failed,
+    total: members.length,
+    ...(skipped > 0 ? { skipped, skipReason: 'pacing_budget_exhausted' } : {}),
+  };
   await setCronRecordsProcessed(sent);
-  await logCronRun('cron_weekly_recap', runResult, getWeeklyRecapCronStatus(failed));
+  await logCronRun('cron_weekly_recap', runResult, getWeeklyRecapCronStatus(failed, skipped));
   return NextResponse.json(runResult);
 }
 

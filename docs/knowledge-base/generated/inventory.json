@@ -7,7 +7,7 @@
     "reviewDate": "2026-09-12",
     "scope": "Repository-wide static inventory plus independent targeted audits. Live runtime, production data and provider state are not inferred from source."
   },
-  "inputTreeSha256": "022a8cf20bdc952e1f8a3081f12ad8240f353ec41458a6b81338d6c1798acc23",
+  "inputTreeSha256": "9219328250d283a5e4bb53228ee77ad046fc84a84af174a7200b67227ba50ae1",
   "scope": "Every tracked path except this generator output directory. Untracked/ignored files are excluded. Symlinks, submodules, private dotenv/key/database paths and missing tracked files have metadata-only entries; their content is not read.",
   "extractionLimits": "AST extraction covers JS/TS variants only, not Astro frontmatter, shell, generated runtime behavior, computed environment names, or a complete call graph. Symbols are top-level declarations plus static ESM/CommonJS exports. Route indexing covers Next page/route/layout boundaries and Astro page filename patterns, not every metadata/file convention, dynamic expansion, or deployed precedence.",
   "excludedOutputPrefix": "docs/knowledge-base/generated/",
@@ -76766,18 +76766,18 @@
       "path": "docs/knowledge-base/agent-context.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 3515,
+      "bytes": 3699,
       "lines": 33,
-      "sha256": "9271ca30eabd6aa285b5728d7442fbecb0296df0dcf8a43beb8e9763bb10d51a",
+      "sha256": "9bfdaaa5476089d5fa3f9489e2cbdb5ab6ac382a8974cddbed6ad2861ce030a4",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/architecture.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 10153,
-      "lines": 158,
-      "sha256": "fc54ca57efc33f9488d1ad0451d1e944cc12f94222869c543bfb7072ca3e45da",
+      "bytes": 15519,
+      "lines": 193,
+      "sha256": "cf21eb441ce40f4464749165d6afab67bc4e440640a1d38cdb644f979f62d98a",
       "binary": false
     },
     {
@@ -76802,18 +76802,18 @@
       "path": "docs/knowledge-base/data.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 6784,
+      "bytes": 6963,
       "lines": 62,
-      "sha256": "52ff410b1e786c19d25d1cf47d770e60e393aaecd06136a8850e264eb325fffa",
+      "sha256": "bb167a18f703636f79675aab027d0a5afe1ecb8ac2e9946e9ffab2f6b3b4acd5",
       "binary": false
     },
     {
       "path": "docs/knowledge-base/features.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 9341,
+      "bytes": 9534,
       "lines": 36,
-      "sha256": "34d46ba15d9f6e9935420a3bae0f759be33a87331a303c7407ec4c78fcf19cf3",
+      "sha256": "ced03567da9783bc5266973aebc2d56baaa6f9fb22171a7ce903a6bbc794228d",
       "binary": false
     },
     {
@@ -76847,9 +76847,9 @@
       "path": "docs/knowledge-base/technical-debt.md",
       "area": "documentation",
       "domain": "documentation",
-      "bytes": 7426,
-      "lines": 50,
-      "sha256": "088061a117d1ad363390c1b17b0ac060c02190bd92da7c450c499a5c842fac3c",
+      "bytes": 8132,
+      "lines": 52,
+      "sha256": "6fba0976bc435dd10b6168517609847819192f38c0ef1fe2e2a2688188adeb3f",
       "binary": false
     },
     {
@@ -98912,341 +98912,341 @@
       "path": "lib/content/programs.ts",
       "area": "libraries",
       "domain": "public-experience",
-      "bytes": 41648,
-      "lines": 683,
-      "sha256": "86beed8d16babef2bf59815f10984289302fee32ce3cd8a919c0b3c64c2dbca6",
+      "bytes": 41847,
+      "lines": 686,
+      "sha256": "0aad72ad777e27ea1e1547a2fd7f99f9b155897396950b54b589930811349ba1",
       "binary": false,
       "exports": [
         {
           "name": "PROGRAM_SLUG_ALIASES",
-          "line": 16,
+          "line": 19,
           "kind": "ReExport"
         },
         {
           "name": "FUNDING_SOURCES",
-          "line": 38,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "FundingSource",
-          "line": 45,
+          "line": 48,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LanguageSupportLevel",
-          "line": 47,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LanguageSupport",
-          "line": 49,
+          "line": 52,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "formatFundingSourceLabel",
-          "line": 56,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FUNDING_COLORS",
-          "line": 61,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "ProgramCourse",
-          "line": 76,
+          "line": 79,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "Program",
-          "line": 110,
+          "line": 113,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "getDiscoveredProgram",
-          "line": 166,
+          "line": 169,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramDisplayTitle",
-          "line": 193,
+          "line": 196,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramDisplayPartner",
-          "line": 201,
+          "line": 204,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PROGRAM_CATEGORY_COLORS",
-          "line": 208,
+          "line": 211,
           "kind": "Variable"
         },
         {
           "name": "PROGRAMS",
-          "line": 386,
+          "line": 389,
           "kind": "Variable"
         },
         {
           "name": "WORKFORCEAP_PROGRAM_CATALOG_SIZE",
-          "line": 447,
+          "line": 450,
           "kind": "Variable"
         },
         {
           "name": "PROGRAM_AXIS_MAP",
-          "line": 454,
+          "line": 457,
           "kind": "Variable"
         },
         {
           "name": "RadarAxis",
-          "line": 524,
+          "line": 527,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RADAR_AXES",
-          "line": 525,
+          "line": 528,
           "kind": "Variable"
         },
         {
           "name": "ProgramRecommendation",
-          "line": 527,
+          "line": 530,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "recommendProgramsForGaps",
-          "line": 543,
+          "line": 546,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PROGRAM_TITLES",
-          "line": 597,
+          "line": 600,
           "kind": "Variable"
         },
         {
           "name": "LEGACY_PROGRAM_TITLE_VALUES",
-          "line": 614,
+          "line": 617,
           "kind": "Variable"
         },
         {
           "name": "SUPPORTED_PROGRAM_STORAGE_VALUES",
-          "line": 627,
+          "line": 630,
           "kind": "Variable"
         },
         {
           "name": "CURRICULUM_MIGRATION_PENDING_CODE",
-          "line": 635,
+          "line": 638,
           "kind": "Variable"
         },
         {
           "name": "CURRICULUM_MIGRATION_PENDING_MESSAGE",
-          "line": 636,
+          "line": 639,
           "kind": "Variable"
         },
         {
           "name": "isCurriculumMigrationPending",
-          "line": 645,
+          "line": 648,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramByInterestValue",
-          "line": 651,
+          "line": 654,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramBySlug",
-          "line": 671,
+          "line": 674,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAllPrograms",
-          "line": 676,
+          "line": 679,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "invalidateProgramCache",
-          "line": 681,
+          "line": 684,
           "kind": "FunctionDeclaration"
         }
       ],
       "declarations": [
         {
           "name": "FUNDING_SOURCES",
-          "line": 38,
+          "line": 41,
           "kind": "Variable"
         },
         {
           "name": "FundingSource",
-          "line": 45,
+          "line": 48,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LanguageSupportLevel",
-          "line": 47,
+          "line": 50,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LanguageSupport",
-          "line": 49,
+          "line": 52,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "formatFundingSourceLabel",
-          "line": 56,
+          "line": 59,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "FUNDING_COLORS",
-          "line": 61,
+          "line": 64,
           "kind": "Variable"
         },
         {
           "name": "slugify",
-          "line": 69,
+          "line": 72,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "ProgramCourse",
-          "line": 76,
+          "line": 79,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "Program",
-          "line": 110,
+          "line": 113,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "normalizeDiscoveredProgramTitle",
-          "line": 162,
+          "line": 165,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getDiscoveredProgram",
-          "line": 166,
+          "line": 169,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "inferDiscoveredPartnerLabel",
-          "line": 171,
+          "line": 174,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramDisplayTitle",
-          "line": 193,
+          "line": 196,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramDisplayPartner",
-          "line": 201,
+          "line": 204,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PROGRAM_CATEGORY_COLORS",
-          "line": 208,
+          "line": 211,
           "kind": "Variable"
         },
         {
           "name": "OperationalCourseSnapshot",
-          "line": 218,
+          "line": 221,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "LEGACY_OPERATIONAL_COURSES",
-          "line": 234,
+          "line": 237,
           "kind": "Variable"
         },
         {
           "name": "mkProgram",
-          "line": 263,
+          "line": 266,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "DIGITAL_LITERACY_PROGRAM_DURATION",
-          "line": 384,
+          "line": 387,
           "kind": "Variable"
         },
         {
           "name": "PROGRAMS",
-          "line": 386,
+          "line": 389,
           "kind": "Variable"
         },
         {
           "name": "WORKFORCEAP_PROGRAM_CATALOG_SIZE",
-          "line": 447,
+          "line": 450,
           "kind": "Variable"
         },
         {
           "name": "PROGRAM_AXIS_MAP",
-          "line": 454,
+          "line": 457,
           "kind": "Variable"
         },
         {
           "name": "RadarAxis",
-          "line": 524,
+          "line": 527,
           "kind": "TypeAliasDeclaration"
         },
         {
           "name": "RADAR_AXES",
-          "line": 525,
+          "line": 528,
           "kind": "Variable"
         },
         {
           "name": "ProgramRecommendation",
-          "line": 527,
+          "line": 530,
           "kind": "InterfaceDeclaration"
         },
         {
           "name": "recommendProgramsForGaps",
-          "line": 543,
+          "line": 546,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "PROGRAM_TITLES",
-          "line": 597,
+          "line": 600,
           "kind": "Variable"
         },
         {
           "name": "LEGACY_PROGRAM_TITLE_VALUES",
-          "line": 614,
+          "line": 617,
           "kind": "Variable"
         },
         {
           "name": "SUPPORTED_PROGRAM_STORAGE_VALUES",
-          "line": 627,
+          "line": 630,
           "kind": "Variable"
         },
         {
           "name": "CURRICULUM_MIGRATION_PENDING_CODE",
-          "line": 635,
+          "line": 638,
           "kind": "Variable"
         },
         {
           "name": "CURRICULUM_MIGRATION_PENDING_MESSAGE",
-          "line": 636,
+          "line": 639,
           "kind": "Variable"
         },
         {
           "name": "isCurriculumMigrationPending",
-          "line": 645,
+          "line": 648,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramByInterestValue",
-          "line": 651,
+          "line": 654,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getProgramBySlug",
-          "line": 671,
+          "line": 674,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "getAllPrograms",
-          "line": 676,
+          "line": 679,
           "kind": "FunctionDeclaration"
         },
         {
           "name": "invalidateProgramCache",
-          "line": 681,
+          "line": 684,
           "kind": "FunctionDeclaration"
         }
       ],

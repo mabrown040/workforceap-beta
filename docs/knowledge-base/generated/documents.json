@@ -28431,18 +28431,38 @@
       },
       {
         "level": 2,
-        "title": "Communication and asynchronous work",
+        "title": "What is redundant, breaking, or due for replacement",
         "line": 112
+      },
+      {
+        "level": 3,
+        "title": "Redundant (two or more live sources for one concept)",
+        "line": 116
+      },
+      {
+        "level": 3,
+        "title": "Breaking (failure paths that exist in source today)",
+        "line": 127
+      },
+      {
+        "level": 3,
+        "title": "Replacement order (do not skip steps)",
+        "line": 136
+      },
+      {
+        "level": 2,
+        "title": "Communication and asynchronous work",
+        "line": 147
       },
       {
         "level": 2,
         "title": "Delivery and developer orchestration",
-        "line": 132
+        "line": 167
       },
       {
         "level": 2,
         "title": "Complete machine diagrams",
-        "line": 152
+        "line": 187
       }
     ],
     "datedFilename": false,
@@ -28738,7 +28758,7 @@
       {
         "level": 2,
         "title": "Active release and historical backlog",
-        "line": 44
+        "line": 46
       }
     ],
     "datedFilename": false,

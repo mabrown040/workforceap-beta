@@ -34,6 +34,8 @@ The ranker keeps latent items outside its top slice when five higher-severity fi
 
 These observations help plan work; they are not extra ranked defects:
 
+- **Training assignment is not one object.** `CourseEnrollment` is the durable assignment; `User.enrolledProgram` is a redundant pointer that some recap/staff paths still trust. Three writers still bypass [upsertEquivalentCourseEnrollment](../../lib/member/courseEnrollmentAssignment.ts). Replacement order is in [architecture](architecture.md#what-is-redundant-breaking-or-due-for-replacement). KB-06 (test collection) did not collapse this.
+- **Four program catalogs.** App `PROGRAMS`, marketing `PROGRAMS` (TWC hours), tenant `OrganizationProgramCatalog`, and Prisma `Course` / B4B live lists answer different questions. Eight shared slugs already disagree on contact hours under an explicit skip list.
 - **Shared boundary concentration.** Prisma, authentication, tenant/GUC and role helpers have many static references. Use [incoming-reference lookup](README.md) before changing them. Reference counts are not runtime request volume.
 - **Two public rendering systems.** Astro output is copied into Next's `public/`, while dynamic routes and middleware also shape public URLs. Establish the actual owner and deployment precedence before migrating an overlapping URL.
 - **Configuration-dependent database protection.** Application checks, GUC transport, database roles and RLS enforcement are separate controls. Source cannot certify the deployed schema or role.

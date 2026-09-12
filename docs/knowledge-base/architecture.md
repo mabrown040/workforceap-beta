@@ -109,6 +109,41 @@ flowchart TB
 
 Anchors: [curriculum assignment](../../lib/member/curriculumAssignment.ts), [Coursera libraries](../../lib/coursera), [xAPI pipeline](../../lib/xapi/inboundStatementPipeline.ts), [course completion](../../lib/member/courseCompletion.ts), and [Coursera enrollment flow](../COURSERA-ENROLLMENT-FLOW.md). API polling, xAPI delivery and replay are different entry paths into shared progress logic. Inspect delegated helpers when changing a cron; counting route-local email calls misses downstream sends.
 
+## What is redundant, breaking, or due for replacement
+
+This is the current training/enrollment architecture, not a wish list. Collecting omitted tests (KB-06) does not collapse these layers. Restricted hot-path findings remain in the private bundle.
+
+### Redundant (two or more live sources for one concept)
+
+| Concept | Live sources | What actually wins today |
+| --- | --- | --- |
+| Member's assigned program | `CourseEnrollment` (`isPrimary`) **and** `User.enrolledProgram` / `User.enrolledAt` | Schema already labels the user columns a temporary pointer. Dashboard state prefers the active/primary enrollment, then still returns it in a field named `enrolledProgram`. Weekly recap, partner attention, skill-mission fallbacks and several admin projections still read the user column. xAPI already prefers primary enrollment and only accepts the user column when a row mirrors it ([resolveInboundProgramSlug](../../lib/xapi/resolveInboundProgram.ts)). |
+| Enrollment write | Shared [upsertEquivalentCourseEnrollment](../../lib/member/courseEnrollmentAssignment.ts) **and** raw `courseEnrollment.create` / duplicated equivalent-row lookups | Apply, invite-accept, member enroll, admin program change, bulk-update and program-change-request go through the helper. Admin member-create, Coursera reconcile add-to-WAP, and B4B sync copy the alias lookup or call `create` directly. B4B then pins `User.enrolledProgram` separately and **refuses to overwrite a non-null mismatch**, so the two stores can diverge on purpose. |
+| Program definition | [App catalog](../../lib/content/programs.ts) (comments still call it the single source of truth), [marketing catalog](../../marketing/src/data/programs.ts) (TWC price list), [tenant `OrganizationProgramCatalog`](../../lib/platform/programCatalog.ts), Prisma `Course` rows, curriculum manifests | Assignment and dashboard use the app catalog + stored `curriculumVersion`. Public hours/price lists use marketing. Tenant rows gate which slugs are enrollable. Course lists at runtime try B4B, then `Course` rows, then static `program.courses`. These are not the same object. |
+| Public URL | Astro output copied into `public/` **and** Next journeys + middleware | Owner is per URL, not per framework. |
+| Portal UI | `--wa-*` kit **and** Astryx overlays **and** leftover `--color-*` aliases | New kit work uses `--wa-*`. New overlays use Astryx. Mixing them inside kit components is a defect, not coexistence. |
+| Email send | [lib/email.ts](../../lib/email.ts) templates **and** [lib/email/send.ts](../../lib/email/send.ts) transport | Templates wrap transport. Counting one file's call sites misses the other. |
+
+### Breaking (failure paths that exist in source today)
+
+- **Dual program pointer.** A primary `CourseEnrollment` and a non-null `User.enrolledProgram` can name different programs. Recap and some staff queues follow the user column; training and xAPI follow enrollment. That is a live split, not a naming quirk.
+- **Bypass writers.** Admin create and reconcile `create` skip alias consolidation and the helper's "existing progress stays on legacy curriculum" rule. A second insert for an equivalent slug hits `@@unique([userId, programSlug])` instead of updating the existing row.
+- **Two catalogs already disagree.** [programCatalogParity.test.ts](../../lib/content/programCatalogParity.test.ts) skips eight shared slugs, including Security+ (marketing 40 hours / 4 courses vs app 30 hours / 3). The skipped tests make CI green while TWC hours and member denominators differ.
+- **Auth and application DB are not one transaction.** Signup can leave a Supabase identity without matching Prisma rows. Recovery is route-specific.
+- **GUC/RLS is not on unless enabled.** `withApiGuc` / `withTenantScope` in a route is not proof the database will refuse a cross-tenant write.
+- **Restricted recovery/authz defects** (billing state, privileged-account admin, tenant response/candidate scope, guardian-consent token spend, transaction flattening) stay in KB-AUDIT-20260912. Do not re-derive them from this map.
+
+### Replacement order (do not skip steps)
+
+1. **One enrollment writer.** Route remaining `courseEnrollment.create` / copied alias lookups through `upsertEquivalentCourseEnrollment`. Keep curriculumVersion immutable on retry.
+2. **One read resolver.** Every product path that needs "the member's program" calls the same helper: primary `CourseEnrollment`, else mirrored legacy pointer, else none. Stop adding new `User.enrolledProgram` reads.
+3. **Demote the user columns to a derived projection.** Writers may keep filling them until recap, partner queues and leftover admin views migrate. Then drop the columns.
+4. **One public catalog for hours/titles.** Reconcile marketing vs app (remove `KNOWN_HOUR_DRIFT` by making one list authoritative) before treating either as TWC-accurate.
+5. **Do not promote Prisma `Course` or B4B live lists to assignment authority** until curriculumVersion and the app catalog agree. Live Coursera contents are evidence, not the enrollment contract.
+6. **Leave Astro/Next and kit/Astryx as coexistence, not merge projects**, unless a specific overlapping URL or surface is being migrated with an owner.
+
+KB-06 made omitted Node suites visible. It did not replace these sources of truth. WAP-14 notification reliability is a separate owner and is not this replacement list.
+
 ## Communication and asynchronous work
 
 ```mermaid

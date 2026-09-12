@@ -72,7 +72,7 @@ export function isResumeUploadFileLike(value: unknown): value is ResumeUploadFil
 }
 
 export interface PreparedResumeUpload {
-  arrayBuffer: ArrayBuffer;
+  buffer: Buffer;
   extension: ResumeUploadExtension;
   contentType: string;
   text: string;
@@ -119,7 +119,7 @@ export async function prepareResumeUpload(file: unknown): Promise<PreparedResume
   if (!hasCompatibleMimeType(extension, file.type || '')) fail('invalid_file_type');
 
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const buffer = Buffer.isBuffer(arrayBuffer) ? arrayBuffer : Buffer.from(arrayBuffer);
   if (buffer.length > MAX_RESUME_UPLOAD_SIZE) fail('file_too_large');
   if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
     fail('invalid_file_type');
@@ -136,7 +136,7 @@ export async function prepareResumeUpload(file: unknown): Promise<PreparedResume
   if (!hasSubstantiveResumeText(safeText)) fail('resume_text_unreadable');
 
   return {
-    arrayBuffer,
+    buffer,
     extension,
     contentType: MIME_BY_EXTENSION[extension],
     text: safeText,
